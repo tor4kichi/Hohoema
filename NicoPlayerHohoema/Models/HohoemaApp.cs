@@ -48,7 +48,7 @@ namespace NicoPlayerHohoema.Models
 			HohoemaApp.UIDispatcher = Window.Current.CoreWindow.Dispatcher;
 
 			var app = new HohoemaApp(ea, dialogService);
-			app.MediaManager = await NiconicoMediaManager.Create(app);
+			app.CacheManager = await VideoCacheManager.Create(app);
             
             await app.LoadUserSettings();
 
@@ -758,7 +758,7 @@ namespace NicoPlayerHohoema.Models
 
                 try
                 {
-                    MediaManager.StopCacheDownload();
+                    CacheManager.StopCacheDownload();
 				}
 				catch { }
 
@@ -884,7 +884,7 @@ namespace NicoPlayerHohoema.Models
                 // フォルダーの移行作業を開始
 
                 // 現在あるダウンロードタスクは必ず終了させる必要があります
-                MediaManager?.StopCacheDownload();
+                CacheManager?.StopCacheDownload();
                 /*
                 // v0.4.0以降の移行処理
                 if (_DownloadFolder != null)
@@ -990,7 +990,7 @@ namespace NicoPlayerHohoema.Models
 		
 		public async Task<bool> ChangeUserDataFolder()
 		{
-            MediaManager.StopCacheDownload();
+            CacheManager.StopCacheDownload();
 
 
 			try
@@ -1038,9 +1038,9 @@ namespace NicoPlayerHohoema.Models
 			{
 				try
 				{
-					if (MediaManager != null)
+					if (CacheManager != null)
 					{
-						await MediaManager.OnCacheFolderChanged();
+						await CacheManager.OnCacheFolderChanged();
 					}
 				}
 				catch { }
@@ -1234,7 +1234,7 @@ namespace NicoPlayerHohoema.Models
 
 		public void Dispose()
 		{
-			MediaManager?.Dispose();
+			CacheManager?.Dispose();
 			LoggingChannel?.Dispose();
 		}
 
@@ -1409,7 +1409,7 @@ namespace NicoPlayerHohoema.Models
 			set { SetProperty(ref _NiconicoContext, value); }
 		}
 
-		public NiconicoMediaManager MediaManager { get; private set; }
+		public VideoCacheManager CacheManager { get; private set; }
 
 		public NiconicoContentProvider ContentProvider { get; private set; }
 

@@ -95,13 +95,7 @@ namespace NicoPlayerHohoema.Models
 
         protected override Task OnInitializeAsync(CancellationToken token)
         {
-            return Windows.System.Threading.ThreadPool.RunAsync(async (x) => 
-            {
-                await SyncAll(token);
-            },
-            Windows.System.Threading.WorkItemPriority.Low
-            )
-            .AsTask();
+            return SyncAll(token);
         }
 
 

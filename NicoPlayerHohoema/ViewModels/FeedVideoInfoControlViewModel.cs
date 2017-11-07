@@ -12,8 +12,8 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class FeedVideoInfoControlViewModel : VideoInfoControlViewModel
 	{
-		public FeedVideoInfoControlViewModel(FeedItem feedItem, IFeedGroup feedGroup, NicoVideo nicoVideo, PageManager pageMan)
-			: base(nicoVideo, pageMan)
+		public FeedVideoInfoControlViewModel(FeedItem feedItem, IFeedGroup feedGroup)
+			: base(feedItem.VideoId)
 		{
 			IsUnread = feedItem.ToReactivePropertyAsSynchronized(x => x.IsUnread)
 				.AddTo(_CompositeDisposable);

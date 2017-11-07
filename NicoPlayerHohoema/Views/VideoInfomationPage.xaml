@@ -44,6 +44,24 @@
                 </VisualState>
 
             </VisualStateGroup>
+            
+            
+            <!-- Channel Owned Video -->
+            
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsChannelOwnedVideo}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+
+                        <Setter Target="OpenOwnerVideosButton.Visibility" Value="Collapsed" />
+                        <Setter Target="OwnerInfoPageButton.IsEnabled" Value="False" />
+
+                    </VisualState.Setters>
+                </VisualState>
+
+            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
         
         <toolkit:DockPanel x:Name="ContentLayout" 
@@ -212,7 +230,10 @@
 
                                 <StackPanel Orientation="Horizontal" >
 
-                                    <Button Command="{Binding OpenOwnerUserPageCommand}">
+                                    <Button x:Name="OwnerInfoPageButton"
+                                            Command="{Binding OpenOwnerUserPageCommand}"
+                                            
+                                            >
                                         <StackPanel Orientation="Horizontal">
                                             <Image Source="{Binding OwnerIconUrl}"
                                            Height="36"
@@ -229,7 +250,8 @@
 
                                     <Border Width="16" />
 
-                                    <HyperlinkButton Content="動画一覧"
+                                    <HyperlinkButton x:Name="OpenOwnerVideosButton"
+                                            Content="動画一覧"
                                          Command="{Binding OpenOwnerUserVideoPageCommand}"
                                          >
 

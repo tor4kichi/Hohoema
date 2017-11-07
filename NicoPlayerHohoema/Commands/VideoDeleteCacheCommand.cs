@@ -19,16 +19,15 @@ namespace NicoPlayerHohoema.Commands
             {
                 var content = parameter as Interfaces.IVideoContent;
 
-                var mediaManager = HohoemaCommnadHelper.GetHohoemaApp().MediaManager;
-                var nicoVideo = mediaManager.GetNicoVideo(content.Id);
-
-                if (nicoVideo.GetAllQuality().ToArray().Any(x => x.IsCached))
+                var cacheManager = HohoemaCommnadHelper.GetHohoemaApp().CacheManager;
+                var cached = await cacheManager.EnumerateCacheVideosAsync();
+                if (cached.Any(x => x.RawVideoId == content.Id))
                 {
                     // キャッシュ済みがある場合は、削除確認を行う
 
 
                     var dialog = new MessageDialog(
-                    $"{nicoVideo.Title} の キャッシュデータ（全ての画質）を削除します。この操作は元に戻せません。",
+                    $"{content.Label} の キャッシュデータ（全ての画質）を削除します。この操作は元に戻せません。",
                     "キャッシュの削除確認"
                     );
 
@@ -37,7 +36,7 @@ namespace NicoPlayerHohoema.Commands
                         Label = "キャッシュを削除",
                         Invoked = async (uicommand) =>
                         {
-                            await nicoVideo.CancelCacheRequest();
+                            await cacheManager.DeleteCachedVideo(content.Id);
                         }
                     });
                     dialog.Commands.Add(new UICommand()
@@ -55,7 +54,7 @@ namespace NicoPlayerHohoema.Commands
                     // キャッシュがいずれも未完了の場合は
                     // 確認無しで削除
 
-                    await nicoVideo.CancelCacheRequest();
+                    await cacheManager.CacheRequestCancel(content.Id);
                 }
             }
         }

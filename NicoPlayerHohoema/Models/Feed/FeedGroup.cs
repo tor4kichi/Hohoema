@@ -215,9 +215,8 @@ namespace NicoPlayerHohoema.Models
                     {
                         try
                         {
-                            var nicoVideo = HohoemaApp.MediaManager.GetNicoVideo(addItem.VideoId);
-
-                            addItem.SubmitDate = nicoVideo.PostedAt;
+                            var videoInfo = await HohoemaApp.ContentProvider.GetNicoVideoInfo(addItem.VideoId);
+                            addItem.SubmitDate = videoInfo.PostedAt;
                         }
                         catch (Exception ex)
                         {

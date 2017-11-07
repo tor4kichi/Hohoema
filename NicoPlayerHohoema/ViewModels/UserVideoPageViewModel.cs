@@ -32,10 +32,12 @@ namespace NicoPlayerHohoema.ViewModels
             if (User != null)
             {
                 UpdateTitle(User.Nickname + "さんの投稿動画一覧");
+                IsOwnerVideoPrivate = User.IsOwnerVideoPrivate;
+                UserName = User.Nickname;
             }
             else
             {
-                UpdateTitle("投稿動画一覧");
+//                UpdateTitle("投稿動画一覧");
             }
 
             base.OnNavigatedTo(e, viewModelState);
@@ -50,15 +52,16 @@ namespace NicoPlayerHohoema.ViewModels
 
             User = await HohoemaApp.ContentProvider.GetUserDetail(UserId);
 
-			if (User != null)
+            if (User != null)
 			{
 				UpdateTitle(User.Nickname + "さんの投稿動画一覧");
-			}
-			else
+                IsOwnerVideoPrivate = User.IsOwnerVideoPrivate;
+                UserName = User.Nickname;
+            }
+            else
 			{
-				UpdateTitle("投稿動画一覧");
+//				UpdateTitle("投稿動画一覧");
 			}
-			UserName = User.Nickname;
         }
 
 		protected override void PostResetList()
@@ -100,8 +103,14 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _UserName, value); }
 		}
 
+        private bool _IsOwnerVideoPrivate;
+        public bool IsOwnerVideoPrivate
+        {
+            get { return _IsOwnerVideoPrivate; }
+            set { SetProperty(ref _IsOwnerVideoPrivate, value); }
+        }
 
-		public UserDetail User { get; private set; }
+        public UserDetail User { get; private set; }
 
 		
 		public string UserId { get; private set; }
@@ -112,7 +121,7 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 		public uint UserId { get; }
 		public NiconicoContentProvider ContentFinder { get; }
-		public NiconicoMediaManager MediaManager { get; }
+		public VideoCacheManager MediaManager { get; }
         public HohoemaApp HohoemaApp { get; }
 		public PageManager PageManager { get; }
 
@@ -125,9 +134,9 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			UserId = uint.Parse(userId);
 			User = userDetail;
-			ContentFinder = HohoemaApp.ContentProvider;
-			MediaManager = HohoemaApp.MediaManager;
             HohoemaApp = hohoemaApp;
+            ContentFinder = HohoemaApp.ContentProvider;
+			MediaManager = HohoemaApp.CacheManager;
             PageManager = pageManager;
 			_ResList = new List<UserVideoResponse>();
 		}
@@ -156,13 +165,9 @@ namespace NicoPlayerHohoema.ViewModels
             var items = res.Items.Skip(head).Take(count);
             return items.Select(x =>
             {
-                var nicoVideo = HohoemaApp.MediaManager.GetNicoVideo(x.VideoId);
-
-                nicoVideo.PreSetTitle(x.Title);
-                nicoVideo.PreSetThumbnailUrl(x.ThumbnailUrl.AbsoluteUri);
-                nicoVideo.PreSetVideoLength(x.Length);
-
-                return new VideoInfoControlViewModel(nicoVideo, PageManager, isNgEnabled: false);
+                var vm = new VideoInfoControlViewModel(x.VideoId, isNgEnabled: false);
+                vm.SetupDisplay(x);
+                return vm;
             })
             .ToAsyncEnumerable();
         }

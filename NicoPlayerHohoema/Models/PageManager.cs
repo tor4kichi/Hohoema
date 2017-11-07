@@ -27,7 +27,6 @@ namespace NicoPlayerHohoema.Models
 
 		public static readonly HashSet<HohoemaPageType> IgnoreRecordNavigationStack = new HashSet<HohoemaPageType>
 		{
-			HohoemaPageType.ConfirmWatchHurmfulVideo,
             HohoemaPageType.Splash,
             HohoemaPageType.Login,
 		};
@@ -122,6 +121,16 @@ namespace NicoPlayerHohoema.Models
 
 				return;
 			}
+
+            if (path.StartsWith("https://com.nicovideo.jp/user/"))
+            {
+                var userId = uri.AbsolutePath.Split('/').Last();
+                OpenPage(HohoemaPageType.UserInfo, userId);
+
+                return;
+            }
+
+            Debug.WriteLine($"Urlを処理できませんでした : " + uri.OriginalString);
 		}
 
 		public void OpenPage(HohoemaPageType pageType, object parameter = null, bool isForgetNavigation = false)

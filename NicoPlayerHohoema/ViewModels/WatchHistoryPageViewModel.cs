@@ -128,11 +128,13 @@ namespace NicoPlayerHohoema.ViewModels
 		public DateTime LastWatchedAt { get; set; }
 		public uint UserViewCount { get; set; }
 
-		public HistoryVideoInfoControlViewModel(uint viewCount, NicoVideo nicoVideo, PageManager pageManager)
-			: base(nicoVideo, pageManager, isNgEnabled:false)
+		public HistoryVideoInfoControlViewModel(string videoId, uint viewCount, DateTime lastWatchedAt)
+			: base(videoId, isNgEnabled:false)
 		{
             UserViewCount = viewCount;
-		}
+            LastWatchedAt = lastWatchedAt;
+
+        }
 
 
 
@@ -167,13 +169,17 @@ namespace NicoPlayerHohoema.ViewModels
         {
             return Task.FromResult(_HistoriesResponse.Histories.Skip(head).Take(count).Select(x => 
             {
-                var nicoVideo = _HohoemaApp.MediaManager.GetNicoVideo(x.ItemId);
-
-                return new HistoryVideoInfoControlViewModel(
-                    x.WatchCount
-                    , nicoVideo
-                    , _PageManager
+                var vm = new HistoryVideoInfoControlViewModel(
+                    x.ItemId
+                    , x.WatchCount
+                    , x.WatchedAt.Date
                     );
+
+                vm.SetTitle(x.Title);
+                vm.SetThumbnailImage(x.ThumbnailUrl.OriginalString);
+                vm.SetVideoDuration(x.Length);
+                
+                return vm;
             })
             .ToAsyncEnumerable()
             );

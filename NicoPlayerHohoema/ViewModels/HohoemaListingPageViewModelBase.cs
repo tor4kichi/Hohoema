@@ -283,7 +283,7 @@ namespace NicoPlayerHohoema.ViewModels
 			NowLoading.Value = true;
 		}
 
-		private void CompleteLoadingItems()
+		private async void CompleteLoadingItems()
 		{
 			NowLoading.Value = false;
 
@@ -298,7 +298,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 if (item is HohoemaListingPageItemBase)
                 {
-                    (item as HohoemaListingPageItemBase).DeferredUpdate();
+                    await (item as HohoemaListingPageItemBase).DeferredUpdate();
                 }
             }
         }

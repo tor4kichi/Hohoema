@@ -76,6 +76,13 @@ namespace NicoPlayerHohoema.Models.Db
 			}
 		}
 
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="rawVideoId"></param>
+        /// <remarks>[deprecated]</remarks>
+        /// <returns></returns>
 		public static async Task<NicoVideoInfo> GetEnsureNicoVideoInfoAsync(string rawVideoId)
 		{
 			using (var db = new NicoVideoDbContext())
@@ -87,7 +94,7 @@ namespace NicoPlayerHohoema.Models.Db
 					info = new NicoVideoInfo()
 					{
 						RawVideoId = rawVideoId,
-						LastUpdated = DateTime.Now
+						LastUpdated = DateTime.MinValue
 					};
 
 					using (var releaser = await _AsyncLock.LockAsync())
@@ -101,7 +108,13 @@ namespace NicoPlayerHohoema.Models.Db
 			}
 		}
 
-		public static async Task UpdateAsync(NicoVideoInfo info)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="info"></param>
+        /// <remarks>[deprecated]</remarks>
+        /// <returns></returns>
+        public static async Task UpdateAsync(NicoVideoInfo info)
 		{
 			using (var releaser = await _AsyncLock.LockAsync())
 			using (var db = new NicoVideoDbContext())

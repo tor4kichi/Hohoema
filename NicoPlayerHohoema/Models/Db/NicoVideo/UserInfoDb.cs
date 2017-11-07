@@ -13,6 +13,15 @@ namespace NicoPlayerHohoema.Models.Db
 	{
 		readonly static AsyncLock _AsyncLock = new AsyncLock();
 
+
+        public static IEnumerable<UserInfo> GetAll()
+        {
+            using (var db = new NicoVideoDbContext())
+            {
+                return db.Users.ToArray();
+            }
+        }
+
 		public static async Task AddOrReplaceAsync(string userId, string name, string iconUrl = null)
 		{
 
@@ -79,6 +88,15 @@ namespace NicoPlayerHohoema.Models.Db
 				db.SaveChanges();
 			}
 		}
-	}
+
+        public static void RemoveRange(IEnumerable<UserInfo> infoItems)
+        {
+            using (var db = new NicoVideoDbContext())
+            {
+                db.Users.RemoveRange(infoItems);
+                db.SaveChanges();
+            }
+        }
+    }
 
 }

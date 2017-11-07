@@ -139,7 +139,7 @@ namespace NicoPlayerHohoema.ViewModels
 	public class FeedVideoIncrementalSource : HohoemaIncrementalSourceBase<FeedVideoInfoControlViewModel>
 	{
 		FeedManager _FavFeedManager;
-		NiconicoMediaManager _NiconicoMediaManager;
+		VideoCacheManager _NiconicoMediaManager;
         HohoemaApp _HohoemaApp;
         PageManager _PageManager;
 		IFeedGroup _FeedGroup;
@@ -150,7 +150,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			_FeedGroup = feedGroup;
 			_FavFeedManager = hohoemaApp.FeedManager;
-			_NiconicoMediaManager = hohoemaApp.MediaManager;
+			_NiconicoMediaManager = hohoemaApp.CacheManager;
             _HohoemaApp = hohoemaApp;
             _PageManager = pageManager;
 		}
@@ -161,11 +161,14 @@ namespace NicoPlayerHohoema.ViewModels
         {
             return Task.FromResult(_FeedGroup.FeedItems.Skip(head).Take(count).Select(x => 
             {
-                var nicoVideo = _HohoemaApp.MediaManager.GetNicoVideo(x.VideoId);
-                nicoVideo.PreSetTitle(x.Title);
-                nicoVideo.PreSetPostAt(x.SubmitDate);
+//                nicoVideo.PreSetTitle(x.Title);
+//                nicoVideo.PreSetPostAt(x.SubmitDate);
 
-                return new FeedVideoInfoControlViewModel(x, _FeedGroup, nicoVideo, _PageManager);
+                var vm = new FeedVideoInfoControlViewModel(x, _FeedGroup);
+                
+                vm.SetTitle(x.Title);
+                vm.SetSubmitDate(x.SubmitDate);
+                return vm;
             })
             .ToAsyncEnumerable()
             );

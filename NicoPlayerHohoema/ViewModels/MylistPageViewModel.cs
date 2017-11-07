@@ -672,8 +672,9 @@ namespace NicoPlayerHohoema.ViewModels
             return Task.FromResult(_MylistGroupInfo.PlaylistItems.Skip(head).Take(count)
                 .Select(x => 
                 {
-                    var nicoVideo = _HohoemaApp.MediaManager.GetNicoVideo(x.ContentId);
-                    return new VideoInfoControlViewModel(nicoVideo, _PageManager, isNgEnabled: false, playlistItem: x);
+                    var vm = new VideoInfoControlViewModel(x.ContentId, isNgEnabled: false, playlistItem: x);
+                    vm.SetTitle(x.Title);
+                    return vm;
                 })
                 .ToAsyncEnumerable()
                 );
@@ -723,18 +724,20 @@ namespace NicoPlayerHohoema.ViewModels
 
                 return items.Skip(head).Take(count).Select(x => 
                 {
-                    var nicoVideo = _HohoemaApp.MediaManager.GetNicoVideo(x.ContentId);
-                    return new VideoInfoControlViewModel(nicoVideo, _PageManager, isNgEnabled: false, playlistItem: x);
-                }).ToAsyncEnumerable();
+                    var vm = new VideoInfoControlViewModel(x.ContentId, isNgEnabled: false, playlistItem: x);
+                    vm.SetTitle(x.Title);
+                    return vm;
+                })
+                .ToAsyncEnumerable();
             }
             else
             {
                 var res = await _HohoemaApp.ContentProvider.GetMylistGroupVideo(MylistGroupId, (uint)head, (uint)count);
                 return res.MylistVideoInfoItems?.Select(x => 
                 {
-                    var nicoVideo = _HohoemaApp.MediaManager.GetNicoVideo(x.Video.Id);
-                    nicoVideo.PreSetTitle(x.Video.Title);
-                    return new VideoInfoControlViewModel(x, nicoVideo, _PageManager);
+                    var vm = new VideoInfoControlViewModel(x.Video.Id, isNgEnabled: false);
+                    vm.SetTitle(x.Video.Title);
+                    return vm;
                 }) 
                 .ToAsyncEnumerable()
                 ?? AsyncEnumerable.Empty<VideoInfoControlViewModel>();
@@ -785,8 +788,9 @@ namespace NicoPlayerHohoema.ViewModels
                 LocalMylist.PlaylistItems.Skip(head).Take(count)
                 .Select(x =>
                 {
-                    var nicoVideo = _HohoemaApp.MediaManager.GetNicoVideo(x.ContentId);
-                    return new VideoInfoControlViewModel(nicoVideo, _PageManager, isNgEnabled: false, playlistItem: x);
+                    var vm = new VideoInfoControlViewModel(x.ContentId, isNgEnabled: false, playlistItem: x);
+                    vm.SetTitle(x.Title);
+                    return vm;
                 })
                 .ToAsyncEnumerable()
                 );

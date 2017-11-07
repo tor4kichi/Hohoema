@@ -763,17 +763,9 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 return res.VideoInfoItems.Select(item =>
                 {
-                    var nicoVideo = _HohoemaApp.MediaManager.GetNicoVideo(item.Video.Id);
-
-                    nicoVideo.PreSetTitle(item.Video.Title);
-                    nicoVideo.PreSetPostAt(item.Video.UploadTime);
-                    nicoVideo.PreSetThumbnailUrl(item.Video.ThumbnailUrl.AbsoluteUri);
-                    nicoVideo.PreSetVideoLength(item.Video.Length);
-                    nicoVideo.PreSetViewCount(item.Video.ViewCount);
-                    nicoVideo.PreSetCommentCount(item.Thread.GetCommentCount());
-                    nicoVideo.PreSetMylistCount(item.Video.MylistCount);
-
-                    return new VideoInfoControlViewModel(nicoVideo, _PageManager);
+                    var vm = new VideoInfoControlViewModel(item.Video.Id);
+                    vm.SetupDisplay(item);
+                    return vm;
                 })
                 .ToAsyncEnumerable();
             }

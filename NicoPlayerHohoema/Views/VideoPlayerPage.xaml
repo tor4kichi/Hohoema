@@ -36,64 +36,6 @@
 
         <MenuFlyout x:Key="VideoOptionsFlyout">
 
-            
-
-            <MenuFlyoutSubItem Text="画質"
-                               Visibility="Collapsed"
-                                >
-
-                <MenuFlyoutItem Text="高画質" 
-                                Command="{Binding TogglePlayQualityCommand}"
-                                IsEnabled="{Binding IsAvailableDmcHighQuality.Value}"
-                                >
-                    <MenuFlyoutItem.CommandParameter>
-                        <model:NicoVideoQuality>Dmc_High</model:NicoVideoQuality>
-                    </MenuFlyoutItem.CommandParameter>
-                </MenuFlyoutItem>
-                <MenuFlyoutItem Text="中画質" 
-                                Command="{Binding TogglePlayQualityCommand}"
-                                IsEnabled="{Binding IsAvailableDmcMidiumQuality.Value}"
-                                >
-                    <MenuFlyoutItem.CommandParameter>
-                        <model:NicoVideoQuality>Dmc_Midium</model:NicoVideoQuality>
-                    </MenuFlyoutItem.CommandParameter>
-                </MenuFlyoutItem>
-                <MenuFlyoutItem Text="低画質" 
-                                Command="{Binding TogglePlayQualityCommand}"
-                                IsEnabled="{Binding IsAvailableDmcLowQuality.Value}"
-                                >
-                    <MenuFlyoutItem.CommandParameter>
-                        <model:NicoVideoQuality>Dmc_Low</model:NicoVideoQuality>
-                    </MenuFlyoutItem.CommandParameter>
-                </MenuFlyoutItem>
-                <MenuFlyoutItem Text="モバイル画質" 
-                                Command="{Binding TogglePlayQualityCommand}"
-                                IsEnabled="{Binding IsAvailableDmcMobileQuality.Value}"
-                                >
-                    <MenuFlyoutItem.CommandParameter>
-                        <model:NicoVideoQuality>Dmc_Mobile</model:NicoVideoQuality>
-                    </MenuFlyoutItem.CommandParameter>
-
-                </MenuFlyoutItem>
-
-                <MenuFlyoutItem Text="旧 オリジナル画質" 
-                                Command="{Binding TogglePlayQualityCommand}"
-                                IsEnabled="{Binding IsAvailableLegacyOriginalQuality.Value}"
-                                >
-                    <MenuFlyoutItem.CommandParameter>
-                        <model:NicoVideoQuality>Original</model:NicoVideoQuality>
-                    </MenuFlyoutItem.CommandParameter>
-                </MenuFlyoutItem>
-                <MenuFlyoutItem Text="旧 低画質" 
-                                Command="{Binding TogglePlayQualityCommand}"
-                                IsEnabled="{Binding IsAvailableLegacyLowQuality.Value}"
-                                >
-                    <MenuFlyoutItem.CommandParameter>
-                        <model:NicoVideoQuality>Low</model:NicoVideoQuality>
-                    </MenuFlyoutItem.CommandParameter>
-                </MenuFlyoutItem>
-            </MenuFlyoutSubItem>
-
             <MenuFlyoutSubItem Text="キャッシュ" >
                 <ToggleMenuFlyoutItem Text="旧 オリジナル画質"
                                       IsChecked="{Binding IsCacheLegacyOriginalQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"

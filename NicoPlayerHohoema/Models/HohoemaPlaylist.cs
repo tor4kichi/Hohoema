@@ -377,7 +377,7 @@ namespace NicoPlayerHohoema.Models
         // プレイリストが空だった場合、その場で再生を開始
         public void PlayVideo(string contentId, string title = "", NicoVideoQuality? quality = null)
         {
-            if (!NiconicoRegex.IsVideoId(contentId))
+            if (!NiconicoRegex.IsVideoId(contentId) && !int.TryParse(contentId, out var temp))
             {
                 return;
             }

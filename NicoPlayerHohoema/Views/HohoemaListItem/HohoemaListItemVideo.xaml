@@ -50,6 +50,7 @@
                                    Stretch="Uniform"
                                     VerticalAlignment="Center"
                                     VerticalContentAlignment="Center"
+                                    IsCacheEnabled="True"
                    >
                 </uwptoolkit:ImageEx>
 

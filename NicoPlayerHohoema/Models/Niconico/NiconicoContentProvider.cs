@@ -25,18 +25,21 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using NicoPlayerHohoema.Database;
 
 namespace NicoPlayerHohoema.Models
 {
 	/// <summary>
 	/// 検索やランキングなどコンテンツを見つける機能をサポートします
 	/// </summary>
-	public class NiconicoContentProvider : BindableBase
+	public class NiconicoContentProvider 
 	{
 		AsyncLock _NicoPageAccessLock = new AsyncLock();
 		DateTime LastPageApiAccessTime = DateTime.MinValue;
 		static TimeSpan PageAccessMinimumInterval = TimeSpan.FromSeconds(0.5);
 
+
+        static TimeSpan ThumbnailExpirationSpan { get; set; } = TimeSpan.FromMinutes(30);
 
         AsyncLock _ThumbnailAccessLock = new AsyncLock();
 
@@ -63,7 +66,15 @@ namespace NicoPlayerHohoema.Models
 			return Task.CompletedTask;
 		}
 
-		public async Task<ThumbnailResponse> GetThumbnailResponse(string rawVideoId)
+
+        /// <summary>
+        /// ニコニコ動画コンテンツの情報を取得します。
+        /// 内部DB、サムネイル、Watchページのアクセス情報から更新されたデータを提供します。
+        /// 
+        /// </summary>
+        /// <param name="rawVideoId"></param>
+        /// <returns></returns>
+        public async Task<Database.NicoVideo> GetNicoVideoInfo(string rawVideoId, bool requireLatest = false)
 		{
             if (Context == null)
             {
@@ -72,31 +83,76 @@ namespace NicoPlayerHohoema.Models
 
             using (var releaser = await _ThumbnailAccessLock.LockAsync())
             {
+                var info = NicoVideoDb.Get(rawVideoId);
+
+                // 最新情報が不要な場合は内部DBのキャッシュをそのまま返す
+                if (info != null && !requireLatest)
+                {
+                    if (info.LastUpdated > DateTime.Now - ThumbnailExpirationSpan)
+                    {
+                        return info;
+                    }
+                }
+
                 ThumbnailResponse res = null;
+                try
+                {
+                    res = await Helpers.ConnectionRetryUtil.TaskWithRetry(() =>
+                    {
+                        return Context.Video.GetThumbnailAsync(rawVideoId);
+                    },
+                    retryCount: 5,
+                    retryInterval: 1000
+                    );
 
-                res = await Helpers.ConnectionRetryUtil.TaskWithRetry(() =>
-                {
-                    return Context.Video.GetThumbnailAsync(rawVideoId);
-                }, 
-                retryCount:5,
-                retryInterval:1000
-                );
-                
-                if (res != null)
-                {
-                    await UserInfoDb.AddOrReplaceAsync(res.UserId.ToString(), res.UserName, res.UserIconUrl.AbsoluteUri);
-                    Debug.WriteLine("サムネ取得:" + rawVideoId);
+                    if (info == null)
+                    {
+                        info = new Database.NicoVideo()
+                        {
+                            RawVideoId = rawVideoId
+                        };
+                    }
+
+                    info.Title = res.Title;
+                    info.Length = res.Length;
+                    info.VideoId = res.Id;
+                    info.Length = res.Length;
+                    info.PostedAt = res.PostedAt.DateTime;
+                    info.ThumbnailUrl = res.ThumbnailUrl.AbsoluteUri;
+
+                    info.ViewCount = (int)res.ViewCount;
+                    info.MylistCount = (int)res.MylistCount;
+                    info.CommentCount = (int)res.CommentCount;
+                    info.MovieType = res.MovieType;
+                    info.Tags = res.Tags.Value.Select(x => new NicoVideoTag()
+                    {
+                        Id = x.Value,
+                        IsLocked = x.Lock,
+                        IsCategory = x.Category
+                    }
+                    ).ToList();
+                    info.Owner = new NicoVideoOwner()
+                    {
+                        ScreenName = res.UserName,
+                        IconUrl = res.UserIconUrl.OriginalString,
+                        OwnerId = res.UserId.ToString(),
+                        UserType = res.UserType
+                    };
+
+                    NicoVideoDb.AddOrUpdate(info);
+                    NicoVideoOwnerDb.AddOrUpdate(info.Owner);
                 }
-                else
+                catch (Exception ex) when (ex.Message.Contains("DELETE"))
                 {
-                    Debug.WriteLine("サムネ取得失敗:" + rawVideoId);
+                    info.IsDeleted = true;
+                    NicoVideoDb.AddOrUpdate(info);
                 }
 
-                return res;
+                return info;
             }
 		}
 
-		public async Task<DmcWatchData> GetDmcWatchResponse(string rawVideoId, HarmfulContentReactionType harmfulContentReaction = HarmfulContentReactionType.None)
+		public async Task<DmcWatchData> GetDmcWatchResponse(string rawVideoId)
 		{
             if (Context == null)
             {
@@ -111,40 +167,100 @@ namespace NicoPlayerHohoema.Models
 
             await WaitNicoPageAccess();
 
+            // TODO: 有害動画に指定されたページにアクセスした場合の対応
+            // 有害動画ページにアクセスしたら一度だけ確認ページをダイアログ表示する
+            // （ユーザーのアクションによらず）再度ページを読み込んで、もう一度HurmfulContentが返ってきた場合はnullを返す
+
+            HarmfulContentReactionType harmfulContentReactionType = HarmfulContentReactionType.None;
 
 			using (var releaser = await _NicoPageAccessLock.LockAsync())
 			{
-				var data = await Helpers.ConnectionRetryUtil.TaskWithRetry(() =>
-				{
-					return Context.Video.GetDmcWatchResponseAsync(
-						rawVideoId
-						, harmfulReactType: harmfulContentReaction
-                        );
-				});
-
-                var res = data?.DmcWatchResponse;
-
-				if (res != null && res.Owner != null)
-				{
-					var uploaderInfo = res.Owner;
-					await UserInfoDb.AddOrReplaceAsync(uploaderInfo.Id, uploaderInfo.Nickname, uploaderInfo.IconURL);
-				}
-
-                if (res != null)
+                try
                 {
-                    var entity = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(rawVideoId);
-                    if (entity != null)
+                    var data = await Helpers.ConnectionRetryUtil.TaskWithRetry(() =>
                     {
-                        await VideoInfoDb.UpdateNicoVideoInfo(entity, res);
+                        return Context.Video.GetDmcWatchResponseAsync(
+                            rawVideoId
+                            , harmfulReactType: harmfulContentReactionType
+                            );
+                    });
+
+                    var res = data?.DmcWatchResponse;
+
+                    if (res != null)
+                    {
+                        var info = NicoVideoDb.Get(rawVideoId);
+                        if (info == null)
+                        {
+                            info = new Database.NicoVideo()
+                            {
+                                RawVideoId = rawVideoId
+                            };
+                        }
+
+                        info.VideoId = res.Video.Id;
+                        info.Title = res.Video.Title;
+                        info.Length = TimeSpan.FromSeconds(res.Video.Duration);
+                        info.PostedAt = DateTime.Parse(res.Video.PostedDateTime);
+                        info.ThumbnailUrl = res.Video.ThumbnailURL;
+
+                        info.ViewCount = res.Video.ViewCount;
+                        info.MylistCount = res.Video.MylistCount;
+                        info.CommentCount = res.Thread.CommentCount;
+
+                        switch (res.Video.MovieType)
+                        {
+                            case @"mp4":
+                                info.MovieType = MovieType.Mp4;
+                                break;
+                            case @"flv":
+                                info.MovieType = MovieType.Flv;
+                                break;
+                            case @"swf":
+                                info.MovieType = MovieType.Swf;
+                                break;
+                        }
+
+                        info.Tags = res.Tags.Select(x => new NicoVideoTag()
+                        {
+                            Name = x.Name,
+                            IsCategory = x.IsCategory,
+                            IsLocked = x.IsLocked,
+                            Id = x.Id,
+                            IsDictionaryExists = x.IsDictionaryExists
+                        }).ToList();
+
+
+                        info.Owner = new NicoVideoOwner()
+                        {
+                            ScreenName = res.Owner?.Nickname ?? res.Channel?.Name,
+                            IconUrl = res.Owner?.IconURL ?? res.Channel?.IconURL,
+                            OwnerId = res.Owner?.Id ?? res.Channel?.GlobalId,
+                            UserType = res.Channel != null ? UserType.Channel : UserType.User
+                        };
+
+                        NicoVideoDb.AddOrUpdate(info);
+                        NicoVideoOwnerDb.AddOrUpdate(info.Owner);
                     }
+
+                    return data;
+                }
+                catch (AggregateException ea) when (ea.Flatten().InnerExceptions.Any(e => e is ContentZoningException))
+                {
+                    throw new NotImplementedException("not implement hurmful video content.");
+                }
+                catch (ContentZoningException)
+                {
+                    throw new NotImplementedException("not implement hurmful video content.");
                 }
 
-				return data;
+
+                
 			}
 			
 		}
 
-        public async Task<WatchApiResponse> GetWatchApiResponse(string rawVideoId, bool forceLowQuality = false, HarmfulContentReactionType harmfulContentReaction = HarmfulContentReactionType.None)
+        public async Task<WatchApiResponse> GetWatchApiResponse(string rawVideoId, bool forceLowQuality = false)
         {
             if (Context == null)
             {
@@ -160,33 +276,85 @@ namespace NicoPlayerHohoema.Models
             await WaitNicoPageAccess();
 
 
+            // TODO: 有害動画に指定されたページにアクセスした場合の対応
+            HarmfulContentReactionType harmfulContentReactionType = HarmfulContentReactionType.None;
+
             using (var releaser = await _NicoPageAccessLock.LockAsync())
             {
-                var res = await Helpers.ConnectionRetryUtil.TaskWithRetry(() =>
+                try
                 {
-                    return Context.Video.GetWatchApiAsync(
-                        rawVideoId
-                        , forceLowQuality: forceLowQuality
-                        , harmfulReactType: harmfulContentReaction
-                        );
-                });
-
-                if (res != null && res.UploaderInfo != null)
-                {
-                    var uploaderInfo = res.UploaderInfo;
-                    await UserInfoDb.AddOrReplaceAsync(uploaderInfo.id, uploaderInfo.nickname, uploaderInfo.icon_url);
-                }
-
-                if (res != null)
-                {
-                    var data = await VideoInfoDb.GetEnsureNicoVideoInfoAsync(rawVideoId);
-                    if (data != null)
+                    var res = await Helpers.ConnectionRetryUtil.TaskWithRetry(() =>
                     {
-                        await VideoInfoDb.UpdateNicoVideoInfo(data, res);
+                        return Context.Video.GetWatchApiAsync(
+                            rawVideoId
+                            , forceLowQuality: forceLowQuality
+                            , harmfulReactType: harmfulContentReactionType
+                            );
+                    });
+
+                    var info = NicoVideoDb.Get(rawVideoId);
+                    if (info == null)
+                    {
+                        info = new Database.NicoVideo()
+                        {
+                            RawVideoId = rawVideoId
+                        };
                     }
+
+                    info.VideoId = res.videoDetail.id;
+                    info.Title = res.videoDetail.title;
+                    info.Length = res.videoDetail.length.HasValue ? TimeSpan.FromSeconds(res.videoDetail.length.Value) : TimeSpan.Zero;
+                    info.PostedAt = DateTime.Parse(res.videoDetail.postedAt);
+                    info.ThumbnailUrl = res.videoDetail.thumbnail;
+
+                    info.ViewCount = res.videoDetail.viewCount ?? 0;
+                    info.MylistCount = res.videoDetail.mylistCount ?? 0;
+                    info.CommentCount = res.videoDetail.commentCount ?? 0;
+                    switch (res.flashvars.movie_type)
+                    {
+                        case @"mp4":
+                            info.MovieType = MovieType.Mp4;
+                            break;
+                        case @"flv":
+                            info.MovieType = MovieType.Flv;
+                            break;
+                        case @"swf":
+                            info.MovieType = MovieType.Swf;
+                            break;
+                    }
+                    info.Tags = res.videoDetail.tagList.Select(x => new NicoVideoTag()
+                    {
+                        Name = x.tag,
+                        IsCategory = x.cat ?? false,
+                        IsLocked = x.lck == "1",  /* TODO: lck 値が不明です */
+                        Id = x.id,
+                        IsDictionaryExists = x.dic ?? false
+                    }).ToList();
+
+                    info.Owner = new NicoVideoOwner()
+                    {
+                        ScreenName = res.UploaderInfo?.nickname ?? res.channelInfo?.name,
+                        IconUrl = res.UploaderInfo?.icon_url ?? res.channelInfo?.icon_url,
+                        OwnerId = res.UploaderInfo?.id ?? res.channelInfo?.id,
+                        UserType = res.channelInfo != null ? UserType.Channel : UserType.User
+                    };
+
+                    NicoVideoDb.AddOrUpdate(info);
+                    NicoVideoOwnerDb.AddOrUpdate(info.Owner);
+
+                    return res;
+                }
+                catch (AggregateException ea) when (ea.Flatten().InnerExceptions.Any(e => e is ContentZoningException))
+                {
+                    throw new NotImplementedException("not implement hurmful video content.");
+                }
+                catch (ContentZoningException e)
+                {
+                    throw new NotImplementedException("not implement hurmful video content.");
                 }
 
-                return res;
+
+
             }
 
         }
@@ -210,7 +378,19 @@ namespace NicoPlayerHohoema.Models
 
 			if (user != null)
 			{
-				await UserInfoDb.AddOrReplaceAsync(userId, user.Nickname, user.ThumbnailUri);
+                var owner = NicoVideoOwnerDb.Get(userId);
+                if (owner == null)
+                {
+                    owner = new NicoVideoOwner()
+                    {
+                        OwnerId = userId,
+                        UserType = UserType.User
+                    };
+                }
+                owner.ScreenName = user.Nickname;
+                owner.IconUrl = user.ThumbnailUri;
+
+                NicoVideoOwnerDb.AddOrUpdate(owner);
 			}
 
 			return user;
@@ -225,8 +405,20 @@ namespace NicoPlayerHohoema.Models
 
 			if (userDetail != null)
 			{
-				await UserInfoDb.AddOrReplaceAsync(userId, userDetail.Nickname, userDetail.ThumbnailUri);
-			}
+                var owner = NicoVideoOwnerDb.Get(userId);
+                if (owner == null)
+                {
+                    owner = new NicoVideoOwner()
+                    {
+                        OwnerId = userId,
+                        UserType = UserType.User
+                    };
+                }
+                owner.ScreenName = userDetail.Nickname;
+                owner.IconUrl = userDetail.ThumbnailUri;
+
+                NicoVideoOwnerDb.AddOrUpdate(owner);
+            }
 
 			return userDetail;
 		}

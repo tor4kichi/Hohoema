@@ -443,14 +443,12 @@ namespace NicoPlayerHohoema.ViewModels
             return Task.FromResult(RankingRss.Channel.Items.Skip(head).Take(count)
                 .Select((x, index) =>
             {
-                var nicoVideo = _HohoemaApp.MediaManager.GetNicoVideo(x.GetVideoId());
-
-                nicoVideo.PreSetTitle(RankingRankPrefixPatternRegex.Replace(x.Title, ""));
-                return new RankedVideoInfoControlViewModel(
+                var vm = new RankedVideoInfoControlViewModel(
                     (uint)(head + index + 1)
-                    , nicoVideo
-                    , _PageManager
+                    , x.GetVideoId()
                 );
+                vm.SetTitle(RankingRankPrefixPatternRegex.Replace(x.Title, ""));
+                return vm;
             })
             .ToAsyncEnumerable()
             );
@@ -484,8 +482,8 @@ namespace NicoPlayerHohoema.ViewModels
 
     public class RankedVideoInfoControlViewModel : VideoInfoControlViewModel
     {
-        public RankedVideoInfoControlViewModel(uint rank, NicoVideo nicoVideo, PageManager pageManager)
-            : base(nicoVideo, pageManager)
+        public RankedVideoInfoControlViewModel(uint rank, string videoId)
+            : base(videoId)
         {
             Rank = rank;
         }

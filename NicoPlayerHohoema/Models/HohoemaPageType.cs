@@ -34,7 +34,6 @@ namespace NicoPlayerHohoema.Models
 		CommunityVideo,
 
         VideoInfomation,
-        ConfirmWatchHurmfulVideo,
 
         CacheManagement,
 

@@ -96,8 +96,23 @@ namespace NicoPlayerHohoema
 
             RequestedTheme = GetTheme();
 
-           
-			this.InitializeComponent();
+
+            // ローカルDBのEntityFrameworkからLiteDBへの移行処理
+            // 0.13あたりまで残しておく予定
+            try
+            {
+                MigrationToLiteDBHelper.Migrate();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
+
+            Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.CacheDuration = TimeSpan.FromDays(7);
+            Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.MaxMemoryCacheCount = 200;
+            Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.RetryCount = 3;
+
+            this.InitializeComponent();
 
         }
 
@@ -342,9 +357,7 @@ namespace NicoPlayerHohoema
                         var videoId = decode.GetFirstValueByName("id");
                         var quality = (NicoVideoQuality)Enum.Parse(typeof(NicoVideoQuality), decode.GetFirstValueByName("quality"));
 
-                        var video = hohoemaApp.MediaManager.GetNicoVideo(videoId);
-
-                        await video.CancelCacheRequest(quality);
+                        await hohoemaApp.CacheManager.CacheRequestCancel(videoId, quality);
                     }
                     else
                     {
@@ -798,39 +811,6 @@ namespace NicoPlayerHohoema
                 e.Cancel = true;
                 return;
             }
-
-            // Note: 有害動画の確認ページへの進む動作を防止する
-            if (e.NavigationMode == NavigationMode.Forward)
-			{
-				if (e.SourcePageType.Name.EndsWith("Page"))
-				{
-					var pageTypeString = e.SourcePageType.Name.Remove(e.SourcePageType.Name.IndexOf("Page"));
-
-					HohoemaPageType pageType;
-					if (Enum.TryParse(pageTypeString, out pageType))
-					{
-						if (pageType == HohoemaPageType.ConfirmWatchHurmfulVideo)
-						{
-							e.Cancel = true;
-							return;
-						}
-					}
-				}
-                else if (e.SourcePageType.Name.EndsWith("Page_TV"))
-                {
-                    var pageTypeString = e.SourcePageType.Name.Remove(e.SourcePageType.Name.IndexOf("Page_TV"));
-
-                    HohoemaPageType pageType;
-                    if (Enum.TryParse(pageTypeString, out pageType))
-                    {
-                        if (pageType == HohoemaPageType.ConfirmWatchHurmfulVideo)
-                        {
-                            e.Cancel = true;
-                            return;
-                        }
-                    }
-                }
-            }
 		}
 
 
@@ -1006,10 +986,10 @@ namespace NicoPlayerHohoema
             }
         }
 
-        private void SubmitVideoContentSuggestion(string videoId)
+        private async void SubmitVideoContentSuggestion(string videoId)
         {
-            var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
-            var nicoVideo = hohoemaApp.MediaManager.GetNicoVideo(videoId);
+            var contentProvider = App.Current.Container.Resolve<NiconicoContentProvider>();
+            var nicoVideo = await contentProvider.GetNicoVideoInfo(videoId);
 
             PublishInAppNotification(new InAppNotificationPayload()
             {
@@ -1023,6 +1003,7 @@ namespace NicoPlayerHohoema
                             Label = "再生",
                             Command = new DelegateCommand(() =>
                             {
+                                var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
                                 hohoemaApp.Playlist.PlayVideo(nicoVideo.RawVideoId, nicoVideo.Title);
 
                                 DismissInAppNotification();
@@ -1033,6 +1014,7 @@ namespace NicoPlayerHohoema
                             Label = "あとで見る",
                             Command = new DelegateCommand(() =>
                             {
+                                var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
                                 hohoemaApp.Playlist.DefaultPlaylist.AddVideo(nicoVideo.RawVideoId, nicoVideo.Title);
 
                                 DismissInAppNotification();

@@ -58,7 +58,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        NiconicoMediaManager _MediaManager;
+        VideoCacheManager _MediaManager;
 
         HohoemaDialogService _HohoemaDialogService;
 
@@ -69,7 +69,7 @@ namespace NicoPlayerHohoema.ViewModels
             )
 			: base(app, pageManager)
 		{
-			_MediaManager = app.MediaManager;
+			_MediaManager = app.CacheManager;
             _HohoemaDialogService = dialogService;
 
             IsRequireUpdateCacheSaveFolder = new ReactiveProperty<bool>(false);
@@ -175,7 +175,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override IIncrementalSource<CacheVideoViewModel> GenerateIncrementalSource()
 		{
-			return new CacheVideoInfoLoadingSource(HohoemaApp, PageManager);
+			return new CacheVideoInfoLoadingSource(HohoemaApp.CacheManager);
 		}
 
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
@@ -238,15 +238,16 @@ namespace NicoPlayerHohoema.ViewModels
 
     public class CacheVideoViewModel : VideoInfoControlViewModel
 	{
-        public ReadOnlyReactiveProperty<DateTime> CacheRequestTime { get; private set; }
+        public DateTime CacheRequestTime { get; private set; }
 
-        public CacheVideoViewModel(NicoVideo nicoVideo, PageManager pageManager)
-			: base(nicoVideo, pageManager, isNgEnabled:false)
+        IList<NicoVideoCacheRequest> Requests;
+
+        public CacheVideoViewModel(string videoId, IList<NicoVideoCacheRequest> requests, VideoCacheManager cacheManager)
+			: base(videoId, isNgEnabled:false)
 		{
-            CacheRequestTime = nicoVideo.ObserveProperty(x => x.CachedAt)
-                .ToReadOnlyReactiveProperty()
-                .AddTo(_CompositeDisposable);
-		}
+            CacheRequestTime = requests.First().RequestAt;
+            Requests = requests;
+        }
 
         protected override VideoPlayPayload MakeVideoPlayPayload()
 		{
@@ -261,55 +262,66 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class CacheVideoInfoLoadingSource : HohoemaIncrementalSourceBase<CacheVideoViewModel>
 	{
-		
-		HohoemaApp _HohoemaApp;
-		PageManager _PageManager;
-
-
-		public List<NicoVideo> RawList { get; private set; }
-
-
-
         public override uint OneTimeLoadCount => (uint)10;
 
-        public CacheVideoInfoLoadingSource(HohoemaApp app, PageManager pageManager)
+        VideoCacheManager _VideoCacheManager;
+
+        List<string> _CacheRequestedItems;
+
+        Dictionary<string, List<NicoVideoCacheRequest>> _CacheRequestMap = new Dictionary<string, List<NicoVideoCacheRequest>>();
+
+        public CacheVideoInfoLoadingSource(VideoCacheManager cacheManager)
             : base()
 		{
-			_HohoemaApp = app;
-			_PageManager = pageManager;
-		}
+            _VideoCacheManager = cacheManager;
+
+        }
+
+
+
 
         protected override Task<IAsyncEnumerable<CacheVideoViewModel>> GetPagedItemsImpl(int head, int count)
         {
-            return Task.FromResult(RawList.Skip(head).Take(count)
-                .Select(x => new CacheVideoViewModel(x, _PageManager)).ToAsyncEnumerable());
+            return Task.FromResult(_CacheRequestedItems.Skip(head).Take(count)
+                .Select(x => new { VideoId = x, CacheRequests = _CacheRequestMap[x] })
+                .Select(x =>
+                {
+                    var vm = new CacheVideoViewModel(x.VideoId, x.CacheRequests, _VideoCacheManager);
+
+                    return vm;
+                }).ToAsyncEnumerable());
+
         }
 
         protected override async Task<int> ResetSourceImpl()
         {
-            // 
-            var contentFinder = _HohoemaApp.ContentProvider;
-            var mediaManager = _HohoemaApp.MediaManager;
+            await _VideoCacheManager.Initialize();
 
-            while (!mediaManager.IsInitialized)
+
+            _CacheRequestMap.Clear();
+
+            var list = new List<NicoVideoCacheRequest>();
+
+            // キャッシュ待ちアイテム
+            // キャッシュ中アイテム
+            // キャッシュ済みアイテム
+            foreach (var item in await _VideoCacheManager.EnumerateCacheRequestedVideosAsync())
             {
-                await Task.Delay(50).ConfigureAwait(false);
-            }
-
-            var list = new List<NicoVideo>();
-
-            foreach (var item in mediaManager.CacheVideos.ToArray())
-            {
-                if (item.GetDividedQualityNicoVideo(NicoVideoQuality.Smile_Low).IsCacheRequested
-                    || item.GetDividedQualityNicoVideo(NicoVideoQuality.Smile_Original).IsCacheRequested)
+                if (!_CacheRequestMap.ContainsKey(item.RawVideoId))
                 {
                     list.Add(item);
+
+                    _CacheRequestMap.Add(item.RawVideoId, new List<NicoVideoCacheRequest>());
                 }
+
+                _CacheRequestMap[item.RawVideoId].Add(item);
             }
 
-            RawList = list.OrderBy(x => x.CachedAt.Ticks).Reverse().ToList();
+            
 
-            return RawList.Count;
+            _CacheRequestedItems = list.OrderBy(x => x.RequestAt.Ticks).Reverse().Select(x => x.RawVideoId).ToList();
+
+            return _CacheRequestedItems.Count;
         }
     }
 

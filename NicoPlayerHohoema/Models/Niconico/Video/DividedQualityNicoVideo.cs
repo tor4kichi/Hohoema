@@ -27,7 +27,7 @@ namespace NicoPlayerHohoema.Models
 
         public NicoVideoQuality Quality { get; private set; }
         public NicoVideo NicoVideo { get; private set; }
-        public NiconicoMediaManager NiconicoMediaManager { get; private set; }
+        public VideoCacheManager NiconicoMediaManager { get; private set; }
         public VideoDownloadManager VideoDownloadManager { get; private set; }
         public HohoemaApp HohoemaApp { get; private set; }
                 
@@ -67,7 +67,7 @@ namespace NicoPlayerHohoema.Models
 
 
 	
-		public DividedQualityNicoVideo(NicoVideoQuality quality, NicoVideo nicoVideo, NiconicoMediaManager mediaManager)
+		public DividedQualityNicoVideo(NicoVideoQuality quality)
 		{
 			Quality = quality;
 			NicoVideo = nicoVideo;
@@ -420,7 +420,7 @@ namespace NicoPlayerHohoema.Models
 
     public class LowQualityNicoVideo : DividedQualityNicoVideo
 	{
-		public LowQualityNicoVideo(NicoVideo nicoVideo, NiconicoMediaManager context) 
+		public LowQualityNicoVideo(NicoVideo nicoVideo, VideoCacheManager context) 
 			: base(NicoVideoQuality.Smile_Low, nicoVideo, context)
 		{
 		}
@@ -480,7 +480,7 @@ namespace NicoPlayerHohoema.Models
 
     public class OriginalQualityNicoVideo : DividedQualityNicoVideo
     {
-        public OriginalQualityNicoVideo(NicoVideo nicoVideo, NiconicoMediaManager context)
+        public OriginalQualityNicoVideo(NicoVideo nicoVideo, VideoCacheManager context)
             : base(NicoVideoQuality.Smile_Original, nicoVideo, context)
         {
         }
@@ -622,7 +622,7 @@ namespace NicoPlayerHohoema.Models
         public DmcWatchResponse DmcWatchResponse => _DmcWatchResponse;
         public DmcWatchEnvironment DmcWatchEnvironment => _DmcWatchData.DmcWatchEnvironment;
 
-        public DmcQualityNicoVideo(NicoVideoQuality quality, NicoVideo nicoVideo, NiconicoMediaManager context)
+        public DmcQualityNicoVideo(NicoVideoQuality quality, NicoVideo nicoVideo, VideoCacheManager context)
             : base(quality, nicoVideo, context)
         {
         }
