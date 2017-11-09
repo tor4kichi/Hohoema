@@ -406,7 +406,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 foreach (var thumbnailUri in mylistGroup.ThumbnailUrls)
                 {
-                    ImageUrlsSource.Add(thumbnailUri.OriginalString);
+                    AddImageUrl(thumbnailUri.OriginalString);
                 }
             }
         }

@@ -56,6 +56,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected CompositeDisposable _CompositeDisposable { get; private set; }
 
+        static Helpers.AsyncLock _DefferedUpdateLock = new Helpers.AsyncLock();
 
         bool _IsNGEnabled = false;
 
@@ -67,32 +68,24 @@ namespace NicoPlayerHohoema.ViewModels
 
             _IsNGEnabled = isNgEnabled;
 
-            var info = Database.NicoVideoDb.Get(videoId);
-            if (info != null)
-            {
-                SetupFromThumbnail(info);
-            }
-
-            if (VideoPlayHistoryDb.Get(RawVideoId) != null)
-            {
-                // 視聴済み
-                ThemeColor = Windows.UI.Colors.Transparent;
-            }
-            else
-            {
-                // 未視聴
-                ThemeColor = Windows.UI.Colors.Gray;
-            }
+            OnDeferredUpdate().ConfigureAwait(false);
         }
 
         protected override async Task OnDeferredUpdate()
         {
-            // Note: 動画リストの一覧表示が終わってからサムネイル情報読み込みが掛かるようにする
             var contentProvider = App.Current.Container.Resolve<NiconicoContentProvider>();
             var info = await contentProvider.GetNicoVideoInfo(RawVideoId);
-            SetupFromThumbnail(info);
 
-            await RefrechCacheState();
+            // Note: 動画リストの一覧表示が終わってからサムネイル情報読み込みが掛かるようにする
+            using (var releaser = await _DefferedUpdateLock.LockAsync())
+            {
+                await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                {
+                    SetupFromThumbnail(info);
+
+                    await RefrechCacheState();
+                });
+            }
         }
 
         protected override void OnCancelDeferrdUpdate()
@@ -128,8 +121,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             foreach (var req in cacheRequests)
             {
-                var vm = new CachedQualityNicoVideoListItemViewModel(req, cacheManager)
-                    .AddTo(_CompositeDisposable);
+                var vm = new CachedQualityNicoVideoListItemViewModel(req, cacheManager);
                 CachedQualityVideos.Add(vm);
             }
         }
@@ -226,7 +218,7 @@ namespace NicoPlayerHohoema.ViewModels
         {
             if (!string.IsNullOrWhiteSpace(thumbnailImage))
             {
-                ImageUrlsSource.Add(thumbnailImage);
+                AddImageUrl(thumbnailImage);
             }
         }
 

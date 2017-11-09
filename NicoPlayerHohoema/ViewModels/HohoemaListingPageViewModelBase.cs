@@ -294,6 +294,7 @@ namespace NicoPlayerHohoema.ViewModels
             var head = LoadedItemsCount.Value - count;
             head = head < 0 ? 0 : head;
             
+            /*
             foreach (var item in IncrementalLoadingItems.Skip((int)head).Take((int)count).ToArray())
             {
                 if (item is HohoemaListingPageItemBase)
@@ -301,6 +302,7 @@ namespace NicoPlayerHohoema.ViewModels
                     await (item as HohoemaListingPageItemBase).DeferredUpdate();
                 }
             }
+            */
         }
 
 		protected virtual void PostResetList() { }

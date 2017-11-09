@@ -16,15 +16,11 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public abstract class HohoemaListingPageItemBase : BindableBase, Interfaces.IHohoemaListItem, IDisposable
 	{
-        IDisposable _Disposer;
         public void Dispose()
         {
             CancelDefrredUpdate();
 
             OnDispose();
-
-            _Disposer?.Dispose();
-            _Disposer = null;
         }
 
         protected virtual void OnDispose() { }
@@ -140,20 +136,21 @@ namespace NicoPlayerHohoema.ViewModels
         #endregion
 
 
-        protected ObservableCollection<string> ImageUrlsSource { get; private set; } = new ObservableCollection<string>();
+        private ObservableCollection<string> ImageUrlsSource { get; set; } = new ObservableCollection<string>();
         public ReadOnlyObservableCollection<string> ImageUrls { get; private set; }
+
+        protected void AddImageUrl(string url)
+        {
+            ImageUrlsSource.Add(url);
+            RaisePropertyChanged(nameof(FirstImageUrl));
+            RaisePropertyChanged(nameof(HasImageUrl));
+            RaisePropertyChanged(nameof(IsMultipulImages));
+        }
 
         public HohoemaListingPageItemBase()
         {
             ImageUrls = new ReadOnlyObservableCollection<string>(ImageUrlsSource);
 
-            _Disposer = ImageUrls.CollectionChangedAsObservable()
-                .Subscribe(_ =>
-                {
-                    RaisePropertyChanged(nameof(FirstImageUrl));
-                    RaisePropertyChanged(nameof(HasImageUrl));
-                    RaisePropertyChanged(nameof(IsMultipulImages));
-                });
         }
 
         public Task DeferredUpdate()

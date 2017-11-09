@@ -430,7 +430,7 @@ namespace NicoPlayerHohoema.ViewModels
 			IsCommunityMemberOnly = LiveVideoInfo.Video.CommunityOnly;
 
             Label = LiveVideoInfo.Video.Title;
-            ImageUrlsSource.Add(CommunityThumbnail);
+            AddImageUrl(CommunityThumbnail);
 
             Description = $"来場者:{ViewCounter} コメ:{CommentCount}";
 

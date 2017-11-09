@@ -118,7 +118,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 foreach (var thumbnail in thumbnails)
                 {
-                    ImageUrlsSource.Add(thumbnail);
+                    AddImageUrl(thumbnail);
                 }
             }
 

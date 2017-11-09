@@ -194,7 +194,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             Label = commu.Name;
             Description = commu.ShortDescription;
-            ImageUrlsSource.Add(commu.IconUrl.OriginalString);
+            AddImageUrl(commu.IconUrl.OriginalString);
         }
 
         

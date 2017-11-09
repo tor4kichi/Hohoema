@@ -59,7 +59,7 @@ namespace NicoPlayerHohoema.ViewModels
             if (TimelineItem.Program != null)
             {
                 this.Label = TimelineItem.Program.Title;
-                this.ImageUrlsSource.Add(TimelineItem.Program.ThumbnailUrl);
+                AddImageUrl(TimelineItem.Program.ThumbnailUrl);
                 this.OptionText = $"{TimelineItem.Program.BeginAt.ToString()} 放送開始";
 
                 if (TimelineItem.Community != null)
@@ -78,11 +78,11 @@ namespace NicoPlayerHohoema.ViewModels
                 this.Label = TimelineItem.Video.Title;
                 if (TimelineItem.Video.ThumbnailUrl.Small != null)
                 {
-                    this.ImageUrlsSource.Add(TimelineItem.Video.ThumbnailUrl.Small);
+                    AddImageUrl(TimelineItem.Video.ThumbnailUrl.Small);
                 }
                 else if (TimelineItem.Video.ThumbnailUrl.Normal != null)
                 {
-                    this.ImageUrlsSource.Add(TimelineItem.Video.ThumbnailUrl.Normal);
+                    AddImageUrl(TimelineItem.Video.ThumbnailUrl.Normal);
                 }
                 this.OptionText = $"{TimelineItem.CreatedAt.ToString()}";
 
