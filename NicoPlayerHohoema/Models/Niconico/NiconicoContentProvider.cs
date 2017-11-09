@@ -26,6 +26,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using NicoPlayerHohoema.Database;
+using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -146,6 +147,9 @@ namespace NicoPlayerHohoema.Models
                 {
                     info.IsDeleted = true;
                     NicoVideoDb.AddOrUpdate(info);
+
+                    var cacheManager = App.Current.Container.Resolve<VideoCacheManager>();
+                    await cacheManager.VideoDeletedFromNiconicoServer(info.RawVideoId).ConfigureAwait(false);
                 }
 
                 return info;
@@ -241,6 +245,13 @@ namespace NicoPlayerHohoema.Models
 
                         NicoVideoDb.AddOrUpdate(info);
 //                        NicoVideoOwnerDb.AddOrUpdate(info.Owner);
+                    }
+
+
+                    if (data.DmcWatchResponse.Video.IsDeleted)
+                    {
+                        var cacheManager = App.Current.Container.Resolve<VideoCacheManager>();
+                        await cacheManager.VideoDeletedFromNiconicoServer(rawVideoId).ConfigureAwait(false);
                     }
 
                     return data;
@@ -340,7 +351,13 @@ namespace NicoPlayerHohoema.Models
                     };
 
                     NicoVideoDb.AddOrUpdate(info);
-//                    NicoVideoOwnerDb.AddOrUpdate(info.Owner);
+                    //                    NicoVideoOwnerDb.AddOrUpdate(info.Owner);
+
+                    if (res.IsDeleted)
+                    {
+                        var cacheManager = App.Current.Container.Resolve<VideoCacheManager>();
+                        await cacheManager.VideoDeletedFromNiconicoServer(rawVideoId).ConfigureAwait(false);
+                    }
 
                     return res;
                 }
@@ -348,15 +365,11 @@ namespace NicoPlayerHohoema.Models
                 {
                     throw new NotImplementedException("not implement hurmful video content.");
                 }
-                catch (ContentZoningException e)
+                catch (ContentZoningException)
                 {
                     throw new NotImplementedException("not implement hurmful video content.");
                 }
-
-
-
             }
-
         }
 
 

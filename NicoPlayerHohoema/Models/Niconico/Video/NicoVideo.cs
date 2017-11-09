@@ -93,10 +93,8 @@ namespace NicoPlayerHohoema.Models
 
                 if (videoInfo.IsDeleted)
                 {
-                    // ニコニコサーバー側で動画削除済みの場合
-                    // ローカルの動画ファイルを全削除する
-                    await CacheManager.VideoDeletedFromNiconicoServer(RawVideoId);
-
+                    // ニコニコサーバー側で動画削除済みの場合は再生不可
+                    // （NiconnicoContentProvider側で動画削除動作を実施している）
                     throw new NotSupportedException("動画は「非公開」または「削除済み」です");
                 }
             }
