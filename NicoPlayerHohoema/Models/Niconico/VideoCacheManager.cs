@@ -46,7 +46,7 @@ namespace NicoPlayerHohoema.Models
         private ConcurrentDictionary<string, List<NicoVideoCacheInfo>> _CacheVideos;
 
         public event EventHandler<VideoCacheStateChangedEventArgs> VideoCacheStateChanged;
-
+        public event EventHandler<NicoVideoCacheProgress> CacheProgress;
 
         public async Task<IEnumerable<NicoVideoCacheInfo>> EnumerateCacheVideosAsync()
         {
@@ -86,7 +86,36 @@ namespace NicoPlayerHohoema.Models
         }
 
 
+        public static NicoVideoQuality GetQualityFromFileName(string fileName)
+        {
+            var split = fileName.Split('.').Skip(1).Reverse().Take(2);
 
+            if (!split.Any()) { throw new NotSupportedException("filename not contain extension. "); }
+
+            if (split.Count() == 1)
+            {
+                return NicoVideoQuality.Smile_Original;
+            }
+            else
+            {
+                var qualityTypeName = split.ElementAt(1);
+                switch (qualityTypeName)
+                {
+                    case "low":
+                        return NicoVideoQuality.Smile_Low;
+                    case "dmc_high":
+                        return NicoVideoQuality.Dmc_High;
+                    case "dmc_midium":
+                        return NicoVideoQuality.Dmc_Midium;
+                    case "dmc_low":
+                        return NicoVideoQuality.Dmc_Low;
+                    case "dmc_mobile":
+                        return NicoVideoQuality.Dmc_Mobile;
+                    default:
+                        return NicoVideoQuality.Smile_Original;
+                }
+            }
+        }
 
         public static string MakeCacheVideoFileName(string title, string videoId, MovieType videoType, NicoVideoQuality quality)
         {
@@ -100,14 +129,17 @@ namespace NicoPlayerHohoema.Models
                 case NicoVideoQuality.Smile_Low:
                     toQualityNameExtention = Path.ChangeExtension(filename, $".low.{videoType.ToString().ToLower()}");
                     break;
-                case NicoVideoQuality.Dmc_Low:
-                    toQualityNameExtention = Path.ChangeExtension(filename, $".xlow.{videoType.ToString().ToLower()}");
+                case NicoVideoQuality.Dmc_High:
+                    toQualityNameExtention = Path.ChangeExtension(filename, $".dmc_high.{videoType.ToString().ToLower()}");
                     break;
                 case NicoVideoQuality.Dmc_Midium:
-                    toQualityNameExtention = Path.ChangeExtension(filename, $".xmid.{videoType.ToString().ToLower()}");
+                    toQualityNameExtention = Path.ChangeExtension(filename, $".dmc_midium.{videoType.ToString().ToLower()}");
                     break;
-                case NicoVideoQuality.Dmc_High:
-                    toQualityNameExtention = Path.ChangeExtension(filename, $".xhigh.{videoType.ToString().ToLower()}");
+                case NicoVideoQuality.Dmc_Low:
+                    toQualityNameExtention = Path.ChangeExtension(filename, $".dmc_low.{videoType.ToString().ToLower()}");
+                    break;
+                case NicoVideoQuality.Dmc_Mobile:
+                    toQualityNameExtention = Path.ChangeExtension(filename, $".dmc_mobile.{videoType.ToString().ToLower()}");
                     break;
                 default:
                     throw new NotSupportedException(quality.ToString());
@@ -124,7 +156,7 @@ namespace NicoPlayerHohoema.Models
             if (match != null)
             {
                 var id = match.Groups[1].Value;
-                var quality = NicoVideoQualityFileNameHelper.NicoVideoQualityFromFileNameExtention(file.Name);
+                var quality = GetQualityFromFileName(file.Name);
 
                 return new NicoVideoCacheRequest() { RawVideoId = id, Quality = quality };
             }
@@ -150,13 +182,41 @@ namespace NicoPlayerHohoema.Models
 		{
 			_HohoemaApp = app;
             VideoDownloadManager = new VideoDownloadManager(_HohoemaApp, this);
+            VideoDownloadManager.Requested += VideoDownloadManager_Requested;
+            VideoDownloadManager.RequestCanceled += VideoDownloadManager_RequestCanceled; ;
             VideoDownloadManager.DownloadStarted += VideoDownloadManager_DownloadStarted;
             VideoDownloadManager.DownloadCompleted += VideoDownloadManager_DownloadCompleted;
             VideoDownloadManager.DownloadCanceled += VideoDownloadManager_DownloadCanceled;
 
-			_CacheVideos = new ConcurrentDictionary<string, List<NicoVideoCacheInfo>>();
+
+            VideoDownloadManager.DownloadProgress += VideoDownloadManager_DownloadProgress;
+
+            _CacheVideos = new ConcurrentDictionary<string, List<NicoVideoCacheInfo>>();
 
             _HohoemaApp.OnSignin += _HohoemaApp_OnSignin;
+        }
+
+        private void VideoDownloadManager_RequestCanceled(object sender, NicoVideoCacheRequest request)
+        {
+            VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
+            {
+                Request = request,
+                CacheState = NicoVideoCacheState.NotCacheRequested
+            });
+        }
+
+        private void VideoDownloadManager_Requested(object sender, NicoVideoCacheRequest request)
+        {
+            VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
+            {
+                Request = request,
+                CacheState = NicoVideoCacheState.Pending
+            });
+        }
+
+        private void VideoDownloadManager_DownloadProgress(object sender, NicoVideoCacheProgress progress)
+        {
+            CacheProgress?.Invoke(this, progress);
         }
 
         private void VideoDownloadManager_DownloadStarted(object sender, NicoVideoCacheProgress request)
@@ -250,7 +310,7 @@ namespace NicoPlayerHohoema.Models
 
                 foreach (var file in files)
                 {
-                    if (file.FileType != ".mp4")
+                    if (!(file.FileType == ".mp4" || file.FileType == ".flv"))
                     {
                         continue;
                     }
@@ -264,13 +324,13 @@ namespace NicoPlayerHohoema.Models
                         continue;
                     }
 
-                    var quality = NicoVideoQualityFileNameHelper.NicoVideoQualityFromFileNameExtention(file.Name);
+                    var quality = VideoCacheManager.GetQualityFromFileName(file.Name);
                     var info = new NicoVideoCacheInfo()
                     {
                         RawVideoId = id,
                         Quality = quality,
                         FilePath = file.Path,
-                        RequestAt = file.DateCreated.Date
+                        RequestAt = file.DateCreated.DateTime
                     };
 
 
@@ -339,6 +399,12 @@ namespace NicoPlayerHohoema.Models
         {
             using (var releaser = await _CacheVideosLock.LockAsync())
             {
+                var cached = GetCacheInfo(req.RawVideoId, req.Quality);
+                if (cached != null)
+                {
+                    return;
+                }
+
                 await VideoDownloadManager.AddCacheRequest(req);
             }
         }
@@ -358,6 +424,7 @@ namespace NicoPlayerHohoema.Models
                 await VideoDownloadManager.RemoveCacheRequest(videoId, quality);
             }
         }
+
 
         public async Task<bool> DeleteCachedVideo(string videoId, NicoVideoQuality quality)
         {
@@ -379,6 +446,13 @@ namespace NicoPlayerHohoema.Models
                             _CacheVideos.TryRemove(videoId, out var list);
                         }
 
+                        VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
+                        {
+                            CacheState = NicoVideoCacheState.NotCacheRequested,
+                            Request = removeCached
+                        });
+
+
                         return result;
                     }
                 }
@@ -390,17 +464,22 @@ namespace NicoPlayerHohoema.Models
         public async Task<int> DeleteCachedVideo(string videoId)
         {
             int deletedCount = 0;
-            using (var releaser = await _CacheVideosLock.LockAsync())
+            if (_CacheVideos.TryRemove(videoId, out var cachedItems))
             {
-                if (_CacheVideos.TryRemove(videoId, out var cachedItems))
+                foreach (var target in cachedItems)
                 {
-                    foreach (var target in cachedItems)
+                    var result = await target.Delete();
+
+                    if (cachedItems.Count == 0)
                     {
-                        if (await DeleteCachedVideo(videoId, target.Quality))
-                        {
-                            deletedCount++;
-                        }
+                        _CacheVideos.TryRemove(videoId, out var list);
                     }
+
+                    VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
+                    {
+                        CacheState = NicoVideoCacheState.NotCacheRequested,
+                        Request = target
+                    });
                 }
             }
 
@@ -453,19 +532,21 @@ namespace NicoPlayerHohoema.Models
     public class NicoVideoCacheProgress : NicoVideoCacheRequest
     {
         public DownloadOperation DownloadOperation { get; set; }
+        public IVideoStreamingSession Session { get;  }
 
         public NicoVideoCacheProgress()
         {
 
         }
 
-        public NicoVideoCacheProgress(NicoVideoCacheRequest req, DownloadOperation op)
+        public NicoVideoCacheProgress(NicoVideoCacheRequest req, DownloadOperation op, IVideoStreamingSession session)
         {
             RawVideoId = req.RawVideoId;
-            Quality = req.Quality;
+            Quality = session.Quality;
             IsRequireForceUpdate = req.IsRequireForceUpdate;
             RequestAt = req.RequestAt;
             DownloadOperation = op;
+            Session = session;
         }
     }
 

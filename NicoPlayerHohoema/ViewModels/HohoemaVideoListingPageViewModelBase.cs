@@ -231,12 +231,28 @@ namespace NicoPlayerHohoema.ViewModels
 			}
             */
 
+            HohoemaApp.CacheManager.VideoCacheStateChanged += CacheManager_VideoCacheStateChanged;
+
             ReflectCanDownloadStatus();
         }
 
-		protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+        private async void CacheManager_VideoCacheStateChanged(object sender, VideoCacheStateChangedEventArgs e)
+        {
+            if (e.CacheState != NicoVideoCacheState.Cached)
+            {
+                var video = IncrementalLoadingItems.FirstOrDefault(x => x.RawVideoId == e.Request.RawVideoId);
+                if (video != null)
+                {
+                    await video.RefrechCacheState();
+                }
+            }
+        }
+
+        protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
-			base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
+            HohoemaApp.CacheManager.VideoCacheStateChanged -= CacheManager_VideoCacheStateChanged;
+
+            base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 		}
 
 		private IEnumerable<VideoInfoControlViewModel> EnumerateCacheRequestedVideoItems()

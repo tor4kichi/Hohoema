@@ -14,9 +14,10 @@ namespace NicoPlayerHohoema.Database
         [BsonId]
         public string OwnerId { get; set; }
 
-
         public string IconUrl { get; set; }
+
         public UserType UserType { get; set; }
+
         public string ScreenName { get; set; }
     }
 

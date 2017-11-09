@@ -46,7 +46,6 @@ namespace NicoPlayerHohoema.Models
 
         public string RawVideoId { get; private set; }
 
-        CommentClient _CommentClient;
         NiconicoContentProvider _ContentProvider;
         VideoCacheManager CacheManager;
         NiconicoContext _Context;
@@ -74,12 +73,23 @@ namespace NicoPlayerHohoema.Models
 		/// 他にダウンロードされているアイテムは強制的に一時停止し、再生終了後に再開されます
 		/// </summary>
         /// <exception cref="NotSupportedException" />
-		public async Task<VideoStreamingSession> CreateVideoStreamingSession(NicoVideoQuality quality)
+		public async Task<IVideoStreamingSession> CreateVideoStreamingSession(NicoVideoQuality quality, bool forceDownload = false)
         {
             // オンラインの場合は削除済みかを確認する
+            object watchRes = null;
+
             if (Helpers.InternetConnection.IsInternet())
             {
-                var videoInfo = await _ContentProvider.GetNicoVideoInfo(RawVideoId);
+                // 動画視聴ページへアクセス
+                // 動画再生準備およびコメント取得準備が行われる
+                watchRes = await VisitWatchPage(quality);
+
+                // サムネイルから動画情報更新
+                // 動画情報ページアクセスだけでも内部の動画情報データは更新される
+                var videoInfo = Database.NicoVideoDb.Get(RawVideoId);
+
+                // 動作互換性のためにサムネから拾うように戻す？
+                // var videoInfo = await _ContentProvider.GetNicoVideoInfo(RawVideoId);
 
                 if (videoInfo.IsDeleted)
                 {
@@ -91,34 +101,58 @@ namespace NicoPlayerHohoema.Models
                 }
             }
 
-            // キャッシュ済みアイテムを問い合わせ
-            var cacheRequests = await CacheManager.GetCacheRequest(RawVideoId);
-            var cachedItems = cacheRequests.Where(x => x is NicoVideoCacheInfo);
-            NicoVideoCacheInfo cached = null;
-            cached = cachedItems.FirstOrDefault(x => x.Quality == quality) as NicoVideoCacheInfo;
-
-            if (cached == null && cachedItems.Any())
+            if (!forceDownload)
             {
-                // 画質指定がない、または指定画質のキャッシュがない場合には
-                // キャッシュが存在する画質（高画質優先）を取り出す
-                cached = cachedItems.OrderBy(x => x.Quality).FirstOrDefault() as NicoVideoCacheInfo;
-            }
+                // キャッシュ済みアイテムを問い合わせ
+                var cacheRequests = await CacheManager.GetCacheRequest(RawVideoId);
 
-            if (cached != null)
-            {
-                try
+                NicoVideoCacheRequest playCandidateRequest = null;
+                var req = cacheRequests.FirstOrDefault(x => x.Quality == quality);
+
+                if (req is NicoVideoCacheInfo || req is NicoVideoCacheProgress)
                 {
-                    var file = await StorageFile.GetFileFromPathAsync(cached.FilePath);
-                    return new LocalVideoStreamingSession(file, cached.Quality, _Context);
+                    playCandidateRequest = req;
                 }
-                catch
+
+                if (req == null)
                 {
-                    Debug.WriteLine("動画視聴時にキャッシュが見つかったが、キャッシュファイルを利用した再生セッションの作成に失敗、オンライン再生を試行します");
+                    var playableReq = cacheRequests.Where(x => x is NicoVideoCacheInfo || x is NicoVideoCacheProgress);
+                    if (playableReq.Any())
+                    {
+                        // 画質指定がない、または指定画質のキャッシュがない場合には
+                        // キャッシュが存在する画質（高画質優先）を取り出す
+                        playCandidateRequest = playableReq.OrderBy(x => x.Quality).FirstOrDefault();
+                    }
+                }
+
+                if (playCandidateRequest is NicoVideoCacheInfo)
+                {
+                    var playCandidateCache = playCandidateRequest as NicoVideoCacheInfo;
+                    try
+                    {
+                        var file = await StorageFile.GetFileFromPathAsync(playCandidateCache.FilePath);
+                        return new LocalVideoStreamingSession(file, playCandidateCache.Quality, _Context);
+                    }
+                    catch
+                    {
+                        Debug.WriteLine("動画視聴時にキャッシュが見つかったが、キャッシュファイルを利用した再生セッションの作成に失敗、オンライン再生を試行します");
+                    }
+                }
+                else if (playCandidateRequest is NicoVideoCacheProgress)
+                {
+                    /*
+                    if (Helpers.ApiContractHelper.IsFallCreatorsUpdateAvailable)
+                    {
+                        var playCandidateCacheProgress = playCandidateRequest as NicoVideoCacheProgress;
+                        var op = playCandidateCacheProgress.DownloadOperation;
+                        var refStream = op.GetResultRandomAccessStreamReference();
+                        return new DownloadProgressVideoStreamingSession(refStream, playCandidateCacheProgress.Quality);
+                    }
+                    */
                 }
             }
 
             // キャッシュがない場合はオンラインで再生
-            var watchRes = await VisitWatchPage(quality);
             if (watchRes is WatchApiResponse)
             {
                 var res = watchRes as WatchApiResponse;
@@ -224,7 +258,7 @@ namespace NicoPlayerHohoema.Models
             if (res is WatchApiResponse)
             {
                 var watchApiRes = res as WatchApiResponse;
-                _CommentClient = new CommentClient(_Context, new CommentServerInfo()
+                CommentClient = new CommentClient(_Context, new CommentServerInfo()
                 {
                     ServerUrl = watchApiRes.CommentServerUrl.OriginalString,
                     VideoId = RawVideoId,
@@ -260,7 +294,9 @@ namespace NicoPlayerHohoema.Models
         }
 	}
 
-    public abstract class VideoStreamingSession : IDisposable
+    
+
+    public abstract class VideoStreamingSession : IVideoStreamingSession, IDisposable
     {
         // Note: 再生中のハートビート管理を含めた管理
         // MediaSourceをMediaPlayerに設定する役割
@@ -284,7 +320,6 @@ namespace NicoPlayerHohoema.Models
 
         public async Task StartPlayback(MediaPlayer player)
         {
-
             var videoUri = await GetVideoContentUri();
 
             // Note: HTML5プレイヤー移行中のFLV動画に対するフォールバック処理
@@ -678,6 +713,78 @@ namespace NicoPlayerHohoema.Models
         protected override Task<Uri> GetVideoContentUri()
         {
             return Task.FromResult(new Uri(File.Path));
+        }
+    }
+
+    public class DownloadProgressVideoStreamingSession : IVideoStreamingSession, IDisposable
+    {
+        // Note: 再生中のハートビート管理を含めた管理
+        // MediaSourceをMediaPlayerに設定する役割
+
+
+
+        public NicoVideoQuality Quality { get; }
+
+        public IRandomAccessStreamReference StreamRef { get; }
+        public IRandomAccessStream _Stream;
+        FFmpegInteropMSS _VideoMSS;
+        MediaSource _MediaSource;
+
+        MediaPlayer _PlayingMediaPlayer;
+
+        public DownloadProgressVideoStreamingSession(IRandomAccessStreamReference streamRef, NicoVideoQuality requestQuality)
+        {
+            StreamRef = streamRef;
+            Quality = requestQuality;
+        }
+
+
+        public void Dispose()
+        {
+            _MediaSource.Dispose();
+            _MediaSource = null;
+            _VideoMSS.Dispose();
+            _VideoMSS = null;
+            _Stream.Dispose();
+            _Stream = null;
+
+            _PlayingMediaPlayer = null;
+        }
+
+        public Task<Uri> GetDownloadUrlAndSetupDonwloadSession()
+        {
+            throw new NotSupportedException();
+        }
+
+        public async Task StartPlayback(MediaPlayer player)
+        {
+            string contentType = string.Empty;
+
+            var stream = await StreamRef.OpenReadAsync();
+            if (!stream.ContentType.EndsWith("mp4"))
+            {
+                _VideoMSS = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(stream, false, false);
+                var mss = _VideoMSS.GetMediaStreamSource();
+                mss.SetBufferedRange(TimeSpan.Zero, TimeSpan.Zero);
+                _MediaSource = MediaSource.CreateFromMediaStreamSource(mss);
+            }
+            else
+            {
+                _MediaSource = MediaSource.CreateFromStream(stream, stream.ContentType);
+            }
+
+
+            if (_MediaSource != null)
+            {
+                player.Source = _MediaSource;
+                _Stream = stream;
+                _PlayingMediaPlayer = player;
+            }
+            else
+            {
+                throw new NotSupportedException("can not play video. vide source from download progress stream.");
+            }
+
         }
     }
 

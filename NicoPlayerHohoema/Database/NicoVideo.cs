@@ -28,7 +28,7 @@ namespace NicoPlayerHohoema.Database
         public int MylistCount { get; set; }
         public int CommentCount { get; set; }
 
-        [BsonRef(nameof(NicoVideoOwner))]
+        [BsonRef]
         public NicoVideoOwner Owner { get; set; }
 
         public MovieType MovieType { get; set; }

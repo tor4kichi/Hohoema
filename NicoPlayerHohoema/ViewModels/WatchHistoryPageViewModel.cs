@@ -172,7 +172,7 @@ namespace NicoPlayerHohoema.ViewModels
                 var vm = new HistoryVideoInfoControlViewModel(
                     x.ItemId
                     , x.WatchCount
-                    , x.WatchedAt.Date
+                    , x.WatchedAt.DateTime
                     );
 
                 vm.SetTitle(x.Title);

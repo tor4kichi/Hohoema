@@ -40,7 +40,7 @@
 
             <Border toolkit:DockPanel.Dock="Bottom" >
 
-                <ItemsControl ItemsSource="{Binding QualityDividedVideos}"
+                <ItemsControl ItemsSource="{Binding CachedQualityVideos}"
                               HorizontalContentAlignment="Stretch"
                               IsTabStop="False"
                               >
@@ -63,7 +63,7 @@
                                            FontSize="12"
                                            VerticalAlignment="Center"
                                                 >
-                                    <Run Text="{Binding Quality}" />
+                                    <Run Text="{Binding Quality, Converter={StaticResource ToLocalText}}" />画質
                                 </TextBlock>
                                 
                                 <TextBlock toolkit:DockPanel.Dock="Right" 
@@ -92,7 +92,7 @@
 
             <Grid >
 
-                <ItemsControl ItemsSource="{Binding QualityDividedVideos}"
+                <ItemsControl ItemsSource="{Binding CachedQualityVideos}"
                               ItemTemplate="{StaticResource QualityVideoTemplate}"
                               HorizontalAlignment="Right"
                               VerticalAlignment="Bottom"

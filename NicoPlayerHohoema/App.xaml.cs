@@ -652,17 +652,18 @@ namespace NicoPlayerHohoema
             Container.RegisterInstance(hohoemaApp.Playlist);
             Container.RegisterInstance(hohoemaApp.OtherOwneredMylistManager);
             Container.RegisterInstance(hohoemaApp.FeedManager);
+            Container.RegisterInstance(hohoemaApp.CacheManager);
 
 #if DEBUG
-//			BackgroundUpdater.MaxTaskSlotCount = 1;
+            //			BackgroundUpdater.MaxTaskSlotCount = 1;
 #endif
-			// TODO: プレイヤーウィンドウ上で管理する
-			//			var backgroundTask = MediaBackgroundTask.Create();
-			//			Container.RegisterInstance(backgroundTask);
+            // TODO: プレイヤーウィンドウ上で管理する
+            //			var backgroundTask = MediaBackgroundTask.Create();
+            //			Container.RegisterInstance(backgroundTask);
 
 
-			// ViewModels
-			Container.RegisterType<ViewModels.MenuNavigatePageBaseViewModel>(new ContainerControlledLifetimeManager());
+            // ViewModels
+            Container.RegisterType<ViewModels.MenuNavigatePageBaseViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ViewModels.RankingCategoryListPageViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ViewModels.WatchHistoryPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.UserVideoPageViewModel>(new ContainerControlledLifetimeManager());

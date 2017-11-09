@@ -66,7 +66,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-        VideoStreamingSession _CurrentPlayingVideoSession;
+        IVideoStreamingSession _CurrentPlayingVideoSession;
         Database.NicoVideo _VideoInfo;
 
 

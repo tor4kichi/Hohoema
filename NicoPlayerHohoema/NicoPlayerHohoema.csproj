@@ -181,6 +181,7 @@
     <Compile Include="Dialogs\_ContentSelectDialog\TextInputSelectableContainer.cs" />
     <Compile Include="Events\PlayerClosedEvent.cs" />
     <Compile Include="Events\PlayNicoVideoEvent.cs" />
+    <Compile Include="Helpers\ApiContractHelper.cs" />
     <Compile Include="Helpers\CulturelizeHelper.cs" />
     <Compile Include="Helpers\IAsyncInitialize.cs" />
     <Compile Include="Helpers\IFileAccessor.cs" />
@@ -234,6 +235,7 @@
     <Compile Include="Models\HohoemaPlaylist.cs" />
     <Compile Include="Models\HohoemaViewManager.cs" />
     <Compile Include="Interfaces\IHohoemaListItem.cs" />
+    <Compile Include="Models\Niconico\Video\IVideoStreamingSession.cs" />
     <Compile Include="Models\PagePayload\InAppNotificationPayload.cs" />
     <Compile Include="Helpers\LisenceSummary.cs" />
     <Compile Include="Models\Niconico\Live\Live2WebSocket.cs" />
