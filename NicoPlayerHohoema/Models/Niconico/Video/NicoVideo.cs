@@ -261,6 +261,7 @@ namespace NicoPlayerHohoema.Models
                     ServerUrl = watchApiRes.CommentServerUrl.OriginalString,
                     VideoId = RawVideoId,
                     DefaultThreadId = (int)watchApiRes.ThreadId,
+                    CommunityThreadId = (int)watchApiRes.OptionalThreadId,
                     ViewerUserId = watchApiRes.viewerInfo.id,
                     ThreadKeyRequired = watchApiRes.IsKeyRequired
                 });
@@ -282,6 +283,11 @@ namespace NicoPlayerHohoema.Models
                 {
                     LastAccessDmcWatchResponse = dmcRes
                 };
+
+                if (int.TryParse(dmcRes.Thread.Ids.Community, out var communityThreadId))
+                {
+                    CommentClient.CommentServerInfo.CommunityThreadId = communityThreadId;
+                }
 
                 return res;
             }
@@ -885,7 +891,10 @@ namespace NicoPlayerHohoema.Models
             {
                 SubmitInfo = new CommentSubmitInfo();
                 SubmitInfo.Ticket = commentRes.Thread.Ticket;
-                SubmitInfo.CommentCount = int.Parse(commentRes.Thread.CommentCount) + 1;
+                if (int.TryParse(commentRes.Thread.CommentCount, out int count))
+                {
+                    SubmitInfo.CommentCount = count + 1;
+                }
             }
 
             return commentRes?.Chat;

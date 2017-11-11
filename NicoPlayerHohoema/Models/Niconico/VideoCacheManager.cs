@@ -45,6 +45,13 @@ namespace NicoPlayerHohoema.Models
         const string CACHE_REQUESTED_FILENAME = "cache_requested.json";
         FolderBasedFileAccessor<IList<NicoVideoCacheRequest>> _CacheRequestedItemsFileAccessor;
 
+
+        private const string TransferGroupName = @"hohoema_video";
+        BackgroundTransferGroup _NicoCacheVideoBGTransferGroup = BackgroundTransferGroup.CreateGroup(TransferGroupName);
+            
+
+
+
         public event EventHandler<NicoVideoCacheProgress> DownloadProgress;
 
         public event EventHandler<NicoVideoCacheRequest> Requested;
@@ -217,28 +224,22 @@ namespace NicoPlayerHohoema.Models
             RemoveProgressToast();
         }
 
-        protected override Task OnInitializeAsync(CancellationToken token)
+        protected override async Task OnInitializeAsync(CancellationToken token)
         {
-            return Windows.System.Threading.ThreadPool.RunAsync(async (workItem) => 
-            {
-                Debug.Write($"キャッシュ情報のリストアを開始");
+            Debug.Write($"キャッシュ情報のリストアを開始");
 
-                // ダウンロード中のアイテムをリストア
-                await RestoreBackgroundDownloadTask();
+            // ダウンロード中のアイテムをリストア
+            await RestoreBackgroundDownloadTask();
 
-                // キャッシュ完了したアイテムをキャッシュフォルダから検索
-                await RetrieveCacheCompletedVideos();
+            // キャッシュ完了したアイテムをキャッシュフォルダから検索
+            await RetrieveCacheCompletedVideos();
 
-                // キャッシュリクエストファイルのアクセサーを初期化
-                var videoSaveFolder = await _HohoemaApp.GetApplicationLocalDataFolder();
-                _CacheRequestedItemsFileAccessor = new FolderBasedFileAccessor<IList<NicoVideoCacheRequest>>(videoSaveFolder, CACHE_REQUESTED_FILENAME);
+            // キャッシュリクエストファイルのアクセサーを初期化
+            var videoSaveFolder = await _HohoemaApp.GetApplicationLocalDataFolder();
+            _CacheRequestedItemsFileAccessor = new FolderBasedFileAccessor<IList<NicoVideoCacheRequest>>(videoSaveFolder, CACHE_REQUESTED_FILENAME);
 
-                // ダウンロード待機中のアイテムを復元
-                await RestoreCacheRequestedItems();
-            },
-            Windows.System.Threading.WorkItemPriority.Normal
-            )
-            .AsTask();
+            // ダウンロード待機中のアイテムを復元
+            await RestoreCacheRequestedItems();
         }
 
 
@@ -375,8 +376,7 @@ namespace NicoPlayerHohoema.Models
         {
             // TODO: ユーザーのログイン情報を更新してダウンロードを再開する必要がある？
             // ユーザー情報の有効期限が切れていた場合には最初からダウンロードし直す必要があるかもしれません
-
-            var tasks = await BackgroundDownloader.GetCurrentDownloadsAsync();
+            var tasks = await BackgroundDownloader.GetCurrentDownloadsForTransferGroupAsync(_NicoCacheVideoBGTransferGroup);
             foreach (var task in tasks)
             {
                 NicoVideoCacheProgress info = null;
@@ -395,9 +395,6 @@ namespace NicoPlayerHohoema.Models
                     info = new NicoVideoCacheProgress(_info, task, session);
 
                     await RestoreDonloadOperation(info, task);
-
-
-
 
                     Debug.WriteLine($"実行中のキャッシュBGDLを補足: {info.RawVideoId} {info.Quality}");
                 }
@@ -466,6 +463,141 @@ namespace NicoPlayerHohoema.Models
         }
 
 
+
+        private ToastNotification MakeSuccessToastNotification(Database.NicoVideo info)
+        {
+            // トーストのレイアウトを作成
+            ToastContent content = new ToastContent()
+            {
+                Launch = "niconico://" + info.RawVideoId,
+
+                Visual = new ToastVisual()
+                {
+                    BindingGeneric = new ToastBindingGeneric()
+                    {
+                        Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = info.Title,
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "キャッシュ完了",
+                                    HintStyle = AdaptiveTextStyle.CaptionSubtle
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "ここをタップして再生を開始",
+                                    HintStyle = AdaptiveTextStyle.CaptionSubtle
+                                }
+                            },
+                        /*
+                        AppLogoOverride = new ToastGenericAppLogo()
+                        {
+                            Source = "oneAlarm.png"
+                        }
+                        */
+                    }
+                },
+                /*
+                Actions = new ToastActionsCustom()
+                {
+                    Buttons =
+                    {
+                        new ToastButton("check", "check")
+                        {
+                            ImageUri = "check.png"
+                        },
+
+                        new ToastButton("cancel", "cancel")
+                        {
+                            ImageUri = "cancel.png"
+                        }
+                    }
+                },
+                */
+                /*
+                Audio = new ToastAudio()
+                {
+                    Src = new Uri("ms-winsoundevent:Notification.Reminder")
+                }
+                */
+            };
+
+            // トースト表示を実行
+            return new ToastNotification(content.GetXml());
+        }
+
+        private ToastNotification MakeFailureToastNotification(Database.NicoVideo info)
+        {
+            // トーストのレイアウトを作成
+            ToastContent content = new ToastContent()
+            {
+                Visual = new ToastVisual()
+                {
+                    BindingGeneric = new ToastBindingGeneric()
+                    {
+                        Children =
+                            {
+                                new AdaptiveText()
+                                {
+                                    Text = info.Title,
+                                },
+
+                                new AdaptiveText()
+                                {
+                                    Text = "キャッシュに失敗",
+                                    HintStyle = AdaptiveTextStyle.CaptionSubtle
+                                },
+                                /*
+                                new AdaptiveText()
+                                {
+                                    Text = "再ダウンロード",
+                                    HintStyle = AdaptiveTextStyle.CaptionSubtle
+                                }
+                                */
+                            },
+                        /*
+                        AppLogoOverride = new ToastGenericAppLogo()
+                        {
+                            Source = "oneAlarm.png"
+                        }
+                        */
+                    }
+                },
+                /*
+                Actions = new ToastActionsCustom()
+                {
+                    Buttons =
+                    {
+                        new ToastButton("check", "check")
+                        {
+                            ImageUri = "check.png"
+                        },
+
+                        new ToastButton("cancel", "cancel")
+                        {
+                            ImageUri = "cancel.png"
+                        }
+                    }
+                },
+                */
+                /*
+                Audio = new ToastAudio()
+                {
+                    Src = new Uri("ms-winsoundevent:Notification.Reminder")
+                }
+                */
+            };
+
+            // トースト表示を実行
+
+            return new ToastNotification(content.GetXml());
+        }
+
         // バックグラウンドで動画キャッシュのダウンロードを行うタスクを作成
         public async Task<NicoVideoCacheProgress> DonwloadVideoInBackgroundTask(NicoVideoCacheRequest req)
         {
@@ -488,7 +620,13 @@ namespace NicoPlayerHohoema.Models
 
             var uri = await downloadSession.GetDownloadUrlAndSetupDonwloadSession();
 
-            var downloader = new BackgroundDownloader();
+            var downloader = new BackgroundDownloader()
+            {
+                TransferGroup = _NicoCacheVideoBGTransferGroup
+            };
+
+            downloader.SuccessToastNotification = MakeSuccessToastNotification(videoInfo);
+            downloader.FailureToastNotification = MakeFailureToastNotification(videoInfo);
 
             // 保存先ファイルの確保
             var filename = VideoCacheManager.MakeCacheVideoFileName(
