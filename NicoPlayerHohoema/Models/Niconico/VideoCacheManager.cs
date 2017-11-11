@@ -1079,11 +1079,34 @@ namespace NicoPlayerHohoema.Models
                     {
                         Debug.WriteLine("キャッシュ済み: " + op.ResultFile.Name);
                         var cacheInfo = new NicoVideoCacheInfo(req, op.ResultFile.Path);
+
+                        _CacheVideos.AddOrUpdate(cacheInfo.RawVideoId,
+                        (x) =>
+                        {
+                            return new List<NicoVideoCacheInfo>() { cacheInfo };
+                        },
+                        (x, y) =>
+                        {
+                            var tempinfo = y.FirstOrDefault(z => z.Quality == cacheInfo.Quality);
+                            if (tempinfo == null)
+                            {
+                                y.Add(cacheInfo);
+                            }
+                            else
+                            {
+                                tempinfo.RequestAt = cacheInfo.RequestAt;
+                                tempinfo.FilePath = cacheInfo.FilePath;
+                            }
+                            return y;
+                        });
+
                         VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
                         {
                             Request = progress,
                             CacheState = NicoVideoCacheState.Cached
                         });
+
+                        
                     }
                     else
                     {
