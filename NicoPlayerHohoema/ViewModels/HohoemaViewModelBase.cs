@@ -75,7 +75,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             _CompositeDisposable = new CompositeDisposable();
 			_NavigatingCompositeDisposable = new CompositeDisposable();
-			_UserSettingsCompositeDisposable = new CompositeDisposable();
 
             IsPageAvailable = HohoemaApp.ObserveProperty(x => x.ServiceStatus)
                 .Select(x => x >= PageRequireServiceLevel)
@@ -124,9 +123,6 @@ namespace NicoPlayerHohoema.ViewModels
 				_SignStatusLock.Wait();
 
 				NowSignIn = false;
-
-				_UserSettingsCompositeDisposable?.Dispose();
-                _UserSettingsCompositeDisposable = new CompositeDisposable();
 
                 if (IsRequireSignIn)
                 {
@@ -213,7 +209,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 if (HohoemaApp.ServiceStatus >= HohoemaAppServiceLevel.LoggedIn)
                 {
-                    return OnSignIn(_UserSettingsCompositeDisposable, cancelToken);
+                    return OnSignIn(_NavigatingCompositeDisposable, cancelToken);
                 }
                 else
                 {
@@ -454,7 +450,6 @@ namespace NicoPlayerHohoema.ViewModels
 				OnDispose();
 
 				_CompositeDisposable?.Dispose();
-				_UserSettingsCompositeDisposable?.Dispose();
 
 				HohoemaApp.OnSignout -= __OnSignout;
 				HohoemaApp.OnSignin -= __OnSignin;
@@ -503,6 +498,5 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected CompositeDisposable _CompositeDisposable { get; private set; }
 		protected CompositeDisposable _NavigatingCompositeDisposable { get; private set; }
-		protected CompositeDisposable _UserSettingsCompositeDisposable { get; private set; }
 	}
 }
