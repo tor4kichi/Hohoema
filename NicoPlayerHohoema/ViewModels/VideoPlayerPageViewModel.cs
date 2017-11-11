@@ -236,11 +236,11 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				if (saveRequested)
 				{
-					await HohoemaApp.CacheManager.CacheRequest(Video.RawVideoId, this.CurrentVideoQuality.Value.Value);
+					await HohoemaApp.CacheManager.RequestCache(Video.RawVideoId, this.CurrentVideoQuality.Value.Value);
 				}
 				else
 				{
-					await HohoemaApp.CacheManager.CacheRequestCancel(Video.RawVideoId, this.CurrentVideoQuality.Value.Value);
+					await HohoemaApp.CacheManager.CancelCacheRequest(Video.RawVideoId, this.CurrentVideoQuality.Value.Value);
 				}
 
 				CanToggleCurrentQualityCacheState.ForceNotify();
@@ -1946,7 +1946,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                                     await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                                     {
-                                        await HohoemaApp.CacheManager.CacheRequestCancel(VideoId, quality);
+                                        await HohoemaApp.CacheManager.CancelCacheRequest(VideoId, quality);
                                     });
                                 }
 
@@ -1956,7 +1956,7 @@ namespace NicoPlayerHohoema.ViewModels
                             {
                                 await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                                 {
-                                    await HohoemaApp.CacheManager.CacheRequest(VideoId, quality);
+                                    await HohoemaApp.CacheManager.RequestCache(VideoId, quality);
                                 });
                             }
 

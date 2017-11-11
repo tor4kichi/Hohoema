@@ -136,7 +136,7 @@ namespace NicoPlayerHohoema.ViewModels
                     ?? (_CacheRequestCommand = new DelegateCommand(() =>
                     {
                         // TODO: 動画情報ページからキャッシュする画質を指定できるようにする
-                        HohoemaApp.CacheManager.CacheRequest(VideoId, NicoVideoQuality.Smile_Original);
+                        HohoemaApp.CacheManager.RequestCache(VideoId, NicoVideoQuality.Smile_Original);
                     }
                     ));
             }

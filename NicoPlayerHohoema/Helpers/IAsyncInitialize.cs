@@ -63,6 +63,7 @@ namespace NicoPlayerHohoema.Helpers
             }
         }
 
+
         public void Cancel()
         {
             _CancellationTokenSource?.Cancel();

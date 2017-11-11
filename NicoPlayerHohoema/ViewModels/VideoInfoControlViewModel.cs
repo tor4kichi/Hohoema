@@ -344,8 +344,8 @@ namespace NicoPlayerHohoema.ViewModels
                             }
                         }
                         ProgressPercent = Observable.FromEventPattern<NicoVideoCacheProgress>(
-                            (handler) => _cacheManager.CacheProgress += handler,
-                            (handler) => _cacheManager.CacheProgress -= handler
+                            (handler) => _cacheManager.DownloadProgress += handler,
+                            (handler) => _cacheManager.DownloadProgress -= handler
                             )
                             .ObserveOnUIDispatcher()
                             .Where(y => y.EventArgs.RawVideoId == _Request.RawVideoId && y.EventArgs.Quality == _Request.Quality)

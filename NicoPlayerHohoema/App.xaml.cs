@@ -357,7 +357,7 @@ namespace NicoPlayerHohoema
                         var videoId = decode.GetFirstValueByName("id");
                         var quality = (NicoVideoQuality)Enum.Parse(typeof(NicoVideoQuality), decode.GetFirstValueByName("quality"));
 
-                        await hohoemaApp.CacheManager.CacheRequestCancel(videoId, quality);
+                        await hohoemaApp.CacheManager.CancelCacheRequest(videoId, quality);
                     }
                     else
                     {

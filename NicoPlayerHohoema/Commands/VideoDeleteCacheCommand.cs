@@ -54,7 +54,12 @@ namespace NicoPlayerHohoema.Commands
                     // キャッシュがいずれも未完了の場合は
                     // 確認無しで削除
 
-                    await cacheManager.CacheRequestCancel(content.Id);
+                    var requests = await cacheManager.GetCacheRequest(content.Id);
+
+                    foreach (var req in requests)
+                    {
+                        await cacheManager.CancelCacheRequest(req.RawVideoId, req.Quality);
+                    }
                 }
             }
         }

@@ -272,7 +272,6 @@
     <Compile Include="Helpers\ShareHelper.cs" />
     <Compile Include="Models\Niconico\Video\MediaProtocolType.cs" />
     <Compile Include="Models\Db\NicoVideo\NicoVIdeoDbContext.cs" />
-    <Compile Include="Models\Niconico\Video\VideoDownloadManager.cs" />
     <Compile Include="Helpers\AsyncLock.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideo.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideoCacheRequest.cs" />
