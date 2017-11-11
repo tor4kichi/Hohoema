@@ -36,21 +36,6 @@
 
         <MenuFlyout x:Key="VideoOptionsFlyout">
 
-            <MenuFlyoutSubItem Text="キャッシュ" >
-                <ToggleMenuFlyoutItem Text="旧 オリジナル画質"
-                                      IsChecked="{Binding IsCacheLegacyOriginalQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                      Command="{Binding ToggleCacheRequestCommand}"
-                                      CommandParameter="Original"
-                                      />
-
-                <ToggleMenuFlyoutItem Text="旧 低画質"
-                                      IsChecked="{Binding IsCacheLegacyLowQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                      Command="{Binding ToggleCacheRequestCommand}"
-                                      CommandParameter="Low"
-                                      />
-
-            </MenuFlyoutSubItem>
-
             <MenuFlyoutSubItem Text="再生速度" 
                                Visibility="Collapsed"
                                >
