@@ -286,7 +286,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
                 try
 				{
-					var userInfo = await HohoemaApp.ContentFinder.GetUserInfo(UserId);
+					var userInfo = await HohoemaApp.ContentProvider.GetUserInfo(UserId);
 					UserName = userInfo.Nickname;
 				}
 				catch (Exception ex)
@@ -345,11 +345,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         private async Task UpdateUserMylist()
 		{
-			if (!HohoemaApp.MylistManagerUpdater.IsOneOrMoreUpdateCompleted)
-			{
-				HohoemaApp.MylistManagerUpdater.ScheduleUpdate();
-				await HohoemaApp.MylistManagerUpdater.WaitUpdate();
-			}
+            await HohoemaApp.UserMylistManager.Initialize();
 
             var listItems = HohoemaApp.UserMylistManager.UserMylists;
             MylistList.Clear();
@@ -410,7 +406,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 foreach (var thumbnailUri in mylistGroup.ThumbnailUrls)
                 {
-                    ImageUrlsSource.Add(thumbnailUri.OriginalString);
+                    AddImageUrl(thumbnailUri.OriginalString);
                 }
             }
         }

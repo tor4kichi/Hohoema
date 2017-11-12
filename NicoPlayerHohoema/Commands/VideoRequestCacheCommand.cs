@@ -17,9 +17,10 @@ namespace NicoPlayerHohoema.Commands
             {
                 var content = parameter as Interfaces.IVideoContent;
 
-                var mediaManager = HohoemaCommnadHelper.GetHohoemaApp().MediaManager;
-                var nicoVideo = await mediaManager.GetNicoVideoAsync(content.Id);
-                await nicoVideo.RequestCache();
+                var mediaManager = HohoemaCommnadHelper.GetHohoemaApp().CacheManager;
+                await mediaManager.RequestCache(content.Id, Models.NicoVideoQuality.Smile_Original);
+
+                // TODO: キャッシュする画質を指定可能にしたい
             }
         }
     }

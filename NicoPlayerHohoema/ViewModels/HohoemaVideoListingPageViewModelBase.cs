@@ -30,18 +30,20 @@ namespace NicoPlayerHohoema.ViewModels
 		public HohoemaVideoListingPageViewModelBase(HohoemaApp app, PageManager pageManager, bool isRequireSignIn = true, bool useDefaultPageTitle = true)
 			: base(app, pageManager, useDefaultPageTitle:useDefaultPageTitle)
 		{
-			var SelectionItemsChanged = SelectedItems.ToCollectionChanged().ToUnit();
+            var SelectionItemsChanged = SelectedItems.ToCollectionChanged().ToUnit();
 
 #if DEBUG
 			SelectedItems.CollectionChangedAsObservable()
 				.Subscribe(x =>
 				{
 					Debug.WriteLine("Selected Count: " + SelectedItems.Count);
-				});
+				})
+
+            .AddTo(_CompositeDisposable);
 #endif
 
 
-			PlayAllCommand = SelectionItemsChanged
+            PlayAllCommand = SelectionItemsChanged
 				.Select(_ => SelectedItems.Count > 0)
 				.ToReactiveCommand(false)
 				.AddTo(_CompositeDisposable);
@@ -73,9 +75,12 @@ namespace NicoPlayerHohoema.ViewModels
 						uint count = 0;
 						foreach (var item in items)
 						{
-        					await item.NicoVideo.CancelCacheRequest();
+                            foreach (var quality in item.CachedQualityVideos)
+                            {
+                                await HohoemaApp.CacheManager.CancelCacheRequest(item.RawVideoId, quality.Quality);
+                            }
 
-							++count;
+                            ++count;
 							progress.Report(count);
 						}
 
@@ -98,9 +103,9 @@ namespace NicoPlayerHohoema.ViewModels
 				.SubscribeOnUIDispatcher()
 				.Subscribe(async _ =>
 				{
-                    foreach (var item in EnumerateCanDownloadVideoItem())
+                    foreach (var item in SelectedItems)
 					{
-                        await item.NicoVideo.RequestCache();
+                        await HohoemaApp.CacheManager.RequestCache(item.RawVideoId, NicoVideoQuality.Smile_Original);
 					}
 
 					ClearSelection();
@@ -196,8 +201,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 					await PageManager.StartNoUIWork("マイリストに追加", items.Count, () => action);
 				}
-			);
-            
+			)
+            .AddTo(_CompositeDisposable);
+
 
             Playlists = HohoemaApp.Playlist.Playlists.ToReadOnlyReactiveCollection();
         }
@@ -228,67 +234,37 @@ namespace NicoPlayerHohoema.ViewModels
 			}
             */
 
+            HohoemaApp.CacheManager.VideoCacheStateChanged += CacheManager_VideoCacheStateChanged;
+
             ReflectCanDownloadStatus();
         }
 
-		protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
-		{
-			base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
+        private async void CacheManager_VideoCacheStateChanged(object sender, VideoCacheStateChangedEventArgs e)
+        {
+            if (e.CacheState != NicoVideoCacheState.Cached)
+            {
+                var video = IncrementalLoadingItems?.FirstOrDefault(x => x.RawVideoId == e.Request.RawVideoId);
+                if (video != null)
+                {
+                    await video.RefrechCacheState();
+                }
+            }
+        }
 
-			// 戻る時だけ
-			if (e.NavigationMode == NavigationMode.Back 
-				&& IncrementalLoadingItems != null
-				&& IncrementalLoadingItems.Source is HohoemaVideoPreloadingIncrementalSourceBase<VIDEO_INFO_VM>)
-			{
-				var preloadSource = IncrementalLoadingItems.Source as HohoemaVideoPreloadingIncrementalSourceBase<VIDEO_INFO_VM>;
-				preloadSource.CancelPreloading();
-			}
+        protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+		{
+            HohoemaApp.CacheManager.VideoCacheStateChanged -= CacheManager_VideoCacheStateChanged;
+
+            base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 		}
 
 		private IEnumerable<VideoInfoControlViewModel> EnumerateCacheRequestedVideoItems()
 		{
 			return SelectedItems.Where(x =>
 			{
-				return x.NicoVideo.OriginalQuality.IsCacheRequested
-					|| x.NicoVideo.LowQuality.IsCacheRequested;
-
-			});
+                return x.CachedQualityVideos.Count > 0;
+            });
 		}
-
-		private IEnumerable<VideoInfoControlViewModel> EnumerateCanDownloadVideoItem(NicoVideoQuality? quality = null)
-		{
-			if (!quality.HasValue)
-			{
-				return SelectedItems.Where(x =>
-				{
-					var video = x.NicoVideo;
-					if (video.OriginalQuality.CanRequestCache && !video.OriginalQuality.IsCached)
-					{
-						return true;
-					}
-					else if (video.LowQuality.CanRequestCache && !video.LowQuality.IsCached)
-					{
-						return true;
-					}
-					else
-					{
-						return false;
-					}
-				});
-			}
-            else
-            {
-                switch (quality)
-                {
-                    case NicoVideoQuality.Smile_Original:
-                        return SelectedItems.Where(x => x.NicoVideo.OriginalQuality.CanRequestCache && !x.NicoVideo.OriginalQuality.IsCached);
-                    case NicoVideoQuality.Smile_Low:
-                        return SelectedItems.Where(x => x.NicoVideo.LowQuality.CanRequestCache && !x.NicoVideo.LowQuality.IsCached);
-                    default:
-                        return Enumerable.Empty<VideoInfoControlViewModel>();
-                }
-            }
-        }
 
 		
 

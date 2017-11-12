@@ -14,6 +14,10 @@ namespace NicoPlayerHohoema.Commands
             if (parameter is Interfaces.IVideoContent)
             {
                 var content = parameter as Interfaces.IVideoContent;
+                if (string.IsNullOrEmpty(content.OwnerUserId))
+                {
+                    return;
+                }
 
                 var pageManager = HohoemaCommnadHelper.GetPageManager();
                 pageManager.OpenPage(Models.HohoemaPageType.UserVideo, content.OwnerUserId.ToString());

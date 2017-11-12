@@ -39,7 +39,7 @@ namespace NicoPlayerHohoema.Models
 
 		protected override async Task<List<FollowCommunityInfo>> GetFollowSource()
 		{
-			var res = await HohoemaApp.ContentFinder.GetFavCommunities();
+			var res = await HohoemaApp.ContentProvider.GetFavCommunities();
 			return res.Items;
 		}
 

@@ -96,7 +96,23 @@ namespace NicoPlayerHohoema
 
             RequestedTheme = GetTheme();
 
-			this.InitializeComponent();
+
+            // ローカルDBのEntityFrameworkからLiteDBへの移行処理
+            // 0.13あたりまで残しておく予定
+            try
+            {
+                MigrationToLiteDBHelper.Migrate();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
+
+            Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.CacheDuration = TimeSpan.FromDays(7);
+            Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.MaxMemoryCacheCount = 200;
+            Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.RetryCount = 3;
+
+            this.InitializeComponent();
 
         }
 
@@ -247,9 +263,6 @@ namespace NicoPlayerHohoema
                 {
                     if (!hohoemaApp.IsLoggedIn && AccountManager.HasPrimaryAccount())
                     {
-                        
-                        pageManager.OpenPage(HohoemaPageType.Splash);
-
                         hohoemaApp.SignInWithPrimaryAccount().ContinueWith(prevTask =>
                         {
                             if (prevTask.Result == Mntone.Nico2.NiconicoSignInStatus.Success)
@@ -344,9 +357,7 @@ namespace NicoPlayerHohoema
                         var videoId = decode.GetFirstValueByName("id");
                         var quality = (NicoVideoQuality)Enum.Parse(typeof(NicoVideoQuality), decode.GetFirstValueByName("quality"));
 
-                        var video = await hohoemaApp.MediaManager.GetNicoVideoAsync(videoId);
-
-                        await video.CancelCacheRequest(quality);
+                        await hohoemaApp.CacheManager.CancelCacheRequest(videoId, quality);
                     }
                     else
                     {
@@ -637,26 +648,22 @@ namespace NicoPlayerHohoema
             Container.RegisterInstance(secondaryViewMan);
             Container.RegisterInstance(hohoemaApp);
 			Container.RegisterInstance(new PageManager(hohoemaApp, NavigationService, hohoemaApp.UserSettings.AppearanceSettings, hohoemaApp.Playlist, secondaryViewMan, dialogService));
-            Container.RegisterInstance(hohoemaApp.ContentFinder);
+            Container.RegisterInstance(hohoemaApp.ContentProvider);
             Container.RegisterInstance(hohoemaApp.Playlist);
             Container.RegisterInstance(hohoemaApp.OtherOwneredMylistManager);
             Container.RegisterInstance(hohoemaApp.FeedManager);
-
-
-            // 非同期更新機能の同時実行タスク数を指定
-            var deviceFamily = Windows.System.Profile.AnalyticsInfo.VersionInfo.DeviceFamily;
-			BackgroundUpdater.MaxTaskSlotCount = deviceFamily.EndsWith("Mobile") ? 1u : 2u;
+            Container.RegisterInstance(hohoemaApp.CacheManager);
 
 #if DEBUG
-//			BackgroundUpdater.MaxTaskSlotCount = 1;
+            //			BackgroundUpdater.MaxTaskSlotCount = 1;
 #endif
-			// TODO: プレイヤーウィンドウ上で管理する
-			//			var backgroundTask = MediaBackgroundTask.Create();
-			//			Container.RegisterInstance(backgroundTask);
+            // TODO: プレイヤーウィンドウ上で管理する
+            //			var backgroundTask = MediaBackgroundTask.Create();
+            //			Container.RegisterInstance(backgroundTask);
 
 
-			// ViewModels
-			Container.RegisterType<ViewModels.MenuNavigatePageBaseViewModel>(new ContainerControlledLifetimeManager());
+            // ViewModels
+            Container.RegisterType<ViewModels.MenuNavigatePageBaseViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ViewModels.RankingCategoryListPageViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ViewModels.WatchHistoryPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.UserVideoPageViewModel>(new ContainerControlledLifetimeManager());
@@ -805,39 +812,6 @@ namespace NicoPlayerHohoema
                 e.Cancel = true;
                 return;
             }
-
-            // Note: 有害動画の確認ページへの進む動作を防止する
-            if (e.NavigationMode == NavigationMode.Forward)
-			{
-				if (e.SourcePageType.Name.EndsWith("Page"))
-				{
-					var pageTypeString = e.SourcePageType.Name.Remove(e.SourcePageType.Name.IndexOf("Page"));
-
-					HohoemaPageType pageType;
-					if (Enum.TryParse(pageTypeString, out pageType))
-					{
-						if (pageType == HohoemaPageType.ConfirmWatchHurmfulVideo)
-						{
-							e.Cancel = true;
-							return;
-						}
-					}
-				}
-                else if (e.SourcePageType.Name.EndsWith("Page_TV"))
-                {
-                    var pageTypeString = e.SourcePageType.Name.Remove(e.SourcePageType.Name.IndexOf("Page_TV"));
-
-                    HohoemaPageType pageType;
-                    if (Enum.TryParse(pageTypeString, out pageType))
-                    {
-                        if (pageType == HohoemaPageType.ConfirmWatchHurmfulVideo)
-                        {
-                            e.Cancel = true;
-                            return;
-                        }
-                    }
-                }
-            }
 		}
 
 
@@ -954,7 +928,7 @@ namespace NicoPlayerHohoema
         {
             if (NiconicoRegex.IsVideoId(contentId))
             {
-                await SubmitVideoContentSuggestion(contentId);
+                SubmitVideoContentSuggestion(contentId);
             }
             else if (NiconicoRegex.IsLiveId(contentId))
             {
@@ -975,7 +949,7 @@ namespace NicoPlayerHohoema
                 var contentId = contentIdGroup.Value;
                 if (NiconicoRegex.IsVideoId(contentId))
                 {
-                    await SubmitVideoContentSuggestion(contentId);
+                    SubmitVideoContentSuggestion(contentId);
                 }
                 else if (NiconicoRegex.IsLiveId(contentId))
                 {
@@ -1013,10 +987,10 @@ namespace NicoPlayerHohoema
             }
         }
 
-        private async Task SubmitVideoContentSuggestion(string videoId)
+        private async void SubmitVideoContentSuggestion(string videoId)
         {
-            var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
-            var nicoVideo = await hohoemaApp.MediaManager.GetNicoVideoAsync(videoId);
+            var contentProvider = App.Current.Container.Resolve<NiconicoContentProvider>();
+            var nicoVideo = await contentProvider.GetNicoVideoInfo(videoId);
 
             PublishInAppNotification(new InAppNotificationPayload()
             {
@@ -1030,6 +1004,7 @@ namespace NicoPlayerHohoema
                             Label = "再生",
                             Command = new DelegateCommand(() =>
                             {
+                                var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
                                 hohoemaApp.Playlist.PlayVideo(nicoVideo.RawVideoId, nicoVideo.Title);
 
                                 DismissInAppNotification();
@@ -1040,6 +1015,7 @@ namespace NicoPlayerHohoema
                             Label = "あとで見る",
                             Command = new DelegateCommand(() =>
                             {
+                                var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
                                 hohoemaApp.Playlist.DefaultPlaylist.AddVideo(nicoVideo.RawVideoId, nicoVideo.Title);
 
                                 DismissInAppNotification();
@@ -1116,7 +1092,7 @@ namespace NicoPlayerHohoema
             Mntone.Nico2.Mylist.MylistGroup.MylistGroupDetailResponse mylistDetail = null;
             try
             {
-                mylistDetail = await hohoemaApp.ContentFinder.GetMylistGroupDetail(mylistId);
+                mylistDetail = await hohoemaApp.ContentProvider.GetMylistGroupDetail(mylistId);
             }
             catch { }
 
@@ -1153,7 +1129,7 @@ namespace NicoPlayerHohoema
             Mntone.Nico2.Communities.Detail.CommunityDetailResponse communityDetail = null;
             try
             {
-                communityDetail = await hohoemaApp.ContentFinder.GetCommunityDetail(communityId);
+                communityDetail = await hohoemaApp.ContentProvider.GetCommunityDetail(communityId);
             }
             catch { }
 
@@ -1186,7 +1162,7 @@ namespace NicoPlayerHohoema
         {
             var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
 
-            var user = await hohoemaApp.ContentFinder.GetUserInfo(userId);
+            var user = await hohoemaApp.ContentProvider.GetUserInfo(userId);
 
             if (user == null) { return; }
 

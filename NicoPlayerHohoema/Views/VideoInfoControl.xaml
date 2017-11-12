@@ -16,31 +16,9 @@
     d:DesignHeight="60"
     d:DesignWidth="400">
 
-    <UserControl.Resources>
-        <DataTemplate x:Key="QualityVideoTemplate">
-            <!-- 画質ごとのキャッシュ状態を表示 
-                            
-            キャッシュリクエストされていない -> 非表示
-            キャッシュ待機中 -> 灰色
-            キャッシュDL中 -> 青色
-            キャッシュ済み -> 緑色
-                            
-            -->
-            <Border>
-                <TextBlock Text="{Binding Quality, Converter={StaticResource ToLocalText}}"
-                            Visibility="{Binding IsNotCacheRequested.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                           Foreground="{Binding CacheState.Value, Converter={StaticResource CacheStateToColorBrush}}"
-                            FontSize="13"
-                            Margin="0 0"
-                            VerticalAlignment="Center"
-                            x:Name="QualityText"
-                            >
-                </TextBlock>
-            </Border>
-        </DataTemplate>
-    </UserControl.Resources>
     <Grid>
 
+        <!--
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>
                 <VisualState>
@@ -54,6 +32,7 @@
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
+        -->
         
         
         <toolkit:DockPanel>
@@ -61,7 +40,7 @@
 
             <Border toolkit:DockPanel.Dock="Bottom" >
 
-                <ItemsControl ItemsSource="{Binding QualityDividedVideos}"
+                <ItemsControl ItemsSource="{Binding CachedQualityVideos}"
                               HorizontalContentAlignment="Stretch"
                               IsTabStop="False"
                               >
@@ -84,7 +63,7 @@
                                            FontSize="12"
                                            VerticalAlignment="Center"
                                                 >
-                                    <Run Text="{Binding Quality}" />
+                                    <Run Text="{Binding Quality, Converter={StaticResource ToLocalText}}" />画質
                                 </TextBlock>
                                 
                                 <TextBlock toolkit:DockPanel.Dock="Right" 
@@ -113,7 +92,7 @@
 
             <Grid >
 
-                <ItemsControl ItemsSource="{Binding QualityDividedVideos}"
+                <ItemsControl ItemsSource="{Binding CachedQualityVideos}"
                               ItemTemplate="{StaticResource QualityVideoTemplate}"
                               HorizontalAlignment="Right"
                               VerticalAlignment="Bottom"

@@ -9,14 +9,15 @@ using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.UI.Core;
 
 namespace NicoPlayerHohoema.Models
 {
-	public class UserMylistManager : BackgroundUpdateableBase
-	{
+	public class UserMylistManager : AsyncInitialize
+    {
 		public const int MaxUserMylistGroupCount = 25;
 
 
@@ -82,7 +83,7 @@ namespace NicoPlayerHohoema.Models
 
 		private void App_OnSignin()
 		{
-			// TODO: バックグラウンド処理にマイリスト更新を積む
+            Initialize();
 		}
 
 
@@ -130,7 +131,7 @@ namespace NicoPlayerHohoema.Models
                 List<LoginUserMylistGroup> mylistGroupDataLists = null;
                 try
                 {
-                    mylistGroupDataLists = await HohoemaApp.ContentFinder.GetLoginUserMylistGroups();
+                    mylistGroupDataLists = await HohoemaApp.ContentProvider.GetLoginUserMylistGroups();
                 }
                 catch
                 {
@@ -167,33 +168,6 @@ namespace NicoPlayerHohoema.Models
                     _UserMylists.Remove(removeMylistGroup);
                 }
             }
-		}
-
-
-		public void UpdateRequestAllMylists()
-		{
-			foreach (var userMylist in this.UserMylists)
-			{
-				UpdateRequestMylist(userMylist);
-			}
-		}
-
-		public void UpdateRequestMylist(MylistGroupInfo info)
-		{
-			if (info.IsDeflist)
-			{
-				var updater = HohoemaApp.BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(info
-					, "mylist_deflist",
-					label: "とりあえずマイリスト"
-					);
-			}
-			else
-			{
-				var updater = HohoemaApp.BackgroundUpdater.RegistrationBackgroundUpdateScheduleHandler(info
-					, "mylist_" + info.Name,
-					label: "Mylist:" + info.Name
-					);
-			}
 		}
 
 		public async Task<ContentManageResult> AddMylist(string name, string description, bool is_public, MylistDefaultSort default_sort, IconType iconType)
@@ -256,11 +230,16 @@ namespace NicoPlayerHohoema.Models
 //			RaisePropertyChanged(nameof(CanAddMylistItem));
 		}
 
-		public override IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
-		{
-			return SyncMylistGroups().AsAsyncAction();
-		}
-	}
+        protected override Task OnInitializeAsync(CancellationToken cancelToken)
+        {
+            return Windows.System.Threading.ThreadPool.RunAsync(async (x) => 
+            {
+                await SyncMylistGroups();
+            }
+            , Windows.System.Threading.WorkItemPriority.Low)
+            .AsTask(cancelToken);
+        }
+    }
 
 	public class MylistVideoItemInfo
 	{
@@ -268,7 +247,7 @@ namespace NicoPlayerHohoema.Models
 		public string ThreadId { get; set; }
 	}
 
-	public class MylistGroupInfo : BackgroundUpdateableBase, IPlayableList
+	public class MylistGroupInfo : IPlayableList
     {
 		public HohoemaApp HohoemaApp { get; private set; }
 		public UserMylistManager MylistManager { get; private set; }
@@ -325,17 +304,6 @@ namespace NicoPlayerHohoema.Models
 		}
 
 		public bool IsDeflist { get; private set; }
-
-
-		#region interface IBackgroundUpdateable
-
-		public override IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
-		{
-			return Refresh()
-				.AsAsyncAction();
-		}
-
-		#endregion
 
 
 		/// <summary>
@@ -525,7 +493,7 @@ namespace NicoPlayerHohoema.Models
 				}
 				else
 				{
-					var res = await HohoemaApp.ContentFinder.GetMylistGroupVideo(GroupId, 0, itemCountPerMylist);
+					var res = await HohoemaApp.ContentProvider.GetMylistGroupVideo(GroupId, 0, itemCountPerMylist);
 
 
 					if (res.GetCount() > 0)

@@ -29,6 +29,8 @@ namespace NicoPlayerHohoema.Models
 		{
             var userFavDatas = await GetFollowSource();
 
+            if (userFavDatas == null) { return; }
+
             // まだローカルデータとして登録されていないIDを追加分として抽出
             var addedItems = userFavDatas
                 .Where(x =>

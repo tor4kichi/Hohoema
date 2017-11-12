@@ -13,9 +13,9 @@ namespace NicoPlayerHohoema.Models
         public readonly Dictionary<string, OtherOwneredMylist> CachedMylist = new Dictionary<string, OtherOwneredMylist>();
 
 
-        NiconicoContentFinder NiconicoContentFinder { get; }
+        NiconicoContentProvider NiconicoContentFinder { get; }
 
-        public OtherOwneredMylistManager(NiconicoContentFinder contentFinder)
+        public OtherOwneredMylistManager(NiconicoContentProvider contentFinder)
         {
             NiconicoContentFinder = contentFinder;
 

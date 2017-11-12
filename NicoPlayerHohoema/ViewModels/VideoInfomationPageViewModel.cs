@@ -14,14 +14,20 @@ using System.Threading;
 using System.Diagnostics;
 using Mntone.Nico2;
 using Mntone.Nico2.Embed.Ichiba;
+using Mntone.Nico2.Videos.WatchAPI;
+using Mntone.Nico2.Videos.Dmc;
+using NicoPlayerHohoema.Models.Db;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public class VideoInfomationPageViewModel : HohoemaViewModelBase
     {
+        Database.NicoVideo _VideoInfo;
+
+
         public Uri DescriptionHtmlFileUri { get; private set; }
 
-        public NicoVideo Video { get; private set; }
+        public string VideoId { get; private set; }
 
         public string VideoTitle { get; private set; }
 
@@ -29,7 +35,9 @@ namespace NicoPlayerHohoema.ViewModels
 
         public IList<TagViewModel> Tags { get; private set; }
 
+        public bool IsChannelOwnedVideo { get; private set; }
         public string OwnerName { get; private set; }
+        public string OwnerId { get; private set; }
         public string OwnerIconUrl { get; private set; }
 
         public TimeSpan VideoLength { get; private set; }
@@ -77,7 +85,10 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenOwnerUserPageCommand
                     ?? (_OpenOwnerUserPageCommand = new DelegateCommand(() =>
                     {
-                        PageManager.OpenPage(HohoemaPageType.UserInfo, Video.OwnerId.ToString());
+                        if (_VideoInfo.Owner.UserType == Mntone.Nico2.Videos.Thumbnail.UserType.User)
+                        {
+                            PageManager.OpenPage(HohoemaPageType.UserInfo, _VideoInfo.Owner.OwnerId);
+                        }
                     }
                     ));
             }
@@ -92,7 +103,10 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenOwnerUserVideoPageCommand
                     ?? (_OpenOwnerUserVideoPageCommand = new DelegateCommand(() =>
                     {
-                        PageManager.OpenPage(HohoemaPageType.UserVideo, Video.OwnerId.ToString());
+                        if (_VideoInfo.Owner.UserType == Mntone.Nico2.Videos.Thumbnail.UserType.User)
+                        {
+                            PageManager.OpenPage(HohoemaPageType.UserVideo, _VideoInfo.Owner.OwnerId);
+                        }
                     }
                     ));
             }
@@ -107,7 +121,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayVideoCommand
                     ?? (_PlayVideoCommand = new DelegateCommand(() =>
                     {
-                        HohoemaApp.Playlist.PlayVideo(Video.RawVideoId, Video.Title);
+                        HohoemaApp.Playlist.PlayVideo(VideoId, Title);
                     }
                     ));
             }
@@ -121,7 +135,8 @@ namespace NicoPlayerHohoema.ViewModels
                 return _CacheRequestCommand
                     ?? (_CacheRequestCommand = new DelegateCommand(() =>
                     {
-                        Video.RequestCache();
+                        // TODO: 動画情報ページからキャッシュする画質を指定できるようにする
+                        HohoemaApp.CacheManager.RequestCache(VideoId, NicoVideoQuality.Smile_Original);
                     }
                     ));
             }
@@ -137,7 +152,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ShareCommand
                     ?? (_ShareCommand = new DelegateCommand(() =>
                     {
-                        ShareHelper.Share(Video);
+                        ShareHelper.Share(_VideoInfo);
                     }
                     , () => DataTransferManager.IsSupported()
                     ));
@@ -152,7 +167,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ShereWithTwitterCommand
                     ?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
                     {
-                        await ShareHelper.ShareToTwitter(Video);
+                        await ShareHelper.ShareToTwitter(_VideoInfo);
                     }
                     ));
             }
@@ -166,7 +181,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _VideoInfoCopyToClipboardCommand
                     ?? (_VideoInfoCopyToClipboardCommand = new DelegateCommand(() =>
                     {
-                        ShareHelper.CopyToClipboard(Video);
+                        ShareHelper.CopyToClipboard(_VideoInfo);
                     }
                     ));
             }
@@ -184,13 +199,13 @@ namespace NicoPlayerHohoema.ViewModels
 
                         if (targetMylist != null)
                         {
-                            var result = await HohoemaApp.AddMylistItem(targetMylist, Video.Title, Video.RawVideoId);
+                            var result = await HohoemaApp.AddMylistItem(targetMylist, Title, VideoId);
                             (App.Current as App).PublishInAppNotification(
                                 InAppNotificationPayload.CreateRegistrationResultNotification(
                                     result,
                                     "マイリスト",
                                     targetMylist.Name,
-                                    Video.Title
+                                    Title
                                     ));                            
                         }
                     }
@@ -228,7 +243,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                         if (playlist == null) { return; }
 
-                        playlist.AddVideo(Video.RawVideoId, Video.Title);
+                        playlist.AddVideo(VideoId, Title);
                     }));
             }
         }
@@ -279,27 +294,50 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
+            NowLoading.Value = true;
+
             if (e.Parameter is string)
             {
-                var videoId = e.Parameter as string;
-                Video = await HohoemaApp.MediaManager.GetNicoVideoAsync(videoId);
+                VideoId = e.Parameter as string;
             }
 
-            if (Video == null)
+            if (VideoId == null)
             {
                 IsLoadFailed.Value = true;
                 throw new Exception();
             }
 
-            VideoPageUri = new Uri("http://nicovideo.jp/watch/" + Video.RawVideoId);
+            VideoPageUri = new Uri("http://nicovideo.jp/watch/" + VideoId);
             RaisePropertyChanged(nameof(VideoPageUri));
 
-
-            await Update();
+            Playlists = HohoemaApp.Playlist.Playlists.ToList();
 
             try
             {
-                var ichiba = await HohoemaApp.NiconicoContext.Embed.GetIchiba(Video.RawVideoId);
+                _VideoInfo = await HohoemaApp.ContentProvider.GetNicoVideoInfo(VideoId);
+            }
+            catch
+            {
+                IsLoadFailed.Value = true;
+
+                // サムネ情報取得に失敗
+
+                // 動画情報ページ自体はアクセスできる可能性があるため処理を継続
+            }
+
+
+            try
+            {
+                await Update();
+            }
+            catch
+            {
+                IsLoadFailed.Value = true;
+            }
+
+            try
+            {
+                var ichiba = await HohoemaApp.NiconicoContext.Embed.GetIchiba(VideoId);
                 IchibaItems = ichiba.GetMainIchibaItems();
                 if (IchibaItems.Count > 0)
                 {
@@ -308,19 +346,20 @@ namespace NicoPlayerHohoema.ViewModels
             }
             catch
             {
-                Debug.WriteLine(Video.RawVideoId + " の市場情報の取得に失敗");
+                Debug.WriteLine(VideoId + " の市場情報の取得に失敗");
             }
+
+            NowLoading.Value = false;
         }
 
 
         private async Task Update()
         {
-            if (Video == null)
+            if (VideoId == null)
             {
                 return;
             }
 
-            NowLoading.Value = true;
             IsLoadFailed.Value = false;
 
 
@@ -329,87 +368,102 @@ namespace NicoPlayerHohoema.ViewModels
                 && HohoemaApp.IsLoggedIn;
             RaisePropertyChanged(nameof(CanDownload));
 
+            var videoDescriptionHtml = string.Empty;
+            try
+            {
+
+            
+            
+                var nicoVideo = new NicoVideo(VideoId, HohoemaApp.ContentProvider, HohoemaApp.NiconicoContext, HohoemaApp.CacheManager);
+
+                var res = await nicoVideo.VisitWatchPage(NicoVideoQuality.Dmc_High);
+
+                if (res is WatchApiResponse)
+                {
+                    var watchApi = res as WatchApiResponse;
+
+                    VideoTitle = watchApi.videoDetail.title;
+                    Tags = watchApi.videoDetail.tagList.Select(x => new TagViewModel(x.tag, PageManager))
+                        .ToList();
+                    ThumbnailUrl = watchApi.videoDetail.thumbnail;
+                    VideoLength = TimeSpan.FromSeconds(watchApi.videoDetail.length.Value);
+                    SubmitDate = DateTime.Parse(watchApi.videoDetail.postedAt);
+                    ViewCount = (uint)watchApi.videoDetail.viewCount.Value;
+                    CommentCount = (uint)watchApi.videoDetail.commentCount.Value;
+                    MylistCount = (uint)watchApi.videoDetail.mylistCount.Value;
+                    OwnerName = watchApi.UserName;
+                    OwnerIconUrl = watchApi.UploaderInfo?.icon_url ?? watchApi.channelInfo?.icon_url;
+                    IsChannelOwnedVideo = watchApi.channelInfo != null;
+
+                    videoDescriptionHtml = watchApi.videoDetail.description;
+                }
+                else if (res is DmcWatchData)
+                {
+                    var dmcWatchApi = (res as DmcWatchData).DmcWatchResponse;
+
+                    VideoTitle = dmcWatchApi.Video.Title;
+                    Tags = dmcWatchApi.Tags.Select(x => new TagViewModel(x.Name, PageManager))
+                        .ToList();
+                    ThumbnailUrl = dmcWatchApi.Video.ThumbnailURL;
+                    VideoLength = TimeSpan.FromSeconds(dmcWatchApi.Video.Duration);
+                    SubmitDate = DateTime.Parse(dmcWatchApi.Video.PostedDateTime);
+                    ViewCount = (uint)dmcWatchApi.Video.ViewCount;
+                    CommentCount = (uint)dmcWatchApi.Thread.CommentCount;
+                    MylistCount = (uint)dmcWatchApi.Video.MylistCount;
+                    OwnerId = dmcWatchApi.Owner?.Nickname ?? dmcWatchApi.Channel?.Name;
+                    OwnerName = dmcWatchApi.Owner?.Nickname ?? dmcWatchApi.Channel?.Name;
+                    OwnerIconUrl = dmcWatchApi.Owner?.IconURL ?? dmcWatchApi.Channel?.IconURL;
+                    IsChannelOwnedVideo = dmcWatchApi.Channel != null;
+
+                    videoDescriptionHtml = dmcWatchApi.Video.Description;
+                }
+            }
+            catch
+            {
+                IsLoadFailed.Value = true;
+                return;
+            }
+
+
+
+            RaisePropertyChanged(nameof(VideoTitle));
+            RaisePropertyChanged(nameof(Tags));
+            RaisePropertyChanged(nameof(ThumbnailUrl));
+            RaisePropertyChanged(nameof(VideoLength));
+            RaisePropertyChanged(nameof(SubmitDate));
+            RaisePropertyChanged(nameof(ViewCount));
+            RaisePropertyChanged(nameof(CommentCount));
+            RaisePropertyChanged(nameof(MylistCount));
+            RaisePropertyChanged(nameof(OwnerName));
+            RaisePropertyChanged(nameof(OwnerIconUrl));
+
 
             try
             {
-                try
-                {
-                    await Video.VisitWatchPage(NicoVideoQuality.Dmc_High);
-
-
-                    VideoTitle = Video.Title;
-                    Tags = Video.Tags.Select(x => new TagViewModel(x.Value, PageManager))
-                        .ToList();
-                    ThumbnailUrl = Video.ThumbnailUrl;
-                    VideoLength = Video.VideoLength;
-                    SubmitDate = Video.PostedAt;
-                    ViewCount = Video.ViewCount;
-                    CommentCount = Video.CommentCount;
-                    MylistCount = Video.MylistCount;
-                }
-                catch
-                {
-                    IsLoadFailed.Value = true;
-                    return;
-                }
-
-
-
-                RaisePropertyChanged(nameof(VideoTitle));
-                RaisePropertyChanged(nameof(Tags));
-                RaisePropertyChanged(nameof(ThumbnailUrl));
-                RaisePropertyChanged(nameof(VideoLength));
-                RaisePropertyChanged(nameof(SubmitDate));
-                RaisePropertyChanged(nameof(ViewCount));
-                RaisePropertyChanged(nameof(CommentCount));
-                RaisePropertyChanged(nameof(MylistCount));
-
-
-                try
-                {
-                    DescriptionHtmlFileUri = await Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(Video.RawVideoId, Video.DescriptionWithHtml);
-                    RaisePropertyChanged(nameof(DescriptionHtmlFileUri));
-                }
-                catch
-                {
-                    IsLoadFailed.Value = true;
-                    return;
-                }
-
-                try
-                {
-                    OwnerName = Video.OwnerName;
-                    OwnerIconUrl = Video.OwnerIconUrl;
-
-                    RaisePropertyChanged(nameof(OwnerName));
-                    RaisePropertyChanged(nameof(OwnerIconUrl));
-                }
-                catch
-                {
-                    IsLoadFailed.Value = true;
-                    return;
-                }
-
-                try
-                {
-                    Playlists = HohoemaApp.Playlist.Playlists.ToList();
-                }
-                catch
-                {
-                    IsLoadFailed.Value = true;
-                    return;
-                }
-
-
-                SelfZoningInfo = Video.CheckNGVideo();
-                IsSelfZoningContent = SelfZoningInfo != null;
-
-                RaisePropertyChanged(nameof(SelfZoningInfo));
-                RaisePropertyChanged(nameof(IsSelfZoningContent));
+                DescriptionHtmlFileUri = await Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoId, videoDescriptionHtml);
+                RaisePropertyChanged(nameof(DescriptionHtmlFileUri));
             }
-            finally
+            catch
             {
-                NowLoading.Value = false;
+                IsLoadFailed.Value = true;
+                return;
+            }
+
+            try
+            {
+                if (_VideoInfo != null)
+                {
+                    SelfZoningInfo = HohoemaApp.UserSettings.NGSettings.IsNgVideo(_VideoInfo);
+                    IsSelfZoningContent = SelfZoningInfo != null;
+
+                    RaisePropertyChanged(nameof(SelfZoningInfo));
+                    RaisePropertyChanged(nameof(IsSelfZoningContent));
+                }
+            }
+            catch
+            {
+                IsLoadFailed.Value = true;
+                return;
             }
         }
 

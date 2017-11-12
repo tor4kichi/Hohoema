@@ -220,7 +220,7 @@ namespace NicoPlayerHohoema.ViewModels
 				// コミュニティ情報の取得
 				if (!string.IsNullOrEmpty(CommunityId))
 				{
-					var res = await HohoemaApp.ContentFinder.GetCommunityInfo(CommunityId);
+					var res = await HohoemaApp.ContentProvider.GetCommunityInfo(CommunityId);
 
 					if (res == null || !res.IsStatusOK) { return; }
 
@@ -239,7 +239,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-					var detail = await HohoemaApp.ContentFinder.GetCommunityDetail(CommunityId);
+					var detail = await HohoemaApp.ContentProvider.GetCommunityDetail(CommunityId);
 
 					if (detail == null && !detail.IsStatusOK) { return; }
 

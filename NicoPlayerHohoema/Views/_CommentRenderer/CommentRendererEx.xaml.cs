@@ -137,6 +137,8 @@ namespace NicoPlayerHohoema.Views
                 PrevRenderCommentEachLine_Stream.Clear();
                 PrevRenderCommentEachLine_Top.Clear();
                 PrevRenderCommentEachLine_Bottom.Clear();
+
+                Clip = new RectangleGeometry() { Rect = new Rect() { Width = ActualWidth, Height = ActualHeight } };
             }
         }
 

@@ -302,7 +302,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private Task<NicoliveVideoResponse> GetLiveSearchResponseOnCurrentOption(uint from, uint length)
 		{
-			return HohoemaApp.ContentFinder.LiveSearchAsync(
+			return HohoemaApp.ContentProvider.LiveSearchAsync(
 					SearchOption.Keyword,
 					SearchOption.IsTagSearch,
 					from: from,
@@ -345,7 +345,7 @@ namespace NicoPlayerHohoema.ViewModels
                 SearchedVideoIdsHash.Add(live.Video.Id);
             }
         }
-		public async Task<IEnumerable<LiveInfoViewModel>> GetPagedItems(int head, int count)
+		public async Task<IAsyncEnumerable<LiveInfoViewModel>> GetPagedItems(int head, int count)
 		{
             if (Info.Count < (head + count))
             {
@@ -364,7 +364,8 @@ namespace NicoPlayerHohoema.ViewModels
             return Info.Skip(head).Take(count).Select(x =>
 			{
 				return new LiveInfoViewModel(x, HohoemaApp.Playlist, PageManager);
-			});
+			})
+            .ToAsyncEnumerable();
 		}
 	}
 
@@ -429,7 +430,7 @@ namespace NicoPlayerHohoema.ViewModels
 			IsCommunityMemberOnly = LiveVideoInfo.Video.CommunityOnly;
 
             Label = LiveVideoInfo.Video.Title;
-            ImageUrlsSource.Add(CommunityThumbnail);
+            AddImageUrl(CommunityThumbnail);
 
             Description = $"来場者:{ViewCounter} コメ:{CommentCount}";
 

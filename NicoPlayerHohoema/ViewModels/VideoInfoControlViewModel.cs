@@ -27,185 +27,220 @@ using Microsoft.Practices.Unity;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.UI.Popups;
 using NicoPlayerHohoema.Views.Service;
+using System.Diagnostics;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     
 	public class VideoInfoControlViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContent
     {
-        //	private IScheduler scheduler;
+        public string Id => RawVideoId;
+
+
+        public string RawVideoId { get; private set; }
+        public string OwnerUserId { get; private set; }
+        public string OwnerUserName { get; private set; }
+
+        public IPlayableList Playlist => PlaylistItem?.Owner;
+
+        public VideoStatus VideoStatus { get; private set; }
+
+        public bool IsCacheEnabled { get; private set; }
+        public ReactiveProperty<bool> IsCacheRequested { get; } = new ReactiveProperty<bool>(false);
+
+        public ObservableCollection<CachedQualityNicoVideoListItemViewModel> CachedQualityVideos { get; } = new ObservableCollection<CachedQualityNicoVideoListItemViewModel>();
+
 
         public PlaylistItem PlaylistItem { get; }
 
 
-        // とりあえずマイリストから取得したデータによる初期化
-        public VideoInfoControlViewModel(MylistData data, NicoVideo nicoVideo, PageManager pageManager)
-			: this(nicoVideo, pageManager)
-		{
-            OptionText = data.CreateTime.ToString();
-            if (!string.IsNullOrWhiteSpace(data.ThumbnailUrl.OriginalString))
-            {
-                ImageUrlsSource.Add(data.ThumbnailUrl.OriginalString);
-            }
+        protected CompositeDisposable _CompositeDisposable { get; private set; }
 
-            if (!nicoVideo.IsDeleted)
-            {
-                Description = $"再生:{data.ViewCount}";
-            }
-
-			ImageCaption = data.Length.ToString(); // TODO: ユーザーフレンドリィ時間
-		}
-
-
-		// 個別マイリストから取得したデータによる初期化
-		public VideoInfoControlViewModel(VideoInfo data, NicoVideo nicoVideo, PageManager pageManager)
-			: this(nicoVideo, pageManager)
-		{
-            OptionText = data.Video.UploadTime.ToString();
-            if (!string.IsNullOrWhiteSpace(data.Video.ThumbnailUrl.OriginalString))
-            {
-                ImageUrlsSource.Add(data.Video.ThumbnailUrl.OriginalString);
-            }
-
-            if (!nicoVideo.IsDeleted)
-            {
-                Description = $"再生:{data.Video.ViewCount}";
-            }
-
-            ImageCaption = data.Video.Length.ToString(); // TODO: ユーザーフレンドリィ時間
-        }
+        static Helpers.AsyncLock _DefferedUpdateLock = new Helpers.AsyncLock();
 
         bool _IsNGEnabled = false;
 
-		public VideoInfoControlViewModel(NicoVideo nicoVideo, PageManager pageManager, bool isNgEnabled = true, PlaylistItem playlistItem = null)
-		{
-			PageManager = pageManager;
-            HohoemaPlaylist = nicoVideo.HohoemaApp.Playlist;
-            NicoVideo = nicoVideo;
+        public VideoInfoControlViewModel(string videoId, bool isNgEnabled = true, PlaylistItem playlistItem = null)
+        {
+            RawVideoId = videoId;
             PlaylistItem = playlistItem;
             _CompositeDisposable = new CompositeDisposable();
 
             _IsNGEnabled = isNgEnabled;
 
-            if (nicoVideo.IsDeleted)
-            {
-                Description = "Deleted";
-            }
-
-            IsRequireConfirmDelete = new ReactiveProperty<bool>(nicoVideo.IsRequireConfirmDelete);
-            PrivateReasonText = nicoVideo.PrivateReasonType.ToString() ?? "";
-
-            SetupFromThumbnail(nicoVideo);
-            
-
-            QualityDividedVideos = new ObservableCollection<QualityDividedNicoVideoListItemViewModel>();
-            NicoVideo.QualityDividedVideos.CollectionChangedAsObservable()
-                .Subscribe(_ => ResetQualityDivideVideosVM())
-                .AddTo(_CompositeDisposable);
-
-            if (QualityDividedVideos.Count == 0 && NicoVideo.QualityDividedVideos.Count != 0)
-            {
-                ResetQualityDivideVideosVM();
-            }
-
-
-            IsCacheRequested = NicoVideo.QualityDividedVideos
-                .ObserveElementProperty(x => x.IsCacheRequested)
-                .Select(x => NicoVideo.QualityDividedVideos.Any(y => y.IsCacheRequested))
-                .ToReadOnlyReactiveProperty()
-                .AddTo(_CompositeDisposable);
-
-            IsCacheEnabled = nicoVideo.HohoemaApp.UserSettings.CacheSettings.IsEnableCache;
-
-            Observable.CombineLatest(
-                IsCacheRequested,
-                NicoVideo.ObserveProperty(x => x.IsPlayed)
-                )
-                .Select(x =>
-                {
-                    if (x[0]) { return Windows.UI.Colors.Green; }
-                    else if (x[1]) { return Windows.UI.Colors.Transparent; }
-                    else { return Windows.UI.Colors.Gray; }
-                })
-                .ObserveOnUIDispatcher()
-                .Subscribe(color => ThemeColor = color)
-                .AddTo(_CompositeDisposable);
-
-            Label = NicoVideo.Title;
+            OnDeferredUpdate().ConfigureAwait(false);
         }
 
-        private async void ResetQualityDivideVideosVM()
+        protected override async Task OnDeferredUpdate()
         {
-            using (var releaser = await _QualityDividedVideosLock.LockAsync())
-            {
-                await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
-                {
-                    QualityDividedVideos.Clear();
+            var contentProvider = App.Current.Container.Resolve<NiconicoContentProvider>();
+            var info = await contentProvider.GetNicoVideoInfo(RawVideoId);
 
-                    foreach (var div in NicoVideo.QualityDividedVideos.ToArray())
-                    {
-                        var vm = new QualityDividedNicoVideoListItemViewModel(div, HohoemaPlaylist)
-                            .AddTo(_CompositeDisposable);
-                        QualityDividedVideos.Add(vm);
-                    }
+            // Note: 動画リストの一覧表示が終わってからサムネイル情報読み込みが掛かるようにする
+            using (var releaser = await _DefferedUpdateLock.LockAsync())
+            {
+                await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                {
+                    SetupFromThumbnail(info);
+
+                    await RefrechCacheState();
                 });
             }
         }
 
-        public void SetupFromThumbnail(NicoVideo info)
+        protected override void OnCancelDeferrdUpdate()
         {
-            if (!info.IsThumbnailInitialized)
+            // TODO: キャンセルの実装
+        }
+
+        public async Task RefrechCacheState()
+        {
+            // キャッシュの状態を更新
+            ClearCacheQuality();
+
+            var cacheManager = App.Current.Container.Resolve<VideoCacheManager>();
+            var cacheRequests = await cacheManager.GetCacheRequest(RawVideoId);
+            IsCacheRequested.Value = cacheRequests.Any();
+            if (IsCacheRequested.Value)
             {
-                return;
+                ThemeColor = Windows.UI.Colors.Green;
+            }
+            else
+            {
+                if (VideoPlayHistoryDb.Get(RawVideoId) != null)
+                {
+                    // 視聴済み
+                    ThemeColor = Windows.UI.Colors.Transparent;
+                }
+                else
+                {
+                    // 未視聴
+                    ThemeColor = Windows.UI.Colors.Gray;
+                }
             }
 
-            Label = NicoVideo.Title;
+            foreach (var req in cacheRequests)
+            {
+                var vm = new CachedQualityNicoVideoListItemViewModel(req, cacheManager);
+                CachedQualityVideos.Add(vm);
+            }
+        }
+
+
+        bool _isTitleNgCheckProcessed = false;
+        bool _isOwnerIdNgCheckProcessed = false;
+
+        public void SetupFromThumbnail(Database.NicoVideo info)
+        {
+            Debug.WriteLine("thumbnail reflect : " + info.RawVideoId);
+            
+            Label = info.Title;
 
             // NG判定
             if (_IsNGEnabled)
             {
-                var ngResult = NicoVideo.CheckNGVideo();
-                IsVisible = ngResult == null;
+                var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
+
+                NGResult ngResult = null;
+
+                // タイトルをチェック
+                if (!_isTitleNgCheckProcessed && !string.IsNullOrEmpty(info.Title))
+                {
+                    ngResult = hohoemaApp.UserSettings.NGSettings.IsNGVideoTitle(info.Title);
+                    _isTitleNgCheckProcessed = true;
+                }
+
+                // 投稿者IDをチェック
+                if (!_isOwnerIdNgCheckProcessed && !string.IsNullOrEmpty(info.Owner?.OwnerId))
+                {
+                    ngResult = hohoemaApp.UserSettings.NGSettings.IsNgVideoOwnerId(info.Owner.OwnerId);
+                    _isOwnerIdNgCheckProcessed = true;
+                }
+
                 if (ngResult != null)
                 {
+                    IsVisible = true;
                     var ngDesc = !string.IsNullOrWhiteSpace(ngResult.NGDescription) ? ngResult.NGDescription : ngResult.Content;
                     InvisibleDescription = $"NG動画";
                 }
             }
-
-            OptionText = info.PostedAt.ToString("yyyy/MM/dd HH:mm");
-            if (!string.IsNullOrWhiteSpace(info.ThumbnailUrl))
-            {
-                if (!ImageUrlsSource.Any(x => x == info.ThumbnailUrl))
-                {
-                    ImageUrlsSource.Add(info.ThumbnailUrl);
-                }
-            }
-
+                        
+            SetTitle(info.Title);
+            SetThumbnailImage(info.ThumbnailUrl);
+            SetSubmitDate(info.PostedAt);
+            SetVideoDuration(info.Length);
             if (!info.IsDeleted)
             {
-                Description = $"再生:{info.ViewCount.ToString("N0")} コメ:{info.CommentCount.ToString("N0")} マイ:{info.MylistCount.ToString("N0")}";
-            }
-
-            string timeText;
-            if (info.VideoLength.Hours > 0)
-            {
-                timeText = info.VideoLength.ToString(@"hh\:mm\:ss");
+                SetDescription(info.ViewCount, info.CommentCount, info.MylistCount);
             }
             else
             {
-                timeText = info.VideoLength.ToString(@"mm\:ss");
+                Description = "Deleted";
             }
-            ImageCaption = timeText;
-            
+
+            if (info.Owner != null)
+            {
+                OwnerUserId = info.Owner.OwnerId;
+                OwnerUserName = info.Owner.ScreenName;
+            }
+
         }
 
+        internal void SetDescription(int viewcount, int commentCount, int mylistCount)
+        {
+            Description = $"再生:{viewcount.ToString("N0")} コメ:{commentCount.ToString("N0")} マイ:{mylistCount.ToString("N0")}";
+        }
 
-		
-		protected override void OnDispose()
+        internal void SetTitle(string title)
+        {
+            Label = title;
+        }
+        internal void SetSubmitDate(DateTime submitDate)
+        {
+            OptionText = submitDate.ToString("yyyy/MM/dd HH:mm");
+        }
+
+        internal void SetVideoDuration(TimeSpan duration)
+        {
+            string timeText;
+            if (duration.Hours > 0)
+            {
+                timeText = duration.ToString(@"hh\:mm\:ss");
+            }
+            else
+            {
+                timeText = duration.ToString(@"mm\:ss");
+            }
+            ImageCaption = timeText;
+        }
+
+        internal void SetThumbnailImage(string thumbnailImage)
+        {
+            if (!string.IsNullOrWhiteSpace(thumbnailImage))
+            {
+                AddImageUrl(thumbnailImage);
+            }
+        }
+
+        protected override void OnDispose()
 		{
 			_CompositeDisposable?.Dispose();
+
+            ClearCacheQuality();
+
+            base.OnDispose();
 		}
+
+
+        private void ClearCacheQuality()
+        {
+            foreach (var cached in CachedQualityVideos)
+            {
+                cached.Dispose();
+            }
+
+            CachedQualityVideos.Clear();
+        }
 
 
 
@@ -220,109 +255,134 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-        public string Id => RawVideoId;
-
-        public string RawVideoId => NicoVideo.RawVideoId;
-
-        string _OwnersUserId;
-        public string OwnerUserId => _OwnersUserId 
-            ?? (_OwnersUserId = NicoVideo.OwnerId.ToString());
-
-        public string OwnerUserName => NicoVideo.OwnerName;
-
-        public IPlayableList Playlist => PlaylistItem?.Owner;
-
-        public VideoStatus VideoStatus { get; private set; }
-
-
-        public bool IsXbox => Helpers.DeviceTypeHelper.IsXbox;
         
-        public IEnumerable<VideoInfoPlaylistViewModel> Playlists => 
-            HohoemaPlaylist.Playlists.Select(x => new VideoInfoPlaylistViewModel(x.Name, x.Id, NicoVideo));
+        public void SetupDisplay(Mntone.Nico2.Users.Video.VideoData data)
+        {
+            RawVideoId = data.VideoId;
 
-        public bool IsCacheEnabled { get; private set; }
-        public ReadOnlyReactiveProperty<bool> IsCacheRequested { get; private set; }
-
-        public ReactiveProperty<bool> IsRequireConfirmDelete { get; private set; }
-        public string PrivateReasonText { get; private set; }
-
-
-        private static Helpers.AsyncLock _QualityDividedVideosLock = new Helpers.AsyncLock();
-        public ObservableCollection<QualityDividedNicoVideoListItemViewModel> QualityDividedVideos { get; private set; }
-
-        protected CompositeDisposable _CompositeDisposable { get; private set; }
-
-		public NicoVideo NicoVideo { get; private set; }
-        public HohoemaPlaylist HohoemaPlaylist { get; private set; }
-        public PageManager PageManager { get; private set; }
-	}
+            SetTitle(data.Title);
+            SetThumbnailImage(data.ThumbnailUrl.OriginalString);
+            SetSubmitDate(data.SubmitTime);
+            SetVideoDuration(data.Length);
+        }
 
 
-    public class QualityDividedNicoVideoListItemViewModel  : BindableBase, IDisposable
+        // とりあえずマイリストから取得したデータによる初期化
+        public void SetupDisplay(MylistData data)
+        {
+            RawVideoId = data.WatchId;
+
+            SetTitle(data.Title);
+            SetThumbnailImage(data.ThumbnailUrl.OriginalString);
+            SetSubmitDate(data.CreateTime);
+            SetVideoDuration(data.Length);
+            SetDescription((int)data.ViewCount, (int)data.CommentCount, (int)data.MylistCount);
+        }
+
+
+        // 個別マイリストから取得したデータによる初期化
+        public void SetupDisplay(VideoInfo data)
+        {
+            RawVideoId = data.Video.Id;
+
+            SetTitle(data.Video.Title);
+            SetThumbnailImage(data.Video.ThumbnailUrl.OriginalString);
+            SetSubmitDate(data.Video.UploadTime);
+            SetVideoDuration(data.Video.Length);
+            SetDescription((int)data.Video.ViewCount, (int)data.Thread.GetCommentCount(), (int)data.Video.MylistCount);
+        }
+
+
+    }
+
+
+    public class CachedQualityNicoVideoListItemViewModel : BindableBase, IDisposable
     {
-        public HohoemaPlaylist HohoemaPlaylist { get; private set; }
-        public DividedQualityNicoVideo DividedQualityNicoVideo { get; private set; }
-
         public NicoVideoQuality Quality { get; private set; }
 
-        public ReadOnlyReactiveProperty<NicoVideoCacheState> CacheState { get; private set; }
+        public IReadOnlyReactiveProperty<NicoVideoCacheState> CacheState { get; private set; }
+        public IReadOnlyReactiveProperty<bool> IsCacheDownloading { get; }
+        public IReactiveProperty<float> ProgressPercent { get; private set; }
 
-        public ReadOnlyReactiveProperty<bool> IsNotCacheRequested { get; private set; }
-        public ReadOnlyReactiveProperty<bool> IsCachePending { get; private set; }
-        public ReadOnlyReactiveProperty<bool> IsCacheDownloading { get; private set; }
-        public ReadOnlyReactiveProperty<bool> IsCached { get; private set; }
-
-        public ReactiveProperty<float> ProgressPercent { get; private set; }
-
-        IDisposable _ProgressParcentageMoniterDisposer;
-
+        NicoVideoCacheRequest _Request;
 
         private CompositeDisposable _CompositeDisposable = new CompositeDisposable();
 
-        public QualityDividedNicoVideoListItemViewModel(DividedQualityNicoVideo divQualityVideo, HohoemaPlaylist playlist)
+
+        public CachedQualityNicoVideoListItemViewModel(NicoVideoCacheRequest req, VideoCacheManager cacheManager)
         {
-            DividedQualityNicoVideo = divQualityVideo;
-            HohoemaPlaylist = playlist;
-            Quality = DividedQualityNicoVideo.Quality;
+            _Request = req;
+            Quality = _Request.Quality;
 
-            CacheState = DividedQualityNicoVideo.ObserveProperty(x => x.CacheState)
-                .ToReadOnlyReactiveProperty()
-                .AddTo(_CompositeDisposable);
+            var firstCacheState = _Request.ToCacheState();
 
-            IsNotCacheRequested = CacheState.Select(x => x == NicoVideoCacheState.NotCacheRequested)
-                .ToReadOnlyReactiveProperty()
-                .AddTo(_CompositeDisposable);
-            IsCachePending = CacheState.Select(x => x == NicoVideoCacheState.Pending)
-                .ToReadOnlyReactiveProperty()
-                .AddTo(_CompositeDisposable);
-            IsCacheDownloading = CacheState.Select(x => x == NicoVideoCacheState.Downloading)
-                .ToReadOnlyReactiveProperty()
-                .AddTo(_CompositeDisposable);
-            IsCached = CacheState.Select(x => x == NicoVideoCacheState.Cached)
-                .ToReadOnlyReactiveProperty()
-                .AddTo(_CompositeDisposable);
-
-
-            ProgressPercent = new ReactiveProperty<float>(DividedQualityNicoVideo.IsCached ? 100.0f : 0.0f);
-
-            CacheState.Subscribe(x =>
+            if (firstCacheState != NicoVideoCacheState.Cached)
             {
-                if (x == NicoVideoCacheState.Downloading)
+                CacheState = Observable.FromEventPattern<VideoCacheStateChangedEventArgs>(
+                    (x) => cacheManager.VideoCacheStateChanged += x,
+                    (x) => cacheManager.VideoCacheStateChanged -= x
+                    )
+                    .Where(x => x.EventArgs.Request.RawVideoId == _Request.RawVideoId && x.EventArgs.Request.Quality == _Request.Quality)
+                    .Select(x => x.EventArgs.CacheState)
+                    .ObserveOnUIDispatcher()
+                    .ToReadOnlyReactiveProperty(firstCacheState)
+                    .AddTo(_CompositeDisposable);
+
+                CacheState.Subscribe(x =>
                 {
-                    _ProgressParcentageMoniterDisposer?.Dispose();
-                    _ProgressParcentageMoniterDisposer =
-                        DividedQualityNicoVideo.ObserveProperty(y => y.CacheProgressSize)
-                        .Subscribe(y =>
+                    if (x == NicoVideoCacheState.Downloading)
+                    {
+                        var _cacheManager = App.Current.Container.Resolve<VideoCacheManager>();
+
+                        float firstProgressParcent = 0.0f;
+                        if (_Request is NicoVideoCacheProgress)
                         {
-                            ProgressPercent.Value = DividedQualityNicoVideo.GetDonwloadProgressParcentage();
-                        });
-                }
-                else
-                {
-                    _ProgressParcentageMoniterDisposer?.Dispose();
-                    _ProgressParcentageMoniterDisposer = null;
-                }
-            });
+                            var prog = (_Request as NicoVideoCacheProgress).DownloadOperation.Progress;
+                            if (prog.TotalBytesToReceive > 0)
+                            {
+                                firstProgressParcent = (float)Math.Round((prog.BytesReceived / (float)prog.TotalBytesToReceive) * 100, 1);
+                            }
+                        }
+                        ProgressPercent = Observable.FromEventPattern<NicoVideoCacheProgress>(
+                            (handler) => _cacheManager.DownloadProgress += handler,
+                            (handler) => _cacheManager.DownloadProgress -= handler
+                            )
+                            .ObserveOnUIDispatcher()
+                            .Where(y => y.EventArgs.RawVideoId == _Request.RawVideoId && y.EventArgs.Quality == _Request.Quality)
+                            .Select(y =>
+                            {
+                                var prog = y.EventArgs.DownloadOperation.Progress;
+                                if (prog.TotalBytesToReceive > 0)
+                                {
+                                    return (float)Math.Round((prog.BytesReceived / (float)prog.TotalBytesToReceive) * 100, 1);
+                                }
+                                else
+                                {
+                                    return 0.0f;
+                                }
+                            })
+                            .ToReactiveProperty(firstProgressParcent);
+                        RaisePropertyChanged(nameof(ProgressPercent));
+                    }
+                    else
+                    {
+                        ProgressPercent?.Dispose();
+                        ProgressPercent = null;
+                        RaisePropertyChanged(nameof(ProgressPercent));
+                    }
+                })
+                .AddTo(_CompositeDisposable);
+
+                IsCacheDownloading = CacheState.Select(x => x == NicoVideoCacheState.Downloading)
+                    .ToReadOnlyReactiveProperty()
+                    .AddTo(_CompositeDisposable);
+            }
+            else
+            {
+                CacheState = new ReactiveProperty<NicoVideoCacheState>(NicoVideoCacheState.Cached);
+                IsCacheDownloading = new ReactiveProperty<bool>(false);
+                ProgressPercent = new ReactiveProperty<float>(0.0f);
+            }
         }
 
         public void Dispose()
@@ -330,56 +390,8 @@ namespace NicoPlayerHohoema.ViewModels
             _CompositeDisposable?.Dispose();
             _CompositeDisposable = null;
 
-            _ProgressParcentageMoniterDisposer?.Dispose();
+            ProgressPercent?.Dispose();
         }
-
-
-        private DelegateCommand _PlayCommand;
-        public DelegateCommand PlayCommand
-        {
-            get
-            {
-                return _PlayCommand
-                    ?? (_PlayCommand = new DelegateCommand(() =>
-                    {
-                        HohoemaPlaylist.PlayVideo(DividedQualityNicoVideo.RawVideoId, DividedQualityNicoVideo.NicoVideo.Title, Quality);
-
-                        //                        var payload = MakeVideoPlayPayload();
-                        //						PageManager.OpenPage(HohoemaPageType.VideoPlayer, payload.ToParameterString());
-                    }));
-            }
-        }
-
-        
-    }
-
-    public class VideoInfoPlaylistViewModel
-    {
-        public string Name { get; private set; }
-        public string Id { get; private set; }
-
-        public NicoVideo NicoVideo { get; private set; }
-
-
-        public DelegateCommand AddPlaylistCommand { get; private set; }
-
-
-        public VideoInfoPlaylistViewModel(string name, string id, NicoVideo video)
-        {
-            Name = name;
-            Id = id;
-
-            AddPlaylistCommand = new DelegateCommand(() => 
-            {
-                var hohoemaPlaylist = video.HohoemaApp.Playlist;
-                var playlist = hohoemaPlaylist.Playlists.FirstOrDefault(x => x.Id == Id);
-
-                if (playlist == null) { return; }
-
-                playlist.AddVideo(video.RawVideoId, video.Title);
-            });
-        }
-
     }
 
 

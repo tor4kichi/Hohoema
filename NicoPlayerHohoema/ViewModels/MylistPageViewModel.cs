@@ -574,7 +574,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
                 case PlaylistOrigin.OtherUser:
-                    var response = await HohoemaApp.ContentFinder.GetMylistGroupDetail(PlayableList.Value.Id);
+                    var response = await HohoemaApp.ContentProvider.GetMylistGroupDetail(PlayableList.Value.Id);
                     var mylistGroupDetail = response.MylistGroup;
                     MylistTitle = mylistGroupDetail.Name;
                     MylistDescription = mylistGroupDetail.Description;
@@ -594,7 +594,7 @@ namespace NicoPlayerHohoema.ViewModels
                     else
                     {
                         await Task.Delay(500);
-                        var userDetail = await HohoemaApp.ContentFinder.GetUserDetail(OwnerUserId);
+                        var userDetail = await HohoemaApp.ContentProvider.GetUserDetail(OwnerUserId);
                         UserName = userDetail.Nickname;
                     }
 
@@ -653,241 +653,153 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	public class DeflistMylistIncrementalSource : HohoemaPreloadingIncrementalSourceBase<VideoInfoControlViewModel>
+	public class DeflistMylistIncrementalSource : HohoemaIncrementalSourceBase<VideoInfoControlViewModel>
 	{
-
+        HohoemaApp _HohoemaApp;
 		PageManager _PageManager;
 		MylistGroupInfo _MylistGroupInfo;
 		public DeflistMylistIncrementalSource(HohoemaApp hohoemaApp, PageManager pageManager)
-			: base(hohoemaApp, "DeflistMylist")
+			: base()
 		{
-			_PageManager = pageManager;
-			_MylistGroupInfo = HohoemaApp.UserMylistManager.GetMylistGroup("0");
+            _HohoemaApp = hohoemaApp;
+            _PageManager = pageManager;
+			_MylistGroupInfo = _HohoemaApp.UserMylistManager.GetMylistGroup("0");
 
 		}
 
+        protected override Task<IAsyncEnumerable<VideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
+        {
+            return Task.FromResult(_MylistGroupInfo.PlaylistItems.Skip(head).Take(count)
+                .Select(x => 
+                {
+                    var vm = new VideoInfoControlViewModel(x.ContentId, isNgEnabled: false, playlistItem: x);
+                    vm.SetTitle(x.Title);
+                    return vm;
+                })
+                .ToAsyncEnumerable()
+                );
+        }
 
+        protected override async Task<int> ResetSourceImpl()
+        {
+            await _MylistGroupInfo.Refresh();
+            return await Task.FromResult(_MylistGroupInfo.ItemCount);
+        }
+    }
 
-		#region Implements HohoemaPreloadingIncrementalSourceBase		
-
-		protected override async Task<int> HohoemaPreloadingResetSourceImpl()
-		{
-			await _MylistGroupInfo.Refresh();
-			return await Task.FromResult(_MylistGroupInfo.ItemCount);
-		}
-
-		protected override async Task Preload(int start, int count)
-		{
-			try
-			{
-				var items = _MylistGroupInfo.PlaylistItems;
-				foreach (var item in items.Skip(start).Take(count))
-				{
-					await HohoemaApp.MediaManager.GetNicoVideoAsync(item.ContentId);
-				}
-			}
-			catch (Exception ex)
-			{
-				TriggerError(ex);
-			}
-		}
-
-		
-
-		protected override async Task<IEnumerable<VideoInfoControlViewModel>> HohoemaPreloadingGetPagedItemsImpl(int head, int count)
-		{
-			List<VideoInfoControlViewModel> list = new List<VideoInfoControlViewModel>();
-
-			var items = _MylistGroupInfo.PlaylistItems;
-
-			if (items.Count <= head)
-			{
-				return list;
-			}
-
-			foreach (var item in items.Skip(head).Take(count))
-			{
-				var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideoAsync(item.ContentId);
-
-				var videoVM = new VideoInfoControlViewModel(nicoVideo, _PageManager, isNgEnabled: false, playlistItem: item);
-				list.Add(videoVM);
-			}
-
-			return list;
-		}
-
-
-		#endregion
-	}
-
-	public class MylistIncrementalSource : HohoemaPreloadingIncrementalSourceBase<VideoInfoControlViewModel>
+	public class MylistIncrementalSource : HohoemaIncrementalSourceBase<VideoInfoControlViewModel>
 	{
 		public string MylistGroupId { get; private set; }
 
-		PageManager _PageManager;
+        HohoemaApp _HohoemaApp;
+        PageManager _PageManager;
 
 		public MylistIncrementalSource(string mylistGroupId, HohoemaApp hohoemaApp, PageManager pageManager)
-			: base(hohoemaApp, "Mylist:"+mylistGroupId)
+			: base()
 		{
 			MylistGroupId = mylistGroupId;
 
-			_PageManager = pageManager;
+            _HohoemaApp = hohoemaApp;
+            _PageManager = pageManager;
 		}
 
 
 
 
 		#region Implements HohoemaPreloadingIncrementalSourceBase		
+	
 
-		protected override async Task<int> HohoemaPreloadingResetSourceImpl()
-		{
-			var count = 0;
-			var mylistManager = HohoemaApp.UserMylistManager;
-			if (mylistManager.HasMylistGroup(MylistGroupId))
-			{
-				var mylistGroup = mylistManager.GetMylistGroup(MylistGroupId);
-				await mylistGroup.Refresh();
-				count = mylistGroup.ItemCount;
-			}
-			else
-			{
-				var res = await HohoemaApp.ContentFinder.GetMylistGroupVideo(MylistGroupId, 0, 1);
-				count = (int)res.GetTotalCount();
-			}
-
-			return count;
-		}
-
-
-		protected override async Task Preload(int start, int count)
-		{
-			try
-			{
-				var mylistManager = HohoemaApp.UserMylistManager;
-				if (mylistManager.HasMylistGroup(MylistGroupId))
-				{
-					var mylistGroup = mylistManager.GetMylistGroup(MylistGroupId);
-					var items = mylistGroup.PlaylistItems;
-					foreach (var videoId in items.Skip((int)start).Take((int)count))
-					{
-						//await HohoemaApp.MediaManager.GetNicoVideoAsync(videoId);
-					}
-				}
-				else
-				{
-					var res = await HohoemaApp.ContentFinder.GetMylistGroupVideo(MylistGroupId, (uint)start, (uint)count);
-
-					if (res.GetCount() > 0)
-					{
-						foreach (var item in res.MylistVideoInfoItems)
-						{
-							//await HohoemaApp.MediaManager.GetNicoVideoAsync(item.Video.Id);
-						}
-					}
-				}
-			}
-			catch (Exception ex)
-			{
-				TriggerError(ex);
-			}
-		}
-
-
-		
-		protected override async Task<IEnumerable<VideoInfoControlViewModel>> HohoemaPreloadingGetPagedItemsImpl(int head, int count)
-		{
-			List<VideoInfoControlViewModel> list = new List<VideoInfoControlViewModel>();
-
-			if (MylistGroupId == null || MylistGroupId == "0")
-			{
-				throw new Exception();
-			}
-
-			var mylistManager = HohoemaApp.UserMylistManager;
-			if (mylistManager.HasMylistGroup(MylistGroupId))
-			{
-				var mylistGroup = mylistManager.GetMylistGroup(MylistGroupId);
-				var items = mylistGroup.PlaylistItems;
-
-				if (items.Count <= head)
-				{
-					return list;
-				}
-
-				foreach (var item in items.Skip(head).Take(count))
-				{
-					var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideoAsync(item.ContentId, true);
-                    var videoListItemVM = new VideoInfoControlViewModel(nicoVideo, _PageManager, isNgEnabled:false, playlistItem:item);
-					list.Add(videoListItemVM);
-				}
-			}
-			else
-			{
-				var res = await HohoemaApp.ContentFinder.GetMylistGroupVideo(MylistGroupId, (uint)head, (uint)count);
-
-				if (res.GetCount() > 0)
-				    foreach (var item in res.MylistVideoInfoItems)
-				    {
-					    var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideoAsync(item.Video.Id, false);
-                        nicoVideo.PreSetTitle(item.Video.Title);
-					    list.Add(new VideoInfoControlViewModel(item, nicoVideo, _PageManager));
-				    }
-			}
-
-			return list;
-		}
-
-
-		#endregion
-
-	}
-
-    public class LocalMylistIncrementalSource : HohoemaPreloadingIncrementalSourceBase<VideoInfoControlViewModel>
-    {
-        LocalMylist LocalMylist { get; }
-        PageManager _PageManager;
-
-        public LocalMylistIncrementalSource(LocalMylist localMylist , HohoemaApp hohoemaApp, PageManager pageManager)
-            : base(hohoemaApp, "LocalMylist:" + localMylist.Name)
+        protected override async Task<IAsyncEnumerable<VideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
         {
-            LocalMylist = localMylist;
-            _PageManager = pageManager;
-        }
-
-
-
-
-        #region Implements HohoemaPreloadingIncrementalSourceBase		
-
-        protected override Task<int> HohoemaPreloadingResetSourceImpl()
-        {
-            return Task.FromResult(LocalMylist.PlaylistItems.Count);
-        }
-
-
-        protected override Task Preload(int start, int count)
-        {
-            return Task.CompletedTask;
-        }
-
-
-
-        protected override async Task<IEnumerable<VideoInfoControlViewModel>> HohoemaPreloadingGetPagedItemsImpl(int head, int count)
-        {
-            List<VideoInfoControlViewModel> list = new List<VideoInfoControlViewModel>();
-
-            foreach (var item in LocalMylist.PlaylistItems.Skip(head).Take(count))
+            if (MylistGroupId == null || MylistGroupId == "0")
             {
-                var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideoAsync(item.ContentId, true);
-                list.Add(new VideoInfoControlViewModel(nicoVideo, _PageManager, isNgEnabled: false, playlistItem: item));
+                throw new Exception();
             }
 
-            return list;
+            var mylistManager = _HohoemaApp.UserMylistManager;
+            if (mylistManager.HasMylistGroup(MylistGroupId))
+            {
+                var mylistGroup = mylistManager.GetMylistGroup(MylistGroupId);
+                var items = mylistGroup.PlaylistItems;
+
+                return items.Skip(head).Take(count).Select(x => 
+                {
+                    var vm = new VideoInfoControlViewModel(x.ContentId, isNgEnabled: false, playlistItem: x);
+                    vm.SetTitle(x.Title);
+                    return vm;
+                })
+                .ToAsyncEnumerable();
+            }
+            else
+            {
+                var res = await _HohoemaApp.ContentProvider.GetMylistGroupVideo(MylistGroupId, (uint)head, (uint)count);
+                return res.MylistVideoInfoItems?.Select(x => 
+                {
+                    var vm = new VideoInfoControlViewModel(x.Video.Id, isNgEnabled: false);
+                    vm.SetTitle(x.Video.Title);
+                    return vm;
+                }) 
+                .ToAsyncEnumerable()
+                ?? AsyncEnumerable.Empty<VideoInfoControlViewModel>();
+            }
+        }
+
+        protected override async Task<int> ResetSourceImpl()
+        {
+            var count = 0;
+            var mylistManager = _HohoemaApp.UserMylistManager;
+            if (mylistManager.HasMylistGroup(MylistGroupId))
+            {
+                var mylistGroup = mylistManager.GetMylistGroup(MylistGroupId);
+                await mylistGroup.Refresh();
+                count = mylistGroup.ItemCount;
+            }
+            else
+            {
+                var res = await _HohoemaApp.ContentProvider.GetMylistGroupVideo(MylistGroupId, 0, 1);
+                count = (int)res.GetTotalCount();
+            }
+
+            return count;
         }
 
 
         #endregion
 
+    }
+
+    public class LocalMylistIncrementalSource : HohoemaIncrementalSourceBase<VideoInfoControlViewModel>
+    {
+        LocalMylist LocalMylist { get; }
+        HohoemaApp _HohoemaApp;
+        PageManager _PageManager;
+
+        public LocalMylistIncrementalSource(LocalMylist localMylist , HohoemaApp hohoemaApp, PageManager pageManager)
+            : base()
+        {
+            LocalMylist = localMylist;
+            _HohoemaApp = hohoemaApp;
+            _PageManager = pageManager;
+        }
+
+        protected override Task<IAsyncEnumerable<VideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
+        {
+            return Task.FromResult(
+                LocalMylist.PlaylistItems.Skip(head).Take(count)
+                .Select(x =>
+                {
+                    var vm = new VideoInfoControlViewModel(x.ContentId, isNgEnabled: false, playlistItem: x);
+                    vm.SetTitle(x.Title);
+                    return vm;
+                })
+                .ToAsyncEnumerable()
+                );
+        }
+
+        protected override Task<int> ResetSourceImpl()
+        {
+            return Task.FromResult(LocalMylist.PlaylistItems.Count);
+        }
     }
 
 

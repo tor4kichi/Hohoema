@@ -1120,7 +1120,7 @@ namespace NicoPlayerHohoema.Models.Live
 				// コミュニティページを取得して、放送中のLiveIdを取得する
 				try
 				{
-					var commuDetail = await HohoemaApp.ContentFinder.GetCommunityDetail(BroadcasterCommunityId);
+					var commuDetail = await HohoemaApp.ContentProvider.GetCommunityDetail(BroadcasterCommunityId);
 
 					// this.LiveIdと異なるLiveIdが一つだけの場合はそのIDを次の枠として処理
 					var liveIds = commuDetail.CommunitySammary.CommunityDetail.CurrentLiveList.Select(x => x.LiveId);

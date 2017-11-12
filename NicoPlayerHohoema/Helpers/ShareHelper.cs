@@ -8,12 +8,13 @@ using Microsoft.Practices.Unity;
 using Windows.ApplicationModel.DataTransfer;
 using NicoPlayerHohoema.Models.Live;
 using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Models.Db;
 
 namespace NicoPlayerHohoema.Helpers
 {
     public static class ShareHelper
     {
-        public static string MakeShareText(NicoVideo video)
+        public static string MakeShareText(Database.NicoVideo video)
         {
             if (!string.IsNullOrEmpty(video.VideoId))
             {
@@ -109,7 +110,7 @@ namespace NicoPlayerHohoema.Helpers
             }
         }
 
-        public static async Task ShareToTwitter(NicoVideo video)
+        public static async Task ShareToTwitter(Database.NicoVideo video)
         {
             await ShareToTwitter(MakeShareText(video));
         }
@@ -138,7 +139,7 @@ namespace NicoPlayerHohoema.Helpers
             }
         }
 
-        public static void Share(NicoVideo video)
+        public static void Share(Database.NicoVideo video)
         {
             Share(MakeShareText(video));
         }
@@ -171,7 +172,7 @@ namespace NicoPlayerHohoema.Helpers
             Clipboard.SetContent(datapackage);
         }
 
-        public static void CopyToClipboard(NicoVideo video)
+        public static void CopyToClipboard(Database.NicoVideo video)
         {
             CopyToClipboard(MakeShareText(video));
         }

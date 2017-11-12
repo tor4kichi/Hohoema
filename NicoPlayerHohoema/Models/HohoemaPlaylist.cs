@@ -59,7 +59,7 @@ namespace NicoPlayerHohoema.Models
 
 
 
-        private Dictionary<string, FileAccessor<LocalMylist>> _PlaylistFileAccessorMap = new Dictionary<string, FileAccessor<LocalMylist>>();
+        private Dictionary<string, FolderBasedFileAccessor<LocalMylist>> _PlaylistFileAccessorMap = new Dictionary<string, FolderBasedFileAccessor<LocalMylist>>();
 
 
         public LocalMylist DefaultPlaylist { get; private set; }
@@ -230,7 +230,7 @@ namespace NicoPlayerHohoema.Models
             List<LocalMylist> loadedItem = new List<LocalMylist>();
             foreach (var file in files)
             {
-                var playlistFileAccessor = new FileAccessor<LocalMylist>(PlaylistsSaveFolder, file.Name);
+                var playlistFileAccessor = new FolderBasedFileAccessor<LocalMylist>(PlaylistsSaveFolder, file.Name);
                 var playlist = await playlistFileAccessor.Load();
 
                 
@@ -292,7 +292,11 @@ namespace NicoPlayerHohoema.Models
                 var fileAccessor = _PlaylistFileAccessorMap[playlist.Id];
                 await fileAccessor.Save(playlist);
 
-                await HohoemaApp.PushToRoamingData(await fileAccessor.TryGetFile());
+                var file = await fileAccessor.TryGetFile();
+                if (file != null)
+                {
+                    await HohoemaApp.PushToRoamingData(file);
+                }
             }
         }
 
@@ -373,7 +377,7 @@ namespace NicoPlayerHohoema.Models
         // プレイリストが空だった場合、その場で再生を開始
         public void PlayVideo(string contentId, string title = "", NicoVideoQuality? quality = null)
         {
-            if (!NiconicoRegex.IsVideoId(contentId))
+            if (!NiconicoRegex.IsVideoId(contentId) && !int.TryParse(contentId, out var temp))
             {
                 return;
             }
@@ -438,7 +442,7 @@ namespace NicoPlayerHohoema.Models
                 SortIndex = sortIndex
             };
 
-            var playlistFileAccessor = new FileAccessor<LocalMylist>(PlaylistsSaveFolder, playlist.Name + ".json");
+            var playlistFileAccessor = new FolderBasedFileAccessor<LocalMylist>(PlaylistsSaveFolder, playlist.Name + ".json");
             _PlaylistFileAccessorMap.Add(playlist.Id, playlistFileAccessor);
             _Playlists.Add(playlist);
 

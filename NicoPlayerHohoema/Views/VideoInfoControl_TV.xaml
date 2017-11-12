@@ -17,33 +17,10 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <UserControl.Resources>
-        <DataTemplate x:Key="QualityVideoTemplate">
-            <!-- 画質ごとのキャッシュ状態を表示 
-                            
-            キャッシュリクエストされていない -> 非表示
-            キャッシュ待機中 -> 灰色
-            キャッシュDL中 -> 青色
-            キャッシュ済み -> 緑色
-                            
-            -->
-            <Border>
-                <TextBlock 
-                            Visibility="{Binding IsNotCacheRequested.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                           Foreground="{Binding CacheState.Value, Converter={StaticResource CacheStateToColorBrush}}"
-                            FontSize="13"
-                            Margin="0 0"
-                            VerticalAlignment="Center"
-                            x:Name="QualityText"
-                            >
-                    <Run Text="{Binding Quality, Converter={StaticResource ToLocalText}}" />
-                </TextBlock>
-            </Border>
-        </DataTemplate>
-    </UserControl.Resources>
     
     <Grid>
 
+        <!--
         <VisualStateManager.VisualStateGroups>
             <VisualStateGroup>
                 <VisualState>
@@ -57,6 +34,7 @@
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
+        -->
 
 
         <toolkit:DockPanel>
@@ -64,7 +42,7 @@
 
             <Border toolkit:DockPanel.Dock="Bottom" >
 
-                <ItemsControl ItemsSource="{Binding QualityDividedVideos}"
+                <ItemsControl ItemsSource="{Binding CachedQualityVideos}"
                               HorizontalContentAlignment="Stretch"
                               IsTabStop="False"
                               >
@@ -124,8 +102,8 @@
 
                 <hohoemalistitem:HohoemaListItemMiniCard />
 
-                <ItemsControl ItemsSource="{Binding QualityDividedVideos}"
-                              ItemTemplate="{StaticResource QualityVideoTemplate}"
+                <ItemsControl ItemsSource="{Binding CachedQualityVideos}"
+                              ItemTemplate="{StaticResource QualityVideoTemplate_TV}"
                               HorizontalAlignment="Right"
                               VerticalAlignment="Bottom"
                               IsTabStop="False"
@@ -150,22 +128,6 @@
 
 
         </toolkit:DockPanel>
-
-
-
-        <!-- 削除済み動画 -->
-        <Grid x:Name="DeletedPanel" Background="#60ffffff" Visibility="Collapsed">
-
-            <!-- キャッシュ済み、ユーザー削除未確認 -->
-            <StackPanel VerticalAlignment="Center" >
-
-                <TextBlock Text="削除理由" HorizontalAlignment="Center" FontSize="13"/>
-                <TextBlock Text="{Binding PrivateReasonText}" HorizontalAlignment="Center" Margin="0 8" />
-
-            </StackPanel>
-        </Grid>
-
-
 
     </Grid>
 

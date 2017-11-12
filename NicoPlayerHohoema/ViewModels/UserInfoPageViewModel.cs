@@ -145,7 +145,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			try
 			{
-				var userInfo = await HohoemaApp.ContentFinder.GetUserDetail(UserId);
+				var userInfo = await HohoemaApp.ContentProvider.GetUserDetail(UserId);
 
 				var user = userInfo;
 				UserName = user.Nickname;
@@ -197,11 +197,13 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				await Task.Delay(500);
 
-				var userVideos = await HohoemaApp.ContentFinder.GetUserVideos(uint.Parse(UserId), 1);
+				var userVideos = await HohoemaApp.ContentProvider.GetUserVideos(uint.Parse(UserId), 1);
 				foreach (var item in userVideos.Items.Take(5))
 				{
-					var nicoVideo = await HohoemaApp.MediaManager.GetNicoVideoAsync(item.VideoId);
-					VideoInfoItems.Add(new VideoInfoControlViewModel(nicoVideo, PageManager));
+                    var vm = new VideoInfoControlViewModel(item.VideoId, isNgEnabled:false);
+                    vm.SetTitle(item.Title);
+                    vm.SetThumbnailImage(item.ThumbnailUrl.OriginalString);
+                    VideoInfoItems.Add(vm);
 				}
 			}
 			catch (Exception ex)
@@ -227,7 +229,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					await Task.Delay(500);
 
-					var mylistGroups = await HohoemaApp.ContentFinder.GetUserMylistGroups(UserId);
+					var mylistGroups = await HohoemaApp.ContentProvider.GetUserMylistGroups(UserId);
 					foreach (var item in mylistGroups)
 					{
 						MylistGroups.Add(new MylistGroupListItem(item, PageManager));

@@ -143,6 +143,8 @@
     <Content Include="Assets\UpdateNotices\0.11.1.md" />
     <Content Include="Assets\UpdateNotices\0.11.3.md" />
     <Content Include="Assets\UpdateNotices\0.11.4.md" />
+    <Content Include="Assets\UpdateNotices\0.11.5.md" />
+    <Content Include="Assets\UpdateNotices\0.11.6.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <PRIResource Include="Resources\ja-jp\Resources.resw" />
   </ItemGroup>
@@ -167,6 +169,9 @@
     <Compile Include="Commands\ShereCommand.cs" />
     <Compile Include="Commands\VideoDeleteCacheCommand.cs" />
     <Compile Include="Commands\VideoRequestCacheCommand.cs" />
+    <Compile Include="Database\HohoemaLiteDbContext.cs" />
+    <Compile Include="Database\NicoVideo.cs" />
+    <Compile Include="Database\NicoVideoOwner.cs" />
     <Compile Include="Dialogs\NiconicoTwoFactorAuthDialog.xaml.cs">
       <DependentUpon>NiconicoTwoFactorAuthDialog.xaml</DependentUpon>
     </Compile>
@@ -178,7 +183,10 @@
     <Compile Include="Dialogs\_ContentSelectDialog\TextInputSelectableContainer.cs" />
     <Compile Include="Events\PlayerClosedEvent.cs" />
     <Compile Include="Events\PlayNicoVideoEvent.cs" />
+    <Compile Include="Helpers\ApiContractHelper.cs" />
     <Compile Include="Helpers\CulturelizeHelper.cs" />
+    <Compile Include="Helpers\IAsyncInitialize.cs" />
+    <Compile Include="Helpers\IFileAccessor.cs" />
     <Compile Include="Interfaces\ICommunity.cs" />
     <Compile Include="Interfaces\IFeedGroup.cs" />
     <Compile Include="Interfaces\IFollowable.cs" />
@@ -190,7 +198,7 @@
     <Compile Include="Interfaces\IVideoContent.cs" />
     <Compile Include="Models\AccountManager.cs" />
     <Compile Include="Models\AppUpdateNotice.cs" />
-    <Compile Include="Helpers\BackgroundUpdater.cs" />
+    <Compile Include="Models\Db\MigrationToLiteDBHelper.cs" />
     <Compile Include="Models\Niconico\CommentCommandPermissionType.cs" />
     <Compile Include="Models\Niconico\CommentOpacityKind.cs" />
     <Compile Include="Models\Db\History\HistoryDbContext.cs" />
@@ -229,6 +237,7 @@
     <Compile Include="Models\HohoemaPlaylist.cs" />
     <Compile Include="Models\HohoemaViewManager.cs" />
     <Compile Include="Interfaces\IHohoemaListItem.cs" />
+    <Compile Include="Models\Niconico\Video\IVideoStreamingSession.cs" />
     <Compile Include="Models\PagePayload\InAppNotificationPayload.cs" />
     <Compile Include="Helpers\LisenceSummary.cs" />
     <Compile Include="Models\Niconico\Live\Live2WebSocket.cs" />
@@ -263,18 +272,16 @@
     <Compile Include="Models\Settings\PlaylistSettings.cs" />
     <Compile Include="Models\Niconico\Mylist\UserMylistManager.cs" />
     <Compile Include="Helpers\ShareHelper.cs" />
-    <Compile Include="Models\Niconico\Video\DividedQualityNicoVideo.cs" />
     <Compile Include="Models\Niconico\Video\MediaProtocolType.cs" />
     <Compile Include="Models\Db\NicoVideo\NicoVIdeoDbContext.cs" />
-    <Compile Include="Models\Niconico\Video\VideoDownloadManager.cs" />
     <Compile Include="Helpers\AsyncLock.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideo.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideoCacheRequest.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideoCacheState.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideoCanNotDownloadReason.cs" />
     <Compile Include="Models\Settings\HohoemaUserSettings.cs" />
-    <Compile Include="Models\Niconico\NiconicoContentFinder.cs" />
-    <Compile Include="Models\Niconico\Video\NiconicoMediaManager.cs" />
+    <Compile Include="Models\Niconico\NiconicoContentProvider.cs" />
+    <Compile Include="Models\Niconico\VideoCacheManager.cs" />
     <Compile Include="Models\PageManager.cs" />
     <Compile Include="Models\PlayerDisplayMode.cs" />
     <Compile Include="Models\PagePayload\Search\SearchPagePayloadContentBase.cs" />
@@ -309,7 +316,6 @@
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
     <Compile Include="ViewModels\CommunityPageViewModel.cs" />
     <Compile Include="ViewModels\CommunityVideoPageViewModel.cs" />
-    <Compile Include="ViewModels\ConfirmWatchHurmfulVideoPageViewModel.cs" />
     <Compile Include="ViewModels\FeedVideoListPageViewModel.cs" />
     <Compile Include="ViewModels\FollowManagePageViewModel.cs" />
     <Compile Include="ViewModels\FeedVideoInfoControlViewModel.cs" />
@@ -442,9 +448,6 @@
     </Compile>
     <Compile Include="Views\CommunityVideoPage.xaml.cs">
       <DependentUpon>CommunityVideoPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\ConfirmWatchHurmfulVideoPage.xaml.cs">
-      <DependentUpon>ConfirmWatchHurmfulVideoPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\CommunityInfoControl.xaml.cs">
       <DependentUpon>CommunityInfoControl.xaml</DependentUpon>
@@ -805,10 +808,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\ConfirmWatchHurmfulVideoPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\CommunityInfoControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1103,6 +1102,9 @@
     </PackageReference>
     <PackageReference Include="HtmlAgilityPack.NetCore">
       <Version>1.5.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="LiteDB">
+      <Version>4.0.0</Version>
     </PackageReference>
     <PackageReference Include="MahApps.Metro.IconPacks.Material">
       <Version>1.9.0</Version>

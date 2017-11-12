@@ -20,7 +20,7 @@ using NicoPlayerHohoema.Helpers;
 
 namespace NicoPlayerHohoema.Models
 {
-	public class FollowManager : IBackgroundUpdateable
+	public class FollowManager : AsyncInitialize
 	{
 
 		#region Niconico follow constants
@@ -45,7 +45,9 @@ namespace NicoPlayerHohoema.Models
 		{
 			var followManager = new FollowManager(hohoemaApp, userId);
 
-			return Task.FromResult(followManager);
+            followManager.Initialize();
+
+            return Task.FromResult(followManager);
 		}
 
 
@@ -71,12 +73,6 @@ namespace NicoPlayerHohoema.Models
 
         #endregion
 
-        #region Event 
-
-        public event BackgroundUpdateCompletedEventHandler Completed;
-
-        #endregion
-
         #region Fields
 
         HohoemaApp _HohoemaApp;
@@ -97,14 +93,11 @@ namespace NicoPlayerHohoema.Models
         }
 
 
-        #region interface IBackgroundUpdateable
+        protected override Task OnInitializeAsync(CancellationToken token)
+        {
+            return SyncAll(token);
+        }
 
-        public IAsyncAction BackgroundUpdate(CoreDispatcher uiDispatcher)
-		{
-			return AsyncInfo.Run(SyncAll);
-		}
-
-		#endregion
 
 		private IFollowInfoGroup GetFollowInfoGroup(FollowItemType itemType)
 		{
@@ -159,8 +152,6 @@ namespace NicoPlayerHohoema.Models
 
                     await Task.Delay(250);
                 }
-
-                Completed?.Invoke(this);
             }
         }
 

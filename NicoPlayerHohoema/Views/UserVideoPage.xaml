@@ -125,5 +125,18 @@
                 </DataTemplate>
             </controls:ListingWithHeader.GridItemTemplate>
         </controls:ListingWithHeader>
+
+
+        <Grid Visibility="{Binding IsOwnerVideoPrivate, Converter={StaticResource BooleanToVisibility}}">
+            <TextBlock Margin="16"
+                       Style="{StaticResource SubtitleTextBlockStyle}"
+                       Opacity="0.8"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"
+                       TextWrapping="Wrap"
+                       >
+                <Run Text="{Binding UserName}" /> さんの投稿動画一覧は非公開です
+            </TextBlock>
+        </Grid>
     </Grid>
 </Page>
