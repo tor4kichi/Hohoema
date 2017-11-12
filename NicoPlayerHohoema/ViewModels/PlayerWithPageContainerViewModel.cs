@@ -108,13 +108,6 @@ namespace NicoPlayerHohoema.ViewModels
                         }
                     });
             }
-
-            App.Current.Suspending += Current_Suspending;
-        }
-
-        private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
-        {
-            ClosePlayer();
         }
 
         private async void HohoemaPlaylist_OpenPlaylistItem(IPlayableList playlist, PlaylistItem item)
