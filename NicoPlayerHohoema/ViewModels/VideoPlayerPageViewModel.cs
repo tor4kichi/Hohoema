@@ -1004,10 +1004,21 @@ namespace NicoPlayerHohoema.ViewModels
                 MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
                 MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
 
-                var smtc = MediaPlayer.SystemMediaTransportControls;
+                var smtc = SystemMediaTransportControls.GetForCurrentView();
                 //            smtc.AutoRepeatModeChangeRequested += Smtc_AutoRepeatModeChangeRequested;
                 MediaPlayer.CommandManager.NextReceived += CommandManager_NextReceived;
                 MediaPlayer.CommandManager.PreviousReceived += CommandManager_PreviousReceived;
+
+//                ResetMediaPlayerCommand();
+
+                smtc.DisplayUpdater.ClearAll();
+                smtc.IsEnabled = true;
+                smtc.IsPlayEnabled = true;
+                smtc.IsPauseEnabled = true;
+                smtc.DisplayUpdater.Type = MediaPlaybackType.Video;
+                smtc.DisplayUpdater.VideoProperties.Title = _VideoInfo.Title;
+                smtc.DisplayUpdater.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri(_VideoInfo.ThumbnailUrl));
+                smtc.DisplayUpdater.Update();
             }
 
 
@@ -1028,9 +1039,6 @@ namespace NicoPlayerHohoema.ViewModels
             ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
 
             App.Current.Suspending += Current_Suspending;
-
-            PlaylistCanGoBack.Value = HohoemaApp.Playlist.Player.CanGoBack;
-            PlaylistCanGoNext.Value = HohoemaApp.Playlist.Player.CanGoNext;
 
             UpdateCache();
 
@@ -1063,12 +1071,15 @@ namespace NicoPlayerHohoema.ViewModels
                 MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
                 MediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
 
-                var smtc = MediaPlayer.SystemMediaTransportControls;
                 MediaPlayer.CommandManager.NextReceived -= CommandManager_NextReceived;
                 MediaPlayer.CommandManager.PreviousReceived -= CommandManager_PreviousReceived;
 
                 Comments.Clear();
             }
+
+            var smtc = SystemMediaTransportControls.GetForCurrentView();
+            smtc.DisplayUpdater.ClearAll();
+            smtc.DisplayUpdater.Update();
 
 
             // プレイリストへ再生完了を通知
@@ -1209,7 +1220,7 @@ namespace NicoPlayerHohoema.ViewModels
         {
             if (MediaPlayer == null) { return; }
 
-            var isEnableNextButton = this.PlaylistCanGoBack.Value;
+            var isEnableNextButton = this.PlaylistCanGoNext.Value;
             if (isEnableNextButton)
             {
                 MediaPlayer.CommandManager.NextBehavior.EnablingRule = MediaCommandEnablingRule.Always;
@@ -1219,7 +1230,7 @@ namespace NicoPlayerHohoema.ViewModels
                 MediaPlayer.CommandManager.NextBehavior.EnablingRule = MediaCommandEnablingRule.Never;
             }
 
-            var isEnableBackButton = this.PlaylistCanGoNext.Value;
+            var isEnableBackButton = this.PlaylistCanGoBack.Value;
             if (isEnableBackButton)
             {
                 MediaPlayer.CommandManager.PreviousBehavior.EnablingRule = MediaCommandEnablingRule.Always;
