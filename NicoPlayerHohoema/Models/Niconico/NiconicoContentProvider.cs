@@ -141,7 +141,7 @@ namespace NicoPlayerHohoema.Models
                     };
 
                     NicoVideoDb.AddOrUpdate(info);
-//                    NicoVideoOwnerDb.AddOrUpdate(info.Owner);
+                    NicoVideoOwnerDb.AddOrUpdate(info.Owner);
                 }
                 catch (Exception ex) when (ex.Message.Contains("DELETE"))
                 {
@@ -244,7 +244,7 @@ namespace NicoPlayerHohoema.Models
                         };
 
                         NicoVideoDb.AddOrUpdate(info);
-//                        NicoVideoOwnerDb.AddOrUpdate(info.Owner);
+                        NicoVideoOwnerDb.AddOrUpdate(info.Owner);
                     }
 
 
