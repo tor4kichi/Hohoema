@@ -929,6 +929,9 @@ namespace NicoPlayerHohoema.ViewModels
             RaisePropertyChanged(nameof(PlaylistItems));
 
 
+            MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
+            MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
+
             // まず再生開始を試行
             Video = new NicoVideo(VideoId, HohoemaApp.ContentProvider, HohoemaApp.NiconicoContext, HohoemaApp.CacheManager);
 
@@ -1000,10 +1003,7 @@ namespace NicoPlayerHohoema.ViewModels
                 // 再生履歴に反映
                 //VideoPlayHistoryDb.VideoPlayed(Video.RawVideoId);
 
-                
-                MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
-                MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
-
+               
                 var smtc = SystemMediaTransportControls.GetForCurrentView();
                 //            smtc.AutoRepeatModeChangeRequested += Smtc_AutoRepeatModeChangeRequested;
                 MediaPlayer.CommandManager.NextReceived += CommandManager_NextReceived;
