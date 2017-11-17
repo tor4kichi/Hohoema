@@ -159,7 +159,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                 if (ngResult != null)
                 {
-                    IsVisible = true;
+                    IsVisible = false;
                     var ngDesc = !string.IsNullOrWhiteSpace(ngResult.NGDescription) ? ngResult.NGDescription : ngResult.Content;
                     InvisibleDescription = $"NG動画";
                 }
