@@ -50,7 +50,12 @@ namespace NicoPlayerHohoema.Database
         {
             var db = HohoemaLiteDb.GetLiteRepository();
             {
-                return db.SingleOrDefault<NicoVideo>(x => x.RawVideoId == videoId);
+
+                return db
+                    .Query<NicoVideo>()
+                    .Include(x => x.Owner)
+                    .Where(x => x.RawVideoId == videoId)
+                    .SingleOrDefault();
             }
         }
 
@@ -67,7 +72,10 @@ namespace NicoPlayerHohoema.Database
         {
             var db = HohoemaLiteDb.GetLiteRepository();
             {
-                return db.Fetch<NicoVideo>(Query.Contains(nameof(NicoVideo.Title), keyword));
+                return db
+                    .Query<NicoVideo>()
+                    .Where(Query.Contains(nameof(NicoVideo.Title), keyword))
+                    .ToList();
             }
         }
 
