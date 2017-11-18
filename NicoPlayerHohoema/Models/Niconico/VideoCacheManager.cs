@@ -856,21 +856,24 @@ namespace NicoPlayerHohoema.Models
 
         public async Task<bool> CancelCacheRequest(string rawVideoId, NicoVideoQuality quality)
         {
-            NicoVideoCacheRequest removeTarget = null;
-            using (var releaser = await _CacheRequestProcessingLock.LockAsync())
-            {
-                removeTarget = _CacheDownloadPendingVideos.SingleOrDefault(x => x.RawVideoId == rawVideoId && x.Quality == quality);
+            // ダウンロード中タスクを削除（DLのキャンセル）
+            NicoVideoCacheRequest removeTarget = await CancelDownload(rawVideoId, quality);
 
-                // ダウンロード中タスクを削除（DLのキャンセル）
-                if (removeTarget == null)
+            if (removeTarget == null)
+            {
+                using (var releaser2 = await _CacheRequestProcessingLock.LockAsync())
                 {
-                    removeTarget = await CancelDownload(rawVideoId, quality);
+                    removeTarget = _CacheDownloadPendingVideos.FirstOrDefault(x => x.RawVideoId == rawVideoId && x.Quality == quality);
                 }
             }
 
             if (removeTarget != null)
             {
-                _CacheDownloadPendingVideos.Remove(removeTarget);
+                using (var releaser2 = await _CacheRequestProcessingLock.LockAsync())
+                {
+                    _CacheDownloadPendingVideos.Remove(removeTarget);
+                }
+
                 await SaveDownloadRequestItems();
 
                 RequestCanceled?.Invoke(this, removeTarget);

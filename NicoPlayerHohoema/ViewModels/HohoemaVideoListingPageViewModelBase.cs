@@ -75,9 +75,9 @@ namespace NicoPlayerHohoema.ViewModels
 						uint count = 0;
 						foreach (var item in items)
 						{
-                            foreach (var quality in item.CachedQualityVideos)
+                            foreach (var quality in item.CachedQualityVideos.ToArray())
                             {
-                                await HohoemaApp.CacheManager.CancelCacheRequest(item.RawVideoId, quality.Quality);
+                                await HohoemaApp.CacheManager.DeleteCachedVideo(item.RawVideoId, quality.Quality);
                             }
 
                             ++count;
