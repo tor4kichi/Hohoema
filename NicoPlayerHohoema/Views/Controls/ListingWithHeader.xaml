@@ -48,6 +48,22 @@
                 </VisualState>
             </VisualStateGroup>
 
+            <VisualStateGroup x:Name="SelectionStateGroup">
+                <VisualState x:Name="SelectModeEnableState">
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{x:Bind IsSelectionEnabled, Mode=OneWay}" />
+                    </VisualState.StateTriggers>
+
+                    <VisualState.Setters>
+                        
+                        <Setter Target="ItemsList.SelectionMode" Value="Multiple" />
+                        <Setter Target="ItemsList.IsItemClickEnabled" Value="False" />
+                        <Setter Target="ItemsList.IsMultiSelectCheckBoxEnabled" Value="True" />
+                    </VisualState.Setters>
+
+                </VisualState>
+            </VisualStateGroup>
+
         </VisualStateManager.VisualStateGroups>
         
         
@@ -71,14 +87,14 @@
                             x:Name="ItemsList"
                             ItemsSource="{x:Bind ItemsSource, Mode=OneWay}"
                             ItemTemplate="{x:Bind ListItemTemplate}"
-                            IsItemClickEnabled="{x:Bind IsSelectionEnabled, Converter={StaticResource BooleanInverted}}"
-                            IsMultiSelectCheckBoxEnabled="{x:Bind IsSelectionEnabled}"
                             RefreshCommand="{x:Bind RefreshCommand}"
+                            IsItemClickEnabled="True"
+                    
                             ItemClick="HohoemaListView_ItemClick"
                             IncrementalLoadingTrigger="Edge"
                             PullThreshold="85"    
                             UseSystemFocusVisuals="True"
-                            SelectionMode="None"
+                            SelectionMode="Single"
                             HorizontalContentAlignment="Stretch"
                             >
                     <uwpcontrols:PullToRefreshListView.Header>
@@ -131,7 +147,7 @@
                         ItemTemplate="{x:Bind GridItemTemplate}"
                         RefreshCommand="{x:Bind RefreshCommand}"
                         SelectedItems="{x:Bind SelectedItems}"
-                        IsSelectionEnabled="{x:Bind IsSelectionEnabled}"
+                        IsSelectionEnabled="{x:Bind IsSelectionEnabled, Mode=OneWay}"
                         >
 
                     <mycontrols:IncrementalLoadingList.Header>
