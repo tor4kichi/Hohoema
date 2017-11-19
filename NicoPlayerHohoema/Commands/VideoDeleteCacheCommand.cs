@@ -1,4 +1,5 @@
-﻿using Prism.Commands;
+﻿using NicoPlayerHohoema.Models;
+using Prism.Commands;
 using System;
 using System.Linq;
 using Windows.UI.Popups;
@@ -20,8 +21,8 @@ namespace NicoPlayerHohoema.Commands
                 var content = parameter as Interfaces.IVideoContent;
 
                 var cacheManager = HohoemaCommnadHelper.GetHohoemaApp().CacheManager;
-                var cached = await cacheManager.EnumerateCacheVideosAsync();
-                if (cached.Any(x => x.RawVideoId == content.Id))
+                var requests = await cacheManager.GetCacheRequest(content.Id);
+                if (requests.Any(x => x.ToCacheState() == NicoVideoCacheState.Cached))
                 {
                     // キャッシュ済みがある場合は、削除確認を行う
 
@@ -36,7 +37,7 @@ namespace NicoPlayerHohoema.Commands
                         Label = "キャッシュを削除",
                         Invoked = async (uicommand) =>
                         {
-                            await cacheManager.DeleteCachedVideo(content.Id);
+                            await cacheManager.CancelCacheRequest(content.Id);
                         }
                     });
                     dialog.Commands.Add(new UICommand()
@@ -53,9 +54,6 @@ namespace NicoPlayerHohoema.Commands
                     // キャッシュリクエストのみで
                     // キャッシュがいずれも未完了の場合は
                     // 確認無しで削除
-
-                    var requests = await cacheManager.GetCacheRequest(content.Id);
-
                     foreach (var req in requests)
                     {
                         await cacheManager.CancelCacheRequest(req.RawVideoId, req.Quality);

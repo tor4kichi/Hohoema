@@ -77,7 +77,7 @@ namespace NicoPlayerHohoema.ViewModels
 						{
                             foreach (var quality in item.CachedQualityVideos.ToArray())
                             {
-                                await HohoemaApp.CacheManager.DeleteCachedVideo(item.RawVideoId, quality.Quality);
+                                await HohoemaApp.CacheManager.CancelCacheRequest(item.RawVideoId, quality.Quality);
                             }
 
                             ++count;
@@ -246,7 +246,10 @@ namespace NicoPlayerHohoema.ViewModels
                 var video = IncrementalLoadingItems?.FirstOrDefault(x => x.RawVideoId == e.Request.RawVideoId);
                 if (video != null)
                 {
-                    await video.RefrechCacheState();
+                    await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () => 
+                    {
+                        await video.RefrechCacheState();
+                    });
                 }
             }
         }
