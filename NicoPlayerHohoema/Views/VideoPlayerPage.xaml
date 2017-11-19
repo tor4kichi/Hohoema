@@ -12,7 +12,6 @@
     xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:viewmodel="using:NicoPlayerHohoema.ViewModels"
-    xmlns:sidepanecontent="using:NicoPlayerHohoema.Views.PlayerSidePaneContent"
     xmlns:logicalTrigger="using:AdaptiveTriggerLibrary.Triggers.LogicalTriggers"
     xmlns:intractionTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInteractionTriggers"
     xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
@@ -116,7 +115,7 @@
 
 
 
-            <MenuFlyoutSeparator />
+            <MenuFlyoutSeparator Visibility="Collapsed" />
 
             
 
