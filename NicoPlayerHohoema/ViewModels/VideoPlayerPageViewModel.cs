@@ -947,6 +947,12 @@ namespace NicoPlayerHohoema.ViewModels
 
             VideoLength.Value = _VideoInfo.Length.TotalSeconds;
 
+            // 削除された動画の場合、自動でスキップさせる
+            if (_VideoInfo.IsDeleted)
+            {
+                VideoPlayed(canPlayNext: true);
+            }
+
             // コメントやキャッシュ状況の表示を更新
             if (IsNotSupportVideoType)
             {

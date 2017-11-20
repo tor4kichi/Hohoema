@@ -95,9 +95,18 @@ namespace NicoPlayerHohoema.Models
                     }
                 }
 
+                if (info == null)
+                {
+                    info = new Database.NicoVideo()
+                    {
+                        RawVideoId = rawVideoId
+                    };
+                }
+
                 ThumbnailResponse res = null;
                 try
                 {
+
                     res = await Helpers.ConnectionRetryUtil.TaskWithRetry(() =>
                     {
                         return Context.Video.GetThumbnailAsync(rawVideoId);
@@ -105,14 +114,6 @@ namespace NicoPlayerHohoema.Models
                     retryCount: 5,
                     retryInterval: 1000
                     );
-
-                    if (info == null)
-                    {
-                        info = new Database.NicoVideo()
-                        {
-                            RawVideoId = rawVideoId
-                        };
-                    }
 
                     info.Title = res.Title;
                     info.Length = res.Length;
@@ -139,17 +140,21 @@ namespace NicoPlayerHohoema.Models
                         OwnerId = res.UserId.ToString(),
                         UserType = res.UserType
                     };
-
-                    NicoVideoDb.AddOrUpdate(info);
-                    NicoVideoOwnerDb.AddOrUpdate(info.Owner);
                 }
-                catch (Exception ex) when (ex.Message.Contains("DELETE"))
+                catch (Exception ex) when (ex.Message.Contains("DELETE") || ex.Message.Contains("NOT_FOUND"))
                 {
                     info.IsDeleted = true;
-                    NicoVideoDb.AddOrUpdate(info);
-
+                    
                     var cacheManager = App.Current.Container.Resolve<VideoCacheManager>();
                     await cacheManager.VideoDeletedFromNiconicoServer(info.RawVideoId).ConfigureAwait(false);
+                }
+                finally
+                {
+                    NicoVideoDb.AddOrUpdate(info);
+                    if (info.Owner != null)
+                    {
+                        NicoVideoOwnerDb.AddOrUpdate(info.Owner);
+                    }
                 }
 
                 return info;
@@ -242,6 +247,11 @@ namespace NicoPlayerHohoema.Models
                             OwnerId = res.Owner?.Id ?? res.Channel?.GlobalId,
                             UserType = res.Channel != null ? UserType.Channel : UserType.User
                         };
+
+                        if (data.DmcWatchResponse?.Video != null)
+                        {
+                            info.IsDeleted = data.DmcWatchResponse.Video.IsDeleted;
+                        }
 
                         NicoVideoDb.AddOrUpdate(info);
                         NicoVideoOwnerDb.AddOrUpdate(info.Owner);
