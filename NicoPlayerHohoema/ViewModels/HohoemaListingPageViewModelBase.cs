@@ -38,11 +38,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			HasError = new ReactiveProperty<bool>(false);
 
-			ListViewVerticalOffset = new ReactiveProperty<double>(0.0)
-				.AddTo(_CompositeDisposable);
-			_LastListViewOffset = 0;
-
-
 			MaxItemsCount = new ReactiveProperty<int>(0)
 				.AddTo(_CompositeDisposable);
 			LoadedItemsCount = new ReactiveProperty<int>(0)
@@ -140,7 +135,6 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 			else
 			{
-				ListViewVerticalOffset.Value = _LastListViewOffset;
 				ChangeCanIncmentalLoading(true);
 			}
 
@@ -181,8 +175,6 @@ namespace NicoPlayerHohoema.ViewModels
 		protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
 			base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
-
-            _LastListViewOffset = ListViewVerticalOffset.Value;
 
             if (!suspending)
 			{
@@ -393,9 +385,6 @@ namespace NicoPlayerHohoema.ViewModels
         public ObservableCollection<ITEM_VM> SelectedItems { get; private set; }
 
 		public IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> IncrementalLoadingItems { get; private set; }
-
-		public ReactiveProperty<double> ListViewVerticalOffset { get; private set; }
-		private double _LastListViewOffset;
 
 		public ReactiveProperty<bool> NowLoading { get; private set; }
         public ReactiveProperty<bool> CanChangeSort { get; private set; }
