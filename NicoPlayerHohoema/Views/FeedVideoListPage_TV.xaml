@@ -41,20 +41,7 @@
                 <DataTemplate>
                     <Grid Margin="0 0 0 0"
                                   >
-
-
-
                         <controls:VideoInfoControl_TV />
-
-                        <TextBlock Text="New" 
-                                           HorizontalAlignment="Left"
-                                           VerticalAlignment="Top"
-                                           Visibility="{Binding IsUnread.Value, Converter={StaticResource BooleanToVisibility}}"
-                                           Style="{StaticResource SubheaderTextBlockStyle}"
-                                           LineStackingStrategy="MaxHeight"
-                                           Margin="8 0"
-                                       />
-
                     </Grid>
                 </DataTemplate>
             </controls:IncrementalLoadingList.ItemTemplate>
@@ -96,15 +83,7 @@
                                 >
                         </AppBarButton>
 
-                        <AppBarButton Command="{Binding AllMarkAsReadCommand}"
-                                    Background="Transparent"
-                                      Label="全て既読"
-                                    >
-                            <StackPanel Orientation="Horizontal">
-                                <iconPack:PackIconMaterial Kind="Check" />
-                            </StackPanel>
-                        </AppBarButton>
-
+                        
                         <AppBarButton Command="{Binding OpenFeedGroupPageCommand}"
                                     Background="Transparent"
                                     Label="フィード編集"

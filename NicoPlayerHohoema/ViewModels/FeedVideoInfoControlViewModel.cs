@@ -12,22 +12,17 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class FeedVideoInfoControlViewModel : VideoInfoControlViewModel
 	{
-		public FeedVideoInfoControlViewModel(FeedItem feedItem, IFeedGroup feedGroup)
-			: base(feedItem.VideoId)
+		public FeedVideoInfoControlViewModel(Database.NicoVideo nicoVideo, Database.Bookmark sourceBookmark)
+			: base(nicoVideo)
 		{
-			IsUnread = feedItem.ToReactivePropertyAsSynchronized(x => x.IsUnread)
-				.AddTo(_CompositeDisposable);
-
-			_FafFeedItem = feedItem;
-			_FeedGroup = feedGroup;
+            SourceBookmark = sourceBookmark;
 		}
 
-		FeedItem _FafFeedItem;
-		IFeedGroup _FeedGroup;
+        public Database.Bookmark SourceBookmark { get; }
 
-		public ReactiveProperty<bool> IsUnread { get; private set; }
-		public FollowItemType SourceType { get; private set; }
-		public string SourceTitle { get; private set; }
-	}
+        public Database.BookmarkType SourceType => SourceBookmark.BookmarkType;
+        public string SourceLabel => SourceBookmark.Label;
+
+    }
 
 }

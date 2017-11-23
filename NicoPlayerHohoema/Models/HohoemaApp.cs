@@ -133,7 +133,7 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<StorageFolder> GetFeedSettingsFolder()
 		{
-			return await ApplicationData.Current.LocalFolder.CreateFolderAsync("feed", CreationCollisionOption.OpenIfExists);
+			return await ApplicationData.Current.LocalFolder.GetFolderAsync("feed");
 		}
 
 		private async Task LoadUserSettings()
@@ -1305,18 +1305,18 @@ namespace NicoPlayerHohoema.Models
             return resultList;
         }
 
-        public async Task<IFeedGroup> ChoiceFeedGroup(string title)
+        public async Task<Database.Feed> ChoiceFeedGroup(string title)
         {
             var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
 
-            IFeedGroup resultFeedGroup = null;
+            Database.Feed resultFeedGroup = null;
             while (resultFeedGroup == null)
             {
                 var result = await dialogService.ShowContentSelectDialogAsync(title,
                     new ISelectableContainer[]
                     {
                     new ChoiceFromListSelectableContainer("フィードグループ",
-                    FeedManager.FeedGroups
+                    FeedManager.GetAllFeedGroup()
                     .Select(x => new SelectDialogPayload() { Id = x.Id.ToString(), Label = x.Label, Context = x })
                     .ToList())
                     ,
@@ -1330,14 +1330,11 @@ namespace NicoPlayerHohoema.Models
                 {
                     // 新規作成
                     var newFeedGroupName = result.Id;
-                    if (FeedManager.CanAddLabel(newFeedGroupName))
-                    {
-                        resultFeedGroup = await FeedManager.AddFeedGroup(newFeedGroupName);
-                    }
+                    resultFeedGroup = FeedManager.AddFeedGroup(result.Label);
                 }
                 else
                 {
-                    resultFeedGroup = result?.Context as IFeedGroup;
+                    resultFeedGroup = result?.Context as Database.Feed;
                 }
             }
 

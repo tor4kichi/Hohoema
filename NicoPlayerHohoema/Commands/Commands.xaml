@@ -4,6 +4,7 @@
     xmlns:local="using:NicoPlayerHohoema.Commands">
 
     <local:AddAfterViewPlaylistCommand x:Key="AddAfterViewPlaylistCommand" />
+    <local:AddFeedSourceCommand x:Key="AddFeedSourceCommand" />
     <local:AddMylistCommand x:Key="AddMylistCommand" />
     <local:AddToHiddenUserCommand x:Key="AddToHiddenUserCommand" />
     <local:CopyToClipboardCommand x:Key="CopyToClipboardCommand" />

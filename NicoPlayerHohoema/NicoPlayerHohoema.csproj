@@ -155,6 +155,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Commands\AddAfterViewPlaylistCommand.cs" />
+    <Compile Include="Commands\AddFeedSourceCommand.cs" />
     <Compile Include="Commands\AddMylistCommand.cs" />
     <Compile Include="Commands\AddToHiddenUserCommand.cs" />
     <Compile Include="Commands\CopyToClipboardCommand.cs" />
@@ -171,6 +172,11 @@
     <Compile Include="Commands\ShereCommand.cs" />
     <Compile Include="Commands\VideoDeleteCacheCommand.cs" />
     <Compile Include="Commands\VideoRequestCacheCommand.cs" />
+    <Compile Include="Database\Bookmark.cs" />
+    <Compile Include="Database\BookmarkDb.cs" />
+    <Compile Include="Database\BookmarkType.cs" />
+    <Compile Include="Database\Feed.cs" />
+    <Compile Include="Database\FeedDb.cs" />
     <Compile Include="Database\HohoemaLiteDbContext.cs" />
     <Compile Include="Database\NicoVideo.cs" />
     <Compile Include="Database\NicoVideoOwner.cs" />

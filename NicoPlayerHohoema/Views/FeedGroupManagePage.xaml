@@ -31,7 +31,16 @@
 
         <DataTemplate x:Key="TagFeedItemSourceTemplate">
             <Border Margin="8 0">
-                <TextBlock Text="{Binding Name}" 
+                <TextBlock Text="{Binding Label}" 
+                           Style="{StaticResource FeedItemSourceTextBlockStyle}"
+                           VerticalAlignment="Center"
+                           />
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="KeywordFeedItemSourceTemplate">
+            <Border Margin="8 0">
+                <TextBlock Text="{Binding Label}" 
                            Style="{StaticResource FeedItemSourceTextBlockStyle}"
                            VerticalAlignment="Center"
                            />
@@ -40,7 +49,7 @@
 
         <DataTemplate x:Key="MylistFeedItemSourceTemplate">
             <Border Margin="8 0">
-                <TextBlock Text="{Binding Name}"
+                <TextBlock Text="{Binding Label}"
                            Style="{StaticResource FeedItemSourceTextBlockStyle}"
                            VerticalAlignment="Center"
                            />
@@ -49,7 +58,7 @@
 
         <DataTemplate x:Key="UserFeedItemSourceTemplate">
             <Border Margin="8 0">
-                <TextBlock Text="{Binding Name}"
+                <TextBlock Text="{Binding Label}"
                            Style="{StaticResource FeedItemSourceTextBlockStyle}"
                            VerticalAlignment="Center"
                            />
@@ -59,6 +68,7 @@
 
         <local:FeedItemSourceTemplateSelector x:Key="feedItemSourceTemplateSelector"
                                               Tag="{StaticResource TagFeedItemSourceTemplate}"
+                                              Keyword="{StaticResource KeywordFeedItemSourceTemplate}"
                                               Mylist="{StaticResource MylistFeedItemSourceTemplate}"
                                               User="{StaticResource UserFeedItemSourceTemplate}"
             />
@@ -96,12 +106,10 @@
                     Height="64"
                     >
                 <toolkit:DockPanel >
-
                     <StackPanel toolkit:DockPanel.Dock="Right" 
                                 Orientation="Horizontal"
                                 >
-
-
+                        <!--
                         <AppBarButton Command="{Binding RefreshAllFeedGroupCommand}"
                                 Background="Transparent"
                                       Icon="Refresh"
@@ -111,10 +119,11 @@
                         </AppBarButton>
 
                         <Border Width="8" />
+                        -->
 
                         <AppBarButton Command="{Binding CreateFeedGroupCommand}"
                                     Background="Transparent"
-                                    ToolTipService.ToolTip="フィードグループを作成"
+                                    ToolTipService.ToolTip="新しいフィードを追加"
                                       HorizontalContentAlignment="Stretch"
                                       VerticalContentAlignment="Stretch"
                                 >
@@ -123,11 +132,6 @@
                                                        VerticalAlignment="Center"
                                                        />
                         </AppBarButton>
-
-                        
-
-
-
                     </StackPanel>
 
                     <Border Background="Transparent" IsHitTestVisible="True"
@@ -176,33 +180,33 @@
                             <StackPanel></StackPanel>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
-                                        
-                    
-                    <TextBlock FontSize="20">
-                        <Run>右上にある ＋ボタン からフィードグループを作成しましょう。</Run>
-                        <LineBreak />
-                    </TextBlock>
 
-                    <Border BorderBrush="White" BorderThickness="0 1 0 0" HorizontalAlignment="Stretch"
-                            Margin="0 8"
-                            />
-                    
-                    <TextBlock Margin="8 8">
-                        <Bold>フィードとは？</Bold>
+                    <TextBlock Margin="8 8" Style="{StaticResource SubtitleTextBlockStyle}">
+                        <Bold>フィード？</Bold>
                     </TextBlock>
                     
                     <TextBlock TextWrapping="Wrap"
                                Margin="16 0"
                                LineHeight="30"
                                >
-                        <Run>情報の流れをひとまとめにして最新情報を一覧表示する機能をインターネットでは「フィード」と呼んだりします。</Run>
+                        <Run>ユーザー投稿動画やマイリスト、検索結果から得られる動画を時系列でまとめて、一覧表示する機能です。</Run>
                         <LineBreak />
-                        <Run>Hohoemaでは、「マイリストの動画」「タグによる動画検索の結果」「ユーザー投稿動画」を時系列でひとまとめにしてチェックできる機能のことを「フィード」として扱っています。</Run>
+                        <Run>「ニコレポ」に似ていますが、「フォロー」ではなくHohoema内でのみ有効な「ブックマーク」を元に動画を集計する点が異なります。</Run>
                         <LineBreak />
-                        <Run>また、Hohoemaに登場する「フィードグループ」はフィードに名前をつけて管理するためのものです。興味のあるジャンルごとに分けてフィードグループを作ってみるとチェックが楽になりますよ。</Run>
+                        <Run>フィードはHohoemaのアプリ上で集計作業を行うので更新処理に少し時間が掛かります。</Run>
+                        <LineBreak />
+                        <Run>関心あるカテゴリごとにフィードを作成できますので、動画探しに活用してみてください。</Run>
                     </TextBlock>
 
 
+                    <Button HorizontalAlignment="Center"
+                            Command="{Binding CreateFeedGroupCommand}"
+                            >
+                        <TextBlock FontSize="20">
+                            <Run Text="フィードを作る" />
+                        </TextBlock>
+                    </Button>
+                    
                 </ItemsControl>
                 
             </Border>
@@ -210,12 +214,12 @@
 
 
             <ListView ItemsSource="{Binding FeedGroupItems}"
-                          IsTabStop="False"
-                              uwpExtensions:ListViewBase.Command="{StaticResource OpenContentCommand}"
-                              IsItemClickEnabled="True"
-                          SelectionMode="None"
+                        IsTabStop="False"
+                    uwpExtensions:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                    IsItemClickEnabled="True"
+                        SelectionMode="None"
                   >
-
+                
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Setter Property="HorizontalContentAlignment"
@@ -225,16 +229,12 @@
                 </ListView.ItemContainerStyle>
 
                 <ListView.ItemTemplate>
-
                     <DataTemplate>
-
-
                         <Grid>
                             <StackPanel HorizontalAlignment="Right"
                                             Orientation="Horizontal"
                                         VerticalAlignment="Center"
                                             >
-
                                 <ProgressRing IsActive="{Binding NowUpdate.Value}"
                                                Visibility="{Binding NowUpdate.Value, Converter={StaticResource BooleanToVisibility}}"
                                                   Width="24"
@@ -242,35 +242,25 @@
                                                   />
                             </StackPanel>
 
+                            <StackPanel>
+                                <TextBlock Text="{Binding Label}" />
 
-
-
-
-                            <toolkit:DockPanel Background="Transparent" IsHitTestVisible="True" >
-
-
-
-                                <mycontrols:HohoemaListItem />
-
-                            </toolkit:DockPanel>
-
-
-
+                                <ItemsControl ItemsSource="{Binding SourceItems}"
+                                              ItemTemplateSelector="{StaticResource feedItemSourceTemplateSelector}"
+                                              >
+                                    <ItemsControl.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <ItemsWrapGrid Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ItemsControl.ItemsPanel>
+                                    
+                                </ItemsControl>
+                            </StackPanel>
+                            
                         </Grid>
-
                     </DataTemplate>
-
                 </ListView.ItemTemplate>
             </ListView>
-
-
-
-
-
         </toolkit:DockPanel>
-
-
-        
     </Grid>
-
 </Page>

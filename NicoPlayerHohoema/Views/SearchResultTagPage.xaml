@@ -86,10 +86,11 @@
                                             Command="{Binding RefreshCommand}"
                                               Icon="Refresh"
                                         />
-                                <AppBarButton Label="フィード登録"
-                                            Command="{Binding AddFeedSourceCommand}"
-                                            />
 
+                                <AppBarButton Label="フィード登録"
+                                        Command="{StaticResource AddFeedSourceCommand}"
+                                        CommandParameter="{Binding TagSearchBookmark}"
+                                    />
 
                                 <AppBarToggleButton Label="フォロー"
                                                     Icon="Favorite"

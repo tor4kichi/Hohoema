@@ -581,13 +581,6 @@ namespace NicoPlayerHohoema.ViewModels
                 })
                 .AddTo(userSessionDisposer);
 
-
-
-
-            // お気に入りフィード上の動画を既読としてマーク
-            await HohoemaApp.FeedManager.MarkAsRead(VideoId);
-            await HohoemaApp.FeedManager.MarkAsRead(Video.RawVideoId);
-
             cancelToken.ThrowIfCancellationRequested();
 
 

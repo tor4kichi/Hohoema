@@ -7,19 +7,16 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
-    <MenuFlyoutItem Text="更新"
-                    Command="{StaticResource FeedGroupUpdateCommand}"
-                    CommandParameter="{Binding}"
-                    />
-    <MenuFlyoutItem Text="編集" 
+    <MenuFlyoutItem Text="フィードを編集" 
                     Command="{StaticResource FeedGroupEditCommand}"
                     CommandParameter="{Binding}"
                     />
     <MenuFlyoutSeparator />
-    <MenuFlyoutItem Text="削除"
+
+    <MenuFlyoutItem Text="フィードを削除"
                     Command="{StaticResource FeedGroupRemoveCommand}"
                     CommandParameter="{Binding}"
 
-                       >
-    </MenuFlyoutItem>
+                       />
+
 </MenuFlyout>

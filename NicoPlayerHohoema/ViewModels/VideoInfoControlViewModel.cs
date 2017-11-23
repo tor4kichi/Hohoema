@@ -71,6 +71,19 @@ namespace NicoPlayerHohoema.ViewModels
             OnDeferredUpdate().ConfigureAwait(false);
         }
 
+        public VideoInfoControlViewModel(Database.NicoVideo nicoVideo, bool isNgEnabled = true, PlaylistItem playlistItem = null)
+        {
+            RawVideoId = nicoVideo.RawVideoId;
+            PlaylistItem = playlistItem;
+            _CompositeDisposable = new CompositeDisposable();
+
+            _IsNGEnabled = isNgEnabled;
+
+            SetupFromThumbnail(nicoVideo);
+
+            OnDeferredUpdate().ConfigureAwait(false);
+        }
+
         protected override async Task OnDeferredUpdate()
         {
             var contentProvider = App.Current.Container.Resolve<NiconicoContentProvider>();
@@ -107,7 +120,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
             else
             {
-                if (VideoPlayHistoryDb.Get(RawVideoId) != null)
+                if (VideoPlayHistoryDb.Get(RawVideoId).PlayCount > 0)
                 {
                     // 視聴済み
                     ThemeColor = Windows.UI.Colors.Transparent;

@@ -133,6 +133,9 @@ namespace NicoPlayerHohoema.ViewModels
         public int MylistRegistrationCapacity { get; private set; }
         public int MylistRegistrationCount { get; private set; }
 
+
+        public Database.Bookmark MylistBookmark { get; private set; }
+
         #region Commands
 
 
@@ -277,32 +280,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        private DelegateCommand _AddFeedSourceCommand;
-        public DelegateCommand AddFeedSourceCommand
-        {
-            get
-            {
-                return _AddFeedSourceCommand
-                    ?? (_AddFeedSourceCommand = new DelegateCommand(async () =>
-                    {
-                        if (PlayableList.Value.Origin == PlaylistOrigin.Local) { return; }
-
-                        var targetTitle = this.MylistTitle;
-                        var feedGroup = await HohoemaApp.ChoiceFeedGroup(targetTitle + "をフィードに追加");
-                        if (feedGroup != null)
-                        {
-                            var result = feedGroup.AddMylistFeedSource(targetTitle, this.PlayableList.Value.Id);
-                            (App.Current as App).PublishInAppNotification(
-                                InAppNotificationPayload.CreateRegistrationResultNotification(
-                                    result != null ? ContentManageResult.Success : ContentManageResult.Failed,
-                                    "フィード",
-                                    feedGroup.Label,
-                                    targetTitle + "(マイリスト)"
-                                    ));
-                        }
-                    }));
-            }
-        }
+        
 
 
 
@@ -504,6 +482,18 @@ namespace NicoPlayerHohoema.ViewModels
                 MylistOrigin.Value = playableList.Origin;
             }
 
+            if (MylistOrigin.Value == PlaylistOrigin.OtherUser && PlayableList.Value?.Id != null)
+            {
+                MylistBookmark = Database.BookmarkDb.Get(Database.BookmarkType.Mylist, PlayableList.Value.Id)
+                    ?? new Database.Bookmark()
+                    {
+                        Label = PlayableList.Value.Name,
+                        Content = PlayableList.Value.Id,
+                        BookmarkType = Database.BookmarkType.Mylist,
+                    };
+
+                RaisePropertyChanged(nameof(MylistBookmark));
+            }
 
             await base.NavigatedToAsync(cancelToken, e, viewModelState);
 		}
