@@ -457,4 +457,56 @@
     <value>視聴履歴</value>
     <comment>HohoemaPageType</comment>
   </data>
+  <data name="Live_Channel_Program_Onairs" xml:space="preserve">
+    <value>生放送開始（チャンネル）</value>
+    <comment>NicoRepoItemTopic</comment>
+  </data>
+  <data name="Live_Channel_Program_Reserve" xml:space="preserve">
+    <value>生放送の予約（チャンネル）</value>
+    <comment>NicoRepoItemTopic</comment>
+  </data>
+  <data name="Live_User_Program_OnAirs" xml:space="preserve">
+    <value>生放送開始（ユーザー）</value>
+    <comment>NicoRepoItemTopic</comment>
+  </data>
+  <data name="Live_User_Program_Reserve" xml:space="preserve">
+    <value>生放送の予約（ユーザー）</value>
+    <comment>NicoRepoItemTopic</comment>
+  </data>
+  <data name="NicoVideo_Channel_Blomaga_Upload" xml:space="preserve">
+    <value>ブロマガ投稿</value>
+    <comment>NicoRepoItemTopic</comment>
+  </data>
+  <data name="NicoVideo_Community_Level_Raise" xml:space="preserve">
+    <value>コミュニティレベルの上昇</value>
+    <comment>NicoRepoItemTopic</comment>
+  </data>
+  <data name="NicoVideo_User_Community_Video_Add" xml:space="preserve">
+    <value>動画をコミュニティ登録</value>
+    <comment>NicoRepoItemTopic</comment>
+  </data>
+  <data name="NicoVideo_User_Mylist_Add_Video" xml:space="preserve">
+    <value>動画をマイリスト登録</value>
+    <comment>NicoRepoItemTopic</comment>
+  </data>
+  <data name="NicoVideo_User_Video_Advertise" xml:space="preserve">
+    <value>ユーザー動画が広告された</value>
+    <comment>NicoRepoItemTopic</comment>
+  </data>
+  <data name="NicoVideo_User_Video_Kiriban_Play" xml:space="preserve">
+    <value>再生数キリ番</value>
+    <comment>NicoRepoItemTopic</comment>
+  </data>
+  <data name="NicoVideo_User_Video_UpdateHighestRankings" xml:space="preserve">
+    <value>ランキング最高順位更新</value>
+    <comment>NicoRepoItemTopic</comment>
+  </data>
+  <data name="NicoVideo_User_Video_Upload" xml:space="preserve">
+    <value>ユーザーの動画投稿</value>
+    <comment>NicoRepoItemTopic</comment>
+  </data>
+  <data name="Unknown" xml:space="preserve">
+    <value>不明</value>
+    <comment>NicoRepoItemTopic</comment>
+  </data>
 </root>

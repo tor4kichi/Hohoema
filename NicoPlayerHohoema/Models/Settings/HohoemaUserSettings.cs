@@ -13,6 +13,7 @@ using Newtonsoft.Json;
 using System.IO;
 using NicoPlayerHohoema.Helpers;
 using Mntone.Nico2.Videos.Thumbnail;
+using NicoPlayerHohoema.ViewModels;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -25,6 +26,7 @@ namespace NicoPlayerHohoema.Models
         public const string PlayerSettingsFileName = "player.json";
         public const string CacheSettingsFileName = "cache.json";
         public const string AppearanceSettingsFileName = "appearance.json";
+        public const string NicoRepoAndFeedSettingsFileName = "nicorepo_feed.json";
 
 
         public static async Task<HohoemaUserSettings> LoadSettings(StorageFolder userFolder)
@@ -36,6 +38,20 @@ namespace NicoPlayerHohoema.Models
             var player = await SettingsBase.Load<PlayerSettings>(PlayerSettingsFileName, userFolder);
 			var cache = await SettingsBase.Load<CacheSettings>(CacheSettingsFileName, userFolder);
             var appearance = await SettingsBase.Load<AppearanceSettings>(AppearanceSettingsFileName, userFolder);
+            var nicorepoAndFeed = await SettingsBase.Load<NicoRepoAndFeedSettings>(NicoRepoAndFeedSettingsFileName, userFolder);
+
+            if (nicorepoAndFeed.DisplayNicoRepoItemTopics.Count == 0)
+            {
+                nicorepoAndFeed.DisplayNicoRepoItemTopics.AddRange(new []
+                {
+                    NicoRepoItemTopic.NicoVideo_User_Video_Upload,
+                    NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video,
+                    NicoRepoItemTopic.Live_Channel_Program_Onairs,
+                    NicoRepoItemTopic.Live_Channel_Program_Reserve,
+                    NicoRepoItemTopic.Live_User_Program_OnAirs,
+                    NicoRepoItemTopic.Live_User_Program_Reserve,
+                });
+            }
 
             var settings = new HohoemaUserSettings()
 			{
@@ -46,6 +62,7 @@ namespace NicoPlayerHohoema.Models
                 PlayerSettings = player,
                 CacheSettings = cache,
                 AppearanceSettings = appearance,
+                NicoRepoAndFeedSettings = nicorepoAndFeed,
             };
 
             settings.SetupSaveWithPropertyChanged();
@@ -61,6 +78,7 @@ namespace NicoPlayerHohoema.Models
 			await CacheSettings.Save();
             await PlaylistSettings.Save();
             await AppearanceSettings.Save();
+            await NicoRepoAndFeedSettings.Save();
         }
 
 		public RankingSettings RankingSettings { get; private set; }
@@ -69,6 +87,7 @@ namespace NicoPlayerHohoema.Models
 		public CacheSettings CacheSettings { get; private set; }
         public PlaylistSettings PlaylistSettings { get; private set; }
         public AppearanceSettings AppearanceSettings { get; private set; }
+        public NicoRepoAndFeedSettings NicoRepoAndFeedSettings { get; private set; }
 
         public HohoemaUserSettings()
 		{
@@ -85,6 +104,7 @@ namespace NicoPlayerHohoema.Models
                 CacheSettings.PropertyChanged -= Settings_PropertyChanged;
                 PlaylistSettings.PropertyChanged -= Settings_PropertyChanged;
                 AppearanceSettings.PropertyChanged -= Settings_PropertyChanged;
+                NicoRepoAndFeedSettings.PropertyChanged -= Settings_PropertyChanged;
             }
         }
 
@@ -96,6 +116,7 @@ namespace NicoPlayerHohoema.Models
             CacheSettings.PropertyChanged += Settings_PropertyChanged;
             PlaylistSettings.PropertyChanged += Settings_PropertyChanged;
             AppearanceSettings.PropertyChanged += Settings_PropertyChanged;
+            NicoRepoAndFeedSettings.PropertyChanged += Settings_PropertyChanged;
         }
 
         private static void Settings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)

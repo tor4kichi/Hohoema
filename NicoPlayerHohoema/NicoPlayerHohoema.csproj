@@ -277,6 +277,7 @@
     <Compile Include="Models\PagePayload\PagePayloadBase.cs" />
     <Compile Include="Models\Settings\AppearanceSettings.cs" />
     <Compile Include="Models\Settings\CacheSettings.cs" />
+    <Compile Include="Models\Settings\NicoRepoAndFeedSettings.cs" />
     <Compile Include="Models\Settings\PlaylistSettings.cs" />
     <Compile Include="Models\Niconico\Mylist\UserMylistManager.cs" />
     <Compile Include="Helpers\ShareHelper.cs" />

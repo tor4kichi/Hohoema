@@ -14,7 +14,18 @@ using Windows.UI;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public abstract class HohoemaListingPageItemBase : BindableBase, Interfaces.IHohoemaListItem, IDisposable
+    public class Selectable : BindableBase
+    {
+        private bool _IsSelected;
+        public bool IsSelected
+        {
+            get { return _IsSelected; }
+            set { SetProperty(ref _IsSelected, value); }
+        }
+    }
+
+
+	public abstract class HohoemaListingPageItemBase : Selectable, Interfaces.IHohoemaListItem, IDisposable
 	{
         public void Dispose()
         {

@@ -25,6 +25,9 @@ namespace NicoPlayerHohoema.ViewModels
 	public abstract class HohoemaListingPageViewModelBase<ITEM_VM> : HohoemaViewModelBase
 		where ITEM_VM : HohoemaListingPageItemBase
 	{
+
+        private AsyncLock _ItemsUpdateLock = new AsyncLock();
+
 		public HohoemaListingPageViewModelBase(HohoemaApp app, PageManager pageManager, bool useDefaultPageTitle = true)
 			: base(app, pageManager, useDefaultPageTitle: useDefaultPageTitle)
 		{
@@ -208,60 +211,63 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected async Task ResetList()
 		{
-			HasItem.Value = true;
-			LoadedItemsCount.Value = 0;
+            using (var releaser = await _ItemsUpdateLock.LockAsync())
+            {
+                HasItem.Value = true;
+                LoadedItemsCount.Value = 0;
 
-			IsSelectionModeEnable.Value = false;
+                IsSelectionModeEnable.Value = false;
 
-            SelectedItems.Clear();
+                SelectedItems.Clear();
 
-            if (IncrementalLoadingItems != null)
-			{
-                if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
-				{
-					(IncrementalLoadingItems.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error -= HohoemaIncrementalSource_Error;
-                }
-				IncrementalLoadingItems.BeginLoading -= BeginLoadingItems;
-				IncrementalLoadingItems.DoneLoading -= CompleteLoadingItems;
-				IncrementalLoadingItems.Dispose();
-				IncrementalLoadingItems = null;
-                RaisePropertyChanged(nameof(IncrementalLoadingItems));
-			}
-
-			try
-			{
-
-				var source = GenerateIncrementalSource();
-
-                if (source == null)
+                if (IncrementalLoadingItems != null)
                 {
-                    HasItem.Value = false;
-                    return;
+                    if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
+                    {
+                        (IncrementalLoadingItems.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error -= HohoemaIncrementalSource_Error;
+                    }
+                    IncrementalLoadingItems.BeginLoading -= BeginLoadingItems;
+                    IncrementalLoadingItems.DoneLoading -= CompleteLoadingItems;
+                    IncrementalLoadingItems.Dispose();
+                    IncrementalLoadingItems = null;
+                    RaisePropertyChanged(nameof(IncrementalLoadingItems));
                 }
 
-				MaxItemsCount.Value = await source.ResetSource();
+                try
+                {
 
-				IncrementalLoadingItems = new IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>(source);
-				RaisePropertyChanged(nameof(IncrementalLoadingItems));
+                    var source = GenerateIncrementalSource();
 
-				IncrementalLoadingItems.BeginLoading += BeginLoadingItems;
-				IncrementalLoadingItems.DoneLoading += CompleteLoadingItems;
+                    if (source == null)
+                    {
+                        HasItem.Value = false;
+                        return;
+                    }
 
-				if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
-				{
-					(IncrementalLoadingItems.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error += HohoemaIncrementalSource_Error;
-				}
+                    MaxItemsCount.Value = await source.ResetSource();
 
-				PostResetList();
-			}
-			catch
-			{
-				IncrementalLoadingItems = null;
-				NowLoading.Value = false;
-				HasItem.Value = true;
-				HasError.Value = true;
-				Debug.WriteLine("failed GenerateIncrementalSource.");
-			}
+                    IncrementalLoadingItems = new IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>(source);
+                    RaisePropertyChanged(nameof(IncrementalLoadingItems));
+
+                    IncrementalLoadingItems.BeginLoading += BeginLoadingItems;
+                    IncrementalLoadingItems.DoneLoading += CompleteLoadingItems;
+
+                    if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
+                    {
+                        (IncrementalLoadingItems.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error += HohoemaIncrementalSource_Error;
+                    }
+
+                    PostResetList();
+                }
+                catch
+                {
+                    IncrementalLoadingItems = null;
+                    NowLoading.Value = false;
+                    HasItem.Value = true;
+                    HasError.Value = true;
+                    Debug.WriteLine("failed GenerateIncrementalSource.");
+                }
+            }
 		}
 
 		private void HohoemaIncrementalSource_Error()
