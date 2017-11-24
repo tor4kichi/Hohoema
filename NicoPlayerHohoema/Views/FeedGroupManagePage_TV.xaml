@@ -59,15 +59,13 @@
             <StackPanel Orientation="Horizontal" Margin="0 16">
 
                 <CommandBar>
-                    <AppBarButton Command="{Binding RefreshAllFeedGroupCommand}"
-                                Background="Transparent"
-                                      Icon="Refresh"
-                                      Label="更新"
-                                      Visibility="{Binding HasFeedGroupItems.Value, Converter={StaticResource BooleanToVisibility}}"
+                    <AppBarButton Command="{Binding CreateFeedGroupCommand}"
+                            VerticalAlignment="Stretch"
+                                  Label="フィード作成"
+                                  Icon="Add"
                                 >
                     </AppBarButton>
 
-                    
 
                 </CommandBar>
 
@@ -99,27 +97,7 @@
                 <StackPanel Orientation="Horizontal"
                             Height="340"
                             >
-                    <Button Command="{Binding CreateFeedGroupCommand}"
-                            VerticalAlignment="Stretch"
-                                >
-                        <StackPanel>
-                            <iconPack:PackIconMaterial Kind="Plus"
-                                                       HorizontalAlignment="Center"
-                                                       Height="48"
-                                                       Width="48"
-                                                       Margin="0 0 0 24"
-                                                       />
-
-                            <TextBlock HorizontalAlignment="Center"
-                                       TextAlignment="Center"
-                                       >
-                                <Run Text="フィードグループ" />
-                                <LineBreak />
-                                <Run Text="作成" />
-                            </TextBlock>
-
-                        </StackPanel>
-                    </Button>
+                    
 
 
                     <ListView ItemsSource="{Binding FeedGroupItems}"

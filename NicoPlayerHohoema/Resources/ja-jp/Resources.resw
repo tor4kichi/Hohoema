@@ -509,4 +509,16 @@
     <value>不明</value>
     <comment>NicoRepoItemTopic</comment>
   </data>
+  <data name="SearchWithKeyword" xml:space="preserve">
+    <value>キーワード検索</value>
+    <comment>Database.BookmarkType</comment>
+  </data>
+  <data name="SearchWithTag" xml:space="preserve">
+    <value>タグ検索</value>
+    <comment>Database.BookmarkType</comment>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>ユーザー動画</value>
+    <comment>Database.BookmarkType</comment>
+  </data>
 </root>

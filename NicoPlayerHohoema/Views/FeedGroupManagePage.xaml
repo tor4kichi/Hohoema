@@ -30,16 +30,17 @@
         
 
         <DataTemplate x:Key="TagFeedItemSourceTemplate">
-            <Border Margin="8 0">
+            <Border Margin="0">
                 <TextBlock Text="{Binding Label}" 
                            Style="{StaticResource FeedItemSourceTextBlockStyle}"
                            VerticalAlignment="Center"
+                           TextWrapping="Wrap"
                            />
             </Border>
         </DataTemplate>
 
         <DataTemplate x:Key="KeywordFeedItemSourceTemplate">
-            <Border Margin="8 0">
+            <Border Margin="0">
                 <TextBlock Text="{Binding Label}" 
                            Style="{StaticResource FeedItemSourceTextBlockStyle}"
                            VerticalAlignment="Center"
@@ -48,7 +49,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="MylistFeedItemSourceTemplate">
-            <Border Margin="8 0">
+            <Border Margin="0">
                 <TextBlock Text="{Binding Label}"
                            Style="{StaticResource FeedItemSourceTextBlockStyle}"
                            VerticalAlignment="Center"
@@ -57,7 +58,7 @@
         </DataTemplate>
 
         <DataTemplate x:Key="UserFeedItemSourceTemplate">
-            <Border Margin="8 0">
+            <Border Margin="0">
                 <TextBlock Text="{Binding Label}"
                            Style="{StaticResource FeedItemSourceTextBlockStyle}"
                            VerticalAlignment="Center"
@@ -101,8 +102,6 @@
         <toolkit:DockPanel x:Name="ContentLayout">
 
             <Border toolkit:DockPanel.Dock="Top" 
-                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                    BorderThickness="0 0 0 1"
                     Height="64"
                     >
                 <toolkit:DockPanel >
@@ -225,6 +224,7 @@
                         <Setter Property="HorizontalContentAlignment"
                                     Value="Stretch" 
                                         />
+                        <Setter Property="Padding" Value="16" />
                     </Style>
                 </ListView.ItemContainerStyle>
 
@@ -247,10 +247,19 @@
 
                                 <ItemsControl ItemsSource="{Binding SourceItems}"
                                               ItemTemplateSelector="{StaticResource feedItemSourceTemplateSelector}"
+                                              HorizontalAlignment="Stretch"
                                               >
+                                    <ItemsControl.ItemContainerStyle>
+                                        <Style TargetType="ContentPresenter">
+                                            <Setter Property="Margin" Value="8 0" />
+                                            <Setter Property="HorizontalAlignment" Value="Stretch" />
+                                        </Style>
+                                    </ItemsControl.ItemContainerStyle>
                                     <ItemsControl.ItemsPanel>
                                         <ItemsPanelTemplate>
-                                            <ItemsWrapGrid Orientation="Horizontal" />
+                                            <toolkit:WrapPanel Orientation="Horizontal"
+                                                           HorizontalAlignment="Stretch"
+                                                           />
                                         </ItemsPanelTemplate>
                                     </ItemsControl.ItemsPanel>
                                     

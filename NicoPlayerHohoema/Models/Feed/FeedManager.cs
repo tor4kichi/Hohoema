@@ -27,6 +27,13 @@ namespace NicoPlayerHohoema.Models
     public delegate void FeedGroupRemovedEventHanlder(Database.Feed feedGroup);
 
 
+    public struct FeedSourceRemovedEventArgs
+    {
+        public Database.Feed Feed { get; set; }
+        public Database.Bookmark Bookmark { get; set; }
+    }
+
+
     public struct FeedUpdateEventArgs
     {
         public Database.Feed Feed { get; set; }
@@ -62,6 +69,8 @@ namespace NicoPlayerHohoema.Models
         public event FeedGroupRemovedEventHanlder FeedGroupRemoved;
         public event EventHandler<FeedUpdateEventArgs> FeedUpdated;
 
+
+        public event EventHandler<FeedSourceRemovedEventArgs> FeedSourceRemoved;
 
 
 
@@ -302,6 +311,32 @@ namespace NicoPlayerHohoema.Models
                 default:
                     return null;
             }
+        }
+
+
+
+
+        public bool RemoveFeedSource(Database.Feed target, Database.Bookmark feedSource)
+        {
+            var ensureFeed = GetFeedGroup(target.Id);
+            if (ensureFeed != null)
+            {
+                var targetFeedSource = ensureFeed.Sources.FirstOrDefault(x => x.Id == feedSource.Id);
+                if (ensureFeed.Sources.Remove(targetFeedSource))
+                {
+                    UpdateFeedGroup(ensureFeed);
+
+                    FeedSourceRemoved?.Invoke(this, new FeedSourceRemovedEventArgs()
+                    {
+                        Feed = ensureFeed,
+                        Bookmark = feedSource,
+                    });
+
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 }

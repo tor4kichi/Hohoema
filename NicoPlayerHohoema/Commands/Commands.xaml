@@ -15,9 +15,11 @@
 
     <local:OpenBroadcasterInfoCommand x:Key="OpenBroadcasterInfoCommand" />
     <local:OpenContentCommand x:Key="OpenContentCommand" />
+    <local:OpenFeedSourceCommand x:Key="OpenFeedSourceCommand" />
     <local:OpenVideoInfoCommand x:Key="OpenVideoInfoCommand" />
     <local:OpenVideoOwnerVideoListCommand x:Key="OpenVideoOwnerVideoListCommand" />
     <local:RemoveFollowCommand x:Key="RemoveFollowCommand" />
+    <local:RemoveFeedSourceCommand x:Key="RemoveFeedSourceCommand" />
     <local:ShareWithTwitterCommand x:Key="ShareWithTwitterCommand" />
     <local:ShareCommand x:Key="ShareCommand" />
     <local:VideoDeleteCacheCommand x:Key="VideoDeleteCacheCommand" />

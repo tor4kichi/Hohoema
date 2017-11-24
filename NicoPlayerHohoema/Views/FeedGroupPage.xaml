@@ -11,6 +11,7 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
@@ -29,17 +30,7 @@
 
 
     <Page.Resources>
-        <DataTemplate x:Key="FeedSourceTemplate">
-            <StackPanel>
-                <TextBlock Text="{Binding Label}" />
-
-                <TextBlock Text="{Binding BookmarkType}" 
-                           Opacity="0.7"
-                           Style="{StaticResource CaptionTextBlockStyle}"
-                           Margin="8 0 0 0"
-                           />
-            </StackPanel>
-        </DataTemplate>
+        
 
 
         <MenuFlyout x:Key="FeedSourceMenuFlyout" >
@@ -62,51 +53,48 @@
 
 
     <Grid>
-        <VisualStateManager.VisualStateGroups>
 
-            <!-- TVモードの仮対応 -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="ContentLayout.Margin" Value="0 27 48 27" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
-        
-        <toolkit:DockPanel x:Name="ContentLayout">
-            <Border toolkit:DockPanel.Dock="Top" 
-                    Height="64"
-                    >
+        <controls:ListingWithHeader 
+            x:Name="ListingWithHeaderControl"
+            ItemsSource="{Binding FeedSources, Mode=OneWay}"
+            RefreshCommand="{Binding RefreshCommand}"
+            ItemCommand="{StaticResource OpenFeedSourceCommand}"
+            IsTVModeEnabled="{Binding IsForceTVModeEnable.Value}"
+            Margin="16 0 0 0"
+            >
+            <controls:ListingWithHeader.HeaderContent>
                 <toolkit:DockPanel >
-
-
-                    <StackPanel toolkit:DockPanel.Dock="Right" 
+                    <StackPanel toolkit:DockPanel.Dock="Right"
                                 Orientation="Horizontal"
                                 >
 
-                        <AppBarButton Label="フィード一覧"
+                        <StackPanel Orientation="Horizontal"
+                                    >
+                            <AppBarButton Label="フィード一覧"
                                       Icon="List"
                                       Command="{Binding OpenFeedVideoListPageCommand}" />
 
 
-                        
+                        </StackPanel>
 
                     </StackPanel>
 
                     <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="16 0 0 0"
                                 >
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="Tapped">
+                                <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeaderControl}" PropertyName="ListPosition" Value="0.0" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+
 
                         <Button Background="Transparent">
                             <Button.Flyout>
                                 <Flyout>
                                     <StackPanel Orientation="Horizontal">
                                         <TextBox Text="{Binding FeedGroupName.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="120"
-                                         >
+                                        >
                                             <i:Interaction.Behaviors>
                                                 <mybehavior:KeyboardTrigger Key="Enter">
                                                     <mybehavior:KeyboardTrigger.Actions>
@@ -118,8 +106,8 @@
                                         </TextBox>
 
                                         <Button Content="OK" Margin="8 0 0 0"
-                                            Command="{Binding RenameApplyCommand}"
-                                            >
+                                        Command="{Binding RenameApplyCommand}"
+                                        >
                                             <i:Interaction.Behaviors>
                                                 <core:EventTriggerBehavior EventName="Tapped">
                                                     <mybehavior:CloseFlyoutAction />
@@ -132,75 +120,52 @@
                             </Button.Flyout>
 
                             <TextBlock Text="{Binding Title}" 
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource TitleTextBlockStyle}"
-                                    />
+                                VerticalAlignment="Center"
+                                Style="{StaticResource TitleTextBlockStyle}"
+                                />
 
                         </Button>
-                        
-
-
-                        <i:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="Tapped">
-                                <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
-                            </core:EventTriggerBehavior>
-                        </i:Interaction.Behaviors>
-
-
                     </Border>
-
-
-
-
                 </toolkit:DockPanel>
-            </Border>
-
-            <ScrollViewer>
-                <StackPanel x:Name="LyaoutRoot" VerticalAlignment="Stretch" Margin="16 8">
+            </controls:ListingWithHeader.HeaderContent>
 
 
-                    <Grid Visibility="{Binding FeedSources, Converter={StaticResource EmptyCollectionVisibilityConverter}}">
-                        <TextBlock Text="フィードの情報源が空っぽです。ユーザーやマイリスト、検索結果などからフィードに情報源を追加できます。"
+            <controls:ListingWithHeader.ListItemTemplate>
+                <DataTemplate >
+                    <StackPanel HorizontalAlignment="Stretch" Margin="8">
+                        <TextBlock Text="{Binding Bookmark.Label}" />
+
+                        <TextBlock Text="{Binding Bookmark.BookmarkType, Converter={StaticResource ToLocalText}}" 
+                           Opacity="0.7"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           />
+                    </StackPanel>
+                </DataTemplate>
+            </controls:ListingWithHeader.ListItemTemplate>
+
+            <controls:ListingWithHeader.GridItemTemplate>
+                <DataTemplate >
+                    <StackPanel Margin="8">
+                        <TextBlock Text="{Binding Bookmark.Label}" />
+
+                        <TextBlock Text="{Binding Bookmark.BookmarkType, Converter={StaticResource ToLocalText}}" 
+                           Opacity="0.7"
+                           Style="{StaticResource CaptionTextBlockStyle}"
+                           Margin="8 0 0 0"
+                           />
+                    </StackPanel>
+                </DataTemplate>
+            </controls:ListingWithHeader.GridItemTemplate>
+        </controls:ListingWithHeader>
+        
+        <Grid Visibility="{Binding FeedSources, Converter={StaticResource EmptyCollectionVisibilityConverter}}">
+            <TextBlock Text="フィードの情報源が空っぽです。ユーザーやマイリスト、検索結果などからフィードに情報源を追加できます。"
                                    Opacity="0.7"
                                    TextWrapping="Wrap"
                                    Margin="16"
                                    />
-                    </Grid>
-                    
-                    <ListView ItemsSource="{Binding FeedSources}"
-                            ItemTemplate="{StaticResource FeedSourceTemplate}"
-                              Margin="0 8"
-                            SelectionMode="None"
-                              IsTabStop="False"
-                              uwpExtentions:ListViewBase.Command="{Binding OpenFeedSourcePageCommand}"
-                              IsItemClickEnabled="True"
-                              ContextFlyout="{StaticResource FeedSourceMenuFlyout}"
-                          >
-                        <i:Interaction.Behaviors>
-                            <mybehavior:ListViewBaseItemContextFlyout />
-                        </i:Interaction.Behaviors>
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                                <Setter Property="IsTabStop" Value="False" />
-                                <Setter Property="Margin" Value="8" />
-                            </Style>
-                        </ListView.ItemContainerStyle>
+        </Grid>
 
-                        <ListView.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <ItemsWrapGrid Orientation="Horizontal" />
-                            </ItemsPanelTemplate>
-                        </ListView.ItemsPanel>
-
-                    </ListView>
-
-
-                    
-                </StackPanel>
-            </ScrollViewer>
-        </toolkit:DockPanel>
     </Grid>
     
     

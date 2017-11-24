@@ -21,7 +21,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<bool> IsDeleted { get; private set; }
 
-		public ObservableCollection<Database.Bookmark> FeedSources { get; private set; }
+		public ObservableCollection<FeedSourceBookmark> FeedSources { get; private set; }
 
 		public ReactiveProperty<Database.BookmarkType> FavItemType { get; private set; }
 		public ReactiveProperty<string> FeedSourceId { get; private set; }
@@ -40,7 +40,7 @@ namespace NicoPlayerHohoema.ViewModels
 			IsDeleted = new ReactiveProperty<bool>();
 
 			FeedGroupName = new ReactiveProperty<string>();
-			FeedSources = new ObservableCollection<Database.Bookmark>();
+			FeedSources = new ObservableCollection<FeedSourceBookmark>();
 
 			FavItemType = new ReactiveProperty<Database.BookmarkType>();
 			FeedSourceId = new ReactiveProperty<string>();
@@ -89,6 +89,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 				FeedGroup = HohoemaApp.FeedManager.GetFeedGroup(feedGroupId);
 			}
+            else if (e.Parameter is string)
+            {
+                if (int.TryParse(e.Parameter as string, out int feedGroupId))
+                {
+                    FeedGroup = HohoemaApp.FeedManager.GetFeedGroup(feedGroupId);
+                }
+            }
 
 			IsDeleted.Value = FeedGroup == null;
 
@@ -101,13 +108,30 @@ namespace NicoPlayerHohoema.ViewModels
 				FeedSources.Clear();
 				foreach (var mylistFeedSrouce in FeedGroup.Sources)
 				{
-					FeedSources.Add(mylistFeedSrouce);
+					FeedSources.Add(new FeedSourceBookmark() { Feed = FeedGroup, Bookmark = mylistFeedSrouce });
 				}
+
+                HohoemaApp.FeedManager.FeedSourceRemoved += FeedManager_FeedSourceRemoved;
 			}
 		}
 
 
-		public ReactiveCommand AddFeedCommand { get; private set; }
+        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+        {
+            HohoemaApp.FeedManager.FeedSourceRemoved -= FeedManager_FeedSourceRemoved;
+
+            base.OnNavigatingFrom(e, viewModelState, suspending);
+        }
+        private void FeedManager_FeedSourceRemoved(object sender, FeedSourceRemovedEventArgs e)
+        {
+            if (e.Feed.Id == FeedGroup?.Id)
+            {
+                var item = FeedSources.FirstOrDefault(x => x.Bookmark.Id == e.Bookmark.Id);
+                FeedSources.Remove(item);
+            }
+        }
+
+        public ReactiveCommand AddFeedCommand { get; private set; }
 
 		private DelegateCommand _RemoveFeedGroupCommand;
 		public DelegateCommand RemoveFeedGroupCommand
@@ -115,7 +139,7 @@ namespace NicoPlayerHohoema.ViewModels
 			get
 			{
 				return _RemoveFeedGroupCommand
-					?? (_RemoveFeedGroupCommand = new DelegateCommand(async () =>
+					?? (_RemoveFeedGroupCommand = new DelegateCommand(() =>
 					{
 						if (HohoemaApp.FeedManager.RemoveFeedGroup(FeedGroup))
 						{
@@ -173,15 +197,15 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        private DelegateCommand<Database.Bookmark> _RemoveFeedSourceCommand;
-        public DelegateCommand<Database.Bookmark> RemoveFeedSourceCommand
+        private DelegateCommand<FeedSourceBookmark> _RemoveFeedSourceCommand;
+        public DelegateCommand<FeedSourceBookmark> RemoveFeedSourceCommand
         {
             get
             {
                 return _RemoveFeedSourceCommand
-                    ?? (_RemoveFeedSourceCommand = new DelegateCommand<Database.Bookmark>((item) =>
+                    ?? (_RemoveFeedSourceCommand = new DelegateCommand<FeedSourceBookmark>((item) =>
                     {
-                        FeedGroup.Sources.Remove(item);
+                        FeedGroup.Sources.Remove(item.Bookmark);
 
                         FeedSources.Remove(item);
 
@@ -192,15 +216,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<bool> CanUseFeedSource { get; private set; }
 
-		internal void RemoveFeedSrouce(Database.Bookmark feedSource)
-		{
-			FeedGroup.Sources.Remove(feedSource);
-            HohoemaApp.FeedManager.UpdateFeedGroup(FeedGroup);
-
-            FeedSources.Remove(feedSource);
-		}
-
-        
+		
 
         private DelegateCommand _AddFeedSourceCommand;
         public DelegateCommand AddFeedSourceCommand
@@ -235,7 +251,7 @@ namespace NicoPlayerHohoema.ViewModels
                                 BookmarkType = Database.BookmarkType.SearchWithTag,
                             };
 
-                            FeedSources.Add(item);
+                            FeedSources.Add(new FeedSourceBookmark() { Feed = FeedGroup, Bookmark = item });
 
                             System.Diagnostics.Debug.WriteLine($"{FeedGroup.Label} にタグ「{result.Id}」を追加");
 
@@ -280,9 +296,9 @@ namespace NicoPlayerHohoema.ViewModels
                                 BookmarkType = Database.BookmarkType.SearchWithTag,
                             };
 
-                            FeedSources.Add(item);
+                            FeedSources.Add(new FeedSourceBookmark() { Feed = FeedGroup, Bookmark = item });
 
-							System.Diagnostics.Debug.WriteLine($"{FeedGroup.Label} にタグ「{result.Id}」を追加");
+                            System.Diagnostics.Debug.WriteLine($"{FeedGroup.Label} にタグ「{result.Id}」を追加");
 
                             HohoemaApp.FeedManager.UpdateFeedGroup(FeedGroup);
 						}
@@ -328,9 +344,9 @@ namespace NicoPlayerHohoema.ViewModels
 
                             FeedGroup.Sources.Add(item);
 
-                            FeedSources.Add(item);
+                            FeedSources.Add(new FeedSourceBookmark() { Feed = FeedGroup, Bookmark = item });
 
-							System.Diagnostics.Debug.WriteLine($"{FeedGroup.Label} にマイリスト「{result.Label}({result.Id})」を追加");
+                            System.Diagnostics.Debug.WriteLine($"{FeedGroup.Label} にマイリスト「{result.Label}({result.Id})」を追加");
 
                             HohoemaApp.FeedManager.UpdateFeedGroup(FeedGroup);
                         }
@@ -423,9 +439,9 @@ namespace NicoPlayerHohoema.ViewModels
 
                             FeedGroup.Sources.Add(item);
 
-                            FeedSources.Add(item);
+                            FeedSources.Add(new FeedSourceBookmark() { Feed = FeedGroup, Bookmark = item });
 
-							System.Diagnostics.Debug.WriteLine($"{FeedGroup.Label} にユーザー「{result.Label}({result.Id})」を追加");
+                            System.Diagnostics.Debug.WriteLine($"{FeedGroup.Label} にユーザー「{result.Label}({result.Id})」を追加");
 
                             HohoemaApp.FeedManager.UpdateFeedGroup(FeedGroup);
                         }
@@ -484,4 +500,12 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 	}
+
+
+    public class FeedSourceBookmark
+    {
+        public Database.Feed Feed { get; set; }
+        public Database.Bookmark Bookmark { get; set; }
+    }
+
 }
