@@ -89,17 +89,21 @@ namespace NicoPlayerHohoema.Models
 			return HohoemaApp.GetFeedSettingsFolder();
 		}
 
-        protected override async Task OnInitializeAsync(CancellationToken token)
+        protected override Task OnInitializeAsync(CancellationToken token)
         {
-            // TODO: フィードのJSONファイルからLiteDBへの移行処理
-            try
+            return HohoemaApp.UIDispatcher.RunIdleAsync(async (_) =>
             {
-                await MigrateBefore_0_11();
-            }
-            catch
-            {
-                // 正常動作に影響を与えぬよう例外を握りつぶす
-            }
+                // フィードのJSONファイルからLiteDBへの移行処理
+                try
+                {
+                    await MigrateBefore_0_11();
+                }
+                catch
+                {
+                    // 正常動作に影響を与えぬよう例外を握りつぶす
+                }
+            })
+            .AsTask();
         }
 
         /// <summary>

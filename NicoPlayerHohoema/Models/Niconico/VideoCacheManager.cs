@@ -237,22 +237,26 @@ namespace NicoPlayerHohoema.Models
             RemoveProgressToast();
         }
 
-        protected override async Task OnInitializeAsync(CancellationToken token)
+        protected override Task OnInitializeAsync(CancellationToken token)
         {
             Debug.Write($"キャッシュ情報のリストアを開始");
 
-            // ダウンロード中のアイテムをリストア
-            await RestoreBackgroundDownloadTask();
+            return HohoemaApp.UIDispatcher.RunIdleAsync(async (_) =>
+            {
+                // ダウンロード中のアイテムをリストア
+                await RestoreBackgroundDownloadTask();
 
-            // キャッシュ完了したアイテムをキャッシュフォルダから検索
-            await RetrieveCacheCompletedVideos();
+                // キャッシュ完了したアイテムをキャッシュフォルダから検索
+                await RetrieveCacheCompletedVideos();
 
-            // キャッシュリクエストファイルのアクセサーを初期化
-            var videoSaveFolder = await _HohoemaApp.GetApplicationLocalDataFolder();
-            _CacheRequestedItemsFileAccessor = new FolderBasedFileAccessor<IList<NicoVideoCacheRequest>>(videoSaveFolder, CACHE_REQUESTED_FILENAME);
+                // キャッシュリクエストファイルのアクセサーを初期化
+                var videoSaveFolder = await _HohoemaApp.GetApplicationLocalDataFolder();
+                _CacheRequestedItemsFileAccessor = new FolderBasedFileAccessor<IList<NicoVideoCacheRequest>>(videoSaveFolder, CACHE_REQUESTED_FILENAME);
 
-            // ダウンロード待機中のアイテムを復元
-            await RestoreCacheRequestedItems();
+                // ダウンロード待機中のアイテムを復元
+                await RestoreCacheRequestedItems();
+            })
+            .AsTask();
         }
 
 

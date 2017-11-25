@@ -41,13 +41,13 @@ namespace NicoPlayerHohoema.Models
 		#endregion
 
 
-		public static Task<FollowManager> Create(HohoemaApp hohoemaApp, uint userId)
+		public static async Task<FollowManager> Create(HohoemaApp hohoemaApp, uint userId)
 		{
 			var followManager = new FollowManager(hohoemaApp, userId);
 
-            followManager.Initialize();
+            await followManager.Initialize();
 
-            return Task.FromResult(followManager);
+            return followManager;
 		}
 
 
@@ -95,7 +95,11 @@ namespace NicoPlayerHohoema.Models
 
         protected override Task OnInitializeAsync(CancellationToken token)
         {
-            return SyncAll(token);
+            return HohoemaApp.UIDispatcher.RunIdleAsync(async (_) => 
+            {
+                await SyncAll(token);
+            })
+            .AsTask();
         }
 
 
