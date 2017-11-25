@@ -167,24 +167,16 @@
             </toolkit:DockPanel>
 
 
-            <Border Visibility="{Binding HasFeedGroupItems.Value, Converter={StaticResource BooleanToVisibilityInverted}}" 
+            <StackPanel Visibility="{Binding HasFeedGroupItems.Value, Converter={StaticResource BooleanToVisibilityInverted}}" 
                     Margin="8"
                     toolkit:DockPanel.Dock="Top"
                     >
 
-                <ItemsControl>
-
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel></StackPanel>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-
-                    <TextBlock Margin="8 8" Style="{StaticResource SubtitleTextBlockStyle}">
+                <TextBlock Margin="8 8" Style="{StaticResource SubtitleTextBlockStyle}">
                         <Bold>フィード？</Bold>
-                    </TextBlock>
-                    
-                    <TextBlock TextWrapping="Wrap"
+                </TextBlock>
+
+                <TextBlock TextWrapping="Wrap"
                                Margin="16 0"
                                LineHeight="30"
                                >
@@ -195,20 +187,18 @@
                         <Run>フィードはHohoemaのアプリ上で集計作業を行うので更新処理に少し時間が掛かります。</Run>
                         <LineBreak />
                         <Run>関心あるカテゴリごとにフィードを作成できますので、動画探しに活用してみてください。</Run>
-                    </TextBlock>
+                </TextBlock>
 
 
-                    <Button HorizontalAlignment="Center"
+                <Button HorizontalAlignment="Center"
                             Command="{Binding CreateFeedGroupCommand}"
                             >
-                        <TextBlock FontSize="20">
+                    <TextBlock FontSize="20">
                             <Run Text="フィードを作る" />
-                        </TextBlock>
-                    </Button>
-                    
-                </ItemsControl>
-                
-            </Border>
+                    </TextBlock>
+                </Button>
+
+            </StackPanel>
 
 
 

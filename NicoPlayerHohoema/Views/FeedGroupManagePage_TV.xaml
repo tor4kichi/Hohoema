@@ -78,14 +78,38 @@
             
 
 
-            <Border Visibility="{Binding HasFeedGroupItems.Value, Converter={StaticResource BooleanToVisibilityInverted}}" 
+            <StackPanel Visibility="{Binding HasFeedGroupItems.Value, Converter={StaticResource BooleanToVisibilityInverted}}" 
                     Margin="8"
                     toolkit:DockPanel.Dock="Top"
                     >
 
-                
+                <TextBlock Margin="8 8" Style="{StaticResource SubtitleTextBlockStyle}">
+                        <Bold>フィード？</Bold>
+                </TextBlock>
 
-            </Border>
+                <TextBlock TextWrapping="Wrap"
+                               Margin="16 0"
+                               LineHeight="30"
+                               >
+                        <Run>ユーザー投稿動画やマイリスト、検索結果から得られる動画を時系列でまとめて、一覧表示する機能です。</Run>
+                        <LineBreak />
+                        <Run>「ニコレポ」に似ていますが、「フォロー」ではなくHohoema内でのみ有効な「ブックマーク」を元に動画を集計する点が異なります。</Run>
+                        <LineBreak />
+                        <Run>フィードはHohoemaのアプリ上で集計作業を行うので更新処理に少し時間が掛かります。</Run>
+                        <LineBreak />
+                        <Run>関心あるカテゴリごとにフィードを作成できますので、動画探しに活用してみてください。</Run>
+                </TextBlock>
+
+
+                <Button HorizontalAlignment="Center"
+                            Command="{Binding CreateFeedGroupCommand}"
+                            >
+                    <TextBlock FontSize="20">
+                            <Run Text="フィードを作る" />
+                    </TextBlock>
+                </Button>
+
+            </StackPanel>
 
 
             <ScrollViewer HorizontalScrollMode="Enabled"

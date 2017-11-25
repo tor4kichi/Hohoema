@@ -158,11 +158,15 @@
             </controls:ListingWithHeader.GridItemTemplate>
         </controls:ListingWithHeader>
         
-        <Grid Visibility="{Binding FeedSources, Converter={StaticResource EmptyCollectionVisibilityConverter}}">
-            <TextBlock Text="フィードの情報源が空っぽです。ユーザーやマイリスト、検索結果などからフィードに情報源を追加できます。"
+        <Grid Visibility="{Binding FeedSources, Converter={StaticResource EmptyCollectionVisibilityConverter}}"
+              HorizontalAlignment="Center"
+              VerticalAlignment="Center"
+              >
+            <TextBlock Text="フィードの情報源が空っぽです。ユーザーやマイリスト、検索結果などの「フィード登録」ボタンから情報源を追加できます。"
                                    Opacity="0.7"
                                    TextWrapping="Wrap"
                                    Margin="16"
+                       Style="{StaticResource SubtitleTextBlockStyle}"
                                    />
         </Grid>
 
