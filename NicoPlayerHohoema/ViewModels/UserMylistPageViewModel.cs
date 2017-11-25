@@ -113,8 +113,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 			}
-			, () => HohoemaApp.UserMylistManager.UserMylists.Count < UserMylistManager.MaxUserMylistGroupCount
-			);
+			, () => HohoemaApp.UserMylistManager.UserMylists.Count < UserMylistManager.MaxMylistGroupCountCurrentUser
+            );
 
             RemoveMylistGroupCommand = new DelegateCommand<IPlayableList>(async (item) => 
             {

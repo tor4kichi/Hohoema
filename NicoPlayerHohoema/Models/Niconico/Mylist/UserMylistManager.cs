@@ -19,9 +19,11 @@ namespace NicoPlayerHohoema.Models
 	public class UserMylistManager : AsyncInitialize
     {
 		public const int MaxUserMylistGroupCount = 25;
+        public const int MaxPremiumUserMylistGroupCount = 50;
 
 
-		public HohoemaApp HohoemaApp { get; private set; }
+
+        public HohoemaApp HohoemaApp { get; private set; }
 
 		public MylistGroupInfo Deflist { get; private set; }
 
@@ -49,7 +51,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			get
 			{
-				return HohoemaApp.IsPremiumUser ? 12500 : 100;
+				return HohoemaApp.IsPremiumUser ? 25000 : 100;
 			}
 		}
 		public int MylistRegistrationCount
@@ -86,12 +88,15 @@ namespace NicoPlayerHohoema.Models
             Initialize();
 		}
 
+        public int MaxMylistGroupCountCurrentUser => HohoemaApp.IsPremiumUser ? MaxPremiumUserMylistGroupCount : MaxUserMylistGroupCount;
 
-		public bool CanAddMylistGroup
+
+
+        public bool CanAddMylistGroup
 		{
 			get
 			{
-				return UserMylists.Count < MaxUserMylistGroupCount;
+				return UserMylists.Count < MaxMylistGroupCountCurrentUser;
 			}
 		}
 
