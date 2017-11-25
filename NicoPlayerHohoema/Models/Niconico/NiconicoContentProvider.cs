@@ -706,7 +706,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public async Task<FollowCommunityResponse> GetFavCommunities()
+		public async Task<FollowCommunityResponse> GetFavCommunities(int page)
 		{
             if (Context == null)
             {
@@ -723,7 +723,7 @@ namespace NicoPlayerHohoema.Models
 
             using (var releaser = await _NicoPageAccessLock.LockAsync())
 			{
-				return await Context.User.GetFollowCommunityAsync();
+				return await Context.User.GetFollowCommunityAsync(page);
 			}
 		}
 

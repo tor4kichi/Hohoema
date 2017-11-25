@@ -39,8 +39,29 @@ namespace NicoPlayerHohoema.Models
 
 		protected override async Task<List<FollowCommunityInfo>> GetFollowSource()
 		{
-			var res = await HohoemaApp.ContentProvider.GetFavCommunities();
-			return res.Items;
+            var items = new List<FollowCommunityInfo>();
+            bool needMore = true;
+            int page = 0;
+
+            while (needMore)
+            {
+                try
+                {
+                    var res = await HohoemaApp.ContentProvider.GetFavCommunities(page);
+                    items.AddRange(res.Items);
+
+                    // フォローコミュニティページの一画面での最大表示数10個と同数の場合は追加で取得
+                    needMore = res.Items.Count == 10;
+                }
+                catch
+                {
+                    needMore = false;
+                }
+
+                page++;
+            }
+
+            return items;
 		}
 
 
