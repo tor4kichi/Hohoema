@@ -43,7 +43,16 @@
                     <Visibility>Collapsed</Visibility>
                 </uwpconv:EmptyObjectToObjectConverter.EmptyValue>
             </uwpconv:EmptyObjectToObjectConverter>
-            
+
+            <uwpconv:CollectionVisibilityConverter x:Key="CollectionVisibilityConverter" />
+            <uwpconv:EmptyCollectionToObjectConverter x:Key="EmptyCollectionVisibilityConverter">
+                <uwpconv:EmptyCollectionToObjectConverter.EmptyValue>
+                    <Visibility>Visible</Visibility>
+                </uwpconv:EmptyCollectionToObjectConverter.EmptyValue>
+                <uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
+                    <Visibility>Collapsed</Visibility>
+                </uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
+            </uwpconv:EmptyCollectionToObjectConverter>
             <conv:ColorToBrushConverter x:Key="ColorToBrush" />
             <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
             

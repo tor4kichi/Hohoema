@@ -13,6 +13,7 @@
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:hardtrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"    
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
@@ -73,7 +74,30 @@
                                         ToolTipService.ToolTip="更新"
                                               Icon="Refresh"
                                         />
+
+                            <AppBarButton Icon="Setting">
+                                <AppBarButton.Flyout>
+                                    <Flyout>
+
+
+                                        <ListView ItemsSource="{Binding DisplayCandidateNicoRepoItemTopicList, Mode=OneTime}"
+                                                  SelectionMode="Multiple"
+                                                  IsMultiSelectCheckBoxEnabled="True"
+                                                  ext:ListViewExtensions.BindableSelection="{Binding DisplayNicoRepoItemTopics, Mode=TwoWay}"
+                                                  >
+
+                                            <ListView.ItemTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
+                                                </DataTemplate>
+                                            </ListView.ItemTemplate>
+                                        </ListView>
+                                    </Flyout>
+                                </AppBarButton.Flyout>
+                            </AppBarButton>
                         </StackPanel>
+                        
+                        
 
                         <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
                                     Orientation="Horizontal"

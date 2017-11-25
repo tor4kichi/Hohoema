@@ -50,12 +50,13 @@ namespace NicoPlayerHohoema.Database
         {
             var db = HohoemaLiteDb.GetLiteRepository();
             {
-
                 return db
                     .Query<NicoVideo>()
                     .Include(x => x.Owner)
                     .Where(x => x.RawVideoId == videoId)
-                    .SingleOrDefault();
+                    .SingleOrDefault()
+                    ?? new NicoVideo() { RawVideoId = videoId };
+                
             }
         }
 

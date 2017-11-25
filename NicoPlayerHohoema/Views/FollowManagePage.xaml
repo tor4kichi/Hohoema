@@ -167,10 +167,19 @@
                                         <GridView.ContextFlyout>
                                             <MenuFlyout>
                                                 <MenuFlyoutItem Text="{Binding Label}" IsEnabled="False" />
+
+                                                <MenuFlyoutItem Text="フィード登録"
+                                                                Command="{StaticResource AddFeedSourceCommand}"
+                                                                CommandParameter="{Binding FollowItemInfo}"
+                                                                />
+
+                                                <MenuFlyoutSeparator />
+
                                                 <MenuFlyoutItem Text="フォロー解除"
                                                                 Command="{StaticResource RemoveFollowCommand}"
-                                                                >
-                                                </MenuFlyoutItem>
+                                                                CommandParameter="{Binding}"
+                                                                />
+
                                             </MenuFlyout>
                                         </GridView.ContextFlyout>
                                         <GridView.ItemContainerStyle>

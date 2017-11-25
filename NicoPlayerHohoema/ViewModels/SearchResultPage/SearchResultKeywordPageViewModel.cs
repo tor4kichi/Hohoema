@@ -130,6 +130,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         NiconicoContentProvider _ContentFinder;
 
+        public Database.Bookmark KeywordSearchBookmark { get; private set; }
+
 
 		public SearchResultKeywordPageViewModel(
 			HohoemaApp hohoemaApp, 
@@ -208,6 +210,14 @@ namespace NicoPlayerHohoema.ViewModels
 
             Models.Db.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
 
+            KeywordSearchBookmark = Database.BookmarkDb.Get(Database.BookmarkType.SearchWithKeyword, SearchOption.Keyword)
+                ?? new Database.Bookmark()
+                {
+                    BookmarkType = Database.BookmarkType.SearchWithKeyword,
+                    Label = SearchOption.Keyword,
+                    Content = SearchOption.Keyword
+                };
+            RaisePropertyChanged(nameof(KeywordSearchBookmark));
 
             var target = "キーワード";
 			var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);

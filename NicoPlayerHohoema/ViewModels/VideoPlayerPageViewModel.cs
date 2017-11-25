@@ -581,13 +581,6 @@ namespace NicoPlayerHohoema.ViewModels
                 })
                 .AddTo(userSessionDisposer);
 
-
-
-
-            // お気に入りフィード上の動画を既読としてマーク
-            await HohoemaApp.FeedManager.MarkAsRead(VideoId);
-            await HohoemaApp.FeedManager.MarkAsRead(Video.RawVideoId);
-
             cancelToken.ThrowIfCancellationRequested();
 
 
@@ -946,6 +939,12 @@ namespace NicoPlayerHohoema.ViewModels
             ThumbnailUri.Value = _VideoInfo.ThumbnailUrl;
 
             VideoLength.Value = _VideoInfo.Length.TotalSeconds;
+
+            // 削除された動画の場合、自動でスキップさせる
+            if (_VideoInfo.IsDeleted)
+            {
+                VideoPlayed(canPlayNext: true);
+            }
 
             // コメントやキャッシュ状況の表示を更新
             if (IsNotSupportVideoType)

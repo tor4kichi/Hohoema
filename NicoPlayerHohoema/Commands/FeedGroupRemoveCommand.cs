@@ -21,7 +21,7 @@ namespace NicoPlayerHohoema.Commands
             {
                 var feedGroupManager = HohoemaCommnadHelper.GetFeedManager();
                 var content = parameter as Interfaces.IFeedGroup;
-                var feedGroup = feedGroupManager.GetFeedGroup(Guid.Parse(content.Id));
+                var feedGroup = feedGroupManager.GetFeedGroup(int.Parse(content.Id));
 
                 if (feedGroup != null)
                 {
@@ -38,7 +38,7 @@ namespace NicoPlayerHohoema.Commands
 
                     if ((result.Id as string) == "delete")
                     {
-                        await feedGroupManager.RemoveFeedGroup(feedGroup);
+                        feedGroupManager.RemoveFeedGroup(feedGroup);
                     }
                 }
             }

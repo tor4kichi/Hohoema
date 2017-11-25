@@ -41,7 +41,12 @@
                     Command="{StaticResource AddMylistCommand}"
                     CommandParameter="{Binding}"
                     />
-    
+
+    <MenuFlyoutItem Text="投稿者をフィード登録" 
+                    Command="{StaticResource AddFeedSourceCommand}"
+                    CommandParameter="{Binding}"
+                    />
+
     <MenuFlyoutItem Text="共有" 
                     Command="{StaticResource ShareCommand}"
                     CommandParameter="{Binding}"

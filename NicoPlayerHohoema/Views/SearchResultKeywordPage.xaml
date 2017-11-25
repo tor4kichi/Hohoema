@@ -105,10 +105,17 @@
                                     </Flyout>
                                 </AppBarButton.Flyout>
                             </AppBarButton>
+                            
                             <AppBarButton Command="{Binding RefreshCommand}"
                                               Label="更新"
                                               Icon="Refresh"
                                         />
+
+                            <AppBarButton Label="フィード登録"
+                                        Command="{StaticResource AddFeedSourceCommand}"
+                                        CommandParameter="{Binding KeywordSearchBookmark}"
+                                    />
+
                         </CommandBar>
 
 

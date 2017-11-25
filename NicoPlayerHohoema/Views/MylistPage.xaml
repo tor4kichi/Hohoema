@@ -89,7 +89,8 @@
                                     Orientation="Horizontal"
                                     >
                             <Button Background="Transparent"
-                                    Command="{Binding AddFeedSourceCommand}"
+                                    Command="{StaticResource AddFeedSourceCommand}"
+                                    CommandParameter="{Binding MylistBookmark}"
                                     x:Name="FeedRegstrationButton"
                                     Visibility="Collapsed"
                                     >

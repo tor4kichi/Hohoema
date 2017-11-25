@@ -123,7 +123,8 @@
                                                 />
 
                         <AppBarButton Background="Transparent"
-                                        Command="{Binding AddFeedSourceCommand}"
+                                        Command="{StaticResource AddFeedSourceCommand}"
+                                      CommandParameter="{Binding UserBookmark}"
                                         UseSystemFocusVisuals="True"
                                           Label="フィード登録"
                                         />

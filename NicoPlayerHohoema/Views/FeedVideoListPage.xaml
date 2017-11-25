@@ -47,24 +47,14 @@
                         <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                     Orientation="Horizontal"
                                     >
-                            <Button Command="{Binding RefreshCommand}"
-                                    Background="Transparent"
-                                    >
-                                <StackPanel Orientation="Horizontal">
-                                    <SymbolIcon Symbol="Refresh" />
-                                </StackPanel>
-                            </Button>
 
-                            <Button Command="{Binding AllMarkAsReadCommand}"
-                                    Background="Transparent"
-                                    >
-                                <StackPanel Orientation="Horizontal">
-                                    <iconPack:PackIconMaterial Kind="Check" />
-                                </StackPanel>
-                            </Button>
-
-                            <Border Width="8" />
-
+                            <AppBarButton Label="更新" 
+                                        Icon="Refresh"
+                                    Command="{Binding RefreshCommand}"
+                                    IsEnabled="{Binding CanChangeSort.Value}"
+                                >
+                            </AppBarButton>
+                            
                             <AppBarButton Command="{Binding OpenFeedGroupPageCommand}"
                                     Background="Transparent"
                                     Label="フィード編集"
@@ -132,13 +122,6 @@
             <controls:ListingWithHeader.ListItemTemplate>
                 <DataTemplate>
                     <Grid>
-                        <TextBlock Text="New" 
-                                       HorizontalAlignment="Right"
-                                       VerticalAlignment="Top"
-                                       Visibility="{Binding IsUnread.Value, Converter={StaticResource BooleanToVisibility}}"
-                                           Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
-                                       />
-
                         <local:VideoInfoControl />
                     </Grid>
                 </DataTemplate>

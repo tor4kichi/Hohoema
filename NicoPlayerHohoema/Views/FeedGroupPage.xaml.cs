@@ -33,20 +33,23 @@ namespace NicoPlayerHohoema.Views
 		public DataTemplate Tag { get; set; }
 		public DataTemplate Mylist { get; set; }
 		public DataTemplate User { get; set; }
+        public DataTemplate Keyword { get; set; }
 
-		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+        protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
 		{
-			if (item is ViewModels.FeedItemSourceViewModel)
+			if (item is Database.Bookmark)
 			{
-				var itemSourceVM = item as ViewModels.FeedItemSourceViewModel;
+				var bookmark = item as Database.Bookmark;
 
-				switch (itemSourceVM.ItemType)
+				switch (bookmark.BookmarkType)
 				{
-					case Models.FollowItemType.Tag:
+					case Database.BookmarkType.SearchWithTag:
 						return Tag;
-					case Models.FollowItemType.Mylist:
+                    case Database.BookmarkType.SearchWithKeyword:
+                        return Keyword;
+                    case Database.BookmarkType.Mylist:
 						return Mylist;
-					case Models.FollowItemType.User:
+					case Database.BookmarkType.User:
 						return User;
 					default:
 						break;

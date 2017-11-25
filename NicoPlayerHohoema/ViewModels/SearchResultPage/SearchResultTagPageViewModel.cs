@@ -136,6 +136,9 @@ namespace NicoPlayerHohoema.ViewModels
 		public TagSearchPagePayloadContent SearchOption { get; private set; }
 		public ReactiveProperty<int> LoadedPage { get; private set; }
 
+
+        public Database.Bookmark TagSearchBookmark { get; private set; }
+
 		NiconicoContentProvider _ContentFinder;
 
         Services.HohoemaDialogService _HohoemaDialogService;
@@ -304,6 +307,16 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             Models.Db.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
+
+            TagSearchBookmark = Database.BookmarkDb.Get(Database.BookmarkType.SearchWithTag, SearchOption.Keyword)
+                ?? new Database.Bookmark()
+                {
+                    BookmarkType = Database.BookmarkType.SearchWithTag,
+                    Label = SearchOption.Keyword,
+                    Content = SearchOption.Keyword
+                };
+            RaisePropertyChanged(nameof(TagSearchBookmark));
+
 
             var target = "タグ";
 			var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);

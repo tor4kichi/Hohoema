@@ -147,6 +147,7 @@
     <Content Include="Assets\UpdateNotices\0.11.6.md" />
     <Content Include="Assets\UpdateNotices\0.11.7.md" />
     <Content Include="Assets\UpdateNotices\0.11.8.md" />
+    <Content Include="Assets\UpdateNotices\0.11.9.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <PRIResource Include="Resources\ja-jp\Resources.resw" />
   </ItemGroup>
@@ -155,6 +156,7 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Commands\AddAfterViewPlaylistCommand.cs" />
+    <Compile Include="Commands\AddFeedSourceCommand.cs" />
     <Compile Include="Commands\AddMylistCommand.cs" />
     <Compile Include="Commands\AddToHiddenUserCommand.cs" />
     <Compile Include="Commands\CopyToClipboardCommand.cs" />
@@ -164,13 +166,20 @@
     <Compile Include="Commands\HohoemaCommnadHelper.cs" />
     <Compile Include="Commands\OpenBroadcasterInfoCommand.cs" />
     <Compile Include="Commands\OpenContentCommand.cs" />
+    <Compile Include="Commands\OpenFeedSourceCommand.cs" />
     <Compile Include="Commands\OpenVideoInfoCommand.cs" />
     <Compile Include="Commands\OpenVideoOwnerVideoListCommand.cs" />
+    <Compile Include="Commands\RemoveFeedSourceCommand.cs" />
     <Compile Include="Commands\RemoveFollowCommand.cs" />
     <Compile Include="Commands\ShareWithTwitterCommand.cs" />
     <Compile Include="Commands\ShereCommand.cs" />
     <Compile Include="Commands\VideoDeleteCacheCommand.cs" />
     <Compile Include="Commands\VideoRequestCacheCommand.cs" />
+    <Compile Include="Database\Bookmark.cs" />
+    <Compile Include="Database\BookmarkDb.cs" />
+    <Compile Include="Database\BookmarkType.cs" />
+    <Compile Include="Database\Feed.cs" />
+    <Compile Include="Database\FeedDb.cs" />
     <Compile Include="Database\HohoemaLiteDbContext.cs" />
     <Compile Include="Database\NicoVideo.cs" />
     <Compile Include="Database\NicoVideoOwner.cs" />
@@ -271,6 +280,7 @@
     <Compile Include="Models\PagePayload\PagePayloadBase.cs" />
     <Compile Include="Models\Settings\AppearanceSettings.cs" />
     <Compile Include="Models\Settings\CacheSettings.cs" />
+    <Compile Include="Models\Settings\NicoRepoAndFeedSettings.cs" />
     <Compile Include="Models\Settings\PlaylistSettings.cs" />
     <Compile Include="Models\Niconico\Mylist\UserMylistManager.cs" />
     <Compile Include="Helpers\ShareHelper.cs" />
@@ -393,6 +403,9 @@
     <Compile Include="Views\CacheManagementPage.xaml.cs">
       <DependentUpon>CacheManagementPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Flyouts\FeedSourceFlyout.xaml.cs">
+      <DependentUpon>FeedSourceFlyout.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\_CommentRenderer\CommentRendererEx.xaml.cs">
       <DependentUpon>CommentRendererEx.xaml</DependentUpon>
     </Compile>
@@ -478,12 +491,6 @@
     <Compile Include="Views\Converters\TransparentColorConverter.cs" />
     <Compile Include="Views\FeedGroupManagePage_TV.xaml.cs">
       <DependentUpon>FeedGroupManagePage_TV.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\FeedGroupPage_TV.xaml.cs">
-      <DependentUpon>FeedGroupPage_TV.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\FeedVideoListPage_TV.xaml.cs">
-      <DependentUpon>FeedVideoListPage_TV.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\HohoemaListItem.xaml.cs">
       <DependentUpon>HohoemaListItem.xaml</DependentUpon>
@@ -770,6 +777,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Flyouts\FeedSourceFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\_CommentRenderer\CommentRendererEx.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -857,14 +868,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\FeedGroupManagePage_TV.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\FeedGroupPage_TV.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\FeedVideoListPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

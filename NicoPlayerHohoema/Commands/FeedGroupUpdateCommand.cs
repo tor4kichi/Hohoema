@@ -20,8 +20,8 @@ namespace NicoPlayerHohoema.Commands
             {
                 var feedGroupManager = HohoemaCommnadHelper.GetFeedManager();
                 var content = parameter as Interfaces.IFeedGroup;
-                var feedGroup = feedGroupManager.GetFeedGroup(Guid.Parse(content.Id));
-                await feedGroup.Refresh();
+                var feedGroup = feedGroupManager.GetFeedGroup(int.Parse(content.Id));
+                // await feedGroup.Refresh();
 
                 // TODO: フィードマネージャやフィード編集ページの表示を更新する
             }

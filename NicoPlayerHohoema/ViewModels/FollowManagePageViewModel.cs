@@ -164,7 +164,8 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 		public FavoriteItemViewModel(FollowItemInfo feedList)
 		{
-			Label = feedList.Name;
+            FollowItemInfo = feedList;
+            Label = feedList.Name;
 			ItemType = feedList.FollowItemType;
 			SourceId = feedList.Id;
         }
@@ -203,6 +204,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         public FollowItemType ItemType { get; set; }
 		public string SourceId { get; set; }
+
+        public FollowItemInfo FollowItemInfo { get; }
     }
 
 	

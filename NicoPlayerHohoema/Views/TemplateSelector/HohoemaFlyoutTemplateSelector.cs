@@ -67,6 +67,10 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
             {
                 return FeedGroupFlyoutTemplate;
             }
+            else if (item is ViewModels.FeedSourceBookmark)
+            {
+                return FeedSourceFlyoutTemplate;
+            }
 
             return base.SelectTemplateCore(item, container);
         }

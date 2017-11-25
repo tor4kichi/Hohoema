@@ -28,7 +28,8 @@ namespace NicoPlayerHohoema.ViewModels
 		{
             HasOwnerVideo = true;
 
-			MylistGroups = new ObservableCollection<MylistGroupListItem>();
+           
+            MylistGroups = new ObservableCollection<MylistGroupListItem>();
 			VideoInfoItems = new ObservableCollection<VideoInfoControlViewModel>();
 
 			IsFavorite = new ReactiveProperty<bool>()
@@ -142,8 +143,7 @@ namespace NicoPlayerHohoema.ViewModels
 			MylistGroups.Clear();
 			VideoInfoItems.Clear();
 
-
-			try
+            try
 			{
 				var userInfo = await HohoemaApp.ContentProvider.GetUserDetail(UserId);
 
@@ -243,12 +243,17 @@ namespace NicoPlayerHohoema.ViewModels
 
 			}
 
+            UserBookmark = Database.BookmarkDb.Get(Database.BookmarkType.User, UserId) 
+            ?? new Database.Bookmark()
+            {
+                Content = UserId,
+                Label = UserName,
+                BookmarkType = Database.BookmarkType.User
+            };
 
+            RaisePropertyChanged(nameof(UserBookmark));
 
-
-			NowLoading = false;
-
-			
+            NowLoading = false;
 		}
 
 
@@ -278,37 +283,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-
-
-
-
-        private DelegateCommand _AddFeedSourceCommand;
-        public DelegateCommand AddFeedSourceCommand
-        {
-            get
-            {
-                return _AddFeedSourceCommand
-                    ?? (_AddFeedSourceCommand = new DelegateCommand(async () =>
-                    {
-                        var targetTitle = this.UserName;
-                        var feedGroup = await HohoemaApp.ChoiceFeedGroup(targetTitle + "をフィードに追加");
-                        if (feedGroup != null)
-                        {
-                            var result = feedGroup.AddUserFeedSource(targetTitle, UserId);
-
-                            // 通知
-                            var registrationResult = result != null ? ContentManageResult.Success : ContentManageResult.Failed;
-                            (App.Current as App).PublishInAppNotification(
-                                InAppNotificationPayload.CreateRegistrationResultNotification(
-                                    registrationResult,
-                                    "フィード",
-                                    feedGroup.Label,
-                                    targetTitle + "(ユーザー)"
-                                    ));
-                        }
-                    }));
-            }
-        }
+        public Database.Bookmark UserBookmark { get; private set; }
 
         private DelegateCommand _LogoutCommand;
         public DelegateCommand LogoutCommand
