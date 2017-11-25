@@ -619,8 +619,10 @@ namespace NicoPlayerHohoema.Models
 					{
 						Debug.WriteLine("login success");
 
+                        // コンテンツプロバイダのセットアップ
+                        ContentProvider.Context = NiconicoContext;
 
-						using (var loginActivityLogger = LoggingChannel.StartActivity("login process"))
+                        using (var loginActivityLogger = LoggingChannel.StartActivity("login process"))
 						{
 
 							loginActivityLogger.LogEvent("begin login process.");
@@ -714,9 +716,6 @@ namespace NicoPlayerHohoema.Models
 
 						// 動画のキャッシュフォルダの選択状態をチェック
 						await (App.Current as App).CheckVideoCacheFolderState();
-
-                        // コンテンツプロバイダのセットアップ
-                        ContentProvider.Context = NiconicoContext;
 
                         // サインイン完了
                         OnSignin?.Invoke();
