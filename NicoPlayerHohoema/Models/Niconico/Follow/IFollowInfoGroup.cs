@@ -11,6 +11,9 @@ namespace NicoPlayerHohoema.Models
 	public interface IFollowInfoGroup
 	{
 		ReadOnlyObservableCollection<FollowItemInfo> FollowInfoItems { get; }
+
+        bool IsFailedUpdate { get; }
+
 		FollowItemType FollowItemType { get; }
 		uint MaxFollowItemCount { get; }
 

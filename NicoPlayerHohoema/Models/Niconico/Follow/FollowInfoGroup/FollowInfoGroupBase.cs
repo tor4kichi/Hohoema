@@ -39,7 +39,9 @@ namespace NicoPlayerHohoema.Models
 		public abstract FollowItemType FollowItemType { get; }
 		public abstract uint MaxFollowItemCount { get; }
 
-		public bool CanMoreAddFollow()
+        public bool IsFailedUpdate { get; private set; }
+
+        public bool CanMoreAddFollow()
 		{
 			return _FollowInfoList.Count < MaxFollowItemCount;
 		}
@@ -55,7 +57,16 @@ namespace NicoPlayerHohoema.Models
         {
             using (var releaser = await UpdateLock.LockAsync())
             {
-                await SyncFollowItems_Internal();
+                try
+                {
+                    IsFailedUpdate = false;
+
+                    await SyncFollowItems_Internal();
+                }
+                catch
+                {
+                    IsFailedUpdate = true;
+                }
             }
         }
 

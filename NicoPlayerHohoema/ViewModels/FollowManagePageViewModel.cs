@@ -85,11 +85,13 @@ namespace NicoPlayerHohoema.ViewModels
         public FollowItemType FavType => FollowGroup.FollowItemType;
         public string Label { get;  }
         public uint MaxItemCount => FollowGroup.MaxFollowItemCount;
-        public ReadOnlyReactiveProperty<int> ItemCount { get; }
+        public IReadOnlyReactiveProperty<int> ItemCount { get; }
         public FollowManager FollowManager { get; }
         public PageManager PageManager { get; }
 
-        public ReadOnlyReactiveCollection<FavoriteItemViewModel> Items { get; set; }
+        public bool IsSyncFailed { get; }
+
+        public ReadOnlyObservableCollection<FavoriteItemViewModel> Items { get; set; }
 
         public FavoriteListViewModel(string label, IFollowInfoGroup followGroup, FollowManager followMan, PageManager pageManager)
         {
@@ -97,10 +99,13 @@ namespace NicoPlayerHohoema.ViewModels
             FollowGroup = followGroup;
             FollowManager = followMan;
             PageManager = pageManager;
+            IsSyncFailed = FollowGroup.IsFailedUpdate;
 
-            Items = followGroup.FollowInfoItems
-                .ToReadOnlyReactiveCollection(x => CreateFavVM(x));
-            ItemCount = Items.ObserveProperty(x => x.Count).ToReadOnlyReactiveProperty();
+            Items = followGroup.FollowInfoItems?
+                .ToReadOnlyReactiveCollection(x => CreateFavVM(x)) 
+                ?? new ReadOnlyObservableCollection<FavoriteItemViewModel>(new ObservableCollection<FavoriteItemViewModel>());
+            ItemCount = Items?.ObserveProperty(x => x.Count).ToReadOnlyReactiveProperty() 
+                ?? new ReactiveProperty<int>(0).ToReadOnlyReactiveProperty();
         }
 
 
