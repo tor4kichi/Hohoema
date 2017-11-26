@@ -65,27 +65,6 @@
                 </VisualState>
             </VisualStateGroup>
 
-            <!-- シャッフルモード -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsShuffleEnabled.Value}"  />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-
-                        <Setter Target="ToggleShuffleButtonIcon.Kind" Value="Shuffle" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="True"  />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="ToggleShuffleButtonIcon.Kind" Value="ShuffleDisabled" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-
         </VisualStateManager.VisualStateGroups>
         
         <toolkit:DockPanel x:Name="RootLayout">
@@ -106,14 +85,15 @@
                                                 toolkit:DockPanel.Dock="Left"
                                             
                                                 >
-                        <Button Background="Transparent"          
-                                                Command="{Binding ToggleShuffleCommand}"
-                                                UseSystemFocusVisuals="True"
-                                            Margin="8 0 0 0"
-                                x:Name="ShuffleSwitchingButton"
+                        <ToggleButton IsChecked="{Binding IsShuffleEnabled.Value, Mode=TwoWay}"
+                                      UseSystemFocusVisuals="True"
+                                      Margin="8 0 0 0"
+                                      x:Name="ShuffleSwitchingButton"
+                                      Background="Transparent"
                                             >
 
                             <iconPack:PackIconMaterial x:Name="ToggleShuffleButtonIcon"
+                                                       Kind="Shuffle"
                                                                    RenderTransformOrigin="0.5, 0.5"
                                                            >
                                 <iconPack:PackIconMaterial.RenderTransform>
@@ -121,7 +101,7 @@
                                 </iconPack:PackIconMaterial.RenderTransform>
 
                             </iconPack:PackIconMaterial>
-                        </Button>
+                        </ToggleButton>
 
 
                         <Button Command="{Binding ToggleRepeatModeCommand}"
@@ -134,7 +114,7 @@
                                                            RenderTransformOrigin="0.5, 0.5"
                                                            >
                                 <iconPack:PackIconMaterial.RenderTransform>
-                                    <CompositeTransform ScaleX="1.1" ScaleY="1.1"/>
+                                    <CompositeTransform ScaleX="1.4" ScaleY="1.4"/>
                                 </iconPack:PackIconMaterial.RenderTransform>
                             </iconPack:PackIconMaterial>
                         </Button>
