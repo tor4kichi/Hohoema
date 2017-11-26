@@ -44,6 +44,8 @@ namespace NicoPlayerHohoema.Models
 	{
         static readonly Regex NicoVideoIdRegex = new Regex("\\[((?:sm|so|lv)\\d+)\\]");
 
+        static readonly Regex ExternalCachedNicoVideoIdRegex = new Regex("(?>sm|so|lv)\\d*");
+
         const string CACHE_REQUESTED_FILENAME = "cache_requested.json";
         FolderBasedFileAccessor<IList<NicoVideoCacheRequest>> _CacheRequestedItemsFileAccessor;
 
@@ -277,13 +279,29 @@ namespace NicoPlayerHohoema.Models
                     // ファイル名の最後方にある[]の中身の文字列を取得
                     // (動画タイトルに[]が含まれる可能性に配慮)
                     var match = NicoVideoIdRegex.Match(file.Name);
-                    var id = match.Groups[1].Value;
+                    var id = match.Groups[1]?.Value;
+                    NicoVideoQuality quality = NicoVideoQuality.Unknown;
                     if (string.IsNullOrEmpty(id))
                     {
-                        continue;
+                        // 外部キャッシュとして取得可能かをチェック
+                        match = ExternalCachedNicoVideoIdRegex.Match(file.Name);
+
+                        if (match.Groups.Count > 0)
+                        {
+                            id = match.Groups[match.Groups.Count - 1].Value;
+                        }
+
+                        // 動画IDを抽出不可だった場合はスキップ
+                        if (string.IsNullOrEmpty(id))
+                        {
+                            continue;
+                        }
+                    }
+                    else
+                    {
+                        quality = VideoCacheManager.GetQualityFromFileName(file.Name);
                     }
 
-                    var quality = VideoCacheManager.GetQualityFromFileName(file.Name);
                     var info = new NicoVideoCacheInfo()
                     {
                         RawVideoId = id,
