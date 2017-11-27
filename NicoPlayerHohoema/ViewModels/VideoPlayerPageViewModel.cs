@@ -606,7 +606,6 @@ namespace NicoPlayerHohoema.ViewModels
                     await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                     {
                         await Task.Delay(100);
-                        PageManager.NavigationService.GoBack();
 
                         string toastContent = "";
                         if (!String.IsNullOrEmpty(videoInfo.Title))
