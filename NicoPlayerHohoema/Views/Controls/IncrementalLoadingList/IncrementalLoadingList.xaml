@@ -41,7 +41,7 @@
                                     <Style TargetType="GridViewItem">
                                         <Setter Property="Margin" Value="6" />
                                         <Setter Property="Padding" Value="0" />
-                                        <Setter Property="UseSystemFocusVisuals" Value="False" />
+                                        <Setter Property="UseSystemFocusVisuals" Value="True" />
                                         <Setter Property="VerticalContentAlignment" Value="Stretch" />
                                         <Setter Property="HorizontalContentAlignment" Value="Stretch" />
                                     </Style>

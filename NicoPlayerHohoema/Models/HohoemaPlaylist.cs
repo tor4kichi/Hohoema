@@ -79,16 +79,8 @@ namespace NicoPlayerHohoema.Models
                 {
                     _CurrentPlaylistId = _CurrentPlaylist?.Id;
                     RaisePropertyChanged(nameof(Player));
-                    
-                    _PlaylistItemsChangedObserver?.Dispose();
-                    if (CurrentPlaylist != null)
-                    {
-                        _PlaylistItemsChangedObserver = CurrentPlaylist.PlaylistItems.PropertyChangedAsObservable()
-                            .Subscribe(_ => 
-                            {
-                                Player.ResetItems();
-                            });
-                    }
+
+                    Player.ResetItems(_CurrentPlaylist);                
                 }
             }
         }
@@ -190,11 +182,13 @@ namespace NicoPlayerHohoema.Models
                 catch { }
             }
 
+            Player.PlayRequested += Player_PlayRequested;
         }
-        
 
-
-
+        private void Player_PlayRequested(object sender, PlaylistItem e)
+        {
+            Play(e);
+        }
 
         private void Smtc_AutoRepeatModeChangeRequested(SystemMediaTransportControls sender, AutoRepeatModeChangeRequestedEventArgs args)
         {
@@ -354,7 +348,6 @@ namespace NicoPlayerHohoema.Models
                 }
             }
 
-            Player.Playlist = playlist;
             CurrentPlaylist = playlist;
             Player.PlayStarted(item);
 
@@ -524,16 +517,31 @@ namespace NicoPlayerHohoema.Models
 
     public class PlaylistPlayer : BindableBase, IDisposable
     {
+        // PlaylistPlayerは再生アイテムの遷移をサポートする
+        // 次・前の移動はPlayRequestedイベントを通じてやり取りする
+
+        // 実際に再生が開始された際に、PlayStartedメソッドの呼び出しが必要
+
+        // シャッフルと通し再生に関する実装の方針
+        // 内部ではシャッフル用のランダム化アイテムリストを保持して
+        // 常にシャッフル/通しを切り替えられるように備えている
+
+
+
+        public event EventHandler<PlaylistItem> PlayRequested;
+
+
         private IPlayableList _Playlist;
         public IPlayableList Playlist
         {
             get { return _Playlist; }
-            set
+            private set
             {
                 if (_Playlist != value)
                 {
                     _Playlist = value;
-                    ResetPlayer();
+
+                    ResetItems(_Playlist);
                 }
             }
         }
@@ -541,13 +549,29 @@ namespace NicoPlayerHohoema.Models
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PlaylistSettings PlaylistSettings { get; private set; }
 
+        private PlaylistItem _Current;
+        public PlaylistItem Current
+        {
+            get { return _Current; }
+            private set
+            {
+                if (SetProperty(ref _Current, value))
+                {
+                    RaisePropertyChanged(nameof(CanGoBack));
+                    RaisePropertyChanged(nameof(CanGoNext));
+                }
+            }
+        }
 
-        IPlaylistPlayer _InternalPlayer;
-        public PlaylistItem Current => _InternalPlayer?.Current;
 
-        public bool CanGoBack => _InternalPlayer?.CanGoBack ?? false;
+        
+        private int CurrentIndex { get; set; }
 
-        public bool CanGoNext => _InternalPlayer?.CanGoNext ?? false;
+        protected IList<PlaylistItem> SourceItems => Playlist?.PlaylistItems;
+
+        private Queue<PlaylistItem> PlayedItems { get; } = new Queue<PlaylistItem>();
+        public List<PlaylistItem> RandamizedItems { get; private set; } = new List<PlaylistItem>();
+
 
         IDisposable _SettingsObserveDisposer;
         IDisposable _ItemsObservaeDisposer;
@@ -562,21 +586,6 @@ namespace NicoPlayerHohoema.Models
                 {
                     _RepeatMode = value;
                     PlaylistSettings.RepeatMode = _RepeatMode;
-                    ResetPlayer();
-                }
-            }
-        }
-
-        private bool _IsShuffleEnable;
-        public bool IsShuffleEnable
-        {
-            get { return _IsShuffleEnable; }
-            set
-            {
-                if (_IsShuffleEnable != value)
-                {
-                    _IsShuffleEnable = value;
-                    ResetPlayer();
                 }
             }
         }
@@ -593,7 +602,13 @@ namespace NicoPlayerHohoema.Models
                 )
                 .Subscribe(_ =>
                 {
-                    ResetPlayer();
+                    _RepeatMode = PlaylistSettings.RepeatMode;
+                    if (Current != null)
+                    {
+                        CurrentIndex = PlaylistSettings.IsShuffleEnable ? 0 : (SourceItems?.IndexOf(Current) ?? 0);
+                    }
+
+                    ResetItems(Playlist);
                 });
                 
 
@@ -607,300 +622,116 @@ namespace NicoPlayerHohoema.Models
             _ItemsObservaeDisposer = null;
         }
 
-        internal void ResetItems()
+        internal void ResetItems(IPlayableList newOwner)
         {
+            PlayedItems.Clear();
+            ResetRandmizedItems();
             _ItemsObservaeDisposer?.Dispose();
-            _ItemsObservaeDisposer = Playlist?.PlaylistItems.CollectionChangedAsObservable()
-                .Subscribe(x =>
-                {
-                    RaisePropertyChanged(nameof(CanGoBack));
-                    RaisePropertyChanged(nameof(CanGoNext));
-                });
-            _InternalPlayer.Reset(Playlist?.PlaylistItems, Current);
+
+            Playlist = newOwner;
+
+            if (Playlist != null)
+            {
+                _ItemsObservaeDisposer = Playlist.PlaylistItems.CollectionChangedAsObservable()
+                    .Subscribe(x =>
+                    {
+                        // 再生中アイテムが削除された時のプレイリストの動作
+
+                        // 動画プレイヤーには影響を与えないこととする
+                        // 連続再生動作の継続性が確保できればOK
+                        if (Current != null && Playlist != null)
+                        {
+                            ResetRandmizedItems();
+                        }
+
+                        RaisePropertyChanged(nameof(CanGoBack));
+                        RaisePropertyChanged(nameof(CanGoNext));
+                    });
+            }
+
             RaisePropertyChanged(nameof(CanGoBack));
             RaisePropertyChanged(nameof(CanGoNext));
         }
 
-        private void ResetPlayer()
+        private void ResetRandmizedItems()
         {
-            var prevCurrentItem = _InternalPlayer?.Current;
+            RandamizedItems.Clear();
 
-            IPlaylistPlayer newPlayer = null;
-            if (PlaylistSettings.IsShuffleEnable)
+            if (SourceItems != null)
             {
-                newPlayer = new ShufflePlaylistPlayer()
-                {
-                    IsRepeat = PlaylistSettings.RepeatMode == MediaPlaybackAutoRepeatMode.List
-                };
+                RandamizedItems.AddRange(SourceItems.Shuffle());
             }
-            else
-            {
-                newPlayer = new ThroughPlaylistPlayer()
-                {
-                    IsRepeat = PlaylistSettings.RepeatMode == MediaPlaybackAutoRepeatMode.List
-                };
-            }
-
-            if (newPlayer == null) { throw new Exception(); }
-
-            _InternalPlayer = newPlayer;
-
-            ResetItems();
         }
+
+
+        public bool CanGoBack
+        {
+            get
+            {
+                if (SourceItems == null) { return false; }
+
+                switch (this.RepeatMode)
+                {
+                    case MediaPlaybackAutoRepeatMode.None:
+                    case MediaPlaybackAutoRepeatMode.Track:
+                        if (PlaylistSettings.IsShuffleEnable)
+                        {
+                            return SourceItems.Count > 1 && PlayedItems.Count > 0;
+                        }
+                        else
+                        {
+                            return SourceItems.Count > 1 && CurrentIndex > 0;
+                        }
+                    case MediaPlaybackAutoRepeatMode.List:
+                        if (PlaylistSettings.IsShuffleEnable)
+                        {
+                            return SourceItems.Count > 1 && PlayedItems.Count > 0;
+                        }
+                        else
+                        {
+                            return SourceItems.Count > 1;
+                        }
+                    default:
+                        throw new NotImplementedException();
+                }
+            }
+        }
+
+        
 
         public void GoBack()
         {
-            var item = _InternalPlayer.GetBackItem();
-            if (item != null)
+            // Note: CanGoBack で呼び分けが行われている前提の元で例外送出を行っている
+
+            var prevItem = default(PlaylistItem);
+            int prevIndex = CurrentIndex - 1;
+            if (PlaylistSettings.IsShuffleEnable)
             {
-                HohoemaPlaylist.Play(item);
-                PlayStarted(item);
-            }
-        }
-
-        public void GoNext()
-        {
-            var item = _InternalPlayer.GetNextItem();
-            if (item != null)
-            {
-                HohoemaPlaylist.Play(item);
-                PlayStarted(item);
-            }
-        }
-
-        internal void PlayStarted(PlaylistItem item)
-        {
-            (_InternalPlayer as PlaylistPlayerBase)?.PlayStarted(item);
-            RaisePropertyChanged(nameof(CanGoBack));
-            RaisePropertyChanged(nameof(CanGoNext));
-        }
-    }
-
-
-    public interface IPlaylistPlayer
-    {
-        PlaylistItem Current { get; }
-
-        bool CanGoBack { get; }
-        bool CanGoNext { get; }
-
-        PlaylistItem GetBackItem();
-        PlaylistItem GetNextItem();
-
-        void Reset(IEnumerable<PlaylistItem> list, PlaylistItem currentItem = null);
-    }
-
-    abstract public class PlaylistPlayerBase : IPlaylistPlayer
-    {
-        private List<PlaylistItem> _SourceItems;
-        protected IList<PlaylistItem> SourceItems => _SourceItems;
-        public PlaylistItem Current { get; protected set; }
-
-        abstract public bool CanGoBack { get; }
-        abstract public bool CanGoNext { get; }
-
-
-        protected bool IsAvailable => _SourceItems != null && _SourceItems.Count > 0;
-
-        public PlaylistPlayerBase()
-        {
-        }
-
-        internal void PlayStarted(PlaylistItem item)
-        {
-            Current = item;
-        }
-
-        public PlaylistItem GetBackItem()
-        {
-            return CanGoBack ? GetPreviousItem_Inner() : null;
-        }
-
-        public PlaylistItem GetNextItem()
-        {
-            return CanGoNext ? GetNextItem_Inner() : null;
-        }
-
-        abstract protected PlaylistItem GetNextItem_Inner();
-
-        abstract protected PlaylistItem GetPreviousItem_Inner();
-
-
-        // シャッフルする場合に
-        abstract protected void OnResetItems(IEnumerable<PlaylistItem> sourceItems, PlaylistItem currentItem);
-        public void Reset(IEnumerable<PlaylistItem> list, PlaylistItem currentItem = null)
-        {
-            if (list == null)
-            {
-                currentItem = null;
+                prevItem = PlayedItems.Dequeue();
             }
             else
             {
-                if (currentItem != null)
+                if (prevIndex < 0)
                 {
-                    if (list.FirstOrDefault(x => x.ContentId == currentItem.ContentId) == null)
+                    if (RepeatMode != MediaPlaybackAutoRepeatMode.List)
                     {
-                        currentItem = GetNextItem();
-
-                        // Note: あとで見るプレイリストでの動作としては
-                        // 見た後に削除されたあとで、先頭のアイテムが指定されることになります
+                        throw new Exception();
+                    }
+                    else
+                    {
+                        prevIndex = SourceItems.Count - 1;
                     }
                 }
+
+                prevItem = SourceItems.ElementAt(prevIndex);
             }
-
-
-            _SourceItems = list?.ToList() ?? new List<PlaylistItem>();
-            Current = currentItem;
-
-            OnResetItems(_SourceItems, currentItem);
-        }
-    }
-
-
-
-    public class ThroughPlaylistPlayer : PlaylistPlayerBase
-    {
-        public ThroughPlaylistPlayer()
-            : base()
-        {
             
-        }
-
-
-
-        public override bool CanGoBack
-        {
-            get
+            if (prevItem != null)
             {
-                if (!IsAvailable) { return false; }
+                Current = prevItem;
+                CurrentIndex = prevIndex;
 
-                if (SourceItems.Count <= 1) { return false; }
-
-                if (IsRepeat)
-                {
-                    // 全体リピート時にアイテムが一つの場合は前への移動を制限
-                    return true;
-                }
-
-                return SourceItems.FirstOrDefault() != Current;
-            }
-        }
-
-        public override bool CanGoNext
-        {
-            get
-            {
-                if (!IsAvailable) { return false; }
-
-                if (SourceItems.Count <= 1) { return false; }
-
-                if (IsRepeat)
-                {
-                    return true;
-                }
-
-                return SourceItems.LastOrDefault() != Current;
-            }
-        }
-
-        public bool IsRepeat { get; set; } = false;
-
-        protected override PlaylistItem GetPreviousItem_Inner()
-        {
-            var currentIndex = SourceItems.IndexOf(Current);
-            var prevIndex = currentIndex - 1;
-
-            if (prevIndex < 0)
-            {
-                if (IsRepeat)
-                {
-                    prevIndex = SourceItems.Count - 1;
-                }
-                else
-                {
-                    throw new Exception();
-                }
-            }
-
-            return SourceItems[prevIndex];
-        }
-
-
-        protected override PlaylistItem GetNextItem_Inner()
-        {
-            var currentIndex = SourceItems.IndexOf(Current);
-            var nextIndex = currentIndex + 1;
-
-            if (nextIndex >= SourceItems.Count)
-            {
-                if (IsRepeat)
-                {
-                    nextIndex = 0;
-                }
-                else
-                {
-                    throw new Exception();
-                }
-            }
-
-            return SourceItems[nextIndex];
-        }
-
-
-        protected override void OnResetItems(IEnumerable<PlaylistItem> sourceItems, PlaylistItem currentItem)
-        {
-            
-        }
-    }
-
-
-    // シャッフル実装の参考
-    // http://hito-yama-guri.hatenablog.com/entry/2016/01/14/174201
-
-    public class ShufflePlaylistPlayer : PlaylistPlayerBase
-    {
-        public DateTime LastSyncTime { get; private set; }
-        public Queue<PlaylistItem> RandamizedItems { get; private set; } = new Queue<PlaylistItem>();
-        public Stack<PlaylistItem> PlayedItem { get; private set; } = new Stack<PlaylistItem>();
-
-        public ShufflePlaylistPlayer()
-            : base()
-        {
-            
-        }
-
-        public bool IsRepeat { get; set; }
-
-        public override bool CanGoBack
-        {
-            get
-            {
-                if (!IsAvailable) { return false; }
-
-                return PlayedItem.Count > 1;
-            }
-        }
-
-        public override bool CanGoNext
-        {
-            get
-            {
-                if (!IsAvailable) { return false; }
-
-                return IsRepeat ? true : RandamizedItems.Count > 1;
-            }
-        }
-
-        protected override PlaylistItem GetPreviousItem_Inner()
-        {
-            // Playedから１つ取り出して
-            // Randomizedに載せる
-            var prevItem = PlayedItem.Pop();
-            if (Current != null && prevItem != null)
-            {
-                RandamizedItems.Enqueue(Current);
-
-                return prevItem;
+                PlayRequested?.Invoke(this, prevItem);
             }
             else
             {
@@ -908,58 +739,94 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-        protected override PlaylistItem GetNextItem_Inner()
-        {
-            if (RandamizedItems.Count == 0)
-            {
-                if (IsRepeat)
-                {
-                    // RandamizedItemsを再構成
-                    PlayedItem.Clear();
 
-                    OnResetItems(SourceItems, Current);
+        public bool CanGoNext
+        {
+            get
+            {
+                if (SourceItems == null) { return false; }
+
+                switch (this.RepeatMode)
+                {
+                    case MediaPlaybackAutoRepeatMode.None:
+                    case MediaPlaybackAutoRepeatMode.Track:
+                        return SourceItems.Count > 1 && SourceItems.Count > (CurrentIndex + 1);
+                    case MediaPlaybackAutoRepeatMode.List:
+                        return SourceItems.Count > 1;
+                    default:
+                        throw new NotSupportedException("not support repeat mode : " + RepeatMode.ToString());
+                }
+            }
+        }
+
+
+
+        public void GoNext()
+        {
+            // Note: CanGoNext で呼び分けが行われている前提の元で例外送出を行っている
+            if (SourceItems == null) { throw new Exception(); }
+
+            var prevPlayed = Current;
+            var nextIndex = CurrentIndex + 1;
+
+            if (nextIndex >= SourceItems.Count)
+            {
+                ResetRandmizedItems();
+                nextIndex = 0;
+            }
+
+            var nextItem = (PlaylistSettings.IsShuffleEnable ? RandamizedItems : SourceItems)
+                .ElementAt(nextIndex);
+
+
+            if (nextItem != null)
+            {
+                if (prevPlayed != null)
+                {
+                    PlayedItems.Enqueue(prevPlayed);
+                }
+
+                Current = nextItem;
+                CurrentIndex = nextIndex;
+
+                PlayRequested?.Invoke(this, nextItem);
+            }
+            else
+            {
+                throw new Exception();
+            }
+        }
+
+        internal void PlayStarted(PlaylistItem item)
+        {
+            if (item == null) { throw new Exception(); }
+
+            // 新たにプレイリストが指定された場合に
+            // 連続再生をセットアップする
+            if (item.Owner == null && item.Owner != Playlist)
+            {
+                ResetItems(item.Owner);
+            }
+
+            // GoNext/GoBack内でCurrentが既に変更済みの場合はスキップ
+            // Playlist外から直接PlaylistItemが変更された場合にのみ
+            // 現在再生位置の更新を行う
+            if (Current != item)
+            {
+                Current = item;
+                if (SourceItems != null)
+                {
+                    CurrentIndex = PlaylistSettings.IsShuffleEnable ? 0 : SourceItems.IndexOf(Current);
                 }
                 else
                 {
-                    throw new Exception();
+                    CurrentIndex = 0;
                 }
-            }
-
-            var nextItem = RandamizedItems.Dequeue();
-            PlayedItem.Push(Current);
-
-            return nextItem;
-        }
-
-        protected override void OnResetItems(IEnumerable<PlaylistItem> sourceItems, PlaylistItem currentItem)
-        {
-            var copied = sourceItems.ToList();
-
-
-            // 再生済みアイテムを同期
-            var existPlayedItems = PlayedItem.Where(x => copied.Any(y => y.ContentId == x.ContentId));
-            PlayedItem = new Stack<PlaylistItem>(existPlayedItems);
-
-            // ランダム化したアイテムの同期
-            RandamizedItems.Clear();
-            var shuffledUnplayItems = copied
-                .Where(x => !PlayedItem.Any(y => x.ContentId == y.ContentId))
-                .Where(x => currentItem == null || currentItem.ContentId != x.ContentId)
-                .Shuffle();
-            foreach (var shuffled in shuffledUnplayItems)
-            {
-                RandamizedItems.Enqueue(shuffled);
-            }
-
-            // Currentを同期
-            // 現在再生中のアイテムが削除されていた場合、Currentをnullにするだけ
-            if (Current != null && !copied.Any(x => x.ContentId == Current.ContentId))
-            {
-                Current = null;
             }
         }
     }
 
+    
     
 
     [DataContract]
