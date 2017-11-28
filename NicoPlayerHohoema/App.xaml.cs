@@ -913,10 +913,14 @@ namespace NicoPlayerHohoema
                         {
                             await ExtractNicoContentId_And_SubmitSuggestion(uri);
                         }
+                        else
+                        {
+                            await ExtractNicoContentId_And_SubmitSuggestion(text);
+                        }
                     }
                     catch
                     {
-                        await ExtractNicoContentId_And_SubmitSuggestion(text);
+                        
                     }
                     prevContent = text;
                 }
@@ -993,6 +997,8 @@ namespace NicoPlayerHohoema
         {
             var contentProvider = App.Current.Container.Resolve<NiconicoContentProvider>();
             var nicoVideo = await contentProvider.GetNicoVideoInfo(videoId);
+
+            if (nicoVideo.IsDeleted || string.IsNullOrEmpty(nicoVideo.Title)) { return; }
 
             PublishInAppNotification(new InAppNotificationPayload()
             {
