@@ -651,8 +651,13 @@
             </VisualStateGroup>
 
         </VisualStateManager.VisualStateGroups>
-        
-        
+
+        <i:Interaction.Behaviors>
+            <core:EventTriggerBehavior EventName="Unloaded">
+                <core:CallMethodAction TargetObject="{Binding}" MethodName="Dispose" />
+            </core:EventTriggerBehavior>
+        </i:Interaction.Behaviors>
+
         <toolkit:LayoutTransformControl
                 x:Name="LayoutTransform"
                 >

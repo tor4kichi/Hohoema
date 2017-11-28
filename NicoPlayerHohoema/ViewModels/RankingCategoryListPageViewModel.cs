@@ -94,6 +94,8 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
+        static RankingCategory? _LastSelectedRankingCategory;
+
         Services.HohoemaDialogService _HohoemaDialogService;
 
 
@@ -303,10 +305,10 @@ namespace NicoPlayerHohoema.ViewModels
                     items.Add(new CategoryWithFav() { Category = i.Category });
                 }
                 items.Refresh();
-                
+
                 var choiceItems = await _HohoemaDialogService.ShowMultiChoiceDialogAsync(
-                    "優先表示にするカテゴリを選択", 
-                    items.Cast<CategoryWithFav>().Select(x => new RankingCategoryInfo(x.Category)), 
+                    "優先表示にするカテゴリを選択",
+                    items.Cast<CategoryWithFav>().Select(x => new RankingCategoryInfo(x.Category)),
                     _RankingSettings.HighPriorityCategory.ToArray(),
                     x => x.DisplayLabel
                     );
@@ -322,6 +324,7 @@ namespace NicoPlayerHohoema.ViewModels
                     _RankingSettings.AddFavoritCategory(cat.Category);
                 }
             });
+            
 
 
             AddDislikeRankingCategory = new DelegateCommand(async () =>
@@ -362,8 +365,20 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+            if (_LastSelectedRankingCategory.HasValue)
+            {
+                SelectedRankingCategory.Value = SortedRankingCategoryItems.Cast<CategoryWithFav>().SingleOrDefault(x => x.Category == _LastSelectedRankingCategory.Value);
+            }
+
             base.OnNavigatedTo(e, viewModelState);
 		}
+
+        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+        {
+            _LastSelectedRankingCategory = SelectedRankingCategory.Value?.Category;
+
+            base.OnNavigatingFrom(e, viewModelState, suspending);
+        }
 
         protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
         {

@@ -458,6 +458,7 @@ namespace NicoPlayerHohoema.Models
             {
                 _PlayingMediaPlayer.Pause();
                 _PlayingMediaPlayer.Source = null;
+                _PlayingMediaPlayer = null;
 
                 _VideoMSS?.Dispose();
                 _MediaSource?.Dispose();
