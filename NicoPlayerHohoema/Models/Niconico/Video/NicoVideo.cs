@@ -84,7 +84,6 @@ namespace NicoPlayerHohoema.Models
                 // 動画再生準備およびコメント取得準備が行われる
                 watchRes = await VisitWatchPage(quality);
 
-                // サムネイルから動画情報更新
                 // 動画情報ページアクセスだけでも内部の動画情報データは更新される
                 var videoInfo = Database.NicoVideoDb.Get(RawVideoId);
 
@@ -95,8 +94,9 @@ namespace NicoPlayerHohoema.Models
                 {
                     // ニコニコサーバー側で動画削除済みの場合は再生不可
                     // （NiconnicoContentProvider側で動画削除動作を実施している）
-                    throw new NotSupportedException("動画は「非公開」または「削除済み」です");
+                    throw new NotSupportedException($"動画は {videoInfo.PrivateReasonType.ToCulturelizeString()} のため視聴できません");
                 }
+
             }
 
             if (!forceDownload)
@@ -163,7 +163,12 @@ namespace NicoPlayerHohoema.Models
                 {
                     throw new NotSupportedException("RTMP形式の動画はサポートしていません");
                 }
-                
+
+                if (res.IsDeleted)
+                {
+                    throw new NotSupportedException("動画は削除されています");
+                }
+
                 return new SmileVideoStreamingSession(
                     res.VideoUrl,
                     _Context
@@ -172,6 +177,11 @@ namespace NicoPlayerHohoema.Models
             else if (watchRes is DmcWatchData)
             {
                 var res = watchRes as DmcWatchData;
+
+                if (res.DmcWatchResponse.Video.IsDeleted)
+                {
+                    throw new NotSupportedException("動画は削除されています");
+                }
 
                 if (res.DmcWatchResponse.Video.DmcInfo != null)
                 {

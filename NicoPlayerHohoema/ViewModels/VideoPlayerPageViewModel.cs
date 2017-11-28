@@ -566,30 +566,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         }
 
-        protected override async Task OnOffline(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
-        {
-            // キャッシュから再生する
-            if (HohoemaApp.ServiceStatus <= HohoemaAppServiceLevel.OnlineWithoutLoggedIn)
-            {
-                
-            }
-
-            HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.IsKeepDisplayInPlayback)
-                .Subscribe(isKeepDisplay =>
-                {
-                    SetKeepDisplayWithCurrentState();
-                })
-                .AddTo(userSessionDisposer);
-
-            cancelToken.ThrowIfCancellationRequested();
-
-
-            App.Current.LeavingBackground += Current_LeavingBackground;
-            App.Current.EnteredBackground += Current_EnteredBackground;
-
-            //            return base.OnOffline(userSessionDisposer, cancelToken);
-        }
-
         protected override async Task OnOnlineWithoutSignIn(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
         {
             var videoInfo = await HohoemaApp.ContentProvider.GetNicoVideoInfo(VideoId);
@@ -600,6 +576,10 @@ namespace NicoPlayerHohoema.ViewModels
                 if (videoInfo.IsDeleted)
                 {
                     Debug.WriteLine($"cant playback{VideoId}. due to denied access to watch page, or connection offline.");
+
+                    IsNotSupportVideoType = true;
+                    CannotPlayReason = $"この動画は {_VideoInfo.PrivateReasonType.ToCulturelizeString()} のため視聴できません";
+                    CurrentState.Value = MediaPlaybackState.None;
 
                     var dispatcher = HohoemaApp.UIDispatcher;
 
@@ -621,8 +601,6 @@ namespace NicoPlayerHohoema.ViewModels
                     .AsTask()
                     .ConfigureAwait(false);
 
-                    VideoPlayed(canPlayNext: true);
-
                     // ローカルプレイリストの場合は勝手に消しておく
                     if (HohoemaApp.Playlist.CurrentPlaylist is LocalMylist)
                     {
@@ -635,6 +613,8 @@ namespace NicoPlayerHohoema.ViewModels
                             }
                         }
                     }
+
+                    VideoPlayed(canPlayNext: true);
 
                     return;
                 }
@@ -653,7 +633,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        protected override async Task OnSignIn(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
+        protected override Task OnSignIn(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
 		{
             var currentUIDispatcher = Window.Current.Dispatcher;
             
@@ -679,6 +659,8 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting, CurrentWindowContextScheduler)
 				.AddTo(userSessionDisposer);
 			RaisePropertyChanged(nameof(IsPauseWithCommentWriting));
+
+            return Task.CompletedTask;
 		}
 
 
@@ -909,6 +891,8 @@ namespace NicoPlayerHohoema.ViewModels
 				VideoId = (string)viewModelState[nameof(VideoId)];
 			}
 
+
+
             cancelToken.ThrowIfCancellationRequested();
 
 
@@ -920,6 +904,14 @@ namespace NicoPlayerHohoema.ViewModels
             PlaylistItems = CurrentPlaylist.PlaylistItems.ToReadOnlyReactiveCollection();
             RaisePropertyChanged(nameof(PlaylistItems));
 
+            // 削除状態をチェック（再生準備より先に行う）
+            _VideoInfo = Database.NicoVideoDb.Get(VideoId);
+            if (_VideoInfo.IsDeleted)
+            {
+                ChangeRequireServiceLevel(HohoemaAppServiceLevel.OnlineWithoutLoggedIn);
+
+                return;
+            }
 
             MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
             MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
@@ -1017,6 +1009,19 @@ namespace NicoPlayerHohoema.ViewModels
                 smtc.DisplayUpdater.VideoProperties.Title = _VideoInfo.Title;
                 smtc.DisplayUpdater.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri(_VideoInfo.ThumbnailUrl));
                 smtc.DisplayUpdater.Update();
+
+
+                HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.IsKeepDisplayInPlayback)
+                    .Subscribe(isKeepDisplay =>
+                    {
+                        SetKeepDisplayWithCurrentState();
+                    })
+                    .AddTo(_NavigatingCompositeDisposable);
+
+                cancelToken.ThrowIfCancellationRequested();
+
+                App.Current.LeavingBackground += Current_LeavingBackground;
+                App.Current.EnteredBackground += Current_EnteredBackground;
             }
 
 
@@ -1887,7 +1892,7 @@ namespace NicoPlayerHohoema.ViewModels
                         var targetMylist = await HohoemaApp.ChoiceMylist();
                         if (targetMylist != null)
                         {
-                            var result = await HohoemaApp.AddMylistItem(targetMylist, _VideoInfo.Title, Video.RawVideoId);
+                            var result = await HohoemaApp.AddMylistItem(targetMylist, _VideoInfo.Title, _VideoInfo.RawVideoId);
                             (App.Current as App).PublishInAppNotification(
                                 InAppNotificationPayload.CreateRegistrationResultNotification(
                                     result,

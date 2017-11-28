@@ -31,6 +31,9 @@ namespace NicoPlayerHohoema.Database
         [BsonRef]
         public NicoVideoOwner Owner { get; set; }
 
+        /// <summary>
+        /// [[deprecated]] ce.api経由では動画フォーマットが取得できない
+        /// </summary>
         public MovieType MovieType { get; set; }
         public List<NicoVideoTag> Tags { get; set; }
 

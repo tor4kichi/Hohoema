@@ -188,7 +188,14 @@ namespace NicoPlayerHohoema.ViewModels
             }
             else
             {
-                Description = "Deleted";
+                if (info.PrivateReasonType != PrivateReasonType.None)
+                {
+                    Description = info.PrivateReasonType.ToCulturelizeString();
+                }
+                else
+                {
+                    Description = "Deleted";
+                }
             }
 
             if (info.Owner != null)

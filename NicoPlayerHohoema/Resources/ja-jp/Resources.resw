@@ -521,4 +521,20 @@
     <value>ユーザー動画</value>
     <comment>Database.BookmarkType</comment>
   </data>
+  <data name="PostedBy" xml:space="preserve">
+    <value>投稿者削除</value>
+    <comment>Mntone.Nico2.PrivateReasonType</comment>
+  </data>
+  <data name="Private" xml:space="preserve">
+    <value>非公開設定</value>
+    <comment>Mntone.Nico2.PrivateReasonType</comment>
+  </data>
+  <data name="Publishers" xml:space="preserve">
+    <value>Private by Publishers</value>
+    <comment>Mntone.Nico2.PrivateReasonType</comment>
+  </data>
+  <data name="RightsHolders" xml:space="preserve">
+    <value>権利者削除</value>
+    <comment>Mntone.Nico2.PrivateReasonType</comment>
+  </data>
 </root>
