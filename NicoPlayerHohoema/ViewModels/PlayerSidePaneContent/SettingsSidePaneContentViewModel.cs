@@ -17,6 +17,8 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
     public class SettingsSidePaneContentViewModel : SidePaneContentViewModelBase
     {
 
+        public event EventHandler<NicoVideoQuality> VideoQualityChanged;
+
         // Video Settings
         public static List<ValueWithAvairability<NicoVideoQuality>> VideoPlayingQualityList { get; } = new []
         {
@@ -147,18 +149,27 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 convertBack: x => x.Value,
                 raiseEventScheduler: CurrentWindowContextScheduler,
                 mode: ReactivePropertyMode.DistinctUntilChanged
-                );
+                )
+            .AddTo(_CompositeDisposable);
+            VideoPlayingQuality.Subscribe(x =>
+            {
+                VideoQualityChanged?.Invoke(this, x.Value);
+            })
+            .AddTo(_CompositeDisposable);
+
 
             VideoPlaybackRate = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.PlaybackRate);
             SetPlaybackRateCommand = VideoPlaybackRate.Select(
                 rate => rate != 1.0
                 )
-                .ToReactiveCommand<double?>(CurrentWindowContextScheduler);
+                .ToReactiveCommand<double?>(CurrentWindowContextScheduler)
+            .AddTo(_CompositeDisposable);
 
             SetPlaybackRateCommand.Subscribe(
                 (rate) => VideoPlaybackRate.Value = rate.HasValue ? rate.Value : 1.0
-                );
-            
+                )
+            .AddTo(_CompositeDisposable);
+
 
 
             LiveVideoPlayingQuality = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultLiveQuality,
@@ -166,57 +177,81 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 convertBack: x => x.Value,
                 raiseEventScheduler: CurrentWindowContextScheduler,
                 mode: ReactivePropertyMode.DistinctUntilChanged
-                );
+                )
+            .AddTo(_CompositeDisposable);
 
-            IsLowLatency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.LiveWatchWithLowLatency, CurrentWindowContextScheduler, mode: ReactivePropertyMode.DistinctUntilChanged);
+            IsLowLatency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.LiveWatchWithLowLatency, CurrentWindowContextScheduler, mode: ReactivePropertyMode.DistinctUntilChanged)
+            .AddTo(_CompositeDisposable);
 
-            IsKeepDisplayInPlayback = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsKeepDisplayInPlayback, CurrentWindowContextScheduler);
-            ScrollVolumeFrequency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.SoundVolumeChangeFrequency, CurrentWindowContextScheduler);
-            IsForceLandscapeDefault = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsForceLandscape, CurrentWindowContextScheduler);
+            IsKeepDisplayInPlayback = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsKeepDisplayInPlayback, CurrentWindowContextScheduler)
+            .AddTo(_CompositeDisposable);
+            ScrollVolumeFrequency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.SoundVolumeChangeFrequency, CurrentWindowContextScheduler)
+            .AddTo(_CompositeDisposable);
+            IsForceLandscapeDefault = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsForceLandscape, CurrentWindowContextScheduler)
+            .AddTo(_CompositeDisposable);
 
             AutoHideDelayTime = _PlayerSettings.ToReactivePropertyAsSynchronized(x =>
                 x.AutoHidePlayerControlUIPreventTime
                 , x => x.TotalSeconds
                 , x => TimeSpan.FromSeconds(x)
                 , CurrentWindowContextScheduler
-                );
+                )
+            .AddTo(_CompositeDisposable);
 
-            PlaylistEndAction = _PlaylistSettings.ToReactivePropertyAsSynchronized(x => x.PlaylistEndAction, CurrentWindowContextScheduler);
+            PlaylistEndAction = _PlaylistSettings.ToReactivePropertyAsSynchronized(x => x.PlaylistEndAction, CurrentWindowContextScheduler)
+            .AddTo(_CompositeDisposable);
 
             // NG Comment User Id
 
 
 
             // Comment Display 
-            CommentColor = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentColor, CurrentWindowContextScheduler);
-            IsPauseWithCommentWriting = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting, CurrentWindowContextScheduler);
-            CommentRenderingFPS = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentRenderingFPS, CurrentWindowContextScheduler);
-            CommentDisplayDuration = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentDisplayDuration, x => x.TotalSeconds, x => TimeSpan.FromSeconds(x), CurrentWindowContextScheduler);
-            CommentFontScale = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentFontScale, CurrentWindowContextScheduler);
-            IsDefaultCommentWithAnonymous = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsDefaultCommentWithAnonymous, CurrentWindowContextScheduler);
-            CommentOpacity = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentOpacity, CurrentWindowContextScheduler);
+            CommentColor = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentColor, CurrentWindowContextScheduler)
+            .AddTo(_CompositeDisposable);
+            IsPauseWithCommentWriting = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting, CurrentWindowContextScheduler)
+            .AddTo(_CompositeDisposable);
+            CommentRenderingFPS = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentRenderingFPS, CurrentWindowContextScheduler)
+            .AddTo(_CompositeDisposable);
+            CommentDisplayDuration = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentDisplayDuration, x => x.TotalSeconds, x => TimeSpan.FromSeconds(x), CurrentWindowContextScheduler)
+            .AddTo(_CompositeDisposable);
+            CommentFontScale = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentFontScale, CurrentWindowContextScheduler)
+            .AddTo(_CompositeDisposable);
+            IsDefaultCommentWithAnonymous = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsDefaultCommentWithAnonymous, CurrentWindowContextScheduler)
+            .AddTo(_CompositeDisposable);
+            CommentOpacity = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentOpacity, CurrentWindowContextScheduler)
+            .AddTo(_CompositeDisposable);
 
-            IsEnableOwnerCommentCommand = new ReactiveProperty<bool>(CurrentWindowContextScheduler, _PlayerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.Owner));
-            IsEnableUserCommentCommand = new ReactiveProperty<bool>(CurrentWindowContextScheduler, _PlayerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.User));
-            IsEnableAnonymousCommentCommand = new ReactiveProperty<bool>(CurrentWindowContextScheduler, _PlayerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.Anonymous));
+            IsEnableOwnerCommentCommand = new ReactiveProperty<bool>(CurrentWindowContextScheduler, _PlayerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.Owner))
+            .AddTo(_CompositeDisposable);
+            IsEnableUserCommentCommand = new ReactiveProperty<bool>(CurrentWindowContextScheduler, _PlayerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.User))
+            .AddTo(_CompositeDisposable);
+            IsEnableAnonymousCommentCommand = new ReactiveProperty<bool>(CurrentWindowContextScheduler, _PlayerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.Anonymous))
+            .AddTo(_CompositeDisposable);
 
-            IsEnableOwnerCommentCommand.Subscribe(x => SetCommentCommandPermission(x, CommentCommandPermissionType.Owner));
-            IsEnableUserCommentCommand.Subscribe(x => SetCommentCommandPermission(x, CommentCommandPermissionType.User));
-            IsEnableAnonymousCommentCommand.Subscribe(x => SetCommentCommandPermission(x, CommentCommandPermissionType.Anonymous));
+            IsEnableOwnerCommentCommand.Subscribe(x => SetCommentCommandPermission(x, CommentCommandPermissionType.Owner))
+            .AddTo(_CompositeDisposable);
+            IsEnableUserCommentCommand.Subscribe(x => SetCommentCommandPermission(x, CommentCommandPermissionType.User))
+            .AddTo(_CompositeDisposable);
+            IsEnableAnonymousCommentCommand.Subscribe(x => SetCommentCommandPermission(x, CommentCommandPermissionType.Anonymous))
+            .AddTo(_CompositeDisposable);
 
 
 
             // NG Comment
 
-            NGCommentUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentUserIdEnable, CurrentWindowContextScheduler);
+            NGCommentUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentUserIdEnable, CurrentWindowContextScheduler)
+            .AddTo(_CompositeDisposable);
             NGCommentUserIds = _NGSettings.NGCommentUserIds
                 .ToReadOnlyReactiveCollection(x =>
                     RemovableSettingsListItemHelper.UserIdInfoToRemovableListItemVM(x, OnRemoveNGCommentUserIdFromList),
                     CurrentWindowContextScheduler
-                    );
+                    )
+            .AddTo(_CompositeDisposable);
 
-            NGCommentKeywordEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentKeywordEnable, CurrentWindowContextScheduler);
-            NGCommentKeywords = new ReactiveProperty<string>(CurrentWindowContextScheduler, string.Empty);
+            NGCommentKeywordEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentKeywordEnable, CurrentWindowContextScheduler)
+            .AddTo(_CompositeDisposable);
+            NGCommentKeywords = new ReactiveProperty<string>(CurrentWindowContextScheduler, string.Empty)
+            .AddTo(_CompositeDisposable);
 
             NGCommentKeywordError = NGCommentKeywords
                 .Select(x =>
@@ -242,16 +277,19 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                         return $"Error in \"{invalidRegex}\"";
                     }
                 })
-                .ToReadOnlyReactiveProperty(eventScheduler: CurrentWindowContextScheduler);
+                .ToReadOnlyReactiveProperty(eventScheduler: CurrentWindowContextScheduler)
+            .AddTo(_CompositeDisposable);
 
             NGCommentScoreTypes = ((IEnumerable<NGCommentScore>)Enum.GetValues(typeof(NGCommentScore))).ToList();
 
-            SelectedNGCommentScore = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentScoreType, CurrentWindowContextScheduler);
+            SelectedNGCommentScore = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentScoreType, CurrentWindowContextScheduler)
+            .AddTo(_CompositeDisposable);
 
 
 
             CommentGlassMowerEnable = _PlayerSettings
-                .ToReactivePropertyAsSynchronized(x => x.CommentGlassMowerEnable, CurrentWindowContextScheduler);
+                .ToReactivePropertyAsSynchronized(x => x.CommentGlassMowerEnable, CurrentWindowContextScheduler)
+            .AddTo(_CompositeDisposable);
 
 
         }
@@ -284,7 +322,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
         // TODO: Dispose
         protected override void OnDispose()
         {
-
+            base.OnDispose();
         }
 
 

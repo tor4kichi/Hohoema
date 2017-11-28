@@ -248,31 +248,6 @@ namespace NicoPlayerHohoema.ViewModels
 			.AddTo(_CompositeDisposable);
 
 
-
-			TogglePlayQualityCommand = new ReactiveCommand<NicoVideoQuality>(CurrentWindowContextScheduler)
-				.AddTo(_CompositeDisposable);
-
-			TogglePlayQualityCommand
-				.Where(x => !IsDisposed && !IsNotSupportVideoType)
-				.SubscribeOnUIDispatcher()
-				.Subscribe(async quality => 
-				{
-                    _PreviosPlayingVideoPosition = ReadVideoPosition.Value;
-
-                    RequestVideoQuality.Value = quality;
-
-					await PlayingQualityChangeAction();
-				})
-				.AddTo(_CompositeDisposable);
-
-
-
-			
-
-			
-
-			
-
 			SliderVideoPosition.Subscribe(x =>
 			{
 				_NowControlSlider = true;
@@ -638,22 +613,6 @@ namespace NicoPlayerHohoema.ViewModels
             var currentUIDispatcher = Window.Current.Dispatcher;
             
             cancelToken.ThrowIfCancellationRequested();
-
-            
-
-            HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.DefaultQuality, false)
-                .Subscribe(async x =>
-                {
-                    if (IsDisposed) { return; }
-
-                    _PreviosPlayingVideoPosition = ReadVideoPosition.Value;
-
-                    RequestVideoQuality.Value = x;
-
-                    await PlayingQualityChangeAction();
-                })
-                .AddTo(userSessionDisposer);
-
 
             IsPauseWithCommentWriting = HohoemaApp.UserSettings.PlayerSettings
 				.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting, CurrentWindowContextScheduler)
@@ -1101,12 +1060,23 @@ namespace NicoPlayerHohoema.ViewModels
                 try
                 {
                     var commentSidePaneContent = _SidePaneContentCache[PlayerSidePaneContentType.Comment];
-                    commentSidePaneContent.Dispose();
                     _SidePaneContentCache.Remove(PlayerSidePaneContentType.Comment);
                 }
                 catch { Debug.WriteLine("failed dispose PlayerSidePaneContentType.Comment"); }
 
                 CurrentSidePaneContentType.Value = null;
+            }
+
+            if (_SidePaneContentCache.ContainsKey(PlayerSidePaneContentType.Setting))
+            {
+                (_SidePaneContentCache[PlayerSidePaneContentType.Setting] as SettingsSidePaneContentViewModel).VideoQualityChanged -= VideoPlayerPageViewModel_VideoQualityChanged;   
+            }
+
+            var sidePaneContents = _SidePaneContentCache.Values.ToArray();
+            _SidePaneContentCache.Clear();
+            foreach (var sidePaneContent in sidePaneContents)
+            {
+                sidePaneContent.Dispose();
             }
 
             base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
@@ -1277,6 +1247,11 @@ namespace NicoPlayerHohoema.ViewModels
             _SidePaneContentCache.Clear();
             foreach (var sidePaneContent in sidePaneContents)
             {
+                if (sidePaneContent is SettingsSidePaneContentViewModel)
+                {
+                    (sidePaneContent as SettingsSidePaneContentViewModel).VideoQualityChanged -= VideoPlayerPageViewModel_VideoQualityChanged;
+                }
+
                 sidePaneContent.Dispose();
             }
 
@@ -2383,7 +2358,7 @@ namespace NicoPlayerHohoema.ViewModels
                     //                        break;
                     case PlayerSidePaneContentType.Setting:
                         sidePaneContent = new PlayerSidePaneContent.SettingsSidePaneContentViewModel(HohoemaApp.UserSettings);
-
+                        (sidePaneContent as SettingsSidePaneContentViewModel).VideoQualityChanged += VideoPlayerPageViewModel_VideoQualityChanged;
                         break;
                     default:
                         sidePaneContent = new PlayerSidePaneContent.EmptySidePaneContentViewModel();
@@ -2395,7 +2370,17 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        
+        private async void VideoPlayerPageViewModel_VideoQualityChanged(object sender, NicoVideoQuality e)
+        {
+            if (IsDisposed) { return; }
+            if (IsNotSupportVideoType) { return; }
+
+            _PreviosPlayingVideoPosition = ReadVideoPosition.Value;
+
+            RequestVideoQuality.Value = e;
+
+            await PlayingQualityChangeAction();
+        }
 
         public static EmptySidePaneContentViewModel EmptySidePaneContent { get; } = new EmptySidePaneContentViewModel();
 
