@@ -281,13 +281,12 @@ namespace NicoPlayerHohoema.ViewModels
 			NowCommentWriting = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler).AddTo(_CompositeDisposable);
 			NowSubmittingComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler).AddTo(_CompositeDisposable);
 
-			// TODO: ニコ生での匿名コメント設定
 			CommandString = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
 			CommandEditerVM = new CommentCommandEditerViewModel();
 			CommandEditerVM.OnCommandChanged += CommandEditerVM_OnCommandChanged;
 			CommandEditerVM.ChangeEnableAnonymity(true);
-            CommandEditerVM.IsAnonymousDefault = true;
-            CommandEditerVM.IsAnonymousComment.Value = true;
+            CommandEditerVM.IsAnonymousDefault = HohoemaApp.UserSettings.PlayerSettings.IsDefaultCommentWithAnonymous;
+            CommandEditerVM.IsAnonymousComment.Value = HohoemaApp.UserSettings.PlayerSettings.IsDefaultCommentWithAnonymous;
 
 			CommandEditerVM_OnCommandChanged();
 
