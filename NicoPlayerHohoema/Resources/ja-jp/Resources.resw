@@ -530,7 +530,7 @@
     <comment>Mntone.Nico2.PrivateReasonType</comment>
   </data>
   <data name="Publishers" xml:space="preserve">
-    <value>Private by Publishers</value>
+    <value>管理人削除</value>
     <comment>Mntone.Nico2.PrivateReasonType</comment>
   </data>
   <data name="RightsHolders" xml:space="preserve">

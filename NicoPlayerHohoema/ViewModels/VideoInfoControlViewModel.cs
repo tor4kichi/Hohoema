@@ -194,7 +194,7 @@ namespace NicoPlayerHohoema.ViewModels
                 }
                 else
                 {
-                    Description = "Deleted";
+                    Description = "視聴不可（配信終了など）";
                 }
             }
 
