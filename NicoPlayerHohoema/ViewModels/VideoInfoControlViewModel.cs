@@ -188,7 +188,14 @@ namespace NicoPlayerHohoema.ViewModels
             }
             else
             {
-                Description = "Deleted";
+                if (info.PrivateReasonType != PrivateReasonType.None)
+                {
+                    Description = info.PrivateReasonType.ToCulturelizeString();
+                }
+                else
+                {
+                    Description = "視聴不可（配信終了など）";
+                }
             }
 
             if (info.Owner != null)

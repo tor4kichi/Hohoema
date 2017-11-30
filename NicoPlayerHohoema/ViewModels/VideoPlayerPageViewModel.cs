@@ -248,31 +248,6 @@ namespace NicoPlayerHohoema.ViewModels
 			.AddTo(_CompositeDisposable);
 
 
-
-			TogglePlayQualityCommand = new ReactiveCommand<NicoVideoQuality>(CurrentWindowContextScheduler)
-				.AddTo(_CompositeDisposable);
-
-			TogglePlayQualityCommand
-				.Where(x => !IsDisposed && !IsNotSupportVideoType)
-				.SubscribeOnUIDispatcher()
-				.Subscribe(async quality => 
-				{
-                    _PreviosPlayingVideoPosition = ReadVideoPosition.Value;
-
-                    RequestVideoQuality.Value = quality;
-
-					await PlayingQualityChangeAction();
-				})
-				.AddTo(_CompositeDisposable);
-
-
-
-			
-
-			
-
-			
-
 			SliderVideoPosition.Subscribe(x =>
 			{
 				_NowControlSlider = true;
@@ -566,30 +541,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         }
 
-        protected override async Task OnOffline(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
-        {
-            // キャッシュから再生する
-            if (HohoemaApp.ServiceStatus <= HohoemaAppServiceLevel.OnlineWithoutLoggedIn)
-            {
-                
-            }
-
-            HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.IsKeepDisplayInPlayback)
-                .Subscribe(isKeepDisplay =>
-                {
-                    SetKeepDisplayWithCurrentState();
-                })
-                .AddTo(userSessionDisposer);
-
-            cancelToken.ThrowIfCancellationRequested();
-
-
-            App.Current.LeavingBackground += Current_LeavingBackground;
-            App.Current.EnteredBackground += Current_EnteredBackground;
-
-            //            return base.OnOffline(userSessionDisposer, cancelToken);
-        }
-
         protected override async Task OnOnlineWithoutSignIn(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
         {
             var videoInfo = await HohoemaApp.ContentProvider.GetNicoVideoInfo(VideoId);
@@ -601,12 +552,15 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     Debug.WriteLine($"cant playback{VideoId}. due to denied access to watch page, or connection offline.");
 
+                    IsNotSupportVideoType = true;
+                    CannotPlayReason = $"この動画は {_VideoInfo.PrivateReasonType.ToCulturelizeString()} のため視聴できません";
+                    CurrentState.Value = MediaPlaybackState.None;
+
                     var dispatcher = HohoemaApp.UIDispatcher;
 
                     await dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                     {
                         await Task.Delay(100);
-                        PageManager.NavigationService.GoBack();
 
                         string toastContent = "";
                         if (!String.IsNullOrEmpty(videoInfo.Title))
@@ -622,8 +576,6 @@ namespace NicoPlayerHohoema.ViewModels
                     .AsTask()
                     .ConfigureAwait(false);
 
-                    VideoPlayed(canPlayNext: true);
-
                     // ローカルプレイリストの場合は勝手に消しておく
                     if (HohoemaApp.Playlist.CurrentPlaylist is LocalMylist)
                     {
@@ -636,6 +588,8 @@ namespace NicoPlayerHohoema.ViewModels
                             }
                         }
                     }
+
+                    VideoPlayed(canPlayNext: true);
 
                     return;
                 }
@@ -654,32 +608,18 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        protected override async Task OnSignIn(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
+        protected override Task OnSignIn(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
 		{
             var currentUIDispatcher = Window.Current.Dispatcher;
             
             cancelToken.ThrowIfCancellationRequested();
 
-            
-
-            HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.DefaultQuality, false)
-                .Subscribe(async x =>
-                {
-                    if (IsDisposed) { return; }
-
-                    _PreviosPlayingVideoPosition = ReadVideoPosition.Value;
-
-                    RequestVideoQuality.Value = x;
-
-                    await PlayingQualityChangeAction();
-                })
-                .AddTo(userSessionDisposer);
-
-
             IsPauseWithCommentWriting = HohoemaApp.UserSettings.PlayerSettings
 				.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting, CurrentWindowContextScheduler)
 				.AddTo(userSessionDisposer);
 			RaisePropertyChanged(nameof(IsPauseWithCommentWriting));
+
+            return Task.CompletedTask;
 		}
 
 
@@ -910,6 +850,8 @@ namespace NicoPlayerHohoema.ViewModels
 				VideoId = (string)viewModelState[nameof(VideoId)];
 			}
 
+
+
             cancelToken.ThrowIfCancellationRequested();
 
 
@@ -921,6 +863,14 @@ namespace NicoPlayerHohoema.ViewModels
             PlaylistItems = CurrentPlaylist.PlaylistItems.ToReadOnlyReactiveCollection();
             RaisePropertyChanged(nameof(PlaylistItems));
 
+            // 削除状態をチェック（再生準備より先に行う）
+            _VideoInfo = Database.NicoVideoDb.Get(VideoId);
+            if (_VideoInfo.IsDeleted)
+            {
+                ChangeRequireServiceLevel(HohoemaAppServiceLevel.OnlineWithoutLoggedIn);
+
+                return;
+            }
 
             MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
             MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
@@ -1018,6 +968,19 @@ namespace NicoPlayerHohoema.ViewModels
                 smtc.DisplayUpdater.VideoProperties.Title = _VideoInfo.Title;
                 smtc.DisplayUpdater.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri(_VideoInfo.ThumbnailUrl));
                 smtc.DisplayUpdater.Update();
+
+
+                HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.IsKeepDisplayInPlayback)
+                    .Subscribe(isKeepDisplay =>
+                    {
+                        SetKeepDisplayWithCurrentState();
+                    })
+                    .AddTo(_NavigatingCompositeDisposable);
+
+                cancelToken.ThrowIfCancellationRequested();
+
+                App.Current.LeavingBackground += Current_LeavingBackground;
+                App.Current.EnteredBackground += Current_EnteredBackground;
             }
 
 
@@ -1097,12 +1060,23 @@ namespace NicoPlayerHohoema.ViewModels
                 try
                 {
                     var commentSidePaneContent = _SidePaneContentCache[PlayerSidePaneContentType.Comment];
-                    commentSidePaneContent.Dispose();
                     _SidePaneContentCache.Remove(PlayerSidePaneContentType.Comment);
                 }
                 catch { Debug.WriteLine("failed dispose PlayerSidePaneContentType.Comment"); }
 
                 CurrentSidePaneContentType.Value = null;
+            }
+
+            if (_SidePaneContentCache.ContainsKey(PlayerSidePaneContentType.Setting))
+            {
+                (_SidePaneContentCache[PlayerSidePaneContentType.Setting] as SettingsSidePaneContentViewModel).VideoQualityChanged -= VideoPlayerPageViewModel_VideoQualityChanged;   
+            }
+
+            var sidePaneContents = _SidePaneContentCache.Values.ToArray();
+            _SidePaneContentCache.Clear();
+            foreach (var sidePaneContent in sidePaneContents)
+            {
+                sidePaneContent.Dispose();
             }
 
             base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
@@ -1273,6 +1247,11 @@ namespace NicoPlayerHohoema.ViewModels
             _SidePaneContentCache.Clear();
             foreach (var sidePaneContent in sidePaneContents)
             {
+                if (sidePaneContent is SettingsSidePaneContentViewModel)
+                {
+                    (sidePaneContent as SettingsSidePaneContentViewModel).VideoQualityChanged -= VideoPlayerPageViewModel_VideoQualityChanged;
+                }
+
                 sidePaneContent.Dispose();
             }
 
@@ -1888,7 +1867,7 @@ namespace NicoPlayerHohoema.ViewModels
                         var targetMylist = await HohoemaApp.ChoiceMylist();
                         if (targetMylist != null)
                         {
-                            var result = await HohoemaApp.AddMylistItem(targetMylist, _VideoInfo.Title, Video.RawVideoId);
+                            var result = await HohoemaApp.AddMylistItem(targetMylist, _VideoInfo.Title, _VideoInfo.RawVideoId);
                             (App.Current as App).PublishInAppNotification(
                                 InAppNotificationPayload.CreateRegistrationResultNotification(
                                     result,
@@ -2379,7 +2358,7 @@ namespace NicoPlayerHohoema.ViewModels
                     //                        break;
                     case PlayerSidePaneContentType.Setting:
                         sidePaneContent = new PlayerSidePaneContent.SettingsSidePaneContentViewModel(HohoemaApp.UserSettings);
-
+                        (sidePaneContent as SettingsSidePaneContentViewModel).VideoQualityChanged += VideoPlayerPageViewModel_VideoQualityChanged;
                         break;
                     default:
                         sidePaneContent = new PlayerSidePaneContent.EmptySidePaneContentViewModel();
@@ -2391,7 +2370,17 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        
+        private async void VideoPlayerPageViewModel_VideoQualityChanged(object sender, NicoVideoQuality e)
+        {
+            if (IsDisposed) { return; }
+            if (IsNotSupportVideoType) { return; }
+
+            _PreviosPlayingVideoPosition = ReadVideoPosition.Value;
+
+            RequestVideoQuality.Value = e;
+
+            await PlayingQualityChangeAction();
+        }
 
         public static EmptySidePaneContentViewModel EmptySidePaneContent { get; } = new EmptySidePaneContentViewModel();
 

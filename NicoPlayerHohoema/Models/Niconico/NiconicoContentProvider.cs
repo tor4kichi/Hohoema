@@ -103,44 +103,57 @@ namespace NicoPlayerHohoema.Models
                     };
                 }
 
-                ThumbnailResponse res = null;
                 try
                 {
-
-                    res = await Helpers.ConnectionRetryUtil.TaskWithRetry(() =>
+                    var res = await Helpers.ConnectionRetryUtil.TaskWithRetry(() =>
                     {
-                        return Context.Video.GetThumbnailAsync(rawVideoId);
+                        return Context.Search.GetVideoInfoAsync(rawVideoId);
                     },
                     retryCount: 5,
                     retryInterval: 1000
                     );
 
-                    info.Title = res.Title;
-                    info.Length = res.Length;
-                    info.VideoId = res.Id;
-                    info.Length = res.Length;
-                    info.PostedAt = res.PostedAt.DateTime;
-                    info.ThumbnailUrl = res.ThumbnailUrl.AbsoluteUri;
+                    if (res.Status == "ok")
+                    {
+                        var video = res.Video;
 
-                    info.ViewCount = (int)res.ViewCount;
-                    info.MylistCount = (int)res.MylistCount;
-                    info.CommentCount = (int)res.CommentCount;
-                    info.MovieType = res.MovieType;
-                    info.Tags = res.Tags.Value.Select(x => new NicoVideoTag()
-                    {
-                        Id = x.Value,
-                        IsLocked = x.Lock,
-                        IsCategory = x.Category
+                        info.Title = video.Title;
+                        info.VideoId = video.Id;
+                        info.Length = video.Length;
+                        info.PostedAt = video.FirstRetrieve;
+                        info.ThumbnailUrl = video.ThumbnailUrl.OriginalString;
+
+                        info.ViewCount = (int)video.ViewCount;
+                        info.MylistCount = (int)video.MylistCount;
+                        info.CommentCount = (int)res.Thread.GetCommentCount();
+                        info.Tags = res.Tags.TagInfo.Select(x => new NicoVideoTag()
+                        {
+                            Id = x.Tag,
+                        }
+                        ).ToList();
+
+                        info.Owner = new NicoVideoOwner()
+                        {
+                            OwnerId = res.Video.UserId,
+                            UserType = res.Video.ProviderType == "regular" ? UserType.User : UserType.Channel
+                        };
+
+                        info.IsDeleted = res.Video.IsDeleted;
+                        if (info.IsDeleted && int.TryParse(res.Video.__deleted, out int deleteType))
+                        {
+                            try
+                            {
+                                info.PrivateReasonType = (PrivateReasonType)deleteType;
+                            }
+                            catch { }
+                        }
                     }
-                    ).ToList();
-                    info.Owner = new NicoVideoOwner()
+                    else
                     {
-                        ScreenName = res.UserName,
-                        IconUrl = res.UserIconUrl.OriginalString,
-                        OwnerId = res.UserId.ToString(),
-                        UserType = res.UserType
-                    };
+                        info.IsDeleted = true;
+                    }
                 }
+
                 catch (Exception ex) when (ex.Message.Contains("DELETE") || ex.Message.Contains("NOT_FOUND"))
                 {
                     info.IsDeleted = true;
@@ -359,6 +372,9 @@ namespace NicoPlayerHohoema.Models
                         OwnerId = res.UploaderInfo?.id ?? res.channelInfo?.id,
                         UserType = res.channelInfo != null ? UserType.Channel : UserType.User
                     };
+
+                    info.IsDeleted = res.IsDeleted;
+                    info.PrivateReasonType = res.PrivateReason;
 
                     NicoVideoDb.AddOrUpdate(info);
                     //                    NicoVideoOwnerDb.AddOrUpdate(info.Owner);

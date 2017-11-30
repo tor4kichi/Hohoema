@@ -44,7 +44,12 @@ namespace NicoPlayerHohoema.Models
 		public NicoVideoQuality DefaultQuality
 		{
 			get { return _DefaultQuality; }
-			set { SetProperty(ref _DefaultQuality, value); }
+			set
+            {
+                if (value.IsLegacy()) { return; }
+
+                SetProperty(ref _DefaultQuality, value);
+            }
 		}
 
 

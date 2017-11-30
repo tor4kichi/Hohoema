@@ -19,6 +19,20 @@ namespace NicoPlayerHohoema.Commands
 
                 var hohoemaApp = HohoemaCommnadHelper.GetHohoemaApp();
                 var ownerName = content.OwnerUserName;
+                if (string.IsNullOrEmpty(ownerName))
+                {
+                    try
+                    {
+                        var userInfo = await hohoemaApp.ContentProvider.GetUserDetail(content.OwnerUserId);
+
+                        ownerName = userInfo.Nickname;
+                    }
+                    catch
+                    {
+                        return;
+                    }
+                }
+
                 var dialog = new MessageDialog(
                     $"この変更は投稿者（{ownerName} さん）のアプリ内ユーザー情報ページから取り消すことができます。",
 

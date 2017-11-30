@@ -652,6 +652,12 @@
 
         </VisualStateManager.VisualStateGroups>
 
+        <i:Interaction.Behaviors>
+            <core:EventTriggerBehavior EventName="Unloaded">
+                <core:CallMethodAction TargetObject="{Binding}" MethodName="Dispose" />
+            </core:EventTriggerBehavior>
+        </i:Interaction.Behaviors>
+
         <toolkit:LayoutTransformControl
                 x:Name="LayoutTransform"
                 >
@@ -828,6 +834,7 @@
 
 
                         <MediaPlayerElement x:Name="MediaPlayerElement" 
+                                            AutoPlay="True"
                                     >
                             <i:Interaction.Behaviors>
 

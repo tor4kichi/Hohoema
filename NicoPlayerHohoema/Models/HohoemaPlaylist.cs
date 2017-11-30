@@ -464,6 +464,7 @@ namespace NicoPlayerHohoema.Models
         
         public void PlayDone(PlaylistItem item, bool canPlayNext = false)
         {
+
             // 次送りが出来る場合は次へ
             if (canPlayNext && (Player?.CanGoNext ?? false))
             {
@@ -537,14 +538,15 @@ namespace NicoPlayerHohoema.Models
             get { return _Playlist; }
             private set
             {
-                if (_Playlist != value)
+                if (SetProperty(ref _Playlist, value))
                 {
-                    _Playlist = value;
-
                     ResetItems(_Playlist);
                 }
             }
         }
+
+
+        private AsyncLock _PlaylistUpdateLock = new AsyncLock();
 
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PlaylistSettings PlaylistSettings { get; private set; }
@@ -600,15 +602,19 @@ namespace NicoPlayerHohoema.Models
                 PlaylistSettings.ObserveProperty(x => x.IsShuffleEnable).ToUnit(),
                 PlaylistSettings.ObserveProperty(x => x.RepeatMode).ToUnit()
                 )
-                .Subscribe(_ =>
+                .Subscribe(async _ =>
                 {
-                    _RepeatMode = PlaylistSettings.RepeatMode;
-                    if (Current != null)
+                    using (var releaser = await _PlaylistUpdateLock.LockAsync())
                     {
-                        CurrentIndex = PlaylistSettings.IsShuffleEnable ? 0 : (SourceItems?.IndexOf(Current) ?? 0);
-                    }
+                        _RepeatMode = PlaylistSettings.RepeatMode;
 
-                    ResetItems(Playlist);
+                        ResetRandmizedItems();
+
+                        CurrentIndex = PlaylistSettings.IsShuffleEnable ? 0 : (SourceItems?.IndexOf(Current) ?? 0);
+
+                        RaisePropertyChanged(nameof(CanGoBack));
+                        RaisePropertyChanged(nameof(CanGoNext));
+                    }
                 });
                 
 
@@ -622,35 +628,50 @@ namespace NicoPlayerHohoema.Models
             _ItemsObservaeDisposer = null;
         }
 
-        internal void ResetItems(IPlayableList newOwner)
+        internal async void ResetItems(IPlayableList newOwner)
         {
-            PlayedItems.Clear();
-            ResetRandmizedItems();
-            _ItemsObservaeDisposer?.Dispose();
 
-            Playlist = newOwner;
-
-            if (Playlist != null)
+            using (var releaser = await _PlaylistUpdateLock.LockAsync())
             {
-                _ItemsObservaeDisposer = Playlist.PlaylistItems.CollectionChangedAsObservable()
-                    .Subscribe(x =>
-                    {
-                        // 再生中アイテムが削除された時のプレイリストの動作
+                PlayedItems.Clear();
+                ResetRandmizedItems();
+                _ItemsObservaeDisposer?.Dispose();
+                _ItemsObservaeDisposer = null;
 
-                        // 動画プレイヤーには影響を与えないこととする
-                        // 連続再生動作の継続性が確保できればOK
-                        if (Current != null && Playlist != null)
+                Playlist = newOwner;
+
+                if (Playlist != null)
+                {
+                    _ItemsObservaeDisposer = Playlist.PlaylistItems.CollectionChangedAsObservable()
+                        .Subscribe(async x =>
                         {
-                            ResetRandmizedItems();
-                        }
+                            using (var releaser2 = await _PlaylistUpdateLock.LockAsync())
+                            {
+                                // 再生中アイテムが削除された時のプレイリストの動作
 
-                        RaisePropertyChanged(nameof(CanGoBack));
-                        RaisePropertyChanged(nameof(CanGoNext));
-                    });
+                                // 動画プレイヤーには影響を与えないこととする
+                                // 連続再生動作の継続性が確保できればOK
+                                
+                                ResetRandmizedItems();
+
+                                if (PlaylistSettings.IsShuffleEnable)
+                                {
+                                    CurrentIndex = 0;
+                                }
+                                else
+                                {
+                                    CurrentIndex = Current == null ? 0 : SourceItems.IndexOf(Current);
+                                }
+                                
+                                RaisePropertyChanged(nameof(CanGoBack));
+                                RaisePropertyChanged(nameof(CanGoNext));
+                            }
+                        });
+                }
+
+                RaisePropertyChanged(nameof(CanGoBack));
+                RaisePropertyChanged(nameof(CanGoNext));
             }
-
-            RaisePropertyChanged(nameof(CanGoBack));
-            RaisePropertyChanged(nameof(CanGoNext));
         }
 
         private void ResetRandmizedItems()
@@ -659,7 +680,12 @@ namespace NicoPlayerHohoema.Models
 
             if (SourceItems != null)
             {
-                RandamizedItems.AddRange(SourceItems.Shuffle());
+                var firstItem = SourceItems.Take(1).SingleOrDefault();
+                if (firstItem != null)
+                {
+                    RandamizedItems.Add(firstItem);
+                    RandamizedItems.AddRange(SourceItems.Skip(1).Shuffle());
+                }
             }
         }
 
@@ -761,66 +787,88 @@ namespace NicoPlayerHohoema.Models
 
 
 
-        public void GoNext()
+        public async void GoNext()
         {
             // Note: CanGoNext で呼び分けが行われている前提の元で例外送出を行っている
             if (SourceItems == null) { throw new Exception(); }
 
-            var prevPlayed = Current;
-            var nextIndex = CurrentIndex + 1;
-
-            if (nextIndex >= SourceItems.Count)
+            using (var releaser = await _PlaylistUpdateLock.LockAsync())
             {
-                ResetRandmizedItems();
-                nextIndex = 0;
-            }
+                var prevPlayed = Current;
+                var nextIndex = CurrentIndex + 1;
 
-            var nextItem = (PlaylistSettings.IsShuffleEnable ? RandamizedItems : SourceItems)
-                .ElementAt(nextIndex);
-
-
-            if (nextItem != null)
-            {
-                if (prevPlayed != null)
+                if (nextIndex >= SourceItems.Count)
                 {
-                    PlayedItems.Enqueue(prevPlayed);
+                    ResetRandmizedItems();
+                    nextIndex = 0;
                 }
 
-                Current = nextItem;
-                CurrentIndex = nextIndex;
+                var nextItem = (PlaylistSettings.IsShuffleEnable ? RandamizedItems : SourceItems)
+                    .ElementAt(nextIndex);
 
-                PlayRequested?.Invoke(this, nextItem);
-            }
-            else
-            {
-                throw new Exception();
-            }
-        }
 
-        internal void PlayStarted(PlaylistItem item)
-        {
-            if (item == null) { throw new Exception(); }
-
-            // 新たにプレイリストが指定された場合に
-            // 連続再生をセットアップする
-            if (item.Owner == null && item.Owner != Playlist)
-            {
-                ResetItems(item.Owner);
-            }
-
-            // GoNext/GoBack内でCurrentが既に変更済みの場合はスキップ
-            // Playlist外から直接PlaylistItemが変更された場合にのみ
-            // 現在再生位置の更新を行う
-            if (Current != item)
-            {
-                Current = item;
-                if (SourceItems != null)
+                if (nextItem != null)
                 {
-                    CurrentIndex = PlaylistSettings.IsShuffleEnable ? 0 : SourceItems.IndexOf(Current);
+                    if (prevPlayed != null)
+                    {
+                        PlayedItems.Enqueue(prevPlayed);
+                    }
+
+                    Current = nextItem;
+                    CurrentIndex = nextIndex;
+
+                    PlayRequested?.Invoke(this, nextItem);
                 }
                 else
                 {
-                    CurrentIndex = 0;
+                    throw new Exception();
+                }
+            }
+        }
+
+        internal async void PlayStarted(PlaylistItem item)
+        {
+            if (item == null) { throw new Exception(); }
+
+            using (var releaser = await _PlaylistUpdateLock.LockAsync())
+            {
+                // 新たにプレイリストが指定された場合に
+                // 連続再生をセットアップする
+                if (item.Owner != null)
+                {
+                    if (item.Owner != Playlist)
+                    {
+                        Playlist = item.Owner;
+                    }
+                }
+
+                // GoNext/GoBack内でCurrentが既に変更済みの場合はスキップ
+                // Playlist外から直接PlaylistItemが変更された場合にのみ
+                // 現在再生位置の更新を行う
+                if (Current != item)
+                {
+                    Current = item;
+                    if (SourceItems != null)
+                    {
+                        CurrentIndex = PlaylistSettings.IsShuffleEnable ? 0 : SourceItems.IndexOf(Current);
+                    }
+                    else
+                    {
+                        CurrentIndex = 0;
+                    }
+
+                    // ランダム再生かつ先頭の再生を行う場合は
+                    // ランダムアイテムの先頭が現在再生中アイテムになるように
+                    // ランダムアイテムリストを修正する
+                    // この修正によって、シャッフル再生が先頭しか再生されない問題を回避できる
+                    if (CurrentIndex == 0 && PlaylistSettings.IsShuffleEnable)
+                    {
+                        if (RandamizedItems.FirstOrDefault() != Current)
+                        {
+                            RandamizedItems.Remove(Current);
+                            RandamizedItems.Insert(0, Current);
+                        }
+                    }
                 }
             }
         }
