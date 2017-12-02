@@ -509,7 +509,7 @@
                         <!-- マウスの非表示 -->
                         <mybehavior:AutoHideCursor x:Name="AutoHideCursor"
                                 IsAutoHideEnabled="{Binding IsMouseCursolAutoHideEnable.Value, Mode=OneWay}"
-                                AutoHideDelay="0:0:2.5"
+                                AutoHideDelay="0:0:2"
                                 />
 
                         <mybehavior:KeyboardTrigger Key="Enter" x:Name="CommentSubmitKeyboardTrigger">

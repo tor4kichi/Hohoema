@@ -169,7 +169,6 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
                 Window.Current.Activated += Current_Activated;
 
-
                 _AutoHideTimer.Tick += AutoHideTimer_Tick;
 
                 _IsCursorInsideAssociatedObject = IsCursorInWindow();
@@ -227,9 +226,14 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         private void ResetAutoHideTimer()
         {
-            _AutoHideTimer.Stop();
+            _AutoHideTimer?.Stop();
+            _AutoHideTimer.Tick -= AutoHideTimer_Tick;
+            
             if (IsAutoHideEnabled && !_NowCompactOverlayMode)
             {
+                _AutoHideTimer = new DispatcherTimer();
+                _AutoHideTimer.Interval = AutoHideDelay;
+                _AutoHideTimer.Tick += AutoHideTimer_Tick;
                 _AutoHideTimer.Start();
             }
         }
@@ -287,6 +291,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
             using (var releaser = await _CursorDisplayUpdateLock.LockAsync())
             {
                 _IsCursorInsideAssociatedObject = true;
+                _NowActiveWindow = true;
             }
         }
 
