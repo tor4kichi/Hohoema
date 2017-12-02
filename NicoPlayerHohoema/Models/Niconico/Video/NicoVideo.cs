@@ -46,6 +46,9 @@ namespace NicoPlayerHohoema.Models
 
         public string RawVideoId { get; private set; }
 
+
+        public bool IsForceSmileLowQuality { get; set; }
+
         NiconicoContentProvider _ContentProvider;
         VideoCacheManager CacheManager;
         NiconicoContext _Context;
@@ -246,7 +249,7 @@ namespace NicoPlayerHohoema.Models
             {
                 if (quality.IsLegacy())
                 {
-                    res = await GetWatchApiResponse(true);
+                    res = await GetWatchApiResponse(IsForceSmileLowQuality);
                 }
                 else
                 {
@@ -258,7 +261,7 @@ namespace NicoPlayerHohoema.Models
             {
                 if (quality.IsLegacy()) { throw; }
                 await Task.Delay(TimeSpan.FromSeconds(1));
-                res = await GetWatchApiResponse(quality == NicoVideoQuality.Smile_Low);
+                res = await GetWatchApiResponse(IsForceSmileLowQuality);
             }
 
             _LastAccessResponse = res;
