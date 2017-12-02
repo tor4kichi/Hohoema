@@ -75,7 +75,10 @@ namespace NicoPlayerHohoema.Views
 
         private void UINavigationController_UINavigationControllerAdded(object sender, UINavigationController e)
         {
-            ActivatePolling();
+            if (UINavigationController.UINavigationControllers.Count > 0)
+            {
+                ActivatePolling();
+            }
         }
 
         private void UINavigationController_UINavigationControllerRemoved(object sender, UINavigationController e)
@@ -88,7 +91,10 @@ namespace NicoPlayerHohoema.Views
 
         private void Current_LeavingBackground(object sender, Windows.ApplicationModel.LeavingBackgroundEventArgs e)
         {
-            ActivatePolling();
+            if (UINavigationController.UINavigationControllers.Count > 0)
+            {
+                ActivatePolling();
+            }
         }
 
         private void Current_EnteredBackground(object sender, Windows.ApplicationModel.EnteredBackgroundEventArgs e)
@@ -113,11 +119,6 @@ namespace NicoPlayerHohoema.Views
         private void ActivatePolling()
         {
             if (_IsDisposed) { return; }
-
-            if (Helpers.DeviceTypeHelper.IsMobile)
-            {
-                return;
-            }
 
             if (_PollingTimer == null)
             {
