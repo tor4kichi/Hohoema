@@ -6,6 +6,7 @@ using Microsoft.Xaml.Interactivity;
 using Windows.Foundation;
 using Windows.ApplicationModel.Core;
 using Windows.UI.ViewManagement;
+using NicoPlayerHohoema.Helpers;
 
 namespace NicoPlayerHohoema.Views.Behaviors
 {
@@ -110,6 +111,8 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         MouseDevice _MouseDevice;
 
+        AsyncLock _CursorDisplayUpdateLock = new AsyncLock();
+
         protected override void OnAttached()
         {
             base.OnAttached();
@@ -142,67 +145,78 @@ namespace NicoPlayerHohoema.Views.Behaviors
             base.OnDetaching();
         }
 
-        private void Current_SizeChanged(object sender, WindowSizeChangedEventArgs e)
+        private async void Current_SizeChanged(object sender, WindowSizeChangedEventArgs e)
         {
-            var view = ApplicationView.GetForCurrentView();
-            _NowCompactOverlayMode = view.ViewMode == ApplicationViewMode.CompactOverlay;
-        }
-
-        private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
-        {
-            _DefaultCursor = Window.Current.CoreWindow.PointerCursor;
-
-            try
+            using (var releaser = await _CursorDisplayUpdateLock.LockAsync())
             {
-                _MouseDevice = MouseDevice.GetForCurrentView();
-                _MouseDevice.MouseMoved += CursorSetter_MouseMoved;
-            }
-            catch { }
-
-            Window.Current.Activated += Current_Activated;
-            
-
-            _AutoHideTimer.Tick += AutoHideTimer_Tick;
-
-            _IsCursorInsideAssociatedObject = IsCursorInWindow();
-
-            if (Window.Current.Visible)
-            {
-                ResetAutoHideTimer();
+                var view = ApplicationView.GetForCurrentView();
+                _NowCompactOverlayMode = view.ViewMode == ApplicationViewMode.CompactOverlay;
             }
         }
 
-        private void AssociatedObject_Unloaded(object sender, RoutedEventArgs e)
+        private async void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
         {
-            _AutoHideTimer.Stop();
-
-            if (_MouseDevice != null)
+            using (var releaser = await _CursorDisplayUpdateLock.LockAsync())
             {
-                _MouseDevice.MouseMoved -= CursorSetter_MouseMoved;
-                _MouseDevice = null;
+                _DefaultCursor = Window.Current.CoreWindow.PointerCursor;
+
+                try
+                {
+                    _MouseDevice = MouseDevice.GetForCurrentView();
+                    _MouseDevice.MouseMoved += CursorSetter_MouseMoved;
+                }
+                catch { }
+
+                Window.Current.Activated += Current_Activated;
+
+                _AutoHideTimer.Tick += AutoHideTimer_Tick;
+
+                _IsCursorInsideAssociatedObject = IsCursorInWindow();
+
+                if (Window.Current.Visible)
+                {
+                    ResetAutoHideTimer();
+                }
             }
+        }
 
-            Window.Current.Activated -= Current_Activated;
+        private async void AssociatedObject_Unloaded(object sender, RoutedEventArgs e)
+        {
+            using (var releaser = await _CursorDisplayUpdateLock.LockAsync())
+            {
+                _AutoHideTimer.Stop();
 
-            _AutoHideTimer.Tick -= AutoHideTimer_Tick;
+                if (_MouseDevice != null)
+                {
+                    _MouseDevice.MouseMoved -= CursorSetter_MouseMoved;
+                    _MouseDevice = null;
+                }
+
+                Window.Current.Activated -= Current_Activated;
+
+                _AutoHideTimer.Tick -= AutoHideTimer_Tick;
+            }
         }
 
 
         bool _NowActiveWindow = true;
-        private void Current_Activated(object sender, WindowActivatedEventArgs e)
+        private async void Current_Activated(object sender, WindowActivatedEventArgs e)
         {
-            if (e.WindowActivationState == CoreWindowActivationState.Deactivated)
+            using (var releaser = await _CursorDisplayUpdateLock.LockAsync())
             {
-                _AutoHideTimer.Stop();
+                if (e.WindowActivationState == CoreWindowActivationState.Deactivated)
+                {
+                    _AutoHideTimer.Stop();
 
-                Window.Current.CoreWindow.PointerCursor = _DefaultCursor;
+                    Window.Current.CoreWindow.PointerCursor = _DefaultCursor;
 
-                _NowActiveWindow = false;
-            }
-            else if (e.WindowActivationState == CoreWindowActivationState.PointerActivated)
-            {
-                _NowActiveWindow = true;
-                CursorVisibilityChanged(true);
+                    _NowActiveWindow = false;
+                }
+                else if (e.WindowActivationState == CoreWindowActivationState.PointerActivated)
+                {
+                    _NowActiveWindow = true;
+                    CursorVisibilityChanged(true);
+                }
             }
         }
 
@@ -212,9 +226,14 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         private void ResetAutoHideTimer()
         {
-            _AutoHideTimer.Stop();
+            _AutoHideTimer?.Stop();
+            _AutoHideTimer.Tick -= AutoHideTimer_Tick;
+            
             if (IsAutoHideEnabled && !_NowCompactOverlayMode)
             {
+                _AutoHideTimer = new DispatcherTimer();
+                _AutoHideTimer.Interval = AutoHideDelay;
+                _AutoHideTimer.Tick += AutoHideTimer_Tick;
                 _AutoHideTimer.Start();
             }
         }
@@ -243,34 +262,47 @@ namespace NicoPlayerHohoema.Views.Behaviors
         }
 
 
-        private void AutoHideTimer_Tick(object sender, object e)
+        private async void AutoHideTimer_Tick(object sender, object e)
         {
-            if (IsAutoHideEnabled && _IsCursorInsideAssociatedObject && _NowActiveWindow)
+            using (var releaser = await _CursorDisplayUpdateLock.LockAsync())
             {
-                CursorVisibilityChanged(false);
+                if (IsAutoHideEnabled && _IsCursorInsideAssociatedObject && _NowActiveWindow)
+                {
+                    CursorVisibilityChanged(false);
+                }
+
+                _AutoHideTimer.Stop();
             }
-
-            _AutoHideTimer.Stop();
         }
 
-        private void CursorSetter_MouseMoved(MouseDevice sender, MouseEventArgs args)
+        private async void CursorSetter_MouseMoved(MouseDevice sender, MouseEventArgs args)
         {
-            ResetAutoHideTimer();
+            using (var releaser = await _CursorDisplayUpdateLock.LockAsync())
+            {
+                ResetAutoHideTimer();
 
-            CursorVisibilityChanged(true);
+                CursorVisibilityChanged(true);
+            }
         }
 
 
-        private void AssociatedObject_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private async void AssociatedObject_PointerEntered(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            _IsCursorInsideAssociatedObject = true;
+            using (var releaser = await _CursorDisplayUpdateLock.LockAsync())
+            {
+                _IsCursorInsideAssociatedObject = true;
+                _NowActiveWindow = true;
+            }
         }
 
-        private void AssociatedObject_PointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
+        private async void AssociatedObject_PointerExited(object sender, Windows.UI.Xaml.Input.PointerRoutedEventArgs e)
         {
-            _IsCursorInsideAssociatedObject = false;
+            using (var releaser = await _CursorDisplayUpdateLock.LockAsync())
+            {
+                _IsCursorInsideAssociatedObject = false;
 
-            CursorVisibilityChanged(true);
+                CursorVisibilityChanged(true);
+            }
         }
 
         #region this code copy from VLC WinRT

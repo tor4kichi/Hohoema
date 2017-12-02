@@ -150,6 +150,7 @@
     <Content Include="Assets\UpdateNotices\0.11.9.md" />
     <Content Include="Assets\UpdateNotices\0.11.10.md" />
     <Content Include="Assets\UpdateNotices\0.11.11.md" />
+    <Content Include="Assets\UpdateNotices\0.11.12.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <PRIResource Include="Resources\ja-jp\Resources.resw" />
   </ItemGroup>
@@ -212,7 +213,7 @@
     <Compile Include="Models\AccountManager.cs" />
     <Compile Include="Models\AppUpdateNotice.cs" />
     <Compile Include="Models\Db\MigrationToLiteDBHelper.cs" />
-    <Compile Include="Models\Niconico\CommentCommandPermissionType.cs" />
+    <Compile Include="Models\Niconico\Video\Comment\CommentCommandPermissionType.cs" />
     <Compile Include="Models\Niconico\CommentOpacityKind.cs" />
     <Compile Include="Models\Db\History\HistoryDbContext.cs" />
     <Compile Include="Models\Db\PlayHistory\HistoryDbContext.cs" />
@@ -250,7 +251,15 @@
     <Compile Include="Models\HohoemaPlaylist.cs" />
     <Compile Include="Models\HohoemaViewManager.cs" />
     <Compile Include="Interfaces\IHohoemaListItem.cs" />
-    <Compile Include="Models\Niconico\Video\IVideoStreamingSession.cs" />
+    <Compile Include="Models\Niconico\Video\Comment\CommentClient.cs" />
+    <Compile Include="Models\Niconico\Video\Comment\CommentServerInfo.cs" />
+    <Compile Include="Models\Niconico\Video\Comment\CommentSubmitInfo.cs" />
+    <Compile Include="Models\Niconico\Video\VideoStreamingSession\DmcVideoStreamingSession.cs" />
+    <Compile Include="Models\Niconico\Video\VideoStreamingSession\DownloadProgressVideoStreamingSession.cs" />
+    <Compile Include="Models\Niconico\Video\VideoStreamingSession\IVideoStreamingSession.cs" />
+    <Compile Include="Models\Niconico\Video\VideoStreamingSession\LocalVideoStreamingSession.cs" />
+    <Compile Include="Models\Niconico\Video\VideoStreamingSession\SmileVideoStreamingSession.cs" />
+    <Compile Include="Models\Niconico\Video\VideoStreamingSession\VideoStreamingSession.cs" />
     <Compile Include="Models\PagePayload\InAppNotificationPayload.cs" />
     <Compile Include="Helpers\LisenceSummary.cs" />
     <Compile Include="Models\Niconico\Live\Live2WebSocket.cs" />
@@ -290,8 +299,8 @@
     <Compile Include="Models\Db\NicoVideo\NicoVIdeoDbContext.cs" />
     <Compile Include="Helpers\AsyncLock.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideo.cs" />
-    <Compile Include="Models\Niconico\Video\NicoVideoCacheRequest.cs" />
-    <Compile Include="Models\Niconico\Video\NicoVideoCacheState.cs" />
+    <Compile Include="Models\Niconico\NicoVideoCacheRequest.cs" />
+    <Compile Include="Models\Niconico\NicoVideoCacheState.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideoCanNotDownloadReason.cs" />
     <Compile Include="Models\Settings\HohoemaUserSettings.cs" />
     <Compile Include="Models\Niconico\NiconicoContentProvider.cs" />
@@ -1167,7 +1176,9 @@
       <Name>Visual C++ 2015 Runtime for Universal Windows Platform Apps</Name>
     </SDKReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Models\NiconicoAlert\" />
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>

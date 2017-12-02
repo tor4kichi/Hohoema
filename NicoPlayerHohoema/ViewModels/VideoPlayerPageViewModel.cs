@@ -878,6 +878,13 @@ namespace NicoPlayerHohoema.ViewModels
             // まず再生開始を試行
             Video = new NicoVideo(VideoId, HohoemaApp.ContentProvider, HohoemaApp.NiconicoContext, HohoemaApp.CacheManager);
 
+
+            // 低画質を希望している場合には
+            // Smile鯖からの再生は低画質を優先する
+            Video.IsForceSmileLowQuality =
+                HohoemaApp.UserSettings.PlayerSettings.DefaultQuality == NicoVideoQuality.Dmc_Mobile ||
+                HohoemaApp.UserSettings.PlayerSettings.DefaultQuality == NicoVideoQuality.Smile_Low;
+
             await this.PlayingQualityChangeAction();
 
 
