@@ -26,8 +26,8 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Dmc_Midium),
             new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Dmc_Low),
             new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Dmc_Mobile),
-//            new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Smile_Original),
-//            new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Smile_Low),
+            new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Smile_Original),
+            new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Smile_Low),
         }.ToList();
         public ReactiveProperty<ValueWithAvairability<NicoVideoQuality>> VideoPlayingQuality { get; private set; }
         public ReactiveProperty<bool> IsLowLatency { get; private set; }

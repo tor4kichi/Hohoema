@@ -819,7 +819,7 @@ namespace NicoPlayerHohoema.ViewModels
                 // リクエストどおりの画質が再生された場合、画質をデフォルトとして設定する
                 if (RequestVideoQuality.Value == CurrentVideoQuality.Value)
                 {
-                    if (CurrentVideoQuality.Value.HasValue && CurrentVideoQuality.Value.Value.IsDmc())
+                    if (CurrentVideoQuality.Value.HasValue)
                     {
                         HohoemaApp.UserSettings.PlayerSettings.DefaultQuality = CurrentVideoQuality.Value.Value;
                     }
