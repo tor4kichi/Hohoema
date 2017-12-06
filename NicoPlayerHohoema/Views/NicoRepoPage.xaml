@@ -46,6 +46,19 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
+
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding HasItem.Value, Converter={StaticResource BooleanInverted}}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <!-- リスト表示を横向きに -->
+                        <Setter Target="NoTimelineItemsLayout.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            
         </VisualStateManager.VisualStateGroups>
 
 
@@ -159,5 +172,17 @@
                 </DataTemplate>
             </controls:ListingWithHeader.GridItemTemplate>
         </controls:ListingWithHeader>
+
+
+        <Grid x:Name="NoTimelineItemsLayout"
+              Visibility="Collapsed"
+              >
+            <TextBlock Text="表示可能なニレコポがありません"
+                       Style="{StaticResource SubtitleTextBlockStyle}"
+                       Opacity="0.8"
+                       VerticalAlignment="Center"
+                       HorizontalAlignment="Center"
+                       />
+        </Grid>
     </Grid>
 </Page>

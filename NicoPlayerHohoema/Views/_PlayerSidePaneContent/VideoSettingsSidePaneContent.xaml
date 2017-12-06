@@ -132,16 +132,6 @@
                         </ComboBox.ItemTemplate>
                     </ComboBox>
 
-
-                    <TextBlock Text="「モバイル画質」を選択していると、古い動画の再生で「旧 低画質」を優先するようになります。"
-                               Opacity="0.8"
-                               TextWrapping="Wrap"
-                               MaxWidth="260"
-                               HorizontalAlignment="Left"
-                               Style="{StaticResource CaptionTextBlockStyle}"
-                               Margin="0 8"
-                               />
-
                 </StackPanel>
 
                 <StackPanel Margin="0 8 0 16">

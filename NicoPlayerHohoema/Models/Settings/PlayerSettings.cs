@@ -46,8 +46,6 @@ namespace NicoPlayerHohoema.Models
 			get { return _DefaultQuality; }
 			set
             {
-                if (value.IsLegacy()) { return; }
-
                 SetProperty(ref _DefaultQuality, value);
             }
 		}

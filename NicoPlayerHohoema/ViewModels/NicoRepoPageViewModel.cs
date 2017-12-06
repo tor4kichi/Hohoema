@@ -221,12 +221,13 @@ namespace NicoPlayerHohoema.ViewModels
 
         List<NicoRepoTimelineItem> TimelineItems { get; } = new List<NicoRepoTimelineItem>();
 
+        NicoRepoTimelineItem _LastItem = null;
         HohoemaApp HohoemaApp { get; }
 
         // 通常10だが、ニコレポの表示フィルタを掛けた場合に
         // 追加読み込み時に表示対象が見つからない場合
         // 追加読み込みが途絶えるため、多めに設定している
-        public override uint OneTimeLoadCount => 20; 
+        public override uint OneTimeLoadCount => 25; 
 
         public LoginUserNicoRepoTimelineSource(HohoemaApp hohoemaApp, IEnumerable<NicoRepoItemTopic> allowedNicoRepoTypes)
         {
@@ -251,7 +252,7 @@ namespace NicoPlayerHohoema.ViewModels
                         TimelineItems.Add(item);
                     }
                 }
-
+                _LastItem = nicoRepoResponse.LastTimelineItem;
                 return nicoRepoResponse.Meta.Limit;
             }
             else
@@ -299,7 +300,7 @@ namespace NicoPlayerHohoema.ViewModels
             var tail = head + count;
             if (TimelineItems.Count < tail)
             {
-                var nicoRepoResponse = await HohoemaApp.NiconicoContext.NicoRepo.GetLoginUserNicoRepo(NicoRepoTimelineType.all, TimelineItems.LastOrDefault()?.Id);
+                var nicoRepoResponse = await HohoemaApp.NiconicoContext.NicoRepo.GetLoginUserNicoRepo(NicoRepoTimelineType.all, _LastItem?.Id);
                 if (nicoRepoResponse.IsStatusOK)
                 {
                     foreach (var item in nicoRepoResponse.TimelineItems)
@@ -309,6 +310,7 @@ namespace NicoPlayerHohoema.ViewModels
                             TimelineItems.Add(item);
                         }
                     }
+                    _LastItem = nicoRepoResponse.LastTimelineItem;
                 }
             }
 
