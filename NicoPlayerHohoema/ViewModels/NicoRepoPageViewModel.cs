@@ -227,7 +227,7 @@ namespace NicoPlayerHohoema.ViewModels
         // 通常10だが、ニコレポの表示フィルタを掛けた場合に
         // 追加読み込み時に表示対象が見つからない場合
         // 追加読み込みが途絶えるため、多めに設定している
-        public override uint OneTimeLoadCount => 20; 
+        public override uint OneTimeLoadCount => 25; 
 
         public LoginUserNicoRepoTimelineSource(HohoemaApp hohoemaApp, IEnumerable<NicoRepoItemTopic> allowedNicoRepoTypes)
         {
