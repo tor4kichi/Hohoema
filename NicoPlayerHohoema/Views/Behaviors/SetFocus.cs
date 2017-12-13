@@ -82,7 +82,6 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
             if (Delay != TimeSpan.Zero)
             {
-                
                 Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => 
                 {
                     await Task.Delay(Delay);
@@ -103,7 +102,6 @@ namespace NicoPlayerHohoema.Views.Behaviors
         {
             if (TargetObject != null)
             {
-                TargetObject.Visibility = Visibility.Visible;
                 return TargetObject.Focus(FocusState.Programmatic);
             }
             else

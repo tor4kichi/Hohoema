@@ -34,7 +34,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<bool> IsShowInAppNotification { get; private set; }
 
-
         public MenuNavigatePageBaseViewModel(
             HohoemaApp hohoemaApp, 
             PageManager pageManager
@@ -65,7 +64,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             MenuItems = new List<PageTypeSelectableItem>()
 			{
-                new PageTypeSelectableItem(HohoemaPageType.Search             , OnMenuItemSelected, "検索", Symbol.Find),
                 new PageTypeSelectableItem(HohoemaPageType.RankingCategoryList, OnMenuItemSelected, "ランキング", Symbol.Flag),
                 new PageTypeSelectableItem(HohoemaPageType.Mylist             , OnWatchAfterMenuItemSelected, "あとで見る", Symbol.Play),
                 new PageTypeSelectableItem(HohoemaPageType.UserMylist         , OnMenuItemSelected, "マイリスト", Symbol.Bookmarks),
@@ -147,7 +145,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					return !PageManager.IsHiddenMenuPage(x);
 				})
-				.ToReactiveProperty();
+				.ToReactiveProperty(false);
 
 			NowNavigating = PageManager.ObserveProperty(x => x.PageNavigating)
 				.ToReactiveProperty();
