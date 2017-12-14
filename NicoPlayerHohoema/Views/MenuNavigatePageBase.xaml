@@ -185,8 +185,6 @@
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="ServiceStateText.Visibility" Value="Visible" />
-                                <!--<Setter Target="ServiceStateText_TV.Visibility" Value="Visible" />-->
-                                <Setter Target="ServiceStateText_Mobile.Visibility" Value="Visible" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -196,8 +194,6 @@
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="ServiceStateText.Visibility" Value="Visible" />
-                                <!--<Setter Target="ServiceStateText_TV.Visibility" Value="Visible" />-->
-                                <Setter Target="ServiceStateText_Mobile.Visibility" Value="Visible" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -208,8 +204,6 @@
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="ServiceStateText.Visibility" Value="Visible" />
-                                <!--<Setter Target="ServiceStateText_TV.Visibility" Value="Visible" />-->
-                                <Setter Target="ServiceStateText_Mobile.Visibility" Value="Visible" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -381,10 +375,12 @@
                                                 <i:Interaction.Behaviors>
                                                     <core:EventTriggerBehavior EventName="QuerySubmitted">
                                                         <core:InvokeCommandAction Command="{Binding SearchCommand}" />
+                                                        <mybehavior:HideInputPaneAction />
                                                     </core:EventTriggerBehavior>
 
                                                     <mybehavior:KeyboardTrigger Key="Enter">
                                                         <core:InvokeCommandAction Command="{Binding SearchCommand}" />
+                                                        <mybehavior:HideInputPaneAction />
                                                     </mybehavior:KeyboardTrigger>
                                                 </i:Interaction.Behaviors>
                                             </AutoSuggestBox>
@@ -478,7 +474,7 @@
                                                 <i:Interaction.Behaviors>
                                                     <core:EventTriggerBehavior EventName="Tapped">
                                                         <core:ChangePropertyAction TargetObject="{Binding ElementName=Nallow_SearchLayout}" PropertyName="Visibility" Value="Visible" />
-                                                        <mybehavior:SetFocus TargetObject="{Binding ElementName=Nallow_SearchTextBox}" />
+                                                        <mybehavior:SetFocus TargetObject="{Binding ElementName=Nallow_SearchTextBox}" Delay="0:0:0.012" />
                                                     </core:EventTriggerBehavior>
                                                 </i:Interaction.Behaviors>
                                             </Button>
@@ -505,10 +501,12 @@
                                                         
                                                         <core:EventTriggerBehavior EventName="QuerySubmitted">
                                                             <core:InvokeCommandAction Command="{Binding SearchCommand}" />
+                                                            <mybehavior:HideInputPaneAction />
                                                         </core:EventTriggerBehavior>
 
                                                         <mybehavior:KeyboardTrigger Key="Enter">
                                                             <core:InvokeCommandAction Command="{Binding SearchCommand}" />
+                                                            <mybehavior:HideInputPaneAction />
                                                         </mybehavior:KeyboardTrigger>
                                                     </i:Interaction.Behaviors>
                                                 </AutoSuggestBox>
@@ -584,19 +582,6 @@
                                             />
                                 </Border>
                                 -->
-
-                                <Border x:Name="MobileSearchTapBarrier" 
-                                        Visibility="{Binding IsMobileNowSearching, Converter={StaticResource BooleanToVisibility}}"
-                                        Background="Black"
-                                        Opacity="0.5"
-                                        >
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <core:InvokeCommandAction Command="{Binding StartMobileSearchCommand}" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
-                                </Border>
-
                                 
                             </Grid>
 

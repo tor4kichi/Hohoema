@@ -173,21 +173,19 @@ namespace NicoPlayerHohoema.ViewModels
 
             // 検索
             SearchKeyword = new ReactiveProperty<string>("");
-            SearchTarget = new ReactiveProperty<Models.SearchTarget>(Models.SearchTarget.Keyword);
 
             SearchCommand = SearchKeyword
                 .Select(x => !string.IsNullOrWhiteSpace(x))
                 .ToReactiveCommand();
             SearchCommand.Subscribe(_ => 
             {
+                /*
                 ISearchPagePayloadContent searchContent =
                     SearchPagePayloadContentHelper.CreateDefault(SearchTarget.Value, SearchKeyword.Value);
-                PageManager.Search(searchContent);
-
-                IsMobileNowSearching = false;
+                PageManager.Search();
+                */
+                PageManager.OpenPage(HohoemaPageType.SearchSummary, SearchKeyword.Value);
             });
-
-
 
             // InAppNotification
             IsShowInAppNotification = new ReactiveProperty<bool>(true);
@@ -459,57 +457,9 @@ namespace NicoPlayerHohoema.ViewModels
         #region Search
 
 
-        public static List<SearchTarget> SearchTargetItems { get; private set; } = new List<Models.SearchTarget>()
-        {
-            Models.SearchTarget.Keyword,
-            Models.SearchTarget.Tag,
-            Models.SearchTarget.Mylist,
-            Models.SearchTarget.Community,
-            Models.SearchTarget.Niconama,
-        };
-
-       
-
         public ReactiveProperty<string> SearchKeyword { get; private set; }
-        public ReactiveProperty<SearchTarget> SearchTarget { get; private set; }
 
         public ReactiveCommand SearchCommand { get; private set; }
-
-        private DelegateCommand _OpenSearchPageCommand;
-        public DelegateCommand OpenSearchPageCommand
-        {
-            get
-            {
-                return _OpenSearchPageCommand
-                    ?? (_OpenSearchPageCommand = new DelegateCommand(() =>
-                    {
-                        PageManager.OpenPage(HohoemaPageType.Search);
-
-                        IsMobileNowSearching = false;
-                    }));
-            }
-        }
-
-        private bool _IsMobileNowSearching;
-        public bool IsMobileNowSearching
-        {
-            get { return _IsMobileNowSearching; }
-            set { SetProperty(ref _IsMobileNowSearching, value); }
-        }
-
-        private DelegateCommand _StartMobileSearchCommand;
-        public DelegateCommand StartMobileSearchCommand
-        {
-            get
-            {
-                return _StartMobileSearchCommand
-                    ?? (_StartMobileSearchCommand = new DelegateCommand(() =>
-                    {
-                        IsMobileNowSearching = !IsMobileNowSearching;
-                    }));
-            }
-        }
-
 
         #endregion
 
