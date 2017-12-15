@@ -35,60 +35,8 @@ namespace NicoPlayerHohoema.Views
         private void MenuNavigatePageBase_Loaded(object sender, RoutedEventArgs e)
         {
             _UIDispatcher = Dispatcher;
-
-            UINavigationManager.Pressed += UINavigationManager_Pressed;
-
-            var pane = GetTemplateChild("PaneLayout") as FrameworkElement;
-
-            pane.GotFocus += RootLayout_GotFocus;
-            pane.LostFocus += RootLayout_LostFocus;
-
         }
-
-       
-
-        private bool _IsFocusing = false;
-
-        private int LeftInputCount = 0;
-
-        private void RootLayout_GotFocus(object sender, RoutedEventArgs e)
-        {
-            _IsFocusing = true;
-        }
-
-        private void RootLayout_LostFocus(object sender, RoutedEventArgs e)
-        {
-            _IsFocusing = false;
-        }
-
-
-
-        private async void UINavigationManager_Pressed(UINavigationManager sender, UINavigationButtons buttons)
-        {
-            await _UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
-            {
-                var splitView = GetTemplateChild("ContentSplitView") as SplitView;
-                if (_IsFocusing && buttons == UINavigationButtons.Left)
-                {
-                    LeftInputCount++;
-                    if (LeftInputCount > 1)
-                    {
-                        splitView.IsPaneOpen = true;
-                    }
-                }
-                else
-                {
-                    LeftInputCount = 0;
-
-                    if (buttons == UINavigationButtons.Accept || buttons == UINavigationButtons.Right)
-                    {
-                        splitView.IsPaneOpen = false;
-                    }
-                }
-            });
-            
-            
-        }
+        
 
         private void ForceChangeChildDataContext()
 		{

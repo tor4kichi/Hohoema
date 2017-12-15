@@ -31,7 +31,10 @@ namespace NicoPlayerHohoema.ViewModels
             set { SetProperty(ref _NowUpdating, value); }
         }
 
+
+        public ReadOnlyReactiveProperty<bool> HasKeywordSearchResultItems { get; }
         public ReadOnlyReactiveCollection<VideoInfoControlViewModel> KeywordSearchResultItems { get; }
+        public ReadOnlyReactiveProperty<bool> HasLiveSearchResultItems { get; }
         public ReadOnlyReactiveCollection<LiveInfoViewModel> LiveSearchResultItems { get; }
 
         private int _KeywordSearchItemsTotalCount;
@@ -68,11 +71,15 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         KeywordSearchItemsTotalCount = (int)res.GetTotalCount();
 
-                        foreach (var tag in res.Tags.TagItems)
+                        if (res.Tags != null)
                         {
-                            RelatedVideoTags.Add(tag.Name);
+                            foreach (var tag in res.Tags.TagItems)
+                            {
+                                RelatedVideoTags.Add(tag.Name);
+                            }
                         }
-                        return res.VideoInfoItems.AsEnumerable();
+
+                        return res.VideoInfoItems?.AsEnumerable() ?? Enumerable.Empty<Mntone.Nico2.Searches.Video.VideoInfo>();
                     }
                     else
                     {
@@ -89,6 +96,11 @@ namespace NicoPlayerHohoema.ViewModels
                 })
                 .ToReadOnlyReactiveCollection(onReset: this.ObserveProperty(x => x.Keyword).ToUnit())
                 .AddTo(_CompositeDisposable);
+            HasKeywordSearchResultItems = KeywordSearchResultItems
+                .ObserveProperty(x => x.Count)
+                .Select(x => x > 0)
+                .ToReadOnlyReactiveProperty()
+                .AddTo(_CompositeDisposable);
 
             RelatedLiveTags = new ObservableCollection<string>();
             LiveSearchResultItems = this.ObserveProperty(x => x.Keyword)
@@ -99,13 +111,16 @@ namespace NicoPlayerHohoema.ViewModels
                     var res = await HohoemaApp.ContentProvider.LiveSearchAsync(x, false, length: 10);
                     if (res.IsStatusOK)
                     {
-                        foreach (var tag in res.Tags.Tag)
+                        if (res.Tags != null)
                         {
-                            RelatedLiveTags.Add(tag.Name);
+                            foreach (var tag in res.Tags.Tag)
+                            {
+                                RelatedLiveTags.Add(tag.Name);
+                            }
                         }
 
                         LiveSearchItemsTotalCount = res.TotalCount.FilteredCount;
-                        return res.VideoInfo.AsEnumerable();
+                        return res.VideoInfo?.AsEnumerable() ?? Enumerable.Empty<Mntone.Nico2.Searches.Live.VideoInfo>();
                     }
                     else
                     {
@@ -119,6 +134,11 @@ namespace NicoPlayerHohoema.ViewModels
                     return liveVM;
                 })
                 .ToReadOnlyReactiveCollection(onReset: this.ObserveProperty(x => x.Keyword).ToUnit());
+            HasLiveSearchResultItems = LiveSearchResultItems
+                .ObserveProperty(x => x.Count)
+                .Select(x => x > 0)
+                .ToReadOnlyReactiveProperty()
+                .AddTo(_CompositeDisposable);
         }
 
         

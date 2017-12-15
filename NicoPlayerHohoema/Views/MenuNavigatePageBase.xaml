@@ -324,21 +324,36 @@
                                     </StackPanel>
                                 </Button>
 
-                                <Border x:Name="ToggleFullScreenButton_Wide"
+                                <Grid toolkit:DockPanel.Dock="Top">
+                                    <Border x:Name="ToggleFullScreenButton_Wide"
                                         HorizontalAlignment="Right"
-                                        toolkit:DockPanel.Dock="Top"
                                         Height="48"
                                                 >
-                                    <Button Command="{Binding ToggleFullScreenCommand}"
+                                        <Button Command="{Binding ToggleFullScreenCommand}"
                                                     Background="Transparent"
                                                     Visibility="Collapsed"
                                                     TabIndex="10"
                                                     >
-                                        <SymbolIcon Symbol="FullScreen" />
-                                    </Button>
-                                </Border>
+                                            <SymbolIcon Symbol="FullScreen" />
+                                        </Button>
+                                    </Border>
 
-                                
+                                    <!-- メニュー開閉ボタン -->
+                                    <Button 
+                                    Background="Transparent" 
+                                              Command="{Binding TogglePaneOpenCommand}"
+                                        Height="48"
+                                        HorizontalAlignment="Left"
+                                          >
+                                        <iconPack:PackIconMaterial Kind="Menu"
+                                                                   Height="18"
+                                                                   Width="18"
+                                                                   />
+                                    </Button>
+
+
+                                </Grid>
+
                                 <ScrollViewer HorizontalScrollMode="Disabled"
                                     VerticalScrollMode="Auto"
                                     VerticalScrollBarVisibility="Hidden"
@@ -350,12 +365,12 @@
                                         
                                         <Grid x:Name="SideMenu_SearchBoxLayout">
                                             <Button x:Name="SideMenu_SearchBoxActivateButton"
-                                            Background="Transparent"
+                                                    Background="Transparent"
                                                     >
                                                 <SymbolIcon Symbol="Find" />
 
                                                 <i:Interaction.Behaviors>
-                                                    <core:EventTriggerBehavior EventName="Tapped">
+                                                    <core:EventTriggerBehavior EventName="Click">
                                                         <core:ChangePropertyAction TargetObject="{Binding ElementName=ContentSplitView}" PropertyName="IsPaneOpen" Value="True" />
                                                         <mybehavior:SetFocus TargetObject="{Binding ElementName=SideMenu_SearchTextBox}" />
                                                     </core:EventTriggerBehavior>
@@ -465,7 +480,21 @@
                                                Margin="64 0 0 0"
                                                />
 
-                                            
+                                            <!-- モバイル時のメニュー開閉ボタン -->
+                                            <Button x:Name="MenuToggleButton"
+                                                    Background="Transparent" 
+                                                      Command="{Binding TogglePaneOpenCommand}"
+                                                    Height="48"
+                                                    VerticalAlignment="Top"
+                                                    HorizontalAlignment="Left"
+                                                    >
+                                                <iconPack:PackIconMaterial Kind="Menu"
+                                                                           Height="18"
+                                                                           Width="18"
+                                                                           />
+                                            </Button>
+
+
                                             <Button HorizontalAlignment="Right"
                                                     Background="Transparent"
                                                     >
@@ -590,16 +619,7 @@
                 </toolkit:DockPanel>
 
 
-                <!-- モバイル時のメニュー開閉ボタン -->
-                <Button x:Name="MenuToggleButton"
-                    Background="Transparent" 
-                              Command="{Binding TogglePaneOpenCommand}"
-                        Height="48"
-                        VerticalAlignment="Top"
-                        HorizontalAlignment="Left"
-                              >
-                    <iconPack:PackIconMaterial Kind="Hamburger" />
-                </Button>
+                
 
 
                 <Grid Visibility="{Binding NowWorking, Converter={StaticResource BooleanToVisibility}}">

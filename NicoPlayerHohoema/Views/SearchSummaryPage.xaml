@@ -38,7 +38,9 @@
 
                 <StackPanel>
                     <toolkit:DockPanel Margin="0 0 0 32">
-                        <Grid toolkit:DockPanel.Dock="Top" Margin="8 8">
+                        <Grid toolkit:DockPanel.Dock="Top" Margin="8 8"
+                              x:Name="VideoItemsHeaderLayout"
+                              >
                             <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" 
                            HorizontalAlignment="Left"
                                VerticalAlignment="Center"
@@ -53,6 +55,18 @@
                             />
 
                         </Grid>
+                        <Grid toolkit:DockPanel.Dock="Bottom"
+                              Visibility="{Binding HasKeywordSearchResultItems.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                              Margin="16 0 0 0"
+                              >
+                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
+                                       Opacity="0.8"
+                                       TextWrapping="Wrap"
+                                       >
+                                "<Run Text="{Binding Keyword}" />" で動画は見つかりませんでした
+                            </TextBlock>
+                        </Grid>
+                        
                         <ListView ItemsSource="{Binding KeywordSearchResultItems}"
                           ScrollViewer.HorizontalScrollMode="Auto"
                           ScrollViewer.HorizontalScrollBarVisibility="Hidden"
@@ -75,7 +89,7 @@
                             <ListView.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <ItemsStackPanel Orientation="Horizontal"
-                                                     Margin="16 0"
+                                                     Margin="8 0 48 0"
                                                      />
                                 </ItemsPanelTemplate>
                             </ListView.ItemsPanel>
@@ -84,7 +98,9 @@
 
 
 
-                    <toolkit:DockPanel Margin="0 0 0 32">
+                    <toolkit:DockPanel Margin="0 0 0 32"
+                                       Visibility="{Binding HasKeywordSearchResultItems.Value, Converter={StaticResource BooleanToVisibility}}"
+                                       >
                         <Grid toolkit:DockPanel.Dock="Top" Margin="8 8">
                             <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" 
                            HorizontalAlignment="Left"
@@ -101,7 +117,7 @@
                       >
                             <ListView.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <toolkit:WrapPanel />
+                                    <toolkit:WrapPanel Margin="0 0 48 0" />
                                 </ItemsPanelTemplate>
                             </ListView.ItemsPanel>
                         </ListView>
@@ -111,7 +127,9 @@
 
 
                     <toolkit:DockPanel Margin="0 0 0 32">
-                        <Grid toolkit:DockPanel.Dock="Top" Margin="8 8">
+                        <Grid toolkit:DockPanel.Dock="Top" Margin="8 8"
+                               x:Name="LiveItemsHeaderLayout"
+                              >
                             <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" 
                            HorizontalAlignment="Left"
                                VerticalAlignment="Center"
@@ -125,6 +143,18 @@
                                     HorizontalAlignment="Right"
                                 />
 
+                        </Grid>
+
+                        <Grid toolkit:DockPanel.Dock="Bottom"
+                              Visibility="{Binding HasLiveSearchResultItems.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                              Margin="16 0 0 0"
+                              >
+                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
+                                       Opacity="0.8"
+                                       TextWrapping="Wrap"
+                                       >
+                                "<Run Text="{Binding Keyword}" />" で現在放送している番組は見つかりませんでした
+                            </TextBlock>
                         </Grid>
                         <ListView ItemsSource="{Binding LiveSearchResultItems}"
                           ScrollViewer.HorizontalScrollMode="Auto"
@@ -149,14 +179,16 @@
                             <ListView.ItemsPanel>
                                 <ItemsPanelTemplate>
                                     <ItemsStackPanel Orientation="Horizontal"
-                                                     Margin="16 0"
+                                                     Margin="8 0 48 0"
                                                      />
                                 </ItemsPanelTemplate>
                             </ListView.ItemsPanel>
                         </ListView>
                     </toolkit:DockPanel>
 
-                    <toolkit:DockPanel Margin="0 0 0 32">
+                    <toolkit:DockPanel Margin="0 0 0 32"
+                                       Visibility="{Binding HasLiveSearchResultItems.Value, Converter={StaticResource BooleanToVisibility}}"
+                                       >
                         <Grid toolkit:DockPanel.Dock="Top" Margin="8 8">
                             <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" 
                            HorizontalAlignment="Left"
@@ -173,7 +205,7 @@
                       >
                             <ListView.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <toolkit:WrapPanel />
+                                    <toolkit:WrapPanel Margin="0 0 48 0" />
                                 </ItemsPanelTemplate>
                             </ListView.ItemsPanel>
                         </ListView>
@@ -209,25 +241,24 @@
 
 
         <VisualStateManager.VisualStateGroups>
+
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                    </VisualState.StateTriggers>
+
+                    <VisualState.Setters>
+                        <Setter Target="HeaderLayout.Margin" Value="0 27 0 0" />
+                        <Setter Target="VideoItemsHeaderLayout.Margin" Value="8 8 48 0" />
+                        <Setter Target="LiveItemsHeaderLayout.Margin" Value="8 8 48 0" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+
+            
             <VisualStateGroup x:Name="TopBarStateGroup">
-
-                <!-- TV Mode ON -->
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsTVModeEnable.Value}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                    </VisualState.Setters>
-                </VisualState>
-
-                <!-- マウス操作時、または画面が大きい時 -->
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="800" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                    </VisualState.Setters>
-                </VisualState>
 
                 <!-- マウス操作時、または画面が大きい時 -->
                 <VisualState>
