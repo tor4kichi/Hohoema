@@ -122,7 +122,7 @@ namespace NicoPlayerHohoema.Helpers
 			try
 			{
 				await _ReadWriteLock.WaitAsync();
-				var file = await Folder.CreateFileAsync(FileName, CreationCollisionOption.OpenIfExists);
+				var file = await Folder.CreateFileAsync(FileName, CreationCollisionOption.ReplaceExisting);
 
 				await FileIO.WriteTextAsync(file, Newtonsoft.Json.JsonConvert.SerializeObject(item, settings));
 			}

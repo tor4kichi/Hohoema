@@ -44,14 +44,14 @@ namespace NicoPlayerHohoema.ViewModels
         /// </summary>
         public ReadOnlyReactiveProperty<bool> IsFillFloatContent_DelayedRead { get; private set; }
 
-        
+
         public INavigationService NavigationService { get; private set; }
 
         public void SetNavigationService(INavigationService ns)
         {
             NavigationService = ns;
         }
-       
+
         public PlayerWithPageContainerViewModel(HohoemaApp hohoemaApp, HohoemaPlaylist playlist)
         {
             HohoemaPlaylist = playlist;
@@ -67,7 +67,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             IsVisibleFloatContent = HohoemaPlaylist.ObserveProperty(x => x.IsDisplayMainViewPlayer)
-                .ToReactiveProperty(mode:ReactivePropertyMode.DistinctUntilChanged);
+                .ToReactiveProperty(mode: ReactivePropertyMode.DistinctUntilChanged);
 
             IsContentDisplayFloating = Observable.CombineLatest(
                 IsFillFloatContent.Select(x => !x),
@@ -75,13 +75,13 @@ namespace NicoPlayerHohoema.ViewModels
                 )
                 .Select(x => x.All(y => y))
                 .ToReactiveProperty();
-                                
+
 
             HohoemaPlaylist.OpenPlaylistItem += HohoemaPlaylist_OpenPlaylistItem;
 
             IsVisibleFloatContent
                 .Where(x => !x)
-                .Subscribe(x => 
+                .Subscribe(x =>
             {
                 ClosePlayer();
             });
@@ -103,7 +103,7 @@ namespace NicoPlayerHohoema.ViewModels
                                 CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = false;
                                 view.TitleBar.ButtonBackgroundColor = null;
                                 view.TitleBar.ButtonInactiveBackgroundColor = null;
-                                
+
                             }
                         }
                     });
@@ -112,7 +112,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         private async void HohoemaPlaylist_OpenPlaylistItem(IPlayableList playlist, PlaylistItem item)
         {
-            await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
+            await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
             {
                 ShowPlayer(item);
             });
@@ -158,7 +158,7 @@ namespace NicoPlayerHohoema.ViewModels
             get
             {
                 return _PlayerFillDisplayCommand
-                    ?? (_PlayerFillDisplayCommand = new DelegateCommand(() => 
+                    ?? (_PlayerFillDisplayCommand = new DelegateCommand(() =>
                     {
                         // プレイヤー表示中だけ切り替えを受け付け
                         if (!HohoemaPlaylist.IsDisplayMainViewPlayer) { return; }
@@ -191,9 +191,4 @@ namespace NicoPlayerHohoema.ViewModels
         }
     }
 
-
-    public class EmptyContentViewModel : ViewModelBase
-    {
-
-    }
 }

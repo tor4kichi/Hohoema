@@ -35,6 +35,11 @@
 
         <ResourceDictionary>
 
+
+            <x:String x:Key="SideMenuPaneLength" >280</x:String>
+            <x:String x:Key="DesktopFloatPlayerHeight" >160</x:String>
+            <x:String x:Key="MobileFloatPlayerHeight" >240</x:String>
+
             <DataTemplate x:Key="HohoemaContentTemplate">
 
             </DataTemplate>
@@ -265,13 +270,92 @@
                     </VisualStateGroup>
 
 
+                    <!-- プレイヤーの表示状態 -->
+                    <VisualStateGroup>
+
+                        <VisualState x:Name="HiddenPlayer">
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding IsShowPlayer.Value, Converter={StaticResource BooleanInverted}}" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <VisualState x:Name="FillWindowPlayer">
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding IsShowPlayerInFill.Value}" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="PlayerLaytouGrid.Visibility" Value="Visible" />
+
+                                <Setter Target="ToggleFloatPlayerGamepadTrigger.IsEnabled" Value="True" />
+
+                                <Setter Target="ContentLayout.Visibility" Value="Collapsed" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <VisualState x:Name="DisplayIntoDesktopMenu">
+                            <VisualState.StateTriggers>
+                                <AdaptiveTrigger MinWindowWidth="520" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="PlayerLaytouGrid.Visibility" Value="Visible" />
+                                <Setter Target="TogglePlayerFloatButton.Visibility" Value="Visible" />
+
+                                <Setter Target="FloatPlayerLayout.(Grid.Row)" Value="2" />
+                                <Setter Target="FloatPlayerLayout.(Grid.Column)" Value="0" />
+                                <Setter Target="FloatPlayerLayout.(Grid.RowSpan)" Value="1" />
+                                <Setter Target="FloatPlayerLayout.(Grid.ColumnSpan)" Value="1" />
+
+                                <Setter Target="SideMenuFooterBottomMargin.Visibility" Value="Visible" />
+
+                                <Setter Target="ToggleFloatPlayerGamepadTrigger.IsEnabled" Value="True" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <VisualState x:Name="DisplayIntoMobileTopSide">
+                            <VisualState.StateTriggers>
+                                <AdaptiveTrigger MinWindowWidth="0" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="PlayerLaytouGrid.Visibility" Value="Visible" />
+                                <Setter Target="TogglePlayerFloatButton.Visibility" Value="Visible" />
+
+                                <Setter Target="FloatPlayerLayout.(Grid.Row)" Value="0" />
+                                <Setter Target="FloatPlayerLayout.(Grid.Column)" Value="0" />
+                                <Setter Target="FloatPlayerLayout.(Grid.RowSpan)" Value="1" />
+                                <Setter Target="FloatPlayerLayout.(Grid.ColumnSpan)" Value="2" />
+
+                                <Setter Target="MobileHeaderMargin.Visibility" Value="Visible" />
+
+                                <Setter Target="ToggleFloatPlayerGamepadTrigger.IsEnabled" Value="True" />
+
+                            </VisualState.Setters>
+                        </VisualState>
+
+                    </VisualStateGroup>
+
+
                 </VisualStateManager.VisualStateGroups>
 
                 <toolkit:DockPanel>
+
+                    <Border x:Name="MobileHeaderMargin"
+                            Height="{StaticResource MobileFloatPlayerHeight}"
+                            Visibility="Collapsed"
+                            toolkit:DockPanel.Dock="Top"
+                            >
+                        
+                    </Border>
                     
                     <SplitView x:Name="ContentSplitView" 
                         CompactPaneLength="48"
-                        OpenPaneLength="240"
+                        OpenPaneLength="{StaticResource SideMenuPaneLength}"
                         DisplayMode="Inline"
                         IsPaneOpen="{Binding IsOpenPane.Value, Mode=TwoWay}"
                                IsTabStop="False"
@@ -286,8 +370,18 @@
 
                                                >
 
-                                <Button Command="{Binding OpenAccountInfoCommand}"
-                                        toolkit:DockPanel.Dock="Bottom"
+                                <toolkit:DockPanel HorizontalAlignment="Stretch"
+                                            toolkit:DockPanel.Dock="Bottom"
+                                            >
+                                    <Border x:Name="SideMenuFooterBottomMargin" 
+                                            Height="{StaticResource DesktopFloatPlayerHeight}"
+                                            Visibility="Collapsed"
+                                            toolkit:DockPanel.Dock="Bottom"
+                                            />
+
+
+                                    <Button Command="{Binding OpenAccountInfoCommand}"
+                                        
                                         Padding="16 0 0 0"
                                         Background="Transparent" 
                                         HorizontalAlignment="Stretch"
@@ -295,34 +389,38 @@
                                         VerticalContentAlignment="Center"
                                         TabIndex="15"
                                         >
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource ToLocalText}}" 
+                                        <StackPanel>
+                                            <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource ToLocalText}}" 
                                                    x:Name="ServiceStateText"
                                                    Visibility="Collapsed"
                                                />
 
-                                        <toolkit:DockPanel Margin="0 0"
+                                            <toolkit:DockPanel Margin="0 0"
                                                            x:Name="AccountInfoLayout"
                                                            Visibility="Collapsed"
                                                            >
 
-                                            <Image Source="{Binding UserIconUrl}" 
+                                                <Image Source="{Binding UserIconUrl}" 
                                                 toolkit:DockPanel.Dock="Left"
-                                                Height="32" Width="32"
+                                                Height="24" Width="24"
                                                 Margin="0 0 8 0"
                                                             />
 
-                                            <StackPanel>
-                                                <TextBlock Text="{Binding UserName}" />
-                                                <TextBlock Text="{Binding UserMail}" FontWeight="Light" 
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding UserName}" />
+                                                    <TextBlock Text="{Binding UserMail}" FontWeight="Light" 
                                                        TextWrapping="Wrap"
                                                        FontSize="13"
                                                        />
-                                            </StackPanel>
-                                        </toolkit:DockPanel>
+                                                </StackPanel>
+                                            </toolkit:DockPanel>
 
-                                    </StackPanel>
-                                </Button>
+                                        </StackPanel>
+                                    </Button>
+
+                                    
+                                </toolkit:DockPanel>
+
 
                                 <Grid toolkit:DockPanel.Dock="Top">
                                     <Border x:Name="ToggleFullScreenButton_Wide"
@@ -619,6 +717,57 @@
                 </toolkit:DockPanel>
 
 
+                <Grid x:Name="PlayerLaytouGrid"
+                    Visibility="Collapsed"
+                      >
+
+                    <i:Interaction.Behaviors>
+                        <mybehavior:UINavigationTrigger x:Name="ToggleFloatPlayerGamepadTrigger"
+                                                        Kind="View" 
+                                                        IsEnabled="False"
+                                                    >
+                            <core:InvokeCommandAction Command="{Binding TogglePlayerFloatDisplayCommand}" />
+                        </mybehavior:UINavigationTrigger>
+                    </i:Interaction.Behaviors>
+
+
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="{StaticResource MobileFloatPlayerHeight}" />
+                        <RowDefinition Height="*" />
+                        <RowDefinition Height="{StaticResource DesktopFloatPlayerHeight}"  />
+                    </Grid.RowDefinitions>
+
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="{StaticResource SideMenuPaneLength}" />
+                        <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+
+                    <Grid Grid.RowSpan="3"
+                          Grid.ColumnSpan="2"
+                          x:Name="FloatPlayerLayout"
+                          >
+                        <Frame x:Name="PlayerFrame" 
+                           
+                           
+                          
+                                            />
+                        <Button x:Name="TogglePlayerFloatButton"
+                            Background="Transparent"
+                            Command="{Binding TogglePlayerFloatDisplayCommand}"
+                            Visibility="Collapsed"
+                            HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                            >
+                            <Button.ContextFlyout>
+                                <MenuFlyout >
+                                    <MenuFlyoutItem Text="閉じる" Command="{Binding ClosePlayerCommand}"/>
+                                </MenuFlyout>
+                            </Button.ContextFlyout>
+                        </Button>
+                    </Grid>
+
+                    
+                </Grid>
                 
 
 
