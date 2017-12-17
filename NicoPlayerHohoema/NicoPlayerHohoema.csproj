@@ -1110,6 +1110,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NicoAlert\NicoAlert.csproj">
+      <Project>{973a1e65-a9f3-4144-a521-647ddfe06f2a}</Project>
+      <Name>NicoAlert</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NicoVideoRtmpClient\NicoVideoRtmpClient.csproj">
       <Project>{4fa97e39-99df-423b-9de0-0d6662e98e7e}</Project>
       <Name>NicoVideoRtmpClient</Name>

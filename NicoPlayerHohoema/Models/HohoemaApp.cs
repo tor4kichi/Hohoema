@@ -24,6 +24,7 @@ using Windows.UI.Xaml;
 using Microsoft.Practices.Unity;
 using NicoPlayerHohoema.Dialogs;
 using NicoPlayerHohoema.Services;
+using Hohoema.NicoAlert;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -43,7 +44,11 @@ namespace NicoPlayerHohoema.Models
 
         private bool IsInitialized = false;
 
-		public static async Task<HohoemaApp> Create(IEventAggregator ea, HohoemaViewManager viewMan, HohoemaDialogService dialogService)
+        public NicoAlertClient AlertClient { get; private set; }
+
+
+
+        public static async Task<HohoemaApp> Create(IEventAggregator ea, HohoemaViewManager viewMan, HohoemaDialogService dialogService)
 		{
 			HohoemaApp.UIDispatcher = Window.Current.CoreWindow.Dispatcher;
 
@@ -720,8 +725,61 @@ namespace NicoPlayerHohoema.Models
                         // サインイン完了
                         OnSignin?.Invoke();
 
-						// TODO: 途中だった動画のダウンロードを再開
-						// await MediaManager.StartBackgroundDownload();
+                        // TODO: 途中だった動画のダウンロードを再開
+                        // await MediaManager.StartBackgroundDownload();
+
+                        var alertClient = new Hohoema.NicoAlert.NicoAlertClient(mailOrTelephone, password);
+
+                        if (await alertClient.LoginAsync())
+                        {
+                            AlertClient = alertClient;
+
+                            var follows = await AlertClient.GetFollowsAsync();
+
+                            AlertClient.VideoRecieved += async (sender, args) =>
+                            {
+                                Debug.WriteLine("new video recieved!: " + args.Id);
+
+                                var toastService = App.Current.Container.Resolve<ToastNotificationService>();
+
+                                var nicoInfo = await ContentProvider.GetNicoVideoInfo(args.Id);
+                                toastService.ShowText($"ニコニコ新着動画", $"{nicoInfo.Title} が投稿されました", 
+                                    luanchContent:"niconico://" + nicoInfo.RawVideoId
+                                    );
+                            };
+
+                            AlertClient.LiveRecieved += (sender, args) =>
+                            {
+                                Debug.WriteLine("new video recieved!: " + args.Id);
+
+                                var toastService = App.Current.Container.Resolve<ToastNotificationService>();
+
+                                toastService.ShowText($"ニコニコ生放送", $"{args.Id} ",
+                                    luanchContent: "niconico://lv" + args.Id
+                                    );
+                            };
+
+                            AlertClient.Connected += (sender, _) => 
+                            {
+                                Debug.WriteLine("ニコニコアラートへの接続を開始");
+                            };
+
+                            AlertClient.Disconnected += (sender, _) =>
+                            {
+                                Debug.WriteLine("ニコニコアラートへの接続を終了");
+                            };
+
+                            await AlertClient.ConnectAlertWebScoketServerAsync(
+                                Hohoema.NicoAlert.NiconicoAlertServiceType.Live,
+                                Hohoema.NicoAlert.NiconicoAlertServiceType.Video
+                                );
+                        }
+                        else
+                        {
+                            alertClient.Dispose();
+                            Debug.WriteLine("ニコニコアラートの開始に失敗");
+                        }
+
                     }
 					else
 					{
@@ -1235,7 +1293,8 @@ namespace NicoPlayerHohoema.Models
 		{
 			CacheManager?.Dispose();
 			LoggingChannel?.Dispose();
-		}
+            AlertClient?.Dispose();
+        }
 
         public async Task<IPlayableList> ChoiceMylist(params string[] ignoreMylistId)
         {
