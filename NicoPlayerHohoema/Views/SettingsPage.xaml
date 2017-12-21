@@ -96,6 +96,25 @@
 
         <VisualStateManager.VisualStateGroups>
 
+            <!-- ウィンドウサイズごとの表示 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="520" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
             <!-- TVモードの仮対応 -->
             <VisualStateGroup>
                 <VisualState>
@@ -103,7 +122,7 @@
                         <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="HeadlerLayout.Margin" Value="0 27 48 0" />
+                        <Setter Target="HeaderLayout.Margin" Value="0 27 48 0" />
                         <Setter Target="SettingsContentPanel.Margin" Value="0 0 48 0" />
                         
                         <!-- Web連携無効化 -->
@@ -143,10 +162,8 @@
         <toolkit:DockPanel >
 
             <Border toolkit:DockPanel.Dock="Top" 
-                    BorderBrush="{ThemeResource AppBarBorderThemeBrush}"
-                    BorderThickness="0 0 0 1"
                 Height="48"
-                    x:Name="HeadlerLayout"
+                    x:Name="HeaderLayout"
                     >
                 <toolkit:DockPanel >
 
@@ -170,6 +187,7 @@
                         <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource TitleTextBlockStyle}"
+                                   x:Name="TitleLayout"
                                     >
                         </TextBlock>
                     </Border>

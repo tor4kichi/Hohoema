@@ -25,6 +25,7 @@ using NicoPlayerHohoema.Views.Service;
 using Mntone.Nico2;
 using System.Reactive.Concurrency;
 using Windows.ApplicationModel.Core;
+using Windows.UI.ViewManagement;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -279,7 +280,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (UseDefaultPageTitle)
             {
-                Title = PageManager.CurrentDefaultPageTitle();
+                Title = PageManager.CurrentDefaultPageTitle();                
             }
 
             base.OnNavigatedTo(e, viewModelState);
@@ -298,14 +299,18 @@ namespace NicoPlayerHohoema.ViewModels
             {
 
             }
-			if (!String.IsNullOrEmpty(Title))
-			{
-//				PageManager.PageTitle = Title;
-			}
-			else
-			{
-//				PageManager.PageTitle = PageManager.CurrentDefaultPageTitle();
-			}
+
+            if (CoreApplication.GetCurrentView().IsMain)
+            {
+                if (!String.IsNullOrEmpty(Title))
+                {
+                    PageManager.PageTitle = Title;
+                }
+                else
+                {
+                    PageManager.PageTitle = PageManager.CurrentDefaultPageTitle();
+                }
+            }
         }
 
         private async void _OnResumed()

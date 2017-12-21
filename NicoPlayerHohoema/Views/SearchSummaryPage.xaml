@@ -21,6 +21,66 @@
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
+        <VisualStateManager.VisualStateGroups>
+
+            <!-- ウィンドウサイズごとの表示 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="520" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                    </VisualState.StateTriggers>
+
+                    <VisualState.Setters>
+                        <Setter Target="HeaderLayout.Margin" Value="0 27 0 0" />
+                        <Setter Target="VideoItemsHeaderLayout.Margin" Value="8 8 48 0" />
+                        <Setter Target="LiveItemsHeaderLayout.Margin" Value="8 8 48 0" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+
+
+            <VisualStateGroup x:Name="TopBarStateGroup">
+
+                <!-- マウス操作時、または画面が大きい時 -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="520" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- 狭い -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="HeaderLayout.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+                
         <toolkit:DockPanel Margin="8 0 0 0">
 
             <Grid x:Name="HeaderLayout"
@@ -30,7 +90,7 @@
                         Text="{Binding Title}"
                         Style="{StaticResource TitleTextBlockStyle}"
                         Margin="8 16"
-                
+                x:Name="TitleLayout"
                         />
             </Grid>
 
@@ -240,46 +300,7 @@
         </toolkit:DockPanel>
 
 
-        <VisualStateManager.VisualStateGroups>
-
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
-                    </VisualState.StateTriggers>
-
-                    <VisualState.Setters>
-                        <Setter Target="HeaderLayout.Margin" Value="0 27 0 0" />
-                        <Setter Target="VideoItemsHeaderLayout.Margin" Value="8 8 48 0" />
-                        <Setter Target="LiveItemsHeaderLayout.Margin" Value="8 8 48 0" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-
-
-            
-            <VisualStateGroup x:Name="TopBarStateGroup">
-
-                <!-- マウス操作時、または画面が大きい時 -->
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="520" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                    </VisualState.Setters>
-                </VisualState>
-
-                <!-- 狭い -->
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="0" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="HeaderLayout.Visibility" Value="Collapsed" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
+        
 
     </Grid>
 </Page>
