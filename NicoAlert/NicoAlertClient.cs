@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Xml;
 using System.Xml.Serialization;
+using Windows.Networking;
 using Windows.Networking.Sockets;
 using Windows.Storage.Streams;
 using Windows.Web.Http;
@@ -27,7 +28,6 @@ namespace Hohoema.NicoAlert
         public string CommunityId { get; set; }
         public string BroadcasterUserId { get; set; }
     }
-
     public sealed class NicoAlertClient : IDisposable
     {
         // TODO: DataWriterのDisposeは無くて問題ないか？
@@ -35,24 +35,34 @@ namespace Hohoema.NicoAlert
 
         // Note: 
 
-        public EventHandler<NicoVideoAlertEventArgs> VideoRecieved;
-        public EventHandler<NicoVideoAlertEventArgs> SeigaRecieved;
-        public EventHandler<NicoLiveAlertEventArgs> LiveRecieved;
-        public EventHandler Connected;
-        public EventHandler Disconnected;
+        public event EventHandler<NicoVideoAlertEventArgs> VideoRecieved;
+        public event EventHandler<NicoVideoAlertEventArgs> SeigaRecieved;
+        public event EventHandler<NicoLiveAlertEventArgs> LiveRecieved;
+        public event EventHandler Connected;
+        public event EventHandler Disconnected;
 
-        public string Mail { get; }
-        private string Password { get; }
+        public string Mail { get; private set; }
+        public string Password { get; private set; }
 
         HttpClient _HttpClient = new HttpClient();
 
-        public NicoAlertClient(string mail, string password)
-        {
-            Mail = mail;
-            Password = password;
+        const string NicoAlertLoginSiteUrl = "https://secure.nicovideo.jp/secure/login?site=nicoalert";
+        const string AlertStatusSiteUrl = "http://alert.nicovideo.jp/front/getalertstatus";
+        const string FollowListSiteUrl = "http://alert.nicovideo.jp/front/getcommunitylist";
 
-            _Client = new TcpClient();
+        AlertStatesInfo _AlertStatesInfo;
+
+        CancellationTokenSource ReadingTaskCancelSource;
+        StreamSocket _StreamSocket;
+        Task _ReadingTask;
+        Helpers.AsyncLock _NetworkStreamLock = new Helpers.AsyncLock();
+
+
+        public NicoAlertClient()
+        {
+            _HttpClient = new HttpClient();
         }
+
 
         #region IDisposable Support
         private bool disposedValue = false; // 重複する呼び出しを検出するには
@@ -64,7 +74,8 @@ namespace Hohoema.NicoAlert
                 if (disposing)
                 {
                     // TODO: マネージ状態を破棄します (マネージ オブジェクト)。
-                    _Client.Dispose();
+                    _StreamSocket?.Dispose();
+                    _HttpClient.Dispose();
                 }
 
                 // TODO: アンマネージ リソース (アンマネージ オブジェクト) を解放し、下のファイナライザーをオーバーライドします。
@@ -94,18 +105,15 @@ namespace Hohoema.NicoAlert
         public bool IsOpenSuccess { get; private set; }
 
 
-        const string NicoAlertLoginSiteUrl = "https://secure.nicovideo.jp/secure/login?site=nicoalert";
-        const string AlertStatusSiteUrl = "http://alert.nicovideo.jp/front/getalertstatus";
-        const string FollowListSiteUrl = "http://alert.nicovideo.jp/front/getcommunitylist";
-
-        AlertStatesInfo _AlertStatesInfo;
-
         
         
 
 
-        public async Task<bool> LoginAsync()
+        public async Task<bool> LoginAsync(string mail, string password)
         {
+            Mail = mail;
+            Password = password;
+
             IsOpenSuccess = false;
 
             var ticket = await GetNicoAlertTicketAsync();
@@ -189,24 +197,15 @@ namespace Hohoema.NicoAlert
             return res?.Ticket;
         }
 
-
-
-        Helpers.AsyncLock _WebSocketLock = new Helpers.AsyncLock();
-        TcpClient _Client;
-        CancellationTokenSource _AlertRecieveCancelSource;
-        Task _AlertRecievingTask;
-
-        Helpers.AsyncLock _NetworkStreamLock = new Helpers.AsyncLock();
-        NetworkStream _NetworkStream;
-        private byte[] _Buffer = new byte[1024 * 2];
-
-
         Dictionary<string, NiconicoAlertServiceType> _ThreadIdToServiceType = new Dictionary<string, NiconicoAlertServiceType>();
 
         public Task ConnectAlertWebScoketServerAsync()
         {
             return ConnectAlertWebScoketServerAsync((NiconicoAlertServiceType[])Enum.GetValues(typeof(NiconicoAlertServiceType)));
         }
+
+
+        const string NicoAlertSocketServiceName = "hohoema_nico_alert";
 
         public async Task ConnectAlertWebScoketServerAsync(params NiconicoAlertServiceType[] recieveAlertTypes)
         {
@@ -215,84 +214,72 @@ namespace Hohoema.NicoAlert
                 throw new ArgumentException("recieveAlertTypes is empty.");
             }
 
-            _Client = new TcpClient();
             
-            await _Client.ConnectAsync(_AlertStatesInfo.Ms.Addr, int.Parse(_AlertStatesInfo.Ms.Port));
-
-            _AlertRecieveCancelSource = new CancellationTokenSource();
-            using (var releaser = await _WebSocketLock.LockAsync())
-            {
-                _NetworkStream = _Client.GetStream();
-
-                _AlertRecievingTask = DataRecivingTask();
-            }
-
-
-            var messageWriter = new StreamWriter(_NetworkStream, Encoding.UTF8);
-
-            foreach (var serviceType in recieveAlertTypes)
-            {
-                var serviceTypeId = ((long)serviceType).ToString();
-                var serviceThreadId = _AlertStatesInfo.Services.Service.FirstOrDefault(x => x.Thread == serviceTypeId).Thread;
-                await messageWriter.WriteAsync($"<thread thread=\"{serviceThreadId}\" version=\"20061206\" res_from=\"-1\"/>\0");
-            }
-            messageWriter.Flush();
-
-            Connected?.Invoke(this, EventArgs.Empty);
-        }        
-
-        private async Task DataRecivingTask()
-        {
-            if (_NetworkStream == null) { return; }
-
-            Debug.WriteLine("start alert recieve.");
+            var hostName = new HostName(_AlertStatesInfo.Ms.Addr);
 
             try
             {
-                while (true)
+                _StreamSocket = new StreamSocket();
+                await _StreamSocket.ConnectAsync(hostName, _AlertStatesInfo.Ms.Port);
+
+                using (var messageWriter = new StreamWriter(_StreamSocket.OutputStream.AsStreamForWrite(), Encoding.UTF8))
                 {
-                    // データが来るまで待つ
-                    while (true)
+                    foreach (var serviceType in recieveAlertTypes)
                     {
-                        _AlertRecieveCancelSource.Token.ThrowIfCancellationRequested();
-
-                        using (var releaser = await _NetworkStreamLock.LockAsync())
-                        {
-                            if (_NetworkStream.DataAvailable)
-                            {
-                                break;
-                            }
-                        }
-
-                        _AlertRecieveCancelSource.Token.ThrowIfCancellationRequested();
-
-                        await Task.Delay(10000);
+                        var serviceTypeId = ((long)serviceType).ToString();
+                        var serviceThreadId = _AlertStatesInfo.Services.Service.FirstOrDefault(x => x.Thread == serviceTypeId).Thread;
+                        await messageWriter.WriteAsync($"<thread thread=\"{serviceThreadId}\" version=\"20061206\" res_from=\"-1\"/>\0");
                     }
 
-                    _AlertRecieveCancelSource.Token.ThrowIfCancellationRequested();
+                    await messageWriter.FlushAsync();
+                }
+            }
+            catch
+            {
+                await _StreamSocket.CancelIOAsync();
+
+                throw;
+            }
+
+            Connected?.Invoke(this, EventArgs.Empty);
 
 
-                    // 受信したデータをバッファに読み込む
-                    var sb = new StringBuilder();
-                    using (var releaser = await _NetworkStreamLock.LockAsync())
-                    {
-                        while (await _NetworkStream.ReadAsync(_Buffer, 0, _Buffer.Length) != 0)
-                        {
-                            var recievedRawString = Encoding.UTF8.GetString(_Buffer);
+            ReadingTaskCancelSource = new CancellationTokenSource();
+            _ReadingTask = DataRecivingTask(ReadingTaskCancelSource.Token);
+        }
 
-                            sb.Append(recievedRawString.TrimEnd('\0'));
 
-                            Array.Clear(_Buffer, 0, _Buffer.Length);
+        bool _NowReading = false;
+        string _LastRecieveXml = "";
+        private async Task DataRecivingTask(CancellationToken token)
+        {
+            if (_NowReading) { return; }
+            Debug.WriteLine("start alert recieve.");
 
-                            if (!_NetworkStream.DataAvailable) { break; }
-                        }
-                    }
+            using (var reader = new DataReader(_StreamSocket.InputStream))
+            {
+                reader.InputStreamOptions = InputStreamOptions.Partial;
 
-                    _AlertRecieveCancelSource.Token.ThrowIfCancellationRequested();
+                // 受信したデータをバッファに読み込む
 
+                uint count = await reader.LoadAsync(512);
+                while (reader.UnconsumedBufferLength > 0)
+                {
+                    token.ThrowIfCancellationRequested();
+
+                    var str = reader.ReadString(reader.UnconsumedBufferLength);
+
+                    await reader.LoadAsync(512);
+
+                    var text = _LastRecieveXml + str;
                     // バッファに詰め込まれた文字列を解析する
-                    var xmlStrings = sb.ToString().Split('\0');
-                    foreach (var xmlString in xmlStrings)
+                    var xmlStrings = text.ToString()
+                        .Split('\0')
+                        .ToArray();
+
+                    _LastRecieveXml = xmlStrings.Last();
+
+                    foreach (var xmlString in xmlStrings.Take(xmlStrings.Length - 1))
                     {
                         Debug.Write($"recieve data -> ");
 
@@ -306,15 +293,12 @@ namespace Hohoema.NicoAlert
                             Debug.WriteLine($" -> FAILED!");
                             Debug.WriteLine(xmlString);
                         }
-
-
                     }
-
                 }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.ToString());
+
+                reader.DetachStream();
+
+                _NowReading = false;
             }
 
             Debug.WriteLine("exit alert recieve.");
@@ -364,22 +348,26 @@ namespace Hohoema.NicoAlert
                 }
             }
         }
+
         public async void Disconnect()
         {
-            using (var releaser = await _WebSocketLock.LockAsync())
+            using (var releaser = await _NetworkStreamLock.LockAsync())
             {
-                _AlertRecieveCancelSource?.Cancel();
+                ReadingTaskCancelSource?.Cancel();
 
                 await Task.Delay(250);
 
-                _AlertRecieveCancelSource?.Dispose();
-                _AlertRecieveCancelSource = null;
+                ReadingTaskCancelSource?.Dispose();
 
-                _NetworkStream = null;
-
-                _Client.Dispose();
-                _Client = null;
+                if (_StreamSocket != null)
+                {
+                    await _StreamSocket.CancelIOAsync();
+                    _StreamSocket.Dispose();
+                    _StreamSocket = null;
+                }
             }
+
+            Disconnected?.Invoke(this, EventArgs.Empty);
         }
 
 

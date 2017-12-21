@@ -214,6 +214,7 @@
     <Compile Include="Models\AccountManager.cs" />
     <Compile Include="Models\AppUpdateNotice.cs" />
     <Compile Include="Models\Db\MigrationToLiteDBHelper.cs" />
+    <Compile Include="Models\Niconico\HohoemaAlertClient.cs" />
     <Compile Include="Models\Niconico\Video\Comment\CommentCommandPermissionType.cs" />
     <Compile Include="Models\Niconico\CommentOpacityKind.cs" />
     <Compile Include="Models\Db\History\HistoryDbContext.cs" />

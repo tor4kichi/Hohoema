@@ -43,12 +43,12 @@ namespace Hohoema.NicoAlert
 
         public IList<string> GetFollowCommunities()
         {
-            var liveServiceId = ((long)(NiconicoAlertServiceType.Live)).ToString();
+            var liveServiceId = NiconicoAlertServiceType.Live.ToString().ToLower();
             return Services?.Service.FirstOrDefault(x => x._Id == liveServiceId).Id;
         }
         public IList<string> GetFollowUsersOrChannels()
         {
-            var videoServiceId = ((long)(NiconicoAlertServiceType.Video)).ToString();
+            var videoServiceId = NiconicoAlertServiceType.Video.ToString().ToLower();
             return Services?.Service.FirstOrDefault(x => x._Id == videoServiceId).Id;
         }
     }

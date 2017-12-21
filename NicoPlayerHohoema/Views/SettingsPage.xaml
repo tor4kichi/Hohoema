@@ -264,6 +264,20 @@
                             </StackPanel>
 
 
+                            <StackPanel Margin="0 8" >
+                                <TextBlock Text="ニコ生開始を通知する"
+                                   VerticalAlignment="Center"
+                                   />
+                                <TextBlock Text="フォローしているコミュニティとチャンネルが通知対象です"
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                           Opacity="0.8"
+                                           />
+
+                                <ToggleSwitch IsOn="{Binding IsLiveAlertEnabled.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                            </StackPanel>
+
+                            
 
 
                             <StackPanel x:Name="TVModeSwitchLayout" Visibility="Collapsed">

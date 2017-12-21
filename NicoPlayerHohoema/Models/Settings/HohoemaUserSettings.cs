@@ -38,7 +38,7 @@ namespace NicoPlayerHohoema.Models
             var player = await SettingsBase.Load<PlayerSettings>(PlayerSettingsFileName, userFolder);
 			var cache = await SettingsBase.Load<CacheSettings>(CacheSettingsFileName, userFolder);
             var appearance = await SettingsBase.Load<AppearanceSettings>(AppearanceSettingsFileName, userFolder);
-            var nicorepoAndFeed = await SettingsBase.Load<NicoRepoAndFeedSettings>(NicoRepoAndFeedSettingsFileName, userFolder);
+            var nicorepoAndFeed = await SettingsBase.Load<ActivityFeedSettings>(NicoRepoAndFeedSettingsFileName, userFolder);
 
             if (nicorepoAndFeed.DisplayNicoRepoItemTopics.Count == 0)
             {
@@ -87,7 +87,7 @@ namespace NicoPlayerHohoema.Models
 		public CacheSettings CacheSettings { get; private set; }
         public PlaylistSettings PlaylistSettings { get; private set; }
         public AppearanceSettings AppearanceSettings { get; private set; }
-        public NicoRepoAndFeedSettings NicoRepoAndFeedSettings { get; private set; }
+        public ActivityFeedSettings NicoRepoAndFeedSettings { get; private set; }
 
         public HohoemaUserSettings()
 		{

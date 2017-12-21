@@ -109,6 +109,7 @@
     <Compile Include="AlertStatesInfo.cs" />
     <Compile Include="AsyncLock.cs" />
     <Compile Include="FollowInfo.cs" />
+    <Compile Include="NicoAlertBackgroundTask.cs" />
     <Compile Include="NicoAlertClient.cs" />
     <Compile Include="NicoVideoUserResponse.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

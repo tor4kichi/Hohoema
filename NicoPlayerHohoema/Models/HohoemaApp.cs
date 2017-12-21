@@ -56,6 +56,7 @@ namespace NicoPlayerHohoema.Models
 			app.CacheManager = await VideoCacheManager.Create(app);
             
             await app.LoadUserSettings();
+            app.HohoemaAlertClient = new HohoemaAlertClient(app.UserSettings.NicoRepoAndFeedSettings);
 
             await app.FeedManager.Initialize();
 
@@ -728,58 +729,7 @@ namespace NicoPlayerHohoema.Models
                         // TODO: 途中だった動画のダウンロードを再開
                         // await MediaManager.StartBackgroundDownload();
 
-                        var alertClient = new Hohoema.NicoAlert.NicoAlertClient(mailOrTelephone, password);
-
-                        if (await alertClient.LoginAsync())
-                        {
-                            AlertClient = alertClient;
-
-                            var follows = await AlertClient.GetFollowsAsync();
-
-                            AlertClient.VideoRecieved += async (sender, args) =>
-                            {
-                                Debug.WriteLine("new video recieved!: " + args.Id);
-
-                                var toastService = App.Current.Container.Resolve<ToastNotificationService>();
-
-                                var nicoInfo = await ContentProvider.GetNicoVideoInfo(args.Id);
-                                toastService.ShowText($"ニコニコ新着動画", $"{nicoInfo.Title} が投稿されました", 
-                                    luanchContent:"niconico://" + nicoInfo.RawVideoId
-                                    );
-                            };
-
-                            AlertClient.LiveRecieved += (sender, args) =>
-                            {
-                                Debug.WriteLine("new video recieved!: " + args.Id);
-
-                                var toastService = App.Current.Container.Resolve<ToastNotificationService>();
-
-                                toastService.ShowText($"ニコニコ生放送", $"{args.Id} ",
-                                    luanchContent: "niconico://lv" + args.Id
-                                    );
-                            };
-
-                            AlertClient.Connected += (sender, _) => 
-                            {
-                                Debug.WriteLine("ニコニコアラートへの接続を開始");
-                            };
-
-                            AlertClient.Disconnected += (sender, _) =>
-                            {
-                                Debug.WriteLine("ニコニコアラートへの接続を終了");
-                            };
-
-                            await AlertClient.ConnectAlertWebScoketServerAsync(
-                                Hohoema.NicoAlert.NiconicoAlertServiceType.Live,
-                                Hohoema.NicoAlert.NiconicoAlertServiceType.Video
-                                );
-                        }
-                        else
-                        {
-                            alertClient.Dispose();
-                            Debug.WriteLine("ニコニコアラートの開始に失敗");
-                        }
-
+                        await HohoemaAlertClient.LoginAlertAsync(mailOrTelephone, password);
                     }
 					else
 					{
@@ -1481,6 +1431,9 @@ namespace NicoPlayerHohoema.Models
 			get { return _FeedManager; }
 			set { SetProperty(ref _FeedManager, value); }
 		}
+
+
+        public HohoemaAlertClient HohoemaAlertClient { get; private set; }
 
         private HohoemaAppServiceLevel _ServiceStatus;
         public HohoemaAppServiceLevel ServiceStatus
