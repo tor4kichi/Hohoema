@@ -215,6 +215,28 @@ namespace NicoPlayerHohoema.ViewModels
                 PageManager.OpenPage(HohoemaPageType.SearchSummary, SearchKeyword.Value);
             });
 
+            SearchSuggestionWords = SearchKeyword
+                .Throttle(TimeSpan.FromMilliseconds(500))
+                .SelectMany(async word =>
+                {
+                    if (string.IsNullOrWhiteSpace(word))
+                    {
+                        // 検索履歴を表示
+                        return Models.Db.SearchHistoryDb.GetHistoryItems()
+                            .OrderBy(x => x.LastUpdated)
+                            .Take(10)
+                            .Select(x => x.Keyword);
+                    }
+                    else if (HohoemaApp.NiconicoContext != null)
+                    {
+                        var res = await HohoemaApp.ContentProvider.GetSearchSuggestKeyword(word);
+                        return res.Candidates.AsEnumerable();
+                    }
+                    else { return Enumerable.Empty<string>(); }
+                })
+                .SelectMany(x => x)
+                .ToReadOnlyReactiveCollection(onReset: SearchKeyword.ToUnit());
+
             // InAppNotification
             IsShowInAppNotification = new ReactiveProperty<bool>(true);
 
@@ -628,6 +650,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public ReactiveProperty<string> SearchKeyword { get; private set; }
+
+        public ReadOnlyReactiveCollection<string> SearchSuggestionWords { get; }
 
         public ReactiveCommand SearchCommand { get; private set; }
 
