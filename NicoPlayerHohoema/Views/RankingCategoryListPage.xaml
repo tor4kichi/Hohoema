@@ -34,6 +34,24 @@
 
         <VisualStateManager.VisualStateGroups>
 
+            <!-- ウィンドウサイズごとの表示 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="520" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
             
             <VisualStateGroup x:Name="XboxState">
 
@@ -83,9 +101,10 @@
                                 <SymbolIcon Symbol="Setting" />
                             </Button>
 
-                            <TextBlock Text="ランキング一覧" Margin="8 0 0 0"
+                            <TextBlock Text="{Binding Title}" Margin="8 0 0 0"
                                        VerticalAlignment="Center"
                                        Style="{StaticResource SubtitleTextBlockStyle}"
+                                       x:Name="TitleLayout"
                                        />
 
                         </toolkit:DockPanel>

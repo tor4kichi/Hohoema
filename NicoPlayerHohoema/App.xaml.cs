@@ -772,16 +772,13 @@ namespace NicoPlayerHohoema
 
             var menuPageBase = new Views.MenuNavigatePageBase();
             menuPageBase.Content = rootFrame;
-            var container = new Views.PlayerWithPageContainer();
-
-            container.Content = menuPageBase;
 
 #if DEBUG
-            container.FocusEngaged += Container_FocusEngaged;
+            menuPageBase.FocusEngaged += Container_FocusEngaged;
 #endif
             var grid = new Grid();
 
-            grid.Children.Add(container);
+            grid.Children.Add(menuPageBase);
 
             var hohoemaInAppNotification = new Views.HohoemaInAppNotification();
             hohoemaInAppNotification.VerticalAlignment = VerticalAlignment.Bottom;

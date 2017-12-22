@@ -342,7 +342,7 @@
     <comment>HohoemaPageType</comment>
   </data>
   <data name="RankingCategoryList" xml:space="preserve">
-    <value>ランキングカテゴリ一覧</value>
+    <value>ランキング一覧</value>
     <comment>HohoemaPageType</comment>
   </data>
   <data name="science" xml:space="preserve">

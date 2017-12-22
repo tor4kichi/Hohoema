@@ -59,6 +59,7 @@ namespace NicoPlayerHohoema.ViewModels
 			: base(app, pageMaanger)
 		{
             OtherOwneredMylistManager = app.OtherOwneredMylistManager;
+            UserMylistManager = app.UserMylistManager;
 
             MylistList = new ObservableCollection<MylistItemsWithTitle>();
 
@@ -113,7 +114,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 			}
-			, () => HohoemaApp.UserMylistManager.UserMylists.Count < UserMylistManager.MaxMylistGroupCountCurrentUser
+			, () => UserMylistManager.UserMylists.Count < UserMylistManager.MaxMylistGroupCountCurrentUser
             );
 
             RemoveMylistGroupCommand = new DelegateCommand<IPlayableList>(async (item) => 

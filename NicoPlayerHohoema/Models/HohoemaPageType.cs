@@ -16,6 +16,7 @@ namespace NicoPlayerHohoema.Models
 		WatchHistory,
 
 		Search,
+        SearchSummary,
 
         SearchResultCommunity,
         SearchResultTag,

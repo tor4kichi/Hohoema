@@ -48,6 +48,25 @@
 
         <VisualStateManager.VisualStateGroups>
 
+            <!-- ウィンドウサイズごとの表示 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="520" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            
             <!-- TVモードの仮対応 -->
             <VisualStateGroup>
                 <VisualState>
@@ -79,7 +98,7 @@
         <toolkit:DockPanel x:Name="ContentLayout">
 
             <Border toolkit:DockPanel.Dock="Top" 
-                Height="64"
+                Height="48"
                     >
                 <toolkit:DockPanel >
                     <StackPanel toolkit:DockPanel.Dock="Right" 
@@ -109,6 +128,7 @@
 
                     <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="16 0 0 0"
+                            x:Name="TitleLayout"
                                 >
                         <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"

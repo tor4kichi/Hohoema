@@ -30,7 +30,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public IList<NicoRepoItemTopic> DisplayNicoRepoItemTopics { get; }
 
-        private NicoRepoAndFeedSettings _NicoRepoFeedSettings;
+        private ActivityFeedSettings _NicoRepoFeedSettings;
 
         public NicoRepoPageViewModel(HohoemaApp app, PageManager pageManager) 
             : base(app, pageManager, useDefaultPageTitle: true)
