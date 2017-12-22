@@ -62,7 +62,7 @@ namespace NicoPlayerHohoema.Models
                 PlayerSettings = player,
                 CacheSettings = cache,
                 AppearanceSettings = appearance,
-                NicoRepoAndFeedSettings = nicorepoAndFeed,
+                ActivityFeedSettings = nicorepoAndFeed,
             };
 
             settings.SetupSaveWithPropertyChanged();
@@ -78,7 +78,7 @@ namespace NicoPlayerHohoema.Models
 			await CacheSettings.Save();
             await PlaylistSettings.Save();
             await AppearanceSettings.Save();
-            await NicoRepoAndFeedSettings.Save();
+            await ActivityFeedSettings.Save();
         }
 
 		public RankingSettings RankingSettings { get; private set; }
@@ -87,7 +87,7 @@ namespace NicoPlayerHohoema.Models
 		public CacheSettings CacheSettings { get; private set; }
         public PlaylistSettings PlaylistSettings { get; private set; }
         public AppearanceSettings AppearanceSettings { get; private set; }
-        public ActivityFeedSettings NicoRepoAndFeedSettings { get; private set; }
+        public ActivityFeedSettings ActivityFeedSettings { get; private set; }
 
         public HohoemaUserSettings()
 		{
@@ -104,7 +104,7 @@ namespace NicoPlayerHohoema.Models
                 CacheSettings.PropertyChanged -= Settings_PropertyChanged;
                 PlaylistSettings.PropertyChanged -= Settings_PropertyChanged;
                 AppearanceSettings.PropertyChanged -= Settings_PropertyChanged;
-                NicoRepoAndFeedSettings.PropertyChanged -= Settings_PropertyChanged;
+                ActivityFeedSettings.PropertyChanged -= Settings_PropertyChanged;
             }
         }
 
@@ -116,7 +116,7 @@ namespace NicoPlayerHohoema.Models
             CacheSettings.PropertyChanged += Settings_PropertyChanged;
             PlaylistSettings.PropertyChanged += Settings_PropertyChanged;
             AppearanceSettings.PropertyChanged += Settings_PropertyChanged;
-            NicoRepoAndFeedSettings.PropertyChanged += Settings_PropertyChanged;
+            ActivityFeedSettings.PropertyChanged += Settings_PropertyChanged;
         }
 
         private static void Settings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
