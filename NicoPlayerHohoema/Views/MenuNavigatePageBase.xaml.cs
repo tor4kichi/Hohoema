@@ -83,12 +83,5 @@ namespace NicoPlayerHohoema.Views
             base.OnApplyTemplate();
         }
 
-        private void Nallow_SearchTextBox_SuggestionChosen(AutoSuggestBox sender, AutoSuggestBoxSuggestionChosenEventArgs args)
-        {
-            if (args.SelectedItem is string)
-            {
-                sender.Text = args.SelectedItem as string;
-            }
-        }
     }
 }

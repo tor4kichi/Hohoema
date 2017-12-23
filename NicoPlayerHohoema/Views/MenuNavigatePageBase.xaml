@@ -495,7 +495,6 @@
                                                         Margin="8 4 8 8"
                                                         Visibility="Collapsed"
                                                             ItemsSource="{Binding SearchSuggestionWords}"
-                                                                SuggestionChosen="Nallow_SearchTextBox_SuggestionChosen"
                                                             
                                                         >
                                                 <i:Interaction.Behaviors>
@@ -636,7 +635,6 @@
                                                                 QueryIcon="Find"
                                                                 Height="36"
                                                                 ItemsSource="{Binding SearchSuggestionWords}"
-                                                                SuggestionChosen="Nallow_SearchTextBox_SuggestionChosen"
                                                         >
                                                     <i:Interaction.Behaviors>
 
