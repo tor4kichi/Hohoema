@@ -13,6 +13,7 @@ namespace NicoPlayerHohoema.Models
         Smile_Original,
 		Smile_Low,
 
+        Dmc_SuperHigh,
         Dmc_High,
         Dmc_Midium,
         Dmc_Low,
