@@ -502,19 +502,18 @@
                                                     <mybehavior:FocusGetter IsFocus="{Binding ElementName=SideMenu_SearchTextBox, Path=IsSuggestionListOpen, Mode=TwoWay}" />
                                                     
                                                     <core:EventTriggerBehavior EventName="QuerySubmitted">
-                                                        <core:InvokeCommandAction Command="{Binding SearchCommand}" />
-                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=SideMenu_SearchTextBox}" PropertyName="IsEnabled" Value="False" />
                                                         <mybehavior:HideInputPaneAction />
+                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=SideMenu_SearchTextBox}" PropertyName="IsEnabled" Value="False" />
                                                         <core:ChangePropertyAction TargetObject="{Binding ElementName=SideMenu_SearchTextBox}" PropertyName="IsEnabled" Value="True" />
+                                                        <core:InvokeCommandAction Command="{Binding SearchCommand}" />
 
                                                     </core:EventTriggerBehavior>
 
                                                     <mybehavior:KeyboardTrigger Key="Enter">
-                                                        <core:InvokeCommandAction Command="{Binding SearchCommand}" />
-                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=SideMenu_SearchTextBox}" PropertyName="IsEnabled" Value="False" />
                                                         <mybehavior:HideInputPaneAction />
+                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=SideMenu_SearchTextBox}" PropertyName="IsEnabled" Value="False" />
                                                         <core:ChangePropertyAction TargetObject="{Binding ElementName=SideMenu_SearchTextBox}" PropertyName="IsEnabled" Value="True" />
-
+                                                        <core:InvokeCommandAction Command="{Binding SearchCommand}" />
                                                     </mybehavior:KeyboardTrigger>
                                                 </i:Interaction.Behaviors>
                                             </AutoSuggestBox>
@@ -652,17 +651,17 @@
                                                         
                                                         
                                                         <core:EventTriggerBehavior EventName="QuerySubmitted">
-                                                            <core:InvokeCommandAction Command="{Binding SearchCommand}" />
-                                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=Nallow_SearchTextBox}" PropertyName="IsEnabled" Value="False" />
                                                             <mybehavior:HideInputPaneAction />
+                                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=Nallow_SearchTextBox}" PropertyName="IsEnabled" Value="False" />
                                                             <core:ChangePropertyAction TargetObject="{Binding ElementName=Nallow_SearchTextBox}" PropertyName="IsEnabled" Value="True" />
+                                                            <core:InvokeCommandAction Command="{Binding SearchCommand}" />
                                                         </core:EventTriggerBehavior>
 
                                                         <mybehavior:KeyboardTrigger Key="Enter">
-                                                            <core:InvokeCommandAction Command="{Binding SearchCommand}" />
-                                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=Nallow_SearchTextBox}" PropertyName="IsEnabled" Value="False" />
                                                             <mybehavior:HideInputPaneAction />
+                                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=Nallow_SearchTextBox}" PropertyName="IsEnabled" Value="False" />
                                                             <core:ChangePropertyAction TargetObject="{Binding ElementName=Nallow_SearchTextBox}" PropertyName="IsEnabled" Value="True" />
+                                                            <core:InvokeCommandAction Command="{Binding SearchCommand}" />
                                                         </mybehavior:KeyboardTrigger>
                                                     </i:Interaction.Behaviors>
                                                 </AutoSuggestBox>

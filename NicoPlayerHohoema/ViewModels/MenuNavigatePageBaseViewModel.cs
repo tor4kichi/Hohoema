@@ -205,7 +205,9 @@ namespace NicoPlayerHohoema.ViewModels
             SearchCommand = SearchKeyword
                 .Select(x => !string.IsNullOrWhiteSpace(x))
                 .ToReactiveCommand();
-            SearchCommand.Subscribe(_ =>
+            SearchCommand
+                .Delay(TimeSpan.FromSeconds(0.15))
+                .Subscribe(_ =>
             {
                 /*
                 ISearchPagePayloadContent searchContent =
