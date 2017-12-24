@@ -133,7 +133,7 @@
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="ContentSplitView.DisplayMode" Value="CompactOverlay" />
-                                <Setter Target="ContentSplitView.IsPaneOpen" Value="True" />
+                                <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -289,11 +289,11 @@
                             </VisualState.StateTriggers>
 
                             <VisualState.Setters>
-                                <Setter Target="PlayerLaytouGrid.Visibility" Value="Visible" />
+                                <Setter Target="PlayerLayoutGrid.Visibility" Value="Visible" />
 
                                 <Setter Target="ToggleFloatPlayerGamepadTrigger.IsEnabled" Value="True" />
 
-                                <Setter Target="ContentLayout.Visibility" Value="Collapsed" />
+                                <Setter Target="ContentSplitView.Visibility" Value="Collapsed" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -303,7 +303,7 @@
                             </VisualState.StateTriggers>
 
                             <VisualState.Setters>
-                                <Setter Target="PlayerLaytouGrid.Visibility" Value="Visible" />
+                                <Setter Target="PlayerLayoutGrid.Visibility" Value="Visible" />
                                 <Setter Target="TogglePlayerFloatButton.Visibility" Value="Visible" />
 
                                 <Setter Target="FloatPlayerLayout.(Grid.Row)" Value="2" />
@@ -314,6 +314,12 @@
                                 <Setter Target="SideMenuFooterBottomMargin.Visibility" Value="Visible" />
 
                                 <Setter Target="ToggleFloatPlayerGamepadTrigger.IsEnabled" Value="True" />
+                                <Setter Target="FloatPlayerLayout.Height" Value="{StaticResource DesktopFloatPlayerHeight}" />
+                                <Setter Target="FloatPlayerLayout.Width" Value="{StaticResource SideMenuPaneLength}" />
+
+                                <Setter Target="FloatPlayerLayout.HorizontalAlignment" Value="Left" />
+                                <Setter Target="FloatPlayerLayout.VerticalAlignment" Value="Bottom" />
+
                             </VisualState.Setters>
                         </VisualState>
 
@@ -323,7 +329,7 @@
                             </VisualState.StateTriggers>
 
                             <VisualState.Setters>
-                                <Setter Target="PlayerLaytouGrid.Visibility" Value="Visible" />
+                                <Setter Target="PlayerLayoutGrid.Visibility" Value="Visible" />
                                 <Setter Target="TogglePlayerFloatButton.Visibility" Value="Visible" />
 
                                 <Setter Target="FloatPlayerLayout.(Grid.Row)" Value="0" />
@@ -335,6 +341,9 @@
 
                                 <Setter Target="ToggleFloatPlayerGamepadTrigger.IsEnabled" Value="True" />
 
+                                <Setter Target="FloatPlayerLayout.Height" Value="{StaticResource MobileFloatPlayerHeight}" />
+                                <Setter Target="FloatPlayerLayout.VerticalAlignment" Value="Top" />
+                                
                             </VisualState.Setters>
                         </VisualState>
 
@@ -471,6 +480,7 @@
                                                     <core:EventTriggerBehavior EventName="Click">
                                                         <core:ChangePropertyAction TargetObject="{Binding ElementName=ContentSplitView}" PropertyName="IsPaneOpen" Value="True" />
                                                         <mybehavior:SetFocus TargetObject="{Binding ElementName=SideMenu_SearchTextBox}" />
+                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=SideMenu_SearchTextBox}" PropertyName="IsSuggestionListOpen" Value="True" />
                                                     </core:EventTriggerBehavior>
                                                 </i:Interaction.Behaviors>
                                             </Button>
@@ -484,16 +494,26 @@
                                                         Height="36"
                                                         Margin="8 4 8 8"
                                                         Visibility="Collapsed"
+                                                            ItemsSource="{Binding SearchSuggestionWords}"
+                                                            
                                                         >
                                                 <i:Interaction.Behaviors>
+
+                                                    <mybehavior:FocusGetter IsFocus="{Binding ElementName=SideMenu_SearchTextBox, Path=IsSuggestionListOpen, Mode=TwoWay}" />
+                                                    
                                                     <core:EventTriggerBehavior EventName="QuerySubmitted">
-                                                        <core:InvokeCommandAction Command="{Binding SearchCommand}" />
                                                         <mybehavior:HideInputPaneAction />
+                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=SideMenu_SearchTextBox}" PropertyName="IsEnabled" Value="False" />
+                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=SideMenu_SearchTextBox}" PropertyName="IsEnabled" Value="True" />
+                                                        <core:InvokeCommandAction Command="{Binding SearchCommand}" />
+
                                                     </core:EventTriggerBehavior>
 
                                                     <mybehavior:KeyboardTrigger Key="Enter">
-                                                        <core:InvokeCommandAction Command="{Binding SearchCommand}" />
                                                         <mybehavior:HideInputPaneAction />
+                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=SideMenu_SearchTextBox}" PropertyName="IsEnabled" Value="False" />
+                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=SideMenu_SearchTextBox}" PropertyName="IsEnabled" Value="True" />
+                                                        <core:InvokeCommandAction Command="{Binding SearchCommand}" />
                                                     </mybehavior:KeyboardTrigger>
                                                 </i:Interaction.Behaviors>
                                             </AutoSuggestBox>
@@ -619,21 +639,29 @@
                                                             VerticalAlignment="Stretch"
                                                                 QueryIcon="Find"
                                                                 Height="36"
+                                                                ItemsSource="{Binding SearchSuggestionWords}"
                                                         >
                                                     <i:Interaction.Behaviors>
+
+                                                        <mybehavior:FocusGetter IsFocus="{Binding ElementName=Nallow_SearchTextBox, Path=IsSuggestionListOpen, Mode=TwoWay}" />
+
                                                         <core:EventTriggerBehavior EventName="LostFocus" >
                                                             <core:ChangePropertyAction TargetObject="{Binding ElementName=Nallow_SearchLayout}" PropertyName="Visibility" Value="Collapsed" />
                                                         </core:EventTriggerBehavior>
                                                         
                                                         
                                                         <core:EventTriggerBehavior EventName="QuerySubmitted">
-                                                            <core:InvokeCommandAction Command="{Binding SearchCommand}" />
                                                             <mybehavior:HideInputPaneAction />
+                                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=Nallow_SearchTextBox}" PropertyName="IsEnabled" Value="False" />
+                                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=Nallow_SearchTextBox}" PropertyName="IsEnabled" Value="True" />
+                                                            <core:InvokeCommandAction Command="{Binding SearchCommand}" />
                                                         </core:EventTriggerBehavior>
 
                                                         <mybehavior:KeyboardTrigger Key="Enter">
-                                                            <core:InvokeCommandAction Command="{Binding SearchCommand}" />
                                                             <mybehavior:HideInputPaneAction />
+                                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=Nallow_SearchTextBox}" PropertyName="IsEnabled" Value="False" />
+                                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=Nallow_SearchTextBox}" PropertyName="IsEnabled" Value="True" />
+                                                            <core:InvokeCommandAction Command="{Binding SearchCommand}" />
                                                         </mybehavior:KeyboardTrigger>
                                                     </i:Interaction.Behaviors>
                                                 </AutoSuggestBox>
@@ -717,7 +745,7 @@
                 </toolkit:DockPanel>
 
 
-                <Grid x:Name="PlayerLaytouGrid"
+                <Grid x:Name="PlayerLayoutGrid"
                     Visibility="Collapsed"
                       >
 
@@ -730,21 +758,7 @@
                         </mybehavior:UINavigationTrigger>
                     </i:Interaction.Behaviors>
 
-
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="{StaticResource MobileFloatPlayerHeight}" />
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="{StaticResource DesktopFloatPlayerHeight}"  />
-                    </Grid.RowDefinitions>
-
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="{StaticResource SideMenuPaneLength}" />
-                        <ColumnDefinition Width="*" />
-                    </Grid.ColumnDefinitions>
-
-                    <Grid Grid.RowSpan="3"
-                          Grid.ColumnSpan="2"
-                          x:Name="FloatPlayerLayout"
+                    <Grid x:Name="FloatPlayerLayout"
                           >
                         <Frame x:Name="PlayerFrame" 
                            
@@ -759,7 +773,7 @@
                                 VerticalAlignment="Stretch"
                             >
                             <Button.ContextFlyout>
-                                <MenuFlyout >
+                                <MenuFlyout>
                                     <MenuFlyoutItem Text="閉じる" Command="{Binding ClosePlayerCommand}"/>
                                 </MenuFlyout>
                             </Button.ContextFlyout>

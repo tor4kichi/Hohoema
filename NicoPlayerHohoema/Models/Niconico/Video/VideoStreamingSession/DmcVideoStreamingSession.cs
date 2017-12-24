@@ -29,7 +29,7 @@ namespace NicoPlayerHohoema.Models
 
         public NicoVideoQuality RequestedQuality { get; }
 
-        VideoContent _VideoContent;
+        public VideoContent VideoContent { get; private set; }
 
         private VideoContent ResetActualQuality()
         {
@@ -43,6 +43,9 @@ namespace NicoPlayerHohoema.Models
             int qulity_position = 0;
             switch (RequestedQuality)
             {
+                case NicoVideoQuality.Dmc_SuperHigh:
+                    qulity_position = 5;
+                    break;
                 case NicoVideoQuality.Dmc_High:
                     // 4 -> 0
                     // 3 -> x
@@ -103,19 +106,23 @@ namespace NicoPlayerHohoema.Models
             _DmcWatchData = res;
             DmcWatchResponse = res.DmcWatchResponse;
 
-            _VideoContent = ResetActualQuality();
+            VideoContent = ResetActualQuality();
 
-            if (_VideoContent != null)
+            if (VideoContent != null)
             {
-                if (_VideoContent.Bitrate >= 1400_000)
+                if (VideoContent.Bitrate >= 4000_000)
+                {
+                    _Quality = NicoVideoQuality.Dmc_SuperHigh;
+                }
+                else if (VideoContent.Bitrate >= 1400_000)
                 {
                     _Quality = NicoVideoQuality.Dmc_High;
                 }
-                else if (_VideoContent.Bitrate >= 1000_000)
+                else if (VideoContent.Bitrate >= 1000_000)
                 {
                     _Quality = NicoVideoQuality.Dmc_Midium;
                 }
-                else if (_VideoContent.Bitrate >= 600_000)
+                else if (VideoContent.Bitrate >= 600_000)
                 {
                     _Quality = NicoVideoQuality.Dmc_Low;
                 }
@@ -124,7 +131,7 @@ namespace NicoPlayerHohoema.Models
                     _Quality = NicoVideoQuality.Dmc_Mobile;
                 }
 
-                Debug.WriteLine($"bitrate={_VideoContent.Bitrate}, id={_VideoContent.Id}, w={_VideoContent.Resolution.Width}, h={_VideoContent.Resolution.Height}");
+                Debug.WriteLine($"bitrate={VideoContent.Bitrate}, id={VideoContent.Id}, w={VideoContent.Resolution.Width}, h={VideoContent.Resolution.Height}");
                 Debug.WriteLine($"quality={_Quality}");
             }
         }
@@ -135,7 +142,7 @@ namespace NicoPlayerHohoema.Models
 
             if (DmcWatchResponse.Video.DmcInfo == null) { return null; }
 
-            if (_VideoContent == null)
+            if (VideoContent == null)
             {
                 return null;
             }
@@ -154,7 +161,7 @@ namespace NicoPlayerHohoema.Models
                     }
                 }
 
-                _DmcSessionResponse = await _Context.Video.GetDmcSessionResponse(DmcWatchResponse, _VideoContent);
+                _DmcSessionResponse = await _Context.Video.GetDmcSessionResponse(DmcWatchResponse, VideoContent);
 
                 if (_DmcSessionResponse == null) { return null; }
 

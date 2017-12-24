@@ -56,16 +56,18 @@ namespace NicoPlayerHohoema.Models
 
             AlertClient.LiveRecieved += async (sender, args) =>
             {
-                Debug.WriteLine("new live recieved!: lv" + args.Id);
+                var liveId = $"lv{args.Id}";
+
+                Debug.WriteLine("new live recieved!: " + liveId);
 
                 var toastService = App.Current.Container.Resolve<ToastNotificationService>();
 
                 if (_CurrentUserFollows.GetFollowCommunities().Any(x => x == args.CommunityId))
                 {
                     var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
-                    var liveStatus = await hohoemaApp.NiconicoContext.Live.GetPlayerStatusAsync(args.Id);
+                    var liveStatus = await hohoemaApp.NiconicoContext.Live.GetPlayerStatusAsync(liveId);
                     toastService.ShowText($"{liveStatus.Program.BroadcasterName} さんのニコ生開始", $"{liveStatus.Program.Title}",
-                        luanchContent: "niconico://lv" + args.Id
+                        luanchContent: "niconico://" + liveId
                         );
                 }
             };
@@ -88,7 +90,7 @@ namespace NicoPlayerHohoema.Models
 
             if (IsLiveAlertEnabled)
             {
-                StartAlert();
+                StartAlert(NiconicoAlertServiceType.Live);
             }
         }
 
@@ -100,7 +102,7 @@ namespace NicoPlayerHohoema.Models
 
             _CurrentUserFollows = await AlertClient.GetFollowsAsync();
 
-            await AlertClient.ConnectAlertWebScoketServerAsync();
+            await AlertClient.ConnectAlertWebScoketServerAsync(alertServiceTypes);
 
             // 既に始まっている生放送を検出して通知
             var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();

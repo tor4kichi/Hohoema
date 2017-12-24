@@ -152,6 +152,7 @@
     <Content Include="Assets\UpdateNotices\0.11.11.md" />
     <Content Include="Assets\UpdateNotices\0.11.12.md" />
     <Content Include="Assets\UpdateNotices\0.11.13.md" />
+    <Content Include="Assets\UpdateNotices\0.12.0.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <PRIResource Include="Resources\ja-jp\Resources.resw" />
   </ItemGroup>
@@ -293,7 +294,7 @@
     <Compile Include="Models\PagePayload\PagePayloadBase.cs" />
     <Compile Include="Models\Settings\AppearanceSettings.cs" />
     <Compile Include="Models\Settings\CacheSettings.cs" />
-    <Compile Include="Models\Settings\NicoRepoAndFeedSettings.cs" />
+    <Compile Include="Models\Settings\ActivityFeedSettings.cs" />
     <Compile Include="Models\Settings\PlaylistSettings.cs" />
     <Compile Include="Models\Niconico\Mylist\UserMylistManager.cs" />
     <Compile Include="Helpers\ShareHelper.cs" />

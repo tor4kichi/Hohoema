@@ -56,7 +56,7 @@ namespace NicoPlayerHohoema.Models
 			app.CacheManager = await VideoCacheManager.Create(app);
             
             await app.LoadUserSettings();
-            app.HohoemaAlertClient = new HohoemaAlertClient(app.UserSettings.NicoRepoAndFeedSettings);
+            app.HohoemaAlertClient = new HohoemaAlertClient(app.UserSettings.ActivityFeedSettings);
 
             await app.FeedManager.Initialize();
 

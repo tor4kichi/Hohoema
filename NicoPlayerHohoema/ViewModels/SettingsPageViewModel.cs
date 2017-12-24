@@ -260,7 +260,7 @@ namespace NicoPlayerHohoema.ViewModels
             _RankingSettings = HohoemaApp.UserSettings.RankingSettings;
             _HohoemaDialogService = dialogService;
 
-            IsLiveAlertEnabled = HohoemaApp.UserSettings.NicoRepoAndFeedSettings.ToReactivePropertyAsSynchronized(x => x.IsLiveAlertEnabled)
+            IsLiveAlertEnabled = HohoemaApp.UserSettings.ActivityFeedSettings.ToReactivePropertyAsSynchronized(x => x.IsLiveAlertEnabled)
                 .AddTo(_CompositeDisposable);
 
             // NG Video Owner User Id

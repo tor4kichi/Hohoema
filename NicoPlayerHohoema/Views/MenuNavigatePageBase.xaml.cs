@@ -82,5 +82,6 @@ namespace NicoPlayerHohoema.Views
 
             base.OnApplyTemplate();
         }
+
     }
 }
