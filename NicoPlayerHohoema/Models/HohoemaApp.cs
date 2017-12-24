@@ -104,7 +104,7 @@ namespace NicoPlayerHohoema.Models
 
 			_SigninLock = new SemaphoreSlim(1, 1);
 
-            ApplicationData.Current.DataChanged += Current_DataChanged;
+//            ApplicationData.Current.DataChanged += Current_DataChanged;
 
 
             UpdateServiceStatus();
