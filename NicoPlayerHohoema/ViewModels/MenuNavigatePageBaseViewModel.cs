@@ -18,6 +18,11 @@ using System.Reactive.Linq;
 using NicoPlayerHohoema.Views.Service;
 using Windows.UI.ViewManagement;
 using NicoPlayerHohoema.Helpers;
+using Windows.Foundation.Metadata;
+using Windows.ApplicationModel.Core;
+using NicoPlayerHohoema.Models.Live;
+using Windows.UI.Core;
+using Prism.Windows.Mvvm;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -35,13 +40,35 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> IsShowInAppNotification { get; private set; }
 
 
+
+        public ReactiveProperty<bool> IsShowPlayer { get; private set; }
+        public ReadOnlyReactiveProperty<bool> IsShowPlayerInFill { get; private set; }
+
+        public ReactiveProperty<bool> IsContentDisplayFloating { get; private set; }
+
+        private Dictionary<string, object> viewModelState = new Dictionary<string, object>();
+
+        /// <summary>
+        /// Playerの小窓状態の変化を遅延させて伝播させます、
+        /// 
+        /// 遅延させている理由は、Player上のFlyoutを閉じる前にリサイズが発生するとFlyoutが
+        /// ゴースト化（FlyoutのUIは表示されず閉じれないが、Visible状態と同じようなインタラクションだけは出来てしまう）
+        /// してしまうためです。（タブレット端末で発生、PCだと発生確認されず）
+        /// この問題を回避するためにFlyoutが閉じられた後にプレイヤーリサイズが走るように遅延を挟んでいます。
+        /// </summary>
+        public ReadOnlyReactiveProperty<bool> IsShowPlayerInFill_DelayedRead { get; private set; }
+
+
+        public INavigationService NavigationService { get; private set; }
+
+
         public MenuNavigatePageBaseViewModel(
-            HohoemaApp hohoemaApp, 
+            HohoemaApp hohoemaApp,
             PageManager pageManager
             )
-		{
-			PageManager = pageManager;
-			HohoemaApp = hohoemaApp;
+        {
+            PageManager = pageManager;
+            HohoemaApp = hohoemaApp;
 
             // TV Mode
             if (Helpers.DeviceTypeHelper.IsXbox)
@@ -58,14 +85,13 @@ namespace NicoPlayerHohoema.ViewModels
             ServiceLevel = HohoemaApp.ObserveProperty(x => x.ServiceStatus)
                 .ToReadOnlyReactiveProperty();
 
-            IsNeedFullScreenToggleHelp 
+            IsNeedFullScreenToggleHelp
                 = ApplicationView.PreferredLaunchWindowingMode == ApplicationViewWindowingMode.FullScreen;
 
             IsOpenPane = new ReactiveProperty<bool>(false);
 
             MenuItems = new List<PageTypeSelectableItem>()
-			{
-                new PageTypeSelectableItem(HohoemaPageType.Search             , OnMenuItemSelected, "検索", Symbol.Find),
+            {
                 new PageTypeSelectableItem(HohoemaPageType.RankingCategoryList, OnMenuItemSelected, "ランキング", Symbol.Flag),
                 new PageTypeSelectableItem(HohoemaPageType.Mylist             , OnWatchAfterMenuItemSelected, "あとで見る", Symbol.Play),
                 new PageTypeSelectableItem(HohoemaPageType.UserMylist         , OnMenuItemSelected, "マイリスト", Symbol.Bookmarks),
@@ -95,9 +121,9 @@ namespace NicoPlayerHohoema.ViewModels
                 .Subscribe(x => x.SelectedAction(x.Source));
             */
             PageManager.ObserveProperty(x => x.CurrentPageType)
-				.Subscribe(pageType => 
-				{
-//                    IsOpenPane.Value = false;
+                .Subscribe(pageType =>
+                {
+                    //                    IsOpenPane.Value = false;
 
                     bool isMenuItemOpened = false;
                     foreach (var item in MenuItems)
@@ -136,27 +162,27 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             PageManager.ObserveProperty(x => x.PageTitle)
-				.Subscribe(x =>
-				{
-					TitleText = x;
-				});
+                .Subscribe(x =>
+                {
+                    TitleText = x;
+                });
 
 
-			IsVisibleMenu = PageManager.ObserveProperty(x => x.CurrentPageType)
-				.Select(x => 
-				{
-					return !PageManager.IsHiddenMenuPage(x);
-				})
-				.ToReactiveProperty();
+            IsVisibleMenu = PageManager.ObserveProperty(x => x.CurrentPageType)
+                .Select(x =>
+                {
+                    return !PageManager.IsHiddenMenuPage(x);
+                })
+                .ToReactiveProperty(false);
 
-			NowNavigating = PageManager.ObserveProperty(x => x.PageNavigating)
-				.ToReactiveProperty();
+            NowNavigating = PageManager.ObserveProperty(x => x.PageNavigating)
+                .ToReactiveProperty();
 
 
-			PageManager.StartWork += PageManager_StartWork;
-			PageManager.ProgressWork += PageManager_ProgressWork;
-			PageManager.CompleteWork += PageManager_CompleteWork;
-			PageManager.CancelWork += PageManager_CancelWork;
+            PageManager.StartWork += PageManager_StartWork;
+            PageManager.ProgressWork += PageManager_ProgressWork;
+            PageManager.CompleteWork += PageManager_CompleteWork;
+            PageManager.CancelWork += PageManager_CancelWork;
 
             HohoemaApp.ObserveProperty(x => x.IsLoggedIn)
                 .Subscribe(x => IsLoggedIn = x);
@@ -175,24 +201,191 @@ namespace NicoPlayerHohoema.ViewModels
 
             // 検索
             SearchKeyword = new ReactiveProperty<string>("");
-            SearchTarget = new ReactiveProperty<Models.SearchTarget>(Models.SearchTarget.Keyword);
 
             SearchCommand = SearchKeyword
                 .Select(x => !string.IsNullOrWhiteSpace(x))
                 .ToReactiveCommand();
-            SearchCommand.Subscribe(_ => 
+            SearchCommand
+                .Delay(TimeSpan.FromSeconds(0.15))
+                .Subscribe(_ =>
             {
+                /*
                 ISearchPagePayloadContent searchContent =
                     SearchPagePayloadContentHelper.CreateDefault(SearchTarget.Value, SearchKeyword.Value);
-                PageManager.Search(searchContent);
-
-                IsMobileNowSearching = false;
+                PageManager.Search();
+                */
+                PageManager.OpenPage(HohoemaPageType.SearchSummary, SearchKeyword.Value);
             });
 
+            var searchKeywordChanged = SearchKeyword
+                .Throttle(TimeSpan.FromMilliseconds(500));
 
+            SearchSuggestionWords = searchKeywordChanged
+                .SelectMany(async word =>
+                {
+                    if (string.IsNullOrWhiteSpace(word))
+                    {
+                        // 検索履歴を表示
+                        return Models.Db.SearchHistoryDb.GetHistoryItems()
+                            .OrderByDescending(x => x.LastUpdated)
+                            .Take(10)
+                            .Select(x => x.Keyword);
+                    }
+                    else if (HohoemaApp.NiconicoContext != null)
+                    {
+                        var res = await HohoemaApp.ContentProvider.GetSearchSuggestKeyword(word);
+                        return res.Candidates.AsEnumerable();
+                    }
+                    else { return Enumerable.Empty<string>(); }
+                })
+                .SelectMany(x => x)
+                .ToReadOnlyReactiveCollection(searchKeywordChanged.ToUnit());
+                
 
             // InAppNotification
             IsShowInAppNotification = new ReactiveProperty<bool>(true);
+
+
+
+            IsShowPlayerInFill = HohoemaApp.Playlist
+                .ObserveProperty(x => x.IsPlayerFloatingModeEnable)
+                .Select(x => !x)
+                .ToReadOnlyReactiveProperty();
+
+            IsShowPlayerInFill_DelayedRead = IsShowPlayerInFill
+                .Delay(TimeSpan.FromMilliseconds(300))
+                .ToReadOnlyReactiveProperty();
+
+
+            IsShowPlayer = HohoemaApp.Playlist.ObserveProperty(x => x.IsDisplayMainViewPlayer)
+                .ToReactiveProperty(mode: ReactivePropertyMode.DistinctUntilChanged);
+
+            IsContentDisplayFloating = Observable.CombineLatest(
+                IsShowPlayerInFill.Select(x => !x),
+                IsShowPlayer
+                )
+                .Select(x => x.All(y => y))
+                .ToReactiveProperty();
+
+
+            HohoemaApp.Playlist.OpenPlaylistItem += HohoemaPlaylist_OpenPlaylistItem;
+
+            IsShowPlayer
+                .Where(x => !x)
+                .Subscribe(x =>
+                {
+                    ClosePlayer();
+                });
+
+            if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
+            {
+                Observable.Merge(
+                    IsShowPlayer.Where(x => !x),
+                    IsContentDisplayFloating.Where(x => x)
+                    )
+                    .Subscribe(async x =>
+                    {
+                        var view = ApplicationView.GetForCurrentView();
+                        if (view.IsViewModeSupported(ApplicationViewMode.CompactOverlay))
+                        {
+                            var result = await view.TryEnterViewModeAsync(ApplicationViewMode.Default);
+                            if (result)
+                            {
+                                CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = false;
+                                view.TitleBar.ButtonBackgroundColor = null;
+                                view.TitleBar.ButtonInactiveBackgroundColor = null;
+
+                            }
+                        }
+                    });
+            }
+        }
+
+        internal void SetNavigationService(INavigationService ns)
+        {
+            NavigationService = ns;
+        }
+
+
+
+        private async void HohoemaPlaylist_OpenPlaylistItem(IPlayableList playlist, PlaylistItem item)
+        {
+            await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            {
+                ShowPlayer(item);
+            });
+        }
+
+        private bool ShowPlayer(PlaylistItem item)
+        {
+            string pageType = null;
+            string parameter = null;
+            switch (item.Type)
+            {
+                case PlaylistItemType.Video:
+                    pageType = nameof(Views.VideoPlayerPage);
+                    parameter = new VideoPlayPayload()
+                    {
+                        VideoId = item.ContentId
+                    }
+                    .ToParameterString();
+                    break;
+                case PlaylistItemType.Live:
+                    pageType = nameof(Views.LivePlayerPage);
+                    parameter = new LiveVideoPagePayload(item.ContentId)
+                    {
+                        LiveTitle = item.Title,
+                    }
+                    .ToParameterString();
+                    break;
+                default:
+                    break;
+            }
+
+            return NavigationService.Navigate(pageType, parameter);
+        }
+
+        private void ClosePlayer()
+        {
+            NavigationService.Navigate("Blank", null);
+        }
+
+        private DelegateCommand _PlayerFillDisplayCommand;
+        public DelegateCommand TogglePlayerFloatDisplayCommand
+        {
+            get
+            {
+                return _PlayerFillDisplayCommand
+                    ?? (_PlayerFillDisplayCommand = new DelegateCommand(() =>
+                    {
+                        // プレイヤー表示中だけ切り替えを受け付け
+                        if (!HohoemaApp.Playlist.IsDisplayMainViewPlayer) { return; }
+
+                        // メインウィンドウでの表示状態を「ウィンドウ全体」⇔「小窓表示」と切り替える
+                        if (HohoemaApp.Playlist.PlayerDisplayType == PlayerDisplayType.PrimaryView)
+                        {
+                            HohoemaApp.Playlist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
+                        }
+                        else if (HohoemaApp.Playlist.PlayerDisplayType == PlayerDisplayType.PrimaryWithSmall)
+                        {
+                            HohoemaApp.Playlist.PlayerDisplayType = PlayerDisplayType.PrimaryView;
+                        }
+                    }));
+            }
+        }
+
+
+        private DelegateCommand _ClosePlayerCommand;
+        public DelegateCommand ClosePlayerCommand
+        {
+            get
+            {
+                return _ClosePlayerCommand
+                    ?? (_ClosePlayerCommand = new DelegateCommand(() =>
+                    {
+                        HohoemaApp.Playlist.IsDisplayMainViewPlayer = false;
+                    }));
+            }
         }
 
         private void PageManager_StartWork(string title, uint totalCount)
@@ -461,57 +654,11 @@ namespace NicoPlayerHohoema.ViewModels
         #region Search
 
 
-        public static List<SearchTarget> SearchTargetItems { get; private set; } = new List<Models.SearchTarget>()
-        {
-            Models.SearchTarget.Keyword,
-            Models.SearchTarget.Tag,
-            Models.SearchTarget.Mylist,
-            Models.SearchTarget.Community,
-            Models.SearchTarget.Niconama,
-        };
-
-       
-
         public ReactiveProperty<string> SearchKeyword { get; private set; }
-        public ReactiveProperty<SearchTarget> SearchTarget { get; private set; }
+
+        public ReadOnlyReactiveCollection<string> SearchSuggestionWords { get; }
 
         public ReactiveCommand SearchCommand { get; private set; }
-
-        private DelegateCommand _OpenSearchPageCommand;
-        public DelegateCommand OpenSearchPageCommand
-        {
-            get
-            {
-                return _OpenSearchPageCommand
-                    ?? (_OpenSearchPageCommand = new DelegateCommand(() =>
-                    {
-                        PageManager.OpenPage(HohoemaPageType.Search);
-
-                        IsMobileNowSearching = false;
-                    }));
-            }
-        }
-
-        private bool _IsMobileNowSearching;
-        public bool IsMobileNowSearching
-        {
-            get { return _IsMobileNowSearching; }
-            set { SetProperty(ref _IsMobileNowSearching, value); }
-        }
-
-        private DelegateCommand _StartMobileSearchCommand;
-        public DelegateCommand StartMobileSearchCommand
-        {
-            get
-            {
-                return _StartMobileSearchCommand
-                    ?? (_StartMobileSearchCommand = new DelegateCommand(() =>
-                    {
-                        IsMobileNowSearching = !IsMobileNowSearching;
-                    }));
-            }
-        }
-
 
         #endregion
 
@@ -541,6 +688,11 @@ namespace NicoPlayerHohoema.ViewModels
 
         public bool HasChild { get; set; }
         public List<PageTypeSelectableItem> Children { get; set; }
+
+    }
+
+    public class EmptyContentViewModel : ViewModelBase
+    {
 
     }
 

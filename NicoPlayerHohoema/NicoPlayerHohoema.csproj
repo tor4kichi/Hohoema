@@ -152,6 +152,7 @@
     <Content Include="Assets\UpdateNotices\0.11.11.md" />
     <Content Include="Assets\UpdateNotices\0.11.12.md" />
     <Content Include="Assets\UpdateNotices\0.11.13.md" />
+    <Content Include="Assets\UpdateNotices\0.12.0.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <PRIResource Include="Resources\ja-jp\Resources.resw" />
   </ItemGroup>
@@ -214,6 +215,7 @@
     <Compile Include="Models\AccountManager.cs" />
     <Compile Include="Models\AppUpdateNotice.cs" />
     <Compile Include="Models\Db\MigrationToLiteDBHelper.cs" />
+    <Compile Include="Models\Niconico\HohoemaAlertClient.cs" />
     <Compile Include="Models\Niconico\Video\Comment\CommentCommandPermissionType.cs" />
     <Compile Include="Models\Niconico\CommentOpacityKind.cs" />
     <Compile Include="Models\Db\History\HistoryDbContext.cs" />
@@ -292,7 +294,7 @@
     <Compile Include="Models\PagePayload\PagePayloadBase.cs" />
     <Compile Include="Models\Settings\AppearanceSettings.cs" />
     <Compile Include="Models\Settings\CacheSettings.cs" />
-    <Compile Include="Models\Settings\NicoRepoAndFeedSettings.cs" />
+    <Compile Include="Models\Settings\ActivityFeedSettings.cs" />
     <Compile Include="Models\Settings\PlaylistSettings.cs" />
     <Compile Include="Models\Niconico\Mylist\UserMylistManager.cs" />
     <Compile Include="Helpers\ShareHelper.cs" />
@@ -345,6 +347,7 @@
     <Compile Include="ViewModels\FeedVideoInfoControlViewModel.cs" />
     <Compile Include="ViewModels\FeedGroupManagePageViewModel.cs" />
     <Compile Include="ViewModels\FeedGroupPageViewModel.cs" />
+    <Compile Include="ViewModels\SearchSummaryPageViewModel.cs" />
     <Compile Include="ViewModels\WatchHistoryPageViewModel.cs" />
     <Compile Include="ViewModels\HohoemaIncrementalSourceBase.cs" />
     <Compile Include="ViewModels\HohoemaListingPageItemBase.cs" />
@@ -381,9 +384,6 @@
     <Compile Include="ViewModels\UserVideoPageViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\CommentSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\SidePaneContentViewModelBase.cs" />
-    <Compile Include="Views\AboutPage.xaml.cs">
-      <DependentUpon>AboutPage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\Behaviors\FocusGetter.cs" />
     <Compile Include="Views\Behaviors\AutoHideCursor.cs" />
     <Compile Include="Views\Behaviors\ListViewBaseItemContextFlyout.cs" />
@@ -417,6 +417,9 @@
     </Compile>
     <Compile Include="Views\Flyouts\FeedSourceFlyout.xaml.cs">
       <DependentUpon>FeedSourceFlyout.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SearchSummaryPage.xaml.cs">
+      <DependentUpon>SearchSummaryPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\_CommentRenderer\CommentRendererEx.xaml.cs">
       <DependentUpon>CommentRendererEx.xaml</DependentUpon>
@@ -534,9 +537,6 @@
     <Compile Include="Views\_DownloadProgress\ProgressFragment.cs" />
     <Compile Include="Views\EditAutCacheConditionDialog.xaml.cs">
       <DependentUpon>EditAutCacheConditionDialog.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\FeedbackPage.xaml.cs">
-      <DependentUpon>FeedbackPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\FeedVideoListPage.xaml.cs">
       <DependentUpon>FeedVideoListPage.xaml</DependentUpon>
@@ -793,6 +793,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\SearchSummaryPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\_CommentRenderer\CommentRendererEx.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -808,10 +812,6 @@
     <Page Include="Views\Controls\FloatContentContainer\FloatContentContainer.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\AboutPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\CacheManagementPage.xaml">
       <SubType>Designer</SubType>
@@ -920,10 +920,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\EditAutCacheConditionDialog.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\FeedbackPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1102,6 +1098,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\NicoAlert\NicoAlert.csproj">
+      <Project>{973a1e65-a9f3-4144-a521-647ddfe06f2a}</Project>
+      <Name>NicoAlert</Name>
+    </ProjectReference>
     <ProjectReference Include="..\NicoVideoRtmpClient\NicoVideoRtmpClient.csproj">
       <Project>{4fa97e39-99df-423b-9de0-0d6662e98e7e}</Project>
       <Name>NicoVideoRtmpClient</Name>

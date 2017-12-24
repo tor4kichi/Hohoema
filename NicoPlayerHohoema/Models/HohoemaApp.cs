@@ -24,6 +24,7 @@ using Windows.UI.Xaml;
 using Microsoft.Practices.Unity;
 using NicoPlayerHohoema.Dialogs;
 using NicoPlayerHohoema.Services;
+using Hohoema.NicoAlert;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -43,7 +44,11 @@ namespace NicoPlayerHohoema.Models
 
         private bool IsInitialized = false;
 
-		public static async Task<HohoemaApp> Create(IEventAggregator ea, HohoemaViewManager viewMan, HohoemaDialogService dialogService)
+        public NicoAlertClient AlertClient { get; private set; }
+
+
+
+        public static async Task<HohoemaApp> Create(IEventAggregator ea, HohoemaViewManager viewMan, HohoemaDialogService dialogService)
 		{
 			HohoemaApp.UIDispatcher = Window.Current.CoreWindow.Dispatcher;
 
@@ -51,6 +56,7 @@ namespace NicoPlayerHohoema.Models
 			app.CacheManager = await VideoCacheManager.Create(app);
             
             await app.LoadUserSettings();
+            app.HohoemaAlertClient = new HohoemaAlertClient(app.UserSettings.ActivityFeedSettings);
 
             await app.FeedManager.Initialize();
 
@@ -720,8 +726,10 @@ namespace NicoPlayerHohoema.Models
                         // サインイン完了
                         OnSignin?.Invoke();
 
-						// TODO: 途中だった動画のダウンロードを再開
-						// await MediaManager.StartBackgroundDownload();
+                        // TODO: 途中だった動画のダウンロードを再開
+                        // await MediaManager.StartBackgroundDownload();
+
+                        await HohoemaAlertClient.LoginAlertAsync(mailOrTelephone, password);
                     }
 					else
 					{
@@ -1235,7 +1243,8 @@ namespace NicoPlayerHohoema.Models
 		{
 			CacheManager?.Dispose();
 			LoggingChannel?.Dispose();
-		}
+            AlertClient?.Dispose();
+        }
 
         public async Task<IPlayableList> ChoiceMylist(params string[] ignoreMylistId)
         {
@@ -1422,6 +1431,9 @@ namespace NicoPlayerHohoema.Models
 			get { return _FeedManager; }
 			set { SetProperty(ref _FeedManager, value); }
 		}
+
+
+        public HohoemaAlertClient HohoemaAlertClient { get; private set; }
 
         private HohoemaAppServiceLevel _ServiceStatus;
         public HohoemaAppServiceLevel ServiceStatus

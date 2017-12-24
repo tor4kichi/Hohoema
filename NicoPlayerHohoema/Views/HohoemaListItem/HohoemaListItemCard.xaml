@@ -12,7 +12,8 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <Grid MaxWidth="220"
+    <Grid BorderBrush="{Binding ThemeColor, Converter={StaticResource ColorToBrush}}"
+          BorderThickness="0 2 0 0"
           >
 
         <VisualStateManager.VisualStateGroups>
@@ -31,10 +32,9 @@
 
 
         <toolkit:DockPanel x:Name="ContentLayout">
-            <Grid Height="140"
+            <Grid 
+                  Width="180"
                   toolkit:DockPanel.Dock="Top"
-                  BorderBrush="{Binding ThemeColor, Converter={StaticResource ColorToBrush}}"
-                  BorderThickness="2 0 0 0"
                   Padding="2 0 0 0"
                     >
 
@@ -42,7 +42,7 @@
                 <Image Source="{Binding FirstImageUrl}"
                    Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}" 
                    Stretch="Uniform"
-                       Height="120"
+                       
                    />
 
                 <Border 
@@ -62,7 +62,7 @@
                 </Border>
             </Grid>
 
-            <StackPanel Margin="0 8 0 0" 
+            <StackPanel Margin="4 8 4 0" 
                                
                                >
 
@@ -72,15 +72,18 @@
                            TextWrapping="Wrap"
                            FontSize="16"
                            VerticalAlignment="Top"
-                           Margin="0 8"
-                           Height="64"
+                           Margin="0 0"
+                           MaxWidth="172"
                            />
 
                 <TextBlock Text="{Binding OptionText}"
+                           toolkit:DockPanel.Dock="Top"
                         TextWrapping="Wrap"
                         FontSize="13"
                         Opacity="0.7"
                         />
+
+                <Border Height="16" />
 
                 <TextBlock Text="{Binding Description}"
                         TextWrapping="Wrap"

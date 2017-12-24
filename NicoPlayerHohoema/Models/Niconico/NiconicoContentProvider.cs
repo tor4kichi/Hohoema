@@ -543,6 +543,12 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
+        public Task<Mntone.Nico2.Searches.Suggestion.SuggestionResponse> GetSearchSuggestKeyword(string keyword)
+        {
+            return Context.Search.GetSuggestionAsync(keyword);
+        }
+
+
 		public async Task<List<LoginUserMylistGroup>> GetLoginUserMylistGroups()
 		{
             if (Context == null)

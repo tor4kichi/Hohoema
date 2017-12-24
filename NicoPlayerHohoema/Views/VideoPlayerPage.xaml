@@ -584,21 +584,6 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
-            
-            <!-- TV Mode が有効な場合にコメントタップバリアを無効に -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="CommentWritingIntarctionBarrier.Visibility" Value="Collapsed" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-            
-
-
 
             <!-- Landscape固定ボタンの表示管理 -->
             <VisualStateGroup>
@@ -789,13 +774,13 @@
 
 
 
-                            <!--
-                    <mybehavior:UINavigationTrigger Kind="{x:Bind ShowUIUINavigationButtons}" 
-                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
-                                                        >
-                        <core:ChangePropertyAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" PropertyName="IsVisible" Value="True" />
-                    </mybehavior:UINavigationTrigger>
-                    -->
+                            
+                            <mybehavior:UINavigationTrigger Kind="Cancel" 
+                                                                IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
+                                                                >
+                                <core:ChangePropertyAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" PropertyName="IsVisible" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanInverted}}" />
+                            </mybehavior:UINavigationTrigger>
+                    
 
 
 
@@ -821,12 +806,6 @@
                                                         IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                                         >
                                 <core:InvokeCommandAction Command="{Binding TogglePlayPauseCommand}" />
-                            </mybehavior:UINavigationTrigger>
-
-                            <mybehavior:UINavigationTrigger Kind="Context2" 
-                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
-                                                        >
-                                <core:ChangePropertyAction TargetObject="{Binding ElementName=PlayerSplitView}" PropertyName="IsPaneOpen" Value="True" />
                             </mybehavior:UINavigationTrigger>
 
 
@@ -1919,25 +1898,6 @@
                             </Grid>
 
                             
-                        </Grid>
-
-
-                        <Grid x:Name="CommentWritingIntarctionBarrier">
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="*" />
-                                <RowDefinition Height="48" />
-                            </Grid.RowDefinitions>
-
-                            <Border IsHitTestVisible="True" Background="Transparent" Grid.Row="0" Visibility="{Binding NowCommentWriting.Value, Converter={StaticResource BooleanToVisibility}}">
-                                <i:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="Tapped">
-                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
-                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
-                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=CO_CommentTextBox}" PropertyName="IsEnabled" Value="False" />
-                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=CO_CommentTextBox}" PropertyName="IsEnabled" Value="True" />
-                                    </core:EventTriggerBehavior>
-                                </i:Interaction.Behaviors>
-                            </Border>
                         </Grid>
 
 

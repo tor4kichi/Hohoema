@@ -13,18 +13,18 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
+// 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
 namespace NicoPlayerHohoema.Views
 {
-	/// <summary>
-	/// An empty page that can be used on its own or navigated to within a Frame.
-	/// </summary>
-	public sealed partial class FeedbackPage : Page
-	{
-		public FeedbackPage()
-		{
-			this.InitializeComponent();
-		}
-	}
+    /// <summary>
+    /// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
+    /// </summary>
+    public sealed partial class SearchSummaryPage : Page
+    {
+        public SearchSummaryPage()
+        {
+            this.InitializeComponent();
+        }
+    }
 }

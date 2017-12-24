@@ -25,6 +25,29 @@
 
     <Grid>
 
+        <VisualStateManager.VisualStateGroups>
+            <!-- ウィンドウサイズごとの表示 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="520" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+        </VisualStateManager.VisualStateGroups>
+        
+        
         <controls:ListingWithHeader 
             x:Name="ListingWithHeader"
             ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
@@ -123,6 +146,7 @@
                         <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource TitleTextBlockStyle}"
+                                   x:Name="TitleLayout"
                                     />
                     </Border>
                 </toolkit:DockPanel>

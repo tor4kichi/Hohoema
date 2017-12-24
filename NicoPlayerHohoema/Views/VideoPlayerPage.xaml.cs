@@ -20,8 +20,8 @@ namespace NicoPlayerHohoema.Views
 {
     public sealed partial class VideoPlayerPage : Page
     {
-        public UINavigationButtons ShowUIUINavigationButtons => 
-            UINavigationButtons.Accept | UINavigationButtons.Left | UINavigationButtons.Right | UINavigationButtons.Up | UINavigationButtons.Down;
+        public UINavigationButtons ShowUIUINavigationButtons =>
+            UINavigationButtons.Cancel | UINavigationButtons.Accept | UINavigationButtons.Left | UINavigationButtons.Right | UINavigationButtons.Up | UINavigationButtons.Down;
 
         public VideoPlayerPage()
         {

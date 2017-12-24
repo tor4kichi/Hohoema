@@ -32,6 +32,9 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class SettingsPageViewModel : HohoemaViewModelBase
 	{
+        public ReactiveProperty<bool> IsLiveAlertEnabled { get; private set; }
+
+
         // フィルタ
         public ReactiveProperty<bool> NGVideoOwnerUserIdEnable { get; private set; }
         public ReadOnlyReactiveCollection<UserIdInfo> NGVideoOwnerUserIds { get; private set; }
@@ -256,6 +259,9 @@ namespace NicoPlayerHohoema.ViewModels
             _NGSettings = HohoemaApp.UserSettings.NGSettings;
             _RankingSettings = HohoemaApp.UserSettings.RankingSettings;
             _HohoemaDialogService = dialogService;
+
+            IsLiveAlertEnabled = HohoemaApp.UserSettings.ActivityFeedSettings.ToReactivePropertyAsSynchronized(x => x.IsLiveAlertEnabled)
+                .AddTo(_CompositeDisposable);
 
             // NG Video Owner User Id
             NGVideoOwnerUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoOwnerUserIdEnable);

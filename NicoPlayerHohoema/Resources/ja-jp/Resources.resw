@@ -342,7 +342,7 @@
     <comment>HohoemaPageType</comment>
   </data>
   <data name="RankingCategoryList" xml:space="preserve">
-    <value>ランキングカテゴリ一覧</value>
+    <value>ランキング一覧</value>
     <comment>HohoemaPageType</comment>
   </data>
   <data name="science" xml:space="preserve">
@@ -536,5 +536,9 @@
   <data name="RightsHolders" xml:space="preserve">
     <value>権利者削除</value>
     <comment>Mntone.Nico2.PrivateReasonType</comment>
+  </data>
+  <data name="Dmc_SuperHigh" xml:space="preserve">
+    <value>すごく高</value>
+    <comment>NicoVideoQuality</comment>
   </data>
 </root>
