@@ -164,7 +164,10 @@ namespace NicoPlayerHohoema.ViewModels
                 }
 
                 // 投稿者IDをチェック
-                if (!_isOwnerIdNgCheckProcessed && !string.IsNullOrEmpty(info.Owner?.OwnerId))
+                if (ngResult == null && 
+                    !_isOwnerIdNgCheckProcessed && 
+                    !string.IsNullOrEmpty(info.Owner?.OwnerId)
+                    )
                 {
                     ngResult = hohoemaApp.UserSettings.NGSettings.IsNgVideoOwnerId(info.Owner.OwnerId);
                     _isOwnerIdNgCheckProcessed = true;
