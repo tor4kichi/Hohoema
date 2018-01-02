@@ -421,6 +421,9 @@
     <Compile Include="Views\SearchSummaryPage.xaml.cs">
       <DependentUpon>SearchSummaryPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\_CommentRenderer\CommentRendererCompositionUI.xaml.cs">
+      <DependentUpon>CommentRendererCompositionUI.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\_CommentRenderer\CommentRendererEx.xaml.cs">
       <DependentUpon>CommentRendererEx.xaml</DependentUpon>
     </Compile>
@@ -796,6 +799,10 @@
     <Page Include="Views\SearchSummaryPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\_CommentRenderer\CommentRendererCompositionUI.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\_CommentRenderer\CommentRendererEx.xaml">
       <SubType>Designer</SubType>

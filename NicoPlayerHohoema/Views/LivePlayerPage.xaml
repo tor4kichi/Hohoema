@@ -600,7 +600,7 @@
 
                     <Grid Height="{Binding CommentCanvasHeight.Value}">
 
-                        <local:CommentRendererEx
+                        <local:CommentRendererCompositionUI
                                     x:Name="CommentRederer"
                                     Comments="{Binding LiveComments}"
                                     MediaPlayer="{Binding MediaPlayer, Mode=OneWay}"                                 
@@ -609,7 +609,7 @@
                                     CommentDefaultColor="{Binding CommentDefaultColor.Value}"
                                     DefaultDisplayDuration="{Binding RequestCommentDisplayDuration.Value}"
                                     Opacity="{Binding CommentOpacity.Value, Mode=OneWay}"
-                                    UpdateInterval="{Binding CommentUpdateInterval.Value, Mode=OneWay}"
+                                    UpdateInterval="0:0:0.032"
                                     />
 
                         <Border  VerticalAlignment="Bottom"
