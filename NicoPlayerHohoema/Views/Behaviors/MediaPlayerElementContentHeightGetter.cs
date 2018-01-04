@@ -74,6 +74,9 @@ namespace NicoPlayerHohoema.Views.Behaviors
         CoreDispatcher _UIDispatcher;
 
         IDisposable Disposer;
+        bool IsDisposed = false;
+
+
         private void AssociatedObject_Unloaded(object sender, RoutedEventArgs e)
         {
             if (_MediaPlayer != null)
@@ -84,6 +87,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
             Disposer?.Dispose();
             Disposer = null;
             _Timer.Stop();
+            IsDisposed = true;
         }
 
         private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
@@ -143,6 +147,8 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 		public async void StartEnsureResizeNotifyTimer()
 		{
+            if (IsDisposed) { return; }
+
 			if (IsSizeChanged == false)
 			{
 				return;

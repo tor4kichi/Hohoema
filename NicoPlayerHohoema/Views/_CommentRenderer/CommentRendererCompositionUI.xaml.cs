@@ -48,6 +48,7 @@ namespace NicoPlayerHohoema.Views
             public Comment Comment { get; set; }
             public CommentUI CommentUI { get; set; }
             public AnimationSet TranslateAnimation { get; set; }
+            
             //public bool IsSkipUpdate { get; set; }
             //public float MoveSpeedPixelPerSec { get; set; }
             //public double PrevHorizontalPosition { get; set; }
@@ -129,6 +130,9 @@ namespace NicoPlayerHohoema.Views
             {
                 foreach (var renderComment in RenderComments)
                 {
+                    renderComment.TranslateAnimation?.Stop();
+                    renderComment.TranslateAnimation?.Dispose();
+                    renderComment.TranslateAnimation = null;
                     CommentUICached.Push(renderComment);
                 }
 
@@ -164,9 +168,10 @@ namespace NicoPlayerHohoema.Views
 
             foreach (var renderComment in RenderComments)
             {
+                renderComment.TranslateAnimation?.Stop();
                 renderComment.TranslateAnimation?.Dispose();
                 renderComment.TranslateAnimation = null;
-            }
+            }            
         }
 
         private bool _IsNeedCommentRenderUpdated = false;
@@ -380,6 +385,9 @@ namespace NicoPlayerHohoema.Views
                 {
                     foreach (var renderComment in RenderComments)
                     {
+                        renderComment.TranslateAnimation?.Stop();
+                        renderComment.TranslateAnimation?.Dispose();
+                        renderComment.TranslateAnimation = null;
                         renderComment.CommentUI.DataContext = null;
                         CommentUICached.Push(renderComment);
                     }
@@ -588,10 +596,11 @@ namespace NicoPlayerHohoema.Views
                         // Composition.UIによるコメントのアニメーションを設定
                         if (renderInfo.TranslateAnimation != null)
                         {
+                            renderInfo.TranslateAnimation?.Stop();
                             renderInfo.TranslateAnimation.Dispose();
                         }
 
-                        var duration = 
+                        
                         renderInfo.TranslateAnimation = renderComment
                             .Offset((float)initialVPos.Value, duration: 0)
                             .Then()
@@ -1016,6 +1025,7 @@ namespace NicoPlayerHohoema.Views
                         {
                             if (renderComment.Comment.VAlign == null)
                             {
+                                renderComment.TranslateAnimation?.Stop();
                                 renderComment.TranslateAnimation?.Dispose();
                                 renderComment.TranslateAnimation = renderComment.CommentUI.Offset(
                                     -renderComment.CommentUI.TextWidth
