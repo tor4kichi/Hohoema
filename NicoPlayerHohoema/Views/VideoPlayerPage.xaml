@@ -830,7 +830,7 @@
                         </MediaPlayerElement>
 
 
-                        <local:CommentRendererEx
+                        <local:CommentRendererCompositionUI
                                 x:Name="CommentRederer"
                                 MediaPlayer="{Binding MediaPlayer}"
                                 Comments="{Binding Comments}"
@@ -840,7 +840,7 @@
                                 CommentDefaultColor="{Binding CommentDefaultColor.Value}"
                                 DefaultDisplayDuration="{Binding RequestCommentDisplayDuration.Value}"
                                 Opacity="{Binding CommentOpacity.Value, Mode=OneWay}"
-                                UpdateInterval="{Binding RequestUpdateInterval.Value, Mode=OneWay}"
+                                UpdateInterval="0:0:0.032"
                                 />
 
 

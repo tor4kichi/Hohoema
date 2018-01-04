@@ -109,7 +109,9 @@ namespace NicoPlayerHohoema.Models
         public static string MakeCacheVideoFileName(string title, string videoId, MovieType videoType, NicoVideoQuality quality)
         {
             string toQualityNameExtention;
-            var filename = $"{title.ToSafeFilePath()} - [{videoId}]";
+            // Note: 後尾に.mp4はダミー拡張子
+            // Path.ChangeExtention実行時に動画タイトルにドットが含まれている場合に問題が発生しないようにするためのもの
+            var filename = $"{title.ToSafeFilePath()} - [{videoId}].mp4"; 
             switch (quality)
             {
                 case NicoVideoQuality.Smile_Original:

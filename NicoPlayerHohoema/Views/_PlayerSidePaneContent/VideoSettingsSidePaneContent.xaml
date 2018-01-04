@@ -261,23 +261,6 @@
 
                 <StackPanel Margin="0 8 0 16">
 
-                    <TextBlock Text="コメントの一秒あたりの描画回数"
-                           VerticalAlignment="Center"
-                           />
-
-                    <ComboBox ItemsSource="{Binding CommentRenderringFPSList}"
-                          SelectedItem="{Binding CommentRenderingFPS.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              Margin="0 4"
-                              Width="100"
-                          >
-
-                    </ComboBox>
-
-
-                </StackPanel>
-
-                <StackPanel Margin="0 8 0 16">
-
                     <TextBlock Text="コメントの表示時間"
                            VerticalAlignment="Center"
                            />
