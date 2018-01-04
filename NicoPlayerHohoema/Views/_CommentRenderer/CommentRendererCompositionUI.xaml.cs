@@ -427,6 +427,8 @@ namespace NicoPlayerHohoema.Views
                 var renderComment = commentInfo.CommentUI;
 
                 commentInfo.TranslateAnimation?.Stop();
+                commentInfo.TranslateAnimation?.Dispose();
+                commentInfo.TranslateAnimation = null;
 
                 RenderComments.Remove(commentInfo);
                 CommentCanvas.Children.Remove(renderComment);
@@ -731,39 +733,6 @@ namespace NicoPlayerHohoema.Views
             }
 
             _RenderCandidateComments.Clear();
-
-            // コメントの表示位置更新
-            var elapsedTime_Single = (float)elapsedTime.TotalSeconds;
-            var streamRenderComments = RenderComments.Where(x => x.Comment.VAlign == null);
-            foreach (var renderCommentInfo in streamRenderComments)
-            {
-                // コメントの初期化表示位置がElapsedTime分ズレてしまうことを防ぐため
-                // このフレーム中にコメント表示リストのリセットが行われた場合には
-                // コメント表示位置の更新をしない
-                //if (renderCommentInfo.IsSkipUpdate)
-                //{
-                //    renderCommentInfo.IsSkipUpdate = false;
-                //    continue;
-                //}
-
-                //var renderComment = renderCommentInfo.CommentUI;
-                //var moveSpeed = renderCommentInfo.MoveSpeedPixelPerSec * elapsedTime_Single;
-
-                //var nextHorizontalPos = renderCommentInfo.PrevHorizontalPosition - moveSpeed;
-                //Canvas.SetLeft(renderComment, nextHorizontalPos);
-                //renderCommentInfo.PrevHorizontalPosition = nextHorizontalPos;
-
-                // 常に絶対位置で計算する
-                // 内部で除算を使っているためやや重い
-                /*
-                var renderComment = renderCommentInfo.CommentUI;
-                var pos = renderComment.GetPosition(frame.CanvasWidth, frame.CurrentVpos);
-                if (pos != null)
-                {
-                    Canvas.SetLeft(renderComment, pos.Value);
-                }
-                */
-            }
         }
 
 
