@@ -153,6 +153,7 @@
     <Content Include="Assets\UpdateNotices\0.11.12.md" />
     <Content Include="Assets\UpdateNotices\0.11.13.md" />
     <Content Include="Assets\UpdateNotices\0.12.0.md" />
+    <Content Include="Assets\UpdateNotices\0.12.2.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <PRIResource Include="Resources\ja-jp\Resources.resw" />
   </ItemGroup>
@@ -1184,9 +1185,7 @@
       <Name>Visual C++ 2015 Runtime for Universal Windows Platform Apps</Name>
     </SDKReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Models\NiconicoAlert\" />
-  </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
