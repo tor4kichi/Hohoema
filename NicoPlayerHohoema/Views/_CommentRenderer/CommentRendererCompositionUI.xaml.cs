@@ -40,6 +40,7 @@ namespace NicoPlayerHohoema.Views
             public Visibility Visibility { get; set; }
             public uint CommentDisplayDurationVPos { get; internal set; }
             public TimeSpan CommentDisplayDuration { get; internal set; }
+            public MediaPlaybackState PlaybackState { get; set; }
         }
 
 
@@ -171,7 +172,8 @@ namespace NicoPlayerHohoema.Views
                 renderComment.TranslateAnimation?.Stop();
                 renderComment.TranslateAnimation?.Dispose();
                 renderComment.TranslateAnimation = null;
-            }            
+            }
+            RenderComments.Clear();
         }
 
         private bool _IsNeedCommentRenderUpdated = false;
@@ -303,7 +305,7 @@ namespace NicoPlayerHohoema.Views
         {
             var frameData = new CommentRenderFrameData();
             frameData.CommentDisplayDuration = DefaultDisplayDuration;
-
+            frameData.PlaybackState = MediaPlayer.PlaybackSession.PlaybackState;
             frameData.CommentDefaultColor = CommentDefaultColor;
             frameData.CurrentVpos = (uint)Math.Floor(VideoPosition.TotalMilliseconds * 0.1);
             frameData.CanvasWidth = (int)CommentCanvas.ActualWidth;
@@ -588,7 +590,6 @@ namespace NicoPlayerHohoema.Views
                     else
                     {
                         // 最初は右端に配置
-
                         double? initialVPos = renderComment.GetPosition(frame.CanvasWidth, frame.CurrentVpos) ?? frame.CanvasWidth;
 
                         renderComment.Opacity = 1.0;
@@ -600,14 +601,21 @@ namespace NicoPlayerHohoema.Views
                             renderInfo.TranslateAnimation.Dispose();
                         }
 
-                        
-                        renderInfo.TranslateAnimation = renderComment
-                            .Offset((float)initialVPos.Value, duration: 0)
-                            .Then()
-                            .Offset(-(float)renderComment.TextWidth, duration: (comment.EndPosition - frame.CurrentVpos) * 10u, easingType: EasingType.Linear);
+
+                        if (frame.PlaybackState == MediaPlaybackState.Playing)
+                        {
+                            renderInfo.TranslateAnimation = renderComment
+                                .Offset((float)initialVPos.Value, duration: 0)
+                                .Then()
+                                .Offset(-(float)renderComment.TextWidth, duration: (comment.EndPosition - frame.CurrentVpos) * 10u, easingType: EasingType.Linear);
+                        }
+                        else
+                        {
+                            renderInfo.TranslateAnimation = renderComment
+                                .Offset((float)initialVPos.Value, duration: 0);
+                        }
 
                         renderInfo.TranslateAnimation.Start();
-
                         // 
 
                         Canvas.SetTop(renderComment, verticalPos);
