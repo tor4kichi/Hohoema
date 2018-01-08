@@ -114,15 +114,16 @@ namespace NicoPlayerHohoema.Views
 
             Loaded += CommentRendererCompositionUI_Loaded;
             Unloaded += CommentRendererCompositionUI_Unloaded;
-            Application.Current.EnteredBackground += Current_EnteredBackground;
-            Application.Current.LeavingBackground += Current_LeavingBackground;
-
-            this.SizeChanged += CommentRendererCompositionUI_SizeChanged;
         }
 
         private void CommentRendererCompositionUI_Loaded(object sender, RoutedEventArgs e)
         {
             ResetUpdateTimer();
+
+            Application.Current.EnteredBackground += Current_EnteredBackground;
+            Application.Current.LeavingBackground += Current_LeavingBackground;
+
+            this.SizeChanged += CommentRendererCompositionUI_SizeChanged;
         }
 
         private async void CommentRendererCompositionUI_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -162,6 +163,8 @@ namespace NicoPlayerHohoema.Views
 
         private void CommentRendererCompositionUI_Unloaded(object sender, RoutedEventArgs e)
         {
+            this.SizeChanged -= CommentRendererCompositionUI_SizeChanged;
+
             Application.Current.EnteredBackground -= Current_EnteredBackground;
             Application.Current.LeavingBackground -= Current_LeavingBackground;
 
@@ -173,6 +176,7 @@ namespace NicoPlayerHohoema.Views
                 renderComment.TranslateAnimation?.Dispose();
                 renderComment.TranslateAnimation = null;
             }
+
             RenderComments.Clear();
         }
 
