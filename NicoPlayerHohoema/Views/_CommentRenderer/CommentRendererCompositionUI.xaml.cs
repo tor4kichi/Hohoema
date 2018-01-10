@@ -48,7 +48,6 @@ namespace NicoPlayerHohoema.Views
         {
             public Comment Comment { get; set; }
             public CommentUI CommentUI { get; set; }
-            public AnimationSet TranslateAnimation { get; set; }
             
             //public bool IsSkipUpdate { get; set; }
             //public float MoveSpeedPixelPerSec { get; set; }
@@ -74,9 +73,6 @@ namespace NicoPlayerHohoema.Views
         /// 実際に使われるのはフォントサイズにTextBGOffsetBiasを乗算した値
         /// </summary>
         const double TextBGOffsetBias = 0.15;
-
-
-        private Stack<CommentRenderInfo> CommentUICached = new Stack<CommentRenderInfo>();
 
 
         /// <summary>
@@ -132,10 +128,7 @@ namespace NicoPlayerHohoema.Views
             {
                 foreach (var renderComment in RenderComments)
                 {
-                    renderComment.TranslateAnimation?.Stop();
-                    renderComment.TranslateAnimation?.Dispose();
-                    renderComment.TranslateAnimation = null;
-                    CommentUICached.Push(renderComment);
+                    renderComment.CommentUI.Offset(0).Fade(0).SetDurationForAll(0).Start();
                 }
 
                 RenderComments.Clear();
@@ -157,8 +150,7 @@ namespace NicoPlayerHohoema.Views
 
         private void Current_EnteredBackground(object sender, Windows.ApplicationModel.EnteredBackgroundEventArgs e)
         {
-            _UpdateTimer?.Dispose();
-            _UpdateTimer = null;
+            StopUpdateTimer();
         }
 
         private void CommentRendererCompositionUI_Unloaded(object sender, RoutedEventArgs e)
@@ -168,13 +160,11 @@ namespace NicoPlayerHohoema.Views
             Application.Current.EnteredBackground -= Current_EnteredBackground;
             Application.Current.LeavingBackground -= Current_LeavingBackground;
 
-            _UpdateTimer?.Dispose();
+            StopUpdateTimer();
 
             foreach (var renderComment in RenderComments)
             {
-                renderComment.TranslateAnimation?.Stop();
-                renderComment.TranslateAnimation?.Dispose();
-                renderComment.TranslateAnimation = null;
+                renderComment.CommentUI.Offset(0).Fade(0).SetDurationForAll(0).Start();
             }
 
             RenderComments.Clear();
@@ -187,10 +177,7 @@ namespace NicoPlayerHohoema.Views
 
             foreach (var renderComment in RenderComments)
             {
-                renderComment.TranslateAnimation?.Stop();
-                renderComment.TranslateAnimation?.Dispose();
-                renderComment.TranslateAnimation = null;
-                CommentUICached.Push(renderComment);
+                renderComment.CommentUI.Offset(0).Fade(0).SetDurationForAll(0).Start();
             }
 
             RenderPendingComments.Clear();
@@ -200,16 +187,13 @@ namespace NicoPlayerHohoema.Views
             PrevRenderCommentEachLine_Stream.Clear();
             PrevRenderCommentEachLine_Top.Clear();
             PrevRenderCommentEachLine_Bottom.Clear();
-
+            
             // 現在時間-コメント表示時間から始まるコメントを描画待機コメントとして再配置
             var currentVideoPos = frame.CurrentVpos;
             var comments = new List<Comment>(Comments);
             comments.Sort((x, y) => (int)(x.VideoPosition - y.VideoPosition));
 
-            foreach (var c in comments)
-            {
-                RenderPendingComments.Add(c);
-            }
+            RenderPendingComments.AddRange(comments);
 
             // あとは毎フレーム処理に任せる
 
@@ -223,7 +207,6 @@ namespace NicoPlayerHohoema.Views
         TimeSpan _PreviousVideoPosition = TimeSpan.Zero;
         AsyncLock _UpdateLock = new AsyncLock();
         TimeSpan _PrevCommentRenderElapsedTime = TimeSpan.Zero;
-        float CommentWeightPoint = 0;
 
         DateTime _RealVideoPosition = DateTime.Now;
 
@@ -231,26 +214,17 @@ namespace NicoPlayerHohoema.Views
         {
             using (var releaser = await _UpdateLock.LockAsync())
             {
-                if (CommentWeightPoint >= 0.5f)
-                {
-                    CommentWeightPoint -= 1.0f;
-                    return;
-                }
-
-                var watch = Stopwatch.StartNew();
-
                 TimeSpan deltaVideoPosition = TimeSpan.Zero;
                 TimeSpan updateInterval;
 
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, () =>
+                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
                 {
                     // 更新済みの位置であれば処理をスキップ
                     var videoPosition = VideoPosition;
 
                     if (MediaPlayer == null)
                     {
-                        _UpdateTimer?.Dispose();
-                        _UpdateTimer = null;
+                        StopUpdateTimer();
                         return;
                     }
 
@@ -279,27 +253,18 @@ namespace NicoPlayerHohoema.Views
                         deltaVideoPosition = DateTime.Now - _RealVideoPosition;
                     }
 
+                    Debug.WriteLine("コメ更新 開始");
+
                     OnUpdate(deltaVideoPosition);
+
+                    Debug.WriteLine("コメ更新 完了");
 
                     _PreviousVideoPosition = videoPosition;
 
                     updateInterval = UpdateInterval;
                 });
+                
 
-
-                watch.Stop();
-
-                // コメント更新間隔よりコメント描画時間が長かったら
-                // 描画スキップを設定する
-                var renderTime = watch.Elapsed.TotalMilliseconds;
-                var requireRenderTime = updateInterval.TotalMilliseconds;
-                // 要求描画時間を上回った時間を計算して
-                // 要求描画時間何回分をスキップすればいいのかを算出
-                var overRenderTime = renderTime - requireRenderTime;
-                CommentWeightPoint += (float)overRenderTime;
-                CommentWeightPoint = Math.Min(2.0f, Math.Max(-2.0f, CommentWeightPoint));
-
-                _PrevCommentRenderElapsedTime = watch.Elapsed;
                 _RealVideoPosition = DateTime.Now;
             }
         }
@@ -351,28 +316,16 @@ namespace NicoPlayerHohoema.Views
             comment.BackColor = GetShadowColor(comment.RealColor);
 
 
-            if (CommentUICached.Count > 0)
+            var commentUI = new CommentUI()
             {
-                var info = CommentUICached.Pop();
+                DataContext = comment
+            };
 
-                info.Comment = comment;
-                info.CommentUI.DataContext = comment;
-
-                return info;
-            }
-            else
+            return new CommentRenderInfo()
             {
-                var commentUI = new CommentUI()
-                {
-                    DataContext = comment
-                };
-                return new CommentRenderInfo()
-                {
-                    Comment = comment,
-                    CommentUI = commentUI,
-                };
-
-            }
+                Comment = comment,
+                CommentUI = commentUI,
+            };
         }
 
 
@@ -391,11 +344,8 @@ namespace NicoPlayerHohoema.Views
                 {
                     foreach (var renderComment in RenderComments)
                     {
-                        renderComment.TranslateAnimation?.Stop();
-                        renderComment.TranslateAnimation?.Dispose();
-                        renderComment.TranslateAnimation = null;
+                        renderComment.CommentUI.Offset(0).Fade(0).SetDurationForAll(0).Start();
                         renderComment.CommentUI.DataContext = null;
-                        CommentUICached.Push(renderComment);
                     }
 
                     CommentCanvas.Children.Clear();
@@ -440,16 +390,11 @@ namespace NicoPlayerHohoema.Views
 
                 var renderComment = commentInfo.CommentUI;
 
-                commentInfo.TranslateAnimation?.Stop();
-                commentInfo.TranslateAnimation?.Dispose();
-                commentInfo.TranslateAnimation = null;
+                commentInfo.CommentUI.Offset(0).Fade(0).SetDurationForAll(0).Start();
 
                 RenderComments.Remove(commentInfo);
                 CommentCanvas.Children.Remove(renderComment);
                 renderComment.CommentData = null;
-
-                CommentUICached.Push(commentInfo);
-
                 
                 // RenderCommentInfoとCommentUIのインスタンスを使いまわしているため
                 // PrevRenderCommentEachLine_*のリストから不要要素を削除しておかないと
@@ -597,30 +542,21 @@ namespace NicoPlayerHohoema.Views
                         double? initialVPos = renderComment.GetPosition(frame.CanvasWidth, frame.CurrentVpos) ?? frame.CanvasWidth;
 
                         renderComment.Opacity = 1.0;
-                        
-                        // Composition.UIによるコメントのアニメーションを設定
-                        if (renderInfo.TranslateAnimation != null)
-                        {
-                            renderInfo.TranslateAnimation?.Stop();
-                            renderInfo.TranslateAnimation.Dispose();
-                        }
-
 
                         if (frame.PlaybackState == MediaPlaybackState.Playing)
                         {
-                            renderInfo.TranslateAnimation = renderComment
+                            renderComment
                                 .Offset((float)initialVPos.Value, duration: 0)
                                 .Then()
-                                .Offset(-(float)renderComment.TextWidth, duration: (comment.EndPosition - frame.CurrentVpos) * 10u, easingType: EasingType.Linear);
+                                .Offset(-(float)renderComment.TextWidth, duration: (comment.EndPosition - frame.CurrentVpos) * 10u, easingType: EasingType.Linear)
+                                .Start();
                         }
                         else
                         {
-                            renderInfo.TranslateAnimation = renderComment
-                                .Offset((float)initialVPos.Value, duration: 0);
+                            renderComment
+                                .Offset((float)initialVPos.Value, duration: 0)
+                                .Start();
                         }
-
-                        renderInfo.TranslateAnimation.Start();
-                        // 
 
                         Canvas.SetTop(renderComment, verticalPos);
 
@@ -738,8 +674,7 @@ namespace NicoPlayerHohoema.Views
                     if (!isOutBoundComment)
                     {
                         var left = (float)frame.HalfCanvasWidth - (int)(renderComment.TextWidth * 0.5f);
-                        renderInfo.TranslateAnimation = renderComment.Offset(offsetX: left, duration: 0);
-                        renderInfo.TranslateAnimation.Start();
+                        renderComment.Offset(offsetX: left, duration: 0).Start();
                     }
                 }
 
@@ -749,7 +684,6 @@ namespace NicoPlayerHohoema.Views
                     RenderComments.Remove(renderInfo);
                     CommentCanvas.Children.Remove(renderComment);
                     renderComment.DataContext = null;
-                    CommentUICached.Push(renderInfo);
                 }
             }
 
@@ -961,8 +895,7 @@ namespace NicoPlayerHohoema.Views
                     oldMediaPlayer.PlaybackSession.SeekCompleted -= me.PlaybackSession_SeekCompleted;
                     oldMediaPlayer.SourceChanged -= me.MediaPlayer_SourceChanged;
                 }
-                me._UpdateTimer?.Dispose();
-                me._UpdateTimer = null;
+                me.StopUpdateTimer();
             }
             else
             {
@@ -1022,13 +955,10 @@ namespace NicoPlayerHohoema.Views
                     {
                         foreach (var renderComment in RenderComments)
                         {
-                            renderComment.TranslateAnimation?.Stop();
-                            renderComment.TranslateAnimation?.Dispose();
-                            renderComment.TranslateAnimation = null;
+                            renderComment.CommentUI.Offset(0).Fade(0).SetDurationForAll(0).Start();
                         }
 
-                        _UpdateTimer?.Dispose();
-                        _UpdateTimer = null;
+                        StopUpdateTimer();
                     }
                     else
                     {
@@ -1037,21 +967,31 @@ namespace NicoPlayerHohoema.Views
                         {
                             if (renderComment.Comment.VAlign == null)
                             {
-                                renderComment.TranslateAnimation?.Stop();
-                                renderComment.TranslateAnimation?.Dispose();
-                                renderComment.TranslateAnimation = renderComment.CommentUI.Offset(
+                                renderComment.CommentUI.Offset(
                                     -renderComment.CommentUI.TextWidth
                                     , duration: (renderComment.Comment.EndPosition - frame.CurrentVpos) * 10.0f,
                                     easingType: EasingType.Linear
-                                    );
+                                    )
+                                    .Start();
+
                             }
 
-                            renderComment.TranslateAnimation?.Start();
+                            
                         }
 
                         ResetUpdateTimer();
                     }
                 });
+            }
+        }
+
+
+        private async void StopUpdateTimer()
+        {
+            using (var releaser = await _TimerGenerateLock.LockAsync())
+            {
+                _UpdateTimer?.Dispose();
+                _UpdateTimer = null;
             }
         }
 
@@ -1154,7 +1094,18 @@ namespace NicoPlayerHohoema.Views
             if (e.Action == NotifyCollectionChangedAction.Reset)
             {
                 // Clear and update entire collection
+                foreach (var renderComment in RenderComments)
+                {
+                    renderComment.CommentUI.Offset(0).Fade(0).SetDurationForAll(0).Start();
+                }
+
+                RenderPendingComments.Clear();
+                RenderComments.Clear();
                 CommentCanvas.Children.Clear();
+
+                PrevRenderCommentEachLine_Stream.Clear();
+                PrevRenderCommentEachLine_Top.Clear();
+                PrevRenderCommentEachLine_Bottom.Clear();
 
                 _IsNeedCommentRenderUpdated = true;
             }
