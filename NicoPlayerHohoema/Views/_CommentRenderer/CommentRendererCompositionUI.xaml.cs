@@ -953,9 +953,21 @@ namespace NicoPlayerHohoema.Views
 
                     if (PlaybackState != MediaPlaybackState.Playing)
                     {
+                        var frame = GetRenderFrameData();
                         foreach (var renderComment in RenderComments)
                         {
-                            renderComment.CommentUI.Offset(0).Fade(0).SetDurationForAll(0).Start();
+                            if (renderComment.Comment.VAlign == null)
+                            {
+                                // 現在時間での横位置を求める
+                                // lerp 現在時間における位置の比率
+                                var val = renderComment.CommentUI.GetPosition(frame.CanvasWidth, frame.CurrentVpos);
+                                renderComment.CommentUI
+                                    .Offset(
+                                    (float)val.Value
+                                    , duration: 0
+                                    )
+                                    .Start();
+                            }
                         }
 
                         StopUpdateTimer();
