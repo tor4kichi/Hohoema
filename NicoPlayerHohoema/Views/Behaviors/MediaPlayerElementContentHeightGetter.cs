@@ -54,104 +54,65 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			set { SetValue(ContentWidthProperty, value); }
 		}
 
-		#endregion
+        #endregion
 
 
-		protected override void OnAttached()
+        private bool IsSizeChanged;
+        private DispatcherTimer _Timer = new DispatcherTimer();
+
+
+        public MediaPlayerElementContentHeightGetter()
+        {
+            _Timer.Interval = TimeSpan.FromMilliseconds(100);
+            _Timer.Tick += _Timer_Tick;
+        }
+
+        protected override void OnAttached()
 		{
 			base.OnAttached();
 
 			this.AssociatedObject.Loaded += AssociatedObject_Loaded;
             this.AssociatedObject.Unloaded += AssociatedObject_Unloaded;
-		}
 
-       
+            this.AssociatedObject.SizeChanged += AssociatedObject_SizeChanged;
+        }
 
-        private bool IsSizeChanged;
-		private DispatcherTimer _Timer = new DispatcherTimer();
-
-        MediaPlayer _MediaPlayer;
-        CoreDispatcher _UIDispatcher;
-
-        IDisposable Disposer;
-        private void AssociatedObject_Unloaded(object sender, RoutedEventArgs e)
+        protected override void OnDetaching()
         {
-            if (_MediaPlayer != null)
-            {
-                _MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
-            }
+            base.OnDetaching();
 
-            Disposer?.Dispose();
-            Disposer = null;
+            this.AssociatedObject.Loaded -= AssociatedObject_Loaded;
+            this.AssociatedObject.Unloaded -= AssociatedObject_Unloaded;
+
+            this.AssociatedObject.SizeChanged -= AssociatedObject_SizeChanged;
+
             _Timer.Stop();
         }
 
+
+
         private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
 		{
-            Disposer = this.AssociatedObject.ObserveDependencyProperty(MediaPlayerElement.MediaPlayerProperty)
-                .Subscribe(_ => 
-                {
-                    this.AssociatedObject.SizeChanged -= AssociatedObject_SizeChanged;
-                    
-                    if (this.AssociatedObject.MediaPlayer != null)
-                    {
-                        this.AssociatedObject.SizeChanged += AssociatedObject_SizeChanged;
-                        this.AssociatedObject.MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
-
-                        _MediaPlayer = this.AssociatedObject.MediaPlayer;
-                        IsSizeChanged = true;
-                        StartEnsureResizeNotifyTimer();
-                    }
-                    else
-                    {
-                        _MediaPlayer = null;
-                        this.AssociatedObject.SizeChanged -= AssociatedObject_SizeChanged;
-                        _Timer?.Stop();
-                    }
-                });
-
-            _UIDispatcher = this.AssociatedObject.Dispatcher;
-            _Timer.Interval = TimeSpan.FromMilliseconds(100);
-            _Timer.Tick += _Timer_Tick;
-
-            _MediaPlayer = this.AssociatedObject.MediaPlayer;
-
-            this.AssociatedObject.SizeChanged += AssociatedObject_SizeChanged;
-            if (this.AssociatedObject.MediaPlayer != null)
-            {
-                this.AssociatedObject.MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
-            }
-
-            IsSizeChanged = true;
             StartEnsureResizeNotifyTimer();
         }
 
-        private void PlaybackSession_PlaybackStateChanged(MediaPlaybackSession sender, object args)
+        private void AssociatedObject_Unloaded(object sender, RoutedEventArgs e)
         {
-            IsSizeChanged = true;
-            StartEnsureResizeNotifyTimer();
+            _Timer.Stop();
         }
-        
 
         private void AssociatedObject_SizeChanged(object sender, SizeChangedEventArgs e)
 		{
-			IsSizeChanged = true;
 			StartEnsureResizeNotifyTimer();
 		}
 
 
 
-		public async void StartEnsureResizeNotifyTimer()
+		public void StartEnsureResizeNotifyTimer()
 		{
-			if (IsSizeChanged == false)
-			{
-				return;
-			}
+            IsSizeChanged = true;
 
-            await _UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
-            {
-                _Timer.Start();
-            });
+            _Timer.Start();
         }
 
         private void _Timer_Tick(object sender, object e)
@@ -161,7 +122,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         async void TryCalc(object state = null)
 		{
-            if (_MediaPlayer == null) { return; }
+            if (this.AssociatedObject.MediaPlayer == null) { return; }
 
 			if (IsSizeChanged == false)
 			{
@@ -173,7 +134,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			{
 				if (AssociatedObject == null) { return; }
 
-                var playbackSession = _MediaPlayer.PlaybackSession;
+                var playbackSession = this.AssociatedObject.MediaPlayer.PlaybackSession;
 
 
                 if (playbackSession.PlaybackState == MediaPlaybackState.None)
@@ -214,15 +175,6 @@ namespace NicoPlayerHohoema.Views.Behaviors
                 _Timer.Stop();
 			});
 		}
-
-		protected override void OnDetaching()
-		{
-			base.OnDetaching();
-			this.AssociatedObject.SizeChanged -= AssociatedObject_SizeChanged;
-
-            _Timer.Stop();
-        }
-
 
 	}
 
