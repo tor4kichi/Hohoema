@@ -137,28 +137,6 @@ namespace NicoPlayerHohoema.Models
 
 
             }
-            else
-            {
-                if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4)
-                    && AppView.ViewMode == ApplicationViewMode.CompactOverlay)
-                {
-                    
-                }
-                else
-                {
-                    if (Window.Current.Visible)
-                    {
-                        Window.Current.Activate();
-                        await ApplicationViewSwitcher.TryShowAsStandaloneAsync(
-                            ViewId,
-                            ViewSizePreference.Default,
-                            MainView.Id,
-                            ViewSizePreference.Default
-                            );
-
-                    }
-                }
-            }
 
             return this;
         }
@@ -169,7 +147,7 @@ namespace NicoPlayerHohoema.Models
              NavigationService.Navigate(nameof(Views.BlankPage), null);
         }
 
-        public async Task OpenContent(PlaylistItem item)
+        public async Task OpenContent(PlaylistItem item, bool withActivationWindow)
         {
             var payload = new SecondaryViewNavigatePayload()
             {
@@ -200,9 +178,20 @@ namespace NicoPlayerHohoema.Models
 
             await NavigatingSecondaryViewAsync(pageType, parameter);
 
-            await CoreAppView.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            await CoreAppView.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
                 AppView.Title = !string.IsNullOrEmpty(item?.Title) ? item.Title : "Hohoema";
+
+                if (withActivationWindow)
+                {
+//                    Window.Current.Activate();
+                    await ApplicationViewSwitcher.TryShowAsStandaloneAsync(
+                        ViewId,
+                        ViewSizePreference.Default,
+                        MainView.Id,
+                        ViewSizePreference.Default
+                        );
+                }
             });
         }
 
@@ -227,7 +216,7 @@ namespace NicoPlayerHohoema.Models
             {
                 if (NavigationService.Navigate(pageType, navigationParam))
                 {
-                    Window.Current.Activate();
+                    
                 }
             });
         }
