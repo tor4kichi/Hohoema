@@ -365,6 +365,15 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+            if (e.Parameter is string)
+            {
+                var parameter = e.Parameter as string;
+                if (Enum.TryParse<RankingCategory>(parameter, out var category))
+                {
+                    _LastSelectedRankingCategory = category;
+                }
+            }
+
             if (_LastSelectedRankingCategory.HasValue)
             {
                 SelectedRankingCategory.Value = SortedRankingCategoryItems.Cast<CategoryWithFav>().SingleOrDefault(x => x.Category == _LastSelectedRankingCategory.Value);
@@ -423,7 +432,13 @@ namespace NicoPlayerHohoema.ViewModels
             return source;
         }
 
-	}
+        protected override void PostResetList()
+        {
+            UpdateTitle(Helpers.CulturelizeHelper.ToCulturelizeString(this.SelectedRankingCategory.Value.Category.ToString()) + "のランキング", this.SelectedRankingCategory.Value.Category.ToString());
+
+            base.PostResetList();
+        }
+    }
 
 
     public class CategoryRankingLoadingSource : HohoemaIncrementalSourceBase<RankedVideoInfoControlViewModel>

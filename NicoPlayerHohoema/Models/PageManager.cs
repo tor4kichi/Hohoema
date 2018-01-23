@@ -61,6 +61,8 @@ namespace NicoPlayerHohoema.Models
 			set { SetProperty(ref _PageTitle, value); }
 		}
 
+        public object PageNavigationParameter { get; private set; }
+
 
 		private bool _PageNavigating;
 		public bool PageNavigating
@@ -149,6 +151,8 @@ namespace NicoPlayerHohoema.Models
                         PageTitle = "";
                         var oldPageType = CurrentPageType;
                         CurrentPageType = pageType;
+                        var oldPageParameter = PageNavigationParameter;
+                        PageNavigationParameter = parameter;
 
                         await Task.Delay(30);
 
@@ -156,6 +160,7 @@ namespace NicoPlayerHohoema.Models
                         {
                             CurrentPageType = oldPageType;
                             PageTitle = oldPageTitle;
+                            PageNavigationParameter = oldPageParameter;
                         }
                         else
                         {
@@ -341,9 +346,16 @@ namespace NicoPlayerHohoema.Models
 
 		
 
-		public void UpdateTitle(string title)
+		public void UpdatePageNavigationInfo(string title, object parameter = null)
 		{
-			PageTitle = title;
+            // 順番重要
+            // Pin留めの動作に影響します
+            if (parameter != null)
+            {
+                PageNavigationParameter = parameter;
+            }
+
+            PageTitle = title;
 		}
 
 		public event StartExcludeUserInputWorkHandler StartWork;

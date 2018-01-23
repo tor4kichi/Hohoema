@@ -101,7 +101,7 @@
                                 <SymbolIcon Symbol="Setting" />
                             </Button>
 
-                            <TextBlock Text="{Binding Title}" Margin="8 0 0 0"
+                            <TextBlock Text="動画ランキング" Margin="8 0 0 0"
                                        VerticalAlignment="Center"
                                        Style="{StaticResource SubtitleTextBlockStyle}"
                                        x:Name="TitleLayout"

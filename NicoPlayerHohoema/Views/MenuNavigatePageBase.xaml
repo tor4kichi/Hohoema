@@ -40,43 +40,82 @@
             <x:String x:Key="DesktopFloatPlayerHeight" >160</x:String>
             <x:String x:Key="MobileFloatPlayerHeight" >240</x:String>
 
-            <DataTemplate x:Key="HohoemaContentTemplate">
-
-            </DataTemplate>
-
-            <DataTemplate x:Key="MobileMenuItemTemplate">
-                <StackPanel Opacity="0.85">
-
-                    <SymbolIcon Symbol="{Binding IconType}" />
-
-                    <Border Height="4" />
-                    <TextBlock Text="{Binding Label}"
-                           FontSize="12"
-                           TextWrapping="Wrap"
-                           HorizontalAlignment="Center"
-                           />
-
-                </StackPanel>
-
-            </DataTemplate>
-
             <DataTemplate x:Key="MenuItemTemplate">
                 <StackPanel Orientation="Horizontal" Opacity="0.85"
                         Margin="4 0 0 0"
                         >
-                    <SymbolIcon Symbol="{Binding IconType}" />
-
+                    <!--
+                            <SymbolIcon Symbol="{Binding IconType}" />
+                            -->
                     <Border Height="4" Width="16" />
-                    
+
                     <TextBlock Text="{Binding Label}"
                            VerticalAlignment="Center"
                            FontSize="15"
                            />
 
                 </StackPanel>
-
             </DataTemplate>
-            
+
+
+            <DataTemplate x:Key="SingleMenuItemTemplate">
+                <ListView uwpui:ListViewBase.Command="{StaticResource OpenHohoemaPageCommand}"
+                              IsItemClickEnabled="True"
+                          SelectionMode="None"
+                                      >
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Padding" Value="0" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListViewItem ContentTemplate="{StaticResource MenuItemTemplate}"
+                                      Content="{Binding}"
+                                      >
+
+                    </ListViewItem>
+
+                </ListView>
+            </DataTemplate>
+
+
+            <templateSelector:MenuItemTemplateSelector x:Key="MenuItemTemplateSelector"
+                                                       MenuItem="{StaticResource SingleMenuItemTemplate}"
+                                                       >
+
+                <templateSelector:MenuItemTemplateSelector.SubMenuItem>
+                    <DataTemplate>
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Opacity="0.55"
+                        Margin="4 0 0 0"
+                        >
+                                <!--
+                            <SymbolIcon Symbol="{Binding IconType}" />
+                            -->
+                                <Border Height="4" Width="16" />
+
+                                <TextBlock Text="{Binding Label}"
+                                VerticalAlignment="Center"
+                                FontSize="14"
+                                           Margin="0 8"
+                                />
+
+                            </StackPanel>
+
+                            <ListView ItemsSource="{Binding SubItems}"
+                                      ItemTemplate="{StaticResource MenuItemTemplate}"
+                                      uwpui:ListViewBase.Command="{StaticResource OpenHohoemaPageCommand}"
+                                      IsItemClickEnabled="True"
+                                      SelectionMode="None"
+                                      >
+                                
+                            </ListView>
+                            
+                        </StackPanel>
+                    </DataTemplate>
+                </templateSelector:MenuItemTemplateSelector.SubMenuItem>
+            </templateSelector:MenuItemTemplateSelector>
+
+           
         </ResourceDictionary>
 
     </ContentControl.Resources>
@@ -469,7 +508,7 @@
 
                                     <StackPanel>
 
-                                        
+
                                         <Grid x:Name="SideMenu_SearchBoxLayout">
                                             <Button x:Name="SideMenu_SearchBoxActivateButton"
                                                     Background="Transparent"
@@ -500,7 +539,7 @@
                                                 <i:Interaction.Behaviors>
 
                                                     <mybehavior:FocusGetter IsFocus="{Binding ElementName=SideMenu_SearchTextBox, Path=IsSuggestionListOpen, Mode=TwoWay}" />
-                                                    
+
                                                     <core:EventTriggerBehavior EventName="QuerySubmitted">
                                                         <mybehavior:HideInputPaneAction />
                                                         <core:ChangePropertyAction TargetObject="{Binding ElementName=SideMenu_SearchTextBox}" PropertyName="IsEnabled" Value="False" />
@@ -520,54 +559,78 @@
 
 
                                         </Grid>
-                                            
 
 
-                                        <ListView ItemsSource="{Binding MenuItems}"
-                                                    SelectedItem="{Binding MainSelectedItem.Value, Mode=TwoWay}"
-                                                    SelectionMode="Single"
-                                                  ItemTemplate="{StaticResource MenuItemTemplate}"
+
+                                        <StackPanel>
+                                            <toolkit:DockPanel 
+                                                Margin="0"
+                                            >
+
+                                                <Button Command="{Binding AddPinToCurrentPageCommand}"
+                                                        Background="Transparent"
+                                                        Height="24"
+                                                        toolkit:DockPanel.Dock="Right"
+                                                        Margin="0 0 8 0"
+                                                        >
+                                                    <SymbolIcon Symbol="Add" 
+                                                                ToolTipService.ToolTip="現在のページをピン留めする"
+                                                                Opacity="0.55"
+                                                                />
+                                                </Button>
+
+                                                <TextBlock Text="ピン留め"
+                                                           VerticalAlignment="Center"
+                                                           FontSize="14"
+                                                           Margin="16 0 0 0"
+                                                           Opacity="0.55"
+                                                    />
+
+
+
+                                            </toolkit:DockPanel>
+
+                                            <ListView ItemsSource="{Binding PinItems}"
+                                                        ItemTemplate="{StaticResource MenuItemTemplate}"
+                                                        uwpui:ListViewBase.Command="{StaticResource OpenHohoemaPageCommand}"
+                                                        IsItemClickEnabled="True"
+                                                        SelectionMode="None"
+                                                      
+                                                        >
+                                                <ListView.ContextFlyout>
+                                                    <MenuFlyout>
+                                                        <MenuFlyoutItem Text="ピン留め解除" 
+                                                                        Command="{StaticResource RemovePinCommand}"
+                                                                        CommandParameter="{Binding}"
+                                                                        />
+                                                    </MenuFlyout>
+                                                </ListView.ContextFlyout>
+
+                                                <i:Interaction.Behaviors>
+                                                    <mybehavior:ListViewBaseItemContextFlyout />
+                                                </i:Interaction.Behaviors>
+                                            </ListView>
+
+                                            <StackPanel Visibility="{Binding PinItems, Converter={StaticResource EmptyCollectionVisibilityConverter}}"
+                                                        Margin="0 8"
+                                                        >
+
+                                                <TextBlock Opacity="0.7" FontSize="12" Margin="24 0 0 0">
+                                                    好きなページを開いて「＋ボタン」でピン留め
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </StackPanel>
+
+                                        <ItemsControl ItemsSource="{Binding MenuItems}"
+                                                  ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
                                                     IsTabStop="False"
                                                   Background="Transparent"
-                                                  SingleSelectionFollowsFocus="False"
                                                   TabIndex="5"
-                                                  uwpui:ListViewBase.Command="{Binding MenuItemSelectedCommand}"
-                                                  IsItemClickEnabled="True"
                                                       ScrollViewer.VerticalScrollMode="Disabled"
                                                 >
-                                            <ListView.ItemContainerTransitions>
-                                                <TransitionCollection />
-                                            </ListView.ItemContainerTransitions>
-                                            <ListView.ItemContainerStyle>
-                                                <Style TargetType="ListViewItem">
-                                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                                </Style>
-                                            </ListView.ItemContainerStyle>
-                                        </ListView>
+                                        </ItemsControl>
 
-                                        <Border Height="24" />
-
-                                        <ListView ItemsSource="{Binding SubMenuItems}"
-                                                    SelectedItem="{Binding MainSelectedItem.Value, Mode=TwoWay}"
-                                                    SelectionMode="Single"
-                                                  ItemTemplate="{StaticResource MenuItemTemplate}"
-                                                    IsTabStop="False"
-                                                  Background="Transparent"
-                                                  SingleSelectionFollowsFocus="False"
-                                                  TabIndex="5"
-                                                  uwpui:ListViewBase.Command="{Binding MenuItemSelectedCommand}"
-                                                  IsItemClickEnabled="True"
-                                                  ScrollViewer.VerticalScrollMode="Disabled"
-                                                >
-                                            <ListView.ItemContainerTransitions>
-                                                <TransitionCollection />
-                                            </ListView.ItemContainerTransitions>
-                                            <ListView.ItemContainerStyle>
-                                                <Style TargetType="ListViewItem">
-                                                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                                </Style>
-                                            </ListView.ItemContainerStyle>
-                                        </ListView>
+                                        
 
 
                                     </StackPanel>
