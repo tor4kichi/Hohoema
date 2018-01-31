@@ -15,27 +15,28 @@
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:deviceTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
-    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
-    xmlns:iconPack="using:MahApps.Metro.IconPacks"
-    xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     >
 
-    <i:Interaction.Behaviors>
-        <core:EventTriggerBehavior EventName="Unloaded">
-            <core:CallMethodAction TargetObject="{Binding}" MethodName="Dispose" />
-        </core:EventTriggerBehavior>
-    </i:Interaction.Behaviors>
+
 
 
     <Grid x:Name="ContentLayoutRoot">
 
-
         <VisualStateManager.VisualStateGroups>
-
-            <!-- ウィンドウサイズごとの表示 -->
+            <!-- トップバー表示時のタイトル位置ずらし -->
             <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="HeaderLayout.Margin" Value="96 0 48 0" />
+                        <Setter Target="ContentLayout.Margin" Value="0 27 0 0" />
+                    </VisualState.Setters>
+                </VisualState>
                 <VisualState>
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="520" />
@@ -48,221 +49,147 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
+                        <Setter Target="HeaderLayout.Margin" Value="48 0 0 0" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
-            
-            <VisualStateGroup x:Name="XboxState">
-
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <deviceTrigger:DeviceFamilyTrigger Condition="Xbox" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="MasterHeaderPanel.Margin" Value="0 27 0 27" />
-
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-
-
         </VisualStateManager.VisualStateGroups>
-
         
         <toolkit:DockPanel x:Name="ContentLayout">
 
-            <uwpcontrol:MasterDetailsView ItemsSource="{Binding SortedRankingCategoryItems}"
-                                          SelectedItem="{Binding SelectedRankingCategory.Value, Mode=TwoWay}"
-                                          MasterPaneWidth="200"
-                                          MasterPaneBackground="{StaticResource SystemControlBackgroundChromeMediumBrush}"
-                                          >
+            <Border toolkit:DockPanel.Dock="Top" 
+                    Height="48"
+                    x:Name="HeaderLayout"
+                    >
+                <toolkit:DockPanel >
 
-                <uwpcontrol:MasterDetailsView.MasterHeader>
-                    <StackPanel x:Name="MasterHeaderPanel"
-                                >
 
-                        <toolkit:DockPanel>
-
-                            <Button toolkit:DockPanel.Dock="Right"
-                                    Background="Transparent"
+                    <StackPanel toolkit:DockPanel.Dock="Right" 
+                            Orientation="Horizontal"
+                            >
+                        <Button Background="Transparent"
                                     >
 
-                                <Button.Flyout>
-                                    <MenuFlyout>
-                                        <MenuFlyoutItem Text="好きなカテゴリを編集"
+                            <Button.Flyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem Text="好きなカテゴリを編集"
                                                         Command="{Binding AddFavRankingCategory}"
                                                         />
-                                        <MenuFlyoutItem Text="非表示カテゴリを編集"
+                                    <MenuFlyoutItem Text="非表示カテゴリを編集"
                                                         Command="{Binding AddDislikeRankingCategory}"
                                                         />
-                                    </MenuFlyout>
-                                </Button.Flyout>
-                                <SymbolIcon Symbol="Setting" />
-                            </Button>
-
-                            <TextBlock Text="動画ランキング" Margin="8 0 0 0"
-                                       VerticalAlignment="Center"
-                                       Style="{StaticResource SubtitleTextBlockStyle}"
-                                       x:Name="TitleLayout"
-                                       />
-
-                        </toolkit:DockPanel>
+                                </MenuFlyout>
+                            </Button.Flyout>
+                            <SymbolIcon Symbol="Setting" />
+                        </Button>
                     </StackPanel>
-                </uwpcontrol:MasterDetailsView.MasterHeader>
 
-                <uwpcontrol:MasterDetailsView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <TextBlock Text="{Binding Category, Converter={StaticResource ToLocalText}}"
-                                   Visibility="{Binding IsFavorit, Converter={StaticResource BooleanToVisibility}}"
-                                       FontWeight="ExtraBold"
-                                   />
-                            <TextBlock Text="{Binding Category, Converter={StaticResource ToLocalText}}"
-                                   Visibility="{Binding IsFavorit, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                       Opacity="0.9"
-                                   />
-                        </Grid>
-                    </DataTemplate>
-                </uwpcontrol:MasterDetailsView.ItemTemplate>
-
-                <uwpcontrol:MasterDetailsView.DetailsTemplate>
-                    <DataTemplate>
-                        <!-- Note: MasterDetailsView.DetailsTemplate は別コントロール扱いになるため、
-                                   バインディングやVisualState等を別に組む必要がある 
-                        -->
-                        <UserControl>
-                            <Grid DataContext="{Binding ElementName=ContentLayoutRoot, Path=DataContext}"
-                                Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-                                        >
-
-                                <controls:ListingWithHeader x:Name="ListingWithHeader"
-                                            ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
-                                            SelectedItems="{Binding SelectedItems}"
-                                            RefreshCommand="{Binding RefreshCommand}"
-                                            ItemCommand="{StaticResource OpenContentCommand}"
-                                            IsTVModeEnabled="{Binding IsForceTVModeEnable.Value}"
-                                            IsSelectionEnabled="{Binding IsSelectionModeEnable.Value, Mode=OneWay}"
-                                            NowLoading="{Binding NowLoading.Value}"
-                                            >
-                                    <controls:ListingWithHeader.HeaderContent>
-                                        <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
-
-                                            <CommandBar.Content>
-                                                <StackPanel Orientation="Horizontal">
-
-                                                    <Button Command="{Binding UnselectCategoryCommand}"     
-                                                    Background="Transparent"
-                                                    >
-                                                        <SymbolIcon Symbol="Clear" Opacity="0.7" />
-                                                    </Button>
-
-                                                    <Border 
-                                                    Margin="16 0 0 0"
-                                                    Background="Transparent"
-                                                    IsHitTestVisible="True"
-                                                        Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                                    >
-                                                        <i:Interaction.Behaviors>
-                                                            <core:EventTriggerBehavior EventName="Tapped">
-                                                                <core:ChangePropertyAction TargetObject="{Binding ElementName=ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
-                                                            </core:EventTriggerBehavior>
-                                                        </i:Interaction.Behaviors>
-                                                        <TextBlock 
-                                                        VerticalAlignment="Center"
-                                                        Style="{StaticResource TitleTextBlockStyle}"
-                                                        >
-                                            『<Run Text="{Binding SelectedRankingCategory.Value.Category, Converter={StaticResource ToLocalText}}" />』のランキング
-                                                        </TextBlock>
-                                                    </Border>
-                                                </StackPanel>
-                                            </CommandBar.Content>
-
-                                            <CommandBar.PrimaryCommands>
-                                                <AppBarButton Label="更新" 
-                                                    Icon="Refresh"
-                                                    Command="{Binding RefreshCommand}"
-                                                    IsEnabled="{Binding CanChangeSort.Value}"
-                                                    x:Name="RefreshButton"
-                                                    VerticalAlignment="Center"
-                                                              Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                                >
-                                                </AppBarButton>
-
-                                                <AppBarButton Command="{Binding RequestCacheDownload}"
-                                                IsEnabled="{Binding CanDownload}"
-                                                Background="Transparent"
-                                                Label="キャッシュ"
-                                                Icon="Download"
-                                                x:Name="RequestCacheButton"
-                                                VerticalAlignment="Center"
-                                                              Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                            >
-                                                </AppBarButton>
+                    <Border Background="Transparent" 
+                            IsHitTestVisible="True"
+                            Margin="16 0 0 0"
+                            x:Name="TitleLayout"
+                                >
+                        <TextBlock Text="{Binding Title}" 
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                    >
+                        </TextBlock>
+                    </Border>
+                </toolkit:DockPanel>
+            </Border>
+            <ScrollViewer VerticalScrollMode="Disabled" 
+                          VerticalScrollBarVisibility="Hidden"
+                          HorizontalScrollMode="Enabled" 
+                          HorizontalScrollBarVisibility="Auto"
+                          HorizontalContentAlignment="Stretch"
+                          Margin="0 8 0 0"
+                          IsTabStop="False"
+                          x:Name="ScrollViewer"
+                          >
 
 
-                                                <AppBarButton Command="{Binding RegistratioMylistCommand}"
-                                                    Label="マイリストに追加"
-                                                    Icon="Add"
-                                                    x:Name="RegistrationMylistButton"
-                                                    VerticalAlignment="Center"
-                                                              Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                                >
-                                                </AppBarButton>
+                <ItemsControl ItemsSource="{Binding RankingCategoryItems}"
+                              Height="{Binding ElementName=ScrollViewer, Path=ActualHeight, Mode=OneWay}"
+                              IsTabStop="False"
+                               x:Name="CategoryItems"
+                                 
+                          >
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="48 0 48 27"
+                                        VerticalAlignment="Stretch"
+                                                           x:Name="CategoryItemsPanel"
+                                        />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
 
+                            <toolkit:DockPanel Margin="0 0 8 0">
 
-                                                <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                        HorizontalContentAlignment="Stretch"
-                                                        VerticalContentAlignment="Stretch"
-                                                        Label="選択"
-                                                        VerticalAlignment="Center"
-                                        >
-                                                    <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
-                                                    HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center"
-                                                    />
-                                                </AppBarToggleButton>
+                                <ListView ItemsSource="{Binding ChildItems}"
+                                                    IsTabStop="False"   
+                                              uwpui:ListViewBaseExtensions.Command="{Binding SelectedCommand}"
+                                          IsItemClickEnabled="True"
+                                          SelectionMode="None"
+                                          >
+                                    <ListView.ItemContainerStyle>
+                                        <Style TargetType="ListViewItem">
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                            <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                            <Setter Property="MinWidth" Value="180" />
+                                            <Setter Property="Padding" Value="0" />
+                                            <Setter Property="Margin" Value="0 0 8 8" />
+                                            <Setter Property="BorderBrush" Value="{ThemeResource ButtonBorderBrushPointerOver}" />
+                                            <Setter Property="BorderThickness" Value="1" />
+                                        </Style>
+                                    </ListView.ItemContainerStyle>
 
-                                            </CommandBar.PrimaryCommands>
-                                            
-                                        </CommandBar>
-                                    </controls:ListingWithHeader.HeaderContent>
+                                    <ListView.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <ItemsWrapGrid x:Name="CategoryItemsPanel"
+                                                            Orientation="Vertical"
+                                                           VerticalAlignment="Stretch"
+                                                           ItemHeight="64"    
+                                                               />
+                                        </ItemsPanelTemplate>
+                                    </ListView.ItemsPanel>
 
-
-                                    <controls:ListingWithHeader.ListItemTemplate>
+                                    <ListView.ItemTemplate>
                                         <DataTemplate>
 
-                                            <controls:RankingCategoryListItem />
+                                            <Border HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    >
+                                                <TextBlock Text="{Binding Source, Converter={StaticResource ToLocalText}}"
+                                                               FontWeight="{Binding FontWeight, Mode=OneTime}"
+                                                               />
+
+                                            </Border>
+
                                         </DataTemplate>
-                                    </controls:ListingWithHeader.ListItemTemplate>
+                                    </ListView.ItemTemplate>
+                                </ListView>
 
-                                    <controls:ListingWithHeader.GridItemTemplate>
-                                        <DataTemplate>
-                                            <Grid Margin="0 0 0 0">
-                                                <controls:VideoInfoControl_TV />
 
-                                                <Grid>
-                                                    <TextBlock Text="{Binding Rank, Mode=OneTime}" 
-                                                                HorizontalAlignment="Left"
-                                                                VerticalAlignment="Top"
-                                                                Margin="16 0"
-                                                                Style="{StaticResource SubheaderTextBlockStyle}"
-                                                                LineStackingStrategy="BlockLineHeight"
-                                                                FontWeight="SemiBold"
-                                                                />
-                                                </Grid>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </controls:ListingWithHeader.GridItemTemplate>
-                                </controls:ListingWithHeader>
-                            </Grid>
+                            </toolkit:DockPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
 
-                        </UserControl>
-                        
-                    </DataTemplate>
-                    
-                </uwpcontrol:MasterDetailsView.DetailsTemplate>
-            </uwpcontrol:MasterDetailsView>
+                </ItemsControl>
+
+
+
+
+
+            </ScrollViewer>
+
         </toolkit:DockPanel>
+
+
+
+
+
     </Grid>
 </Page>

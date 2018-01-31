@@ -281,37 +281,36 @@ namespace NicoPlayerHohoema.ViewModels
         {
             MenuItems = new List<HohoemaListingPageItemBase>();
 
+            MenuItems.Add(new MenuItemViewModel("検索", HohoemaPageType.Search));
+
+            MenuItems.Add(
+                new MenuItemViewModel("あとで見る", HohoemaPageType.Mylist, new MylistPagePayload(HohoemaApp.Playlist.DefaultPlaylist).ToParameterString())
+                );
+
             MenuItems.Add(
                 new MenuSubItemViewModel("動画")
                 {
                     SubItems = new List<MenuItemViewModel>()
                     {
-                        new MenuItemViewModel("あとで見る", HohoemaPageType.Mylist, new MylistPagePayload(HohoemaApp.Playlist.DefaultPlaylist).ToParameterString()),
                         /* TODO */ new MenuItemViewModel("新着", HohoemaPageType.FeedGroupManage),
                         new MenuItemViewModel("ランキング", HohoemaPageType.RankingCategoryList),
                     }
                 });
-            MenuItems.Add(
-                new MenuSubItemViewModel("生放送")
-                {
-                    SubItems = new List<MenuItemViewModel>()
-                    {
-                        /* TODO */ new MenuItemViewModel("放送中", HohoemaPageType.FeedGroupManage),
-                        /* TODO */ new MenuItemViewModel("生放送ランキング", HohoemaPageType.RankingCategoryList),
-                    }
-                });
-            MenuItems.Add(
-                new MenuSubItemViewModel("アカウント")
-                {
-                    SubItems = new List<MenuItemViewModel>()
-                    {
-                        new MenuItemViewModel("マイリスト", HohoemaPageType.UserMylist),
-                        new MenuItemViewModel("ニコレポ", HohoemaPageType.NicoRepo),
-                        new MenuItemViewModel("フォロー", HohoemaPageType.FollowManage),
-                        new MenuItemViewModel("視聴履歴", HohoemaPageType.WatchHistory),
-                        new MenuItemViewModel("マイアカウント", HohoemaPageType.UserInfo),
-                    }
-                });
+
+            //MenuItems.Add(
+            //    new MenuSubItemViewModel("生放送")
+            //    {
+            //        SubItems = new List<MenuItemViewModel>()
+            //        {
+            //            /* TODO */ new MenuItemViewModel("放送中", HohoemaPageType.FeedGroupManage),
+            //            /* TODO */ new MenuItemViewModel("生放送ランキング", HohoemaPageType.RankingCategoryList),
+            //        }
+            //    });
+
+            MenuItems.Add(new MenuItemViewModel("マイリスト", HohoemaPageType.UserMylist));
+            MenuItems.Add(new MenuItemViewModel("フォロー", HohoemaPageType.FollowManage));
+            MenuItems.Add(new MenuItemViewModel("ニコレポ", HohoemaPageType.NicoRepo));
+            MenuItems.Add(new MenuItemViewModel("視聴履歴", HohoemaPageType.WatchHistory));
 
             MenuItems.Add(
                 new MenuItemViewModel("キャッシュ", HohoemaPageType.CacheManagement)
@@ -319,6 +318,8 @@ namespace NicoPlayerHohoema.ViewModels
             MenuItems.Add(
                 new MenuItemViewModel("設定", HohoemaPageType.Settings)
                 );
+
+            MenuItems.Add(new MenuItemViewModel("アカウント", HohoemaPageType.UserInfo));
 
             RaisePropertyChanged(nameof(MenuItems));
 

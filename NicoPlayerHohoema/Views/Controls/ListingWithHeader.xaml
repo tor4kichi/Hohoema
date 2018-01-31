@@ -30,21 +30,10 @@
                     <VisualState.Setters>
                         <Setter Target="ItemsList.Visibility" Value="Collapsed" />
                         <Setter Target="ItemsList_TV.Visibility" Value="Visible" />
+                        <Setter Target="HeaderLayout.Padding" Value="48 0 48 0" />
+                        <Setter Target="HeaderLayout.Height" Value="75" />
                     </VisualState.Setters>
                     
-                </VisualState>
-            </VisualStateGroup>
-
-            <VisualStateGroup x:Name="PlatformVisualStateGroup">
-                <VisualState x:Name="XboxVisualState">
-                    <VisualState.StateTriggers>
-                        <hardwareTrigger:DeviceFamilyTrigger Condition="Xbox" />
-                    </VisualState.StateTriggers>
-
-                    <VisualState.Setters>
-                        <Setter Target="HeaderLayout.Padding" Value="0 27 48 0" />
-                    </VisualState.Setters>
-
                 </VisualState>
             </VisualStateGroup>
 
@@ -71,7 +60,7 @@
         
         <!-- リストコントロール（TV/PC/モバイルに対応する） -->
 
-        <toolkit:DockPanel>
+        <toolkit:DockPanel x:Name="ListLayout">
             
 
             <Grid>
@@ -157,7 +146,7 @@
                     <mycontrols:IncrementalLoadingList.ItemsPanel>
                         <ItemsPanelTemplate>
                             <ItemsWrapGrid Orientation="Horizontal"
-                                            Margin="0 0 48 27"
+                                            Margin="48 0 48 27"
                                             />
                         </ItemsPanelTemplate>
                     </mycontrols:IncrementalLoadingList.ItemsPanel>
@@ -173,6 +162,7 @@
                 VerticalAlignment="Top"
                 >
 
+            
             <Border IsTapEnabled="True"
                     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                     Opacity="0.75"
@@ -188,7 +178,7 @@
                             ContentTemplate="{x:Bind HeaderTemplate}"
                             ContentTemplateSelector="{x:Bind HeaderTemplateSelector}"
                             HorizontalContentAlignment="Stretch"
-                            VerticalContentAlignment="Stretch"
+                            VerticalContentAlignment="Bottom"
                             IsTabStop="False"
                             />
         </Grid>
