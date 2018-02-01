@@ -28,6 +28,35 @@
     <Grid >
 
         <VisualStateManager.VisualStateGroups>
+            <!-- トップバー表示時のタイトル位置ずらし -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ContentLayout.Margin" Value="48 27 0 0" />
+                        
+                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="520" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            
             <!-- Xbox -->
             <VisualStateGroup>
                 <VisualState>
@@ -38,8 +67,6 @@
 
                         <Setter Target="ShareSubButton.Visibility" Value="Collapsed" />
                         <Setter Target="ShareSubButton_TV.Visibility" Value="Visible" />
-
-                        <Setter Target="ContentLayout.Margin" Value="0 27 0 0" />
                     </VisualState.Setters>
                 </VisualState>
 
@@ -47,9 +74,30 @@
         </VisualStateManager.VisualStateGroups>
 
         <toolkit:DockPanel x:Name="ContentLayout" 
-                           Margin="0 27 0 0"
+                           Margin="48 27 0 0"
                            >
 
+            <toolkit:DockPanel toolkit:DockPanel.Dock="Top" 
+                               x:Name="HeaderLayout"
+                               Height="48"
+                               >
+                <StackPanel toolkit:DockPanel.Dock="Right" 
+                            Orientation="Horizontal"
+                            >
+
+                </StackPanel>
+
+                <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="16 0 0 0"
+                                >
+                    <TextBlock Text="{Binding Title}" 
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource TitleTextBlockStyle}"
+                                   x:Name="TitleLayout"
+                                    >
+                    </TextBlock>
+                </Border>
+            </toolkit:DockPanel>
             <Border toolkit:DockPanel.Dock="Right">
                 <!-- TODO: 関連動画 等-->
             </Border>
@@ -96,72 +144,38 @@
                             </Grid>
                         </Button>
 
-                        <StackPanel toolkit:DockPanel.Dock="Bottom" 
-                            Orientation="Horizontal"
-                                    HorizontalAlignment="Right"
-                                    Margin="0 0 48 0"
-                            >
 
-                            <AppBarButton Icon="Download" 
-                                          Label="キャッシュ取得"
-                                          Command="{Binding CacheRequestCommand}"
-                                          Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
-                                          />
-                            
-                            
-                            <AppBarButton Icon="Add" Label="マイリストに追加"
-                                      Command="{Binding AddMylistCommand}"
-                                      />
-
-
-                            
-                            <Button Background="Transparent" 
-                                    x:Name="ShareSubButton"
-                                    Height="80"
-                                    Width="68"
-                                          >
-
-                                <StackPanel>
-                                    <iconPack:PackIconMaterial Kind="ShareVariant"
-                                                               HorizontalAlignment="Center"/>
-
-                                    <TextBlock FontSize="13"
-                                               Text="共有"
-                                               Margin="0 8 0 0"
-                                               />
-
-                                </StackPanel>
-
-                                <Button.Flyout>
-                                    <MenuFlyout>
-                                        <MenuFlyoutItem Text="アプリを選択" Command="{Binding ShareCommand}" />
-                                        <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
-                                        <MenuFlyoutItem Text="動画情報をコピー" Command="{Binding VideoInfoCopyToClipboardCommand}"/>
-                                    </MenuFlyout>
-                                </Button.Flyout>
-                            </Button>
-
-                            <Button Background="Transparent" 
-                                    x:Name="ShareSubButton_TV" 
-                                    Visibility="Collapsed"
-                                    Command="{Binding ShareCommand}"
+                        <StackPanel Margin="0 0 0 8"
+                                    toolkit:DockPanel.Dock="Bottom" 
                                     >
 
-                                <StackPanel>
-                                    <iconPack:PackIconMaterial Kind="ShareVariant"
-                                                               HorizontalAlignment="Center"/>
+                            <TextBlock 
+                                   Margin="0 8"
+                                   >
+                                    <Run Text="投稿日:" Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}" />
+                                    <Run Text="{Binding SubmitDate}" />
+                            </TextBlock>
 
-                                    <TextBlock FontSize="13"
-                                               Text="共有"
-                                               Margin="0 8 0 0"
-                                               />
+                            <StackPanel Orientation="Horizontal" Margin="0 8">
 
-                                </StackPanel>
-                            </Button>
+                                <TextBlock Margin="0 0 8 0">
+                                    <Run Text="再生:" Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}" />
+                                    <Run Text="{Binding ViewCount, Converter={StaticResource ToUserFriendlyNumber}}" />
+                                </TextBlock>
+                                <TextBlock Margin="0 0 8 0">
+                                    <Run Text="コメント:" Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}" />
+                                    <Run Text="{Binding CommentCount, Converter={StaticResource ToUserFriendlyNumber}}" />
+                                </TextBlock>
+                                <TextBlock Margin="0 0 8 0">
+                                    <Run Text="マイリスト:" Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}" />
+                                    <Run Text="{Binding MylistCount, Converter={StaticResource ToUserFriendlyNumber}}" />
+                                </TextBlock>
+                            </StackPanel>
 
 
                         </StackPanel>
 
+                        
                         <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="16 0 48 0"
                                 >
@@ -173,9 +187,9 @@
                             </TextBlock>
                         </Border>
 
-
-
                         
+
+
 
                     </toolkit:DockPanel>
                     
@@ -190,6 +204,8 @@
                                   >
 
                         <StackPanel Margin="16">
+                            
+                            
 
                             <Border Visibility="{Binding IsSelfZoningContent, Converter={StaticResource BooleanToVisibility}}" 
                                     Margin="0 16"
@@ -223,33 +239,6 @@
                                 </toolkit:WrapPanel>
                             </Border>
 
-                            <StackPanel Margin="0 0 0 8">
-
-                                <TextBlock 
-                                   Margin="0 8"
-                                   >
-                                    <Run Text="投稿日:" Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}" />
-                                    <Run Text="{Binding SubmitDate}" />
-                                </TextBlock>
-
-                                <StackPanel Orientation="Horizontal" Margin="0 8">
-
-                                    <TextBlock Margin="0 0 8 0">
-                                    <Run Text="再生:" Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}" />
-                                    <Run Text="{Binding ViewCount, Converter={StaticResource ToUserFriendlyNumber}}" />
-                                    </TextBlock>
-                                    <TextBlock Margin="0 0 8 0">
-                                    <Run Text="コメント:" Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}" />
-                                    <Run Text="{Binding CommentCount, Converter={StaticResource ToUserFriendlyNumber}}" />
-                                    </TextBlock>
-                                    <TextBlock Margin="0 0 8 0">
-                                    <Run Text="マイリスト:" Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}" />
-                                    <Run Text="{Binding MylistCount, Converter={StaticResource ToUserFriendlyNumber}}" />
-                                    </TextBlock>
-                                </StackPanel>
-
-
-                            </StackPanel>
 
                             <StackPanel Orientation="Horizontal" >
 
@@ -275,6 +264,67 @@
                                          >
 
                                 </HyperlinkButton>
+
+
+                                <Border Width="16" />
+
+
+                                <AppBarButton Icon="Add" Label="マイリストに追加"
+                                      Command="{Binding AddMylistCommand}"
+                                      />
+
+
+
+                                <Button Background="Transparent" 
+                                    x:Name="ShareSubButton"
+                                    Height="80"
+                                    Width="68"
+                                          >
+
+                                    <StackPanel>
+                                        <iconPack:PackIconMaterial Kind="ShareVariant"
+                                                               HorizontalAlignment="Center"/>
+
+                                        <TextBlock FontSize="13"
+                                               Text="共有"
+                                               Margin="0 8 0 0"
+                                               />
+
+                                    </StackPanel>
+
+                                    <Button.Flyout>
+                                        <MenuFlyout>
+                                            <MenuFlyoutItem Text="アプリを選択" Command="{Binding ShareCommand}" />
+                                            <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
+                                            <MenuFlyoutItem Text="動画情報をコピー" Command="{Binding VideoInfoCopyToClipboardCommand}"/>
+                                        </MenuFlyout>
+                                    </Button.Flyout>
+                                </Button>
+
+                                <Button Background="Transparent" 
+                                    x:Name="ShareSubButton_TV" 
+                                    Visibility="Collapsed"
+                                    Command="{Binding ShareCommand}"
+                                    >
+
+                                    <StackPanel>
+                                        <iconPack:PackIconMaterial Kind="ShareVariant"
+                                                               HorizontalAlignment="Center"/>
+
+                                        <TextBlock FontSize="13"
+                                               Text="共有"
+                                               Margin="0 8 0 0"
+                                               />
+
+                                    </StackPanel>
+                                </Button>
+
+                                <AppBarButton Icon="Download" 
+                                          Label="キャッシュ取得"
+                                          Command="{Binding CacheRequestCommand}"
+                                          Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
+                                          />
+
 
                             </StackPanel>
 

@@ -25,8 +25,16 @@
     <Grid>
 
         <VisualStateManager.VisualStateGroups>
-            <!-- ウィンドウサイズごとの表示 -->
+            <!-- トップバー表示時のタイトル位置ずらし -->
             <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
+                    </VisualState.Setters>
+                </VisualState>
                 <VisualState>
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="520" />
@@ -39,7 +47,7 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
+                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>

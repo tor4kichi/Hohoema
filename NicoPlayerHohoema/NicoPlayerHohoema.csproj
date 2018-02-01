@@ -174,10 +174,12 @@
     <Compile Include="Commands\OpenBroadcasterInfoCommand.cs" />
     <Compile Include="Commands\OpenContentCommand.cs" />
     <Compile Include="Commands\OpenFeedSourceCommand.cs" />
+    <Compile Include="Commands\OpenHohoemaPageCommand.cs" />
     <Compile Include="Commands\OpenVideoInfoCommand.cs" />
     <Compile Include="Commands\OpenVideoOwnerVideoListCommand.cs" />
     <Compile Include="Commands\RemoveFeedSourceCommand.cs" />
     <Compile Include="Commands\RemoveFollowCommand.cs" />
+    <Compile Include="Commands\RemovePinCommand.cs" />
     <Compile Include="Commands\ShareWithTwitterCommand.cs" />
     <Compile Include="Commands\ShereCommand.cs" />
     <Compile Include="Commands\VideoDeleteCacheCommand.cs" />
@@ -297,6 +299,8 @@
     <Compile Include="Models\Settings\AppearanceSettings.cs" />
     <Compile Include="Models\Settings\CacheSettings.cs" />
     <Compile Include="Models\Settings\ActivityFeedSettings.cs" />
+    <Compile Include="Models\HohoemaPin.cs" />
+    <Compile Include="Models\Settings\PinSettings.cs" />
     <Compile Include="Models\Settings\PlaylistSettings.cs" />
     <Compile Include="Models\Niconico\Mylist\UserMylistManager.cs" />
     <Compile Include="Helpers\ShareHelper.cs" />
@@ -350,6 +354,7 @@
     <Compile Include="ViewModels\FeedGroupManagePageViewModel.cs" />
     <Compile Include="ViewModels\FeedGroupPageViewModel.cs" />
     <Compile Include="ViewModels\SearchSummaryPageViewModel.cs" />
+    <Compile Include="ViewModels\RankingCategoryPageViewModel.cs" />
     <Compile Include="ViewModels\WatchHistoryPageViewModel.cs" />
     <Compile Include="ViewModels\HohoemaIncrementalSourceBase.cs" />
     <Compile Include="ViewModels\HohoemaListingPageItemBase.cs" />
@@ -422,6 +427,10 @@
     </Compile>
     <Compile Include="Views\SearchSummaryPage.xaml.cs">
       <DependentUpon>SearchSummaryPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TemplateSelector\MenuItemTemplateSelector.cs" />
+    <Compile Include="Views\RankingCategoryPage.xaml.cs">
+      <DependentUpon>RankingCategoryPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\_CommentRenderer\CommentRendererCompositionUI.xaml.cs">
       <DependentUpon>CommentRendererCompositionUI.xaml</DependentUpon>
@@ -799,6 +808,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\SearchSummaryPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\RankingCategoryPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

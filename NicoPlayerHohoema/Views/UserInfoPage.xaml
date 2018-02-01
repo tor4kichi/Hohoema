@@ -33,20 +33,36 @@
 
         <VisualStateManager.VisualStateGroups>
 
-            <!-- TVモードの仮対応 -->
+            <!-- トップバー表示時のタイトル位置ずらし -->
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                        <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
+                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
+
                         <Setter Target="ContentLayout.Margin" Value="16 27 0 27" />
                         <Setter Target="NGLayout.Margin" Value="0 0 48 0" />
                     </VisualState.Setters>
                 </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="520" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
+                    </VisualState.Setters>
+                </VisualState>
             </VisualStateGroup>
-
-
+            
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
