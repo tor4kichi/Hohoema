@@ -138,6 +138,7 @@
                                 <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
                                 <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
 
+
                             </VisualState.Setters>
                         </VisualState>
 
@@ -158,6 +159,9 @@
                                 <Setter Target="TopMenuGridRow.Height" Value="75" />
                                 <Setter Target="ContentLayout.(Grid.Row)" Value="0" />
                                 <Setter Target="ContentLayout.(Grid.RowSpan)" Value="2" />
+
+                                <!-- メニューを開いた時にアカウント表示にフォーカスが移ってしまう問題に対応 -->
+                                <Setter Target="OpenAccountButton.IsEnabled" Value="False" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -271,20 +275,6 @@
                     </VisualStateGroup>
 
 
-                    <!-- モバイルの検索テキストボックスのフォーカス状態 -->
-                    <VisualStateGroup>
-
-                        
-                        <VisualState >
-                            <VisualState.StateTriggers>
-                                <mytrigger:FocusTrigger Target="{Binding ElementName=Nallow_SearchTextBox}" Inverted="True" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="Nallow_SearchTextBox.Visibility" Value="Collpased" />
-                            </VisualState.Setters>
-                        </VisualState>
-                    </VisualStateGroup>
-
 
                     <!-- ペインの開閉状態 -->
                     <VisualStateGroup>
@@ -295,8 +285,6 @@
                             </VisualState.StateTriggers>
 
                             <VisualState.Setters>
-                                <Setter Target="SideMenu_SearchBoxActivateButton.Visibility" Value="Collapsed" />
-                                <Setter Target="SideMenu_SearchTextBox.Visibility" Value="Visible" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -402,6 +390,7 @@
                         IsPaneOpen="{Binding IsOpenPane.Value, Mode=TwoWay}"
                                IsTabStop="False"
                         >
+
                         <SplitView.PaneBackground>
                             <SolidColorBrush Color="{ThemeResource SystemChromeLowColor}" />
                         </SplitView.PaneBackground>
@@ -423,13 +412,12 @@
 
 
                                     <Button Command="{Binding OpenAccountInfoCommand}"
-                                        
                                         Padding="16 0 0 0"
                                         Background="Transparent" 
                                         HorizontalAlignment="Stretch"
                                         HorizontalContentAlignment="Left"
                                         VerticalContentAlignment="Center"
-                                        TabIndex="15"
+                                            x:Name="OpenAccountButton"
                                         >
                                         <StackPanel>
                                             <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource ToLocalText}}" 
@@ -464,7 +452,8 @@
                                 </toolkit:DockPanel>
 
 
-                                <Grid toolkit:DockPanel.Dock="Top">
+                                <Grid toolkit:DockPanel.Dock="Top" 
+                                      >
                                     <Border x:Name="ToggleFullScreenButton_Wide"
                                         HorizontalAlignment="Right"
                                         Height="48"     
@@ -539,7 +528,7 @@
                                                         uwpui:ListViewBase.Command="{StaticResource OpenHohoemaPageCommand}"
                                                         IsItemClickEnabled="True"
                                                         SelectionMode="None"
-                                                      
+                                                      TabIndex="1"
                                                         >
                                                 <ListView.ContextFlyout>
                                                     <MenuFlyout>
@@ -569,7 +558,7 @@
                                                   ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
                                                     IsTabStop="False"
                                                   Background="Transparent"
-                                                  TabIndex="5"
+                                                  TabIndex="0"
                                                       ScrollViewer.VerticalScrollMode="Disabled"
                                                 >
                                         </ItemsControl>

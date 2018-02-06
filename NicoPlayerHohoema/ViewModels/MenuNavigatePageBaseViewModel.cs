@@ -128,6 +128,11 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         MainSelectedItem.Value = null;
                     }
+
+                    if (Helpers.DeviceTypeHelper.IsXbox || HohoemaApp.UserSettings.AppearanceSettings.IsForceTVModeEnable)
+                    {
+                        IsOpenPane.Value = false;
+                    }
                 });
 
 
