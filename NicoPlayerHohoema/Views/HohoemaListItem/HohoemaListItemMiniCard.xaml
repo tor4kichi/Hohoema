@@ -40,7 +40,7 @@
                        Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}" 
                        Stretch="Uniform"
                        VerticalAlignment="Center"
-                       MinHeight="180"
+                       
                    />
             </Border>
 

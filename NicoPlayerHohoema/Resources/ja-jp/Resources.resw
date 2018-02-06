@@ -190,7 +190,7 @@
     <comment>HohoemaPageType</comment>
   </data>
   <data name="FeedGroupManage" xml:space="preserve">
-    <value>フィードグループ管理</value>
+    <value>新着動画</value>
     <comment>HohoemaPageType</comment>
   </data>
   <data name="FeedVideoList" xml:space="preserve">

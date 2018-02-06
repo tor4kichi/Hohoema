@@ -6,27 +6,27 @@ namespace NicoPlayerHohoema.Database
     {
         public static List<Bookmark> GetAll()
         {
-            var db = HohoemaLiteDb.GetLiteRepository();
+            var db = HohoemaLiteDb.GetLocalLiteRepository();
             return db.Fetch<Bookmark>();
         }
 
         public static List<Bookmark> GetAll(BookmarkType bookmarkType)
         {
-            var db = HohoemaLiteDb.GetLiteRepository();
+            var db = HohoemaLiteDb.GetLocalLiteRepository();
             return db.Fetch<Bookmark>(x => x.BookmarkType == bookmarkType);
         }
 
 
         public static Bookmark Get(BookmarkType bookmarkType, string content)
         {
-            var db = HohoemaLiteDb.GetLiteRepository();
+            var db = HohoemaLiteDb.GetLocalLiteRepository();
             return db.SingleOrDefault<Bookmark>(x => x.BookmarkType == bookmarkType && x.Content == content);
         }
 
         public static bool Add(Bookmark bookmark)
         {
             // 重複チェック必要
-            var db = HohoemaLiteDb.GetLiteRepository();
+            var db = HohoemaLiteDb.GetLocalLiteRepository();
             var already = db.SingleOrDefault<Bookmark>(x => x.Content == bookmark.Content && x.BookmarkType == bookmark.BookmarkType);
             if (already != null)
             {
@@ -41,7 +41,7 @@ namespace NicoPlayerHohoema.Database
 
         public static bool Remove(Bookmark bookmark)
         {
-            var db = HohoemaLiteDb.GetLiteRepository();
+            var db = HohoemaLiteDb.GetLocalLiteRepository();
             return db.Delete<Bookmark>(bookmark.Id);
         }
     }

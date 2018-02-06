@@ -430,6 +430,11 @@ namespace NicoPlayerHohoema.ViewModels
             _NGSettings.Save().ConfigureAwait(false);
 
 
+            // TVMode有効フラグをXaml側に反映されるようリソースに書き込み
+            // 汚いやり方かもしれない
+            App.Current.Resources["IsTVModeEnabled"] = Helpers.DeviceTypeHelper.IsXbox || HohoemaApp.UserSettings.AppearanceSettings.IsForceTVModeEnable;
+
+
             _RankingSettings.GetFile().ContinueWith(async prevTask =>
             {
                 await HohoemaApp.PushToRoamingData(prevTask.Result);

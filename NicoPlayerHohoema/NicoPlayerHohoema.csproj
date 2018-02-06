@@ -187,6 +187,7 @@
     <Compile Include="Database\Bookmark.cs" />
     <Compile Include="Database\BookmarkDb.cs" />
     <Compile Include="Database\BookmarkType.cs" />
+    <Compile Include="Database\FeedVideo.cs" />
     <Compile Include="Database\Feed.cs" />
     <Compile Include="Database\FeedDb.cs" />
     <Compile Include="Database\HohoemaLiteDbContext.cs" />
@@ -518,9 +519,6 @@
     <Compile Include="Views\Converters\InvertVisibilityConverter.cs" />
     <Compile Include="Views\Converters\NicoVideoQualityToCultualizedTextConverter.cs" />
     <Compile Include="Views\Converters\TransparentColorConverter.cs" />
-    <Compile Include="Views\FeedGroupManagePage_TV.xaml.cs">
-      <DependentUpon>FeedGroupManagePage_TV.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\HohoemaListItem.xaml.cs">
       <DependentUpon>HohoemaListItem.xaml</DependentUpon>
     </Compile>
@@ -898,10 +896,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Flyouts\VideoListItemFlyout.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\FeedGroupManagePage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
