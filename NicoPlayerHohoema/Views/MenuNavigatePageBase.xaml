@@ -168,22 +168,11 @@
                         <!-- マウス操作時、または画面が大きい時 -->
                         <VisualState>
                             <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="800" />
+                                <AdaptiveTrigger MinWindowWidth="520" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="ContentSplitView.DisplayMode" Value="CompactInline" />
                                 <Setter Target="ContentSplitView.IsPaneOpen" Value="True" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <!-- マウス操作時、または画面が大きい時 -->
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="520" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="ContentSplitView.DisplayMode" Value="CompactOverlay" />
-                                <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -312,9 +301,34 @@
                             <VisualState.Setters>
                                 <Setter Target="PlayerLayoutGrid.Visibility" Value="Visible" />
 
-                                <Setter Target="ToggleFloatPlayerGamepadTrigger.IsEnabled" Value="True" />
-
                                 <Setter Target="ContentSplitView.Visibility" Value="Collapsed" />
+
+                                <Setter Target="MenuToggleTrigger.IsEnabled" Value="False" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <VisualState x:Name="DisplayIntoSide">
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding IsTVModeEnable.Value}" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="PlayerLayoutGrid.Visibility" Value="Visible" />
+                                <Setter Target="TogglePlayerFloatButton.Visibility" Value="Visible" />
+
+                                <Setter Target="FloatPlayerLayout.(Grid.Row)" Value="2" />
+                                <Setter Target="FloatPlayerLayout.(Grid.Column)" Value="0" />
+                                <Setter Target="FloatPlayerLayout.(Grid.RowSpan)" Value="1" />
+                                <Setter Target="FloatPlayerLayout.(Grid.ColumnSpan)" Value="1" />
+
+                                <Setter Target="FloatPlayerLayout.Height" Value="{StaticResource DesktopFloatPlayerHeight}" />
+                                <Setter Target="FloatPlayerLayout.Width" Value="{StaticResource SideMenuPaneLength}" />
+
+                                <Setter Target="TVModeFloatPlayerRewindSizeButton.Visibility" Value="Visible" />
+
+                                <Setter Target="FloatPlayerLayout.HorizontalAlignment" Value="Right" />
+                                <Setter Target="FloatPlayerLayout.VerticalAlignment" Value="Bottom" />
+
                             </VisualState.Setters>
                         </VisualState>
 
@@ -334,7 +348,6 @@
 
                                 <Setter Target="SideMenuFooterBottomMargin.Visibility" Value="Visible" />
 
-                                <Setter Target="ToggleFloatPlayerGamepadTrigger.IsEnabled" Value="True" />
                                 <Setter Target="FloatPlayerLayout.Height" Value="{StaticResource DesktopFloatPlayerHeight}" />
                                 <Setter Target="FloatPlayerLayout.Width" Value="{StaticResource SideMenuPaneLength}" />
 
@@ -360,8 +373,6 @@
 
                                 <Setter Target="MobileHeaderMargin.Visibility" Value="Visible" />
 
-                                <Setter Target="ToggleFloatPlayerGamepadTrigger.IsEnabled" Value="True" />
-
                                 <Setter Target="FloatPlayerLayout.Height" Value="{StaticResource MobileFloatPlayerHeight}" />
                                 <Setter Target="FloatPlayerLayout.VerticalAlignment" Value="Top" />
                                 
@@ -382,7 +393,9 @@
                             >
                         
                     </Border>
+
                     
+
                     <SplitView x:Name="ContentSplitView" 
                         CompactPaneLength="48"
                         OpenPaneLength="{StaticResource SideMenuPaneLength}"
@@ -397,9 +410,30 @@
                         <SplitView.Pane>
 
                             <toolkit:DockPanel x:Name="PaneLayout" 
-                                               mybehavior:XYNavigationExtentions.FocusAcceptOrientation="Horizontal"
 
                                                >
+
+                                <Button x:Name="TVModeFloatPlayerRewindSizeButton"
+                                        Visibility="Collapsed"
+                                        toolkit:DockPanel.Dock="Top"
+                                        Background="Transparent"
+                                        Command="{Binding TogglePlayerFloatDisplayCommand}"
+                                        >
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE743;"
+                                                                                FontSize="24"
+                                                                                VerticalAlignment="Center"
+                                                                                Height="24"
+                                                                                Width="24"
+                                                                                HorizontalAlignment="Center"
+                                                                            />
+
+                                        <TextBlock Text="プレイヤーを全体表示" 
+                                       VerticalAlignment="Center"
+                                       Margin="8 0 0 0"
+                                       />
+                                    </StackPanel>
+                                </Button>
 
                                 <toolkit:DockPanel HorizontalAlignment="Stretch"
                                             toolkit:DockPanel.Dock="Bottom"
@@ -696,11 +730,10 @@
                       >
 
                     <i:Interaction.Behaviors>
-                        <mybehavior:UINavigationTrigger x:Name="ToggleFloatPlayerGamepadTrigger"
-                                                        Kind="View" 
-                                                        IsEnabled="False"
+                        <mybehavior:UINavigationTrigger Kind="View" 
+                                                        x:Name="MenuToggleTrigger"
                                                     >
-                            <core:InvokeCommandAction Command="{Binding TogglePlayerFloatDisplayCommand}" />
+                            <core:InvokeCommandAction Command="{Binding TogglePaneOpenCommand}" />
                         </mybehavior:UINavigationTrigger>
                     </i:Interaction.Behaviors>
 
