@@ -304,6 +304,7 @@
                                 <Setter Target="ContentSplitView.Visibility" Value="Collapsed" />
 
                                 <Setter Target="MenuToggleTrigger.IsEnabled" Value="False" />
+                                <Setter Target="PlayerDisplayIntoSmallWindowTrigger.IsEnabled" Value="True" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -734,6 +735,13 @@
                                                         x:Name="MenuToggleTrigger"
                                                     >
                             <core:InvokeCommandAction Command="{Binding TogglePaneOpenCommand}" />
+                        </mybehavior:UINavigationTrigger>
+
+                        <mybehavior:UINavigationTrigger Kind="View" 
+                                                        x:Name="PlayerDisplayIntoSmallWindowTrigger"
+                                                        IsEnabled="False"
+                                                    >
+                            <core:InvokeCommandAction Command="{Binding TogglePlayerFloatDisplayCommand}" />
                         </mybehavior:UINavigationTrigger>
                     </i:Interaction.Behaviors>
 
