@@ -961,12 +961,15 @@ namespace NicoPlayerHohoema.Views
                                 // 現在時間での横位置を求める
                                 // lerp 現在時間における位置の比率
                                 var val = renderComment.CommentUI.GetPosition(frame.CanvasWidth, frame.CurrentVpos);
-                                renderComment.CommentUI
-                                    .Offset(
-                                    (float)val.Value
-                                    , duration: 0
-                                    )
-                                    .Start();
+                                if (val.HasValue)
+                                {
+                                    renderComment.CommentUI
+                                        .Offset(
+                                        (float)val.Value
+                                        , duration: 0
+                                        )
+                                        .Start();
+                                }
                             }
                         }
 
