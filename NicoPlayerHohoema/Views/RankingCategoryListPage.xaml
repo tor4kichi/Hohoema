@@ -35,6 +35,8 @@
                     <VisualState.Setters>
                         <Setter Target="HeaderLayout.Margin" Value="96 0 48 0" />
                         <Setter Target="ContentLayout.Margin" Value="0 27 0 0" />
+
+                        <Setter Target="CategoryItems.Margin" Value="48 0 32 27" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -108,77 +110,81 @@
                           >
 
 
-                <ItemsControl ItemsSource="{Binding RankingCategoryItems}"
+                <Border x:Name="CategoryItems"
+                        Margin="16 0 16 8"
+                        >
+                    <ItemsControl ItemsSource="{Binding RankingCategoryItems}"
                               Height="{Binding ElementName=ScrollViewer, Path=ActualHeight, Mode=OneWay}"
                               IsTabStop="False"
-                               x:Name="CategoryItems"
-                                 
+                               
+
                           >
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <StackPanel Orientation="Horizontal"
-                                        Margin="48 0 48 27"
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"
                                         VerticalAlignment="Stretch"
                                                            x:Name="CategoryItemsPanel"
                                         />
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
 
-                            <toolkit:DockPanel Margin="0 0 8 0">
+                                <toolkit:DockPanel Margin="0 0 8 0">
 
-                                <ListView ItemsSource="{Binding ChildItems}"
+                                    <ListView ItemsSource="{Binding ChildItems}"
                                                     IsTabStop="False"   
                                               uwpui:ListViewBaseExtensions.Command="{Binding SelectedCommand}"
                                           IsItemClickEnabled="True"
                                           SelectionMode="None"
                                           >
-                                    <ListView.ItemContainerStyle>
-                                        <Style TargetType="ListViewItem">
-                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                            <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                                            <Setter Property="MinWidth" Value="180" />
-                                            <Setter Property="Padding" Value="0" />
-                                            <Setter Property="Margin" Value="0 0 8 8" />
-                                            <Setter Property="BorderBrush" Value="{ThemeResource ButtonBorderBrushPointerOver}" />
-                                            <Setter Property="BorderThickness" Value="1" />
-                                        </Style>
-                                    </ListView.ItemContainerStyle>
+                                        <ListView.ItemContainerStyle>
+                                            <Style TargetType="ListViewItem">
+                                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                                <Setter Property="VerticalContentAlignment" Value="Stretch" />
+                                                <Setter Property="MinWidth" Value="180" />
+                                                <Setter Property="Padding" Value="0" />
+                                                <Setter Property="Margin" Value="0 0 8 8" />
+                                                <Setter Property="BorderBrush" Value="{ThemeResource ButtonBorderBrushPointerOver}" />
+                                                <Setter Property="BorderThickness" Value="1" />
+                                            </Style>
+                                        </ListView.ItemContainerStyle>
 
-                                    <ListView.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <ItemsWrapGrid x:Name="CategoryItemsPanel"
+                                        <ListView.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <ItemsWrapGrid x:Name="CategoryItemsPanel"
                                                             Orientation="Vertical"
                                                            VerticalAlignment="Stretch"
                                                            ItemHeight="64"    
                                                                />
-                                        </ItemsPanelTemplate>
-                                    </ListView.ItemsPanel>
+                                            </ItemsPanelTemplate>
+                                        </ListView.ItemsPanel>
 
-                                    <ListView.ItemTemplate>
-                                        <DataTemplate>
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate>
 
-                                            <Border HorizontalAlignment="Center"
+                                                <Border HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
                                                     >
-                                                <TextBlock Text="{Binding Source, Converter={StaticResource ToLocalText}}"
+                                                    <TextBlock Text="{Binding Source, Converter={StaticResource ToLocalText}}"
                                                                FontWeight="{Binding FontWeight, Mode=OneTime}"
                                                                />
 
-                                            </Border>
+                                                </Border>
 
-                                        </DataTemplate>
-                                    </ListView.ItemTemplate>
-                                </ListView>
+                                            </DataTemplate>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
 
 
-                            </toolkit:DockPanel>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
+                                </toolkit:DockPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
 
-                </ItemsControl>
+                    </ItemsControl>
 
+                </Border>
+                
 
 
 
