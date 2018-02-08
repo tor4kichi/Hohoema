@@ -783,11 +783,13 @@
 
 
                             
+                            <!--
                             <mybehavior:UINavigationTrigger Kind="Cancel" 
                                                                 IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                                                 >
-                                <core:ChangePropertyAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" PropertyName="IsVisible" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanInverted}}" />
+                                <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanInverted}}" />
                             </mybehavior:UINavigationTrigger>
+                            -->
                     
 
 
