@@ -36,7 +36,7 @@
                         <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
+                        <Setter Target="TitleLayout.Margin" Value="64 0 0 0" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -51,7 +51,7 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
+                        <Setter Target="TitleLayout.Margin" Value="64 0 0 0" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -228,6 +228,8 @@
 
                     <StackPanel Background="Transparent" IsHitTestVisible="True"
                                     Margin="16 8 0 0"
+                                x:Name="TitleLayout"
+                                VerticalAlignment="Bottom"
                                     >
 
                         <i:Interaction.Behaviors>
@@ -238,10 +240,9 @@
 
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{Binding Title, Mode=OneWay}" 
-                                            VerticalAlignment="Center"
                                             Style="{StaticResource TitleTextBlockStyle}"
+                                       Margin="0 0 0 0"
                                        
-                                       x:Name="TitleLayout"
                                             />
 
                         </StackPanel>
@@ -252,7 +253,7 @@
 
 
                         <StackPanel Orientation="Horizontal" Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                           Margin="0 4"
+                                           Margin="0 0 0 0"
                                            >
 
                             <TextBlock FontSize="14">
