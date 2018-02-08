@@ -128,7 +128,7 @@
                                     x:Name="FeedRegstrationButton"
                                     Visibility="Collapsed"
                                     >
-                                <TextBlock Text="フィード登録" />
+                                <TextBlock Text="新着チェックに追加" />
                             </Button>
 
                             <Button Command="{Binding OpenUserPageCommand}"

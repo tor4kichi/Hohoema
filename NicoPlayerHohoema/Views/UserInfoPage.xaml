@@ -142,7 +142,7 @@
                                         Command="{StaticResource AddFeedSourceCommand}"
                                       CommandParameter="{Binding UserBookmark}"
                                         UseSystemFocusVisuals="True"
-                                          Label="フィード登録"
+                                          Label="新着チェックに追加"
                                         />
 
                         <AppBarButton Label="ブラウザで開く"

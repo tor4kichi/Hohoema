@@ -116,7 +116,7 @@
                                               Icon="Refresh"
                                         />
 
-                                <AppBarButton Label="フィード登録"
+                                <AppBarButton Label="新着チェックに追加"
                                         Command="{StaticResource AddFeedSourceCommand}"
                                         CommandParameter="{Binding TagSearchBookmark}"
                                     />
