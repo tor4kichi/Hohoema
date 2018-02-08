@@ -418,6 +418,12 @@ namespace NicoPlayerHohoema.ViewModels
                     HohoemaApp.OnResumed -= _OnResumed;
                 }
 
+                if (IsRequireSignIn)
+                {
+                    HohoemaApp.OnSignout -= __OnSignout;
+                    HohoemaApp.OnSignin -= __OnSignin;
+                }
+
                 base.OnNavigatingFrom(e, viewModelState, suspending);
             }
 		}
