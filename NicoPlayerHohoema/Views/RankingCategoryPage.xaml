@@ -68,13 +68,34 @@
                 <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
 
                     <CommandBar.Content>
-                        <StackPanel Orientation="Horizontal">
+                        <StackPanel Orientation="Horizontal"
+                                    Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                    >
 
+                            <Border Width="16" />
+                            
+                            <HyperlinkButton 
+                                             Command="{StaticResource OpenHohoemaPageCommand}"
+                                             CommandParameter="RankingCategoryList"
+                                             Foreground="{StaticResource ApplicationForegroundThemeBrush}"
+                                VerticalAlignment="Center"
+                                Opacity="0.7"
+                                             >
+                                <TextBlock Text="ランキング"
+                                           Style="{StaticResource SubtitleTextBlockStyle}"
+                                           
+                                           >
+                                    
+                                </TextBlock>
+                                
+                            </HyperlinkButton>             
+                            
+                            <Border Width="16" />
+                            
                             <Border 
-                                                    Margin="16 0 0 0"
                                                     Background="Transparent"
                                                     IsHitTestVisible="True"
-                                                        Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                        
                                                     >
                                 <i:Interaction.Behaviors>
                                     <core:EventTriggerBehavior EventName="Tapped">
@@ -85,7 +106,7 @@
                                                         VerticalAlignment="Center"
                                                         Style="{StaticResource TitleTextBlockStyle}"
                                                         >
-                                            『<Run Text="{Binding RankingCategory, Converter={StaticResource ToLocalText}}" />』のランキング
+                                            『<Run Text="{Binding RankingCategory, Converter={StaticResource ToLocalText}}" />』
                                 </TextBlock>
                             </Border>
                         </StackPanel>

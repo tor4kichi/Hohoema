@@ -13,11 +13,26 @@ namespace NicoPlayerHohoema.Commands
     {
         protected override bool CanExecute(object parameter)
         {
-            return parameter is ViewModels.MenuItemViewModel;
+            if (parameter is string)
+            {
+                return Enum.TryParse<Models.HohoemaPageType>(parameter as string, out var type);
+            }
+            else
+            {
+                return parameter is ViewModels.MenuItemViewModel;
+            }
         }
 
         protected override void Execute(object parameter)
         {
+            if (parameter is string)
+            {
+                if (Enum.TryParse<Models.HohoemaPageType>(parameter as string, out var pageType))
+                {
+                    var pageManager = App.Current.Container.Resolve<PageManager>();
+                    pageManager.OpenPage(pageType);
+                }
+            }
             if (parameter is ViewModels.MenuItemViewModel)
             {
                 var menuItem = parameter as ViewModels.MenuItemViewModel;
