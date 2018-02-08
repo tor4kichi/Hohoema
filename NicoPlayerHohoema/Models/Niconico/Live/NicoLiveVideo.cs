@@ -289,16 +289,16 @@ namespace NicoPlayerHohoema.Models.Live
 
             await Task.Delay(500);
 
-            Mntone.Nico2.Live.Watch.LeoPlayerProps leoPlayerProps = null;
+            Mntone.Nico2.Live.Watch.Crescendo.CrescendoLeoProps leoPlayerProps = null;
             try
             {
-                leoPlayerProps = await HohoemaApp.NiconicoContext.Live.GetLeoPlayerPropsAsync(LiveId);
+                leoPlayerProps = await HohoemaApp.NiconicoContext.Live.GetCrescendoLeoPlayerPropsAsync(LiveId);
             }
             catch { }
 
             if (leoPlayerProps != null)
             {
-                Debug.WriteLine(leoPlayerProps.BroadcastId);
+                Debug.WriteLine(leoPlayerProps.Program.BroadcastId);
 
                 LivePlayerType = Live.LivePlayerType.Leo;
 

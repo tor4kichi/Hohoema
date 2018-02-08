@@ -64,7 +64,7 @@ namespace NicoPlayerHohoema.Models.Live
     {
         MessageWebSocket MessageWebSocket { get; }
 
-        LeoPlayerProps Props { get; }
+        Mntone.Nico2.Live.Watch.Crescendo.CrescendoLeoProps Props { get; }
 
         AsyncLock _WebSocketLock = new AsyncLock();
         DataWriter _DataWriter;
@@ -80,7 +80,7 @@ namespace NicoPlayerHohoema.Models.Live
         public event LiveStreamRecieveScheduleHandler RecieveSchedule;
         public event LiveStreamRecieveDisconnectHandler RecieveDisconnect;
 
-        public Live2WebSocket(LeoPlayerProps props)
+        public Live2WebSocket(Mntone.Nico2.Live.Watch.Crescendo.CrescendoLeoProps props)
         {
             Props = props;
             MessageWebSocket = new MessageWebSocket();
@@ -94,10 +94,12 @@ namespace NicoPlayerHohoema.Models.Live
 
         public async Task StartAsync(string requestQuality = "", bool isLowLatency = true)
         {
+            var broadcastId = Props.Program.BroadcastId;
+            var audienceToken = Props.Player.AudienceToken;
             using (var releaser = await _WebSocketLock.LockAsync())
             {
                 var webSocketBaseUrl = "ws://a.live2.nicovideo.jp:2805/unama/wsapi/v1/watch/";
-                var url = $"{webSocketBaseUrl}{Props.BroadcastId}?audience_token={Props.AudienceToken}";
+                var url = $"{webSocketBaseUrl}{broadcastId}?audience_token={audienceToken}";
                 await MessageWebSocket.ConnectAsync(new Uri(url));
                 _DataWriter = new DataWriter(MessageWebSocket.OutputStream);
             }
@@ -108,7 +110,7 @@ namespace NicoPlayerHohoema.Models.Live
             }
 
 
-            var getpermitCommandText = $@"{{""type"":""watch"",""body"":{{""command"":""getpermit"",""requirement"":{{""broadcastId"":""{Props.BroadcastId}"",""route"":"""",""stream"":{{""protocol"":""hls"",""requireNewStream"":true,""priorStreamQuality"":""{requestQuality}"", ""isLowLatency"":{isLowLatency.ToString().ToLower()}}},""room"":{{""isCommentable"":true,""protocol"":""webSocket""}}}}}}}}";
+            var getpermitCommandText = $@"{{""type"":""watch"",""body"":{{""command"":""getpermit"",""requirement"":{{""broadcastId"":""{broadcastId}"",""route"":"""",""stream"":{{""protocol"":""hls"",""requireNewStream"":true,""priorStreamQuality"":""{requestQuality}"", ""isLowLatency"":{isLowLatency.ToString().ToLower()}}},""room"":{{""isCommentable"":true,""protocol"":""webSocket""}}}}}}}}";
             //var getpermitCommandText = $"{{\"type\":\"watch\",\"body\":{{\"params\":[\"{Props.BroadcastId}\",\"\",\"true\",\"hls\",\"\"],\"command\":\"getpermit\"}}}}";
             await SendMessageAsync(getpermitCommandText);
         }
