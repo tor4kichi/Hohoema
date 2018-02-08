@@ -157,9 +157,6 @@ namespace NicoPlayerHohoema.Models
                 catch (Exception ex) when (ex.Message.Contains("DELETE") || ex.Message.Contains("NOT_FOUND"))
                 {
                     info.IsDeleted = true;
-                    
-                    var cacheManager = App.Current.Container.Resolve<VideoCacheManager>();
-                    await cacheManager.VideoDeletedFromNiconicoServer(info.RawVideoId).ConfigureAwait(false);
                 }
                 finally
                 {
@@ -168,6 +165,12 @@ namespace NicoPlayerHohoema.Models
                     {
                         NicoVideoOwnerDb.AddOrUpdate(info.Owner);
                     }
+                }
+
+                if (info.IsDeleted)
+                {
+                    var cacheManager = App.Current.Container.Resolve<VideoCacheManager>();
+                    await cacheManager.VideoDeletedFromNiconicoServer(info.RawVideoId).ConfigureAwait(false);
                 }
 
                 return info;

@@ -761,6 +761,7 @@ namespace NicoPlayerHohoema.Models
                     if (cachedItems.Count == 0)
                     {
                         _CacheVideos.TryRemove(videoId, out var list);
+                        break;
                     }
 
                     RequestCanceled?.Invoke(this, target);
@@ -769,6 +770,11 @@ namespace NicoPlayerHohoema.Models
                         CacheState = NicoVideoCacheState.NotCacheRequested,
                         Request = target
                     });
+
+                    if (result)
+                    {
+                        deletedCount++;
+                    }
                 }
             }
 
