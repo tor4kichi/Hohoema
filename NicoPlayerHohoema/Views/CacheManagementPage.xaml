@@ -54,19 +54,21 @@
                 </VisualState>
             </VisualStateGroup>
 
-            
-            
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsCacheUserAccepted.Value}" />
+                        <StateTrigger IsActive="{Binding IsSelectionModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="CacheManagementContentLayout.Visibility" Value="Visible" />
-                        <Setter Target="NotCacheAcceptedLayout.Visibility" Value="Collapsed" />
+                        <Setter Target="UpdateButton.Visibility" Value="Collapsed" />
+                        
+                        <Setter Target="CancelCacheButton.Visibility" Value="Visible" />
+                        <Setter Target="RegistMylistButton.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
+
+
 
             <VisualStateGroup>
                 <VisualState>
@@ -74,12 +76,24 @@
                         <StateTrigger IsActive="{Binding IsRequireUpdateCacheSaveFolder.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="UpdateButton.Visibility" Value="Collapsed" />
-                        <Setter Target="UpdateCacheSaveFolderButton.Visibility" Value="Visible" />
-
+                        <Setter Target="RequireChangeCacheFolderLayout.Visibility" Value="Visible" />
+                        <Setter Target="NotCacheAcceptedLayout.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+                
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsCacheUserAccepted.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="TopCommandBar.Visibility" Value="Visible" />
+                        
+                        <Setter Target="CacheManagementContentLayout.Visibility" Value="Visible" />
+                        <Setter Target="NotCacheAcceptedLayout.Visibility" Value="Collapsed" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
+
         </VisualStateManager.VisualStateGroups>
 
 
@@ -95,90 +109,81 @@
             Visibility="Collapsed"
             >
             <controls:ListingWithHeader.HeaderContent>
-                <toolkit:DockPanel x:Name="HeaderLayout" Height="48">
-                    <StackPanel toolkit:DockPanel.Dock="Right"
-                                Orientation="Horizontal"
-                                >
+                <toolkit:DockPanel x:Name="HeaderLayout" Height="64">
 
-                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                    Orientation="Horizontal"
+                    <CommandBar x:Name="TopCommandBar"
+                                    toolkit:DockPanel.Dock="Right"
+                                VerticalAlignment="Bottom"
+                                Visibility="Collapsed"
                                     >
-                            <AppBarButton Background="Transparent" 
-                                        Command="{Binding RefreshCommand}"
-                                        ToolTipService.ToolTip="更新"
-                                              Icon="Refresh"
-                                              x:Name="UpdateButton"
-                                        />
 
-                            <AppBarButton Background="Transparent" 
-                                        Command="{Binding ChangeCacheFolderCommand}"
-                                        ToolTipService.ToolTip="保存先フォルダを指定"
-                                              Icon="SyncFolder"
-                                              x:Name="UpdateCacheSaveFolderButton"
-                                              Visibility="Collapsed"
-                                        />
+                        <CommandBar.SecondaryCommands>
+                            <AppBarButton Label="{Binding CacheSaveFolderPath.Value}"
+                                                                IsEnabled="False"
+                                                                />
+                            <AppBarButton Label="保存先を開く"
+                                                                Command="{Binding OpenCurrentCacheFolderCommand}"
+                                                                />
 
-                            <AppBarButton Icon="More">
-                                <AppBarButton.Flyout>
-                                    <MenuFlyout>
-                                        <MenuFlyoutItem Text="{Binding CacheSaveFolderPath.Value}"
-                                                            IsEnabled="False"
-                                                            />
-                                        <MenuFlyoutItem Text="保存先を開く"
-                                                            Command="{Binding OpenCurrentCacheFolderCommand}"
-                                                            />
+                            <AppBarSeparator />
 
-                                        <MenuFlyoutSeparator />
-
-                                        <MenuFlyoutItem Text="保存先を変更"
-                                                    Command="{Binding ChangeCacheFolderCommand}"
-                                                    >
-                                        </MenuFlyoutItem>
-                                        <MenuFlyoutItem Text="動画キャッシュ機能利用の確認文を読む" 
-                                                    Command="{Binding ReadCacheAcceptTextCommand}"
-                                                    />
-
-                                    </MenuFlyout>
-                                </AppBarButton.Flyout>
-
+                            <AppBarButton Label="保存先を変更"
+                                                        Command="{Binding ChangeCacheFolderCommand}"
+                                                        >
                             </AppBarButton>
+                            <AppBarButton Label="動画キャッシュ機能利用の確認文を読む" 
+                                                        Command="{Binding ReadCacheAcceptTextCommand}"
+                                                        />
 
-                        </StackPanel>
+                        </CommandBar.SecondaryCommands>
 
+                        <CommandBar.PrimaryCommands>
 
-                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                    Orientation="Horizontal"
-                                    >
-                            <AppBarButton Command="{Binding CancelCacheDownloadRequest}"
+                            <AppBarButton 
+                                    x:Name="UpdateButton"
+                                        Command="{Binding RefreshCommand}"
+                            
+                            Background="Transparent" 
+                                              Icon="Refresh"
+                            Label="更新"
+                                              
+                                        />
+
+                            <AppBarButton x:Name="CancelCacheButton"
+                                    Command="{Binding CancelCacheDownloadRequest}"
                                               Icon="Remove"
                                               Label="キャッシュ削除"
+                                          Visibility="Collapsed"
                                             />
                             <AppBarSeparator />
-                            <AppBarButton Command="{Binding RegistratioMylistCommand}"
+                            <AppBarButton x:Name="RegistMylistButton"
+                                Command="{Binding RegistratioMylistCommand}"
                                               Label="マイリストに追加"
                                               Icon="Add"
+                                          Visibility="Collapsed"
                                             >
                             </AppBarButton>
-                        </StackPanel>
 
-
-
-                        <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                             HorizontalContentAlignment="Stretch"
                                             VerticalContentAlignment="Stretch"
-                                            Label="選択"
+                                                x:Name="ToggleSelectionButton"
                                             >
-                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                                <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"
                                                        />
-                        </AppBarToggleButton>
+                            </AppBarToggleButton>
 
-                    </StackPanel>
 
+                        </CommandBar.PrimaryCommands>
+                        
+                    </CommandBar>
+                  
                     <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="16 0 0 0"
-
+                            VerticalAlignment="Bottom"
+                            Height="48"
                                 >
                         <i:Interaction.Behaviors>
                             <core:EventTriggerBehavior EventName="Tapped">
@@ -226,9 +231,35 @@
                 </DataTemplate>
             </controls:ListingWithHeader.GridItemTemplate>
         </controls:ListingWithHeader>
-        
-        
-        
+
+
+        <Grid x:Name="RequireChangeCacheFolderLayout"
+              Visibility="Collapsed"
+              >
+            <StackPanel HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                <TextBlock Margin="4">キャッシュ機能を有効にするには</TextBlock>
+
+
+                <TextBlock Margin="4">
+                        <Run>キャッシュフォルダの指定が必要でｓ</Run>
+                </TextBlock>
+
+                <Button x:Name="UpdateCacheSaveFolderButton"
+                            Background="Transparent" 
+                                        Command="{Binding ChangeCacheFolderCommand}"
+                        Content="キャッシュ保存フォルダを指定する"
+                                        >
+                    
+                </Button>
+
+
+
+            </StackPanel>
+
+
+        </Grid>
+
         <Grid x:Name="NotCacheAcceptedLayout"
               >
             <StackPanel HorizontalAlignment="Center"
