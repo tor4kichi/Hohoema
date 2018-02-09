@@ -1536,7 +1536,7 @@ namespace NicoPlayerHohoema.ViewModels
 			var str = CommandEditerVM.MakeCommandsString();
 			if (String.IsNullOrEmpty(str))
 			{
-				CommandString.Value = "コマンド";
+				CommandString.Value = "";
 			}
 			else
 			{

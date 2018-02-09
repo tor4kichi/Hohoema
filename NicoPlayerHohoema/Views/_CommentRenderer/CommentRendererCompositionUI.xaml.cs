@@ -253,11 +253,7 @@ namespace NicoPlayerHohoema.Views
                         deltaVideoPosition = DateTime.Now - _RealVideoPosition;
                     }
 
-                    Debug.WriteLine("コメ更新 開始");
-
                     OnUpdate(deltaVideoPosition);
-
-                    Debug.WriteLine("コメ更新 完了");
 
                     _PreviousVideoPosition = videoPosition;
 

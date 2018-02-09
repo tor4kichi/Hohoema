@@ -149,46 +149,64 @@ namespace NicoPlayerHohoema.Models
             }
 
             PostCommentResponse response = null;
-            foreach (var cnt in Enumerable.Range(0, 2))
+            
+            try
             {
-                try
-                {
-                    response = await Context.Video.PostCommentAsync(
-                        CommentServerInfo.ServerUrl,
-                        CommentServerInfo.DefaultThreadId.ToString(),
-                        SubmitInfo.Ticket,
-                        SubmitInfo.CommentCount,
-                        comment,
-                        position,
-                        commands
-                        );
-                }
-                catch
-                {
-                    // コメントデータを再取得してもう一度？
-                    return null;
-                }
+                response = await Context.Video.NMSGPostCommentAsync(
+//                        CommentServerInfo.ServerUrl,
+                    CommentServerInfo.DefaultThreadId.ToString(),
+                    SubmitInfo.Ticket,
+                    SubmitInfo.CommentCount,
+                    comment,
+                    position,
+                    commands
+                    );
+            }
+            catch
+            {                
+                // コメントデータを再取得してもう一度？
+                return null;
+            }
 
-                if (response.Chat_result.Status == ChatResult.Success)
-                {
-                    SubmitInfo.CommentCount++;
-                    break;
-                }
+            Debug.WriteLine("コメント投稿結果： " + response.Chat_result.Status);
 
-                Debug.WriteLine("コメ投稿失敗: コメ数 " + SubmitInfo.CommentCount);
-
-                await Task.Delay(1000);
-
-                try
+            if (response?.Chat_result.Status != ChatResult.Success)
+            {
+                if (CommentServerInfo.CommunityThreadId.HasValue)
                 {
-                    var videoInfo = await Context.Search.GetVideoInfoAsync(RawVideoId);
-                    SubmitInfo.CommentCount = int.Parse(videoInfo.Thread.num_res);
-                    Debug.WriteLine("コメ数再取得: " + SubmitInfo.CommentCount);
-                }
-                catch
-                {
+                    response = await Context.Video.NMSGPostCommentAsync(
+                    //                        CommentServerInfo.ServerUrl,
+                    CommentServerInfo.CommunityThreadId.Value.ToString(),
+                    SubmitInfo.Ticket,
+                    SubmitInfo.CommentCount,
+                    comment,
+                    position,
+                    commands
+                    );
+
+                    Debug.WriteLine("コメント投稿結果 2回目： " + response.Chat_result.Status);
                 }
             }
+
+            if (response.Chat_result.Status == ChatResult.Success)
+            {
+                SubmitInfo.CommentCount++;
+            }
+
+            Debug.WriteLine("コメ投稿試行前: コメ数 " + SubmitInfo.CommentCount);
+
+            await Task.Delay(1000);
+
+            try
+            {
+                var videoInfo = await Context.Search.GetVideoInfoAsync(RawVideoId);
+                SubmitInfo.CommentCount = int.Parse(videoInfo.Thread.num_res);
+                Debug.WriteLine("コメ数再取得: " + SubmitInfo.CommentCount);
+            }
+            catch
+            {
+            }
+            
 
             return response;
         }
