@@ -92,7 +92,14 @@ namespace NicoPlayerHohoema.ViewModels
 		public List<CommunityVideoInfoViewModel> CommunityVideoSamples { get; private set; }
 
 
-		public bool HasCurrentLiveInfo { get; private set; }
+        private bool _IsOwnedCommunity;
+        public bool IsOwnedCommunity
+        {
+            get { return _IsOwnedCommunity; }
+            set { SetProperty(ref _IsOwnedCommunity, value); }
+        }
+
+        public bool HasCurrentLiveInfo { get; private set; }
 
 		private bool _NowLoading;
 		public bool NowLoading
@@ -253,7 +260,9 @@ namespace NicoPlayerHohoema.ViewModels
 						CommunityDetail.OwnerUserId
 						);
 
-					Tags = CommunityDetail.Tags.Select(x => new TagViewModel(x, PageManager))
+                    IsOwnedCommunity = HohoemaApp.LoginUserId.ToString() == OwnerUserInfo.Id;
+
+                    Tags = CommunityDetail.Tags.Select(x => new TagViewModel(x, PageManager))
 						.ToList();
 
 					FutureLiveList = CommunityDetail.FutureLiveList.Select(x => new CommunityLiveInfoViewModel(x, PageManager))

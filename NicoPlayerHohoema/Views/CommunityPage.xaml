@@ -91,6 +91,7 @@
                                       IsEnabled="{Binding CanChangeFollowCommunityState.Value}"
                                   Background="Transparent"
                                             Icon="Favorite"
+                                            Visibility="{Binding IsOwnedCommunity, Converter={StaticResource BooleanToVisibilityInverted}}"
                                         >
                         </AppBarToggleButton>
                     </StackPanel>
