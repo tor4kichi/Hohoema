@@ -116,7 +116,6 @@
                     <ItemsControl ItemsSource="{Binding RankingCategoryItems}"
                               Height="{Binding ElementName=ScrollViewer, Path=ActualHeight, Mode=OneWay}"
                               IsTabStop="False"
-                               
 
                           >
                         <ItemsControl.ItemsPanel>
@@ -163,14 +162,18 @@
                                         <ListView.ItemTemplate>
                                             <DataTemplate>
 
-                                                <Border HorizontalAlignment="Center"
+                                                <Grid HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
                                                     >
                                                     <TextBlock Text="{Binding Source, Converter={StaticResource ToLocalText}}"
-                                                               FontWeight="{Binding FontWeight, Mode=OneTime}"
+                                                               Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityInverted}}"
                                                                />
 
-                                                </Border>
+                                                    <TextBlock Text="{Binding Source, Converter={StaticResource ToLocalText}}"
+                                                               Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibility}}"
+                                                               FontWeight="Bold"
+                                                               />
+                                                </Grid>
 
                                             </DataTemplate>
                                         </ListView.ItemTemplate>
