@@ -133,6 +133,8 @@
 
             <uwpconv:ResourceNameToResourceStringConverter x:Key="ToLocalText" />
 
+            <myconv:PageTypeToMaterialIconKind x:Key="PageTypeToMaterialIconKind" />
+
             <!-- Logical Modifier-->
             <logicalModifier:AndModifier x:Key="AndModifier" />
             <logicalModifier:OrModifier x:Key="OrModifier" />

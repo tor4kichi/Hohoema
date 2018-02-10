@@ -42,11 +42,16 @@
 
             <DataTemplate x:Key="MenuItemTemplate">
                 <StackPanel Orientation="Horizontal" Opacity="0.85"
-                        Margin="4 0 0 0"
+                        Margin="16 0 0 0"
                         >
-                    <!--
-                            <SymbolIcon Symbol="{Binding IconType}" />
-                            -->
+
+                    <iconPack:PackIconMaterial Kind="{Binding PageType, Converter={StaticResource PageTypeToMaterialIconKind}}" 
+                                               Width="16"
+                                               Height="16"
+                                               VerticalAlignment="Center"
+                                               Opacity="0.7"
+                                               />
+
                     <Border Height="4" Width="16" />
 
                     <TextBlock Text="{Binding Label}"
