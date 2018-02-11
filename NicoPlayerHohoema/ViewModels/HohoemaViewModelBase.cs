@@ -418,6 +418,12 @@ namespace NicoPlayerHohoema.ViewModels
                     HohoemaApp.OnResumed -= _OnResumed;
                 }
 
+                if (IsRequireSignIn)
+                {
+                    HohoemaApp.OnSignout -= __OnSignout;
+                    HohoemaApp.OnSignin -= __OnSignin;
+                }
+
                 base.OnNavigatingFrom(e, viewModelState, suspending);
             }
 		}
@@ -435,13 +441,13 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 	
-		protected void UpdateTitle(string title)
+		protected void UpdateTitle(string title, string parameter = null)
 		{
-			Title = title;
-			PageManager.UpdateTitle(title);
-		}
+			PageManager.UpdatePageNavigationInfo(title, parameter);
+            Title = title;
+        }
 
-		public async void Dispose()
+        public async void Dispose()
 		{
 			using (var releaser = await _NavigationLock.LockAsync())
 			{

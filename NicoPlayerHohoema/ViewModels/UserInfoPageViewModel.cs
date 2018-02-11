@@ -129,6 +129,10 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				userId = ((uint)e.Parameter).ToString();
 			}
+            else
+            {
+                userId = HohoemaApp.LoginUserId.ToString();
+            }
 
 			if (userId == UserId) { return; }
 
@@ -166,7 +170,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (UserId == null) { return; }
 
-			UpdateTitle($"{UserName} さん");
 
 			// NGユーザーの設定
 
@@ -205,6 +208,7 @@ namespace NicoPlayerHohoema.ViewModels
                     vm.SetThumbnailImage(item.ThumbnailUrl.OriginalString);
                     VideoInfoItems.Add(vm);
 				}
+                RaisePropertyChanged(nameof(VideoInfoItems));
 			}
 			catch (Exception ex)
 			{
@@ -240,9 +244,10 @@ namespace NicoPlayerHohoema.ViewModels
 					IsLoadFailed = true;
 					Debug.WriteLine(ex.Message);
 				}
-
 			}
+            RaisePropertyChanged(nameof(MylistGroups));
 
+            
             UserBookmark = Database.BookmarkDb.Get(Database.BookmarkType.User, UserId) 
             ?? new Database.Bookmark()
             {
@@ -252,6 +257,8 @@ namespace NicoPlayerHohoema.ViewModels
             };
 
             RaisePropertyChanged(nameof(UserBookmark));
+
+            UpdateTitle(UserName, UserId);
 
             NowLoading = false;
 		}

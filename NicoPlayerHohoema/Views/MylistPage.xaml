@@ -29,8 +29,16 @@
     <Grid>
         <VisualStateManager.VisualStateGroups>
 
-            <!-- ウィンドウサイズごとの表示 -->
+            <!-- トップバー表示時のタイトル位置ずらし -->
             <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="TitleLayout.Margin" Value="64 0 0 0" />
+                    </VisualState.Setters>
+                </VisualState>
                 <VisualState>
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="520" />
@@ -43,7 +51,7 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
+                        <Setter Target="TitleLayout.Margin" Value="64 0 0 0" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -120,7 +128,7 @@
                                     x:Name="FeedRegstrationButton"
                                     Visibility="Collapsed"
                                     >
-                                <TextBlock Text="フィード登録" />
+                                <TextBlock Text="新着チェックに追加" />
                             </Button>
 
                             <Button Command="{Binding OpenUserPageCommand}"
@@ -220,6 +228,8 @@
 
                     <StackPanel Background="Transparent" IsHitTestVisible="True"
                                     Margin="16 8 0 0"
+                                x:Name="TitleLayout"
+                                VerticalAlignment="Bottom"
                                     >
 
                         <i:Interaction.Behaviors>
@@ -230,10 +240,9 @@
 
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="{Binding Title, Mode=OneWay}" 
-                                            VerticalAlignment="Center"
                                             Style="{StaticResource TitleTextBlockStyle}"
+                                       Margin="0 0 0 0"
                                        
-                                       x:Name="TitleLayout"
                                             />
 
                         </StackPanel>
@@ -244,7 +253,7 @@
 
 
                         <StackPanel Orientation="Horizontal" Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                           Margin="0 4"
+                                           Margin="0 0 0 0"
                                            >
 
                             <TextBlock FontSize="14">

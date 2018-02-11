@@ -410,15 +410,40 @@
                         <Setter Target="PlaybackControlLayout.Padding" Value="48 8" />
                         <Setter Target="LiveInfoLayout.Padding" Value="48 0" />
 
-
-                        <Setter Target="TVModeDisplayOptionsButtonButton.Visibility" Value="Visible" />
-                        <Setter Target="MobileAndDesktopDisplayOptionsButton.Visibility" Value="Collapsed" />
-
                     </VisualState.Setters>
                 </VisualState>
 
             </VisualStateGroup>
 
+            <!-- デバイスごとの最大化と小窓ボタンの表示切り替え -->
+            <VisualStateGroup >
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Mobile" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="SmallWindowButton.Visibility" Value="Visible" />
+                        <Setter Target="FullscreenButton.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="SmallWindowButton.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Desktop" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="SmallWindowButton.Visibility" Value="Visible" />
+                        <Setter Target="FullscreenButton.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
 
             
 
@@ -689,13 +714,17 @@
                         <toolkit:DockPanel x:Name="DefaultUIControl">
                             <StackPanel toolkit:DockPanel.Dock="Top" >
 
-                                <Border x:Name="TopBarLayout"
+                                <Grid x:Name="TopBarLayout"
+                                            
                                 >
-                                    <Border.Background>
+                                    <Grid.Background>
                                         <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
-                                    </Border.Background>
+                                    </Grid.Background>
 
-                                    <toolkit:DockPanel>
+                                    <StackPanel Orientation="Horizontal"
+                                                HorizontalAlignment="Left"
+                                                >
+
 
                                         <Button Command="{Binding ClosePlayerCommand}"
                                             Background="Transparent"
@@ -707,11 +736,166 @@
                                         </Button>
 
 
-                                        <Border />
+                                        <Button x:Name="DisplayWithMainViewButton"
+                                                            Command="{Binding PlayerDisplayWithMainViewCommand}"
+                                                            Background="Transparent"
+                                                            Visibility="Collapsed"
+                                                            >
+                                            <StackPanel Orientation="Vertical">
+                                                <iconPack:PackIconMaterial Kind="CheckboxBlankOutline"
+                                                                                                   Margin="0 0 0 8"
+                                                                                                   Height="24"
+                                                                                                   Width="24"
+                                                                                                   HorizontalAlignment="Center"
+                                                                                                   />
 
-                                    </toolkit:DockPanel>
+                                                <TextBlock Text="メインビューで表示" 
+                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                                                   VerticalAlignment="Center" />
+                                            </StackPanel>
+                                        </Button>
 
-                                </Border>
+
+
+                                    </StackPanel>
+
+                                    <StackPanel Orientation="Horizontal"
+                                                        HorizontalAlignment="Right"
+                                                        >
+
+
+
+                                        <Button x:Name="SmallWindowButton"  
+                                                            Command="{Binding PlayerSmallWindowDisplayCommand}"
+                                                            Background="Transparent"
+                                                            Visibility="Collapsed"
+                                                            Margin="8 0 0 0"
+                                                                        >
+                                            <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE743;"
+                                                                                   FontSize="24"
+                                                                                   VerticalAlignment="Center"
+                                                                                   Height="24"
+                                                                                   Width="24"
+                                                                                   HorizontalAlignment="Center"
+                                                                                   Margin="0 0 0 8"
+                                                                               />
+
+                                                <TextBlock Text="小窓" 
+                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                                                   VerticalAlignment="Center" />
+
+                                            </StackPanel>
+                                        </Button>
+
+
+
+
+
+
+                                        <Button x:Name="CompactOverlayButton"
+                                                            Command="{Binding ToggleCompactOverlayCommand}"
+                                                            Background="Transparent"
+                                                            Visibility="Collapsed"
+                                                            Margin="8 0 0 0"
+                                                            >
+                                            <StackPanel Orientation="Vertical">
+
+                                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8A7;"
+                                                                                   FontSize="24"
+                                                                                   VerticalAlignment="Center"
+                                                                                   Height="24"
+                                                                                   Width="24"
+                                                                                   HorizontalAlignment="Center"
+                                                                                   Margin="0 0 0 8"
+                                                                               />
+                                                <TextBlock Text="ミニモード" 
+                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                                                   VerticalAlignment="Center" />
+                                            </StackPanel>
+                                        </Button>
+
+
+
+                                        <Button x:Name="FullscreenButton"  
+                                                            Command="{Binding ToggleFullScreenCommand}"
+                                                            Background="Transparent"
+                                                            Visibility="Collapsed"
+                                                            Margin="8 0 0 0"
+                                                                        >
+                                            <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                                                <toolkit:LayoutTransformControl Margin="0 0 0 8">
+                                                    <iconPack:PackIconMaterial x:Name="FullscreenButtonIcon"  
+                                                                                Kind="Fullscreen"                                                                                                        
+                                                                                Width="24"
+                                                                                Height="24"
+                                                                                HorizontalAlignment="Center"
+                                                                            >
+
+                                                    </iconPack:PackIconMaterial>
+                                                </toolkit:LayoutTransformControl>
+
+
+                                                <TextBlock Text="全画面" 
+                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                                                   VerticalAlignment="Center" />
+
+                                            </StackPanel>
+                                        </Button>
+
+
+
+
+                                        <Button x:Name="DisplayWithSecondaryViewButton"
+                                                            Command="{Binding PlayerDisplayWithSecondaryViewCommand}"
+                                                            Background="Transparent"
+                                                            Visibility="Collapsed"
+                                                            Margin="8 0 0 0"
+                                                            >
+                                            <StackPanel Orientation="Vertical">
+                                                <iconPack:PackIconMaterial Kind="CheckboxMultipleBlankOutline"
+                                                                                                   Margin="0 0 0 8"
+                                                                                                   Height="24"
+                                                                                                   Width="24"
+                                                                                                   HorizontalAlignment="Center"
+                                                                                                   />
+
+                                                <TextBlock Text="新しいビューで表示" 
+                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                                                   VerticalAlignment="Center" />
+                                            </StackPanel>
+                                        </Button>
+
+                                        <ToggleButton x:Name="ForceRotateToggleButton" 
+                                                                  IsChecked="{Binding IsForceLandscape.Value, Mode=TwoWay}"
+                                                                  Background="Transparent"
+                                                                  Visibility="Collapsed"
+                                                        Margin="8 0 0 0"
+                                                        >
+                                            <StackPanel>
+                                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B4;"
+                                                                                   FontSize="24"
+                                                                                   VerticalAlignment="Center"
+                                                                                   Height="24"
+                                                                                   Width="24"
+                                                                                   HorizontalAlignment="Center"
+                                                                                   Margin="0 0 0 8"
+                                                                               />
+
+                                                <TextBlock Text="横持ち固定"
+                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                                                   VerticalAlignment="Center"
+                                                                                   />
+                                            </StackPanel>
+                                        </ToggleButton>
+
+
+
+                                    </StackPanel>
+
+
+
+                                </Grid>
 
 
 
@@ -1043,210 +1227,6 @@
                                         Grid.Column="2"
                                     HorizontalAlignment="Right"
                                         >
-
-                                        <Button Background="Transparent"
-                                                        x:Name="MobileAndDesktopDisplayOptionsButton"
-                                                        >
-                                            <Button.Flyout>
-                                                <Flyout>
-                                                    <StackPanel Orientation="Horizontal">
-
-                                                        <Button Command="{Binding PlayerSmallWindowDisplayCommand}"
-                                                                        Background="Transparent"
-                                                                        x:Name="SmallWindowButton"  
-                                                                        >
-                                                            <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                                                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE743;"
-                                                                                   FontSize="24"
-                                                                                   VerticalAlignment="Center"
-                                                                                   Height="24"
-                                                                                   Width="24"
-                                                                                   HorizontalAlignment="Center"
-                                                                                   Margin="0 0 0 8"
-                                                                               />
-
-                                                                <TextBlock Text="小窓" 
-                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                                                                   VerticalAlignment="Center" />
-
-                                                            </StackPanel>
-                                                        </Button>
-
-
-
-
-
-
-                                                        <Button Command="{Binding ToggleCompactOverlayCommand}"
-                                                                        Background="Transparent"
-                                                                        x:Name="CompactOverlayButton"
-                                                                        Visibility="Collapsed"
-                                                                        >
-                                                            <StackPanel Orientation="Vertical">
-
-                                                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8A7;"
-                                                                                   FontSize="24"
-                                                                                   VerticalAlignment="Center"
-                                                                                   Height="24"
-                                                                                   Width="24"
-                                                                                   HorizontalAlignment="Center"
-                                                                                   Margin="0 0 0 8"
-                                                                               />
-                                                                <TextBlock Text="ミニモード" 
-                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                                                                   VerticalAlignment="Center" />
-                                                            </StackPanel>
-                                                        </Button>
-
-
-
-                                                        <Button Command="{Binding ToggleFullScreenCommand}"
-                                                                        Background="Transparent"
-                                                                        x:Name="FullscreenButton"  
-                                                                        >
-                                                            <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                                                                <toolkit:LayoutTransformControl Margin="0 0 0 8">
-                                                                    <iconPack:PackIconMaterial x:Name="FullscreenButtonIcon"  
-                                                                                Kind="Fullscreen"                                                                                                        
-                                                                                Width="24"
-                                                                                Height="24"
-                                                                                HorizontalAlignment="Center"
-                                                                            >
-
-                                                                    </iconPack:PackIconMaterial>
-                                                                </toolkit:LayoutTransformControl>
-
-
-                                                                <TextBlock Text="全画面" 
-                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                                                                   VerticalAlignment="Center" />
-
-                                                            </StackPanel>
-                                                        </Button>
-
-
-                                                        <Button Command="{Binding PlayerDisplayWithMainViewCommand}"
-                                                                        Background="Transparent"
-                                                                        x:Name="DisplayWithMainViewButton"
-                                                                        Visibility="Collapsed"
-                                                                        >
-                                                            <StackPanel Orientation="Vertical">
-                                                                <iconPack:PackIconMaterial Kind="CheckboxBlankOutline"
-                                                                                                   Margin="0 0 0 8"
-                                                                                                   Height="24"
-                                                                                                   Width="24"
-                                                                                                   HorizontalAlignment="Center"
-                                                                                                   />
-
-                                                                <TextBlock Text="メインビューで表示" 
-                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                                                                   VerticalAlignment="Center" />
-                                                            </StackPanel>
-                                                        </Button>
-
-                                                        <Button Command="{Binding PlayerDisplayWithSecondaryViewCommand}"
-                                                                        Background="Transparent"
-                                                                        x:Name="DisplayWithSecondaryViewButton"
-                                                                        Visibility="Collapsed"
-                                                                        >
-                                                            <StackPanel Orientation="Vertical">
-                                                                <iconPack:PackIconMaterial Kind="CheckboxMultipleBlankOutline"
-                                                                                                   Margin="0 0 0 8"
-                                                                                                   Height="24"
-                                                                                                   Width="24"
-                                                                                                   HorizontalAlignment="Center"
-                                                                                                   />
-
-                                                                <TextBlock Text="新しいビューで表示" 
-                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                                                                   VerticalAlignment="Center" />
-                                                            </StackPanel>
-                                                        </Button>
-
-
-
-                                                        <Button Visibility="Collapsed"
-                                                                              x:Name="SplitWindowButton"
-                                                                              Background="Transparent"
-                                                                              >
-                                                            <StackPanel Orientation="Vertical">
-                                                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE78B;"
-                                                                                   FontSize="24"
-                                                                                   VerticalAlignment="Center"
-                                                                                   Height="24"
-                                                                                   Width="24"
-                                                                                   HorizontalAlignment="Center"
-                                                                                   Margin="0 0 0 8"
-                                                                               />
-                                                                <TextBlock Text="別ウィンドウ" 
-                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                                                                   VerticalAlignment="Center" />
-                                                            </StackPanel>
-                                                        </Button>
-
-                                                        <ToggleButton Background="Transparent"
-                                                                        x:Name="ForceRotateToggleButton" 
-                                                                        Visibility="Collapsed"
-                                                                        IsChecked="{Binding IsForceLandscape.Value, Mode=TwoWay}"
-                                                                        >
-                                                            <StackPanel>
-                                                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B4;"
-                                                                                   FontSize="24"
-                                                                                   VerticalAlignment="Center"
-                                                                                   Height="24"
-                                                                                   Width="24"
-                                                                                   HorizontalAlignment="Center"
-                                                                                   Margin="0 0 0 8"
-                                                                               />
-
-                                                                <TextBlock Text="横持ち固定"
-                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                                                                   VerticalAlignment="Center"
-                                                                                   />
-                                                            </StackPanel>
-                                                        </ToggleButton>
-
-
-                                                    </StackPanel>
-                                                </Flyout>
-                                            </Button.Flyout>
-
-
-                                            <Grid>
-                                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE97C;"
-                                                                                   FontSize="24"
-                                                                                   VerticalAlignment="Center"
-                                                                                   Height="24"
-                                                                                   Width="24"
-                                                                                   HorizontalAlignment="Center"
-                                                                               />
-                                            </Grid>
-
-                                        </Button>
-
-
-                                        <Button Command="{Binding PlayerSmallWindowDisplayCommand}"
-                                                        Background="Transparent"
-                                                        x:Name="TVModeDisplayOptionsButtonButton"  
-                                                        Visibility="Collapsed"
-                                                        >
-                                            <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                                                <toolkit:LayoutTransformControl Margin="0 0 0 8">
-                                                    <iconPack:PackIconMaterial Kind="WindowMinimize" 
-                                                                                                   Width="24"
-                                                                                                   Height="24"
-                                                                                                       HorizontalAlignment="Center"
-                                                                            >
-                                                    </iconPack:PackIconMaterial>
-                                                </toolkit:LayoutTransformControl>
-
-                                                <TextBlock Text="小窓表示" 
-                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                                                                   VerticalAlignment="Center" />
-
-                                            </StackPanel>
-                                        </Button>
-
 
 
                                         <Button Command="{Binding SelectSidePaneContentCommand}"

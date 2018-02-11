@@ -683,6 +683,7 @@ namespace NicoPlayerHohoema
             Resources.Add("IsMobile", Helpers.DeviceTypeHelper.IsMobile);
 
             Resources.Add("IsCacheEnabled", hohoemaApp.UserSettings.CacheSettings.IsEnableCache);
+            Resources.Add("IsTVModeEnabled", Helpers.DeviceTypeHelper.IsXbox || hohoemaApp.UserSettings.AppearanceSettings.IsForceTVModeEnable);
 
             //			return Task.CompletedTask;
         }

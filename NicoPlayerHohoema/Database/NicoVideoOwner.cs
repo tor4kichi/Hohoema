@@ -26,7 +26,7 @@ namespace NicoPlayerHohoema.Database
     {
         public static NicoVideoOwner Get(string id)
         {
-            var db = HohoemaLiteDb.GetLiteRepository();
+            var db = HohoemaLiteDb.GetTempLiteRepository();
             {
                 return db.SingleOrDefault<NicoVideoOwner>(x => x.OwnerId == id);
             }
@@ -34,7 +34,7 @@ namespace NicoPlayerHohoema.Database
 
         public static bool AddOrUpdate(NicoVideoOwner owner)
         {
-            var db = HohoemaLiteDb.GetLiteRepository();
+            var db = HohoemaLiteDb.GetTempLiteRepository();
             {
                 return db.Upsert(owner);
             }
@@ -42,7 +42,7 @@ namespace NicoPlayerHohoema.Database
 
         public static IEnumerable<NicoVideoOwner> SearchFromScreenName(string keyword)
         {
-            var db = HohoemaLiteDb.GetLiteRepository();
+            var db = HohoemaLiteDb.GetTempLiteRepository();
             {
                 return db.Fetch<NicoVideoOwner>(Query.Contains(nameof(NicoVideoOwner.ScreenName), keyword));
             }
@@ -50,7 +50,7 @@ namespace NicoPlayerHohoema.Database
 
         public static int Delete(Expression<Func<NicoVideoOwner, bool>> expression)
         {
-            var db = HohoemaLiteDb.GetLiteRepository();
+            var db = HohoemaLiteDb.GetTempLiteRepository();
             {
                 return db.Delete(expression);
             }

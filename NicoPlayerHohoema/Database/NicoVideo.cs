@@ -51,7 +51,7 @@ namespace NicoPlayerHohoema.Database
     {
         public static NicoVideo Get(string videoId)
         {
-            var db = HohoemaLiteDb.GetLiteRepository();
+            var db = HohoemaLiteDb.GetTempLiteRepository();
             {
                 return db
                     .Query<NicoVideo>()
@@ -65,7 +65,7 @@ namespace NicoPlayerHohoema.Database
 
         public static bool AddOrUpdate(NicoVideo video)
         {
-            var db = HohoemaLiteDb.GetLiteRepository();
+            var db = HohoemaLiteDb.GetTempLiteRepository();
             {
                 video.LastUpdated = DateTime.Now;
                 return db.Upsert(video);
@@ -74,7 +74,7 @@ namespace NicoPlayerHohoema.Database
 
         public static IEnumerable<NicoVideo> SearchFromTitle(string keyword)
         {
-            var db = HohoemaLiteDb.GetLiteRepository();
+            var db = HohoemaLiteDb.GetTempLiteRepository();
             {
                 return db
                     .Query<NicoVideo>()
@@ -85,7 +85,7 @@ namespace NicoPlayerHohoema.Database
 
         public static int DeleteAll()
         {
-            var db = HohoemaLiteDb.GetLiteRepository();
+            var db = HohoemaLiteDb.GetTempLiteRepository();
             {
                 return db.Delete<NicoVideo>(Query.All());
             }
@@ -93,7 +93,7 @@ namespace NicoPlayerHohoema.Database
 
         public static bool Delete(NicoVideo video)
         {
-            var db = HohoemaLiteDb.GetLiteRepository();
+            var db = HohoemaLiteDb.GetTempLiteRepository();
             {
                 return db.Delete<NicoVideo>(new BsonValue(video.RawVideoId));
             }
@@ -102,7 +102,7 @@ namespace NicoPlayerHohoema.Database
 
         public static int Delete(Expression<Func<NicoVideo, bool>> expression)
         {
-            var db = HohoemaLiteDb.GetLiteRepository();
+            var db = HohoemaLiteDb.GetTempLiteRepository();
             {
                 return db.Delete<NicoVideo>(expression);
             }

@@ -155,6 +155,7 @@
     <Content Include="Assets\UpdateNotices\0.12.0.md" />
     <Content Include="Assets\UpdateNotices\0.12.3.md" />
     <Content Include="Assets\UpdateNotices\0.12.7.md" />
+    <Content Include="Assets\UpdateNotices\0.13.0.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <PRIResource Include="Resources\ja-jp\Resources.resw" />
   </ItemGroup>
@@ -174,10 +175,12 @@
     <Compile Include="Commands\OpenBroadcasterInfoCommand.cs" />
     <Compile Include="Commands\OpenContentCommand.cs" />
     <Compile Include="Commands\OpenFeedSourceCommand.cs" />
+    <Compile Include="Commands\OpenHohoemaPageCommand.cs" />
     <Compile Include="Commands\OpenVideoInfoCommand.cs" />
     <Compile Include="Commands\OpenVideoOwnerVideoListCommand.cs" />
     <Compile Include="Commands\RemoveFeedSourceCommand.cs" />
     <Compile Include="Commands\RemoveFollowCommand.cs" />
+    <Compile Include="Commands\RemovePinCommand.cs" />
     <Compile Include="Commands\ShareWithTwitterCommand.cs" />
     <Compile Include="Commands\ShereCommand.cs" />
     <Compile Include="Commands\VideoDeleteCacheCommand.cs" />
@@ -185,6 +188,7 @@
     <Compile Include="Database\Bookmark.cs" />
     <Compile Include="Database\BookmarkDb.cs" />
     <Compile Include="Database\BookmarkType.cs" />
+    <Compile Include="Database\FeedVideo.cs" />
     <Compile Include="Database\Feed.cs" />
     <Compile Include="Database\FeedDb.cs" />
     <Compile Include="Database\HohoemaLiteDbContext.cs" />
@@ -297,6 +301,8 @@
     <Compile Include="Models\Settings\AppearanceSettings.cs" />
     <Compile Include="Models\Settings\CacheSettings.cs" />
     <Compile Include="Models\Settings\ActivityFeedSettings.cs" />
+    <Compile Include="Models\HohoemaPin.cs" />
+    <Compile Include="Models\Settings\PinSettings.cs" />
     <Compile Include="Models\Settings\PlaylistSettings.cs" />
     <Compile Include="Models\Niconico\Mylist\UserMylistManager.cs" />
     <Compile Include="Helpers\ShareHelper.cs" />
@@ -350,6 +356,7 @@
     <Compile Include="ViewModels\FeedGroupManagePageViewModel.cs" />
     <Compile Include="ViewModels\FeedGroupPageViewModel.cs" />
     <Compile Include="ViewModels\SearchSummaryPageViewModel.cs" />
+    <Compile Include="ViewModels\RankingCategoryPageViewModel.cs" />
     <Compile Include="ViewModels\WatchHistoryPageViewModel.cs" />
     <Compile Include="ViewModels\HohoemaIncrementalSourceBase.cs" />
     <Compile Include="ViewModels\HohoemaListingPageItemBase.cs" />
@@ -417,11 +424,16 @@
     <Compile Include="Views\CacheManagementPage.xaml.cs">
       <DependentUpon>CacheManagementPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Converters\PageTypeToMaterialIconKind.cs" />
     <Compile Include="Views\Flyouts\FeedSourceFlyout.xaml.cs">
       <DependentUpon>FeedSourceFlyout.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SearchSummaryPage.xaml.cs">
       <DependentUpon>SearchSummaryPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TemplateSelector\MenuItemTemplateSelector.cs" />
+    <Compile Include="Views\RankingCategoryPage.xaml.cs">
+      <DependentUpon>RankingCategoryPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\_CommentRenderer\CommentRendererCompositionUI.xaml.cs">
       <DependentUpon>CommentRendererCompositionUI.xaml</DependentUpon>
@@ -509,9 +521,6 @@
     <Compile Include="Views\Converters\InvertVisibilityConverter.cs" />
     <Compile Include="Views\Converters\NicoVideoQualityToCultualizedTextConverter.cs" />
     <Compile Include="Views\Converters\TransparentColorConverter.cs" />
-    <Compile Include="Views\FeedGroupManagePage_TV.xaml.cs">
-      <DependentUpon>FeedGroupManagePage_TV.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\HohoemaListItem.xaml.cs">
       <DependentUpon>HohoemaListItem.xaml</DependentUpon>
     </Compile>
@@ -802,6 +811,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\RankingCategoryPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\_CommentRenderer\CommentRendererCompositionUI.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -885,10 +898,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Flyouts\VideoListItemFlyout.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\FeedGroupManagePage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

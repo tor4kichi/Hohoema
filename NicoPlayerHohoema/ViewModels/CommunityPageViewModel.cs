@@ -15,6 +15,7 @@ using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using Mntone.Nico2;
 using Windows.System;
+using Windows.UI.Popups;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -92,7 +93,14 @@ namespace NicoPlayerHohoema.ViewModels
 		public List<CommunityVideoInfoViewModel> CommunityVideoSamples { get; private set; }
 
 
-		public bool HasCurrentLiveInfo { get; private set; }
+        private bool _IsOwnedCommunity;
+        public bool IsOwnedCommunity
+        {
+            get { return _IsOwnedCommunity; }
+            set { SetProperty(ref _IsOwnedCommunity, value); }
+        }
+
+        public bool HasCurrentLiveInfo { get; private set; }
 
 		private bool _NowLoading;
 		public bool NowLoading
@@ -185,22 +193,42 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private async Task<bool> UnfollowCommunity()
 		{
+            const string CANCEL_BUTTON_ID = "cancel";
+
 			if (CommunityId == null) { return false; }
 
 			var favManager = HohoemaApp.FollowManager;
 
-            try
-            {
-                var result = await favManager.RemoveFollow(FollowItemType.Community, CommunityId);
+            var dialog = new MessageDialog(
+                $"『{CommunityInfo.Name}』へのフォローを解除してもいいですか？ ",
+                "コミュニティフォローの解除確認"
+                );
 
-                return result == ContentManageResult.Success;
+            dialog.Commands.Add(new UICommand("フォロー解除") { Id = CANCEL_BUTTON_ID });
+            dialog.Commands.Add(new UICommand("キャンセル"));
+
+            dialog.DefaultCommandIndex = 1;
+            dialog.CancelCommandIndex = 1;
+            dialog.Options = MessageDialogOptions.AcceptUserInputAfterDelay;
+
+            var dialogResult = await dialog.ShowAsync();
+            if (dialogResult.Id as string == CANCEL_BUTTON_ID)
+            {
+                try
+                {
+                    var result = await favManager.RemoveFollow(FollowItemType.Community, CommunityId);
+
+                    return result == ContentManageResult.Success;
+                }
+                catch
+                {
+                    return false;
+                }
             }
-            catch
+            else
             {
                 return false;
             }
-
-
         }
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
@@ -253,7 +281,9 @@ namespace NicoPlayerHohoema.ViewModels
 						CommunityDetail.OwnerUserId
 						);
 
-					Tags = CommunityDetail.Tags.Select(x => new TagViewModel(x, PageManager))
+                    IsOwnedCommunity = HohoemaApp.LoginUserId.ToString() == OwnerUserInfo.Id;
+
+                    Tags = CommunityDetail.Tags.Select(x => new TagViewModel(x, PageManager))
 						.ToList();
 
 					FutureLiveList = CommunityDetail.FutureLiveList.Select(x => new CommunityLiveInfoViewModel(x, PageManager))

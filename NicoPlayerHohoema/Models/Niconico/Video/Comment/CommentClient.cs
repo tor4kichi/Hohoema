@@ -21,7 +21,8 @@ namespace NicoPlayerHohoema.Models
 
         internal DmcWatchResponse LastAccessDmcWatchResponse { get; set; }
 
-        private CommentSubmitInfo SubmitInfo { get; set; }
+        private CommentSubmitInfo DefaultThreadSubmitInfo { get; set; }
+        private CommentSubmitInfo CommunityThreadSubmitInfo { get; set; }
 
 
         public CommentClient(NiconicoContext context, string rawVideoid)
@@ -40,10 +41,10 @@ namespace NicoPlayerHohoema.Models
         public List<Chat> GetCommentsFromLocal()
         {
             var j = CommentDb.Get(RawVideoId);
+        // コメントのキャッシュまたはオンラインからの取得と更新
             return j?.GetComments();
         }
 
-        // コメントのキャッシュまたはオンラインからの取得と更新
         public async Task<List<Chat>> GetComments()
         {
             if (CommentServerInfo == null) { return new List<Chat>(); }
@@ -97,13 +98,13 @@ namespace NicoPlayerHohoema.Models
                 CommentDb.AddOrUpdate(RawVideoId, commentRes);
             }
 
-            if (commentRes != null && SubmitInfo == null)
+            if (commentRes != null && DefaultThreadSubmitInfo == null)
             {
-                SubmitInfo = new CommentSubmitInfo();
-                SubmitInfo.Ticket = commentRes.Thread.Ticket;
+                DefaultThreadSubmitInfo = new CommentSubmitInfo();
+                DefaultThreadSubmitInfo.Ticket = commentRes.Thread.Ticket;
                 if (int.TryParse(commentRes.Thread.CommentCount, out int count))
                 {
-                    SubmitInfo.CommentCount = count + 1;
+                    DefaultThreadSubmitInfo.CommentCount = count + 1;
                 }
             }
 
@@ -128,11 +129,25 @@ namespace NicoPlayerHohoema.Models
 
             var res = await Context.Video.GetNMSGCommentAsync(LastAccessDmcWatchResponse);
 
-            if (res != null && SubmitInfo == null)
+            if (res != null && DefaultThreadSubmitInfo == null)
             {
-                SubmitInfo = new CommentSubmitInfo();
-                SubmitInfo.Ticket = res.Thread.Ticket;
-                SubmitInfo.CommentCount = LastAccessDmcWatchResponse.Thread.CommentCount + 1;
+                DefaultThreadSubmitInfo = new CommentSubmitInfo();
+                DefaultThreadSubmitInfo.Ticket = res.Threads.First(x => x.Thread == CommentServerInfo.DefaultThreadId.ToString()).Ticket;
+                DefaultThreadSubmitInfo.CommentCount = LastAccessDmcWatchResponse.Thread.CommentCount + 1;
+
+                if (CommentServerInfo.CommunityThreadId.HasValue)
+                {
+                    var communityThreadId = CommentServerInfo.CommunityThreadId.Value.ToString();
+                    var communityThread = res.Threads.FirstOrDefault(x => x.Thread == communityThreadId);
+                    if (communityThread != null)
+                    {
+                        CommunityThreadSubmitInfo = new CommentSubmitInfo()
+                        {
+                            Ticket = communityThread.Ticket,
+                            CommentCount = communityThread.LastRes
+                        };
+                    }
+                }
             }
 
             return res;
@@ -141,7 +156,7 @@ namespace NicoPlayerHohoema.Models
         public async Task<PostCommentResponse> SubmitComment(string comment, TimeSpan position, string commands)
         {
             if (CommentServerInfo == null) { return null; }
-            if (SubmitInfo == null) { return null; }
+            if (DefaultThreadSubmitInfo == null) { return null; }
 
             if (CommentServerInfo == null)
             {
@@ -149,15 +164,51 @@ namespace NicoPlayerHohoema.Models
             }
 
             PostCommentResponse response = null;
-            foreach (var cnt in Enumerable.Range(0, 2))
+
+            // 視聴中にコメント数が増えていってコメントのblock_noが100毎の境界を超える場合に対応するため
+            // 投稿の試行ごとにコメント投稿先Blockを飛ばすため、コメント数に 試行数 * 100 を加算しています
+            if (CommentServerInfo.CommunityThreadId.HasValue)
             {
+                Debug.WriteLine($"書き込み先:{CommentServerInfo.CommunityThreadId.Value} (community thread)");
+
+                var threadId = CommentServerInfo.CommunityThreadId.Value.ToString();
+                
+                {
+                    try
+                    {
+                        response = await Context.Video.NMSGPostCommentAsync(
+                            //                        CommentServerInfo.ServerUrl,
+                            threadId,
+                            DefaultThreadSubmitInfo.Ticket,
+                            CommunityThreadSubmitInfo.CommentCount,
+                            CommentServerInfo.ViewerUserId,
+                            comment,
+                            position,
+                            commands
+                            );
+                    }
+                    catch
+                    {
+                        Debug.WriteLine("コメント投稿で致命的なエラー、投稿試行を中断します");
+                        return null;
+                    }
+                }
+            }
+            
+            if (response?.Chat_result.Status != ChatResult.Success)
+            {
+                Debug.WriteLine($"書き込み先:{CommentServerInfo.DefaultThreadId} (default thread)");
+
+                var threadId = CommentServerInfo.DefaultThreadId.ToString();
+                
                 try
                 {
-                    response = await Context.Video.PostCommentAsync(
-                        CommentServerInfo.ServerUrl,
-                        CommentServerInfo.DefaultThreadId.ToString(),
-                        SubmitInfo.Ticket,
-                        SubmitInfo.CommentCount,
+                    response = await Context.Video.NMSGPostCommentAsync(
+                        //                        CommentServerInfo.ServerUrl,
+                        threadId,
+                        DefaultThreadSubmitInfo.Ticket,
+                        DefaultThreadSubmitInfo.CommentCount,
+                        CommentServerInfo.ViewerUserId,
                         comment,
                         position,
                         commands
@@ -165,29 +216,18 @@ namespace NicoPlayerHohoema.Models
                 }
                 catch
                 {
-                    // コメントデータを再取得してもう一度？
+                    Debug.WriteLine("コメント投稿で致命的なエラー、投稿試行を中断します");
                     return null;
                 }
+            }
 
-                if (response.Chat_result.Status == ChatResult.Success)
-                {
-                    SubmitInfo.CommentCount++;
-                    break;
-                }
+            Debug.WriteLine("コメント投稿結果： " + response.Chat_result.Status);
 
-                Debug.WriteLine("コメ投稿失敗: コメ数 " + SubmitInfo.CommentCount);
+            if (response?.Chat_result.Status == ChatResult.Success)
+            {
+                DefaultThreadSubmitInfo.CommentCount = response?.Chat_result.No ?? DefaultThreadSubmitInfo.CommentCount;
 
-                await Task.Delay(1000);
-
-                try
-                {
-                    var videoInfo = await Context.Search.GetVideoInfoAsync(RawVideoId);
-                    SubmitInfo.CommentCount = int.Parse(videoInfo.Thread.num_res);
-                    Debug.WriteLine("コメ数再取得: " + SubmitInfo.CommentCount);
-                }
-                catch
-                {
-                }
+                Debug.WriteLine("投稿後のコメント数: " + DefaultThreadSubmitInfo.CommentCount);
             }
 
             return response;
@@ -214,7 +254,7 @@ namespace NicoPlayerHohoema.Models
                 if (!Helpers.InternetConnection.IsInternet()) { return false; }
 
                 if (CommentServerInfo == null) { return false; }
-                if (SubmitInfo == null) { return false; }
+                if (DefaultThreadSubmitInfo == null) { return false; }
 
                 return true;
             }

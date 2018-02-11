@@ -30,6 +30,12 @@ namespace NicoPlayerHohoema.Database
         public DateTime UpdateAt { get; set; }
 
         /// <summary>
+        /// ユーザーが新着を確認をした日時
+        /// </summary>
+        [LiteDB.BsonField]
+        public DateTime CheckedAt { get; set; } = DateTime.MinValue;
+
+        /// <summary>
         /// 動画リスト情報の取得元リスト。
         /// </summary>
         [LiteDB.BsonRef]

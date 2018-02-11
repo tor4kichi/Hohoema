@@ -27,6 +27,7 @@ namespace NicoPlayerHohoema.Models
         public const string CacheSettingsFileName = "cache.json";
         public const string AppearanceSettingsFileName = "appearance.json";
         public const string NicoRepoAndFeedSettingsFileName = "nicorepo_feed.json";
+        public const string PinSettingsFileName = "pin.json";
 
 
         public static async Task<HohoemaUserSettings> LoadSettings(StorageFolder userFolder)
@@ -39,6 +40,8 @@ namespace NicoPlayerHohoema.Models
 			var cache = await SettingsBase.Load<CacheSettings>(CacheSettingsFileName, userFolder);
             var appearance = await SettingsBase.Load<AppearanceSettings>(AppearanceSettingsFileName, userFolder);
             var nicorepoAndFeed = await SettingsBase.Load<ActivityFeedSettings>(NicoRepoAndFeedSettingsFileName, userFolder);
+
+            var pin = await SettingsBase.Load<PinSettings>(PinSettingsFileName, userFolder);
 
             if (nicorepoAndFeed.DisplayNicoRepoItemTopics.Count == 0)
             {
@@ -63,6 +66,7 @@ namespace NicoPlayerHohoema.Models
                 CacheSettings = cache,
                 AppearanceSettings = appearance,
                 ActivityFeedSettings = nicorepoAndFeed,
+                PinSettings = pin,
             };
 
             settings.SetupSaveWithPropertyChanged();
@@ -79,6 +83,7 @@ namespace NicoPlayerHohoema.Models
             await PlaylistSettings.Save();
             await AppearanceSettings.Save();
             await ActivityFeedSettings.Save();
+            await PinSettings.Save();
         }
 
 		public RankingSettings RankingSettings { get; private set; }
@@ -88,6 +93,7 @@ namespace NicoPlayerHohoema.Models
         public PlaylistSettings PlaylistSettings { get; private set; }
         public AppearanceSettings AppearanceSettings { get; private set; }
         public ActivityFeedSettings ActivityFeedSettings { get; private set; }
+        public PinSettings PinSettings { get; private set; }
 
         public HohoemaUserSettings()
 		{

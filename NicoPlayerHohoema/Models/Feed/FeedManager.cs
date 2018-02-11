@@ -177,9 +177,21 @@ namespace NicoPlayerHohoema.Models
             return Database.FeedDb.Get(id);
 		}
 		
-		public Database.Feed AddFeedGroup(string label)
+		public Database.Feed AddFeedGroup(string label, params Database.Bookmark[] initialBookmarks)
 		{
             var feedGroup = new Database.Feed(label);
+
+            if (initialBookmarks.Any(x => string.IsNullOrEmpty(x.Label) || string.IsNullOrEmpty(x.Content)))
+            {
+                throw new Exception();
+            }
+
+            foreach (var bookmark in initialBookmarks)
+            {
+                Database.BookmarkDb.Add(bookmark);
+            }
+
+            feedGroup.Sources.AddRange(initialBookmarks);
 
             Database.FeedDb.AddOrUpdate(feedGroup);
 
@@ -226,6 +238,9 @@ namespace NicoPlayerHohoema.Models
                 .OrderByDescending(x => x.Item1.PostedAt)
                 .ToList();
 
+            // フィードの動画一覧を更新
+            Database.FeedVideoDb.Upsert(feedGroup.Id, finalItemsList.Select(x => x.Item1.RawVideoId));
+
             FeedUpdated?.Invoke(this, new FeedUpdateEventArgs()
             {
                 Feed = feedGroup,
@@ -235,6 +250,7 @@ namespace NicoPlayerHohoema.Models
             return finalItemsList;
         }
 
+        
         
         private async Task<IEnumerable<Database.NicoVideo>> GetItems(Database.Bookmark source)
         {
@@ -257,7 +273,7 @@ namespace NicoPlayerHohoema.Models
                     }
                 case Database.BookmarkType.Mylist:
                     {
-                        var items = await contentProvider.GetMylistGroupVideo(source.Content, 0, 32);
+                        var items = await contentProvider.GetMylistGroupVideo(source.Content, 0, 30);
 
                         return items.MylistVideoInfoItems.Select(x =>
                         {
@@ -276,7 +292,7 @@ namespace NicoPlayerHohoema.Models
                     }
                 case Database.BookmarkType.SearchWithTag:
                     {
-                        var items = await contentProvider.GetTagSearch(source.Content, 0, 32);
+                        var items = await contentProvider.GetTagSearch(source.Content, 0, 30);
 
                         return items.VideoInfoItems.Select(x =>
                         {
@@ -295,7 +311,7 @@ namespace NicoPlayerHohoema.Models
                     }
                 case Database.BookmarkType.SearchWithKeyword:
                     {
-                        var items = await contentProvider.GetKeywordSearch(source.Content, 0, 32);
+                        var items = await contentProvider.GetKeywordSearch(source.Content, 0, 30);
 
                         return items.VideoInfoItems.Select(x =>
                         {

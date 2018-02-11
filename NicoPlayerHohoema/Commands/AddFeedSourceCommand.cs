@@ -35,86 +35,67 @@ namespace NicoPlayerHohoema.Commands
 
         protected override async void Execute(object parameter)
         {
+            Database.Bookmark bookmark = null;
+
             if (parameter is Database.Bookmark)
             {
-                var hohoemaApp = App.Current.Container.Resolve<Models.HohoemaApp>();
-                var bookmark = parameter as Database.Bookmark;
-                var targetTitle = bookmark.Label;
-                var feedGroup = await hohoemaApp.ChoiceFeedGroup(targetTitle + "をフィードに追加");
-                if (feedGroup != null)
-                {
-                    var result = feedGroup.AddSource(bookmark);
-
-                    // 通知
-                    var registrationResult = result ? ContentManageResult.Success : ContentManageResult.Failed;
-                    (App.Current as App).PublishInAppNotification(
-                        Models.InAppNotificationPayload.CreateRegistrationResultNotification(
-                            registrationResult,
-                            "フィード",
-                            feedGroup.Label,
-                            targetTitle
-                            ));
-                }
+                bookmark = parameter as Database.Bookmark;
             }
             else if (parameter is Models.FollowItemInfo)
             {
-                var hohoemaApp = App.Current.Container.Resolve<Models.HohoemaApp>();
                 var followInfo = parameter as Models.FollowItemInfo;
-                var bookmark = new Database.Bookmark()
+                bookmark = new Database.Bookmark()
                 {
                     Label = followInfo.Name,
                     BookmarkType = Models.FeedManager.FollowItemTypeConvertToFeedSourceType(followInfo.FollowItemType),
                     Content = followInfo.Id
                 };
-                var targetTitle = bookmark.Label;
-                var feedGroup = await hohoemaApp.ChoiceFeedGroup(targetTitle + "をフィードに追加");
-                if (feedGroup != null)
-                {
-                    var result = feedGroup.AddSource(bookmark);
-
-                    // 通知
-                    var registrationResult = result ? ContentManageResult.Success : ContentManageResult.Failed;
-                    (App.Current as App).PublishInAppNotification(
-                        Models.InAppNotificationPayload.CreateRegistrationResultNotification(
-                            registrationResult,
-                            "フィード",
-                            feedGroup.Label,
-                            targetTitle
-                            ));
-                }
             }
             else if (parameter is Interfaces.IVideoContent)
             {
-                
-                var hohoemaApp = App.Current.Container.Resolve<Models.HohoemaApp>();
                 var videoInfo = parameter as Interfaces.IVideoContent;
 
-                if (videoInfo.OwnerUserId == null || videoInfo.OwnerUserName == null)
+                if (videoInfo.OwnerUserId == null)
                 {
                     System.Diagnostics.Debug.WriteLine("フィード登録失敗、動画投稿者の情報がありません。");
                     return;
                 }
-                var bookmark = new Database.Bookmark()
+                var hohoemaApp = App.Current.Container.Resolve<Models.HohoemaApp>();
+
+                var userInfo = await hohoemaApp.ContentProvider.GetUserInfo(videoInfo.OwnerUserId);
+                if (userInfo != null)
                 {
-                    Label = videoInfo.OwnerUserName,
-                    BookmarkType = Database.BookmarkType.User,
-                    Content = videoInfo.OwnerUserId
-                };
-                var targetTitle = bookmark.Label;
-                var feedGroup = await hohoemaApp.ChoiceFeedGroup(targetTitle + "をフィードに追加");
+                    bookmark = new Database.Bookmark()
+                    {
+                        Label = userInfo.Nickname,
+                        BookmarkType = Database.BookmarkType.User,
+                        Content = videoInfo.OwnerUserId
+                    };
+                }
+            }
+
+            if (bookmark != null)
+            {
+                var hohoemaApp = App.Current.Container.Resolve<Models.HohoemaApp>();
+
+                if (hohoemaApp.FeedManager.GetAllFeedGroup()
+                        .Where(x => x.Sources.Any())
+                        .Select(x => x.Sources.First())
+                        .Any(x => x.BookmarkType == bookmark.BookmarkType && x.Content == bookmark.Content))
+                {
+                    return;
+                }
+
+                var feedGroup = hohoemaApp.FeedManager.AddFeedGroup(bookmark.Label, bookmark);
+
                 if (feedGroup != null)
                 {
-                    var result = feedGroup.AddSource(bookmark);
-
                     // 通知
-                    var registrationResult = result ? ContentManageResult.Success : ContentManageResult.Failed;
                     (App.Current as App).PublishInAppNotification(
-                        Models.InAppNotificationPayload.CreateRegistrationResultNotification(
-                            registrationResult,
-                            "フィード",
-                            feedGroup.Label,
-                            targetTitle
-                            ));
+                        Models.InAppNotificationPayload.CreateReadOnlyNotification(
+                            $"{feedGroup.Label} を新着チェック対象として追加しました"
+                            )
+                        );
                 }
             }
         }

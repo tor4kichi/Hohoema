@@ -86,8 +86,20 @@
 
         <VisualStateManager.VisualStateGroups>
 
-            <!-- ウィンドウサイズごとの表示 -->
+            <!-- トップバー表示時のタイトル位置ずらし -->
             <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
+
+                        <Setter Target="HeaderLayout.Margin" Value="48 0" />
+                        <Setter Target="RootLayout.Margin" Value="0 27 0 0" />
+                        <Setter Target="ContentLayout.Margin" Value="0 0 0 27" />
+                    </VisualState.Setters>
+                </VisualState>
                 <VisualState>
                     <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="520" />
@@ -100,30 +112,19 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
+                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
             
-            <!-- TVモードの仮対応 -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="ContentLayout.Margin" Value="0 27 48 27" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
         
-        <toolkit:DockPanel x:Name="ContentLayout">
+        <toolkit:DockPanel x:Name="RootLayout">
 
             <Border toolkit:DockPanel.Dock="Top" 
                     Height="48"
                     >
-                <toolkit:DockPanel >
+                <toolkit:DockPanel x:Name="HeaderLayout">
                     <StackPanel toolkit:DockPanel.Dock="Right" 
                                 Orientation="Horizontal"
                                 >
@@ -139,28 +140,86 @@
                         <Border Width="8" />
                         -->
 
-                        <AppBarButton Command="{Binding CreateFeedGroupCommand}"
+                        <AppBarButton Command="{Binding AddVideoFeedCommand}"
                                     Background="Transparent"
-                                    ToolTipService.ToolTip="新しいフィードを追加"
+                                    ToolTipService.ToolTip="新着チェックを追加"
                                       HorizontalContentAlignment="Stretch"
                                       VerticalContentAlignment="Stretch"
+                                      Width="48"
                                 >
                             <iconPack:PackIconMaterial Kind="Plus"
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"
                                                        />
                         </AppBarButton>
+
+                        <AppBarButton 
+                                    Background="Transparent"
+                                    ToolTipService.ToolTip="補足説明"
+                                      HorizontalContentAlignment="Stretch"
+                                      VerticalContentAlignment="Stretch"
+                            Width="48"
+                                >
+                            <iconPack:PackIconMaterial Kind="HelpCircle"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       />
+
+                            <AppBarButton.Flyout>
+                                <Flyout>
+                                    <StackPanel MaxWidth="300">
+                                        <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
+                                                   Margin="0 0 0 4"
+                                                   >
+                                            新着動画
+                                        </TextBlock>
+
+                                        <TextBlock Margin="0 0 0 16"
+                                                   TextWrapping="Wrap"
+                                                   >
+                                            前回の新着チェック以降に投稿された動画を新着として表示します。
+                                            <LineBreak />
+                                            すでに視聴済みの動画は新着一覧には表示されません。
+                                        </TextBlock>
+
+                                        <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
+                                                   Margin="0 0 0 4"
+                                                   >
+                                            一括操作の動画追加順
+                                        </TextBlock>
+
+                                        <TextBlock Margin="0 0 0 16"
+                                                   TextWrapping="Wrap"
+                                                   >
+                                            古い動画から先に再生されるよう「あとで見る」プレイリストに追加されます。
+                                        </TextBlock>
+
+                                        <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
+                                                   Margin="0 0 0 4"
+                                                   >
+                                            新着件数の上限
+                                        </TextBlock>
+
+                                        <TextBlock Margin="0 0 0 16"
+                                                   TextWrapping="Wrap"
+                                                   >
+                                            最新の30件をチェックします。
+                                        </TextBlock>
+                                    </StackPanel>
+                                </Flyout>
+                            </AppBarButton.Flyout>
+                        </AppBarButton>
                     </StackPanel>
 
                     <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="16 0 0 0"
-                            x:Name="TitleLayout"
+                            
                                 >
                         
                         <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource TitleTextBlockStyle}"
-                                   
+                                   x:Name="TitleLayout"
                                     >
                                 
 
@@ -187,99 +246,227 @@
             </toolkit:DockPanel>
 
 
-            <StackPanel Visibility="{Binding HasFeedGroupItems.Value, Converter={StaticResource BooleanToVisibilityInverted}}" 
+            <ScrollViewer>
+                <StackPanel x:Name="ContentLayout">
+                    
+                    <StackPanel Visibility="{Binding FeedGroupItems, Converter={StaticResource EmptyCollectionVisibilityConverter}}" 
                     Margin="8"
                     toolkit:DockPanel.Dock="Top"
                     >
 
-                <TextBlock Margin="8 8" Style="{StaticResource SubtitleTextBlockStyle}">
-                        <Bold>フィード？</Bold>
-                </TextBlock>
-
-                <TextBlock TextWrapping="Wrap"
-                               Margin="16 0"
+                        <TextBlock TextWrapping="Wrap"
+                               Margin="0 0"
                                LineHeight="30"
                                >
-                        <Run>ユーザー投稿動画やマイリスト、検索結果から得られる動画を時系列でまとめて、一覧表示する機能です。</Run>
-                        <LineBreak />
-                        <Run>「ニコレポ」に似ていますが、「フォロー」ではなくHohoema内でのみ有効な「ブックマーク」を元に動画を集計する点が異なります。</Run>
-                        <LineBreak />
-                        <Run>フィードはHohoemaのアプリ上で集計作業を行うので更新処理に少し時間が掛かります。</Run>
-                        <LineBreak />
-                        <Run>関心あるカテゴリごとにフィードを作成できますので、動画探しに活用してみてください。</Run>
-                </TextBlock>
+                    <Run>新着チェックの対象は登録されていません</Run>
+                    <LineBreak />
+                    <Run>ユーザーやマイリストを指定して新着チェックを追加しましょう</Run>
+                    <LineBreak />
+                    <Run>（新着通知は未対応）</Run>
+                        </TextBlock>
 
-
-                <Button HorizontalAlignment="Center"
-                            Command="{Binding CreateFeedGroupCommand}"
-                            >
-                    <TextBlock FontSize="20">
-                            <Run Text="フィードを作る" />
-                    </TextBlock>
-                </Button>
-
-            </StackPanel>
+                    </StackPanel>
 
 
 
-            <ListView ItemsSource="{Binding FeedGroupItems}"
+                    <ItemsControl ItemsSource="{Binding FeedGroupItems}"
                         IsTabStop="False"
-                    uwpExtensions:ListViewBase.Command="{StaticResource OpenContentCommand}"
-                    IsItemClickEnabled="True"
-                        SelectionMode="None"
                   >
-                
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
-                        <Setter Property="HorizontalContentAlignment"
-                                    Value="Stretch" 
-                                        />
-                        <Setter Property="Padding" Value="16" />
-                    </Style>
-                </ListView.ItemContainerStyle>
 
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <Grid>
-                            <StackPanel HorizontalAlignment="Right"
-                                            Orientation="Horizontal"
-                                        VerticalAlignment="Center"
-                                            >
-                                <ProgressRing IsActive="{Binding NowUpdate.Value}"
-                                               Visibility="{Binding NowUpdate.Value, Converter={StaticResource BooleanToVisibility}}"
-                                                  Width="24"
-                                                  Height="24"
-                                                  />
-                            </StackPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <UserControl>
+                                    <Grid>
 
-                            <StackPanel>
-                                <TextBlock Text="{Binding Label}" />
+                                        <VisualStateManager.VisualStateGroups>
+                                            <!-- トップバー表示時のタイトル位置ずらし -->
+                                            <VisualStateGroup>
+                                                <VisualState>
+                                                    <VisualState.StateTriggers>
+                                                        <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
+                                                    </VisualState.StateTriggers>
+                                                    <VisualState.Setters>
+                                                        <Setter Target="FeedGroupsLayout.Margin" Value="48 8 48 0" />
+                                                        <Setter Target="FeedVideoListViewPanel.Padding" Value="48 0"/>
+                                                        <Setter Target="EmptyVideosPanel.Margin" Value="48 0 48 8" />
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                                <VisualState>
+                                                    <VisualState.StateTriggers>
+                                                        <AdaptiveTrigger MinWindowWidth="520" />
+                                                    </VisualState.StateTriggers>
+                                                    <VisualState.Setters>
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                                <VisualState>
+                                                    <VisualState.StateTriggers>
+                                                        <AdaptiveTrigger MinWindowWidth="0" />
+                                                    </VisualState.StateTriggers>
+                                                    <VisualState.Setters>
+                                                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
+                                                    </VisualState.Setters>
+                                                </VisualState>
+                                            </VisualStateGroup>
+                                        </VisualStateManager.VisualStateGroups>
+                                        
+                                        <StackPanel Margin="0 0 0 16">
 
-                                <ItemsControl ItemsSource="{Binding SourceItems}"
-                                              ItemTemplateSelector="{StaticResource feedItemSourceTemplateSelector}"
-                                              HorizontalAlignment="Stretch"
+
+                                            <toolkit:DockPanel Margin="16 8 8 0" x:Name="FeedGroupsLayout">
+
+                                                <StackPanel Orientation="Horizontal"
+                                                        toolkit:DockPanel.Dock="Right"
+                                                        >
+
+                                                    <Button Background="Transparent"
+                                                        Height="32"
+                                                        Command="{Binding PlayAllCommand}"
+                                                        ToolTipService.ToolTip="全てを再生"
+                                                        Margin="0 0 8 0"
+                                                        >
+                                                        <SymbolIcon Symbol="Play" />
+
+                                                    </Button>
+
+                                                    <Button Background="Transparent"
+                                                        Height="32"
+                                                        Command="{Binding AllAddToAfterWatchCommand}"
+                                                        ToolTipService.ToolTip="『あとで見る』に全て追加"
+                                                        Margin="0 0 8 0"
+                                                        >
+                                                        <Grid>
+
+                                                            <iconPack:PackIconMaterial Kind="PlaylistPlus" Height="24" Width="24" />
+
+                                                        </Grid>
+
+
+                                                    </Button>
+
+
+                                                    <Button Background="Transparent"
+                                                        Height="32"
+                                                        Command="{Binding FeedCheckedCommand}"
+                                                        CommandParameter="{Binding}"
+                                                        ToolTipService.ToolTip="チェック済みにマーク"
+                                                        Margin="0 0 8 0"
+                                                        >
+                                                        <SymbolIcon Symbol="Accept" />
+
+                                                    </Button>
+
+
+                                                    <Button Background="Transparent"
+                                                        Height="32"
+                                                        >
+                                                        <SymbolIcon Symbol="More" />
+
+                                                        <Button.Flyout>
+                                                            <MenuFlyout>
+                                                                <MenuFlyoutItem Text="動画一覧を表示" Command="{Binding ElementName=ContentLayout, Path=DataContext.OpenFeedVideoPageCommand}" 
+                                                                            CommandParameter="{Binding}"
+                                                                            />
+                                                                <MenuFlyoutItem Text="更新" Command="{Binding UpdateCommand}" />
+                                                                <MenuFlyoutItem Text="削除" Command="{Binding ElementName=ContentLayout, Path=DataContext.RemoveFeedGroupCommand}"
+                                                                            CommandParameter="{Binding}"
+                                                                            />
+                                                            </MenuFlyout>
+                                                        </Button.Flyout>
+                                                    </Button>
+                                                </StackPanel>
+
+
+                                                <StackPanel Orientation="Horizontal">
+
+                                                    <StackPanel Margin="0 0 8 0">
+
+                                                        <TextBlock Text="{Binding Bookmark, Converter={StaticResource ToLocalText}}"
+                                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                                           Margin="0 0 0 0"
+                                                        Opacity="0.7"
+                                                        >
+                                                        </TextBlock>
+
+                                                        <TextBlock Text="{Binding Label}"
+                                                        Style="{StaticResource SubtitleTextBlockStyle}"   
+                                                        >
+                                                        </TextBlock>
+                                                    </StackPanel>
+
+
+                                                    <ProgressRing IsActive="{Binding NowUpdate.Value}"
+                                                       Visibility="{Binding NowUpdate.Value, Converter={StaticResource BooleanToVisibility}}" 
+                                                              Width="48"
+                                                              Height="48"
+                                                     />
+                                                </StackPanel>
+
+                                            </toolkit:DockPanel>
+
+                                            <GridView ItemsSource="{Binding FeedVideos}"
+                                                  ScrollViewer.HorizontalScrollBarVisibility="Hidden"
+                                                  ScrollViewer.HorizontalScrollMode="Enabled"
+                                                  ScrollViewer.VerticalScrollMode="Disabled"
+                                                  ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                                                  uwpExtensions:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                                                      IsItemClickEnabled="True"
+                                                      SelectionMode="None"
+                                                      x:Name="FeedVideoListViewPanel"
+                                                      Padding="16 0"
                                               >
-                                    <ItemsControl.ItemContainerStyle>
-                                        <Style TargetType="ContentPresenter">
-                                            <Setter Property="Margin" Value="8 0" />
-                                            <Setter Property="HorizontalAlignment" Value="Stretch" />
-                                        </Style>
-                                    </ItemsControl.ItemContainerStyle>
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <toolkit:WrapPanel Orientation="Horizontal"
-                                                           HorizontalAlignment="Stretch"
+                                                <GridView.ItemContainerStyle>
+                                                    <Style TargetType="GridViewItem">
+
+                                                    </Style>
+                                                </GridView.ItemContainerStyle>
+
+                                                <GridView.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <controls:VideoInfoControl_TV />
+                                                    </DataTemplate>
+                                                </GridView.ItemTemplate>
+                                                <GridView.ItemsPanel>
+                                                    <ItemsPanelTemplate>
+                                                        <ItemsStackPanel Orientation="Horizontal"
+                                                                     Margin="0 0"
+                                                                     VerticalAlignment="Stretch"
+                                                                     
                                                            />
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    
-                                </ItemsControl>
-                            </StackPanel>
-                            
-                        </Grid>
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
+                                                    </ItemsPanelTemplate>
+                                                </GridView.ItemsPanel>
+
+                                            </GridView>
+
+                                            <Border Visibility="{Binding NowUpdate.Value, Converter={StaticResource BooleanToVisibilityInverted}}" >
+                                                <StackPanel Visibility="{Binding FeedVideos, Converter={StaticResource EmptyCollectionVisibilityConverter}}" 
+                                                        Margin="16 0 8 8"
+                                                            x:Name="EmptyVideosPanel"
+                                                        >
+                                                    <TextBlock Text="新着動画はありません"
+                                                           Margin="0 8 0 8"
+                                                           Opacity="0.7"
+                                                           />
+
+                                                    <Button Content="動画一覧を表示" 
+                                                        Command="{Binding ElementName=ContentLayout, Path=DataContext.OpenFeedVideoPageCommand}"
+                                                        CommandParameter="{Binding}"
+                                                        />
+                                                </StackPanel>
+                                            </Border>
+
+                                        </StackPanel>
+
+                                    </Grid>
+                                </UserControl>
+                                
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+
+            </ScrollViewer>
+
+            
         </toolkit:DockPanel>
     </Grid>
 </Page>

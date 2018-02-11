@@ -20,9 +20,9 @@ namespace NicoPlayerHohoema.Views
     /// <summary>
     /// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
     /// </summary>
-    public sealed partial class FeedGroupManagePage_TV : Page
+    public sealed partial class RankingCategoryPage : Page
     {
-        public FeedGroupManagePage_TV()
+        public RankingCategoryPage()
         {
             this.InitializeComponent();
         }
