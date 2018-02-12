@@ -71,7 +71,7 @@ namespace NicoPlayerHohoema.ViewModels
             OnDeferredUpdate().ConfigureAwait(false);
         }
 
-        public VideoInfoControlViewModel(Database.NicoVideo nicoVideo, bool isNgEnabled = true, PlaylistItem playlistItem = null)
+        public VideoInfoControlViewModel(Database.NicoVideo nicoVideo, bool isNgEnabled = true, PlaylistItem playlistItem = null, bool requireLatest = true)
         {
             RawVideoId = nicoVideo.RawVideoId;
             PlaylistItem = playlistItem;
@@ -81,7 +81,10 @@ namespace NicoPlayerHohoema.ViewModels
 
             SetupFromThumbnail(nicoVideo);
 
-            OnDeferredUpdate().ConfigureAwait(false);
+            if (requireLatest)
+            {
+                OnDeferredUpdate().ConfigureAwait(false);
+            }
         }
 
         protected override async Task OnDeferredUpdate()

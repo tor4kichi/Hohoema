@@ -1060,8 +1060,12 @@ namespace NicoPlayerHohoema.ViewModels
             _BufferingMonitorDisposable = new CompositeDisposable();
 
             // サイドペインの片付け
-            _PrevSidePaneContentType = CurrentSidePaneContentType.Value;
-            
+            // 関連動画を選択した場合に表示エラーが起きないように回避
+            if (CurrentSidePaneContentType.Value != PlayerSidePaneContentType.RelatedVideos)
+            {
+                _PrevSidePaneContentType = CurrentSidePaneContentType.Value;
+            }
+
             if (_SidePaneContentCache.ContainsKey(PlayerSidePaneContentType.Comment))
             {
                 try
@@ -1232,7 +1236,17 @@ namespace NicoPlayerHohoema.ViewModels
                 CurrentWindowContextScheduler.Schedule(() => 
                 {
                     HohoemaApp.Playlist.PlayDone(CurrentPlayingItem, canPlayNext);
+
+                    if (HohoemaApp.Playlist.CurrentPlaylist?.PlaylistItems.Count == 0)
+                    {
+                        if (!IsPlayWithCache.Value)
+                        {
+                            SelectSidePaneContentCommand.Execute(PlayerSidePaneContentType.RelatedVideos.ToString());
+                        }
+                    }
                 });
+
+                
 
                 Models.Db.VideoPlayHistoryDb.VideoPlayed(CurrentPlayingItem.ContentId);
 
@@ -2367,8 +2381,18 @@ namespace NicoPlayerHohoema.ViewModels
                         sidePaneContent = new PlayerSidePaneContent.SettingsSidePaneContentViewModel(HohoemaApp.UserSettings);
                         (sidePaneContent as SettingsSidePaneContentViewModel).VideoQualityChanged += VideoPlayerPageViewModel_VideoQualityChanged;
                         break;
+                    case PlayerSidePaneContentType.RelatedVideos:
+                        if (Video != null)
+                        {
+                            sidePaneContent = new PlayerSidePaneContent.RelatedVideosSidePaneContentViewModel(Video.RawVideoId, Video.GetRelatedVideos());
+                        }
+                        else
+                        {
+                            return EmptySidePaneContent;
+                        }
+                        break;
                     default:
-                        sidePaneContent = new PlayerSidePaneContent.EmptySidePaneContentViewModel();
+                        sidePaneContent = EmptySidePaneContent;
                         break;
                 }
 
@@ -2495,7 +2519,8 @@ namespace NicoPlayerHohoema.ViewModels
         Playlist,
 		Comment,
 		Setting,
-	}
+        RelatedVideos,
+    }
 
 
 

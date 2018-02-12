@@ -36,6 +36,7 @@ namespace NicoPlayerHohoema.Views
         public DataTemplate Playlist { get; set; }
         public DataTemplate Settings { get; set; }
         public DataTemplate Comments { get; set; }
+        public DataTemplate RelatedVideos { get; set; }
 
         protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
@@ -51,12 +52,14 @@ namespace NicoPlayerHohoema.Views
             {
                 return Settings;
             }
+            else if (item is ViewModels.PlayerSidePaneContent.RelatedVideosSidePaneContentViewModel)
+            {
+                return RelatedVideos;
+            }
             else
             {
                 return Empty;
             }
-
-            return base.SelectTemplateCore(item, container);
         }
     }
 }

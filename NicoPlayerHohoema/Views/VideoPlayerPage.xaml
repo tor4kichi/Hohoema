@@ -138,6 +138,10 @@
 
             <MenuFlyoutItem Text="動画情報" Command="{Binding OpenVideoInfoCommand}" />
 
+            <MenuFlyoutItem Text="関連動画" Command="{Binding SelectSidePaneContentCommand}"
+                            CommandParameter="RelatedVideos"
+                            />
+
             <!--
             <MenuFlyoutItem Text="プレイヤー設定" 
                             Command="{Binding SelectSidePaneContentCommand}"
@@ -187,6 +191,12 @@
                     <local:VideoSettingsSidePaneContent />
                 </DataTemplate>
             </local:PlayerSidePaneContentTemplateSelecter.Settings>
+
+            <local:PlayerSidePaneContentTemplateSelecter.RelatedVideos>
+                <DataTemplate>
+                    <local:RelatedVideosSidePaneContent />
+                </DataTemplate>
+            </local:PlayerSidePaneContentTemplateSelecter.RelatedVideos>
 
         </local:PlayerSidePaneContentTemplateSelecter>
                 

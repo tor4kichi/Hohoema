@@ -1,0 +1,97 @@
+﻿<UserControl
+    x:Class="NicoPlayerHohoema.Views.RelatedVideosSidePaneContent"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:uwpext="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+    <Grid>
+
+        <VisualStateManager.VisualStateGroups>
+
+            <!-- Xbox -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardwareTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                    </VisualState.StateTriggers>
+
+                    <VisualState.Setters>
+                        <Setter Target="PlaylistItemsListView.Padding" Value="0 0 48 0" />
+                        <Setter Target="HeaderLayout.Padding" Value="0 0 48 0" />
+                        <Setter Target="FooterLayout.Padding" Value="0 0 48 0" />
+
+
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+            
+        </VisualStateManager.VisualStateGroups>
+
+        <toolkit:DockPanel x:Name="RootLayout">
+
+            <StackPanel toolkit:DockPanel.Dock="Top" Margin="0 4 0 8"
+                        x:Name="HeaderLayout"
+                        
+                        >
+                <toolkit:DockPanel >
+                    <StackPanel Orientation="Horizontal"
+                                                toolkit:DockPanel.Dock="Left"
+                                            
+                                                >
+                        
+                        <Border />
+                    </StackPanel>
+
+                    <TextBlock Text="関連動画"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               VerticalAlignment="Center"
+                               Margin="16 8"
+                               />
+                </toolkit:DockPanel>
+            </StackPanel>
+            <StackPanel toolkit:DockPanel.Dock="Bottom"
+                        x:Name="FooterLayout"
+                        >
+
+                
+
+
+            </StackPanel>
+
+            <ListView ItemsSource="{Binding Videos}"
+                        SelectionMode="Single"
+                      SingleSelectionFollowsFocus="False"
+                      SelectedItem="{Binding CurrentVideo, Mode=OneTime}"
+                        uwpext:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                        IsItemClickEnabled="True"
+                        x:Name="PlaylistItemsListView"
+                        Background="{StaticResource HohoemaPlayerBackgroundBrush}"
+                      
+                      >
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Padding" Value="8 6 8 6" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemTemplate>
+                    <DataTemplate>
+                        <local:VideoInfoControl />
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+            </ListView>
+        </toolkit:DockPanel>
+    </Grid>
+</UserControl>

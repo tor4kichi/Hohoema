@@ -15,6 +15,8 @@ using Windows.Foundation;
 using Windows.Storage;
 using Windows.UI.Core;
 using System.Collections.Immutable;
+using System.Collections;
+using System.Collections.Generic;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -288,6 +290,35 @@ namespace NicoPlayerHohoema.Models
             else
             {
                 return null;
+            }
+        }
+
+
+
+        public IEnumerable<Database.NicoVideo> GetRelatedVideos()
+        {
+            if (LastAccessDmcWatchResponse?.DmcWatchResponse.Playlist?.Items?.Any() != null)
+            {
+                return LastAccessDmcWatchResponse.DmcWatchResponse.Playlist.Items
+                    .Select(x => 
+                    {
+                        var videoData = Database.NicoVideoDb.Get(x.Id);
+                        videoData.Title = x.Title;
+                        videoData.Length = x.LengthSeconds;
+                        videoData.PostedAt = x.FirstRetrieve;
+                        videoData.ThumbnailUrl = x.ThumbnailURL;
+                        videoData.ViewCount = x.ViewCounter;
+                        videoData.MylistCount = x.MylistCounter;
+                        videoData.CommentCount = x.NumRes;
+
+                        Database.NicoVideoDb.AddOrUpdate(videoData);
+
+                        return videoData;
+                    });
+            }
+            else
+            {
+                return Enumerable.Empty<Database.NicoVideo>();
             }
         }
 	}
