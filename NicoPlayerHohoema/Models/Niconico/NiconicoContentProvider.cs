@@ -228,7 +228,7 @@ namespace NicoPlayerHohoema.Models
                         info.Length = TimeSpan.FromSeconds(res.Video.Duration);
                         info.PostedAt = DateTime.Parse(res.Video.PostedDateTime);
                         info.ThumbnailUrl = res.Video.ThumbnailURL;
-
+                        info.DescriptionWithHtml = res.Video.Description;
                         info.ViewCount = res.Video.ViewCount;
                         info.MylistCount = res.Video.MylistCount;
                         info.CommentCount = res.Thread.CommentCount;
@@ -343,7 +343,7 @@ namespace NicoPlayerHohoema.Models
                     info.Length = res.videoDetail.length.HasValue ? TimeSpan.FromSeconds(res.videoDetail.length.Value) : TimeSpan.Zero;
                     info.PostedAt = DateTime.Parse(res.videoDetail.postedAt);
                     info.ThumbnailUrl = res.videoDetail.thumbnail;
-
+                    info.DescriptionWithHtml = res.videoDetail.description;
                     info.ViewCount = res.videoDetail.viewCount ?? 0;
                     info.MylistCount = res.videoDetail.mylistCount ?? 0;
                     info.CommentCount = res.videoDetail.commentCount ?? 0;

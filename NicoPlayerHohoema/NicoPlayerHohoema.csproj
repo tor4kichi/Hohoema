@@ -209,6 +209,7 @@
     <Compile Include="Helpers\CulturelizeHelper.cs" />
     <Compile Include="Helpers\IAsyncInitialize.cs" />
     <Compile Include="Helpers\IFileAccessor.cs" />
+    <Compile Include="Helpers\StringHelper.cs" />
     <Compile Include="Interfaces\ICommunity.cs" />
     <Compile Include="Interfaces\IFeedGroup.cs" />
     <Compile Include="Interfaces\IFollowable.cs" />

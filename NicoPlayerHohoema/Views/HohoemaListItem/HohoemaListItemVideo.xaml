@@ -40,17 +40,17 @@
 
             <Grid Margin="0 0 8 0"
                   toolkit:DockPanel.Dock="Left"
-                  Width="114"
-                  Height="62"
+                  MaxHeight="62"
+                  Width="104"
                   >
                 <uwptoolkit:ImageEx Source="{Binding FirstImageUrl, Mode=OneWay}" 
-                                   Width="114"
-                                   Height="108"
                                    Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}"
                                    Stretch="Uniform"
                                     VerticalAlignment="Center"
                                     VerticalContentAlignment="Center"
                                     IsCacheEnabled="True"
+                                    Width="104"
+                                    Height="104"
                    >
                 </uwptoolkit:ImageEx>
 

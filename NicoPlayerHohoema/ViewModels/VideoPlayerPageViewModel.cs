@@ -2384,7 +2384,9 @@ namespace NicoPlayerHohoema.ViewModels
                     case PlayerSidePaneContentType.RelatedVideos:
                         if (Video != null)
                         {
-                            sidePaneContent = new PlayerSidePaneContent.RelatedVideosSidePaneContentViewModel(Video.RawVideoId, Video.GetRelatedVideos());
+                            var relatedVideoInfo = Video.GetVideoRelatedInfomationWithVideoDescription();
+                            var relatedVideos = Video.GetRelatedVideos();
+                            sidePaneContent = new PlayerSidePaneContent.RelatedVideosSidePaneContentViewModel(Video.RawVideoId, relatedVideoInfo, relatedVideos);
                         }
                         else
                         {

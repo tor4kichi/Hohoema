@@ -399,7 +399,35 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
-            
+
+            <!-- デバイスごとの最大化と小窓ボタンの表示切り替え -->
+            <VisualStateGroup >
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Mobile" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PlayerSplitView.OpenPaneLength" Value="300" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PlayerSplitView.OpenPaneLength" Value="450" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Desktop" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PlayerSplitView.OpenPaneLength" Value="450" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
 
             <!-- 再生・停止 -->
             <VisualStateGroup>
@@ -673,7 +701,6 @@
             <SplitView PanePlacement="Right"
                            x:Name="PlayerSplitView"
                            IsTabStop="False"
-                       
                                >
 
                 <i:Interaction.Behaviors>

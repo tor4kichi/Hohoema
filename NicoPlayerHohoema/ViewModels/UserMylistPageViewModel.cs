@@ -22,6 +22,7 @@ using System.Windows.Input;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Popups;
 using NicoPlayerHohoema.Dialogs;
+using Mntone.Nico2.Searches.Mylist;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -403,6 +404,8 @@ namespace NicoPlayerHohoema.ViewModels
             OptionText = (mylistGroup.GetIsPublic() ? "公開" : "非公開") + $" - {mylistGroup.Count}件";
 
             ThemeColor = mylistGroup.GetIconType().ToColor();
+            ItemCount = (uint)mylistGroup.Count;
+
             if (mylistGroup.ThumbnailUrls != null)
             {
                 foreach (var thumbnailUri in mylistGroup.ThumbnailUrls)
@@ -412,8 +415,39 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-		
-		public void Update(MylistGroupInfo info)
+        public MylistGroupListItem(MylistGroup mylistGroup, PageManager pageManager)
+        {
+            _PageManager = pageManager;
+
+            Label = mylistGroup.Name;
+            Description = mylistGroup.Description;
+            GroupId = mylistGroup.Id;
+            OptionText = ("公開") + $" - {mylistGroup.ItemCount}件";
+            ItemCount = mylistGroup.ItemCount;
+
+            foreach (var thumbnailUri in mylistGroup.VideoInfoItems.Take(3).Select(x => x.Video.ThumbnailUrl))
+            {
+                AddImageUrl(thumbnailUri.OriginalString);
+            }
+        }
+
+        public MylistGroupListItem(Mylistgroup mylistGroup, PageManager pageManager)
+        {
+            _PageManager = pageManager;
+
+            Label = mylistGroup.Name;
+            Description = mylistGroup.Description;
+            GroupId = mylistGroup.Id;
+            OptionText = ("公開") + $" - {mylistGroup.Count}件";
+            ItemCount = mylistGroup.Count;
+
+            foreach (var thumbnailUri in mylistGroup.SampleVideoInfoItems.Select(x => x.Video.ThumbnailUrl))
+            {
+                AddImageUrl(thumbnailUri.OriginalString);
+            }
+        }
+
+        public void Update(MylistGroupInfo info)
 		{
 			Label = info.Name;
 			Description = info.Description;
@@ -428,6 +462,11 @@ namespace NicoPlayerHohoema.ViewModels
 		public string GroupId { get; private set; }
 
         public string Id => GroupId;
+
+        public uint ItemCount { get; private set; }
+        public DateTime UpdateTime { get; private set; }
+        public List<Mntone.Nico2.Searches.Video.Video> SampleVideos { get; private set; }
+
 
         PageManager _PageManager;
 	}
