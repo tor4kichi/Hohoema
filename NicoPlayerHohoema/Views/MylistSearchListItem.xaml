@@ -60,8 +60,8 @@
 
 
         </VisualStateManager.VisualStateGroups>
-        
-        <ItemsControl ItemsSource="{Binding SampleVideos}"
+
+        <ItemsControl ItemsSource="{Binding ImageUrls}"
                       toolkit:DockPanel.Dock="Right"
                       Width="64"
                       x:Name="SampleVideoItems"
@@ -74,7 +74,7 @@
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
                     <Border Margin="4 0">
-                        <Image Source="{Binding ThumbnailUrl}"
+                        <Image Source="{Binding}"
                            Width="64"
                            Height="48"
                            />
@@ -104,7 +104,7 @@
         </Border>
 
 
-        <TextBlock Text="{Binding Name}" 
+        <TextBlock Text="{Binding Label}" 
                    TextWrapping="Wrap"
                    VerticalAlignment="Center"
                    />

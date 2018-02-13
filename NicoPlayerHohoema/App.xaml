@@ -44,6 +44,16 @@
                 </uwpconv:EmptyObjectToObjectConverter.EmptyValue>
             </uwpconv:EmptyObjectToObjectConverter>
 
+            <uwpconv:EmptyObjectToObjectConverter x:Key="NullToVisibility">
+                <uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
+                    <Visibility>Collapsed</Visibility>
+                </uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
+                <uwpconv:EmptyObjectToObjectConverter.EmptyValue>
+                    <Visibility>Visible</Visibility>
+                </uwpconv:EmptyObjectToObjectConverter.EmptyValue>
+            </uwpconv:EmptyObjectToObjectConverter>
+
+
             <uwpconv:CollectionVisibilityConverter x:Key="CollectionVisibilityConverter" />
             <uwpconv:EmptyCollectionToObjectConverter x:Key="EmptyCollectionVisibilityConverter">
                 <uwpconv:EmptyCollectionToObjectConverter.EmptyValue>

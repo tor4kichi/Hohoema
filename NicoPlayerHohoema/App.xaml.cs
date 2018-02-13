@@ -821,17 +821,20 @@ namespace NicoPlayerHohoema
 
 			Debug.Write(e.Message);
 
-			await WriteErrorFile(e.Exception);
+            if (IsDebugModeEnabled)
+            {
+                await WriteErrorFile(e.Exception);
+            }
 
-//			ShowErrorToast();
-		}
+            //			ShowErrorToast();
+        }
 
 		public async Task WriteErrorFile(Exception e)
 		{
 			try
 			{
 				var folder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("error", CreationCollisionOption.OpenIfExists);
-				var errorFile = await folder.CreateFileAsync($"hohoema_error_{DateTime.Now.ToString("yyyy-dd-M--HH-mm-ss")}.txt", CreationCollisionOption.OpenIfExists);
+				var errorFile = await folder.CreateFileAsync($"hohoema_error_{DateTime.Now.ToString("yyyy-dd-MM_HH-mm-ss")}.txt", CreationCollisionOption.OpenIfExists);
 
 				var version = Package.Current.Id.Version;
 				var versionText = $"{version.Major}.{version.Minor}.{version.Build}";
@@ -1208,6 +1211,36 @@ namespace NicoPlayerHohoema
 
         #endregion
 
+
+
+        const string DEBUG_MODE_ENABLED_KEY = "Hohoema_DebugModeEnabled";
+        public bool IsDebugModeEnabled
+        {
+            get
+            {
+                var enabled = ApplicationData.Current.LocalSettings.Values[DEBUG_MODE_ENABLED_KEY];
+                if (enabled != null)
+                {
+                    return (bool)enabled;
+                }
+                else
+                {
+                    return false;
+                }
+            }
+
+            set
+            {
+                ApplicationData.Current.LocalSettings.Values[DEBUG_MODE_ENABLED_KEY] = value;
+                if (value)
+                {
+                    PublishInAppNotification(new InAppNotificationPayload()
+                    {
+                        Content = "デバッグモードが有効になりました。\n問題発生時にエラーログを出力します。\nエラーログのフォルダは「設定」の「エラーログ」から確認できます。"
+                    });
+                }
+            }
+        }
 
 
         

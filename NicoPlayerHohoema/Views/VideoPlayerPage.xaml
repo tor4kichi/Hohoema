@@ -138,6 +138,10 @@
 
             <MenuFlyoutItem Text="動画情報" Command="{Binding OpenVideoInfoCommand}" />
 
+            <MenuFlyoutItem Text="関連動画" Command="{Binding SelectSidePaneContentCommand}"
+                            CommandParameter="RelatedVideos"
+                            />
+
             <!--
             <MenuFlyoutItem Text="プレイヤー設定" 
                             Command="{Binding SelectSidePaneContentCommand}"
@@ -187,6 +191,12 @@
                     <local:VideoSettingsSidePaneContent />
                 </DataTemplate>
             </local:PlayerSidePaneContentTemplateSelecter.Settings>
+
+            <local:PlayerSidePaneContentTemplateSelecter.RelatedVideos>
+                <DataTemplate>
+                    <local:RelatedVideosSidePaneContent />
+                </DataTemplate>
+            </local:PlayerSidePaneContentTemplateSelecter.RelatedVideos>
 
         </local:PlayerSidePaneContentTemplateSelecter>
                 
@@ -389,7 +399,35 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
-            
+
+            <!-- デバイスごとの最大化と小窓ボタンの表示切り替え -->
+            <VisualStateGroup >
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Mobile" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PlayerSplitView.OpenPaneLength" Value="300" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PlayerSplitView.OpenPaneLength" Value="450" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Desktop" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PlayerSplitView.OpenPaneLength" Value="450" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
 
             <!-- 再生・停止 -->
             <VisualStateGroup>
@@ -663,7 +701,6 @@
             <SplitView PanePlacement="Right"
                            x:Name="PlayerSplitView"
                            IsTabStop="False"
-                       
                                >
 
                 <i:Interaction.Behaviors>

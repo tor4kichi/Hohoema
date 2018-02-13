@@ -134,14 +134,7 @@ namespace NicoPlayerHohoema.Models
 
                 // ユーザーのマイリストグループの一覧を取得
                 List<LoginUserMylistGroup> mylistGroupDataLists = null;
-                try
-                {
-                    mylistGroupDataLists = await HohoemaApp.ContentProvider.GetLoginUserMylistGroups();
-                }
-                catch
-                {
-                    Debug.WriteLine("ユーザーマイリストの更新に失敗しました。");
-                }
+                mylistGroupDataLists = await HohoemaApp.ContentProvider.GetLoginUserMylistGroups();
 
                 if (mylistGroupDataLists == null)
                 {
@@ -157,7 +150,14 @@ namespace NicoPlayerHohoema.Models
                 {
                     var addedMylistGroupInfo = MylistGroupInfo.FromMylistGroupData(userMylist, HohoemaApp, this);
                     _UserMylists.Add(addedMylistGroupInfo);
-                    await addedMylistGroupInfo.Refresh();
+                    try
+                    {
+                        await addedMylistGroupInfo.Refresh();
+                    }
+                    catch (Exception e)
+                    {
+                        await (App.Current as App).WriteErrorFile(e);
+                    }
 
                     await Task.Delay(500);
                 }
@@ -304,7 +304,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			get
 			{
-                return PlaylistItems.Count != 0 ? PlaylistItems.Count : Count;
+                return Count;
 			}
 		}
 
@@ -338,9 +338,8 @@ namespace NicoPlayerHohoema.Models
 				IsPublic = is_public;
 				IconType = iconType;
 				Sort = default_sort;
-
-
-				if (sortChanged)
+                
+                if (sortChanged)
 				{
 					await Refresh();
 				}
@@ -463,18 +462,24 @@ namespace NicoPlayerHohoema.Models
 
 				foreach (var item in defMylist)
 				{
-					_VideoIdToThreadIdMap.Add(item.WatchId, item.ItemId);
-					_PlaylistItems.Add(new PlaylistItem()
+                    if (item.ItemType == NiconicoItemType.Video)
                     {
-                        ContentId = item.WatchId,
-                        Owner = this,
-                        Title = item.Title,
-                        Type = PlaylistItemType.Video
+                        _VideoIdToThreadIdMap.Add(item.WatchId, item.ItemId);
+                        _PlaylistItems.Add(new PlaylistItem()
+                        {
+                            ContentId = item.WatchId,
+                            Owner = this,
+                            Title = item.Title,
+                            Type = PlaylistItemType.Video
+                        }
+                        );
                     }
-                    );
-				}
+                }
 
-				MylistManager.DeflistUpdated();
+                Count = defMylist.Count;
+
+
+                MylistManager.DeflistUpdated();
 			}
 			else
 			{
@@ -484,36 +489,44 @@ namespace NicoPlayerHohoema.Models
 
 					foreach (var item in res)
 					{
-						_VideoIdToThreadIdMap.Add(item.WatchId, item.ItemId);
-						_PlaylistItems.Add(new PlaylistItem()
+                        if (item.ItemType == NiconicoItemType.Video)
                         {
-                            ContentId = item.WatchId,
-                            Owner = this,
-                            Title = item.Title,
-                            Type = PlaylistItemType.Video
-                        });
-					}
+                            _VideoIdToThreadIdMap.Add(item.WatchId, item.ItemId);
+                            _PlaylistItems.Add(new PlaylistItem()
+                            {
+                                ContentId = item.WatchId,
+                                Owner = this,
+                                Title = item.Title,
+                                Type = PlaylistItemType.Video
+                            });
+                        }
+                    }
 
-					MylistManager.MylistUpdated();
+                    Count = res.Count;
+
+                    MylistManager.MylistUpdated();
 				}
 				else
 				{
 					var res = await HohoemaApp.ContentProvider.GetMylistGroupVideo(GroupId, 0, itemCountPerMylist);
 
-
-					if (res.GetCount() > 0)
+                    Count = (int)res.GetCount();
+                    if (Count > 0)
 					{
 						foreach (var item in res.MylistVideoInfoItems)
 						{
-							_VideoIdToThreadIdMap.Add(item.Video.Id, item.Thread.Id);
-							_PlaylistItems.Add(new PlaylistItem()
+                            if (item.Video != null)
                             {
-                                ContentId = item.Video.Id,
-                                Owner = this,
-                                Title = item.Video.Title,
-                                Type = PlaylistItemType.Video
-                            });
-						}
+                                _VideoIdToThreadIdMap.Add(item.Video.Id, item.Thread.Id);
+                                _PlaylistItems.Add(new PlaylistItem()
+                                {
+                                    ContentId = item.Video.Id,
+                                    Owner = this,
+                                    Title = item.Video.Title,
+                                    Type = PlaylistItemType.Video
+                                });
+                            }
+                        }
 					}
 				}
 			}

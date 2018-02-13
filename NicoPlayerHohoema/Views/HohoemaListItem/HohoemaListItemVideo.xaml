@@ -27,7 +27,7 @@
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-        
+
         <toolkit:DockPanel Margin="4 0 0 0"
                            x:Name="ContentLayout"
                            >
@@ -81,7 +81,7 @@
                            />
 
                 <Border />
-                
+
             </toolkit:DockPanel>
 
 
@@ -99,8 +99,8 @@
                        TextWrapping="Wrap"
                        VerticalAlignment="Center"
                        />
-            
-            
+
+
         </toolkit:DockPanel>
 
         <Grid x:Name="ContentCollapsed" Visibility="Collapsed">

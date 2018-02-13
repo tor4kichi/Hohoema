@@ -156,6 +156,7 @@
     <Content Include="Assets\UpdateNotices\0.12.3.md" />
     <Content Include="Assets\UpdateNotices\0.12.7.md" />
     <Content Include="Assets\UpdateNotices\0.13.0.md" />
+    <Content Include="Assets\UpdateNotices\0.13.1.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <PRIResource Include="Resources\ja-jp\Resources.resw" />
   </ItemGroup>
@@ -209,6 +210,7 @@
     <Compile Include="Helpers\CulturelizeHelper.cs" />
     <Compile Include="Helpers\IAsyncInitialize.cs" />
     <Compile Include="Helpers\IFileAccessor.cs" />
+    <Compile Include="Helpers\StringHelper.cs" />
     <Compile Include="Interfaces\ICommunity.cs" />
     <Compile Include="Interfaces\IFeedGroup.cs" />
     <Compile Include="Interfaces\IFollowable.cs" />
@@ -355,6 +357,7 @@
     <Compile Include="ViewModels\FeedVideoInfoControlViewModel.cs" />
     <Compile Include="ViewModels\FeedGroupManagePageViewModel.cs" />
     <Compile Include="ViewModels\FeedGroupPageViewModel.cs" />
+    <Compile Include="ViewModels\PlayerSidePaneContent\RelatedVideosSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\SearchSummaryPageViewModel.cs" />
     <Compile Include="ViewModels\RankingCategoryPageViewModel.cs" />
     <Compile Include="ViewModels\WatchHistoryPageViewModel.cs" />
@@ -662,6 +665,9 @@
     </Compile>
     <Compile Include="Views\_PlayerSidePaneContent\CommentsSidePaneContent.xaml.cs">
       <DependentUpon>CommentsSidePaneContent.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\_PlayerSidePaneContent\RelatedVideosSidePaneContent.xaml.cs">
+      <DependentUpon>RelatedVideosSidePaneContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\_PlayerSidePaneContent\VideoSettingsSidePaneContent.xaml.cs">
       <DependentUpon>VideoSettingsSidePaneContent.xaml</DependentUpon>
@@ -1074,6 +1080,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\_PlayerSidePaneContent\CommentsSidePaneContent.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\_PlayerSidePaneContent\RelatedVideosSidePaneContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

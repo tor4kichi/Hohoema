@@ -15,6 +15,9 @@ using Windows.Foundation;
 using Windows.Storage;
 using Windows.UI.Core;
 using System.Collections.Immutable;
+using System.Collections;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -290,5 +293,109 @@ namespace NicoPlayerHohoema.Models
                 return null;
             }
         }
-	}
+
+
+
+        public IEnumerable<Database.NicoVideo> GetRelatedVideos()
+        {
+            if (LastAccessDmcWatchResponse?.DmcWatchResponse.Playlist?.Items?.Any() != null)
+            {
+                return LastAccessDmcWatchResponse.DmcWatchResponse.Playlist.Items
+                    .Select(x => 
+                    {
+                        var videoData = Database.NicoVideoDb.Get(x.Id);
+                        videoData.Title = x.Title;
+                        videoData.Length = x.LengthSeconds;
+                        videoData.PostedAt = x.FirstRetrieve;
+                        videoData.ThumbnailUrl = x.ThumbnailURL;
+                        videoData.ViewCount = x.ViewCounter;
+                        videoData.MylistCount = x.MylistCounter;
+                        videoData.CommentCount = x.NumRes;
+
+                        Database.NicoVideoDb.AddOrUpdate(videoData);
+
+                        return videoData;
+                    });
+            }
+            else
+            {
+                return Enumerable.Empty<Database.NicoVideo>();
+            }
+        }
+
+
+        Regex NiconicoContentUrlRegex = new Regex(@"http:\/\/[a-z]+\.nicovideo\.jp\/([a-z]+)\/([a-z][a-z][0-9]+|[0-9]+)");
+
+        Regex GeneralUrlRegex = new Regex(@"https?:\/\/([a-zA-Z0-9.\/?=_-]*)");
+
+        public VideoRelatedInfomation GetVideoRelatedInfomationWithVideoDescription()
+        {
+            var nicoVideo = Database.NicoVideoDb.Get(RawVideoId);
+
+            if (string.IsNullOrEmpty(nicoVideo.DescriptionWithHtml)) { return null; }
+
+            VideoRelatedInfomation info = new VideoRelatedInfomation();
+            var niconicoContentMatchs = NiconicoContentUrlRegex.Matches(nicoVideo.DescriptionWithHtml);
+            foreach (var match in niconicoContentMatchs.Cast<Match>())
+            {
+                var contentType = match.Groups[1].Value;
+                var contentId = match.Groups[2].Value;
+
+                // TODO: 
+                info.NiconicoContentIds.Add(new NiconicoContent()
+                {
+                    Type = contentType,
+                    Id = contentId
+                });
+            }
+
+            return info;
+        }
+
+        public IList<Uri> GetGeneralUrlsWithVideoDescription()
+        {
+            var nicoVideo = Database.NicoVideoDb.Get(RawVideoId);
+
+            if (string.IsNullOrEmpty(nicoVideo.DescriptionWithHtml)) { return null; }
+
+            List<Uri> uris = new List<Uri>();
+            var generalUrlMatchs = GeneralUrlRegex.Matches(nicoVideo.DescriptionWithHtml);
+
+            foreach (var match in generalUrlMatchs.Cast<Match>().Where(x => !NiconicoContentUrlRegex.IsMatch(x.Value)))
+            {
+                var url = match.Groups[1].Value;
+                uris.Add(new Uri(url));
+            }
+
+            return uris;
+        }
+
+    }
+
+
+    // 動画情報
+    public class VideoRelatedInfomation
+    {
+        public IList<NiconicoContent> NiconicoContentIds { get; } = new List<NiconicoContent>();
+
+        public IEnumerable<string> GetVideoIds()
+        {
+            return NiconicoContentIds.Where(x => x.Type == "watch" &&
+                (x.Id.StartsWith("sm") || x.Id.StartsWith("so") || x.Id.StartsWith("nm"))
+                )
+                .Select(x => x.Id);
+        }
+
+        public IEnumerable<string> GetMylistIds()
+        {
+            return NiconicoContentIds.Where(x => x.Type == "mylist")
+                .Select(x => x.Id);
+        }
+    }
+
+    public class NiconicoContent
+    {
+        public string Type { get; set; }
+        public string Id { get; set; }
+    }
 }

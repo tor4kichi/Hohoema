@@ -180,12 +180,40 @@
                             Orientation="Horizontal"
                                 Margin="0 0 16 0"
                             >
-                        <TextBlock Opacity="0.5"
+
+                        
+                        <HyperlinkButton Content="エラーログ"
+                                        Command="{Binding ShowErrorFilesFolderCommand}"
+                                        Visibility="{Binding IsDebugModeEnabled.Value, Converter={StaticResource BooleanToVisibility}}"
+                                         Margin="8 0"
+                                         VerticalAlignment="Center"
+                                        />
+
+
+                        <Button Background="Transparent">
+
+                            <Button.Flyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem Text="バージョン番号をコピー"
+                                                    Command="{Binding CopyVersionTextToClipboardCommand}"
+                                                    />
+                                    <ToggleMenuFlyoutItem Text="デバッグモードを有効にする"
+                                                          IsChecked="{Binding IsDebugModeEnabled.Value,Mode=TwoWay}"
+                                                          />
+                                </MenuFlyout>
+                            </Button.Flyout>
+                            
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Opacity="0.5"
                                    Style="{StaticResource SubtitleTextBlockStyle}"
                                    VerticalAlignment="Center"
                                    >
                                 v<Run Text="{Binding VersionText}" />
-                        </TextBlock>
+                                </TextBlock>
+
+                            </StackPanel>
+                            
+                        </Button>
 
                     </StackPanel>
 
