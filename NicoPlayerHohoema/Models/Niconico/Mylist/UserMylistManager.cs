@@ -134,14 +134,7 @@ namespace NicoPlayerHohoema.Models
 
                 // ユーザーのマイリストグループの一覧を取得
                 List<LoginUserMylistGroup> mylistGroupDataLists = null;
-                try
-                {
-                    mylistGroupDataLists = await HohoemaApp.ContentProvider.GetLoginUserMylistGroups();
-                }
-                catch
-                {
-                    Debug.WriteLine("ユーザーマイリストの更新に失敗しました。");
-                }
+                mylistGroupDataLists = await HohoemaApp.ContentProvider.GetLoginUserMylistGroups();
 
                 if (mylistGroupDataLists == null)
                 {
@@ -157,7 +150,14 @@ namespace NicoPlayerHohoema.Models
                 {
                     var addedMylistGroupInfo = MylistGroupInfo.FromMylistGroupData(userMylist, HohoemaApp, this);
                     _UserMylists.Add(addedMylistGroupInfo);
-                    await addedMylistGroupInfo.Refresh();
+                    try
+                    {
+                        await addedMylistGroupInfo.Refresh();
+                    }
+                    catch (Exception e)
+                    {
+                        await (App.Current as App).WriteErrorFile(e);
+                    }
 
                     await Task.Delay(500);
                 }

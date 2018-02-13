@@ -237,6 +237,47 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
+        public ReactiveProperty<bool> IsDebugModeEnabled { get; }
+
+
+        private bool _IsExistErrorFilesFolder;
+        public bool IsExistErrorFilesFolder
+        {
+            get { return _IsExistErrorFilesFolder; }
+            set { SetProperty(ref _IsExistErrorFilesFolder, value); }
+        }
+
+        private DelegateCommand _ShowErrorFilesFolderCommand;
+        public DelegateCommand ShowErrorFilesFolderCommand
+        {
+            get
+            {
+                return _ShowErrorFilesFolderCommand
+                    ?? (_ShowErrorFilesFolderCommand = new DelegateCommand(async () =>
+                    {
+                        var folder = await ApplicationData.Current.LocalFolder.GetFolderAsync("error");
+                        if (folder != null)
+                        {
+                            await Launcher.LaunchFolderAsync(folder);
+                        }
+                    }));
+            }
+        }
+
+
+        private DelegateCommand _CopyVersionTextToClipboardCommand;
+        public DelegateCommand CopyVersionTextToClipboardCommand
+        {
+            get
+            {
+                return _CopyVersionTextToClipboardCommand
+                    ?? (_CopyVersionTextToClipboardCommand = new DelegateCommand(() =>
+                    {
+                        Helpers.ShareHelper.CopyToClipboard(CurrentVersion.ToString());
+                    }));
+            }
+        }
+
         public bool IsSupportedFeedbackHub { get; } = StoreServicesFeedbackLauncher.IsSupported();
 
 
@@ -378,6 +419,14 @@ namespace NicoPlayerHohoema.ViewModels
                         RaisePropertyChanged(nameof(LisenceItems));
                     });
                 });
+
+
+            IsDebugModeEnabled = new ReactiveProperty<bool>((App.Current as App).IsDebugModeEnabled, mode:ReactivePropertyMode.DistinctUntilChanged);
+            IsDebugModeEnabled.Subscribe(isEnabled => 
+            {
+                (App.Current as App).IsDebugModeEnabled = isEnabled;
+            })
+            .AddTo(_CompositeDisposable);
         }
 
 
@@ -397,9 +446,10 @@ namespace NicoPlayerHohoema.ViewModels
             }
             catch { }
 
+            IsExistErrorFilesFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("error") != null;
 
             // return Task.CompletedTask;
-		}
+        }
 
 		protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
 		{
