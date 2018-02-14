@@ -283,7 +283,7 @@ namespace NicoPlayerHohoema.Models
                 if (int.TryParse(dmcRes.Thread.Ids.Community, out var communityThreadId))
                 {
                     CommentClient.CommentServerInfo.CommunityThreadId = communityThreadId;
-                    Debug.WriteLine("dmcRes.Video.DmcInfo.Thread.PostkeyAvailable: " + dmcRes.Video.DmcInfo.Thread.PostkeyAvailable);
+                    Debug.WriteLine("dmcRes.Video.DmcInfo.Thread.PostkeyAvailable: " + dmcRes.Video.DmcInfo?.Thread?.PostkeyAvailable);
                 }
 
                 return res;
