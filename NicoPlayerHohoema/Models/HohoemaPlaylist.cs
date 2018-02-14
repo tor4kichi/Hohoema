@@ -381,7 +381,7 @@ namespace NicoPlayerHohoema.Models
 
         public void PlayVideo(IVideoContent video)
         {
-            if (!NiconicoRegex.IsVideoId(video.Id))
+            if (!(NiconicoRegex.IsVideoId(video.Id) || video.Id.All(x => '0' <= x && x <= '9')))
             {
                 return;
             }
