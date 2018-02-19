@@ -303,7 +303,10 @@ namespace NicoPlayerHohoema.ViewModels
             */
         }
 
-		protected virtual void PostResetList() { }
+		protected virtual void PostResetList()
+        {
+            LatestUpdateTime = DateTime.Now;
+        }
 
 		protected abstract IIncrementalSource<ITEM_VM> GenerateIncrementalSource();
 
