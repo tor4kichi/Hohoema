@@ -83,7 +83,7 @@ namespace NicoPlayerHohoema.Models
 		public readonly static Guid HohoemaLoggerGroupGuid = Guid.NewGuid();
 
 
-		private SemaphoreSlim _SigninLock;
+        private AsyncLock _SigninLock = new AsyncLock();
 		private const string ThumbnailLoadBackgroundTaskId = "ThumbnailLoader";
 
         HohoemaDialogService _HohoemaDialogService;
@@ -101,8 +101,6 @@ namespace NicoPlayerHohoema.Models
             FeedManager = new FeedManager(this);
 
             FollowManager = null;
-
-			_SigninLock = new SemaphoreSlim(1, 1);
 
 //            ApplicationData.Current.DataChanged += Current_DataChanged;
 
@@ -427,24 +425,16 @@ namespace NicoPlayerHohoema.Models
 
 			Debug.WriteLine("ローミングデータの同期：完了");
 
-			// ローカルフォルダを利用する機能を再初期化
-			try
-			{
-				await _SigninLock.WaitAsync();
-
-//				await LoadUserSettings();
-				if (IsLoggedIn)
-				{
-//					FeedManager = new FeedManager(this);
-//					await FeedManager.Initialize();
-				}
-			}
-			finally
-			{
-				_SigninLock.Release();
-			}
-		
-				
+            // ローカルフォルダを利用する機能を再初期化
+            using (var releaser = await _SigninLock.LockAsync())
+            {
+                //				await LoadUserSettings();
+                if (IsLoggedIn)
+                {
+                    //					FeedManager = new FeedManager(this);
+                    //					await FeedManager.Initialize();
+                }
+            }
 		}
 
 		/// <summary>
@@ -478,8 +468,8 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<NiconicoSignInStatus> SignInWithPrimaryAccount()
 		{
-			// 資格情報からログインパラメータを取得
-			string primaryAccount_id = null;
+            // 資格情報からログインパラメータを取得
+            string primaryAccount_id = null;
 			string primaryAccount_Password = null;
 
 			var account = await AccountManager.GetPrimaryAccount();
@@ -548,31 +538,30 @@ namespace NicoPlayerHohoema.Models
 		{
 			return AsyncInfo.Run<NiconicoSignInStatus>(async (cancelToken) => 
 			{
-                if (!Helpers.InternetConnection.IsInternet())
+                using (var releaser = await _SigninLock.LockAsync())
                 {
-                    NiconicoContext?.Dispose();
-                    NiconicoContext = new NiconicoContext();
-                    return NiconicoSignInStatus.Failed;
-                }
+                    if (!Helpers.InternetConnection.IsInternet())
+                    {
+                        NiconicoContext?.Dispose();
+                        NiconicoContext = new NiconicoContext();
+                        return NiconicoSignInStatus.Failed;
+                    }
 
-                if (NiconicoContext != null 
-				    && NiconicoContext.AuthenticationToken?.MailOrTelephone == mailOrTelephone 
-				    && NiconicoContext.AuthenticationToken?.Password == password)
-				{
-					return NiconicoSignInStatus.Success;
-				}
+                    if (NiconicoContext != null
+                        && NiconicoContext.AuthenticationToken?.MailOrTelephone == mailOrTelephone
+                        && NiconicoContext.AuthenticationToken?.Password == password)
+                    {
+                        return NiconicoSignInStatus.Success;
+                    }
+                }
 
                 if (IsLoggedIn)
                 {
                     await SignOut();
                 }
 
-                try
-				{
-					await _SigninLock.WaitAsync();
-
-                    
-
+                using (var releaser = await _SigninLock.LockAsync())
+                { 
 					var context = new NiconicoContext(new NiconicoAuthenticationToken(mailOrTelephone, password));
 
 					context.AdditionalUserAgent = HohoemaUserAgent;
@@ -740,10 +729,6 @@ namespace NicoPlayerHohoema.Models
 
 					return result;
 				}
-				finally
-				{
-					_SigninLock.Release();
-				}
 				
 			});
 			
@@ -754,10 +739,8 @@ namespace NicoPlayerHohoema.Models
 		{
             NiconicoSignInStatus result = NiconicoSignInStatus.Failed;
 
-            try
+            using (var releaser = await _SigninLock.LockAsync())
 			{
-				await _SigninLock.WaitAsync();
-
                 if (NiconicoContext == null)
 				{
 					return result;
@@ -795,14 +778,9 @@ namespace NicoPlayerHohoema.Models
 
 					OnSignout?.Invoke();
 				}
-
 			}
-			finally
-			{
-                UpdateServiceStatus();
 
-                _SigninLock.Release();
-            }
+            UpdateServiceStatus();
 
             return result;
         }
@@ -837,29 +815,27 @@ namespace NicoPlayerHohoema.Models
 		{
             NiconicoSignInStatus result = NiconicoSignInStatus.Failed;
 
-            try
-			{
-				await _SigninLock.WaitAsync();
+            using (var releaser = await _SigninLock.LockAsync())
+            {
+                try
+                {
+                    if (Helpers.InternetConnection.IsInternet() && NiconicoContext != null)
+                    {
+                        result = await ConnectionRetryUtil.TaskWithRetry(
+                            () => NiconicoContext.GetIsSignedInAsync()
+                            , retryInterval: 1000
+                            );
+                    }
 
-                if (Helpers.InternetConnection.IsInternet() && NiconicoContext != null)
-				{
-                    result = await ConnectionRetryUtil.TaskWithRetry(
-						() => NiconicoContext.GetIsSignedInAsync()
-						, retryInterval:1000
-						);
-				}
-			}
-			catch
-			{
-                // ログイン処理時には例外を捕捉するが、ログイン状態チェックでは例外は無視する
-                result = NiconicoSignInStatus.Failed;
+                }
+                catch
+                {
+                    // ログイン処理時には例外を捕捉するが、ログイン状態チェックでは例外は無視する
+                    result = NiconicoSignInStatus.Failed;
+                }
             }
-			finally
-			{
-                UpdateServiceStatus(result);
 
-                _SigninLock.Release();
-			}
+            UpdateServiceStatus(result);
 
             return result;
 		}
