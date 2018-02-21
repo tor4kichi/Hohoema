@@ -597,6 +597,9 @@
                     <VisualState.Setters>
                         <Setter Target="CommentWriteBeginKeyboardTrigger.IsEnabled" Value="False" />
                         <Setter Target="PlayPauseToggleKeyboardTrigger.IsEnabled" Value="False" />
+
+                        <Setter Target="VideoForwardKeyboardTrigger.IsEnabled" Value="False" />
+                        <Setter Target="VideoPreviewKeyboardTrigger.IsEnabled" Value="False" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -789,7 +792,19 @@
                             </mybehavior:KeyboardTrigger>
 
 
-                            
+                            <mybehavior:KeyboardTrigger Key="Right" x:Name="VideoForwardKeyboardTrigger">
+                                <mybehavior:KeyboardTrigger.Actions>
+                                    <core:InvokeCommandAction Command="{Binding ForwardVideoPositionCommand}" />
+                                </mybehavior:KeyboardTrigger.Actions>
+                            </mybehavior:KeyboardTrigger>
+
+                            <mybehavior:KeyboardTrigger Key="Left" x:Name="VideoPreviewKeyboardTrigger">
+                                <mybehavior:KeyboardTrigger.Actions>
+                                    <core:InvokeCommandAction Command="{Binding PreviewVideoPositionCommand}" />
+                                </mybehavior:KeyboardTrigger.Actions>
+                            </mybehavior:KeyboardTrigger>
+
+
                             <mybehavior:KeyboardTrigger x:Name="CommentWriteBeginKeyboardTrigger">
                                 <mybehavior:KeyboardTrigger.Actions>
                                     <mybehavior:SetFocus TargetObject="{Binding ElementName=CommentTextBox}" Delay="00:00:00" />
