@@ -2,7 +2,6 @@
     x:Class="NicoPlayerHohoema.Views.VideoSettingsSidePaneContent"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:NicoPlayerHohoema.Views.PlayerSidePaneContent"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
@@ -181,6 +180,27 @@
                         </ComboBox.ItemTemplate>
                     </ComboBox>
 
+                </StackPanel>
+
+
+                <StackPanel Margin="0 8 0 16">
+
+                    <TextBlock Text="次パート動画を自動検出して移動"
+                           VerticalAlignment="Center"
+                           />
+
+                    <ToggleSwitch 
+                              IsOn="{Binding AutoMoveNextVideoOnPlaylistEmpty.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                              
+                              />
+
+                    <TextBlock Text="マイリストから視聴している場合は無効"
+                           VerticalAlignment="Center"
+                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                               FontSize="12"
+                               Margin="0 4"
+                           />
+                    
                 </StackPanel>
 
             </StackPanel>

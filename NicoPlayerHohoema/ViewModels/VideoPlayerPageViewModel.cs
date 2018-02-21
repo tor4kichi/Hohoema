@@ -1243,6 +1243,17 @@ namespace NicoPlayerHohoema.ViewModels
                         if (!IsPlayWithCache.Value)
                         {
                             SelectSidePaneContentCommand.Execute(PlayerSidePaneContentType.RelatedVideos.ToString());
+
+                            // 自動で次動画へ移動する機能
+                            var sidePaneContent = GetSidePaneContent(PlayerSidePaneContentType.RelatedVideos) as RelatedVideosSidePaneContentViewModel;
+                            sidePaneContent.InitializeRelatedVideos()
+                                .ContinueWith(prevTask => 
+                                {
+                                    if (sidePaneContent.NextVideo != null && HohoemaApp.UserSettings.PlaylistSettings.AutoMoveNextVideoOnPlaylistEmpty)
+                                    {
+                                        HohoemaApp.Playlist.PlayVideo(sidePaneContent.NextVideo.RawVideoId, sidePaneContent.NextVideo.Label);
+                                    }
+                                });
                         }
                     }
                 });
