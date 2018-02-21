@@ -20,6 +20,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
         public ReactiveProperty<bool> IsShuffleEnabled { get; private set; }
         public ReactiveProperty<bool> IsTrackRepeatModeEnable { get; private set; }
         public ReactiveProperty<bool> IsListRepeatModeEnable { get; private set; }
+        public ReactiveProperty<bool> IsReverseEnabled { get; private set; }
         public ReactiveProperty<bool> PlaylistCanGoBack { get; private set; }
         public ReactiveProperty<bool> PlaylistCanGoNext { get; private set; }
         public ReadOnlyReactiveCollection<PlaylistItem> PlaylistItems { get; private set; }
@@ -63,6 +64,10 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             {
                 _MediaPlayer.IsLoopingEnabled = x;
             })
+                .AddTo(_CompositeDisposable);
+
+
+            IsReverseEnabled = _PlaylistSettings.ToReactivePropertyAsSynchronized(x => x.IsReverseModeEnable, CurrentWindowContextScheduler)
                 .AddTo(_CompositeDisposable);
 
             PlaylistCanGoBack = _Player.Player.ObserveProperty(x => x.CanGoBack)
@@ -161,6 +166,20 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             }
         }
 
+        private DelegateCommand _ToggleReverseModeCommand;
+        public DelegateCommand ToggleReverseModeCommand
+        {
+            get
+            {
+                return _ToggleReverseModeCommand
+                    ?? (_ToggleReverseModeCommand = new DelegateCommand(() =>
+                    {
+                        _PlaylistSettings.IsReverseModeEnable = !_PlaylistSettings.IsReverseModeEnable;
+                    }
+                    ));
+            }
+        }
 
+        
     }
 }

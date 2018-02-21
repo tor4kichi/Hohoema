@@ -593,6 +593,8 @@ namespace NicoPlayerHohoema.Models
         }
 
 
+
+
         public PlaylistPlayer(HohoemaPlaylist hohoemaPlaylist, PlaylistSettings playlistSettings)
         {
             HohoemaPlaylist = hohoemaPlaylist;
@@ -600,7 +602,8 @@ namespace NicoPlayerHohoema.Models
 
             _SettingsObserveDisposer = Observable.Merge(
                 PlaylistSettings.ObserveProperty(x => x.IsShuffleEnable).ToUnit(),
-                PlaylistSettings.ObserveProperty(x => x.RepeatMode).ToUnit()
+                PlaylistSettings.ObserveProperty(x => x.RepeatMode).ToUnit(),
+                PlaylistSettings.ObserveProperty(x => x.IsReverseModeEnable).ToUnit()
                 )
                 .Subscribe(async _ =>
                 {
@@ -616,8 +619,6 @@ namespace NicoPlayerHohoema.Models
                         RaisePropertyChanged(nameof(CanGoNext));
                     }
                 });
-                
-
         }
 
         public void Dispose()
@@ -689,8 +690,15 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-
         public bool CanGoBack
+        {
+            get
+            {
+                return !PlaylistSettings.IsReverseModeEnable ? __CanGoBack : __CanGoNext;
+            }
+        }
+
+        private bool __CanGoBack
         {
             get
             {
@@ -724,8 +732,19 @@ namespace NicoPlayerHohoema.Models
         }
 
         
-
         public void GoBack()
+        {
+            if (!PlaylistSettings.IsReverseModeEnable)
+            {
+                __GoBack();
+            }
+            else
+            {
+                __GoNext();
+            }
+        }
+
+        private void __GoBack()
         {
             // Note: CanGoBack で呼び分けが行われている前提の元で例外送出を行っている
 
@@ -768,6 +787,11 @@ namespace NicoPlayerHohoema.Models
 
         public bool CanGoNext
         {
+            get { return !PlaylistSettings.IsReverseModeEnable ? __CanGoNext : __CanGoBack; }
+        }
+
+        private bool __CanGoNext
+        {
             get
             {
                 if (SourceItems == null) { return false; }
@@ -785,9 +809,19 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
+        public void GoNext()
+        {
+            if (!PlaylistSettings.IsReverseModeEnable)
+            {
+                __GoNext();
+            }
+            else
+            {
+                __GoBack();
+            }
+        }
 
-
-        public async void GoNext()
+        private async void __GoNext()
         {
             // Note: CanGoNext で呼び分けが行われている前提の元で例外送出を行っている
             if (SourceItems == null) { throw new Exception(); }

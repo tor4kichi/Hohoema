@@ -31,6 +31,17 @@ namespace NicoPlayerHohoema.Models
         }
 
 
+        private bool _IsReverseModeEnable = false;
+
+        [DataMember]
+        public bool IsReverseModeEnable
+        {
+            get { return _IsReverseModeEnable; }
+            set { SetProperty(ref _IsReverseModeEnable, value); }
+        }
+
+
+
         private PlaylistEndAction _PlaylistEndAction;
 
         [DataMember]

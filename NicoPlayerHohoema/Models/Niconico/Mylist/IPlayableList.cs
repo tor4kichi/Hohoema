@@ -13,6 +13,7 @@ namespace NicoPlayerHohoema.Models
         string Id { get; }
         int SortIndex { get; }
         string Name { get; }
+        int Count { get; }
 
         ReadOnlyObservableCollection<PlaylistItem> PlaylistItems { get; }
     }

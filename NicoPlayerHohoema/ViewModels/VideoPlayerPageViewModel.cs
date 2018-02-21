@@ -439,6 +439,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .ToReactiveProperty(CurrentWindowContextScheduler)
                 .AddTo(_CompositeDisposable);
 
+
             IsTrackRepeatModeEnable.Subscribe(x => 
             {
                 MediaPlayer.IsLoopingEnabled = x;
