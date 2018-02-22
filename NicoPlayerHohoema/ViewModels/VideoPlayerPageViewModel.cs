@@ -353,7 +353,10 @@ namespace NicoPlayerHohoema.ViewModels
 				.Subscribe(isFullScreen => 
 			{
 				var appView = ApplicationView.GetForCurrentView();
-				if (isFullScreen)
+
+                IsCompactOverlay.Value = false;
+
+                if (isFullScreen)
 				{
 					if (!appView.TryEnterFullScreenMode())
 					{
