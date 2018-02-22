@@ -164,7 +164,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         public void PreventAutoHide()
         {
-            if (IsAutoHideEnabled)
+            if (IsAutoHideEnabled && AssociatedObject.Opacity != 0)
             {
                 IsVisible = true;
 
@@ -195,6 +195,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 		{
             if (this.AssociatedObject == null) { return; }
 
+            AssociatedObject.Visibility = Visibility.Visible;
             _FadeOutAnimation.Stop();
             if (IsAnimationEnable)
             {
@@ -229,11 +230,13 @@ namespace NicoPlayerHohoema.Views.Behaviors
                 catch
                 {
                     AssociatedObject.Opacity = 0.0;
+                    AssociatedObject.Visibility = Visibility.Collapsed;
                 }
             }
             else
             {
                 AssociatedObject.Opacity = 0.0;
+                AssociatedObject.Visibility = Visibility.Collapsed;
             }
         }
 
@@ -249,11 +252,17 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
             _FadeInAnimation = AssociatedObject.Fade(1, Duration.TotalMilliseconds);
             _FadeOutAnimation = AssociatedObject.Fade(0, Duration.TotalMilliseconds);
+            _FadeOutAnimation.Completed += _FadeOutAnimation_Completed;
 
             AutoHideTimer.Interval = Delay;
             AutoHideTimer.Tick += AutoHideTimer_Tick;
             
             AssociatedObject.PointerMoved += AssociatedObject_PointerMoved;
+        }
+
+        private void _FadeOutAnimation_Completed(object sender, AnimationSetCompletedEventArgs e)
+        {
+            AssociatedObject.Visibility = Visibility.Collapsed;
         }
 
         private void AssociatedObject_PointerMoved(object sender, PointerRoutedEventArgs e)
