@@ -1056,6 +1056,7 @@
                                                             Background="Transparent"
                                                             Visibility="Collapsed"
                                                             Margin="8 0 0 0"
+                                                            MinWidth="64"
                                                                         >
                                                         <StackPanel Orientation="Vertical" VerticalAlignment="Center">
                                                             <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE743;"
@@ -1084,6 +1085,7 @@
                                                             Background="Transparent"
                                                             Visibility="Collapsed"
                                                             Margin="8 0 0 0"
+                                                            MinWidth="64"
                                                             >
                                                         <StackPanel Orientation="Vertical">
 
@@ -1108,6 +1110,7 @@
                                                             Background="Transparent"
                                                             Visibility="Collapsed"
                                                             Margin="8 0 0 0"
+                                                            MinWidth="64"
                                                                         >
                                                         <StackPanel Orientation="Vertical" VerticalAlignment="Center">
                                                             <toolkit:LayoutTransformControl Margin="0 0 0 8">
@@ -1137,6 +1140,7 @@
                                                             Background="Transparent"
                                                             Visibility="Collapsed"
                                                             Margin="8 0 0 0"
+                                                            MinWidth="64"
                                                             >
                                                         <StackPanel Orientation="Vertical">
                                                             <iconPack:PackIconMaterial Kind="CheckboxMultipleBlankOutline"
@@ -1157,6 +1161,7 @@
                                                                   Background="Transparent"
                                                                   Visibility="Collapsed"
                                                         Margin="8 0 0 0"
+                                                              MinWidth="64"
                                                         >
                                                     <StackPanel>
                                                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B4;"
