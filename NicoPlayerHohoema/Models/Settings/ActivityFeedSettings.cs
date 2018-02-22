@@ -16,7 +16,7 @@ namespace NicoPlayerHohoema.Models
 
 
 
-        private bool _IsLiveAlertEnabled = true;
+        private bool _IsLiveAlertEnabled = false;
         [DataMember]
         public bool IsLiveAlertEnabled
         {
