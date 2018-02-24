@@ -1664,6 +1664,24 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
+        private DelegateCommand<TimeSpan?> _SeekVideoCommand;
+        public DelegateCommand<TimeSpan?> SeekVideoCommand
+        {
+            get
+            {
+                return _SeekVideoCommand
+                    ?? (_SeekVideoCommand = new DelegateCommand<TimeSpan?>((seekTime) =>
+                    {
+                        if (!seekTime.HasValue) { return; }
+
+                        var session = MediaPlayer.PlaybackSession;
+                        var time = session.Position + seekTime.Value;
+                        session.Position = time;
+                    }));
+            }
+        }
+
+
         private DelegateCommand _ToggleMuteCommand;
 		public DelegateCommand ToggleMuteCommand
 		{

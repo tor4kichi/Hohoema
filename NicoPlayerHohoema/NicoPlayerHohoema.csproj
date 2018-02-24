@@ -399,6 +399,7 @@
     <Compile Include="Views\Behaviors\FocusGetter.cs" />
     <Compile Include="Views\Behaviors\AutoHideCursor.cs" />
     <Compile Include="Views\Behaviors\ListViewBaseItemContextFlyout.cs" />
+    <Compile Include="Views\Behaviors\Swipe.cs" />
     <Compile Include="Views\Behaviors\WhenCompactOverlayTitleBarSetter.cs" />
     <Compile Include="Views\Behaviors\XYNavigationExtentions.cs" />
     <Compile Include="Views\Behaviors\MenuFlyoutSubItemsSetter.cs" />
@@ -428,6 +429,7 @@
       <DependentUpon>CacheManagementPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Converters\PageTypeToMaterialIconKind.cs" />
+    <Compile Include="Views\Converters\SwipeSeekValueToTimeSpan.cs" />
     <Compile Include="Views\Flyouts\FeedSourceFlyout.xaml.cs">
       <DependentUpon>FeedSourceFlyout.xaml</DependentUpon>
     </Compile>

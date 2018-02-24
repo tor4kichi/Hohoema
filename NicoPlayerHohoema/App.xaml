@@ -84,6 +84,7 @@
             <myconv:RelationalDateTimeConverter x:Key="ToRelationalTime" />
 
             <myconv:TransparentColorConverter x:Key="ToTransparentColor" />
+            <myconv:SwipeSeekValueToTimeSpan x:Key="SwipeSeekValueToTimeSpan" />
 
             <myconv:NGCommentScoreTypeTemplateSelector x:Key="NGCommentScoreTypeTemplateSelector">
                 <myconv:NGCommentScoreTypeTemplateSelector.NoneTemplate>
