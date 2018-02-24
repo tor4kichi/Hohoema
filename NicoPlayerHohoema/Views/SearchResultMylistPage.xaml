@@ -61,36 +61,38 @@
             NowLoading="{Binding NowLoading.Value}"
             >
             <controls:ListingWithHeader.HeaderContent>
-                <toolkit:DockPanel Height="48">
+                <CommandBar Height="48">
 
-
-                    <StackPanel toolkit:DockPanel.Dock="Right" Margin="8 0"
-                                Orientation="Horizontal"
-                                >
+                    <CommandBar.PrimaryCommands>
                         <AppBarButton Background="Transparent" 
                                         Command="{Binding RefreshCommand}"
                                         ToolTipService.ToolTip="更新"
                                               Icon="Refresh"
                                         />
-                    </StackPanel>
 
-                    <Border Background="Transparent" IsHitTestVisible="True"
+                    </CommandBar.PrimaryCommands>
+
+                    <CommandBar.Content>
+
+                        <Border Background="Transparent" IsHitTestVisible="True"
                             Margin="16 0 0 0"
                             >
-                        <i:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="Tapped">
-                                <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
-                            </core:EventTriggerBehavior>
-                        </i:Interaction.Behaviors>
-                        
-                        <TextBlock Text="{Binding Title}" 
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
+
+                            <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
-                                    Style="{StaticResource TitleTextBlockStyle}"
+                                    Style="{StaticResource SubtitleTextBlockStyle}"
                                    x:Name="TitleLayout"
                                     >
-                        </TextBlock>
-                    </Border>
-                </toolkit:DockPanel>
+                            </TextBlock>
+                        </Border>
+                    </CommandBar.Content>
+
+                </CommandBar>
             </controls:ListingWithHeader.HeaderContent>
 
 

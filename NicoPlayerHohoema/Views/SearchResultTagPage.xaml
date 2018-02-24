@@ -48,6 +48,25 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
+
+            <VisualStateGroup x:Name="SelectionModeVisualStateGroup">
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsSelectionModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CacheRequestButton.Visibility" Value="Visible" />
+                        <Setter Target="AddMylistButton.Visibility" Value="Visible" />
+
+                        <Setter Target="RefreshListButton.Visibility" Value="Collapsed" />
+                        <Setter Target="AddFeedButton.Visibility" Value="Collapsed" />
+                        <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+
+            </VisualStateGroup>
+
         </VisualStateManager.VisualStateGroups>
         
         <controls:ListingWithHeader 
@@ -63,95 +82,32 @@
             <controls:ListingWithHeader.HeaderContent>
                 <toolkit:DockPanel >
 
-                    <StackPanel toolkit:DockPanel.Dock="Right" 
-                                Orientation="Horizontal"
-                                >
-
-                        <CommandBar Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                        VerticalAlignment="Center"
+                    <CommandBar         VerticalAlignment="Center"
                                     >
 
-                            <CommandBar.PrimaryCommands>
-                                <AppBarButton Label="検索オプション"
-                                              Icon="Sort"
-                                              >
-                                    <AppBarButton.Flyout>
-                                        <Flyout>
-                                            <StackPanel MaxWidth="300">
-
-                                                <ListView ItemsSource="{Binding VideoSearchOptionListItems}"
-                                                          DisplayMemberPath="Label"
-                                                          SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}"
-                                                          Margin="0"
-                                                          HorizontalAlignment="Stretch"
-                                                          VerticalAlignment="Center"
-                                                          SelectionMode="Single"
-                                                          SingleSelectionFollowsFocus="False"
-                                                        >
-                                                    <ListView.ItemContainerStyle>
-                                                        <Style TargetType="ListViewItem">
-                                                            <Setter Property="Width" Value="140" />
-                                                        </Style>
-                                                    </ListView.ItemContainerStyle>
-                                                    <ListView.ItemsPanel>
-                                                        <ItemsPanelTemplate>
-                                                            <ItemsWrapGrid Orientation="Horizontal" />
-                                                        </ItemsPanelTemplate>
-                                                    </ListView.ItemsPanel>
-
-                                                </ListView>
-
-                                            </StackPanel>
-
-
-                                        </Flyout>
-                                    </AppBarButton.Flyout>
-                                </AppBarButton>
-
-                            </CommandBar.PrimaryCommands>
-
-                            <CommandBar.SecondaryCommands>
-                                <AppBarButton Label="更新"
+                        <CommandBar.PrimaryCommands>
+                            
+                            <AppBarButton x:Name="RefreshListButton"
+                                            Label="更新"
                                             Command="{Binding RefreshCommand}"
-                                              Icon="Refresh"
+                                            Icon="Refresh"
                                         />
 
-                                <AppBarButton Label="新着チェックに追加"
-                                        Command="{StaticResource AddFeedSourceCommand}"
-                                        CommandParameter="{Binding TagSearchBookmark}"
-                                    />
-
-                                <AppBarToggleButton Label="フォロー"
-                                                    Icon="Favorite"
-                                                  IsChecked="{Binding IsFavoriteTag.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                  IsEnabled="{Binding CanChangeFavoriteTagState.Value}"                                            
-                                        />
-                            </CommandBar.SecondaryCommands>
-
-
-                        </CommandBar>
-
-
-                        <CommandBar Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                        VerticalAlignment="Center"
-                                    >
-
-                            <AppBarButton Command="{Binding RequestCacheDownload}"
-                                              Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
+                            <AppBarButton x:Name="CacheRequestButton"
+                                    Command="{Binding RequestCacheDownload}"
+                                              IsEnabled="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
                                               Icon="Download"
                                               Label="キャッシュ"
+                                          Visibility="Collapsed"
                                             />
 
-                            <AppBarButton Command="{Binding RegistratioMylistCommand}" 
+                            <AppBarButton x:Name="AddMylistButton"
+                                    Command="{Binding RegistratioMylistCommand}" 
                                           Icon="Add"
                                           Label="マイリストに追加"
+                                          Visibility="Collapsed"
                                             />
 
-                        </CommandBar>
-
-
-
-                        <CommandBar VerticalAlignment="Center">
                             <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                             HorizontalContentAlignment="Stretch"
                                             VerticalContentAlignment="Stretch"
@@ -162,40 +118,101 @@
                                                        VerticalAlignment="Center"
                                                        />
                             </AppBarToggleButton>
-                        </CommandBar>
 
-                    </StackPanel>
+                        </CommandBar.PrimaryCommands>
 
-                    <Border Background="Transparent" IsHitTestVisible="True"
+                        <CommandBar.SecondaryCommands>
+
+
+                            <AppBarButton x:Name="AddFeedButton"
+                                    Label="新着チェックに追加"
+                                        Command="{StaticResource AddFeedSourceCommand}"
+                                        CommandParameter="{Binding TagSearchBookmark}"
+                                    />
+
+                            <AppBarToggleButton 
+                                            Label="フォロー"
+                                                    Icon="Favorite"
+                                                  IsChecked="{Binding IsFavoriteTag.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                  IsEnabled="{Binding CanChangeFavoriteTagState.Value}"                                            
+                                        />
+                        </CommandBar.SecondaryCommands>
+
+
+                        <CommandBar.Content>
+                            <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="16 0 0 0"
                             x:Name="TitleLayout"
                                 >
-                        <i:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="Tapped">
-                                <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
-                            </core:EventTriggerBehavior>
-                        </i:Interaction.Behaviors>
-                        
-                        <toolkit:DockPanel VerticalAlignment="Center">
+                                <i:Interaction.Behaviors>
+                                    <core:EventTriggerBehavior EventName="Tapped">
+                                        <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
+                                    </core:EventTriggerBehavior>
+                                </i:Interaction.Behaviors>
 
-                            <TextBlock Text="{Binding SearchOptionText}" 
-                                            Style="{StaticResource CaptionTextBlockStyle}"
+                                <StackPanel>
+
+                                    <TextBlock Text="{Binding Title}" 
+                                            Style="{StaticResource SubtitleTextBlockStyle}"
+                                            >
+                                    </TextBlock>
+                                    
+                                    <HyperlinkButton 
                                            toolkit:DockPanel.Dock="Bottom"
                                     >
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Click" >
+                                                <mybehavior:OpenFlyout />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
 
-                            </TextBlock>
-                            <TextBlock Text="{Binding Title}" 
-                                            Style="{StaticResource TitleTextBlockStyle}"
-                                       
-                                    >
+                                        <TextBlock Text="{Binding SearchOptionText}" 
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       >
+                                        </TextBlock>
+                                        
+                                        <FlyoutBase.AttachedFlyout>
+                                            <Flyout>
+                                                <StackPanel MaxWidth="300">
 
-                            </TextBlock>
-                        </toolkit:DockPanel>
-                    </Border>
+                                                    <ListView ItemsSource="{Binding VideoSearchOptionListItems}"
+                                                        DisplayMemberPath="Label"
+                                                        SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}"
+                                                        Margin="0"
+                                                        HorizontalAlignment="Stretch"
+                                                        VerticalAlignment="Center"
+                                                        SelectionMode="Single"
+                                                        SingleSelectionFollowsFocus="False"
+                                                    >
+                                                        <ListView.ItemContainerStyle>
+                                                            <Style TargetType="ListViewItem">
+                                                                <Setter Property="Width" Value="140" />
+                                                            </Style>
+                                                        </ListView.ItemContainerStyle>
+                                                        <ListView.ItemsPanel>
+                                                            <ItemsPanelTemplate>
+                                                                <ItemsWrapGrid Orientation="Horizontal" />
+                                                            </ItemsPanelTemplate>
+                                                        </ListView.ItemsPanel>
+
+                                                    </ListView>
+
+                                                </StackPanel>
 
 
+                                            </Flyout>
+                                        </FlyoutBase.AttachedFlyout>
+                                        
 
 
+                                    </HyperlinkButton>
+                                    
+                                </StackPanel>
+                            </Border>
+
+                        </CommandBar.Content>
+                        
+                    </CommandBar>
                 </toolkit:DockPanel>
             </controls:ListingWithHeader.HeaderContent>
 
