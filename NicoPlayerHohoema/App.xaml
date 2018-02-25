@@ -28,6 +28,9 @@
 
                 <ResourceDictionary Source="Commands/Commands.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+
+            <x:Double x:Key="DesktopWindowWidthBreakPoint">800</x:Double>
             
             <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
             <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityInverted"
