@@ -35,6 +35,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="HeaderLayout.Margin" Value="48 0 0 0" />
+                        <Setter Target="HeaderLayout.Height" Value="64" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -61,7 +62,8 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="UpdateButton.Visibility" Value="Collapsed" />
-                        
+                        <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
+
                         <Setter Target="CancelCacheButton.Visibility" Value="Visible" />
                         <Setter Target="RegistMylistButton.Visibility" Value="Visible" />
                     </VisualState.Setters>
@@ -109,7 +111,7 @@
             Visibility="Collapsed"
             >
             <controls:ListingWithHeader.HeaderContent>
-                <toolkit:DockPanel x:Name="HeaderLayout" Height="64">
+                <toolkit:DockPanel x:Name="HeaderLayout">
 
                     <CommandBar x:Name="TopCommandBar"
                                     toolkit:DockPanel.Dock="Right"
@@ -140,26 +142,25 @@
                         <CommandBar.PrimaryCommands>
 
                             <AppBarButton 
-                                    x:Name="UpdateButton"
+                                        x:Name="UpdateButton"
                                         Command="{Binding RefreshCommand}"
-                            
-                            Background="Transparent" 
-                                              Icon="Refresh"
-                            Label="更新"
+                                        Background="Transparent" 
+                                        Icon="Refresh"
+                                        Label="更新"
                                               
                                         />
 
                             <AppBarButton x:Name="CancelCacheButton"
-                                    Command="{Binding CancelCacheDownloadRequest}"
-                                              Icon="Remove"
-                                              Label="キャッシュ削除"
+                                          Command="{Binding CancelCacheDownloadRequest}"
+                                            Icon="Remove"
+                                            Label="キャッシュ削除"
                                           Visibility="Collapsed"
                                             />
-                            <AppBarSeparator />
+                            
                             <AppBarButton x:Name="RegistMylistButton"
-                                Command="{Binding RegistratioMylistCommand}"
-                                              Label="マイリストに追加"
-                                              Icon="Add"
+                                          Command="{Binding RegistratioMylistCommand}"
+                                          Label="マイリストに追加"
+                                          Icon="Add"
                                           Visibility="Collapsed"
                                             >
                             </AppBarButton>
@@ -177,27 +178,32 @@
 
 
                         </CommandBar.PrimaryCommands>
-                        
-                    </CommandBar>
-                  
-                    <Border Background="Transparent" IsHitTestVisible="True"
-                                Margin="16 0 0 0"
-                            VerticalAlignment="Bottom"
-                            Height="48"
-                                >
-                        <i:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="Tapped">
-                                <core:ChangePropertyAction TargetObject="{x:Bind CacheManagementContentLayout}" PropertyName="ListPosition" Value="0.0" />
-                            </core:EventTriggerBehavior>
-                        </i:Interaction.Behaviors>
 
-                        <TextBlock Text="{Binding Title}" 
+                        <CommandBar.Content>
+                            <Border Background="Transparent"
+                                    IsHitTestVisible="True"
+                                    Margin="16 0 0 0"
+                                    VerticalAlignment="Bottom"
+                                    Height="48"
+                                >
+                                <i:Interaction.Behaviors>
+                                    <core:EventTriggerBehavior EventName="Tapped">
+                                        <core:ChangePropertyAction TargetObject="{x:Bind CacheManagementContentLayout}" PropertyName="ListPosition" Value="0.0" />
+                                    </core:EventTriggerBehavior>
+                                </i:Interaction.Behaviors>
+
+                                <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource TitleTextBlockStyle}"
                                    x:Name="TitleLayout"
                                     >
-                        </TextBlock>
-                    </Border>
+                                </TextBlock>
+                            </Border>
+                        </CommandBar.Content>
+                        
+                    </CommandBar>
+                  
+                    
                 </toolkit:DockPanel>
             </controls:ListingWithHeader.HeaderContent>
 
