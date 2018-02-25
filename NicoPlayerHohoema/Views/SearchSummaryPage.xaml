@@ -35,7 +35,7 @@
                 </VisualState>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="520" />
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                     </VisualState.Setters>
@@ -71,7 +71,7 @@
                 <!-- マウス操作時、または画面が大きい時 -->
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="520" />
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                     </VisualState.Setters>

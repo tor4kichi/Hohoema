@@ -125,10 +125,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class HistoryVideoInfoControlViewModel : VideoInfoControlViewModel
 	{
+        public string ItemId { get; set; }
 		public DateTime LastWatchedAt { get; set; }
 		public uint UserViewCount { get; set; }
 
-		public HistoryVideoInfoControlViewModel(string videoId, uint viewCount, DateTime lastWatchedAt)
+		public HistoryVideoInfoControlViewModel(string itemId, string videoId, uint viewCount, DateTime lastWatchedAt)
 			: base(videoId, isNgEnabled:false)
 		{
             UserViewCount = viewCount;
@@ -171,6 +172,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 var vm = new HistoryVideoInfoControlViewModel(
                     x.ItemId
+                    , x.Id
                     , x.WatchCount
                     , x.WatchedAt.DateTime
                     );

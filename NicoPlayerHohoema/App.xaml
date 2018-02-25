@@ -28,6 +28,9 @@
 
                 <ResourceDictionary Source="Commands/Commands.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
+
+            <x:Double x:Key="DesktopWindowWidthBreakPoint">800</x:Double>
             
             <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
             <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityInverted"
@@ -84,6 +87,7 @@
             <myconv:RelationalDateTimeConverter x:Key="ToRelationalTime" />
 
             <myconv:TransparentColorConverter x:Key="ToTransparentColor" />
+            <myconv:SwipeSeekValueToTimeSpan x:Key="SwipeSeekValueToTimeSpan" />
 
             <myconv:NGCommentScoreTypeTemplateSelector x:Key="NGCommentScoreTypeTemplateSelector">
                 <myconv:NGCommentScoreTypeTemplateSelector.NoneTemplate>

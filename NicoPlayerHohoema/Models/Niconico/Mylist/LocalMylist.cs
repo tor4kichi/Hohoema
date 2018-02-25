@@ -57,6 +57,9 @@ namespace NicoPlayerHohoema.Models
         private ObservableCollection<PlaylistItem> _PlaylistItems { get; set; } = new ObservableCollection<PlaylistItem>();
         public ReadOnlyObservableCollection<PlaylistItem> PlaylistItems { get; private set; }
 
+
+        public int Count => _PlaylistItems.Count;
+
         public LocalMylist()
         {
             Id = null;

@@ -55,7 +55,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 		private void ResetVerticalOffset()
 		{
-			if (_ScrollViewer != null)
+			if (_ScrollViewer != null && !_NowChangingInViewChanged)
 			{
 				_ScrollViewer.ChangeView(null, VerticalOffset, null, false);
 			}
@@ -74,11 +74,19 @@ namespace NicoPlayerHohoema.Views.Behaviors
         }
 
 
-
+        bool _NowChangingInViewChanged = false;
 		private void AssociatedObject_ViewChanged(object sender, ScrollViewerViewChangedEventArgs e)
 		{
-			VerticalOffset = _ScrollViewer.VerticalOffset;
-		}
+            _NowChangingInViewChanged = true;
+            try
+            {
+                VerticalOffset = _ScrollViewer.VerticalOffset;
+            }
+            finally
+            {
+                _NowChangingInViewChanged = false;
+            }
+        }
 		
 	}
 

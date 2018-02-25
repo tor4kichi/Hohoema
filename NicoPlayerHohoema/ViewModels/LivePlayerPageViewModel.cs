@@ -314,25 +314,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 			// sound
-			IsFullScreen = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false).AddTo(_CompositeDisposable);
-			IsFullScreen
-				.Subscribe(isFullScreen =>
-				{
-					var appView = ApplicationView.GetForCurrentView();
-					if (isFullScreen)
-					{
-						if (!appView.TryEnterFullScreenMode())
-						{
-							IsFullScreen.Value = false;
-						}
-					}
-					else
-					{
-						appView.ExitFullScreenMode();
-					}
-				})
-			.AddTo(_CompositeDisposable);
-
             if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
             {
                 // プレイヤーを閉じた際のコンパクトオーバーレイの解除はPlayerWithPageContainerViewModel側で行う
@@ -375,7 +356,29 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 IsCompactOverlay = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
             }
-                
+
+            IsFullScreen = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false).AddTo(_CompositeDisposable);
+            IsFullScreen
+                .Subscribe(isFullScreen =>
+                {
+                    var appView = ApplicationView.GetForCurrentView();
+
+                    IsCompactOverlay.Value = false;
+
+                    if (isFullScreen)
+                    {
+                        if (!appView.TryEnterFullScreenMode())
+                        {
+                            IsFullScreen.Value = false;
+                        }
+                    }
+                    else
+                    {
+                        appView.ExitFullScreenMode();
+                    }
+                })
+            .AddTo(_CompositeDisposable);
+
 
             IsSmallWindowModeEnable = HohoemaApp.Playlist
                 .ObserveProperty(x => x.IsPlayerFloatingModeEnable)

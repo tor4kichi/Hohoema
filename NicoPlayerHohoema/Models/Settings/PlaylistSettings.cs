@@ -31,6 +31,17 @@ namespace NicoPlayerHohoema.Models
         }
 
 
+        private bool _IsReverseModeEnable = true;
+
+        [DataMember]
+        public bool IsReverseModeEnable
+        {
+            get { return _IsReverseModeEnable; }
+            set { SetProperty(ref _IsReverseModeEnable, value); }
+        }
+
+
+
         private PlaylistEndAction _PlaylistEndAction;
 
         [DataMember]
@@ -39,6 +50,17 @@ namespace NicoPlayerHohoema.Models
             get { return _PlaylistEndAction; }
             set { SetProperty(ref _PlaylistEndAction, value); }
         }
+
+
+        private bool _AutoMoveNextVideoOnPlaylistEmpty = true;
+
+        [DataMember]
+        public bool AutoMoveNextVideoOnPlaylistEmpty
+        {
+            get { return _AutoMoveNextVideoOnPlaylistEmpty; }
+            set { SetProperty(ref _AutoMoveNextVideoOnPlaylistEmpty, value); }
+        }
+
     }
 
 

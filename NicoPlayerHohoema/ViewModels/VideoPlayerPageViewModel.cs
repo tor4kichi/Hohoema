@@ -353,7 +353,10 @@ namespace NicoPlayerHohoema.ViewModels
 				.Subscribe(isFullScreen => 
 			{
 				var appView = ApplicationView.GetForCurrentView();
-				if (isFullScreen)
+
+                IsCompactOverlay.Value = false;
+
+                if (isFullScreen)
 				{
 					if (!appView.TryEnterFullScreenMode())
 					{
@@ -438,6 +441,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .Select(x => x == MediaPlaybackAutoRepeatMode.List)
                 .ToReactiveProperty(CurrentWindowContextScheduler)
                 .AddTo(_CompositeDisposable);
+
 
             IsTrackRepeatModeEnable.Subscribe(x => 
             {
@@ -1242,6 +1246,17 @@ namespace NicoPlayerHohoema.ViewModels
                         if (!IsPlayWithCache.Value)
                         {
                             SelectSidePaneContentCommand.Execute(PlayerSidePaneContentType.RelatedVideos.ToString());
+
+                            // 自動で次動画へ移動する機能
+                            var sidePaneContent = GetSidePaneContent(PlayerSidePaneContentType.RelatedVideos) as RelatedVideosSidePaneContentViewModel;
+                            sidePaneContent.InitializeRelatedVideos()
+                                .ContinueWith(prevTask => 
+                                {
+                                    if (sidePaneContent.NextVideo != null && HohoemaApp.UserSettings.PlaylistSettings.AutoMoveNextVideoOnPlaylistEmpty)
+                                    {
+                                        HohoemaApp.Playlist.PlayVideo(sidePaneContent.NextVideo.RawVideoId, sidePaneContent.NextVideo.Label);
+                                    }
+                                });
                         }
                     }
                 });
@@ -1643,6 +1658,24 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         var session = MediaPlayer.PlaybackSession;
                         var time = session.Position - TimeSpan.FromSeconds(10);
+                        session.Position = time;
+                    }));
+            }
+        }
+
+
+        private DelegateCommand<TimeSpan?> _SeekVideoCommand;
+        public DelegateCommand<TimeSpan?> SeekVideoCommand
+        {
+            get
+            {
+                return _SeekVideoCommand
+                    ?? (_SeekVideoCommand = new DelegateCommand<TimeSpan?>((seekTime) =>
+                    {
+                        if (!seekTime.HasValue) { return; }
+
+                        var session = MediaPlayer.PlaybackSession;
+                        var time = session.Position + seekTime.Value;
                         session.Position = time;
                     }));
             }

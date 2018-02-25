@@ -89,6 +89,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
         public static List<PlaylistEndAction> PlaylistEndActionList { get; private set; }
         public ReactiveProperty<PlaylistEndAction> PlaylistEndAction { get; private set; }
 
+        public ReactiveProperty<bool> AutoMoveNextVideoOnPlaylistEmpty { get; private set; }
 
         // NG Comments
 
@@ -202,6 +203,10 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
             PlaylistEndAction = _PlaylistSettings.ToReactivePropertyAsSynchronized(x => x.PlaylistEndAction, CurrentWindowContextScheduler)
             .AddTo(_CompositeDisposable);
+
+            AutoMoveNextVideoOnPlaylistEmpty = _PlaylistSettings.ToReactivePropertyAsSynchronized(x => x.AutoMoveNextVideoOnPlaylistEmpty, CurrentWindowContextScheduler)
+            .AddTo(_CompositeDisposable);
+
 
             // NG Comment User Id
 

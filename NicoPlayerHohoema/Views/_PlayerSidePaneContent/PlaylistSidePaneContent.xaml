@@ -65,6 +65,20 @@
                 </VisualState>
             </VisualStateGroup>
 
+            <!-- リピートモード -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsReverseEnabled.Value}"  />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+
+                        <Setter Target="ToggleReverseButtonIcon.Kind" Value="ArrowUpBold" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+
         </VisualStateManager.VisualStateGroups>
         
         <toolkit:DockPanel x:Name="RootLayout">
@@ -119,6 +133,24 @@
                             </iconPack:PackIconMaterial>
                         </Button>
 
+                        <Button Command="{Binding ToggleReverseModeCommand}"
+                                      UseSystemFocusVisuals="True"
+                                      Margin="8 0 0 0"
+                                      x:Name="ReverseSwitchingButton"
+                                      Background="Transparent"
+                                            >
+
+                            <iconPack:PackIconMaterial x:Name="ToggleReverseButtonIcon"
+                                                       Kind="ArrowDownBold"
+                                                                   RenderTransformOrigin="0.5, 0.5"
+                                                           >
+                                <iconPack:PackIconMaterial.RenderTransform>
+                                    <CompositeTransform ScaleX="1.1" ScaleY="1.1"/>
+                                </iconPack:PackIconMaterial.RenderTransform>
+
+                            </iconPack:PackIconMaterial>
+                        </Button>
+                        
                         <Border />
                     </StackPanel>
 
