@@ -20,12 +20,15 @@ namespace NicoPlayerHohoema.Commands
 
         protected override void Execute(object parameter)
         {
+            bool isPlayerShowWithSmallMode = true;
             if (parameter is Interfaces.IVideoContent)
             {
                 var content = parameter as Interfaces.IVideoContent;
 
                 var player = HohoemaCommnadHelper.GetHohoemaPlaylist();
                 player.PlayVideo(content);
+
+                isPlayerShowWithSmallMode = false;
             }
             else if (parameter is Interfaces.ILiveContent)
             {
@@ -33,6 +36,8 @@ namespace NicoPlayerHohoema.Commands
 
                 var player = HohoemaCommnadHelper.GetHohoemaPlaylist();
                 player.PlayLiveVideo(content);
+
+                isPlayerShowWithSmallMode = false;
             }
             else if (parameter is Interfaces.ICommunity)
             {
@@ -73,6 +78,15 @@ namespace NicoPlayerHohoema.Commands
 //                pageManager.Search(SearchPagePayloadContentHelper.CreateDefault(SearchTarget.Tag, content.Tag));
             }
 
+
+            if (isPlayerShowWithSmallMode)
+            {
+                var playlist = HohoemaCommnadHelper.GetHohoemaPlaylist();
+                if (playlist.IsDisplayMainViewPlayer)
+                {
+                    playlist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
+                }
+            }
             // TODO: マイリストやユーザーIDを開けるように
 
         }
