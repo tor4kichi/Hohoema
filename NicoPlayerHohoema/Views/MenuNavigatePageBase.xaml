@@ -160,10 +160,7 @@
                                 <Setter Target="MobileTopMenu.Visibility" Value="Visible" />
 
                                 <Setter Target="ContentLayout.Margin" Value="0 0 0 0" />
-                                <Setter Target="MobileTopMenu.Margin" Value="48 0 0 0" />
-                                <Setter Target="TopMenuGridRow.Height" Value="75" />
-                                <Setter Target="ContentLayout.(Grid.Row)" Value="0" />
-                                <Setter Target="ContentLayout.(Grid.RowSpan)" Value="2" />
+                                <Setter Target="MobileTopMenu.Margin" Value="48 27 0 0" />
 
                                 <!-- メニューを開いた時にアカウント表示にフォーカスが移ってしまう問題に対応 -->
                                 <Setter Target="OpenAccountButton.IsEnabled" Value="False" />
@@ -188,10 +185,6 @@
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="MobileTopMenu.Visibility" Value="Visible" />
-                                <Setter Target="TopMenuGridRow.Height" Value="48" />
-
-                                <Setter Target="ContentLayout.(Grid.Row)" Value="0" />
-                                <Setter Target="ContentLayout.(Grid.RowSpan)" Value="2" />
 
                                 <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
                                 <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
@@ -199,7 +192,6 @@
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
-
 
                     <VisualStateGroup>
                         <VisualState>
@@ -294,7 +286,7 @@
                             </VisualState.StateTriggers>
 
                             <VisualState.Setters>
-                                
+                                <Setter Target="WindowTitleLayout.Visibility" Value="Visible" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -360,6 +352,7 @@
                                 <Setter Target="FloatPlayerLayout.HorizontalAlignment" Value="Left" />
                                 <Setter Target="FloatPlayerLayout.VerticalAlignment" Value="Bottom" />
 
+                                <Setter Target="WindowTitleLayout.Visibility" Value="Visible" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -381,7 +374,6 @@
 
                                 <Setter Target="FloatPlayerLayout.Height" Value="{StaticResource MobileFloatPlayerHeight}" />
                                 <Setter Target="FloatPlayerLayout.VerticalAlignment" Value="Top" />
-                                
                             </VisualState.Setters>
                         </VisualState>
 
@@ -418,6 +410,10 @@
                             <toolkit:DockPanel x:Name="PaneLayout" 
 
                                                >
+                                <Border Height="{StaticResource TitleBarDummyHeight}"
+                                        toolkit:DockPanel.Dock="Top"
+                                        />
+
 
                                 <Button x:Name="TVModeFloatPlayerRewindSizeButton"
                                         Visibility="Collapsed"
@@ -492,49 +488,51 @@
                                 </toolkit:DockPanel>
 
 
-                                <Grid toolkit:DockPanel.Dock="Top" 
-                                      >
-                                    <Border x:Name="ToggleFullScreenButton_Wide"
-                                        HorizontalAlignment="Right"
-                                        Height="48"     
-                                            Visibility="Collapsed"
-                                                >
-                                        <Button Command="{Binding ToggleFullScreenCommand}"
-                                                    Background="Transparent"
-                                                    Visibility="Collapsed"
-                                                    TabIndex="10"
-                                                    >
-                                            <SymbolIcon Symbol="FullScreen" />
-                                        </Button>
-                                    </Border>
-
-                                    <!-- メニュー開閉ボタン -->
-                                    
-                                    <!--
-                                    <Button 
-                                    Background="Transparent" 
-                                              Command="{Binding TogglePaneOpenCommand}"
-                                        Height="48"
-                                        HorizontalAlignment="Left"
-                                          >
-                                        <iconPack:PackIconMaterial Kind="Menu"
-                                                                   Height="18"
-                                                                   Width="18"
-                                                                   />
-                                    </Button>
-                                    -->
-
-
-                                </Grid>
-
+                                
                                 <ScrollViewer HorizontalScrollMode="Disabled"
                                     VerticalScrollMode="Auto"
                                     VerticalScrollBarVisibility="Hidden"
                                               Margin="0 0 0 0"
                                     >
 
-                                    <StackPanel>
+                                    <StackPanel x:Name="PaneScrollableContentLayout">
 
+                                        <Grid toolkit:DockPanel.Dock="Top" 
+                                      >
+                                            <Border x:Name="ToggleFullScreenButton_Wide"
+                                                    HorizontalAlignment="Right"
+                                                    Height="48"     
+                                                    Visibility="Collapsed"
+                                                >
+                                                <Button Command="{Binding ToggleFullScreenCommand}"
+                                                    Background="Transparent"
+                                                    Visibility="Collapsed"
+                                                    TabIndex="10"
+                                                    >
+                                                    <SymbolIcon Symbol="FullScreen" />
+                                                </Button>
+                                            </Border>
+
+                                            <!-- メニュー開閉ボタン -->
+
+                                            <!--
+                                            <Button 
+                                            Background="Transparent" 
+                                                      Command="{Binding TogglePaneOpenCommand}"
+                                                Height="48"
+                                                HorizontalAlignment="Left"
+                                                  >
+                                                <iconPack:PackIconMaterial Kind="Menu"
+                                                                           Height="18"
+                                                                           Width="18"
+                                                                           />
+                                            </Button>
+                                            -->
+
+
+                                        </Grid>
+
+                                        
                                         <StackPanel>
                                             <toolkit:DockPanel 
                                                 Margin="0"
@@ -614,101 +612,86 @@
                             </toolkit:DockPanel>
                         </SplitView.Pane>
                         <SplitView.Content>
-                            <Grid>
+                            <Grid x:Name="SplitViewContentLayout">
 
-                                <Grid x:Name="SplitViewContentLayout">
-
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition x:Name="TopMenuGridRow" Height="0" />
-                                        <RowDefinition />
-                                    </Grid.RowDefinitions>
-
-                                    
-                                    
-                                    <Grid x:Name="ContentLayout"
-                                          Grid.RowSpan="1"
+                                <Grid x:Name="ContentLayout"
+                                          Grid.RowSpan="3"
                                           Grid.Row="1"
                                           >
 
-                                        <!-- ページナビゲーション中にフォーカスをコンテントエリア内に残すためのハック -->
-                                        <Button Background="Transparent"
+                                    <!-- ページナビゲーション中にフォーカスをコンテントエリア内に残すためのハック -->
+                                    <Button Background="Transparent"
                                             HorizontalAlignment="Stretch"
                                             VerticalAlignment="Stretch"
                                             Visibility="{Binding NowNavigating.Value, Converter={StaticResource BooleanToVisibility}}"
                                             >
 
-                                        </Button>
+                                    </Button>
 
-                                        <!-- ページ毎のコンテンツ -->
-                                        <ContentPresenter
+                                    <!-- ページ毎のコンテンツ -->
+                                    <ContentPresenter
                                             >
-                                            <myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
-                                                <templateSelector:HohoemaFlyoutTemplateSelector>
-                                                    <templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>
-                                                        <DataTemplate>
-                                                            <controls:VideoListItemFlyout />
-                                                        </DataTemplate>
-                                                    </templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>
-                                                    <templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
-                                                        <DataTemplate>
-                                                            <controls:LiveListItemFlyout />
-                                                        </DataTemplate>
-                                                    </templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
-                                                    <templateSelector:HohoemaFlyoutTemplateSelector.FeedGroupFlyoutTemplate>
-                                                        <DataTemplate>
-                                                            <controls:FeedGroupListItemFlyout />
-                                                        </DataTemplate>
-                                                    </templateSelector:HohoemaFlyoutTemplateSelector.FeedGroupFlyoutTemplate>
-                                                    <templateSelector:HohoemaFlyoutTemplateSelector.FeedSourceFlyoutTemplate>
-                                                        <DataTemplate>
-                                                            <controls:FeedSourceFlyout />
-                                                        </DataTemplate>
-                                                    </templateSelector:HohoemaFlyoutTemplateSelector.FeedSourceFlyoutTemplate>
-                                                </templateSelector:HohoemaFlyoutTemplateSelector>
-                                            </myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
+                                        <myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
+                                            <templateSelector:HohoemaFlyoutTemplateSelector>
+                                                <templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>
+                                                    <DataTemplate>
+                                                        <controls:VideoListItemFlyout />
+                                                    </DataTemplate>
+                                                </templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>
+                                                <templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
+                                                    <DataTemplate>
+                                                        <controls:LiveListItemFlyout />
+                                                    </DataTemplate>
+                                                </templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
+                                                <templateSelector:HohoemaFlyoutTemplateSelector.FeedGroupFlyoutTemplate>
+                                                    <DataTemplate>
+                                                        <controls:FeedGroupListItemFlyout />
+                                                    </DataTemplate>
+                                                </templateSelector:HohoemaFlyoutTemplateSelector.FeedGroupFlyoutTemplate>
+                                                <templateSelector:HohoemaFlyoutTemplateSelector.FeedSourceFlyoutTemplate>
+                                                    <DataTemplate>
+                                                        <controls:FeedSourceFlyout />
+                                                    </DataTemplate>
+                                                </templateSelector:HohoemaFlyoutTemplateSelector.FeedSourceFlyoutTemplate>
+                                            </templateSelector:HohoemaFlyoutTemplateSelector>
+                                        </myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
 
 
-                                            <i:Interaction.Behaviors>
-                                                <core:DataTriggerBehavior Binding="{Binding NowNavigating.Value, Converter={StaticResource BooleanInverted}}">
-                                                    <mybehavior:SetFocus Delay="300" />
-                                                </core:DataTriggerBehavior>
-                                            </i:Interaction.Behaviors>
-                                        </ContentPresenter>
-
-
-                                    </Grid>
-
-                                    <!-- モバイルのトップメニュー -->
-                                    <toolkit:DockPanel x:Name="MobileTopMenu"
-                                    VerticalAlignment="Bottom"
-                                    Grid.RowSpan="1"
-                                    Visibility="Collapsed"
-                                    >
-
-
-                                        <Grid>
-
-                                            <!-- モバイル時のメニュー開閉ボタン -->
-                                            <Button x:Name="MenuToggleButton"
-                                                    Background="Transparent" 
-                                                      Command="{Binding TogglePaneOpenCommand}"
-                                                    Height="48"
-                                                    VerticalAlignment="Top"
-                                                    HorizontalAlignment="Left"
-                                                    >
-                                                <iconPack:PackIconMaterial Kind="Menu"
-                                                                           Height="18"
-                                                                           Width="18"
-                                                                           />
-                                            </Button>
-
-                                        </Grid>
-
-                                    </toolkit:DockPanel>
-
+                                        <i:Interaction.Behaviors>
+                                            <core:DataTriggerBehavior Binding="{Binding NowNavigating.Value, Converter={StaticResource BooleanInverted}}">
+                                                <mybehavior:SetFocus Delay="300" />
+                                            </core:DataTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </ContentPresenter>
 
 
                                 </Grid>
+
+
+                                <!-- モバイルのトップメニュー -->
+                                <StackPanel x:Name="MobileTopMenu"
+                                                Visibility="Collapsed">
+
+                                    <Border Height="{StaticResource TitleBarDummyHeight}"
+                                        toolkit:DockPanel.Dock="Top"
+                                            x:Name="NallowTitleBarDummyMargin"
+                                        >
+                                    </Border>
+                                    
+                                    <!-- モバイル時のメニュー開閉ボタン -->
+                                    <Button x:Name="MenuToggleButton"
+                                                Background="Transparent" 
+                                                    Command="{Binding TogglePaneOpenCommand}"
+                                                Height="48"
+                                                VerticalAlignment="Top"
+                                                HorizontalAlignment="Left"
+                                                >
+                                        <iconPack:PackIconMaterial Kind="Menu"
+                                                                        Height="18"
+                                                                        Width="18"
+                                                                        />
+                                    </Button>
+                                </StackPanel>
 
                                 <!--
                                 <Border Visibility="{Binding HasBGUpdateText.Value, Converter={StaticResource BooleanToVisibility}}"
@@ -774,9 +757,8 @@
 
                     
                 </Grid>
+
                 
-
-
                 <Grid Visibility="{Binding NowWorking, Converter={StaticResource BooleanToVisibility}}">
 
                     <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Opacity="0.8" />
@@ -810,7 +792,22 @@
                                 
 
                 </Grid>
-                
+
+                <Border Height="{StaticResource TitleBarDummyHeight}"
+                        VerticalAlignment="Top"
+                        x:Name="WindowTitleLayout"
+                        Visibility="Collapsed"
+                                        >
+                    <TextBlock Text="Hohoema"
+                                Margin="12 0 0 0"
+                                VerticalAlignment="Center"
+                               Opacity="0.9"
+                               FontSize="13"
+                               
+                                                   />
+                </Border>
+
+
             </Grid>
 
         </ControlTemplate>

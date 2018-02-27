@@ -56,7 +56,9 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
-                        <Setter Target="ContentLayout.Margin" Value="48 27 48 27" />
+                        <Setter Target="ContentLayout.Margin" Value="48 0 48 27" />
+
+                        <Setter Target="TVModeMarginBordar.Height" Value="27"/>
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -93,9 +95,13 @@
         
         <toolkit:DockPanel x:Name="ContentLayout">
 
-            <Border toolkit:DockPanel.Dock="Top" 
-                Height="48"
+            <StackPanel toolkit:DockPanel.Dock="Top" 
                     >
+
+                <Border x:Name="TVModeMarginBordar" />
+
+                <Border Height="{StaticResource TitleBarDummyHeight}" />
+
                 <toolkit:DockPanel >
                     <StackPanel toolkit:DockPanel.Dock="Right" 
                                 Orientation="Horizontal"
@@ -134,7 +140,7 @@
                         </TextBlock>
                     </Border>
                 </toolkit:DockPanel>
-            </Border>
+            </StackPanel>
 
             <ScrollViewer>
                 <ItemsControl ItemsSource="{Binding MylistList}"

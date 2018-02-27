@@ -334,7 +334,6 @@ namespace NicoPlayerHohoema.ViewModels
                                 var result = await appView.TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, compactOptions);
                                 if (result)
                                 {
-                                    CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
                                     appView.TitleBar.ButtonBackgroundColor = Colors.Transparent;
                                     appView.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
                                     IsDisplayControlUI.Value = false;
@@ -343,10 +342,6 @@ namespace NicoPlayerHohoema.ViewModels
                             else
                             {
                                 var result = await appView.TryEnterViewModeAsync(ApplicationViewMode.Default);
-                                if (result)
-                                {
-                                    CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = false;
-                                }
                             }
                         }
                     })

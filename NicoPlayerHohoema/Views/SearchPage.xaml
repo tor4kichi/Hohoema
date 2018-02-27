@@ -205,9 +205,10 @@
 
                 
                 
-                <Border toolkit:DockPanel.Dock="Top" 
-                        Height="48"
+                <StackPanel toolkit:DockPanel.Dock="Top" 
                     >
+                    <Border Height="{StaticResource TitleBarDummyHeight}" />
+                    
                     <toolkit:DockPanel >
 
                         
@@ -263,7 +264,7 @@
 
 
                     </toolkit:DockPanel>
-                </Border>
+                </StackPanel>
 
 
                 <StackPanel toolkit:DockPanel.Dock="Top" MaxWidth="640" Margin="16 8"

@@ -265,13 +265,6 @@ namespace NicoPlayerHohoema.ViewModels
                         if (view.IsViewModeSupported(ApplicationViewMode.CompactOverlay))
                         {
                             var result = await view.TryEnterViewModeAsync(ApplicationViewMode.Default);
-                            if (result)
-                            {
-                                CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = false;
-                                view.TitleBar.ButtonBackgroundColor = null;
-                                view.TitleBar.ButtonInactiveBackgroundColor = null;
-
-                            }
                         }
                     });
             }

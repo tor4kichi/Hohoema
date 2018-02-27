@@ -30,6 +30,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
+                        <Setter Target="TVModeMarginBordar.Height" Value="27" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -45,32 +46,6 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-            
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <hardtrigger:DeviceFamilyTrigger Condition="Xbox" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <!-- マージン設定 -->
-                        <Setter Target="HeaderLayout.Padding" Value="0 27 48 0" />
-                        <Setter Target="HorizontalVideoList.Padding" Value="0 0 48 0" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <!-- リスト表示を横向きに -->
-                        <Setter Target="VerticalVideoList.Visibility" Value="Collapsed" />
-                        <Setter Target="HorizontalVideoList.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -101,15 +76,37 @@
             NowLoading="{Binding NowLoading.Value}"
             >
             <controls:ListingWithHeader.HeaderContent>
-                <toolkit:DockPanel >
+                <StackPanel >
 
-                    <StackPanel toolkit:DockPanel.Dock="Right" 
-                                Orientation="Horizontal"
+                    <Border x:Name="TVModeMarginBordar" />
+
+                    <Border Height="{StaticResource TitleBarDummyHeight}" />
+
+                    <CommandBar 
+                            x:Name="TopCommandBar"
                                 >
+                        <CommandBar.Content>
+                            <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="16 0 0 0"
+                                    Height="48"
+                                >
+                                <i:Interaction.Behaviors>
+                                    <core:EventTriggerBehavior EventName="Tapped">
+                                        <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
+                                    </core:EventTriggerBehavior>
+                                </i:Interaction.Behaviors>
 
-                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                    Orientation="Horizontal"
-                                    >
+                                <TextBlock Text="{Binding Title, Mode=OneWay}" 
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource TitleTextBlockStyle}"
+                                       x:Name="TitleLayout"
+                                    />
+
+                            </Border>
+                        </CommandBar.Content>
+
+                        <CommandBar.PrimaryCommands>
+
                             <AppBarButton Background="Transparent" 
                                         Command="{Binding RefreshCommand}"
                                         ToolTipService.ToolTip="更新"
@@ -136,54 +133,11 @@
                                     </Flyout>
                                 </AppBarButton.Flyout>
                             </AppBarButton>
-                        </StackPanel>
-                        
-                        
 
-                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                    Orientation="Horizontal"
-                                    >
+                        </CommandBar.PrimaryCommands>
 
-
-
-                        </StackPanel>
-
-
-
-                        <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            HorizontalContentAlignment="Stretch"
-                                            VerticalContentAlignment="Stretch"
-                                            Label="選択"
-                                            Visibility="Collapsed"
-                                            >
-                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"
-                                                       />
-                        </AppBarToggleButton>
-
-                    </StackPanel>
-
-                    <Border Background="Transparent" IsHitTestVisible="True"
-                                Margin="16 0 0 0"
-                                >
-                        <i:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="Tapped">
-                                <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
-                            </core:EventTriggerBehavior>
-                        </i:Interaction.Behaviors>
-
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding Title, Mode=OneWay}" 
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource TitleTextBlockStyle}"
-                                       x:Name="TitleLayout"
-                                    />
-
-                        </StackPanel>
-
-                    </Border>
-                </toolkit:DockPanel>
+                    </CommandBar>
+                </StackPanel>
             </controls:ListingWithHeader.HeaderContent>
 
 

@@ -30,6 +30,8 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="TitleLayout.Margin" Value="64 0 0 0" />
+
+                        <Setter Target="TVModeMarginBordar.Height" Value="27" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -80,10 +82,13 @@
             NowLoading="{Binding NowLoading.Value}"
             >
             <controls:ListingWithHeader.HeaderContent>
-                <toolkit:DockPanel >
+                <StackPanel>
 
-                    <CommandBar         VerticalAlignment="Center"
-                                    >
+                    <Border x:Name="TVModeMarginBordar" />
+
+                    <Border Height="{StaticResource TitleBarDummyHeight}" />
+
+                    <CommandBar>
 
                         <CommandBar.PrimaryCommands>
                             
@@ -213,7 +218,7 @@
                         </CommandBar.Content>
                         
                     </CommandBar>
-                </toolkit:DockPanel>
+                </StackPanel>
             </controls:ListingWithHeader.HeaderContent>
 
 

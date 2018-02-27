@@ -34,6 +34,14 @@
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="TVModeMarginBordar.Height" Value="27"/>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
                         <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
@@ -87,9 +95,13 @@
         
         <toolkit:DockPanel x:Name="ContentLayout" 
                            >
-            <Border toolkit:DockPanel.Dock="Top" 
-                    Height="48"
+            <StackPanel toolkit:DockPanel.Dock="Top" 
                     >
+
+                <Border x:Name="TVModeMarginBordar" />
+
+                <Border Height="{StaticResource TitleBarDummyHeight}" />
+
                 <toolkit:DockPanel >
 
                     <StackPanel toolkit:DockPanel.Dock="Right" 
@@ -148,7 +160,7 @@
                         </TextBlock>
                     </Border>
                 </toolkit:DockPanel>
-            </Border>
+            </StackPanel>
 
 
             <Grid>

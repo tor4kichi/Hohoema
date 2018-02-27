@@ -475,6 +475,21 @@
                 </VisualState>
             </VisualStateGroup>
 
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <logicalTrigger:MultiTrigger>
+                            <logicalTrigger:MultiTrigger.Triggers>
+                                <hardTrigger:DeviceFamilyTrigger Condition="Desktop" />
+                                <intractionTrigger:InteractionModeTrigger Condition="Mouse" />
+                            </logicalTrigger:MultiTrigger.Triggers>
+                        </logicalTrigger:MultiTrigger>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="TitleBarMarginLayout.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
         <toolkit:LayoutTransformControl
@@ -717,6 +732,16 @@
                         <toolkit:DockPanel x:Name="DefaultUIControl">
                             <StackPanel toolkit:DockPanel.Dock="Top" >
 
+                                <Border x:Name="TitleBarMarginLayout"
+                                                Height="32"
+                                                toolkit:DockPanel.Dock="Top"
+                                                    Visibility="Collapsed"
+                                                    >
+                                    <Border.Background>
+                                        <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                                    </Border.Background>
+                                </Border>
+                                
                                 <Grid x:Name="TopBarLayout"
                                             
                                 >

@@ -37,6 +37,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="TitleLayout.Margin" Value="64 0 0 0" />
+                        <Setter Target="TVModeMarginBordar.Height" Value="27"/>
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -71,6 +72,7 @@
                     <VisualState.Setters>
                         <Setter Target="EditMylistButton.Visibility" Value="Visible" />
                         <Setter Target="DeleteMylistButton.Visibility" Value="Visible" />
+                        <Setter Target="MylistDeleteButtonSeparator.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -80,7 +82,7 @@
                     <VisualState.Setters>
                         <Setter Target="EditMylistButton.Visibility" Value="Visible" />
                         <Setter Target="DeleteMylistButton.Visibility" Value="Visible" />
-
+                        <Setter Target="MylistDeleteButtonSeparator.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -98,7 +100,48 @@
                 </VisualState>
 
             </VisualStateGroup>
-            
+
+
+            <!-- コマンドバーに表示する内容をコントロールする -->
+            <!-- マイリストされたアイテムを解除する操作はマイリスト編集可能かつ選択中のみ -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <mytrigger:EqualConditionStateTrigger Condition="OtherUser" Value="{Binding MylistOrigin.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="RemoveMylistSelectedItemButton.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+                
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanInverted}}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="RemoveMylistSelectedItemButton.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+
+            </VisualStateGroup>
+
+            <!-- コマンドバーに表示する内容をコントロールする -->
+            <!-- 選択中 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsSelectionModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="AddMylistSelectedItemButton.Visibility" Value="Visible" />
+                        <Setter Target="CacheRequestSelectedItemButton.Visibility" Value="Visible" />
+
+                        <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
+
+                    </VisualState.Setters>
+                </VisualState>
+
+            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
 
@@ -113,172 +156,172 @@
             NowLoading="{Binding NowLoading.Value}"
             >
             <controls:ListingWithHeader.HeaderContent>
-                <toolkit:DockPanel >
+                <StackPanel >
 
-                    <StackPanel toolkit:DockPanel.Dock="Right" 
-                                Orientation="Horizontal"
-                                >
+                    <Border x:Name="TVModeMarginBordar" />
 
-                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                    Orientation="Horizontal"
-                                    >
-                            <Button Background="Transparent"
-                                    Command="{StaticResource AddFeedSourceCommand}"
-                                    CommandParameter="{Binding MylistBookmark}"
-                                    x:Name="FeedRegstrationButton"
-                                    Visibility="Collapsed"
-                                    >
-                                <TextBlock Text="新着チェックに追加" />
-                            </Button>
+                    <Border Height="{StaticResource TitleBarDummyHeight}" />
 
-                            <Button Command="{Binding OpenUserPageCommand}"
-                                Background="Transparent"
-                                    x:Name="OpenUserPageButton"
-                                    Visibility="{Binding IsLocalMylist, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                     >
-                                <SymbolIcon Symbol="People" />
-                            </Button>
+                    <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
 
-                            <Button x:Name="EditMylistButton"
-                                            Command="{Binding EditMylistGroupCommand}"
-                                            Background="Transparent"
-                                            Visibility="Collapsed"
-                                            >
-                                <StackPanel Orientation="Horizontal">
-                                    <SymbolIcon Symbol="Edit" />
-                                </StackPanel>
-                            </Button>
-                            <ToggleButton x:Name="ToggleMylistFavoriteButton"
-                                                  IsChecked="{Binding IsFavoriteMylist.Value, Mode=TwoWay}"
-                                                  IsEnabled="{Binding CanChangeFavoriteMylistState.Value}"
-                                                  Background="Transparent"                                                  
-                                                  Visibility="Collapsed"
-                                                >
-                                <StackPanel Orientation="Horizontal">
-                                    <SymbolIcon Symbol="Favorite" />
-                                </StackPanel>
-                            </ToggleButton>
-
-                            <Button x:Name="DeleteMylistButton"
-                                            Command="{Binding DeleteMylistCommand}"
-                                            Height="32"
-                                            Background="Transparent"
-                                            Visibility="Collapsed"
-                                          >
-                                <StackPanel Orientation="Horizontal">
-                                    <SymbolIcon Symbol="Delete" />
-                                </StackPanel>
-                            </Button>
-                        </StackPanel>
-
-                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                            Orientation="Horizontal"
-                                            >
-
-                            <Button Command="{Binding RegistratioMylistCommand}"
-                                            Background="Transparent"
-                                            >
-                                <StackPanel Orientation="Horizontal">
-                                    <SymbolIcon Symbol="Add" />
-                                    <TextBlock Text="マイリストに追加"
-                                                   VerticalAlignment="Center"
-                                                   />
-                                </StackPanel>
-                            </Button>
-                            <Button Command="{Binding UnregistrationMylistCommand}"
-                                            Visibility="{Binding IsUserOwnerdMylist, Converter={StaticResource BooleanToVisibility}}"
-                                            Background="Transparent"
-                                            >
-                                <StackPanel Orientation="Horizontal">
-                                    <SymbolIcon Symbol="Remove" />
-                                    <TextBlock Text="マイリスト解除"
-                                                VerticalAlignment="Center"
-                                                />
-                                </StackPanel>
-                            </Button>
-
-                            <Button Command="{Binding RequestCacheDownload}"
-                                            Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
-                                            Background="Transparent"
-                                            >
-                                <StackPanel Orientation="Horizontal">
-                                    <SymbolIcon Symbol="Download" />
-                                    <TextBlock Text="キャッシュ"
-                                            VerticalAlignment="Center"
-                                            />
-                                </StackPanel>
-                            </Button>
-
-                        </StackPanel>
-
-
-
-                        <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            HorizontalContentAlignment="Stretch"
-                                            VerticalContentAlignment="Stretch"
-                                            Label="選択"
-                                            >
-                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"
-                                                       />
-                        </AppBarToggleButton>
-
-                    </StackPanel>
-
-                    <StackPanel Background="Transparent" IsHitTestVisible="True"
-                                    Margin="16 8 0 0"
+                        <CommandBar.Content>
+                            <StackPanel Background="Transparent" IsHitTestVisible="True"
+                                    Margin="16 0 0 0"
                                 x:Name="TitleLayout"
-                                VerticalAlignment="Bottom"
                                     >
 
-                        <i:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="Tapped">
-                                <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
-                            </core:EventTriggerBehavior>
-                        </i:Interaction.Behaviors>
+                                <i:Interaction.Behaviors>
+                                    <core:EventTriggerBehavior EventName="Tapped">
+                                        <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
+                                    </core:EventTriggerBehavior>
+                                </i:Interaction.Behaviors>
 
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="{Binding Title, Mode=OneWay}" 
-                                            Style="{StaticResource TitleTextBlockStyle}"
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Title, Mode=OneWay}" 
+                                            Style="{StaticResource SubtitleTextBlockStyle}"
                                        Margin="0 0 0 0"
                                        
                                             />
 
-                        </StackPanel>
+                                </StackPanel>
 
 
 
 
 
 
-                        <StackPanel Orientation="Horizontal" Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                <StackPanel Orientation="Horizontal" 
                                            Margin="0 0 0 0"
                                            >
 
-                            <TextBlock FontSize="14">
+                                    <TextBlock FontSize="14">
                                         <Run Text="{Binding UserName}" /> の <Run Text="{Binding MylistState}" />
-                            </TextBlock>
+                                    </TextBlock>
 
-                            <Border Visibility="{Binding IsLoginUserDeflist, Converter={StaticResource BooleanToVisibility}}"
+                                    <Border Visibility="{Binding IsLoginUserDeflist, Converter={StaticResource BooleanToVisibility}}"
                                             Margin="8 0 0 0"
                                             >
-                                <TextBlock>
+                                        <TextBlock>
                                     (登録:<Run Text="{Binding DeflistRegistrationCount}" /> 上限:<Run Text="{Binding DeflistRegistrationCapacity}" />)
-                                </TextBlock>
+                                        </TextBlock>
 
-                            </Border>
-                            <Border Visibility="{Binding IsLoginUserMylistWithoutDeflist, Converter={StaticResource BooleanToVisibility}}"
+                                    </Border>
+                                    <Border Visibility="{Binding IsLoginUserMylistWithoutDeflist, Converter={StaticResource BooleanToVisibility}}"
                                             Margin="8 0 0 0"
                                             >
-                                <TextBlock >
+                                        <TextBlock >
                                     (登録:<Run Text="{Binding MaxItemsCount.Value}" /> 合計:<Run Text="{Binding MylistRegistrationCount}" /> 上限:<Run Text="{Binding MylistRegistrationCapacity}" />)
-                                </TextBlock>
+                                        </TextBlock>
 
-                            </Border>
-                        </StackPanel>
-                    </StackPanel>
-                </toolkit:DockPanel>
+                                    </Border>
+                                </StackPanel>
+                            </StackPanel>
+                        </CommandBar.Content>
+
+                        <CommandBar.PrimaryCommands>
+                            
+                            <!-- 選択中 -->
+                            <AppBarButton x:Name="AddMylistSelectedItemButton"
+                                Command="{Binding RegistratioMylistCommand}"
+                                            
+                                          Icon="Add"
+                                          Label="マイリストに追加"
+                                          Visibility="Collapsed"
+                                            >
+                            </AppBarButton>
+                            
+                            <AppBarButton x:Name="RemoveMylistSelectedItemButton"
+                                         Command="{Binding UnregistrationMylistCommand}"
+                                          Icon="Remove"
+                                          Label="マイリスト解除"
+                                          
+                                            >
+                            </AppBarButton>
+
+                            <AppBarButton x:Name="CacheRequestSelectedItemButton"
+                                        Command="{Binding RequestCacheDownload}"
+                                            IsEnabled="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
+                                            Background="Transparent"
+                                            Icon="Download"
+                                          Label="キャッシュ"
+                                          Visibility="Collapsed"
+                                            >
+                            </AppBarButton>
+
+                            <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            >
+
+                                <StackPanel  Orientation="Horizontal">
+                                    <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       />
+                                    <TextBlock Text="選択" VerticalAlignment="Center"
+                                               Margin="8 0 0 0"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               />
+
+                                </StackPanel>
+                            </AppBarToggleButton>
+                            
+                        </CommandBar.PrimaryCommands>
+
+                        <CommandBar.SecondaryCommands>
+                            <AppBarToggleButton x:Name="ToggleMylistFavoriteButton"
+                                                  IsChecked="{Binding IsFavoriteMylist.Value, Mode=TwoWay}"
+                                                  IsEnabled="{Binding CanChangeFavoriteMylistState.Value}"
+                                                  Visibility="Collapsed"
+                                                Icon="Favorite"
+                                                Label="フォロー"
+                                                >
+
+                            </AppBarToggleButton>
+
+                            <AppBarButton 
+                                    Command="{StaticResource AddFeedSourceCommand}"
+                                    CommandParameter="{Binding MylistBookmark}"
+                                    x:Name="FeedRegstrationButton"
+                                    Visibility="Collapsed"
+                                Label="新着チェックに追加"
+                                Icon="Add"
+                                    >
+                            </AppBarButton>
+
+                            <AppBarButton Command="{Binding OpenUserPageCommand}"
+                                Background="Transparent"
+                                    x:Name="OpenUserPageButton"
+                                    Visibility="{Binding IsLocalMylist, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                          Icon="People"
+                                          Label="オーナー情報"
+                                     >
+                            </AppBarButton>
+
+                            <AppBarButton x:Name="EditMylistButton"
+                                            Command="{Binding EditMylistGroupCommand}"
+                                            Background="Transparent"
+                                            Visibility="Collapsed"
+                                          Icon="Edit"
+                                          Label="マイリスト情報を編集"
+                                            >
+                            </AppBarButton>
+                            
+                            <AppBarSeparator x:Name="MylistDeleteButtonSeparator"
+                                             Visibility="Collapsed"
+                                             />
+
+                            <AppBarButton x:Name="DeleteMylistButton"
+                                            Command="{Binding DeleteMylistCommand}"
+                                            Background="Transparent"
+                                            Visibility="Collapsed"
+                                          Icon="Delete"
+                                          Label="マイリストを削除"
+                                          >
+                            </AppBarButton>
+                        </CommandBar.SecondaryCommands>
+
+                    </CommandBar>
+                </StackPanel>
+                
             </controls:ListingWithHeader.HeaderContent>
 
 

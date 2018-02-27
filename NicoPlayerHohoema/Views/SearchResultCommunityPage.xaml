@@ -29,6 +29,8 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
+
+                        <Setter Target="TVModeMarginBordar.Height" Value="27" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -61,40 +63,49 @@
             NowLoading="{Binding NowLoading.Value}"
             >
             <controls:ListingWithHeader.HeaderContent>
-                <CommandBar Height="48">
 
-                    <CommandBar.PrimaryCommands>
-                        <AppBarButton Background="Transparent" 
+                <StackPanel>
+
+                    <Border x:Name="TVModeMarginBordar" />
+
+                    <Border Height="{StaticResource TitleBarDummyHeight}" />
+
+                    <CommandBar>
+
+                        <CommandBar.PrimaryCommands>
+                            <AppBarButton Background="Transparent" 
                                         Command="{Binding RefreshCommand}"
                                         ToolTipService.ToolTip="更新"
                                               Icon="Refresh"
                                         />
 
-                    </CommandBar.PrimaryCommands>
+                        </CommandBar.PrimaryCommands>
 
-                    <CommandBar.Content>
-                        <Border Background="Transparent" IsHitTestVisible="True"
+                        <CommandBar.Content>
+                            <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="16 0 0 0"
                                 >
 
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
-                                </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
+                                <i:Interaction.Behaviors>
+                                    <core:EventTriggerBehavior EventName="Tapped">
+                                        <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
+                                    </core:EventTriggerBehavior>
+                                </i:Interaction.Behaviors>
 
-                            <TextBlock Text="{Binding Title}" 
+                                <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource SubtitleTextBlockStyle}"
                                    x:Name="TitleLayout"
                                     >
-                            </TextBlock>
-                        </Border>
+                                </TextBlock>
+                            </Border>
 
-                    </CommandBar.Content>
+                        </CommandBar.Content>
 
 
-                </CommandBar>
+                    </CommandBar>
+                </StackPanel>
+                
             </controls:ListingWithHeader.HeaderContent>
 
 

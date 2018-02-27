@@ -32,7 +32,9 @@
                         <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
+                        <Setter Target="HeaderCommandBarContent.Margin" Value="64 0 0 0" />
+                        
+                        <Setter Target="TVModeMarginBordar.Height" Value="32"/>
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -47,9 +49,25 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
+                        <Setter Target="HeaderCommandBarContent.Margin" Value="64 0 0 0" />
                     </VisualState.Setters>
                 </VisualState>
+            </VisualStateGroup>
+
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsSelectionModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="AddMylistSelectedItemButton.Visibility" Value="Visible" />
+                        <Setter Target="CacheReqesutSelectedItemButton.Visibility" Value="Visible" />
+
+                        <Setter Target="HeaderCommandBarContent.Visibility" Value="Collapsed" />
+
+                    </VisualState.Setters>
+                </VisualState>
+
             </VisualStateGroup>
 
         </VisualStateManager.VisualStateGroups>
@@ -66,85 +84,90 @@
             NowLoading="{Binding NowLoading.Value}"
             >
             <controls:ListingWithHeader.HeaderContent>
-                <toolkit:DockPanel >
+                <StackPanel >
 
-                    <StackPanel toolkit:DockPanel.Dock="Right" 
-                                Orientation="Horizontal"
+                    <Border x:Name="TVModeMarginBordar" />
+
+                    <Border Height="{StaticResource TitleBarDummyHeight}" />
+
+                    <CommandBar 
+                            x:Name="TopCommandBar"
                                 >
+                        <CommandBar.Content>
+                            <StackPanel Background="Transparent" IsHitTestVisible="True"
+                                    Margin="16 0 0 0"
+                                    IsTapEnabled="True"
+                                        x:Name="HeaderCommandBarContent"
+                                >
+                                <i:Interaction.Behaviors>
+                                    <core:EventTriggerBehavior EventName="Tapped">
+                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
+                                    </core:EventTriggerBehavior>
+                                </i:Interaction.Behaviors>
 
-                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                    Orientation="Horizontal"
-                                    >
-                            <StackPanel Orientation="Horizontal" Margin="0 0 8 0">
+                                <TextBlock Text="{Binding Title}" 
+                                        VerticalAlignment="Center"
+                                        Style="{StaticResource SubtitleTextBlockStyle}"
+                                        x:Name="TitleLayout"
+                                    />
 
-                                <TextBlock Text="投稿者：" VerticalAlignment="Center" />
+                                <StackPanel Orientation="Horizontal" Margin="0 0 0 0">
 
-                                <HyperlinkButton Command="{Binding OpenVideoOwnerUserPageCommand}">
-                                    <TextBlock VerticalAlignment="Center"
+                                    <TextBlock Text="投稿者：" VerticalAlignment="Center"
+                                               Opacity="0.7"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               />
+
+                                    <HyperlinkButton Command="{Binding OpenVideoOwnerUserPageCommand}">
+                                        <TextBlock VerticalAlignment="Center"
+                                                   Style="{StaticResource CaptionTextBlockStyle}"
                                         >
                                             <Run Text="{Binding UserName}" />
                                             <Run Text="さん" />
-                                    </TextBlock>
-                                </HyperlinkButton>
+                                        </TextBlock>
+                                    </HyperlinkButton>
+                                </StackPanel>
+
                             </StackPanel>
+                        </CommandBar.Content>
 
-                        </StackPanel>
+                        <CommandBar.PrimaryCommands>
 
-
-                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                    Orientation="Horizontal"
-                                    >
-
-                            <AppBarButton Command="{Binding RequestCacheDownload}"
-                                              Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
+                            <AppBarButton x:Name="CacheReqesutSelectedItemButton"
+                                Command="{Binding RequestCacheDownload}"
+                                              IsEnabled="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
                                               Icon="Download"
                                               Label="キャッシュ"
+                                          Visibility="Collapsed"
                                             />
 
-                            <AppBarButton Command="{Binding RegistratioMylistCommand}" 
+                            <AppBarButton x:Name="AddMylistSelectedItemButton"
+                                Command="{Binding RegistratioMylistCommand}" 
                                           Icon="Add"
                                           Label="マイリストに追加"
+                                          Visibility="Collapsed"
                                             />
 
-
-
-
-
-                        </StackPanel>
-
-
-
-                        <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                             HorizontalContentAlignment="Stretch"
                                             VerticalContentAlignment="Stretch"
-                                            Label="選択"
+                                            
                                             >
-                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                                <StackPanel Orientation="Horizontal">
+                                    <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"
                                                        />
-                        </AppBarToggleButton>
 
-                    </StackPanel>
+                                    <TextBlock Text="選択" Margin="16 0 0 0 "
+                                               VerticalAlignment="Center" />
+                                </StackPanel>
+                            </AppBarToggleButton>
 
-                    <Border Background="Transparent" IsHitTestVisible="True"
-                                Margin="16 0 0 0"
-                            IsTapEnabled="True"
-                                >
+                        </CommandBar.PrimaryCommands>
 
-                        <i:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="Tapped">
-                                <core:ChangePropertyAction TargetObject="{Binding ElementName=ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
-                            </core:EventTriggerBehavior>
-                        </i:Interaction.Behaviors>
-
-                        <TextBlock Text="{Binding Title}" 
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource TitleTextBlockStyle}"
-                                   x:Name="TitleLayout"
-                                    />
-                    </Border>
-                </toolkit:DockPanel>
+                    </CommandBar>
+                </StackPanel>
             </controls:ListingWithHeader.HeaderContent>
 
 
