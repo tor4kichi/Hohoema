@@ -1,6 +1,6 @@
 ﻿<Page
     x:Name="PageRoot"
-    x:Class="NicoPlayerHohoema.Views.UserMylistPage"
+    x:Class="NicoPlayerHohoema.Views.UserMylistPage_TV"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema.Views"
@@ -24,16 +24,11 @@
 
     <Page.Resources>
         <DataTemplate x:Key="MylistTemplate">
-            <Border >
-                <hohoemaListitem:HohoemaListItemVideo />
-            </Border>
+            <hohoemaListitem:HohoemaListItemMiniCard />
         </DataTemplate>
 
-        <Style TargetType="ListViewItem" x:Key="MylistListViewContainerStyle">
-            <Setter Property="Padding" Value="0 8" />
-            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-            <Setter Property="BorderBrush" Value="{ThemeResource SystemControlBackgroundBaseLowBrush}" />
-            <Setter Property="BorderThickness" Value="0 0 0 1" />
+        <Style TargetType="GridViewItem" x:Key="MylistListViewContainerStyle">
+            
         </Style>
     </Page.Resources>
 
@@ -56,7 +51,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
-                        <Setter Target="ContentLayout.Margin" Value="48 0 48 27" />
+                        <Setter Target="ContentLayout.Margin" Value="0 0 0 0" />
 
                         <Setter Target="TVModeMarginBordar.Height" Value="27"/>
                     </VisualState.Setters>
@@ -101,6 +96,7 @@
                     <Border Height="{Binding ElementName=HeaderLayout, Path=ActualHeight, Mode=OneWay}" />
 
                     <ItemsControl ItemsSource="{Binding MylistList}"
+                              Margin="0 0 0 0"
                               IsTabStop="False"
                    >
                         <ItemsControl.ItemTemplateSelector>
@@ -113,7 +109,7 @@
 
                                             <StackPanel toolkit:DockPanel.Dock="Top"
                                                     Orientation="Horizontal"
-                                                    Margin="16 0"
+                                                    Margin="48 16 48 8"
                                                     >
                                                 <TextBlock Text="{Binding Title}"
                                                    Style="{StaticResource SubtitleTextBlockStyle}"
@@ -128,7 +124,7 @@
                                             </StackPanel>
 
 
-                                            <ListView ItemsSource="{Binding Items}"
+                                            <GridView ItemsSource="{Binding Items}"
                                                     Margin="0 8"
                                                     HorizontalContentAlignment="Stretch"
                                                     IsTabStop="False"
@@ -137,15 +133,13 @@
                                                   SelectionMode="None"
                                                   ItemTemplate="{StaticResource MylistTemplate}"
                                                   ItemContainerStyle="{StaticResource MylistListViewContainerStyle}"
-                                                  BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                                  BorderThickness="0 1 0 0"
                                             >
 
                                                 <i:Interaction.Behaviors>
                                                     <mybehavior:ListViewBaseItemContextFlyout />
                                                 </i:Interaction.Behaviors>
 
-                                                <ListView.ContextFlyout>
+                                                <GridView.ContextFlyout>
                                                     <MenuFlyout>
                                                         <MenuFlyoutItem Text="全て再生"
                                                             Command="{Binding ElementName=ContentLayout, Path=DataContext.PlayAllCommand}"
@@ -160,16 +154,16 @@
                                                             CommandParameter="{Binding}"
                                                             />
                                                     </MenuFlyout>
-                                                </ListView.ContextFlyout>
+                                                </GridView.ContextFlyout>
 
 
 
-                                                <ListView.ItemsPanel>
+                                                <GridView.ItemsPanel>
                                                     <ItemsPanelTemplate>
-                                                        <ItemsStackPanel />
+                                                        <ItemsWrapGrid Orientation="Horizontal" Margin="48 0 48 27" />
                                                     </ItemsPanelTemplate>
-                                                </ListView.ItemsPanel>
-                                            </ListView>
+                                                </GridView.ItemsPanel>
+                                            </GridView>
 
                                         </toolkit:DockPanel>
 
@@ -180,11 +174,11 @@
                                 <local:MylistListTemplateSelector.LoginUserMylist>
                                     <DataTemplate>
 
-                                        <toolkit:DockPanel Margin="0 16 0 0">
+                                        <toolkit:DockPanel>
 
                                             <StackPanel toolkit:DockPanel.Dock="Top"
                                                     Orientation="Horizontal"
-                                                    Margin="16 0"
+                                                    Margin="48 16 48 8"
                                                     >
                                                 <TextBlock Text="{Binding Title}"
                                                    Style="{StaticResource SubtitleTextBlockStyle}"
@@ -198,7 +192,7 @@
                                                 </TextBlock>
                                             </StackPanel>
 
-                                            <ListView ItemsSource="{Binding Items}"
+                                            <GridView ItemsSource="{Binding Items}"
                                                     Margin="0 8"
                                                     HorizontalContentAlignment="Stretch"
                                                     IsTabStop="False"
@@ -207,15 +201,13 @@
                                                   SelectionMode="None"
                                                   ItemTemplate="{StaticResource MylistTemplate}"
                                                   ItemContainerStyle="{StaticResource MylistListViewContainerStyle}"
-                                                  BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                                  BorderThickness="0 1 0 0"
                                                     >
 
                                                 <i:Interaction.Behaviors>
                                                     <mybehavior:ListViewBaseItemContextFlyout />
                                                 </i:Interaction.Behaviors>
 
-                                                <ListView.ContextFlyout>
+                                                <GridView.ContextFlyout>
                                                     <MenuFlyout>
                                                         <MenuFlyoutItem Text="全て再生"
                                                             Command="{Binding ElementName=ContentLayout, Path=DataContext.PlayAllCommand}"
@@ -230,14 +222,14 @@
                                                             CommandParameter="{Binding}"
                                                             />
                                                     </MenuFlyout>
-                                                </ListView.ContextFlyout>
+                                                </GridView.ContextFlyout>
 
-                                                <ListView.ItemsPanel>
+                                                <GridView.ItemsPanel>
                                                     <ItemsPanelTemplate>
-                                                        <ItemsStackPanel />
+                                                        <ItemsWrapGrid Orientation="Horizontal" Margin="48 0 48 27" />
                                                     </ItemsPanelTemplate>
-                                                </ListView.ItemsPanel>
-                                            </ListView>
+                                                </GridView.ItemsPanel>
+                                            </GridView>
 
                                         </toolkit:DockPanel>
 
@@ -252,7 +244,7 @@
 
                                         <toolkit:DockPanel>
 
-                                            <ListView ItemsSource="{Binding Items}"
+                                            <GridView ItemsSource="{Binding Items}"
                                                     Margin="0 8"
                                                     HorizontalContentAlignment="Stretch"
                                                     IsTabStop="False"
@@ -261,29 +253,27 @@
                                                   SelectionMode="None"
                                                   ItemTemplate="{StaticResource MylistTemplate}"
                                                   ItemContainerStyle="{StaticResource MylistListViewContainerStyle}"
-                                                  BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                                  BorderThickness="0 1 0 0"
                                                     >
 
                                                 <i:Interaction.Behaviors>
                                                     <mybehavior:ListViewBaseItemContextFlyout />
                                                 </i:Interaction.Behaviors>
 
-                                                <ListView.ContextFlyout>
+                                                <GridView.ContextFlyout>
                                                     <MenuFlyout>
                                                         <MenuFlyoutItem Text="全て再生"
                                                             Command="{Binding ElementName=ContentLayout, Path=DataContext.PlayAllCommand}"
                                                             CommandParameter="{Binding}"
                                                             />
                                                     </MenuFlyout>
-                                                </ListView.ContextFlyout>
+                                                </GridView.ContextFlyout>
 
-                                                <ListView.ItemsPanel>
+                                                <GridView.ItemsPanel>
                                                     <ItemsPanelTemplate>
-                                                        <ItemsStackPanel />
+                                                        <ItemsWrapGrid Orientation="Horizontal" Margin="48 0 48 27" />
                                                     </ItemsPanelTemplate>
-                                                </ListView.ItemsPanel>
-                                            </ListView>
+                                                </GridView.ItemsPanel>
+                                            </GridView>
 
                                         </toolkit:DockPanel>
                                     </DataTemplate>
@@ -296,8 +286,8 @@
 
                 </StackPanel>
 
-
             </ScrollViewer>
+
 
             <Grid x:Name="HeaderLayout"
                   VerticalAlignment="Top"
@@ -309,12 +299,11 @@
 
                 <StackPanel 
                     >
-
                     <Border x:Name="TVModeMarginBordar" />
 
                     <Border Height="{StaticResource TitleBarDummyHeight}" />
 
-                    <toolkit:DockPanel >
+                    <toolkit:DockPanel Margin="48 0">
                         <StackPanel toolkit:DockPanel.Dock="Right" 
                                 Orientation="Horizontal"
                                 >
@@ -354,6 +343,8 @@
                     </toolkit:DockPanel>
                 </StackPanel>
             </Grid>
+            
+
 
 
 

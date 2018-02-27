@@ -101,8 +101,23 @@ namespace NicoPlayerHohoema.ViewModels
     {
 		PageManager _PageManager;
 
+        public MylistSearchListingItem(IPlayableList playableList, PageManager pageManager)
+        {
+            _PageManager = pageManager;
 
-		public MylistSearchListingItem(MylistGroup mylistgroup, PageManager pageManager)
+            Name = playableList.Name;
+            ItemCount = (uint)playableList.Count;
+            GroupId = playableList.Id;
+            
+            Label = playableList.Name;
+
+            if (playableList.ThumnailUrl != null)
+            {
+                AddImageUrl(playableList.ThumnailUrl);
+            }
+        }
+
+        public MylistSearchListingItem(MylistGroup mylistgroup, PageManager pageManager)
 		{
 			_PageManager = pageManager;
 
@@ -126,11 +141,11 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public string Name { get; private set; }
-		public uint ItemCount { get; private set; }
-		public string GroupId { get; private set; }
-		public DateTime UpdateTime { get; private set; }
-		public List<Mntone.Nico2.Searches.Video.Video> SampleVideos { get; private set; }
+		public string Name { get; set; }
+		public uint ItemCount { get; set; }
+		public string GroupId { get; set; }
+		public DateTime UpdateTime { get; set; }
+		public List<Mntone.Nico2.Searches.Video.Video> SampleVideos { get; set; }
 
         public string Id => GroupId;
     }

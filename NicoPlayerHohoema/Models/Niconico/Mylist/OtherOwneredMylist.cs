@@ -105,6 +105,21 @@ namespace NicoPlayerHohoema.Models
             PlaylistItems = new ReadOnlyObservableCollection<PlaylistItem>(_PlaylistItems);
         }
 
+        private string _ThumnailUrl;
+        public string ThumnailUrl
+        {
+            get
+            {
+                if (_ThumnailUrl != null) { return _ThumnailUrl; }
+
+                var firstItem = _PlaylistItems.FirstOrDefault(x => x.Type == PlaylistItemType.Video)?.ContentId;
+                if (firstItem == null) { return null; }
+
+                var video = Database.NicoVideoDb.Get(firstItem);
+                return _ThumnailUrl = video.ThumbnailUrl;
+            }
+        }
+
         public OtherOwneredMylist(Mylistgroup details)
             : this()
         {
@@ -114,6 +129,8 @@ namespace NicoPlayerHohoema.Models
             Count = (int)details.Count;
             Description = details.Description;
             OwnerUserId = details.UserId;
+
+            _ThumnailUrl = details.SampleVideoInfoItems?.FirstOrDefault()?.Video.ThumbnailUrl.OriginalString;
         }
 
         public OtherOwneredMylist(MylistGroupData data, int sortIndex = 0)
@@ -126,6 +143,8 @@ namespace NicoPlayerHohoema.Models
             Description = data.Description;
             SortIndex = sortIndex;
             OwnerUserId = data.UserId;
+
+            _ThumnailUrl = data.ThumbnailUrls.FirstOrDefault()?.OriginalString;
         }
 
         public async Task<bool> FillAllVideosAsync()

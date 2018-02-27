@@ -60,6 +60,18 @@ namespace NicoPlayerHohoema.Models
 
         public int Count => _PlaylistItems.Count;
 
+        public string ThumnailUrl
+        {
+            get
+            {
+                var firstItem = _PlaylistItems.FirstOrDefault(x => x.Type == PlaylistItemType.Video)?.ContentId;
+                if (firstItem == null) { return null; }
+
+                var video = Database.NicoVideoDb.Get(firstItem);
+                return video.ThumbnailUrl;
+            }
+        }
+
         public LocalMylist()
         {
             Id = null;

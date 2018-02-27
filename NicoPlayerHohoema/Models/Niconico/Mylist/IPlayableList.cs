@@ -15,6 +15,8 @@ namespace NicoPlayerHohoema.Models
         string Name { get; }
         int Count { get; }
 
+        string ThumnailUrl { get; }
+
         ReadOnlyObservableCollection<PlaylistItem> PlaylistItems { get; }
     }
 }

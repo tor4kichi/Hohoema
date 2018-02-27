@@ -272,6 +272,8 @@ namespace NicoPlayerHohoema.Models
         public int Count { get; set; }
         public int RegistrationLimit { get; set; }
 
+        public string ThumnailUrl { get; set; }
+
         public MylistGroupInfo(string groupId, HohoemaApp hohoemaApp, UserMylistManager mylistManager)
 		{
 			GroupId = groupId;
@@ -429,17 +431,16 @@ namespace NicoPlayerHohoema.Models
 
 		public static MylistGroupInfo FromMylistGroupData(LoginUserMylistGroup group, HohoemaApp hohoemaApp, UserMylistManager mylistManager)
 		{
-			return new MylistGroupInfo(group.Id, hohoemaApp, mylistManager)
-			{
-				UserId = group.UserId,
-				Name = group.Name,
-				Description = group.Description,
-				IsPublic = group.GetIsPublic(),
-				IconType = group.GetIconType(),
-				Sort = group.GetDefaultSort(),
-                Count = group.ItemCount
-                
-			};
+            return new MylistGroupInfo(group.Id, hohoemaApp, mylistManager)
+            {
+                UserId = group.UserId,
+                Name = group.Name,
+                Description = group.Description,
+                IsPublic = group.GetIsPublic(),
+                IconType = group.GetIconType(),
+                Sort = group.GetDefaultSort(),
+                Count = group.ItemCount,
+            };
 		}
 
 
@@ -478,7 +479,6 @@ namespace NicoPlayerHohoema.Models
 
                 Count = defMylist.Count;
 
-
                 MylistManager.DeflistUpdated();
 			}
 			else
@@ -503,6 +503,11 @@ namespace NicoPlayerHohoema.Models
                     }
 
                     Count = res.Count;
+
+                    if (ThumnailUrl == null)
+                    {
+                        ThumnailUrl = res.Where(x => !x.IsDeleted).FirstOrDefault()?.ThumbnailUrl.OriginalString;
+                    }
 
                     MylistManager.MylistUpdated();
 				}
