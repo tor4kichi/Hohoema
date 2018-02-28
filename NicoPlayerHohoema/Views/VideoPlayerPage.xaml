@@ -639,6 +639,13 @@
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
+                        <uiTrigger:OrientationTrigger Condition="Landscape" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
                         <intractionTrigger:InteractionModeTrigger Condition="Touch" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
