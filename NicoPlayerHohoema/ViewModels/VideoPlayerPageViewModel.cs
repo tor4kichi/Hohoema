@@ -652,13 +652,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 			NowBuffering = 
 				Observable.Merge(
-                    CurrentState.ToUnit(),
-                    DownloadCompleted.ToUnit()
+                    CurrentState.ToUnit()
                     )
 					.Select(x =>
 					{
-						if (DownloadCompleted.Value) { return false; }
-
 						if (CurrentState.Value == MediaPlaybackState.Paused
                         || CurrentState.Value == MediaPlaybackState.None)
 						{
@@ -946,7 +943,7 @@ namespace NicoPlayerHohoema.ViewModels
                 cancelToken.ThrowIfCancellationRequested();
 
                 // バッファリング状態のモニターが使うタイマーだけはページ稼働中のみ動くようにする
-                // InitializeBufferingMonitor();
+                InitializeBufferingMonitor();
 
 
                 // キャッシュ可能か
@@ -1111,6 +1108,8 @@ namespace NicoPlayerHohoema.ViewModels
                 if (IsDisposed) { return; }
                 RequestUpdateInterval.ForceNotify();
             });
+
+            InitializeBufferingMonitor();
         }
 
         private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
