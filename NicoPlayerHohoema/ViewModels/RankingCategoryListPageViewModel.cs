@@ -148,6 +148,8 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     _RankingSettings.AddFavoritCategory(cat.Category);
                 }
+
+                ResetRankingCategoryItems();
             });
 
 
@@ -185,6 +187,8 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     _RankingSettings.AddDislikeCategory(cat.Category);
                 }
+
+                ResetRankingCategoryItems();
             });
         }
 
@@ -196,6 +200,14 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        {
+            ResetRankingCategoryItems();
+
+            base.OnNavigatedTo(e, viewModelState);
+        }
+
+
+        void ResetRankingCategoryItems()
         {
             RankingCategoryItems.Clear();
 
@@ -225,8 +237,6 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
             RaisePropertyChanged(nameof(RankingCategoryItems));
-
-            base.OnNavigatedTo(e, viewModelState);
         }
 
         internal void OnRankingCategorySelected(RankingCategory info)
