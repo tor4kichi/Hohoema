@@ -580,6 +580,13 @@ namespace NicoPlayerHohoema
                 appView.TitleBar.ButtonBackgroundColor = Colors.Transparent;
                 appView.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
                 appView.TitleBar.ButtonInactiveForegroundColor = Colors.Transparent;
+
+                if (RequestedTheme == ApplicationTheme.Light)
+                {
+                    appView.TitleBar.ButtonForegroundColor = Colors.Black;
+                    appView.TitleBar.ButtonHoverBackgroundColor = Colors.DarkGray;
+                    appView.TitleBar.ButtonHoverForegroundColor = Colors.Black;
+                }
             }
             
 
