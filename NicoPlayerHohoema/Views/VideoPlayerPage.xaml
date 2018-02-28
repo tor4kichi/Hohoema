@@ -366,6 +366,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="FullscreenButtonIcon.Kind" Value="FullScreenExit" />
+                        <Setter Target="AutoHideCursor.IsAutoHideEnabled" Value="True" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -782,7 +783,7 @@
                             <!-- マウスの非表示 -->
                             
                             <mybehavior:AutoHideCursor x:Name="AutoHideCursor"
-                                IsAutoHideEnabled="{Binding IsMouseCursolAutoHideEnable.Value, Mode=OneWay}"
+                                IsAutoHideEnabled="False"
                                 AutoHideDelay="0:0:2"
                                 />
                             

@@ -448,7 +448,20 @@
                 </VisualState>
             </VisualStateGroup>
 
-            
+            <!-- フルスクリーン -->
+            <VisualStateGroup >
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsFullScreen.Value, Mode=OneWay}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="FullscreenButtonIcon.Kind" Value="FullScreenExit" />
+                        <Setter Target="AutoHideCursor.IsAutoHideEnabled" Value="True" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+
 
             <!-- Flash or DMC 放送サーバーごとの表示 -->
             <VisualStateGroup>
@@ -551,7 +564,7 @@
 
                         <!-- マウスの非表示 -->
                         <mybehavior:AutoHideCursor x:Name="AutoHideCursor"
-                                IsAutoHideEnabled="{Binding IsMouseCursolAutoHideEnable.Value, Mode=OneWay}"
+                                IsAutoHideEnabled="False"
                                 AutoHideDelay="0:0:2"
                                 />
 
