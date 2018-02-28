@@ -500,9 +500,6 @@
     <Compile Include="Views\CommunityPage.xaml.cs">
       <DependentUpon>CommunityPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\CommunityPage_TV.xaml.cs">
-      <DependentUpon>CommunityPage_TV.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\CommunityVideoPage.xaml.cs">
       <DependentUpon>CommunityVideoPage.xaml</DependentUpon>
     </Compile>
@@ -840,7 +837,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\CommunityPage_TV.xaml">
+    <Page Include="Views\CommunityPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -861,10 +858,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\_CommentRenderer\CommentUI.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\CommunityPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

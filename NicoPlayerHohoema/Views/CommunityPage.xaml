@@ -5,26 +5,29 @@
     xmlns:local="using:NicoPlayerHohoema.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:view="using:NicoPlayerHohoema.Views"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
-    xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
-    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:deviceTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
-    
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:hohoemalistItem="using:NicoPlayerHohoema.Views.HohoemaListItem"
+    xmlns:listitem="using:NicoPlayerHohoema.Views.HohoemaListItem"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
-    mc:Ignorable="d"
-    d:DesignHeight="300"
-    d:DesignWidth="400">
-    
+    mc:Ignorable="d">
+
     <i:Interaction.Behaviors>
         <core:EventTriggerBehavior EventName="Unloaded">
             <core:CallMethodAction TargetObject="{Binding}" MethodName="Dispose" />
         </core:EventTriggerBehavior>
     </i:Interaction.Behaviors>
-    
+
+
     <Grid>
 
         <VisualStateManager.VisualStateGroups>
@@ -36,7 +39,12 @@
                         <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
+                        <Setter Target="HeaderLayout.Margin" Value="48 0 0 0" />
                         <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
+
+                        <Setter Target="ContentLayout.Margin" Value="48 0 48 27" />
+
+                        <Setter Target="TVModeMarginBordar.Height" Value="27" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -55,401 +63,311 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
-            
-            <!-- TVモードの仮対応 -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="RootLayout.Margin" Value="0 27 48 27" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
 
-            <!-- タイトルバーをアプリで変更している場合にコンテンツの余白を手動で追加する -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
-                        <StateTrigger IsActive="{StaticResource TitleBarCustomized}" />
-                    </VisualState.StateTriggers>
-
-                    <VisualState.Setters>
-                        <Setter Target="RootLayout.Margin" Value="0 32 0 0" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-        
-        
-        <toolkit:DockPanel x:Name="RootLayout">
+
+
+        <Grid>
+
+
             
-            <Border toolkit:DockPanel.Dock="Top"
-                    Height="48"
-                    >
-                <toolkit:DockPanel >
-
-
-                    <StackPanel toolkit:DockPanel.Dock="Right" 
-                            Orientation="Horizontal"
-                            >
-
-                        <HyperlinkButton NavigateUri="{Binding TopUrl}" 
-                             Content="ブラウザで開く"
-                                     Margin="0 0 8 0"
-                             />
-
-                        <AppBarToggleButton IsChecked="{Binding IsFollowCommunity.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                      IsEnabled="{Binding CanChangeFollowCommunityState.Value}"
-                                  Background="Transparent"
-                                            Icon="Favorite"
-                                            Visibility="{Binding IsOwnedCommunity, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                        >
-                        </AppBarToggleButton>
-                    </StackPanel>
-
-                    <Border Background="Transparent" IsHitTestVisible="True"
-                                Margin="16 0 0 0"
-                            x:Name="TitleLayout"
-                                >
-                        <TextBlock Text="{Binding Title}" 
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource TitleTextBlockStyle}"
-                                    >
-                        </TextBlock>
-                    </Border>
-                </toolkit:DockPanel>
-            </Border>
-
-
             <ScrollViewer>
+                <StackPanel Margin="16 0 16 27" x:Name="ContentLayout">
 
 
-                <StackPanel>
-                    <toolkit:DockPanel Margin="8 8 16 8">
+                    <Border Height="{Binding ElementName=HeaderLayout, Path=ActualHeight, Mode=OneWay}" />
 
 
-                        <!-- コミュニティアイコン -->
-                        <Border>
+                    <toolkit:DockPanel>
+                        <Image Width="80" Height="80"
+                                    Source="{Binding ThumbnailUrl, Mode=OneWay}" 
+                                    Margin="0 0 32 0"
+                                    toolkit:DockPanel.Dock="Left"
+                                       
+                        />
 
-                            <Border toolkit:DockPanel.Dock="Left" BorderBrush="DimGray" BorderThickness="1"
-                            Margin="0 0"
+                        <TextBlock Text="{Binding CommunityName}" 
                                 VerticalAlignment="Center"
-                            >
-                                <Image Source="{Binding ThumbnailUrl}"
-                                Width="120"
-                                Height="120"
+                                Style="{StaticResource TitleTextBlockStyle}"
+                                   toolkit:DockPanel.Dock="Top"
                                 />
-                            </Border>
+
+                        <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="0 0 0 0"
+                                >
+                            <StackPanel Orientation="Vertical"
+                                    Margin="0 8" 
+                                    >
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="オーナー" Width="80" />
+                                    <TextBlock Text="{Binding CommunityOwnerName}" />
+                                </StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="開設日" Width="80" />
+                                    <TextBlock Text="{Binding CreatedAt}" />
+                                </StackPanel>
+                            </StackPanel>
                         </Border>
-
-
-                        <!-- コミュニティの細かい情報 -->
-                        <StackPanel Margin="16 0 0 0" >
-
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding CommunityName}"
-                                       FontSize="18"
-                                       Margin="0 0 0 16"
-                                       />
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="オーナー" Width="80" />
-                                <TextBlock Text="{Binding CommunityOwnerName}" />
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="開設日" Width="80" />
-                                <TextBlock Text="{Binding CreatedAt}" />
-                            </StackPanel>
-                            <toolkit:DockPanel>
-
-                                <TextBlock Text="登録タグ" Width="80" toolkit:DockPanel.Dock="Left" />
-
-                                <ItemsControl ItemsSource="{Binding Tags}" Margin="0 0 0 0"
-                                          VerticalAlignment="Top"
-                                          >
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <toolkit:WrapPanel Orientation="Horizontal" />
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <HyperlinkButton Content="{Binding TagText}" 
-                                            Command="{Binding OpenSearchPageWithTagCommand}"
-                                            Margin="0 0 8 0"
-                                                         VerticalAlignment="Center"
-                                            />
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-
-                            </toolkit:DockPanel>
-
-                            <StackPanel Orientation="Horizontal">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="レベル" Width="80" />
-                                    <TextBlock Text="{Binding CommunityLevel}" />
-                                </StackPanel>
-
-                                <Border Width="16" />
-
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="メンバー" Width="80" />
-                                    <TextBlock Text="{Binding UserCount}" />
-                                </StackPanel>
-                            </StackPanel>
-
-                        </StackPanel>
-
-
-
-
-
 
 
                     </toolkit:DockPanel>
 
-                    <StackPanel Margin="24 0 16 0">
-
-                        <!-- コミュニティの情報 -->
-
-                        <StackPanel Margin="0 8" HorizontalAlignment="Stretch" MaxWidth="960" >
-
-
-
-
-
-
-
-
-
-
-
-
-                            <!-- 放送の状態表示 -->
-                            <Border Margin="0 16 0 8"
+                    <!-- 放送の状態表示 -->
+                    <Border Margin="0 16 0 8"
                     Visibility="{Binding HasCurrentLiveInfo, Converter={StaticResource BooleanToVisibility}}"
                         MaxWidth="960" 
                     >
 
-                                <StackPanel HorizontalAlignment="Stretch">
+                        <StackPanel HorizontalAlignment="Stretch">
 
-                                    <TextBlock Text="現在放送中" 
+                            <TextBlock Text="現在放送中" 
                                    FontSize="18"
                                    />
 
-                                    <ItemsControl ItemsSource="{Binding CurrentLiveInfoList}"
+                            <ItemsControl ItemsSource="{Binding CurrentLiveInfoList}"
                                               HorizontalContentAlignment="Stretch"
                                               HorizontalAlignment="Stretch"
                                               Margin="0 8"
                                       >
 
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Border BorderBrush="#f61e1e" BorderThickness="8 0 0 0" Padding="4 0 0 0">
-                                                    <Button Command="{Binding OpenLivePageCommand}"
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="#f61e1e" BorderThickness="8 0 0 0" Padding="4 0 0 0">
+                                            <Button Command="{Binding OpenLivePageCommand}"
                                             Height="40"
                                            >
-                                                        <StackPanel Orientation="Horizontal" >
-                                                            <TextBlock Text="{Binding LiveTitle}" />
-                                                        </StackPanel>
-                                                    </Button>
-                                                </Border>
+                                                <StackPanel Orientation="Horizontal" >
+                                                    <TextBlock Text="{Binding LiveTitle}" />
+                                                </StackPanel>
+                                            </Button>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                        </StackPanel>
+
+
+
+                        <!-- 予約された放送もここに表示する？ -->
+
+                    </Border>
+
+
+                    <!-- Actions -->
+                    <Grid Margin="0 24">
+                        <CommandBar HorizontalAlignment="Left"
+                                >
+
+                            <AppBarToggleButton Background="Transparent"
+                                            IsChecked="{Binding IsFollowCommunity.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            IsEnabled="{Binding CanChangeFollowCommunityState.Value}"
+                                                Visibility="{Binding IsOwnedCommunity, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                Icon="Favorite"
+                                                Label="フォロー"
+                                                />
+
+                            <AppBarButton Label="ブラウザで開く"
+                                            Command="{Binding OpenCommunityWebPagePageCommand}"
+                                            VerticalAlignment="Center"
+                                            UseSystemFocusVisuals="True"
+                                            />
+
+                        </CommandBar>
+
+                    </Grid>
+
+                    <Grid>
+                        <ProgressRing Visibility="{Binding NowLoading, Converter={StaticResource BooleanToVisibility}}"
+                                    IsActive="{Binding NowLoading}"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Top"
+                                    Margin="16"
+                                    Width="32"
+                                    Height="32"
+                                    />
+                        <StackPanel Margin="0 0" Visibility="{Binding CommunityVideoSamples, Converter={StaticResource CollectionVisibilityConverter}}">
+
+                            <Border Height="16"
+                                />
+
+                            <HyperlinkButton Command="{Binding OpenCommunityVideoListPageCommand}"
+                                                     Foreground="{StaticResource ButtonForegroundThemeBrush}"
+                                                     Margin="0 8"
+                                        >
+                                <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
+                                                 Text="コミュニティ動画"  
+                                                />
+
+
+                            </HyperlinkButton>
+
+
+                            <!-- Ownered Videos -->
+                            <ScrollViewer VerticalScrollMode="Disabled"
+                                          VerticalScrollBarVisibility="Disabled"
+                                          HorizontalScrollMode="Auto"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          >
+                                <StackPanel 
+                                        >
+                                    
+                                    <ListView ItemsSource="{Binding CommunityVideoSamples}"
+                                          uwpui:ListViewBase.Command="{Binding PlayUserVideoCommand}"
+                                          SelectionMode="None"
+                                          IsItemClickEnabled="True"
+                                    >
+                                        <ListView.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <ItemsStackPanel Orientation="Horizontal" Margin="0 0 40 0" />
+                                            </ItemsPanelTemplate>
+                                        </ListView.ItemsPanel>
+
+                                        <ListView.ItemTemplate>
+                                            <DataTemplate>
+                                                <listitem:HohoemaListItemMiniCard />
                                             </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
+                                        </ListView.ItemTemplate>
+                                    </ListView>
 
                                 </StackPanel>
 
+                            </ScrollViewer>
 
+                            <Border Height="16" />
 
-                                <!-- 予約された放送もここに表示する？ -->
+                        </StackPanel>
+                    </Grid>
 
-                            </Border>
-
-                            <!-- コミュニティのプロフィール -->
-                            <Border 
+                    <!-- コミュニティのプロフィール -->
+                    <Border 
                             Margin="0 4 0 4" 
                             Padding="0 4 0 4"
 
                             >
-                                <TextBlock Text="プロフィール"
+                        <TextBlock Text="プロフィール"
                                 FontSize="18"
                                 />
-                            </Border>
-                            <Border Margin="0 0 0 0">
-                                <WebView Source="{Binding ProfileHtmlFileUri}"
+                    </Border>
+                    <Border Margin="0 0 0 0">
+                        <WebView Source="{Binding ProfileHtmlFileUri}"
                                     HorizontalAlignment="Stretch"
                                     VerticalAlignment="Stretch"
                                     DefaultBackgroundColor="Transparent"
                                     >
-                                    <i:Interaction.Behaviors>
-                                        <mybehavior:WebViewAutoResizeToContent />
-                                        <mybehavior:WebViewNotifyUriClicked
+                            <i:Interaction.Behaviors>
+
+                                <mybehavior:PreventSpoilerXYNavigationInWebView />
+
+                                <mybehavior:WebViewAutoResizeToContent />
+                                <mybehavior:WebViewNotifyUriClicked
                                     Command="{Binding ScriptNotifyCommand}"
                                     />
 
-                                    </i:Interaction.Behaviors>
-                                </WebView>
-                            </Border>
+                            </i:Interaction.Behaviors>
+                        </WebView>
+                    </Border>
 
-                            <!-- コミュニティのお知らせ -->
+                    <!-- コミュニティのお知らせ -->
 
-                            <Border 
+                    <Border 
                             Margin="0 4 0 4" 
                             Padding="0 4 0 4"
                             Visibility="{Binding HasNews, Converter={StaticResource BooleanToVisibility}}"
                             >
-                                <TextBlock Text="お知らせ"
+                        <TextBlock Text="お知らせ"
                                 FontSize="18"
                                 />
-                            </Border>
-                            <Border  Margin="0 0 0 0"
+                    </Border>
+                    <Border  Margin="0 0 0 0"
                                  MaxWidth="960" 
                                     >
 
-                                <ItemsControl ItemsSource="{Binding NewsList}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <toolkit:DockPanel>
+                        <ItemsControl ItemsSource="{Binding NewsList}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <toolkit:DockPanel>
 
-                                                <Border toolkit:DockPanel.Dock="Top" 
+                                        <Border toolkit:DockPanel.Dock="Top" 
                                                     Margin="0 8" 
                                                     >
-                                                    <TextBlock Text="{Binding Title}"
+                                            <TextBlock Text="{Binding Title}"
                                                             Margin="8 0 0 0"
                                                             FontWeight="SemiBold"
                                                             />
-                                                </Border>
+                                        </Border>
 
-                                                <Border toolkit:DockPanel.Dock="Bottom"
+                                        <Border toolkit:DockPanel.Dock="Bottom"
                                                     HorizontalAlignment="Stretch"
                                                     >
-                                                    <TextBlock HorizontalAlignment="Right">
+                                            <TextBlock HorizontalAlignment="Right">
                                                     <Run Text="{Binding PostAt}" />
                                                     <Run Text=" | " />
                                                     <Run Text="{Binding AuthorName}" />
-                                                    </TextBlock>
-                                                </Border>
+                                            </TextBlock>
+                                        </Border>
 
-                                                <WebView Source="{Binding ContentHtmlFileUri}"
+                                        <WebView Source="{Binding ContentHtmlFileUri}"
                                                     HorizontalAlignment="Stretch"
                                                     VerticalAlignment="Stretch"
                                                     DefaultBackgroundColor="Transparent"
                                                     Margin="16 8 8 8"
                                                 >
-                                                    <i:Interaction.Behaviors>
-                                                        <mybehavior:WebViewAutoResizeToContent />
-                                                        <mybehavior:WebViewNotifyUriClicked
+                                            <i:Interaction.Behaviors>
+                                                <mybehavior:PreventSpoilerXYNavigationInWebView />
+
+                                                <mybehavior:WebViewAutoResizeToContent />
+                                                <mybehavior:WebViewNotifyUriClicked
                                                     Command="{Binding ScriptNotifyCommand}"
                                                     />
 
-                                                    </i:Interaction.Behaviors>
-                                                </WebView>
+                                            </i:Interaction.Behaviors>
+                                        </WebView>
 
-                                            </toolkit:DockPanel>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </Border>
-
-
-                        </StackPanel>
-
-                        <StackPanel>
-
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="コミュニティ動画" VerticalAlignment="Center" />
-
-                                <HyperlinkButton Content="一覧" 
-                                     Command="{Binding OpenCommunityVideoListPageCommand}"
-                                     Margin="16 0 0 0"
-                                     VerticalAlignment="Center"
-                                     />
-
-                            </StackPanel>
-
-                            <Border Height="8" />
-
-                            <ItemsControl ItemsSource="{Binding CommunityVideoSamples}" MaxWidth="960" >
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Margin="0 0 0 8">
-                                            <Button Content="{Binding Title}"
-                                        Command="{Binding OpenVideoPageCommand}"
-                                        HorizontalAlignment="Stretch"
-                                        Height="32"
-                                                 />
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                        </StackPanel>
-
-                        <StackPanel>
-
-                            <TextBlock Text="最近行われた生放送" />
-
-                            <Border Height="8" />
-
-                            <ItemsControl ItemsSource="{Binding RecentLiveList}" MaxWidth="960" >
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding StartTime}" />
-                                            <HyperlinkButton Content="{Binding LiveTitle}"
-                                                 Command="{Binding OpenLivePageCommand}"
-                                                 />
-                                            <TextBlock >
-                                            <Run>放送者：</Run>
-                                            <Run Text="{Binding StreamerName}" />
-                                            </TextBlock>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                        </StackPanel>
-
-                        <StackPanel>
-
-                            <TextBlock Text="予約された生放送" />
-
-                            <Border Height="8" />
-
-                            <ItemsControl ItemsSource="{Binding FutureLiveList}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding StartTime}" />
-                                            <HyperlinkButton Content="{Binding LiveTitle}"
-                                                         Command="{Binding OpenLivePageCommand}"
-                                                         />
-                                            <TextBlock >
-                                            <Run>放送者：</Run>
-                                            <Run Text="{Binding StreamerName}" />
-                                            </TextBlock>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                        </StackPanel>
-
-
-
-                    </StackPanel>
+                                    </toolkit:DockPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </Border>
 
                 </StackPanel>
-
-
             </ScrollViewer>
-        </toolkit:DockPanel>
+
+
+            <Grid x:Name="HeaderLayout"
+                  VerticalAlignment="Top"
+                  >
+
+                <Border Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
+                        Opacity="0.75"
+                        />
+
+                <StackPanel 
+                    >
+                    <Border x:Name="TVModeMarginBordar" />
+
+                    <Border Height="{StaticResource TitleBarDummyHeight}" />
+
+
+                    <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="16 0 0 0"
+                            Height="48"
+                                >
+
+                        <toolkit:DockPanel VerticalAlignment="Center">
+
+                            <TextBlock Text="コミュニティ情報" 
+                                            Style="{StaticResource TitleTextBlockStyle}"
+                                       x:Name="TitleLayout"
+                                    >
+
+                            </TextBlock>
+                        </toolkit:DockPanel>
+                    </Border>
+
+                </StackPanel>
+            </Grid>
+        </Grid>
+        
     </Grid>
-    
-   
 </Page>
