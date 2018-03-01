@@ -400,7 +400,6 @@
     <Compile Include="ViewModels\PlayerSidePaneContent\SidePaneContentViewModelBase.cs" />
     <Compile Include="Views\Behaviors\FocusGetter.cs" />
     <Compile Include="Views\Behaviors\AutoHideCursor.cs" />
-    <Compile Include="Views\Behaviors\GammaTransfer.cs" />
     <Compile Include="Views\Behaviors\ListViewBaseItemContextFlyout.cs" />
     <Compile Include="Views\Behaviors\Swipe.cs" />
     <Compile Include="Views\Behaviors\WhenCompactOverlayTitleBarSetter.cs" />
@@ -433,9 +432,6 @@
     </Compile>
     <Compile Include="Views\Converters\PageTypeToMaterialIconKind.cs" />
     <Compile Include="Views\Converters\SwipeSeekValueToTimeSpan.cs" />
-    <Compile Include="Views\Effects\GammaTransfer.cs" />
-    <Compile Include="Views\Effects\MediaPlayerEffectBase.cs" />
-    <Compile Include="Views\Extensions\GammaTransferExtension.cs" />
     <Compile Include="Views\Flyouts\FeedSourceFlyout.xaml.cs">
       <DependentUpon>FeedSourceFlyout.xaml</DependentUpon>
     </Compile>
@@ -1213,7 +1209,9 @@
       <Name>Visual C++ 2015 Runtime for Universal Windows Platform Apps</Name>
     </SDKReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Views\Effects\" />
+  </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
   </PropertyGroup>
