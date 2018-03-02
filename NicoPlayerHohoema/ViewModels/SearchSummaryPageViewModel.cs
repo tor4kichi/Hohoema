@@ -150,8 +150,6 @@ namespace NicoPlayerHohoema.ViewModels
                 UpdateTitle($"\"{Keyword}\"を検索");
 
                 SearchWithTargetCommand.RaiseCanExecuteChanged();
-
-                Models.Db.SearchHistoryDb.Searched(Keyword, SearchTarget.Keyword);
             }
 
             return base.NavigatedToAsync(cancelToken, e, viewModelState);

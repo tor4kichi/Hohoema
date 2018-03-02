@@ -1,5 +1,4 @@
 ﻿<Page
-    x:Name="PageRoot"
     x:Class="NicoPlayerHohoema.Views.SearchPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -18,118 +17,167 @@
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:uwpextensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:templateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
     mc:Ignorable="d">
 
     <Page.Resources>
 
 
         <DataTemplate x:Key="VideoSearchTargetTemplate">
-            <ComboBox ItemsSource="{Binding VideoSearchOptionListItems}"
-                                  DisplayMemberPath="Label"
-                                  SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}"
-                                  Margin="0"
-                                  HorizontalAlignment="Stretch"
-                                  VerticalAlignment="Center"
-                                  TabIndex="2"
-                                  IsTabStop="True"
-                                  Width="150"
+            <ListView ItemsSource="{Binding VideoSearchOptionListItems}"
+                        DisplayMemberPath="Label"
+                        SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}"
+                        Margin="0"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Center"
+                      SelectionMode="Single"
+                      SingleSelectionFollowsFocus="False"
                               >
 
-            </ComboBox>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Width" Value="180" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <ItemsWrapGrid Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+                
+            </ListView>
 
         </DataTemplate>
-        
+
         <DataTemplate x:Key="MylistSearchTargetTemplate">
-            <ComboBox ItemsSource="{Binding MylistSearchOptionListItems}"
+            <ListView ItemsSource="{Binding MylistSearchOptionListItems}"
                                   DisplayMemberPath="Label"
                                   SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}"
                                   Margin="0"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Center"
-                                  TabIndex="2"
-                                  IsTabStop="True"
-                                  Width="150"
+                                  SelectionMode="Single"
+                      SingleSelectionFollowsFocus="False"
                               >
-
-            </ComboBox>
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="Width" Value="180" />
+                    </Style>
+                </ListView.ItemContainerStyle>
+                <ListView.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <ItemsWrapGrid Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+            </ListView>
 
         </DataTemplate>
 
         <DataTemplate x:Key="CommunitySearchTargetTemplate">
 
-            <StackPanel Orientation="Horizontal" >
-                <ComboBox ItemsSource="{Binding CommunitySearchSortOptionListItems}"
+            <StackPanel >
+                <ListView ItemsSource="{Binding CommunitySearchSortOptionListItems}"
                                   DisplayMemberPath="Label"
                                   SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}"
                                   Margin="0"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Center"
-                                  IsTabStop="True"
-                                  Width="150"
+                                  SelectionMode="Single"
+                          SingleSelectionFollowsFocus="False"
                               >
+                    <ListView.ItemContainerStyle>
+                        <Style TargetType="ListViewItem">
+                            <Setter Property="Width" Value="180" />
+                        </Style>
+                    </ListView.ItemContainerStyle>
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsWrapGrid Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                </ListView>
 
-                </ComboBox>
-
-                <ComboBox ItemsSource="{Binding CommunitySearchModeOptionListItems}"
+                <ListView ItemsSource="{Binding CommunitySearchModeOptionListItems}"
                                   DisplayMemberPath="Label"
                                   SelectedItem="{Binding SelectedSearchMode.Value, Mode=TwoWay}"
                                   Margin="0 0 0 0"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Center"
-                                  IsTabStop="True"
-                                  Width="150"
+                          SelectionMode="Single"
+                                  SingleSelectionFollowsFocus="False"
+                          
                               >
-                </ComboBox>
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsWrapGrid Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                </ListView>
 
-                
+
             </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="LiveVideoSearchTargetTemplate">
 
-            
-            <toolkit:WrapPanel Orientation="Horizontal" >
-                <!-- Note: 検索結果が期待したソート状態で取れていないため一旦オプションを利用不可に -->
-                
-                <ComboBox ItemsSource="{Binding LiveSearchSortOptionListItems}"
+
+            <StackPanel>
+                <!--
+                <ListView ItemsSource="{Binding LiveSearchSortOptionListItems}"
                                   DisplayMemberPath="Label"
                                   SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}"
                                   Margin="0"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Center"
-                                  IsTabStop="True"
-                                  Width="160"
+                                  SelectionMode="Single"
+                          SingleSelectionFollowsFocus="False"
                               >
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsWrapGrid Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
 
-                </ComboBox>
-                
+                </ListView>
+                -->
 
-                <ComboBox ItemsSource="{Binding LiveSearchModeOptionListItems}"
+                <ListView ItemsSource="{Binding LiveSearchModeOptionListItems}"
                                   DisplayMemberPath="Label"
                                   SelectedItem="{Binding SelectedSearchMode.Value, Mode=TwoWay}"
                                   Margin="0 0 0 0"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Center"
-                                  IsTabStop="True"
-                                  Width="100"
+                                  SelectionMode="Single"
+                          SingleSelectionFollowsFocus="False"
                               >
-                </ComboBox>
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsWrapGrid Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                </ListView>
 
-                <ComboBox ItemsSource="{Binding LiveSearchProviderOptionListItems}"
+                <ListView ItemsSource="{Binding LiveSearchProviderOptionListItems}"
                                   DisplayMemberPath="Label"
                                   SelectedItem="{Binding SelectedProvider.Value, Mode=TwoWay}"
                                   Margin="0 0 0 0"
                                   HorizontalAlignment="Stretch"
                                   VerticalAlignment="Center"
-                                  IsTabStop="True"
-                                  Width="100"
+                                  SelectionMode="Single"
+                          SingleSelectionFollowsFocus="False"
                               >
-                </ComboBox>
-            </toolkit:WrapPanel>
+                    <ListView.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <ItemsWrapGrid Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ListView.ItemsPanel>
+                </ListView>
+            </StackPanel>
         </DataTemplate>
 
 
-        <local:SearchTargetContentTemplateSelector x:Key="SearchTargetContentTemplateSelector"
+        <templateSelector:SearchTargetContentTemplateSelector x:Key="SearchTargetContentTemplateSelector"
                                                    Video="{StaticResource VideoSearchTargetTemplate}"
                                                    Mylist="{StaticResource MylistSearchTargetTemplate}"
                                                    Community="{StaticResource CommunitySearchTargetTemplate}"
@@ -139,19 +187,32 @@
 
 
 
+        <DataTemplate x:Key="SearchHistoryItemTemplate">
+            <toolkit:DockPanel Margin="0"
+                                                       Height="64"
+                                                       Width="120"
+                                                >
+                <TextBlock Text="{Binding Keyword}"
+                                           Margin="0 0 0 4"
+                                                   HorizontalAlignment="Stretch"
+                                                   toolkit:DockPanel.Dock="Top"
+                                                   TextWrapping="Wrap"
+                                           />
+                <TextBlock Text="{Binding Target, Converter={StaticResource ToLocalText}}" 
+                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                                   Opacity="0.7"
+                                       />
 
 
+            </toolkit:DockPanel>
+        </DataTemplate>
 
 
         
+
+
+
     </Page.Resources>
-
-
-    <i:Interaction.Behaviors>
-        <core:EventTriggerBehavior EventName="Unloaded">
-            <core:CallMethodAction TargetObject="{Binding}" MethodName="Dispose" />
-        </core:EventTriggerBehavior>
-    </i:Interaction.Behaviors>
 
 
     <Grid>
@@ -165,7 +226,13 @@
                         <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
+                        <Setter Target="TitleLayout.Margin" Value="96 0 0 0" />
+                        <Setter Target="HeaderLayout.Margin" Value="16 0 0 0" />
+
+                        <Setter Target="ContentLayout.Margin" Value="48 16 48 27" />
+                        <Setter Target="TVModeMarginBordar.Height" Value="27" />
+
+                        <Setter Target="ContentLayout.MaxWidth" Value="1280" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -185,234 +252,154 @@
                 </VisualState>
             </VisualStateGroup>
             
-            <!-- TVモードの仮対応 -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="ContentLayout.Margin" Value="0 27 48 27" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-        
-        <Border x:Name="ContentLayout">
 
-            
-            <toolkit:DockPanel>
+        <Border >
 
-                
-                
-                <StackPanel toolkit:DockPanel.Dock="Top" 
-                    >
-                    <Border Height="{StaticResource TitleBarDummyHeight}" />
-                    
-                    <toolkit:DockPanel >
-
+            <Grid Margin="0 0 0 0">
+                <ScrollViewer >
+                    <StackPanel Orientation="Vertical"
+                                Margin="16 8"
+                                x:Name="ContentLayout"
+                                HorizontalAlignment="Left"
+                                >
                         
-                        <StackPanel toolkit:DockPanel.Dock="Right"
-                            Orientation="Horizontal"
+                        <Border Height="{Binding ElementName=HeaderLayout, Path=ActualHeight, Mode=OneWay}" />
+
+                        <toolkit:DockPanel
+                            Margin="0"
                             >
 
-                            <StackPanel Orientation="Horizontal"
-                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                >
-                            </StackPanel>
-
-                            <StackPanel Orientation="Horizontal"
-                                Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                >
-                                <AppBarButton Command="{Binding DeleteSelectedSearchHistoryCommand}"
-                                        Background="Transparent"
-                                                Label="履歴削除"
-                                                Icon="Delete"
-                                        />
-
-                            </StackPanel>
-
-
-
-                            <ToggleButton Background="Transparent"
-                                    IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                    ToolTipService.ToolTip="選択"
-                                    >
-                                <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" />
-                            </ToggleButton>
-
-
-                        </StackPanel>
-
-
-                        <Border Background="Transparent" IsHitTestVisible="True"
-                                Margin="16 0 0 0"
-                                >
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:ChangePropertyAction TargetObject="{Binding ListViewVerticalOffset}" PropertyName="Value" Value="0" />
-                                </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
                             
-                            <TextBlock Text="{Binding Title}" 
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource TitleTextBlockStyle}"
-                                       x:Name="TitleLayout"
-                                    >
-                            </TextBlock>
-                        </Border>
 
+                            <!-- ターゲット（Keyword, Tag etc） -->
+                            <Border Margin="0 0 16 0"
+                                        toolkit:DockPanel.Dock="Top"
+                                        >
 
-                    </toolkit:DockPanel>
-                </StackPanel>
-
-
-                <StackPanel toolkit:DockPanel.Dock="Top" MaxWidth="640" Margin="16 8"
-                            Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                            >
-                    <!-- ターゲット（Keyword, Tag etc） -->
-                    <Border toolkit:DockPanel.Dock="Top" 
-                        >
-                        <toolkit:DockPanel >
-
-                            <StackPanel Orientation="Horizontal"
-                                toolkit:DockPanel.Dock="Left"
-                                >
-                                <Border Margin="0 0 8 0">
-
-                                    <ComboBox ItemsSource="{Binding TargetListItems}"
+                                <ListView ItemsSource="{Binding TargetListItems}"
                                           SelectedItem="{Binding SelectedTarget.Value, Mode=TwoWay}"
                                           HorizontalAlignment="Stretch"
                                           TabIndex="1"
                                           IsTabStop="True"
-                                          Width="120"
-                                          VerticalAlignment="Center"
-                                              IsEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanInverted}}"
+                                          UseSystemFocusVisuals="True"
+                                          IsSynchronizedWithCurrentItem="False"
                                          >
-                                        <ComboBox.ItemTemplate>
-                                            <DataTemplate>
-                                                <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
-                                            </DataTemplate>
-                                        </ComboBox.ItemTemplate>
-                                    </ComboBox>
-                                </Border>
-                            </StackPanel>
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
 
-
-                            <Border Margin="0">
-                                <ContentControl Content="{Binding SearchOptionVM.Value}"
-                                        ContentTemplateSelector="{StaticResource SearchTargetContentTemplateSelector}" 
-                                        HorizontalContentAlignment="Stretch"
-                                        VerticalContentAlignment="Stretch"
-                                        IsEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanInverted}}"
-                                        IsTabStop="False"
-                                        />
+                                    <ListView.ItemsPanel>
+                                        <ItemsPanelTemplate>
+                                            <ItemsWrapGrid Orientation="Horizontal" />
+                                        </ItemsPanelTemplate>
+                                    </ListView.ItemsPanel>
+                                </ListView>
                             </Border>
 
 
 
-                        </toolkit:DockPanel>
-                    </Border>
+                            <!-- 検索 -->
+                            <StackPanel>
+                                <toolkit:DockPanel>
 
-                    <!-- 検索 -->
-                    <toolkit:DockPanel>
-
-                        <Button Margin="0 0 0 0"            
-                                Command="{Binding DoSearchCommand}"
-                                MinWidth="120"
-                                toolkit:DockPanel.Dock="Right"
-                                UseSystemFocusVisuals="True"
+                                    <Button Margin="0 0 0 0"            
+                                            Command="{Binding DoSearchCommand}"
+                                            Width="96"
+                                            Height="48"
+                                            toolkit:DockPanel.Dock="Right"
+                                            UseSystemFocusVisuals="True"
                                             >
-                            <StackPanel Orientation="Horizontal">
+                                        <StackPanel Orientation="Horizontal">
 
-                                <TextBlock Text="検索" />
-                                <Border Width="8" />
-                                <SymbolIcon Symbol="Find" />
+                                            <SymbolIcon Symbol="Find" />
+
+                                        </StackPanel>
+                                    </Button>
+                                    <TextBox Text="{Binding SearchText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                            HorizontalAlignment="Stretch" 
+                                            ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
+                                            VerticalAlignment="Stretch"
+                                            InputScope="Search"
+                                            x:Name="SearchTextBox"
+                                            Margin="0 0 0 0"
+                                            Height="48"
+                                            FontSize="18"
+                                             Style="{StaticResource BGTransparentTextBoxStyle}"
+                                    >
+                                        <i:Interaction.Behaviors>
+                                            <mybehavior:KeyboardTrigger Key="Enter" >
+                                                <mybehavior:KeyboardTrigger.Actions>
+                                                    <core:InvokeCommandAction Command="{Binding DoSearchCommand}" />
+                                                    <mybehavior:HideInputPaneAction />
+                                                </mybehavior:KeyboardTrigger.Actions>
+                                            </mybehavior:KeyboardTrigger>
+                                        </i:Interaction.Behaviors>
+
+                                    </TextBox>
+
+
+
+
+
+
+                                </toolkit:DockPanel>
+
+
+                                <!-- 検索オプション -->
+                                <uwpControls:Expander Content="{Binding SearchOptionVM.Value}"
+                                                      ContentTemplateSelector="{StaticResource SearchTargetContentTemplateSelector}" 
+                                                      Header="検索オプション"
+                                                  toolkit:DockPanel.Dock="Bottom"
+                                                      Margin="0 8 0 0"
+                                                      HorizontalContentAlignment="Left"
+                                                      >
+                                </uwpControls:Expander>
 
                             </StackPanel>
-                        </Button>
-                        <TextBox Text="{Binding SearchText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                                        HorizontalAlignment="Stretch" 
-                                        ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
-                                        VerticalAlignment="Stretch"
-                                        InputScope="Search"
-                                        x:Name="SearchTextBox"
-                                        Margin="0 8 8 8"
+
+                        </toolkit:DockPanel>
+
+                    </StackPanel>
+                    
+                </ScrollViewer>
+
+
+                <Grid x:Name="HeaderLayout"
+                      VerticalAlignment="Top"
+                      >
+                    <Border Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
+                        Opacity="0.75"
+                        />
+
+                    <StackPanel >
+
+                        <Border x:Name="TVModeMarginBordar" />
+
+                        <Border Height="{StaticResource TitleBarDummyHeight}" />
+
+
+                        <StackPanel Orientation="Horizontal"
                                     Height="48"
-                                    FontSize="18"
-                                 Style="{StaticResource BGTransparentTextBoxStyle}"
-                                 IsEnabled="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                     >
-                            <i:Interaction.Behaviors>
-                                <mybehavior:KeyboardTrigger Key="Enter" >
-                                    <mybehavior:KeyboardTrigger.Actions>
-                                        <core:InvokeCommandAction Command="{Binding DoSearchCommand}" />
-                                        <mybehavior:HideInputPaneAction />
-                                    </mybehavior:KeyboardTrigger.Actions>
-                                </mybehavior:KeyboardTrigger>
-                            </i:Interaction.Behaviors>
+                            <TextBlock Text="{Binding Title}" 
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource TitleTextBlockStyle}"
+                                    x:Name="TitleLayout"
+                                       Margin="16 0 0 0"
+                                   
+                                    >
+                            </TextBlock>
 
-                        </TextBox>
-                        
-                            
-
-                            
+                        </StackPanel>
+                    </StackPanel>
 
 
-                    </toolkit:DockPanel>
-                    
-                </StackPanel>
-
-
-
-
-
-
-
-                <controls:IncrementalLoadingList MaxWidth="640" 
-                                                 ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
-                                                SelectedItems="{Binding SelectedItems, Mode=TwoWay}"
-                                                RefreshCommand="{Binding RefreshCommand}"
-                                                ItemCommand="{StaticResource OpenContentCommand}"
-                                                IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
-                                                        >
-                    <controls:IncrementalLoadingList.ItemTemplate>
-                        <DataTemplate>
-                            <toolkit:DockPanel Margin="16 0"
-                                               HorizontalAlignment="Left"
-                                                >
-                                <TextBlock Text="{Binding Target, Converter={StaticResource ToLocalText}}" 
-                                           Style="{StaticResource CaptionTextBlockStyle}"
-                                           VerticalAlignment="Center"
-                                           Opacity="0.7"
-                                           toolkit:DockPanel.Dock="Left"
-                                           Width="80"
-                                       />
-
-                                <TextBlock Text="{Binding Keyword}"
-                                           Margin="0 0 24 0"
-                                                   HorizontalAlignment="Stretch"
-                                                   
-                                                   TextWrapping="Wrap"
-                                           VerticalAlignment="Center"
-                                           />
-
-                            </toolkit:DockPanel>
-                        </DataTemplate>
-                    </controls:IncrementalLoadingList.ItemTemplate>
-
-                    <controls:IncrementalLoadingList.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <ItemsStackPanel Margin="0 0 0 27" />
-                        </ItemsPanelTemplate>
-                    </controls:IncrementalLoadingList.ItemsPanel>
-                    
-                    
-                </controls:IncrementalLoadingList>
-
-
-
-            </toolkit:DockPanel>
+                </Grid>
+                
+            </Grid>
         </Border>
     </Grid>
 </Page>

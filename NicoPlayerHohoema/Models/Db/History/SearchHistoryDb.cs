@@ -19,7 +19,7 @@ namespace NicoPlayerHohoema.Models.Db
 
 		public const uint MaxSearchHistoryCount = 30;
 
-		public static void Searched(string keyword, SearchTarget target)
+		public static SearchHistory Searched(string keyword, SearchTarget target)
 		{
 			using (var db = new HistoryDbContext())
 			{
@@ -55,7 +55,9 @@ namespace NicoPlayerHohoema.Models.Db
 				}
 
 				db.SaveChanges();
-			}
+
+                return searchHistory;
+            }
 		}
 
 		public static List<SearchHistory> GetHistoryItems()

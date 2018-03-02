@@ -69,13 +69,11 @@ namespace NicoPlayerHohoema.Commands
                 var pageManager = HohoemaCommnadHelper.GetPageManager();
                 pageManager.OpenPage(Models.HohoemaPageType.FeedVideoList, content.Id);
             }
-            else if (parameter is ViewModels.SearchHistoryListItem)
+            else if (parameter is Interfaces.ISearchHistory)
             {
-                var historyVM = parameter as ViewModels.SearchHistoryListItem;
-                historyVM.PrimaryCommand.Execute(null);
-//                var content = parameter as Interfaces.ISearchHistory;
-//                var pageManager = HohoemaCommnadHelper.GetPageManager();
-//                pageManager.Search(SearchPagePayloadContentHelper.CreateDefault(SearchTarget.Tag, content.Tag));
+                var history = parameter as Interfaces.ISearchHistory;                
+                var pageManager = HohoemaCommnadHelper.GetPageManager();
+                pageManager.Search(SearchPagePayloadContentHelper.CreateDefault(history.Target, history.Keyword));
             }
 
 

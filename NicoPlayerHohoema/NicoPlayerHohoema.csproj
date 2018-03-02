@@ -184,6 +184,7 @@
     <Compile Include="Commands\RemoveFeedSourceCommand.cs" />
     <Compile Include="Commands\RemoveFollowCommand.cs" />
     <Compile Include="Commands\RemovePinCommand.cs" />
+    <Compile Include="Commands\RemoveSearchHistoryCommand.cs" />
     <Compile Include="Commands\ShareWithTwitterCommand.cs" />
     <Compile Include="Commands\ShereCommand.cs" />
     <Compile Include="Commands\VideoDeleteCacheCommand.cs" />
@@ -442,6 +443,7 @@
     <Compile Include="Views\RankingCategoryPage.xaml.cs">
       <DependentUpon>RankingCategoryPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\TemplateSelector\SearchTargetContentTemplateSelector.cs" />
     <Compile Include="Views\UserMylistPage_TV.xaml.cs">
       <DependentUpon>UserMylistPage_TV.xaml</DependentUpon>
     </Compile>
@@ -595,8 +597,8 @@
     <Compile Include="Views\RankingChoiceContentDialog.xaml.cs">
       <DependentUpon>RankingChoiceContentDialog.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\SearchPage_TV.xaml.cs">
-      <DependentUpon>SearchPage_TV.xaml</DependentUpon>
+    <Compile Include="Views\SearchPage.xaml.cs">
+      <DependentUpon>SearchPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SearchResultCommunityPage.xaml.cs">
       <DependentUpon>SearchResultCommunityPage.xaml</DependentUpon>
@@ -686,9 +688,6 @@
       <DependentUpon>RankingCategoryListPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Views\SearchPage.xaml.cs">
-      <DependentUpon>SearchPage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\SettingsPage.xaml.cs">
       <DependentUpon>SettingsPage.xaml</DependentUpon>
     </Compile>
@@ -1023,7 +1022,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\SearchPage_TV.xaml">
+    <Page Include="Views\SearchPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1104,10 +1103,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\RankingCategoryListPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\SearchPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

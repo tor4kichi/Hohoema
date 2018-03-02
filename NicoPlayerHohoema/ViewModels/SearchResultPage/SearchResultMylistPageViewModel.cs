@@ -61,9 +61,6 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
 
-            Models.Db.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
-
-
             var target = "マイリスト";
 			var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
 			UpdateTitle($"{SearchOption.Keyword} - {target}/{optionText}");

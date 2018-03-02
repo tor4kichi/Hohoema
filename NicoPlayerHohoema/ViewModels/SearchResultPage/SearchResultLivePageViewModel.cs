@@ -227,8 +227,6 @@ namespace NicoPlayerHohoema.ViewModels
             SelectedProvider.Value = LiveSearchProviderOptionListItems.FirstOrDefault(x => x.Provider == SearchOption.Provider);
             _NowNavigatingTo = false;
 
-            Models.Db.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
-
             var target = "生放送";
             var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
             var providerText = SelectedProvider.Value.Label;
