@@ -166,17 +166,28 @@
                         </CommandBar.SecondaryCommands>
 
                         <CommandBar.Content>
-                            <Border Background="Transparent" IsHitTestVisible="True"
+                            <toolkit:DockPanel 
                                         Margin="16 0 0 0"
                                     x:Name="TitleLayout"
                                 >
-                                <i:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="Tapped">
-                                        <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
-                                    </core:EventTriggerBehavior>
-                                </i:Interaction.Behaviors>
 
-                                <StackPanel>
+                                <HyperlinkButton Command="{StaticResource OpenHohoemaPageCommand}"
+                                             CommandParameter="Search"
+                                             Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                             Margin="0 0 16 0"
+                                                 toolkit:DockPanel.Dock="Left"
+                                             >
+                                    <SymbolIcon Symbol="Find"
+                                            />
+                                </HyperlinkButton>
+
+                                <StackPanel Background="Transparent" IsHitTestVisible="True">
+
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
 
                                     <TextBlock Text="{Binding Title}" 
                                             Style="{StaticResource SubtitleTextBlockStyle}"
@@ -232,7 +243,7 @@
                                     </HyperlinkButton>
                                     
                                 </StackPanel>
-                            </Border>
+                            </toolkit:DockPanel>
                         </CommandBar.Content>
 
                     </CommandBar>

@@ -92,6 +92,17 @@
                                 </i:Interaction.Behaviors>
 
                                 <toolkit:DockPanel VerticalAlignment="Center">
+
+                                    <HyperlinkButton Command="{StaticResource OpenHohoemaPageCommand}"
+                                             CommandParameter="Search"
+                                             Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                             Margin="0 0 16 0"
+                                                 toolkit:DockPanel.Dock="Left"
+                                             >
+                                        <SymbolIcon Symbol="Find"
+                                            />
+                                    </HyperlinkButton>
+                                    
                                     <HyperlinkButton 
                                            toolkit:DockPanel.Dock="Bottom"
                                     >
