@@ -91,12 +91,13 @@
                                              Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                              Margin="0 0 16 0"
                                                  toolkit:DockPanel.Dock="Left"
+                                                 VerticalAlignment="Stretch"
                                              >
                                     <SymbolIcon Symbol="Find"
                                             />
                                 </HyperlinkButton>
 
-                                <StackPanel Background="Transparent" IsHitTestVisible="True">
+                                <StackPanel Orientation="Horizontal" Background="Transparent" IsHitTestVisible="True">
                                     <i:Interaction.Behaviors>
                                         <core:EventTriggerBehavior EventName="Tapped">
                                             <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
@@ -106,7 +107,6 @@
                                     <TextBlock Text="{Binding Title}" 
                                                 VerticalAlignment="Center"
                                                 Style="{StaticResource SubtitleTextBlockStyle}"
-                                   
                                                 >
                                     </TextBlock>
                                 </StackPanel>

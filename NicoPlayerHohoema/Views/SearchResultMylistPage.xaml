@@ -84,12 +84,15 @@
 
                             <toolkit:DockPanel x:Name="TitleLayout"
                             Margin="16 0 0 0"
+                                               
                             >
                                 <HyperlinkButton Command="{StaticResource OpenHohoemaPageCommand}"
                                              CommandParameter="Search"
                                              Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                              Margin="0 0 16 0"
                                                  toolkit:DockPanel.Dock="Left"
+                                                 VerticalAlignment="Stretch"
+                                                 Height="48"
                                              >
                                     <SymbolIcon Symbol="Find"
                                             />
@@ -105,7 +108,6 @@
                                     <TextBlock Text="{Binding Title}" 
                                             VerticalAlignment="Center"
                                             Style="{StaticResource SubtitleTextBlockStyle}"
-                                   
                                             >
                                     </TextBlock>
 

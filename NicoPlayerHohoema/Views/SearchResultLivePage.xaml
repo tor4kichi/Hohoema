@@ -98,6 +98,7 @@
                                              Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                              Margin="0 0 16 0"
                                                  toolkit:DockPanel.Dock="Left"
+                                                     VerticalAlignment="Stretch"
                                              >
                                         <SymbolIcon Symbol="Find"
                                             />
