@@ -189,20 +189,10 @@
 
         <DataTemplate x:Key="SearchHistoryItemTemplate">
             <toolkit:DockPanel Margin="0"
-                                                       Height="64"
-                                                       Width="120"
                                                 >
                 <TextBlock Text="{Binding Keyword}"
-                                           Margin="0 0 0 4"
-                                                   HorizontalAlignment="Stretch"
-                                                   toolkit:DockPanel.Dock="Top"
                                                    TextWrapping="Wrap"
                                            />
-                <TextBlock Text="{Binding Target, Converter={StaticResource ToLocalText}}" 
-                                           Style="{StaticResource CaptionTextBlockStyle}"
-                                                   Opacity="0.7"
-                                       />
-
 
             </toolkit:DockPanel>
         </DataTemplate>
@@ -247,7 +237,7 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
+                        <Setter Target="TitleLayout.Margin" Value="64 0 0 0" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -257,27 +247,28 @@
         <Border >
 
             <Grid Margin="0 0 0 0">
-                <ScrollViewer >
-                    <StackPanel Orientation="Vertical"
+                <toolkit:DockPanel 
                                 Margin="16 8"
                                 x:Name="ContentLayout"
-                                HorizontalAlignment="Left"
                                 >
-                        
-                        <Border Height="{Binding ElementName=HeaderLayout, Path=ActualHeight, Mode=OneWay}" />
 
-                        <toolkit:DockPanel
+                    <Border Height="{Binding ElementName=HeaderLayout, Path=ActualHeight, Mode=OneWay}"
+                            toolkit:DockPanel.Dock="Top"
+                            />
+
+                    <toolkit:DockPanel
                             Margin="0"
+                        toolkit:DockPanel.Dock="Top"
                             >
 
-                            
 
-                            <!-- ターゲット（Keyword, Tag etc） -->
-                            <Border Margin="0 0 16 0"
+
+                        <!-- ターゲット（Keyword, Tag etc） -->
+                        <Border Margin="0 0 16 0"
                                         toolkit:DockPanel.Dock="Top"
                                         >
 
-                                <ListView ItemsSource="{Binding TargetListItems}"
+                            <ListView ItemsSource="{Binding TargetListItems}"
                                           SelectedItem="{Binding SelectedTarget.Value, Mode=TwoWay}"
                                           HorizontalAlignment="Stretch"
                                           TabIndex="1"
@@ -285,40 +276,40 @@
                                           UseSystemFocusVisuals="True"
                                           IsSynchronizedWithCurrentItem="False"
                                          >
-                                    <ListView.ItemTemplate>
-                                        <DataTemplate>
-                                            <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
-                                        </DataTemplate>
-                                    </ListView.ItemTemplate>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
 
-                                    <ListView.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <ItemsWrapGrid Orientation="Horizontal" />
-                                        </ItemsPanelTemplate>
-                                    </ListView.ItemsPanel>
-                                </ListView>
-                            </Border>
+                                <ListView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <ItemsWrapGrid Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ListView.ItemsPanel>
+                            </ListView>
+                        </Border>
 
 
 
-                            <!-- 検索 -->
-                            <StackPanel>
-                                <toolkit:DockPanel>
+                        <!-- 検索 -->
+                        <StackPanel>
+                            <toolkit:DockPanel>
 
-                                    <Button Margin="0 0 0 0"            
+                                <Button Margin="0 0 0 0"            
                                             Command="{Binding DoSearchCommand}"
                                             Width="96"
                                             Height="48"
                                             toolkit:DockPanel.Dock="Right"
                                             UseSystemFocusVisuals="True"
                                             >
-                                        <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal">
 
-                                            <SymbolIcon Symbol="Find" />
+                                        <SymbolIcon Symbol="Find" />
 
-                                        </StackPanel>
-                                    </Button>
-                                    <TextBox Text="{Binding SearchText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                                    </StackPanel>
+                                </Button>
+                                <TextBox Text="{Binding SearchText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                                             HorizontalAlignment="Stretch" 
                                             ext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
                                             VerticalAlignment="Stretch"
@@ -329,48 +320,66 @@
                                             FontSize="18"
                                              Style="{StaticResource BGTransparentTextBoxStyle}"
                                     >
-                                        <i:Interaction.Behaviors>
-                                            <mybehavior:KeyboardTrigger Key="Enter" >
-                                                <mybehavior:KeyboardTrigger.Actions>
-                                                    <core:InvokeCommandAction Command="{Binding DoSearchCommand}" />
-                                                    <mybehavior:HideInputPaneAction />
-                                                </mybehavior:KeyboardTrigger.Actions>
-                                            </mybehavior:KeyboardTrigger>
-                                        </i:Interaction.Behaviors>
+                                    <i:Interaction.Behaviors>
+                                        <mybehavior:KeyboardTrigger Key="Enter" >
+                                            <mybehavior:KeyboardTrigger.Actions>
+                                                <core:InvokeCommandAction Command="{Binding DoSearchCommand}" />
+                                                <mybehavior:HideInputPaneAction />
+                                            </mybehavior:KeyboardTrigger.Actions>
+                                        </mybehavior:KeyboardTrigger>
+                                    </i:Interaction.Behaviors>
 
-                                    </TextBox>
-
-
+                                </TextBox>
 
 
 
 
-                                </toolkit:DockPanel>
 
 
-                                <!-- 検索オプション -->
-                                <uwpControls:Expander Content="{Binding SearchOptionVM.Value}"
+                            </toolkit:DockPanel>
+
+
+                            <!-- 検索オプション -->
+                            <uwpControls:Expander Content="{Binding SearchOptionVM.Value}"
                                                       ContentTemplateSelector="{StaticResource SearchTargetContentTemplateSelector}" 
                                                       Header="検索オプション"
                                                   toolkit:DockPanel.Dock="Bottom"
                                                       Margin="0 8 0 0"
                                                       HorizontalContentAlignment="Left"
                                                       >
-                                </uwpControls:Expander>
+                            </uwpControls:Expander>
 
-                            </StackPanel>
+                        </StackPanel>
 
-                        </toolkit:DockPanel>
+                    </toolkit:DockPanel>
 
-                    </StackPanel>
                     
-                </ScrollViewer>
+                    <TextBlock Text="検索履歴"
+                                   Style="{StaticResource SubtitleTextBlockStyle}"
+                                   Margin="0 24 0 8"
+                               toolkit:DockPanel.Dock="Top"
+                                   >
+
+                    </TextBlock>
+
+                    <ListView ItemsSource="{Binding SearchHistoryItems}"
+                                  ItemTemplate="{StaticResource SearchHistoryItemTemplate}"
+                                  uwpextensions:ListViewBase.Command="{Binding SearchHistoryItemCommand}"
+                                  IsItemClickEnabled="True"
+                                  SelectionMode="None"
+                              SingleSelectionFollowsFocus="False"
+                                  >
+
+                    </ListView>
+
+                </toolkit:DockPanel>
+                    
 
 
                 <Grid x:Name="HeaderLayout"
                       VerticalAlignment="Top"
                       >
-                    <Border Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
+                    <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                         Opacity="0.75"
                         />
 

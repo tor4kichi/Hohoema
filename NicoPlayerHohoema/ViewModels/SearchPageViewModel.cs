@@ -51,7 +51,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public bool IsSearchNiconama => RequireSearchOption is LiveSearchPagePayloadContent;
 
 
-        public ObservableCollection<SearchHistoryListItem> SearchHistoryItems { get; private set; } = new ObservableCollection<SearchHistoryListItem>();
+        public ObservableCollection<SearchHistory> SearchHistoryItems { get; private set; } = new ObservableCollection<SearchHistory>();
 
         private void RaiseSearchTargetFlags()
 		{
@@ -65,11 +65,17 @@ namespace NicoPlayerHohoema.ViewModels
 		public SearchPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
 			: base(hohoemaApp, pageManager)
 		{
-            foreach (var item in SearchHistoryDb.GetHistoryItems().Take(10)
-                .Select(x => new SearchHistoryListItem(x, this))
+            HashSet<string> HistoryKeyword = new HashSet<string>();
+            foreach (var item in SearchHistoryDb.GetHistoryItems().Take(20)
                 )
             {
+                if (HistoryKeyword.Contains(item.Keyword))
+                {
+                    continue;
+                }
+
                 SearchHistoryItems.Add(item);
+                HistoryKeyword.Add(item.Keyword);
             }
             
 			SearchText = new ReactiveProperty<string>("")
@@ -144,7 +150,12 @@ namespace NicoPlayerHohoema.ViewModels
 
                 var searched = Models.Db.SearchHistoryDb.Searched(SearchText.Value, SelectedTarget.Value);
 
-                SearchHistoryItems.Insert(0, new SearchHistoryListItem(searched, this));
+                var oldSearchHistory = SearchHistoryItems.FirstOrDefault(x => x.Keyword == SearchText.Value);
+                if (oldSearchHistory != null)
+                {
+                    SearchHistoryItems.Remove(oldSearchHistory);
+                }
+                SearchHistoryItems.Insert(0, searched);
 
             })
 			.AddTo(_CompositeDisposable);
@@ -178,6 +189,20 @@ namespace NicoPlayerHohoema.ViewModels
                         RaisePropertyChanged(nameof(SearchHistoryItems));
                     },
                     () => SearchHistoryDb.GetHistoryCount() > 0
+                    ));
+            }
+        }
+
+        private DelegateCommand<SearchHistory> _SearchHistoryItemCommand;
+        public DelegateCommand<SearchHistory> SearchHistoryItemCommand
+        {
+            get
+            {
+                return _SearchHistoryItemCommand
+                    ?? (_SearchHistoryItemCommand = new DelegateCommand<SearchHistory>((item) =>
+                    {
+                        SearchText.Value = item.Keyword;
+                    }
                     ));
             }
         }
@@ -803,6 +828,7 @@ namespace NicoPlayerHohoema.ViewModels
 			Target = source.Target;
 		}
 
+        
         private DelegateCommand _DeleteSearchHistoryItemCommand;
         public DelegateCommand DeleteSearchHistoryItemCommand
         {
