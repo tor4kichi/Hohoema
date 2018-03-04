@@ -250,6 +250,13 @@
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
+                        <uiTrigger:OrientationTrigger Condition="Landscape" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
                         <intractionTrigger:InteractionModeTrigger Condition="Touch" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
@@ -448,7 +455,20 @@
                 </VisualState>
             </VisualStateGroup>
 
-            
+            <!-- フルスクリーン -->
+            <VisualStateGroup >
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsFullScreen.Value, Mode=OneWay}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="FullscreenButtonIcon.Kind" Value="FullScreenExit" />
+                        <Setter Target="AutoHideCursor.IsAutoHideEnabled" Value="True" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+
 
             <!-- Flash or DMC 放送サーバーごとの表示 -->
             <VisualStateGroup>
@@ -475,6 +495,21 @@
                 </VisualState>
             </VisualStateGroup>
 
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <logicalTrigger:MultiTrigger>
+                            <logicalTrigger:MultiTrigger.Triggers>
+                                <hardTrigger:DeviceFamilyTrigger Condition="Desktop" />
+                                <intractionTrigger:InteractionModeTrigger Condition="Mouse" />
+                            </logicalTrigger:MultiTrigger.Triggers>
+                        </logicalTrigger:MultiTrigger>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="TitleBarMarginLayout.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
         <toolkit:LayoutTransformControl
@@ -536,7 +571,7 @@
 
                         <!-- マウスの非表示 -->
                         <mybehavior:AutoHideCursor x:Name="AutoHideCursor"
-                                IsAutoHideEnabled="{Binding IsMouseCursolAutoHideEnable.Value, Mode=OneWay}"
+                                IsAutoHideEnabled="False"
                                 AutoHideDelay="0:0:2"
                                 />
 
@@ -717,6 +752,16 @@
                         <toolkit:DockPanel x:Name="DefaultUIControl">
                             <StackPanel toolkit:DockPanel.Dock="Top" >
 
+                                <Border x:Name="TitleBarMarginLayout"
+                                                Height="32"
+                                                toolkit:DockPanel.Dock="Top"
+                                                    Visibility="Collapsed"
+                                                    >
+                                    <Border.Background>
+                                        <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                                    </Border.Background>
+                                </Border>
+                                
                                 <Grid x:Name="TopBarLayout"
                                             
                                 >

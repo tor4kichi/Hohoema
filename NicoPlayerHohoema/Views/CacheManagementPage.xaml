@@ -35,7 +35,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="HeaderLayout.Margin" Value="48 0 0 0" />
-                        <Setter Target="HeaderLayout.Height" Value="64" />
+                        <Setter Target="TVModeMarginBordar.Height" Value="27" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -54,7 +54,7 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
-
+            
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
@@ -113,35 +113,41 @@
             <controls:ListingWithHeader.HeaderContent>
                 <toolkit:DockPanel x:Name="HeaderLayout">
 
-                    <CommandBar x:Name="TopCommandBar"
+                    <StackPanel >
+
+                        <Border x:Name="TVModeMarginBordar" />
+
+                        <Border Height="{StaticResource TitleBarDummyHeight}" />
+
+                        <CommandBar x:Name="TopCommandBar"
                                     toolkit:DockPanel.Dock="Right"
-                                VerticalAlignment="Bottom"
+                                    VerticalContentAlignment="Bottom"
                                 Visibility="Collapsed"
                                     >
 
-                        <CommandBar.SecondaryCommands>
-                            <AppBarButton Label="{Binding CacheSaveFolderPath.Value}"
+                            <CommandBar.SecondaryCommands>
+                                <AppBarButton Label="{Binding CacheSaveFolderPath.Value}"
                                                                 IsEnabled="False"
                                                                 />
-                            <AppBarButton Label="保存先を開く"
+                                <AppBarButton Label="保存先を開く"
                                                                 Command="{Binding OpenCurrentCacheFolderCommand}"
                                                                 />
 
-                            <AppBarSeparator />
+                                <AppBarSeparator />
 
-                            <AppBarButton Label="保存先を変更"
+                                <AppBarButton Label="保存先を変更"
                                                         Command="{Binding ChangeCacheFolderCommand}"
                                                         >
-                            </AppBarButton>
-                            <AppBarButton Label="動画キャッシュ機能利用の確認文を読む" 
+                                </AppBarButton>
+                                <AppBarButton Label="動画キャッシュ機能利用の確認文を読む" 
                                                         Command="{Binding ReadCacheAcceptTextCommand}"
                                                         />
 
-                        </CommandBar.SecondaryCommands>
+                            </CommandBar.SecondaryCommands>
 
-                        <CommandBar.PrimaryCommands>
+                            <CommandBar.PrimaryCommands>
 
-                            <AppBarButton 
+                                <AppBarButton 
                                         x:Name="UpdateButton"
                                         Command="{Binding RefreshCommand}"
                                         Background="Transparent" 
@@ -150,59 +156,61 @@
                                               
                                         />
 
-                            <AppBarButton x:Name="CancelCacheButton"
+                                <AppBarButton x:Name="CancelCacheButton"
                                           Command="{Binding CancelCacheDownloadRequest}"
                                             Icon="Remove"
                                             Label="キャッシュ削除"
                                           Visibility="Collapsed"
                                             />
-                            
-                            <AppBarButton x:Name="RegistMylistButton"
+
+                                <AppBarButton x:Name="RegistMylistButton"
                                           Command="{Binding RegistratioMylistCommand}"
                                           Label="マイリストに追加"
                                           Icon="Add"
                                           Visibility="Collapsed"
                                             >
-                            </AppBarButton>
+                                </AppBarButton>
 
-                            <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                             HorizontalContentAlignment="Stretch"
                                             VerticalContentAlignment="Stretch"
                                                 x:Name="ToggleSelectionButton"
                                             >
-                                <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                                    <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"
                                                        />
-                            </AppBarToggleButton>
+                                </AppBarToggleButton>
 
 
-                        </CommandBar.PrimaryCommands>
+                            </CommandBar.PrimaryCommands>
 
-                        <CommandBar.Content>
-                            <Border Background="Transparent"
+                            <CommandBar.Content>
+                                <Border Background="Transparent"
                                     IsHitTestVisible="True"
                                     Margin="16 0 0 0"
                                     VerticalAlignment="Bottom"
                                     Height="48"
                                 >
-                                <i:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="Tapped">
-                                        <core:ChangePropertyAction TargetObject="{x:Bind CacheManagementContentLayout}" PropertyName="ListPosition" Value="0.0" />
-                                    </core:EventTriggerBehavior>
-                                </i:Interaction.Behaviors>
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <core:ChangePropertyAction TargetObject="{x:Bind CacheManagementContentLayout}" PropertyName="ListPosition" Value="0.0" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
 
-                                <TextBlock Text="{Binding Title}" 
+                                    <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource TitleTextBlockStyle}"
                                    x:Name="TitleLayout"
                                     >
-                                </TextBlock>
-                            </Border>
-                        </CommandBar.Content>
-                        
-                    </CommandBar>
-                  
+                                    </TextBlock>
+                                </Border>
+                            </CommandBar.Content>
+
+                        </CommandBar>
+
+                    </StackPanel>
+                    
                     
                 </toolkit:DockPanel>
             </controls:ListingWithHeader.HeaderContent>

@@ -42,6 +42,7 @@ using Mntone.Nico2;
 using Prism.Commands;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Windows.UI;
 
 namespace NicoPlayerHohoema
 {
@@ -563,9 +564,33 @@ namespace NicoPlayerHohoema
 		}
 
 
-		protected override async Task OnInitializeAsync(IActivatedEventArgs args)
+        public bool IsTitleBarCustomized { get; } = Helpers.DeviceTypeHelper.IsDesktop && Helpers.InputCapabilityHelper.IsMouseCapable;
+        protected override async Task OnInitializeAsync(IActivatedEventArgs args)
 		{
-			await Models.Db.NicoVideoDbContext.InitializeAsync();
+            Resources.Add("TitleBarCustomized", IsTitleBarCustomized);
+            Resources.Add("TitleBarDummyHeight", IsTitleBarCustomized ? 32.0 : 0.0);
+
+            if (IsTitleBarCustomized)
+            {
+
+                var coreApp = CoreApplication.GetCurrentView();
+                coreApp.TitleBar.ExtendViewIntoTitleBar = true;
+
+                var appView = ApplicationView.GetForCurrentView();
+                appView.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                appView.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+                appView.TitleBar.ButtonInactiveForegroundColor = Colors.Transparent;
+
+                if (RequestedTheme == ApplicationTheme.Light)
+                {
+                    appView.TitleBar.ButtonForegroundColor = Colors.Black;
+                    appView.TitleBar.ButtonHoverBackgroundColor = Colors.DarkGray;
+                    appView.TitleBar.ButtonHoverForegroundColor = Colors.Black;
+                }
+            }
+            
+
+            await Models.Db.NicoVideoDbContext.InitializeAsync();
 			await Models.Db.HistoryDbContext.InitializeAsync();
             await Models.Db.PlayHistoryDbContext.InitializeAsync();
 
@@ -577,15 +602,20 @@ namespace NicoPlayerHohoema
 
 			await RegisterTypes();
 
-			var hohoemaApp = Container.Resolve<HohoemaApp>();
-
-            SetTitleBar();
-
 #if DEBUG
             Views.UINavigationManager.Pressed += UINavigationManager_Pressed;
 #endif
             await base.OnInitializeAsync(args);
 		}
+
+        protected override IDeviceGestureService OnCreateDeviceGestureService()
+        {
+            var dgs = base.OnCreateDeviceGestureService();
+
+            // TitleBarCustomized に合わせて
+            dgs.UseTitleBarBackButton = !IsTitleBarCustomized;
+            return dgs;
+        }
 
         private async void UINavigationManager_Pressed(Views.UINavigationManager sender, Views.UINavigationButtons buttons)
         {
@@ -663,9 +693,10 @@ namespace NicoPlayerHohoema
 
 
             // ViewModels
+            Container.RegisterType<ViewModels.RankingCategoryListPageViewModel>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<ViewModels.SearchPageViewModel>(new ContainerControlledLifetimeManager());
             /*
             Container.RegisterType<ViewModels.MenuNavigatePageBaseViewModel>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<ViewModels.RankingCategoryListPageViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ViewModels.WatchHistoryPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.UserVideoPageViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ViewModels.MylistPageViewModel>(new ContainerControlledLifetimeManager());
@@ -770,7 +801,7 @@ namespace NicoPlayerHohoema
         {
             rootFrame.Navigating += RootFrame_Navigating;
             rootFrame.NavigationFailed += RootFrame_NavigationFailed;
-
+            
             var menuPageBase = new Views.MenuNavigatePageBase();
             menuPageBase.Content = rootFrame;
 
@@ -788,6 +819,7 @@ namespace NicoPlayerHohoema
 
             return grid;
 		}
+
 
         private void RootFrame_NavigationFailed(object sender, NavigationFailedEventArgs e)
         {
@@ -861,29 +893,6 @@ namespace NicoPlayerHohoema
 				, luanchContent: ACTIVATION_WITH_ERROR
 				);
 		}
-
-	
-        // 独自のタイトルバーを表示するメソッド
-        private void SetTitleBar()
-        {
-            var coreTitleBar
-              = Windows.ApplicationModel.Core.CoreApplication
-                .GetCurrentView().TitleBar;
-
-            var appTitleBar
-              = Windows.UI.ViewManagement.ApplicationView
-                .GetForCurrentView().TitleBar;
-
-            // タイトルバーの領域までアプリの表示を拡張する
-            coreTitleBar.ExtendViewIntoTitleBar = false;
-
-            // ［×］ボタンなどの背景色を設定する
-//            appTitleBar.ButtonBackgroundColor = Windows.UI.Colors.Transparent;
-            // 他にButtonInactiveBackgroundColorなども指定するとよい
-            // また、ボタンの前景色も同様にして指定できる
-        }
-
-
 
 
         #region Clipboard Support 

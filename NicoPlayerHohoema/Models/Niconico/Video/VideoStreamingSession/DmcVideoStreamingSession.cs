@@ -4,6 +4,7 @@ using NicoPlayerHohoema.Helpers;
 using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
 
@@ -20,7 +21,7 @@ namespace NicoPlayerHohoema.Models
 
         public DmcWatchResponse DmcWatchResponse { get; private set; }
 
-        private DispatcherTimer _DmcSessionHeartbeatTimer;
+        private Timer _DmcSessionHeartbeatTimer;
 
         private static AsyncLock DmcSessionHeartbeatLock = new AsyncLock();
 
@@ -183,15 +184,11 @@ namespace NicoPlayerHohoema.Models
             if (DmcWatchResponse != null && _DmcSessionResponse != null)
             {
                 Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビートを開始しました");
-                _DmcSessionHeartbeatTimer = new DispatcherTimer();
-                _DmcSessionHeartbeatTimer.Interval = TimeSpan.FromSeconds(30);
-                _DmcSessionHeartbeatTimer.Tick += _DmcSessionHeartbeatTimer_Tick;
-
-                _DmcSessionHeartbeatTimer.Start();
+                _DmcSessionHeartbeatTimer = new Timer(_DmcSessionHeartbeatTimer_Tick, null, TimeSpan.Zero, TimeSpan.FromSeconds(30));
             }
         }
 
-        private async void _DmcSessionHeartbeatTimer_Tick(object sender, object e)
+        private async void _DmcSessionHeartbeatTimer_Tick(object sender)
         {
             using (var releaser = await DmcSessionHeartbeatLock.LockAsync())
             {
@@ -203,9 +200,18 @@ namespace NicoPlayerHohoema.Models
                     Debug.WriteLine($"{DmcWatchResponse.Video.Title} の初回ハートビート実行");
                     await Task.Delay(2);
                 }
-
-                await _Context.Video.DmcSessionHeartbeatAsync(DmcWatchResponse, _DmcSessionResponse);
-                Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビート実行");
+                else
+                {
+                    try
+                    {
+                        await _Context.Video.DmcSessionHeartbeatAsync(DmcWatchResponse, _DmcSessionResponse);
+                        Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビート実行");
+                    }
+                    catch
+                    {
+                        OnStopStreaming();
+                    }
+                }
 
                 _HeartbeatCount++;
             }
@@ -215,7 +221,7 @@ namespace NicoPlayerHohoema.Models
         {
             if (_DmcSessionHeartbeatTimer != null)
             {
-                _DmcSessionHeartbeatTimer.Stop();
+                _DmcSessionHeartbeatTimer.Dispose();
                 _DmcSessionHeartbeatTimer = null;
                 Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビートを終了しました");
             }

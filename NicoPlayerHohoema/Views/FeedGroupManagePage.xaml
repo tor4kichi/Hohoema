@@ -96,8 +96,9 @@
                         <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
 
                         <Setter Target="HeaderLayout.Margin" Value="48 0" />
-                        <Setter Target="RootLayout.Margin" Value="0 27 0 0" />
                         <Setter Target="ContentLayout.Margin" Value="0 0 0 27" />
+
+                        <Setter Target="TVModeMarginBordar.Height" Value="27" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -116,121 +117,136 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
-            
+
         </VisualStateManager.VisualStateGroups>
         
         <toolkit:DockPanel x:Name="RootLayout">
 
             <Border toolkit:DockPanel.Dock="Top" 
-                    Height="48"
+                    
                     >
-                <toolkit:DockPanel x:Name="HeaderLayout">
-                    <StackPanel toolkit:DockPanel.Dock="Right" 
-                                Orientation="Horizontal"
-                                >
-                        <!--
-                        <AppBarButton Command="{Binding RefreshAllFeedGroupCommand}"
-                                Background="Transparent"
-                                      Icon="Refresh"
-                                      Label="更新"
-                                      Visibility="{Binding HasFeedGroupItems.Value, Converter={StaticResource BooleanToVisibility}}"
-                                >
-                        </AppBarButton>
+                <StackPanel x:Name="HeaderLayout">
 
-                        <Border Width="8" />
-                        -->
+                    <Border x:Name="TVModeMarginBordar" />
+                    
+                    <Border Height="{StaticResource TitleBarDummyHeight}"
+                            />
 
-                        <AppBarButton Command="{Binding AddVideoFeedCommand}"
+                    <CommandBar toolkit:DockPanel.Dock="Right" 
+                                x:Name="TopCommandBar"
+                                >
+                        <CommandBar.Content>
+                            <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="16 0 0 0"
+                            
+                                >
+
+                                <TextBlock Text="{Binding Title}" 
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource TitleTextBlockStyle}"
+                                   x:Name="TitleLayout"
+                                    >
+
+
+                                </TextBlock>
+
+                            </Border>
+                        </CommandBar.Content>
+
+                        <CommandBar.PrimaryCommands>
+                            <!--
+                            <AppBarButton Command="{Binding RefreshAllFeedGroupCommand}"
+                                    Background="Transparent"
+                                          Icon="Refresh"
+                                          Label="更新"
+                                          Visibility="{Binding HasFeedGroupItems.Value, Converter={StaticResource BooleanToVisibility}}"
+                                    >
+                            </AppBarButton>
+
+                            <Border Width="8" />
+                            -->
+                            
+                            <AppBarButton Command="{Binding AddVideoFeedCommand}"
                                     Background="Transparent"
                                     ToolTipService.ToolTip="新着チェックを追加"
                                       HorizontalContentAlignment="Stretch"
                                       VerticalContentAlignment="Stretch"
                                       Width="48"
                                 >
-                            <iconPack:PackIconMaterial Kind="Plus"
+                                <iconPack:PackIconMaterial Kind="Plus"
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"
                                                        />
-                        </AppBarButton>
+                            </AppBarButton>
 
-                        <AppBarButton 
+                            <AppBarButton 
                                     Background="Transparent"
                                     ToolTipService.ToolTip="補足説明"
                                       HorizontalContentAlignment="Stretch"
                                       VerticalContentAlignment="Stretch"
                             Width="48"
                                 >
-                            <iconPack:PackIconMaterial Kind="HelpCircle"
+                                <iconPack:PackIconMaterial Kind="HelpCircle"
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"
                                                        />
 
-                            <AppBarButton.Flyout>
-                                <Flyout>
-                                    <StackPanel MaxWidth="300">
-                                        <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
+                                <AppBarButton.Flyout>
+                                    <Flyout>
+                                        <StackPanel MaxWidth="300">
+                                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
                                                    Margin="0 0 0 4"
                                                    >
                                             新着動画
-                                        </TextBlock>
+                                            </TextBlock>
 
-                                        <TextBlock Margin="0 0 0 16"
+                                            <TextBlock Margin="0 0 0 16"
                                                    TextWrapping="Wrap"
                                                    >
                                             前回の新着チェック以降に投稿された動画を新着として表示します。
                                             <LineBreak />
                                             すでに視聴済みの動画は新着一覧には表示されません。
-                                        </TextBlock>
+                                            </TextBlock>
 
-                                        <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
+                                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
                                                    Margin="0 0 0 4"
                                                    >
                                             一括操作の動画追加順
-                                        </TextBlock>
+                                            </TextBlock>
 
-                                        <TextBlock Margin="0 0 0 16"
+                                            <TextBlock Margin="0 0 0 16"
                                                    TextWrapping="Wrap"
                                                    >
                                             古い動画から先に再生されるよう「あとで見る」プレイリストに追加されます。
-                                        </TextBlock>
+                                            </TextBlock>
 
-                                        <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
+                                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
                                                    Margin="0 0 0 4"
                                                    >
                                             新着件数の上限
-                                        </TextBlock>
+                                            </TextBlock>
 
-                                        <TextBlock Margin="0 0 0 16"
+                                            <TextBlock Margin="0 0 0 16"
                                                    TextWrapping="Wrap"
                                                    >
                                             最新の30件をチェックします。
-                                        </TextBlock>
-                                    </StackPanel>
-                                </Flyout>
-                            </AppBarButton.Flyout>
-                        </AppBarButton>
-                    </StackPanel>
+                                            </TextBlock>
+                                        </StackPanel>
+                                    </Flyout>
+                                </AppBarButton.Flyout>
+                            </AppBarButton>
 
-                    <Border Background="Transparent" IsHitTestVisible="True"
-                                Margin="16 0 0 0"
-                            
-                                >
+                        </CommandBar.PrimaryCommands>
                         
-                        <TextBlock Text="{Binding Title}" 
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource TitleTextBlockStyle}"
-                                   x:Name="TitleLayout"
-                                    >
-                                
-
-                        </TextBlock>
                         
-                    </Border>
+                    </CommandBar>
+
+                    
 
 
 
 
-                </toolkit:DockPanel>
+                </StackPanel>
             </Border>
 
             <toolkit:DockPanel toolkit:DockPanel.Dock="Top">

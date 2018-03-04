@@ -40,7 +40,7 @@
                         <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="HeaderLayout.Margin" Value="48 27 48 0" />
+                        <Setter Target="HeaderLayout.Margin" Value="48 0 48 0" />
                         <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
 
                         <Setter Target="ContentLayout.Margin" Value="0 0 0 27" />
@@ -57,6 +57,8 @@
                         <Setter Target="VideoPrivateDescLayout.Margin" Value="48 16" />
 
                         <Setter Target="EmptyMylistDescLayout.Margin" Value="48 16" />
+
+                        <Setter Target="TVModeMarginBordar.Height" Value="27" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -98,12 +100,17 @@
 
         <toolkit:DockPanel>
 
+            <StackPanel toolkit:DockPanel.Dock="Top">
+                <Border x:Name="TVModeMarginBordar" />
+
+                <Border Height="{StaticResource TitleBarDummyHeight}" />
+
+            </StackPanel>
             <Border toolkit:DockPanel.Dock="Top" 
                     Height="48"
                     x:Name="HeaderLayout"
                     >
                 <toolkit:DockPanel >
-
 
                     <StackPanel toolkit:DockPanel.Dock="Right" 
                             Orientation="Horizontal"
@@ -123,7 +130,7 @@
                     <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="16 0 0 0"
                                 >
-                        <TextBlock Text="ユーザー動画" 
+                        <TextBlock Text="ユーザー情報" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource TitleTextBlockStyle}"
                                    x:Name="TitleLayout"

@@ -414,9 +414,21 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+        private DelegateCommand<CommunityVideoInfoViewModel> _PlayUserVideoCommand;
+        public DelegateCommand<CommunityVideoInfoViewModel> PlayUserVideoCommand
+        {
+            get
+            {
+                return _PlayUserVideoCommand
+                    ?? (_PlayUserVideoCommand = new DelegateCommand<CommunityVideoInfoViewModel>((videoVM) =>
+                    {
+                        HohoemaApp.Playlist.PlayVideo(videoVM.VideoInfo.VideoId, videoVM.VideoInfo.Title);
+                    }));
+            }
+        }
 
 
-		private void UpdateCanNotFollowReason()
+        private void UpdateCanNotFollowReason()
 		{
 			if (HohoemaApp.FollowManager.IsFollowItem(FollowItemType.Community, CommunityId))
 			{
@@ -591,7 +603,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 	}
 
-	public class CommunityVideoInfoViewModel
+	public class CommunityVideoInfoViewModel : HohoemaListingPageItemBase
 	{
 		public CommunityVideo VideoInfo { get; private set; }
 		public HohoemaPlaylist HohoemaPlaylist { get; private set; }
@@ -606,7 +618,13 @@ namespace NicoPlayerHohoema.ViewModels
             HohoemaPlaylist = playlist;
 
 			Title = VideoInfo.Title;
-		}
+
+            Label = VideoInfo.Title;
+            if (info.ThumbnailUrl != null)
+            {
+                AddImageUrl(info.ThumbnailUrl);
+            }
+        }
 
 
 

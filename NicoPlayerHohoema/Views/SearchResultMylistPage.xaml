@@ -29,7 +29,9 @@
                         <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
+                        <Setter Target="TitleLayout.Margin" Value="64 0 0 0" />
+
+                        <Setter Target="TVModeMarginBordar.Height" Value="27" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -61,38 +63,61 @@
             NowLoading="{Binding NowLoading.Value}"
             >
             <controls:ListingWithHeader.HeaderContent>
-                <CommandBar Height="48">
+                <StackPanel>
+                    
+                    <Border x:Name="TVModeMarginBordar" />
 
-                    <CommandBar.PrimaryCommands>
-                        <AppBarButton Background="Transparent" 
+                    <Border Height="{StaticResource TitleBarDummyHeight}" />
+
+                    <CommandBar>
+
+                        <CommandBar.PrimaryCommands>
+                            <AppBarButton Background="Transparent" 
                                         Command="{Binding RefreshCommand}"
                                         ToolTipService.ToolTip="更新"
                                               Icon="Refresh"
                                         />
 
-                    </CommandBar.PrimaryCommands>
+                        </CommandBar.PrimaryCommands>
 
-                    <CommandBar.Content>
+                        <CommandBar.Content>
 
-                        <Border Background="Transparent" IsHitTestVisible="True"
+                            <toolkit:DockPanel x:Name="TitleLayout"
                             Margin="16 0 0 0"
+                                               
                             >
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
-                                </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
+                                <HyperlinkButton Command="{StaticResource OpenHohoemaPageCommand}"
+                                             CommandParameter="Search"
+                                             Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                             Margin="0 0 16 0"
+                                                 toolkit:DockPanel.Dock="Left"
+                                                 VerticalAlignment="Stretch"
+                                                 Height="48"
+                                             >
+                                    <SymbolIcon Symbol="Find"
+                                            />
+                                </HyperlinkButton>
 
-                            <TextBlock Text="{Binding Title}" 
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource SubtitleTextBlockStyle}"
-                                   x:Name="TitleLayout"
-                                    >
-                            </TextBlock>
-                        </Border>
-                    </CommandBar.Content>
+                                <StackPanel Background="Transparent" IsHitTestVisible="True">
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
 
-                </CommandBar>
+                                    <TextBlock Text="{Binding Title}" 
+                                            VerticalAlignment="Center"
+                                            Style="{StaticResource SubtitleTextBlockStyle}"
+                                            >
+                                    </TextBlock>
+
+                                </StackPanel>
+                            </toolkit:DockPanel>
+                        </CommandBar.Content>
+
+                    </CommandBar>
+                </StackPanel>
+                
             </controls:ListingWithHeader.HeaderContent>
 
 

@@ -366,6 +366,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="FullscreenButtonIcon.Kind" Value="FullScreenExit" />
+                        <Setter Target="AutoHideCursor.IsAutoHideEnabled" Value="True" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -638,6 +639,13 @@
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
+                        <uiTrigger:OrientationTrigger Condition="Landscape" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
                         <intractionTrigger:InteractionModeTrigger Condition="Touch" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
@@ -684,6 +692,22 @@
                 </VisualState>
             </VisualStateGroup>
 
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <logicalTrigger:MultiTrigger>
+                            <logicalTrigger:MultiTrigger.Triggers>
+                                <hardTrigger:DeviceFamilyTrigger Condition="Desktop" />
+                                <intractionTrigger:InteractionModeTrigger Condition="Mouse" />
+                            </logicalTrigger:MultiTrigger.Triggers>
+                        </logicalTrigger:MultiTrigger>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="TitleBarMarginLayout.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            
         </VisualStateManager.VisualStateGroups>
 
         <i:Interaction.Behaviors>
@@ -766,7 +790,7 @@
                             <!-- マウスの非表示 -->
                             
                             <mybehavior:AutoHideCursor x:Name="AutoHideCursor"
-                                IsAutoHideEnabled="{Binding IsMouseCursolAutoHideEnable.Value, Mode=OneWay}"
+                                IsAutoHideEnabled="False"
                                 AutoHideDelay="0:0:2"
                                 />
                             
@@ -1043,6 +1067,14 @@
                                             x:Name="UIControlHeaderLayout"
                                             Opacity="0.8"
                                                >
+                                            
+                                            <Border x:Name="TitleBarMarginLayout"
+                                                Height="32"
+                                                toolkit:DockPanel.Dock="Top"
+                                                    Visibility="Collapsed"
+                                                    >
+                                                
+                                            </Border>
 
                                             <StackPanel Orientation="Horizontal"
                                                         toolkit:DockPanel.Dock="Left"

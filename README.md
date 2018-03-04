@@ -38,22 +38,22 @@ Hohoema は UWPアプリです。（UWP = Universal Windows Platform）
 
 * Hohoemaによるサポート機能
   * 動画キャッシュのダウンロード
-  * 動画フィード機能
+  * 動画の新着確認
     * 「マイリストの動画」「タグ検索結果」「ユーザーの投稿動画」をまとめて新着表示できる機能
   * 「あとで見る」機能やローカルなプレイリスト機能
   * NG設定（動画タイトル・動画投稿者ID・コメント）（正規表現が使えます）
 
 * Windows 10 Creators Update 以上であれば次の機能が利用できます
-  * ミニモード（デスクトップ／タブレット）
+  * ミニモード（ウィンドウを常に最前面表示するWindows10の機能）
+  * （デスクトップ／タブレット）
 
 
 その他の機能や修正点は [リリースノート](https://github.com/tor4kichi/Hohoema/wiki/%E3%83%AA%E3%83%AA%E3%83%BC%E3%82%B9%E3%83%8E%E3%83%BC%E3%83%88) から確認できます
 
 ## 今後の予定
 
-* [WIP] [v0.11 ニコレポ対応とDMC画質キャッシュ対応](https://github.com/tor4kichi/Hohoema/milestone/17)
-* [v0.12 生放送開始検出やフィード自動更新などのBG処理対応](https://github.com/tor4kichi/Hohoema/milestone/4)
 * [v0.13 メニュー含めたレイアウト改修](https://github.com/tor4kichi/Hohoema/milestone/18)
+
 
 ## 要望・バグ報告について
 
@@ -76,7 +76,7 @@ GPL v3
 ## 制作環境
 
 * VisualStudio 2017 Community
-* UWP (C# / .Net / Xaml)
+* VisualStudio Code
 * Inkscape
 
 

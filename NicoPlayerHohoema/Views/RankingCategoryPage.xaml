@@ -33,6 +33,8 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="VideoListCommandBar.Margin" Value="48 0 0 0" />
+
+                        <Setter Target="TVModeMarginBordar.Height" Value="27" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -65,13 +67,19 @@
                                             NowLoading="{Binding NowLoading.Value}"
                                             >
             <controls:ListingWithHeader.HeaderContent>
-                <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
+                <StackPanel >
 
-                    <CommandBar.Content>
-                        <toolkit:DockPanel 
+                    <Border x:Name="TVModeMarginBordar" />
+
+                    <Border Height="{StaticResource TitleBarDummyHeight}" />
+
+                    <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
+
+                        <CommandBar.Content>
+                            <toolkit:DockPanel 
                                     Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                     >
-                            <HyperlinkButton 
+                                <HyperlinkButton 
                                              Command="{StaticResource OpenHohoemaPageCommand}"
                                              CommandParameter="RankingCategoryList"
                                              Foreground="{StaticResource ApplicationForegroundThemeBrush}"
@@ -80,39 +88,39 @@
                                 Margin="16 0 0 0"
                                 toolkit:DockPanel.Dock="Left"
                                              >
-                                <TextBlock Text="ランキング"
+                                    <TextBlock Text="ランキング"
                                            Style="{StaticResource SubtitleTextBlockStyle}"
                                            
                                            >
-                                    
-                                </TextBlock>
-                                
-                            </HyperlinkButton>             
-                                                       
-                            <Border Background="Transparent"
+
+                                    </TextBlock>
+
+                                </HyperlinkButton>
+
+                                <Border Background="Transparent"
                                     IsHitTestVisible="True"
                                     Height="48"
                                     Margin="16 0 0 0"
                                     >
-                                
-                                <i:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="Tapped">
-                                        <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
-                                    </core:EventTriggerBehavior>
-                                </i:Interaction.Behaviors>
-                                
-                                <TextBlock 
+
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+
+                                    <TextBlock 
                                                         VerticalAlignment="Center"
                                                         Style="{StaticResource TitleTextBlockStyle}"
                                                         >
                                             『<Run Text="{Binding RankingCategory, Converter={StaticResource ToLocalText}}" />』
-                                </TextBlock>
-                            </Border>
-                        </toolkit:DockPanel>
-                    </CommandBar.Content>
+                                    </TextBlock>
+                                </Border>
+                            </toolkit:DockPanel>
+                        </CommandBar.Content>
 
-                    <CommandBar.PrimaryCommands>
-                        <AppBarButton Label="更新" 
+                        <CommandBar.PrimaryCommands>
+                            <AppBarButton Label="更新" 
                                                     Icon="Refresh"
                                                     Command="{Binding RefreshCommand}"
                                                     IsEnabled="{Binding CanChangeSort.Value}"
@@ -120,9 +128,9 @@
                                                     VerticalAlignment="Center"
                                                               Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                                 >
-                        </AppBarButton>
+                            </AppBarButton>
 
-                        <AppBarButton Command="{Binding RequestCacheDownload}"
+                            <AppBarButton Command="{Binding RequestCacheDownload}"
                                                 IsEnabled="{Binding CanDownload}"
                                                 Background="Transparent"
                                                 Label="キャッシュ"
@@ -131,34 +139,36 @@
                                                 VerticalAlignment="Center"
                                                               Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
                                             >
-                        </AppBarButton>
+                            </AppBarButton>
 
 
-                        <AppBarButton Command="{Binding RegistratioMylistCommand}"
+                            <AppBarButton Command="{Binding RegistratioMylistCommand}"
                                                     Label="マイリストに追加"
                                                     Icon="Add"
                                                     x:Name="RegistrationMylistButton"
                                                     VerticalAlignment="Center"
                                                               Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
                                                 >
-                        </AppBarButton>
+                            </AppBarButton>
 
 
-                        <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                         HorizontalContentAlignment="Stretch"
                                                         VerticalContentAlignment="Stretch"
                                                         Label="選択"
                                                         VerticalAlignment="Center"
                                         >
-                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                                <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center"
                                                     />
-                        </AppBarToggleButton>
+                            </AppBarToggleButton>
 
-                    </CommandBar.PrimaryCommands>
+                        </CommandBar.PrimaryCommands>
 
-                </CommandBar>
+                    </CommandBar>
+                </StackPanel>
+                
             </controls:ListingWithHeader.HeaderContent>
 
 

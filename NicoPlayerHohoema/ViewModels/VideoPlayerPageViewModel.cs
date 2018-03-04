@@ -395,7 +395,6 @@ namespace NicoPlayerHohoema.ViewModels
                             var result = await appView.TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, compactOptions);
                             if (result)
                             {
-                                CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = true;
                                 appView.TitleBar.ButtonBackgroundColor = Colors.Transparent;
                                 appView.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
                                 IsDisplayControlUI.Value = false;
@@ -404,9 +403,6 @@ namespace NicoPlayerHohoema.ViewModels
                         else
                         {
                             var result = await appView.TryEnterViewModeAsync(ApplicationViewMode.Default);
-                            CoreApplication.GetCurrentView().TitleBar.ExtendViewIntoTitleBar = false;
-                            appView.TitleBar.ButtonBackgroundColor = null;
-                            appView.TitleBar.ButtonInactiveBackgroundColor = null;
                         }
                     }
                 })
@@ -656,13 +652,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 			NowBuffering = 
 				Observable.Merge(
-                    CurrentState.ToUnit(),
-                    DownloadCompleted.ToUnit()
+                    CurrentState.ToUnit()
                     )
 					.Select(x =>
 					{
-						if (DownloadCompleted.Value) { return false; }
-
 						if (CurrentState.Value == MediaPlaybackState.Paused
                         || CurrentState.Value == MediaPlaybackState.None)
 						{
@@ -950,7 +943,7 @@ namespace NicoPlayerHohoema.ViewModels
                 cancelToken.ThrowIfCancellationRequested();
 
                 // バッファリング状態のモニターが使うタイマーだけはページ稼働中のみ動くようにする
-                // InitializeBufferingMonitor();
+                InitializeBufferingMonitor();
 
 
                 // キャッシュ可能か
@@ -1115,6 +1108,8 @@ namespace NicoPlayerHohoema.ViewModels
                 if (IsDisposed) { return; }
                 RequestUpdateInterval.ForceNotify();
             });
+
+            InitializeBufferingMonitor();
         }
 
         private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
@@ -2420,9 +2415,7 @@ namespace NicoPlayerHohoema.ViewModels
                     case PlayerSidePaneContentType.RelatedVideos:
                         if (Video != null)
                         {
-                            var relatedVideoInfo = Video.GetVideoRelatedInfomationWithVideoDescription();
-                            var relatedVideos = Video.GetRelatedVideos();
-                            sidePaneContent = new PlayerSidePaneContent.RelatedVideosSidePaneContentViewModel(Video.RawVideoId, relatedVideoInfo, relatedVideos);
+                            sidePaneContent = new PlayerSidePaneContent.RelatedVideosSidePaneContentViewModel(Video);
                         }
                         else
                         {

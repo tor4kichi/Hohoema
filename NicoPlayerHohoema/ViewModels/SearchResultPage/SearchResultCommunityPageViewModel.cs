@@ -64,7 +64,6 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
 
-            Models.Db.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
 
             var target = "コミュニティ";
 			var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);

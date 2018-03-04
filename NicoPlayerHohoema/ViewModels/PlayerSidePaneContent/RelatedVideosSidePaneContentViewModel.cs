@@ -6,27 +6,28 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Practices.Unity;
 using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models;
 
 namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 {
     public sealed class RelatedVideosSidePaneContentViewModel : SidePaneContentViewModelBase
     {
         string CurrentVideoId { get; }
-        public List<VideoInfoControlViewModel> Videos { get; }
+        public List<VideoInfoControlViewModel> Videos { get; private set; }
 
-        public VideoInfoControlViewModel CurrentVideo { get; }
+        public VideoInfoControlViewModel CurrentVideo { get; private set; }
 
         Models.VideoRelatedInfomation _VideoViewerHelpInfo;
 
-        public RelatedVideosSidePaneContentViewModel(string currentVideoId, Models.VideoRelatedInfomation relatedVideoInfo, IEnumerable<Database.NicoVideo> videos)
+        public NicoVideo Video { get; }
+
+        public RelatedVideosSidePaneContentViewModel(NicoVideo video)
         {
-            CurrentVideoId = currentVideoId;
-            _VideoViewerHelpInfo = relatedVideoInfo;
+            Video = video;
+            CurrentVideoId = video.RawVideoId;
+            _VideoViewerHelpInfo = video.GetVideoRelatedInfomationWithVideoDescription(); ;
 
             HasVideoDescription = _VideoViewerHelpInfo != null;
-
-            Videos = videos.Select(x => new VideoInfoControlViewModel(x, requireLatest: false)).ToList();
-            CurrentVideo = Videos.FirstOrDefault(x => x.RawVideoId == currentVideoId);
 
             InitializeRelatedVideos().ConfigureAwait(false);
         }
@@ -113,6 +114,14 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 }
 
                 RaisePropertyChanged(nameof(Mylists));
+
+                var videos = await Video.GetRelatedVideos();
+                Videos = videos.Select(x => new VideoInfoControlViewModel(x, requireLatest: false)).ToList();
+                CurrentVideo = Videos.FirstOrDefault(x => x.RawVideoId == CurrentVideoId);
+
+                RaisePropertyChanged(nameof(Videos));
+                RaisePropertyChanged(nameof(CurrentVideo));
+
 
                 _IsInitialized = true;
             }

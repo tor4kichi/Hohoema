@@ -8,7 +8,6 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
-    xmlns:wrapPanel="using:Microsoft.Toolkit.Uwp.UI.Controls.WrapPanel"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
@@ -41,6 +40,10 @@
                                x:Name="ContentLayout"
                            >
 
+                <Border Height="{StaticResource TitleBarDummyHeight}"
+                        toolkit:DockPanel.Dock="Top"
+                        />
+                
                 <StackPanel toolkit:DockPanel.Dock="Top">
                     <TextBlock>
                     <Run Text="Nico Video Player" />

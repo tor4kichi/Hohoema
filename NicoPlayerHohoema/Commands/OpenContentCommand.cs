@@ -20,12 +20,15 @@ namespace NicoPlayerHohoema.Commands
 
         protected override void Execute(object parameter)
         {
+            bool isPlayerShowWithSmallMode = true;
             if (parameter is Interfaces.IVideoContent)
             {
                 var content = parameter as Interfaces.IVideoContent;
 
                 var player = HohoemaCommnadHelper.GetHohoemaPlaylist();
                 player.PlayVideo(content);
+
+                isPlayerShowWithSmallMode = false;
             }
             else if (parameter is Interfaces.ILiveContent)
             {
@@ -33,6 +36,8 @@ namespace NicoPlayerHohoema.Commands
 
                 var player = HohoemaCommnadHelper.GetHohoemaPlaylist();
                 player.PlayLiveVideo(content);
+
+                isPlayerShowWithSmallMode = false;
             }
             else if (parameter is Interfaces.ICommunity)
             {
@@ -64,15 +69,22 @@ namespace NicoPlayerHohoema.Commands
                 var pageManager = HohoemaCommnadHelper.GetPageManager();
                 pageManager.OpenPage(Models.HohoemaPageType.FeedVideoList, content.Id);
             }
-            else if (parameter is ViewModels.SearchHistoryListItem)
+            else if (parameter is Interfaces.ISearchHistory)
             {
-                var historyVM = parameter as ViewModels.SearchHistoryListItem;
-                historyVM.PrimaryCommand.Execute(null);
-//                var content = parameter as Interfaces.ISearchHistory;
-//                var pageManager = HohoemaCommnadHelper.GetPageManager();
-//                pageManager.Search(SearchPagePayloadContentHelper.CreateDefault(SearchTarget.Tag, content.Tag));
+                var history = parameter as Interfaces.ISearchHistory;                
+                var pageManager = HohoemaCommnadHelper.GetPageManager();
+                pageManager.Search(SearchPagePayloadContentHelper.CreateDefault(history.Target, history.Keyword));
             }
 
+
+            if (isPlayerShowWithSmallMode)
+            {
+                var playlist = HohoemaCommnadHelper.GetHohoemaPlaylist();
+                if (playlist.IsDisplayMainViewPlayer)
+                {
+                    playlist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
+                }
+            }
             // TODO: マイリストやユーザーIDを開けるように
 
         }

@@ -34,6 +34,8 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
+
+                        <Setter Target="TVModeMarginBordar.Height" Value="27"/>
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -52,6 +54,23 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
+
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsSelectionModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="AddMylistSelectedItemButton.Visibility" Value="Visible" />
+                        <Setter Target="CacheRequestSelectedItemButton.Visibility" Value="Visible" />
+                        <Setter Target="RemovePlayHistorySelectedItemButton.Visibility" Value="Visible" />
+                        
+                        <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
+
+                    </VisualState.Setters>
+                </VisualState>
+
+            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
         
         
@@ -66,22 +85,94 @@
             NowLoading="{Binding NowLoading.Value}"
             >
             <controls:ListingWithHeader.HeaderContent>
-                <toolkit:DockPanel Height="48">
 
-                    <StackPanel toolkit:DockPanel.Dock="Right" 
-                                Orientation="Horizontal"
+                <StackPanel >
+
+                    <Border x:Name="TVModeMarginBordar" />
+
+                    <Border Height="{StaticResource TitleBarDummyHeight}" />
+
+                    <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
+
+                        <CommandBar.Content>
+                            <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="16 0 0 0"
                                 >
+                                <i:Interaction.Behaviors>
+                                    <core:EventTriggerBehavior EventName="Tapped">
+                                        <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
+                                    </core:EventTriggerBehavior>
+                                </i:Interaction.Behaviors>
 
-                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                    Orientation="Horizontal"
-                                    >
-                            <Button Background="Transparent" 
+                                <TextBlock Text="{Binding Title}" 
+                                    VerticalAlignment="Center"
+                                    Style="{StaticResource TitleTextBlockStyle}"
+                                   x:Name="TitleLayout"
+                                    />
+                            </Border>
+                        </CommandBar.Content>
+
+                        <CommandBar.PrimaryCommands>
+
+                            <!-- 選択中 -->
+                            <AppBarButton 
+                                        x:Name="RemovePlayHistorySelectedItemButton"
+                                        Command="{Binding RemoveHistoryCommand}"
+                                          Icon="Remove"
+                                          Label="履歴削除"
+                                          Visibility="Collapsed"
+                                            />
+
+                            <AppBarButton x:Name="AddMylistSelectedItemButton"
+                                        Command="{Binding RegistratioMylistCommand}"   
+                                          Icon="Add"
+                                          Label="マイリストに追加"
+                                          Visibility="Collapsed"
+                                            >
+                            </AppBarButton>
+
+                            <AppBarButton x:Name="CacheRequestSelectedItemButton"
+                                          Command="{Binding RequestCacheDownload}"
+                                            IsEnabled="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
+                                            Background="Transparent"
+                                            Icon="Download"
+                                          Label="キャッシュ"
+                                          Visibility="Collapsed"
+                                            >
+                            </AppBarButton>
+
+                            <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            >
+
+                                <StackPanel  Orientation="Horizontal">
+                                    <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       />
+                                    <TextBlock Text="選択" VerticalAlignment="Center"
+                                               Margin="8 0 0 0"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               />
+
+                                </StackPanel>
+                            </AppBarToggleButton>
+
+                        </CommandBar.PrimaryCommands>
+
+                        <CommandBar.SecondaryCommands>
+                            <AppBarButton 
+                                        Command="{Binding RefreshCommand}"
+                                        Label="更新"
+                                              Icon="Refresh"
+                                        />
+                            
+                            <AppBarButton 
                                 IsEnabled="{Binding HasItem.Value}"
-                                ToolTipService.ToolTip="全ての履歴を削除"
+                                Label="全ての履歴を削除"
+                                Icon="Delete"
                                 >
-                                <SymbolIcon Symbol="Delete" />
 
-                                <Button.Flyout>
+                                <AppBarButton.Flyout>
                                     <Flyout>
                                         <StackPanel Margin="8" Width="240">
                                             <TextBlock Margin="0 0 0 16"
@@ -99,64 +190,16 @@
                                             />
                                         </StackPanel>
                                     </Flyout>
-                                </Button.Flyout>
-                            </Button>
+                                </AppBarButton.Flyout>
+                            </AppBarButton>
 
-                            <AppBarButton Background="Transparent" 
-                                        Command="{Binding RefreshCommand}"
-                                        ToolTipService.ToolTip="更新"
-                                              Icon="Refresh"
-                                        />
-                        </StackPanel>
+                            
+                        </CommandBar.SecondaryCommands>
 
-
-                        <StackPanel Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibility}}"
-                                    Orientation="Horizontal"
-                                    >
-                            <AppBarButton Command="{Binding RemoveHistoryCommand}"
-                                          Icon="Remove"
-                                          Label="履歴削除"
-                                            />
-
-                            <AppBarButton Command="{Binding RequestCacheDownload}"
-                                          Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
-                                          Icon="Download"
-                                          Label="キャッシュ"
-                                        />
-                            <AppBarButton Command="{Binding RegistratioMylistCommand}" 
-                                          Icon="Add"
-                                          Label="マイリストに追加"
-                                            />
-                        </StackPanel>
-
-                        <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            HorizontalContentAlignment="Stretch"
-                                            VerticalContentAlignment="Stretch"
-                                            Label="選択"
-                                            >
-                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"
-                                                       />
-                        </AppBarToggleButton>
-                    </StackPanel>
-
-                    <Border Background="Transparent" IsHitTestVisible="True"
-                                Margin="16 0 0 0"
-                                >
-                        <i:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="Tapped">
-                                <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
-                            </core:EventTriggerBehavior>
-                        </i:Interaction.Behaviors>
-                        
-                        <TextBlock Text="{Binding Title}" 
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource TitleTextBlockStyle}"
-                                   x:Name="TitleLayout"
-                                    />
-                    </Border>
-                </toolkit:DockPanel>
+                    </CommandBar>
+                </StackPanel>
+                
+                
             </controls:ListingWithHeader.HeaderContent>
 
 

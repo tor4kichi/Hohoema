@@ -208,8 +208,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             SelectedSearchSort.Value = VideoSearchOptionListItems.First(x => x.Sort == SearchOption.Sort && x.Order == SearchOption.Order);
 
-            Models.Db.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
-
             KeywordSearchBookmark = Database.BookmarkDb.Get(Database.BookmarkType.SearchWithKeyword, SearchOption.Keyword)
                 ?? new Database.Bookmark()
                 {

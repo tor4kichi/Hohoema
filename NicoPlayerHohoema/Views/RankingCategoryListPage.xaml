@@ -34,9 +34,10 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="HeaderLayout.Margin" Value="96 0 48 0" />
-                        <Setter Target="ContentLayout.Margin" Value="0 27 0 0" />
 
                         <Setter Target="CategoryItems.Margin" Value="48 0 32 27" />
+
+                        <Setter Target="TVModeMarginBordar.Height" Value="27" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -60,44 +61,52 @@
         <toolkit:DockPanel x:Name="ContentLayout">
 
             <Border toolkit:DockPanel.Dock="Top" 
-                    Height="48"
                     x:Name="HeaderLayout"
                     >
-                <toolkit:DockPanel >
+                <StackPanel >
 
+                    <Border x:Name="TVModeMarginBordar" />
 
-                    <StackPanel toolkit:DockPanel.Dock="Right" 
-                            Orientation="Horizontal"
-                            >
-                        <Button Background="Transparent"
-                                    >
+                    <Border Height="{StaticResource TitleBarDummyHeight}" />
 
-                            <Button.Flyout>
-                                <MenuFlyout>
-                                    <MenuFlyoutItem Text="好きなカテゴリを編集"
-                                                        Command="{Binding AddFavRankingCategory}"
-                                                        />
-                                    <MenuFlyoutItem Text="非表示カテゴリを編集"
-                                                        Command="{Binding AddDislikeRankingCategory}"
-                                                        />
-                                </MenuFlyout>
-                            </Button.Flyout>
-                            <SymbolIcon Symbol="Setting" />
-                        </Button>
-                    </StackPanel>
+                    <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
 
-                    <Border Background="Transparent" 
-                            IsHitTestVisible="True"
-                            Margin="16 0 0 0"
-                            x:Name="TitleLayout"
+                        <CommandBar.Content>
+                            <Border Background="Transparent" 
+                                IsHitTestVisible="True"
+                                Margin="16 0 0 0"
+                                x:Name="TitleLayout"
                                 >
-                        <TextBlock Text="{Binding Title}" 
+                                <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource TitleTextBlockStyle}"
                                     >
-                        </TextBlock>
-                    </Border>
-                </toolkit:DockPanel>
+                                </TextBlock>
+                            </Border>
+                        </CommandBar.Content>
+
+                        <CommandBar.PrimaryCommands>
+                            <AppBarButton Background="Transparent"
+                                          Icon="Setting"
+                                    >
+
+                                <Button.Flyout>
+                                    <MenuFlyout>
+                                        <MenuFlyoutItem Text="好きなカテゴリを編集"
+                                                        Command="{Binding AddFavRankingCategory}"
+                                                        />
+                                        <MenuFlyoutItem Text="非表示カテゴリを編集"
+                                                        Command="{Binding AddDislikeRankingCategory}"
+                                                        />
+                                    </MenuFlyout>
+                                </Button.Flyout>
+                            </AppBarButton>
+
+                        </CommandBar.PrimaryCommands>
+
+                    </CommandBar>
+                </StackPanel>
+
             </Border>
             <ScrollViewer VerticalScrollMode="Disabled" 
                           VerticalScrollBarVisibility="Hidden"

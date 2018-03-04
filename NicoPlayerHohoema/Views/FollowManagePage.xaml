@@ -51,8 +51,8 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
-
-                        <Setter Target="ContentLayout.Margin" Value="48 27 48 27" />
+                        <Setter Target="ContentLayout.Margin" Value="48 0 48 27" />
+                        <Setter Target="TVModeMarginBordar.Height" Value="27" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -84,37 +84,51 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
+
         </VisualStateManager.VisualStateGroups>
 
         
         <toolkit:DockPanel x:Name="ContentLayout">
 
             <Border toolkit:DockPanel.Dock="Top" 
-                    Height="48"
                     >
-                <toolkit:DockPanel >
-                    <StackPanel toolkit:DockPanel.Dock="Right" 
-                                Orientation="Horizontal"
-                                >
-                        <Button Command="{Binding UpdateFavListCommand}"
-                                CommandParameter="{Binding ElementName=FavListContainer, Path=SelectedItem}"
-                                Background="Transparent"
-                                >
-                            <SymbolIcon Symbol="Refresh" />
-                        </Button>
-                    </StackPanel>
+                <StackPanel >
 
-                    <Border Background="Transparent" IsHitTestVisible="True"
+                    <Border x:Name="TVModeMarginBordar" />
+
+                    <Border Height="{StaticResource TitleBarDummyHeight}" />
+
+                    <CommandBar 
+                            x:Name="TopCommandBar"
+                                >
+                        <CommandBar.Content>
+                            <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="16 0 0 0"
                                 >
-                        <TextBlock Text="{Binding Title}" 
+                                <TextBlock Text="{Binding Title}" 
                                     VerticalAlignment="Center"
                                     Style="{StaticResource TitleTextBlockStyle}"
                                    x:Name="TitleLayout"
                                     >
-                        </TextBlock>
-                    </Border>
-                </toolkit:DockPanel>
+                                </TextBlock>
+                            </Border>
+                        </CommandBar.Content>
+
+                        <CommandBar.PrimaryCommands>
+                            <AppBarButton Command="{Binding UpdateFavListCommand}"
+                                CommandParameter="{Binding ElementName=FavListContainer, Path=SelectedItem}"
+                                Background="Transparent"
+                                >
+                                <SymbolIcon Symbol="Refresh" />
+                            </AppBarButton>
+
+                        </CommandBar.PrimaryCommands>
+
+                    </CommandBar>
+                </StackPanel>
+                
+                
+
             </Border>
 
             <ScrollViewer x:Name="ScrollList"

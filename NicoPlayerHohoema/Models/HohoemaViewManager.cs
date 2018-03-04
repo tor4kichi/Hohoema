@@ -8,6 +8,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
+using Windows.ApplicationModel.Resources.Core;
 using Windows.Foundation.Metadata;
 using Windows.Media.Playback;
 using Windows.UI.Core;
@@ -88,6 +89,8 @@ namespace NicoPlayerHohoema.Models
                 INavigationService ns = null;
                 await playerView.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                 {
+                    playerView.TitleBar.ExtendViewIntoTitleBar = true;
+
                     var content = new Views.HohoemaSecondaryViewFrame();
 
                     var frameFacade = new FrameFacadeAdapter(content.Frame);
@@ -113,13 +116,19 @@ namespace NicoPlayerHohoema.Models
 
 
                     vm = content.DataContext as HohoemaSecondaryViewFrameViewModel;
+
+
                     Window.Current.Content = content;
 
                     id = ApplicationView.GetApplicationViewIdForWindow(playerView.CoreWindow);
 
                     view = ApplicationView.GetForCurrentView();
 
+                    view.TitleBar.ButtonBackgroundColor = Windows.UI.Colors.Transparent;
+
                     Window.Current.Activate();
+
+                    
                     await ApplicationViewSwitcher.TryShowAsStandaloneAsync(
                         id,
                         ViewSizePreference.Default,

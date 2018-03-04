@@ -296,31 +296,34 @@ namespace NicoPlayerHohoema.Models
 
 
 
-        public IEnumerable<Database.NicoVideo> GetRelatedVideos()
+        public async Task<IEnumerable<Database.NicoVideo>> GetRelatedVideos()
         {
-            if (LastAccessDmcWatchResponse?.DmcWatchResponse.Playlist?.Items?.Any() != null)
+            if (LastAccessDmcWatchResponse?.DmcWatchResponse.Playlist != null)
             {
-                return LastAccessDmcWatchResponse.DmcWatchResponse.Playlist.Items
-                    .Select(x => 
-                    {
-                        var videoData = Database.NicoVideoDb.Get(x.Id);
-                        videoData.Title = x.Title;
-                        videoData.Length = x.LengthSeconds;
-                        videoData.PostedAt = x.FirstRetrieve;
-                        videoData.ThumbnailUrl = x.ThumbnailURL;
-                        videoData.ViewCount = x.ViewCounter;
-                        videoData.MylistCount = x.MylistCounter;
-                        videoData.CommentCount = x.NumRes;
+                var res = await _ContentProvider.Context.Video.GetVideoPlaylistAsync(RawVideoId, LastAccessDmcWatchResponse?.DmcWatchResponse.Playlist.Referer);
 
-                        Database.NicoVideoDb.AddOrUpdate(videoData);
+                if (res.Status == "ok")
+                {
+                    return res.Data.Items
+                        .Select(x =>
+                        {
+                            var videoData = Database.NicoVideoDb.Get(x.Id);
+                            videoData.Title = x.Title;
+                            videoData.Length = TimeSpan.FromSeconds(x.LengthSeconds);
+                            videoData.PostedAt = DateTime.Parse(x.FirstRetrieve);
+                            videoData.ThumbnailUrl = x.ThumbnailURL;
+                            videoData.ViewCount = x.ViewCounter;
+                            videoData.MylistCount = x.MylistCounter;
+                            videoData.CommentCount = x.NumRes ?? 0;
 
-                        return videoData;
-                    });
+                            Database.NicoVideoDb.AddOrUpdate(videoData);
+
+                            return videoData;
+                        });
+                }
             }
-            else
-            {
-                return Enumerable.Empty<Database.NicoVideo>();
-            }
+
+            return Enumerable.Empty<Database.NicoVideo>();
         }
 
 

@@ -31,7 +31,6 @@
                         <Setter Target="ItemsList.Visibility" Value="Collapsed" />
                         <Setter Target="ItemsList_TV.Visibility" Value="Visible" />
                         <Setter Target="HeaderLayout.Padding" Value="48 0 48 0" />
-                        <Setter Target="HeaderLayout.Height" Value="75" />
                     </VisualState.Setters>
                     
                 </VisualState>

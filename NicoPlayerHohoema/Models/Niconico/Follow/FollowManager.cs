@@ -35,8 +35,8 @@ namespace NicoPlayerHohoema.Models
 		public const uint FOLLOW_TAG_MAX_COUNT = 10;
 		public const uint PREMIUM_FOLLOW_TAG_MAX_COUNT = 10;
 
-		public const uint FOLLOW_COMMUNITY_MAX_COUNT = 50;
-		public const uint PREMIUM_FOLLOW_COMMUNITY_MAX_COUNT = 300;
+		public const uint FOLLOW_COMMUNITY_MAX_COUNT = 100;
+		public const uint PREMIUM_FOLLOW_COMMUNITY_MAX_COUNT = 600;
 
 		#endregion
 

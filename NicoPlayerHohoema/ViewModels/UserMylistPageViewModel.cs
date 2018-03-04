@@ -310,7 +310,7 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     Title = "マイリスト",
                     Origin = PlaylistOrigin.OtherUser,
-                    Items = mylists.ToList()
+                    Items = mylists.Select(x => new MylistSearchListingItem(x as IPlayableList, PageManager)).ToList()
                 });
 
                 RaisePropertyChanged(nameof(MylistList));
@@ -356,7 +356,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 Title = "ローカル",
                 Origin = PlaylistOrigin.Local,
-                Items = HohoemaApp.Playlist.Playlists.ToReadOnlyReactiveCollection(x => x as IPlayableList),
+                Items = HohoemaApp.Playlist.Playlists.ToReadOnlyReactiveCollection(x => new MylistSearchListingItem(x as IPlayableList, PageManager)),
                 MaxItemsCountText = "∞"
             });
 
@@ -364,7 +364,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 Title = "マイリスト",
                 Origin = PlaylistOrigin.LoginUser,
-                Items = listItems.ToReadOnlyReactiveCollection(x => x as IPlayableList),
+                Items = listItems.ToReadOnlyReactiveCollection(x => new MylistSearchListingItem(x as IPlayableList, PageManager)),
                 MaxItemsCountText = "26"
             });
         }
@@ -381,7 +381,11 @@ namespace NicoPlayerHohoema.ViewModels
             GroupId = list.Id;
 
             Label = list.Name;
-            
+
+            if (list.ThumnailUrl != null)
+            {
+                AddImageUrl(list.ThumnailUrl);
+            }
         }
 
 
@@ -392,7 +396,12 @@ namespace NicoPlayerHohoema.ViewModels
 			GroupId = info.GroupId;
 
 			Update(info);
-		}
+
+            if (info.ThumnailUrl != null)
+            {
+                AddImageUrl(info.ThumnailUrl);
+            }
+        }
 
 		public MylistGroupListItem(MylistGroupData mylistGroup, PageManager pageManager)
 		{
@@ -471,7 +480,7 @@ namespace NicoPlayerHohoema.ViewModels
         PageManager _PageManager;
 	}
 
-    public class MylistItemsWithTitle : ListWithTitle<IPlayableList>
+    public class MylistItemsWithTitle : ListWithTitle<MylistSearchListingItem>
     {
         public PlaylistOrigin Origin { get; set; }
         public string MaxItemsCountText { get; set; }
