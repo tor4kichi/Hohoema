@@ -85,6 +85,10 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 OnDeferredUpdate().ConfigureAwait(false);
             }
+            else
+            {
+                RefrechCacheState().ConfigureAwait(false);
+            }
         }
 
         protected override async Task OnDeferredUpdate()

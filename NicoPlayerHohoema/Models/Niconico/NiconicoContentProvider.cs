@@ -27,6 +27,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using NicoPlayerHohoema.Database;
 using Microsoft.Practices.Unity;
+using Mntone.Nico2.Videos.Recommend;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -870,5 +871,19 @@ namespace NicoPlayerHohoema.Models
 				return await Context.Community.GetCommunityVideoAsync(communityId, page);
 			});
 		}
-   	}
+
+
+        public Task<RecommendResponse> GetRecommendFirstAsync()
+        {
+            return Context.Video.GetRecommendFirstAsync();
+        }
+
+        public Task<RecommendContent> GetRecommendAsync(RecommendResponse res, RecommendContent prevInfo = null)
+        {
+            var user_tags = res.UserTagParam;
+            var seed = res.Seed;
+            var page = prevInfo?.RecommendInfo.Page ?? res.Page;
+            return Context.Video.GetRecommendAsync(user_tags, seed, page);
+        }
+    }
 }

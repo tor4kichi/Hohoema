@@ -541,4 +541,8 @@
     <value>すごく高</value>
     <comment>NicoVideoQuality</comment>
   </data>
+  <data name="Recommend" xml:space="preserve">
+    <value>オススメ動画</value>
+    <comment>HohoemaPageType</comment>
+  </data>
 </root>

@@ -44,7 +44,7 @@ namespace NicoPlayerHohoema.Models
         Splash,
         VideoPlayer,
 
-
         NicoRepo,
+        Recommend,
     }
 }
