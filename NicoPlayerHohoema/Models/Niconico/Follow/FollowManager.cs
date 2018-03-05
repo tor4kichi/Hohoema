@@ -62,13 +62,15 @@ namespace NicoPlayerHohoema.Models
 		public IFollowInfoGroup Community { get; private set; }
 
 
-		public IReadOnlyList<IFollowInfoGroup> GetAllFollowInfoGroups() => new[] 
+        IReadOnlyList<IFollowInfoGroup> _AllFollowInfoGroups;
+
+        public IReadOnlyList<IFollowInfoGroup> GetAllFollowInfoGroups() => _AllFollowInfoGroups ?? (_AllFollowInfoGroups = new List<IFollowInfoGroup> 
 		{
 			Tag,
 			Mylist,
 			User,
 			Community
-		};
+		});
 
 
         #endregion
