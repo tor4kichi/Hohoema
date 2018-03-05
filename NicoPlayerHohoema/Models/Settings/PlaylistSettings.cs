@@ -31,7 +31,7 @@ namespace NicoPlayerHohoema.Models
         }
 
 
-        private bool _IsReverseModeEnable = true;
+        private bool _IsReverseModeEnable = false;
 
         [DataMember]
         public bool IsReverseModeEnable
