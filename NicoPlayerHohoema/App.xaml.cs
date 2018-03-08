@@ -588,7 +588,6 @@ namespace NicoPlayerHohoema
                     appView.TitleBar.ButtonHoverForegroundColor = Colors.Black;
                 }
             }
-            
 
             await Models.Db.NicoVideoDbContext.InitializeAsync();
 			await Models.Db.HistoryDbContext.InitializeAsync();

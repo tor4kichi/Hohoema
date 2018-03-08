@@ -47,6 +47,8 @@ namespace NicoPlayerHohoema.Views
 						return Symbol.Contact;
 					case FollowItemType.Community:
 						return Symbol.People;
+                    case FollowItemType.Channel:
+                        return Symbol.OtherUser;
 					default:
 						throw new NotSupportedException();
 				}

@@ -62,7 +62,7 @@ namespace NicoPlayerHohoema.Models
 
                 var toastService = App.Current.Container.Resolve<ToastNotificationService>();
 
-                if (_CurrentUserFollows.GetFollowCommunities().Any(x => x == args.CommunityId))
+                if (CurrentUserFollows.GetFollowCommunities().Any(x => x == args.CommunityId))
                 {
                     var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
                     var liveStatus = await hohoemaApp.NiconicoContext.Live.GetPlayerStatusAsync(liveId);
@@ -88,19 +88,24 @@ namespace NicoPlayerHohoema.Models
         {
             _IsLoggedIn = await AlertClient.LoginAsync(mail, password);
 
-            if (IsLiveAlertEnabled)
+            if (_IsLoggedIn)
             {
-                StartAlert(NiconicoAlertServiceType.Live);
+                CurrentUserFollows = await AlertClient.GetFollowsAsync();
+
+                if (IsLiveAlertEnabled)
+                {
+                    StartAlert(NiconicoAlertServiceType.Live);
+                }
             }
         }
 
 
-        FollowInfo _CurrentUserFollows;
+        public FollowInfo CurrentUserFollows { get; private set; }
+
+
         private async void StartAlert(params NiconicoAlertServiceType[] alertServiceTypes)
         {
             if (!_IsLoggedIn) { return; }
-
-            _CurrentUserFollows = await AlertClient.GetFollowsAsync();
 
             await AlertClient.ConnectAlertWebScoketServerAsync(alertServiceTypes);
 

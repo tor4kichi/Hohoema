@@ -38,10 +38,13 @@ namespace NicoPlayerHohoema.Models
 		public const uint FOLLOW_COMMUNITY_MAX_COUNT = 100;
 		public const uint PREMIUM_FOLLOW_COMMUNITY_MAX_COUNT = 600;
 
-		#endregion
+        public const uint FOLLOW_CHANNEL_MAX_COUNT = uint.MaxValue;
+        public const uint PREMIUM_FOLLOW_CHANNEL_MAX_COUNT = uint.MaxValue;
+
+        #endregion
 
 
-		public static async Task<FollowManager> Create(HohoemaApp hohoemaApp, uint userId)
+        public static async Task<FollowManager> Create(HohoemaApp hohoemaApp, uint userId)
 		{
 			var followManager = new FollowManager(hohoemaApp, userId);
 
@@ -60,17 +63,22 @@ namespace NicoPlayerHohoema.Models
 		public IFollowInfoGroup Mylist { get; private set; }
 		public IFollowInfoGroup User { get; private set; }
 		public IFollowInfoGroup Community { get; private set; }
-
+        public IFollowInfoGroup Channel { get; private set; }
 
         IReadOnlyList<IFollowInfoGroup> _AllFollowInfoGroups;
+
+        Dictionary<FollowItemType, IFollowInfoGroup> _FollowGroupsMap;
+
+
 
         public IReadOnlyList<IFollowInfoGroup> GetAllFollowInfoGroups() => _AllFollowInfoGroups ?? (_AllFollowInfoGroups = new List<IFollowInfoGroup> 
 		{
 			Tag,
 			Mylist,
 			User,
-			Community
-		});
+			Community,
+            Channel
+        });
 
 
         #endregion
@@ -92,6 +100,15 @@ namespace NicoPlayerHohoema.Models
             Mylist = new MylistFollowInfoGroup(_HohoemaApp);
             User = new UserFollowInfoGroup(_HohoemaApp);
             Community = new CommunityFollowInfoGroup(_HohoemaApp);
+            Channel = new ChannelFollowInfoGroup(_HohoemaApp);
+
+            _FollowGroupsMap = new Dictionary<FollowItemType, IFollowInfoGroup>();
+
+            _FollowGroupsMap.Add(FollowItemType.Tag, Tag);
+            _FollowGroupsMap.Add(FollowItemType.Mylist, Mylist);
+            _FollowGroupsMap.Add(FollowItemType.User, User);
+            _FollowGroupsMap.Add(FollowItemType.Community, Community);
+            _FollowGroupsMap.Add(FollowItemType.Channel, Channel);
         }
 
 
@@ -105,33 +122,16 @@ namespace NicoPlayerHohoema.Models
         }
 
 
-		private IFollowInfoGroup GetFollowInfoGroup(FollowItemType itemType)
-		{
-			switch (itemType)
-			{
-				case FollowItemType.Tag:
-					return Tag;
-				case FollowItemType.Mylist:
-					return Mylist;
-				case FollowItemType.User:
-					return User;
-				case FollowItemType.Community:
-					return Community;
-				default:
-					throw new Exception();
-			}
-		}
-
 		public bool CanMoreAddFollow(FollowItemType itemType)
 		{
-			return GetFollowInfoGroup(itemType).CanMoreAddFollow();
+			return _FollowGroupsMap[itemType].CanMoreAddFollow();
 		}
 
 		
 
 		public bool IsFollowItem(FollowItemType itemType, string id)
 		{
-			var group = GetFollowInfoGroup(itemType);
+			var group = _FollowGroupsMap[itemType];
 
 			if (itemType == FollowItemType.Tag)
 			{
@@ -163,12 +163,12 @@ namespace NicoPlayerHohoema.Models
 
 		public FollowItemInfo FindFollowInfo(FollowItemType itemType, string id)
 		{
-			return GetFollowInfoGroup(itemType).FollowInfoItems.SingleOrDefault(x => x.Id == id);
+			return _FollowGroupsMap[itemType].FollowInfoItems.SingleOrDefault(x => x.Id == id);
 		}
 
 		public async Task<ContentManageResult> AddFollow(FollowItemType itemType, string id, string name, object token = null)
 		{
-			var group = GetFollowInfoGroup(itemType);
+			var group = _FollowGroupsMap[itemType];
 
 			var result = await group.AddFollow(name, id, token);
 		
@@ -177,7 +177,7 @@ namespace NicoPlayerHohoema.Models
 
 		public async Task<ContentManageResult> RemoveFollow(FollowItemType itemType, string id)
 		{
-			var group = GetFollowInfoGroup(itemType);
+			var group = _FollowGroupsMap[itemType];
 
 			var result = await group.RemoveFollow(id);
 

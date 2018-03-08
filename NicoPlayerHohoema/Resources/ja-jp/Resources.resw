@@ -545,4 +545,12 @@
     <value>オススメ動画</value>
     <comment>HohoemaPageType</comment>
   </data>
+  <data name="ChannelInfo" xml:space="preserve">
+    <value>チャンネル情報</value>
+    <comment>HohoemaPageType</comment>
+  </data>
+  <data name="ChannelVideo" xml:space="preserve">
+    <value>チャンネル動画</value>
+    <comment>HohoemaPageType</comment>
+  </data>
 </root>

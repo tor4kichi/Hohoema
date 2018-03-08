@@ -33,9 +33,11 @@ namespace NicoPlayerHohoema.Models
 		[DataMember(Name = "update_time")]
 		public DateTime UpdateTime { get; set; }
 
+        [DataMember(Name = "thumbnail")]
+        public string ThumbnailUrl { get; set; }
 
 
-		[DataMember(Name = "deleted")]
+        [DataMember(Name = "deleted")]
 		public bool IsDeleted { get; set; }
 
 

@@ -60,6 +60,8 @@ namespace NicoPlayerHohoema.ViewModels
                 Lists.Add(new FavoriteListViewModel("タグ", HohoemaApp.FollowManager.Tag, HohoemaApp.FollowManager, PageManager));
 
                 Lists.Add(new FavoriteListViewModel("コミュニティ", HohoemaApp.FollowManager.Community, HohoemaApp.FollowManager, PageManager));
+
+                Lists.Add(new FavoriteListViewModel("チャンネル", HohoemaApp.FollowManager.Channel, HohoemaApp.FollowManager, PageManager));
             }
 
             await base.OnSignIn(userSessionDisposer, cancelToken);
@@ -85,6 +87,8 @@ namespace NicoPlayerHohoema.ViewModels
         public FollowItemType FavType => FollowGroup.FollowItemType;
         public string Label { get;  }
         public uint MaxItemCount => FollowGroup.MaxFollowItemCount;
+        public bool IsCountInfinity => MaxItemCount == uint.MaxValue;
+
         public IReadOnlyReactiveProperty<int> ItemCount { get; }
         public FollowManager FollowManager { get; }
         public PageManager PageManager { get; }
@@ -92,6 +96,45 @@ namespace NicoPlayerHohoema.ViewModels
         public bool IsSyncFailed { get; }
 
         public ReadOnlyObservableCollection<FavoriteItemViewModel> Items { get; set; }
+
+        Func<FollowItemInfo, FavoriteItemViewModel> _ItemVMFactory;
+        Func<FollowItemInfo, FavoriteItemViewModel> ItemVMFactory
+        {
+            get
+            {
+                return _ItemVMFactory ?? (_ItemVMFactory = MakeFavItemVMFactory(FavType));
+                    
+                
+            }
+        }
+
+        static Func<FollowItemInfo, FavoriteItemViewModel> MakeFavItemVMFactory(FollowItemType type)
+        {
+            Func<FollowItemInfo, FavoriteItemViewModel> fac = null;
+            switch (type)
+            {
+                case FollowItemType.Tag:
+                    fac = item => new TagFavItemVM(item);
+                    break;
+                case FollowItemType.Mylist:
+                    fac = item => new MylistFavItemVM(item);
+                    break;
+                case FollowItemType.User:
+                    fac = item => new UserFavItemVM(item);
+                    break;
+                case FollowItemType.Community:
+                    fac = item => new CommunityFavItemVM(item);
+                    break;
+                case FollowItemType.Channel:
+                    fac = item => new ChannelFavItemVM(item);
+                    break;
+                default:
+                    throw new NotSupportedException();
+            }
+
+            return fac;
+        }
+
 
         public FavoriteListViewModel(string label, IFollowInfoGroup followGroup, FollowManager followMan, PageManager pageManager)
         {
@@ -102,29 +145,12 @@ namespace NicoPlayerHohoema.ViewModels
             IsSyncFailed = FollowGroup.IsFailedUpdate;
 
             Items = followGroup.FollowInfoItems?
-                .ToReadOnlyReactiveCollection(x => CreateFavVM(x)) 
+                .ToReadOnlyReactiveCollection(x => ItemVMFactory(x)) 
                 ?? new ReadOnlyObservableCollection<FavoriteItemViewModel>(new ObservableCollection<FavoriteItemViewModel>());
             ItemCount = Items?.ObserveProperty(x => x.Count).ToReadOnlyReactiveProperty() 
                 ?? new ReactiveProperty<int>(0).ToReadOnlyReactiveProperty();
         }
-
-
-        private static FavoriteItemViewModel CreateFavVM(FollowItemInfo favItem)
-        {
-            switch (favItem.FollowItemType)
-            {
-                case FollowItemType.Tag:
-                    return new TagFavItemVM(favItem);
-                case FollowItemType.Mylist:
-                    return new MylistFavItemVM(favItem);
-                case FollowItemType.User:
-                    return new UserFavItemVM(favItem);
-                case FollowItemType.Community:
-                    return new CommunityFavItemVM(favItem);
-                default:
-                    throw new NotSupportedException();
-            }
-        }
+        
     }
 
     public class TagFavItemVM : FavoriteItemViewModel, Interfaces.ISearchWithtag
@@ -158,6 +184,15 @@ namespace NicoPlayerHohoema.ViewModels
     public class CommunityFavItemVM : FavoriteItemViewModel, Interfaces.ICommunity
     {
         public CommunityFavItemVM(FollowItemInfo feedList) : base(feedList)
+        {
+        }
+
+        public string Id => SourceId;
+    }
+
+    public class ChannelFavItemVM : FavoriteItemViewModel, Interfaces.IChannel
+    {
+        public ChannelFavItemVM(FollowItemInfo feedList) : base(feedList)
         {
         }
 

@@ -46,5 +46,8 @@ namespace NicoPlayerHohoema.Models
 
         NicoRepo,
         Recommend,
+
+        ChannelInfo,
+        ChannelVideo,
     }
 }

@@ -215,6 +215,7 @@
     <Compile Include="Helpers\IAsyncInitialize.cs" />
     <Compile Include="Helpers\IFileAccessor.cs" />
     <Compile Include="Helpers\StringHelper.cs" />
+    <Compile Include="Interfaces\IChannel.cs" />
     <Compile Include="Interfaces\ICommunity.cs" />
     <Compile Include="Interfaces\IFeedGroup.cs" />
     <Compile Include="Interfaces\IFollowable.cs" />
@@ -227,6 +228,7 @@
     <Compile Include="Models\AccountManager.cs" />
     <Compile Include="Models\AppUpdateNotice.cs" />
     <Compile Include="Models\Db\MigrationToLiteDBHelper.cs" />
+    <Compile Include="Models\Niconico\Follow\ChannelFollowInfoGroup.cs" />
     <Compile Include="Models\Niconico\HohoemaAlertClient.cs" />
     <Compile Include="Models\Niconico\Video\Comment\CommentCommandPermissionType.cs" />
     <Compile Include="Models\Niconico\CommentOpacityKind.cs" />
@@ -352,6 +354,7 @@
     <Compile Include="Helpers\TwitterHelper.cs" />
     <Compile Include="Services\HohoemaDialogService.cs" />
     <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
+    <Compile Include="ViewModels\ChannelVideoPageViewModel.cs" />
     <Compile Include="ViewModels\CommentCommandEditerViewModel.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
     <Compile Include="ViewModels\CommunityPageViewModel.cs" />
@@ -432,6 +435,9 @@
     </Compile>
     <Compile Include="Views\CacheManagementPage.xaml.cs">
       <DependentUpon>CacheManagementPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ChannelVideoPage.xaml.cs">
+      <DependentUpon>ChannelVideoPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Converters\PageTypeToMaterialIconKind.cs" />
     <Compile Include="Views\Converters\SwipeSeekValueToTimeSpan.cs" />
@@ -814,6 +820,10 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Page>
     <Page Include="Views\BlankPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ChannelVideoPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

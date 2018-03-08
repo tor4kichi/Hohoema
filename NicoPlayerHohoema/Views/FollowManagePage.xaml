@@ -168,14 +168,26 @@
                                     <Grid Margin="0 16"
                                           toolkit:DockPanel.Dock="Top"
                                           >
+                                        <!-- フォロー数が有限 -->
                                         <TextBlock  
                                                             VerticalAlignment="Center"
                                                             Margin="8 0"
+                                            Visibility="{Binding IsCountInfinity, Converter={StaticResource BooleanToVisibilityInverted}}"
                                                         >
                                             <Run Text="登録数：" />
                                             <Run Text="{Binding ItemCount.Value}" />
                                             <Run Text="/" />
                                             <Run Text="{Binding MaxItemCount}" />
+                                        </TextBlock>
+
+                                        <!-- フォロー数が無制限 （ex: ニコニコチャンネル）-->
+                                        <TextBlock  
+                                                            VerticalAlignment="Center"
+                                                            Margin="8 0"
+                                            Visibility="{Binding IsCountInfinity, Converter={StaticResource BooleanToVisibility}}"
+                                                        >
+                                            <Run Text="登録数：" />
+                                            <Run Text="{Binding ItemCount.Value}" />
                                         </TextBlock>
                                     </Grid>
 
