@@ -330,8 +330,6 @@
                     <VisualState.Setters>
                         <Setter Target="CompactOverlayUIControl.Visibility" Value="Visible" />
                         <Setter Target="DefaultUIControl.Visibility" Value="Collapsed" />
-
-                        <Setter Target="PlayerSplitView.OpenPaneLength" Value="120" />
                     </VisualState.Setters>
                 </VisualState>
                 
@@ -403,6 +401,25 @@
 
             <!-- デバイスごとの最大化と小窓ボタンの表示切り替え -->
             <VisualStateGroup >
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <myTrigger:CompactOverlayViewModeTrigger />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PlayerSplitView.OpenPaneLength" Value="0" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsSmallWindowModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PlayerSplitView.OpenPaneLength" Value="0" />
+                    </VisualState.Setters>
+                </VisualState>
+                
                 <VisualState>
                     <VisualState.StateTriggers>
                         <hardTrigger:DeviceFamilyTrigger Condition="Mobile" />
@@ -531,7 +548,6 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="UIControlLayout.Visibility" Value="Collapsed" />
-                        <Setter Target="PlayerSplitView.OpenPaneLength" Value="120" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
