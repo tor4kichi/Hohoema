@@ -243,12 +243,6 @@ namespace NicoPlayerHohoema.ViewModels
 			// ContentVM側のページタイトルが後で呼び出されるように、SearchPage側を先に呼び出す
 			base.OnNavigatedTo(e, viewModelState);
         }
-
-        protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-        {
-            
-            await base.NavigatedToAsync(cancelToken, e, viewModelState);
-        }
 	}
 
 

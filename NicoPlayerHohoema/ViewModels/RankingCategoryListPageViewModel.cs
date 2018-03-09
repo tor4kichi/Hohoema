@@ -190,6 +190,8 @@ namespace NicoPlayerHohoema.ViewModels
 
                 ResetRankingCategoryItems();
             });
+
+            ResetRankingCategoryItems();
         }
 
         RankingCategoryListPageListItem CreateRankingCategryListItem(RankingCategory category)
@@ -201,8 +203,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
-            ResetRankingCategoryItems();
-
             base.OnNavigatedTo(e, viewModelState);
         }
 

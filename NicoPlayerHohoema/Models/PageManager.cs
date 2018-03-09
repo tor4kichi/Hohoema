@@ -61,7 +61,7 @@ namespace NicoPlayerHohoema.Models
 			set { SetProperty(ref _PageTitle, value); }
 		}
 
-        public object PageNavigationParameter { get; private set; }
+        public object PageNavigationParameter { get; private set; } = -1;
 
 
 		private bool _PageNavigating;
@@ -145,6 +145,11 @@ namespace NicoPlayerHohoema.Models
 
                     try
                     {
+                        if (CurrentPageType == pageType && PageNavigationParameter == parameter)
+                        {
+                            return;
+                        }
+
                         await Task.Delay(30);
 
                         var oldPageTitle = PageTitle;
