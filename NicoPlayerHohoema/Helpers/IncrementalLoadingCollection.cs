@@ -73,13 +73,13 @@ namespace NicoPlayerHohoema.Helpers
                         }
                         else
                         {
-                            resultCount = (uint)await items.Count();
-                            _Position += resultCount;
                             await items.ForEachAsync(async (item) =>
                             {
                                 await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => { this.Add(item); });
+                                ++resultCount;
                             });
 
+                            _Position += resultCount;
                         }
                     }
                     catch (Exception ex)
