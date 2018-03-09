@@ -720,6 +720,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="TitleBarMarginLayout.Visibility" Value="Visible" />
+                        <Setter Target="PlayerSidePaneLayout.Padding" Value="0 32 0 0" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
