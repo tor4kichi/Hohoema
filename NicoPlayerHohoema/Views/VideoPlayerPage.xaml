@@ -801,6 +801,7 @@
                                               SwipeCommand="{Binding SeekVideoCommand}"
                                               SwipeAmountConverter="{StaticResource SwipeSeekValueToTimeSpan}"
                                               SwipeAmountScale="0.15"
+                                              SwipeEdgeOfPlay="48"
                                               />
 
 
