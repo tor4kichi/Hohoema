@@ -201,6 +201,10 @@ namespace NicoPlayerHohoema.Models
 
 				await FileIO.WriteTextAsync(file, serializedText);
 			}
+            catch (FileNotFoundException)
+            {
+                System.Diagnostics.Debug.WriteLine($" failed save setting. {FileName}");
+            }
 			finally
 			{
 				_FileLock.Release();
