@@ -16,5 +16,6 @@ namespace NicoPlayerHohoema.Models.Live
 		Full,
 		PremiumOnly,
 		NotLogin,
-	}
+        ServiceTemporarilyUnavailable,
+    }
 }

@@ -1613,6 +1613,8 @@
                     <Border Margin="16 80 0 0"
                             Visibility="{Binding HasSuggestion.Value, Converter={StaticResource BooleanToVisibility}}"
                             Background="{ThemeResource AppBarItemBackgroundThemeBrush}"
+                            VerticalAlignment="Top"
+                            HorizontalAlignment="Left"
                             >
                         <StackPanel Margin="16">
                             <TextBlock Text="{Binding Suggestion.Value.Title}"
