@@ -400,7 +400,7 @@
 
 
 
-                            <StackPanel Visibility="{Binding IchibaItems, Converter={StaticResource NotNullToVisibility}}">
+                            <StackPanel Visibility="{Binding IchibaItems, Converter={StaticResource CollectionVisibilityConverter}}">
 
                                 <TextBlock Text="ニコニコ市場"
                                            Style="{StaticResource SubtitleTextBlockStyle}"

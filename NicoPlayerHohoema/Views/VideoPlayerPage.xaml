@@ -1102,7 +1102,6 @@
                                                     Command="{Binding ClosePlayerCommand}"
                                                     Background="Transparent"
                                                     UseSystemFocusVisuals="True"
-                                                        
                                                     >
                                                     <iconPack:PackIconMaterial Kind="Close" />
                                                 </Button>
