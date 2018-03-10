@@ -444,6 +444,9 @@
     <Compile Include="Views\Flyouts\FeedSourceFlyout.xaml.cs">
       <DependentUpon>FeedSourceFlyout.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Flyouts\SearchHistoryListItemFlyout.xaml.cs">
+      <DependentUpon>SearchHistoryListItemFlyout.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\RecommendPage.xaml.cs">
       <DependentUpon>RecommendPage.xaml</DependentUpon>
     </Compile>
@@ -828,6 +831,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Flyouts\FeedSourceFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Flyouts\SearchHistoryListItemFlyout.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

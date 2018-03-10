@@ -51,7 +51,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public bool IsSearchNiconama => RequireSearchOption is LiveSearchPagePayloadContent;
 
 
-        public ObservableCollection<SearchHistory> SearchHistoryItems { get; private set; } = new ObservableCollection<SearchHistory>();
+        public ObservableCollection<SearchHistoryListItem> SearchHistoryItems { get; private set; } = new ObservableCollection<SearchHistoryListItem>();
 
         private void RaiseSearchTargetFlags()
 		{
@@ -74,7 +74,7 @@ namespace NicoPlayerHohoema.ViewModels
                     continue;
                 }
 
-                SearchHistoryItems.Add(item);
+                SearchHistoryItems.Add(new SearchHistoryListItem(item, this));
                 HistoryKeyword.Add(item.Keyword);
             }
             
@@ -155,7 +155,7 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     SearchHistoryItems.Remove(oldSearchHistory);
                 }
-                SearchHistoryItems.Insert(0, searched);
+                SearchHistoryItems.Insert(0, new SearchHistoryListItem(searched, this));
 
             })
 			.AddTo(_CompositeDisposable);
@@ -193,13 +193,13 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        private DelegateCommand<SearchHistory> _SearchHistoryItemCommand;
-        public DelegateCommand<SearchHistory> SearchHistoryItemCommand
+        private DelegateCommand<SearchHistoryListItem> _SearchHistoryItemCommand;
+        public DelegateCommand<SearchHistoryListItem> SearchHistoryItemCommand
         {
             get
             {
                 return _SearchHistoryItemCommand
-                    ?? (_SearchHistoryItemCommand = new DelegateCommand<SearchHistory>((item) =>
+                    ?? (_SearchHistoryItemCommand = new DelegateCommand<SearchHistoryListItem>((item) =>
                     {
                         SearchText.Value = item.Keyword;
                     }

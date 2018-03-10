@@ -17,6 +17,7 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
         public DataTemplate CommunityFlyoutTemplate { get; set; }
         public DataTemplate FeedGroupFlyoutTemplate { get; set; }
         public DataTemplate FeedSourceFlyoutTemplate { get; set; }
+        public DataTemplate SearchHistoryFlyoutTemplate { get; set; }
 
         protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
@@ -51,6 +52,8 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
                         return LiveFlyoutTemplate;
                     case ViewModels.NicoRepoItemTopic.Live_Channel_Program_Reserve:
                         return LiveFlyoutTemplate;
+                    case ViewModels.NicoRepoItemTopic.NicoVideo_Channel_Video_Upload:
+                        return VideoFlyoutTemplate;
                     default:
                         break;
                 }
@@ -70,6 +73,10 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
             else if (item is ViewModels.FeedSourceBookmark)
             {
                 return FeedSourceFlyoutTemplate;
+            }
+            else if (item is ViewModels.SearchHistoryListItem)
+            {
+                return SearchHistoryFlyoutTemplate;
             }
 
             return base.SelectTemplateCore(item, container);
