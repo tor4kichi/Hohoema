@@ -133,9 +133,16 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override uint OneTimeLoadCount => 20;
 
+        bool _IsEndPage = false;
+
         protected override async Task<IAsyncEnumerable<ChannelVideoListItemViewModel>> GetPagedItemsImpl(int head, int count)
         {
             if (_FirstResponse == null)
+            {
+                return AsyncEnumerable.Empty<ChannelVideoListItemViewModel>();
+            }
+
+            if (_IsEndPage)
             {
                 return AsyncEnumerable.Empty<ChannelVideoListItemViewModel>();
             }
@@ -151,6 +158,8 @@ namespace NicoPlayerHohoema.ViewModels
                 var page = (int)(head / OneTimeLoadCount);
                 res = await _NiconicoContentProvider.GetChannelVideo(ChannelId, page);
             }
+
+            _IsEndPage = res != null ? (res.Videos.Count < OneTimeLoadCount) : true;
 
             if (res != null)
             {
