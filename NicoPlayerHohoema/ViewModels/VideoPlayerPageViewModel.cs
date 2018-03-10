@@ -758,6 +758,20 @@ namespace NicoPlayerHohoema.ViewModels
 
                 CurrentVideoQuality.Value = _CurrentPlayingVideoSession.Quality;
 
+                NowPlayingWithDmcVideo = false;
+                if (_CurrentPlayingVideoSession is DmcVideoStreamingSession)
+                {
+                    var dmcSession = _CurrentPlayingVideoSession as DmcVideoStreamingSession;
+                    var content = dmcSession.VideoContent;
+                    if (content != null)
+                    {
+                        NowPlayingWithDmcVideo = true;
+                        VideoWidth = content.Resolution.Width;
+                        VideoHeight = content.Resolution.Height;
+                        VideoBitrate = content.Bitrate;
+                    }
+                }
+
                 MediaPlayer.PlaybackSession.Position = this._PreviosPlayingVideoPosition;
             }
             catch (NotSupportedException ex)
@@ -2243,6 +2257,8 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<string> ThumbnailUri { get; private set; }
 
 
+        
+
         // Note: 新しいReactivePropertyを追加したときの注意点
         // ReactivePorpertyの初期化にPlayerWindowUIDispatcherSchedulerを使うこと
 
@@ -2294,8 +2310,37 @@ namespace NicoPlayerHohoema.ViewModels
 
         private bool _IsNeddPlayInResumed;
 
-		// Sound
-		public ReactiveProperty<bool> NowSoundChanging { get; private set; }
+
+        private bool _NowPlayingWithDmcVideo;
+        public bool NowPlayingWithDmcVideo
+        {
+            get { return _NowPlayingWithDmcVideo; }
+            set { SetProperty(ref _NowPlayingWithDmcVideo, value); }
+        }
+
+        private double _VideoBitrate;
+        public double VideoBitrate
+        {
+            get { return _VideoBitrate; }
+            set { SetProperty(ref _VideoBitrate, value); }
+        }
+
+        private double _VideoWidth;
+        public double VideoWidth
+        {
+            get { return _VideoWidth; }
+            set { SetProperty(ref _VideoWidth, value); }
+        }
+
+        private double _VideoHeight;
+        public double VideoHeight
+        {
+            get { return _VideoHeight; }
+            set { SetProperty(ref _VideoHeight, value); }
+        }
+
+        // Sound
+        public ReactiveProperty<bool> NowSoundChanging { get; private set; }
 		public ReactiveProperty<bool> IsMuted { get; private set; }
 		public ReactiveProperty<double> SoundVolume { get; private set; }
 

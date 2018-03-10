@@ -1354,11 +1354,20 @@
                                                             Visibility="{Binding CurrentVideoQuality.Value, Converter={StaticResource NotNullToVisibility}}"
                                                 >
 
-                                                    <TextBlock  Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}">
+                                                    
+                                                    <TextBlock  Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                                Visibility="{Binding NowPlayingWithDmcVideo,Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                                >
                                                         <Run Text="{Binding CurrentVideoQuality.Value, Converter={StaticResource ToLocalText}}" />
                                                         <Run Text="画質" />   
                                                     </TextBlock>
 
+                                                    <TextBlock  Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                                Visibility="{Binding NowPlayingWithDmcVideo,Converter={StaticResource BooleanToVisibility}}"
+                                                                >
+                                                        <Run Text="{Binding VideoHeight}" />p (<Run Text="{Binding VideoBitrate, Converter={StaticResource ToKMGTPEZY}}"></Run>bps)
+                                                    </TextBlock>
+                                                    
                                                     <Border Width="8" />
 
                                                     <TextBlock  Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"

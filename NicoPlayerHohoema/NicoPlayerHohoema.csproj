@@ -441,6 +441,7 @@
     </Compile>
     <Compile Include="Views\Converters\PageTypeToMaterialIconKind.cs" />
     <Compile Include="Views\Converters\SwipeSeekValueToTimeSpan.cs" />
+    <Compile Include="Views\Converters\ToKMGTPEZYConverter.cs" />
     <Compile Include="Views\Flyouts\FeedSourceFlyout.xaml.cs">
       <DependentUpon>FeedSourceFlyout.xaml</DependentUpon>
     </Compile>
