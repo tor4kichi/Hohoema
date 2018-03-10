@@ -798,7 +798,7 @@
                                                                                                    HorizontalAlignment="Center"
                                                                                                    />
 
-                                                <TextBlock Text="メインビューで表示" 
+                                                <TextBlock Text="メインウィンドウ" 
                                                                                    Style="{StaticResource CaptionTextBlockStyle}"
                                                                                    VerticalAlignment="Center" />
                                             </StackPanel>
@@ -860,7 +860,7 @@
                                                                                    HorizontalAlignment="Center"
                                                                                    Margin="0 0 0 8"
                                                                                />
-                                                <TextBlock Text="ミニモード" 
+                                                <TextBlock Text="小さく最前面" 
                                                                                    Style="{StaticResource CaptionTextBlockStyle}"
                                                                                    VerticalAlignment="Center" />
                                             </StackPanel>
@@ -913,7 +913,7 @@
                                                                                                    HorizontalAlignment="Center"
                                                                                                    />
 
-                                                <TextBlock Text="新しいビューで表示" 
+                                                <TextBlock Text="別ウィンドウ" 
                                                                                    Style="{StaticResource CaptionTextBlockStyle}"
                                                                                    VerticalAlignment="Center" />
                                             </StackPanel>
