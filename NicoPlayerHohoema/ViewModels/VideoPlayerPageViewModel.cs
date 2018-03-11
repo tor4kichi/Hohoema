@@ -850,6 +850,8 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			Debug.WriteLine("VideoPlayer OnNavigatedToAsync start.");
 
+            IsDisplayControlUI.Value = true;
+
             if (e?.Parameter is string)
 			{
 				var payload = VideoPlayPayload.FromParameterString(e.Parameter as string);
@@ -908,6 +910,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             VideoLength.Value = _VideoInfo.Length.TotalSeconds;
 
+            
             // 削除された動画の場合、自動でスキップさせる
             if (_VideoInfo.IsDeleted)
             {

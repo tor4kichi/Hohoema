@@ -850,6 +850,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+            IsDisplayControlUI.Value = true;
+
             ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
 			
 			await base.NavigatedToAsync(cancelToken, e, viewModelState);
