@@ -90,6 +90,7 @@ namespace NicoPlayerHohoema.ViewModels
                             PageManager.OpenPage(HohoemaPageType.UserInfo, _VideoInfo.Owner.OwnerId);
                         }
                     }
+                    , () => _VideoInfo.Owner.UserType == Mntone.Nico2.Videos.Thumbnail.UserType.User
                     ));
             }
         }
@@ -106,6 +107,10 @@ namespace NicoPlayerHohoema.ViewModels
                         if (_VideoInfo.Owner.UserType == Mntone.Nico2.Videos.Thumbnail.UserType.User)
                         {
                             PageManager.OpenPage(HohoemaPageType.UserVideo, _VideoInfo.Owner.OwnerId);
+                        }
+                        else if (IsChannelOwnedVideo)
+                        {
+                            PageManager.OpenPage(HohoemaPageType.ChannelVideo, _VideoInfo.Owner.OwnerId);
                         }
                     }
                     ));

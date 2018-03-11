@@ -40,7 +40,7 @@ namespace NicoPlayerHohoema.Helpers
 		private uint _Position;
 
 		private SemaphoreSlim _LoadingLock;
-
+        CoreDispatcher _UIDispatcher;
 		public IncrementalLoadingCollection(T source)
 		{
 			this._Source = source;
@@ -48,65 +48,83 @@ namespace NicoPlayerHohoema.Helpers
 			_Position = 0;
 			IsPuaseLoading = false;
 			_LoadingLock = new SemaphoreSlim(1, 1);
-		}
+            _UIDispatcher = Window.Current.Dispatcher;
+        }
 
 		public IAsyncOperation<LoadMoreItemsResult> LoadMoreItemsAsync(uint count)
 		{
-            var dispatcher = Window.Current.Dispatcher;
-            return AsyncInfo.Run(async (token) =>
+            // 多重読み込み防止のため
+            // リスト表示に反映されるまで
+            // タスクの終了を遅延させる必要があります
+            ;
+
+
+            return LoadDataAsync(count, new CancellationToken(false)).AsAsyncOperation();
+        }
+
+        public async Task<LoadMoreItemsResult> LoadDataAsync(uint count, CancellationToken cancellationToken)
+        {
+            try
             {
-                try
+                await _LoadingLock.WaitAsync();
+
+                BeginLoading?.Invoke();
+
+                uint resultCount = 0;
+                IAsyncEnumerable<I> items = null;
+                if (!cancellationToken.IsCancellationRequested)
                 {
-                    await _LoadingLock.WaitAsync();
-
-                    BeginLoading?.Invoke();
-
-                    uint resultCount = 0;
-
                     try
                     {
-                        var items = await _Source.GetPagedItems((int)_Position, (int)_Source.OneTimeLoadCount);
-                        
-                        if (items == null || (!await items.Any()))
-                        {
-                            _HasMoreItems = false;
-                        }
-                        else
-                        {
-                            _Position += _Source.OneTimeLoadCount;
+                        items = await _Source.GetPagedItems((int)_Position, (int)_Source.OneTimeLoadCount);
+                    }
+                    catch (OperationCanceledException)
+                    {
 
-                            await items.ForEachAsync(async (item) =>
-                            {
-                                await dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => { this.Add(item); });
-                            });
-
-                            resultCount = (uint)await items.Count();
-                        }
                     }
                     catch (Exception ex)
                     {
                         Debug.WriteLine(ex.Message);
                     }
-
-                    
-
-                    // 多重読み込み防止のため
-                    // リスト表示に反映されるまで
-                    // タスクの終了を遅延させる必要があります
-                    await Task.Delay(500);
-
-                    DoneLoading?.Invoke();
-
-                    return new LoadMoreItemsResult() { Count = resultCount };
                 }
-                finally
+
+                if (items != null && !cancellationToken.IsCancellationRequested)
                 {
-                    _LoadingLock.Release();
+                    // Task.Delay(50)は多重読み込み防止のためのおまじない
+                    // アイテム追加完了のタイミングで次の追加読み込みの判定が走るっぽいので
+                    // アイテム追加が完了するまでUIスレッドが止まっている必要があるっぽい、つまり
+                    // 
+                    // 「非同期処理のことはよくわからない
+                    //       
+                    //      俺たちは雰囲気で非同期処理をやっているんだ」
+                    // 
+                    await Task.WhenAll(Task.Delay(50),
+                        items.ForEachAsync(async (item) =>
+                        {
+                            await _UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () => { this.Add(item); });
+                            ++resultCount;
+                        })
+                        );
+
+                    _Position += resultCount;
                 }
+
+                if (resultCount == 0)
+                {
+                    _HasMoreItems = false;
+                }
+
+
+
+                DoneLoading?.Invoke();
+
+                return new LoadMoreItemsResult() { Count = resultCount };
             }
-            );
-                
-		}
+            finally
+            {
+                _LoadingLock.Release();
+            }
+        }
 
 
 		protected override void ClearItems()

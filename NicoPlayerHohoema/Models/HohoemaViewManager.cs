@@ -206,7 +206,8 @@ namespace NicoPlayerHohoema.Models
 
         public Task ShowMainView()
         {
-            if (AppView != null)
+            var currentView = ApplicationView.GetForCurrentView();
+            if (AppView != null && currentView.Id != MainView.Id)
             {
                 return ApplicationViewSwitcher.SwitchAsync(MainView.Id, ViewId).AsTask();
             }

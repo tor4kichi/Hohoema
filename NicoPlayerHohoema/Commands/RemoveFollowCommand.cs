@@ -44,6 +44,7 @@ namespace NicoPlayerHohoema.Commands
             if (item is Interfaces.IUser) return Models.FollowItemType.User;
             if (item is Interfaces.IMylist) return Models.FollowItemType.Mylist;
             if (item is Interfaces.ICommunity) return Models.FollowItemType.Community;
+            if (item is Interfaces.IChannel) return Models.FollowItemType.Channel;
 
             throw new NotSupportedException();
         }

@@ -28,7 +28,7 @@
                                         IsItemClickEnabled="True"
                                         uwpui:ListViewBase.Command="{TemplateBinding ItemCommand}"
                                         ItemTemplate="{TemplateBinding ItemTemplate}"
-                                        SelectionMode="Single"
+                                        SelectionMode="None"
                                         VerticalAlignment="{TemplateBinding VerticalAlignment}"
                                       Margin="{TemplateBinding Margin}"
                                       Padding="{TemplateBinding Padding}"

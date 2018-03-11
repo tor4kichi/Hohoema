@@ -89,7 +89,7 @@ namespace NicoPlayerHohoema.Models
 					FollowItemType = FollowItemType,
 				};
 
-				_FollowInfoList.Add(newList);
+				_FollowInfoList.Insert(0, newList);
 			}
 
 			return result;

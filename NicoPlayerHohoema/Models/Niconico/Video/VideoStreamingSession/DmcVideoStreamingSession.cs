@@ -107,6 +107,14 @@ namespace NicoPlayerHohoema.Models
             _DmcWatchData = res;
             DmcWatchResponse = res.DmcWatchResponse;
 
+#if DEBUG
+            Debug.WriteLine($"Id/Bitrate/Resolution/Available");
+            foreach (var q in _DmcWatchData.DmcWatchResponse.Video.DmcInfo.Quality.Videos)
+            {
+                Debug.WriteLine($"{q.Id}/{q.Bitrate}/{q.Available}/{q.Resolution}");
+            }
+#endif
+
             VideoContent = ResetActualQuality();
 
             if (VideoContent != null)
@@ -132,8 +140,8 @@ namespace NicoPlayerHohoema.Models
                     _Quality = NicoVideoQuality.Dmc_Mobile;
                 }
 
-                Debug.WriteLine($"bitrate={VideoContent.Bitrate}, id={VideoContent.Id}, w={VideoContent.Resolution.Width}, h={VideoContent.Resolution.Height}");
                 Debug.WriteLine($"quality={_Quality}");
+                Debug.WriteLine($"{VideoContent.Id}/{VideoContent.Bitrate}/{VideoContent.Available}/w={VideoContent.Resolution.Width} h={VideoContent.Resolution.Height}");
             }
         }
 

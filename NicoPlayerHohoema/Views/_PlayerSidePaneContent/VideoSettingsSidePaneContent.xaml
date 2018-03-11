@@ -139,16 +139,19 @@
                            VerticalAlignment="Center"
                            />
 
-                    <Slider Value="{Binding VideoPlaybackRate.Value, Mode=TwoWay, UpdateSourceTrigger=Default}"
-                            Maximum="2.0"
-                            Minimum="0.1" 
-                            TickFrequency="0.1"
-                            StepFrequency="0.1"
-                            Width="240"
-                            IsThumbToolTipEnabled="True"
+                    <ComboBox SelectedItem="{Binding VideoPlaybackRate.Value, Mode=TwoWay, UpdateSourceTrigger=Default}"
+                              ItemsSource="{Binding VideoPlaybackRateList}"
                             HorizontalAlignment="Left"
                             HorizontalContentAlignment="Left"
-                            />
+                            >
+                        <ComboBox.ItemTemplate>
+                            <DataTemplate>
+                                <TextBlock >
+                                    <Run Text="{Binding Converter={StaticResource ToUserFriendlySoubleVolume}}" />%
+                                </TextBlock>
+                            </DataTemplate>
+                        </ComboBox.ItemTemplate>
+                    </ComboBox>
 
                     <Button Content="再生速度を下に戻す"
                             Command="{Binding SetPlaybackRateCommand}" 

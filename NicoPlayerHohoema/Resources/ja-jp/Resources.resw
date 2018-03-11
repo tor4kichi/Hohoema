@@ -541,4 +541,20 @@
     <value>すごく高</value>
     <comment>NicoVideoQuality</comment>
   </data>
+  <data name="Recommend" xml:space="preserve">
+    <value>オススメ動画</value>
+    <comment>HohoemaPageType</comment>
+  </data>
+  <data name="ChannelInfo" xml:space="preserve">
+    <value>チャンネル情報</value>
+    <comment>HohoemaPageType</comment>
+  </data>
+  <data name="ChannelVideo" xml:space="preserve">
+    <value>チャンネル動画</value>
+    <comment>HohoemaPageType</comment>
+  </data>
+  <data name="NicoVideo_Channel_Video_Upload" xml:space="preserve">
+    <value>チャンネルの動画投稿</value>
+    <comment>NicoRepoItemTopic</comment>
+  </data>
 </root>

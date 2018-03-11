@@ -279,11 +279,12 @@ namespace NicoPlayerHohoema.ViewModels
         {
             MenuItems = new List<HohoemaListingPageItemBase>();
 
+
             MenuItems.Add(new MenuItemViewModel("検索", HohoemaPageType.Search));
             MenuItems.Add(new MenuItemViewModel("ランキング", HohoemaPageType.RankingCategoryList));
+            MenuItems.Add(new MenuItemViewModel("オススメ", HohoemaPageType.Recommend));
             MenuItems.Add(new MenuItemViewModel("新着", HohoemaPageType.FeedGroupManage));
 
-            MenuItems.Add(new MenuItemViewModel("あとで見る", HohoemaPageType.Mylist, new MylistPagePayload(HohoemaApp.Playlist.DefaultPlaylist).ToParameterString()));
 
             /*
                         MenuItems.Add(
@@ -308,6 +309,7 @@ namespace NicoPlayerHohoema.ViewModels
             //    });
 
             MenuItems.Add(new MenuItemViewModel("ニコレポ", HohoemaPageType.NicoRepo));
+            MenuItems.Add(new MenuItemViewModel("あとで見る", HohoemaPageType.Mylist, new MylistPagePayload(HohoemaApp.Playlist.DefaultPlaylist).ToParameterString()));
             MenuItems.Add(new MenuItemViewModel("マイリスト", HohoemaPageType.UserMylist));
             MenuItems.Add(new MenuItemViewModel("フォロー", HohoemaPageType.FollowManage));
             MenuItems.Add(new MenuItemViewModel("視聴履歴", HohoemaPageType.WatchHistory));

@@ -831,11 +831,11 @@ namespace NicoPlayerHohoema.ViewModels
 			base.OnNavigatedTo(e, viewModelState);
 		}
 
-        private void NicoLiveVideo_FailedOpenLive1(NicoLiveVideo sender, OpenLiveFailedReason reason)
+        private void NicoLiveVideo_FailedOpenLive1(NicoLiveVideo sender, FailedOpenLiveEventArgs args)
         {
             NowConnecting.Value = false;
 
-            this.ResetSuggestion(reason);
+            this.ResetSuggestion(args.Message);
         }
 
         private void NicoLiveVideo_CloseLive(NicoLiveVideo sender)
@@ -850,6 +850,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+            IsDisplayControlUI.Value = true;
+
             ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
 			
 			await base.NavigatedToAsync(cancelToken, e, viewModelState);
@@ -1198,31 +1200,16 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-        private void ResetSuggestion(OpenLiveFailedReason reason)
+        private void ResetSuggestion(string message)
         {
             LiveSuggestion suggestion = null;
 
-            if (reason == OpenLiveFailedReason.VideoQuoteIsNotSupported)
+            // ブラウザ視聴を案内
+            suggestion = new LiveSuggestion(message, new[] { new SuggestAction("ブラウザで視聴", async () =>
             {
-                // ブラウザ視聴を案内
-                suggestion = new LiveSuggestion("動画引用放送は対応していません", new[] { new SuggestAction("ブラウザで視聴", async () =>
-                {
-                    var livePageUrl = new Uri($"http://live.nicovideo.jp/watch/" + LiveId);
-                    await Launcher.LaunchUriAsync(livePageUrl );
-                })});
-            }
-            else if (reason == OpenLiveFailedReason.TimeOver)
-            {
-                suggestion = new LiveSuggestion("放送受信に失敗しました", new[] { new SuggestAction("再試行", async () => 
-                {
-                    await TryStartViewing();
-                })});
-            }
-
-            if (suggestion == null)
-            {
-                Debug.WriteLine("live suggestion not support : " + reason.ToString());
-            }
+                var livePageUrl = new Uri($"http://live.nicovideo.jp/watch/" + LiveId);
+                await Launcher.LaunchUriAsync(livePageUrl );
+            })});
 
             Suggestion.Value = suggestion;
             

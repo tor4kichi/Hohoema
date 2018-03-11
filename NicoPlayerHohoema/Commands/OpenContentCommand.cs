@@ -75,6 +75,12 @@ namespace NicoPlayerHohoema.Commands
                 var pageManager = HohoemaCommnadHelper.GetPageManager();
                 pageManager.Search(SearchPagePayloadContentHelper.CreateDefault(history.Target, history.Keyword));
             }
+            else if (parameter is Interfaces.IChannel)
+            {
+                var channel = parameter as Interfaces.IChannel;
+                var pageManager = HohoemaCommnadHelper.GetPageManager();
+                pageManager.OpenPage(HohoemaPageType.ChannelVideo, channel.Id);
+            }
 
 
             if (isPlayerShowWithSmallMode)

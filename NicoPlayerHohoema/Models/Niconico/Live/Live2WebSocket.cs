@@ -98,7 +98,10 @@ namespace NicoPlayerHohoema.Models.Live
             var audienceToken = Props.Player.AudienceToken;
             using (var releaser = await _WebSocketLock.LockAsync())
             {
-                var webSocketBaseUrl = "ws://a.live2.nicovideo.jp:2805/unama/wsapi/v1/watch/";
+                Debug.WriteLine($"providerType: {Props.Program.ProviderType}");
+                var webSocketBaseUrl = Props.Program.ProviderType == "official" 
+                    ? "ws://a.live2.nicovideo.jp:2805/wsapi/v1/watch/" 
+                    : "ws://a.live2.nicovideo.jp:2805/unama/wsapi/v1/watch/";
                 var url = $"{webSocketBaseUrl}{broadcastId}?audience_token={audienceToken}";
                 await MessageWebSocket.ConnectAsync(new Uri(url));
                 _DataWriter = new DataWriter(MessageWebSocket.OutputStream);
@@ -202,13 +205,16 @@ namespace NicoPlayerHohoema.Models.Live
                         var currentStreamArgs = new Live2CurrentStreamEventArgs()
                         {
                             Uri = (string)current_stream["uri"],
-                            Name = (string)current_stream["name"],
                             Quality = (string)current_stream["quality"],
                             QualityTypes = ((JArray)current_stream["qualityTypes"]).Select(x => x.ToString()).ToArray(),
                             MediaServerType = (string)current_stream["mediaServerType"],
-                            MediaServerAuth = (string)current_stream["mediaServerAuth"],
+                            //MediaServerAuth = (string)current_stream["mediaServerAuth"],
                             StreamingProtocol = (string)current_stream["streamingProtocol"]
                         };
+                        if (current_stream.TryGetValue("name", out var name))
+                        {
+                            currentStreamArgs.Name = (string)name;
+                        }
                         RecieveCurrentStream?.Invoke(currentStreamArgs);
                         break;
                     case "currentroom":

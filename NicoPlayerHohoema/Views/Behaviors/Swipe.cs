@@ -30,25 +30,60 @@ namespace NicoPlayerHohoema.Views.Behaviors
             base.OnDetaching();
         }
 
+
+        bool _IsSkipSwipe = false;
         private void AssociatedObject_ManipulationStarted(object sender, Windows.UI.Xaml.Input.ManipulationStartedRoutedEventArgs e)
         {
             NowSwiping = true;
+            _IsSkipSwipe = false;
 
-            InitializeSwipe(e.Cumulative);
+            // 画面端の遊びチェック
+            bool isOutOfEdgeBounce = false;
+            var play = SwipeEdgeOfPlay;
+            if (e.Container is FrameworkElement)
+            {
+                var fe = e.Container as FrameworkElement;
+                var width = fe.ActualWidth;
+                var height = fe.ActualHeight;
+
+                Rect swipeRect = new Rect(play.Left, play.Top, width - play.Right - play.Left, height - play.Bottom - play.Top);
+                if (!swipeRect.Contains(e.Position))
+                {
+                    isOutOfEdgeBounce = true;
+
+                    System.Diagnostics.Debug.WriteLine("Swipe out of bounce");
+                }
+            }
+
+            if (!isOutOfEdgeBounce)
+            {
+                InitializeSwipe(e.Cumulative);
+                e.Handled = true;
+            }
+            else
+            {
+                _IsSkipSwipe = true;
+            }
         }
 
         private void AssociatedObject_ManipulationDelta(object sender, Windows.UI.Xaml.Input.ManipulationDeltaRoutedEventArgs e)
         {
+            if (_IsSkipSwipe) { return; }
+
             UpdateSwipe(e.Cumulative);
+            e.Handled = true;
         }
 
         private void AssociatedObject_ManipulationCompleted(object sender, Windows.UI.Xaml.Input.ManipulationCompletedRoutedEventArgs e)
         {
             NowSwiping = false;
 
+            if (_IsSkipSwipe) { return; }
+
             UpdateSwipe(e.Cumulative);
 
             CompleteSwipe(e.Position);
+            e.Handled = true;
         }
 
         private void InitializeSwipe(Windows.UI.Input.ManipulationDelta cumulative)
@@ -261,6 +296,24 @@ namespace NicoPlayerHohoema.Views.Behaviors
             var source = (Swipe)sender;
 
             source.ResetManipulationEvent();
+        }
+
+
+
+
+        
+
+        public static readonly DependencyProperty SwipeEdgeOfPlayProperty =
+          DependencyProperty.Register(nameof(SwipeEdgeOfPlay)
+                  , typeof(Thickness)
+                  , typeof(Swipe)
+                  , new PropertyMetadata(new Thickness())
+              );
+
+        public Thickness SwipeEdgeOfPlay
+        {
+            get { return (Thickness)GetValue(SwipeEdgeOfPlayProperty); }
+            set { SetValue(SwipeEdgeOfPlayProperty, value); }
         }
 
 

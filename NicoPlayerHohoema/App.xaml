@@ -149,6 +149,8 @@
 
             <myconv:PageTypeToMaterialIconKind x:Key="PageTypeToMaterialIconKind" />
 
+            <myconv:ToKMGTPEZYConverter x:Key="ToKMGTPEZY" />
+
             <!-- Logical Modifier-->
             <logicalModifier:AndModifier x:Key="AndModifier" />
             <logicalModifier:OrModifier x:Key="OrModifier" />

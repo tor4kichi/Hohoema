@@ -20,7 +20,15 @@ namespace NicoPlayerHohoema.Commands
                 }
 
                 var pageManager = HohoemaCommnadHelper.GetPageManager();
-                pageManager.OpenPage(Models.HohoemaPageType.UserVideo, content.OwnerUserId.ToString());
+                var ownerId = content.OwnerUserId;
+                if (Mntone.Nico2.NiconicoRegex.IsChannelId(ownerId))
+                {
+                    pageManager.OpenPage(Models.HohoemaPageType.ChannelVideo, ownerId);
+                }
+                else
+                {
+                    pageManager.OpenPage(Models.HohoemaPageType.UserVideo, ownerId);
+                }
             }
         }
     }

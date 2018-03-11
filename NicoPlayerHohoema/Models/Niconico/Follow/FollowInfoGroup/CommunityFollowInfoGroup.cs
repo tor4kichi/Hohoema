@@ -64,7 +64,6 @@ namespace NicoPlayerHohoema.Models
             return items;
 		}
 
-
 		protected override async Task<ContentManageResult> AddFollow_Internal(string id, object token)
 		{
 			var title = "";

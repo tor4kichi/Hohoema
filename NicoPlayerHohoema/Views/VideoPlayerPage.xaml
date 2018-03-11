@@ -330,8 +330,6 @@
                     <VisualState.Setters>
                         <Setter Target="CompactOverlayUIControl.Visibility" Value="Visible" />
                         <Setter Target="DefaultUIControl.Visibility" Value="Collapsed" />
-
-                        <Setter Target="PlayerSplitView.OpenPaneLength" Value="120" />
                     </VisualState.Setters>
                 </VisualState>
                 
@@ -403,6 +401,25 @@
 
             <!-- デバイスごとの最大化と小窓ボタンの表示切り替え -->
             <VisualStateGroup >
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <myTrigger:CompactOverlayViewModeTrigger />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PlayerSplitView.OpenPaneLength" Value="0" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsSmallWindowModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PlayerSplitView.OpenPaneLength" Value="0" />
+                    </VisualState.Setters>
+                </VisualState>
+                
                 <VisualState>
                     <VisualState.StateTriggers>
                         <hardTrigger:DeviceFamilyTrigger Condition="Mobile" />
@@ -531,7 +548,6 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="UIControlLayout.Visibility" Value="Collapsed" />
-                        <Setter Target="PlayerSplitView.OpenPaneLength" Value="120" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -704,6 +720,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="TitleBarMarginLayout.Visibility" Value="Visible" />
+                        <Setter Target="PlayerSidePaneLayout.Padding" Value="0 32 0 0" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -784,6 +801,7 @@
                                               SwipeCommand="{Binding SeekVideoCommand}"
                                               SwipeAmountConverter="{StaticResource SwipeSeekValueToTimeSpan}"
                                               SwipeAmountScale="0.15"
+                                              SwipeEdgeOfPlay="48"
                                               />
 
 
@@ -1084,7 +1102,6 @@
                                                     Command="{Binding ClosePlayerCommand}"
                                                     Background="Transparent"
                                                     UseSystemFocusVisuals="True"
-                                                        
                                                     >
                                                     <iconPack:PackIconMaterial Kind="Close" />
                                                 </Button>
@@ -1102,7 +1119,7 @@
                                                                                                    HorizontalAlignment="Center"
                                                                                                    />
 
-                                                        <TextBlock Text="メインビューで表示" 
+                                                        <TextBlock Text="メインウィンドウ" 
                                                                                    Style="{StaticResource CaptionTextBlockStyle}"
                                                                                    VerticalAlignment="Center" />
                                                     </StackPanel>
@@ -1163,7 +1180,7 @@
                                                                                    HorizontalAlignment="Center"
                                                                                    Margin="0 0 0 8"
                                                                                />
-                                                            <TextBlock Text="ミニモード" 
+                                                            <TextBlock Text="小さく最前面" 
                                                                                    Style="{StaticResource CaptionTextBlockStyle}"
                                                                                    VerticalAlignment="Center" />
                                                         </StackPanel>
@@ -1216,7 +1233,7 @@
                                                                                                    HorizontalAlignment="Center"
                                                                                                    />
 
-                                                            <TextBlock Text="新しいビューで表示" 
+                                                            <TextBlock Text="別ウィンドウ" 
                                                                                    Style="{StaticResource CaptionTextBlockStyle}"
                                                                                    VerticalAlignment="Center" />
                                                         </StackPanel>
@@ -1337,11 +1354,20 @@
                                                             Visibility="{Binding CurrentVideoQuality.Value, Converter={StaticResource NotNullToVisibility}}"
                                                 >
 
-                                                    <TextBlock  Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}">
+                                                    
+                                                    <TextBlock  Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                                Visibility="{Binding NowPlayingWithDmcVideo,Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                                >
                                                         <Run Text="{Binding CurrentVideoQuality.Value, Converter={StaticResource ToLocalText}}" />
                                                         <Run Text="画質" />   
                                                     </TextBlock>
 
+                                                    <TextBlock  Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                                Visibility="{Binding NowPlayingWithDmcVideo,Converter={StaticResource BooleanToVisibility}}"
+                                                                >
+                                                        <Run Text="{Binding VideoHeight}" />p (<Run Text="{Binding VideoBitrate, Converter={StaticResource ToKMGTPEZY}}"></Run>bps)
+                                                    </TextBlock>
+                                                    
                                                     <Border Width="8" />
 
                                                     <TextBlock  Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"

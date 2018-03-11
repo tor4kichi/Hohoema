@@ -82,7 +82,7 @@
                             IncrementalLoadingTrigger="Edge"
                             PullThreshold="85"    
                             UseSystemFocusVisuals="True"
-                            SelectionMode="Single"
+                            SelectionMode="None"
                             HorizontalContentAlignment="Stretch"
                             >
                     <uwpcontrols:PullToRefreshListView.Header>

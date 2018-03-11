@@ -59,6 +59,7 @@ namespace NicoPlayerHohoema.ViewModels
         static Helpers.AsyncLock _DefferedUpdateLock = new Helpers.AsyncLock();
 
         bool _IsNGEnabled = false;
+        bool _IsRequireLatest = true;
 
         public VideoInfoControlViewModel(string videoId, bool isNgEnabled = true, PlaylistItem playlistItem = null)
         {
@@ -79,22 +80,33 @@ namespace NicoPlayerHohoema.ViewModels
 
             _IsNGEnabled = isNgEnabled;
 
-            SetupFromThumbnail(nicoVideo);
+            _IsRequireLatest = requireLatest;
 
-            if (requireLatest)
-            {
-                OnDeferredUpdate().ConfigureAwait(false);
-            }
+            OnDeferredUpdate().ConfigureAwait(false);
         }
 
         protected override async Task OnDeferredUpdate()
         {
-            var contentProvider = App.Current.Container.Resolve<NiconicoContentProvider>();
-            var info = await contentProvider.GetNicoVideoInfo(RawVideoId);
-
             // Note: 動画リストの一覧表示が終わってからサムネイル情報読み込みが掛かるようにする
             using (var releaser = await _DefferedUpdateLock.LockAsync())
             {
+                if (IsDisposed)
+                {
+                    Debug.WriteLine("skip thumbnail loading: " + RawVideoId);
+                    return;
+                }
+
+                Database.NicoVideo info;
+                if (_IsRequireLatest)
+                {
+                    var contentProvider = App.Current.Container.Resolve<NiconicoContentProvider>();
+                    info = await contentProvider.GetNicoVideoInfo(RawVideoId);
+                }
+                else
+                {
+                    info = Database.NicoVideoDb.Get(RawVideoId);
+                }
+
                 await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
                 {
                     SetupFromThumbnail(info);

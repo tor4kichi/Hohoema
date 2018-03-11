@@ -27,8 +27,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public abstract class HohoemaListingPageItemBase : Selectable, Interfaces.IHohoemaListItem, IDisposable
 	{
+        protected bool IsDisposed { get; private set; } = false;
         public void Dispose()
         {
+            IsDisposed = true;
+
             CancelDefrredUpdate();
 
             OnDispose();

@@ -122,7 +122,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         async void TryCalc(object state = null)
 		{
-            if (this.AssociatedObject.MediaPlayer == null) { return; }
+            if (this.AssociatedObject?.MediaPlayer == null) { return; }
 
 			if (IsSizeChanged == false)
 			{

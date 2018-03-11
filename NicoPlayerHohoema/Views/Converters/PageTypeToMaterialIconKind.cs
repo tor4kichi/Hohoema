@@ -98,6 +98,9 @@ namespace NicoPlayerHohoema.Views.Converters
                     case Models.HohoemaPageType.NicoRepo:
                         kind = MahApps.Metro.IconPacks.PackIconMaterialKind.InformationOutline;
                         break;
+                    case Models.HohoemaPageType.Recommend:
+                        kind = MahApps.Metro.IconPacks.PackIconMaterialKind.ThumbUp;
+                        break;
                     default:
                         break;
                 }

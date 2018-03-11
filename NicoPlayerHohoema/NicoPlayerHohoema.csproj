@@ -160,6 +160,7 @@
     <Content Include="Assets\UpdateNotices\0.13.2.md" />
     <Content Include="Assets\UpdateNotices\0.13.3.md" />
     <Content Include="Assets\UpdateNotices\0.13.4.md" />
+    <Content Include="Assets\UpdateNotices\0.13.5.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <PRIResource Include="Resources\ja-jp\Resources.resw" />
   </ItemGroup>
@@ -215,6 +216,7 @@
     <Compile Include="Helpers\IAsyncInitialize.cs" />
     <Compile Include="Helpers\IFileAccessor.cs" />
     <Compile Include="Helpers\StringHelper.cs" />
+    <Compile Include="Interfaces\IChannel.cs" />
     <Compile Include="Interfaces\ICommunity.cs" />
     <Compile Include="Interfaces\IFeedGroup.cs" />
     <Compile Include="Interfaces\IFollowable.cs" />
@@ -227,6 +229,7 @@
     <Compile Include="Models\AccountManager.cs" />
     <Compile Include="Models\AppUpdateNotice.cs" />
     <Compile Include="Models\Db\MigrationToLiteDBHelper.cs" />
+    <Compile Include="Models\Niconico\Follow\ChannelFollowInfoGroup.cs" />
     <Compile Include="Models\Niconico\HohoemaAlertClient.cs" />
     <Compile Include="Models\Niconico\Video\Comment\CommentCommandPermissionType.cs" />
     <Compile Include="Models\Niconico\CommentOpacityKind.cs" />
@@ -352,6 +355,7 @@
     <Compile Include="Helpers\TwitterHelper.cs" />
     <Compile Include="Services\HohoemaDialogService.cs" />
     <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
+    <Compile Include="ViewModels\ChannelVideoPageViewModel.cs" />
     <Compile Include="ViewModels\CommentCommandEditerViewModel.cs" />
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
     <Compile Include="ViewModels\CommunityPageViewModel.cs" />
@@ -362,6 +366,7 @@
     <Compile Include="ViewModels\FeedGroupManagePageViewModel.cs" />
     <Compile Include="ViewModels\FeedGroupPageViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\RelatedVideosSidePaneContentViewModel.cs" />
+    <Compile Include="ViewModels\RecommendPageViewModel.cs" />
     <Compile Include="ViewModels\SearchSummaryPageViewModel.cs" />
     <Compile Include="ViewModels\RankingCategoryPageViewModel.cs" />
     <Compile Include="ViewModels\WatchHistoryPageViewModel.cs" />
@@ -432,10 +437,20 @@
     <Compile Include="Views\CacheManagementPage.xaml.cs">
       <DependentUpon>CacheManagementPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\ChannelVideoPage.xaml.cs">
+      <DependentUpon>ChannelVideoPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Converters\PageTypeToMaterialIconKind.cs" />
     <Compile Include="Views\Converters\SwipeSeekValueToTimeSpan.cs" />
+    <Compile Include="Views\Converters\ToKMGTPEZYConverter.cs" />
     <Compile Include="Views\Flyouts\FeedSourceFlyout.xaml.cs">
       <DependentUpon>FeedSourceFlyout.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Flyouts\SearchHistoryListItemFlyout.xaml.cs">
+      <DependentUpon>SearchHistoryListItemFlyout.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RecommendPage.xaml.cs">
+      <DependentUpon>RecommendPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\SearchSummaryPage.xaml.cs">
       <DependentUpon>SearchSummaryPage.xaml</DependentUpon>
@@ -759,6 +774,7 @@
     <Content Include="Assets\xbox_encrypt_key.txt" />
     <Content Include="lib\Mntone.Nico2.UWP.dll" />
     <None Include="Package.StoreAssociation.xml" />
+    <None Include="Package.xml" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
     <Content Include="Assets\Square150x150Logo.scale-200.png" />
@@ -813,7 +829,19 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\ChannelVideoPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Flyouts\FeedSourceFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Flyouts\SearchHistoryListItemFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\RecommendPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

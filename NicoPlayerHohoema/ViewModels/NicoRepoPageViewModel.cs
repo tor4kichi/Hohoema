@@ -22,6 +22,7 @@ namespace NicoPlayerHohoema.ViewModels
         {
             NicoRepoItemTopic.NicoVideo_User_Video_Upload,
             NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video,
+            NicoRepoItemTopic.NicoVideo_Channel_Video_Upload,
             NicoRepoItemTopic.Live_Channel_Program_Onairs,
             NicoRepoItemTopic.Live_Channel_Program_Reserve,
             NicoRepoItemTopic.Live_User_Program_OnAirs,
@@ -141,11 +142,15 @@ namespace NicoPlayerHohoema.ViewModels
                     AddImageUrl(TimelineItem.Video.ThumbnailUrl.Normal);
                 }
                 this.OptionText = $"{TimelineItem.CreatedAt.ToString()}";
+            }
 
+
+            if (TimelineItem.SenderNiconicoUser != null)
+            {
                 _OwnerUserId = TimelineItem.SenderNiconicoUser.Id.ToString();
                 OwnerUserName = TimelineItem.SenderNiconicoUser.Nickname;
             }
-
+            
 
             if (TimelineItem.SenderNiconicoUser != null)
             {
@@ -184,6 +189,9 @@ namespace NicoPlayerHohoema.ViewModels
                     break;
                 case NicoRepoItemTopic.NicoVideo_Channel_Blomaga_Upload:
                     Description = $"ブロマガが投稿されました";
+                    break;
+                case NicoRepoItemTopic.NicoVideo_Channel_Video_Upload:
+                    Description = $"{this.TimelineItem.SenderChannel.Name} が動画を投稿";
                     break;
                 case NicoRepoItemTopic.Live_User_Program_OnAirs:
                     Description = $"{this.TimelineItem.SenderNiconicoUser.Nickname} さんが生放送を開始";
@@ -227,7 +235,7 @@ namespace NicoPlayerHohoema.ViewModels
         // 通常10だが、ニコレポの表示フィルタを掛けた場合に
         // 追加読み込み時に表示対象が見つからない場合
         // 追加読み込みが途絶えるため、多めに設定している
-        public override uint OneTimeLoadCount => 25; 
+        public override uint OneTimeLoadCount => 10; 
 
         public LoginUserNicoRepoTimelineSource(HohoemaApp hohoemaApp, IEnumerable<NicoRepoItemTopic> allowedNicoRepoTypes)
         {
@@ -298,19 +306,32 @@ namespace NicoPlayerHohoema.ViewModels
         protected override async Task<IAsyncEnumerable<NicoRepoTimelineVM>> GetPagedItemsImpl(int head, int count)
         {
             var tail = head + count;
+            var prevCount = TimelineItems.Count;
             if (TimelineItems.Count < tail)
             {
-                var nicoRepoResponse = await HohoemaApp.NiconicoContext.NicoRepo.GetLoginUserNicoRepo(NicoRepoTimelineType.all, _LastItem?.Id);
-                if (nicoRepoResponse.IsStatusOK)
+                while(prevCount == TimelineItems.Count)
                 {
-                    foreach (var item in nicoRepoResponse.TimelineItems)
+                    var nicoRepoResponse = await HohoemaApp.NiconicoContext.NicoRepo.GetLoginUserNicoRepo(NicoRepoTimelineType.all, _LastItem?.Id);
+                    if (nicoRepoResponse.IsStatusOK)
                     {
-                        if (CheckCanDisplayTimelineItem(item))
+                        foreach (var item in nicoRepoResponse.TimelineItems)
                         {
-                            TimelineItems.Add(item);
+                            if (CheckCanDisplayTimelineItem(item))
+                            {
+                                TimelineItems.Add(item);
+                            }
+                        }
+                        _LastItem = nicoRepoResponse.LastTimelineItem;
+
+                        if (nicoRepoResponse.TimelineItems.Count == 0)
+                        {
+                            break;
                         }
                     }
-                    _LastItem = nicoRepoResponse.LastTimelineItem;
+                    else
+                    {
+                        break;
+                    }
                 }
             }
 
@@ -328,7 +349,8 @@ namespace NicoPlayerHohoema.ViewModels
                         return new NicoRepoLiveTimeline(item, topicType, HohoemaApp.Playlist);
                     }
                     else if (topicType == NicoRepoItemTopic.NicoVideo_User_Video_Upload || 
-                            topicType == NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video)
+                            topicType == NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video || 
+                            topicType == NicoRepoItemTopic.NicoVideo_Channel_Video_Upload)
                     {
                         return new NicoRepoVideoTimeline(item, topicType, HohoemaApp.Playlist);
                     }
@@ -355,6 +377,7 @@ namespace NicoPlayerHohoema.ViewModels
         NicoVideo_User_Video_UpdateHighestRankings,
         NicoVideo_User_Video_Advertise,
         NicoVideo_Channel_Blomaga_Upload,
+        NicoVideo_Channel_Video_Upload,
         Live_User_Program_OnAirs,
         Live_User_Program_Reserve,
         Live_Channel_Program_Onairs,
@@ -397,6 +420,9 @@ namespace NicoPlayerHohoema.ViewModels
                     break;
                 case "nicovideo.channel.blomaga.upload":
                     topicType = NicoRepoItemTopic.NicoVideo_Channel_Blomaga_Upload;
+                    break;
+                case "nicovideo.channel.video.upload":
+                    topicType = NicoRepoItemTopic.NicoVideo_Channel_Video_Upload;
                     break;
                 case "live.channel.program.onairs":
                     topicType = NicoRepoItemTopic.Live_Channel_Program_Onairs;

@@ -41,6 +41,8 @@ namespace NicoPlayerHohoema.Views
             public uint CommentDisplayDurationVPos { get; internal set; }
             public TimeSpan CommentDisplayDuration { get; internal set; }
             public MediaPlaybackState PlaybackState { get; set; }
+            public double PlaybackRate { get; set; }
+            public double PlaybackRateInverse { get; set; }
         }
 
 
@@ -279,6 +281,9 @@ namespace NicoPlayerHohoema.Views
             frameData.FontScale = (float)CommentSizeScale;
             frameData.CommentDisplayDurationVPos = GetCommentDisplayDurationVposUnit();
             frameData.Visibility = Visibility;
+            frameData.PlaybackRate = MediaPlayer.PlaybackSession.PlaybackRate;
+            frameData.PlaybackRateInverse = 1d / frameData.PlaybackRate;
+
 
             return frameData;
         }
@@ -544,7 +549,7 @@ namespace NicoPlayerHohoema.Views
                             renderComment
                                 .Offset((float)initialVPos.Value, duration: 0)
                                 .Then()
-                                .Offset(-(float)renderComment.TextWidth, duration: (comment.EndPosition - frame.CurrentVpos) * 10u, easingType: EasingType.Linear)
+                                .Offset(-(float)renderComment.TextWidth, duration: (comment.EndPosition - frame.CurrentVpos) * 10u * frame.PlaybackRateInverse, easingType: EasingType.Linear)
                                 .Start();
                         }
                         else
@@ -980,7 +985,7 @@ namespace NicoPlayerHohoema.Views
                             {
                                 renderComment.CommentUI.Offset(
                                     -renderComment.CommentUI.TextWidth
-                                    , duration: (renderComment.Comment.EndPosition - frame.CurrentVpos) * 10.0f,
+                                    , duration: (renderComment.Comment.EndPosition - frame.CurrentVpos) * 10 * frame.PlaybackRateInverse,
                                     easingType: EasingType.Linear
                                     )
                                     .Start();

@@ -653,6 +653,11 @@
                                                         <controls:FeedSourceFlyout />
                                                     </DataTemplate>
                                                 </templateSelector:HohoemaFlyoutTemplateSelector.FeedSourceFlyoutTemplate>
+                                                <templateSelector:HohoemaFlyoutTemplateSelector.SearchHistoryFlyoutTemplate>
+                                                    <DataTemplate>
+                                                        <local:SearchHistoryListItemFlyout />
+                                                    </DataTemplate>
+                                                </templateSelector:HohoemaFlyoutTemplateSelector.SearchHistoryFlyoutTemplate>
                                             </templateSelector:HohoemaFlyoutTemplateSelector>
                                         </myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
 

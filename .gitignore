@@ -227,3 +227,4 @@ NicoPlayerHohoema/Assets/OAuth/twitter.json
 /NicoPlayerHohoema/NicoPlayerHohoema.nuget.props
 /NicoPlayerHohoema/*.targets
 /NicoPlayerHohoema/*.props
+NicoPlayerHohoema/Package.xml

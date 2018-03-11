@@ -27,6 +27,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using NicoPlayerHohoema.Database;
 using Microsoft.Practices.Unity;
+using Mntone.Nico2.Videos.Recommend;
+using Mntone.Nico2.Channels.Video;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -36,7 +38,9 @@ namespace NicoPlayerHohoema.Models
 	public class NiconicoContentProvider 
 	{
 		AsyncLock _NicoPageAccessLock = new AsyncLock();
-		DateTime LastPageApiAccessTime = DateTime.MinValue;
+
+
+        DateTime LastPageApiAccessTime = DateTime.MinValue;
 		static TimeSpan PageAccessMinimumInterval = TimeSpan.FromSeconds(0.5);
 
 
@@ -50,7 +54,10 @@ namespace NicoPlayerHohoema.Models
 		{
 		}
 
-		private async Task WaitNicoPageAccess()
+        
+
+
+        private async Task WaitNicoPageAccess()
 		{
 			var duration = DateTime.Now - LastPageApiAccessTime;
 			if (duration < PageAccessMinimumInterval)
@@ -132,11 +139,22 @@ namespace NicoPlayerHohoema.Models
                         }
                         ).ToList();
 
-                        info.Owner = new NicoVideoOwner()
+                        if (res.Video.ProviderType == "channel")
                         {
-                            OwnerId = res.Video.UserId,
-                            UserType = res.Video.ProviderType == "regular" ? UserType.User : UserType.Channel
-                        };
+                            info.Owner = new NicoVideoOwner()
+                            {
+                                OwnerId = res.Video.CommunityId,
+                                UserType = UserType.Channel
+                            };
+                        }
+                        else
+                        {
+                            info.Owner = new NicoVideoOwner()
+                            {
+                                OwnerId = res.Video.UserId,
+                                UserType = res.Video.ProviderType == "regular" ? UserType.User : UserType.Channel
+                            };
+                        }
 
                         info.IsDeleted = res.Video.IsDeleted;
                         if (info.IsDeleted && int.TryParse(res.Video.__deleted, out int deleteType))
@@ -753,7 +771,29 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public async Task<UserVideoResponse> GetUserVideos(uint userId, uint page, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
+        public async Task<List<ChannelFollowData>> GetFavChannels()
+        {
+            if (Context == null)
+            {
+                return null;
+            }
+
+            if (await Context.GetIsSignedInAsync() != NiconicoSignInStatus.Success)
+            {
+                return null;
+            }
+
+
+            await WaitNicoPageAccess();
+
+            using (var releaser = await _NicoPageAccessLock.LockAsync())
+            {
+                return await Context.User.GetFollowChannelAsync();
+            }
+        }
+
+
+        public async Task<UserVideoResponse> GetUserVideos(uint userId, uint page, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
 		{
             if (Context == null)
             {
@@ -870,5 +910,42 @@ namespace NicoPlayerHohoema.Models
 				return await Context.Community.GetCommunityVideoAsync(communityId, page);
 			});
 		}
-   	}
+
+
+
+
+
+        public async Task<ChannelVideoResponse> GetChannelVideo(string channelId, int page)
+        {
+            await WaitNicoPageAccess();
+
+            using (var releaser = await _NicoPageAccessLock.LockAsync())
+            {
+                return await Context.Channel.GetChannelVideosAsync(channelId, page);
+            }
+        }
+
+        public async Task<Mntone.Nico2.Channels.Info.ChannelInfo> GetChannelInfo(string channelId)
+        {
+            return await Context.Channel.GetChannelInfo(channelId);
+        }
+
+
+
+
+
+
+        public Task<RecommendResponse> GetRecommendFirstAsync()
+        {
+            return Context.Video.GetRecommendFirstAsync();
+        }
+
+        public Task<RecommendContent> GetRecommendAsync(RecommendResponse res, RecommendContent prevInfo = null)
+        {
+            var user_tags = res.UserTagParam;
+            var seed = res.Seed;
+            var page = prevInfo?.RecommendInfo.Page ?? res.Page;
+            return Context.Video.GetRecommendAsync(user_tags, seed, page);
+        }
+    }
 }

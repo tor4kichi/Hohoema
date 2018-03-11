@@ -14,6 +14,7 @@ namespace NicoPlayerHohoema.Models
 		Mylist,
 		User,
 		Community,
+        Channel,
 	}
 
 
@@ -31,6 +32,8 @@ namespace NicoPlayerHohoema.Models
 					return NiconicoItemType.User;
 				case FollowItemType.Community:
 					return null;
+                case FollowItemType.Channel:
+                    return null;
 				default:
 					throw new NotSupportedException();
 			}
