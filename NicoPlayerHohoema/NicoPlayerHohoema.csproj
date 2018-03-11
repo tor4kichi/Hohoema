@@ -160,6 +160,7 @@
     <Content Include="Assets\UpdateNotices\0.13.2.md" />
     <Content Include="Assets\UpdateNotices\0.13.3.md" />
     <Content Include="Assets\UpdateNotices\0.13.4.md" />
+    <Content Include="Assets\UpdateNotices\0.13.5.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <PRIResource Include="Resources\ja-jp\Resources.resw" />
   </ItemGroup>
@@ -773,6 +774,7 @@
     <Content Include="Assets\xbox_encrypt_key.txt" />
     <Content Include="lib\Mntone.Nico2.UWP.dll" />
     <None Include="Package.StoreAssociation.xml" />
+    <None Include="Package.xml" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
     <Content Include="Assets\Square150x150Logo.scale-200.png" />
