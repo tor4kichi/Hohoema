@@ -51,6 +51,7 @@ namespace NicoPlayerHohoema.Models
                     NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video,
                     NicoRepoItemTopic.Live_Channel_Program_Onairs,
                     NicoRepoItemTopic.Live_Channel_Program_Reserve,
+                    NicoRepoItemTopic.NicoVideo_Channel_Video_Upload,
                     NicoRepoItemTopic.Live_User_Program_OnAirs,
                     NicoRepoItemTopic.Live_User_Program_Reserve,
                 });
