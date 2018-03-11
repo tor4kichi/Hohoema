@@ -37,6 +37,8 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
         public ReactiveProperty<double> VideoPlaybackRate { get; private set; }
         public ReactiveCommand<double?> SetPlaybackRateCommand { get; private set; }
 
+        public static List<double> VideoPlaybackRateList { get; }
+
         // Live Settings
         public static List<ValueWithAvairability<string>> LivePlayingQualityList { get; } = new[]
         {
@@ -138,6 +140,20 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 CommentOpacityKind.NoSukesuke,
                 CommentOpacityKind.BitSukesuke,
                 CommentOpacityKind.MoreSukesuke
+            };
+
+
+            VideoPlaybackRateList = new List<double>()
+            {
+                2.0,
+                1.75,
+                1.5,
+                1.25,
+                1.0,
+                .75,
+                .5,
+                .25,
+                .05
             };
         }
 
