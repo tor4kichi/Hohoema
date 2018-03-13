@@ -87,6 +87,10 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
         public ReactiveProperty<bool> IsEnableUserCommentCommand { get; private set; }
         public ReactiveProperty<bool> IsEnableAnonymousCommentCommand { get; private set; }
 
+        public ReactiveProperty<bool> NicoScript_デフォルト_Enabled { get; private set; }
+        public ReactiveProperty<bool> NicoScript_シーク禁止_Enabled { get; private set; }
+        public ReactiveProperty<bool> NicoScript_ジャンプ_Enabled { get; private set; }
+        public ReactiveProperty<bool> NicoScript_置換_Enabled { get; private set; }
 
         public static List<PlaylistEndAction> PlaylistEndActionList { get; private set; }
         public ReactiveProperty<PlaylistEndAction> PlaylistEndAction { get; private set; }
@@ -258,6 +262,14 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             IsEnableAnonymousCommentCommand.Subscribe(x => SetCommentCommandPermission(x, CommentCommandPermissionType.Anonymous))
             .AddTo(_CompositeDisposable);
 
+            NicoScript_デフォルト_Enabled = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.NicoScript_デフォルト_Enabled, raiseEventScheduler: CurrentWindowContextScheduler)
+                .AddTo(_CompositeDisposable);
+            NicoScript_シーク禁止_Enabled = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.NicoScript_シーク禁止_Enabled, raiseEventScheduler: CurrentWindowContextScheduler)
+                .AddTo(_CompositeDisposable);
+            NicoScript_ジャンプ_Enabled = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.NicoScript_ジャンプ_Enabled, raiseEventScheduler: CurrentWindowContextScheduler)
+                .AddTo(_CompositeDisposable);
+            NicoScript_置換_Enabled = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.NicoScript_置換_Enabled, raiseEventScheduler: CurrentWindowContextScheduler)
+                .AddTo(_CompositeDisposable);
 
 
             // NG Comment

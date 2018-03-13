@@ -24,14 +24,13 @@
     xmlns:model="using:NicoPlayerHohoema.Models"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:system1="using:System"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     x:Name="RootLayout"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
     <UserControl.Resources>
-
-        
 
         <MenuFlyout x:Key="VideoOptionsFlyout">
 
@@ -725,6 +724,34 @@
                 </VisualState>
             </VisualStateGroup>
             
+            
+            <!-- ニコスクリプト: シーク禁止 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding NowCanSeek.Value, Converter={StaticResource BooleanInverted}}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="SeekBarSlider.IsEnabled" Value="False" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            
+            <!-- ニコスクリプト: コメント禁止 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsCommentDisabledFromNicoScript.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CommentTextBox.IsEnabled" Value="False" />
+                        <Setter Target="CommentTextBox.PlaceholderText" Value="（コメント禁止）" />
+                        <Setter Target="CO_CommentTextBox.IsEnabled" Value="False" />
+                        <Setter Target="CO_CommentTextBox.PlaceholderText" Value="（コメント禁止）" />
+
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
         <i:Interaction.Behaviors>
@@ -844,13 +871,17 @@
 
                             <mybehavior:KeyboardTrigger Key="Right" x:Name="VideoForwardKeyboardTrigger">
                                 <mybehavior:KeyboardTrigger.Actions>
-                                    <core:InvokeCommandAction Command="{Binding ForwardVideoPositionCommand}" />
+                                    <core:InvokeCommandAction Command="{Binding SeekVideoCommand}"
+                                                              CommandParameter="{x:Bind ForwardSeekTime}"
+                                                              />
                                 </mybehavior:KeyboardTrigger.Actions>
                             </mybehavior:KeyboardTrigger>
 
                             <mybehavior:KeyboardTrigger Key="Left" x:Name="VideoPreviewKeyboardTrigger">
                                 <mybehavior:KeyboardTrigger.Actions>
-                                    <core:InvokeCommandAction Command="{Binding PreviewVideoPositionCommand}" />
+                                    <core:InvokeCommandAction Command="{Binding SeekVideoCommand}"
+                                                              CommandParameter="{x:Bind PreviewSeekTime}"
+                                                              />
                                 </mybehavior:KeyboardTrigger.Actions>
                             </mybehavior:KeyboardTrigger>
 
@@ -906,12 +937,16 @@
                             <mybehavior:UINavigationTrigger Kind="PageLeft" 
                                                         IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                                         >
-                                <core:InvokeCommandAction Command="{Binding PreviewVideoPositionCommand}" />
+                                <core:InvokeCommandAction Command="{Binding SeekVideoCommand}"
+                                                          CommandParameter="{x:Bind PreviewSeekTime}"
+                                                          />
                             </mybehavior:UINavigationTrigger>
                             <mybehavior:UINavigationTrigger Kind="PageRight" 
                                                         IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                                         >
-                                <core:InvokeCommandAction Command="{Binding ForwardVideoPositionCommand}" />
+                                <core:InvokeCommandAction Command="{Binding SeekVideoCommand}"
+                                                          CommandParameter="{x:Bind ForwardSeekTime}"
+                                                          />
                             </mybehavior:UINavigationTrigger>
 
                             <mybehavior:UINavigationTrigger Kind="Context1" 
@@ -1320,6 +1355,14 @@
                                                 />
                                         -->
 
+                                                <TextBlock Text="投稿者によってシークが禁止されています"
+                                                           Visibility="{Binding IsSeekDisabledFromNicoScript.Value, Converter={StaticResource BooleanToVisibility}}"
+                                                           VerticalAlignment="Bottom"
+                                                           HorizontalAlignment="Center"
+                                                           Opacity="0.6"
+                                                           
+                                                           
+                                                           />
 
                                                 <Slider x:Name="SeekBarSlider"
                                                             Minimum="0.0" 
@@ -1335,11 +1378,13 @@
                                                             HorizontalAlignment="Stretch"
                                                             HorizontalContentAlignment="Stretch"
                                                             VerticalAlignment="Center"
-                                                            IsEnabled="{Binding NowQualityChanging.Value, Converter={StaticResource BooleanInverted}}"
                                         
                                                     Opacity="0.75"
                                              >
                                                 </Slider>
+
+                                                
+
                                             </Grid>
                                             
                                             <Grid Margin="0 0 0 8">
@@ -1515,10 +1560,11 @@
 
 
                                                 <Button Background="Transparent" 
-                                                Command="{Binding PreviewVideoPositionCommand}"
-                                            x:Name="PreviewVideoPositionButon"
-                                                Margin="0 0 24 0"
-                                            >
+                                                        Command="{Binding SeekVideoCommand}"
+                                                        CommandParameter="{x:Bind PreviewSeekTime}"
+                                                        x:Name="PreviewVideoPositionButon"
+                                                        Margin="0 0 24 0"
+                                                    >
                                                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" 
                                                         FontSize="24"
                                                                
@@ -1545,7 +1591,8 @@
 
                                                 <Button x:Name="ForwardVideoPositionButon"
                                                         Background="Transparent"
-                                                        Command="{Binding ForwardVideoPositionCommand}"
+                                                        Command="{Binding SeekVideoCommand}"
+                                                        CommandParameter="{x:Bind ForwardSeekTime}"
                                                         Margin="24 0 0 0"
                                                         >
                                                     <TextBlock FontFamily="Segoe MDL2 Assets" 
@@ -1631,6 +1678,7 @@
                                                     Grid.RowSpan="2"
                                                     Grid.Column="1"
                                                     Grid.ColumnSpan="4"
+                                                     IsEnabled="{Binding IsCommentDisabledFromNicoScript.Value, Converter={StaticResource BooleanInverted}}"
                                                     >
                                                 <i:Interaction.Behaviors>
 
@@ -1876,7 +1924,8 @@
 
 
                                                 <Button Background="Transparent" 
-                                                        Command="{Binding PreviewVideoPositionCommand}"
+                                                        Command="{Binding SeekVideoCommand}"
+                                                              CommandParameter="{x:Bind PreviewSeekTime}"
                                                         Margin="0 0 8 0"
                                                         x:Name="CO_PreviewVideoPositionButton"
                                                 >
@@ -1903,8 +1952,9 @@
                                                 </Button>
 
                                                 <Button Background="Transparent"
-                                                    Command="{Binding ForwardVideoPositionCommand}"
-                                                    x:Name="CO_ForwardVideoPositionButton"
+                                                        Command="{Binding SeekVideoCommand}"
+                                                              CommandParameter="{x:Bind ForwardSeekTime}"
+                                                        x:Name="CO_ForwardVideoPositionButton"
                                                         Margin="8 0 0 0"
                                                     >
                                                     <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;"

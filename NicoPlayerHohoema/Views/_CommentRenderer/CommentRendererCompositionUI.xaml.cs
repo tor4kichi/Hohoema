@@ -57,6 +57,8 @@ namespace NicoPlayerHohoema.Views
 
         }
 
+        const int OWNER_COMMENT_Z_INDEX = 1;
+
         const float BaseCommentSizeRatioByCanvasHeight = 1.0f / 15.0f;
 
 
@@ -670,6 +672,12 @@ namespace NicoPlayerHohoema.Views
                         Canvas.SetTop(renderComment, frame.CanvasHeight * 0.5f - renderComment.TextHeight * 0.5f);
                         PrevRenderComment_Center = renderComment;
                         isCanAddRenderComment_Center = false;
+                    }
+
+                    // オーナーコメントの場合は優先して表示されるように
+                    if (comment.IsOwnerComment)
+                    {
+                        Canvas.SetZIndex(renderComment, OWNER_COMMENT_Z_INDEX);
                     }
 
                     if (!isOutBoundComment)

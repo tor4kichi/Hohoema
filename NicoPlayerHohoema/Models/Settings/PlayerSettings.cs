@@ -305,7 +305,43 @@ namespace NicoPlayerHohoema.Models
         }
 
 
-        
+
+
+        public bool _NicoScript_シーク禁止_Enabled = true;
+
+        [DataMember]
+        public bool NicoScript_シーク禁止_Enabled
+        {
+            get { return _NicoScript_シーク禁止_Enabled; }
+            set { SetProperty(ref _NicoScript_シーク禁止_Enabled, value); }
+        }
+
+        public bool _NicoScript_デフォルト_Enabled = true;
+
+        [DataMember]
+        public bool NicoScript_デフォルト_Enabled
+        {
+            get { return _NicoScript_デフォルト_Enabled; }
+            set { SetProperty(ref _NicoScript_デフォルト_Enabled, value); }
+        }
+
+        public bool _NicoScript_ジャンプ_Enabled = true;
+
+        [DataMember]
+        public bool NicoScript_ジャンプ_Enabled
+        {
+            get { return _NicoScript_ジャンプ_Enabled; }
+            set { SetProperty(ref _NicoScript_ジャンプ_Enabled, value); }
+        }
+
+        public bool _NicoScript_置換_Enabled = true;
+
+        [DataMember]
+        public bool NicoScript_置換_Enabled
+        {
+            get { return _NicoScript_置換_Enabled; }
+            set { SetProperty(ref _NicoScript_置換_Enabled, value); }
+        }
     }
 
     public enum VideoContentOpenAction

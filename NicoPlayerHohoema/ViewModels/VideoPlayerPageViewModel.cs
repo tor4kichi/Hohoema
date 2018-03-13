@@ -53,7 +53,242 @@ using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class VideoPlayerPageViewModel : HohoemaViewModelBase, IDisposable
+
+    abstract class NicoScirptBase
+    {
+        public NicoScirptBase(string type)
+        {
+            Type = type;
+        }
+
+        public string Type { get; private set; }
+        public TimeSpan BeginTime { get; set; }
+        public TimeSpan? EndTime { get; set; }
+
+        public uint? _BeginVPos;
+        public uint BeginVPos => (_BeginVPos ?? (_BeginVPos = (uint)(BeginTime.TotalMilliseconds * 0.1))).Value;
+
+        public uint? _EndVPos;
+        public uint EndVPos => EndTime.HasValue ? (_EndVPos ?? (_EndVPos = (uint)(EndTime.Value.TotalMilliseconds * 0.1))).Value : uint.MaxValue;
+    }
+
+    sealed class NicoScript : NicoScirptBase
+    {
+        public NicoScript(string type)
+            : base(type)
+        {
+        }
+
+        public Action ScriptEnabling { get; set; }
+        public Action ScriptDisabling { get; set; }
+    }
+
+    enum ReplaceNicoScriptRange
+    {
+        単,
+        全,
+    }
+
+    enum ReplaceNicoScriptTarget
+    {
+        コメ,
+        全,
+        投コメ,
+        含まない,
+        含む,
+    }
+
+    enum ReplaceNicoScriptCondition
+    {
+        部分一致,
+        完全一致,
+    }
+
+    sealed class ReplaceNicoScript : NicoScirptBase
+    {
+        public ReplaceNicoScript(string type)
+            : base(type)
+        {
+        }
+
+        public string Commands { get; set; }
+
+        public string TargetText { get; set; }
+        public string ReplaceText { get; set; }
+        public ReplaceNicoScriptRange Range { get; set; }
+        public ReplaceNicoScriptTarget Target { get; set; }
+        public ReplaceNicoScriptCondition Condition { get; set; }
+
+    }
+
+    sealed class DefaultCommandNicoScript : NicoScirptBase
+    {
+        public DefaultCommandNicoScript(string type) 
+            : base(type)
+        {
+        }
+
+        public string[] Command { get; set; }
+
+        Action<Comment>[] _CommandActions;
+
+        public void ApplyCommand(Comment commentVM)
+        {
+            if (_CommandActions == null)
+            {
+                _CommandActions = MakeCommandActions(Command);
+            }
+
+            foreach (var action in _CommandActions)
+            {
+                action(commentVM);
+            }
+        }
+
+
+        public const float fontSize_mid = 1.0f;
+        public const float fontSize_small = 0.75f;
+        public const float fontSize_big = 1.25f;
+
+        private static Action<Comment>[] MakeCommandActions(string[] commands)
+        {
+            List<Action<Comment>> actions = new List<Action<Comment>>();
+            foreach (var command in commands)
+            {
+                switch (command)
+                {
+                    case "small":
+                        actions.Add(c => c.FontScale = fontSize_small);
+                        break;
+                    case "big":
+                        actions.Add(c => c.FontScale = fontSize_big);
+                        break;
+                    case "medium":
+                        actions.Add(c => c.FontScale = fontSize_mid);
+                        break;
+                    case "ue":
+                        actions.Add(c => c.VAlign = VerticalAlignment.Top);
+                        break;
+                    case "shita":
+                        actions.Add(c => c.VAlign = VerticalAlignment.Bottom);
+                        break;
+                    case "naka":
+                        actions.Add(c => c.VAlign = VerticalAlignment.Center);
+                        break;
+                    case "white":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("FFFFFF"));
+                        break;
+                    case "red":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("FF0000"));
+                        break;
+                    case "pink":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("FF8080"));
+                        break;
+                    case "orange":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("FFC000"));
+                        break;
+                    case "yellow":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("FFFF00"));
+                        break;
+                    case "green":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("00FF00"));
+                        break;
+                    case "cyan":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("00FFFF"));
+                        break;
+                    case "blue":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("0000FF"));
+                        break;
+                    case "purple":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("C000FF"));
+                        break;
+                    case "black":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("000000"));
+                        break;
+                    case "white2":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("CCCC99"));
+                        break;
+                    case "niconicowhite":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("CCCC99"));
+                        break;
+                    case "red2":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("CC0033"));
+                        break;
+                    case "truered":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("CC0033"));
+                        break;
+                    case "pink2":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("FF33CC"));
+                        break;
+                    case "orange2":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("FF6600"));
+                        break;
+                    case "passionorange":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("FF6600"));
+                        break;
+                    case "yellow2":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("999900"));
+                        break;
+                    case "madyellow":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("999900"));
+                        break;
+                    case "green2":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("00CC66"));
+                        break;
+                    case "elementalgreen":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("00CC66"));
+                        break;
+                    case "cyan2":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("00CCCC"));
+                        break;
+                    case "blue2":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("3399FF"));
+                        break;
+                    case "marineblue":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("3399FF"));
+                        break;
+                    case "purple2":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("6633CC"));
+                        break;
+                    case "nobleviolet":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("6633CC"));
+                        break;
+                    case "black2":
+                        actions.Add(c => c.Color = ColorExtention.HexStringToColor("666666"));
+                        break;
+                    case "full":
+                        break;
+                    case "_184":
+                        actions.Add(c => c.IsAnonimity = true);
+                        break;
+                    case "invisible":
+                        actions.Add(c => c.IsVisible = false);
+                        break;
+                    case "all":
+                        // Note": 事前に判定しているのでここでは評価しない
+                        break;
+                    case "from_button":
+                        break;
+                    case "is_button":
+                        break;
+                    case "_live":
+
+                        break;
+                    default:
+                        if (command.StartsWith("#"))
+                        {
+                            var color = ColorExtention.HexStringToColor(command.Remove(0, 1));
+                            actions.Add(c => c.Color = color);
+                        }
+                        break;
+                }
+            }
+
+            return actions.ToArray();
+        }
+    }
+
+    public class VideoPlayerPageViewModel : HohoemaViewModelBase, IDisposable
 	{
 		// TODO: HohoemaViewModelBaseとの依存性を排除（ViewModelBaseとの関係性は維持）
 
@@ -84,6 +319,27 @@ namespace NicoPlayerHohoema.ViewModels
 			_HohoemaDialogService = dialogService;
 
             MediaPlayer = viewManager.GetCurrentWindowMediaPlayer();
+
+            NicoScript_デフォルト_Enabled = HohoemaApp.UserSettings.PlayerSettings
+                .ToReactivePropertyAsSynchronized(x => x.NicoScript_デフォルト_Enabled, raiseEventScheduler: CurrentWindowContextScheduler)
+                .AddTo(_CompositeDisposable);
+            NicoScript_シーク禁止_Enabled = HohoemaApp.UserSettings.PlayerSettings
+                .ToReactivePropertyAsSynchronized(x => x.NicoScript_シーク禁止_Enabled, raiseEventScheduler: CurrentWindowContextScheduler)
+                .AddTo(_CompositeDisposable);
+            NicoScript_ジャンプ_Enabled = HohoemaApp.UserSettings.PlayerSettings
+                .ToReactivePropertyAsSynchronized(x => x.NicoScript_ジャンプ_Enabled, raiseEventScheduler: CurrentWindowContextScheduler)
+                .AddTo(_CompositeDisposable);
+            NicoScript_置換_Enabled = HohoemaApp.UserSettings.PlayerSettings
+                .ToReactivePropertyAsSynchronized(x => x.NicoScript_置換_Enabled, raiseEventScheduler: CurrentWindowContextScheduler)
+                .AddTo(_CompositeDisposable);
+
+            NicoScript_デフォルト_Enabled.Subscribe(async x => 
+            {
+                if (_DefaultCommandNicoScriptList.Any())
+                {
+                    await UpdateComments();
+                }
+            });
 
             ThumbnailUri = new ReactiveProperty<string>(CurrentWindowContextScheduler);
 
@@ -130,6 +386,16 @@ namespace NicoPlayerHohoema.ViewModels
             })
             .ToReactiveProperty();
 
+
+            IsSeekDisabledFromNicoScript = new ReactiveProperty<bool>(false);
+            IsCommentDisabledFromNicoScript = new ReactiveProperty<bool>(false);
+
+            IsPlayWithCache = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false)
+                .AddTo(_CompositeDisposable);
+
+            IsNeedResumeExitWrittingComment = new ReactiveProperty<bool>(CurrentWindowContextScheduler);
+
+
             NowQualityChanging = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
 			Comments = new ObservableCollection<Comment>();
 
@@ -143,11 +409,41 @@ namespace NicoPlayerHohoema.ViewModels
             
 			IsEnableRepeat = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false)
 				.AddTo(_CompositeDisposable);
-			
-			WritingComment = new ReactiveProperty<string>(CurrentWindowContextScheduler, "")
+
+            
+
+            WritingComment = new ReactiveProperty<string>(CurrentWindowContextScheduler, "")
 				.AddTo(_CompositeDisposable);
 
-			CommentSubmitCommand = WritingComment.Select(x => !string.IsNullOrWhiteSpace(x))
+
+            NowCanSeek = Observable.CombineLatest(
+                NowQualityChanging.Select(x => !x),
+                Observable.CombineLatest(
+                    NicoScript_シーク禁止_Enabled,
+                    IsSeekDisabledFromNicoScript.Select(x => !x)
+                    )
+                    .Select(x => x[0] ? x[1] : true) 
+                )
+                .Select(x => x.All(y => y))
+                .ToReadOnlyReactiveProperty(eventScheduler: CurrentWindowContextScheduler);
+
+            SeekVideoCommand = NowCanSeek.ToReactiveCommand<TimeSpan?>();
+            SeekVideoCommand.Subscribe(time => 
+            {
+                if (!time.HasValue) { return; }
+                var session = MediaPlayer.PlaybackSession;
+                session.Position += time.Value;
+            });
+
+            NowCanSubmitComment = Observable.CombineLatest(
+                CanSubmitComment,
+                IsCommentDisabledFromNicoScript.Select(x => /* TODO: コメント禁止の設定によるフィルタリングを行う*/!x),
+                WritingComment.Select(x => !string.IsNullOrWhiteSpace(x))
+                )
+                .Select(x => x.All(y => y))
+                .ToReadOnlyReactiveProperty(eventScheduler: CurrentWindowContextScheduler);
+
+            CommentSubmitCommand = NowCanSubmitComment 
 				.ToReactiveCommand(CurrentWindowContextScheduler)
 				.AddTo(_CompositeDisposable);
 
@@ -157,11 +453,7 @@ namespace NicoPlayerHohoema.ViewModels
 			NowCommentWriting.Subscribe(x => Debug.WriteLine("NowCommentWriting:" + NowCommentWriting.Value))
 				.AddTo(_CompositeDisposable);
 
-			IsPlayWithCache = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false)
-				.AddTo(_CompositeDisposable);
-
-			IsNeedResumeExitWrittingComment = new ReactiveProperty<bool>(CurrentWindowContextScheduler);
-
+			
 			NowCommentWriting
 				.Subscribe(isWritting => 
 			{
@@ -1150,6 +1442,7 @@ namespace NicoPlayerHohoema.ViewModels
             _BufferingMonitorDisposable = new CompositeDisposable();
         }
 
+        TimeSpan _PrevPlaybackPosition;
         private void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
         {
             if (IsDisposed) { return; }
@@ -1158,6 +1451,37 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 ReadVideoPosition.Value = sender.Position;
             }
+
+            foreach (var script in _NicoScriptList)
+            {
+                if (_PrevPlaybackPosition <= script.BeginTime && sender.Position > script.BeginTime)
+                {
+                    if (script.EndTime < sender.Position)
+                    {
+                        Debug.WriteLine("nicoscript Enabling Skiped :" + script.Type);
+                        continue;
+                    }
+
+                    Debug.WriteLine("nicoscript Enabling :" + script.Type);
+                    script.ScriptEnabling?.Invoke();
+                }
+                else if (script.EndTime.HasValue)
+                {
+                    if (_PrevPlaybackPosition <= script.BeginTime)
+                    {
+                        Debug.WriteLine("nicoscript Disabling Skiped :" + script.Type);
+                        continue;
+                    }
+
+                    if (_PrevPlaybackPosition < script.EndTime && sender.Position > script.EndTime)
+                    {
+                        Debug.WriteLine("nicoscript Disabling :" + script.Type);
+                        script.ScriptDisabling?.Invoke();
+                    }
+                }
+            }
+
+            _PrevPlaybackPosition = sender.Position;
         }
 
         private void PlaybackSession_PlaybackStateChanged(MediaPlaybackSession sender, object args)
@@ -1387,7 +1711,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         private Comment ChatToComment(NMSG_Chat chat)
         {
-
             if (chat.Content == null)
             {
                 return null;
@@ -1414,8 +1737,6 @@ namespace NicoPlayerHohoema.ViewModels
             var vpos_value = chat.Vpos;
             var vpos = vpos_value >= 0 ? (uint)vpos_value : 0;
 
-
-
             var commentVM = new Comment(this, HohoemaApp.UserSettings.NGSettings)
             {
                 CommentText = commentText,
@@ -1425,9 +1746,21 @@ namespace NicoPlayerHohoema.ViewModels
             };
 
 
-            commentVM.IsOwnerComment = chat.UserId != null ? chat.UserId == _VideoInfo.Owner.OwnerId.ToString() : false;
+            commentVM.IsOwnerComment = chat.UserId == null;
 
-            IEnumerable<CommandType> commandList = null;
+
+            // ニコスクリプトによるデフォルトコマンドの適用
+            if (NicoScript_デフォルト_Enabled.Value)
+            {
+                foreach (var defaultCommand in _DefaultCommandNicoScriptList)
+                {
+                    if (defaultCommand.BeginVPos <= vpos && vpos <= defaultCommand.EndVPos)
+                    {
+                        defaultCommand.ApplyCommand(commentVM);
+                        break;
+                    }
+                }
+            }
 
             // コメントの装飾許可設定に従ってコメントコマンドの取得を行う
             var isAllowOwnerCommentCommnad = (playerSettings.CommentCommandPermission & CommentCommandPermissionType.Owner) == CommentCommandPermissionType.Owner;
@@ -1435,13 +1768,15 @@ namespace NicoPlayerHohoema.ViewModels
             var isAllowAnonymousCommentCommnad = (playerSettings.CommentCommandPermission & CommentCommandPermissionType.Anonymous) == CommentCommandPermissionType.Anonymous;
             if ((commentVM.IsOwnerComment && isAllowOwnerCommentCommnad)
                 || (chat.UserId != null && isAllowUserCommentCommnad)
-                || (chat.UserId == null && isAllowAnonymousCommentCommnad)
+                || (chat.Anonymity == null && isAllowAnonymousCommentCommnad)
                 )
             {
                 try
                 {
-                    commandList = chat.ParseCommandTypes();
-                    commentVM.ApplyCommands(commandList);
+                    // コメントのコマンドを適用
+                    // デフォルトコマンドと重複するコマンドがある場合は
+                    // コメントのコマンドが優先される
+                    commentVM.ApplyCommands(chat.Mail?.Split(' '));
                 }
                 catch (Exception ex)
                 {
@@ -1466,8 +1801,28 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     var res = await Video.CommentClient.GetCommentsFromNMSG();
 
-                    foreach (var chat in res.ParseComments())
+                    var comments = res.ParseComments();
+
+                    // ニコスクリプトの状態を初期化
+                    ClearNicoScriptState();
+
+                    // 投コメからニコスクリプトをセットアップしていく
+                    var ownerComments = comments.Reverse().TakeWhile(x => x.UserId == null);
+                    foreach (var ownerComment in ownerComments)
                     {
+                        if (ownerComment.Deleted > 0) { continue; }
+                        TryAddNicoScript(ownerComment);
+                    }
+
+                    _NicoScriptList.Sort((x, y) => (int)(x.BeginTime.Ticks - y.BeginTime.Ticks));
+
+                    // 投コメのニコスクリプトをスキップして
+                    // コメントをコメントリストに追加する（通常の投コメも含めて）
+                    foreach (var chat in comments)
+                    {
+                        if (chat.Deleted > 0) { continue; }
+                        if (IsNicoScriptComment(chat.UserId, chat.Content)) { continue; }
+
                         var comment = ChatToComment(chat);
                         if (comment != null)
                         {
@@ -1507,6 +1862,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                 foreach (var chat in oldFormatComments)
                 {
+
                     var comment = ChatToComment(chat);
                     if (comment != null)
                     {
@@ -1519,6 +1875,224 @@ namespace NicoPlayerHohoema.ViewModels
             System.Diagnostics.Debug.WriteLine($"コメント数:{Comments.Count}");
         }
 
+
+
+        List<NicoScript> _NicoScriptList = new List<NicoScript>();
+        List<ReplaceNicoScript> _ReplaceNicoScirptList = new List<ReplaceNicoScript>();
+        List<DefaultCommandNicoScript> _DefaultCommandNicoScriptList = new List<DefaultCommandNicoScript>();
+
+        private static bool IsNicoScriptComment(string userId, string content)
+        {
+            return userId == null && content.StartsWith("＠");
+        }
+
+
+
+        private bool TryAddNicoScript(NMSG_Chat chat)
+        {
+            const bool IS_ENABLE_デフォルト   = true; // Default comment Command
+            const bool IS_ENABLE_置換         = false; // Replace comment text
+            const bool IS_ENABLE_ジャンプ     = true; // seek video position or redirect to another content
+            const bool IS_ENABLE_シーク禁止   = true; // disable seek
+            const bool IS_ENABLE_コメント禁止 = true; // disable comment
+
+            if (!IsNicoScriptComment(chat.UserId, chat.Content)) { return false; }
+
+            var nicoScriptContents = chat.Content.Remove(0, 1).Split(' ', '　');
+
+            if (nicoScriptContents.Length == 0) { return false; }
+
+            var nicoScriptType = nicoScriptContents[0];
+            var beginTime = TimeSpan.FromMilliseconds(chat.Vpos * 10);
+            switch (nicoScriptType)
+            {
+                case "デフォルト":
+                    if (IS_ENABLE_デフォルト)
+                    {
+                        TimeSpan? endTime = null;
+                        var commands = chat.Mail.Split(' ');
+                        var timeCommand = commands.FirstOrDefault(x => x.StartsWith("@"));
+                        if (timeCommand != null)
+                        {
+                            endTime = beginTime + TimeSpan.FromSeconds(int.Parse(timeCommand.Remove(0, 1)));
+                        }
+
+                        _DefaultCommandNicoScriptList.Add(new DefaultCommandNicoScript(nicoScriptType)
+                        {
+                            BeginTime = beginTime,
+                            EndTime = endTime,
+                            Command = commands.Where(x => !x.StartsWith("@")).ToArray()
+                        });
+                    }
+
+
+                    break;
+                case "置換":
+                    if (IS_ENABLE_置換)
+                    {
+                        var commands = chat.Mail.Split(' ');
+                        List<string> commandItems = new List<string>();
+                        TimeSpan duration = TimeSpan.FromSeconds(30);
+                        foreach (var command in commands)
+                        {
+                            if (command.StartsWith("@"))
+                            {
+                                duration = TimeSpan.FromSeconds(int.Parse(command.Remove(0, 1)));
+                            }
+                            else
+                            {
+                                commandItems.Add(command);
+                            }
+                        }
+                        /*
+                         * ※1 オプション自体にスペースを含めたい場合は、コマンドをダブルクォート(")、シングルクォート(')、または全角かぎかっこ（「」）で囲んでください。
+                            その際、ダブルクォート(")とシングルクォート(')内ではバックスラッシュ（\）がエスケープ文字として扱われますが、全角かぎかっこ（「」）内では文字列として扱われます。
+  
+                         */
+
+                        _ReplaceNicoScirptList.Add(new ReplaceNicoScript(nicoScriptType)
+                        {
+                            Commands = string.Join(" ", commandItems),
+                            BeginTime = beginTime,
+                            EndTime = beginTime + duration,
+                           
+                        });
+
+                        Debug.WriteLine($"置換を設定");
+                    }
+                    break;
+                case "ジャンプ":
+                    if (IS_ENABLE_ジャンプ)
+                    {  
+                        var condition = nicoScriptContents[1];
+                        if (condition.StartsWith("#"))
+                        {
+                            TimeSpan? endTime = null;
+                            if (chat.Mail?.StartsWith("@") ?? false)
+                            {
+                                endTime = beginTime + TimeSpan.FromSeconds(int.Parse(chat.Mail.Remove(0, 1)));
+                            }
+                            _NicoScriptList.Add(new NicoScript(nicoScriptType)
+                            {
+                                BeginTime = beginTime,
+                                EndTime = endTime,
+                                ScriptEnabling = () => 
+                                {
+                                    if (!HohoemaApp.UserSettings.PlayerSettings.NicoScript_ジャンプ_Enabled)
+                                    {
+                                        return;
+                                    }
+
+                                    // #00:00
+                                    // #00:00.00
+                                    // #00
+                                    // #00.00
+                                    TimeSpan time = TimeSpan.Zero;
+                                    var timeTexts = condition.Remove(0, 1).Split(':');
+                                    if (timeTexts.Length == 2)
+                                    {
+                                        time += TimeSpan.FromMinutes(int.Parse(timeTexts[0]));
+                                    }
+
+                                    var secAndMillSec = timeTexts.Last().Split('.');
+
+                                    var sec = secAndMillSec.First();
+                                    time += TimeSpan.FromSeconds(int.Parse(sec));
+                                    if (secAndMillSec.Length == 2)
+                                    {
+                                        time += TimeSpan.FromMilliseconds(int.Parse(secAndMillSec.Last()));
+                                    }
+
+                                    // シーク位置を直接設定する
+                                    MediaPlayer.PlaybackSession.Position = time;
+                                }
+                            });
+
+                            Debug.WriteLine($"{beginTime.ToString()} に {condition} へのジャンプを設定");
+                        }
+                        else if (NiconicoRegex.IsVideoId(condition))
+                        {
+                            var message = nicoScriptContents.ElementAtOrDefault(2);
+                            
+                            // ニコスクリプトによる別動画へのジャンプを実装する
+                            _JumpVideoId = condition;
+                            Debug.WriteLine($"{beginTime.ToString()} に {condition} へのジャンプを設定");
+                        }
+                    }
+                    break;
+                case "シーク禁止":
+                    if (IS_ENABLE_シーク禁止)
+                    {
+                        TimeSpan? endTime = null;
+                        if (chat.Mail?.StartsWith("@") ?? false)
+                        {
+                            endTime = beginTime + TimeSpan.FromSeconds(int.Parse(chat.Mail.Remove(0, 1)));
+                        }
+                        _NicoScriptList.Add(new NicoScript(nicoScriptType)
+                        {
+                            BeginTime = beginTime,
+                            EndTime = endTime,
+                            ScriptEnabling = () => IsSeekDisabledFromNicoScript.Value = true,
+                            ScriptDisabling = () => IsSeekDisabledFromNicoScript.Value = false
+                        });
+
+                        if (endTime.HasValue)
+                        {
+                            Debug.WriteLine($"{beginTime.ToString()} ～ {endTime.ToString()} までシーク禁止を設定");
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"{beginTime.ToString()} から動画終了までシーク禁止を設定");
+                        }
+                    }
+                    break;
+                case "コメント禁止":
+                    if (IS_ENABLE_コメント禁止)
+                    {
+                        TimeSpan? endTime = null;
+                        if (chat.Mail?.StartsWith("@") ?? false)
+                        {
+                            endTime = beginTime + TimeSpan.FromSeconds(int.Parse(chat.Mail.Remove(0, 1)));
+                        }
+                        _NicoScriptList.Add(new NicoScript(nicoScriptType)
+                        {
+                            BeginTime = beginTime,
+                            EndTime = endTime,
+                            ScriptEnabling = () => IsCommentDisabledFromNicoScript.Value = true,
+                            ScriptDisabling = () => IsCommentDisabledFromNicoScript.Value = false
+                        });
+
+                        if (endTime.HasValue)
+                        {
+                            Debug.WriteLine($"{beginTime.ToString()} ～ {endTime.ToString()} までコメント禁止を設定");
+                        }
+                        else
+                        {
+                            Debug.WriteLine($"{beginTime.ToString()} から動画終了までコメント禁止を設定");
+                        }
+                    }
+                    break;
+                default:
+                    Debug.WriteLine($"Not support nico script type : {nicoScriptType}");
+                    break;
+            }
+
+            return true;
+        }
+
+        // コメントの再ロード時などにニコスクリプトを再評価する
+        private void ClearNicoScriptState()
+        {
+            // デフォルトのコメントコマンドをクリア
+            _DefaultCommandNicoScriptList.Clear();
+
+            // 置換設定をクリア
+            _ReplaceNicoScirptList.Clear();
+
+            // ジャンプスクリプト
+            // シーク禁止とコメント禁止
+            _NicoScriptList.Clear();
+        }
 
         private async Task SubmitComment()
 		{
@@ -1648,54 +2222,9 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        private DelegateCommand _ForwardVideoPositionCommand;
-        public DelegateCommand ForwardVideoPositionCommand
-        {
-            get
-            {
-                return _ForwardVideoPositionCommand
-                    ?? (_ForwardVideoPositionCommand = new DelegateCommand(() =>
-                    {
-                        var session = MediaPlayer.PlaybackSession;
-                        var time = session.Position + TimeSpan.FromSeconds(30);
-                        session.Position = time;
-                    }));
-            }
-        }
-
-        private DelegateCommand _PreviewVideoPositionCommand;
-        public DelegateCommand PreviewVideoPositionCommand
-        {
-            get
-            {
-                return _PreviewVideoPositionCommand
-                    ?? (_PreviewVideoPositionCommand = new DelegateCommand(() =>
-                    {
-                        var session = MediaPlayer.PlaybackSession;
-                        var time = session.Position - TimeSpan.FromSeconds(10);
-                        session.Position = time;
-                    }));
-            }
-        }
-
-
-        private DelegateCommand<TimeSpan?> _SeekVideoCommand;
-        public DelegateCommand<TimeSpan?> SeekVideoCommand
-        {
-            get
-            {
-                return _SeekVideoCommand
-                    ?? (_SeekVideoCommand = new DelegateCommand<TimeSpan?>((seekTime) =>
-                    {
-                        if (!seekTime.HasValue) { return; }
-
-                        var session = MediaPlayer.PlaybackSession;
-                        var time = session.Position + seekTime.Value;
-                        session.Position = time;
-                    }));
-            }
-        }
-
+        
+        public ReactiveCommand<TimeSpan?> SeekVideoCommand { get; private set; }
+        
 
         private DelegateCommand _ToggleMuteCommand;
 		public DelegateCommand ToggleMuteCommand
@@ -2291,6 +2820,9 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<TimeSpan> ReadVideoPosition { get; private set; }
 		public ReactiveProperty<TimeSpan> CommentVideoPosition { get; private set; }
 
+        public ReadOnlyReactiveProperty<bool> NowCanSeek { get; private set; }
+        public ReactiveProperty<bool> IsSeekDisabledFromNicoScript { get; private set; }
+
 		public ReactiveProperty<double> SliderVideoPosition { get; private set; }
 		public ReactiveProperty<double> VideoLength { get; private set; }
 		public ReactiveProperty<MediaPlaybackState> CurrentState { get; private set; }
@@ -2356,9 +2888,14 @@ namespace NicoPlayerHohoema.ViewModels
         public ReadOnlyReactiveProperty<bool> IsSmallWindowModeEnable { get; private set; }
         public ReactiveProperty<bool> IsForceLandscape { get; private set; }
 
+        public ReactiveProperty<bool> NicoScript_デフォルト_Enabled { get; private set; }
+        public ReactiveProperty<bool> NicoScript_シーク禁止_Enabled { get; private set; }
+        public ReactiveProperty<bool> NicoScript_ジャンプ_Enabled { get; private set; }
+        public ReactiveProperty<bool> NicoScript_置換_Enabled { get; private set; }
 
 
 
+        public ReadOnlyReactiveProperty<bool> NowCanSubmitComment { get; private set; }
         public ReactiveProperty<bool> CanSubmitComment { get; private set; }
         public ReactiveProperty<bool> NowSubmittingComment { get; private set; }
 		public ReactiveProperty<string> WritingComment { get; private set; }
@@ -2371,6 +2908,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<double> CommentCanvasWidth { get; private set; }
 		public ReactiveProperty<Color> CommentDefaultColor { get; private set; }
         public ReadOnlyReactiveProperty<double> CommentOpacity { get; private set; }
+        public ReactiveProperty<bool> IsCommentDisabledFromNicoScript { get; private set; }
+
 
 
         public CommentCommandEditerViewModel CommandEditerVM { get; private set; }
@@ -2409,6 +2948,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<PlayerSidePaneContentType?> CurrentSidePaneContentType { get; }
         public ReadOnlyReactiveProperty<SidePaneContentViewModelBase> CurrentSidePaneContent { get; }
 
+        string _JumpVideoId;
 
         static PlayerSidePaneContentType? _PrevSidePaneContentType;
         SidePaneContentViewModelBase _PrevSidePaneContent;
@@ -2463,7 +3003,7 @@ namespace NicoPlayerHohoema.ViewModels
                     case PlayerSidePaneContentType.RelatedVideos:
                         if (Video != null)
                         {
-                            sidePaneContent = new PlayerSidePaneContent.RelatedVideosSidePaneContentViewModel(Video);
+                            sidePaneContent = new PlayerSidePaneContent.RelatedVideosSidePaneContentViewModel(Video, _JumpVideoId);
                         }
                         else
                         {
