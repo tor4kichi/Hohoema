@@ -6,7 +6,9 @@ namespace NicoPlayerHohoema.Commands
     {
         protected override bool CanExecute(object parameter)
         {
-            return parameter is Interfaces.INiconicoContent;
+            return parameter is Interfaces.INiconicoContent
+                || parameter is string
+                ;
         }
 
         protected override void Execute(object parameter)
@@ -17,6 +19,10 @@ namespace NicoPlayerHohoema.Commands
 
                 var shareContent = Helpers.ShareHelper.MakeShareText(content);
                 Helpers.ShareHelper.CopyToClipboard(shareContent);
+            }
+            else if (parameter is string)
+            {
+                Helpers.ShareHelper.CopyToClipboard(parameter as string);
             }
         }
     }

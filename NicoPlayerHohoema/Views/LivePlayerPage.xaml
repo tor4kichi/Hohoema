@@ -57,6 +57,7 @@
                                  />
             -->
 
+           
             <MenuFlyoutSubItem Text="共有" x:Name="MenuSubItem_Share">
                 <MenuFlyoutItem Text="アプリを選択" Command="{Binding ShareCommand}"/>
                 <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
@@ -69,13 +70,8 @@
 
             <MenuFlyoutItem Text="配信者情報" Command="{Binding OpenBroadcastCommunityCommand}" />
 
-            <!-- 
-            <MenuFlyoutItem Text="プレイヤー設定" 
-                            Command="{Binding SelectSidePaneContentCommand}"
-                            CommandParameter="Setting"
-                            >
-            </MenuFlyoutItem>
             
+            <!--
             <MenuFlyoutItem Text="小さく表示" Command="{Binding PlayerSmallWindowDisplayCommand}">
                 <i:Interaction.Behaviors>
                     <core:EventTriggerBehavior EventName="Tapped">
@@ -111,7 +107,7 @@
 
             <local:PlayerSidePaneContentTemplateSelecter.Comments>
                 <DataTemplate>
-                    <local:CommentsSidePaneContent />
+                    <local:LiveCommentsSidePaneContent />
                 </DataTemplate>
             </local:PlayerSidePaneContentTemplateSelecter.Comments>
 
@@ -507,10 +503,32 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="TitleBarMarginLayout.Visibility" Value="Visible" />
-                        <Setter Target="PlayerSidePaneLayout.Padding" Value="0 32 0 0" />
+                        <Setter Target="PlayerSidePaneLayout.Margin" Value="0 32 0 0" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
+
+
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <myTrigger:CompactOverlayViewModeTrigger />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+
+                
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <myTrigger:EqualConditionStateTrigger Condition="Comment" Value="{Binding CurrentSidePaneContentType.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PlayerSplitView.DisplayMode" Value="Inline" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
         </VisualStateManager.VisualStateGroups>
 
         <toolkit:LayoutTransformControl
@@ -524,7 +542,6 @@
             <SplitView PanePlacement="Right"
                            x:Name="PlayerSplitView"
                            IsTabStop="False"
-                       
                                >
 
                 <i:Interaction.Behaviors>
@@ -542,6 +559,13 @@
                         <core:ChangePropertyAction PropertyName="IsPaneOpen" Value="True" />
                     </core:DataTriggerBehavior>
 
+                    <core:DataTriggerBehavior Binding="{Binding CurrentSidePaneContentType.Value}" 
+                                              ComparisonCondition="Equal" 
+                                              Value="{x:Null}"
+                                              >
+                        <core:ChangePropertyAction PropertyName="IsPaneOpen" Value="False" />
+                    </core:DataTriggerBehavior>
+
                     <!-- サイドペインが閉じられたら コンテンツVMをリセット -->
                     <core:EventTriggerBehavior EventName="PaneClosed">
                         <core:ChangePropertyAction TargetObject="{Binding CurrentSidePaneContentType}" 
@@ -553,14 +577,14 @@
                 </i:Interaction.Behaviors>
 
                 <SplitView.Pane>
-                    <Grid x:Name="PlayerSidePaneLayout">
+                    <toolkit:DockPanel x:Name="PlayerSidePaneLayout">
                         <ContentControl Content="{Binding CurrentSidePaneContent.Value}"
                                         ContentTemplateSelector="{StaticResource PlayerSidePaneContentTemplateSelecter}"
                                         HorizontalContentAlignment="Stretch"
                                         VerticalContentAlignment="Stretch"
                                         IsTabStop="False"
                                         />
-                    </Grid>
+                    </toolkit:DockPanel>
 
                 </SplitView.Pane>
 
@@ -1282,18 +1306,25 @@
                                     HorizontalAlignment="Right"
                                         >
 
+                                        <Button Command="{Binding ToggleCommentListSidePaneContentCommand}"
+                                                Background="Transparent"
+                                                >
+                                            <iconPack:PackIconMaterial Kind="CommentMultipleOutline" 
+                                                                       Width="24" Height="24" />
+                                        </Button>
+
 
                                         <Button Command="{Binding SelectSidePaneContentCommand}"
-                                                        CommandParameter="Setting" 
-                                                        Background="Transparent"
-                                                        >
+                                                CommandParameter="Setting" 
+                                                Background="Transparent"
+                                                >
                                             <SymbolIcon Symbol="Setting" />
                                         </Button>
 
                                         <Button UseSystemFocusVisuals="True"
-                                        Background="Transparent"
-                                        Flyout="{StaticResource LivePlayerFlyout}"
-                                              >
+                                                Background="Transparent"
+                                                Flyout="{StaticResource LivePlayerFlyout}"
+                                                >
                                             <SymbolIcon Symbol="More" />
 
                                         </Button>

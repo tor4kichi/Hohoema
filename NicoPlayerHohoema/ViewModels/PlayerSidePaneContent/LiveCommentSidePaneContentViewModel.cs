@@ -12,9 +12,9 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 {
-	public class CommentSidePaneContentViewModel : SidePaneContentViewModelBase
+	public class LiveCommentSidePaneContentViewModel : SidePaneContentViewModelBase
 	{
-		public CommentSidePaneContentViewModel(HohoemaUserSettings settings, ObservableCollection<Comment> comments)
+		public LiveCommentSidePaneContentViewModel(HohoemaUserSettings settings, ReadOnlyObservableCollection<Comment> comments)
 		{
 			UserSettings = settings;
 			Comments = comments;
@@ -34,6 +34,13 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 		public ReactiveProperty<bool> IsCommentListScrollWithVideo { get; private set; }
 
 		public HohoemaUserSettings UserSettings { get; private set; }
-		public ObservableCollection<Comment> Comments { get; private set; }
+
+        ReadOnlyObservableCollection<Comment> _Comments;
+
+        public ReadOnlyObservableCollection<Comment> Comments
+        {
+            get { return _Comments; }
+            set { SetProperty(ref _Comments, value); }
+        }
 	}
 }

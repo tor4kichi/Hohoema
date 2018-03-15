@@ -484,7 +484,36 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public async Task<NiconicoVideoRss> GetCategoryRanking(RankingCategory category, RankingTarget target, RankingTimeSpan timeSpan)
+        public async Task<NicoVideoOwner> GetUser(string userId)
+        {
+            var userRes = await ConnectionRetryUtil.TaskWithRetry(() =>
+            {
+                return Context.User.GetUserAsync(userId);
+            });
+
+            var owner = NicoVideoOwnerDb.Get(userId);
+            if (userRes.Status == "ok")
+            {
+                var user = userRes.User;
+                if (owner == null)
+                {
+                    owner = new NicoVideoOwner()
+                    {
+                        OwnerId = userId,
+                        UserType = UserType.User
+                    };
+                }
+                owner.ScreenName = user.Nickname;
+                owner.IconUrl = user.ThumbnailUrl;
+
+                NicoVideoOwnerDb.AddOrUpdate(owner);
+            }
+
+            return owner;
+        }
+
+
+        public async Task<NiconicoVideoRss> GetCategoryRanking(RankingCategory category, RankingTarget target, RankingTimeSpan timeSpan)
 		{
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{

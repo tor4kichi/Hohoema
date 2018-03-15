@@ -908,7 +908,7 @@ namespace NicoPlayerHohoema.Models.Live
 		{
 			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
 			{
-				_LiveComments.Insert(0, chat);
+				_LiveComments.Add(chat);
 			});
 
 			if (chat.User_id == BroadcasterId)

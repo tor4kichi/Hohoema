@@ -181,7 +181,7 @@
 
             <local:PlayerSidePaneContentTemplateSelecter.Comments>
                 <DataTemplate>
-                    <local:CommentsSidePaneContent />
+                    <local:LiveCommentsSidePaneContent />
                 </DataTemplate>
             </local:PlayerSidePaneContentTemplateSelecter.Comments>
 

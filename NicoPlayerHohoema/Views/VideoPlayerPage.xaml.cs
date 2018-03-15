@@ -49,7 +49,7 @@ namespace NicoPlayerHohoema.Views
             {
                 return Playlist;
             }
-            else if (item is ViewModels.PlayerSidePaneContent.CommentSidePaneContentViewModel)
+            else if (item is ViewModels.PlayerSidePaneContent.LiveCommentSidePaneContentViewModel)
             {
                 return Comments;
             }

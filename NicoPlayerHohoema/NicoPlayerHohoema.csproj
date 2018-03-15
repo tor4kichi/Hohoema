@@ -403,7 +403,7 @@
     <Compile Include="ViewModels\UserInfoPageViewModel.cs" />
     <Compile Include="ViewModels\UserMylistPageViewModel.cs" />
     <Compile Include="ViewModels\UserVideoPageViewModel.cs" />
-    <Compile Include="ViewModels\PlayerSidePaneContent\CommentSidePaneContentViewModel.cs" />
+    <Compile Include="ViewModels\PlayerSidePaneContent\LiveCommentSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\SidePaneContentViewModelBase.cs" />
     <Compile Include="Views\Behaviors\FocusGetter.cs" />
     <Compile Include="Views\Behaviors\AutoHideCursor.cs" />
@@ -496,6 +496,7 @@
     <Compile Include="Views\NicoRepoPage.xaml.cs">
       <DependentUpon>NicoRepoPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\_CommentRenderer\LiveComment.cs" />
     <Compile Include="Views\_PlayerSidePaneContent\LiveSettingsSidePaneContent.xaml.cs">
       <DependentUpon>LiveSettingsSidePaneContent.xaml</DependentUpon>
     </Compile>
@@ -685,8 +686,8 @@
     <Compile Include="Views\UserVideoPage.xaml.cs">
       <DependentUpon>UserVideoPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\_PlayerSidePaneContent\CommentsSidePaneContent.xaml.cs">
-      <DependentUpon>CommentsSidePaneContent.xaml</DependentUpon>
+    <Compile Include="Views\_PlayerSidePaneContent\LiveCommentsSidePaneContent.xaml.cs">
+      <DependentUpon>LiveCommentsSidePaneContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\_PlayerSidePaneContent\RelatedVideosSidePaneContent.xaml.cs">
       <DependentUpon>RelatedVideosSidePaneContent.xaml</DependentUpon>
@@ -1111,7 +1112,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\_PlayerSidePaneContent\CommentsSidePaneContent.xaml">
+    <Page Include="Views\_PlayerSidePaneContent\LiveCommentsSidePaneContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

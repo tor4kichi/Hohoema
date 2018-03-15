@@ -1271,6 +1271,7 @@ namespace NicoPlayerHohoema.ViewModels
                 MediaPlayer.CommandManager.NextReceived += CommandManager_NextReceived;
                 MediaPlayer.CommandManager.PreviousReceived += CommandManager_PreviousReceived;
 
+                
 //                ResetMediaPlayerCommand();
 
                 smtc.DisplayUpdater.ClearAll();

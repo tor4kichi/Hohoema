@@ -769,7 +769,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
 
-            if (res == null && res.VideoInfoItems == null)
+            if (res == null || res.VideoInfoItems == null)
             {
                 return AsyncEnumerable.Empty<VideoInfoControlViewModel>();
             }

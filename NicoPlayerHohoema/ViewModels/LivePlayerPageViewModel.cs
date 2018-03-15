@@ -33,6 +33,7 @@ using Windows.Foundation.Metadata;
 using NicoPlayerHohoema.ViewModels.PlayerSidePaneContent;
 using Windows.UI.Core;
 using NicoPlayerHohoema.Services;
+using System.Collections.Concurrent;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -169,6 +170,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReadOnlyReactiveProperty<double> CommentOpacity { get; private set; }
 
+
         // post comment
         public ReactiveProperty<string> WritingComment { get; private set; }
 		public ReactiveProperty<bool> NowCommentWriting { get; private set; }
@@ -212,7 +214,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         // Side Pane Content
 
-
+        
 
         private HohoemaViewManager _HohoemaViewManager;
 
@@ -769,7 +771,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 				LiveComments = NicoLiveVideo.LiveComments.ToReadOnlyReactiveCollection(x =>
 				{
-					var comment = new Views.Comment(HohoemaApp.UserSettings.NGSettings);
+					var comment = new Views.LiveComment(HohoemaApp.UserSettings.NGSettings);
                     //x.GetVposでサーバー上のコメント位置が取れるが、
                     // 受け取った順で表示したいのでローカルの放送時間からコメント位置を割り当てる
                     comment.VideoPosition = (uint)(MediaPlayer.PlaybackSession.Position.TotalMilliseconds * 0.1) + 50;
@@ -782,8 +784,14 @@ namespace NicoPlayerHohoema.ViewModels
 					comment.IsAnonimity = !string.IsNullOrEmpty(x.Anonymity) ? x.GetAnonymity() : false;
 					comment.UserId = x.User_id;
 					comment.IsOwnerComment = x.User_id == NicoLiveVideo?.BroadcasterId;
-                    
-					try
+
+                    if (!comment.IsAnonimity && TryResolveUserId(comment.UserId, out var owner))
+                    {
+                        comment.UserName = owner.ScreenName;
+                        comment.IconUrl = owner.IconUrl;
+                    }
+
+                    try
 					{
 						comment.IsLoginUserComment = !comment.IsAnonimity ? uint.Parse(x.User_id) == HohoemaApp.LoginUserId : false;
 					}
@@ -791,8 +799,22 @@ namespace NicoPlayerHohoema.ViewModels
                     
 					comment.ApplyCommands(x.ParseCommandTypes());
 
-					return comment;
+                    
+                    // コテハン登録
+                    if (comment.CommentText.StartsWith("＠"))
+                    {
+                        Views.LiveComment.AddOrUpdateKotehan(comment.UserId, comment.CommentText.Remove(0, 1));
+                    }
+
+					return comment as Views.Comment;
 				}, CurrentWindowContextScheduler);
+
+                // 既にコメント一覧サイドペインが生成されていた場合は、設定する
+                if (_SidePaneContentCache.TryGetValue(PlayerSidePaneContentType.Comment, out var sidePaneContent))
+                {
+                    (sidePaneContent as LiveCommentSidePaneContentViewModel).Comments = LiveComments;
+                }
+                
 
 				RaisePropertyChanged(nameof(LiveComments));
 
@@ -889,12 +911,15 @@ namespace NicoPlayerHohoema.ViewModels
 				NicoLiveVideo = null;
 			}
 
+            CancelUserInfoResolvingTask();
+
             MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
 
 			IsFullScreen.Value = false;
 			StopLiveElapsedTimer().ConfigureAwait(false);
 
             _PrevPrevSidePaneContentType = CurrentSidePaneContentType.Value;
+            CurrentSidePaneContentType.Value = null;
 
             base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 		}
@@ -999,7 +1024,8 @@ namespace NicoPlayerHohoema.ViewModels
                                 ChangeQualityCommand.RaiseCanExecuteChanged();
                             });
 
-                        
+                        // コメントのユーザー名解決
+                        CommentUserInfoResolvingAsync().ConfigureAwait(false);
                     }
 
                     if (!Helpers.InputCapabilityHelper.IsMouseCapable)
@@ -1217,6 +1243,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
+
         #region Event Handling
 
 
@@ -1308,9 +1335,8 @@ namespace NicoPlayerHohoema.ViewModels
                         sidePaneContent = new PlayerSidePaneContent.PlaylistSidePaneContentViewModel(MediaPlayer, HohoemaApp.Playlist, HohoemaApp.UserSettings.PlaylistSettings, PageManager);
                         break;
                     case PlayerSidePaneContentType.Comment:
-                        throw new NotImplementedException();
-//                        sidePaneContent = new PlayerSidePaneContent.CommentSidePaneContentViewModel(HohoemaApp.UserSettings, LiveComments);
-//                        break;
+                        sidePaneContent = new PlayerSidePaneContent.LiveCommentSidePaneContentViewModel(HohoemaApp.UserSettings, LiveComments);
+                        break;
                     case PlayerSidePaneContentType.Setting:
                         sidePaneContent = new PlayerSidePaneContent.SettingsSidePaneContentViewModel(HohoemaApp.UserSettings);
                         if (NicoLiveVideo != null)
@@ -1337,5 +1363,94 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         #endregion
-    }	
+
+
+
+        #region CommentUserId Resolve
+
+        private ConcurrentStack<string> UnresolvedUserId = new ConcurrentStack<string>();
+        private ConcurrentDictionary<string, List<Views.LiveComment>> UserIdToComments = new ConcurrentDictionary<string, List<Views.LiveComment>>();
+
+        private bool TryResolveUserId(string userId, out Database.NicoVideoOwner userInfo)
+        {
+            userInfo = Database.NicoVideoOwnerDb.Get(userId);
+            if (userInfo == null)
+            {
+                UnresolvedUserId.Push(userId);
+            }
+
+            return userInfo != null;
+        }
+
+        private void CancelUserInfoResolvingTask()
+        {
+            _UserInfoResolvingTaskCancellationToken?.Cancel();
+            _UserInfoResolvingTaskCancellationToken.Dispose();
+            _UserInfoResolvingTaskCancellationToken = null;
+        }
+
+
+        private async void UpdateCommentUserName(Database.NicoVideoOwner user)
+        {
+            //using (var releaser = await )
+            {
+                if (UserIdToComments.TryGetValue(user.OwnerId, out var comments))
+                {
+                    CurrentWindowContextScheduler.Schedule(() =>
+                    {
+                        foreach (var comment in comments)
+                        {
+                            comment.UserName = user.ScreenName;
+                            comment.IconUrl = user.IconUrl;
+                        }
+                    });
+                }
+            }
+        }
+        CancellationTokenSource _UserInfoResolvingTaskCancellationToken;
+        Task CommentUserInfoResolvingAsync()
+        {
+            return Task.Run(async () =>
+            {
+                var token = _UserInfoResolvingTaskCancellationToken.Token;
+                while (!token.IsCancellationRequested)
+                {
+                    token.ThrowIfCancellationRequested();
+
+                    if (UnresolvedUserId.TryPop(out var id))
+                    {
+                        var owner = await HohoemaApp.ContentProvider.GetUser(id);
+                        UpdateCommentUserName(owner);
+                    }
+                    else
+                    {
+                        await Task.Delay(1000);
+                    }
+                }
+            }, (_UserInfoResolvingTaskCancellationToken = new CancellationTokenSource()).Token);
+        }
+
+        private DelegateCommand _ToggleCommentListSidePaneContentCommand;
+        public DelegateCommand ToggleCommentListSidePaneContentCommand
+        {
+            get
+            {
+                return _ToggleCommentListSidePaneContentCommand
+                    ?? (_ToggleCommentListSidePaneContentCommand = new DelegateCommand(() =>
+                    {
+                        if (CurrentSidePaneContentType.Value == PlayerSidePaneContentType.Comment)
+                        {
+                            CurrentSidePaneContentType.Value = null;
+                        }
+                        else
+                        {
+                            CurrentSidePaneContentType.Value = PlayerSidePaneContentType.Comment;
+                        }
+                    }));
+            }
+        }
+
+
+        #endregion
+    }
 }
