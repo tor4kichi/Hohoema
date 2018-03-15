@@ -90,6 +90,7 @@ namespace NicoPlayerHohoema.Models.Live
             MessageWebSocket.Closed += MessageWebSocket_Closed;
         }
 
+        Timer WatchingHeartbaetTimer;
 
 
         public async Task StartAsync(string requestQuality = "", bool isLowLatency = true)
@@ -162,6 +163,7 @@ namespace NicoPlayerHohoema.Models.Live
         public void Dispose()
         {
             MessageWebSocket.Dispose();
+            WatchingHeartbaetTimer?.Dispose();
         }
 
         private async void MessageWebSocket_MessageReceived(MessageWebSocket sender, MessageWebSocketMessageReceivedEventArgs args)
@@ -172,9 +174,7 @@ namespace NicoPlayerHohoema.Models.Live
                 using (var reader = new StreamReader(args.GetDataStream().AsStreamForRead()))
                 {
                     recievedText = reader.ReadToEnd();
-                    Debug.WriteLine($"{args.MessageType}: {recievedText}");
-
-                    
+                    Debug.WriteLine($"<WebSocket Message> {args.MessageType}: {recievedText}");
                 }
             }
 
@@ -245,6 +245,13 @@ namespace NicoPlayerHohoema.Models.Live
                         var timeString = ((JArray)body["params"]).Select(x => x.ToString()).ToArray()[0];
                         var time = TimeSpan.FromSeconds(long.Parse(timeString));
                         RecieveWatchInterval?.Invoke(time);
+
+                        WatchingHeartbaetTimer = new Timer((state) => 
+                        {
+                            SendMessageAsync($"{{\"type\":\"watch\",\"body\":{{\"command\":\"watching\",\"params\":[\"{Props.Program.BroadcastId}\",\"-1\",\"0\"]}}}}").ConfigureAwait(false);
+                        }
+                        , null, time, time
+                        );
                         break;
                     case "schedule":
                         var updateParam = (JObject)body["update"];
@@ -274,8 +281,11 @@ namespace NicoPlayerHohoema.Models.Live
         {
             using (var releaser = await _WebSocketLock.LockAsync())
             {
-                Debug.WriteLine($"{args.Code}: {args.Reason}");
+                Debug.WriteLine($"<WebScoket Closed> {args.Code}: {args.Reason}");
             }
+
+            WatchingHeartbaetTimer?.Dispose();
+            WatchingHeartbaetTimer = null;
         }
 
         private async void MessageWebSocket_ServerCustomValidationRequested(MessageWebSocket sender, WebSocketServerCustomValidationRequestedEventArgs args)
