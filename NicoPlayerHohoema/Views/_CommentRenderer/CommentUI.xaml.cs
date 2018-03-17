@@ -105,10 +105,10 @@ namespace NicoPlayerHohoema.Views
 		}
 
 
-        public uint CommentDisplayDuration => CommentData.EndPosition - CommentData.VideoPosition;
+        public long CommentDisplayDuration => CommentData.EndPosition - CommentData.VideoPosition;
 
-        private uint? _MoveCommentWidthTimeInVPos = null;
-        private uint CalcMoveCommentWidthTimeInVPos(int canvasWidth)
+        private long? _MoveCommentWidthTimeInVPos = null;
+        private long CalcMoveCommentWidthTimeInVPos(int canvasWidth)
         {
             if (_MoveCommentWidthTimeInVPos != null)
             {
@@ -133,7 +133,7 @@ namespace NicoPlayerHohoema.Views
         }
 
 
-        public double? GetPosition(int canvasWidth, uint currentVPos)
+        public double? GetPosition(int canvasWidth, long currentVPos)
         {
             if (CommentData == null) { return null; }
 
@@ -146,12 +146,12 @@ namespace NicoPlayerHohoema.Views
             return canvasWidth - (double)(speed * delta);
         }
 
-        public uint CalcTextShowRightEdgeTime(int canvasWidth)
+        public long CalcTextShowRightEdgeTime(int canvasWidth)
         {
             return CommentData.VideoPosition + CalcMoveCommentWidthTimeInVPos(canvasWidth);
         }
 
-        public uint CalcReachLeftEdge(int canvasWidth)
+        public long CalcReachLeftEdge(int canvasWidth)
         {
             return CommentData.EndPosition - CalcMoveCommentWidthTimeInVPos(canvasWidth);
         }

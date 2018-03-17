@@ -43,6 +43,7 @@ namespace NicoPlayerHohoema.Views
             public MediaPlaybackState PlaybackState { get; set; }
             public double PlaybackRate { get; set; }
             public double PlaybackRateInverse { get; set; }
+            public bool IsShowOperationComment { get; set; }
         }
 
 
@@ -172,6 +173,14 @@ namespace NicoPlayerHohoema.Views
             }
 
             RenderComments.Clear();
+
+            var mediaPlayer = MediaPlayer;
+            if (mediaPlayer != null)
+            {
+                mediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
+                mediaPlayer.PlaybackSession.SeekCompleted -= PlaybackSession_SeekCompleted;
+                mediaPlayer.SourceChanged -= MediaPlayer_SourceChanged;
+            }
         }
 
         private bool _IsNeedCommentRenderUpdated = false;
@@ -285,7 +294,7 @@ namespace NicoPlayerHohoema.Views
             frameData.Visibility = Visibility;
             frameData.PlaybackRate = MediaPlayer.PlaybackSession.PlaybackRate;
             frameData.PlaybackRateInverse = 1d / frameData.PlaybackRate;
-
+            frameData.IsShowOperationComment = IsShowNicoLiveOperationComment;
 
             return frameData;
         }
@@ -457,6 +466,11 @@ namespace NicoPlayerHohoema.Views
             
             foreach (var comment in _RenderCandidateComments)
             {
+                if (!frame.IsShowOperationComment && comment.IsOperationCommand)
+                {
+                    continue;
+                }
+
                 // 現フレームでは既に追加不可となっている場合はスキップ
                 if (comment.VAlign == null)
                 {
@@ -1160,6 +1174,23 @@ namespace NicoPlayerHohoema.Views
 
         }
 
+
+
+
+
+        public static readonly DependencyProperty IsShowNicoLiveOperationCommentProperty =
+            DependencyProperty.Register(nameof(IsShowNicoLiveOperationComment)
+                , typeof(bool)
+                , typeof(CommentRendererCompositionUI)
+                , new PropertyMetadata(false)
+                );
+
+
+        public bool IsShowNicoLiveOperationComment
+        {
+            get { return (bool)GetValue(IsShowNicoLiveOperationCommentProperty); }
+            set { SetValue(IsShowNicoLiveOperationCommentProperty, value); }
+        }
 
         #endregion
 

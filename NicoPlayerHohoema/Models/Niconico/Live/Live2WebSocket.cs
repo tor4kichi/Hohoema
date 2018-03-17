@@ -157,6 +157,7 @@ namespace NicoPlayerHohoema.Models.Live
             using (var releaser = await _WebSocketLock.LockAsync())
             {
                 MessageWebSocket.Close(0x8, "");
+                WatchingHeartbaetTimer?.Dispose();
             }
         }
 
@@ -269,6 +270,12 @@ namespace NicoPlayerHohoema.Models.Live
                         var endReason = disconnectParams[1];
                         RecieveDisconnect?.Invoke();
                         break;
+                    case "postkey":
+                        var postkeyParams = ((JArray)body["params"]).Select(x => x.ToString()).ToArray();
+                        var postKey = postkeyParams[0];
+
+                        _Postkey = postKey;
+                        break;
                 }
             }
             else if (type == "ping")
@@ -296,6 +303,25 @@ namespace NicoPlayerHohoema.Models.Live
             }
         }
 
+
+        string _Postkey;
+        public async Task<string> GetPostkeyAsync(string threadId)
+        {
+            _Postkey = null;
+            await SendMessageAsync(
+                $"{{\"type\":\"watch\",\"body\":{{\"command\":\"getpostkey\",\"params\":[\"{threadId}\"]}}}}"
+                );
+
+            using (var cancelToken = new CancellationTokenSource(1000))
+            {
+                while (_Postkey == null)
+                {
+                    await Task.Delay(1);
+                }
+            }
+
+            return _Postkey;
+        }
        
     }
 }

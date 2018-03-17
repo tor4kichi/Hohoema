@@ -29,8 +29,8 @@ namespace NicoPlayerHohoema.Views
 
 		public string UserId { get; set; }
 
-		public uint VideoPosition { get; set; }
-		public uint EndPosition { get; set; }
+		public long VideoPosition { get; set; }
+		public long EndPosition { get; set; }
 
 		public Color? Color { get; set; }
 
@@ -56,8 +56,8 @@ namespace NicoPlayerHohoema.Views
 		public HorizontalAlignment? HAlign { get; set; }
 
 		public bool IsOwnerComment { get; set; }
-
-		public bool IsOperationCommand { get; set; }
+        
+        public bool IsOperationCommand { get; set; }
 
 		public bool IsLoginUserComment { get; set; } = false;
 

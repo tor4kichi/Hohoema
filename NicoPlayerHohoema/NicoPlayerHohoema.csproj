@@ -231,6 +231,13 @@
     <Compile Include="Models\Db\MigrationToLiteDBHelper.cs" />
     <Compile Include="Models\Niconico\Follow\ChannelFollowInfoGroup.cs" />
     <Compile Include="Models\Niconico\HohoemaAlertClient.cs" />
+    <Compile Include="Models\Niconico\Live\Event\CommentPostedEventArgs.cs" />
+    <Compile Include="Models\Niconico\Live\Event\CommentRecievedEventArgs.cs" />
+    <Compile Include="Models\Niconico\Live\Event\CommentServerConnectedEventArgs.cs" />
+    <Compile Include="Models\Niconico\Live\Event\CommentServerDisconnectedEventArgs.cs" />
+    <Compile Include="Models\Niconico\Live\INicoLiveCommentClient.cs" />
+    <Compile Include="Models\Niconico\Live\LiveChatData.cs" />
+    <Compile Include="Models\Niconico\Live\NiwavidedNicoLiveCommentClient.cs" />
     <Compile Include="Models\Niconico\Video\Comment\CommentCommandPermissionType.cs" />
     <Compile Include="Models\Niconico\CommentOpacityKind.cs" />
     <Compile Include="Models\Db\History\HistoryDbContext.cs" />

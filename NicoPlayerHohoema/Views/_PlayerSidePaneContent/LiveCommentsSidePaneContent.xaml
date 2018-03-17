@@ -62,7 +62,8 @@
                 <TextBlock Text="まだコメントがないようです"
                            Style="{StaticResource SubtitleTextBlockStyle}"
                            Opacity="0.7"
-                           Visibility="{Binding Comments, Converter={StaticResource EmptyCollectionVisibilityConverter}}"
+                           Margin="8 0"
+                           Visibility="{Binding Comments, Mode=OneWay, Converter={StaticResource EmptyCollectionVisibilityConverter}}"
                            />
 
                 <ListView ItemsSource="{Binding Comments}"

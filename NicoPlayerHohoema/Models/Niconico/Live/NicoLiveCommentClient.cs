@@ -99,8 +99,8 @@ namespace NicoPlayerHohoema.Models.Live
 
 	public delegate void NicoLiveOperationCommandEventHanlder(NicoLiveCommentClient sender, NicoLiveOperationCommandEventArgs args);
 
-	public sealed class NicoLiveCommentClient : IDisposable
-	{
+	public sealed class NicoLiveCommentClient : IDisposable, INicoLiveCommentClient
+    {
 		public NiconicoContext NiconicoContext { get; private set; }
 
 		private byte[] _Buffer = new byte[1024 * 2];
@@ -122,21 +122,19 @@ namespace NicoPlayerHohoema.Models.Live
 
 
 
-		public event NicoLiveCommentServerConnectedEventHandler CommentServerConnected;
+        public event EventHandler<CommentPostedEventArgs> CommentPosted;
+        public event EventHandler<CommentRecievedEventArgs> CommentRecieved;
+        public event EventHandler<CommentServerConnectedEventArgs> Connected;
+        public event EventHandler<CommentServerDisconnectedEventArgs> Disconnected;
 
-		public event NicoLiveCommentRecievedEventHandler CommentRecieved;
-		public event NicoLiveOperationCommandEventHanlder OperationCommandRecieved;
-
-		public event NicoLiveCommentPostedEventHandler CommentPosted;
-
-		public event NicoLiveHeartbeatEventHandler Heartbeat;
-
+        public event NicoLiveHeartbeatEventHandler Heartbeat;
 		public event NicoLiveEndConnectedEventHandler EndConnect;
 
 		private DateTimeOffset _BaseTime;
 		private long _ServerTime;
 		private string _Ticket;
-		public bool IsCommentServerConnected { get; private set; }
+        private string UserId { get; }
+		public bool IsConnected { get; private set; }
 
 
 		AsyncLock _HeartbeatTimerLock = new AsyncLock();
@@ -146,7 +144,7 @@ namespace NicoPlayerHohoema.Models.Live
 		public uint CommentCount { get; private set; }
 		public uint WatchCount { get; private set; }
 
-		public NicoLiveCommentClient(string liveId, uint commentCount, DateTimeOffset baseTime, CommentServer commentServer, NiconicoContext context)
+		public NicoLiveCommentClient(string liveId, uint commentCount, string userId, DateTimeOffset baseTime, CommentServer commentServer, NiconicoContext context)
 		{
 			LiveId = liveId;
 			NiconicoContext = context;
@@ -154,15 +152,15 @@ namespace NicoPlayerHohoema.Models.Live
 			Host = commentServer.Host;
 			Port = commentServer.Port;
 			CommentCount = commentCount;
-
-			_BaseTime = baseTime;
+            UserId = userId;
+            _BaseTime = baseTime;
 
 			_Client = new TcpClient();
 		}
 
-		public async Task Start()
+		public async void Open()
 		{
-			await Stop();
+			Close();
 
 			await _Client.ConnectAsync(Host, Port);
 
@@ -192,7 +190,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 		
 
-		public async Task Stop()
+		public async void Close()
 		{
 			using (var releaser = await _NetworkStreamLock.LockAsync())
 			{
@@ -214,12 +212,11 @@ namespace NicoPlayerHohoema.Models.Live
 
 
 		private PostChat _LastPostChat = null;
-		public async Task PostComment(string comment, uint userId, string command, TimeSpan elapsedTime)
+		public async void PostComment(string comment, string command, string postkey, TimeSpan elapsedTime)
 		{
-			var postkey = await NiconicoContext.Live.GetPostKeyAsync(ThreadIdNumber, CommentCount / 100);
+//			var postkey = await NiconicoContext.Live.GetPostKeyAsync(ThreadIdNumber, CommentCount / 100);
 			if (string.IsNullOrEmpty(postkey))
 			{
-				CommentPosted?.Invoke(false /* failed post comment */, null);
 				return;
 			}
 
@@ -230,7 +227,7 @@ namespace NicoPlayerHohoema.Models.Live
 			chat.Ticket = _Ticket;
 			chat.Mail = command;
 			chat.Premium = "";
-			chat.UserId = userId.ToString();
+            chat.UserId = UserId;
 			
 			var time = (uint)((elapsedTime + TimeSpan.FromSeconds(1)).TotalSeconds * 100);
 			chat.Vpos = time.ToString();
@@ -251,8 +248,6 @@ namespace NicoPlayerHohoema.Models.Live
 			catch (Exception ex)
 			{
 				Debug.WriteLine(ex.ToString());
-
-				CommentPosted?.Invoke(false /* failed post comment */, null);
 			}
 		}
 
@@ -260,9 +255,8 @@ namespace NicoPlayerHohoema.Models.Live
 
 		public void Dispose()
 		{
-			Stop()
-				.ContinueWith((prevTask) => _Client.Dispose())
-				.ConfigureAwait(false);
+            Close();
+            _Client.Dispose();
 		}
 
 
@@ -348,7 +342,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 			Debug.WriteLine("exit comment recieve.");
 
-			IsCommentServerConnected = false;
+			IsConnected = false;
 		}
 
         static readonly Regex _XmlNodeRegex = new Regex("(<.*\\/>|<.*>.*<\\/.*>)");
@@ -376,7 +370,7 @@ namespace NicoPlayerHohoema.Models.Live
             if (elementName == "thread")
             {
                 Debug.Write("connect success");
-                IsCommentServerConnected = true;
+                IsConnected = true;
 
                 // <thread ticket="{チケット}" server_time="{サーバー時刻}" last_res="{送信される過去のコメント数？(NECOで使用してないので不明)}">
                 var serverTimeText = xmlRoot.Attribute(XName.Get("server_time")).Value;
@@ -389,7 +383,12 @@ namespace NicoPlayerHohoema.Models.Live
                 var ticketText = xmlRoot.Attribute(XName.Get("ticket")).Value;
                 _Ticket = ticketText;
 
-                CommentServerConnected?.Invoke();
+                Connected?.Invoke(this, new CommentServerConnectedEventArgs()
+                {
+                    Ticket = _Ticket,
+                    ServerTime = (int)_ServerTime,
+                    Thread = this.ThreadId
+                });
             }
             else if (elementName == "chat_result")
             {
@@ -405,7 +404,10 @@ namespace NicoPlayerHohoema.Models.Live
                 Debug.Write(result);
                 Debug.Write(result == "0" ? " (success)" : " (failed)");
 
-                CommentPosted?.Invoke(result == "0", _LastPostChat);
+                CommentPosted?.Invoke(this, new CommentPostedEventArgs()
+                {
+                    ChatResult = (ChatResult)int.Parse(result),
+                });
                 _LastPostChat = null;
             }
             else if (elementName == "chat")
@@ -434,11 +436,25 @@ namespace NicoPlayerHohoema.Models.Live
                                     Chat = chat
                                 };
 
-                                OperationCommandRecieved?.Invoke(this, args);
+//                                OperationCommandRecieved?.Invoke(this, args);
                             }
                             else
                             {
-                                CommentRecieved?.Invoke(chat);
+                                var liveChatData = new LiveChatData()
+                                {
+                                    No = (int)chat.GetCommentNo(),
+                                    Thread = chat.Thread,
+                                    IsAnonymity = chat.GetAnonymity(),
+                                    Content = chat.Text,
+                                    Mail = chat.Mail,
+                                    UserId = chat.User_id,
+                                    Vpos = (int)chat.GetVpos(),
+                                    Date = int.Parse(chat.Date),
+                                };
+                                CommentRecieved?.Invoke(this, new CommentRecievedEventArgs()
+                                {
+                                    Chat = liveChatData  
+                                });
                             }
                         }
                     }
@@ -493,13 +509,15 @@ namespace NicoPlayerHohoema.Models.Live
 
 
 			var chatText = chat.Text;
+            
 			// hiddenだけ / で開始していないため例外的に先に判断
-			if (chatText == "hidden")
+			if (chat.Mail == "hidden")
 			{			
 				command = new OperationCommnad("hidden", NicoLiveOperationCommandType.Hidden);
 				arguments = new string[0];
 				return true;
 			}
+
 			if (!chatText.StartsWith("/"))
 			{
 				command = null;
@@ -627,7 +645,7 @@ namespace NicoPlayerHohoema.Models.Live
                 }
 				catch (Exception ex)
 				{
-                    await Stop();
+                    Close();
 
                     Debug.WriteLine(ex.ToString());
 					// ハートビートに失敗した場合は、放送終了か追い出された

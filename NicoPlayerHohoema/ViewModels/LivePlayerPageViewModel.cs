@@ -130,6 +130,7 @@ namespace NicoPlayerHohoema.ViewModels
 		private DateTimeOffset _StartAt;
 		private DateTimeOffset _EndAt;
 
+        private TimeSpan WatchStartLiveElapsedTime;
         // play
         public ReactiveProperty<MediaElementState> CurrentState { get; private set; }
         public ReactiveProperty<bool> NowPlaying { get; private set; }
@@ -734,6 +735,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         #endregion
 
+        
 
 
 
@@ -772,18 +774,27 @@ namespace NicoPlayerHohoema.ViewModels
 				LiveComments = NicoLiveVideo.LiveComments.ToReadOnlyReactiveCollection(x =>
 				{
 					var comment = new Views.LiveComment(HohoemaApp.UserSettings.NGSettings);
+
+
+                    // Hohoemaのコメントレンダラのためにx.VPosの位置変換が必要
+                    // 視聴開始時点が起点
+
+                    TimeSpan vpos = TimeSpan.FromMilliseconds(x.Vpos * 10);
+                    var relatedVpos = vpos - WatchStartLiveElapsedTime;
                     //x.GetVposでサーバー上のコメント位置が取れるが、
                     // 受け取った順で表示したいのでローカルの放送時間からコメント位置を割り当てる
-                    comment.VideoPosition = (uint)(MediaPlayer.PlaybackSession.Position.TotalMilliseconds * 0.1) + 50;
+                    var currentVpos = (long)(MediaPlayer.PlaybackSession.Position.TotalMilliseconds * 0.1);
+                    comment.VideoPosition = (long)(relatedVpos.TotalMilliseconds * 0.1);
 
                     // EndPositionはコメントレンダラが再計算するが、仮置きしないと表示対象として処理されない
                     comment.EndPosition = comment.VideoPosition + 500;
 
-                    comment.CommentText = x.Text;
-					comment.CommentId = !string.IsNullOrEmpty(x.No) ? x.GetCommentNo() : 0;
-					comment.IsAnonimity = !string.IsNullOrEmpty(x.Anonymity) ? x.GetAnonymity() : false;
-					comment.UserId = x.User_id;
-					comment.IsOwnerComment = x.User_id == NicoLiveVideo?.BroadcasterId;
+                    comment.CommentText = x.Content;
+					comment.CommentId = (uint)x.No;
+                    comment.IsAnonimity = x.IsAnonymity;
+					comment.UserId = x.UserId;
+					comment.IsOwnerComment = x.UserId == NicoLiveVideo?.BroadcasterId;
+                    comment.IsOperationCommand = x.IsOperater;
 
                     if (!comment.IsAnonimity && TryResolveUserId(comment.UserId, out var owner))
                     {
@@ -793,13 +804,16 @@ namespace NicoPlayerHohoema.ViewModels
 
                     try
 					{
-						comment.IsLoginUserComment = !comment.IsAnonimity ? uint.Parse(x.User_id) == HohoemaApp.LoginUserId : false;
+						comment.IsLoginUserComment = !comment.IsAnonimity ? uint.Parse(x.UserId) == HohoemaApp.LoginUserId : false;
 					}
 					catch { }
                     
-					comment.ApplyCommands(x.ParseCommandTypes());
+                    if (!string.IsNullOrEmpty(x.Mail))
+                    {
+                        comment.ApplyCommands(x.Mail.Split(' '));
+                    }
 
-                    
+
                     // コテハン登録
                     if (comment.CommentText.StartsWith("＠"))
                     {
@@ -958,7 +972,9 @@ namespace NicoPlayerHohoema.ViewModels
 					_StartAt = NicoLiveVideo.PlayerStatusResponse.Program.StartedAt;
 					_EndAt = NicoLiveVideo.PlayerStatusResponse.Program.EndedAt;
 
-					await StartLiveElapsedTimer();
+                    WatchStartLiveElapsedTime = (DateTime.Now - NicoLiveVideo.PlayerStatusResponse.Program.OpenedAt);
+
+                    await StartLiveElapsedTimer();
 
 					LiveTitle = NicoLiveVideo.LiveTitle;
                     Title = LiveTitle;
@@ -1392,6 +1408,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         private async void UpdateCommentUserName(Database.NicoVideoOwner user)
         {
+
             //using (var releaser = await )
             {
                 if (UserIdToComments.TryGetValue(user.OwnerId, out var comments))
@@ -1420,7 +1437,10 @@ namespace NicoPlayerHohoema.ViewModels
                     if (UnresolvedUserId.TryPop(out var id))
                     {
                         var owner = await HohoemaApp.ContentProvider.GetUser(id);
-                        UpdateCommentUserName(owner);
+                        if (owner != null)
+                        {
+                            UpdateCommentUserName(owner);
+                        }
                     }
                     else
                     {
