@@ -81,6 +81,7 @@ namespace NicoPlayerHohoema.Helpers
 
         public static async Task ShareToTwitter(string content)
         {
+            /*
             if (!TwitterHelper.IsLoggedIn)
             {
 
@@ -108,6 +109,7 @@ namespace NicoPlayerHohoema.Helpers
                     }
                 }
             }
+            */
         }
 
         public static async Task ShareToTwitter(Database.NicoVideo video)

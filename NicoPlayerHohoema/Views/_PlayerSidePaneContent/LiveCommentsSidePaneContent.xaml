@@ -106,28 +106,26 @@
                     </ListView.ItemTemplate>
 
                     <ListView.ContextFlyout>
-                        <Flyout>
-                            <StackPanel>
+                        <MenuFlyout>
+                            <MenuFlyoutSubItem Text="リンクを..." Visibility="{Binding IsLink, Converter={StaticResource BooleanToVisibility}}">
+                                <MenuFlyoutItem Text="開く" 
+                                                Command="{StaticResource OpenLinkCommand}"
+                                                CommandParameter="{Binding CommentText}"
+                                                />
+                                <MenuFlyoutItem Text="コピー"
+                                                Command="{StaticResource CopyToClipboardCommand}"
+                                                CommandParameter="{Binding CommentText}"
+                                                />
+                            </MenuFlyoutSubItem>
 
-                                <TextBox Text="{Binding UserId}" IsReadOnly="True"
-                                             Header="ユーザーID"
-                                             toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
-                                         Margin="0 8"
-                                             />
-
-                                <TextBox Text="{Binding CommentText}" IsReadOnly="True"
-                                         Header="コメント"
-                                             toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
-                                         Margin="0 8"
-                                         MaxWidth="250"
-                                         TextWrapping="Wrap"
-                                             >
-
-                                </TextBox>
-
-                            </StackPanel>
-
-                        </Flyout>
+                            <MenuFlyoutSeparator Visibility="{Binding IsLink, Converter={StaticResource BooleanToVisibility}}" />
+                                                        
+                            <MenuFlyoutItem Text="このユーザーのコメントを非表示"
+                                            Command="{StaticResource NicoLiveUserIdAddToNGCommand}"
+                                            CommandParameter="{Binding UserId}"
+                                            />
+                            
+                        </MenuFlyout>
                     </ListView.ContextFlyout>
                 </ListView>
 

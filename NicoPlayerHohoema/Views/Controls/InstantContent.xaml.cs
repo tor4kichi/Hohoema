@@ -1,10 +1,12 @@
 ﻿using Microsoft.Toolkit.Uwp.UI.Animations;
+using NicoPlayerHohoema.Helpers;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Foundation;
@@ -66,14 +68,7 @@ namespace NicoPlayerHohoema.Views.Controls
             DependencyProperty.Register(nameof(DisplayDuration)
                     , typeof(TimeSpan)
                     , typeof(InstantContent)
-                    , new PropertyMetadata(TimeSpan.FromSeconds(2.5), (x, y) =>
-                    {
-                        var _this = x as InstantContent;
-                        if (y.NewValue != null && _this.IsEnabled)
-                        {
-                            _this.ResetAnimation();
-                        }
-                    }));
+                    , new PropertyMetadata(TimeSpan.FromSeconds(2.5)));
 
 
         public TimeSpan DisplayDuration
@@ -83,59 +78,91 @@ namespace NicoPlayerHohoema.Views.Controls
         }
 
 
-        AnimationSet FadeOutAnimation;
+        public static readonly DependencyProperty IsAutoHideEnabledProperty =
+           DependencyProperty.Register(nameof(IsAutoHideEnabled)
+                   , typeof(bool)
+                   , typeof(InstantContent)
+                   , new PropertyMetadata(true)
+               );
 
+
+        public bool IsAutoHideEnabled
+        {
+            get { return (bool)GetValue(IsAutoHideEnabledProperty); }
+            set { SetValue(IsAutoHideEnabledProperty, value); }
+        }
 
         public InstantContent()
         {
             this.InitializeComponent();
 
-            ResetAnimation();
-
-            this.ObserveDependencyProperty(IsEnabledProperty)
-                .Subscribe(_ => 
-                {
-                    if (this.IsEnabled)
-                    {
-                        ResetAnimation();
-                    }
-                    else
-                    {
-                        
-                    }
-                });
-            this.ObserveDependencyProperty(DisplayContentProperty)
-                .Subscribe(async _ =>
-                {
-                    if (this.IsEnabled && _IsLoaded)
-                    {
-                        if (FadeOutAnimation.State == AnimationSetState.Running)
-                        {
-                            FadeOutAnimation.Stop();
-                            ContentContainer.Opacity = 1.0;
-                            await Task.Delay(10);
-                        }
-
-                        FadeOutAnimation.StartAsync();
-                    }
-                });
-
             Loaded += InstantContent_Loaded;
+            Unloaded += InstantContent_Unloaded;
         }
 
-        bool _IsLoaded = false;
+        AsyncLock _AnimLock = new AsyncLock();
+        AnimationSet _PrevFadeAnimation;
+
+        CompositeDisposable _CompositeDisposable;
+
         private void InstantContent_Loaded(object sender, RoutedEventArgs e)
         {
-            _IsLoaded = true;
+            _CompositeDisposable = new CompositeDisposable();
+            this.ObserveDependencyProperty(IsAutoHideEnabledProperty)
+                .Subscribe(_ =>
+                {
+                    ResetAnimation();
+                })
+                .AddTo(_CompositeDisposable);
+
+            this.ObserveDependencyProperty(DisplayContentProperty)
+                .Subscribe(_ =>
+                {
+                    ResetAnimation();
+                })
+                .AddTo(_CompositeDisposable);
         }
 
-        void ResetAnimation()
+        private void InstantContent_Unloaded(object sender, RoutedEventArgs e)
         {
-            FadeOutAnimation?.Dispose();
-            FadeOutAnimation = ContentContainer.Fade(1.0f, 100)
-                .Then()
-                .Fade(0.0f, 100, DisplayDuration.TotalMilliseconds);
+            _CompositeDisposable?.Dispose();
+        }
 
+        async void ResetAnimation()
+        {            
+            using (var releaser = await _AnimLock.LockAsync())
+            {
+                if (_PrevFadeAnimation != null)
+                {
+                    var prevAnimState = _PrevFadeAnimation.State;
+                    _PrevFadeAnimation?.Dispose();
+                    if (prevAnimState == AnimationSetState.Running)
+                    {
+                        // 前アニメーションが実行中だった場合は終わるまで待機
+                        // （ここでは横着して50ms止めるだけ）
+                        await Task.Delay(50);
+                    }
+                }
+
+                if (DisplayContent != null)
+                {
+                    _PrevFadeAnimation = ContentContainer
+                            .Fade(1.0f, 100);
+
+                    if (IsAutoHideEnabled)
+                    {
+                        _PrevFadeAnimation = _PrevFadeAnimation.Then()
+                            .Fade(0.0f, 100, delay: DisplayDuration.TotalMilliseconds);
+                    }
+                }
+                else
+                {
+                    _PrevFadeAnimation = ContentContainer
+                        .Fade(0.0f, 100);
+                }
+
+                _PrevFadeAnimation?.StartAsync().ConfigureAwait(false);
+            }
         }
     }
 }

@@ -652,45 +652,232 @@
 
                     </i:Interaction.Behaviors>
 
-                    <MediaPlayerElement x:Name="mediaElem"
+                    <toolkit:DockPanel>
+
+                        <Grid toolkit:DockPanel.Dock="Top" >
+
+                            <!-- 放送者コメント -->
+                            <controls:InstantContent DisplayContent="{Binding BroadcasterLiveOperationCommand.Value, Mode=OneWay}"
+                                                     DisplayDuration="23:59:59"
+                                                     HorizontalAlignment="Stretch"
+                                                     VerticalAlignment="Stretch"
+                                                     >
+                                <controls:InstantContent.DisplayContentTemplate>
+                                    <DataTemplate>
+
+                                        <Grid>
+                                            <TextBlock Text="{Binding Content}"
+                                                   VerticalAlignment="Center"
+                                                   HorizontalAlignment="Center"
+                                                   TextWrapping="Wrap"
+                                                   MaxWidth="600"
+                                                   Style="{StaticResource TitleTextBlockStyle}"
+                                                   Margin="16"
+                                                       Visibility="{Binding Hyperlink, Converter={StaticResource NullToVisibility}}"
+                                                   >
+
+                                            </TextBlock>
+
+                                            <HyperlinkButton NavigateUri="{Binding Hyperlink}"
+                                                       Visibility="{Binding Hyperlink, Converter={StaticResource NotNullToVisibility}}"
+                                                             VerticalAlignment="Center"
+                                                           HorizontalAlignment="Center"
+                                                             BorderBrush="{ThemeResource SystemControlForegroundAccentBrush}"
+                                                             BorderThickness="0 0 0 1"
+                                                             Margin="16"
+                                                             Padding="0"
+                                                >
+                                                <TextBlock Text="{Binding Content}"
+                                                           VerticalAlignment="Center"
+                                                           HorizontalAlignment="Center"
+                                                           TextWrapping="Wrap"
+                                                           MaxWidth="600"
+                                                           Style="{StaticResource TitleTextBlockStyle}"
+                                                           
+                                                           >
+
+                                                </TextBlock>
+                                            </HyperlinkButton>
+                                        </Grid>
+                                    </DataTemplate>
+                                </controls:InstantContent.DisplayContentTemplate>
+                            </controls:InstantContent>
+                            
+                        </Grid>
+
+                        <Grid toolkit:DockPanel.Dock="Bottom" >
+
+                            <!-- 運営コメント -->
+                            <controls:InstantContent DisplayContent="{Binding OperaterLiveOperationCommand.Value, Mode=OneWay}"
+                                                     DisplayDuration="0:0:15"
+                                                     HorizontalAlignment="Stretch"
+                                                     VerticalAlignment="Stretch"
+                                                     >
+                                <controls:InstantContent.DisplayContentTemplate>
+                                    <DataTemplate>
+                                        <Grid>
+                                            <TextBlock Text="{Binding Content}"
+                                                   VerticalAlignment="Center"
+                                                   HorizontalAlignment="Center"
+                                                   TextWrapping="Wrap"
+                                                   MaxWidth="600"
+                                                   Style="{StaticResource SubtitleTextBlockStyle}"
+                                                   Margin="16"
+                                                       Visibility="{Binding Hyperlink, Converter={StaticResource NullToVisibility}}"
+                                                   >
+
+                                            </TextBlock>
+
+                                            <HyperlinkButton NavigateUri="{Binding Hyperlink}"
+                                                       Visibility="{Binding Hyperlink, Converter={StaticResource NotNullToVisibility}}"
+                                                             VerticalAlignment="Center"
+                                                           HorizontalAlignment="Center"
+                                                             BorderBrush="{ThemeResource SystemControlForegroundAccentBrush}"
+                                                             BorderThickness="0 0 0 1"
+                                                             Margin="16"
+                                                             Padding="0"
+                                                >
+                                                <TextBlock Text="{Binding Content}"
+                                                           VerticalAlignment="Center"
+                                                           HorizontalAlignment="Center"
+                                                           TextWrapping="Wrap"
+                                                           MaxWidth="600"
+                                                           Style="{StaticResource SubtitleTextBlockStyle}"
+                                                           
+                                                           >
+
+                                                </TextBlock>
+                                            </HyperlinkButton>
+                                        </Grid>
+                                    </DataTemplate>
+                                </controls:InstantContent.DisplayContentTemplate>
+                            </controls:InstantContent>
+                            
+
+                        </Grid>
+
+                        <Grid>
+
+
+                            <MediaPlayerElement x:Name="mediaElem"
                                   AutoPlay="True"
-                                  
                             >
-                        <i:Interaction.Behaviors>
+                                <i:Interaction.Behaviors>
 
-                            <mybehavior:MediaPlayerSetter MediaPlayer="{Binding MediaPlayer, Mode=OneWay}" />
-                            <mybehavior:MediaPlayerElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay}"
+                                    <mybehavior:MediaPlayerSetter MediaPlayer="{Binding MediaPlayer, Mode=OneWay}" />
+                                    <mybehavior:MediaPlayerElementContentHeightGetter ContentHeight="{Binding CommentCanvasHeight.Value, Mode=TwoWay}"
                                                                             />
-                            <!-- 再生開始時にUIを非表示に-->
-                            <!--
-                        <core:DataTriggerBehavior Binding="{Binding CurrentState.Value}" ComparisonCondition="Equal" Value="Opening">
-                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
-                        </core:DataTriggerBehavior>
-                        -->
+                                    <!-- 再生開始時にUIを非表示に-->
+                                    <!--
+                                    <core:DataTriggerBehavior Binding="{Binding CurrentState.Value}" ComparisonCondition="Equal" Value="Opening">
+                                        <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
+                                    </core:DataTriggerBehavior>
+                                    -->
 
-                            <!-- 再生停止時にUIを表示状態に切替-->
-                            <!--
-                        <core:DataTriggerBehavior Binding="{Binding CurrentState.Value}" ComparisonCondition="Equal" Value="Closed">
-                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Show" />
-                        </core:DataTriggerBehavior>
-                        -->
+                                                <!-- 再生停止時にUIを表示状態に切替-->
+                                                <!--
+                                    <core:DataTriggerBehavior Binding="{Binding CurrentState.Value}" ComparisonCondition="Equal" Value="Closed">
+                                        <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Show" />
+                                    </core:DataTriggerBehavior>
+                                    -->
 
-                            <!-- 小窓表示時にUIを非表示に-->
-                            <!--
-                        <core:DataTriggerBehavior Binding="{Binding IsSmallWindowModeEnable.Value}" ComparisonCondition="Equal" Value="True">
-                            <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
-                        </core:DataTriggerBehavior>
-                        -->
+                                                <!-- 小窓表示時にUIを非表示に-->
+                                                <!--
+                                    <core:DataTriggerBehavior Binding="{Binding IsSmallWindowModeEnable.Value}" ComparisonCondition="Equal" Value="True">
+                                        <core:CallMethodAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" MethodName="Hide" />
+                                    </core:DataTriggerBehavior>
+                                    -->
 
-                        </i:Interaction.Behaviors>
-                    </MediaPlayerElement>
+                                </i:Interaction.Behaviors>
+                            </MediaPlayerElement>
 
+                            
+                            <Grid Visibility="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
+                                <Border IsHitTestVisible="True" Background="Transparent">
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanInverted}}" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </Border>
+
+
+                            </Grid>
+
+                            <Grid toolkit:DockPanel.Dock="Bottom" >
+
+                                <!-- 記者席コメント -->
+                                <controls:InstantContent DisplayContent="{Binding PressLiveOperationCommand.Value, Mode=OneWay}"
+                                                     DisplayDuration="0:0:10"
+                                                     HorizontalAlignment="Stretch"
+                                                     VerticalAlignment="Stretch"
+                                                     >
+                                    <controls:InstantContent.DisplayContentTemplate>
+                                        <DataTemplate>
+
+                                            <toolkit:DockPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                                                               Margin="16"
+                                                               >
+
+                                                <TextBlock Text="{Binding Header}"
+                                                           toolkit:DockPanel.Dock="Top"
+                                                           Margin="0 0 0 8"
+                                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                                           Opacity="0.8"
+                                                           />
+
+                                                <Grid>
+                                                    <TextBlock Text="{Binding Content}"
+                                                               VerticalAlignment="Center"
+                                                               HorizontalAlignment="Center"
+                                                               TextWrapping="Wrap"
+                                                               MaxWidth="600"
+                                                               FontWeight="Bold"    
+                                                               Visibility="{Binding Hyperlink, Converter={StaticResource NullToVisibility}}"
+                                                            >
+
+                                                    </TextBlock>
+
+                                                    <HyperlinkButton NavigateUri="{Binding Hyperlink}"
+                                                                Visibility="{Binding Hyperlink, Converter={StaticResource NotNullToVisibility}}"
+                                                                VerticalAlignment="Center"
+                                                                HorizontalAlignment="Center"
+                                                                BorderBrush="{ThemeResource SystemControlForegroundAccentBrush}"
+                                                                BorderThickness="0 0 0 1"
+                                                                Margin="16"
+                                                                Padding="0"
+                                                            >
+                                                        <TextBlock Text="{Binding Content}"
+                                                           VerticalAlignment="Center"
+                                                           HorizontalAlignment="Center"
+                                                           TextWrapping="Wrap"
+                                                           MaxWidth="600"
+                                                           FontWeight="Bold"                                                           
+                                                           >
+
+                                                        </TextBlock>
+                                                    </HyperlinkButton>
+                                                </Grid>
+
+                                            </toolkit:DockPanel>
+                                        </DataTemplate>
+                                    </controls:InstantContent.DisplayContentTemplate>
+                                </controls:InstantContent>
+
+
+                            </Grid>
+
+
+                        </Grid>
+                        
+                    </toolkit:DockPanel>
+                    
 
                     <Grid Height="{Binding CommentCanvasHeight.Value}">
 
                         <local:CommentRendererCompositionUI
                                     x:Name="CommentRederer"
-                                    Comments="{Binding LiveComments}"
+                                    Comments="{Binding FilterdComments}"
                                     MediaPlayer="{Binding MediaPlayer, Mode=OneWay}"                                 
                                     Visibility="{Binding IsCommentDisplayEnable.Value, Converter={StaticResource BooleanToVisibility}}"
                                     CommentSizeScale="{Binding CommentFontScale.Value}"
@@ -1618,18 +1805,7 @@
 
                     </Grid>
 
-                    <Grid Visibility="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
-                        <Border IsHitTestVisible="True" Background="Transparent">
-                            <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanInverted}}" />
-                                </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
-                        </Border>
-
-
-                    </Grid>
-
+                    
                     <!-- タップバリア
                          コメントテキストを書いたあとに画面のどこかをタップしたら
                          ロストフォーカスさせるためのやつ -->

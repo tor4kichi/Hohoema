@@ -597,7 +597,7 @@ namespace NicoPlayerHohoema
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.CacheDuration = TimeSpan.FromHours(24);
 
 			// TwitterAPIの初期化
-			await TwitterHelper.Initialize();
+//			await TwitterHelper.Initialize();
 
 			await RegisterTypes();
 
@@ -682,6 +682,7 @@ namespace NicoPlayerHohoema
             Container.RegisterInstance(hohoemaApp.OtherOwneredMylistManager);
             Container.RegisterInstance(hohoemaApp.FeedManager);
             Container.RegisterInstance(hohoemaApp.CacheManager);
+            Container.RegisterInstance(hohoemaApp.UserSettings);
 
 #if DEBUG
             //			BackgroundUpdater.MaxTaskSlotCount = 1;

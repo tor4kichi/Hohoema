@@ -38,6 +38,14 @@ namespace NicoPlayerHohoema.Models.Live
     public delegate void CloseLiveEventHandler(NicoLiveVideo sender);
 
 
+    public struct OperationCommandRecievedEventArgs
+    {
+        public LiveChatData Chat { get; set; }
+
+        public string CommandType => Chat.OperatorCommandType;
+        public string[] CommandParameter => Chat.OperatorCommandParameters;
+    }
+
     public enum LivePlayerType
     {
         Aries,
@@ -72,6 +80,8 @@ namespace NicoPlayerHohoema.Models.Live
 
 		public event DetectNextLiveEventHandler NextLive;
 
+
+        public event EventHandler<OperationCommandRecievedEventArgs> OperationCommandRecieved;
 
 		/// <summary>
 		/// 生放送コンテンツID
@@ -207,9 +217,12 @@ namespace NicoPlayerHohoema.Models.Live
 
 
             LiveComments.ObserveAddChanged()
-                .Where(x => x.IsOperater)
+                .Where(x => x.IsOperater && x.HasOperatorCommand)
                 .SubscribeOnUIDispatcher()
-                .Subscribe(chat => { });
+                .Subscribe(chat => 
+                {
+                    OperationCommandRecieved?.Invoke(this, new OperationCommandRecievedEventArgs() { Chat = chat });
+                });
         }
 
 		public void Dispose()

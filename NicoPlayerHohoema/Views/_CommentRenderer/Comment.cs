@@ -61,6 +61,7 @@ namespace NicoPlayerHohoema.Views
 
 		public bool IsLoginUserComment { get; set; } = false;
 
+        public bool IsLink => Uri.IsWellFormedUriString(CommentText, UriKind.Absolute);
 
 		private bool _IsVisible = true;
 		public bool IsVisible

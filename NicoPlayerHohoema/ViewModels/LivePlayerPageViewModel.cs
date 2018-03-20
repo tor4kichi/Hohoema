@@ -34,9 +34,33 @@ using NicoPlayerHohoema.ViewModels.PlayerSidePaneContent;
 using Windows.UI.Core;
 using NicoPlayerHohoema.Services;
 using System.Collections.Concurrent;
+using Windows.UI.Xaml;
+using System.Text.RegularExpressions;
 
 namespace NicoPlayerHohoema.ViewModels
 {
+    public class LiveOperationCommand
+    {
+        public VerticalAlignment? DisplayPosition;
+        public string Header { get; set; }
+        public string Content { get; set; }
+        public Uri Hyperlink { get; set; }
+        public Color Color { get; set; }
+        private DelegateCommand _OpenHyperlinkCommand;
+        public DelegateCommand OpenHyperlinkCommand
+        {
+            get
+            {
+                return _OpenHyperlinkCommand
+                    ?? (_OpenHyperlinkCommand = new DelegateCommand(async () => 
+                    {
+                        var result = await Launcher.LaunchUriAsync(Hyperlink);
+                    }));
+            }
+        }
+    }
+
+
 	public class LivePlayerPageViewModel : HohoemaViewModelBase, IDisposable
 	{
 		
@@ -113,6 +137,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReadOnlyReactiveCollection<Views.Comment> LiveComments { get; private set; }
 
+        public ObservableCollection<LiveOperationCommand> LiveOperationCommands { get; private set; } = new ObservableCollection<LiveOperationCommand>();
+        public ReactiveProperty<LiveOperationCommand> BroadcasterLiveOperationCommand { get; }
+        public ReactiveProperty<LiveOperationCommand> OperaterLiveOperationCommand { get; }
+        public ReactiveProperty<LiveOperationCommand> PressLiveOperationCommand { get; }
+
 
         public bool IsDisplayInSecondaryView => HohoemaApp.Playlist.PlayerDisplayType == PlayerDisplayType.SecondaryView;
 
@@ -171,6 +200,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReadOnlyReactiveProperty<double> CommentOpacity { get; private set; }
 
+        
 
         // post comment
         public ReactiveProperty<string> WritingComment { get; private set; }
@@ -182,13 +212,16 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveCommand CommentSubmitCommand { get; private set; }
 
-		// operation command
+        public Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView FilterdComments { get; } = new Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView();
 
-		/// <summary>
-		/// 運営コマンドで発行される時間経過で非表示にならないテキスト
-		/// 放送のお知らせなどに利用される
-		/// </summary>
-		public ReactiveProperty<string> PermanentDisplayText { get; private set; }
+
+        // operation command
+
+        /// <summary>
+        /// 運営コマンドで発行される時間経過で非表示にならないテキスト
+        /// 放送のお知らせなどに利用される
+        /// </summary>
+        public ReactiveProperty<string> PermanentDisplayText { get; private set; }
 
 
 
@@ -214,7 +247,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         // Side Pane Content
-
         
 
         private HohoemaViewManager _HohoemaViewManager;
@@ -278,6 +310,13 @@ namespace NicoPlayerHohoema.ViewModels
                 .Select(x => x.ToOpacity())
                 .ToReadOnlyReactiveProperty(eventScheduler: PlayerWindowUIDispatcherScheduler);
 
+            FilterdComments.Filter = (x) => !(HohoemaApp.UserSettings.NGSettings.IsLiveNGComment((x as Views.Comment)?.UserId));
+            HohoemaApp.UserSettings.NGSettings.NGLiveCommentUserIds.CollectionChangedAsObservable()
+                .Subscribe(x => 
+                {
+                    FilterdComments.RefreshFilter();
+                });
+                
 
             // post comment
             WritingComment = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
@@ -315,8 +354,17 @@ namespace NicoPlayerHohoema.ViewModels
 			// operation command
 			PermanentDisplayText = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
 
+            BroadcasterLiveOperationCommand = new ReactiveProperty<LiveOperationCommand>(PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
 
-			// sound
+            OperaterLiveOperationCommand = new ReactiveProperty<LiveOperationCommand>(PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+
+            PressLiveOperationCommand = new ReactiveProperty<LiveOperationCommand>(PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+
+
+            // sound
             if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
             {
                 // プレイヤーを閉じた際のコンパクトオーバーレイの解除はPlayerWithPageContainerViewModel側で行う
@@ -770,8 +818,8 @@ namespace NicoPlayerHohoema.ViewModels
 				NowConnecting = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
 					.AddTo(_NavigatingCompositeDisposable);
 				RaisePropertyChanged(nameof(NowConnecting));
-
-				LiveComments = NicoLiveVideo.LiveComments.ToReadOnlyReactiveCollection(x =>
+                
+                LiveComments = NicoLiveVideo.LiveComments.ToReadOnlyReactiveCollection(x =>
 				{
 					var comment = new Views.LiveComment(HohoemaApp.UserSettings.NGSettings);
 
@@ -794,7 +842,7 @@ namespace NicoPlayerHohoema.ViewModels
                     comment.IsAnonimity = x.IsAnonymity;
 					comment.UserId = x.UserId;
 					comment.IsOwnerComment = x.UserId == NicoLiveVideo?.BroadcasterId;
-                    comment.IsOperationCommand = x.IsOperater;
+                    comment.IsOperationCommand = x.IsOperater && x.HasOperatorCommand;
 
                     if (!comment.IsAnonimity && TryResolveUserId(comment.UserId, out var owner))
                     {
@@ -821,7 +869,13 @@ namespace NicoPlayerHohoema.ViewModels
                     }
 
 					return comment as Views.Comment;
-				}, CurrentWindowContextScheduler);
+				}, CurrentWindowContextScheduler)
+                .AddTo(_NavigatingCompositeDisposable);
+
+
+                FilterdComments.Source = LiveComments;
+                FilterdComments.Refresh();
+                RaisePropertyChanged(nameof(FilterdComments));
 
                 // 既にコメント一覧サイドペインが生成されていた場合は、設定する
                 if (_SidePaneContentCache.TryGetValue(PlayerSidePaneContentType.Comment, out var sidePaneContent))
@@ -860,12 +914,190 @@ namespace NicoPlayerHohoema.ViewModels
 
                 NicoLiveVideo.OpenLive += NicoLiveVideo_OpenLive;
                 NicoLiveVideo.CloseLive += NicoLiveVideo_CloseLive;
-                NicoLiveVideo.FailedOpenLive += NicoLiveVideo_FailedOpenLive1; ;
-
+                NicoLiveVideo.FailedOpenLive += NicoLiveVideo_FailedOpenLive1;
+                NicoLiveVideo.OperationCommandRecieved += NicoLiveVideo_OperationCommandRecieved;
             }
 
 			base.OnNavigatedTo(e, viewModelState);
 		}
+        
+
+        private void NicoLiveVideo_OperationCommandRecieved(object sender, OperationCommandRecievedEventArgs e)
+        {
+            LiveOperationCommand operationCommand = null;
+            var vpos = TimeSpan.FromMilliseconds(e.Chat.Vpos * 10);
+            var relatedVpos = vpos - WatchStartLiveElapsedTime;
+            bool isDisplayComment = (this.LiveElapsedTime - relatedVpos) < TimeSpan.FromSeconds(10);
+            switch (e.CommandType)
+            {
+                case "perm":
+                    {
+                        var content = e.CommandParameter.ElementAtOrDefault(0)?.Trim('"');
+
+                        HtmlAgilityPack.HtmlDocument document = new HtmlAgilityPack.HtmlDocument();
+                        document.LoadHtml(content);
+
+                        var node = document.DocumentNode;
+
+                        var comment = node.InnerText;
+
+                        
+
+                        string link = null;
+                        try
+                        {
+                            link = node.Descendants("a")?.FirstOrDefault()?.Attributes["href"]?.Value;
+                        }
+                        catch { }
+
+
+                        operationCommand = new LiveOperationCommand()
+                        {
+                            DisplayPosition = VerticalAlignment.Top,
+                            Content = comment,
+                        };
+                        if (!string.IsNullOrEmpty(link))
+                        {
+                            operationCommand.Hyperlink = new Uri(link);
+                        }
+
+
+                        BroadcasterLiveOperationCommand.Value = operationCommand;
+                    }
+                    break;
+                case "press":
+                    {
+                        if (!isDisplayComment) { return; }
+
+                        var color = e.CommandParameter.ElementAtOrDefault(1);
+                        var comment = e.CommandParameter.ElementAtOrDefault(2)?.Trim('"');
+                        var screenName = e.CommandParameter.ElementAtOrDefault(3)?.Trim('"');
+                        if (!string.IsNullOrWhiteSpace(comment))
+                        {
+                            // 表示
+                            operationCommand = new LiveOperationCommand()
+                            {
+                                DisplayPosition = VerticalAlignment.Bottom,
+                                Content = comment,
+                                Header = screenName,
+                            };
+                        }
+
+                        PressLiveOperationCommand.Value = operationCommand;
+                    }
+                    break;
+                case "info":
+                    {
+                        if (!isDisplayComment) { return; }
+
+                        var type = int.Parse(e.CommandParameter.ElementAtOrDefault(0));
+                        var comment = e.CommandParameter.ElementAtOrDefault(1)?.Trim('"');
+
+                        operationCommand = new LiveOperationCommand()
+                        {
+                            DisplayPosition = VerticalAlignment.Bottom,
+                            Content = comment,
+                        };
+
+                        OperaterLiveOperationCommand.Value = operationCommand;
+                    }
+                    break;
+                case "telop":
+                    {
+                        if (!isDisplayComment) { return; }
+
+                        // プレイヤー下部に情報表示
+                        var type = e.CommandParameter.ElementAtOrDefault(0);
+                        var comment = e.CommandParameter.ElementAtOrDefault(1)?.Trim('"');
+
+                        //on ニコ生クルーズ(リンク付き)/ニコニコ実況コメント
+                        //show クルーズが到着/実況に接続
+                        //show0 実際に流れているコメント
+                        //perm ニコ生クルーズが去って行きました＜改行＞(降りた人の名前、人数)
+                        //off (プレイヤー下部のテロップを消去)
+
+                        if (type == "off")
+                        {
+                            OperaterLiveOperationCommand.Value = null;
+                        }
+                        else// if (type == "perm")
+                        {
+                            operationCommand = new LiveOperationCommand()
+                            {
+                                DisplayPosition = VerticalAlignment.Bottom,
+                                Content = comment,
+                            };
+
+                            OperaterLiveOperationCommand.Value = operationCommand;
+                        }
+                    }
+                    break;
+                case "uadpoint":
+                    {
+                        if (!isDisplayComment) { return; }
+
+                        var liveId_wo_lv = e.CommandParameter.ElementAtOrDefault(0);
+                        var adpoint = e.CommandParameter.ElementAtOrDefault(1);
+
+                        /*
+                        operationCommand = new LiveOperationCommand()
+                        {
+                            DisplayPosition = VerticalAlignment.Bottom,
+                            Content = $"広告総ポイント {adpoint}pt",
+                        };
+
+                        OperaterLiveOperationCommand.Value = operationCommand;
+                        */
+                    }
+                    break;
+                case "koukoku":
+                    {
+                        if (!isDisplayComment) { return; }
+
+                        var content = e.CommandParameter.ElementAtOrDefault(0)?.Trim('"');
+
+                        HtmlAgilityPack.HtmlDocument document = new HtmlAgilityPack.HtmlDocument();
+                        document.LoadHtml(content);
+
+                        var node = document.DocumentNode;
+
+                        var comment = node.InnerText;
+                        string link = null;
+                        try
+                        {
+                            link = node.Descendants("a")?.FirstOrDefault()?.Attributes["href"]?.Value;
+                        }
+                        catch { }
+
+                        operationCommand = new LiveOperationCommand()
+                        {
+                            DisplayPosition = VerticalAlignment.Top,
+                            Content = comment,
+                        };
+                        if (!string.IsNullOrEmpty(link))
+                        {
+                            operationCommand.Hyperlink = new Uri(link);
+                        }
+
+                    }
+                    break;
+                case "disconnect":
+                    
+                    break;
+                case "clear":
+                case "cls":
+                    BroadcasterLiveOperationCommand.Value = null;
+                    break;
+                default:
+                    Debug.WriteLine($"非対応な運コメ：{e.CommandType}");
+                    break;
+            }
+
+            if (operationCommand != null)
+            {
+                LiveOperationCommands.Add(operationCommand);
+            }
+        }
 
         private void NicoLiveVideo_FailedOpenLive1(NicoLiveVideo sender, FailedOpenLiveEventArgs args)
         {
@@ -921,9 +1153,19 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			if (!suspending)
 			{
-				NicoLiveVideo.Dispose();
-				NicoLiveVideo = null;
-			}
+                if (NicoLiveVideo != null)
+                {
+                    NicoLiveVideo.NextLive -= NicoLiveVideo_NextLive;
+
+                    NicoLiveVideo.OpenLive -= NicoLiveVideo_OpenLive;
+                    NicoLiveVideo.CloseLive -= NicoLiveVideo_CloseLive;
+                    NicoLiveVideo.FailedOpenLive -= NicoLiveVideo_FailedOpenLive1;
+                    NicoLiveVideo.OperationCommandRecieved -= NicoLiveVideo_OperationCommandRecieved;
+
+                    NicoLiveVideo.Dispose();
+                    NicoLiveVideo = null;
+                }
+            }
 
             CancelUserInfoResolvingTask();
 
@@ -1401,7 +1643,7 @@ namespace NicoPlayerHohoema.ViewModels
         private void CancelUserInfoResolvingTask()
         {
             _UserInfoResolvingTaskCancellationToken?.Cancel();
-            _UserInfoResolvingTaskCancellationToken.Dispose();
+            _UserInfoResolvingTaskCancellationToken?.Dispose();
             _UserInfoResolvingTaskCancellationToken = null;
         }
 

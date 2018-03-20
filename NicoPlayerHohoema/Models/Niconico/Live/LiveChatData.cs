@@ -24,7 +24,9 @@ namespace NicoPlayerHohoema.Models.Live
         public int? Score { get; set; }
         public bool IsYourPost { get; set; }
 
-        
+
+        public bool HasOperatorCommand => Content?.StartsWith("/") ?? false;
+
         private string _OperatorCommandType;
         public string OperatorCommandType
         {
@@ -86,12 +88,15 @@ namespace NicoPlayerHohoema.Models.Live
                         });
 
                     _OperatorCommandType = spaceConcatOperatorCommand.First().Remove(0, 1);
-                    _OperatorCommandParameters = spaceConcatOperatorCommand.Skip(1).ToArray();
-                }
-                else if (Mail.Contains("hidden"))
-                {
-                    _OperatorCommandType = "hidden";
-                    _OperatorCommandParameters = Array.Empty<string>();
+
+                    if (_OperatorCommandType == "perm")
+                    {
+                        _OperatorCommandParameters = new[] { string.Join(" ", spaceConcatOperatorCommand.Skip(1).ToArray()) };
+                    }
+                    else
+                    {
+                        _OperatorCommandParameters = spaceConcatOperatorCommand.Skip(1).ToArray();
+                    }
                 }
             }
         }

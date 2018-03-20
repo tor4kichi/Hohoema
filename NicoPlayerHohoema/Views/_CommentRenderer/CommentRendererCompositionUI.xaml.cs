@@ -1,6 +1,7 @@
 ﻿using Microsoft.Toolkit.Uwp.UI.Animations;
 using NicoPlayerHohoema.Helpers;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -201,9 +202,13 @@ namespace NicoPlayerHohoema.Views
             PrevRenderCommentEachLine_Top.Clear();
             PrevRenderCommentEachLine_Bottom.Clear();
             
+
+            if (Comments == null) { return; }
+
             // 現在時間-コメント表示時間から始まるコメントを描画待機コメントとして再配置
             var currentVideoPos = frame.CurrentVpos;
-            var comments = new List<Comment>(Comments);
+            
+            var comments = new List<Comment>(Comments.Cast<Comment>());
             comments.Sort((x, y) => (int)(x.VideoPosition - y.VideoPosition));
 
             RenderPendingComments.AddRange(comments);
@@ -1096,9 +1101,9 @@ namespace NicoPlayerHohoema.Views
         }
 
 
-        public ICollection<Comment> Comments
+        public IEnumerable Comments
         {
-            get { return (ICollection<Comment>)GetValue(CommentsProperty); }
+            get { return (IEnumerable)GetValue(CommentsProperty); }
             set { SetValue(CommentsProperty, value); }
         }
 
@@ -1106,7 +1111,7 @@ namespace NicoPlayerHohoema.Views
         // Using a DependencyProperty as the backing store for WorkItems.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty CommentsProperty =
             DependencyProperty.Register("Comments"
-                , typeof(ICollection<Comment>)
+                , typeof(IEnumerable)
                 , typeof(CommentRendererCompositionUI)
                 , new PropertyMetadata(null, OnCommentsChanged)
                 );
@@ -1115,15 +1120,60 @@ namespace NicoPlayerHohoema.Views
         {
             CommentRendererCompositionUI me = sender as CommentRendererCompositionUI;
 
-            var old = e.OldValue as INotifyCollectionChanged;
+            {
+                var old = e.OldValue as INotifyCollectionChanged;
 
-            if (old != null)
-                old.CollectionChanged -= me.OnCommentCollectionChanged;
+                if (old != null)
+                    old.CollectionChanged -= me.OnCommentCollectionChanged;
 
-            var n = e.NewValue as INotifyCollectionChanged;
+                var n = e.NewValue as INotifyCollectionChanged;
 
-            if (n != null)
-                n.CollectionChanged += me.OnCommentCollectionChanged;
+                if (n != null)
+                    n.CollectionChanged += me.OnCommentCollectionChanged;
+            }
+
+
+            {
+                var old = e.OldValue as IObservableVector<object>;
+                if (old != null)
+                {
+                    old.VectorChanged -= me.L_VectorChanged;
+                }
+
+                var l = e.NewValue as IObservableVector<object>;
+                if (l != null)
+                {
+                    l.VectorChanged += me.L_VectorChanged;
+                }
+            }
+        }
+
+        private void L_VectorChanged(IObservableVector<object> sender, IVectorChangedEventArgs @event)
+        {
+            if (@event.CollectionChange == CollectionChange.Reset)
+            {
+                // Clear and update entire collection
+                foreach (var renderComment in RenderComments)
+                {
+                    renderComment.CommentUI.Offset(0).Fade(0).SetDurationForAll(0).Start();
+                }
+
+                RenderPendingComments.Clear();
+                RenderComments.Clear();
+                CommentCanvas.Children.Clear();
+
+                PrevRenderCommentEachLine_Stream.Clear();
+                PrevRenderCommentEachLine_Top.Clear();
+                PrevRenderCommentEachLine_Bottom.Clear();
+
+                _IsNeedCommentRenderUpdated = true;
+            }
+            if (@event.CollectionChange == CollectionChange.ItemInserted)
+            {
+                var item = sender[(int)@event.Index];
+
+                AddComment(item as Comment);
+            }
         }
 
         private void OnCommentCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)

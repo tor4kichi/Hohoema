@@ -279,7 +279,37 @@ namespace NicoPlayerHohoema.Models
             }
 		}
 
-	}
+
+
+        private bool _NGLiveCommentUserEnable;
+
+        [DataMember]
+        public bool NGLiveCommentUserEnable
+        {
+            get { return _NGLiveCommentUserEnable; }
+            set { SetProperty(ref _NGLiveCommentUserEnable, value); }
+        }
+
+        [DataMember]
+        public ObservableCollection<NGUserIdInfo> NGLiveCommentUserIds { get; private set; } = new ObservableCollection<NGUserIdInfo>();
+
+        public void AddNGUserId(string userId)
+        {
+            NGLiveCommentUserIds.Add(new NGUserIdInfo()
+            {
+                UserId = userId,
+                AddedAt = DateTime.Now,
+            });
+        }
+
+        public bool IsLiveNGComment(string userId)
+        {
+            if (userId == null) { return false; }
+            return NGLiveCommentUserIds.Any(x => x.UserId == userId);
+        }
+    }
+
+
 
     [DataContract]
 	public class NGKeyword
@@ -332,6 +362,12 @@ namespace NicoPlayerHohoema.Models
 		public string UserId { get; set; }
 		public string Description { get; set; }
 	}
+
+    public class NGUserIdInfo
+    {
+        public string UserId { get; set; }
+        public DateTime AddedAt { get; set; } = DateTime.Now;
+    }
 
 	public enum NGCommentScore
 	{
