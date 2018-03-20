@@ -849,6 +849,17 @@ namespace NicoPlayerHohoema.ViewModels
                         comment.UserName = owner.ScreenName;
                         comment.IconUrl = owner.IconUrl;
                     }
+                    else
+                    {
+                        UserIdToComments.AddOrUpdate(comment.UserId
+                            , (key) => new List<Views.LiveComment>() { comment }
+                            , (key, list) =>
+                            {
+                                list.Add(comment);
+                                return list;
+                            }
+                        );
+                    }
 
                     try
 					{
@@ -859,13 +870,6 @@ namespace NicoPlayerHohoema.ViewModels
                     if (!string.IsNullOrEmpty(x.Mail))
                     {
                         comment.ApplyCommands(x.Mail.Split(' '));
-                    }
-
-
-                    // コテハン登録
-                    if (comment.CommentText.StartsWith("＠"))
-                    {
-                        Views.LiveComment.AddOrUpdateKotehan(comment.UserId, comment.CommentText.Remove(0, 1));
                     }
 
 					return comment as Views.Comment;
@@ -916,12 +920,12 @@ namespace NicoPlayerHohoema.ViewModels
                 NicoLiveVideo.CloseLive += NicoLiveVideo_CloseLive;
                 NicoLiveVideo.FailedOpenLive += NicoLiveVideo_FailedOpenLive1;
                 NicoLiveVideo.OperationCommandRecieved += NicoLiveVideo_OperationCommandRecieved;
+
             }
 
 			base.OnNavigatedTo(e, viewModelState);
 		}
         
-
         private void NicoLiveVideo_OperationCommandRecieved(object sender, OperationCommandRecievedEventArgs e)
         {
             LiveOperationCommand operationCommand = null;
@@ -1120,6 +1124,26 @@ namespace NicoPlayerHohoema.ViewModels
 		{
             IsDisplayControlUI.Value = true;
 
+            try
+            {
+                var liveInfo = await HohoemaApp.NiconicoContext.Live.GetLiveVideoInfoAsync(LiveId);
+                if (liveInfo != null && liveInfo.IsOK)
+                {
+                    LiveTitle = liveInfo.VideoInfo.Video.Title;
+                    Title = LiveTitle;
+
+                    _StartAt = liveInfo.VideoInfo.Video.StartTime.Value;
+                    _EndAt = liveInfo.VideoInfo.Video.EndTime.Value;
+
+                    WatchStartLiveElapsedTime = (DateTime.Now - liveInfo.VideoInfo.Video.OpenTime.Value);
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
+
+
             ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
 			
 			await base.NavigatedToAsync(cancelToken, e, viewModelState);
@@ -1131,7 +1155,10 @@ namespace NicoPlayerHohoema.ViewModels
         {
             try
             {
-                await TryStartViewing();
+                using (var defer = FilterdComments.DeferRefresh())
+                {
+                    await TryStartViewing();
+                }
 
                 cancelToken.ThrowIfCancellationRequested();
             }
@@ -1211,20 +1238,14 @@ namespace NicoPlayerHohoema.ViewModels
                     LivePlayerType.Value = NicoLiveVideo.LivePlayerType;
 
                     RaisePropertyChanged(nameof(MediaPlayer));
-					_StartAt = NicoLiveVideo.PlayerStatusResponse.Program.StartedAt;
-					_EndAt = NicoLiveVideo.PlayerStatusResponse.Program.EndedAt;
-
-                    WatchStartLiveElapsedTime = (DateTime.Now - NicoLiveVideo.PlayerStatusResponse.Program.OpenedAt);
 
                     await StartLiveElapsedTimer();
 
-					LiveTitle = NicoLiveVideo.LiveTitle;
-                    Title = LiveTitle;
                     CommunityId = NicoLiveVideo.BroadcasterCommunityId;
 
 					// seet
-					RoomName = NicoLiveVideo.PlayerStatusResponse.Room.Name;
-					SeetId = NicoLiveVideo.PlayerStatusResponse.Room.SeatId;
+					//RoomName = NicoLiveVideo.PlayerStatusResponse.Room.Name;
+					//SeetId = NicoLiveVideo.PlayerStatusResponse.Room.SeatId;
 
 					RaisePropertyChanged(nameof(NicoLiveVideo));
 
@@ -1309,8 +1330,8 @@ namespace NicoPlayerHohoema.ViewModels
 				NowUpdating.Value = false;
 			}
 
-			// コメント送信中にコメントクライアント切断した場合に対応
-			NowSubmittingComment.Value = false;
+            // コメント送信中にコメントクライアント切断した場合に対応
+            NowSubmittingComment.Value = false;
 		}
 
         private void PlaybackSession_PlaybackStateChanged(MediaPlaybackSession sender, object args)
@@ -1350,7 +1371,6 @@ namespace NicoPlayerHohoema.ViewModels
 			try
 			{
 				NowUpdating.Value = true;
-
 
 				liveStatus = await NicoLiveVideo.UpdateLiveStatus();
 

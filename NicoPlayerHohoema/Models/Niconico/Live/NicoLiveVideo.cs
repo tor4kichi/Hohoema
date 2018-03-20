@@ -1,6 +1,7 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Live;
 using Mntone.Nico2.Live.PlayerStatus;
+using Mntone.Nico2.Live.Video;
 using Mntone.Nico2.Videos.Comment;
 using NicoPlayerHohoema.Helpers;
 using NicoVideoRtmpClient;
@@ -71,15 +72,10 @@ namespace NicoPlayerHohoema.Models.Live
         public MediaPlayer MediaPlayer { get; }
 
         public event OpenLiveEventHandler OpenLive;
-
         public event CloseLiveEventHandler CloseLive;
-
         public event FailedOpenLiveEventHandler FailedOpenLive;
-
         public event CommentPostedEventHandler PostCommentResult;
-
 		public event DetectNextLiveEventHandler NextLive;
-
 
         public event EventHandler<OperationCommandRecievedEventArgs> OperationCommandRecieved;
 
@@ -97,6 +93,9 @@ namespace NicoPlayerHohoema.Models.Live
 		/// </summary>
 		public PlayerStatusResponse PlayerStatusResponse { get; private set; }
 
+
+
+        public NicoliveVideoInfoResponse LiveInfo { get;private set; }
 
 		private MediaStreamSource _VideoStreamSource;
 		private AsyncLock _VideoStreamSrouceAssignLock = new AsyncLock();
@@ -245,9 +244,9 @@ namespace NicoPlayerHohoema.Models.Live
 
 			try
 			{
-				PlayerStatusResponse = await HohoemaApp.NiconicoContext.Live.GetPlayerStatusAsync(LiveId);
+                PlayerStatusResponse = await HohoemaApp.NiconicoContext.Live.GetPlayerStatusAsync(LiveId);
 
-				_CommunityId = PlayerStatusResponse.Program.CommunityId;
+                _CommunityId = PlayerStatusResponse.Program.CommunityId;
 
 				Debug.WriteLine(PlayerStatusResponse.Stream.RtmpUrl);
 				Debug.WriteLine(PlayerStatusResponse.Stream.Contents.Count);
@@ -317,10 +316,6 @@ namespace NicoPlayerHohoema.Models.Live
                 await Task.Delay(TimeSpan.FromSeconds(1));
             }
 
-            LiveStatusType = await UpdateLiveStatus();
-
-            await Task.Delay(500);
-
             Mntone.Nico2.Live.Watch.Crescendo.CrescendoLeoProps leoPlayerProps = null;
             try
             {
@@ -362,10 +357,18 @@ namespace NicoPlayerHohoema.Models.Live
 
                 await StartLiveSubscribe();
 
+                await Task.Delay(500);
+
+                LiveStatusType = await UpdateLiveStatus();
+
                 return LiveStatusType;
             }
             else
             {
+                await Task.Delay(500);
+
+                LiveStatusType = await UpdateLiveStatus();
+
                 if (PlayerStatusResponse != null && LiveStatusType == null)
                 {
                     LivePlayerType = Live.LivePlayerType.Aries;
@@ -669,7 +672,6 @@ namespace NicoPlayerHohoema.Models.Live
 		public async Task StartEnsureOpenRtmpConnection()
 		{
 			if (PlayerStatusResponse == null) { return; }
-
 
 			using (var releaser = await _EnsureStartLiveTimerLock.LockAsync())
 			{
