@@ -486,30 +486,33 @@ namespace NicoPlayerHohoema.Models
 
         public async Task<NicoVideoOwner> GetUser(string userId)
         {
-            var userRes = await ConnectionRetryUtil.TaskWithRetry(() =>
+            using (var releaser = await _NicoPageAccessLock.LockAsync())
             {
-                return Context.User.GetUserAsync(userId);
-            });
-
-            var owner = NicoVideoOwnerDb.Get(userId);
-            if (userRes.Status == "ok")
-            {
-                var user = userRes.User;
-                if (owner == null)
+                var userRes = await ConnectionRetryUtil.TaskWithRetry(() =>
                 {
-                    owner = new NicoVideoOwner()
+                    return Context.User.GetUserAsync(userId);
+                });
+
+                var owner = NicoVideoOwnerDb.Get(userId);
+                if (userRes.Status == "ok")
+                {
+                    var user = userRes.User;
+                    if (owner == null)
                     {
-                        OwnerId = userId,
-                        UserType = UserType.User
-                    };
+                        owner = new NicoVideoOwner()
+                        {
+                            OwnerId = userId,
+                            UserType = UserType.User
+                        };
+                    }
+                    owner.ScreenName = user.Nickname;
+                    owner.IconUrl = user.ThumbnailUrl;
+
+                    NicoVideoOwnerDb.AddOrUpdate(owner);
                 }
-                owner.ScreenName = user.Nickname;
-                owner.IconUrl = user.ThumbnailUrl;
 
-                NicoVideoOwnerDb.AddOrUpdate(owner);
+                return owner;
             }
-
-            return owner;
         }
 
 

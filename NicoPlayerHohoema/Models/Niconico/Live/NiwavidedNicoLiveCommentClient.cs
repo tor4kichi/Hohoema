@@ -40,6 +40,8 @@ namespace NicoPlayerHohoema.Models.Live.Niwavided
 
         HttpClient _HttpClient;
 
+
+
         public NiwavidedNicoLiveCommentClient(string messageServerUrl, string threadId, string userId, HttpClient httpClient)
         {
             CommentSessionInfo = new CommentSessionInfo()
@@ -86,85 +88,85 @@ namespace NicoPlayerHohoema.Models.Live.Niwavided
                     recievedText = reader.ReadToEnd();
                     Debug.WriteLine($"<CommentSession Message> {args.MessageType}: {recievedText}");
                 }
-            }
 
-            var jsonObject = (JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(recievedText);
+                var jsonObject = (JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(recievedText);
 
-            if (jsonObject.TryGetValue("chat", out var chatJson))
-            {
-                var chat = chatJson.ToObject<Mntone.Nico2.Videos.Comment.NMSG_Chat>();
-
-                var liveChatData = new LiveChatData()
+                if (jsonObject.TryGetValue("chat", out var chatJson))
                 {
-                    Thread = chat.Thread,
-                    No = chat.No,
-                    Content = chat.Content,
-                    Date = chat.Date,
-                    DateUsec = chat.DateUsec,
-                    IsAnonymity = chat.Anonymity == 1,
-                    __Premium = chat.Premium,
-                    IsYourPost = chat.Yourpost == 1,
-                    Mail = chat.Mail,
-                    Score = chat.Score,
-                    UserId = chat.UserId,
-                    Vpos = chat.Vpos
-                };
+                    var chat = chatJson.ToObject<Mntone.Nico2.Videos.Comment.NMSG_Chat>();
 
-                CommentRecieved?.Invoke(this,  new CommentRecievedEventArgs()
-                {
-                    Chat = liveChatData
-                });
-            }
-            else if (jsonObject.TryGetValue("chat_result", out var chatResultJson))
-            {
-                var chatResult = chatResultJson.ToObject<Mntone.Nico2.Videos.Comment.Chat_result>();
-                CommentPosted?.Invoke(this, new CommentPostedEventArgs()
-                {
-                    Thread = chatResult.Thread,
-                    ChatResult = chatResult.Status,
-                    No = chatResult.No
-                });
+                    var liveChatData = new LiveChatData()
+                    {
+                        Thread = chat.Thread,
+                        No = chat.No,
+                        Content = chat.Content,
+                        Date = chat.Date,
+                        DateUsec = chat.DateUsec,
+                        IsAnonymity = chat.Anonymity == 1,
+                        __Premium = chat.Premium,
+                        IsYourPost = chat.Yourpost == 1,
+                        Mail = chat.Mail,
+                        Score = chat.Score,
+                        UserId = chat.UserId,
+                        Vpos = chat.Vpos
+                    };
 
-            }
-            else if (jsonObject.TryGetValue("thread", out var threadJson))
-            {
-                var thread = threadJson.ToObject<Mntone.Nico2.Videos.Comment.NGMS_Thread_Response>();
-                _Thread = thread;
-
-                //
-                // コメントの受信開始を受け取ってからハートビートを開始する
-                // 
-                StartHeartbeatTimer();
-
-                Connected?.Invoke(this, new CommentServerConnectedEventArgs()
-                {
-                    LastRes = thread.LastRes,
-                    Resultcode = thread.Resultcode,
-                    Revision = thread.Revision,
-                    ServerTime = thread.ServerTime,
-                    Thread = thread.Thread,
-                    Ticket = thread.Ticket,
-                });
-            }
-            else if (jsonObject.TryGetValue("ping", out var pingJson))
-            {
-                var ping = pingJson.ToObject<Mntone.Nico2.Videos.Comment.Ping>();
-
-                // {"ping":{"content":"rs:1"}}
-	            // { "ping":{ "content":"ps:5"} }
-                // {"chat_result":{...}}
-                // {"chat":{...}} 
-                // { "ping":{ "content":"pf:5"} }
-	            // { "ping":{ "content":"rf:1"} }
-
-                if (ping.Content.StartsWith("pf"))
-                {
-                    _MessageSendCount += 1;
+                    CommentRecieved?.Invoke(this, new CommentRecievedEventArgs()
+                    {
+                        Chat = liveChatData
+                    });
                 }
-            }
-            else
-            {
-                Debug.WriteLine("Not Support");
+                else if (jsonObject.TryGetValue("chat_result", out var chatResultJson))
+                {
+                    var chatResult = chatResultJson.ToObject<Mntone.Nico2.Videos.Comment.Chat_result>();
+                    CommentPosted?.Invoke(this, new CommentPostedEventArgs()
+                    {
+                        Thread = chatResult.Thread,
+                        ChatResult = chatResult.Status,
+                        No = chatResult.No
+                    });
+
+                }
+                else if (jsonObject.TryGetValue("thread", out var threadJson))
+                {
+                    var thread = threadJson.ToObject<Mntone.Nico2.Videos.Comment.NGMS_Thread_Response>();
+                    _Thread = thread;
+
+                    //
+                    // コメントの受信開始を受け取ってからハートビートを開始する
+                    // 
+                    StartHeartbeatTimer();
+
+                    Connected?.Invoke(this, new CommentServerConnectedEventArgs()
+                    {
+                        LastRes = thread.LastRes,
+                        Resultcode = thread.Resultcode,
+                        Revision = thread.Revision,
+                        ServerTime = thread.ServerTime,
+                        Thread = thread.Thread,
+                        Ticket = thread.Ticket,
+                    });
+                }
+                else if (jsonObject.TryGetValue("ping", out var pingJson))
+                {
+                    var ping = pingJson.ToObject<Mntone.Nico2.Videos.Comment.Ping>();
+
+                    // {"ping":{"content":"rs:1"}}
+                    // { "ping":{ "content":"ps:5"} }
+                    // {"chat_result":{...}}
+                    // {"chat":{...}} 
+                    // { "ping":{ "content":"pf:5"} }
+                    // { "ping":{ "content":"rf:1"} }
+
+                    if (ping.Content.StartsWith("pf"))
+                    {
+                        _MessageSendCount += 1;
+                    }
+                }
+                else
+                {
+                    Debug.WriteLine("Not Support");
+                }
             }
         }
 
@@ -238,6 +240,7 @@ namespace NicoPlayerHohoema.Models.Live.Niwavided
 
         private int _MessageSendCount = 0;
 
+        const uint FirstGetRecentMessageCount = 100;
 
         /// <summary>
         /// Niwavided コメントサーバーへのスレッド受信を開始するためのメッセージを送信
@@ -247,7 +250,7 @@ namespace NicoPlayerHohoema.Models.Live.Niwavided
         {
             var info = this.CommentSessionInfo;
             return SendNiwavidedMessage(
-                $"{{\"thread\":{{\"thread\":\"{info.ThreadId}\",\"version\":\"20061206\",\"fork\":0,\"user_id\":\"{info.UserId}\",\"res_from\":-1000,\"with_global\":1,\"scores\":1,\"nicoru\":0}}}}"
+                $"{{\"thread\":{{\"thread\":\"{info.ThreadId}\",\"version\":\"20061206\",\"fork\":0,\"user_id\":\"{info.UserId}\",\"res_from\":-{FirstGetRecentMessageCount},\"with_global\":1,\"scores\":1,\"nicoru\":0}}}}"
                 );
             
         }

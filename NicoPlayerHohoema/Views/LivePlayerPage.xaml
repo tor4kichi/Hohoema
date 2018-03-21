@@ -1331,14 +1331,22 @@
                                                 </TextBlock>
                                             </StackPanel>
 
-                                            <TextBlock VerticalAlignment="Center"
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock VerticalAlignment="Center"
                                                 Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"                                                
+                                                       Visibility="{Binding RoomName, Converter={StaticResource NotNullToVisibility}}"
                                                >
                                                 <Run Text="{Binding RoomName}" />
-                                                <Run Text="-" />
-                                                <Run Text="{Binding SeetId}" />
-                                                <Run Text="番" />
-                                            </TextBlock>
+                                                </TextBlock>
+
+                                                <TextBlock VerticalAlignment="Center"
+                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"                                                
+                                                       Visibility="{Binding SeetId, Converter={StaticResource NotNullToVisibility}}"
+                                               >
+                                                <Run Text=" - " /><Run Text="{Binding SeetId}" />番
+                                                </TextBlock>
+
+                                            </StackPanel>
                                         </StackPanel>
 
                                         <Border />
