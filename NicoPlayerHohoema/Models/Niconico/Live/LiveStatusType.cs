@@ -8,10 +8,12 @@ namespace NicoPlayerHohoema.Models.Live
 {
 	public enum LiveStatusType
 	{
-		NotFound,
-		Closed,
+        Unknown,
+        NotFound,
 		ComingSoon,
-		Maintenance,
+        OnAir,
+        Closed,
+        Maintenance,
 		CommunityMemberOnly,
 		Full,
 		PremiumOnly,

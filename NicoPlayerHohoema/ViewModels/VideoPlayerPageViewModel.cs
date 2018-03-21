@@ -427,7 +427,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .Select(x => x.All(y => y))
                 .ToReadOnlyReactiveProperty(eventScheduler: CurrentWindowContextScheduler);
 
-            SeekVideoCommand = NowCanSeek.ToReactiveCommand<TimeSpan?>();
+            SeekVideoCommand = NowCanSeek.ToReactiveCommand<TimeSpan?>(scheduler: CurrentWindowContextScheduler);
             SeekVideoCommand.Subscribe(time => 
             {
                 if (!time.HasValue) { return; }

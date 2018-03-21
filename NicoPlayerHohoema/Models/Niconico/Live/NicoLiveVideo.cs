@@ -144,8 +144,8 @@ namespace NicoPlayerHohoema.Models.Live
 			private set { SetProperty(ref _WatchCount, value); }
 		}
 
-        private LiveStatusType? _LiveStatusType;
-        public LiveStatusType? LiveStatusType
+        private LiveStatusType _LiveStatusType;
+        public LiveStatusType LiveStatusType
         {
             get { return _LiveStatusType; }
             private set { SetProperty(ref _LiveStatusType, value); }
@@ -240,16 +240,18 @@ namespace NicoPlayerHohoema.Models.Live
             Live2WebSocket = null;
         }
 
-		public async Task<LiveStatusType?> UpdateLiveStatus()
+		public async Task UpdateLiveStatus()
 		{
-			LiveStatusType = null;
+			LiveStatusType = LiveStatusType.Unknown;
 
 			try
 			{
                 PlayerStatusResponse = await HohoemaApp.NiconicoContext.Live.GetPlayerStatusAsync(LiveId);
 
-				Debug.WriteLine(PlayerStatusResponse.Stream.RtmpUrl);
-				Debug.WriteLine(PlayerStatusResponse.Stream.Contents.Count);
+                if (PlayerStatusResponse.Program.IsLive)
+                {
+                    LiveStatusType = Live.LiveStatusType.OnAir;
+                }
             }
 			catch (Exception ex)
 			{
@@ -296,7 +298,7 @@ namespace NicoPlayerHohoema.Models.Live
                 }
 			}
 
-			if (LiveStatusType != null)
+			if (LiveStatusType != LiveStatusType.OnAir)
 			{
 				await EndLiveSubscribe();
 			}
@@ -312,11 +314,9 @@ namespace NicoPlayerHohoema.Models.Live
                 BroadcasterCommunityImageUri = PlayerStatusResponse.Program.CommunityImageUrl;
                 BroadcasterCommunityId = PlayerStatusResponse.Program.CommunityId;
             }
-
-			return LiveStatusType;
 		}
 
-		public async Task<LiveStatusType?> SetupLive()
+		public async Task StartLiveWatchingSessionAsync()
 		{
             if (PlayerStatusResponse != null)
             {
@@ -326,6 +326,8 @@ namespace NicoPlayerHohoema.Models.Live
 
                 await Task.Delay(TimeSpan.FromSeconds(1));
             }
+
+            await UpdateLiveStatus();
 
             Mntone.Nico2.Live.Watch.Crescendo.CrescendoLeoProps leoPlayerProps = null;
             try
@@ -340,7 +342,7 @@ namespace NicoPlayerHohoema.Models.Live
                     Message = "サービスからの応答がありません"
                 });
 
-                return Live.LiveStatusType.ServiceTemporarilyUnavailable;
+                LiveStatusType = Live.LiveStatusType.ServiceTemporarilyUnavailable;
             }
 
             if (leoPlayerProps != null)
@@ -367,21 +369,18 @@ namespace NicoPlayerHohoema.Models.Live
                 }
 
                 await StartLiveSubscribe();
-
-                //                await Task.Delay(500);
-
-                LiveStatusType = await UpdateLiveStatus();
-
-                return LiveStatusType;
             }
             else
             {
-                await Task.Delay(500);
+//                await Task.Delay(500);
 
-                LiveStatusType = await UpdateLiveStatus();
+//                await UpdateLiveStatus();
 
-                if (PlayerStatusResponse != null && LiveStatusType == null)
+                if (PlayerStatusResponse != null && LiveStatusType == LiveStatusType.OnAir)
                 {
+                    Debug.WriteLine(PlayerStatusResponse.Stream.RtmpUrl);
+                    Debug.WriteLine(PlayerStatusResponse.Stream.Contents.Count);
+
                     LivePlayerType = Live.LivePlayerType.Aries;
 
                     await StartEnsureOpenRtmpConnection();
@@ -391,8 +390,6 @@ namespace NicoPlayerHohoema.Models.Live
                     // 旧プレイヤーの場合のみ、古いコメントクライアントでコメント受信
                     await StartCommentClientConnection();
                 }
-
-                return LiveStatusType;
             }
 		}
 
@@ -412,7 +409,7 @@ namespace NicoPlayerHohoema.Models.Live
 		/// HeartbeatAPIへの定期アクセスの停止、及びLeaveAPIへのアクセス
 		/// </summary>
 		/// <returns></returns>
-		public async Task EndLiveSubscribe()
+		private async Task EndLiveSubscribe()
 		{
 			using (var releaser = await _LiveSubscribeLock.LockAsync())
 			{
@@ -501,8 +498,11 @@ namespace NicoPlayerHohoema.Models.Live
 
                 if (_IsFirstRecieveCurrentStream)
                 {
-                    await RefreshLeoPlayer();
                     _IsFirstRecieveCurrentStream = false;
+                }
+                else
+                {
+                    await RefreshLeoPlayer();
                 }
 
                 OpenLive?.Invoke(this);
@@ -602,7 +602,7 @@ namespace NicoPlayerHohoema.Models.Live
 
                 _NicoLiveCommentClient.Open();
 
-                await Task.Delay(200);
+                await Task.Delay(500);
 
                 await RefreshLeoPlayer();
             }
@@ -654,7 +654,9 @@ namespace NicoPlayerHohoema.Models.Live
 		{
 			if (PlayerStatusResponse == null)
 			{
-				if (await UpdateLiveStatus() != null)
+                await UpdateLiveStatus();
+
+                if (LiveStatusType != LiveStatusType.OnAir)
 				{
 					return;
 				}

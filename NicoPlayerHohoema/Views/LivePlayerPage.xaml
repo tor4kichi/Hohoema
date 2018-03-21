@@ -177,6 +177,30 @@
                 </VisualState>
             </VisualStateGroup>
 
+            <!-- リフレッシュボタン -->
+            <VisualStateGroup>
+
+                <!-- 再生中 -->
+                <!-- 一時停止ボタン -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding NowPlaying.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PauseButton.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+                
+                <!-- ストリームの再開 -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding CanRefresh.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="RefreshButton.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
 
 
             <!-- キーボード入力によるコメント書き込みショートカットの有効・無効 -->
@@ -1309,18 +1333,17 @@
                                                         HorizontalAlignment="Right"
                                                         Visibility="{Binding CurrentQuality.Value, Converter={StaticResource NotNullToVisibility}}"
                                                 >
-                                                <TextBlock Text=""
-                                               x:Name="PlayerTypeTextBlock"
-                                               Margin="0 0"
-                                               VerticalAlignment="Center"
-                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                               />
+                                                <TextBlock x:Name="PlayerTypeTextBlock"
+                                                           Margin="0 0"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                           />
 
                                                 <TextBlock VerticalAlignment="Center"
                                                    Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                    x:Name="LeoLiveQualityTextBlock"
                                                    >
-                                            (<Run Text="{Binding CurrentQuality.Value, Converter={StaticResource ToLocalText}}" />)
+                                                    (<Run Text="{Binding CurrentQuality.Value, Converter={StaticResource ToLocalText}}" />)
                                                 </TextBlock>
 
                                                 <TextBlock Visibility="{Binding IsLowLatency.Value, Converter={StaticResource BooleanToVisibility}}"
@@ -1333,17 +1356,17 @@
 
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock VerticalAlignment="Center"
-                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"                                                
-                                                       Visibility="{Binding RoomName, Converter={StaticResource NotNullToVisibility}}"
-                                               >
-                                                <Run Text="{Binding RoomName}" />
+                                                            Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"                                                
+                                                            Visibility="{Binding RoomName, Converter={StaticResource NotNullToVisibility}}"
+                                                    >
+                                                    <Run Text="{Binding RoomName}" />
                                                 </TextBlock>
 
                                                 <TextBlock VerticalAlignment="Center"
-                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"                                                
-                                                       Visibility="{Binding SeetId, Converter={StaticResource NotNullToVisibility}}"
-                                               >
-                                                <Run Text=" - " /><Run Text="{Binding SeetId}" />番
+                                                            Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"                                                
+                                                            Visibility="{Binding SeetId, Converter={StaticResource NotNullToVisibility}}"
+                                                     >
+                                                    <Run Text=" - " /><Run Text="{Binding SeetId}" />番
                                                 </TextBlock>
 
                                             </StackPanel>
@@ -1483,15 +1506,24 @@
 
                                         <!-- 更新 -->
                                         <Button x:Name="RefreshButton"
-                                              Command="{Binding UpdateCommand}"
+                                              Command="{Binding RefreshCommand}"
                                               VerticalAlignment="Stretch"
-                                              IsEnabled="{Binding NowUpdating.Value, Converter={StaticResource BooleanInverted}}"
                                               UseSystemFocusVisuals="True"
                                               Background="Transparent"
+                                                Visibility="Collapsed"
                                               >
                                             <SymbolIcon Symbol="Refresh" />
                                         </Button>
 
+                                        <Button x:Name="PauseButton"
+                                              Command="{Binding PauseCommand}"
+                                              VerticalAlignment="Stretch"
+                                              UseSystemFocusVisuals="True"
+                                              Background="Transparent"
+                                                Visibility="Collapsed"
+                                              >
+                                            <iconPack:PackIconMaterial Kind="Pause" Width="24" Height="24" />
+                                        </Button>
 
 
                                     </StackPanel>
