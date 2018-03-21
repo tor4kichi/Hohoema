@@ -1165,7 +1165,7 @@ namespace NicoPlayerHohoema.Models.Live
 						NextLiveSubscribe,
 						null,
 						TimeSpan.FromSeconds(3),
-						TimeSpan.FromSeconds(10)
+						TimeSpan.FromSeconds(5)
 						);
 					NextLiveSubscribeStartTime = DateTime.Now;
 				}
@@ -1207,7 +1207,6 @@ namespace NicoPlayerHohoema.Models.Live
 
 				}
 
-
 				if (isDone)
 				{
 					Debug.WriteLine("exit detect next live. (success with operation comment) : " + NextLiveId);
@@ -1218,30 +1217,29 @@ namespace NicoPlayerHohoema.Models.Live
 				// コミュニティページを取得して、放送中のLiveIdを取得する
 				try
 				{
-					var commuDetail = await HohoemaApp.ContentProvider.GetCommunityDetail(BroadcasterCommunityId);
+					var res = await HohoemaApp.NiconicoContext.Live.GetLiveCommunityVideoAsync(BroadcasterCommunityId);
 
-					// this.LiveIdと異なるLiveIdが一つだけの場合はそのIDを次の枠として処理
-					var liveIds = commuDetail.CommunitySammary.CommunityDetail.CurrentLiveList.Select(x => x.LiveId);
-					foreach (var nextLiveId in liveIds)
-					{
-						if (nextLiveId != LiveId)
-						{
-							using (var releaser = await _NextLiveSubscriveLock.LockAsync())
-							{
-								NextLiveId = nextLiveId;
+                    if (res.IsOK && res.Count > 0)
+                    {
+                        foreach (var live in res.VideoInfo)
+                        {
+                            if (live.Video.Id != LiveId)
+                            {
+                                var nextLiveId = live.Video.Id;
+                                using (var releaser = await _NextLiveSubscriveLock.LockAsync())
+                                {
+                                    NextLiveId = nextLiveId;
 
-								PermanentDisplayText = "*次枠を検出しました → " + NextLiveId;
+                                    NextLive?.Invoke(this, NextLiveId);
+                                    Debug.WriteLine("exit detect next live. (success) : " + NextLiveId);
 
-								NextLive?.Invoke(this, NextLiveId);
-								Debug.WriteLine("exit detect next live. (success) : " + NextLiveId);
+                                    isDone = true;
+                                }
 
-
-								isDone = true;
-							}
-
-							break;
-						}
-					}
+                                break;
+                            }
+                        }
+                    }
 				}
 				catch
 				{
