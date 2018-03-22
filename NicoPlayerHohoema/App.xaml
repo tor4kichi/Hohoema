@@ -25,6 +25,8 @@
                 <ResourceDictionary Source="Views/Controls/FloatContentContainer/FloatContentContainer.xaml"/>
                 <ResourceDictionary Source="Views/Controls/IncrementalLoadingList/IncrementalLoadingList.xaml"/>
                 <ResourceDictionary Source="Views/Controls/MasterDetailsView/MasterDetailsView.xaml"/>
+                <ResourceDictionary Source="Views/Controls/TransientContainer/TransientContainer.xaml"/>
+
 
                 <ResourceDictionary Source="Commands/Commands.xaml" />
             </ResourceDictionary.MergedDictionaries>

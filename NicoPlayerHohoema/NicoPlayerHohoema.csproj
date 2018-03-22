@@ -452,6 +452,8 @@
     <Compile Include="Views\ChannelVideoPage.xaml.cs">
       <DependentUpon>ChannelVideoPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\TransientContainer\TransientContainer.cs" />
+    <Compile Include="Views\Controls\TransientContainer\TransientContainer.Properties.cs" />
     <Compile Include="Views\Converters\PageTypeToMaterialIconKind.cs" />
     <Compile Include="Views\Converters\SwipeSeekValueToTimeSpan.cs" />
     <Compile Include="Views\Converters\ToKMGTPEZYConverter.cs" />
@@ -484,9 +486,6 @@
     <Compile Include="Views\_CommentRenderer\CommentRendererHelper.cs" />
     <Compile Include="Views\Flyouts\FeedGroupListItemFlyout.xaml.cs">
       <DependentUpon>FeedGroupListItemFlyout.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Controls\InstantContent.xaml.cs">
-      <DependentUpon>InstantContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\ListingWithHeader.xaml.cs">
       <DependentUpon>ListingWithHeader.xaml</DependentUpon>
@@ -846,6 +845,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Controls\TransientContainer\TransientContainer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Flyouts\FeedSourceFlyout.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -926,10 +929,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Page>
-    <Page Include="Views\Controls\InstantContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Controls\ListingWithHeader.xaml">
       <SubType>Designer</SubType>

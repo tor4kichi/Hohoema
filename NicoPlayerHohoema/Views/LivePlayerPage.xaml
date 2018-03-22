@@ -539,6 +539,9 @@
                         <myTrigger:CompactOverlayViewModeTrigger />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
+                        <Setter Target="BroadcasterPermanentCommentLayout.Padding" Value="2" />
+                        <Setter Target="OperaterAnnounceCommentLayout.Padding" Value="2" />
+
                     </VisualState.Setters>
                 </VisualState>
                 
@@ -547,9 +550,6 @@
                         <StateTrigger IsActive="{Binding IsSmallWindowModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="BroadcasterPermanentCommentLayout.Margin" Value="4" />
-                        <Setter Target="OperaterAnnounceCommentLayout.Margin" Value="4" />
-                        
                     </VisualState.Setters>
                 </VisualState>
 
@@ -691,17 +691,17 @@
                         <Grid toolkit:DockPanel.Dock="Top" >
 
                             <!-- 放送者コメント -->
-                            <controls:InstantContent x:Name="BroadcasterPermanentCommentLayout"
-                                    DisplayContent="{Binding BroadcasterLiveOperationCommand.Value, Mode=OneWay}"
+                            <controls:TransientContainer x:Name="BroadcasterPermanentCommentLayout"
+                                                Content="{Binding BroadcasterLiveOperationCommand.Value, Mode=OneWay}"
                                                      DisplayDuration="23:59:59"
                                                      HorizontalAlignment="Stretch"
                                                      VerticalAlignment="Stretch"
-                                                     Margin="16"
+                                                    Padding="16"
                                                      >
-                                <controls:InstantContent.DisplayContentTemplate>
+                                <controls:TransientContainer.ContentTemplate>
                                     <DataTemplate>
 
-                                        <Grid>
+                                        <Grid >
                                             <TextBlock Text="{Binding Content}"
                                                    VerticalAlignment="Center"
                                                    HorizontalAlignment="Center"
@@ -735,24 +735,24 @@
                                             </HyperlinkButton>
                                         </Grid>
                                     </DataTemplate>
-                                </controls:InstantContent.DisplayContentTemplate>
-                            </controls:InstantContent>
+                                </controls:TransientContainer.ContentTemplate>
+                            </controls:TransientContainer>
                             
                         </Grid>
 
                         <Grid toolkit:DockPanel.Dock="Bottom" >
 
                             <!-- 運営コメント -->
-                            <controls:InstantContent x:Name="OperaterAnnounceCommentLayout"
-                                DisplayContent="{Binding OperaterLiveOperationCommand.Value, Mode=OneWay}"
+                            <controls:TransientContainer x:Name="OperaterAnnounceCommentLayout"
+                                Content="{Binding OperaterLiveOperationCommand.Value, Mode=OneWay}"
                                                      DisplayDuration="0:0:15"
                                                      HorizontalAlignment="Stretch"
                                                      VerticalAlignment="Stretch"
-                                                     Margin="16"
+                                                     Padding="16"
                                                      >
-                                <controls:InstantContent.DisplayContentTemplate>
+                                <controls:TransientContainer.ContentTemplate>
                                     <DataTemplate>
-                                        <Grid>
+                                        <Grid >
                                             <TextBlock Text="{Binding Content}"
                                                    VerticalAlignment="Center"
                                                    HorizontalAlignment="Center"
@@ -786,8 +786,8 @@
                                             </HyperlinkButton>
                                         </Grid>
                                     </DataTemplate>
-                                </controls:InstantContent.DisplayContentTemplate>
-                            </controls:InstantContent>
+                                </controls:TransientContainer.ContentTemplate>
+                            </controls:TransientContainer>
                             
 
                         </Grid>
@@ -843,13 +843,13 @@
                             <Grid toolkit:DockPanel.Dock="Bottom" >
 
                                 <!-- 記者席コメント -->
-                                <controls:InstantContent x:Name="OperationPressCommentLayout"
-                                    DisplayContent="{Binding PressLiveOperationCommand.Value, Mode=OneWay}"
+                                <controls:TransientContainer x:Name="OperationPressCommentLayout"
+                                                     Content="{Binding PressLiveOperationCommand.Value, Mode=OneWay}"
                                                      DisplayDuration="0:0:10"
                                                      HorizontalAlignment="Stretch"
                                                      VerticalAlignment="Stretch"
                                                      >
-                                    <controls:InstantContent.DisplayContentTemplate>
+                                    <controls:TransientContainer.ContentTemplate>
                                         <DataTemplate>
 
                                             <toolkit:DockPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
@@ -898,8 +898,8 @@
 
                                             </toolkit:DockPanel>
                                         </DataTemplate>
-                                    </controls:InstantContent.DisplayContentTemplate>
-                                </controls:InstantContent>
+                                    </controls:TransientContainer.ContentTemplate>
+                                </controls:TransientContainer>
 
 
                             </Grid>
@@ -960,15 +960,15 @@
 
 
                     <!-- 音量表示 -->
-                    <controls:InstantContent DisplayContent="{Binding SoundVolume.Value, Mode=OneWay}"
+                    <controls:TransientContainer Content="{Binding SoundVolume.Value, Mode=OneWay}"
                                                  HorizontalAlignment="Left"
                                                  VerticalAlignment="Top"
                                                  Margin="16"
                                                  >
-                        <controls:InstantContent.Background>
+                        <controls:TransientContainer.Background>
                             <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}" />
-                        </controls:InstantContent.Background>
-                        <controls:InstantContent.DisplayContentTemplate>
+                        </controls:TransientContainer.Background>
+                        <controls:TransientContainer.ContentTemplate>
                             <DataTemplate>
                                 <Grid Margin="16 2 16 4">
                                     <Border>
@@ -979,8 +979,8 @@
                                     </Border>
                                 </Grid>
                             </DataTemplate>
-                        </controls:InstantContent.DisplayContentTemplate>
-                    </controls:InstantContent>
+                        </controls:TransientContainer.ContentTemplate>
+                    </controls:TransientContainer>
 
                     <Grid x:Name="ControlUIRoot" >
 

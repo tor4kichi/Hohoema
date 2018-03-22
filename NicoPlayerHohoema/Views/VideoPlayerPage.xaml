@@ -1042,15 +1042,15 @@
 
                         <StackPanel>
                             <!-- 音量表示 -->
-                            <controls:InstantContent DisplayContent="{Binding SoundVolume.Value, Mode=OneWay}"
+                            <controls:TransientContainer Content="{Binding SoundVolume.Value, Mode=OneWay}"
                                                  HorizontalAlignment="Left"
                                                  VerticalAlignment="Top"
                                                  Margin="16"
                                                  >
-                                <controls:InstantContent.Background>
+                                <controls:TransientContainer.Background>
                                     <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}" />
-                                </controls:InstantContent.Background>
-                                <controls:InstantContent.DisplayContentTemplate>
+                                </controls:TransientContainer.Background>
+                                <controls:TransientContainer.ContentTemplate>
                                     <DataTemplate>
                                         <Grid Margin="16 2 16 4">
                                             <Border>
@@ -1061,20 +1061,20 @@
                                             </Border>
                                         </Grid>
                                     </DataTemplate>
-                                </controls:InstantContent.DisplayContentTemplate>
-                            </controls:InstantContent>
+                                </controls:TransientContainer.ContentTemplate>
+                            </controls:TransientContainer>
 
                             <!-- 音量表示 -->
-                            <controls:InstantContent DisplayContent="{x:Bind SeekSwipe.SwipeAmount, Mode=OneWay}"
+                            <controls:TransientContainer Content="{x:Bind SeekSwipe.SwipeAmount, Mode=OneWay}"
                                                  HorizontalAlignment="Center"
                                                  VerticalAlignment="Center"
                                                  Margin="16"
                                                      DisplayDuration="0:0:3"
                                                  >
-                                <controls:InstantContent.Background>
+                                <controls:TransientContainer.Background>
                                     <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}" />
-                                </controls:InstantContent.Background>
-                                <controls:InstantContent.DisplayContentTemplate>
+                                </controls:TransientContainer.Background>
+                                <controls:TransientContainer.ContentTemplate>
                                     <DataTemplate>
                                         <Grid Margin="16 2 16 4">
                                             <Border>
@@ -1084,8 +1084,8 @@
                                             </Border>
                                         </Grid>
                                     </DataTemplate>
-                                </controls:InstantContent.DisplayContentTemplate>
-                            </controls:InstantContent>
+                                </controls:TransientContainer.ContentTemplate>
+                            </controls:TransientContainer>
                         </StackPanel>
                         
 
