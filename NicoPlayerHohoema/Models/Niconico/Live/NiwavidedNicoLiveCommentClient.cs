@@ -24,6 +24,8 @@ namespace NicoPlayerHohoema.Models.Live.Niwavided
 
     public sealed class NiwavidedNicoLiveCommentClient : INicoLiveCommentClient, IDisposable
     {
+        const uint FirstGetRecentMessageCount = 1000;
+
         MessageWebSocket _CommentSessionWebSocket { get; }
         DataWriter _DataWriter;
         Helpers.AsyncLock _CommentSessionLock = new Helpers.AsyncLock();
@@ -239,8 +241,6 @@ namespace NicoPlayerHohoema.Models.Live.Niwavided
         }
 
         private int _MessageSendCount = 0;
-
-        const uint FirstGetRecentMessageCount = 100;
 
         /// <summary>
         /// Niwavided コメントサーバーへのスレッド受信を開始するためのメッセージを送信
