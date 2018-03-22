@@ -318,6 +318,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .Select(x => x.ToOpacity())
                 .ToReadOnlyReactiveProperty(eventScheduler: PlayerWindowUIDispatcherScheduler);
 
+            FilterdComments.SortDescriptions.Add(new Microsoft.Toolkit.Uwp.UI.SortDescription(nameof(Views.Comment.VideoPosition), Microsoft.Toolkit.Uwp.UI.SortDirection.Ascending));
             FilterdComments.Filter = (x) => !(HohoemaApp.UserSettings.NGSettings.IsLiveNGComment((x as Views.Comment)?.UserId));
             HohoemaApp.UserSettings.NGSettings.NGLiveCommentUserIds.CollectionChangedAsObservable()
                 .Subscribe(x => 
@@ -1638,7 +1639,7 @@ namespace NicoPlayerHohoema.ViewModels
                         sidePaneContent = new PlayerSidePaneContent.PlaylistSidePaneContentViewModel(MediaPlayer, HohoemaApp.Playlist, HohoemaApp.UserSettings.PlaylistSettings, PageManager);
                         break;
                     case PlayerSidePaneContentType.Comment:
-                        sidePaneContent = new PlayerSidePaneContent.LiveCommentSidePaneContentViewModel(HohoemaApp.UserSettings, LiveComments);
+                        sidePaneContent = new PlayerSidePaneContent.LiveCommentSidePaneContentViewModel(HohoemaApp.UserSettings, FilterdComments);
                         break;
                     case PlayerSidePaneContentType.Setting:
                         sidePaneContent = new PlayerSidePaneContent.SettingsSidePaneContentViewModel(HohoemaApp.UserSettings);
@@ -1695,7 +1696,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         private async void UpdateCommentUserName(Database.NicoVideoOwner user)
         {
-
             //using (var releaser = await )
             {
                 if (UserIdToComments.TryGetValue(user.OwnerId, out var comments))
@@ -1711,6 +1711,8 @@ namespace NicoPlayerHohoema.ViewModels
                 }
             }
         }
+
+
         CancellationTokenSource _UserInfoResolvingTaskCancellationToken;
         Task CommentUserInfoResolvingAsync()
         {

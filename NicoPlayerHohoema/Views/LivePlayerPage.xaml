@@ -532,7 +532,7 @@
                 </VisualState>
             </VisualStateGroup>
 
-
+            <!-- コメントリスト サイドペイン -->
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
@@ -541,8 +541,18 @@
                     <VisualState.Setters>
                     </VisualState.Setters>
                 </VisualState>
-
                 
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsSmallWindowModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="BroadcasterPermanentCommentLayout.Margin" Value="4" />
+                        <Setter Target="OperaterAnnounceCommentLayout.Margin" Value="4" />
+                        
+                    </VisualState.Setters>
+                </VisualState>
+
                 <VisualState>
                     <VisualState.StateTriggers>
                         <myTrigger:EqualConditionStateTrigger Condition="Comment" Value="{Binding CurrentSidePaneContentType.Value}" />
@@ -681,10 +691,12 @@
                         <Grid toolkit:DockPanel.Dock="Top" >
 
                             <!-- 放送者コメント -->
-                            <controls:InstantContent DisplayContent="{Binding BroadcasterLiveOperationCommand.Value, Mode=OneWay}"
+                            <controls:InstantContent x:Name="BroadcasterPermanentCommentLayout"
+                                    DisplayContent="{Binding BroadcasterLiveOperationCommand.Value, Mode=OneWay}"
                                                      DisplayDuration="23:59:59"
                                                      HorizontalAlignment="Stretch"
                                                      VerticalAlignment="Stretch"
+                                                     Margin="16"
                                                      >
                                 <controls:InstantContent.DisplayContentTemplate>
                                     <DataTemplate>
@@ -696,7 +708,6 @@
                                                    TextWrapping="Wrap"
                                                    MaxWidth="600"
                                                    Style="{StaticResource TitleTextBlockStyle}"
-                                                   Margin="16"
                                                        Visibility="{Binding Hyperlink, Converter={StaticResource NullToVisibility}}"
                                                    >
 
@@ -732,10 +743,12 @@
                         <Grid toolkit:DockPanel.Dock="Bottom" >
 
                             <!-- 運営コメント -->
-                            <controls:InstantContent DisplayContent="{Binding OperaterLiveOperationCommand.Value, Mode=OneWay}"
+                            <controls:InstantContent x:Name="OperaterAnnounceCommentLayout"
+                                DisplayContent="{Binding OperaterLiveOperationCommand.Value, Mode=OneWay}"
                                                      DisplayDuration="0:0:15"
                                                      HorizontalAlignment="Stretch"
                                                      VerticalAlignment="Stretch"
+                                                     Margin="16"
                                                      >
                                 <controls:InstantContent.DisplayContentTemplate>
                                     <DataTemplate>
@@ -746,7 +759,6 @@
                                                    TextWrapping="Wrap"
                                                    MaxWidth="600"
                                                    Style="{StaticResource SubtitleTextBlockStyle}"
-                                                   Margin="16"
                                                        Visibility="{Binding Hyperlink, Converter={StaticResource NullToVisibility}}"
                                                    >
 
@@ -831,7 +843,8 @@
                             <Grid toolkit:DockPanel.Dock="Bottom" >
 
                                 <!-- 記者席コメント -->
-                                <controls:InstantContent DisplayContent="{Binding PressLiveOperationCommand.Value, Mode=OneWay}"
+                                <controls:InstantContent x:Name="OperationPressCommentLayout"
+                                    DisplayContent="{Binding PressLiveOperationCommand.Value, Mode=OneWay}"
                                                      DisplayDuration="0:0:10"
                                                      HorizontalAlignment="Stretch"
                                                      VerticalAlignment="Stretch"

@@ -181,6 +181,7 @@
     <Compile Include="Commands\FeedGroupUpdateCommand.cs" />
     <Compile Include="Commands\HohoemaCommnadHelper.cs" />
     <Compile Include="Commands\NicoLiveUserIdAddToNGCommand.cs" />
+    <Compile Include="Commands\NicoLiveUserIdRemoveFromNGCommand.cs" />
     <Compile Include="Commands\OpenBroadcasterInfoCommand.cs" />
     <Compile Include="Commands\OpenContentCommand.cs" />
     <Compile Include="Commands\OpenFeedSourceCommand.cs" />

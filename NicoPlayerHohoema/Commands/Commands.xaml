@@ -14,6 +14,7 @@
     <local:FeedGroupUpdateCommand x:Key="FeedGroupUpdateCommand" />
 
     <local:NicoLiveUserIdAddToNGCommand x:Key="NicoLiveUserIdAddToNGCommand" />
+    <local:NicoLiveUserIdRemoveFromNGCommand x:Key="NicoLiveUserIdRemoveFromNGCommand" />
 
     <local:OpenBroadcasterInfoCommand x:Key="OpenBroadcasterInfoCommand" />
     <local:OpenContentCommand x:Key="OpenContentCommand" />

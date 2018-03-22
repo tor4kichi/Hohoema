@@ -1,15 +1,10 @@
 ﻿using NicoPlayerHohoema.Models;
 using Prism.Commands;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.Commands
 {
-    public sealed class NicoLiveUserIdAddToNGCommand : DelegateCommandBase
+    public sealed class NicoLiveUserIdRemoveFromNGCommand : DelegateCommandBase
     {
         protected override bool CanExecute(object parameter)
         {
@@ -20,10 +15,7 @@ namespace NicoPlayerHohoema.Commands
         {
             var userSettings = App.Current.Container.Resolve<HohoemaUserSettings>();
 
-            var userId = parameter as string;
-            var screenName = Database.NicoVideoOwnerDb.Get(userId)?.ScreenName;
-
-            userSettings.NGSettings.AddNGLiveCommentUserId(userId, screenName);
+            userSettings.NGSettings.RemoveNGLiveCommentUserId(parameter as string);
         }
     }
 }

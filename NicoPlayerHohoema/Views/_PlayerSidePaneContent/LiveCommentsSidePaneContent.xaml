@@ -14,7 +14,7 @@
     xmlns:intractionTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInteractionTriggers"
     xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
-    
+    xmlns:uwpUiExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
@@ -57,79 +57,137 @@
 
         <toolkit:DockPanel x:Name="LayoutRoot">
 
-            <Grid>
+            <Pivot>
+                <Pivot.ItemContainerStyle>
+                    <Style TargetType="PivotItem">
+                        <Setter Property="Padding" Value="0" />
+                        <Setter Property="Margin" Value="0" />
+                    </Style>
+                </Pivot.ItemContainerStyle>
+                <PivotItem Header="コメント">
+                    <Grid>
 
-                <TextBlock Text="まだコメントがないようです"
+                        <!--
+                        <TextBlock Text="まだコメントがないようです"
                            Style="{StaticResource SubtitleTextBlockStyle}"
                            Opacity="0.7"
                            Margin="8 0"
                            Visibility="{Binding Comments, Mode=OneWay, Converter={StaticResource EmptyCollectionVisibilityConverter}}"
                            />
+                        -->
 
-                <ListView ItemsSource="{Binding Comments}"
-                  x:Name="CommentListView"
-                  >
-                    <i:Interaction.Behaviors>
-                        <mybehavior:ListViewBaseItemContextFlyout />
-                    </i:Interaction.Behaviors>
-                    
-                    <ListView.ItemContainerStyle>
-                        <Style TargetType="ListViewItem">
-                            <Setter Property="HorizontalAlignment" Value="Stretch" />
-                            <Setter Property="Padding" Value="8 8"/>
-                        </Style>
-                    </ListView.ItemContainerStyle>
-                    <ListView.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <ItemsStackPanel VerticalAlignment="Bottom"
+                        <ListView ItemsSource="{Binding Comments}"
+                              x:Name="CommentListView"
+                              >
+                            <i:Interaction.Behaviors>
+                                <mybehavior:ListViewBaseItemContextFlyout />
+                            </i:Interaction.Behaviors>
+
+                            <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                    <Setter Property="HorizontalAlignment" Value="Stretch" />
+                                    <Setter Property="Padding" Value="8 8"/>
+                                </Style>
+                            </ListView.ItemContainerStyle>
+                            <ListView.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <ItemsStackPanel VerticalAlignment="Bottom"
                                      ItemsUpdatingScrollMode="KeepLastItemInView"
                         />
-                        </ItemsPanelTemplate>
-                    </ListView.ItemsPanel>
+                                </ItemsPanelTemplate>
+                            </ListView.ItemsPanel>
 
-                    <ListView.ItemTemplate>
-                        <DataTemplate>
-                            <Grid>
-                                <TextBlock TextWrapping="Wrap"
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid>
+                                        <TextBlock TextWrapping="Wrap"
                                    Visibility="{Binding UserName, Mode=OneWay, Converter={StaticResource NotNullToVisibility}}"
                                    >
                                     <Run Text="{Binding UserName}" Foreground="Gray" /><Run Text="：" Foreground="Gray" /><Run Text="{Binding CommentText}" />
-                                </TextBlock>
+                                        </TextBlock>
 
-                                <TextBlock TextWrapping="Wrap"
+                                        <TextBlock TextWrapping="Wrap"
                                    Visibility="{Binding UserName, Mode=OneWay, Converter={StaticResource NullToVisibility}}"
                                    >
                                     <Run Text="{Binding CommentText}" />
-                                </TextBlock>
-                            </Grid>
-                        </DataTemplate>
-                    </ListView.ItemTemplate>
+                                        </TextBlock>
+                                    </Grid>
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
 
-                    <ListView.ContextFlyout>
-                        <MenuFlyout>
-                            <MenuFlyoutSubItem Text="リンクを..." Visibility="{Binding IsLink, Converter={StaticResource BooleanToVisibility}}">
-                                <MenuFlyoutItem Text="開く" 
+                            <ListView.ContextFlyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutSubItem Text="リンクを..." Visibility="{Binding IsLink, Converter={StaticResource BooleanToVisibility}}">
+                                        <MenuFlyoutItem Text="開く" 
                                                 Command="{StaticResource OpenLinkCommand}"
                                                 CommandParameter="{Binding CommentText}"
                                                 />
-                                <MenuFlyoutItem Text="コピー"
+                                        <MenuFlyoutItem Text="コピー"
                                                 Command="{StaticResource CopyToClipboardCommand}"
                                                 CommandParameter="{Binding CommentText}"
                                                 />
-                            </MenuFlyoutSubItem>
+                                    </MenuFlyoutSubItem>
 
-                            <MenuFlyoutSeparator Visibility="{Binding IsLink, Converter={StaticResource BooleanToVisibility}}" />
-                                                        
-                            <MenuFlyoutItem Text="このユーザーのコメントを非表示"
+                                    <MenuFlyoutSeparator Visibility="{Binding IsLink, Converter={StaticResource BooleanToVisibility}}" />
+
+                                    <MenuFlyoutItem Text="このユーザーのコメントを非表示"
                                             Command="{StaticResource NicoLiveUserIdAddToNGCommand}"
                                             CommandParameter="{Binding UserId}"
                                             />
-                            
-                        </MenuFlyout>
-                    </ListView.ContextFlyout>
-                </ListView>
 
-            </Grid>
+                                </MenuFlyout>
+                            </ListView.ContextFlyout>
+                        </ListView>
+
+                    </Grid>
+                </PivotItem>
+
+                <PivotItem Header="設定" >
+                    <ScrollViewer>
+                        <StackPanel>
+
+                            <StackPanel x:Name="NGLiveCommentUserIdsLayout">
+                                <ListView ItemsSource="{Binding NGUsers}"
+                                          >
+                                    <i:Interaction.Behaviors>
+                                        <mybehavior:ListViewBaseItemContextFlyout />
+                                    </i:Interaction.Behaviors>
+                                    
+                                    <ListView.Header>
+                                        <Grid Margin="8 0 8 8">
+                                            <TextBlock Text="コメント非表示のユーザーID" />
+                                        </Grid>
+                                    </ListView.Header>
+
+                                    <ListView.ItemTemplate>
+                                        <DataTemplate>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding ScreenName}" />
+                                                <TextBlock Text="{Binding UserId}"
+                                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                                           />
+                                            </StackPanel>
+                                            
+                                        </DataTemplate>
+                                    </ListView.ItemTemplate>
+
+                                    <ListView.ContextFlyout>
+                                        <MenuFlyout>
+                                            <MenuFlyoutItem Text="非表示を解除" 
+                                                            Command="{StaticResource NicoLiveUserIdRemoveFromNGCommand}"
+                                                            CommandParameter="{Binding UserId}"
+                                                            />
+                                        </MenuFlyout>
+                                    </ListView.ContextFlyout>
+                                </ListView>
+                            </StackPanel>
+                            
+                        </StackPanel>
+                    </ScrollViewer>
+                </PivotItem>
+            </Pivot>
+            
+            
             
         </toolkit:DockPanel>
         
