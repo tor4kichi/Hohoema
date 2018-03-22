@@ -248,7 +248,7 @@
                             <ListView ItemsSource="{Binding VideoInfoItems}"
                                       x:Name="UserVideosLayout"
                                           IsTabStop="False"
-                                          uwpui:ListViewBase.Command="{Binding PlayUserVideoCommand}"
+                                          uwpui:ListViewBase.Command="{StaticResource OpenContentCommand}"
                                           SelectionMode="None"
                                           IsItemClickEnabled="True"
                                         ScrollViewer.VerticalScrollMode="Disabled"
