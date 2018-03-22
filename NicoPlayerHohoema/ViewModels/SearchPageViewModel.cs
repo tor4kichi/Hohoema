@@ -36,8 +36,11 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<string> SearchText { get; private set; }
 		public List<SearchTarget> TargetListItems { get; private set; }
 		public ReactiveProperty<SearchTarget> SelectedTarget { get; private set; }
-		
-		public Dictionary<SearchTarget, SearchOptionViewModelBase> SearchOptionVMDict { get; private set; }
+
+        private static SearchTarget _LastSelectedTarget;
+        private static string _LastKeyword;
+
+        public Dictionary<SearchTarget, SearchOptionViewModelBase> SearchOptionVMDict { get; private set; }
 		public ReactiveProperty<SearchOptionViewModelBase> SearchOptionVM { get; private set; }
 
 		public bool IsSearchKeyword => RequireSearchOption is KeywordSearchPagePayloadContent;
@@ -50,7 +53,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public bool IsSearchNiconama => RequireSearchOption is LiveSearchPagePayloadContent;
 
-
+        
         public ObservableCollection<SearchHistoryListItem> SearchHistoryItems { get; private set; } = new ObservableCollection<SearchHistoryListItem>();
 
         private void RaiseSearchTargetFlags()
@@ -78,7 +81,7 @@ namespace NicoPlayerHohoema.ViewModels
                 HistoryKeyword.Add(item.Keyword);
             }
             
-			SearchText = new ReactiveProperty<string>("")
+			SearchText = new ReactiveProperty<string>(_LastKeyword)
 				.AddTo(_CompositeDisposable);
 
 			TargetListItems = new List<SearchTarget>()
@@ -90,7 +93,7 @@ namespace NicoPlayerHohoema.ViewModels
 				SearchTarget.Community,
 			};
 
-			SelectedTarget = new ReactiveProperty<SearchTarget>(TargetListItems[0])
+			SelectedTarget = new ReactiveProperty<SearchTarget>(_LastSelectedTarget)
 				.AddTo(_CompositeDisposable);
 
 			SearchOptionVM = new ReactiveProperty<SearchOptionViewModelBase>();
@@ -243,7 +246,14 @@ namespace NicoPlayerHohoema.ViewModels
 			// ContentVM側のページタイトルが後で呼び出されるように、SearchPage側を先に呼び出す
 			base.OnNavigatedTo(e, viewModelState);
         }
-	}
+
+        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+        {
+            _LastSelectedTarget = SelectedTarget.Value;
+            _LastKeyword = SearchText.Value;
+            base.OnNavigatingFrom(e, viewModelState, suspending);
+        }
+    }
 
 
 
