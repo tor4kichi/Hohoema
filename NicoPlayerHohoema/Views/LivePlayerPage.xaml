@@ -188,6 +188,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="PauseButton.Visibility" Value="Visible" />
+                        <Setter Target="CO_PauseButton.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
                 
@@ -198,6 +199,8 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="RefreshButton.Visibility" Value="Visible" />
+                        <Setter Target="CO_RefreshButton.Visibility" Value="Visible" />
+                        
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -534,6 +537,7 @@
 
             <!-- コメントリスト サイドペイン -->
             <VisualStateGroup>
+                
                 <VisualState>
                     <VisualState.StateTriggers>
                         <myTrigger:CompactOverlayViewModeTrigger />
@@ -553,6 +557,18 @@
                     </VisualState.Setters>
                 </VisualState>
 
+                <!-- ウィンドウサイズが520pxより小さい場合は
+                     サイドペイン DisplayMode = Overlay -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <uiTrigger:WindowWidthTrigger Condition="800" ConditionModifier="{StaticResource LessThanEqualToModifier}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PlayerSplitView.DisplayMode" Value="Overlay" />
+                    </VisualState.Setters>
+                </VisualState>
+
+
                 <VisualState>
                     <VisualState.StateTriggers>
                         <myTrigger:EqualConditionStateTrigger Condition="Comment" Value="{Binding CurrentSidePaneContentType.Value}" />
@@ -561,6 +577,8 @@
                         <Setter Target="PlayerSplitView.DisplayMode" Value="Inline" />
                     </VisualState.Setters>
                 </VisualState>
+                
+
             </VisualStateGroup>
 
         </VisualStateManager.VisualStateGroups>
@@ -576,6 +594,7 @@
             <SplitView PanePlacement="Right"
                            x:Name="PlayerSplitView"
                            IsTabStop="False"
+                       DisplayMode="Overlay"
                                >
 
                 <i:Interaction.Behaviors>
@@ -1788,18 +1807,27 @@
                                         <StackPanel Orientation="Horizontal"
                                                     Grid.Column="1"
                                                     >
-
-
                                             <!-- 更新 -->
                                             <Button x:Name="CO_RefreshButton"
-                                              Command="{Binding UpdateCommand}"
+                                              Command="{Binding RefreshCommand}"
                                               VerticalAlignment="Stretch"
-                                              IsEnabled="{Binding NowUpdating.Value, Converter={StaticResource BooleanInverted}}"
                                               UseSystemFocusVisuals="True"
-                                                Background="Transparent"
+                                              Background="Transparent"
+                                                Visibility="Collapsed"
                                               >
                                                 <SymbolIcon Symbol="Refresh" />
                                             </Button>
+
+                                            <Button x:Name="CO_PauseButton"
+                                              Command="{Binding PauseCommand}"
+                                              VerticalAlignment="Stretch"
+                                              UseSystemFocusVisuals="True"
+                                              Background="Transparent"
+                                                Visibility="Collapsed"
+                                              >
+                                                <iconPack:PackIconMaterial Kind="Pause" Width="24" Height="24" />
+                                            </Button>
+
 
                                         </StackPanel>
 
