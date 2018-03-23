@@ -587,6 +587,15 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 MediaPlayer.Source = null;
             });
+
+
+            CurrentState.Where(x => x == MediaElementState.Playing)
+                .SubscribeOnUIDispatcher()
+                .Subscribe(_ =>
+                {
+                    IsDisplayControlUI.Value = false;
+                })
+                .AddTo(_CompositeDisposable);
         }
 
 
@@ -1335,11 +1344,6 @@ namespace NicoPlayerHohoema.ViewModels
                             RoomName = NicoLiveVideo.PlayerStatusResponse.Room.Name;
                             SeetId = NicoLiveVideo.PlayerStatusResponse.Room.SeatId;
                         }
-                    }
-
-                    if (!Helpers.InputCapabilityHelper.IsMouseCapable)
-                    {
-                        IsDisplayControlUI.Value = false;
                     }
                 }
                 else
