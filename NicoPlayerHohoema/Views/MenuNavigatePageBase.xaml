@@ -58,10 +58,41 @@
                            VerticalAlignment="Center"
                            FontSize="15"
                            />
+                </StackPanel>
+            </DataTemplate>
+
+
+            <DataTemplate x:Key="PinMenuItemTemplate">
+                <StackPanel Orientation="Horizontal" Opacity="0.85"
+                        Margin="16 0 0 0"
+                        >
+
+                    <iconPack:PackIconMaterial Kind="{Binding PageType, Converter={StaticResource PageTypeToMaterialIconKind}}" 
+                                               Width="16"
+                                               Height="16"
+                                               VerticalAlignment="Center"
+                                               Opacity="0.7"
+                                               />
+
+                    <Border Height="4" Width="16" />
+
+                    <TextBlock Text="{Binding Label}"
+                           VerticalAlignment="Center"
+                           FontSize="15"
+                           />
+
+                    <Border Height="4" Width="8" />
+
+                    <TextBlock Style="{StaticResource CaptionTextBlockStyle}"
+                               VerticalAlignment="Center"
+                               >
+                        (<Run Text="{Binding PageType, Converter={StaticResource ToLocalText}}" />)
+                    </TextBlock>
 
                 </StackPanel>
             </DataTemplate>
 
+            
 
             <DataTemplate x:Key="SingleMenuItemTemplate">
                 <ListView uwpui:ListViewBase.Command="{StaticResource OpenHohoemaPageCommand}"
@@ -562,7 +593,7 @@
                                             </toolkit:DockPanel>
 
                                             <ListView ItemsSource="{Binding PinItems}"
-                                                        ItemTemplate="{StaticResource MenuItemTemplate}"
+                                                        ItemTemplate="{StaticResource PinMenuItemTemplate}"
                                                         uwpui:ListViewBase.Command="{StaticResource OpenHohoemaPageCommand}"
                                                         IsItemClickEnabled="True"
                                                         SelectionMode="None"
