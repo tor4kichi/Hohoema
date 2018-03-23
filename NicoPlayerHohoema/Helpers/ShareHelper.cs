@@ -8,7 +8,6 @@ using Microsoft.Practices.Unity;
 using Windows.ApplicationModel.DataTransfer;
 using NicoPlayerHohoema.Models.Live;
 using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Models.Db;
 
 namespace NicoPlayerHohoema.Helpers
 {

@@ -32,7 +32,6 @@ using Prism.Windows.AppModel;
 using Prism.Windows.Mvvm;
 //using BackgroundAudioShared;
 using Windows.Media;
-using NicoPlayerHohoema.Models.Db;
 using Windows.Storage;
 using System.Text;
 using NicoPlayerHohoema.Helpers;
@@ -96,18 +95,6 @@ namespace NicoPlayerHohoema
             this.RequiresPointerMode = Windows.UI.Xaml.ApplicationRequiresPointerMode.WhenRequested;
 
             RequestedTheme = GetTheme();
-
-
-            // ローカルDBのEntityFrameworkからLiteDBへの移行処理
-            // 0.13あたりまで残しておく予定
-            try
-            {
-                MigrationToLiteDBHelper.Migrate();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.ToString());
-            }
 
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.CacheDuration = TimeSpan.FromDays(7);
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.MaxMemoryCacheCount = 200;
@@ -588,10 +575,6 @@ namespace NicoPlayerHohoema
                     appView.TitleBar.ButtonHoverForegroundColor = Colors.Black;
                 }
             }
-
-            await Models.Db.NicoVideoDbContext.InitializeAsync();
-			await Models.Db.HistoryDbContext.InitializeAsync();
-            await Models.Db.PlayHistoryDbContext.InitializeAsync();
 
 
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.CacheDuration = TimeSpan.FromHours(24);

@@ -5,7 +5,6 @@ using Mntone.Nico2.Searches.Video;
 using Mntone.Nico2.Videos.Ranking;
 using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Models.Db;
 using NicoPlayerHohoema.Helpers;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -135,7 +134,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
             else
             {
-                if (VideoPlayHistoryDb.Get(RawVideoId).PlayCount > 0)
+                if (Database.VideoPlayedHistoryDb.IsVideoPlayed(RawVideoId))
                 {
                     // 視聴済み
                     ThemeColor = Windows.UI.Colors.Transparent;

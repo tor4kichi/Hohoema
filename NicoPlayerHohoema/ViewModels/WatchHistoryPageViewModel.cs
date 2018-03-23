@@ -15,6 +15,7 @@ using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Collections.Async;
 
 namespace NicoPlayerHohoema.ViewModels
 {

@@ -14,7 +14,6 @@ using Mntone.Nico2.Videos.Histories;
 using Mntone.Nico2.Videos.Ranking;
 using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
-using NicoPlayerHohoema.Models.Db;
 using NicoPlayerHohoema.Helpers;
 using Prism.Mvvm;
 using System;

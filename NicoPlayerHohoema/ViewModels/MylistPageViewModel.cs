@@ -23,9 +23,9 @@ using Microsoft.Practices.Unity;
 using Windows.UI;
 using Mntone.Nico2.Live.PlayerStatus;
 using System.Runtime.InteropServices.WindowsRuntime;
-using NicoPlayerHohoema.Models.Db;
 using Windows.UI.Popups;
 using NicoPlayerHohoema.Dialogs;
+using System.Collections.Async;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -579,17 +579,15 @@ namespace NicoPlayerHohoema.ViewModels
 
                     MylistState = IsPublic ? "公開マイリスト" : "非公開マイリスト";
 
-
-                    var user = await UserInfoDb.GetAsync(OwnerUserId);
+                    var user = Database.NicoVideoOwnerDb.Get(OwnerUserId);
                     if (user != null)
                     {
-                        UserName = user.Name;
+                        UserName = user.ScreenName;
                     }
                     else
                     {
-                        await Task.Delay(500);
-                        var userDetail = await HohoemaApp.ContentProvider.GetUserDetail(OwnerUserId);
-                        UserName = userDetail.Nickname;
+                        var userDetail = await HohoemaApp.ContentProvider.GetUser(OwnerUserId);
+                        UserName = userDetail.ScreenName;
                     }
 
                     CanEditMylist = false;

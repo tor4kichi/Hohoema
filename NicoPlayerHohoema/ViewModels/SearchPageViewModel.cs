@@ -19,10 +19,10 @@ using System.Threading;
 using Windows.UI.Xaml;
 using Mntone.Nico2;
 using Mntone.Nico2.Searches.Video;
-using NicoPlayerHohoema.Models.Db;
 using Mntone.Nico2.Searches.Community;
 using System.Runtime.Serialization;
 using Mntone.Nico2.Searches.Live;
+using System.Collections.Async;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -69,8 +69,7 @@ namespace NicoPlayerHohoema.ViewModels
 			: base(hohoemaApp, pageManager)
 		{
             HashSet<string> HistoryKeyword = new HashSet<string>();
-            foreach (var item in SearchHistoryDb.GetHistoryItems().Take(20)
-                )
+            foreach (var item in Database.SearchHistoryDb.Get(0, 20))
             {
                 if (HistoryKeyword.Contains(item.Keyword))
                 {
@@ -151,7 +150,7 @@ namespace NicoPlayerHohoema.ViewModels
                 // 検索結果を表示
                 PageManager.Search(searchOption);
 
-                var searched = Models.Db.SearchHistoryDb.Searched(SearchText.Value, SelectedTarget.Value);
+                var searched = Database.SearchHistoryDb.Searched(SearchText.Value, SelectedTarget.Value);
 
                 var oldSearchHistory = SearchHistoryItems.FirstOrDefault(x => x.Keyword == SearchText.Value);
                 if (oldSearchHistory != null)
@@ -186,12 +185,12 @@ namespace NicoPlayerHohoema.ViewModels
                 return _DeleteAllSearchHistoryCommand
                     ?? (_DeleteAllSearchHistoryCommand = new DelegateCommand(() =>
                     {
-                        SearchHistoryDb.Clear();
+                        Database.SearchHistoryDb.Clear();
 
                         SearchHistoryItems.Clear();
                         RaisePropertyChanged(nameof(SearchHistoryItems));
                     },
-                    () => SearchHistoryDb.GetHistoryCount() > 0
+                    () => Database.SearchHistoryDb.Count() > 0
                     ));
             }
         }
@@ -211,15 +210,15 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        private DelegateCommand<SearchHistory> _DeleteSearchHistoryItemCommand;
-        public DelegateCommand<SearchHistory> DeleteSearchHistoryItemCommand
+        private DelegateCommand<Database.SearchHistory> _DeleteSearchHistoryItemCommand;
+        public DelegateCommand<Database.SearchHistory> DeleteSearchHistoryItemCommand
         {
             get
             {
                 return _DeleteSearchHistoryItemCommand
-                    ?? (_DeleteSearchHistoryItemCommand = new DelegateCommand<SearchHistory>((item) =>
+                    ?? (_DeleteSearchHistoryItemCommand = new DelegateCommand<Database.SearchHistory>((item) =>
                     {
-                        SearchHistoryDb.RemoveHistory(item.Keyword, item.Target);
+                        Database.SearchHistoryDb.Remove(item.Keyword, item.Target);
                         var itemVM = SearchHistoryItems.FirstOrDefault(x => x.Keyword == item.Keyword && x.Target == item.Target);
                         if (itemVM != null)
                         {
@@ -818,13 +817,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class SearchHistoryListItem : Interfaces.ISearchHistory
     {
-        public SearchHistory SearchHistory { get; }
+        public Database.SearchHistory SearchHistory { get; }
         public string Keyword { get; private set; }
 		public SearchTarget Target { get; private set; }
 
         SearchPageViewModel SearchPageVM { get; }
 
-        public SearchHistoryListItem(SearchHistory source, SearchPageViewModel parentVM)
+        public SearchHistoryListItem(Database.SearchHistory source, SearchPageViewModel parentVM)
 		{
             SearchHistory = source;
             SearchPageVM = parentVM;

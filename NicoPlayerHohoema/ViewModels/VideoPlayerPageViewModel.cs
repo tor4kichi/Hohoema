@@ -3,7 +3,6 @@ using Mntone.Nico2.Videos.Comment;
 using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
 using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Models.Db;
 using NicoPlayerHohoema.Helpers;
 using NicoPlayerHohoema.ViewModels.PlayerSidePaneContent;
 using NicoPlayerHohoema.Views;
@@ -1603,7 +1602,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                 
 
-                Models.Db.VideoPlayHistoryDb.VideoPlayed(CurrentPlayingItem.ContentId);
+                Database.VideoPlayedHistoryDb.VideoPlayed(CurrentPlayingItem.ContentId);
 
                 _IsVideoPlayed = true;
             }

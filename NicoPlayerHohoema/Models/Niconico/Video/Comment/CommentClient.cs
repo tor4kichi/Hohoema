@@ -1,7 +1,6 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Videos.Comment;
 using Mntone.Nico2.Videos.Dmc;
-using NicoPlayerHohoema.Models.Db;
 using NicoPlayerHohoema.Helpers;
 using System;
 using System.Collections.Generic;
@@ -40,9 +39,9 @@ namespace NicoPlayerHohoema.Models
 
         public List<Chat> GetCommentsFromLocal()
         {
-            var j = CommentDb.Get(RawVideoId);
+            var j = Database.VideoCommentDb.Get(RawVideoId);
         // コメントのキャッシュまたはオンラインからの取得と更新
-            return j?.GetComments();
+            return j?.ChatItems;
         }
 
         public async Task<List<Chat>> GetComments()
@@ -95,7 +94,7 @@ namespace NicoPlayerHohoema.Models
             if (commentRes != null)
             {
                 CachedCommentResponse = commentRes;
-                CommentDb.AddOrUpdate(RawVideoId, commentRes);
+                Database.VideoCommentDb.AddOrUpdate(RawVideoId, commentRes.Chat);
             }
 
             if (commentRes != null && DefaultThreadSubmitInfo == null)

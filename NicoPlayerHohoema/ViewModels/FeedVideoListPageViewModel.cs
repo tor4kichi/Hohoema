@@ -13,6 +13,7 @@ using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using System.Threading;
 using Windows.UI.Xaml.Navigation;
+using System.Collections.Async;
 
 namespace NicoPlayerHohoema.ViewModels
 {

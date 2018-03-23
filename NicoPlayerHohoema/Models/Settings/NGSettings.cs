@@ -1,5 +1,4 @@
 ﻿using Mntone.Nico2.Videos.Thumbnail;
-using NicoPlayerHohoema.Models.Db;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

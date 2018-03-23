@@ -20,7 +20,6 @@ using Windows.Networking.BackgroundTransfer;
 using System.Text.RegularExpressions;
 using Windows.Storage.Streams;
 using Microsoft.Practices.Unity;
-using NicoPlayerHohoema.Models.Db;
 using System.Collections.Concurrent;
 using Windows.UI.Notifications;
 using Microsoft.Toolkit.Uwp.Notifications;

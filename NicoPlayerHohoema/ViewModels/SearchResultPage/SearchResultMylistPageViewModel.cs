@@ -13,6 +13,7 @@ using Mntone.Nico2.Searches.Mylist;
 using Prism.Commands;
 using Mntone.Nico2;
 using Prism.Windows.Navigation;
+using System.Collections.Async;
 
 namespace NicoPlayerHohoema.ViewModels
 {
