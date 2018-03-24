@@ -34,7 +34,10 @@ namespace NicoPlayerHohoema.Commands
                 uri = new Uri(parameter as string);
             }
 
-            Launcher.LaunchUriAsync(uri).AsTask().ConfigureAwait(false);
+            if (uri != null)
+            {
+                Launcher.LaunchUriAsync(uri).AsTask().ConfigureAwait(false);
+            }
         }
     }
 }

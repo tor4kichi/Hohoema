@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI;
 using Windows.UI.Xaml;
+using System.Text.RegularExpressions;
 
 namespace NicoPlayerHohoema.Views
 {
@@ -61,7 +62,66 @@ namespace NicoPlayerHohoema.Views
 
 		public bool IsLoginUserComment { get; set; } = false;
 
-        public bool IsLink => Uri.IsWellFormedUriString(CommentText, UriKind.Absolute);
+
+
+
+        static Uri ParseLinkFromHtml(string text)
+        {
+            var doc = new HtmlAgilityPack.HtmlDocument();
+            doc.LoadHtml(text);
+
+            var root = doc.DocumentNode;
+            var anchorNode = root.Descendants("a").FirstOrDefault();
+            if (anchorNode != null)
+            {
+                if (anchorNode.Attributes.Contains("href"))
+                {
+                    return  new Uri(anchorNode.Attributes["href"].Value);
+                }
+            }
+
+            return null;
+        }
+
+        bool? _IsLink;
+        public bool IsLink
+        {
+            get
+            {
+                ResetLink();
+
+                return _IsLink.Value;
+            }
+        }
+
+        Uri _Link;
+        public Uri Link
+        {
+            get
+            {
+                ResetLink();
+
+                return _Link;
+            }
+        }
+
+        private void ResetLink()
+        {
+            if (!_IsLink.HasValue)
+            {
+                if (Uri.IsWellFormedUriString(CommentText, UriKind.Absolute))
+                {
+                    _Link = new Uri(CommentText);
+                }
+                else
+                {
+                    _Link = ParseLinkFromHtml(CommentText);
+                }
+
+                _IsLink = _Link != null;
+            }
+        }
+
 
 		private bool _IsVisible = true;
 		public bool IsVisible
