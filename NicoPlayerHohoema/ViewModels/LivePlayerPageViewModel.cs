@@ -217,16 +217,6 @@ namespace NicoPlayerHohoema.ViewModels
         public Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView FilterdComments { get; } = new Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView();
 
 
-        // operation command
-
-        /// <summary>
-        /// 運営コマンドで発行される時間経過で非表示にならないテキスト
-        /// 放送のお知らせなどに利用される
-        /// </summary>
-        public ReactiveProperty<string> PermanentDisplayText { get; private set; }
-
-
-
 		// sound
 		public ReactiveProperty<bool> IsMuted { get; private set; }
 		public ReactiveProperty<double> SoundVolume { get; private set; }
@@ -274,12 +264,19 @@ namespace NicoPlayerHohoema.ViewModels
             LiveComments = new ReadOnlyObservableCollection<Views.Comment>(_LiveComments);
             FilterdComments.Source = LiveComments;
 
+            // next live dtection
+            NowRunningNextLiveDetection = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
+
             // play
             CurrentState = new ReactiveProperty<MediaElementState>(MediaElementState.Closed);
             NowPlaying = CurrentState.Select(x => x == MediaElementState.Playing)
                 .ToReactiveProperty(CurrentWindowContextScheduler);
 
-            NowConnecting = CurrentState.Select(x => x == MediaElementState.Opening || x == MediaElementState.Buffering)
+            NowConnecting = Observable.CombineLatest(
+                CurrentState.Select(x => x == MediaElementState.Opening || x == MediaElementState.Buffering),
+                NowRunningNextLiveDetection
+                )
+                .Select(x => x.All(y => y))
                 .ToReadOnlyReactiveProperty(eventScheduler:CurrentWindowContextScheduler)
                 .AddTo(_NavigatingCompositeDisposable);
 
@@ -361,8 +358,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 			// operation command
-			PermanentDisplayText = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
-
             BroadcasterLiveOperationCommand = new ReactiveProperty<LiveOperationCommand>(PlayerWindowUIDispatcherScheduler)
                 .AddTo(_CompositeDisposable);
 
@@ -568,13 +563,13 @@ namespace NicoPlayerHohoema.ViewModels
                     // 配信終了１分前であれば次枠検出をスタートさせる
                     if (DateTime.Now > _EndAt - TimeSpan.FromMinutes(1))
                     {
-                        await NicoLiveVideo.StartNextLiveSubscribe(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
+                        NicoLiveVideo.StartNextLiveDetection(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
                     }
                 }
                 else
                 {
                     // 配信時間内に別の枠を取り直していた場合に対応する
-                    await NicoLiveVideo.StartNextLiveSubscribe(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
+                    NicoLiveVideo.StartNextLiveDetection(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
                 }
             })
             .AddTo(_CompositeDisposable);
@@ -939,15 +934,10 @@ namespace NicoPlayerHohoema.ViewModels
 				// post comment 
 				NicoLiveVideo.PostCommentResult += NicoLiveVideo_PostCommentResult;
 
-				// operation command
-				PermanentDisplayText = NicoLiveVideo.ObserveProperty(x => x.PermanentDisplayText)
-					.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
-					.AddTo(_NavigatingCompositeDisposable);
-				RaisePropertyChanged(nameof(PermanentDisplayText));
 
-
-				// next live
-				NicoLiveVideo.NextLive += NicoLiveVideo_NextLive;
+                // next live
+                NicoLiveVideo.NextLiveDetectionStarted += NicoLiveVideo_StartNextLiveDetection;
+                NicoLiveVideo.NextLiveDetectionCompleted += NicoLiveVideo_CompleteNextLiveDetection;
 
                 NicoLiveVideo.OpenLive += NicoLiveVideo_OpenLive;
                 NicoLiveVideo.CloseLive += NicoLiveVideo_CloseLive;
@@ -958,196 +948,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 			base.OnNavigatedTo(e, viewModelState);
 		}
-        
-        private void NicoLiveVideo_OperationCommandRecieved(object sender, OperationCommandRecievedEventArgs e)
-        {
-            LiveOperationCommand operationCommand = null;
-            var vpos = TimeSpan.FromMilliseconds(e.Chat.Vpos * 10);
-            var relatedVpos = vpos - WatchStartLiveElapsedTime;
-            bool isDisplayComment = (this.LiveElapsedTime - relatedVpos) < TimeSpan.FromSeconds(10);
-            switch (e.CommandType)
-            {
-                case "perm":
-                    {
-                        var content = e.CommandParameter.ElementAtOrDefault(0)?.Trim('"');
 
-                        HtmlAgilityPack.HtmlDocument document = new HtmlAgilityPack.HtmlDocument();
-                        document.LoadHtml(content);
-
-                        var node = document.DocumentNode;
-
-                        var comment = node.InnerText;
-
-                        
-
-                        string link = null;
-                        try
-                        {
-                            link = node.Descendants("a")?.FirstOrDefault()?.Attributes["href"]?.Value;
-                        }
-                        catch { }
-
-
-                        operationCommand = new LiveOperationCommand()
-                        {
-                            DisplayPosition = VerticalAlignment.Top,
-                            Content = comment,
-                        };
-                        if (!string.IsNullOrEmpty(link))
-                        {
-                            operationCommand.Hyperlink = new Uri(link);
-                        }
-
-
-                        BroadcasterLiveOperationCommand.Value = operationCommand;
-                    }
-                    break;
-                case "press":
-                    {
-                        if (!isDisplayComment) { return; }
-
-                        var color = e.CommandParameter.ElementAtOrDefault(1);
-                        var comment = e.CommandParameter.ElementAtOrDefault(2)?.Trim('"');
-                        var screenName = e.CommandParameter.ElementAtOrDefault(3)?.Trim('"');
-                        if (!string.IsNullOrWhiteSpace(comment))
-                        {
-                            // 表示
-                            operationCommand = new LiveOperationCommand()
-                            {
-                                DisplayPosition = VerticalAlignment.Bottom,
-                                Content = comment,
-                                Header = screenName,
-                            };
-                        }
-
-                        PressLiveOperationCommand.Value = operationCommand;
-                    }
-                    break;
-                case "info":
-                    {
-                        if (!isDisplayComment) { return; }
-
-                        var type = int.Parse(e.CommandParameter.ElementAtOrDefault(0));
-                        var comment = e.CommandParameter.ElementAtOrDefault(1)?.Trim('"');
-
-                        operationCommand = new LiveOperationCommand()
-                        {
-                            DisplayPosition = VerticalAlignment.Bottom,
-                            Content = comment,
-                        };
-
-                        OperaterLiveOperationCommand.Value = operationCommand;
-                    }
-                    break;
-                case "telop":
-                    {
-                        if (!isDisplayComment) { return; }
-
-                        // プレイヤー下部に情報表示
-                        var type = e.CommandParameter.ElementAtOrDefault(0);
-                        var comment = e.CommandParameter.ElementAtOrDefault(1)?.Trim('"');
-
-                        //on ニコ生クルーズ(リンク付き)/ニコニコ実況コメント
-                        //show クルーズが到着/実況に接続
-                        //show0 実際に流れているコメント
-                        //perm ニコ生クルーズが去って行きました＜改行＞(降りた人の名前、人数)
-                        //off (プレイヤー下部のテロップを消去)
-
-                        if (type == "off")
-                        {
-                            OperaterLiveOperationCommand.Value = null;
-                        }
-                        else// if (type == "perm")
-                        {
-                            operationCommand = new LiveOperationCommand()
-                            {
-                                DisplayPosition = VerticalAlignment.Bottom,
-                                Content = comment,
-                            };
-
-                            OperaterLiveOperationCommand.Value = operationCommand;
-                        }
-                    }
-                    break;
-                case "uadpoint":
-                    {
-                        if (!isDisplayComment) { return; }
-
-                        var liveId_wo_lv = e.CommandParameter.ElementAtOrDefault(0);
-                        var adpoint = e.CommandParameter.ElementAtOrDefault(1);
-
-                        /*
-                        operationCommand = new LiveOperationCommand()
-                        {
-                            DisplayPosition = VerticalAlignment.Bottom,
-                            Content = $"広告総ポイント {adpoint}pt",
-                        };
-
-                        OperaterLiveOperationCommand.Value = operationCommand;
-                        */
-                    }
-                    break;
-                case "koukoku":
-                    {
-                        if (!isDisplayComment) { return; }
-
-                        var content = e.CommandParameter.ElementAtOrDefault(0)?.Trim('"');
-
-                        HtmlAgilityPack.HtmlDocument document = new HtmlAgilityPack.HtmlDocument();
-                        document.LoadHtml(content);
-
-                        var node = document.DocumentNode;
-
-                        var comment = node.InnerText;
-                        string link = null;
-                        try
-                        {
-                            link = node.Descendants("a")?.FirstOrDefault()?.Attributes["href"]?.Value;
-                        }
-                        catch { }
-
-                        operationCommand = new LiveOperationCommand()
-                        {
-                            DisplayPosition = VerticalAlignment.Top,
-                            Content = comment,
-                        };
-                        if (!string.IsNullOrEmpty(link))
-                        {
-                            operationCommand.Hyperlink = new Uri(link);
-                        }
-
-                    }
-                    break;
-                case "disconnect":
-                    
-                    break;
-                case "clear":
-                case "cls":
-                    BroadcasterLiveOperationCommand.Value = null;
-                    break;
-                default:
-                    Debug.WriteLine($"非対応な運コメ：{e.CommandType}");
-                    break;
-            }
-
-            if (operationCommand != null)
-            {
-                LiveOperationCommands.Add(operationCommand);
-            }
-        }
-
-        private void NicoLiveVideo_FailedOpenLive1(NicoLiveVideo sender, FailedOpenLiveEventArgs args)
-        {
-            this.ResetSuggestion(args.Message);
-        }
-
-        private void NicoLiveVideo_CloseLive(NicoLiveVideo sender)
-        {
-        }
-
-        private void NicoLiveVideo_OpenLive(NicoLiveVideo sender)
-        {
-        }
+       
+       
 
         protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
@@ -1213,7 +1016,8 @@ namespace NicoPlayerHohoema.ViewModels
 			{
                 if (NicoLiveVideo != null)
                 {
-                    NicoLiveVideo.NextLive -= NicoLiveVideo_NextLive;
+                    NicoLiveVideo.NextLiveDetectionStarted -= NicoLiveVideo_StartNextLiveDetection;
+                    NicoLiveVideo.NextLiveDetectionCompleted -= NicoLiveVideo_CompleteNextLiveDetection;
 
                     NicoLiveVideo.OpenLive -= NicoLiveVideo_OpenLive;
                     NicoLiveVideo.CloseLive -= NicoLiveVideo_CloseLive;
@@ -1465,7 +1269,6 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		bool _IsEndMarked;
-		bool _IsNextLiveSubscribeStarted;
 		
 		/// <summary>
 		/// 放送開始からの経過時間を更新します
@@ -1496,11 +1299,9 @@ namespace NicoPlayerHohoema.ViewModels
                     }
 
                     // 終了時刻の３０秒前から
-                    if (!_IsNextLiveSubscribeStarted && DateTime.Now > _EndAt - TimeSpan.FromSeconds(10))
+                    if (!(NicoLiveVideo?.NowRunningNextLiveDetection ?? true) && DateTime.Now > _EndAt - TimeSpan.FromSeconds(10))
                     {
-                        _IsNextLiveSubscribeStarted = true;
-
-                        await NicoLiveVideo.StartNextLiveSubscribe(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
+                        NicoLiveVideo.StartNextLiveDetection(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
                     }
 
                 }
@@ -1577,18 +1378,234 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		// 配信の次枠を自動で開く
-		private async void NicoLiveVideo_NextLive(NicoLiveVideo sender, string liveId)
-		{
-			await Task.Delay(TimeSpan.FromSeconds(3));
 
-            HohoemaApp.Playlist.PlayLiveVideo(liveId, LiveTitle);
+        #endregion
+
+
+        #region NicoLiveVideo Event Handling
+
+        private void NicoLiveVideo_OperationCommandRecieved(object sender, OperationCommandRecievedEventArgs e)
+        {
+            LiveOperationCommand operationCommand = null;
+            var vpos = TimeSpan.FromMilliseconds(e.Chat.Vpos * 10);
+            var relatedVpos = vpos - WatchStartLiveElapsedTime;
+            bool isDisplayComment = (this.LiveElapsedTime - relatedVpos) < TimeSpan.FromSeconds(10);
+            switch (e.CommandType)
+            {
+                case "perm":
+                    {
+                        var content = e.CommandParameter.ElementAtOrDefault(0)?.Trim('"');
+
+                        HtmlAgilityPack.HtmlDocument document = new HtmlAgilityPack.HtmlDocument();
+                        document.LoadHtml(content);
+
+                        var node = document.DocumentNode;
+
+                        var comment = node.InnerText;
+
+
+
+                        string link = null;
+                        try
+                        {
+                            link = node.Descendants("a")?.FirstOrDefault()?.Attributes["href"]?.Value;
+                        }
+                        catch { }
+
+
+                        operationCommand = new LiveOperationCommand()
+                        {
+                            DisplayPosition = VerticalAlignment.Top,
+                            Content = comment,
+                        };
+                        if (!string.IsNullOrEmpty(link))
+                        {
+                            operationCommand.Hyperlink = new Uri(link);
+                        }
+
+
+                        BroadcasterLiveOperationCommand.Value = operationCommand;
+                    }
+                    break;
+                case "press":
+                    {
+                        if (!isDisplayComment) { return; }
+
+                        var color = e.CommandParameter.ElementAtOrDefault(1);
+                        var comment = e.CommandParameter.ElementAtOrDefault(2)?.Trim('"');
+                        var screenName = e.CommandParameter.ElementAtOrDefault(3)?.Trim('"');
+                        if (!string.IsNullOrWhiteSpace(comment))
+                        {
+                            // 表示
+                            operationCommand = new LiveOperationCommand()
+                            {
+                                DisplayPosition = VerticalAlignment.Bottom,
+                                Content = comment,
+                                Header = screenName,
+                            };
+                        }
+
+                        PressLiveOperationCommand.Value = operationCommand;
+                    }
+                    break;
+                case "info":
+                    {
+                        if (!isDisplayComment) { return; }
+
+                        var type = int.Parse(e.CommandParameter.ElementAtOrDefault(0));
+                        var comment = e.CommandParameter.ElementAtOrDefault(1)?.Trim('"');
+
+                        operationCommand = new LiveOperationCommand()
+                        {
+                            DisplayPosition = VerticalAlignment.Bottom,
+                            Content = comment,
+                        };
+
+                        OperaterLiveOperationCommand.Value = operationCommand;
+                    }
+                    break;
+                case "telop":
+                    {
+                        if (!isDisplayComment) { return; }
+
+                        // プレイヤー下部に情報表示
+                        var type = e.CommandParameter.ElementAtOrDefault(0);
+                        var comment = e.CommandParameter.ElementAtOrDefault(1)?.Trim('"');
+
+                        //on ニコ生クルーズ(リンク付き)/ニコニコ実況コメント
+                        //show クルーズが到着/実況に接続
+                        //show0 実際に流れているコメント
+                        //perm ニコ生クルーズが去って行きました＜改行＞(降りた人の名前、人数)
+                        //off (プレイヤー下部のテロップを消去)
+
+                        if (type == "off")
+                        {
+                            OperaterLiveOperationCommand.Value = null;
+                        }
+                        else// if (type == "perm")
+                        {
+                            operationCommand = new LiveOperationCommand()
+                            {
+                                DisplayPosition = VerticalAlignment.Bottom,
+                                Content = comment,
+                            };
+
+                            OperaterLiveOperationCommand.Value = operationCommand;
+                        }
+                    }
+                    break;
+                case "uadpoint":
+                    {
+                        if (!isDisplayComment) { return; }
+
+                        var liveId_wo_lv = e.CommandParameter.ElementAtOrDefault(0);
+                        var adpoint = e.CommandParameter.ElementAtOrDefault(1);
+
+                        /*
+                        operationCommand = new LiveOperationCommand()
+                        {
+                            DisplayPosition = VerticalAlignment.Bottom,
+                            Content = $"広告総ポイント {adpoint}pt",
+                        };
+
+                        OperaterLiveOperationCommand.Value = operationCommand;
+                        */
+                    }
+                    break;
+                case "koukoku":
+                    {
+                        if (!isDisplayComment) { return; }
+
+                        var content = e.CommandParameter.ElementAtOrDefault(0)?.Trim('"');
+
+                        HtmlAgilityPack.HtmlDocument document = new HtmlAgilityPack.HtmlDocument();
+                        document.LoadHtml(content);
+
+                        var node = document.DocumentNode;
+
+                        var comment = node.InnerText;
+                        string link = null;
+                        try
+                        {
+                            link = node.Descendants("a")?.FirstOrDefault()?.Attributes["href"]?.Value;
+                        }
+                        catch { }
+
+                        operationCommand = new LiveOperationCommand()
+                        {
+                            DisplayPosition = VerticalAlignment.Top,
+                            Content = comment,
+                        };
+                        if (!string.IsNullOrEmpty(link))
+                        {
+                            operationCommand.Hyperlink = new Uri(link);
+                        }
+
+                    }
+                    break;
+                case "disconnect":
+                    if (PauseCommand.CanExecute())
+                    {
+                        PauseCommand.Execute();
+                    }
+
+                    ResetSuggestion(LiveStatusType.Value = Models.Live.LiveStatusType.Closed);
+                    break;
+                case "clear":
+                case "cls":
+                    BroadcasterLiveOperationCommand.Value = null;
+                    break;
+                default:
+                    Debug.WriteLine($"非対応な運コメ：{e.CommandType}");
+                    break;
+            }
+
+            if (operationCommand != null)
+            {
+                LiveOperationCommands.Add(operationCommand);
+            }
+        }
+
+        private void NicoLiveVideo_FailedOpenLive1(NicoLiveVideo sender, FailedOpenLiveEventArgs args)
+        {
+            this.ResetSuggestion(args.Message);
+        }
+
+        private void NicoLiveVideo_CloseLive(NicoLiveVideo sender)
+        {
+        }
+
+        private void NicoLiveVideo_OpenLive(NicoLiveVideo sender)
+        {
         }
 
 
 
-        #endregion
 
+        public ReactiveProperty<bool> NowRunningNextLiveDetection { get; private set; }
+
+        private void NicoLiveVideo_CompleteNextLiveDetection(object sender, CompleteNextLiveDetectionEventArgs e)
+        {
+            NowRunningNextLiveDetection.Value = false;
+
+            if (e.IsSuccess)
+            {
+                HohoemaApp.Playlist.PlayLiveVideo(e.NextLiveId, LiveTitle);
+            }
+            else
+            {
+                // 見つからない
+            }
+        }
+
+        private void NicoLiveVideo_StartNextLiveDetection(object sender, StartNextLiveDetectionEventArgs e)
+        {
+            // 次枠検出開始
+            NowRunningNextLiveDetection.Value = true;
+        }
+
+
+        #endregion
 
 
         #region Side Pane Content
@@ -1698,7 +1715,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        private async void UpdateCommentUserName(Database.NicoVideoOwner user)
+        private void UpdateCommentUserName(Database.NicoVideoOwner user)
         {
             //using (var releaser = await )
             {
