@@ -272,14 +272,28 @@ namespace NicoPlayerHohoema.Models
                             IsDictionaryExists = x.IsDictionaryExists
                         }).ToList();
 
-
-                        info.Owner = new NicoVideoOwner()
+                        if (res.Owner != null)
                         {
-                            ScreenName = res.Owner?.Nickname ?? res.Channel?.Name,
-                            IconUrl = res.Owner?.IconURL ?? res.Channel?.IconURL,
-                            OwnerId = res.Owner?.Id ?? res.Channel?.GlobalId,
-                            UserType = res.Channel != null ? UserType.Channel : UserType.User
-                        };
+                            info.Owner = new NicoVideoOwner()
+                            {
+                                ScreenName = res.Owner.Nickname ,
+                                IconUrl = res.Owner.IconURL ,
+                                OwnerId = res.Owner.Id ,
+                                UserType = UserType.User
+                            };
+
+                            NicoVideoOwnerDb.AddOrUpdate(info.Owner);
+                        }
+                        else if (res.Channel != null)
+                        {
+                            info.Owner = new NicoVideoOwner()
+                            {
+                                ScreenName = res.Channel.Name,
+                                IconUrl = res.Channel.IconURL,
+                                OwnerId = res.Channel.GlobalId,
+                                UserType = UserType.Channel
+                            };
+                        }
 
                         if (data.DmcWatchResponse?.Video != null)
                         {
@@ -287,7 +301,6 @@ namespace NicoPlayerHohoema.Models
                         }
 
                         NicoVideoDb.AddOrUpdate(info);
-                        NicoVideoOwnerDb.AddOrUpdate(info.Owner);
                     }
 
 

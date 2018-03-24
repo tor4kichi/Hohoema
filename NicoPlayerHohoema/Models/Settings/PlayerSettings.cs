@@ -334,6 +334,17 @@ namespace NicoPlayerHohoema.Models
             set { SetProperty(ref _NicoScript_ジャンプ_Enabled, value); }
         }
 
+
+        public bool _NicoScript_コメント禁止_Enabled = true;
+
+        [DataMember]
+        public bool NicoScript_コメント禁止_Enabled
+        {
+            get { return _NicoScript_コメント禁止_Enabled; }
+            set { SetProperty(ref _NicoScript_コメント禁止_Enabled, value); }
+        }
+
+
         public bool _NicoScript_置換_Enabled = true;
 
         [DataMember]

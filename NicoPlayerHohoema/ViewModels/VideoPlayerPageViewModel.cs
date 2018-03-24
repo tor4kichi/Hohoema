@@ -436,7 +436,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             NowCanSubmitComment = Observable.CombineLatest(
                 CanSubmitComment,
-                IsCommentDisabledFromNicoScript.Select(x => /* TODO: コメント禁止の設定によるフィルタリングを行う*/!x),
+                IsCommentDisabledFromNicoScript.Select(x => HohoemaApp.UserSettings.PlayerSettings.NicoScript_コメント禁止_Enabled ? !x : true),
                 WritingComment.Select(x => !string.IsNullOrWhiteSpace(x))
                 )
                 .Select(x => x.All(y => y))

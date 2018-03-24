@@ -612,6 +612,17 @@
                     </StackPanel>
 
                     <StackPanel Margin="0 8 0 16">
+                        <TextBlock Text="＠コメント禁止"
+                        VerticalAlignment="Center"
+                        />
+                        <ToggleSwitch 
+                                IsOn="{Binding NicoScript_コメント禁止_Enabled.Value, Mode=TwoWay}"
+                                OnContent="許可"
+                            OffContent="許可しない"
+                                        />
+                    </StackPanel>
+
+                    <StackPanel Margin="0 8 0 16">
                         <TextBlock Text="＠ジャンプ"
                         VerticalAlignment="Center"
                         />
@@ -622,6 +633,9 @@
                                         />
                     </StackPanel>
 
+
+                    
+                    <!--
                     <StackPanel Margin="0 8 0 16">
                         <TextBlock Text="＠置換"
                         VerticalAlignment="Center"
@@ -632,6 +646,7 @@
                             OffContent="許可しない"
                                         />
                     </StackPanel>
+                    -->
 
                 </StackPanel>
 

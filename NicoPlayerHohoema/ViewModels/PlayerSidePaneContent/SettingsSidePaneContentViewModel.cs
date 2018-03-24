@@ -89,6 +89,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
         public ReactiveProperty<bool> NicoScript_デフォルト_Enabled { get; private set; }
         public ReactiveProperty<bool> NicoScript_シーク禁止_Enabled { get; private set; }
+        public ReactiveProperty<bool> NicoScript_コメント禁止_Enabled { get; private set; }
         public ReactiveProperty<bool> NicoScript_ジャンプ_Enabled { get; private set; }
         public ReactiveProperty<bool> NicoScript_置換_Enabled { get; private set; }
 
@@ -265,6 +266,8 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             NicoScript_デフォルト_Enabled = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.NicoScript_デフォルト_Enabled, raiseEventScheduler: CurrentWindowContextScheduler)
                 .AddTo(_CompositeDisposable);
             NicoScript_シーク禁止_Enabled = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.NicoScript_シーク禁止_Enabled, raiseEventScheduler: CurrentWindowContextScheduler)
+                .AddTo(_CompositeDisposable);
+            NicoScript_コメント禁止_Enabled = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.NicoScript_コメント禁止_Enabled, raiseEventScheduler: CurrentWindowContextScheduler)
                 .AddTo(_CompositeDisposable);
             NicoScript_ジャンプ_Enabled = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.NicoScript_ジャンプ_Enabled, raiseEventScheduler: CurrentWindowContextScheduler)
                 .AddTo(_CompositeDisposable);
