@@ -121,6 +121,7 @@ namespace Hohoema.NicoAlert
             if (ticket == null)
             {
                 // TODO: ログイン失敗のイベントを発行
+                return false;
             }
 
             var alertStatus = await GetAlertStatusAsync(ticket);
@@ -128,6 +129,7 @@ namespace Hohoema.NicoAlert
             if (alertStatus == null || alertStatus.Status != "ok")
             {
                 // TODO: アラートサーバーの情報取得に失敗
+                return false;
             }
 
             _AlertStatesInfo = alertStatus;
