@@ -1575,6 +1575,8 @@ namespace NicoPlayerHohoema.ViewModels
                 // VideoPlayedはMediaPlayerが動作しているコンテキスト上から呼ばれる可能性がある
                 CurrentWindowContextScheduler.Schedule(() => 
                 {
+                    IsDisplayControlUI.Value = true;
+
                     HohoemaApp.Playlist.PlayDone(CurrentPlayingItem, canPlayNext);
 
                     if (HohoemaApp.Playlist.CurrentPlaylist?.PlaylistItems.Count == 0)
