@@ -1766,7 +1766,7 @@ namespace NicoPlayerHohoema.ViewModels
             get
             {
                 return _ToggleCommentListSidePaneContentCommand
-                    ?? (_ToggleCommentListSidePaneContentCommand = new DelegateCommand(() =>
+                    ?? (_ToggleCommentListSidePaneContentCommand = new DelegateCommand(async () =>
                     {
                         if (CurrentSidePaneContentType.Value == PlayerSidePaneContentType.Comment)
                         {
@@ -1775,6 +1775,10 @@ namespace NicoPlayerHohoema.ViewModels
                         else
                         {
                             CurrentSidePaneContentType.Value = PlayerSidePaneContentType.Comment;
+
+                            // すぐに閉じるとコメントリストUIの生成をタイミングが被って快適さが減るのでちょっと待つ
+                            await Task.Delay(100);
+                            IsDisplayControlUI.Value = false;
                         }
                     }));
             }
