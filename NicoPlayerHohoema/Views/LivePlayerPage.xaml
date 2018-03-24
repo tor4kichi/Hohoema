@@ -728,7 +728,7 @@
                                                    HorizontalAlignment="Center"
                                                    TextWrapping="Wrap"
                                                    MaxWidth="600"
-                                                   Style="{StaticResource TitleTextBlockStyle}"
+                                                   Style="{StaticResource SubtitleTextBlockStyle}"
                                                        Visibility="{Binding Hyperlink, Converter={StaticResource NullToVisibility}}"
                                                    >
 
@@ -738,9 +738,7 @@
                                                        Visibility="{Binding Hyperlink, Converter={StaticResource NotNullToVisibility}}"
                                                              VerticalAlignment="Center"
                                                            HorizontalAlignment="Center"
-                                                             BorderBrush="{ThemeResource SystemControlForegroundAccentBrush}"
-                                                             BorderThickness="0 0 0 1"
-                                                             Margin="16"
+                                                             Margin="0"
                                                              Padding="0"
                                                 >
                                                 <TextBlock Text="{Binding Content}"
@@ -748,8 +746,7 @@
                                                            HorizontalAlignment="Center"
                                                            TextWrapping="Wrap"
                                                            MaxWidth="600"
-                                                           Style="{StaticResource TitleTextBlockStyle}"
-                                                           
+                                                           Style="{StaticResource SubtitleTextBlockStyle}"
                                                            >
 
                                                 </TextBlock>
@@ -791,7 +788,7 @@
                                                            HorizontalAlignment="Center"
                                                              BorderBrush="{ThemeResource SystemControlForegroundAccentBrush}"
                                                              BorderThickness="0 0 0 1"
-                                                             Margin="16"
+                                                             Margin="0"
                                                              Padding="0"
                                                 >
                                                 <TextBlock Text="{Binding Content}"
@@ -847,19 +844,8 @@
 
                                 </i:Interaction.Behaviors>
                             </MediaPlayerElement>
-
                             
-                            <Grid Visibility="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
-                                <Border IsHitTestVisible="True" Background="Transparent">
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanInverted}}" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
-                                </Border>
-
-
-                            </Grid>
+                            
 
                             <Grid toolkit:DockPanel.Dock="Bottom" >
 
@@ -925,6 +911,17 @@
 
                             </Grid>
 
+                            <!-- コントロールUIを非表示に切り替える不可視のエリア -->
+                            <!-- コメント選択が必要になった場合に邪魔になるかも -->
+                            <Grid >
+                                <Border IsHitTestVisible="True" Background="Transparent">
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanInverted}}" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </Border>
+                            </Grid>
 
                         </Grid>
                         
@@ -970,14 +967,7 @@
                                   Margin="24 88"      
                                   />
 
-
-                    <Border IsHitTestVisible="True" Background="Transparent">
-                        <i:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="Tapped">
-                                <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanInverted}}" />
-                            </core:EventTriggerBehavior>
-                        </i:Interaction.Behaviors>
-                    </Border>
+                   
 
 
                     <!-- 音量表示 -->
@@ -1019,79 +1009,81 @@
 
                         </i:Interaction.Behaviors>
 
-                        <toolkit:DockPanel x:Name="DefaultUIControl">
-                            <StackPanel toolkit:DockPanel.Dock="Top" >
+                        <Grid  x:Name="DefaultUIControl">
 
-                                <Border x:Name="TitleBarMarginLayout"
+                            <toolkit:DockPanel>
+                                <StackPanel toolkit:DockPanel.Dock="Top" >
+
+                                    <Border x:Name="TitleBarMarginLayout"
                                                 Height="32"
                                                 toolkit:DockPanel.Dock="Top"
                                                     Visibility="Collapsed"
                                                     >
-                                    <Border.Background>
-                                        <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
-                                    </Border.Background>
-                                </Border>
-                                
-                                <Grid x:Name="TopBarLayout"
+                                        <Border.Background>
+                                            <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                                        </Border.Background>
+                                    </Border>
+
+                                    <Grid x:Name="TopBarLayout"
                                             
                                 >
-                                    <Grid.Background>
-                                        <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
-                                    </Grid.Background>
+                                        <Grid.Background>
+                                            <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                                        </Grid.Background>
 
-                                    <StackPanel Orientation="Horizontal"
+                                        <StackPanel Orientation="Horizontal"
                                                 HorizontalAlignment="Left"
                                                 >
 
 
-                                        <Button Command="{Binding ClosePlayerCommand}"
+                                            <Button Command="{Binding ClosePlayerCommand}"
                                             Background="Transparent"
                                             toolkit:DockPanel.Dock="Left"
                                             UseSystemFocusVisuals="True"
                                                 x:Name="CloseButton"
                                             >
-                                            <iconPack:PackIconMaterial Kind="Close" />
-                                        </Button>
+                                                <iconPack:PackIconMaterial Kind="Close" />
+                                            </Button>
 
 
-                                        <Button x:Name="DisplayWithMainViewButton"
+                                            <Button x:Name="DisplayWithMainViewButton"
                                                             Command="{Binding PlayerDisplayWithMainViewCommand}"
                                                             Background="Transparent"
                                                             Visibility="Collapsed"
                                                             >
-                                            <StackPanel Orientation="Vertical">
-                                                <iconPack:PackIconMaterial Kind="CheckboxBlankOutline"
+                                                <StackPanel Orientation="Vertical">
+                                                    <iconPack:PackIconMaterial Kind="CheckboxBlankOutline"
                                                                                                    Margin="0 0 0 8"
                                                                                                    Height="24"
                                                                                                    Width="24"
                                                                                                    HorizontalAlignment="Center"
                                                                                                    />
 
-                                                <TextBlock Text="メインウィンドウ" 
+                                                    <TextBlock Text="メインウィンドウ" 
                                                                                    Style="{StaticResource CaptionTextBlockStyle}"
                                                                                    VerticalAlignment="Center" />
-                                            </StackPanel>
-                                        </Button>
+                                                </StackPanel>
+                                            </Button>
 
 
 
-                                    </StackPanel>
+                                        </StackPanel>
 
-                                    <StackPanel Orientation="Horizontal"
+                                        <StackPanel Orientation="Horizontal"
                                                         HorizontalAlignment="Right"
                                                         >
 
 
 
-                                        <Button x:Name="SmallWindowButton"  
+                                            <Button x:Name="SmallWindowButton"  
                                                             Command="{Binding PlayerSmallWindowDisplayCommand}"
                                                             Background="Transparent"
                                                             Visibility="Collapsed"
                                                             Margin="8 0 0 0"
                                                             MinWidth="64"
                                                                         >
-                                            <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE743;"
+                                                <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE743;"
                                                                                    FontSize="24"
                                                                                    VerticalAlignment="Center"
                                                                                    Height="24"
@@ -1100,28 +1092,28 @@
                                                                                    Margin="0 0 0 8"
                                                                                />
 
-                                                <TextBlock Text="小窓" 
+                                                    <TextBlock Text="小窓" 
                                                                                    Style="{StaticResource CaptionTextBlockStyle}"
                                                                                    VerticalAlignment="Center" />
 
-                                            </StackPanel>
-                                        </Button>
+                                                </StackPanel>
+                                            </Button>
 
 
 
 
 
 
-                                        <Button x:Name="CompactOverlayButton"
+                                            <Button x:Name="CompactOverlayButton"
                                                             Command="{Binding ToggleCompactOverlayCommand}"
                                                             Background="Transparent"
                                                             Visibility="Collapsed"
                                                             Margin="8 0 0 0"
                                                             MinWidth="64"
                                                             >
-                                            <StackPanel Orientation="Vertical">
+                                                <StackPanel Orientation="Vertical">
 
-                                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8A7;"
+                                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8A7;"
                                                                                    FontSize="24"
                                                                                    VerticalAlignment="Center"
                                                                                    Height="24"
@@ -1129,74 +1121,74 @@
                                                                                    HorizontalAlignment="Center"
                                                                                    Margin="0 0 0 8"
                                                                                />
-                                                <TextBlock Text="小さく最前面" 
+                                                    <TextBlock Text="小さく最前面" 
                                                                                    Style="{StaticResource CaptionTextBlockStyle}"
                                                                                    VerticalAlignment="Center" />
-                                            </StackPanel>
-                                        </Button>
+                                                </StackPanel>
+                                            </Button>
 
 
 
-                                        <Button x:Name="FullscreenButton"  
+                                            <Button x:Name="FullscreenButton"  
                                                             Command="{Binding ToggleFullScreenCommand}"
                                                             Background="Transparent"
                                                             Visibility="Collapsed"
                                                             Margin="8 0 0 0"
                                                             MinWidth="64"
                                                                         >
-                                            <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                                                <toolkit:LayoutTransformControl Margin="0 0 0 8">
-                                                    <iconPack:PackIconMaterial x:Name="FullscreenButtonIcon"  
+                                                <StackPanel Orientation="Vertical" VerticalAlignment="Center">
+                                                    <toolkit:LayoutTransformControl Margin="0 0 0 8">
+                                                        <iconPack:PackIconMaterial x:Name="FullscreenButtonIcon"  
                                                                                 Kind="Fullscreen"                                                                                                        
                                                                                 Width="24"
                                                                                 Height="24"
                                                                                 HorizontalAlignment="Center"
                                                                             >
 
-                                                    </iconPack:PackIconMaterial>
-                                                </toolkit:LayoutTransformControl>
+                                                        </iconPack:PackIconMaterial>
+                                                    </toolkit:LayoutTransformControl>
 
 
-                                                <TextBlock Text="全画面" 
+                                                    <TextBlock Text="全画面" 
                                                                                    Style="{StaticResource CaptionTextBlockStyle}"
                                                                                    VerticalAlignment="Center" />
 
-                                            </StackPanel>
-                                        </Button>
+                                                </StackPanel>
+                                            </Button>
 
 
 
 
-                                        <Button x:Name="DisplayWithSecondaryViewButton"
+                                            <Button x:Name="DisplayWithSecondaryViewButton"
                                                             Command="{Binding PlayerDisplayWithSecondaryViewCommand}"
                                                             Background="Transparent"
                                                             Visibility="Collapsed"
                                                             Margin="8 0 0 0"
                                                             MinWidth="64"
                                                             >
-                                            <StackPanel Orientation="Vertical">
-                                                <iconPack:PackIconMaterial Kind="CheckboxMultipleBlankOutline"
+                                                <StackPanel Orientation="Vertical">
+                                                    <iconPack:PackIconMaterial Kind="CheckboxMultipleBlankOutline"
                                                                                                    Margin="0 0 0 8"
                                                                                                    Height="24"
                                                                                                    Width="24"
                                                                                                    HorizontalAlignment="Center"
                                                                                                    />
 
-                                                <TextBlock Text="別ウィンドウ" 
+                                                    <TextBlock Text="別ウィンドウ" 
                                                                                    Style="{StaticResource CaptionTextBlockStyle}"
                                                                                    VerticalAlignment="Center" />
-                                            </StackPanel>
-                                        </Button>
+                                                </StackPanel>
+                                            </Button>
 
-                                        <ToggleButton x:Name="ForceRotateToggleButton" 
+                                            <ToggleButton x:Name="ForceRotateToggleButton" 
                                                                   IsChecked="{Binding IsForceLandscape.Value, Mode=TwoWay}"
                                                                   Background="Transparent"
                                                                   Visibility="Collapsed"
                                                         Margin="8 0 0 0"
                                                               MinWidth="64"
                                                         >
-                                            <StackPanel>
-                                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B4;"
+                                                <StackPanel>
+                                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B4;"
                                                                                    FontSize="24"
                                                                                    VerticalAlignment="Center"
                                                                                    Height="24"
@@ -1205,108 +1197,108 @@
                                                                                    Margin="0 0 0 8"
                                                                                />
 
-                                                <TextBlock Text="横持ち固定"
+                                                    <TextBlock Text="横持ち固定"
                                                                                    Style="{StaticResource CaptionTextBlockStyle}"
                                                                                    VerticalAlignment="Center"
                                                                                    />
-                                            </StackPanel>
-                                        </ToggleButton>
+                                                </StackPanel>
+                                            </ToggleButton>
 
 
 
-                                    </StackPanel>
+                                        </StackPanel>
 
 
 
-                                </Grid>
+                                    </Grid>
 
 
 
 
-                                <Border Height="32">
+                                    <Border Height="32">
 
-                                    <Border.Background>
-                                        <LinearGradientBrush StartPoint="1, 1" EndPoint="1, 0">
-                                            <GradientStop Color="{Binding Source={StaticResource SystemAltMediumColor}, Converter={StaticResource ToTransparentColor}}" Offset="0.0" />
-                                            <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" />
-                                        </LinearGradientBrush>
-                                    </Border.Background>
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="1, 1" EndPoint="1, 0">
+                                                <GradientStop Color="{Binding Source={StaticResource SystemAltMediumColor}, Converter={StaticResource ToTransparentColor}}" Offset="0.0" />
+                                                <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" />
+                                            </LinearGradientBrush>
+                                        </Border.Background>
 
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
-                                </Border>
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </Border>
 
-                            </StackPanel>
+                                </StackPanel>
 
-                            <StackPanel 
+                                <StackPanel 
                                 toolkit:DockPanel.Dock="Bottom"
                                 HorizontalAlignment="Stretch"
                                 >
 
-                                <Border Height="48">
-                                    <Border.Background>
-                                        <LinearGradientBrush x:Name="ControlPanelBackgroundBrush" StartPoint="1, 0" EndPoint="1, 1">
-                                            <GradientStop Color="{Binding Source={StaticResource SystemAltMediumColor}, Converter={StaticResource ToTransparentColor}}" Offset="0.0" x:Name="GradientStop1"/>
-                                            <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" x:Name="GradientStop2" />
-                                        </LinearGradientBrush>
-                                    </Border.Background>
+                                    <Border Height="48">
+                                        <Border.Background>
+                                            <LinearGradientBrush x:Name="ControlPanelBackgroundBrush" StartPoint="1, 0" EndPoint="1, 1">
+                                                <GradientStop Color="{Binding Source={StaticResource SystemAltMediumColor}, Converter={StaticResource ToTransparentColor}}" Offset="0.0" x:Name="GradientStop1"/>
+                                                <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" x:Name="GradientStop2" />
+                                            </LinearGradientBrush>
+                                        </Border.Background>
 
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
-                                </Border>
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </Border>
 
-                                <StackPanel x:Name="TitleLayout" >
-                                    <StackPanel.Background>
-                                        <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
-                                    </StackPanel.Background>
-
-                                    
-                                    <TextBlock Text="{Binding LiveTitle}" FontSize="24" Margin="8" HorizontalAlignment="Center" TextWrapping="Wrap" />
-
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
-                                </StackPanel>
+                                    <StackPanel x:Name="TitleLayout" >
+                                        <StackPanel.Background>
+                                            <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                                        </StackPanel.Background>
 
 
+                                        <TextBlock Text="{Binding LiveTitle}" FontSize="24" Margin="8" HorizontalAlignment="Center" TextWrapping="Wrap" />
 
-                                <!-- 生放送情報 -->
-                                <Border toolkit:DockPanel.Dock="Top"
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </StackPanel>
+
+
+
+                                    <!-- 生放送情報 -->
+                                    <Border toolkit:DockPanel.Dock="Top"
                                         x:Name="LiveInfoLayout"
                                 >
-                                    <Border.Background>
-                                        <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
-                                    </Border.Background>
-                                    
-                                    <toolkit:DockPanel 
+                                        <Border.Background>
+                                            <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                                        </Border.Background>
+
+                                        <toolkit:DockPanel 
                                                >
 
-                                        <StackPanel Orientation="Horizontal"
+                                            <StackPanel Orientation="Horizontal"
                                             toolkit:DockPanel.Dock="Left"
                                             >
 
 
 
-                                            <!-- 放送時間 -->
-                                            <toolkit:DockPanel
+                                                <!-- 放送時間 -->
+                                                <toolkit:DockPanel
                                      Margin="16"
                                     
                                      >
 
-                                                <SymbolIcon Symbol="Clock" 
+                                                    <SymbolIcon Symbol="Clock" 
                                                 Margin="8 0"
                                                 Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                 />
 
-                                                <TextBlock  HorizontalAlignment="Right"
+                                                    <TextBlock  HorizontalAlignment="Right"
                                                VerticalAlignment="Bottom"
                                                IsHitTestVisible="False"
                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
@@ -1314,45 +1306,45 @@
                                                 FontSize="18"
                                             >
                                         <Run Text="{Binding LiveElapsedTime, Converter={StaticResource TimeToMovieLengthConverter}}" />
-                                                </TextBlock>
-                                            </toolkit:DockPanel>
+                                                    </TextBlock>
+                                                </toolkit:DockPanel>
 
-                                            <!-- 来場者数・コメント数 -->
-                                            <StackPanel Orientation="Horizontal"
+                                                <!-- 来場者数・コメント数 -->
+                                                <StackPanel Orientation="Horizontal"
                                             >
-                                                <SymbolIcon Symbol="View" 
+                                                    <SymbolIcon Symbol="View" 
                                                 Margin="8 0"
                                                 Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                 />
 
-                                                <TextBlock VerticalAlignment="Center"
+                                                    <TextBlock VerticalAlignment="Center"
                                                IsHitTestVisible="False"
                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                Margin="0 0 8 0"
                                                 FontSize="18"
                                             >
                                         <Run Text="{Binding WatchCount.Value, Converter={StaticResource ToUserFriendlyNumber}}" />
-                                                </TextBlock>
+                                                    </TextBlock>
 
-                                                <SymbolIcon Symbol="Comment" 
+                                                    <SymbolIcon Symbol="Comment" 
                                                 Margin="8 0"
                                                 Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                 />
 
-                                                <TextBlock VerticalAlignment="Center"
+                                                    <TextBlock VerticalAlignment="Center"
                                                IsHitTestVisible="False"
                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                Margin="0 0 8 0"
                                                 FontSize="18"
                                             >
                                         <Run Text="{Binding CommentCount.Value, Converter={StaticResource ToUserFriendlyNumber}}" />
-                                                </TextBlock>
+                                                    </TextBlock>
 
+                                                </StackPanel>
                                             </StackPanel>
-                                        </StackPanel>
 
 
-                                        <StackPanel Orientation="Vertical"
+                                            <StackPanel Orientation="Vertical"
                                             toolkit:DockPanel.Dock="Right"
                                             Margin="0 0 16 0"
                                             VerticalAlignment="Center"
@@ -1362,120 +1354,120 @@
 
 
 
-                                            <!-- 画質 -->
-                                            <StackPanel Orientation="Horizontal" Margin="0 0 0 8"
+                                                <!-- 画質 -->
+                                                <StackPanel Orientation="Horizontal" Margin="0 0 0 8"
                                                         HorizontalAlignment="Right"
                                                         Visibility="{Binding CurrentQuality.Value, Converter={StaticResource NotNullToVisibility}}"
                                                 >
-                                                <TextBlock x:Name="PlayerTypeTextBlock"
+                                                    <TextBlock x:Name="PlayerTypeTextBlock"
                                                            Margin="0 0"
                                                            VerticalAlignment="Center"
                                                            Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                            />
 
-                                                <TextBlock VerticalAlignment="Center"
+                                                    <TextBlock VerticalAlignment="Center"
                                                    Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                    x:Name="LeoLiveQualityTextBlock"
                                                    >
                                                     (<Run Text="{Binding CurrentQuality.Value, Converter={StaticResource ToLocalText}}" />)
-                                                </TextBlock>
+                                                    </TextBlock>
 
-                                                <TextBlock Visibility="{Binding IsLowLatency.Value, Converter={StaticResource BooleanToVisibility}}"
+                                                    <TextBlock Visibility="{Binding IsLowLatency.Value, Converter={StaticResource BooleanToVisibility}}"
                                                            Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                            Margin="8 0 0 0"
                                                            >
                                                     <Run Text="低遅延" />
-                                                </TextBlock>
-                                            </StackPanel>
+                                                    </TextBlock>
+                                                </StackPanel>
 
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock VerticalAlignment="Center"
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock VerticalAlignment="Center"
                                                             Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"                                                
                                                             Visibility="{Binding RoomName, Converter={StaticResource NotNullToVisibility}}"
                                                     >
                                                     <Run Text="{Binding RoomName}" />
-                                                </TextBlock>
+                                                    </TextBlock>
 
-                                                <TextBlock VerticalAlignment="Center"
+                                                    <TextBlock VerticalAlignment="Center"
                                                             Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"                                                
                                                             Visibility="{Binding SeetId, Converter={StaticResource NotNullToVisibility}}"
                                                      >
                                                     <Run Text=" - " /><Run Text="{Binding SeetId}" />番
-                                                </TextBlock>
+                                                    </TextBlock>
 
+                                                </StackPanel>
                                             </StackPanel>
-                                        </StackPanel>
 
-                                        <Border />
+                                            <Border />
 
 
-                                        <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="Tapped">
-                                                <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
-                                            </core:EventTriggerBehavior>
-                                        </i:Interaction.Behaviors>
+                                            <i:Interaction.Behaviors>
+                                                <core:EventTriggerBehavior EventName="Tapped">
+                                                    <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
+                                                </core:EventTriggerBehavior>
+                                            </i:Interaction.Behaviors>
 
-                                    </toolkit:DockPanel>
+                                        </toolkit:DockPanel>
 
-                                </Border>
-
+                                    </Border>
 
 
 
-                                <!-- 再生コントロール -->
-                                <Grid Padding="8"
+
+                                    <!-- 再生コントロール -->
+                                    <Grid Padding="8"
                                     x:Name="PlaybackControlLayout"
                                     >
-                                    <Grid.Background>
-                                        <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
-                                    </Grid.Background>
+                                        <Grid.Background>
+                                            <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                                        </Grid.Background>
 
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*" />
-                                        <ColumnDefinition Width="Auto" />
-                                        <ColumnDefinition Width="*" />
-                                    </Grid.ColumnDefinitions>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*" />
+                                            <ColumnDefinition Width="Auto" />
+                                            <ColumnDefinition Width="*" />
+                                        </Grid.ColumnDefinitions>
 
-                                    <StackPanel Orientation="Horizontal">
+                                        <StackPanel Orientation="Horizontal">
 
-                                        <!-- 音量 -->
-                                        <Button 
+                                            <!-- 音量 -->
+                                            <Button 
                                               Background="Transparent"
                                               UseSystemFocusVisuals="True"
                                               >
 
-                                            <SymbolIcon Symbol="Mute"
+                                                <SymbolIcon Symbol="Mute"
                                                 x:Name="VolumeButtonIcon"
                                                 />
 
-                                            <Button.Flyout>
-                                                <Flyout>
-                                                    <toolkit:DockPanel
+                                                <Button.Flyout>
+                                                    <Flyout>
+                                                        <toolkit:DockPanel
                                                 toolkit:DockPanel.Dock="Right"
                                                 Margin="0 0 16 0"
                                                   Height="66"
                                                 >
 
-                                                        <StackPanel Background="#AA777777"
+                                                            <StackPanel Background="#AA777777"
                                                 toolkit:DockPanel.Dock="Left"
                                                 >
-                                                            <AppBarButton Icon="Volume" 
+                                                                <AppBarButton Icon="Volume" 
                                                       Label="ミュート"
                                                       VerticalAlignment="Stretch"
                                                       x:Name="MuteToggleButton"
                                                       Command="{Binding ToggleMuteCommand}"    
                                                   >
 
-                                                            </AppBarButton>
-                                                        </StackPanel>
+                                                                </AppBarButton>
+                                                            </StackPanel>
 
 
-                                                        <StackPanel Margin="8 0" 
+                                                            <StackPanel Margin="8 0" 
                                                 Orientation="Vertical">
 
 
 
-                                                            <Slider x:Name="VolumeSlider"
+                                                                <Slider x:Name="VolumeSlider"
                                                             Orientation="Horizontal"
                                                             VerticalAlignment="Top"
                                                             Margin="8 4"
@@ -1491,35 +1483,35 @@
                                                             Width="160"
                                                             Background="Transparent"
                                                     >
-                                                            </Slider>
-                                                            <TextBlock Text="音量" 
+                                                                </Slider>
+                                                                <TextBlock Text="音量" 
                                                    VerticalAlignment="Center"
                                                    Margin="8 0 0 0"
                                                    HorizontalAlignment="Center"
                                                    FontSize="12"
                                                    />
 
-                                                        </StackPanel>
+                                                            </StackPanel>
 
 
 
-                                                    </toolkit:DockPanel>
-                                                </Flyout>
-                                            </Button.Flyout>
-                                        </Button>
+                                                        </toolkit:DockPanel>
+                                                    </Flyout>
+                                                </Button.Flyout>
+                                            </Button>
 
-                                        <Button Command="{Binding ToggleDisplayCommentCommand}"
+                                            <Button Command="{Binding ToggleDisplayCommentCommand}"
                                             Background="Transparent"
                                                   >
-                                            <Grid>
-                                                <iconPack:PackIconMaterial
+                                                <Grid>
+                                                    <iconPack:PackIconMaterial
                                                 Kind="Comment"
                                                 x:Name="CommentIcon"
                                                 Width="18"
                                                 Height="18"
                                                 />
-                                                <Canvas>
-                                                    <Line X1="{Binding ElementName=CommentIcon, Path=ActualWidth}" 
+                                                    <Canvas>
+                                                        <Line X1="{Binding ElementName=CommentIcon, Path=ActualWidth}" 
                                                       Y1="0"
                                                       X2="0" 
                                                       Y2="{Binding ElementName=CommentIcon, Path=ActualHeight}"
@@ -1528,99 +1520,99 @@
                                                   Visibility="{Binding IsCommentDisplayEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                                   Opacity="0.7"
                                                   />
-                                                </Canvas>
-                                            </Grid>
-                                        </Button>
+                                                    </Canvas>
+                                                </Grid>
+                                            </Button>
 
-                                    </StackPanel>
+                                        </StackPanel>
 
-                                    <StackPanel Orientation="Horizontal" x:Name="MiddleUIControlLayout"
+                                        <StackPanel Orientation="Horizontal" x:Name="MiddleUIControlLayout"
                                         Grid.Column="1"
                                         >
 
-                                        <!-- 更新 -->
-                                        <Button x:Name="RefreshButton"
+                                            <!-- 更新 -->
+                                            <Button x:Name="RefreshButton"
                                               Command="{Binding RefreshCommand}"
                                               VerticalAlignment="Stretch"
                                               UseSystemFocusVisuals="True"
                                               Background="Transparent"
                                                 Visibility="Collapsed"
                                               >
-                                            <SymbolIcon Symbol="Refresh" />
-                                        </Button>
+                                                <SymbolIcon Symbol="Refresh" />
+                                            </Button>
 
-                                        <Button x:Name="PauseButton"
+                                            <Button x:Name="PauseButton"
                                               Command="{Binding PauseCommand}"
                                               VerticalAlignment="Stretch"
                                               UseSystemFocusVisuals="True"
                                               Background="Transparent"
                                                 Visibility="Collapsed"
                                               >
-                                            <iconPack:PackIconMaterial Kind="Pause" Width="24" Height="24" />
-                                        </Button>
+                                                <iconPack:PackIconMaterial Kind="Pause" Width="24" Height="24" />
+                                            </Button>
 
 
-                                    </StackPanel>
+                                        </StackPanel>
 
-                                    <StackPanel Orientation="Horizontal"
+                                        <StackPanel Orientation="Horizontal"
                                         Grid.Column="2"
                                     HorizontalAlignment="Right"
                                         >
 
-                                        <Button Command="{Binding ToggleCommentListSidePaneContentCommand}"
+                                            <Button Command="{Binding ToggleCommentListSidePaneContentCommand}"
                                                 Background="Transparent"
                                                 >
-                                            <iconPack:PackIconMaterial Kind="CommentMultipleOutline" 
+                                                <iconPack:PackIconMaterial Kind="CommentMultipleOutline" 
                                                                        Width="24" Height="24" />
-                                        </Button>
+                                            </Button>
 
 
-                                        <Button Command="{Binding SelectSidePaneContentCommand}"
+                                            <Button Command="{Binding SelectSidePaneContentCommand}"
                                                 CommandParameter="Setting" 
                                                 Background="Transparent"
                                                 >
-                                            <SymbolIcon Symbol="Setting" />
-                                        </Button>
+                                                <SymbolIcon Symbol="Setting" />
+                                            </Button>
 
-                                        <Button UseSystemFocusVisuals="True"
+                                            <Button UseSystemFocusVisuals="True"
                                                 Background="Transparent"
                                                 Flyout="{StaticResource LivePlayerFlyout}"
                                                 >
-                                            <SymbolIcon Symbol="More" />
+                                                <SymbolIcon Symbol="More" />
 
-                                        </Button>
-                                    </StackPanel>
+                                            </Button>
+                                        </StackPanel>
 
-                                </Grid>
-
-
+                                    </Grid>
 
 
 
-                                <!-- Comment関連 -->
-                                <!-- コメントを書く -->
-                                <Grid x:Name="CommentLayout" >
-                                    <Grid.Background>
-                                        <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
-                                    </Grid.Background>
-                                    
-                                    <Grid.RowDefinitions>
-                                        <RowDefinition Height="*" />
-                                        <RowDefinition Height="*" />
-                                    </Grid.RowDefinitions>
 
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="1*" />
-                                        <ColumnDefinition Width="1*" />
-                                        <ColumnDefinition Width="1*" />
-                                        <ColumnDefinition Width="1*" />
-                                        <ColumnDefinition Width="1*" />
-                                        <ColumnDefinition Width="1*" />
-                                    </Grid.ColumnDefinitions>
 
-                                    <TextBox x:Name="CommentTextBox" 
+                                    <!-- Comment関連 -->
+                                    <!-- コメントを書く -->
+                                    <Grid x:Name="CommentLayout" >
+                                        <Grid.Background>
+                                            <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                                        </Grid.Background>
+
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="*" />
+                                            <RowDefinition Height="*" />
+                                        </Grid.RowDefinitions>
+
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="1*" />
+                                            <ColumnDefinition Width="1*" />
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBox x:Name="CommentTextBox" 
                                                 Text="{Binding WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource BGTransparentTextBoxStyle}"
+                                                Style="{StaticResource BGTransparentTextBoxStyle}"
                                                 FontSize="18"
                                                 VerticalAlignment="Center"
                                                 MaxLength="75"
@@ -1636,29 +1628,29 @@
                                              Grid.Column="1"
                                              Grid.ColumnSpan="4"
                                                 >
-                                        <i:Interaction.Behaviors>
+                                            <i:Interaction.Behaviors>
 
-                                            <mybehavior:FocusGetter IsFocus="{Binding NowCommentWriting.Value, Mode=TwoWay}" />
-
-
-                                            <mybehavior:KeyboardTrigger Key="Escape">
-                                                <mybehavior:KeyboardTrigger.Actions>
-                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
-                                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
-                                                </mybehavior:KeyboardTrigger.Actions>
-                                            </mybehavior:KeyboardTrigger>
-
-                                            <mybehavior:KeyboardTrigger Key="Enter" IsEnabled="{Binding NowCommentWriting.Value, Mode=OneWay}">
-                                                <mybehavior:KeyboardTrigger.Actions>
-                                                    <core:InvokeCommandAction Command="{Binding CommentSubmitCommand}" />
-                                                </mybehavior:KeyboardTrigger.Actions>
-                                            </mybehavior:KeyboardTrigger>
-
-                                        </i:Interaction.Behaviors>
-                                    </TextBox>
+                                                <mybehavior:FocusGetter IsFocus="{Binding NowCommentWriting.Value, Mode=TwoWay}" />
 
 
-                                    <Button Content="{Binding CommandString.Value}" 
+                                                <mybehavior:KeyboardTrigger Key="Escape">
+                                                    <mybehavior:KeyboardTrigger.Actions>
+                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
+                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
+                                                    </mybehavior:KeyboardTrigger.Actions>
+                                                </mybehavior:KeyboardTrigger>
+
+                                                <mybehavior:KeyboardTrigger Key="Enter" IsEnabled="{Binding NowCommentWriting.Value, Mode=OneWay}">
+                                                    <mybehavior:KeyboardTrigger.Actions>
+                                                        <core:InvokeCommandAction Command="{Binding CommentSubmitCommand}" />
+                                                    </mybehavior:KeyboardTrigger.Actions>
+                                                </mybehavior:KeyboardTrigger>
+
+                                            </i:Interaction.Behaviors>
+                                        </TextBox>
+
+
+                                        <Button Content="{Binding CommandString.Value}" 
                                             Margin="0 0 8 8"
                                             HorizontalAlignment="Stretch"
                                             HorizontalContentAlignment="Center"
@@ -1670,14 +1662,14 @@
                                              Grid.Column="0"
                                              Grid.ColumnSpan="1"
                                         >
-                                        <Button.Flyout>
-                                            <Flyout>
-                                                <local:CommentCommandEditer DataContext="{Binding CommandEditerVM}" />
-                                            </Flyout>
-                                        </Button.Flyout>
-                                    </Button>
+                                            <Button.Flyout>
+                                                <Flyout>
+                                                    <local:CommentCommandEditer DataContext="{Binding CommandEditerVM}" />
+                                                </Flyout>
+                                            </Button.Flyout>
+                                        </Button>
 
-                                    <Button Content="投稿"  Margin="8 0 0 8"
+                                        <Button Content="投稿"  Margin="8 0 0 8"
                                                 Height="40"
                                                 Command="{Binding CommentSubmitCommand}"
                                                 x:Name="CommentSubmitButton"
@@ -1689,21 +1681,24 @@
                                              Grid.ColumnSpan="1"
                                             
                                                 />
-                                </Grid>
-                            </StackPanel>
+                                    </Grid>
+                                </StackPanel>
 
 
-                            <Border IsHitTestVisible="True" Background="Transparent">
-                                <i:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="Tapped">
-                                        <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
-                                    </core:EventTriggerBehavior>
-                                </i:Interaction.Behaviors>
+                                <Border IsHitTestVisible="True" Background="Transparent" Visibility="Collapsed">
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
 
-                            </Border>
+                                </Border>
 
 
-                        </toolkit:DockPanel>
+                            </toolkit:DockPanel>
+
+                        </Grid>
+                        
 
 
                         <!-- Compact Overlay UIControl -->
