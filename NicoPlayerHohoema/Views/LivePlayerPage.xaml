@@ -554,6 +554,8 @@
                         <StateTrigger IsActive="{Binding IsSmallWindowModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
+                        <Setter Target="BroadcasterPermanentCommentLayout.Visibility" Value="Collapsed" />
+                        <Setter Target="OperaterAnnounceCommentLayout.Visibility" Value="Collapsed" />
                     </VisualState.Setters>
                 </VisualState>
 
