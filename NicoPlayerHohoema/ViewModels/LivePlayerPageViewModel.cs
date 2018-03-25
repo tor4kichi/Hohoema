@@ -276,7 +276,7 @@ namespace NicoPlayerHohoema.ViewModels
                 CurrentState.Select(x => x == MediaElementState.Opening || x == MediaElementState.Buffering),
                 NowRunningNextLiveDetection
                 )
-                .Select(x => x.All(y => y))
+                .Select(x => x.Any(y => y))
                 .ToReadOnlyReactiveProperty(eventScheduler:CurrentWindowContextScheduler)
                 .AddTo(_NavigatingCompositeDisposable);
 
