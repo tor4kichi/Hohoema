@@ -348,7 +348,7 @@ namespace NicoPlayerHohoema.Models
         public bool _NicoScript_Replace_Enabled = true;
 
         [DataMember]
-        public bool NicoScript_置換_Enabled
+        public bool NicoScript_Replace_Enabled
         {
             get { return _NicoScript_Replace_Enabled; }
             set { SetProperty(ref _NicoScript_Replace_Enabled, value); }

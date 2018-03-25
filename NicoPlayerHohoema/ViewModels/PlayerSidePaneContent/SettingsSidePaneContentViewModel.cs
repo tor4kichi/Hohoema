@@ -271,7 +271,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 .AddTo(_CompositeDisposable);
             NicoScript_Jump_Enabled = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.NicoScript_Jump_Enabled, raiseEventScheduler: CurrentWindowContextScheduler)
                 .AddTo(_CompositeDisposable);
-            NicoScript_Replace_Enabled = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.NicoScript_置換_Enabled, raiseEventScheduler: CurrentWindowContextScheduler)
+            NicoScript_Replace_Enabled = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.NicoScript_Replace_Enabled, raiseEventScheduler: CurrentWindowContextScheduler)
                 .AddTo(_CompositeDisposable);
 
 
