@@ -1128,10 +1128,7 @@ namespace NicoPlayerHohoema.ViewModels
                 }
 
 
-                if (!Helpers.InputCapabilityHelper.IsMouseCapable)
-                {
-                    IsDisplayControlUI.Value = false;
-                }
+                IsDisplayControlUI.Value = false;
             }
         }
 

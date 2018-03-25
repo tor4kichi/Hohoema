@@ -998,7 +998,7 @@
                         <i:Interaction.Behaviors>
                             <mybehavior:VisiblityFadeChanger x:Name="PlayerControlAutoHide" 
                                                          Delay="{Binding AutoHideDelayTime.Value}"
-                                                         IsAnimationEnable="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
+                                                         IsAnimationEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
                                                          IsVisible="{Binding IsDisplayControlUI.Value, Mode=TwoWay}"
                                                          IsAutoHideEnabled="{Binding IsAutoHideEnable.Value, Mode=OneWay}"
                         />
