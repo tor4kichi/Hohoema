@@ -12,6 +12,7 @@ using Mntone.Nico2.Users.User;
 using System.Threading;
 using Prism.Commands;
 using Windows.UI.Xaml.Navigation;
+using System.Collections.Async;
 
 namespace NicoPlayerHohoema.ViewModels
 {

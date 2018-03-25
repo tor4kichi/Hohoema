@@ -35,6 +35,7 @@ Hohoema は UWPアプリです。（UWP = Universal Windows Platform）
   * ランキングや検索から動画を見つける
   * フォローやマイリストの表示
   * ニコレポ対応
+  * オススメ動画の表示
 
 * Hohoemaによるサポート機能
   * 動画キャッシュのダウンロード
@@ -42,18 +43,10 @@ Hohoema は UWPアプリです。（UWP = Universal Windows Platform）
     * 「マイリストの動画」「タグ検索結果」「ユーザーの投稿動画」をまとめて新着表示できる機能
   * 「あとで見る」機能やローカルなプレイリスト機能
   * NG設定（動画タイトル・動画投稿者ID・コメント）（正規表現が使えます）
-
-* Windows 10 Creators Update 以上であれば次の機能が利用できます
-  * ミニモード（ウィンドウを常に最前面表示するWindows10の機能）
-  * （デスクトップ／タブレット）
-
+  * 動画の次パート自動検出
+  
 
 その他の機能や修正点は [リリースノート](https://github.com/tor4kichi/Hohoema/wiki/%E3%83%AA%E3%83%AA%E3%83%BC%E3%82%B9%E3%83%8E%E3%83%BC%E3%83%88) から確認できます
-
-## 今後の予定
-
-* [v0.13 メニュー含めたレイアウト改修](https://github.com/tor4kichi/Hohoema/milestone/18)
-
 
 ## 要望・バグ報告について
 
@@ -82,10 +75,8 @@ GPL v3
 
 ## 開発への支援について
 
-Hohoemaは [tor4kichi](https://twitter.com/tor4kichi) が主な制作をしています。また、問題報告や実機確認などTwitter・Github・FeedbackHub等で協力を頂きながら作ってます。
+Hohoemaは [tor4kichi](https://twitter.com/tor4kichi) が個人で開発しています。また、問題報告や実機確認などTwitter・Github・FeedbackHub等で色んな方からの協力を頂きながら制作しています。
 
-制作のモチベーションのためにも[ストアでのレビュー]((ms-windows-store://pdp/?ProductId=9nblggh4rxt6))を頂けると嬉しいです。
+アプリ開発の応援には、[ストアでのレビュー]((ms-windows-store://pdp/?ProductId=9nblggh4rxt6))や、金銭的な支援が Hohoemaアプリ内の「設定」→「Hohoemaのアドオン（ページ最下段）」→「Hohoemaを応援する」から出来るようになっています。（ストアでの売上は 30% がマイクロソフトに手数料として差し引かれます。）
 
-また、金銭的な支援が Hohoemaアプリ内の「設定」→「Hohoemaのアドオン（ページ最下段）」→「Hohoemaを応援する」から出来るようになっています。（ストアでの売上は 30% がマイクロソフトに手数料として差し引かれます。）
-
-使えるニコ動プレイヤーにしていきますのでご支援よろしくお願いします。
+使えるニコ動アプリとして制作を続けていきますので、ご支援頂けると助かります。

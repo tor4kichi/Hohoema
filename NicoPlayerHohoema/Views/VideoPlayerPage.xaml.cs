@@ -23,6 +23,11 @@ namespace NicoPlayerHohoema.Views
         public UINavigationButtons ShowUIUINavigationButtons =>
             UINavigationButtons.Cancel | UINavigationButtons.Accept | UINavigationButtons.Left | UINavigationButtons.Right | UINavigationButtons.Up | UINavigationButtons.Down;
 
+        public TimeSpan ForwardSeekTime => TimeSpan.FromSeconds(30);
+        public TimeSpan PreviewSeekTime => TimeSpan.FromSeconds(-10);
+
+
+
         public VideoPlayerPage()
         {
             this.InitializeComponent();
@@ -44,7 +49,7 @@ namespace NicoPlayerHohoema.Views
             {
                 return Playlist;
             }
-            else if (item is ViewModels.PlayerSidePaneContent.CommentSidePaneContentViewModel)
+            else if (item is ViewModels.PlayerSidePaneContent.LiveCommentSidePaneContentViewModel)
             {
                 return Comments;
             }

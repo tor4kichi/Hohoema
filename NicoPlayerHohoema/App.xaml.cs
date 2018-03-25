@@ -32,7 +32,6 @@ using Prism.Windows.AppModel;
 using Prism.Windows.Mvvm;
 //using BackgroundAudioShared;
 using Windows.Media;
-using NicoPlayerHohoema.Models.Db;
 using Windows.Storage;
 using System.Text;
 using NicoPlayerHohoema.Helpers;
@@ -96,18 +95,6 @@ namespace NicoPlayerHohoema
             this.RequiresPointerMode = Windows.UI.Xaml.ApplicationRequiresPointerMode.WhenRequested;
 
             RequestedTheme = GetTheme();
-
-
-            // ローカルDBのEntityFrameworkからLiteDBへの移行処理
-            // 0.13あたりまで残しておく予定
-            try
-            {
-                MigrationToLiteDBHelper.Migrate();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.ToString());
-            }
 
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.CacheDuration = TimeSpan.FromDays(7);
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.MaxMemoryCacheCount = 200;
@@ -589,15 +576,11 @@ namespace NicoPlayerHohoema
                 }
             }
 
-            await Models.Db.NicoVideoDbContext.InitializeAsync();
-			await Models.Db.HistoryDbContext.InitializeAsync();
-            await Models.Db.PlayHistoryDbContext.InitializeAsync();
-
 
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.CacheDuration = TimeSpan.FromHours(24);
 
 			// TwitterAPIの初期化
-			await TwitterHelper.Initialize();
+//			await TwitterHelper.Initialize();
 
 			await RegisterTypes();
 
@@ -682,6 +665,7 @@ namespace NicoPlayerHohoema
             Container.RegisterInstance(hohoemaApp.OtherOwneredMylistManager);
             Container.RegisterInstance(hohoemaApp.FeedManager);
             Container.RegisterInstance(hohoemaApp.CacheManager);
+            Container.RegisterInstance(hohoemaApp.UserSettings);
 
 #if DEBUG
             //			BackgroundUpdater.MaxTaskSlotCount = 1;
@@ -693,8 +677,8 @@ namespace NicoPlayerHohoema
 
             // ViewModels
             Container.RegisterType<ViewModels.RankingCategoryListPageViewModel>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<ViewModels.SearchPageViewModel>(new ContainerControlledLifetimeManager());
             /*
+            Container.RegisterType<ViewModels.SearchPageViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ViewModels.MenuNavigatePageBaseViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<ViewModels.WatchHistoryPageViewModel>(new ContainerControlledLifetimeManager());
 			Container.RegisterType<ViewModels.UserVideoPageViewModel>(new ContainerControlledLifetimeManager());
@@ -825,6 +809,8 @@ namespace NicoPlayerHohoema
             Debug.WriteLine("Page navigation failed!!");
             Debug.WriteLine(e.SourcePageType.AssemblyQualifiedName);
             Debug.WriteLine(e.Exception.ToString());
+
+            WriteErrorFile(e.Exception, e.SourcePageType?.AssemblyQualifiedName).ConfigureAwait(false);
         }
 
         private void Container_FocusEngaged(Control sender, FocusEngagedEventArgs args)
@@ -860,19 +846,23 @@ namespace NicoPlayerHohoema
             //			ShowErrorToast();
         }
 
-		public async Task WriteErrorFile(Exception e)
+		public async Task WriteErrorFile(Exception e, string pageName = null)
 		{
-			try
-			{
+            var pageManager = Container.Resolve<PageManager>();
+            if (pageName == null)
+            {
+                pageName = pageManager.CurrentPageType.ToString();
+            }
+            try
+            {
 				var folder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("error", CreationCollisionOption.OpenIfExists);
-				var errorFile = await folder.CreateFileAsync($"hohoema_error_{DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")}.txt", CreationCollisionOption.OpenIfExists);
+				var errorFile = await folder.CreateFileAsync($"hohoema_{pageName}_{DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")}.txt", CreationCollisionOption.OpenIfExists);
 
 				var version = Package.Current.Id.Version;
 				var versionText = $"{version.Major}.{version.Minor}.{version.Build}";
 				var stringBuilder = new StringBuilder();
-				var pageManager = Container.Resolve<PageManager>();
 				stringBuilder.AppendLine($"Hohoema {versionText}");
-				stringBuilder.AppendLine("開いていたページ:" + pageManager.CurrentPageType.ToString());
+				stringBuilder.AppendLine("開いていたページ:" + pageName);
 				stringBuilder.AppendLine("");
 				stringBuilder.AppendLine("= = = = = = = = = = = = = = = =");
 				stringBuilder.AppendLine("");

@@ -139,6 +139,30 @@
 
             <ScrollViewer>
                 <StackPanel>
+
+                    <StackPanel toolkit:DockPanel.Dock="Top"
+                                    Visibility="{Binding JumpVideo, Converter={StaticResource NotNullToVisibility}}"
+                                    >
+                        <!-- ＠ジャンプ動画 -->
+                        <TextBlock Text="＠ジャンプ"
+                                   Style="{StaticResource SubtitleTextBlockStyle}" 
+                                   Margin="8 8"
+                                       />
+
+                        <Button Content="{Binding JumpVideo}"
+                                    Command="{StaticResource OpenContentCommand}"
+                                    CommandParameter="{Binding JumpVideo}"
+                                Background="Transparent"
+                                    >
+                            <Button.ContentTemplate>
+                                <DataTemplate>
+                                    <local:VideoInfoControl />
+                                </DataTemplate>
+                            </Button.ContentTemplate>
+                        </Button>
+
+                    </StackPanel>
+                    
                     <StackPanel toolkit:DockPanel.Dock="Top"
                                     Visibility="{Binding NextVideo, Converter={StaticResource NotNullToVisibility}}"
                                     >

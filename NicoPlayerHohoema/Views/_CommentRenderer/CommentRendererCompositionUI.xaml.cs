@@ -1,6 +1,7 @@
 ﻿using Microsoft.Toolkit.Uwp.UI.Animations;
 using NicoPlayerHohoema.Helpers;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -43,6 +44,7 @@ namespace NicoPlayerHohoema.Views
             public MediaPlaybackState PlaybackState { get; set; }
             public double PlaybackRate { get; set; }
             public double PlaybackRateInverse { get; set; }
+            public bool IsShowOperationComment { get; set; }
         }
 
 
@@ -56,6 +58,8 @@ namespace NicoPlayerHohoema.Views
             //public double PrevHorizontalPosition { get; set; }
 
         }
+
+        const int OWNER_COMMENT_Z_INDEX = 1;
 
         const float BaseCommentSizeRatioByCanvasHeight = 1.0f / 15.0f;
 
@@ -170,6 +174,14 @@ namespace NicoPlayerHohoema.Views
             }
 
             RenderComments.Clear();
+
+            var mediaPlayer = MediaPlayer;
+            if (mediaPlayer != null)
+            {
+                mediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
+                mediaPlayer.PlaybackSession.SeekCompleted -= PlaybackSession_SeekCompleted;
+                mediaPlayer.SourceChanged -= MediaPlayer_SourceChanged;
+            }
         }
 
         private bool _IsNeedCommentRenderUpdated = false;
@@ -190,9 +202,13 @@ namespace NicoPlayerHohoema.Views
             PrevRenderCommentEachLine_Top.Clear();
             PrevRenderCommentEachLine_Bottom.Clear();
             
+
+            if (Comments == null) { return; }
+
             // 現在時間-コメント表示時間から始まるコメントを描画待機コメントとして再配置
             var currentVideoPos = frame.CurrentVpos;
-            var comments = new List<Comment>(Comments);
+            
+            var comments = new List<Comment>(Comments.Cast<Comment>());
             comments.Sort((x, y) => (int)(x.VideoPosition - y.VideoPosition));
 
             RenderPendingComments.AddRange(comments);
@@ -283,7 +299,7 @@ namespace NicoPlayerHohoema.Views
             frameData.Visibility = Visibility;
             frameData.PlaybackRate = MediaPlayer.PlaybackSession.PlaybackRate;
             frameData.PlaybackRateInverse = 1d / frameData.PlaybackRate;
-
+            frameData.IsShowOperationComment = IsShowNicoLiveOperationComment;
 
             return frameData;
         }
@@ -455,6 +471,11 @@ namespace NicoPlayerHohoema.Views
             
             foreach (var comment in _RenderCandidateComments)
             {
+                if (!frame.IsShowOperationComment && comment.IsOperationCommand)
+                {
+                    continue;
+                }
+
                 // 現フレームでは既に追加不可となっている場合はスキップ
                 if (comment.VAlign == null)
                 {
@@ -670,6 +691,12 @@ namespace NicoPlayerHohoema.Views
                         Canvas.SetTop(renderComment, frame.CanvasHeight * 0.5f - renderComment.TextHeight * 0.5f);
                         PrevRenderComment_Center = renderComment;
                         isCanAddRenderComment_Center = false;
+                    }
+
+                    // オーナーコメントの場合は優先して表示されるように
+                    if (comment.IsOwnerComment)
+                    {
+                        Canvas.SetZIndex(renderComment, OWNER_COMMENT_Z_INDEX);
                     }
 
                     if (!isOutBoundComment)
@@ -1074,9 +1101,9 @@ namespace NicoPlayerHohoema.Views
         }
 
 
-        public ICollection<Comment> Comments
+        public IEnumerable Comments
         {
-            get { return (ICollection<Comment>)GetValue(CommentsProperty); }
+            get { return (IEnumerable)GetValue(CommentsProperty); }
             set { SetValue(CommentsProperty, value); }
         }
 
@@ -1084,7 +1111,7 @@ namespace NicoPlayerHohoema.Views
         // Using a DependencyProperty as the backing store for WorkItems.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty CommentsProperty =
             DependencyProperty.Register("Comments"
-                , typeof(ICollection<Comment>)
+                , typeof(IEnumerable)
                 , typeof(CommentRendererCompositionUI)
                 , new PropertyMetadata(null, OnCommentsChanged)
                 );
@@ -1093,15 +1120,60 @@ namespace NicoPlayerHohoema.Views
         {
             CommentRendererCompositionUI me = sender as CommentRendererCompositionUI;
 
-            var old = e.OldValue as INotifyCollectionChanged;
+            {
+                var old = e.OldValue as INotifyCollectionChanged;
 
-            if (old != null)
-                old.CollectionChanged -= me.OnCommentCollectionChanged;
+                if (old != null)
+                    old.CollectionChanged -= me.OnCommentCollectionChanged;
 
-            var n = e.NewValue as INotifyCollectionChanged;
+                var n = e.NewValue as INotifyCollectionChanged;
 
-            if (n != null)
-                n.CollectionChanged += me.OnCommentCollectionChanged;
+                if (n != null)
+                    n.CollectionChanged += me.OnCommentCollectionChanged;
+            }
+
+
+            {
+                var old = e.OldValue as IObservableVector<object>;
+                if (old != null)
+                {
+                    old.VectorChanged -= me.L_VectorChanged;
+                }
+
+                var l = e.NewValue as IObservableVector<object>;
+                if (l != null)
+                {
+                    l.VectorChanged += me.L_VectorChanged;
+                }
+            }
+        }
+
+        private void L_VectorChanged(IObservableVector<object> sender, IVectorChangedEventArgs @event)
+        {
+            if (@event.CollectionChange == CollectionChange.Reset)
+            {
+                // Clear and update entire collection
+                foreach (var renderComment in RenderComments)
+                {
+                    renderComment.CommentUI.Offset(0).Fade(0).SetDurationForAll(0).Start();
+                }
+
+                RenderPendingComments.Clear();
+                RenderComments.Clear();
+                CommentCanvas.Children.Clear();
+
+                PrevRenderCommentEachLine_Stream.Clear();
+                PrevRenderCommentEachLine_Top.Clear();
+                PrevRenderCommentEachLine_Bottom.Clear();
+
+                _IsNeedCommentRenderUpdated = true;
+            }
+            if (@event.CollectionChange == CollectionChange.ItemInserted)
+            {
+                var item = sender[(int)@event.Index];
+
+                AddComment(item as Comment);
+            }
         }
 
         private void OnCommentCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -1152,6 +1224,23 @@ namespace NicoPlayerHohoema.Views
 
         }
 
+
+
+
+
+        public static readonly DependencyProperty IsShowNicoLiveOperationCommentProperty =
+            DependencyProperty.Register(nameof(IsShowNicoLiveOperationComment)
+                , typeof(bool)
+                , typeof(CommentRendererCompositionUI)
+                , new PropertyMetadata(false)
+                );
+
+
+        public bool IsShowNicoLiveOperationComment
+        {
+            get { return (bool)GetValue(IsShowNicoLiveOperationCommentProperty); }
+            set { SetValue(IsShowNicoLiveOperationCommentProperty, value); }
+        }
 
         #endregion
 

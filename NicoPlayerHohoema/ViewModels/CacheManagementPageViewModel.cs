@@ -25,6 +25,7 @@ using NicoPlayerHohoema.Views.Service;
 using Windows.System;
 using Windows.UI.Popups;
 using NicoPlayerHohoema.Services;
+using System.Collections.Async;
 
 namespace NicoPlayerHohoema.ViewModels
 {

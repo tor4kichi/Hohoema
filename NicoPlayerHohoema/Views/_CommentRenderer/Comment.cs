@@ -11,6 +11,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI;
 using Windows.UI.Xaml;
+using System.Text.RegularExpressions;
 
 namespace NicoPlayerHohoema.Views
 {
@@ -29,8 +30,8 @@ namespace NicoPlayerHohoema.Views
 
 		public string UserId { get; set; }
 
-		public uint VideoPosition { get; set; }
-		public uint EndPosition { get; set; }
+		public long VideoPosition { get; set; }
+		public long EndPosition { get; set; }
 
 		public Color? Color { get; set; }
 
@@ -56,10 +57,70 @@ namespace NicoPlayerHohoema.Views
 		public HorizontalAlignment? HAlign { get; set; }
 
 		public bool IsOwnerComment { get; set; }
-
-		public bool IsOperationCommand { get; set; }
+        
+        public bool IsOperationCommand { get; set; }
 
 		public bool IsLoginUserComment { get; set; } = false;
+
+
+
+
+        static Uri ParseLinkFromHtml(string text)
+        {
+            var doc = new HtmlAgilityPack.HtmlDocument();
+            doc.LoadHtml(text);
+
+            var root = doc.DocumentNode;
+            var anchorNode = root.Descendants("a").FirstOrDefault();
+            if (anchorNode != null)
+            {
+                if (anchorNode.Attributes.Contains("href"))
+                {
+                    return  new Uri(anchorNode.Attributes["href"].Value);
+                }
+            }
+
+            return null;
+        }
+
+        bool? _IsLink;
+        public bool IsLink
+        {
+            get
+            {
+                ResetLink();
+
+                return _IsLink.Value;
+            }
+        }
+
+        Uri _Link;
+        public Uri Link
+        {
+            get
+            {
+                ResetLink();
+
+                return _Link;
+            }
+        }
+
+        private void ResetLink()
+        {
+            if (!_IsLink.HasValue)
+            {
+                if (Uri.IsWellFormedUriString(CommentText, UriKind.Absolute))
+                {
+                    _Link = new Uri(CommentText);
+                }
+                else
+                {
+                    _Link = ParseLinkFromHtml(CommentText);
+                }
+
+                _IsLink = _Link != null;
+            }
+        }
 
 
 		private bool _IsVisible = true;
@@ -263,7 +324,160 @@ namespace NicoPlayerHohoema.Views
 
 		}
 
-		public bool CheckIsNGComment()
+        public void ApplyCommands(IEnumerable<string> commandList)
+        {
+            if (commandList == null)
+            {
+                return;
+            }
+
+            foreach (var command in commandList)
+            {
+                switch (command)
+                {
+                    case "small":
+                        this.FontScale = fontSize_small;
+                        break;
+                    case "big":
+                        this.FontScale = fontSize_big;
+                        break;
+                    case "medium":
+                        this.FontScale = fontSize_mid;
+                        break;
+                    case "ue":
+                        this.VAlign = VerticalAlignment.Top;
+                        break;
+                    case "shita":
+                        this.VAlign = VerticalAlignment.Bottom;
+                        break;
+                    case "naka":
+                        this.VAlign = VerticalAlignment.Center;
+                        break;
+                    case "white":
+                        this.Color = ColorExtention.HexStringToColor("FFFFFF");
+                        break;
+                    case "red":
+                        this.Color = ColorExtention.HexStringToColor("FF0000");
+                        break;
+                    case "pink":
+                        this.Color = ColorExtention.HexStringToColor("FF8080");
+                        break;
+                    case "orange":
+                        this.Color = ColorExtention.HexStringToColor("FFC000");
+                        break;
+                    case "yellow":
+                        this.Color = ColorExtention.HexStringToColor("FFFF00");
+                        break;
+                    case "green":
+                        this.Color = ColorExtention.HexStringToColor("00FF00");
+                        break;
+                    case "cyan":
+                        this.Color = ColorExtention.HexStringToColor("00FFFF");
+                        break;
+                    case "blue":
+                        this.Color = ColorExtention.HexStringToColor("0000FF");
+                        break;
+                    case "purple":
+                        this.Color = ColorExtention.HexStringToColor("C000FF");
+                        break;
+                    case "black":
+                        this.Color = ColorExtention.HexStringToColor("000000");
+                        break;
+                    case "white2":
+                        this.Color = ColorExtention.HexStringToColor("CCCC99");
+                        break;
+                    case "niconicowhite":
+                        this.Color = ColorExtention.HexStringToColor("CCCC99");
+                        break;
+                    case "red2":
+                        this.Color = ColorExtention.HexStringToColor("CC0033");
+                        break;
+                    case "truered":
+                        this.Color = ColorExtention.HexStringToColor("CC0033");
+                        break;
+                    case "pink2":
+                        this.Color = ColorExtention.HexStringToColor("FF33CC");
+                        break;
+                    case "orange2":
+                        this.Color = ColorExtention.HexStringToColor("FF6600");
+                        break;
+                    case "passionorange":
+                        this.Color = ColorExtention.HexStringToColor("FF6600");
+                        break;
+                    case "yellow2":
+                        this.Color = ColorExtention.HexStringToColor("999900");
+                        break;
+                    case "madyellow":
+                        this.Color = ColorExtention.HexStringToColor("999900");
+                        break;
+                    case "green2":
+                        this.Color = ColorExtention.HexStringToColor("00CC66");
+                        break;
+                    case "elementalgreen":
+                        this.Color = ColorExtention.HexStringToColor("00CC66");
+                        break;
+                    case "cyan2":
+                        this.Color = ColorExtention.HexStringToColor("00CCCC");
+                        break;
+                    case "blue2":
+                        this.Color = ColorExtention.HexStringToColor("3399FF");
+                        break;
+                    case "marineblue":
+                        this.Color = ColorExtention.HexStringToColor("3399FF");
+                        break;
+                    case "purple2":
+                        this.Color = ColorExtention.HexStringToColor("6633CC");
+                        break;
+                    case "nobleviolet":
+                        this.Color = ColorExtention.HexStringToColor("6633CC");
+                        break;
+                    case "black2":
+                        this.Color = ColorExtention.HexStringToColor("666666");
+                        break;
+                    case "full":
+                        break;
+                    case "_184":
+                        this.IsAnonimity = true;
+                        break;
+                    case "invisible":
+                        this.IsVisible = false;
+                        break;
+                    case "all":
+                        // Note": 事前に判定しているのでここでは評価しない
+                        break;
+                    case "from_button":
+                        break;
+                    case "is_button":
+                        break;
+                    case "_live":
+
+                        break;
+                    default:
+                        if (command.StartsWith("#"))
+                        {
+                            this.Color = ColorExtention.HexStringToColor(command.Remove(0, 1));
+                        }
+                        break;
+                }
+            }
+
+            // TODO: 投稿者のコメント表示時間を伸ばす？（3秒→５秒）
+            // usまたはshitaが指定されている場合に限る？
+
+            // 　→　投コメ解説をみやすくしたい
+
+            if (this.IsOwnerComment && this.VAlign.HasValue)
+            {
+                var displayTime = Math.Max(3.0f, this.CommentText.Count() * 0.3f); // 4文字で1秒？ 年齢層的に読みが遅いかもしれないのでやや長めに
+                var displayTimeVideoLength = (uint)(displayTime * 100);
+                this.EndPosition = this.VideoPosition + displayTimeVideoLength;
+            }
+
+
+        }
+
+
+        public bool CheckIsNGComment()
         {
             if (NGSettings == null || CommentText == null)
             {

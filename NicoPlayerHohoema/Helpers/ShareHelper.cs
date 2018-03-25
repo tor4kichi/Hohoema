@@ -8,7 +8,6 @@ using Microsoft.Practices.Unity;
 using Windows.ApplicationModel.DataTransfer;
 using NicoPlayerHohoema.Models.Live;
 using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Models.Db;
 
 namespace NicoPlayerHohoema.Helpers
 {
@@ -81,6 +80,7 @@ namespace NicoPlayerHohoema.Helpers
 
         public static async Task ShareToTwitter(string content)
         {
+            /*
             if (!TwitterHelper.IsLoggedIn)
             {
 
@@ -108,6 +108,7 @@ namespace NicoPlayerHohoema.Helpers
                     }
                 }
             }
+            */
         }
 
         public static async Task ShareToTwitter(Database.NicoVideo video)

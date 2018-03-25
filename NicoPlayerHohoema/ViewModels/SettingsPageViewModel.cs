@@ -108,11 +108,13 @@ namespace NicoPlayerHohoema.ViewModels
                 return _LogInToTwitterCommand
                     ?? (_LogInToTwitterCommand = new DelegateCommand(async () =>
                     {
+                        /*
                         if (await TwitterHelper.LoginOrRefreshToken())
                         {
                             IsLoginTwitter.Value = TwitterHelper.IsLoggedIn;
                             TwitterAccountScreenName.Value = TwitterHelper.TwitterUser?.ScreenName ?? "";
                         }
+                        */
                     }
                     ));
             }
@@ -126,7 +128,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _LogoutTwitterCommand
                     ?? (_LogoutTwitterCommand = new DelegateCommand(() =>
                     {
-                        TwitterHelper.Logout();
+//                        TwitterHelper.Logout();
 
                         IsLoginTwitter.Value = false;
                         TwitterAccountScreenName.Value = "";
@@ -391,8 +393,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             // シェア
-            IsLoginTwitter = new ReactiveProperty<bool>(TwitterHelper.IsLoggedIn);
-            TwitterAccountScreenName = new ReactiveProperty<string>(TwitterHelper.TwitterUser?.ScreenName ?? "");
+            IsLoginTwitter = new ReactiveProperty<bool>(/*TwitterHelper.IsLoggedIn*/ false);
+            TwitterAccountScreenName = new ReactiveProperty<string>(/*TwitterHelper.TwitterUser?.ScreenName ?? ""*/);
 
 
             // アバウト

@@ -14,6 +14,7 @@ using Mntone.Nico2;
 using Reactive.Bindings;
 using System.Reactive.Linq;
 using Reactive.Bindings.Extensions;
+using System.Collections.Async;
 
 namespace NicoPlayerHohoema.ViewModels
 {

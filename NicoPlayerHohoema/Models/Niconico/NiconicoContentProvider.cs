@@ -14,7 +14,6 @@ using Mntone.Nico2.Videos.Histories;
 using Mntone.Nico2.Videos.Ranking;
 using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
-using NicoPlayerHohoema.Models.Db;
 using NicoPlayerHohoema.Helpers;
 using Prism.Mvvm;
 using System;
@@ -273,14 +272,28 @@ namespace NicoPlayerHohoema.Models
                             IsDictionaryExists = x.IsDictionaryExists
                         }).ToList();
 
-
-                        info.Owner = new NicoVideoOwner()
+                        if (res.Owner != null)
                         {
-                            ScreenName = res.Owner?.Nickname ?? res.Channel?.Name,
-                            IconUrl = res.Owner?.IconURL ?? res.Channel?.IconURL,
-                            OwnerId = res.Owner?.Id ?? res.Channel?.GlobalId,
-                            UserType = res.Channel != null ? UserType.Channel : UserType.User
-                        };
+                            info.Owner = new NicoVideoOwner()
+                            {
+                                ScreenName = res.Owner.Nickname ,
+                                IconUrl = res.Owner.IconURL ,
+                                OwnerId = res.Owner.Id ,
+                                UserType = UserType.User
+                            };
+
+                            NicoVideoOwnerDb.AddOrUpdate(info.Owner);
+                        }
+                        else if (res.Channel != null)
+                        {
+                            info.Owner = new NicoVideoOwner()
+                            {
+                                ScreenName = res.Channel.Name,
+                                IconUrl = res.Channel.IconURL,
+                                OwnerId = res.Channel.GlobalId,
+                                UserType = UserType.Channel
+                            };
+                        }
 
                         if (data.DmcWatchResponse?.Video != null)
                         {
@@ -288,7 +301,6 @@ namespace NicoPlayerHohoema.Models
                         }
 
                         NicoVideoDb.AddOrUpdate(info);
-                        NicoVideoOwnerDb.AddOrUpdate(info.Owner);
                     }
 
 
@@ -484,7 +496,39 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public async Task<NiconicoVideoRss> GetCategoryRanking(RankingCategory category, RankingTarget target, RankingTimeSpan timeSpan)
+        public async Task<NicoVideoOwner> GetUser(string userId)
+        {
+            using (var releaser = await _NicoPageAccessLock.LockAsync())
+            {
+                var userRes = await ConnectionRetryUtil.TaskWithRetry(() =>
+                {
+                    return Context.User.GetUserAsync(userId);
+                });
+
+                var owner = NicoVideoOwnerDb.Get(userId);
+                if (userRes.Status == "ok")
+                {
+                    var user = userRes.User;
+                    if (owner == null)
+                    {
+                        owner = new NicoVideoOwner()
+                        {
+                            OwnerId = userId,
+                            UserType = UserType.User
+                        };
+                    }
+                    owner.ScreenName = user.Nickname;
+                    owner.IconUrl = user.ThumbnailUrl;
+
+                    NicoVideoOwnerDb.AddOrUpdate(owner);
+                }
+
+                return owner;
+            }
+        }
+
+
+        public async Task<NiconicoVideoRss> GetCategoryRanking(RankingCategory category, RankingTarget target, RankingTimeSpan timeSpan)
 		{
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{

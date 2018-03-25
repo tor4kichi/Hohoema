@@ -21,9 +21,12 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
         public NicoVideo Video { get; }
 
-        public RelatedVideosSidePaneContentViewModel(NicoVideo video)
+        private string _JumpVideoId { get; }
+
+        public RelatedVideosSidePaneContentViewModel(NicoVideo video, string jumpVideoId)
         {
             Video = video;
+            _JumpVideoId = jumpVideoId;
             CurrentVideoId = video.RawVideoId;
             _VideoViewerHelpInfo = video.GetVideoRelatedInfomationWithVideoDescription(); ;
 
@@ -35,6 +38,8 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
         public bool HasVideoDescription { get; private set; }
         public ObservableCollection<VideoInfoControlViewModel> OtherVideos { get; } = new ObservableCollection<VideoInfoControlViewModel>();
         public VideoInfoControlViewModel NextVideo { get; private set; }
+
+        public VideoInfoControlViewModel JumpVideo { get; private set; }
 
         public ObservableCollection<MylistGroupListItem> Mylists { get; } = new ObservableCollection<MylistGroupListItem>();
 
@@ -51,14 +56,24 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             {
                 if (_IsInitialized) { return; }
 
-                var sourceVideo = Database.NicoVideoDb.Get(CurrentVideoId);
-
-                var videoIds = _VideoViewerHelpInfo.GetVideoIds();
                 var hohoemaApp = App.Current.Container.Resolve<Models.HohoemaApp>();
+
+                // ニコスクリプトで指定されたジャンプ先動画
+                if (_JumpVideoId != null)
+                {
+                    var video = await hohoemaApp.ContentProvider.GetNicoVideoInfo(_JumpVideoId, requireLatest: true);
+                    if (video != null)
+                    {
+                        JumpVideo = new VideoInfoControlViewModel(video);
+                        RaisePropertyChanged(nameof(JumpVideo));
+                    }
+                }
 
                 // 再生中アイテムのタイトルと投稿者説明文に含まれる動画IDの動画タイトルを比較して
                 // タイトル文字列が近似する動画をシリーズ動画として取り込む
                 // 違うっぽい動画も投稿者が提示したい動画として確保
+                var sourceVideo = Database.NicoVideoDb.Get(CurrentVideoId);
+                var videoIds = _VideoViewerHelpInfo.GetVideoIds();
                 List<Database.NicoVideo> seriesVideos = new List<Database.NicoVideo>();
                 seriesVideos.Add(sourceVideo);
                 foreach (var id in videoIds)
@@ -100,6 +115,8 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 }
 
                 RaisePropertyChanged(nameof(OtherVideos));
+
+                
 
                 // マイリスト
                 var pageManager = App.Current.Container.Resolve<Models.PageManager>();

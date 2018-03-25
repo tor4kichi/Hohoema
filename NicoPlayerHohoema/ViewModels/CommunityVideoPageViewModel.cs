@@ -14,6 +14,7 @@ using Mntone.Nico2.Videos.Ranking;
 using Prism.Commands;
 using System.Windows.Input;
 using NicoPlayerHohoema.Interfaces;
+using System.Collections.Async;
 
 namespace NicoPlayerHohoema.ViewModels
 {

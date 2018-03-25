@@ -288,8 +288,8 @@ namespace NicoPlayerHohoema.ViewModels
 			{
                 try
 				{
-					var userInfo = await HohoemaApp.ContentProvider.GetUserInfo(UserId);
-					UserName = userInfo.Nickname;
+					var userInfo = await HohoemaApp.ContentProvider.GetUser(UserId);
+					UserName = userInfo.ScreenName;
 				}
 				catch (Exception ex)
 				{
@@ -347,26 +347,33 @@ namespace NicoPlayerHohoema.ViewModels
 
         private async Task UpdateUserMylist()
 		{
-            await HohoemaApp.UserMylistManager.Initialize();
-
-            var listItems = HohoemaApp.UserMylistManager.UserMylists;
-            MylistList.Clear();
-
-            MylistList.Add(new MylistItemsWithTitle()
+            try
             {
-                Title = "ローカル",
-                Origin = PlaylistOrigin.Local,
-                Items = HohoemaApp.Playlist.Playlists.ToReadOnlyReactiveCollection(x => new MylistSearchListingItem(x as IPlayableList, PageManager)),
-                MaxItemsCountText = "∞"
-            });
+                await HohoemaApp.UserMylistManager.Initialize();
 
-            MylistList.Add(new MylistItemsWithTitle()
+                var listItems = HohoemaApp.UserMylistManager.UserMylists;
+                MylistList.Clear();
+
+                MylistList.Add(new MylistItemsWithTitle()
+                {
+                    Title = "ローカル",
+                    Origin = PlaylistOrigin.Local,
+                    Items = HohoemaApp.Playlist.Playlists?.ToReadOnlyReactiveCollection(x => new MylistSearchListingItem(x as IPlayableList, PageManager)),
+                    MaxItemsCountText = "∞"
+                });
+
+                MylistList.Add(new MylistItemsWithTitle()
+                {
+                    Title = "マイリスト",
+                    Origin = PlaylistOrigin.LoginUser,
+                    Items = listItems?.ToReadOnlyReactiveCollection(x => new MylistSearchListingItem(x as IPlayableList, PageManager)),
+                    MaxItemsCountText = "26"
+                });
+            }
+            catch (Exception ex)
             {
-                Title = "マイリスト",
-                Origin = PlaylistOrigin.LoginUser,
-                Items = listItems.ToReadOnlyReactiveCollection(x => new MylistSearchListingItem(x as IPlayableList, PageManager)),
-                MaxItemsCountText = "26"
-            });
+                await (App.Current as App).WriteErrorFile(ex).ConfigureAwait(false);
+            }
         }
 	}
 

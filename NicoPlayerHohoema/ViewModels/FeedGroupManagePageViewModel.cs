@@ -420,7 +420,7 @@ namespace NicoPlayerHohoema.ViewModels
                     var video = feed.Item1;
 
                     // 視聴済みの動画は表示しない
-                    var playedHistory = Models.Db.VideoPlayHistoryDb.Get(video.VideoId);
+                    var playedHistory = Database.VideoPlayedHistoryDb.Get(video.VideoId);
                     if (playedHistory?.PlayCount != 0)
                     {
                         continue;

@@ -531,6 +531,8 @@
                     />
             </toolkit:DockPanel>
 
+            
+
             <StackPanel Margin="0 0 0 0">
 
 
@@ -568,8 +570,89 @@
             </StackPanel>
 
 
+            <!-- ニコスクリプト設定 -->
+            <StackPanel>
+                <toolkit:DockPanel Margin="0 8">
+                    <TextBlock Text="ニコスクリプト設定"
+                            FontSize="18"
+                            VerticalAlignment="Center"
+                            FontWeight="SemiBold"
+                            toolkit:DockPanel.Dock="Left"
+                        />
+
+                    <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                        BorderThickness="0 1 0 0" 
+                        Margin="8 0 16 0"
+                        VerticalAlignment="Center"
+                    />
+                </toolkit:DockPanel>
+
+                <StackPanel Margin="0 0 0 0">
+
+                    <StackPanel Margin="0 8 0 16">
+                        <TextBlock Text="＠デフォルト"
+                        VerticalAlignment="Center"
+                        />
+                        <ToggleSwitch 
+                                IsOn="{Binding NicoScript_Default_Enabled.Value, Mode=TwoWay}"                                
+                            OnContent="許可"
+                            OffContent="許可しない"
+                                        />
+                    </StackPanel>
+
+                    <StackPanel Margin="0 8 0 16">
+                        <TextBlock Text="＠シーク禁止"
+                        VerticalAlignment="Center"
+                        />
+                        <ToggleSwitch 
+                                IsOn="{Binding NicoScript_DisallowSeek_Enabled.Value, Mode=TwoWay}"
+                                OnContent="許可"
+                            OffContent="許可しない"
+                                        />
+                    </StackPanel>
+
+                    <StackPanel Margin="0 8 0 16">
+                        <TextBlock Text="＠コメント禁止"
+                        VerticalAlignment="Center"
+                        />
+                        <ToggleSwitch 
+                                IsOn="{Binding NicoScript_DisallowComment_Enabled.Value, Mode=TwoWay}"
+                                OnContent="許可"
+                            OffContent="許可しない"
+                                        />
+                    </StackPanel>
+
+                    <StackPanel Margin="0 8 0 16">
+                        <TextBlock Text="＠ジャンプ"
+                        VerticalAlignment="Center"
+                        />
+                        <ToggleSwitch 
+                                IsOn="{Binding NicoScript_Jump_Enabled.Value, Mode=TwoWay}"
+                                OnContent="許可"
+                            OffContent="許可しない"
+                                        />
+                    </StackPanel>
+
+
+                    
+                    <!--
+                    <StackPanel Margin="0 8 0 16">
+                        <TextBlock Text="＠置換"
+                        VerticalAlignment="Center"
+                        />
+                        <ToggleSwitch 
+                                IsOn="{Binding NicoScript_Replace_Enabled.Value, Mode=TwoWay}"
+                                OnContent="許可"
+                            OffContent="許可しない"
+                                        />
+                    </StackPanel>
+                    -->
+
+                </StackPanel>
+
+            </StackPanel>
             
-            
+
             <StackPanel x:Name="DesktopPlayerSettingsLayout">
                 
                 <toolkit:DockPanel Margin="0 8">

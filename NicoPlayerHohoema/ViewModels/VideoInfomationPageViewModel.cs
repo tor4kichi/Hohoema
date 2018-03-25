@@ -16,7 +16,6 @@ using Mntone.Nico2;
 using Mntone.Nico2.Embed.Ichiba;
 using Mntone.Nico2.Videos.WatchAPI;
 using Mntone.Nico2.Videos.Dmc;
-using NicoPlayerHohoema.Models.Db;
 
 namespace NicoPlayerHohoema.ViewModels
 {

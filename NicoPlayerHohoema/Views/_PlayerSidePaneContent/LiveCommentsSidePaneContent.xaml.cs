@@ -17,9 +17,9 @@ using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.Views
 {
-	public sealed partial class CommentsSidePaneContent : UserControl
+	public sealed partial class LiveCommentsSidePaneContent : UserControl
 	{
-		public CommentsSidePaneContent()
+		public LiveCommentsSidePaneContent()
 		{
 			this.InitializeComponent();
 		}

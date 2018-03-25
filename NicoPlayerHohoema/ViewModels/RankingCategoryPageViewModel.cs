@@ -16,6 +16,7 @@ using System.Text.RegularExpressions;
 using Prism.Mvvm;
 using NicoPlayerHohoema.Services;
 using Reactive.Bindings.Extensions;
+using System.Collections.Async;
 
 namespace NicoPlayerHohoema.ViewModels
 {

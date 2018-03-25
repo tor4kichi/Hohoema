@@ -13,6 +13,7 @@ using Mntone.Nico2.Searches.Mylist;
 using Prism.Commands;
 using Mntone.Nico2;
 using Prism.Windows.Navigation;
+using System.Collections.Async;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -199,9 +200,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public async Task<IAsyncEnumerable<MylistSearchListingItem>> GetPagedItems(int head, int count)
 		{
-			var items = new List<MylistSearchListingItem>();
-
-
 			var response = await _HohoemaApp.NiconicoContext.Search.MylistSearchAsync(
 				SearchOption.Keyword
 				, (uint)head
@@ -210,10 +208,10 @@ namespace NicoPlayerHohoema.ViewModels
 				, SearchOption.Order
 			);
 
-
-            return response.MylistGroupItems
+            return response.MylistGroupItems?
                 .Select(item => new MylistSearchListingItem(item, _PageManager))
-                .ToAsyncEnumerable();
-		}
+                .ToAsyncEnumerable()
+            ?? AsyncEnumerable.Empty<MylistSearchListingItem>();
+        }
 	}
 }

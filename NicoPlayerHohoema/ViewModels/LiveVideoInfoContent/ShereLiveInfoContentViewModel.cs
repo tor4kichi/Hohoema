@@ -22,7 +22,7 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 		{
 			NicoLiveVideo = liveVideo;
 			HohoemaDialogService = dialogService;
-			IsStillLoggedInTwitter = new ReactiveProperty<bool>(!TwitterHelper.IsLoggedIn);
+			IsStillLoggedInTwitter = new ReactiveProperty<bool>(false/*!TwitterHelper.IsLoggedIn*/);
 		}
 
 
@@ -34,6 +34,7 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 				return _ShereWithTwitterCommand
 					?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
 					{
+                        /*
 						if (!TwitterHelper.IsLoggedIn)
 						{
 							if (!await TwitterHelper.LoginOrRefreshToken())
@@ -60,6 +61,7 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 								}
 							}
 						}
+                        */
 					}
 					));
 			}

@@ -202,7 +202,7 @@ namespace NicoPlayerHohoema.ViewModels
                     if (string.IsNullOrWhiteSpace(word))
                     {
                         // 検索履歴を表示
-                        return Models.Db.SearchHistoryDb.GetHistoryItems()
+                        return Database.SearchHistoryDb.GetAll()
                             .OrderByDescending(x => x.LastUpdated)
                             .Take(10)
                             .Select(x => x.Keyword);

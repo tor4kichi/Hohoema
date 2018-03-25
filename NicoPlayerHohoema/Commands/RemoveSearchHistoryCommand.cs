@@ -11,15 +11,15 @@ namespace NicoPlayerHohoema.Commands
     {
         protected override bool CanExecute(object parameter)
         {
-            return parameter is Models.Db.SearchHistory;
+            return parameter is Database.SearchHistory;
         }
 
         protected override void Execute(object parameter)
         {
-            if (parameter is Models.Db.SearchHistory)
+            if (parameter is Database.SearchHistory)
             {
-                var history = parameter as Models.Db.SearchHistory;
-                Models.Db.SearchHistoryDb.RemoveHistory(history.Keyword, history.Target);
+                var history = parameter as Database.SearchHistory;
+                Database.SearchHistoryDb.Remove(history.Keyword, history.Target);
             }
         }
     }

@@ -1,5 +1,4 @@
 ﻿using Mntone.Nico2.Videos.Thumbnail;
-using NicoPlayerHohoema.Models.Db;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -279,7 +278,60 @@ namespace NicoPlayerHohoema.Models
             }
 		}
 
-	}
+
+
+        private bool _NGLiveCommentUserEnable = true;
+
+        [DataMember]
+        public bool IsNGLiveCommentUserEnable
+        {
+            get { return _NGLiveCommentUserEnable; }
+            set { SetProperty(ref _NGLiveCommentUserEnable, value); }
+        }
+
+        [DataMember]
+        public ObservableCollection<NGUserIdInfo> NGLiveCommentUserIds { get; private set; } = new ObservableCollection<NGUserIdInfo>();
+
+        public void AddNGLiveCommentUserId(string userId, string screenName)
+        {
+            NGLiveCommentUserIds.Add(new NGUserIdInfo()
+            {
+                UserId = userId,
+                ScreenName = screenName,
+                AddedAt = DateTime.Now,
+            });
+
+            Save().ConfigureAwait(false);
+        }
+        public void RemoveNGLiveCommentUserId(string userId)
+        {
+            var ngUser = NGLiveCommentUserIds.FirstOrDefault(x => x.UserId == userId);
+            if (ngUser != null)
+            {
+                NGLiveCommentUserIds.Remove(ngUser);
+            }
+
+            Save().ConfigureAwait(false);
+        }
+
+        public void RemoveOutdatedLiveCommentNGUserIds()
+        {
+            foreach (var ngUserInfo in NGLiveCommentUserIds.Where(x => x.IsOutDated).ToArray())
+            {
+                NGLiveCommentUserIds.Remove(ngUserInfo);
+            }
+
+            Save().ConfigureAwait(false);
+        }
+
+        public bool IsLiveNGComment(string userId)
+        {
+            if (userId == null) { return false; }
+            return NGLiveCommentUserIds.Any(x => x.UserId == userId);
+        }
+    }
+
+
 
     [DataContract]
 	public class NGKeyword
@@ -332,6 +384,17 @@ namespace NicoPlayerHohoema.Models
 		public string UserId { get; set; }
 		public string Description { get; set; }
 	}
+
+    public class NGUserIdInfo
+    {
+        static readonly TimeSpan OUTDATE_TIME = TimeSpan.FromDays(7);
+        public string UserId { get; set; }
+        public string ScreenName { get; set; }
+        public bool IsAnonimity => int.TryParse(UserId, out var _);
+        public DateTime AddedAt { get; set; } = DateTime.Now;
+
+        public bool IsOutDated => IsAnonimity && (DateTime.Now - AddedAt > OUTDATE_TIME);
+    }
 
 	public enum NGCommentScore
 	{

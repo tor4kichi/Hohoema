@@ -90,6 +90,7 @@ namespace NicoPlayerHohoema.Models.Live
             MessageWebSocket.Closed += MessageWebSocket_Closed;
         }
 
+        Timer WatchingHeartbaetTimer;
 
 
         public async Task StartAsync(string requestQuality = "", bool isLowLatency = true)
@@ -156,12 +157,14 @@ namespace NicoPlayerHohoema.Models.Live
             using (var releaser = await _WebSocketLock.LockAsync())
             {
                 MessageWebSocket.Close(0x8, "");
+                WatchingHeartbaetTimer?.Dispose();
             }
         }
 
         public void Dispose()
         {
             MessageWebSocket.Dispose();
+            WatchingHeartbaetTimer?.Dispose();
         }
 
         private async void MessageWebSocket_MessageReceived(MessageWebSocket sender, MessageWebSocketMessageReceivedEventArgs args)
@@ -172,9 +175,7 @@ namespace NicoPlayerHohoema.Models.Live
                 using (var reader = new StreamReader(args.GetDataStream().AsStreamForRead()))
                 {
                     recievedText = reader.ReadToEnd();
-                    Debug.WriteLine($"{args.MessageType}: {recievedText}");
-
-                    
+                    Debug.WriteLine($"<WebSocket Message> {args.MessageType}: {recievedText}");
                 }
             }
 
@@ -245,6 +246,13 @@ namespace NicoPlayerHohoema.Models.Live
                         var timeString = ((JArray)body["params"]).Select(x => x.ToString()).ToArray()[0];
                         var time = TimeSpan.FromSeconds(long.Parse(timeString));
                         RecieveWatchInterval?.Invoke(time);
+
+                        WatchingHeartbaetTimer = new Timer((state) => 
+                        {
+                            SendMessageAsync($"{{\"type\":\"watch\",\"body\":{{\"command\":\"watching\",\"params\":[\"{Props.Program.BroadcastId}\",\"-1\",\"0\"]}}}}").ConfigureAwait(false);
+                        }
+                        , null, time, time
+                        );
                         break;
                     case "schedule":
                         var updateParam = (JObject)body["update"];
@@ -262,6 +270,12 @@ namespace NicoPlayerHohoema.Models.Live
                         var endReason = disconnectParams[1];
                         RecieveDisconnect?.Invoke();
                         break;
+                    case "postkey":
+                        var postkeyParams = ((JArray)body["params"]).Select(x => x.ToString()).ToArray();
+                        var postKey = postkeyParams[0];
+
+                        _Postkey = postKey;
+                        break;
                 }
             }
             else if (type == "ping")
@@ -274,8 +288,11 @@ namespace NicoPlayerHohoema.Models.Live
         {
             using (var releaser = await _WebSocketLock.LockAsync())
             {
-                Debug.WriteLine($"{args.Code}: {args.Reason}");
+                Debug.WriteLine($"<WebScoket Closed> {args.Code}: {args.Reason}");
             }
+
+            WatchingHeartbaetTimer?.Dispose();
+            WatchingHeartbaetTimer = null;
         }
 
         private async void MessageWebSocket_ServerCustomValidationRequested(MessageWebSocket sender, WebSocketServerCustomValidationRequestedEventArgs args)
@@ -286,6 +303,25 @@ namespace NicoPlayerHohoema.Models.Live
             }
         }
 
+
+        string _Postkey;
+        public async Task<string> GetPostkeyAsync(string threadId)
+        {
+            _Postkey = null;
+            await SendMessageAsync(
+                $"{{\"type\":\"watch\",\"body\":{{\"command\":\"getpostkey\",\"params\":[\"{threadId}\"]}}}}"
+                );
+
+            using (var cancelToken = new CancellationTokenSource(1000))
+            {
+                while (_Postkey == null)
+                {
+                    await Task.Delay(1);
+                }
+            }
+
+            return _Postkey;
+        }
        
     }
 }

@@ -13,10 +13,14 @@
     <local:FeedGroupRemoveCommand x:Key="FeedGroupRemoveCommand" />
     <local:FeedGroupUpdateCommand x:Key="FeedGroupUpdateCommand" />
 
+    <local:NicoLiveUserIdAddToNGCommand x:Key="NicoLiveUserIdAddToNGCommand" />
+    <local:NicoLiveUserIdRemoveFromNGCommand x:Key="NicoLiveUserIdRemoveFromNGCommand" />
+
     <local:OpenBroadcasterInfoCommand x:Key="OpenBroadcasterInfoCommand" />
     <local:OpenContentCommand x:Key="OpenContentCommand" />
     <local:OpenFeedSourceCommand x:Key="OpenFeedSourceCommand" />
     <local:OpenHohoemaPageCommand x:Key="OpenHohoemaPageCommand" />
+    <local:OpenLinkCommand x:Key="OpenLinkCommand" />
     <local:OpenVideoInfoCommand x:Key="OpenVideoInfoCommand" />
     <local:OpenVideoOwnerVideoListCommand x:Key="OpenVideoOwnerVideoListCommand" />
     
