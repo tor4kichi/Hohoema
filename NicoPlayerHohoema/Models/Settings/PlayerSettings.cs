@@ -307,51 +307,51 @@ namespace NicoPlayerHohoema.Models
 
 
 
-        public bool _NicoScript_シーク禁止_Enabled = true;
+        public bool _NicoScript_DisallowSeek_Enabled = true;
 
         [DataMember]
-        public bool NicoScript_シーク禁止_Enabled
+        public bool NicoScript_DisallowSeek_Enabled
         {
-            get { return _NicoScript_シーク禁止_Enabled; }
-            set { SetProperty(ref _NicoScript_シーク禁止_Enabled, value); }
+            get { return _NicoScript_DisallowSeek_Enabled; }
+            set { SetProperty(ref _NicoScript_DisallowSeek_Enabled, value); }
         }
 
-        public bool _NicoScript_デフォルト_Enabled = true;
+        public bool _NicoScript_Default_Enabled = true;
 
         [DataMember]
-        public bool NicoScript_デフォルト_Enabled
+        public bool NicoScript_Default_Enabled
         {
-            get { return _NicoScript_デフォルト_Enabled; }
-            set { SetProperty(ref _NicoScript_デフォルト_Enabled, value); }
+            get { return _NicoScript_Default_Enabled; }
+            set { SetProperty(ref _NicoScript_Default_Enabled, value); }
         }
 
-        public bool _NicoScript_ジャンプ_Enabled = true;
+        public bool _NicoScript_Jump_Enabled = true;
 
         [DataMember]
-        public bool NicoScript_ジャンプ_Enabled
+        public bool NicoScript_Jump_Enabled
         {
-            get { return _NicoScript_ジャンプ_Enabled; }
-            set { SetProperty(ref _NicoScript_ジャンプ_Enabled, value); }
-        }
-
-
-        public bool _NicoScript_コメント禁止_Enabled = true;
-
-        [DataMember]
-        public bool NicoScript_コメント禁止_Enabled
-        {
-            get { return _NicoScript_コメント禁止_Enabled; }
-            set { SetProperty(ref _NicoScript_コメント禁止_Enabled, value); }
+            get { return _NicoScript_Jump_Enabled; }
+            set { SetProperty(ref _NicoScript_Jump_Enabled, value); }
         }
 
 
-        public bool _NicoScript_置換_Enabled = true;
+        public bool _NicoScript_DisallowComment_Enabled = true;
+
+        [DataMember]
+        public bool NicoScript_DisallowComment_Enabled
+        {
+            get { return _NicoScript_DisallowComment_Enabled; }
+            set { SetProperty(ref _NicoScript_DisallowComment_Enabled, value); }
+        }
+
+
+        public bool _NicoScript_Replace_Enabled = true;
 
         [DataMember]
         public bool NicoScript_置換_Enabled
         {
-            get { return _NicoScript_置換_Enabled; }
-            set { SetProperty(ref _NicoScript_置換_Enabled, value); }
+            get { return _NicoScript_Replace_Enabled; }
+            set { SetProperty(ref _NicoScript_Replace_Enabled, value); }
         }
     }
 

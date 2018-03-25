@@ -594,7 +594,7 @@
                         VerticalAlignment="Center"
                         />
                         <ToggleSwitch 
-                                IsOn="{Binding NicoScript_デフォルト_Enabled.Value, Mode=TwoWay}"                                
+                                IsOn="{Binding NicoScript_Default_Enabled.Value, Mode=TwoWay}"                                
                             OnContent="許可"
                             OffContent="許可しない"
                                         />
@@ -605,7 +605,7 @@
                         VerticalAlignment="Center"
                         />
                         <ToggleSwitch 
-                                IsOn="{Binding NicoScript_シーク禁止_Enabled.Value, Mode=TwoWay}"
+                                IsOn="{Binding NicoScript_DisallowSeek_Enabled.Value, Mode=TwoWay}"
                                 OnContent="許可"
                             OffContent="許可しない"
                                         />
@@ -616,7 +616,7 @@
                         VerticalAlignment="Center"
                         />
                         <ToggleSwitch 
-                                IsOn="{Binding NicoScript_コメント禁止_Enabled.Value, Mode=TwoWay}"
+                                IsOn="{Binding NicoScript_DisallowComment_Enabled.Value, Mode=TwoWay}"
                                 OnContent="許可"
                             OffContent="許可しない"
                                         />
@@ -627,7 +627,7 @@
                         VerticalAlignment="Center"
                         />
                         <ToggleSwitch 
-                                IsOn="{Binding NicoScript_ジャンプ_Enabled.Value, Mode=TwoWay}"
+                                IsOn="{Binding NicoScript_Jump_Enabled.Value, Mode=TwoWay}"
                                 OnContent="許可"
                             OffContent="許可しない"
                                         />
@@ -641,7 +641,7 @@
                         VerticalAlignment="Center"
                         />
                         <ToggleSwitch 
-                                IsOn="{Binding NicoScript_置換_Enabled.Value, Mode=TwoWay}"
+                                IsOn="{Binding NicoScript_Replace_Enabled.Value, Mode=TwoWay}"
                                 OnContent="許可"
                             OffContent="許可しない"
                                         />

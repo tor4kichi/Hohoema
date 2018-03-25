@@ -319,20 +319,20 @@ namespace NicoPlayerHohoema.ViewModels
 
             MediaPlayer = viewManager.GetCurrentWindowMediaPlayer();
 
-            NicoScript_デフォルト_Enabled = HohoemaApp.UserSettings.PlayerSettings
-                .ToReactivePropertyAsSynchronized(x => x.NicoScript_デフォルト_Enabled, raiseEventScheduler: CurrentWindowContextScheduler)
+            NicoScript_Default_Enabled = HohoemaApp.UserSettings.PlayerSettings
+                .ToReactivePropertyAsSynchronized(x => x.NicoScript_Default_Enabled, raiseEventScheduler: CurrentWindowContextScheduler)
                 .AddTo(_CompositeDisposable);
-            NicoScript_シーク禁止_Enabled = HohoemaApp.UserSettings.PlayerSettings
-                .ToReactivePropertyAsSynchronized(x => x.NicoScript_シーク禁止_Enabled, raiseEventScheduler: CurrentWindowContextScheduler)
+            NicoScript_DisallowSeek_Enabled = HohoemaApp.UserSettings.PlayerSettings
+                .ToReactivePropertyAsSynchronized(x => x.NicoScript_DisallowSeek_Enabled, raiseEventScheduler: CurrentWindowContextScheduler)
                 .AddTo(_CompositeDisposable);
-            NicoScript_ジャンプ_Enabled = HohoemaApp.UserSettings.PlayerSettings
-                .ToReactivePropertyAsSynchronized(x => x.NicoScript_ジャンプ_Enabled, raiseEventScheduler: CurrentWindowContextScheduler)
+            NicoScript_Jump_Enabled = HohoemaApp.UserSettings.PlayerSettings
+                .ToReactivePropertyAsSynchronized(x => x.NicoScript_Jump_Enabled, raiseEventScheduler: CurrentWindowContextScheduler)
                 .AddTo(_CompositeDisposable);
-            NicoScript_置換_Enabled = HohoemaApp.UserSettings.PlayerSettings
+            NicoScript_Replace_Enabled = HohoemaApp.UserSettings.PlayerSettings
                 .ToReactivePropertyAsSynchronized(x => x.NicoScript_置換_Enabled, raiseEventScheduler: CurrentWindowContextScheduler)
                 .AddTo(_CompositeDisposable);
 
-            NicoScript_デフォルト_Enabled.Subscribe(async x => 
+            NicoScript_Default_Enabled.Subscribe(async x => 
             {
                 if (_DefaultCommandNicoScriptList.Any())
                 {
@@ -418,7 +418,7 @@ namespace NicoPlayerHohoema.ViewModels
             NowCanSeek = Observable.CombineLatest(
                 NowQualityChanging.Select(x => !x),
                 Observable.CombineLatest(
-                    NicoScript_シーク禁止_Enabled,
+                    NicoScript_DisallowSeek_Enabled,
                     IsSeekDisabledFromNicoScript.Select(x => !x)
                     )
                     .Select(x => x[0] ? x[1] : true) 
@@ -436,7 +436,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             NowCanSubmitComment = Observable.CombineLatest(
                 CanSubmitComment,
-                IsCommentDisabledFromNicoScript.Select(x => HohoemaApp.UserSettings.PlayerSettings.NicoScript_コメント禁止_Enabled ? !x : true),
+                IsCommentDisabledFromNicoScript.Select(x => HohoemaApp.UserSettings.PlayerSettings.NicoScript_DisallowComment_Enabled ? !x : true),
                 WritingComment.Select(x => !string.IsNullOrWhiteSpace(x))
                 )
                 .Select(x => x.All(y => y))
@@ -1752,7 +1752,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             // ニコスクリプトによるデフォルトコマンドの適用
-            if (NicoScript_デフォルト_Enabled.Value)
+            if (NicoScript_Default_Enabled.Value)
             {
                 foreach (var defaultCommand in _DefaultCommandNicoScriptList)
                 {
@@ -1892,11 +1892,11 @@ namespace NicoPlayerHohoema.ViewModels
 
         private bool TryAddNicoScript(NMSG_Chat chat)
         {
-            const bool IS_ENABLE_デフォルト   = true; // Default comment Command
-            const bool IS_ENABLE_置換         = false; // Replace comment text
-            const bool IS_ENABLE_ジャンプ     = true; // seek video position or redirect to another content
-            const bool IS_ENABLE_シーク禁止   = true; // disable seek
-            const bool IS_ENABLE_コメント禁止 = true; // disable comment
+            const bool IS_ENABLE_Default   = true; // Default comment Command
+            const bool IS_ENABLE_Replace         = false; // Replace comment text
+            const bool IS_ENABLE_Jump     = true; // seek video position or redirect to another content
+            const bool IS_ENABLE_DisallowSeek   = true; // disable seek
+            const bool IS_ENABLE_DisallowComment = true; // disable comment
 
             if (!IsNicoScriptComment(chat.UserId, chat.Content)) { return false; }
 
@@ -1909,7 +1909,7 @@ namespace NicoPlayerHohoema.ViewModels
             switch (nicoScriptType)
             {
                 case "デフォルト":
-                    if (IS_ENABLE_デフォルト)
+                    if (IS_ENABLE_Default)
                     {
                         TimeSpan? endTime = null;
                         var commands = chat.Mail.Split(' ');
@@ -1930,7 +1930,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                     break;
                 case "置換":
-                    if (IS_ENABLE_置換)
+                    if (IS_ENABLE_Replace)
                     {
                         var commands = chat.Mail.Split(' ');
                         List<string> commandItems = new List<string>();
@@ -1964,7 +1964,7 @@ namespace NicoPlayerHohoema.ViewModels
                     }
                     break;
                 case "ジャンプ":
-                    if (IS_ENABLE_ジャンプ)
+                    if (IS_ENABLE_Jump)
                     {  
                         var condition = nicoScriptContents[1];
                         if (condition.StartsWith("#"))
@@ -1980,7 +1980,7 @@ namespace NicoPlayerHohoema.ViewModels
                                 EndTime = endTime,
                                 ScriptEnabling = () => 
                                 {
-                                    if (!HohoemaApp.UserSettings.PlayerSettings.NicoScript_ジャンプ_Enabled)
+                                    if (!HohoemaApp.UserSettings.PlayerSettings.NicoScript_Jump_Enabled)
                                     {
                                         return;
                                     }
@@ -2023,7 +2023,7 @@ namespace NicoPlayerHohoema.ViewModels
                     }
                     break;
                 case "シーク禁止":
-                    if (IS_ENABLE_シーク禁止)
+                    if (IS_ENABLE_DisallowSeek)
                     {
                         TimeSpan? endTime = null;
                         if (chat.Mail?.StartsWith("@") ?? false)
@@ -2049,7 +2049,7 @@ namespace NicoPlayerHohoema.ViewModels
                     }
                     break;
                 case "コメント禁止":
-                    if (IS_ENABLE_コメント禁止)
+                    if (IS_ENABLE_DisallowComment)
                     {
                         TimeSpan? endTime = null;
                         if (chat.Mail?.StartsWith("@") ?? false)
@@ -2890,10 +2890,10 @@ namespace NicoPlayerHohoema.ViewModels
         public ReadOnlyReactiveProperty<bool> IsSmallWindowModeEnable { get; private set; }
         public ReactiveProperty<bool> IsForceLandscape { get; private set; }
 
-        public ReactiveProperty<bool> NicoScript_デフォルト_Enabled { get; private set; }
-        public ReactiveProperty<bool> NicoScript_シーク禁止_Enabled { get; private set; }
-        public ReactiveProperty<bool> NicoScript_ジャンプ_Enabled { get; private set; }
-        public ReactiveProperty<bool> NicoScript_置換_Enabled { get; private set; }
+        public ReactiveProperty<bool> NicoScript_Default_Enabled { get; private set; }
+        public ReactiveProperty<bool> NicoScript_DisallowSeek_Enabled { get; private set; }
+        public ReactiveProperty<bool> NicoScript_Jump_Enabled { get; private set; }
+        public ReactiveProperty<bool> NicoScript_Replace_Enabled { get; private set; }
 
 
 
