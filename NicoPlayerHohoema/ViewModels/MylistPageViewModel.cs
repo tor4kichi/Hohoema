@@ -566,7 +566,7 @@ namespace NicoPlayerHohoema.ViewModels
                 case PlaylistOrigin.OtherUser:
                     var otherOwnedMylist = PlayableList.Value as OtherOwneredMylist;
 
-                    otherOwnedMylist.FillAllVideosAsync().ConfigureAwait(false);
+                    var task = otherOwnedMylist.FillAllVideosAsync().ConfigureAwait(false);
 
                     var response = await HohoemaApp.ContentProvider.GetMylistGroupDetail(PlayableList.Value.Id);
                     var mylistGroupDetail = response.MylistGroup;
@@ -578,7 +578,6 @@ namespace NicoPlayerHohoema.ViewModels
                     OwnerUserId = otherOwnedMylist.OwnerUserId;
 
                     MylistState = IsPublic ? "公開マイリスト" : "非公開マイリスト";
-
                     var user = Database.NicoVideoOwnerDb.Get(OwnerUserId);
                     if (user != null)
                     {
@@ -693,22 +692,34 @@ namespace NicoPlayerHohoema.ViewModels
 		#region Implements HohoemaPreloadingIncrementalSourceBase		
 	
 
-        protected override Task<IAsyncEnumerable<VideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
+        protected override async Task<IAsyncEnumerable<VideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
         {
-            return Task.FromResult(
-                PlayableList.PlaylistItems.Skip(head).Take(count).Select(x =>
+            // MylistのFillAllVideosAsync で内容が読み込まれるのを待つ
+            if (head == 0 && PlayableList.Count > 0)
+            {
+                using (var cancelToken = new CancellationTokenSource(TimeSpan.FromSeconds(5)))
+                {
+                    while (PlayableList.PlaylistItems.Count == 0 && !cancelToken.Token.IsCancellationRequested)
+                    {
+                        await Task.Delay(100);
+                    }
+
+                }
+            }
+
+            return PlayableList.PlaylistItems.Skip(head).Take(count).Select(x =>
                 {
                     var vm = new VideoInfoControlViewModel(x.ContentId, isNgEnabled: false, playlistItem: x);
                     vm.SetTitle(x.Title);
                     return vm;
                 })
-                .ToAsyncEnumerable()
-                );
+                .ToAsyncEnumerable();
+                
         }
 
         protected override Task<int> ResetSourceImpl()
         {
-            return Task.FromResult(PlayableList.PlaylistItems.Count);
+            return Task.FromResult(PlayableList.Count);
         }
 
 
