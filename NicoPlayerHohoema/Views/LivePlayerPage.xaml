@@ -673,14 +673,12 @@
                         <!-- キー入力でコメント入力開始 -->
                         <mybehavior:KeyboardTrigger x:Name="CommentWriteBeginKeyboardTrigger">
                             <mybehavior:KeyboardTrigger.Actions>
-                                <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="True" />
                                 <mybehavior:SetFocus TargetObject="{Binding ElementName=CommentTextBox}" Delay="00:00:00.25" />
                             </mybehavior:KeyboardTrigger.Actions>
                         </mybehavior:KeyboardTrigger>
                         <mybehavior:KeyboardTrigger x:Name="CO_CommentWriteBeginKeyboardTrigger" IsEnabled="False">
                             <mybehavior:KeyboardTrigger.Actions>
                                 <mybehavior:SetFocus TargetObject="{Binding ElementName=CO_CommentTextBox}" Delay="00:00:00" />
-                                <core:ChangePropertyAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" PropertyName="IsVisible" Value="True" />
                             </mybehavior:KeyboardTrigger.Actions>
                         </mybehavior:KeyboardTrigger>
 
@@ -1883,16 +1881,15 @@
 
                     </Grid>
 
-                    
-                    <!-- タップバリア
-                         コメントテキストを書いたあとに画面のどこかをタップしたら
-                         ロストフォーカスさせるためのやつ -->
-                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0 0 0 56" 
-                          Background="Transparent"
-                          IsHitTestVisible="True"
-                          Visibility="{Binding NowCommentWriting.Value, Converter={StaticResource BooleanToVisibility}}"
-                          >
 
+                    <Grid Visibility="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
+                        <Border IsHitTestVisible="True" Background="Transparent">
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Tapped">
+                                    <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanInverted}}" />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
+                        </Border>
                     </Grid>
 
                     <Border Margin="16 80 0 0"

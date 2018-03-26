@@ -9,6 +9,10 @@ using System.Diagnostics;
 using Windows.UI.Xaml.Input;
 using NicoPlayerHohoema.Helpers;
 using System.Threading.Tasks;
+using Reactive.Bindings.Extensions;
+using Windows.Foundation;
+using System.Reactive.Linq;
+using System.Reactive.Disposables;
 
 namespace NicoPlayerHohoema.Views.Behaviors
 {
@@ -19,10 +23,10 @@ namespace NicoPlayerHohoema.Views.Behaviors
         #region AutoHide
 
         public static readonly DependencyProperty IsAutoHideEnabledProperty =
-           DependencyProperty.Register("IsAutoHideEnabled"
+           DependencyProperty.Register(nameof(IsAutoHideEnabled)
                    , typeof(bool)
                    , typeof(VisiblityFadeChanger)
-                   , new PropertyMetadata(true)
+                   , new PropertyMetadata(true, OnIsAutoHideEnabledPropertyChanged)
                );
 
         public bool IsAutoHideEnabled
@@ -31,12 +35,18 @@ namespace NicoPlayerHohoema.Views.Behaviors
             set { SetValue(IsAutoHideEnabledProperty, value); }
         }
 
-        #endregion 
-
-       
+        #endregion
 
 
-        
+
+
+        public static void OnIsAutoHideEnabledPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
+        {
+            VisiblityFadeChanger source = (VisiblityFadeChanger)sender;
+
+            Debug.WriteLine($"{nameof(VisiblityFadeChanger)}: 自動非表示変更：{source.IsAutoHideEnabled}");
+            source.ChangeVisible();
+        }
 
 
 
@@ -92,7 +102,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			DependencyProperty.Register("Delay"
 					, typeof(TimeSpan)
 					, typeof(VisiblityFadeChanger)
-					, new PropertyMetadata(default(TimeSpan), OnDelayPropertyChanged)
+					, new PropertyMetadata(TimeSpan.FromSeconds(3), OnDelayPropertyChanged)
 				);
 
 		public TimeSpan Delay
@@ -106,12 +116,28 @@ namespace NicoPlayerHohoema.Views.Behaviors
 		{
 			VisiblityFadeChanger source = (VisiblityFadeChanger)sender;
 
-            var delay = source.Delay;
-            source._CurrentAnimation?.SetDuration(delay);
+            source.ResetAutoHideThrottling();
         }
 
         #endregion
 
+
+        void ResetAutoHideThrottling()
+        {
+            _AutoHideThrottlingDisposer?.Dispose();
+            _AutoHideThrottlingDisposer = AutoHideSubject.Throttle(Delay)
+                   .Subscribe(_ =>
+                   {
+                       var task = Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                       {
+                           if (IsAutoHideEnabled)
+                           {
+                               Hide();
+                           }
+                       });
+                   });
+
+        }
 
 
         #region IsVisible Property
@@ -142,18 +168,12 @@ namespace NicoPlayerHohoema.Views.Behaviors
         AsyncLock _AnimationGenerateLock = new AsyncLock();
 
         bool _SkipChangeVisible = false;
-        DateTime _PrevPreventAutoHideTime = DateTime.Now;
-        static readonly TimeSpan AutoHidePreventInterval = TimeSpan.FromMilliseconds(100);
+
         public void PreventAutoHide()
         {
             if (IsAutoHideEnabled && IsVisible)
             {
-                var now = DateTime.Now;
-                if (now - _PrevPreventAutoHideTime > AutoHidePreventInterval)
-                {
-                    ChangeVisible();
-                    _PrevPreventAutoHideTime = now;
-                }
+                AutoHideSubject.OnNext(0);
             }
         }
 
@@ -162,6 +182,10 @@ namespace NicoPlayerHohoema.Views.Behaviors
         {
             if (_SkipChangeVisible) { return; }
 
+            Debug.WriteLine($"表示切替:{IsVisible}");
+
+            // 表示への切り替え、または非表示切り替え中に
+            //if (IsVisible || (!IsVisible && _CurrentAnimation?.State == AnimationSetState.Running))
             if (IsVisible)
             {
                 Show();
@@ -179,44 +203,33 @@ namespace NicoPlayerHohoema.Views.Behaviors
             {
                 if (this.AssociatedObject == null) { return; }
 
-                AssociatedObject.Visibility = Visibility.Visible;
+                Debug.WriteLine($"{_CurrentAnimation?.State}");
 
                 _CurrentAnimation?.Dispose();
                 _CurrentAnimation = null;
-
-                await Task.Delay(10);
 
                 if (IsAnimationEnabled)
                 {
                     _CurrentAnimation = AssociatedObject.Fade(1.0f, Duration.TotalMilliseconds);
 
+                    _CurrentAnimation?.StartAsync().ConfigureAwait(false);
+
                     if (IsAutoHideEnabled)
                     {
-                        _CurrentAnimation = _CurrentAnimation.Then().Fade(0, Duration.TotalMilliseconds, Delay.TotalMilliseconds);
-
-                        _CurrentAnimation.Completed += async (sender, e) =>
-                        {
-                            await Task.Delay(1);
-                            try
-                            {
-                                _SkipChangeVisible = true;
-                                IsVisible = false;
-                            }
-                            finally
-                            {
-                                _SkipChangeVisible = false;
-                            }
-                        };
+                        AutoHideSubject.OnNext(0);
                     }
 
-                    _CurrentAnimation?.StartAsync();
+                    Debug.WriteLine($"{nameof(VisiblityFadeChanger)}: 表示アニメーション開始 (自動非表示:{IsAutoHideEnabled})");
                 }
                 else
                 {
                     AssociatedObject.Opacity = 1.0;
+                    Debug.WriteLine($"{nameof(VisiblityFadeChanger)}: 表示");
                 }
             }
         }
+
+        
 
         private async void Hide()
         {
@@ -227,44 +240,89 @@ namespace NicoPlayerHohoema.Views.Behaviors
                 _CurrentAnimation?.Dispose();
                 _CurrentAnimation = null;
 
-                await Task.Delay(10);
-
                 if (IsAnimationEnabled)
                 {
                     var dispatcher = Dispatcher;
 
                     _CurrentAnimation = AssociatedObject.Fade(0, Duration.TotalMilliseconds);
-                    _CurrentAnimation.Completed += (sender, e) =>
-                    {
-                        AssociatedObject.Visibility = Visibility.Collapsed;
-                    };
+                    _CurrentAnimation.Completed += HideAnimation_Completed;
 
-                    _CurrentAnimation?.StartAsync();
+                    _CurrentAnimation?.StartAsync().ConfigureAwait(false);
+
+                    Debug.WriteLine($"{nameof(VisiblityFadeChanger)}: 非表示アニメーション開始");
                 }
                 else
                 {
                     AssociatedObject.Opacity = 0.0;
-                    AssociatedObject.Visibility = Visibility.Collapsed;
+                    Debug.WriteLine($"{nameof(VisiblityFadeChanger)}: 非表示");
                 }
             }
         }
 
+        private void HideAnimation_Completed(object sender, AnimationSetCompletedEventArgs e)
+        {
+            // 別のアニメーションが実行中の場合はキャンセル
+            if (_CurrentAnimation?.State == AnimationSetState.Running) { return; }
+
+            try
+            {
+                _SkipChangeVisible = true;
+                IsVisible = false;
+            }
+            finally
+            {
+                _SkipChangeVisible = false;
+            }
+
+            Debug.WriteLine($"{nameof(VisiblityFadeChanger)}: 非表示アニメーション完了");
+        }
 
         public void Toggle()
         {
             IsVisible = !IsVisible;
         }
 
+        CompositeDisposable _CompositeDisposable;
+
+        IDisposable _AutoHideThrottlingDisposer;
+
         protected override void OnAttached()
         {
             base.OnAttached();
 
-//            _FadeInAnimation = AssociatedObject.Fade(1, Duration.TotalMilliseconds);
-//            _FadeOutAnimation = AssociatedObject.Fade(0, Duration.TotalMilliseconds);
-//            _FadeOutAnimation.Completed += _FadeOutAnimation_Completed;
-            
+            _CompositeDisposable = new CompositeDisposable();
+
+            var associatedObject = AssociatedObject;
+            AssociatedObject.ObserveDependencyProperty(FrameworkElement.OpacityProperty)
+                .Subscribe(_ =>
+                {
+                    if (associatedObject.Opacity == 0)
+                    {
+                        associatedObject.Visibility = Visibility.Collapsed;
+                    }
+                    else
+                    {
+                        associatedObject.Visibility = Visibility.Visible;
+                    }
+                })
+                .AddTo(_CompositeDisposable);
+
+            _AutoHideThrottlingDisposer = AutoHideSubject.Throttle(Delay)
+                .Subscribe(_ =>
+            {
+                var task = Dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                {
+                    if (IsAutoHideEnabled)
+                    {
+                        Hide();
+                    }
+                });
+            });
+
             AssociatedObject.PointerMoved += AssociatedObject_PointerMoved;
         }
+
+        System.Reactive.Subjects.BehaviorSubject<long> AutoHideSubject = new System.Reactive.Subjects.BehaviorSubject<long>(0);
 
         private void AssociatedObject_PointerMoved(object sender, PointerRoutedEventArgs e)
         {
@@ -276,6 +334,8 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			base.OnDetaching();
 
             _CurrentAnimation?.Dispose();
+            _AutoHideThrottlingDisposer?.Dispose();
+            _CompositeDisposable?.Dispose();
 
             this.AssociatedObject.Visibility = Visibility.Visible;
 		}

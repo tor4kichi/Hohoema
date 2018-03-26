@@ -69,7 +69,7 @@ namespace NicoPlayerHohoema.ViewModels
 			: base(hohoemaApp, pageManager)
 		{
             HashSet<string> HistoryKeyword = new HashSet<string>();
-            foreach (var item in Database.SearchHistoryDb.Get(0, 20))
+            foreach (var item in Database.SearchHistoryDb.GetAll().OrderByDescending(x => x.LastUpdated))
             {
                 if (HistoryKeyword.Contains(item.Keyword))
                 {

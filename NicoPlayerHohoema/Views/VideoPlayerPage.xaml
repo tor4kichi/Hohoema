@@ -889,14 +889,12 @@
                             <mybehavior:KeyboardTrigger x:Name="CommentWriteBeginKeyboardTrigger">
                                 <mybehavior:KeyboardTrigger.Actions>
                                     <mybehavior:SetFocus TargetObject="{Binding ElementName=CommentTextBox}" Delay="00:00:00" />
-                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" PropertyName="IsVisible" Value="True" />
                                 </mybehavior:KeyboardTrigger.Actions>
                             </mybehavior:KeyboardTrigger>
 
                             <mybehavior:KeyboardTrigger x:Name="CO_CommentWriteBeginKeyboardTrigger" IsEnabled="False">
                                 <mybehavior:KeyboardTrigger.Actions>
                                     <mybehavior:SetFocus TargetObject="{Binding ElementName=CO_CommentTextBox}" Delay="00:00:00" />
-                                    <core:ChangePropertyAction TargetObject="{Binding ElementName=PlayerControlAutoHide}" PropertyName="IsVisible" Value="True" />
                                 </mybehavior:KeyboardTrigger.Actions>
                             </mybehavior:KeyboardTrigger>
 
