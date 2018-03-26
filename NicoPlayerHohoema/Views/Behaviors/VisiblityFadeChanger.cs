@@ -261,7 +261,8 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         private void HideAnimation_Completed(object sender, AnimationSetCompletedEventArgs e)
         {
-            if (_CurrentAnimation != sender) { return; }
+            // 別のアニメーションが実行中の場合はキャンセル
+            if (_CurrentAnimation?.State == AnimationSetState.Running) { return; }
 
             try
             {
