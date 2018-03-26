@@ -53,6 +53,7 @@ namespace NicoPlayerHohoema.Database
                 }
                 else
                 {
+                    searchHistory.LastUpdated = DateTime.Now;
                     searchHistory.SearchCount++;
                 }
 
