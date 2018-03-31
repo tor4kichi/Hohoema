@@ -2106,7 +2106,7 @@ namespace NicoPlayerHohoema.ViewModels
 				var commands = CommandString.Value;
 				var res = await Video.CommentClient.SubmitComment(WritingComment.Value, ReadVideoPosition.Value, commands);
 
-				if (res.Chat_result.Status == ChatResult.Success)
+				if (res?.Chat_result.Status == ChatResult.Success)
 				{
 					_ToastService.ShowText("コメント投稿", $"{VideoId}に「{WritingComment.Value}」を投稿しました", isSuppress:true);
 
@@ -2137,10 +2137,14 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 				else
 				{
-					Debug.WriteLine("コメントの投稿に失敗: " + res.Chat_result.Status.ToString());
+					Debug.WriteLine("コメントの投稿に失敗: " + res?.Chat_result.Status.ToString());
 				}
 
 			}
+            catch (NotSupportedException ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
 			finally
 			{
 				NowSubmittingComment.Value = false;
