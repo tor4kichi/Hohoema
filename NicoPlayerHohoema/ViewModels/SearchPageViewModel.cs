@@ -784,7 +784,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
             else
             {
-                return res.VideoInfoItems.Select(item =>
+                return res.VideoInfoItems.Where(x => x != null).Select(item =>
                 {
                     var vm = new VideoInfoControlViewModel(item.Video.Id);
                     vm.SetupDisplay(item);
