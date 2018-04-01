@@ -226,7 +226,7 @@ namespace NicoPlayerHohoema.Models
                 }
             }
 
-            Debug.WriteLine("コメント投稿結果： " + response.Chat_result.Status);
+            Debug.WriteLine("コメント投稿結果： " + response?.Chat_result.Status);
 
             if (response?.Chat_result.Status == ChatResult.Success)
             {
