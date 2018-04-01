@@ -315,7 +315,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         private async void _OnResumed()
 		{
-			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+            await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
 			{
                 CancellationToken token = _NavigatedToTaskCancelToken?.Token ?? CancellationToken.None;
                 await CallAppServiceLevelOffline(token);

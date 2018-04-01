@@ -820,16 +820,24 @@ namespace NicoPlayerHohoema
 
         private void RootFrame_Navigating(object sender, NavigatingCancelEventArgs e)
 		{
-            var playlist = Container.Resolve<HohoemaPlaylist>();
-            // プレイヤーをメインウィンドウでウィンドウいっぱいに表示しているときだけ
-            // バックキーの動作をUIの表示/非表示切り替えに割り当てる
-            if (playlist.IsDisplayMainViewPlayer && playlist.PlayerDisplayType == PlayerDisplayType.PrimaryView)
+            try
             {
-                playlist.IsDisplayPlayerControlUI = !playlist.IsDisplayPlayerControlUI;
-                e.Cancel = true;
-                return;
+                var playlist = Container.Resolve<HohoemaPlaylist>();
+                // プレイヤーをメインウィンドウでウィンドウいっぱいに表示しているときだけ
+                // バックキーの動作をUIの表示/非表示切り替えに割り当てる
+                if (playlist.IsDisplayMainViewPlayer && playlist.PlayerDisplayType == PlayerDisplayType.PrimaryView)
+                {
+                    playlist.IsDisplayPlayerControlUI = !playlist.IsDisplayPlayerControlUI;
+                    e.Cancel = true;
+                    return;
+                }
             }
-		}
+            catch (Exception ex)
+            {
+                WriteErrorFile(ex).ConfigureAwait(false);
+            }
+
+        }
 
 
 		private async void PrismUnityApplication_UnhandledException(object sender, UnhandledExceptionEventArgs e)

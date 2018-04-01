@@ -32,7 +32,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
             HasVideoDescription = _VideoViewerHelpInfo != null;
 
-            InitializeRelatedVideos().ConfigureAwait(false);
+            var _ = InitializeRelatedVideos();
         }
 
         public bool HasVideoDescription { get; private set; }
@@ -64,7 +64,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                     var video = await hohoemaApp.ContentProvider.GetNicoVideoInfo(_JumpVideoId, requireLatest: true);
                     if (video != null)
                     {
-                        JumpVideo = new VideoInfoControlViewModel(video);
+                        JumpVideo = new VideoInfoControlViewModel(video, eventScheduler: CurrentWindowContextScheduler);
                         RaisePropertyChanged(nameof(JumpVideo));
                     }
                 }
@@ -87,7 +87,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                     }
                     else
                     {
-                        OtherVideos.Add(new VideoInfoControlViewModel(video, requireLatest: false));
+                        OtherVideos.Add(new VideoInfoControlViewModel(video, requireLatest: false, eventScheduler: CurrentWindowContextScheduler));
                     }
                 }
 
@@ -100,7 +100,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 if (orderedSeriesVideos.Count - 1 > currentVideoIndex)
                 {
                     var nextVideo = orderedSeriesVideos.Last();
-                    NextVideo = new VideoInfoControlViewModel(nextVideo, requireLatest: false);
+                    NextVideo = new VideoInfoControlViewModel(nextVideo, requireLatest: false, eventScheduler: CurrentWindowContextScheduler);
                     orderedSeriesVideos.Remove(nextVideo);
 
                     RaisePropertyChanged(nameof(NextVideo));
@@ -111,7 +111,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 orderedSeriesVideos.Reverse();
                 foreach (var video in orderedSeriesVideos)
                 {
-                    OtherVideos.Insert(0, new VideoInfoControlViewModel(video, requireLatest: false));
+                    OtherVideos.Insert(0, new VideoInfoControlViewModel(video, requireLatest: false, eventScheduler: CurrentWindowContextScheduler));
                 }
 
                 RaisePropertyChanged(nameof(OtherVideos));
@@ -133,7 +133,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 RaisePropertyChanged(nameof(Mylists));
 
                 var videos = await Video.GetRelatedVideos();
-                Videos = videos.Select(x => new VideoInfoControlViewModel(x, requireLatest: false)).ToList();
+                Videos = videos.Select(x => new VideoInfoControlViewModel(x, requireLatest: false, eventScheduler:CurrentWindowContextScheduler)).ToList();
                 CurrentVideo = Videos.FirstOrDefault(x => x.RawVideoId == CurrentVideoId);
 
                 RaisePropertyChanged(nameof(Videos));

@@ -58,6 +58,9 @@ Hohoema は UWPアプリです。（UWP = Universal Windows Platform）
   
 * [新しい課題を立てる - GitHub](https://github.com/tor4kichi/Hohoema/issues)
   
+不具合報告の場合、デバッグモードを有効にして不具合情報を抽出、報告に添付して頂けると対応がスムーズに進みます
+
+* [Hohoemaのデバッグモードを有効にする方法](https://github.com/tor4kichi/Hohoema/wiki/Hohoema%E3%81%AE%E3%83%87%E3%83%90%E3%83%83%E3%82%B0%E3%83%A2%E3%83%BC%E3%83%89%E3%82%92%E6%9C%89%E5%8A%B9%E3%81%AB%E3%81%99%E3%82%8B)
 
 今後の変更や確認されているバグは [イシュー](https://github.com/tor4kichi/Hohoema/issues) から確認できます
 

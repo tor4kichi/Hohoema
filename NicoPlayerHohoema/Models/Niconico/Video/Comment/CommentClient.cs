@@ -133,7 +133,7 @@ namespace NicoPlayerHohoema.Models
                 DefaultThreadSubmitInfo = new CommentSubmitInfo();
                 DefaultThreadSubmitInfo.Ticket = res.Threads.First(x => x.Thread == CommentServerInfo.DefaultThreadId.ToString()).Ticket;
                 DefaultThreadSubmitInfo.CommentCount = LastAccessDmcWatchResponse.Thread.CommentCount + 1;
-
+                DefaultThreadSubmitInfo.ThreadType = res.ThreadType;
                 if (CommentServerInfo.CommunityThreadId.HasValue)
                 {
                     var communityThreadId = CommentServerInfo.CommunityThreadId.Value.ToString();
@@ -143,8 +143,9 @@ namespace NicoPlayerHohoema.Models
                         CommunityThreadSubmitInfo = new CommentSubmitInfo()
                         {
                             Ticket = communityThread.Ticket,
-                            CommentCount = communityThread.LastRes
-                        };
+                            CommentCount = communityThread.LastRes,
+                            ThreadType = res.ThreadType
+                    };
                     }
                 }
             }
@@ -162,6 +163,10 @@ namespace NicoPlayerHohoema.Models
                 throw new Exception("コメント投稿には事前に動画ページへのアクセスとコメント情報取得が必要です");
             }
 
+            var threadType = DefaultThreadSubmitInfo.ThreadType;
+
+            Debug.WriteLine("threadType:" + threadType.ToString());
+
             PostCommentResponse response = null;
 
             // 視聴中にコメント数が増えていってコメントのblock_noが100毎の境界を超える場合に対応するため
@@ -171,7 +176,6 @@ namespace NicoPlayerHohoema.Models
                 Debug.WriteLine($"書き込み先:{CommentServerInfo.CommunityThreadId.Value} (community thread)");
 
                 var threadId = CommentServerInfo.CommunityThreadId.Value.ToString();
-                
                 {
                     try
                     {
@@ -183,7 +187,8 @@ namespace NicoPlayerHohoema.Models
                             CommentServerInfo.ViewerUserId,
                             comment,
                             position,
-                            commands
+                            commands,
+                            threadType
                             );
                     }
                     catch
@@ -210,7 +215,8 @@ namespace NicoPlayerHohoema.Models
                         CommentServerInfo.ViewerUserId,
                         comment,
                         position,
-                        commands
+                        commands,
+                        threadType
                         );
                 }
                 catch
