@@ -27,6 +27,8 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.UI.Popups;
 using NicoPlayerHohoema.Views.Service;
 using System.Diagnostics;
+using Windows.UI.Core;
+using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -60,24 +62,28 @@ namespace NicoPlayerHohoema.ViewModels
         bool _IsNGEnabled = false;
         bool _IsRequireLatest = true;
 
-        public VideoInfoControlViewModel(string videoId, bool isNgEnabled = true, PlaylistItem playlistItem = null)
+        IScheduler _EventShceduler;
+
+        public VideoInfoControlViewModel(string videoId, bool isNgEnabled = true, PlaylistItem playlistItem = null, IScheduler eventScheduler = null)
         {
             RawVideoId = videoId;
             PlaylistItem = playlistItem;
             _CompositeDisposable = new CompositeDisposable();
 
             _IsNGEnabled = isNgEnabled;
+            _EventShceduler = eventScheduler;
 
             OnDeferredUpdate().ConfigureAwait(false);
         }
 
-        public VideoInfoControlViewModel(Database.NicoVideo nicoVideo, bool isNgEnabled = true, PlaylistItem playlistItem = null, bool requireLatest = true)
+        public VideoInfoControlViewModel(Database.NicoVideo nicoVideo, bool isNgEnabled = true, PlaylistItem playlistItem = null, bool requireLatest = true, IScheduler eventScheduler = null)
         {
             RawVideoId = nicoVideo.RawVideoId;
             PlaylistItem = playlistItem;
             _CompositeDisposable = new CompositeDisposable();
 
             _IsNGEnabled = isNgEnabled;
+            _EventShceduler = eventScheduler;
 
             _IsRequireLatest = requireLatest;
 
@@ -106,12 +112,24 @@ namespace NicoPlayerHohoema.ViewModels
                     info = Database.NicoVideoDb.Get(RawVideoId);
                 }
 
-                await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                if (_EventShceduler != null)
                 {
-                    SetupFromThumbnail(info);
+                    _EventShceduler.Schedule(async () => 
+                    {
+                        SetupFromThumbnail(info);
 
-                    await RefrechCacheState();
-                });
+                        await RefrechCacheState();
+                    });
+                }
+                else
+                {
+                    await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                    {
+                        SetupFromThumbnail(info);
+
+                        await RefrechCacheState();
+                    });
+                }
             }
         }
 
