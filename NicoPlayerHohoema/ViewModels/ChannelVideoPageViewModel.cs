@@ -23,8 +23,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         public string RawChannelId { get; set; }
 
-        private int _ChannelId;
-        public int ChannelId
+        private int? _ChannelId;
+        public int? ChannelId
         {
             get { return _ChannelId; }
             set { SetProperty(ref _ChannelId, value); }
@@ -75,20 +75,27 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (RawChannelId == null) { return; }
 
-            var channelInfo = await HohoemaApp.ContentProvider.GetChannelInfo(RawChannelId);
+            try
+            {
+                var channelInfo = await HohoemaApp.ContentProvider.GetChannelInfo(RawChannelId);
 
-            ChannelId = channelInfo.ChannelId;
-            ChannelName = channelInfo.Name;
-            ChannelScreenName = channelInfo.ScreenName;
-            ChannelOpenTime = channelInfo.ParseOpenTime();
-            ChannelUpdateTime = channelInfo.ParseUpdateTime();
+                ChannelId = channelInfo.ChannelId;
+                ChannelName = channelInfo.Name;
+                ChannelScreenName = channelInfo.ScreenName;
+                ChannelOpenTime = channelInfo.ParseOpenTime();
+                ChannelUpdateTime = channelInfo.ParseUpdateTime();
+            }
+            catch
+            {
+                ChannelName = RawChannelId;
+            }
 
             await base.NavigatedToAsync(cancelToken, e, viewModelState);
         }
 
         protected override IIncrementalSource<ChannelVideoListItemViewModel> GenerateIncrementalSource()
         {
-            return new ChannelVideoLoadingSource(ChannelId.ToString(), HohoemaApp.ContentProvider);
+            return new ChannelVideoLoadingSource(ChannelId?.ToString() ?? RawChannelId, HohoemaApp.ContentProvider);
         }
 
 
