@@ -370,12 +370,36 @@ namespace NicoPlayerHohoema.ViewModels
                     break;
             }
 
-            return NavigationService.Navigate(pageType, parameter);
+            if (NavigationService.Navigate(pageType, parameter))
+            {
+                ApplicationView currentView = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView();
+                if (Helpers.DeviceTypeHelper.IsMobile)
+                {
+                    currentView.TryEnterFullScreenMode();
+                }
+                else if (Helpers.DeviceTypeHelper.IsDesktop && !HohoemaApp.Playlist.IsPlayerFloatingModeEnable)
+                {
+                    // 
+                    if (currentView.AdjacentToLeftDisplayEdge && currentView.AdjacentToRightDisplayEdge)
+                    {
+                        currentView.TryEnterFullScreenMode();
+                    }
+                }
+
+                return true;
+            }
+            else { return false; }
         }
 
         private void ClosePlayer()
         {
             NavigationService.Navigate("Blank", null);
+
+            if (ApplicationView.PreferredLaunchWindowingMode != ApplicationViewWindowingMode.FullScreen)
+            {
+                ApplicationView currentView = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView();
+                currentView.ExitFullScreenMode();
+            }
         }
 
         private DelegateCommand _PlayerFillDisplayCommand;

@@ -132,6 +132,14 @@ namespace NicoPlayerHohoema.Models
                 return;
             }
 
+            if (path.StartsWith("https://ch.nicovideo.jp/"))
+            {
+                var channelId = uri.AbsolutePath.Split('/').Last();
+                OpenPage(HohoemaPageType.ChannelVideo, channelId);
+
+                return;
+            }
+
             Debug.WriteLine($"Urlを処理できませんでした : " + uri.OriginalString);
 		}
 

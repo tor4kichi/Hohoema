@@ -74,7 +74,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public RecommendVideoListItem(Database.NicoVideo nicoVideo, Mntone.Nico2.Videos.Recommend.Item recommendItem) 
-            : base(nicoVideo, isNgEnabled:true, playlistItem:null, requireLatest:false)
+            : base(nicoVideo, isNgEnabled:true, playlistItem:null, requireLatest:true)
         {
             _Item = recommendItem;
             RecommendSourceTag = _Item.AdditionalInfo?.Sherlock.Tag;
@@ -132,7 +132,7 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     var video = Database.NicoVideoDb.Get(x.Id);
                     video.ThumbnailUrl = x.ThumbnailUrl;
-                    video.Title = x.TitleShort;
+                    video.Title = x.ParseTitle();
                     video.Length = x.ParseLengthToTimeSpan();
                     video.ViewCount = x.ViewCounter;
                     video.CommentCount = x.NumRes;
