@@ -829,7 +829,7 @@ namespace NicoPlayerHohoema.ViewModels
 				CommunityId = payload.CommunityId;
 				CommunityName = payload.CommunityName;
 			}
-			
+
 			if (LiveId != null)
 			{
                 SoundVolume.Subscribe(volume =>

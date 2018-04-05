@@ -137,6 +137,30 @@ namespace NicoPlayerHohoema.Models
                         }
                     }
 
+                    ApplicationView currentView = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView();
+                    if (_PlayerDisplayType == PlayerDisplayType.PrimaryView)
+                    {
+                        if (Helpers.DeviceTypeHelper.IsMobile)
+                        {
+                            currentView.TryEnterFullScreenMode();
+                        }
+                        else if (Helpers.DeviceTypeHelper.IsDesktop)
+                        {
+                            // 
+                            if (currentView.AdjacentToLeftDisplayEdge && currentView.AdjacentToRightDisplayEdge)
+                            {
+                                currentView.TryEnterFullScreenMode();
+                            }
+                        }
+                    }
+                    else if (_PlayerDisplayType == PlayerDisplayType.PrimaryWithSmall)
+                    {
+                        if (ApplicationView.PreferredLaunchWindowingMode != ApplicationViewWindowingMode.FullScreen)
+                        {
+                            currentView.ExitFullScreenMode();
+                        }
+                    }
+
                     ApplicationData.Current.LocalSettings.Values[nameof(PlayerDisplayType)] = _PlayerDisplayType != PlayerDisplayType.SecondaryView;
                 }
             }

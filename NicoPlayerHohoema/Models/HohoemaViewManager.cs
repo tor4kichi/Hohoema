@@ -193,7 +193,7 @@ namespace NicoPlayerHohoema.Models
 
                 if (withActivationWindow)
                 {
-//                    Window.Current.Activate();
+                    //                    Window.Current.Activate();
                     await ApplicationViewSwitcher.TryShowAsStandaloneAsync(
                         ViewId,
                         ViewSizePreference.Default,
@@ -201,6 +201,29 @@ namespace NicoPlayerHohoema.Models
                         ViewSizePreference.Default
                         );
                 }
+
+                // Note: Can not complete automatically enter FullScreen on secondary window.
+                // AppView.TryEnterFullScreenMode will return 'false'
+                // how fix it ?
+
+                /*
+                await Task.Delay(1000);
+
+                if (Helpers.DeviceTypeHelper.IsMobile)
+                {
+                    AppView.TryEnterFullScreenMode();
+
+                    // Note: Mobile is not support Secondary View.
+                }
+                else if (Helpers.DeviceTypeHelper.IsDesktop)
+                {
+                    if (AppView.AdjacentToLeftDisplayEdge && AppView.AdjacentToRightDisplayEdge)
+                    {
+                        AppView.TryEnterFullScreenMode();
+                    }
+                }
+                */
+
             });
         }
 
