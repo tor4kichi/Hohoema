@@ -208,7 +208,7 @@ namespace NicoPlayerHohoema.ViewModels
                                 InAppNotificationPayload.CreateRegistrationResultNotification(
                                     result,
                                     "マイリスト",
-                                    targetMylist.Name,
+                                    targetMylist.Label,
                                     Title
                                     ));                            
                         }

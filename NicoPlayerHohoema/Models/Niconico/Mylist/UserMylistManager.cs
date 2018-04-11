@@ -121,7 +121,7 @@ namespace NicoPlayerHohoema.Models
                     // とりあえずマイリストを手動で追加
                     Deflist = new MylistGroupInfo("0", HohoemaApp, this)
                     {
-                        Name = "とりあえずマイリスト",
+                        Label = "とりあえずマイリスト",
                         Description = "ユーザーの一時的なマイリストです",
                         UserId = HohoemaApp.LoginUserId.ToString(),
                         IsPublic = false,
@@ -264,7 +264,7 @@ namespace NicoPlayerHohoema.Models
 
 		public string GroupId { get; private set; }
 		public string UserId { get; set; }
-		public string Name { get; set; }
+		public string Label { get; set; }
 		public string Description { get; set; }
 		public bool IsPublic { get; set; }
 		public IconType IconType { get; set; }
@@ -336,7 +336,7 @@ namespace NicoPlayerHohoema.Models
 			if (result == ContentManageResult.Success)
 			{ 
 				Description = description;
-				Name = name;
+				Label = name;
 				IsPublic = is_public;
 				IconType = iconType;
 				Sort = default_sort;
@@ -434,7 +434,7 @@ namespace NicoPlayerHohoema.Models
             return new MylistGroupInfo(group.Id, hohoemaApp, mylistManager)
             {
                 UserId = group.UserId,
-                Name = group.Name,
+                Label = group.Name,
                 Description = group.Description,
                 IsPublic = group.GetIsPublic(),
                 IconType = group.GetIconType(),

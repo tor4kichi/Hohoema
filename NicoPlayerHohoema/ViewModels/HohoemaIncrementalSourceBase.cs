@@ -70,5 +70,35 @@ namespace NicoPlayerHohoema.ViewModels
 			Error?.Invoke();
 		}
 	}
-    
+
+
+
+    public class ImmidiateIncrementalLoadingCollectionSource<T> : HohoemaIncrementalSourceBase<T>
+    {
+        private IEnumerable<T> Source { get; }
+        public ImmidiateIncrementalLoadingCollectionSource(IEnumerable<T> source)
+        {
+            Source = source;
+            OneTimeLoadCount = (uint)source.Count();
+        }
+
+        public override uint OneTimeLoadCount { get; }
+
+        protected override Task<IAsyncEnumerable<T>> GetPagedItemsImpl(int head, int count)
+        {
+            if (head == 0)
+            {
+                return Task.FromResult(Source.ToAsyncEnumerable());
+            }
+            else
+            {
+                return Task.FromResult(AsyncEnumerable<T>.Empty);
+            }
+        }
+
+        protected override Task<int> ResetSourceImpl()
+        {
+            return Task.FromResult((int)OneTimeLoadCount);
+        }
+    }
 }

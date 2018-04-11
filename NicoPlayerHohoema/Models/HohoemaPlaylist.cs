@@ -339,7 +339,7 @@ namespace NicoPlayerHohoema.Models
             // ファイル名を変更して保存
             var newFileName = Helpers.FilePathHelper.ToSafeFilePath(Path.ChangeExtension(newName, ".json"));
             await fileAccessor.Rename(newFileName, forceReplace:true);
-            playlist.Name = newName;
+            playlist.Label = newName;
             
             await Save(playlist);
         }
@@ -459,7 +459,7 @@ namespace NicoPlayerHohoema.Models
                 SortIndex = sortIndex
             };
 
-            var playlistFileAccessor = new FolderBasedFileAccessor<LocalMylist>(PlaylistsSaveFolder, playlist.Name + ".json");
+            var playlistFileAccessor = new FolderBasedFileAccessor<LocalMylist>(PlaylistsSaveFolder, playlist.Label + ".json");
             _PlaylistFileAccessorMap.Add(playlist.Id, playlistFileAccessor);
             _Playlists.Add(playlist);
 

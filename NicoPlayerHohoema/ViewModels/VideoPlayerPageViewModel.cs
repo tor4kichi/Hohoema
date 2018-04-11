@@ -713,7 +713,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             // playlist
-            CurrentPlaylistName = new ReactiveProperty<string>(CurrentWindowContextScheduler, HohoemaApp.Playlist.CurrentPlaylist?.Name)
+            CurrentPlaylistName = new ReactiveProperty<string>(CurrentWindowContextScheduler, HohoemaApp.Playlist.CurrentPlaylist?.Label)
                 .AddTo(_CompositeDisposable);
             IsShuffleEnabled = HohoemaApp.UserSettings.PlaylistSettings.ToReactivePropertyAsSynchronized(x => x.IsShuffleEnable, CurrentWindowContextScheduler)
                 .AddTo(_CompositeDisposable);
@@ -1160,7 +1160,7 @@ namespace NicoPlayerHohoema.ViewModels
             // 再生に失敗した時のスキップ処理がうまく動かない
             CurrentPlaylist = HohoemaApp.Playlist.CurrentPlaylist;
             CurrentPlayingItem = HohoemaApp.Playlist.Player.Current;
-            CurrentPlaylistName.Value = CurrentPlaylist.Name;
+            CurrentPlaylistName.Value = CurrentPlaylist.Label;
             PlaylistItems = CurrentPlaylist.PlaylistItems.ToReadOnlyReactiveCollection();
             RaisePropertyChanged(nameof(PlaylistItems));
 
@@ -2473,7 +2473,7 @@ namespace NicoPlayerHohoema.ViewModels
                                 InAppNotificationPayload.CreateRegistrationResultNotification(
                                     result,
                                     "マイリスト",
-                                    targetMylist.Name,
+                                    targetMylist.Label,
                                     _VideoInfo.Title
                                     ));
                         }

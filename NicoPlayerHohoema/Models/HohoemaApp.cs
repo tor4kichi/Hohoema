@@ -1232,11 +1232,11 @@ namespace NicoPlayerHohoema.Models
                 {
                     new ChoiceFromListSelectableContainer("マイリスト",
                         mylists.Where(x => ignoreMylistId.All(y => x.Id != y))
-                            .Select(x => new SelectDialogPayload() { Label = x.Name, Id = x.Id, Context = x })
+                            .Select(x => new SelectDialogPayload() { Label = x.Label, Id = x.Id, Context = x })
                     ),
                     new ChoiceFromListSelectableContainer("ローカルマイリスト",
                         localMylists.Where(x => ignoreMylistId.All(y => x.Id != y))
-                            .Select(x => new SelectDialogPayload() { Label = x.Name, Id = x.Id, Context = x })
+                            .Select(x => new SelectDialogPayload() { Label = x.Label, Id = x.Id, Context = x })
                     ),
                     new ChoiceFromListSelectableContainer("新規作成",
                         new [] {
@@ -1273,7 +1273,7 @@ namespace NicoPlayerHohoema.Models
                     if (result.Id == "mylist")
                     {
                         await UserMylistManager.AddMylist(title, "", false, Mntone.Nico2.Mylist.MylistDefaultSort.FirstRetrieve_Descending, Mntone.Nico2.Mylist.IconType.Default);
-                        resultList = UserMylistManager.UserMylists.FirstOrDefault(x => x.Name == title);
+                        resultList = UserMylistManager.UserMylists.FirstOrDefault(x => x.Label == title);
                     }
                     else //if (result.Id == "local")
                     {

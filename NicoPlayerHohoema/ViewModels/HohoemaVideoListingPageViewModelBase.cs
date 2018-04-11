@@ -178,7 +178,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 						// ユーザーに結果を通知
 
-						var titleText = $"「{targetMylist.Name}」に {successCount}件 の動画を登録しました";
+						var titleText = $"「{targetMylist.Label}」に {successCount}件 の動画を登録しました";
 						var resultText = $"";
 						if (existCount > 0)
 						{

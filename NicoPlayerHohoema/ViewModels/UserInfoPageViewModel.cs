@@ -231,7 +231,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				try
 				{
-					await Task.Delay(500);
+//					await Task.Delay(500);
 
 					var mylistGroups = await HohoemaApp.ContentProvider.GetUserMylistGroups(UserId);
 					foreach (var item in mylistGroups)

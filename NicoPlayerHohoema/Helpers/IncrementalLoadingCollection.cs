@@ -57,8 +57,6 @@ namespace NicoPlayerHohoema.Helpers
             // 多重読み込み防止のため
             // リスト表示に反映されるまで
             // タスクの終了を遅延させる必要があります
-            ;
-
 
             return LoadDataAsync(count, new CancellationToken(false)).AsAsyncOperation();
         }

@@ -37,7 +37,7 @@ namespace NicoPlayerHohoema.Models
         private string _Name;
 
         [DataMember]
-        public string Name
+        public string Label
         {
             get { return _Name; }
             set
