@@ -220,7 +220,7 @@
                 <!-- 中ぐらい -->
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="521" />
+                        <uiTrigger:ControlWidthTrigger TargetElement="{x:Bind MediaControl}" Condition="521" ConditionModifier="{StaticResource GreaterThanModifier}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
 
