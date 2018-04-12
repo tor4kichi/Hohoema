@@ -19,6 +19,7 @@
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+    xmlns:myTrigger="using:NicoPlayerHohoema.Views.StateTrigger"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -37,12 +38,6 @@
         </Style>
     </Page.Resources>
 
-    <i:Interaction.Behaviors>
-        <core:EventTriggerBehavior EventName="Unloaded">
-            <core:CallMethodAction TargetObject="{Binding}" MethodName="Dispose" />
-        </core:EventTriggerBehavior>
-    </i:Interaction.Behaviors>
-
 
     <Grid>
 
@@ -56,7 +51,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
-                        <Setter Target="ContentLayout.Margin" Value="48 0 48 27" />
+                        <Setter Target="ContentItemsView.Padding" Value="48 0 48 27" />
 
                         <Setter Target="TVModeMarginBordar.Height" Value="27"/>
                     </VisualState.Setters>
@@ -95,269 +90,218 @@
         
         <Grid x:Name="ContentLayout">
 
-            
-            <ScrollViewer>
-                <StackPanel>
-                    <Border Height="{Binding ElementName=HeaderLayout, Path=ActualHeight, Mode=OneWay}" />
 
-                    <ItemsControl ItemsSource="{Binding MylistList}"
-                              IsTabStop="False"
-                   >
-                        <ItemsControl.ItemTemplateSelector>
-                            <local:MylistListTemplateSelector>
-                                <!-- Local Mylist -->
-                                <local:MylistListTemplateSelector.LocalMylist>
-                                    <DataTemplate>
+            <GridView ItemsSource="{Binding IncrementalLoadingItems}" 
+                      uwpui:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                      IsItemClickEnabled="True"
+                      SelectionMode="None"
+                      x:Name="ContentItemsView"
+                      Padding="8 0 8 24"
+                      IncrementalLoadingTrigger="Edge"
+                      IncrementalLoadingThreshold="80"
+                >
 
-                                        <toolkit:DockPanel>
+                <GridView.Header>
+                    <uwptoolkit:ScrollHeader Mode="Sticky">
 
-                                            <StackPanel toolkit:DockPanel.Dock="Top"
-                                                    Orientation="Horizontal"
-                                                    Margin="16 0"
-                                                    >
-                                                <TextBlock Text="{Binding Title}"
-                                                   Style="{StaticResource SubtitleTextBlockStyle}"
-                                                   />
+                        <Grid x:Name="HeaderLayout"
+                          VerticalAlignment="Top"
+                          >
 
-                                                <TextBlock VerticalAlignment="Bottom" 
-                                                       Visibility="{Binding MaxItemsCountText, Converter={StaticResource NotNullToVisibility}}"
-                                                       Margin="8 0 0 0"
-                                                       >
-                                                <Run Text="{Binding Items.Count}" />/<Run Text="{Binding MaxItemsCountText}" />
-                                                </TextBlock>
-                                            </StackPanel>
+                            <Border Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
+                            Opacity="0.75"
+                            />
 
+                            <StackPanel>
 
-                                            <ListView ItemsSource="{Binding Items}"
-                                                    Margin="0 8"
-                                                    HorizontalContentAlignment="Stretch"
-                                                    IsTabStop="False"
-                                                  uwpui:ListViewBase.Command="{StaticResource OpenContentCommand}"
-                                                  IsItemClickEnabled="True"
-                                                  SelectionMode="None"
-                                                  ItemTemplate="{StaticResource MylistTemplate}"
-                                                  ItemContainerStyle="{StaticResource MylistListViewContainerStyle}"
-                                                  BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                                  BorderThickness="0 1 0 0"
+                                <Border x:Name="TVModeMarginBordar" />
+
+                                <Border Height="{StaticResource TitleBarDummyHeight}" />
+
+                                <toolkit:DockPanel >
+                                    <CommandBar toolkit:DockPanel.Dock="Right" 
+                                            Background="Transparent"
+                                        >
+
+                                        <AppBarButton Background="Transparent" 
+                                                      Label="並べ替え"
+                                                      Icon="Sort"
+                                                      Visibility="Collapsed"
                                             >
+                                            <AppBarButton.Flyout>
+                                                <MenuFlyout>
+                                                    <MenuFlyoutItem Text="並び替えをリセット"
+                                                            Command="{Binding ResetSortCommand}"
+                                                        />
+                                                    
+                                                    <!--
+                                                    <MenuFlyoutItem Text="作成日（新）"
+                                                            Command="{Binding SortAscendingCommand}"
+                                                                    CommandParameter=""
+                                                        />
+                                                    <MenuFlyoutItem Text="作成日（古）"
+                                                            Command="{Binding SortDescendingCommand}"
+                                                        />
+                                                    -->
 
-                                                <i:Interaction.Behaviors>
-                                                    <mybehavior:ListViewBaseItemContextFlyout />
-                                                </i:Interaction.Behaviors>
-
-                                                <ListView.ContextFlyout>
-                                                    <MenuFlyout>
-                                                        <MenuFlyoutItem Text="全て再生"
-                                                            Command="{Binding ElementName=ContentLayout, Path=DataContext.PlayAllCommand}"
-                                                            CommandParameter="{Binding}"
-                                                            />
-                                                        <MenuFlyoutItem Text="名前を変更"
-                                                            Command="{Binding ElementName=ContentLayout, Path=DataContext.EditMylistGroupCommand}"
-                                                            CommandParameter="{Binding}"
-                                                            />
-                                                        <MenuFlyoutItem Text="削除"
-                                                            Command="{Binding ElementName=ContentLayout, Path=DataContext.RemoveMylistGroupCommand}"
-                                                            CommandParameter="{Binding}"
-                                                            />
-                                                    </MenuFlyout>
-                                                </ListView.ContextFlyout>
-
-
-
-                                                <ListView.ItemsPanel>
-                                                    <ItemsPanelTemplate>
-                                                        <ItemsStackPanel />
-                                                    </ItemsPanelTemplate>
-                                                </ListView.ItemsPanel>
-                                            </ListView>
-
-                                        </toolkit:DockPanel>
-
-                                    </DataTemplate>
-                                </local:MylistListTemplateSelector.LocalMylist>
-
-                                <!-- User Mylist -->
-                                <local:MylistListTemplateSelector.LoginUserMylist>
-                                    <DataTemplate>
-
-                                        <toolkit:DockPanel Margin="0 16 0 0">
-
-                                            <StackPanel toolkit:DockPanel.Dock="Top"
-                                                    Orientation="Horizontal"
-                                                    Margin="16 0"
-                                                    >
-                                                <TextBlock Text="{Binding Title}"
-                                                   Style="{StaticResource SubtitleTextBlockStyle}"
-                                                   />
-
-                                                <TextBlock VerticalAlignment="Bottom" 
-                                                       Visibility="{Binding MaxItemsCountText, Converter={StaticResource NotNullToVisibility}}"
-                                                       Margin="8 0 0 0"
-                                                       >
-                                                <Run Text="{Binding Items.Count}" />/<Run Text="{Binding MaxItemsCountText}" />
-                                                </TextBlock>
-                                            </StackPanel>
-
-                                            <ListView ItemsSource="{Binding Items}"
-                                                    Margin="0 8"
-                                                    HorizontalContentAlignment="Stretch"
-                                                    IsTabStop="False"
-                                                  uwpui:ListViewBase.Command="{StaticResource OpenContentCommand}"
-                                                  IsItemClickEnabled="True"
-                                                  SelectionMode="None"
-                                                  ItemTemplate="{StaticResource MylistTemplate}"
-                                                  ItemContainerStyle="{StaticResource MylistListViewContainerStyle}"
-                                                  BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                                  BorderThickness="0 1 0 0"
-                                                    >
-
-                                                <i:Interaction.Behaviors>
-                                                    <mybehavior:ListViewBaseItemContextFlyout />
-                                                </i:Interaction.Behaviors>
-
-                                                <ListView.ContextFlyout>
-                                                    <MenuFlyout>
-                                                        <MenuFlyoutItem Text="全て再生"
-                                                            Command="{Binding ElementName=ContentLayout, Path=DataContext.PlayAllCommand}"
-                                                            CommandParameter="{Binding}"
-                                                            />
-                                                        <MenuFlyoutItem Text="名前を変更"
-                                                            Command="{Binding ElementName=ContentLayout, Path=DataContext.EditMylistGroupCommand}"
-                                                            CommandParameter="{Binding}"
-                                                            />
-                                                        <MenuFlyoutItem Text="削除"
-                                                            Command="{Binding ElementName=ContentLayout, Path=DataContext.RemoveMylistGroupCommand}"
-                                                            CommandParameter="{Binding}"
-                                                            />
-                                                    </MenuFlyout>
-                                                </ListView.ContextFlyout>
-
-                                                <ListView.ItemsPanel>
-                                                    <ItemsPanelTemplate>
-                                                        <ItemsStackPanel />
-                                                    </ItemsPanelTemplate>
-                                                </ListView.ItemsPanel>
-                                            </ListView>
-
-                                        </toolkit:DockPanel>
+                                                    <MenuFlyoutItem Text="タイトル（順）"
+                                                            Command="{Binding SortAscendingCommand}"
+                                                                    CommandParameter="Label"
+                                                        />
+                                                    <MenuFlyoutItem Text="タイトル（逆）"
+                                                            Command="{Binding SortDescendingCommand}"
+                                                                    CommandParameter="Label"
+                                                        />
+                                                    <MenuFlyoutItem Text="アイテム数（大）"
+                                                            Command="{Binding SortAscendingCommand}"
+                                                                    CommandParameter="Count"
+                                                        />
+                                                    <MenuFlyoutItem Text="アイテム数（小）"
+                                                            Command="{Binding SortDescendingCommand}"
+                                                                    CommandParameter="Count"
+                                                        />
+                                                </MenuFlyout>
+                                            </AppBarButton.Flyout>
 
 
-
-                                    </DataTemplate>
-                                </local:MylistListTemplateSelector.LoginUserMylist>
-
-                                <!-- Other User Mylist -->
-                                <local:MylistListTemplateSelector.OtherOwneredMylist>
-                                    <DataTemplate>
-
-                                        <toolkit:DockPanel>
-
-                                            <ListView ItemsSource="{Binding Items}"
-                                                    Margin="0 8"
-                                                    HorizontalContentAlignment="Stretch"
-                                                    IsTabStop="False"
-                                                  uwpui:ListViewBase.Command="{StaticResource OpenContentCommand}"
-                                                  IsItemClickEnabled="True"
-                                                  SelectionMode="None"
-                                                  ItemTemplate="{StaticResource MylistTemplate}"
-                                                  ItemContainerStyle="{StaticResource MylistListViewContainerStyle}"
-                                                  BorderBrush="{ThemeResource SystemControlBackgroundBaseLowBrush}"
-                                                  BorderThickness="0 1 0 0"
-                                                    >
-
-                                                <i:Interaction.Behaviors>
-                                                    <mybehavior:ListViewBaseItemContextFlyout />
-                                                </i:Interaction.Behaviors>
-
-                                                <ListView.ContextFlyout>
-                                                    <MenuFlyout>
-                                                        <MenuFlyoutItem Text="全て再生"
-                                                            Command="{Binding ElementName=ContentLayout, Path=DataContext.PlayAllCommand}"
-                                                            CommandParameter="{Binding}"
-                                                            />
-                                                    </MenuFlyout>
-                                                </ListView.ContextFlyout>
-
-                                                <ListView.ItemsPanel>
-                                                    <ItemsPanelTemplate>
-                                                        <ItemsStackPanel />
-                                                    </ItemsPanelTemplate>
-                                                </ListView.ItemsPanel>
-                                            </ListView>
-
-                                        </toolkit:DockPanel>
-                                    </DataTemplate>
-                                </local:MylistListTemplateSelector.OtherOwneredMylist>
-                            </local:MylistListTemplateSelector>
-                        </ItemsControl.ItemTemplateSelector>
+                                            <SymbolIcon Symbol="Sort" />
 
 
-                    </ItemsControl>
+                                        </AppBarButton>
 
-                </StackPanel>
-
-
-            </ScrollViewer>
-
-            <Grid x:Name="HeaderLayout"
-                  VerticalAlignment="Top"
-                  >
-
-                <Border Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
-                        Opacity="0.75"
-                        />
-
-                <StackPanel 
-                    >
-
-                    <Border x:Name="TVModeMarginBordar" />
-
-                    <Border Height="{StaticResource TitleBarDummyHeight}" />
-
-                    <toolkit:DockPanel >
-                        <StackPanel toolkit:DockPanel.Dock="Right" 
-                                Orientation="Horizontal"
-                                >
-                            <Button Background="Transparent" 
-                            Visibility="Collapsed"
-                                x:Name="LoginUserMylistActions"
-                            >
-                                <Button.Flyout>
-                                    <MenuFlyout>
-                                        <MenuFlyoutItem Text="ローカルマイリストを作成"
+                                        <AppBarButton Background="Transparent" 
+                                                      Label="追加"
+                                                      Icon="Add"
+                                                    Visibility="Collapsed"
+                                                    x:Name="LoginUserMylistActions"
+                                            >
+                                            <AppBarButton.Flyout>
+                                                <MenuFlyout>
+                                                    <MenuFlyoutItem Text="ローカルマイリストを作成"
                                                     Command="{Binding AddLocalMylistCommand}"
                                                     />
-                                        <MenuFlyoutItem Text="マイリストを作成"
+                                                    <MenuFlyoutItem Text="マイリストを作成"
                                                     Command="{Binding AddMylistGroupCommand}"
                                                     />
-                                    </MenuFlyout>
-                                </Button.Flyout>
+                                                </MenuFlyout>
+                                            </AppBarButton.Flyout>
+                                        </AppBarButton>
+                                    </CommandBar>
 
-
-                                <SymbolIcon Symbol="Add" />
-
-
-                            </Button>
-                        </StackPanel>
-
-                        <Border Background="Transparent" IsHitTestVisible="True"
-                                Margin="16 0 0 0"
-                            Height="48"
-                                >
-                            <TextBlock Text="{Binding Title}" 
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource TitleTextBlockStyle}"
-                                   x:Name="TitleLayout"
+                                    <Border Background="Transparent" IsHitTestVisible="True"
+                                        Margin="16 0 0 0"
+                                        Height="48"
                                     >
-                            </TextBlock>
-                        </Border>
-                    </toolkit:DockPanel>
-                </StackPanel>
-            </Grid>
+                                        <TextBlock Text="{Binding Title}" 
+                                               VerticalAlignment="Center"
+                                               Style="{StaticResource TitleTextBlockStyle}"
+                                               x:Name="TitleLayout"
+                                    >
+                                        </TextBlock>
+                                    </Border>
+                                </toolkit:DockPanel>
+                            </StackPanel>
+                        </Grid>
+                    </uwptoolkit:ScrollHeader>
+
+                </GridView.Header>
+
+                <i:Interaction.Behaviors>
+                    <mybehavior:ListViewBaseItemContextFlyout />
+                </i:Interaction.Behaviors>
+
+                <GridView.ContextFlyout>
+                    <MenuFlyout>
+                        <MenuFlyoutItem Text="全て再生"
+                                        Command="{Binding ElementName=ContentLayout, Path=DataContext.PlayAllCommand}"
+                                        CommandParameter="{Binding}"
+                                        />
+                        <!--
+                        <MenuFlyoutItem Text="名前を変更"
+                                        Command="{Binding ElementName=ContentLayout, Path=DataContext.EditMylistGroupCommand}"
+                                        CommandParameter="{Binding}"
+                                        />
+                        <MenuFlyoutItem Text="削除"
+                                        Command="{Binding ElementName=ContentLayout, Path=DataContext.RemoveMylistGroupCommand}"
+                                        CommandParameter="{Binding}"
+                                        />
+                        -->
+                    </MenuFlyout>
+                </GridView.ContextFlyout>
 
 
+                <GridView.ItemTemplate>
+                    <DataTemplate>
+                        <UserControl>
+                            <Grid Width="180"
+                              Height="140"
+                                  Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
+                              >
+
+                                <VisualStateManager.VisualStateGroups>
+
+                                    <VisualStateGroup>
+                                        <VisualState>
+                                            <VisualState.StateTriggers>
+                                                <myTrigger:EqualConditionStateTrigger Condition="Local" Value="{Binding Origin}" />
+                                            </VisualState.StateTriggers>
+                                            <VisualState.Setters>
+                                                <Setter Target="OtherUserOwnedStatusText.Visibility" Value="Visible" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+
+                                </VisualStateManager.VisualStateGroups>
+
+                                <Image Source="{Binding ThumnailUrl}"
+                                       VerticalAlignment="Top"
+                                           />
+                                <toolkit:DockPanel
+                                
+                                >
+                                    <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom">
+
+                                        <StackPanel Background="#66000000"
+                                                    Padding="8"
+                                                    >
+
+                                            <TextBlock Text="{Binding Label}"   
+                                                       TextWrapping="Wrap"
+                                           />
+
+                                            <Grid>
+                                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}"
+                                                           Opacity="0.7"
+                                                           >
+                                                    <Run Text="{Binding Count}" />
+                                                </TextBlock>
+
+                                                <TextBlock Text="Local"
+                                                           x:Name="OtherUserOwnedStatusText"
+                                                           Visibility="Collapsed"
+                                                           Style="{StaticResource CaptionTextBlockStyle}"
+                                                           Opacity="0.7"
+                                                           HorizontalAlignment="Right"
+                                                       />
+
+                                            </Grid>
+
+                                        </StackPanel>
+
+                                    </toolkit:DockPanel>
 
 
+                                    <Border />
+
+                                </toolkit:DockPanel>
+
+                            </Grid>
+                        </UserControl>
+                       
+                    </DataTemplate>
+                </GridView.ItemTemplate>
+
+            </GridView>
         </Grid>
     </Grid>
     

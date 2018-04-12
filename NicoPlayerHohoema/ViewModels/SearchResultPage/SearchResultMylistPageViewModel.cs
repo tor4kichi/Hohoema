@@ -103,11 +103,11 @@ namespace NicoPlayerHohoema.ViewModels
         {
             _PageManager = pageManager;
 
-            Name = playableList.Name;
+            Name = playableList.Label;
             ItemCount = (uint)playableList.Count;
             GroupId = playableList.Id;
             
-            Label = playableList.Name;
+            Label = playableList.Label;
 
             if (playableList.ThumnailUrl != null)
             {

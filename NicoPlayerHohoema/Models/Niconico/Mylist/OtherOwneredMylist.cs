@@ -87,7 +87,7 @@ namespace NicoPlayerHohoema.Models
 
         public string Id { get; }
         public int SortIndex { get; }
-        public string Name { get; }
+        public string Label { get; }
         public int Count { get; }
         public string Description { get; }
         public string OwnerUserId { get; }
@@ -124,7 +124,7 @@ namespace NicoPlayerHohoema.Models
             : this()
         {
             Id = details.Id;
-            Name = details.Name;
+            Label = details.Name;
             SortIndex = (int)details.GetSortOrder();
             Count = (int)details.Count;
             Description = details.Description;
@@ -137,7 +137,7 @@ namespace NicoPlayerHohoema.Models
             : this()
         {
             Id = data.Id;
-            Name = data.Name;
+            Label = data.Name;
             SortIndex = sortIndex;
             Count = (int)data.Count;
             Description = data.Description;

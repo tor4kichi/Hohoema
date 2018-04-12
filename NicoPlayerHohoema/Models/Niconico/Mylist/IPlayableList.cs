@@ -7,12 +7,13 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models
 {
-    public interface IPlayableList
+    public interface IPlayableList : Interfaces.IMylist
     {
+//        string Id { get; }
+//        string Label { get; }
+
         PlaylistOrigin Origin { get; }
-        string Id { get; }
         int SortIndex { get; }
-        string Name { get; }
         int Count { get; }
 
         string ThumnailUrl { get; }

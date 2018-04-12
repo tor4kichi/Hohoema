@@ -46,7 +46,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
             CurrentPlaylist = playerModel.CurrentPlaylist;
             CurrentPlayingItem = playerModel.Player.Current;
-            CurrentPlaylistName = new ReactiveProperty<string>(CurrentWindowContextScheduler, _Player.CurrentPlaylist?.Name)
+            CurrentPlaylistName = new ReactiveProperty<string>(CurrentWindowContextScheduler, _Player.CurrentPlaylist?.Label)
                 .AddTo(_CompositeDisposable);
             IsShuffleEnabled = _PlaylistSettings.ToReactivePropertyAsSynchronized(x => x.IsShuffleEnable, CurrentWindowContextScheduler)
                 .AddTo(_CompositeDisposable);

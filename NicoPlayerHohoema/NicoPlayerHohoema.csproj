@@ -171,6 +171,7 @@
     <Content Include="Assets\UpdateNotices\0.13.7.md" />
     <Content Include="Assets\UpdateNotices\0.13.8.md" />
     <Content Include="Assets\UpdateNotices\0.13.10.md" />
+    <Content Include="Assets\UpdateNotices\0.13.11.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <PRIResource Include="Resources\zh-Hans\Resources.resw" />
     <PRIResource Include="Resources\ja-jp\Resources.resw" />
@@ -476,9 +477,6 @@
       <DependentUpon>RankingCategoryPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TemplateSelector\SearchTargetContentTemplateSelector.cs" />
-    <Compile Include="Views\UserMylistPage_TV.xaml.cs">
-      <DependentUpon>UserMylistPage_TV.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\_CommentRenderer\CommentRendererCompositionUI.xaml.cs">
       <DependentUpon>CommentRendererCompositionUI.xaml</DependentUpon>
     </Compile>
@@ -870,10 +868,6 @@
     <Page Include="Views\RankingCategoryPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\UserMylistPage_TV.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\_CommentRenderer\CommentRendererCompositionUI.xaml">
       <Generator>MSBuild:Compile</Generator>

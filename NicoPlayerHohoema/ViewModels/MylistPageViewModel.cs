@@ -161,14 +161,14 @@ namespace NicoPlayerHohoema.ViewModels
                             var textInputDialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
                             var localMylist = PlayableList.Value as LocalMylist;
                             var resultText = await textInputDialogService.GetTextAsync("プレイリスト名を変更",
-                                localMylist.Name,
-                                localMylist.Name,
+                                localMylist.Label,
+                                localMylist.Label,
                                 (tempName) => !string.IsNullOrWhiteSpace(tempName)
                                 );
 
                             if (!string.IsNullOrWhiteSpace(resultText))
                             {
-                                localMylist.Name = resultText;
+                                localMylist.Label = resultText;
                                 MylistTitle = resultText;
                                 UpdateTitle(resultText);
                             }
@@ -179,7 +179,7 @@ namespace NicoPlayerHohoema.ViewModels
                             var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup(PlayableList.Value.Id);
                             MylistGroupEditData data = new MylistGroupEditData()
                             {
-                                Name = mylistGroup.Name,
+                                Name = mylistGroup.Label,
                                 Description = mylistGroup.Description,
                                 IsPublic = mylistGroup.IsPublic,
                                 MylistDefaultSort = mylistGroup.Sort,
@@ -252,7 +252,7 @@ namespace NicoPlayerHohoema.ViewModels
                         // 確認ダイアログ
                         var item = PlayableList.Value;
                         var originText = item.Origin == PlaylistOrigin.Local ? "ローカルマイリスト" : "マイリスト";
-                        var contentMessage = $"{item.Name} を削除してもよろしいですか？（変更は元に戻せません）";
+                        var contentMessage = $"{item.Label} を削除してもよろしいですか？（変更は元に戻せません）";
 
                         var dialog = new MessageDialog(contentMessage, $"{originText}削除の確認");
                         dialog.Commands.Add(new UICommand("削除", async (i) =>
@@ -409,7 +409,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
                         // ユーザーに結果を通知
-                        var titleText = $"「{mylistGroup.Name}」から {successCount}件 の動画が登録解除されました";
+                        var titleText = $"「{mylistGroup.Label}」から {successCount}件 の動画が登録解除されました";
                         var toastService = App.Current.Container.Resolve<ToastNotificationService>();
                         var resultText = $"";
                         if (failedCount > 0)
@@ -449,7 +449,7 @@ namespace NicoPlayerHohoema.ViewModels
             if (PlayableList.Value.Origin != PlaylistOrigin.OtherUser) { return false; }
 
 			var favManager = HohoemaApp.FollowManager;
-			var result = await favManager.AddFollow(FollowItemType.Mylist, PlayableList.Value.Id, PlayableList.Value.Name);
+			var result = await favManager.AddFollow(FollowItemType.Mylist, PlayableList.Value.Id, PlayableList.Value.Label);
 
 			return result == ContentManageResult.Success || result == ContentManageResult.Exist;
 		}
@@ -487,7 +487,7 @@ namespace NicoPlayerHohoema.ViewModels
                 MylistBookmark = Database.BookmarkDb.Get(Database.BookmarkType.Mylist, PlayableList.Value.Id)
                     ?? new Database.Bookmark()
                     {
-                        Label = PlayableList.Value.Name,
+                        Label = PlayableList.Value.Label,
                         Content = PlayableList.Value.Id,
                         BookmarkType = Database.BookmarkType.Mylist,
                     };
@@ -536,7 +536,7 @@ namespace NicoPlayerHohoema.ViewModels
                 case PlaylistOrigin.LoginUser:
 
                     var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup(PlayableList.Value.Id);
-                    MylistTitle = mylistGroup.Name;
+                    MylistTitle = mylistGroup.Label;
                     MylistDescription = mylistGroup.Description;
                     ThemeColor = mylistGroup.IconType.ToColor();
                     IsPublic = mylistGroup.IsPublic;
@@ -570,12 +570,12 @@ namespace NicoPlayerHohoema.ViewModels
 
                     var response = await HohoemaApp.ContentProvider.GetMylistGroupDetail(PlayableList.Value.Id);
                     var mylistGroupDetail = response.MylistGroup;
-                    MylistTitle = otherOwnedMylist.Name;
+                    MylistTitle = otherOwnedMylist.Label;
                     MylistDescription = otherOwnedMylist.Description;
                     IsPublic = true;
                     //ThemeColor = mylistGroupDetail.GetIconType().ToColor();
 
-                    OwnerUserId = otherOwnedMylist.OwnerUserId;
+                    OwnerUserId = mylistGroupDetail.UserId;
 
                     MylistState = IsPublic ? "公開マイリスト" : "非公開マイリスト";
                     var user = Database.NicoVideoOwnerDb.Get(OwnerUserId);
@@ -597,7 +597,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                 case PlaylistOrigin.Local:
 
-                    MylistTitle = PlayableList.Value.Name;
+                    MylistTitle = PlayableList.Value.Label;
                     OwnerUserId = HohoemaApp.LoginUserId.ToString();
                     UserName = HohoemaApp.LoginUserName;
 

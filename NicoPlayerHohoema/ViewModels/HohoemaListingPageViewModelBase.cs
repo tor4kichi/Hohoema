@@ -19,11 +19,11 @@ using System.Threading;
 using Windows.UI.Xaml;
 using NicoPlayerHohoema.Views.Service;
 using Microsoft.Practices.Unity;
+using Microsoft.Toolkit.Uwp.UI;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public abstract class HohoemaListingPageViewModelBase<ITEM_VM> : HohoemaViewModelBase
-		where ITEM_VM : HohoemaListingPageItemBase
 	{
 
         private AsyncLock _ItemsUpdateLock = new AsyncLock();
@@ -257,6 +257,9 @@ namespace NicoPlayerHohoema.ViewModels
                         (IncrementalLoadingItems.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error += HohoemaIncrementalSource_Error;
                     }
 
+                    ItemsView.Source = IncrementalLoadingItems;
+                    RaisePropertyChanged(nameof(ItemsView));
+
                     PostResetList();
                 }
                 catch
@@ -281,7 +284,7 @@ namespace NicoPlayerHohoema.ViewModels
 			NowLoading.Value = true;
 		}
 
-		private async void CompleteLoadingItems()
+		private void CompleteLoadingItems()
 		{
 			NowLoading.Value = false;
 
@@ -291,16 +294,6 @@ namespace NicoPlayerHohoema.ViewModels
             var count = IncrementalLoadingItems.Source.OneTimeLoadCount;
             var head = LoadedItemsCount.Value - count;
             head = head < 0 ? 0 : head;
-            
-            /*
-            foreach (var item in IncrementalLoadingItems.Skip((int)head).Take((int)count).ToArray())
-            {
-                if (item is HohoemaListingPageItemBase)
-                {
-                    await (item as HohoemaListingPageItemBase).DeferredUpdate();
-                }
-            }
-            */
         }
 
 		protected virtual void PostResetList()
@@ -331,6 +324,79 @@ namespace NicoPlayerHohoema.ViewModels
 			SelectedItems.Clear();
 		}
 
+        private DelegateCommand _ResetSortCommand;
+        public DelegateCommand ResetSortCommand
+        {
+            get
+            {
+                return _ResetSortCommand
+                    ?? (_ResetSortCommand = new DelegateCommand(() =>
+                    {
+                        ResetSort();
+                    }
+                    ));
+            }
+        }
+
+        private DelegateCommand<string> _SortAscendingCommand;
+        public DelegateCommand<string> SortAscendingCommand
+        {
+            get
+            {
+                return _SortAscendingCommand
+                    ?? (_SortAscendingCommand = new DelegateCommand<string>(propertyName => 
+                    {
+                        AddSortDescription(new SortDescription(propertyName, SortDirection.Ascending), withReset:true);
+                    }
+                    ));
+            }
+        }
+
+        private DelegateCommand<string> _SortDescendingCommand;
+        public DelegateCommand<string> SortDescendingCommand
+        {
+            get
+            {
+                return _SortDescendingCommand
+                    ?? (_SortDescendingCommand = new DelegateCommand<string>(propertyName =>
+                    {
+                        AddSortDescription(new SortDescription(propertyName, SortDirection.Descending), withReset: true);
+                    }
+                    ));
+            }
+        }
+
+
+
+        protected void AddSortDescription(SortDescription sort, bool withReset = false)
+        {
+            if (withReset)
+            {
+                ItemsView.SortDescriptions.Clear();
+            }
+
+            ItemsView.SortDescriptions.Add(sort);
+            ItemsView.RefreshSorting();
+        }
+
+        protected void ResetSort()
+        {
+            ItemsView.SortDescriptions.Clear();
+            ItemsView.RefreshSorting();
+        }
+
+
+        protected void AddFilter(Predicate<ITEM_VM> predicate)
+        {
+            ItemsView.Filter = (p) => predicate((ITEM_VM)p);
+            ItemsView.RefreshFilter();
+        }
+
+        protected void ResetFilter()
+        {
+            ItemsView.Filter = null;
+            ItemsView.RefreshFilter();
+        }
 
 		#region Selection
 
@@ -394,6 +460,9 @@ namespace NicoPlayerHohoema.ViewModels
         public ObservableCollection<ITEM_VM> SelectedItems { get; private set; }
 
 		public IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> IncrementalLoadingItems { get; private set; }
+
+        public AdvancedCollectionView ItemsView { get; private set; } = new AdvancedCollectionView();
+
 
 		public ReactiveProperty<bool> NowLoading { get; private set; }
         public ReactiveProperty<bool> CanChangeSort { get; private set; }
