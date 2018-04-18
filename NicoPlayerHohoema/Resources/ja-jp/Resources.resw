@@ -557,4 +557,8 @@
     <value>チャンネルの動画投稿</value>
     <comment>NicoRepoItemTopic</comment>
   </data>
+  <data name="super_high" xml:space="preserve">
+    <value>すごく高画質</value>
+    <comment>Niconico Live Quality</comment>
+  </data>
 </root>

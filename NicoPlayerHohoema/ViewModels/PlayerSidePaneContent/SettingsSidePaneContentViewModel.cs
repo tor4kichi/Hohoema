@@ -42,6 +42,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
         // Live Settings
         public static List<ValueWithAvairability<string>> LivePlayingQualityList { get; } = new[]
         {
+            new ValueWithAvairability<string>("super_high"),
             new ValueWithAvairability<string>("high"),
             new ValueWithAvairability<string>("normal"),
             new ValueWithAvairability<string>("low"),
