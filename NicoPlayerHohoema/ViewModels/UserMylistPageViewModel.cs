@@ -332,7 +332,7 @@ namespace NicoPlayerHohoema.ViewModels
                     var items =
                         Enumerable.Concat(
                             HohoemaApp.Playlist.Playlists.Cast<IPlayableList>(),
-                            HohoemaApp.UserMylistManager.UserMylists
+                            HohoemaApp.UserMylistManager?.UserMylists ?? Enumerable.Empty<IPlayableList>()
                         )
                         .ToList();
                     return new ImmidiateIncrementalLoadingCollectionSource<IPlayableList>(items);

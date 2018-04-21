@@ -938,6 +938,7 @@
                                     DefaultDisplayDuration="{Binding RequestCommentDisplayDuration.Value}"
                                     Opacity="{Binding CommentOpacity.Value, Mode=OneWay}"
                                     UpdateInterval="0:0:0.032"
+                                    VideoPositionOffset="{Binding WatchStartLiveElapsedTime.Value}"
                                     />
 
                         <Border  VerticalAlignment="Bottom"
