@@ -157,10 +157,11 @@ namespace NicoPlayerHohoema.ViewModels
 		Timer _LiveElapsedTimeUpdateTimer;
 
 
-		private DateTimeOffset _StartAt;
-		private DateTimeOffset _EndAt;
+        private DateTimeOffset _OpenAt;
+        private DateTimeOffset _StartAt;
+        private DateTimeOffset _EndAt;
 
-        private TimeSpan WatchStartLiveElapsedTime;
+        public ReactiveProperty<TimeSpan> WatchStartLiveElapsedTime { get; private set; }
         // play
         public ReactiveProperty<MediaElementState> CurrentState { get; private set; }
         public ReactiveProperty<bool> NowPlaying { get; private set; }
@@ -268,6 +269,7 @@ namespace NicoPlayerHohoema.ViewModels
             NowRunningNextLiveDetection = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
 
             // play
+            WatchStartLiveElapsedTime = new ReactiveProperty<TimeSpan>(raiseEventScheduler:CurrentWindowContextScheduler);
             CurrentState = new ReactiveProperty<MediaElementState>(MediaElementState.Closed);
             NowPlaying = CurrentState.Select(x => x == MediaElementState.Playing)
                 .ToReactiveProperty(CurrentWindowContextScheduler);
@@ -351,9 +353,9 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				if (NicoLiveVideo != null)
 				{
-					NowSubmittingComment.Value = true;
-					await NicoLiveVideo.PostComment(WritingComment.Value, CommandString.Value, LiveElapsedTime);
-				}
+                    NowSubmittingComment.Value = true;
+                    await NicoLiveVideo.PostComment(WritingComment.Value, CommandString.Value, LiveElapsedTime);
+                }
 			});
 
 
@@ -559,6 +561,10 @@ namespace NicoPlayerHohoema.ViewModels
                 if (await TryUpdateLiveStatus())
                 {
                     await NicoLiveVideo.Refresh();
+
+                    // MediaPlayer.PositionはSourceを再設定するたびに0にリセットされる
+                    // ソース更新後のコメント表示再生位置のズレを補正する
+                    WatchStartLiveElapsedTime.Value = (DateTime.Now - _OpenAt);
 
                     // 配信終了１分前であれば次枠検出をスタートさせる
                     if (DateTime.Now > _EndAt - TimeSpan.FromMinutes(1))
@@ -850,15 +856,7 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					var comment = new Views.LiveComment(HohoemaApp.UserSettings.NGSettings);
 
-                    // Hohoemaのコメントレンダラのためにx.VPosの位置変換が必要
-                    // 視聴開始時点が起点
-
-                    TimeSpan vpos = TimeSpan.FromMilliseconds(x.Vpos * 10);
-                    var relatedVpos = vpos - WatchStartLiveElapsedTime;
-                    //x.GetVposでサーバー上のコメント位置が取れるが、
-                    // 受け取った順で表示したいのでローカルの放送時間からコメント位置を割り当てる
-                    var currentVpos = (long)(MediaPlayer.PlaybackSession.Position.TotalMilliseconds * 0.1);
-                    comment.VideoPosition = (long)(relatedVpos.TotalMilliseconds * 0.1);
+                    comment.VideoPosition = x.Vpos;
 
                     // EndPositionはコメントレンダラが再計算するが、仮置きしないと表示対象として処理されない
                     comment.EndPosition = comment.VideoPosition + 500;
@@ -964,10 +962,11 @@ namespace NicoPlayerHohoema.ViewModels
                     LiveTitle = liveInfo.VideoInfo.Video.Title;
                     Title = LiveTitle;
 
+                    _OpenAt = liveInfo.VideoInfo.Video.OpenTime.Value;
                     _StartAt = liveInfo.VideoInfo.Video.StartTime.Value;
                     _EndAt = liveInfo.VideoInfo.Video.EndTime.Value;
 
-                    WatchStartLiveElapsedTime = (DateTime.Now - liveInfo.VideoInfo.Video.OpenTime.Value);
+                    WatchStartLiveElapsedTime.Value = (DateTime.Now - _OpenAt);
                 }
             }
             catch (Exception ex)
@@ -1115,6 +1114,10 @@ namespace NicoPlayerHohoema.ViewModels
                             .Subscribe(x => 
                             {
                                 CurrentQuality.Value = x;
+
+                                // MediaPlayer.PositionはSourceを再設定するたびに0にリセットされる
+                                // ソース更新後のコメント表示再生位置のズレを補正する
+                                WatchStartLiveElapsedTime.Value = (DateTime.Now - _OpenAt);
                             });
 
                         NicoLiveVideo.ObserveProperty(x => x.Qualities)
@@ -1368,12 +1371,12 @@ namespace NicoPlayerHohoema.ViewModels
 		// コメント投稿の結果を受け取る
 		private void NicoLiveVideo_PostCommentResult(NicoLiveVideo sender, bool postSuccess)
 		{
-			NowSubmittingComment.Value = false;
+            NowSubmittingComment.Value = false;
 
-			if (postSuccess)
-			{
-				WritingComment.Value = "";
-			}
+            if (postSuccess)
+            {
+                WritingComment.Value = "";
+            }
 		}
 
 
@@ -1388,8 +1391,8 @@ namespace NicoPlayerHohoema.ViewModels
         {
             LiveOperationCommand operationCommand = null;
             var vpos = TimeSpan.FromMilliseconds(e.Chat.Vpos * 10);
-            var relatedVpos = vpos - WatchStartLiveElapsedTime;
-            bool isDisplayComment = (this.LiveElapsedTime - relatedVpos) < TimeSpan.FromSeconds(10);
+//            var relatedVpos = vpos - WatchStartLiveElapsedTime;
+            bool isDisplayComment = (this.LiveElapsedTime - vpos) < TimeSpan.FromSeconds(10);
             switch (e.CommandType)
             {
                 case "perm":

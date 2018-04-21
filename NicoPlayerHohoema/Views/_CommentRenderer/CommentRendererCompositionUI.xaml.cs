@@ -290,7 +290,7 @@ namespace NicoPlayerHohoema.Views
             frameData.CommentDisplayDuration = DefaultDisplayDuration;
             frameData.PlaybackState = MediaPlayer.PlaybackSession.PlaybackState;
             frameData.CommentDefaultColor = CommentDefaultColor;
-            frameData.CurrentVpos = (uint)Math.Floor(VideoPosition.TotalMilliseconds * 0.1);
+            frameData.CurrentVpos = (uint)Math.Floor((VideoPosition + VideoPositionOffset).TotalMilliseconds * 0.1);
             frameData.CanvasWidth = (int)CommentCanvas.ActualWidth;
             frameData.CanvasHeight = (uint)CommentCanvas.ActualHeight;
             frameData.HalfCanvasWidth = CommentCanvas.ActualWidth * 0.5;
@@ -727,7 +727,7 @@ namespace NicoPlayerHohoema.Views
         {
             if (_IsNeedCommentRenderUpdated) { return; }
 
-            if (comment.EndPosition < (VideoPosition.TotalSeconds * 100))
+            if (comment.EndPosition < ((VideoPosition + VideoPositionOffset).TotalSeconds * 100))
             {
                 // もう表示することはないので何もしない
             }
@@ -1241,6 +1241,26 @@ namespace NicoPlayerHohoema.Views
             get { return (bool)GetValue(IsShowNicoLiveOperationCommentProperty); }
             set { SetValue(IsShowNicoLiveOperationCommentProperty, value); }
         }
+
+
+
+
+        /// <summary>
+        /// コメントの動画再生位置に対するオフセット時間 </br>
+        /// MediaPlayer.Positionがソース設定時に 0 にリセットされる特性に対応する必要がある場合に指定します（特にニコニコ生放送）
+        /// </summary>
+        public TimeSpan VideoPositionOffset
+        {
+            get { return (TimeSpan)GetValue(VideoPositionOffsetProperty); }
+            set { SetValue(VideoPositionOffsetProperty, value); }
+        }
+
+        public static readonly DependencyProperty VideoPositionOffsetProperty =
+            DependencyProperty.Register(nameof(VideoPositionOffset)
+                , typeof(TimeSpan)
+                , typeof(CommentRendererCompositionUI)
+                , new PropertyMetadata(TimeSpan.Zero)
+                );
 
         #endregion
 
