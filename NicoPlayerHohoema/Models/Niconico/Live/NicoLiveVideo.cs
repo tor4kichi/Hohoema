@@ -864,10 +864,7 @@ namespace NicoPlayerHohoema.Models.Live
 				var userId = PlayerStatusResponse.User.Id;
 				_LastCommentText = message;
 
-                if (_PostKey == null)
-                {
-                    await UpdatePostKey();
-                }
+                await UpdatePostKey();
 
                 if (_PostKey == null)
                 {
