@@ -517,4 +517,12 @@
     <value>超高画质</value>
     <comment>Niconico Live Quality</comment>
   </data>
+  <data name="Live" xml:space="preserve">
+    <value>直播</value>
+    <comment>NiconicoServiceType</comment>
+  </data>
+  <data name="Video" xml:space="preserve">
+    <value>视频</value>
+    <comment>NiconicoServiceType</comment>
+  </data>
 </root>

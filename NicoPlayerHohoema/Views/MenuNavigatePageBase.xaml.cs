@@ -1,4 +1,6 @@
-﻿using Prism.Events;
+﻿using Microsoft.Toolkit.Uwp.UI.Animations;
+using NicoPlayerHohoema.Helpers;
+using Prism.Events;
 using Prism.Windows.AppModel;
 using Prism.Windows.Navigation;
 using System;
@@ -81,6 +83,43 @@ namespace NicoPlayerHohoema.Views
             }
 
             base.OnApplyTemplate();
+        }
+
+
+
+
+
+        AsyncLock _MenuContentToggleLock = new AsyncLock();
+
+
+        private async void ToggleDisplayContent(FrameworkElement showTarget, FrameworkElement hideTarget)
+        {
+            using (var releaser = await _MenuContentToggleLock.LockAsync())
+            {
+                showTarget.Visibility = Visibility.Visible;
+                hideTarget.IsHitTestVisible = false;
+                await Task.WhenAll(
+                    showTarget.Fade(1.0f, 175).StartAsync(),
+                    hideTarget.Fade(0.0f, 175).StartAsync()
+                    );
+                showTarget.IsHitTestVisible = true;
+                hideTarget.Visibility = Visibility.Collapsed;
+            }
+        }
+        public void ShowMenuMainContent()
+        {
+            var menuMainContent = GetTemplateChild("MenuMainPageContent") as FrameworkElement;
+            var menuSubContent = GetTemplateChild("MenuSubPageContent") as FrameworkElement;
+
+            ToggleDisplayContent(menuMainContent, menuSubContent);
+        }
+
+        public void ShowMenuSubContent()
+        {
+            var menuMainContent = GetTemplateChild("MenuMainPageContent") as FrameworkElement;
+            var menuSubContent = GetTemplateChild("MenuSubPageContent") as FrameworkElement;
+
+            ToggleDisplayContent(menuSubContent, menuMainContent);
         }
     }
 }
