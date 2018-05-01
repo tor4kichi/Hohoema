@@ -36,6 +36,15 @@ namespace NicoPlayerHohoema.Database
             }
         }
 
+        public static SearchTarget? LastSearchedTarget(string keyword)
+        {
+            var db = HohoemaLiteDb.GetLocalLiteRepository();
+            {
+                var searchHistory = db.Fetch<SearchHistory>(x => x.Keyword == keyword).OrderByDescending(x => x.LastUpdated).FirstOrDefault();
+                return searchHistory?.Target;
+            }
+        }
+
         public static SearchHistory Searched(string keyword, SearchTarget target)
         {
             var db = HohoemaLiteDb.GetLocalLiteRepository();

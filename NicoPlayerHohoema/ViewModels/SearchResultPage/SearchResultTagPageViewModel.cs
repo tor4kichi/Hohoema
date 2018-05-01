@@ -20,6 +20,10 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class SearchResultTagPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
 	{
+        NiconicoContentProvider _ContentFinder;
+        Services.HohoemaDialogService _HohoemaDialogService;
+
+
         private static List<SearchSortOptionListItem> _VideoSearchOptionListItems = new List<SearchSortOptionListItem>()
         {
             new SearchSortOptionListItem()
@@ -139,9 +143,27 @@ namespace NicoPlayerHohoema.ViewModels
 
         public Database.Bookmark TagSearchBookmark { get; private set; }
 
-		NiconicoContentProvider _ContentFinder;
 
-        Services.HohoemaDialogService _HohoemaDialogService;
+        public static List<SearchTarget> SearchTargets { get; } = Enum.GetValues(typeof(SearchTarget)).Cast<SearchTarget>().ToList();
+
+        private DelegateCommand<SearchTarget?> _ChangeSearchTargetCommand;
+        public DelegateCommand<SearchTarget?> ChangeSearchTargetCommand
+        {
+            get
+            {
+                return _ChangeSearchTargetCommand
+                    ?? (_ChangeSearchTargetCommand = new DelegateCommand<SearchTarget?>(target =>
+                    {
+                        if (target.HasValue && target.Value != SearchOption.SearchTarget)
+                        {
+                            var payload = SearchPagePayloadContentHelper.CreateDefault(target.Value, SearchOption.Keyword);
+                            PageManager.Search(payload, true);
+                        }
+                    }));
+            }
+        }
+
+
 
         public SearchResultTagPageViewModel(
 			HohoemaApp hohoemaApp, 

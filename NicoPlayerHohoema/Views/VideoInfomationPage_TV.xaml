@@ -36,8 +36,6 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="ContentLayout.Margin" Value="48 27 0 0" />
-                        
-                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -52,7 +50,6 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -76,11 +73,6 @@
         <toolkit:DockPanel x:Name="ContentLayout" 
                            Margin="48 27 0 0"
                            >
-            <StackPanel toolkit:DockPanel.Dock="Top">
-
-                <Border Height="{StaticResource TitleBarDummyHeight}" />
-
-            </StackPanel>
             
             <toolkit:DockPanel toolkit:DockPanel.Dock="Top" 
                                x:Name="HeaderLayout"
@@ -96,12 +88,6 @@
                 <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="16 0 0 0"
                                 >
-                    <TextBlock Text="{Binding Title}" 
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource TitleTextBlockStyle}"
-                                   x:Name="TitleLayout"
-                                    >
-                    </TextBlock>
                 </Border>
             </toolkit:DockPanel>
             <Border toolkit:DockPanel.Dock="Right">

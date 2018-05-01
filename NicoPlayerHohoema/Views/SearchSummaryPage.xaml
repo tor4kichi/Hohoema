@@ -15,7 +15,8 @@
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
-    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -88,227 +89,220 @@
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-                
-        <toolkit:DockPanel Margin="8 0 0 0">
 
-            <Grid x:Name="HeaderLayout"
-                  toolkit:DockPanel.Dock="Top"
-                  >
-                <TextBlock 
-                        Text="{Binding Title}"
-                        Style="{StaticResource TitleTextBlockStyle}"
-                        Margin="8 16"
-                x:Name="TitleLayout"
-                        />
-            </Grid>
 
-            <ScrollViewer>
+        
+        <ScrollViewer>
+            <ScrollViewer.TopHeader>
+                <uwpControls:ScrollHeader Mode="QuickReturn">
+                    <Grid x:Name="HeaderLayout"
+                          toolkit:DockPanel.Dock="Top"
+                          >
+                    </Grid>
+                </uwpControls:ScrollHeader>
+            </ScrollViewer.TopHeader>
 
-                <StackPanel>
-                    <toolkit:DockPanel Margin="0 0 0 32">
-                        <Grid toolkit:DockPanel.Dock="Top" Margin="8 8"
+            <StackPanel>
+                <toolkit:DockPanel Margin="0 0 0 32">
+                    <Grid toolkit:DockPanel.Dock="Top" Margin="8 8"
                               x:Name="VideoItemsHeaderLayout"
                               >
-                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" 
+                        <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" 
                            HorizontalAlignment="Left"
                                VerticalAlignment="Center"
                        >
                         動画検索 (<Run Text="{Binding KeywordSearchItemsTotalCount}"></Run>動画)
-                            </TextBlock>
+                        </TextBlock>
 
-                            <Button Content="全てを表示" 
+                        <Button Content="全てを表示" 
                                     Command="{Binding SearchWithTargetCommand}"
                                     CommandParameter="{x:Bind models:SearchTarget.Keyword}"
                                     HorizontalAlignment="Right"
                             />
 
-                        </Grid>
-                        <Grid toolkit:DockPanel.Dock="Bottom"
+                    </Grid>
+                    <Grid toolkit:DockPanel.Dock="Bottom"
                               Visibility="{Binding HasKeywordSearchResultItems.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                               Margin="16 0 0 0"
                               >
-                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
+                        <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
                                        Opacity="0.8"
                                        TextWrapping="Wrap"
                                        >
                                 "<Run Text="{Binding Keyword}" />" で動画は見つかりませんでした
-                            </TextBlock>
-                        </Grid>
-                        
-                        <ListView ItemsSource="{Binding KeywordSearchResultItems}"
+                        </TextBlock>
+                    </Grid>
+
+                    <ListView ItemsSource="{Binding KeywordSearchResultItems}"
                           ScrollViewer.HorizontalScrollMode="Auto"
                           ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                           ScrollViewer.VerticalScrollMode="Disabled"
-                          uwpui:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                          uwpExtensions:ListViewBase.Command="{StaticResource OpenContentCommand}"
                           IsItemClickEnabled="True"
                           >
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="VerticalContentAlignment" Value="Top" />
-                                    <Setter Property="Padding" Value="2 0" />
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <listitem:HohoemaListItemCard />
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="VerticalContentAlignment" Value="Top" />
+                                <Setter Property="Padding" Value="2 0" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <listitem:HohoemaListItemCard />
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
 
-                            <ListView.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <ItemsStackPanel Orientation="Horizontal"
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <ItemsStackPanel Orientation="Horizontal"
                                                      Margin="8 0 48 0"
                                                      />
-                                </ItemsPanelTemplate>
-                            </ListView.ItemsPanel>
-                        </ListView>
-                    </toolkit:DockPanel>
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+                    </ListView>
+                </toolkit:DockPanel>
 
 
 
-                    <toolkit:DockPanel Margin="0 0 0 32"
+                <toolkit:DockPanel Margin="0 0 0 32"
                                        Visibility="{Binding HasKeywordSearchResultItems.Value, Converter={StaticResource BooleanToVisibility}}"
                                        >
-                        <Grid toolkit:DockPanel.Dock="Top" Margin="8 8">
-                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" 
+                    <Grid toolkit:DockPanel.Dock="Top" Margin="8 8">
+                        <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" 
                            HorizontalAlignment="Left"
                                VerticalAlignment="Center"
                        >
                         関連動画タグ
-                            </TextBlock>
+                        </TextBlock>
 
-                        </Grid>
+                    </Grid>
 
-                        <ListView ItemsSource="{Binding RelatedVideoTags}" 
-                          uwpui:ListViewBase.Command="{Binding SearchVideoTagCommand}"
+                    <ListView ItemsSource="{Binding RelatedVideoTags}" 
+                          uwpExtensions:ListViewBase.Command="{Binding SearchVideoTagCommand}"
                           IsItemClickEnabled="True"
                       >
-                            <ListView.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <toolkit:WrapPanel Margin="0 0 48 0" />
-                                </ItemsPanelTemplate>
-                            </ListView.ItemsPanel>
-                        </ListView>
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <toolkit:WrapPanel Margin="0 0 48 0" />
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+                    </ListView>
 
-                    </toolkit:DockPanel>
+                </toolkit:DockPanel>
 
 
 
-                    <toolkit:DockPanel Margin="0 0 0 32">
-                        <Grid toolkit:DockPanel.Dock="Top" Margin="8 8"
+                <toolkit:DockPanel Margin="0 0 0 32">
+                    <Grid toolkit:DockPanel.Dock="Top" Margin="8 8"
                                x:Name="LiveItemsHeaderLayout"
                               >
-                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" 
+                        <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" 
                            HorizontalAlignment="Left"
                                VerticalAlignment="Center"
                                 >
                                 生放送検索 (<Run Text="{Binding LiveSearchItemsTotalCount}"></Run>放送)
-                            </TextBlock>
+                        </TextBlock>
 
-                            <Button Content="全てを表示" 
+                        <Button Content="全てを表示" 
                                     Command="{Binding SearchWithTargetCommand}"
                                     CommandParameter="{x:Bind models:SearchTarget.Niconama}"
                                     HorizontalAlignment="Right"
                                 />
 
-                        </Grid>
+                    </Grid>
 
-                        <Grid toolkit:DockPanel.Dock="Bottom"
+                    <Grid toolkit:DockPanel.Dock="Bottom"
                               Visibility="{Binding HasLiveSearchResultItems.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                               Margin="16 0 0 0"
                               >
-                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
+                        <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
                                        Opacity="0.8"
                                        TextWrapping="Wrap"
                                        >
                                 "<Run Text="{Binding Keyword}" />" で現在放送している番組は見つかりませんでした
-                            </TextBlock>
-                        </Grid>
-                        <ListView ItemsSource="{Binding LiveSearchResultItems}"
+                        </TextBlock>
+                    </Grid>
+                    <ListView ItemsSource="{Binding LiveSearchResultItems}"
                           ScrollViewer.HorizontalScrollMode="Auto"
                           ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                           ScrollViewer.VerticalScrollMode="Disabled"
-                          uwpui:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                          uwpExtensions:ListViewBase.Command="{StaticResource OpenContentCommand}"
                           IsItemClickEnabled="True"
                           >
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="VerticalContentAlignment" Value="Top" />
-                                    <Setter Property="Padding" Value="2 0" />
-                                </Style>
-                            </ListView.ItemContainerStyle>
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="VerticalContentAlignment" Value="Top" />
+                                <Setter Property="Padding" Value="2 0" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
 
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <listitem:HohoemaListItemCard />
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <listitem:HohoemaListItemCard />
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
 
-                            <ListView.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <ItemsStackPanel Orientation="Horizontal"
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <ItemsStackPanel Orientation="Horizontal"
                                                      Margin="8 0 48 0"
                                                      />
-                                </ItemsPanelTemplate>
-                            </ListView.ItemsPanel>
-                        </ListView>
-                    </toolkit:DockPanel>
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+                    </ListView>
+                </toolkit:DockPanel>
 
-                    <toolkit:DockPanel Margin="0 0 0 32"
+                <toolkit:DockPanel Margin="0 0 0 32"
                                        Visibility="{Binding HasLiveSearchResultItems.Value, Converter={StaticResource BooleanToVisibility}}"
                                        >
-                        <Grid toolkit:DockPanel.Dock="Top" Margin="8 8">
-                            <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" 
+                    <Grid toolkit:DockPanel.Dock="Top" Margin="8 8">
+                        <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" 
                            HorizontalAlignment="Left"
                                VerticalAlignment="Center"
                        >
                         関連生放送タグ
-                            </TextBlock>
+                        </TextBlock>
 
-                        </Grid>
+                    </Grid>
 
-                        <ListView ItemsSource="{Binding RelatedLiveTags}" 
-                          uwpui:ListViewBase.Command="{Binding SearchLiveTagCommand}"
+                    <ListView ItemsSource="{Binding RelatedLiveTags}" 
+                          uwpExtensions:ListViewBase.Command="{Binding SearchLiveTagCommand}"
                           IsItemClickEnabled="True"
                       >
-                            <ListView.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <toolkit:WrapPanel Margin="0 0 48 0" />
-                                </ItemsPanelTemplate>
-                            </ListView.ItemsPanel>
-                        </ListView>
+                        <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <toolkit:WrapPanel Margin="0 0 48 0" />
+                            </ItemsPanelTemplate>
+                        </ListView.ItemsPanel>
+                    </ListView>
 
-                    </toolkit:DockPanel>
+                </toolkit:DockPanel>
 
 
 
-                    <Button Command="{Binding SearchWithTargetCommand}"
+                <Button Command="{Binding SearchWithTargetCommand}"
                             CommandParameter="{x:Bind models:SearchTarget.Mylist}"
                             Margin="8 16"
                             >
-                        <TextBlock>
+                    <TextBlock>
                             "<Run Text="{Binding Keyword}" />" でマイリスト検索
-                        </TextBlock>
-                    </Button>
+                    </TextBlock>
+                </Button>
 
-                    <Button Command="{Binding SearchWithTargetCommand}"
+                <Button Command="{Binding SearchWithTargetCommand}"
                             CommandParameter="{x:Bind models:SearchTarget.Community}"
                             Margin="8 16"
                             >
-                        <TextBlock>
+                    <TextBlock>
                             "<Run Text="{Binding Keyword}" />" でコミュニティ検索
-                        </TextBlock>
-                    </Button>
+                    </TextBlock>
+                </Button>
 
-                    <Border Height="27" />
-                </StackPanel>
-            </ScrollViewer>
-
-            
-        </toolkit:DockPanel>
+                <Border Height="27" />
+            </StackPanel>
 
 
-        
-
+        </ScrollViewer>
+       
     </Grid>
 </Page>

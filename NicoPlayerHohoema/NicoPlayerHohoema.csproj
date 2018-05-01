@@ -467,6 +467,9 @@
     <Compile Include="Views\Flyouts\SearchHistoryListItemFlyout.xaml.cs">
       <DependentUpon>SearchHistoryListItemFlyout.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\MylistListItem.xaml.cs">
+      <DependentUpon>MylistListItem.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\RecommendPage.xaml.cs">
       <DependentUpon>RecommendPage.xaml</DependentUpon>
     </Compile>
@@ -819,6 +822,10 @@
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Page>
+    <Page Include="Styles\ListViewItemStyles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Styles\TVSafeColor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -856,6 +863,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Flyouts\SearchHistoryListItemFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\MylistListItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

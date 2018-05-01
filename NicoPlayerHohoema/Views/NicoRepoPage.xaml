@@ -14,7 +14,9 @@
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
-    xmlns:hardtrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"    
+    xmlns:hardtrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+    xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -29,8 +31,8 @@
                         <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
-                        <Setter Target="TVModeMarginBordar.Height" Value="27" />
+                        <Setter Target="ItemsList.Padding" Value="48 0 48 27" />
+                        <Setter Target="ScrollHeader.Mode" Value="None" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -45,7 +47,7 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
+                        <Setter Target="ScrollHeader.Mode" Value="QuickReturn" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -65,96 +67,99 @@
         </VisualStateManager.VisualStateGroups>
 
 
-        <controls:ListingWithHeader 
-            x:Name="ListingWithHeader"
+        <uwpcontrols:PullToRefreshListView 
+            x:Name="ItemsList"
             ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
-            SelectedItems="{Binding SelectedItems}"
             RefreshCommand="{Binding RefreshCommand}"
-            ItemCommand="{StaticResource OpenContentCommand}"
-            IsTVModeEnabled="{Binding IsForceTVModeEnable.Value}"
-            IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
-            NowLoading="{Binding NowLoading.Value}"
-            >
-            <controls:ListingWithHeader.HeaderContent>
-                <StackPanel >
+            IsItemClickEnabled="True"
+            IncrementalLoadingTrigger="Edge"
+            PullThreshold="85"    
+            UseSystemFocusVisuals="True"
+            SelectionMode="None"
+            HorizontalContentAlignment="Stretch"
+            uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
+            ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+                            >
+            <i:Interaction.Behaviors>
 
-                    <Border x:Name="TVModeMarginBordar" />
+                <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems, Mode=TwoWay}" />
 
-                    <Border Height="{StaticResource TitleBarDummyHeight}" />
+                <mybehavior:KeyboardTrigger Key="F5">
+                    <mybehavior:KeyboardTrigger.Actions>
+                        <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
+                    </mybehavior:KeyboardTrigger.Actions>
+                </mybehavior:KeyboardTrigger>
 
-                    <CommandBar 
+                <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
+            </i:Interaction.Behaviors>
+            <ListView.Header>
+
+                <uwpcontrols:ScrollHeader
+                    x:Name="ScrollHeader"
+                    Mode="Sticky" >
+                    <StackPanel >
+                        <CommandBar 
                             x:Name="TopCommandBar"
                                 >
-                        <CommandBar.Content>
-                            <Border Background="Transparent" IsHitTestVisible="True"
+                            <CommandBar.Content>
+                                <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="16 0 0 0"
                                     Height="48"
                                 >
-                                <i:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="Tapped">
-                                        <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
-                                    </core:EventTriggerBehavior>
-                                </i:Interaction.Behaviors>
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <core:ChangePropertyAction TargetObject="{Binding}" PropertyName="ListPosition" Value="0.0" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
 
-                                <TextBlock Text="{Binding Title, Mode=OneWay}" 
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource TitleTextBlockStyle}"
-                                       x:Name="TitleLayout"
-                                    />
+                                </Border>
+                            </CommandBar.Content>
 
-                            </Border>
-                        </CommandBar.Content>
+                            <CommandBar.PrimaryCommands>
 
-                        <CommandBar.PrimaryCommands>
-
-                            <AppBarButton Background="Transparent" 
+                                <AppBarButton Background="Transparent" 
                                         Command="{Binding RefreshCommand}"
                                         ToolTipService.ToolTip="更新"
                                               Icon="Refresh"
                                         />
 
-                            <AppBarButton Icon="Setting">
-                                <AppBarButton.Flyout>
-                                    <Flyout>
+                                <AppBarButton Icon="Setting">
+                                    <AppBarButton.Flyout>
+                                        <Flyout>
 
 
-                                        <ListView ItemsSource="{Binding DisplayCandidateNicoRepoItemTopicList, Mode=OneTime}"
+                                            <ListView ItemsSource="{Binding DisplayCandidateNicoRepoItemTopicList, Mode=OneTime}"
                                                   SelectionMode="Multiple"
                                                   IsMultiSelectCheckBoxEnabled="True"
                                                   ext:ListViewExtensions.BindableSelection="{Binding DisplayNicoRepoItemTopics, Mode=TwoWay}"
                                                   >
 
-                                            <ListView.ItemTemplate>
-                                                <DataTemplate>
-                                                    <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
-                                                </DataTemplate>
-                                            </ListView.ItemTemplate>
-                                        </ListView>
-                                    </Flyout>
-                                </AppBarButton.Flyout>
-                            </AppBarButton>
+                                                <ListView.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
+                                                    </DataTemplate>
+                                                </ListView.ItemTemplate>
+                                            </ListView>
+                                        </Flyout>
+                                    </AppBarButton.Flyout>
+                                </AppBarButton>
 
-                        </CommandBar.PrimaryCommands>
+                            </CommandBar.PrimaryCommands>
 
-                    </CommandBar>
-                </StackPanel>
-            </controls:ListingWithHeader.HeaderContent>
+                        </CommandBar>
+                    </StackPanel>
+                </uwpcontrols:ScrollHeader>
+            </ListView.Header>
 
 
-            <controls:ListingWithHeader.ListItemTemplate>
+            <ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid>
                         <controls:HohoemaListItem />
                     </Grid>
                 </DataTemplate>
-            </controls:ListingWithHeader.ListItemTemplate>
-
-            <controls:ListingWithHeader.GridItemTemplate>
-                <DataTemplate>
-                    <controls:HohoemaListItem DisplayType="MiniCard" />
-                </DataTemplate>
-            </controls:ListingWithHeader.GridItemTemplate>
-        </controls:ListingWithHeader>
+            </ListView.ItemTemplate>
+        </uwpcontrols:PullToRefreshListView>
 
 
         <Grid x:Name="NoTimelineItemsLayout"

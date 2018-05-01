@@ -14,6 +14,8 @@
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     d:DesignHeight="300"
@@ -35,9 +37,8 @@
                         <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Margin" Value="64 0 0 0" />
-
-                        <Setter Target="TVModeMarginBordar.Height" Value="27" />
+                        <Setter Target="ItemsList.Padding" Value="48 0 48 27" />
+                        <Setter Target="ScrollHeader.Mode" Value="None" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -52,7 +53,7 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Margin" Value="64 0 0 0" />
+                        <Setter Target="ScrollHeader.Mode" Value="QuickReturn" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -64,6 +65,11 @@
                         <StateTrigger IsActive="{Binding IsSelectionModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
+                        <Setter Target="ItemsList.SelectionMode" Value="Multiple" />
+                        <Setter Target="ItemsList.IsItemClickEnabled" Value="False" />
+                        <Setter Target="ItemsList.IsMultiSelectCheckBoxEnabled" Value="True" />
+
+
                         <Setter Target="CacheRequestButton.Visibility" Value="Visible" />
                         <Setter Target="AddMylistButton.Visibility" Value="Visible" />
 
@@ -76,35 +82,74 @@
             </VisualStateGroup>
 
         </VisualStateManager.VisualStateGroups>
-        
-        <controls:ListingWithHeader 
-            x:Name="ListingWithHeader"
-            ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
-            SelectedItems="{Binding SelectedItems}"
-            RefreshCommand="{Binding RefreshCommand}"
-            ItemCommand="{StaticResource OpenContentCommand}"
-            IsTVModeEnabled="{Binding IsForceTVModeEnable.Value}"
-            IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
-            NowLoading="{Binding NowLoading.Value}"
-            >
-            <controls:ListingWithHeader.HeaderContent>
-                <StackPanel>
 
-                    <Border x:Name="TVModeMarginBordar" />
+        <uwpcontrols:PullToRefreshListView 
+                            x:Name="ItemsList"
+                            ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
+                            RefreshCommand="{Binding RefreshCommand}"
+                            IsItemClickEnabled="True"
+                            IncrementalLoadingTrigger="Edge"
+                            PullThreshold="85"    
+                            UseSystemFocusVisuals="True"
+                            SelectionMode="None"
+                            HorizontalContentAlignment="Stretch"
+                            uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
+            ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+                            >
+            <i:Interaction.Behaviors>
 
-                    <Border Height="{StaticResource TitleBarDummyHeight}" />
+                <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems, Mode=TwoWay}" />
 
-                    <CommandBar>
+                <mybehavior:KeyboardTrigger Key="F5">
+                    <mybehavior:KeyboardTrigger.Actions>
+                        <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
+                    </mybehavior:KeyboardTrigger.Actions>
+                </mybehavior:KeyboardTrigger>
 
-                        <CommandBar.PrimaryCommands>
-                            
-                            <AppBarButton x:Name="RefreshListButton"
+                <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
+            </i:Interaction.Behaviors>
+
+            <ListView.Header>
+                <uwpcontrols:ScrollHeader
+                    x:Name="ScrollHeader"
+                    Mode="Sticky" >
+
+                    <StackPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+                        <ListView xmlns:ee="using:NicoPlayerHohoema.Models"
+                                      SelectionMode="Single"
+                                      IsItemClickEnabled="True"
+                                      uwpExtension:ListViewBase.Command="{Binding ChangeSearchTargetCommand}"
+                                      ItemsSource="{Binding SearchTargets}"
+                                      SelectedItem="{Binding SearchOption.SearchTarget}"
+                                  Style="{StaticResource BandListViewStyle}"
+                                      ItemContainerStyle="{StaticResource SimpleListViewItemStyle}"
+                                  SingleSelectionFollowsFocus="False"
+                                      >
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+
+                            <ListView.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <ItemsWrapGrid Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ListView.ItemsPanel>
+                        </ListView>
+                        
+                        <CommandBar>
+
+                            <CommandBar.PrimaryCommands>
+
+                                <AppBarButton x:Name="RefreshListButton"
                                             Label="更新"
                                             Command="{Binding RefreshCommand}"
                                             Icon="Refresh"
                                         />
 
-                            <AppBarButton x:Name="CacheRequestButton"
+                                <AppBarButton x:Name="CacheRequestButton"
                                     Command="{Binding RequestCacheDownload}"
                                               IsEnabled="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
                                               Icon="Download"
@@ -112,51 +157,51 @@
                                           Visibility="Collapsed"
                                             />
 
-                            <AppBarButton x:Name="AddMylistButton"
+                                <AppBarButton x:Name="AddMylistButton"
                                     Command="{Binding RegistratioMylistCommand}" 
                                           Icon="Add"
                                           Label="マイリストに追加"
                                           Visibility="Collapsed"
                                             />
 
-                            <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                             HorizontalContentAlignment="Stretch"
                                             VerticalContentAlignment="Stretch"
                                             Label="選択"
                                             >
-                                <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                                    <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"
                                                        />
-                            </AppBarToggleButton>
+                                </AppBarToggleButton>
 
-                        </CommandBar.PrimaryCommands>
+                            </CommandBar.PrimaryCommands>
 
-                        <CommandBar.SecondaryCommands>
+                            <CommandBar.SecondaryCommands>
 
 
-                            <AppBarButton x:Name="AddFeedButton"
+                                <AppBarButton x:Name="AddFeedButton"
                                     Label="新着チェックに追加"
                                         Command="{StaticResource AddFeedSourceCommand}"
                                         CommandParameter="{Binding TagSearchBookmark}"
                                     />
 
-                            <AppBarToggleButton 
+                                <AppBarToggleButton 
                                             Label="フォロー"
                                                     Icon="Favorite"
                                                   IsChecked="{Binding IsFavoriteTag.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                   IsEnabled="{Binding CanChangeFavoriteTagState.Value}"                                            
                                         />
-                        </CommandBar.SecondaryCommands>
+                            </CommandBar.SecondaryCommands>
 
 
-                        <CommandBar.Content>
-                            <toolkit:DockPanel 
+                            <CommandBar.Content>
+                                <toolkit:DockPanel 
                                 Margin="16 0 0 0"
                             x:Name="TitleLayout"
                                 >
 
-                                <HyperlinkButton Command="{StaticResource OpenHohoemaPageCommand}"
+                                    <HyperlinkButton Command="{StaticResource OpenHohoemaPageCommand}"
                                              CommandParameter="Search"
                                              Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                              Margin="0 0 16 0"
@@ -164,42 +209,37 @@
                                                  VerticalAlignment="Stretch"
                                                  
                                              >
-                                    <SymbolIcon Symbol="Find"
+                                        <SymbolIcon Symbol="Find"
                                             />
-                                </HyperlinkButton>
+                                    </HyperlinkButton>
 
-                                <StackPanel Background="Transparent" IsHitTestVisible="True">
+                                    <StackPanel Background="Transparent" IsHitTestVisible="True">
 
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
-                                    
-                                    <TextBlock Text="{Binding Title}" 
-                                            Style="{StaticResource SubtitleTextBlockStyle}"
-                                            >
-                                    </TextBlock>
-                                    
-                                    <HyperlinkButton 
-                                           toolkit:DockPanel.Dock="Bottom"
-                                    >
                                         <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="Click" >
-                                                <mybehavior:OpenFlyout />
+                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                <core:ChangePropertyAction TargetObject="{Binding ListPosition}" Value="0.0" />
                                             </core:EventTriggerBehavior>
                                         </i:Interaction.Behaviors>
 
-                                        <TextBlock Text="{Binding SearchOptionText}" 
+                                        <HyperlinkButton 
+                                           toolkit:DockPanel.Dock="Bottom"
+                                    >
+                                            <i:Interaction.Behaviors>
+                                                <core:EventTriggerBehavior EventName="Click" >
+                                                    <mybehavior:OpenFlyout />
+                                                </core:EventTriggerBehavior>
+                                            </i:Interaction.Behaviors>
+
+                                            <TextBlock Text="{Binding SearchOptionText}" 
                                                        Style="{StaticResource CaptionTextBlockStyle}"
                                                        >
-                                        </TextBlock>
-                                        
-                                        <FlyoutBase.AttachedFlyout>
-                                            <Flyout>
-                                                <StackPanel MaxWidth="300">
+                                            </TextBlock>
 
-                                                    <ListView ItemsSource="{Binding VideoSearchOptionListItems}"
+                                            <FlyoutBase.AttachedFlyout>
+                                                <Flyout>
+                                                    <StackPanel MaxWidth="300">
+
+                                                        <ListView ItemsSource="{Binding VideoSearchOptionListItems}"
                                                         DisplayMemberPath="Label"
                                                         SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}"
                                                         Margin="0"
@@ -208,52 +248,55 @@
                                                         SelectionMode="Single"
                                                         SingleSelectionFollowsFocus="False"
                                                     >
-                                                        <ListView.ItemContainerStyle>
-                                                            <Style TargetType="ListViewItem">
-                                                                <Setter Property="Width" Value="140" />
-                                                            </Style>
-                                                        </ListView.ItemContainerStyle>
-                                                        <ListView.ItemsPanel>
-                                                            <ItemsPanelTemplate>
-                                                                <ItemsWrapGrid Orientation="Horizontal" />
-                                                            </ItemsPanelTemplate>
-                                                        </ListView.ItemsPanel>
+                                                            <ListView.ItemContainerStyle>
+                                                                <Style TargetType="ListViewItem">
+                                                                    <Setter Property="Width" Value="140" />
+                                                                </Style>
+                                                            </ListView.ItemContainerStyle>
+                                                            <ListView.ItemsPanel>
+                                                                <ItemsPanelTemplate>
+                                                                    <ItemsWrapGrid Orientation="Horizontal" />
+                                                                </ItemsPanelTemplate>
+                                                            </ListView.ItemsPanel>
 
-                                                    </ListView>
+                                                        </ListView>
 
-                                                </StackPanel>
-
-
-                                            </Flyout>
-                                        </FlyoutBase.AttachedFlyout>
-                                        
+                                                    </StackPanel>
 
 
-                                    </HyperlinkButton>
-                                    
-                                </StackPanel>
-                            </toolkit:DockPanel>
-
-                        </CommandBar.Content>
-                        
-                    </CommandBar>
-                </StackPanel>
-            </controls:ListingWithHeader.HeaderContent>
+                                                </Flyout>
+                                            </FlyoutBase.AttachedFlyout>
 
 
-            <controls:ListingWithHeader.ListItemTemplate>
+
+                                        </HyperlinkButton>
+
+                                    </StackPanel>
+                                </toolkit:DockPanel>
+
+                            </CommandBar.Content>
+
+                        </CommandBar>
+                    </StackPanel>
+                </uwpcontrols:ScrollHeader>
+            </ListView.Header>
+
+
+            <ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid>
                         <local:VideoInfoControl />
                     </Grid>
                 </DataTemplate>
-            </controls:ListingWithHeader.ListItemTemplate>
+            </ListView.ItemTemplate>
 
-            <controls:ListingWithHeader.GridItemTemplate>
-                <DataTemplate>
-                    <controls:VideoInfoControl_TV />
-                </DataTemplate>
-            </controls:ListingWithHeader.GridItemTemplate>
-        </controls:ListingWithHeader>
+            <uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
+                <StackPanel  Margin="0 32 0 0" >
+                    <Border Margin="0 16 0 0" BorderThickness="0 0 0 1" BorderBrush="Gray" />
+                    <SymbolIcon Symbol="Refresh" VerticalAlignment="Bottom" Height="48" Width="48" Margin="0 24 0 8"
+                            />
+                </StackPanel>
+            </uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
+        </uwpcontrols:PullToRefreshListView>
     </Grid>
 </Page>

@@ -103,11 +103,8 @@
                         <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="HeaderLayout.Margin" Value="48 0 48 0" />
-                        <Setter Target="TVModeMarginBordar.Height" Value="27" />
+                        <Setter Target="HeaderLayout.Margin" Value="0 0 48 0" />
                         <Setter Target="SettingsContentPanel.Margin" Value="48 0 48 27" />
-
-                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -122,7 +119,7 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
+                        <Setter Target="ScroolHeader.Mode" Value="QuickReturn" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -167,18 +164,13 @@
             
             
         </VisualStateManager.VisualStateGroups>
-        
-        <toolkit:DockPanel >
 
-            <Border toolkit:DockPanel.Dock="Top" 
-                    x:Name="HeaderLayout"
-                    >
 
-                <StackPanel >
 
-                    <Border x:Name="TVModeMarginBordar" />
+        <ScrollViewer>
 
-                    <Border Height="{StaticResource TitleBarDummyHeight}" />
+            <StackPanel>
+                <StackPanel x:Name="HeaderLayout">
 
                     <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
 
@@ -186,12 +178,6 @@
                             <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="16 0 0 0"
                                 >
-                                <TextBlock Text="{Binding Title}" 
-                                        VerticalAlignment="Center"
-                                        Style="{StaticResource TitleTextBlockStyle}"
-                                        x:Name="TitleLayout"
-                                    >
-                                </TextBlock>
                             </Border>
                         </CommandBar.Content>
 
@@ -231,9 +217,7 @@
 
                     </CommandBar>
                 </StackPanel>
-            </Border>
 
-            <ScrollViewer>
                 <uwptoolkitControl:WrapPanel Margin="0 0 0 27" x:Name="SettingsContentPanel">
 
                     <StackPanel Margin="16 0 0 0" MinWidth="300" HorizontalAlignment="Stretch">
@@ -292,15 +276,15 @@
                                    />
 
 
-                            
-                            
+
+
                             <StackPanel Margin="0 8" x:Name="DefaultFullScreenSwitchLayout" Visibility="Collapsed">
                                 <TextBlock Text="アプリ起動時にフルスクリーン表示を設定する"
                                        VerticalAlignment="Center"
                                        />
 
                                 <ToggleSwitch IsOn="{Binding IsDefaultFullScreen.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
-                                
+
                                 <TextBlock Text="有効にするとメニューにフルスクリーンモード切り替えボタンが表示されるようになります。"
                                    FontSize="13"
                                    Opacity="0.7"
@@ -334,7 +318,7 @@
 
                             </StackPanel>
 
-                            
+
 
 
                             <StackPanel x:Name="TVModeSwitchLayout" Visibility="Collapsed">
@@ -347,10 +331,10 @@
                                     <ToggleSwitch IsOn="{Binding IsTVModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
                                 </StackPanel>
                             </StackPanel>
-                            
-                            
-                            
-                            
+
+
+
+
                         </StackPanel>
 
 
@@ -436,7 +420,7 @@
 
 
                             <StackPanel Visibility="{Binding NGVideoTitleKeywordEnable.Value, Converter={StaticResource BooleanToVisibility}}">
-                                
+
                                 <TextBox Text="{Binding NGVideoTitleKeywords.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                      AcceptsReturn="True"
                                      PlaceholderText="NG動画タイトルを入力"
@@ -462,7 +446,7 @@
 
 
 
-                        
+
                         <toolkit:DockPanel Margin="0 8" x:Name="WebCollaborationTitle">
                             <TextBlock Text="TwitterのWeb連携"
                                 Style="{StaticResource SubtitleTextBlockStyle}"
@@ -476,7 +460,7 @@
                                 VerticalAlignment="Center"
                                 />
                         </toolkit:DockPanel>
-                        
+
                         <StackPanel Margin="0 8"
                                     x:Name="WebCollaborationContent"
                                >
@@ -495,7 +479,7 @@
                                 >
                             </Button>
 
-                                
+
                             <Border Height="8" Width="8" />
 
                             <Button Content="アプリ内のTwitter連携情報を削除"
@@ -577,7 +561,7 @@
                                 VerticalAlignment="Center"
                                 />
                         </toolkit:DockPanel>
-                        
+
                         <HyperlinkButton Content="ストアでHohoemaをレビューする"
                             Margin="0 0 0 8"
                             Command="{Binding LaunchAppReviewCommand}"
@@ -633,8 +617,8 @@
                                                      Content="{Binding Name}"
                                          >
                                     </HyperlinkButton>
-                                    
-                                        <!--
+
+                                    <!--
                                     <StackPanel Orientation="Horizontal"
                                         Margin="8 8 0 0"                                            
                                         >
@@ -800,11 +784,11 @@
 
 
 
-                        
+
                     </StackPanel>
                 </uwptoolkitControl:WrapPanel>
-            </ScrollViewer>
-        </toolkit:DockPanel>
+            </StackPanel>
+        </ScrollViewer>
 
     </Grid>
    

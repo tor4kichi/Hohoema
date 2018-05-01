@@ -36,8 +36,10 @@
 
         <ResourceDictionary>
 
+            <SolidColorBrush x:Key="MenuBackgroundBrush" Color="{ThemeResource SystemChromeMediumColor}" Opacity="1.0" />
 
             <x:String x:Key="SideMenuPaneLength" >280</x:String>
+            <x:String x:Key="SideMenuPaneLength_TVMode" >340</x:String>
             <x:String x:Key="DesktopFloatPlayerHeight" >160</x:String>
             <x:String x:Key="MobileFloatPlayerHeight" >240</x:String>
 
@@ -102,6 +104,7 @@
                 <ListView uwpui:ListViewBase.Command="{StaticResource OpenHohoemaPageCommand}"
                               IsItemClickEnabled="True"
                           SelectionMode="None"
+                          IsTabStop="False"
                                       >
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
@@ -163,7 +166,6 @@
                                 ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
                                 IsTabStop="False"
                                 Background="Transparent"
-                                TabIndex="0"
                                 ScrollViewer.VerticalScrollMode="Disabled"
                                 />
 
@@ -195,10 +197,8 @@
 
                     <ItemsControl ItemsSource="{Binding Mylists}"
                                 ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
-                                IsTabStop="False"
                                 Background="Transparent"
-                                TabIndex="0"
-                                ScrollViewer.VerticalScrollMode="Disabled"
+                                  IsTabStop="False"
                                 />
 
                     <Border BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}" Opacity="0.3"
@@ -210,10 +210,8 @@
 
                     <ItemsControl ItemsSource="{Binding LocalMylists}"
                                 ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
-                                IsTabStop="False"
                                 Background="Transparent"
-                                TabIndex="0"
-                                ScrollViewer.VerticalScrollMode="Disabled"
+                                  IsTabStop="False"
                                 />
 
                     
@@ -225,9 +223,7 @@
                 <StackPanel>
                     <ItemsControl ItemsSource="{Binding MenuItems}"
                                 ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
-                                IsTabStop="False"
                                 Background="Transparent"
-                                TabIndex="0"
                                 ScrollViewer.VerticalScrollMode="Disabled"
                                 />
 
@@ -274,17 +270,20 @@
                                 <StateTrigger IsActive="{Binding IsTVModeEnable.Value}" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
+
                                 <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
                                 <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
                                 <Setter Target="PaneLayout.Margin" Value="48 27 0 27" />
+                                <Setter Target="ContentSplitView.OpenPaneLength" Value="{StaticResource SideMenuPaneLength_TVMode}" />
 
-                                <Setter Target="MobileTopMenu.Visibility" Value="Visible" />
-
-                                <Setter Target="ContentLayout.Margin" Value="0 0 0 0" />
-                                <Setter Target="MobileTopMenu.Margin" Value="48 27 0 0" />
+                                <Setter Target="TopMenu.Margin" Value="48 27 0 0" />
+                                <Setter Target="MenuTitleText.Margin" Value="16 0 16 0" />
 
                                 <!-- メニューを開いた時にアカウント表示にフォーカスが移ってしまう問題に対応 -->
                                 <Setter Target="OpenAccountButton.IsEnabled" Value="False" />
+
+                                <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
+
                             </VisualState.Setters>
                         </VisualState>
 
@@ -305,10 +304,13 @@
                                 <AdaptiveTrigger MinWindowWidth="0" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="MobileTopMenu.Visibility" Value="Visible" />
-
                                 <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
                                 <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
+
+                                <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
+                                <Setter Target="MenuTitleText.Style" Value="{StaticResource BodyTextBlockStyle}" />
+
+                                <Setter Target="TopMenu.Background" Value="{StaticResource MenuBackgroundBrush}" />
 
                             </VisualState.Setters>
                         </VisualState>
@@ -500,7 +502,6 @@
 
                     </VisualStateGroup>
 
-
                 </VisualStateManager.VisualStateGroups>
 
                 <toolkit:DockPanel>
@@ -521,11 +522,15 @@
                         DisplayMode="Inline"
                         IsPaneOpen="{Binding IsOpenPane.Value, Mode=TwoWay}"
                                IsTabStop="False"
+                               PaneBackground="{StaticResource MenuBackgroundBrush}"
                         >
 
-                        <SplitView.PaneBackground>
-                            <SolidColorBrush Color="{ThemeResource SystemChromeLowColor}" />
-                        </SplitView.PaneBackground>
+                        <i:Interaction.Behaviors>
+                            <core:EventTriggerBehavior EventName="PaneOpened">
+                                <mybehavior:SetFocus TargetObject="{Binding ElementName=PaneLayout}" />
+                            </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+
                         <SplitView.Pane>
 
                             <toolkit:DockPanel x:Name="PaneLayout" 
@@ -535,21 +540,41 @@
                                         toolkit:DockPanel.Dock="Top"
                                         />
 
-                                <Border toolkit:DockPanel.Dock="Top" Margin="8">
+                                <Border toolkit:DockPanel.Dock="Top" Margin="8 16 8 8"
+                                        >
 
                                     <AutoSuggestBox Text="{Binding SearchKeyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                     QueryIcon="Find"
                                                     PlaceholderText="検索"
-                                                    IsFocusEngagementEnabled="True"
+                                                    UseSystemFocusVisuals="True"
+                                                    TabIndex="103"
+                                                    ItemsSource="{Binding SearchSuggestionWords}"
+                                                    x:Name="SearchTextBox"
                                              >
                                         <i:Interaction.Behaviors>
+
+
                                             <core:EventTriggerBehavior EventName="QuerySubmitted">
                                                 <core:InvokeCommandAction Command="{Binding SearchCommand}" />
+                                                <core:ChangePropertyAction PropertyName="IsEnabled" Value="False" />
+                                                <core:ChangePropertyAction PropertyName="IsEnabled" Value="True" />
+                                            </core:EventTriggerBehavior>
+
+                                            <core:EventTriggerBehavior EventName="GotFocus">
+                                                <core:ChangePropertyAction PropertyName="IsSuggestionListOpen" Value="True" />
                                             </core:EventTriggerBehavior>
                                             
                                             <mybehavior:KeyboardTrigger Key="Enter">
                                                 <core:InvokeCommandAction Command="{Binding SearchCommand}" />
+                                                <core:ChangePropertyAction PropertyName="IsEnabled" Value="False" />
+                                                <core:ChangePropertyAction PropertyName="IsEnabled" Value="True" />
                                             </mybehavior:KeyboardTrigger>
+
+                                            <mybehavior:UINavigationTrigger Kind="Cancel">
+                                                <core:ChangePropertyAction PropertyName="IsEnabled" Value="False" />
+                                                <core:ChangePropertyAction PropertyName="IsEnabled" Value="True" />
+                                                <core:ChangePropertyAction PropertyName="IsSuggestionListOpen" Value="False" />
+                                            </mybehavior:UINavigationTrigger>
                                         </i:Interaction.Behaviors>
                                     </AutoSuggestBox>
                                 </Border>
@@ -559,6 +584,7 @@
                                         toolkit:DockPanel.Dock="Top"
                                         Background="Transparent"
                                         Command="{Binding TogglePlayerFloatDisplayCommand}"
+                                        TabIndex="102"
                                         >
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE743;"
@@ -585,6 +611,14 @@
                                             toolkit:DockPanel.Dock="Bottom"
                                             />
 
+                                    <Button Command="{StaticResource OpenHohoemaPageCommand}"
+                                            CommandParameter="Settings"
+                                            toolkit:DockPanel.Dock="Right"
+                                            Background="Transparent"
+                                            TabIndex="101"
+                                            >
+                                        <SymbolIcon Symbol="Setting" />
+                                    </Button>
 
                                     <Button Command="{Binding OpenAccountInfoCommand}"
                                             Padding="16 0 0 0"
@@ -593,6 +627,7 @@
                                             HorizontalContentAlignment="Left"
                                             VerticalContentAlignment="Center"
                                             x:Name="OpenAccountButton"
+                                            TabIndex="100"
                                         >
                                         <StackPanel>
                                             <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource ToLocalText}}" 
@@ -761,6 +796,8 @@
                                                                        />
 
                                                     <core:DataTriggerBehavior Binding="{Binding CurrentSubPageContent.Value, Mode=OneWay}" ComparisonCondition="Equal" Value="{x:Null}" >
+                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=MenuMainPageContent}" PropertyName="Visibility" Value="Visible"  />
+                                                        <mybehavior:SetFocus TargetObject="{Binding ElementName=SubMenuPageTypesListView}" />
                                                         <core:CallMethodAction TargetObject="{Binding ElementName=ShowFadeMenuMainPageContentAnimation}" MethodName="StartAnimation" />
                                                         <core:CallMethodAction TargetObject="{Binding ElementName=ShowOffsetMenuMainPageContentAnimation}" MethodName="StartAnimation" />
                                                     </core:DataTriggerBehavior>
@@ -768,6 +805,10 @@
                                                     <core:DataTriggerBehavior Binding="{Binding CurrentSubPageContent.Value, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}" >
                                                         <core:CallMethodAction TargetObject="{Binding ElementName=HideFadeMenuMainPageContentAnimation}" MethodName="StartAnimation" />
                                                         <core:CallMethodAction TargetObject="{Binding ElementName=HideOffsetMenuMainPageContentAnimation}" MethodName="StartAnimation" />
+                                                    </core:DataTriggerBehavior>
+
+                                                    <core:DataTriggerBehavior Binding="{Binding ElementName=MenuMainPageContent, Path=Opacity}" ComparisonCondition="Equal" Value="0" >
+                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=MenuMainPageContent}" PropertyName="Visibility" Value="Collapsed"  />
                                                     </core:DataTriggerBehavior>
                                                 </i:Interaction.Behaviors>
 
@@ -777,6 +818,7 @@
                                                           uwpui:ListViewBase.Command="{Binding SelectSubMenuPageCommand}"
                                                           IsItemClickEnabled="True"
                                                           SelectionMode="None"
+                                                          x:Name="SubMenuPageTypesListView"
                                                           >
                                                     <ListView.ItemContainerStyle>
                                                         <Style TargetType="ListViewItem">
@@ -814,16 +856,15 @@
 
                                                 <ItemsControl ItemsSource="{Binding MenuItems}"
                                                               ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
-                                                              IsTabStop="False"
                                                               Background="Transparent"
-                                                              TabIndex="0"
                                                               ScrollViewer.VerticalScrollMode="Disabled"
+                                                              IsTabStop="False"
                                                               />
 
                                             </StackPanel>
 
 
-                                            <toolkit:DockPanel Opacity="0.0">
+                                            <toolkit:DockPanel Opacity="0.0" x:Name="MenuSubPageContent">
                                                 <i:Interaction.Behaviors>
 
                                                     <uwpAnimation:Fade x:Name="ShowFadeMenuSubPageContentAnimation" 
@@ -853,8 +894,14 @@
                                                     </core:DataTriggerBehavior>
 
                                                     <core:DataTriggerBehavior Binding="{Binding CurrentSubPageContent.Value, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}" >
+                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=MenuSubPageContent}" PropertyName="Visibility" Value="Visible"  />
+                                                        <mybehavior:SetFocus TargetObject="{Binding ElementName=BackToMainMenuPageButton}" />
                                                         <core:CallMethodAction TargetObject="{Binding ElementName=ShowFadeMenuSubPageContentAnimation}" MethodName="StartAnimation" />
                                                         <core:CallMethodAction TargetObject="{Binding ElementName=ShowOffsetMenuSubPageContentAnimation}" MethodName="StartAnimation" />
+                                                    </core:DataTriggerBehavior>
+
+                                                    <core:DataTriggerBehavior Binding="{Binding ElementName=MenuSubPageContent, Path=Opacity}" ComparisonCondition="Equal" Value="0" >
+                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=MenuSubPageContent}" PropertyName="Visibility" Value="Collapsed"  />
                                                     </core:DataTriggerBehavior>
                                                 </i:Interaction.Behaviors>
 
@@ -866,6 +913,7 @@
                                                         Background="Transparent"
                                                         HorizontalAlignment="Stretch"
                                                         HorizontalContentAlignment="Stretch"
+                                                        x:Name="BackToMainMenuPageButton"
                                                         >
                                                         <toolkit:DockPanel  Margin="8 0" >
                                                             <TextBlock FontFamily="Segoe MDL2 Assets" 
@@ -891,11 +939,12 @@
 
                                                 </toolkit:DockPanel>
 
-                                                <ContentControl x:Name="MenuSubPageContent"
+                                                <ContentControl 
                                                             Content="{Binding CurrentSubPageContent.Value}"
                                                             ContentTemplateSelector="{StaticResource MenuSubPageTemplateSelector}"
                                                             HorizontalContentAlignment="Stretch"
                                                             VerticalContentAlignment="Stretch"
+                                                                IsTabStop="False"
                                                             >
 
 
@@ -921,22 +970,42 @@
                         <SplitView.Content>
                             <Grid x:Name="SplitViewContentLayout">
 
-                                <Grid x:Name="ContentLayout"
-                                          Grid.RowSpan="3"
-                                          Grid.Row="1"
+                                <toolkit:DockPanel 
                                           >
+                                    <toolkit:DockPanel x:Name="TopMenu" toolkit:DockPanel.Dock="Top">
+                                        
+                                        <Border Height="{StaticResource TitleBarDummyHeight}" 
+                                            toolkit:DockPanel.Dock="Top"
+                                        >
+                                        </Border>
 
-                                    <!-- ページナビゲーション中にフォーカスをコンテントエリア内に残すためのハック -->
-                                    <Button Background="Transparent"
-                                            HorizontalAlignment="Stretch"
-                                            VerticalAlignment="Stretch"
-                                            Visibility="{Binding NowNavigating.Value, Converter={StaticResource BooleanToVisibility}}"
-                                            >
+                                        <!-- モバイル時のメニュー開閉ボタン -->
+                                        <Button x:Name="MenuToggleButton"
+                                                Background="Transparent" 
+                                                    Command="{Binding TogglePaneOpenCommand}"
+                                                Height="40"
+                                                Width="40"
+                                                toolkit:DockPanel.Dock="Left"
+                                                Visibility="Collapsed"
+                                                >
+                                            <SymbolIcon Symbol="GlobalNavigationButton" 
+                                                            Height="24"
+                                                            Width="24"
+                                                            />
+                                        </Button>
 
-                                    </Button>
+                                        <TextBlock x:Name="MenuTitleText"
+                                                Text="{Binding TitleText}"
+                                               Style="{StaticResource SubheaderTextBlockStyle}"
+                                               Margin="16 8"
+                                                   VerticalAlignment="Center"
+                                                   />
+
+                                    </toolkit:DockPanel>
+
 
                                     <!-- ページ毎のコンテンツ -->
-                                    <ContentPresenter
+                                    <ContentPresenter x:Name="ContentLayout"
                                             >
                                         <myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
                                             <templateSelector:HohoemaFlyoutTemplateSelector>
@@ -977,47 +1046,7 @@
                                     </ContentPresenter>
 
 
-                                </Grid>
-
-
-                                <!-- モバイルのトップメニュー -->
-                                <StackPanel x:Name="MobileTopMenu"
-                                                Visibility="Collapsed">
-
-                                    <Border Height="{StaticResource TitleBarDummyHeight}"
-                                        toolkit:DockPanel.Dock="Top"
-                                            x:Name="NallowTitleBarDummyMargin"
-                                        >
-                                    </Border>
-                                    
-                                    <!-- モバイル時のメニュー開閉ボタン -->
-                                    <Button x:Name="MenuToggleButton"
-                                                Background="Transparent" 
-                                                    Command="{Binding TogglePaneOpenCommand}"
-                                                Height="48"
-                                                VerticalAlignment="Top"
-                                                HorizontalAlignment="Left"
-                                                >
-                                        <iconPack:PackIconMaterial Kind="Menu"
-                                                                        Height="18"
-                                                                        Width="18"
-                                                                        />
-                                    </Button>
-                                </StackPanel>
-
-                                <!--
-                                <Border Visibility="{Binding HasBGUpdateText.Value, Converter={StaticResource BooleanToVisibility}}"
-                                                Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-                                                HorizontalAlignment="Left"
-                                                VerticalAlignment="Bottom"
-                                                Padding="2"
-                                                >
-                                    <TextBlock Text="{Binding BGUpdateText.Value}"
-                                            FontSize="12"
-                                            Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                            />
-                                </Border>
-                                -->
+                                </toolkit:DockPanel>
                                 
                             </Grid>
 

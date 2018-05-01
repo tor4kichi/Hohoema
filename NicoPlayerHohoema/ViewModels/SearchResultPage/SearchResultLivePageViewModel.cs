@@ -138,6 +138,7 @@ namespace NicoPlayerHohoema.ViewModels
         public LiveSearchPagePayloadContent SearchOption { get; private set; }
 
 
+
         private string _SearchOptionText;
         public string SearchOptionText
         {
@@ -145,6 +146,25 @@ namespace NicoPlayerHohoema.ViewModels
             set { SetProperty(ref _SearchOptionText, value); }
         }
 
+
+        public static List<SearchTarget> SearchTargets { get; } = Enum.GetValues(typeof(SearchTarget)).Cast<SearchTarget>().ToList();
+
+        private DelegateCommand<SearchTarget?> _ChangeSearchTargetCommand;
+        public DelegateCommand<SearchTarget?> ChangeSearchTargetCommand
+        {
+            get
+            {
+                return _ChangeSearchTargetCommand
+                    ?? (_ChangeSearchTargetCommand = new DelegateCommand<SearchTarget?>(target =>
+                    {
+                        if (target.HasValue && target.Value != SearchOption.SearchTarget)
+                        {
+                            var payload = SearchPagePayloadContentHelper.CreateDefault(target.Value, SearchOption.Keyword);
+                            PageManager.Search(payload, true);
+                        }
+                    }));
+            }
+        }
 
         public SearchResultLivePageViewModel(
 			HohoemaApp app,
@@ -257,6 +277,8 @@ namespace NicoPlayerHohoema.ViewModels
             //			UpdateTitle($"{SearchOption.Keyword} - {target}/{optionText}({mode})");
             UpdateTitle($"\"{SearchOption.Keyword}\"");
             SearchOptionText = $"{target} - {optionText}/{mode}/{providerText}";
+
+            Database.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
 
 
             base.OnNavigatedTo(e, viewModelState);

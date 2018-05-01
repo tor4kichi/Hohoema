@@ -33,11 +33,7 @@
                         <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="HeaderLayout.Margin" Value="96 0 48 0" />
-
                         <Setter Target="CategoryItems.Margin" Value="48 0 32 27" />
-
-                        <Setter Target="TVModeMarginBordar.Height" Value="27" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -52,7 +48,6 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="HeaderLayout.Margin" Value="48 0 0 0" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -64,26 +59,7 @@
                     x:Name="HeaderLayout"
                     >
                 <StackPanel >
-
-                    <Border x:Name="TVModeMarginBordar" />
-
-                    <Border Height="{StaticResource TitleBarDummyHeight}" />
-
                     <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
-
-                        <CommandBar.Content>
-                            <Border Background="Transparent" 
-                                IsHitTestVisible="True"
-                                Margin="16 0 0 0"
-                                x:Name="TitleLayout"
-                                >
-                                <TextBlock Text="{Binding Title}" 
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource TitleTextBlockStyle}"
-                                    >
-                                </TextBlock>
-                            </Border>
-                        </CommandBar.Content>
 
                         <CommandBar.PrimaryCommands>
                             <AppBarButton Background="Transparent"

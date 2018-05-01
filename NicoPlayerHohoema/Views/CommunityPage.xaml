@@ -39,12 +39,8 @@
                         <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="HeaderLayout.Margin" Value="48 0 0 0" />
-                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
-
                         <Setter Target="ContentLayout.Margin" Value="48 0 48 27" />
 
-                        <Setter Target="TVModeMarginBordar.Height" Value="27" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -59,7 +55,6 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -344,24 +339,13 @@
 
                 <StackPanel 
                     >
-                    <Border x:Name="TVModeMarginBordar" />
-
-                    <Border Height="{StaticResource TitleBarDummyHeight}" />
-
 
                     <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="16 0 0 0"
-                            Height="48"
                                 >
 
                         <toolkit:DockPanel VerticalAlignment="Center">
 
-                            <TextBlock Text="コミュニティ情報" 
-                                            Style="{StaticResource TitleTextBlockStyle}"
-                                       x:Name="TitleLayout"
-                                    >
-
-                            </TextBlock>
                         </toolkit:DockPanel>
                     </Border>
 

@@ -18,7 +18,6 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class SearchResultKeywordPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
 	{
-
         private static List<SearchSortOptionListItem> _VideoSearchOptionListItems = new List<SearchSortOptionListItem>()
         {
             new SearchSortOptionListItem()
@@ -114,6 +113,25 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<SearchSortOptionListItem> SelectedSearchSort { get; private set; }
 
+
+        public static List<SearchTarget> SearchTargets { get; } = Enum.GetValues(typeof(SearchTarget)).Cast<SearchTarget>().ToList();
+
+        private DelegateCommand<SearchTarget?> _ChangeSearchTargetCommand;
+        public DelegateCommand<SearchTarget?> ChangeSearchTargetCommand
+        {
+            get
+            {
+                return _ChangeSearchTargetCommand
+                    ?? (_ChangeSearchTargetCommand = new DelegateCommand<SearchTarget?>(target =>
+                    {
+                        if (target.HasValue && target.Value != SearchOption.SearchTarget)
+                        {
+                            var payload = SearchPagePayloadContentHelper.CreateDefault(target.Value, SearchOption.Keyword);
+                            PageManager.Search(payload, true);
+                        }
+                    }));
+            }
+        }
 
         public ReactiveProperty<bool> FailLoading { get; private set; }
 
@@ -221,6 +239,10 @@ namespace NicoPlayerHohoema.ViewModels
 			var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
             UpdateTitle($"\"{SearchOption.Keyword}\"");
             SearchOptionText = $"{target} - {optionText}";
+
+
+            Database.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
+
 
             base.OnNavigatedTo(e, viewModelState);
 		}

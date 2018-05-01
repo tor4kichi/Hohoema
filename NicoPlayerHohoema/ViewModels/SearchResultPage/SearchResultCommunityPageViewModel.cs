@@ -25,6 +25,25 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 		public CommunitySearchPagePayloadContent SearchOption { get; private set; }
 
+        public static List<SearchTarget> SearchTargets { get; } = Enum.GetValues(typeof(SearchTarget)).Cast<SearchTarget>().ToList();
+
+        private DelegateCommand<SearchTarget?> _ChangeSearchTargetCommand;
+        public DelegateCommand<SearchTarget?> ChangeSearchTargetCommand
+        {
+            get
+            {
+                return _ChangeSearchTargetCommand
+                    ?? (_ChangeSearchTargetCommand = new DelegateCommand<SearchTarget?>(target =>
+                    {
+                        if (target.HasValue && target.Value != SearchOption.SearchTarget)
+                        {
+                            var payload = SearchPagePayloadContentHelper.CreateDefault(target.Value, SearchOption.Keyword);
+                            PageManager.Search(payload, true);
+                        }
+                    }));
+            }
+        }
+
         public SearchResultCommunityPageViewModel(HohoemaApp app, PageManager pageManager)
             : base(app, pageManager, useDefaultPageTitle:false)
         {
@@ -71,7 +90,10 @@ namespace NicoPlayerHohoema.ViewModels
 			var mode = SearchOption.Mode == CommunitySearchMode.Keyword ? "キーワード" : "タグ";
 			UpdateTitle($"{SearchOption.Keyword} - {target}/{optionText}({mode})");
 
-			base.OnNavigatedTo(e, viewModelState);
+            Database.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
+
+
+            base.OnNavigatedTo(e, viewModelState);
 		}
 
 		protected override IIncrementalSource<CommunityInfoControlViewModel> GenerateIncrementalSource()

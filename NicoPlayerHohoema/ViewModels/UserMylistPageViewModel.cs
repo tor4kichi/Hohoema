@@ -492,16 +492,4 @@ namespace NicoPlayerHohoema.ViewModels
         PageManager _PageManager;
 	}
 
-    public class MylistItemsWithTitle : ListWithTitle<MylistSearchListingItem>
-    {
-        public PlaylistOrigin Origin { get; set; }
-        public string MaxItemsCountText { get; set; }
-    }
-
-
-    public class ListWithTitle<T>
-    {
-        public string Title { get; set; }
-        public IList<T> Items { get; set; }
-    }
 }
