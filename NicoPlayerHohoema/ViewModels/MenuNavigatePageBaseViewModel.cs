@@ -776,7 +776,7 @@ namespace NicoPlayerHohoema.ViewModels
             MenuItems = new List<HohoemaListingPageItemBase>();
             MenuItems.Add(new MenuItemViewModel("ランキング", HohoemaPageType.RankingCategoryList));
             MenuItems.Add(new MenuItemViewModel("オススメ", HohoemaPageType.Recommend));
-            MenuItems.Add(new MenuItemViewModel("新着", HohoemaPageType.NicoRepo));
+            MenuItems.Add(new MenuItemViewModel("新着", HohoemaPageType.FeedGroupManage));
             MenuItems.Add(new MenuItemViewModel("視聴履歴", HohoemaPageType.WatchHistory));
             MenuItems.Add(new MenuItemViewModel("キャッシュ", HohoemaPageType.CacheManagement));
 
