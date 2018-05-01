@@ -255,6 +255,7 @@
     <Compile Include="Models\Niconico\Live\Event\CommentServerDisconnectedEventArgs.cs" />
     <Compile Include="Models\Niconico\Live\INicoLiveCommentClient.cs" />
     <Compile Include="Models\Niconico\Live\LiveChatData.cs" />
+    <Compile Include="Models\Niconico\Live\NicoLiveSubscriber.cs" />
     <Compile Include="Models\Niconico\Live\NiwavidedNicoLiveCommentClient.cs" />
     <Compile Include="Models\Niconico\Video\Comment\CommentCommandPermissionType.cs" />
     <Compile Include="Models\Niconico\CommentOpacityKind.cs" />

@@ -31,7 +31,7 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 		public PageManager PageManager { get; private set; }
 		public HohoemaApp HohoemaApp { get; private set; }
-        
+        public Models.Niconico.Live.NicoLiveSubscriber NicoLiveSubscriber { get; private set; }
 
         public ReactiveProperty<bool> IsTVModeEnable { get; private set; }
         public bool IsNeedFullScreenToggleHelp { get; private set; }
@@ -62,14 +62,15 @@ namespace NicoPlayerHohoema.ViewModels
 
         public INavigationService NavigationService { get; private set; }
 
-
         public MenuNavigatePageBaseViewModel(
             HohoemaApp hohoemaApp,
-            PageManager pageManager
+            PageManager pageManager,
+            Models.Niconico.Live.NicoLiveSubscriber nicoLiveSubscriber
             )
         {
             PageManager = pageManager;
             HohoemaApp = hohoemaApp;
+            NicoLiveSubscriber = nicoLiveSubscriber;
 
             // TV Mode
             if (Helpers.DeviceTypeHelper.IsXbox)
@@ -606,7 +607,7 @@ namespace NicoPlayerHohoema.ViewModels
              = new List<NiconicoServiceType>
              {
                  NiconicoServiceType.Video,
-//                 NiconicoServiceType.Live
+                 NiconicoServiceType.Live
              };
         public ReactivePropertySlim<ViewModelBase> CurrentSubPageContent { get; private set; }
         public ReactivePropertySlim<NiconicoServiceType?> CurrentSubPageType { get; private set; }
@@ -626,7 +627,7 @@ namespace NicoPlayerHohoema.ViewModels
                                 content = new VideoMenuSubPageContent(HohoemaApp.UserMylistManager, HohoemaApp.Playlist);
                                 break;
                             case NiconicoServiceType.Live:
-                                content = new LiveMenuSubPageContent();
+                                content = new LiveMenuSubPageContent(NicoLiveSubscriber);
                                 break;
                             default:
                                 break;
@@ -795,13 +796,51 @@ namespace NicoPlayerHohoema.ViewModels
 
     public class LiveMenuSubPageContent : ViewModelBase
     {
+        private Models.Niconico.Live.NicoLiveSubscriber _LiveSubscriber;
+
         public List<HohoemaListingPageItemBase> MenuItems { get; private set; }
-        public LiveMenuSubPageContent()
+
+        public ReadOnlyReactiveCollection<OnAirStream> OnAirStreams { get; }
+
+
+        public LiveMenuSubPageContent(Models.Niconico.Live.NicoLiveSubscriber nicoLiveSubscriber)
         {
+            _LiveSubscriber = nicoLiveSubscriber;
+
+            UpdateOnAirStreamsCommand = new AsyncReactiveCommand();
+            
+            UpdateOnAirStreamsCommand.Subscribe(async _ => 
+            {
+                await _LiveSubscriber.UpdateOnAirStreams();
+            });
+
+            OnAirStreams = _LiveSubscriber.OnAirStreams.ToReadOnlyReactiveCollection(x => 
+            new OnAirStream()
+            {
+                BroadcasterId = x.Video.UserId,
+                Id = x.Video.Id,
+                Label = x.Video.Title,
+                Thumbnail = x.Community?.ThumbnailSmall,
+                CommunityName  = x.Community.Name,
+            }
+            );
+
             MenuItems = new List<HohoemaListingPageItemBase>();
-            MenuItems.Add(new MenuItemViewModel("ランキング", HohoemaPageType.RankingCategoryList));
-            MenuItems.Add(new MenuItemViewModel("タイムシフト", HohoemaPageType.Recommend));
-            MenuItems.Add(new MenuItemViewModel("予約", HohoemaPageType.NicoRepo));
+//            MenuItems.Add(new MenuItemViewModel("ランキング", HohoemaPageType.RankingCategoryList));
+//            MenuItems.Add(new MenuItemViewModel("タイムシフト", HohoemaPageType.Recommend));
+//            MenuItems.Add(new MenuItemViewModel("予約", HohoemaPageType.NicoRepo));
         }
+
+        public AsyncReactiveCommand UpdateOnAirStreamsCommand { get; }
+    }
+
+    public class OnAirStream : Interfaces.ILiveContent
+    {
+        public string BroadcasterId { get; internal set; }
+        public string Id { get; internal set; }
+        public string Label { get; internal set; }
+
+        public string CommunityName { get; internal set; }
+        public string Thumbnail { get; internal set; }
     }
 }

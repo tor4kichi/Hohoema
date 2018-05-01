@@ -12,11 +12,11 @@ using Mntone.Nico2.NicoRepo;
 
 namespace NicoPlayerHohoema.Models
 {
-    public sealed class HohoemaAlertClient
+    public sealed class HohoemaAlertClient : IDisposable
     {
         public bool IsLiveAlertEnabled { get; set; }
 
-        NicoAlertClient AlertClient = new NicoAlertClient();
+        public static NicoAlertClient AlertClient = new NicoAlertClient();
 
         bool _IsLoggedIn;
 
@@ -145,6 +145,11 @@ namespace NicoPlayerHohoema.Models
             AlertClient.Disconnect();
         }
 
+        public void Dispose()
+        {
+            EndAlert();
 
+            AlertClient.Dispose();
+        }
     }
 }

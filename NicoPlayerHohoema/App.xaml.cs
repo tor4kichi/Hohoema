@@ -666,6 +666,8 @@ namespace NicoPlayerHohoema
             Container.RegisterInstance(hohoemaApp.FeedManager);
             Container.RegisterInstance(hohoemaApp.CacheManager);
             Container.RegisterInstance(hohoemaApp.UserSettings);
+            Container.RegisterInstance(new Models.Niconico.Live.NicoLiveSubscriber(hohoemaApp));
+            
 
 #if DEBUG
             //			BackgroundUpdater.MaxTaskSlotCount = 1;

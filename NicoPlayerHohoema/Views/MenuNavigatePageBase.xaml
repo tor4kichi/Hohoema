@@ -227,6 +227,83 @@
                                 ScrollViewer.VerticalScrollMode="Disabled"
                                 />
 
+                    <Border BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}" Opacity="0.3"
+                                BorderThickness="0 1 0 0"
+                                VerticalAlignment="Center"
+                                Margin="16 8"
+                                />
+
+                    <toolkit:DockPanel Margin="0 0" Opacity="0.7"
+                                       >
+
+                        <Button Command="{Binding UpdateOnAirStreamsCommand}" 
+                                toolkit:DockPanel.Dock="Right"
+                                Background="Transparent"
+                                Margin="0 0 8 0"
+                                >
+                            <SymbolIcon Symbol="Refresh" />
+                        </Button>
+
+                        <Button Command="{StaticResource OpenHohoemaPageCommand}"
+                                    CommandParameter="UserMylist"
+                                    HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                    Background="Transparent"
+                                Padding="16 0"
+                                    >
+                            <TextBlock Text="放送中"
+                                   toolkit:DockPanel.Dock="Left"
+                                   VerticalAlignment="Center"
+                                       Style="{StaticResource SubtitleTextBlockStyle}"
+                                   />
+                        </Button>
+
+                    </toolkit:DockPanel>
+
+
+                    <TextBlock Text="No items"
+                               Visibility="{Binding OnAirStreams, Converter={StaticResource EmptyCollectionVisibilityConverter}}"
+                               Opacity="0.5"
+                               Margin="16"
+                               />
+
+                    <ListView uwpui:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                              ItemsSource="{Binding OnAirStreams}"
+                              IsItemClickEnabled="True"
+                              SelectionMode="None"
+                              IsTabStop="False"
+                                      >
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <toolkit:DockPanel>
+                                    <uwpcontrol:RoundImageEx Source="{Binding Thumbnail}" 
+                                                                 Style="{StaticResource RoundStyle}"
+                                                             toolkit:DockPanel.Dock="Left"
+                                                             Margin="0 0 8 0"
+                                                                 />
+
+                                    <TextBlock Text="{Binding CommunityName}"
+                                                   VerticalAlignment="Center"
+                                                   toolkit:DockPanel.Dock="Top"
+                                                   />
+
+                                    <TextBlock Text="{Binding Label}"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Opacity="0.7"
+                                               TextWrapping="Wrap"
+                                               />
+                                </toolkit:DockPanel>
+                                
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Padding" Value="16 8" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+                    
                 </StackPanel>
             </DataTemplate>
 
@@ -237,6 +314,21 @@
                                                           />
 
 
+            <Style x:Key="BaseStyle" TargetType="uwpcontrol:ImageExBase">
+                <Setter Property="IsCacheEnabled" Value="True" />
+                <Setter Property="Stretch" Value="UniformToFill" />
+                <Setter Property="PlaceholderStretch" Value="UniformToFill" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Foreground" Value="White" />
+            </Style>
+            <!--Create a Style based on BaseStyle-->
+            <Style x:Key="RoundStyle" TargetType="uwpcontrol:RoundImageEx" BasedOn="{StaticResource BaseStyle}">
+                <Setter Property="Width" Value="48" />
+                <Setter Property="Height" Value="48" />
+                <Setter Property="CornerRadius" Value="999" />
+            </Style>
 
         </ResourceDictionary>
 
