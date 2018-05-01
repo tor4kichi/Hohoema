@@ -779,6 +779,7 @@ namespace NicoPlayerHohoema.ViewModels
             MenuItems.Add(new MenuItemViewModel("新着", HohoemaPageType.FeedGroupManage));
             MenuItems.Add(new MenuItemViewModel("視聴履歴", HohoemaPageType.WatchHistory));
             MenuItems.Add(new MenuItemViewModel("キャッシュ", HohoemaPageType.CacheManagement));
+            MenuItems.Add(new MenuItemViewModel("あとで見る", HohoemaPageType.Mylist, new MylistPagePayload(HohoemaPlaylist.WatchAfterPlaylistId).ToParameterString()));
 
             LocalMylists = playlist.Playlists
                 .ToReadOnlyReactiveCollection(x => 
