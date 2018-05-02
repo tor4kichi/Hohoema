@@ -170,7 +170,7 @@ namespace NicoPlayerHohoema.ViewModels
                             {
                                 localMylist.Label = resultText;
                                 MylistTitle = resultText;
-                                UpdateTitle(resultText);
+                                PageManager.PageTitle = resultText;
                             }
                         }
 
@@ -204,7 +204,7 @@ namespace NicoPlayerHohoema.ViewModels
                                     if (result == Mntone.Nico2.ContentManageResult.Success)
                                     {
                                         MylistTitle = data.Name;
-                                        UpdateTitle(MylistTitle);
+                                        PageManager.PageTitle = MylistTitle;
 
                                         MylistDescription = data.Description;
 
@@ -468,7 +468,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			base.OnNavigatedTo(e, viewModelState);
+            IsPageNameResolveOnPostNavigatedToAsync = true;
+
+            base.OnNavigatedTo(e, viewModelState);
 		}
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
@@ -498,7 +500,12 @@ namespace NicoPlayerHohoema.ViewModels
             await base.NavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
-		protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        protected override string ResolvePageName()
+        {
+            return MylistTitle;
+        }
+
+        protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			if (PlayableList.Value == null)
 			{
@@ -609,12 +616,6 @@ namespace NicoPlayerHohoema.ViewModels
                 default:
                     break;
             }
-
-
-
-
-            UpdateTitle(MylistTitle);
-
 
 			EditMylistGroupCommand.RaiseCanExecuteChanged();
             DeleteMylistCommand.RaiseCanExecuteChanged();

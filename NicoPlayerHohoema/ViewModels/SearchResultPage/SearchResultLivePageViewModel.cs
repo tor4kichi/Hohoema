@@ -227,6 +227,10 @@ namespace NicoPlayerHohoema.ViewModels
 
         #endregion
 
+        protected override string ResolvePageName()
+        {
+            return SearchOption.Keyword;
+        }
 
         bool _NowNavigatingTo = false;
 
@@ -274,8 +278,6 @@ namespace NicoPlayerHohoema.ViewModels
                 mode = "すべて";
             }
 
-            //			UpdateTitle($"{SearchOption.Keyword} - {target}/{optionText}({mode})");
-            UpdateTitle($"\"{SearchOption.Keyword}\"");
             SearchOptionText = $"{target} - {optionText}/{mode}/{providerText}";
 
             Database.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);

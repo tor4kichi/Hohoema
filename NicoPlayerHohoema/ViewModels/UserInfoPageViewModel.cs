@@ -116,7 +116,12 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        protected override string ResolvePageName()
+        {
+            return UserName;
+        }
+
+        protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
             NowLoading = true;
 
@@ -257,8 +262,6 @@ namespace NicoPlayerHohoema.ViewModels
             };
 
             RaisePropertyChanged(nameof(UserBookmark));
-
-            UpdateTitle(UserName, UserId);
 
             NowLoading = false;
 		}

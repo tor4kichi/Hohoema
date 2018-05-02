@@ -68,10 +68,15 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		#endregion
+        #endregion
 
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        protected override string ResolvePageName()
+        {
+            return SearchOption.Keyword;
+        }
+
+        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
             if (e.Parameter is string)
             {
@@ -84,11 +89,11 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
 
-
+            /*
             var target = "コミュニティ";
 			var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
 			var mode = SearchOption.Mode == CommunitySearchMode.Keyword ? "キーワード" : "タグ";
-			UpdateTitle($"{SearchOption.Keyword} - {target}/{optionText}({mode})");
+            */
 
             Database.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
 

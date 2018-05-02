@@ -802,6 +802,7 @@ namespace NicoPlayerHohoema.ViewModels
         public List<HohoemaListingPageItemBase> MenuItems { get; private set; }
 
         public ReadOnlyReactiveCollection<OnAirStream> OnAirStreams { get; }
+        public ReadOnlyReactiveCollection<OnAirStream> ReservedStreams { get; }
 
 
         public LiveMenuSubPageContent(Models.Niconico.Live.NicoLiveSubscriber nicoLiveSubscriber)
@@ -823,6 +824,19 @@ namespace NicoPlayerHohoema.ViewModels
                 Label = x.Video.Title,
                 Thumbnail = x.Community?.ThumbnailSmall,
                 CommunityName  = x.Community.Name,
+                StartAt = x.Video.StartTime.Value
+            }
+            );
+
+            ReservedStreams = _LiveSubscriber.ReservedStreams.ToReadOnlyReactiveCollection(x =>
+            new OnAirStream()
+            {
+                BroadcasterId = x.Video.UserId,
+                Id = x.Video.Id,
+                Label = x.Video.Title,
+                Thumbnail = x.Community?.ThumbnailSmall,
+                CommunityName = x.Community.Name,
+                StartAt = x.Video.StartTime.Value
             }
             );
 
@@ -843,5 +857,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public string CommunityName { get; internal set; }
         public string Thumbnail { get; internal set; }
+
+        public DateTime StartAt { get; internal set; }
     }
 }

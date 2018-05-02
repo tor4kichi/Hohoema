@@ -56,7 +56,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public SearchSummaryPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
-            : base(hohoemaApp, pageManager, useDefaultPageTitle:false)
+            : base(hohoemaApp, pageManager)
         {
             RelatedVideoTags = new ObservableCollection<string>();
 
@@ -141,13 +141,17 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(_CompositeDisposable);
         }
 
-        
+
+        protected override string ResolvePageName()
+        {
+            return $"\"{Keyword}\"を検索";
+        }
+
         protected override Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
             if (e.Parameter is string)
             {
                 Keyword = e.Parameter as string;
-                UpdateTitle($"\"{Keyword}\"を検索");
 
                 SearchWithTargetCommand.RaiseCanExecuteChanged();
             }

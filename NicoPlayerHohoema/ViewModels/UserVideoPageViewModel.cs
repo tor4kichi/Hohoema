@@ -32,7 +32,6 @@ namespace NicoPlayerHohoema.ViewModels
 		{
             if (User != null)
             {
-                UpdateTitle(User.Nickname + "さんの投稿動画一覧");
                 IsOwnerVideoPrivate = User.IsOwnerVideoPrivate;
                 UserName = User.Nickname;
             }
@@ -55,7 +54,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (User != null)
 			{
-				UpdateTitle(User.Nickname + "さんの投稿動画一覧");
                 IsOwnerVideoPrivate = User.IsOwnerVideoPrivate;
                 UserName = User.Nickname;
             }

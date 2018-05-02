@@ -65,10 +65,14 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		#endregion
+        #endregion
 
+        protected override string ResolvePageName()
+        {
+            return SearchOption.Keyword;
+        }
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
             if (e.Parameter is string)
             {
@@ -81,9 +85,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
 
-            var target = "マイリスト";
-			var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
-			UpdateTitle($"{SearchOption.Keyword} - {target}/{optionText}");
+//			var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
 
             Database.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
 

@@ -261,7 +261,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         }
 
-
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			base.OnNavigatedTo(e, viewModelState);
@@ -276,8 +275,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (UserId == null || UserId == HohoemaApp.LoginUserId.ToString())
             {
-                UpdateTitle(PageManager.CurrentDefaultPageTitle());
-
                 IsLoginUserMylist.Value = true;
 
                 // ログインユーザーのマイリスト一覧を表示
@@ -296,8 +293,6 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					System.Diagnostics.Debug.WriteLine(ex.Message);
 				}
-
-                UpdateTitle($"{UserName} さんのマイリスト一覧");
             }
             else
             {

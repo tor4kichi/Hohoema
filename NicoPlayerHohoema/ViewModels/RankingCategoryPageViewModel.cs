@@ -123,7 +123,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public RankingCategoryPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
-            : base(hohoemaApp, pageManager)
+            : base(hohoemaApp, pageManager, useDefaultPageTitle:false)
         {
 
             SelectedRankingTarget = new ReactiveProperty<RankingTargetListItem>(RankingTargetItems.First());
@@ -133,6 +133,11 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(_CompositeDisposable);
             CanChangeRankingParameter = new ReactiveProperty<bool>(false)
                 .AddTo(_CompositeDisposable);
+        }
+
+        protected override string ResolvePageName()
+        {
+            return Helpers.CulturelizeHelper.ToCulturelizeString(RankingCategory);
         }
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
@@ -185,8 +190,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override void PostResetList()
         {
-            UpdateTitle(Helpers.CulturelizeHelper.ToCulturelizeString(RankingCategory) + "のランキング", RankingCategory.ToString());
-
             base.PostResetList();
         }
     }

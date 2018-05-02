@@ -225,6 +225,7 @@ namespace NicoPlayerHohoema.Models
                     pageTypeString = e.SourcePageType.Name.Remove(e.SourcePageType.Name.IndexOf("Page_TV"));
                 }
 
+                
                 if (pageTypeString != null)
                 { 
                     HohoemaPageType pageType;
@@ -247,8 +248,10 @@ namespace NicoPlayerHohoema.Models
 					{
 						throw new NotSupportedException();
 					}
-				}
-				else
+
+                    PageNavigationParameter = e.Parameter;
+                }
+                else
 				{
 					throw new Exception();
 				}
@@ -355,20 +358,6 @@ namespace NicoPlayerHohoema.Models
 					CompleteWork?.Invoke();
 				}
 			}
-		}
-
-		
-
-		public void UpdatePageNavigationInfo(string title, object parameter = null)
-		{
-            // 順番重要
-            // Pin留めの動作に影響します
-            if (parameter != null)
-            {
-                PageNavigationParameter = parameter;
-            }
-
-            PageTitle = title;
 		}
 
 		public event StartExcludeUserInputWorkHandler StartWork;

@@ -210,6 +210,10 @@ namespace NicoPlayerHohoema.ViewModels
         #endregion
 
 
+        protected override string ResolvePageName()
+        {
+            return SearchOption.Keyword;
+        }
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
@@ -237,7 +241,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             var target = "キーワード";
 			var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
-            UpdateTitle($"\"{SearchOption.Keyword}\"");
             SearchOptionText = $"{target} - {optionText}";
 
 

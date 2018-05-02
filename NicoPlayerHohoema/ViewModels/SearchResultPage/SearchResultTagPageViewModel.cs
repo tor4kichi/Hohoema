@@ -304,8 +304,12 @@ namespace NicoPlayerHohoema.ViewModels
 
         bool _NowProcessFavorite = false;
 
+        protected override string ResolvePageName()
+        {
+            return SearchOption.Keyword;
+        }
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
             if (e.Parameter is string)
             {
@@ -342,7 +346,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             var target = "タグ";
 			var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
-            UpdateTitle($"\"{SearchOption.Keyword}\"");
             SearchOptionText = $"{target} - {optionText}";
 
             base.OnNavigatedTo(e, viewModelState);

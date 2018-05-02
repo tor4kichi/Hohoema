@@ -219,6 +219,37 @@
                 </StackPanel>
             </DataTemplate>
 
+
+            <DataTemplate x:Key="LiveStreamInfoTemplate">
+                <toolkit:DockPanel>
+
+
+                    <TextBlock Text="{Binding StartAt}"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Opacity="0.7"
+                                TextWrapping="Wrap"
+                               toolkit:DockPanel.Dock="Top"
+                                               />
+                    
+                    <uwpcontrol:RoundImageEx Source="{Binding Thumbnail}" 
+                                                                 Style="{StaticResource RoundStyle}"
+                                                             toolkit:DockPanel.Dock="Left"
+                                                             Margin="0 0 8 0"
+                                                                 />
+
+                    <TextBlock Text="{Binding CommunityName}"
+                                                   VerticalAlignment="Center"
+                                                   toolkit:DockPanel.Dock="Top"
+                                                   />
+
+                    <TextBlock Text="{Binding Label}"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Opacity="0.7"
+                                               TextWrapping="Wrap"
+                                               />
+                </toolkit:DockPanel>
+            </DataTemplate>
+            
             <DataTemplate x:Name="LiveSubMenuContentTemplate">
                 <StackPanel>
                     <ItemsControl ItemsSource="{Binding MenuItems}"
@@ -264,7 +295,7 @@
                     <TextBlock Text="No items"
                                Visibility="{Binding OnAirStreams, Converter={StaticResource EmptyCollectionVisibilityConverter}}"
                                Opacity="0.5"
-                               Margin="16"
+                               Margin="32 8 16 16"
                                />
 
                     <ListView uwpui:ListViewBase.Command="{StaticResource OpenContentCommand}"
@@ -272,30 +303,8 @@
                               IsItemClickEnabled="True"
                               SelectionMode="None"
                               IsTabStop="False"
+                              ItemTemplate="{StaticResource LiveStreamInfoTemplate}"
                                       >
-                        <ListView.ItemTemplate>
-                            <DataTemplate>
-                                <toolkit:DockPanel>
-                                    <uwpcontrol:RoundImageEx Source="{Binding Thumbnail}" 
-                                                                 Style="{StaticResource RoundStyle}"
-                                                             toolkit:DockPanel.Dock="Left"
-                                                             Margin="0 0 8 0"
-                                                                 />
-
-                                    <TextBlock Text="{Binding CommunityName}"
-                                                   VerticalAlignment="Center"
-                                                   toolkit:DockPanel.Dock="Top"
-                                                   />
-
-                                    <TextBlock Text="{Binding Label}"
-                                               Style="{StaticResource CaptionTextBlockStyle}"
-                                               Opacity="0.7"
-                                               TextWrapping="Wrap"
-                                               />
-                                </toolkit:DockPanel>
-                                
-                            </DataTemplate>
-                        </ListView.ItemTemplate>
 
                         <ListView.ItemContainerStyle>
                             <Style TargetType="ListViewItem">
@@ -304,6 +313,44 @@
                         </ListView.ItemContainerStyle>
                     </ListView>
                     
+                    
+                    
+                    <!-- 放送予定 -->
+                    <toolkit:DockPanel Margin="0 0" Opacity="0.7"
+                                       >
+                        <TextBlock Text="放送予定"
+                                   toolkit:DockPanel.Dock="Left"
+                                   VerticalAlignment="Center"
+                                   Padding="16 0"
+                                   Height="32"
+                                       Style="{StaticResource SubtitleTextBlockStyle}"
+                                   />
+
+                    </toolkit:DockPanel>
+
+
+                    <TextBlock Text="No items"
+                               Visibility="{Binding ReservedStreams, Converter={StaticResource EmptyCollectionVisibilityConverter}}"
+                               Opacity="0.5"
+                               Margin="32 8 16 16"
+                               />
+
+                    <ListView uwpui:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                              ItemsSource="{Binding ReservedStreams}"
+                              IsItemClickEnabled="True"
+                              SelectionMode="None"
+                              IsTabStop="False"
+                              ItemTemplate="{StaticResource LiveStreamInfoTemplate}"
+                                      >
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Padding" Value="16 8" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+
+
+
                 </StackPanel>
             </DataTemplate>
 
