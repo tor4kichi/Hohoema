@@ -19,6 +19,8 @@ namespace NicoPlayerHohoema.Models.Niconico.Live
         public ReadOnlyObservableCollection<Mntone.Nico2.Live.Video.VideoInfo> OnAirStreams { get; }
         public ObservableCollection<Mntone.Nico2.Live.Video.VideoInfo> _OnAirStreams;
 
+        public ReadOnlyObservableCollection<Mntone.Nico2.Live.Video.VideoInfo> ReservedStreams { get; }
+        public ObservableCollection<Mntone.Nico2.Live.Video.VideoInfo> _ReservedStreams;
 
 
 
@@ -28,6 +30,9 @@ namespace NicoPlayerHohoema.Models.Niconico.Live
 
             _OnAirStreams = new ObservableCollection<Mntone.Nico2.Live.Video.VideoInfo>();
             OnAirStreams = new ReadOnlyObservableCollection<Mntone.Nico2.Live.Video.VideoInfo>(_OnAirStreams);
+
+            _ReservedStreams = new ObservableCollection<Mntone.Nico2.Live.Video.VideoInfo>();
+            ReservedStreams = new ReadOnlyObservableCollection<Mntone.Nico2.Live.Video.VideoInfo>(_ReservedStreams);
 
             _HohoemaApp.OnSignin += HohoemaApp_OnSignin;
             _HohoemaApp.OnSignout += _HohoemaApp_OnSignout;
@@ -80,6 +85,18 @@ namespace NicoPlayerHohoema.Models.Niconico.Live
                         {
                             var detail = liveInfo.VideoInfo;
                             _OnAirStreams.Add(liveInfo.VideoInfo);
+                        }
+
+                        await Task.Delay(100);
+                    }
+
+                    foreach (var reserved in mypageLiveInfo.ReservedPrograms)
+                    {
+                        var liveInfo = await _HohoemaApp.NiconicoContext.Live.GetLiveVideoInfoAsync(reserved.ID);
+                        if (liveInfo.IsOK)
+                        {
+                            var detail = liveInfo.VideoInfo;
+                            _ReservedStreams.Add(liveInfo.VideoInfo);
                         }
 
                         await Task.Delay(100);
