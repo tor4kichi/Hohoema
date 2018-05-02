@@ -569,4 +569,8 @@
     <value>動画</value>
     <comment>NiconicoServiceType</comment>
   </data>
+  <data name="@view" xml:space="preserve">
+    <value>あとで見る</value>
+    <comment>"watch later" niconico video content</comment>
+  </data>
 </root>
