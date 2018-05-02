@@ -343,10 +343,7 @@ namespace NicoPlayerHohoema.ViewModels
                 };
             RaisePropertyChanged(nameof(TagSearchBookmark));
 
-
-            var target = "タグ";
-			var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
-            SearchOptionText = $"{target} - {optionText}";
+            SearchOptionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
 
             base.OnNavigatedTo(e, viewModelState);
 		}

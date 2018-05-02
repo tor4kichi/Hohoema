@@ -14,13 +14,13 @@ namespace NicoPlayerHohoema.Models
 		[DataMember]
 		public Mntone.Nico2.Live.CommunityType? Provider { get; set; }
 
-		[DataMember]
-		public Mntone.Nico2.Order Order { get; set; }
+        [DataMember]
+        public Mntone.Nico2.Order Order { get; set; } = Mntone.Nico2.Order.Ascending;
 
-		[DataMember]
-		public NicoliveSearchSort Sort { get; set; }
+        [DataMember]
+        public NicoliveSearchSort Sort { get; set; } = NicoliveSearchSort.Recent;
 
-		[DataMember]
-		public NicoliveSearchMode? Mode { get; set; }
+        [DataMember]
+        public NicoliveSearchMode? Mode { get; set; } = NicoliveSearchMode.OnAir;
 	}
 }

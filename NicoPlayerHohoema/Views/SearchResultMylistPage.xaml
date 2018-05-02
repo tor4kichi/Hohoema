@@ -125,6 +125,7 @@
                             Margin="16 0 0 0"
                                                
                             >
+                                    
                                     <HyperlinkButton Command="{StaticResource OpenHohoemaPageCommand}"
                                              CommandParameter="Search"
                                              Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
@@ -137,6 +138,57 @@
                                             />
                                     </HyperlinkButton>
 
+                                    <HyperlinkButton 
+                                           toolkit:DockPanel.Dock="Left"
+                                        Margin="8 0"
+                                    >
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Click" >
+                                                <mybehavior:OpenFlyout />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+
+                                        <TextBlock Text="{Binding SearchOptionText}" 
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       >
+                                        </TextBlock>
+
+                                        <FlyoutBase.AttachedFlyout>
+                                            <Flyout>
+                                                <StackPanel MaxWidth="300">
+
+                                                    <ListView ItemsSource="{Binding MylistSearchOptionListItems}"
+                                                        DisplayMemberPath="Label"
+                                                        SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}"
+                                                        Margin="0"
+                                                        HorizontalAlignment="Stretch"
+                                                        VerticalAlignment="Center"
+                                                        SelectionMode="Single"
+                                                        SingleSelectionFollowsFocus="False"
+                                                    >
+                                                        <ListView.ItemContainerStyle>
+                                                            <Style TargetType="ListViewItem">
+                                                                <Setter Property="Width" Value="140" />
+                                                            </Style>
+                                                        </ListView.ItemContainerStyle>
+                                                        <ListView.ItemsPanel>
+                                                            <ItemsPanelTemplate>
+                                                                <ItemsWrapGrid Orientation="Horizontal" />
+                                                            </ItemsPanelTemplate>
+                                                        </ListView.ItemsPanel>
+
+                                                    </ListView>
+
+                                                </StackPanel>
+
+
+                                            </Flyout>
+                                        </FlyoutBase.AttachedFlyout>
+
+
+
+                                    </HyperlinkButton>
+
                                     <StackPanel Background="Transparent" IsHitTestVisible="True">
                                         <i:Interaction.Behaviors>
                                             <core:EventTriggerBehavior EventName="Tapped">
@@ -146,6 +198,8 @@
 
                                     </StackPanel>
                                 </toolkit:DockPanel>
+                                
+                                
                             </CommandBar.Content>
 
                         </CommandBar>

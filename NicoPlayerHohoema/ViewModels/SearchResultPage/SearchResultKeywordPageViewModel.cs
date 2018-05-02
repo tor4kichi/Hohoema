@@ -171,7 +171,7 @@ namespace NicoPlayerHohoema.ViewModels
                 );
 
             SelectedSearchSort
-               .Subscribe(_ =>
+               .Subscribe(async _ =>
                {
                    var selected = SelectedSearchSort.Value;
                    if (SearchOption.Order == selected.Order
@@ -239,10 +239,7 @@ namespace NicoPlayerHohoema.ViewModels
                 };
             RaisePropertyChanged(nameof(KeywordSearchBookmark));
 
-            var target = "キーワード";
-			var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
-            SearchOptionText = $"{target} - {optionText}";
-
+            SearchOptionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
 
             Database.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
 

@@ -14,12 +14,84 @@ using Prism.Commands;
 using Mntone.Nico2;
 using Prism.Windows.Navigation;
 using System.Collections.Async;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class SearchResultMylistPageViewModel : HohoemaListingPageViewModelBase<IPlayableList>
 	{
 		public MylistSearchPagePayloadContent SearchOption { get; private set; }
+
+        public static IReadOnlyList<SearchSortOptionListItem> MylistSearchOptionListItems { get; private set; }
+
+        static SearchResultMylistPageViewModel()
+        {
+            MylistSearchOptionListItems = new List<SearchSortOptionListItem>()
+            {
+                new SearchSortOptionListItem()
+                {
+                    Label = "人気が高い順",
+                    Sort = Sort.MylistPopurarity,
+                    Order = Order.Descending,
+                }
+				//, new SearchSortOptionListItem()
+				//{
+				//	Label = "人気が低い順",
+				//	Sort = Sort.MylistPopurarity,
+				//	Order = Order.Ascending,
+				//}
+				, new SearchSortOptionListItem()
+                {
+                    Label = "更新が新しい順",
+                    Sort = Sort.UpdateTime,
+                    Order = Order.Descending,
+                }
+				//, new SearchSortOptionListItem()
+				//{
+				//	Label = "更新が古い順",
+				//	Sort = Sort.UpdateTime,
+				//	Order = Order.Ascending,
+				//}
+				, new SearchSortOptionListItem()
+                {
+                    Label = "動画数が多い順",
+                    Sort = Sort.VideoCount,
+                    Order = Order.Descending,
+                }
+                //, new SearchSortOptionListItem()
+                //{
+                //	Label = "動画数が少ない順",
+                //	Sort = Sort.VideoCount,
+                //	Order = Order.Ascending,
+                //}
+                , new SearchSortOptionListItem()
+                {
+                    Label = "適合率が高い順",
+                    Sort = Sort.Relation,
+                    Order = Order.Descending,
+                }
+				//, new SearchSortOptionListItem()
+				//{
+				//	Label = "適合率が低い順",
+				//	Sort = Sort.Relation,
+				//	Order = Order.Ascending,
+				//}
+
+			};
+        }
+
+        public ReactivePropertySlim<SearchSortOptionListItem> SelectedSearchSort { get; private set; }
+
+
+
+        private string _SearchOptionText;
+        public string SearchOptionText
+        {
+            get { return _SearchOptionText; }
+            set { SetProperty(ref _SearchOptionText, value); }
+        }
+
 
         public static List<SearchTarget> SearchTargets { get; } = Enum.GetValues(typeof(SearchTarget)).Cast<SearchTarget>().ToList();
 
@@ -46,7 +118,9 @@ namespace NicoPlayerHohoema.ViewModels
 			) 
 			: base(hohoemaApp, pageManager, useDefaultPageTitle: false)
 		{
-		}
+            SelectedSearchSort = new ReactivePropertySlim<SearchSortOptionListItem>();
+
+        }
 
 
 		#region Commands
@@ -84,11 +158,21 @@ namespace NicoPlayerHohoema.ViewModels
                 throw new Exception();
             }
 
+            SelectedSearchSort.Value = MylistSearchOptionListItems.FirstOrDefault(x => x.Order == SearchOption.Order && x.Sort == SearchOption.Sort);
 
-//			var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+            SelectedSearchSort.Subscribe(async opt =>
+            {
+                SearchOption.Order = opt.Order;
+                SearchOption.Sort = opt.Sort;
+                SearchOptionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+
+                await ResetList();
+            })
+            .AddTo(_NavigatingCompositeDisposable);
 
             Database.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
 
+            
 
             base.OnNavigatedTo(e, viewModelState);
 		}

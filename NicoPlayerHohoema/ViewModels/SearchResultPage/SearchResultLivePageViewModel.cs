@@ -248,11 +248,10 @@ namespace NicoPlayerHohoema.ViewModels
 
             _NowNavigatingTo = true;
             SelectedSearchSort.Value = LiveSearchSortOptionListItems.FirstOrDefault(x => x.Sort == SearchOption.Sort && x.Order == SearchOption.Order);
-            SelectedSearchMode.Value = LiveSearchModeOptionListItems.FirstOrDefault(x => x.Mode == SearchOption.Mode);
+            SelectedSearchMode.Value = LiveSearchModeOptionListItems.FirstOrDefault(x => x.Mode == SearchOption.Mode) ?? LiveSearchModeOptionListItems.First();
             SelectedProvider.Value = LiveSearchProviderOptionListItems.FirstOrDefault(x => x.Provider == SearchOption.Provider);
             _NowNavigatingTo = false;
 
-            var target = "生放送";
             var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
             var providerText = SelectedProvider.Value.Label;
             string mode = "";
@@ -278,7 +277,7 @@ namespace NicoPlayerHohoema.ViewModels
                 mode = "すべて";
             }
 
-            SearchOptionText = $"{target} - {optionText}/{mode}/{providerText}";
+            SearchOptionText = $"{optionText}/{mode}/{providerText}";
 
             Database.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
 
