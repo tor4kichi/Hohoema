@@ -679,6 +679,8 @@
                                         toolkit:DockPanel.Dock="Top"
                                         />
 
+
+
                                 <Border toolkit:DockPanel.Dock="Top" Margin="8 16 8 8"
                                         >
 
@@ -1193,6 +1195,7 @@
                     </SplitView>
                 </toolkit:DockPanel>
 
+                
 
                 <Grid x:Name="PlayerLayoutGrid"
                     Visibility="Collapsed"
@@ -1273,19 +1276,42 @@
 
                 </Grid>
 
-                <Border Height="{StaticResource TitleBarDummyHeight}"
+                <toolkit:DockPanel Height="{StaticResource TitleBarDummyHeight}"
                         VerticalAlignment="Top"
                         x:Name="WindowTitleLayout"
                         Visibility="Collapsed"
                                         >
-                    <TextBlock Text="Hohoema"
+
+                    <Border Visibility="{Binding CanGoBackNavigation.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
+                        toolkit:DockPanel.Dock="Left"
+                        >
+                        <Button 
+                                Height="40"
+                                Width="40"
+                                Background="Transparent"
+                                VerticalContentAlignment="Center"
+                            Command="{Binding GoBackNavigationCommand}"
+                                    >
+                            <SymbolIcon Symbol="Back" Height="10" Width="10" />
+                        </Button>
+                    </Border>
+
+
+                    <Border x:Name="DraggableContent" IsTapEnabled="True" Background="Transparent">
+                        <TextBlock Text="Hohoema"
                                 Margin="12 0 0 0"
                                 VerticalAlignment="Center"
                                Opacity="0.9"
                                FontSize="13"
+                               HorizontalAlignment="Left"
                                
-                                                   />
-                </Border>
+                                                   >
+                        </TextBlock>
+                    </Border>
+
+                        
+                    
+                </toolkit:DockPanel>
 
 
             </Grid>

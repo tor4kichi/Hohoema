@@ -60,6 +60,11 @@ namespace NicoPlayerHohoema.ViewModels
         public ReadOnlyReactiveProperty<bool> IsShowPlayerInFill_DelayedRead { get; private set; }
 
 
+        public ReactivePropertySlim<bool> CanGoBackNavigation { get; private set; }
+        public ReactiveCommand GoBackNavigationCommand { get; private set; }
+
+
+
         public INavigationService NavigationService { get; private set; }
 
         public MenuNavigatePageBaseViewModel(
@@ -71,6 +76,16 @@ namespace NicoPlayerHohoema.ViewModels
             PageManager = pageManager;
             HohoemaApp = hohoemaApp;
             NicoLiveSubscriber = nicoLiveSubscriber;
+
+            // Back Navigation
+            CanGoBackNavigation = new ReactivePropertySlim<bool>();
+            GoBackNavigationCommand = CanGoBackNavigation
+                .ToReactiveCommand();
+
+            GoBackNavigationCommand.Subscribe(_ => 
+            {
+                PageManager.NavigationService.GoBack();
+            });
 
             // TV Mode
             if (Helpers.DeviceTypeHelper.IsXbox)
@@ -147,6 +162,10 @@ namespace NicoPlayerHohoema.ViewModels
                     TitleText = x;
                     AddPinToCurrentPageCommand.RaiseCanExecuteChanged();
                 });
+
+            PageManager.ObserveProperty(x => x.CurrentPageType)
+                .Subscribe(_ => UpdateCanGoBackNavigation());
+
 
 
             IsVisibleMenu = PageManager.ObserveProperty(x => x.CurrentPageType)
@@ -302,6 +321,12 @@ namespace NicoPlayerHohoema.ViewModels
             NavigationService = ns;
         }
 
+
+        private async void UpdateCanGoBackNavigation()
+        {
+            await Task.Delay(50);
+            CanGoBackNavigation.Value = PageManager.NavigationService.CanGoBack();
+        }
 
 
         private async void HohoemaPlaylist_OpenPlaylistItem(IPlayableList playlist, PlaylistItem item)

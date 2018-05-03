@@ -39,6 +39,8 @@ namespace NicoPlayerHohoema.Views
         private void MenuNavigatePageBase_Loaded(object sender, RoutedEventArgs e)
         {
             _UIDispatcher = Dispatcher;
+
+            
         }
         
 
@@ -81,6 +83,16 @@ namespace NicoPlayerHohoema.Views
 
                 (DataContext as ViewModels.MenuNavigatePageBaseViewModel).SetNavigationService(ns);
             }
+
+            // タイトルバーのハンドルできる範囲を自前で指定する
+            // バックボタンのカスタマイズ対応のため
+            // もしかしてモバイルやXboxOneで例外が出てクラッシュするのが怖いので
+            // 例外を握りつぶしておく
+            try
+            {
+                Window.Current.SetTitleBar(GetTemplateChild("DraggableContent") as UIElement);
+            }
+            catch { }
 
             base.OnApplyTemplate();
         }
