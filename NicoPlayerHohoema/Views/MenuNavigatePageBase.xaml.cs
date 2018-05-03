@@ -133,5 +133,23 @@ namespace NicoPlayerHohoema.Views
 
             ToggleDisplayContent(menuSubContent, menuMainContent);
         }
+
+
+        /// <summary>
+        /// 検索を実行した際、モバイルやXboxOneのときは自動でメニューを閉じる
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private void SearchTextBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        {
+            var splitView = GetTemplateChild("ContentSplitView") as SplitView;
+            if (splitView != null)
+            {
+                if (splitView.DisplayMode == SplitViewDisplayMode.Overlay)
+                {
+                    splitView.IsPaneOpen = false;
+                }
+            }
+        }
     }
 }

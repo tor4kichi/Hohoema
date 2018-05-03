@@ -202,14 +202,14 @@ namespace NicoPlayerHohoema.ViewModels
             // 検索
             SearchKeyword = new ReactiveProperty<string>("");
 
-            SearchCommand = SearchKeyword
-                .Select(x => !string.IsNullOrWhiteSpace(x))
-                .ToReactiveCommand();
+            SearchCommand = new ReactiveCommand();
             SearchCommand
-//                .Delay(TimeSpan.FromSeconds(0.15))
-                .Subscribe(_ =>
+                .Subscribe(async _ =>
             {
+                await Task.Delay(50);
                 var keyword = SearchKeyword.Value;
+
+                if (string.IsNullOrWhiteSpace(keyword)) { return; }
 
                 SearchTarget? searchType = CurrentSubPageType.Value == NiconicoServiceType.Live ? SearchTarget.Niconama : SearchTarget.Keyword;
                 var searched = Database.SearchHistoryDb.LastSearchedTarget(keyword);

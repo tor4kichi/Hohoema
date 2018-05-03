@@ -691,10 +691,9 @@
                                                     TabIndex="103"
                                                     ItemsSource="{Binding SearchSuggestionWords}"
                                                     x:Name="SearchTextBox"
+                                                    QuerySubmitted="SearchTextBox_QuerySubmitted" 
                                              >
                                         <i:Interaction.Behaviors>
-
-
                                             <core:EventTriggerBehavior EventName="QuerySubmitted">
                                                 <core:InvokeCommandAction Command="{Binding SearchCommand}" />
                                                 <core:ChangePropertyAction PropertyName="IsEnabled" Value="False" />
