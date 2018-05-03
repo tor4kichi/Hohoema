@@ -16,6 +16,8 @@ using Mntone.Nico2;
 using Mntone.Nico2.Embed.Ichiba;
 using Mntone.Nico2.Videos.WatchAPI;
 using Mntone.Nico2.Videos.Dmc;
+using System.Text.RegularExpressions;
+using Windows.System;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -218,17 +220,24 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        private DelegateCommand<Uri> _ScriptNotifyCommand;
-        public DelegateCommand<Uri> ScriptNotifyCommand
+        private DelegateCommand<object> _ScriptNotifyCommand;
+        public DelegateCommand<object> ScriptNotifyCommand
         {
             get
             {
                 return _ScriptNotifyCommand
-                    ?? (_ScriptNotifyCommand = new DelegateCommand<Uri>((parameter) =>
+                    ?? (_ScriptNotifyCommand = new DelegateCommand<object>(async (parameter) =>
                     {
-                        System.Diagnostics.Debug.WriteLine($"script notified: {parameter}");
+                        Uri url = parameter as Uri ?? (parameter as HyperlinkItem)?.Url;
+                        if (url != null)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"script notified: {url}");
 
-                        PageManager.OpenPage(parameter);
+                            if (false == PageManager.OpenPage(url))
+                            {
+                                await Launcher.LaunchUriAsync(url);
+                            }
+                        }
                     }));
             }
         }
@@ -284,6 +293,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         public List<LocalMylist> Playlists { get; private set; }
 
+        Regex GeneralUrlRegex = new Regex(@"https?:\/\/([a-zA-Z0-9.\/?=_-]*)");
+        public List<HyperlinkItem> VideoDescriptionHyperlinkItems { get; } = new List<HyperlinkItem>();
 
         AsyncLock _WebViewFocusManagementLock = new AsyncLock();
         public VideoInfomationPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
@@ -453,6 +464,48 @@ namespace NicoPlayerHohoema.ViewModels
                 return;
             }
 
+
+            try
+            {
+                var htmlDocument = new HtmlAgilityPack.HtmlDocument();
+                htmlDocument.LoadHtml(videoDescriptionHtml);
+                var root = htmlDocument.DocumentNode;
+                var anchorNodes = root.Descendants("a");
+
+                foreach (var anchor in anchorNodes)
+                {
+                    VideoDescriptionHyperlinkItems.Add(new HyperlinkItem()
+                    {
+                        Label = anchor.InnerText,
+                        Url = new Uri(anchor.Attributes["href"].Value)
+                    });
+
+                    Debug.WriteLine($"{anchor.InnerText} : {anchor.Attributes["href"].Value}");
+                }
+
+                var matches = GeneralUrlRegex.Matches(videoDescriptionHtml);
+                foreach (var match in matches.Cast<Match>())
+                {
+                    if (!VideoDescriptionHyperlinkItems.Any(x => x.Url.OriginalString == match.Value))
+                    {
+                        VideoDescriptionHyperlinkItems.Add(new HyperlinkItem()
+                        {
+                            Label = match.Value,
+                            Url = new Uri(match.Value)
+                        });
+
+                        Debug.WriteLine($"{match.Value} : {match.Value}");
+                    }
+                }
+
+                RaisePropertyChanged(nameof(VideoDescriptionHyperlinkItems));
+
+            }
+            catch
+            {
+                Debug.WriteLine("動画説明からリンクを抜き出す処理に失敗");
+            }
+
             try
             {
                 if (_VideoInfo != null)
@@ -473,5 +526,12 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         
+    }
+
+
+    public class HyperlinkItem
+    {
+        public string Label { get; set; }
+        public Uri Url { get; set; }
     }
 }

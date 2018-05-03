@@ -93,55 +93,64 @@ namespace NicoPlayerHohoema.Models
             CurrentPageType = HohoemaPageType.RankingCategoryList;
         }
 
-        public void OpenPage(Uri uri)
+        public bool OpenPage(Uri uri)
 		{
 			var path = uri.AbsoluteUri;
 			// is mylist url?
-			if (path.StartsWith("https://www.nicovideo.jp/mylist/"))
+			if (path.StartsWith("http://www.nicovideo.jp/mylist/") || path.StartsWith("https://www.nicovideo.jp/mylist/"))
 			{
 				var mylistId = uri.AbsolutePath.Split('/').Last();
 				System.Diagnostics.Debug.WriteLine($"open Mylist: {mylistId}");
 				OpenPage(HohoemaPageType.Mylist, new MylistPagePayload(mylistId).ToParameterString());
-				return;
+				return true;
 			}
 
 
-			if (path.StartsWith("https://www.nicovideo.jp/watch/"))
+			if (path.StartsWith("http://www.nicovideo.jp/watch/") || path.StartsWith("https://www.nicovideo.jp/watch/"))
 			{
 				// is nico video url?
 				var videoId = uri.AbsolutePath.Split('/').Last();
 				System.Diagnostics.Debug.WriteLine($"open Video: {videoId}");
                 HohoemaPlaylist.PlayVideo(videoId);
 
-				return;
-			}
+                return true;
+            }
 
-			if (path.StartsWith("https://com.nicovideo.jp/community/"))
+			if (path.StartsWith("http://com.nicovideo.jp/community/") || path.StartsWith("https://com.nicovideo.jp/community/"))
 			{
 				var communityId = uri.AbsolutePath.Split('/').Last();
 				OpenPage(HohoemaPageType.Community, communityId);
 
-				return;
-			}
+                return true;
+            }
 
-            if (path.StartsWith("https://com.nicovideo.jp/user/"))
+            if (path.StartsWith("http://com.nicovideo.jp/user/") || path.StartsWith("https://com.nicovideo.jp/user/"))
             {
                 var userId = uri.AbsolutePath.Split('/').Last();
                 OpenPage(HohoemaPageType.UserInfo, userId);
 
-                return;
+                return true;
             }
 
-            if (path.StartsWith("https://ch.nicovideo.jp/"))
+            if (path.StartsWith("http://ch.nicovideo.jp/") || path.StartsWith("https://ch.nicovideo.jp/"))
             {
-                var channelId = uri.AbsolutePath.Split('/').Last();
-                OpenPage(HohoemaPageType.ChannelVideo, channelId);
+                var elem = uri.AbsolutePath.Split('/');
+                if (elem.Any(x => x == "article" || x == "blomaga"))
+                {
+                    return false;
+                }
+                else
+                {
+                    OpenPage(HohoemaPageType.ChannelVideo, elem.Last());
+                }
 
-                return;
+                return true;
             }
 
             Debug.WriteLine($"Urlを処理できませんでした : " + uri.OriginalString);
-		}
+
+            return false;
+        }
 
 		public void OpenPage(HohoemaPageType pageType, object parameter = null, bool isForgetNavigation = false)
 		{
