@@ -418,9 +418,6 @@
                                 <Setter Target="TopMenu.Margin" Value="48 27 0 0" />
                                 <Setter Target="MenuTitleText.Margin" Value="16 0 16 0" />
 
-                                <!-- メニューを開いた時にアカウント表示にフォーカスが移ってしまう問題に対応 -->
-                                <Setter Target="OpenAccountButton.IsEnabled" Value="False" />
-
                                 <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
 
                             </VisualState.Setters>
@@ -653,7 +650,7 @@
                         
                     </Border>
 
-                    
+
 
                     <SplitView x:Name="ContentSplitView" 
                         CompactPaneLength="48"
@@ -663,13 +660,6 @@
                                IsTabStop="False"
                                PaneBackground="{StaticResource MenuBackgroundBrush}"
                         >
-
-                        <i:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="PaneOpened">
-                                <mybehavior:SetFocus TargetObject="{Binding ElementName=PaneLayout}" />
-                            </core:EventTriggerBehavior>
-                        </i:Interaction.Behaviors>
-
                         <SplitView.Pane>
 
                             <toolkit:DockPanel x:Name="PaneLayout" 
@@ -692,6 +682,7 @@
                                                     ItemsSource="{Binding SearchSuggestionWords}"
                                                     x:Name="SearchTextBox"
                                                     QuerySubmitted="SearchTextBox_QuerySubmitted" 
+                                                    Padding="0"
                                              >
                                         <i:Interaction.Behaviors>
                                             <core:EventTriggerBehavior EventName="QuerySubmitted">
@@ -711,8 +702,8 @@
                                             </mybehavior:KeyboardTrigger>
 
                                             <mybehavior:UINavigationTrigger Kind="Cancel">
-                                                <core:ChangePropertyAction PropertyName="IsEnabled" Value="False" />
-                                                <core:ChangePropertyAction PropertyName="IsEnabled" Value="True" />
+                                                <mybehavior:SetFocus TargetObject="{Binding ElementName=SubMenuPageTypesListView}" />
+                                                <mybehavior:SetFocus TargetObject="{Binding ElementName=MenuSubPageContent}" />
                                                 <core:ChangePropertyAction PropertyName="IsSuggestionListOpen" Value="False" />
                                             </mybehavior:UINavigationTrigger>
                                         </i:Interaction.Behaviors>
@@ -807,6 +798,7 @@
                                     VerticalScrollMode="Auto"
                                     VerticalScrollBarVisibility="Hidden"
                                               Margin="0 0 0 0"
+                                              TabIndex="0"
                                     >
 
                                     <StackPanel x:Name="PaneScrollableContentLayout">
@@ -959,6 +951,7 @@
                                                           IsItemClickEnabled="True"
                                                           SelectionMode="None"
                                                           x:Name="SubMenuPageTypesListView"
+                                                          IsTabStop="False"
                                                           >
                                                     <ListView.ItemContainerStyle>
                                                         <Style TargetType="ListViewItem">
@@ -1054,6 +1047,8 @@
                                                         HorizontalAlignment="Stretch"
                                                         HorizontalContentAlignment="Stretch"
                                                         x:Name="BackToMainMenuPageButton"
+                                                        Margin="4 0 0 0"
+                                                        Height="32"
                                                         >
                                                         <toolkit:DockPanel  Margin="8 0" >
                                                             <TextBlock FontFamily="Segoe MDL2 Assets" 
@@ -1137,7 +1132,7 @@
                                         <TextBlock x:Name="MenuTitleText"
                                                 Text="{Binding TitleText}"
                                                Style="{StaticResource SubheaderTextBlockStyle}"
-                                               Margin="16 8"
+                                               Margin="16 0 16 0"
                                                    VerticalAlignment="Center"
                                                    />
 
