@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Microsoft.Practices.Unity;
 using Hohoema.NicoAlert.Helpers;
 using Mntone.Nico2.Mylist.MylistGroup;
+using Mntone.Nico2.Searches.Mylist;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -138,7 +139,6 @@ namespace NicoPlayerHohoema.Models
         {
             Id = data.Id;
             Label = data.Name;
-            SortIndex = sortIndex;
             Count = (int)data.Count;
             Description = data.Description;
             SortIndex = sortIndex;
@@ -146,6 +146,20 @@ namespace NicoPlayerHohoema.Models
 
             _ThumnailUrl = data.ThumbnailUrls.FirstOrDefault()?.OriginalString;
         }
+
+        public OtherOwneredMylist(MylistGroup data, int sortIndex = 0)
+            : this()
+        {
+            Id = data.Id;
+            Label = data.Name;
+            Count = (int)data.ItemCount;
+            Description = data.Description;
+            SortIndex = sortIndex;
+            OwnerUserId = data.VideoInfoItems?.FirstOrDefault()?.Video.UserId;
+
+            _ThumnailUrl = data.VideoInfoItems?.FirstOrDefault()?.Video.ThumbnailUrl.OriginalString;
+        }
+
 
         public async Task<bool> FillAllVideosAsync()
         {

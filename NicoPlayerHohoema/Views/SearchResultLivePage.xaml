@@ -13,6 +13,8 @@
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:hohoemalistItem="using:NicoPlayerHohoema.Views.HohoemaListItem"
+    xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     d:DesignHeight="300"
@@ -34,9 +36,8 @@
                         <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Margin" Value="64 0 0 0" />
-
-                        <Setter Target="TVModeMarginBordar.Height" Value="27" />
+                        <Setter Target="ItemsList.Padding" Value="48 0 48 27" />
+                        <Setter Target="ScrollHeader.Mode" Value="None" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -51,90 +52,115 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Margin" Value="64 0 0 0" />
+                        <Setter Target="ScrollHeader.Mode" Value="QuickReturn" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-        
-        
-        <controls:ListingWithHeader 
-            x:Name="ListingWithHeader"
+
+
+        <uwpcontrols:PullToRefreshListView 
+            x:Name="ItemsList"
             ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
-            SelectedItems="{Binding SelectedItems}"
             RefreshCommand="{Binding RefreshCommand}"
-            ItemCommand="{StaticResource OpenContentCommand}"
-            IsTVModeEnabled="{Binding IsForceTVModeEnable.Value}"
-            IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
-            NowLoading="{Binding NowLoading.Value}"
+            IsItemClickEnabled="True"
+            IncrementalLoadingTrigger="Edge"
+            PullThreshold="85"    
+            UseSystemFocusVisuals="True"
+            SelectionMode="None"
+            HorizontalContentAlignment="Stretch"
+            uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
             >
-            <controls:ListingWithHeader.HeaderContent>
-                <StackPanel >
+            <ListView.Header>
+                <uwpcontrols:ScrollHeader
+                    Mode="Sticky"
+                    x:Name="ScrollHeader"
+                    >
+                    <StackPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-                    <Border x:Name="TVModeMarginBordar" />
+                        <ListView xmlns:ee="using:NicoPlayerHohoema.Models"
+                                      SelectionMode="Single"
+                                      IsItemClickEnabled="True"
+                                      uwpExtension:ListViewBase.Command="{Binding ChangeSearchTargetCommand}"
+                                      ItemsSource="{Binding SearchTargets}"
+                                      SelectedItem="{Binding SearchOption.SearchTarget}"
+                                      Style="{StaticResource BandListViewStyle}"
+                                      ItemContainerStyle="{StaticResource SimpleListViewItemStyle}"
+                                  SingleSelectionFollowsFocus="False"
+                                      >
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
 
-                    <Border Height="{StaticResource TitleBarDummyHeight}" />
-
-                    <CommandBar toolkit:DockPanel.Dock="Right" Margin="8 0"
+                            <ListView.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <ItemsWrapGrid Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ListView.ItemsPanel>
+                        </ListView>
+                        
+                        <CommandBar toolkit:DockPanel.Dock="Right" Margin="8 0"
                                 >
-                        <CommandBar.PrimaryCommands>
-                            <AppBarButton Background="Transparent" 
+                            <CommandBar.PrimaryCommands>
+                                <AppBarButton Background="Transparent" 
                                         Command="{Binding RefreshCommand}"
                                         ToolTipService.ToolTip="更新"
                                               Icon="Refresh"
                                         />
-                        </CommandBar.PrimaryCommands>
+                            </CommandBar.PrimaryCommands>
 
-                        <CommandBar.Content>
-                            <Border Background="Transparent" IsHitTestVisible="True"
+                            <CommandBar.Content>
+                                <Border Background="Transparent" IsHitTestVisible="True"
                                 Margin="16 0 0 0"
                             x:Name="TitleLayout"
                                 >
 
-                                <i:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="Tapped">
-                                        <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
-                                    </core:EventTriggerBehavior>
-                                </i:Interaction.Behaviors>
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <core:ChangePropertyAction TargetObject="{Binding}" PropertyName="ListPosition" Value="0.0" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
 
-                                <toolkit:DockPanel VerticalAlignment="Center">
+                                    <toolkit:DockPanel VerticalAlignment="Center">
 
-                                    <HyperlinkButton Command="{StaticResource OpenHohoemaPageCommand}"
+                                        <HyperlinkButton Command="{StaticResource OpenHohoemaPageCommand}"
                                              CommandParameter="Search"
                                              Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                              Margin="0 0 16 0"
                                                  toolkit:DockPanel.Dock="Left"
                                                      VerticalAlignment="Stretch"
                                              >
-                                        <SymbolIcon Symbol="Find"
+                                            <SymbolIcon Symbol="Find"
                                             />
-                                    </HyperlinkButton>
-                                    
-                                    <HyperlinkButton 
+                                        </HyperlinkButton>
+
+                                        <HyperlinkButton 
                                            toolkit:DockPanel.Dock="Bottom"
                                     >
 
-                                        <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="Click" >
-                                                <mybehavior:OpenFlyout />
-                                            </core:EventTriggerBehavior>
-                                        </i:Interaction.Behaviors>
+                                            <i:Interaction.Behaviors>
+                                                <core:EventTriggerBehavior EventName="Click" >
+                                                    <mybehavior:OpenFlyout />
+                                                </core:EventTriggerBehavior>
+                                            </i:Interaction.Behaviors>
 
-                                        <TextBlock Text="{Binding SearchOptionText}" 
+                                            <TextBlock Text="{Binding SearchOptionText}" 
                                                        Style="{StaticResource CaptionTextBlockStyle}"
                                                        >
-                                        </TextBlock>
+                                            </TextBlock>
 
-                                        <FlyoutBase.AttachedFlyout>
-                                            <Flyout>
-                                                <StackPanel MaxWidth="340">
+                                            <FlyoutBase.AttachedFlyout>
+                                                <Flyout>
+                                                    <StackPanel MaxWidth="340">
 
-                                                    <TextBlock Text="表示順" Margin="0 0 0 0"
+                                                        <TextBlock Text="表示順" Margin="0 0 0 0"
                                                        Style="{StaticResource BodyTextBlockStyle}"
                                                        Opacity="0.7"
                                                        />
 
-                                                    <ListView ItemsSource="{Binding LiveSearchSortOptionListItems}"
+                                                        <ListView ItemsSource="{Binding LiveSearchSortOptionListItems}"
                                                           DisplayMemberPath="Label"
                                                           SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}"
                                                           Margin="0"
@@ -143,25 +169,25 @@
                                                           SelectionMode="Single"
                                                           SingleSelectionFollowsFocus="False"
                                                         >
-                                                        <ListView.ItemContainerStyle>
-                                                            <Style TargetType="ListViewItem">
-                                                                <Setter Property="Width" Value="160" />
-                                                            </Style>
-                                                        </ListView.ItemContainerStyle>
-                                                        <ListView.ItemsPanel>
-                                                            <ItemsPanelTemplate>
-                                                                <ItemsWrapGrid Orientation="Horizontal" />
-                                                            </ItemsPanelTemplate>
-                                                        </ListView.ItemsPanel>
+                                                            <ListView.ItemContainerStyle>
+                                                                <Style TargetType="ListViewItem">
+                                                                    <Setter Property="Width" Value="160" />
+                                                                </Style>
+                                                            </ListView.ItemContainerStyle>
+                                                            <ListView.ItemsPanel>
+                                                                <ItemsPanelTemplate>
+                                                                    <ItemsWrapGrid Orientation="Horizontal" />
+                                                                </ItemsPanelTemplate>
+                                                            </ListView.ItemsPanel>
 
-                                                    </ListView>
+                                                        </ListView>
 
-                                                    <TextBlock Text="放送の状態" Margin="0 8 0 0"
+                                                        <TextBlock Text="放送の状態" Margin="0 8 0 0"
                                                        Style="{StaticResource BodyTextBlockStyle}"
                                                        Opacity="0.7"
                                                        />
 
-                                                    <ListView ItemsSource="{Binding LiveSearchModeOptionListItems}"
+                                                        <ListView ItemsSource="{Binding LiveSearchModeOptionListItems}"
                                                           DisplayMemberPath="Label"
                                                           SelectedItem="{Binding SelectedSearchMode.Value, Mode=TwoWay}"
                                                           Margin="0"
@@ -170,25 +196,25 @@
                                                           SelectionMode="Single"
                                                           SingleSelectionFollowsFocus="False"
                                                         >
-                                                        <ListView.ItemContainerStyle>
-                                                            <Style TargetType="ListViewItem">
-                                                                <Setter Property="Width" Value="160" />
-                                                            </Style>
-                                                        </ListView.ItemContainerStyle>
-                                                        <ListView.ItemsPanel>
-                                                            <ItemsPanelTemplate>
-                                                                <ItemsWrapGrid Orientation="Horizontal" />
-                                                            </ItemsPanelTemplate>
-                                                        </ListView.ItemsPanel>
+                                                            <ListView.ItemContainerStyle>
+                                                                <Style TargetType="ListViewItem">
+                                                                    <Setter Property="Width" Value="160" />
+                                                                </Style>
+                                                            </ListView.ItemContainerStyle>
+                                                            <ListView.ItemsPanel>
+                                                                <ItemsPanelTemplate>
+                                                                    <ItemsWrapGrid Orientation="Horizontal" />
+                                                                </ItemsPanelTemplate>
+                                                            </ListView.ItemsPanel>
 
-                                                    </ListView>
+                                                        </ListView>
 
-                                                    <TextBlock Text="提供者" Margin="0 8 0 0"
+                                                        <TextBlock Text="提供者" Margin="0 8 0 0"
                                                        Style="{StaticResource BodyTextBlockStyle}"
                                                        Opacity="0.7"
                                                        />
 
-                                                    <ListView ItemsSource="{Binding LiveSearchProviderOptionListItems}"
+                                                        <ListView ItemsSource="{Binding LiveSearchProviderOptionListItems}"
                                                           DisplayMemberPath="Label"
                                                           SelectedItem="{Binding SelectedProvider.Value, Mode=TwoWay}"
                                                           Margin="0"
@@ -197,42 +223,43 @@
                                                           SelectionMode="Single"
                                                           SingleSelectionFollowsFocus="False"
                                                         >
-                                                        <ListView.ItemContainerStyle>
-                                                            <Style TargetType="ListViewItem">
-                                                                <Setter Property="Width" Value="160" />
-                                                            </Style>
-                                                        </ListView.ItemContainerStyle>
-                                                        <ListView.ItemsPanel>
-                                                            <ItemsPanelTemplate>
-                                                                <ItemsWrapGrid Orientation="Horizontal" />
-                                                            </ItemsPanelTemplate>
-                                                        </ListView.ItemsPanel>
+                                                            <ListView.ItemContainerStyle>
+                                                                <Style TargetType="ListViewItem">
+                                                                    <Setter Property="Width" Value="160" />
+                                                                </Style>
+                                                            </ListView.ItemContainerStyle>
+                                                            <ListView.ItemsPanel>
+                                                                <ItemsPanelTemplate>
+                                                                    <ItemsWrapGrid Orientation="Horizontal" />
+                                                                </ItemsPanelTemplate>
+                                                            </ListView.ItemsPanel>
 
-                                                    </ListView>
-                                                </StackPanel>
-
-
-                                            </Flyout>
-                                        </FlyoutBase.AttachedFlyout>
+                                                        </ListView>
+                                                    </StackPanel>
 
 
-                                    </HyperlinkButton>
-                                    <TextBlock Text="{Binding Title}" 
-                                            Style="{StaticResource SubtitleTextBlockStyle}"
-                                       
-                                    />
-                                </toolkit:DockPanel>
-                            </Border>
-                        </CommandBar.Content>
-                        
-                    </CommandBar>
-
-                    
-                </StackPanel>
-            </controls:ListingWithHeader.HeaderContent>
+                                                </Flyout>
+                                            </FlyoutBase.AttachedFlyout>
 
 
-            <controls:ListingWithHeader.ListItemTemplate>
+                                        </HyperlinkButton>
+
+
+                                        <Border />
+                                    </toolkit:DockPanel>
+                                </Border>
+                            </CommandBar.Content>
+
+                        </CommandBar>
+
+
+                    </StackPanel>
+                </uwpcontrols:ScrollHeader>
+                
+            </ListView.Header>
+
+
+            <ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid Margin="0 0 0 0">
 
@@ -252,28 +279,32 @@
 
                     </Grid>
                 </DataTemplate>
-            </controls:ListingWithHeader.ListItemTemplate>
+            </ListView.ItemTemplate>
 
-            <controls:ListingWithHeader.GridItemTemplate>
-                <DataTemplate>
-                    <Grid Margin="0 0 0 0">
+            <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment"
+                                Value="Stretch" 
+                                    />
+                    <Setter Property="Margin"
+                                Value="0 0 0 0" 
+                                />
+                    <Setter Property="Padding" Value="0 8 16 8" />
+                    <Setter Property="UseSystemFocusVisuals" Value="True" />
+                    <Setter Property="BorderThickness" Value="0 0 0 1" />
+                    <Setter Property="BorderBrush" Value="#44707070" />
+                </Style>
+            </ListView.ItemContainerStyle>
 
-                        <hohoemalistItem:HohoemaListItemMiniCard />
 
-                        <Border Visibility="{Binding IsCommunityMemberOnly, Converter={StaticResource BooleanToVisibility}}"
-                                        HorizontalAlignment="Right"
-                                        VerticalAlignment="Top"
-                                        Background="DarkGreen"
-                                        CornerRadius="0 0 0 4"
-                                        >
-                            <TextBlock Text="限定" Foreground="LightGray"
-                                       FontSize="18"
-                                               Margin="8"
-                                       />
-                        </Border>
-                    </Grid>
-                </DataTemplate>
-            </controls:ListingWithHeader.GridItemTemplate>
-        </controls:ListingWithHeader>
+            <uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
+                <StackPanel  Margin="0 32 0 0" >
+                    <Border Margin="0 16 0 0" BorderThickness="0 0 0 1" BorderBrush="Gray" />
+                    <SymbolIcon Symbol="Refresh" VerticalAlignment="Bottom" Height="48" Width="48" Margin="0 24 0 8"
+                            />
+                </StackPanel>
+            </uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
+            
+        </uwpcontrols:PullToRefreshListView>
     </Grid>
 </Page>

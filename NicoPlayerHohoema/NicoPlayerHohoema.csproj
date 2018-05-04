@@ -173,6 +173,7 @@
     <Content Include="Assets\UpdateNotices\0.13.10.md" />
     <Content Include="Assets\UpdateNotices\0.13.11.md" />
     <Content Include="Assets\UpdateNotices\0.13.12.md" />
+    <Content Include="Assets\UpdateNotices\0.13.13.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <PRIResource Include="Resources\zh-Hans\Resources.resw" />
     <PRIResource Include="Resources\ja-jp\Resources.resw" />
@@ -255,6 +256,7 @@
     <Compile Include="Models\Niconico\Live\Event\CommentServerDisconnectedEventArgs.cs" />
     <Compile Include="Models\Niconico\Live\INicoLiveCommentClient.cs" />
     <Compile Include="Models\Niconico\Live\LiveChatData.cs" />
+    <Compile Include="Models\Niconico\Live\NicoLiveSubscriber.cs" />
     <Compile Include="Models\Niconico\Live\NiwavidedNicoLiveCommentClient.cs" />
     <Compile Include="Models\Niconico\Video\Comment\CommentCommandPermissionType.cs" />
     <Compile Include="Models\Niconico\CommentOpacityKind.cs" />
@@ -467,6 +469,9 @@
     <Compile Include="Views\Flyouts\SearchHistoryListItemFlyout.xaml.cs">
       <DependentUpon>SearchHistoryListItemFlyout.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\MylistListItem.xaml.cs">
+      <DependentUpon>MylistListItem.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\RecommendPage.xaml.cs">
       <DependentUpon>RecommendPage.xaml</DependentUpon>
     </Compile>
@@ -477,6 +482,7 @@
     <Compile Include="Views\RankingCategoryPage.xaml.cs">
       <DependentUpon>RankingCategoryPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\TemplateSelector\MenuSubPageTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\SearchTargetContentTemplateSelector.cs" />
     <Compile Include="Views\_CommentRenderer\CommentRendererCompositionUI.xaml.cs">
       <DependentUpon>CommentRendererCompositionUI.xaml</DependentUpon>
@@ -818,6 +824,10 @@
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Page>
+    <Page Include="Styles\ListViewItemStyles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Styles\TVSafeColor.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -855,6 +865,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Flyouts\SearchHistoryListItemFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\MylistListItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

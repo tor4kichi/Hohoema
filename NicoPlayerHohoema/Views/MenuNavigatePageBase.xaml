@@ -22,6 +22,7 @@
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:uwpAnimation="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
     IsTabStop="False"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     xmlns:templateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
@@ -35,10 +36,15 @@
 
         <ResourceDictionary>
 
+            <SolidColorBrush x:Key="MenuBackgroundBrush" Color="{ThemeResource SystemChromeMediumColor}" Opacity="1.0" />
 
             <x:String x:Key="SideMenuPaneLength" >280</x:String>
+            <x:String x:Key="SideMenuPaneLength_TVMode" >340</x:String>
             <x:String x:Key="DesktopFloatPlayerHeight" >160</x:String>
             <x:String x:Key="MobileFloatPlayerHeight" >240</x:String>
+
+
+            <x:Double x:Key="MenuContentToggleAnimationDuration">175</x:Double>
 
             <DataTemplate x:Key="MenuItemTemplate">
                 <StackPanel Orientation="Horizontal" Opacity="0.85"
@@ -98,6 +104,7 @@
                 <ListView uwpui:ListViewBase.Command="{StaticResource OpenHohoemaPageCommand}"
                               IsItemClickEnabled="True"
                           SelectionMode="None"
+                          IsTabStop="False"
                                       >
                     <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
@@ -151,7 +158,225 @@
                 </templateSelector:MenuItemTemplateSelector.SubMenuItem>
             </templateSelector:MenuItemTemplateSelector>
 
-           
+
+
+            <DataTemplate x:Name="VideoSubMenuContentTemplate">
+                <StackPanel>
+                    <ItemsControl ItemsSource="{Binding MenuItems}"
+                                ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
+                                IsTabStop="False"
+                                Background="Transparent"
+                                ScrollViewer.VerticalScrollMode="Disabled"
+                                />
+
+                    <Border BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}" Opacity="0.3"
+                                BorderThickness="0 1 0 0"
+                                VerticalAlignment="Center"
+                                Margin="16 8"
+                                />
+
+                    <toolkit:DockPanel Margin="0 0" Opacity="0.7"
+                                       Visibility="{Binding Mylists, Converter={StaticResource CollectionVisibilityConverter}}"
+                                       >
+
+                        <Button Command="{StaticResource OpenHohoemaPageCommand}"
+                                    CommandParameter="UserMylist"
+                                    HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                    Background="Transparent"
+                                Padding="16 0"
+                                    >
+                            <TextBlock Text="マイリスト"
+                                   toolkit:DockPanel.Dock="Left"
+                                   VerticalAlignment="Center"
+                                       Style="{StaticResource SubtitleTextBlockStyle}"
+                                   />
+                        </Button>
+
+                    </toolkit:DockPanel>
+
+                    <ItemsControl ItemsSource="{Binding Mylists}"
+                                ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
+                                Background="Transparent"
+                                  IsTabStop="False"
+                                />
+
+                    <Border BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}" Opacity="0.3"
+                                BorderThickness="0 1 0 0"
+                                VerticalAlignment="Center"
+                                Margin="16 8"
+                            Visibility="{Binding LocalMylists, Converter={StaticResource CollectionVisibilityConverter}}"
+                                />
+
+                    <ItemsControl ItemsSource="{Binding LocalMylists}"
+                                ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
+                                Background="Transparent"
+                                  IsTabStop="False"
+                                />
+
+                    
+
+                </StackPanel>
+            </DataTemplate>
+
+
+            <DataTemplate x:Key="LiveStreamInfoTemplate">
+                <toolkit:DockPanel>
+
+
+                    <TextBlock Text="{Binding StartAt}"
+                                Style="{StaticResource CaptionTextBlockStyle}"
+                                Opacity="0.7"
+                                TextWrapping="Wrap"
+                               toolkit:DockPanel.Dock="Top"
+                                               />
+                    
+                    <uwpcontrol:RoundImageEx Source="{Binding Thumbnail}" 
+                                                                 Style="{StaticResource RoundStyle}"
+                                                             toolkit:DockPanel.Dock="Left"
+                                                             Margin="0 0 8 0"
+                                                                 />
+
+                    <TextBlock Text="{Binding CommunityName}"
+                                                   VerticalAlignment="Center"
+                                                   toolkit:DockPanel.Dock="Top"
+                                                   />
+
+                    <TextBlock Text="{Binding Label}"
+                                               Style="{StaticResource CaptionTextBlockStyle}"
+                                               Opacity="0.7"
+                                               TextWrapping="Wrap"
+                                               />
+                </toolkit:DockPanel>
+            </DataTemplate>
+            
+            <DataTemplate x:Name="LiveSubMenuContentTemplate">
+                <StackPanel>
+                    <ItemsControl ItemsSource="{Binding MenuItems}"
+                                ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
+                                Background="Transparent"
+                                ScrollViewer.VerticalScrollMode="Disabled"
+                                />
+
+                    <Border BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}" Opacity="0.3"
+                                BorderThickness="0 1 0 0"
+                                VerticalAlignment="Center"
+                                Margin="16 8"
+                                />
+
+                    <toolkit:DockPanel Margin="0 0" Opacity="0.7"
+                                       >
+
+                        <Button Command="{Binding UpdateOnAirStreamsCommand}" 
+                                toolkit:DockPanel.Dock="Right"
+                                Background="Transparent"
+                                Margin="0 0 8 0"
+                                >
+                            <SymbolIcon Symbol="Refresh" />
+                        </Button>
+
+                        <Button Command="{StaticResource OpenHohoemaPageCommand}"
+                                    CommandParameter="UserMylist"
+                                    HorizontalAlignment="Stretch"
+                                HorizontalContentAlignment="Left"
+                                    Background="Transparent"
+                                Padding="16 0"
+                                    >
+                            <TextBlock Text="放送中"
+                                   toolkit:DockPanel.Dock="Left"
+                                   VerticalAlignment="Center"
+                                       Style="{StaticResource SubtitleTextBlockStyle}"
+                                   />
+                        </Button>
+
+                    </toolkit:DockPanel>
+
+
+                    <TextBlock Text="No items"
+                               Visibility="{Binding OnAirStreams, Converter={StaticResource EmptyCollectionVisibilityConverter}}"
+                               Opacity="0.5"
+                               Margin="32 8 16 16"
+                               />
+
+                    <ListView uwpui:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                              ItemsSource="{Binding OnAirStreams}"
+                              IsItemClickEnabled="True"
+                              SelectionMode="None"
+                              IsTabStop="False"
+                              ItemTemplate="{StaticResource LiveStreamInfoTemplate}"
+                                      >
+
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Padding" Value="16 8" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+                    
+                    
+                    
+                    <!-- 放送予定 -->
+                    <toolkit:DockPanel Margin="0 0" Opacity="0.7"
+                                       >
+                        <TextBlock Text="放送予定"
+                                   toolkit:DockPanel.Dock="Left"
+                                   VerticalAlignment="Center"
+                                   Padding="16 0"
+                                   Height="32"
+                                       Style="{StaticResource SubtitleTextBlockStyle}"
+                                   />
+
+                    </toolkit:DockPanel>
+
+
+                    <TextBlock Text="No items"
+                               Visibility="{Binding ReservedStreams, Converter={StaticResource EmptyCollectionVisibilityConverter}}"
+                               Opacity="0.5"
+                               Margin="32 8 16 16"
+                               />
+
+                    <ListView uwpui:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                              ItemsSource="{Binding ReservedStreams}"
+                              IsItemClickEnabled="True"
+                              SelectionMode="None"
+                              IsTabStop="False"
+                              ItemTemplate="{StaticResource LiveStreamInfoTemplate}"
+                                      >
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="Padding" Value="16 8" />
+                            </Style>
+                        </ListView.ItemContainerStyle>
+                    </ListView>
+
+
+
+                </StackPanel>
+            </DataTemplate>
+
+
+            <templateSelector:MenuSubPageTemplateSelector x:Name="MenuSubPageTemplateSelector" 
+                                                          Video="{StaticResource VideoSubMenuContentTemplate}"
+                                                          Live="{StaticResource LiveSubMenuContentTemplate}"
+                                                          />
+
+
+            <Style x:Key="BaseStyle" TargetType="uwpcontrol:ImageExBase">
+                <Setter Property="IsCacheEnabled" Value="True" />
+                <Setter Property="Stretch" Value="UniformToFill" />
+                <Setter Property="PlaceholderStretch" Value="UniformToFill" />
+                <Setter Property="HorizontalAlignment" Value="Center" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Background" Value="Transparent" />
+                <Setter Property="Foreground" Value="White" />
+            </Style>
+            <!--Create a Style based on BaseStyle-->
+            <Style x:Key="RoundStyle" TargetType="uwpcontrol:RoundImageEx" BasedOn="{StaticResource BaseStyle}">
+                <Setter Property="Width" Value="48" />
+                <Setter Property="Height" Value="48" />
+                <Setter Property="CornerRadius" Value="999" />
+            </Style>
+
         </ResourceDictionary>
 
     </ContentControl.Resources>
@@ -184,17 +409,17 @@
                                 <StateTrigger IsActive="{Binding IsTVModeEnable.Value}" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
+
                                 <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
                                 <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
                                 <Setter Target="PaneLayout.Margin" Value="48 27 0 27" />
+                                <Setter Target="ContentSplitView.OpenPaneLength" Value="{StaticResource SideMenuPaneLength_TVMode}" />
 
-                                <Setter Target="MobileTopMenu.Visibility" Value="Visible" />
+                                <Setter Target="TopMenu.Margin" Value="48 27 0 0" />
+                                <Setter Target="MenuTitleText.Margin" Value="16 0 16 0" />
 
-                                <Setter Target="ContentLayout.Margin" Value="0 0 0 0" />
-                                <Setter Target="MobileTopMenu.Margin" Value="48 27 0 0" />
+                                <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
 
-                                <!-- メニューを開いた時にアカウント表示にフォーカスが移ってしまう問題に対応 -->
-                                <Setter Target="OpenAccountButton.IsEnabled" Value="False" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -215,10 +440,13 @@
                                 <AdaptiveTrigger MinWindowWidth="0" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="MobileTopMenu.Visibility" Value="Visible" />
-
                                 <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
                                 <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
+
+                                <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
+                                <Setter Target="MenuTitleText.Style" Value="{StaticResource BodyTextBlockStyle}" />
+
+                                <Setter Target="TopMenu.Background" Value="{StaticResource MenuBackgroundBrush}" />
 
                             </VisualState.Setters>
                         </VisualState>
@@ -410,7 +638,6 @@
 
                     </VisualStateGroup>
 
-
                 </VisualStateManager.VisualStateGroups>
 
                 <toolkit:DockPanel>
@@ -423,7 +650,7 @@
                         
                     </Border>
 
-                    
+
 
                     <SplitView x:Name="ContentSplitView" 
                         CompactPaneLength="48"
@@ -431,11 +658,8 @@
                         DisplayMode="Inline"
                         IsPaneOpen="{Binding IsOpenPane.Value, Mode=TwoWay}"
                                IsTabStop="False"
+                               PaneBackground="{StaticResource MenuBackgroundBrush}"
                         >
-
-                        <SplitView.PaneBackground>
-                            <SolidColorBrush Color="{ThemeResource SystemChromeLowColor}" />
-                        </SplitView.PaneBackground>
                         <SplitView.Pane>
 
                             <toolkit:DockPanel x:Name="PaneLayout" 
@@ -446,11 +670,52 @@
                                         />
 
 
+
+                                <Border toolkit:DockPanel.Dock="Top" Margin="8 16 8 8"
+                                        >
+
+                                    <AutoSuggestBox Text="{Binding SearchKeyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    QueryIcon="Find"
+                                                    PlaceholderText="検索"
+                                                    UseSystemFocusVisuals="True"
+                                                    TabIndex="103"
+                                                    ItemsSource="{Binding SearchSuggestionWords}"
+                                                    x:Name="SearchTextBox"
+                                                    QuerySubmitted="SearchTextBox_QuerySubmitted" 
+                                                    Padding="0"
+                                             >
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="QuerySubmitted">
+                                                <core:InvokeCommandAction Command="{Binding SearchCommand}" />
+                                                <core:ChangePropertyAction PropertyName="IsEnabled" Value="False" />
+                                                <core:ChangePropertyAction PropertyName="IsEnabled" Value="True" />
+                                            </core:EventTriggerBehavior>
+
+                                            <core:EventTriggerBehavior EventName="GotFocus">
+                                                <core:ChangePropertyAction PropertyName="IsSuggestionListOpen" Value="True" />
+                                            </core:EventTriggerBehavior>
+                                            
+                                            <mybehavior:KeyboardTrigger Key="Enter">
+                                                <core:InvokeCommandAction Command="{Binding SearchCommand}" />
+                                                <core:ChangePropertyAction PropertyName="IsEnabled" Value="False" />
+                                                <core:ChangePropertyAction PropertyName="IsEnabled" Value="True" />
+                                            </mybehavior:KeyboardTrigger>
+
+                                            <mybehavior:UINavigationTrigger Kind="Cancel">
+                                                <mybehavior:SetFocus TargetObject="{Binding ElementName=SubMenuPageTypesListView}" />
+                                                <mybehavior:SetFocus TargetObject="{Binding ElementName=MenuSubPageContent}" />
+                                                <core:ChangePropertyAction PropertyName="IsSuggestionListOpen" Value="False" />
+                                            </mybehavior:UINavigationTrigger>
+                                        </i:Interaction.Behaviors>
+                                    </AutoSuggestBox>
+                                </Border>
+
                                 <Button x:Name="TVModeFloatPlayerRewindSizeButton"
                                         Visibility="Collapsed"
                                         toolkit:DockPanel.Dock="Top"
                                         Background="Transparent"
                                         Command="{Binding TogglePlayerFloatDisplayCommand}"
+                                        TabIndex="102"
                                         >
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE743;"
@@ -477,14 +742,23 @@
                                             toolkit:DockPanel.Dock="Bottom"
                                             />
 
+                                    <Button Command="{StaticResource OpenHohoemaPageCommand}"
+                                            CommandParameter="Settings"
+                                            toolkit:DockPanel.Dock="Right"
+                                            Background="Transparent"
+                                            TabIndex="101"
+                                            >
+                                        <SymbolIcon Symbol="Setting" />
+                                    </Button>
 
                                     <Button Command="{Binding OpenAccountInfoCommand}"
-                                        Padding="16 0 0 0"
-                                        Background="Transparent" 
-                                        HorizontalAlignment="Stretch"
-                                        HorizontalContentAlignment="Left"
-                                        VerticalContentAlignment="Center"
+                                            Padding="16 0 0 0"
+                                            Background="Transparent" 
+                                            HorizontalAlignment="Stretch"
+                                            HorizontalContentAlignment="Left"
+                                            VerticalContentAlignment="Center"
                                             x:Name="OpenAccountButton"
+                                            TabIndex="100"
                                         >
                                         <StackPanel>
                                             <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource ToLocalText}}" 
@@ -524,6 +798,7 @@
                                     VerticalScrollMode="Auto"
                                     VerticalScrollBarVisibility="Hidden"
                                               Margin="0 0 0 0"
+                                              TabIndex="0"
                                     >
 
                                     <StackPanel x:Name="PaneScrollableContentLayout">
@@ -623,15 +898,200 @@
                                             </StackPanel>
                                         </StackPanel>
 
-                                        <ItemsControl ItemsSource="{Binding MenuItems}"
-                                                  ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
-                                                    IsTabStop="False"
-                                                  Background="Transparent"
-                                                  TabIndex="0"
-                                                      ScrollViewer.VerticalScrollMode="Disabled"
-                                                >
-                                        </ItemsControl>
 
+                                        <Grid>
+
+                                            
+                                            <StackPanel x:Name="MenuMainPageContent">
+                                                <i:Interaction.Behaviors>
+
+                                                    <uwpAnimation:Fade x:Name="ShowFadeMenuMainPageContentAnimation" 
+                                                                       Value="1.0" 
+                                                                       Duration="{StaticResource MenuContentToggleAnimationDuration}" 
+                                                                       AutomaticallyStart="False"
+                                                                       />
+                                                    <uwpAnimation:Offset x:Name="ShowOffsetMenuMainPageContentAnimation" 
+                                                                         OffsetX="0" 
+                                                                         Duration="{StaticResource MenuContentToggleAnimationDuration}"
+                                                                         AutomaticallyStart="False"
+                                                                         />
+
+                                                    <uwpAnimation:Fade x:Name="HideFadeMenuMainPageContentAnimation" 
+                                                                       Value="0.0" 
+                                                                       Duration="{StaticResource MenuContentToggleAnimationDuration}"
+                                                                       AutomaticallyStart="False"
+                                                                       />
+                                                    <uwpAnimation:Offset x:Name="HideOffsetMenuMainPageContentAnimation" 
+                                                                         OffsetX="-400" 
+                                                                         Duration="{StaticResource MenuContentToggleAnimationDuration}"
+                                                                         AutomaticallyStart="False"
+                                                                       />
+
+                                                    <core:DataTriggerBehavior Binding="{Binding CurrentSubPageContent.Value, Mode=OneWay}" ComparisonCondition="Equal" Value="{x:Null}" >
+                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=MenuMainPageContent}" PropertyName="Visibility" Value="Visible"  />
+                                                        <mybehavior:SetFocus TargetObject="{Binding ElementName=SubMenuPageTypesListView}" />
+                                                        <core:CallMethodAction TargetObject="{Binding ElementName=ShowFadeMenuMainPageContentAnimation}" MethodName="StartAnimation" />
+                                                        <core:CallMethodAction TargetObject="{Binding ElementName=ShowOffsetMenuMainPageContentAnimation}" MethodName="StartAnimation" />
+                                                    </core:DataTriggerBehavior>
+
+                                                    <core:DataTriggerBehavior Binding="{Binding CurrentSubPageContent.Value, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}" >
+                                                        <core:CallMethodAction TargetObject="{Binding ElementName=HideFadeMenuMainPageContentAnimation}" MethodName="StartAnimation" />
+                                                        <core:CallMethodAction TargetObject="{Binding ElementName=HideOffsetMenuMainPageContentAnimation}" MethodName="StartAnimation" />
+                                                    </core:DataTriggerBehavior>
+
+                                                    <core:DataTriggerBehavior Binding="{Binding ElementName=MenuMainPageContent, Path=Opacity}" ComparisonCondition="Equal" Value="0" >
+                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=MenuMainPageContent}" PropertyName="Visibility" Value="Collapsed"  />
+                                                    </core:DataTriggerBehavior>
+                                                </i:Interaction.Behaviors>
+
+
+
+                                                <ListView ItemsSource="{Binding SubMenuPageTypes}"
+                                                          uwpui:ListViewBase.Command="{Binding SelectSubMenuPageCommand}"
+                                                          IsItemClickEnabled="True"
+                                                          SelectionMode="None"
+                                                          x:Name="SubMenuPageTypesListView"
+                                                          IsTabStop="False"
+                                                          >
+                                                    <ListView.ItemContainerStyle>
+                                                        <Style TargetType="ListViewItem">
+                                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                                        </Style>
+                                                    </ListView.ItemContainerStyle>
+                                                    <ListView.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <toolkit:DockPanel Margin="8 0" >
+                                                                <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" 
+                                                                           toolkit:DockPanel.Dock="Left" 
+                                                                           VerticalAlignment="Center"
+                                                                           Style="{StaticResource SubtitleTextBlockStyle}"
+                                                                           Opacity="0.8"
+                                                                           Margin="0"  />
+
+                                                                <TextBlock FontFamily="Segoe MDL2 Assets" 
+                                                                           Text="&#xE017;" 
+                                                                           FontSize="14"
+                                                                           Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                                           toolkit:DockPanel.Dock="Right"
+                                                                           VerticalAlignment="Center"
+                                                                       />
+                                                                
+                                                                <Border />
+                                                            </toolkit:DockPanel>
+                                                        </DataTemplate>
+                                                    </ListView.ItemTemplate>
+                                                </ListView>
+
+                                                <Border BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}" Opacity="0.3"
+                                                        BorderThickness="0 1 0 0"
+                                                        Margin="12 8"
+                                                        />
+
+                                                <ItemsControl ItemsSource="{Binding MenuItems}"
+                                                              ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
+                                                              Background="Transparent"
+                                                              ScrollViewer.VerticalScrollMode="Disabled"
+                                                              IsTabStop="False"
+                                                              />
+
+                                            </StackPanel>
+
+
+                                            <toolkit:DockPanel Opacity="0.0" x:Name="MenuSubPageContent">
+                                                <i:Interaction.Behaviors>
+
+                                                    <uwpAnimation:Fade x:Name="ShowFadeMenuSubPageContentAnimation" 
+                                                                       Value="1.0" 
+                                                                       Duration="{StaticResource MenuContentToggleAnimationDuration}" 
+                                                                       AutomaticallyStart="False"
+                                                                       />
+                                                    <uwpAnimation:Offset x:Name="ShowOffsetMenuSubPageContentAnimation" 
+                                                                         OffsetX="0" 
+                                                                         Duration="{StaticResource MenuContentToggleAnimationDuration}"
+                                                                         AutomaticallyStart="False"
+                                                                         />
+
+                                                    <uwpAnimation:Fade x:Name="HideFadeMenuSubPageContentAnimation" 
+                                                                       Value="0.0" 
+                                                                       Duration="{StaticResource MenuContentToggleAnimationDuration}"
+                                                                       AutomaticallyStart="False"
+                                                                       />
+                                                    <uwpAnimation:Offset x:Name="HideOffsetMenuSubPageContentAnimation" 
+                                                                         OffsetX="400" 
+                                                                         Duration="{StaticResource MenuContentToggleAnimationDuration}"
+                                                                         AutomaticallyStart="True"
+                                                                       />
+                                                    <core:DataTriggerBehavior Binding="{Binding CurrentSubPageContent.Value, Mode=OneWay}" ComparisonCondition="Equal" Value="{x:Null}" >
+                                                        <core:CallMethodAction TargetObject="{Binding ElementName=HideFadeMenuSubPageContentAnimation}" MethodName="StartAnimation" />
+                                                        <core:CallMethodAction TargetObject="{Binding ElementName=HideOffsetMenuSubPageContentAnimation}" MethodName="StartAnimation" />
+                                                    </core:DataTriggerBehavior>
+
+                                                    <core:DataTriggerBehavior Binding="{Binding CurrentSubPageContent.Value, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}" >
+                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=MenuSubPageContent}" PropertyName="Visibility" Value="Visible"  />
+                                                        <mybehavior:SetFocus TargetObject="{Binding ElementName=BackToMainMenuPageButton}" />
+                                                        <core:CallMethodAction TargetObject="{Binding ElementName=ShowFadeMenuSubPageContentAnimation}" MethodName="StartAnimation" />
+                                                        <core:CallMethodAction TargetObject="{Binding ElementName=ShowOffsetMenuSubPageContentAnimation}" MethodName="StartAnimation" />
+                                                    </core:DataTriggerBehavior>
+
+                                                    <core:DataTriggerBehavior Binding="{Binding ElementName=MenuSubPageContent, Path=Opacity}" ComparisonCondition="Equal" Value="0" >
+                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=MenuSubPageContent}" PropertyName="Visibility" Value="Collapsed"  />
+                                                    </core:DataTriggerBehavior>
+                                                </i:Interaction.Behaviors>
+
+
+                                                <toolkit:DockPanel toolkit:DockPanel.Dock="Top" Margin="0 8">
+                                                    <Button 
+                                                        Command="{Binding SelectSubMenuPageCommand}"
+                                                        CommandParameter="{x:Null}"
+                                                        Background="Transparent"
+                                                        HorizontalAlignment="Stretch"
+                                                        HorizontalContentAlignment="Stretch"
+                                                        x:Name="BackToMainMenuPageButton"
+                                                        Margin="4 0 0 0"
+                                                        Height="32"
+                                                        >
+                                                        <toolkit:DockPanel  Margin="8 0" >
+                                                            <TextBlock FontFamily="Segoe MDL2 Assets" 
+                                                               Text="&#xE016;" 
+                                                               FontSize="16"
+                                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                                       VerticalAlignment="Center"
+                                                                       Opacity="0.8"
+                                                                       toolkit:DockPanel.Dock="Left"
+                                                               >
+                                                            </TextBlock>
+
+                                                            <TextBlock Text="{Binding CurrentSubPageType.Value, Converter={StaticResource ToLocalText}}"
+                                                               Opacity="0.8"
+                                                               Style="{StaticResource SubtitleTextBlockStyle}"
+                                                               Margin="8 0"
+                                                               VerticalAlignment="Center"
+                                                                       HorizontalAlignment="Center"
+                                                               />
+                                                        </toolkit:DockPanel>
+                                                    </Button>
+
+
+                                                </toolkit:DockPanel>
+
+                                                <ContentControl 
+                                                            Content="{Binding CurrentSubPageContent.Value}"
+                                                            ContentTemplateSelector="{StaticResource MenuSubPageTemplateSelector}"
+                                                            HorizontalContentAlignment="Stretch"
+                                                            VerticalContentAlignment="Stretch"
+                                                                IsTabStop="False"
+                                                            >
+
+
+
+                                                </ContentControl>
+
+                                            </toolkit:DockPanel>
+                                            
+                                            
+                                            
+                                        </Grid>
+                                        
                                         
 
 
@@ -645,22 +1105,42 @@
                         <SplitView.Content>
                             <Grid x:Name="SplitViewContentLayout">
 
-                                <Grid x:Name="ContentLayout"
-                                          Grid.RowSpan="3"
-                                          Grid.Row="1"
+                                <toolkit:DockPanel 
                                           >
+                                    <toolkit:DockPanel x:Name="TopMenu" toolkit:DockPanel.Dock="Top">
+                                        
+                                        <Border Height="{StaticResource TitleBarDummyHeight}" 
+                                            toolkit:DockPanel.Dock="Top"
+                                        >
+                                        </Border>
 
-                                    <!-- ページナビゲーション中にフォーカスをコンテントエリア内に残すためのハック -->
-                                    <Button Background="Transparent"
-                                            HorizontalAlignment="Stretch"
-                                            VerticalAlignment="Stretch"
-                                            Visibility="{Binding NowNavigating.Value, Converter={StaticResource BooleanToVisibility}}"
-                                            >
+                                        <!-- モバイル時のメニュー開閉ボタン -->
+                                        <Button x:Name="MenuToggleButton"
+                                                Background="Transparent" 
+                                                    Command="{Binding TogglePaneOpenCommand}"
+                                                Height="40"
+                                                Width="40"
+                                                toolkit:DockPanel.Dock="Left"
+                                                Visibility="Collapsed"
+                                                >
+                                            <SymbolIcon Symbol="GlobalNavigationButton" 
+                                                            Height="24"
+                                                            Width="24"
+                                                            />
+                                        </Button>
 
-                                    </Button>
+                                        <TextBlock x:Name="MenuTitleText"
+                                                Text="{Binding TitleText}"
+                                               Style="{StaticResource SubheaderTextBlockStyle}"
+                                               Margin="16 0 16 0"
+                                                   VerticalAlignment="Center"
+                                                   />
+
+                                    </toolkit:DockPanel>
+
 
                                     <!-- ページ毎のコンテンツ -->
-                                    <ContentPresenter
+                                    <ContentPresenter x:Name="ContentLayout"
                                             >
                                         <myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
                                             <templateSelector:HohoemaFlyoutTemplateSelector>
@@ -701,47 +1181,7 @@
                                     </ContentPresenter>
 
 
-                                </Grid>
-
-
-                                <!-- モバイルのトップメニュー -->
-                                <StackPanel x:Name="MobileTopMenu"
-                                                Visibility="Collapsed">
-
-                                    <Border Height="{StaticResource TitleBarDummyHeight}"
-                                        toolkit:DockPanel.Dock="Top"
-                                            x:Name="NallowTitleBarDummyMargin"
-                                        >
-                                    </Border>
-                                    
-                                    <!-- モバイル時のメニュー開閉ボタン -->
-                                    <Button x:Name="MenuToggleButton"
-                                                Background="Transparent" 
-                                                    Command="{Binding TogglePaneOpenCommand}"
-                                                Height="48"
-                                                VerticalAlignment="Top"
-                                                HorizontalAlignment="Left"
-                                                >
-                                        <iconPack:PackIconMaterial Kind="Menu"
-                                                                        Height="18"
-                                                                        Width="18"
-                                                                        />
-                                    </Button>
-                                </StackPanel>
-
-                                <!--
-                                <Border Visibility="{Binding HasBGUpdateText.Value, Converter={StaticResource BooleanToVisibility}}"
-                                                Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-                                                HorizontalAlignment="Left"
-                                                VerticalAlignment="Bottom"
-                                                Padding="2"
-                                                >
-                                    <TextBlock Text="{Binding BGUpdateText.Value}"
-                                            FontSize="12"
-                                            Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                            />
-                                </Border>
-                                -->
+                                </toolkit:DockPanel>
                                 
                             </Grid>
 
@@ -749,6 +1189,7 @@
                     </SplitView>
                 </toolkit:DockPanel>
 
+                
 
                 <Grid x:Name="PlayerLayoutGrid"
                     Visibility="Collapsed"
@@ -829,19 +1270,42 @@
 
                 </Grid>
 
-                <Border Height="{StaticResource TitleBarDummyHeight}"
+                <toolkit:DockPanel Height="{StaticResource TitleBarDummyHeight}"
                         VerticalAlignment="Top"
                         x:Name="WindowTitleLayout"
                         Visibility="Collapsed"
                                         >
-                    <TextBlock Text="Hohoema"
+
+                    <Border Visibility="{Binding CanGoBackNavigation.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
+                        toolkit:DockPanel.Dock="Left"
+                        >
+                        <Button 
+                                Height="40"
+                                Width="40"
+                                Background="Transparent"
+                                VerticalContentAlignment="Center"
+                            Command="{Binding GoBackNavigationCommand}"
+                                    >
+                            <SymbolIcon Symbol="Back" Height="10" Width="10" />
+                        </Button>
+                    </Border>
+
+
+                    <Border x:Name="DraggableContent" IsTapEnabled="True" Background="Transparent">
+                        <TextBlock Text="Hohoema"
                                 Margin="12 0 0 0"
                                 VerticalAlignment="Center"
                                Opacity="0.9"
                                FontSize="13"
+                               HorizontalAlignment="Left"
                                
-                                                   />
-                </Border>
+                                                   >
+                        </TextBlock>
+                    </Border>
+
+                        
+                    
+                </toolkit:DockPanel>
 
 
             </Grid>

@@ -11,7 +11,7 @@ using Windows.UI.Xaml.Media;
 
 namespace NicoPlayerHohoema.Views.Behaviors
 {
-	public class ListViewVerticalOffsetGetter : Behavior<ListView>
+	public class ListViewVerticalOffsetGetter : Behavior<ListViewBase>
 	{
 
 		#region WithCursor Property 

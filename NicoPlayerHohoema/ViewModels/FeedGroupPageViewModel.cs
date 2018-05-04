@@ -75,9 +75,12 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
+        protected override string ResolvePageName()
+        {
+            return $"『{FeedGroup.Label}』のフィード管理";
+        }
 
-
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			base.OnNavigatedTo(e, viewModelState);
 
@@ -101,8 +104,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			if (FeedGroup != null)
 			{
-				UpdateTitle($"『{FeedGroup.Label}』のフィード管理");
-
 				FeedGroupName.Value = FeedGroup.Label;
 
 				FeedSources.Clear();
@@ -115,6 +116,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+        
 
         public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
         {

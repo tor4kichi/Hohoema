@@ -55,12 +55,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public ReactiveProperty<bool> IsPageAvailable { get; private set; }
-        public bool UseDefaultPageTitle { get; }
 
         public HohoemaViewModelBase(
             HohoemaApp hohoemaApp,
-            PageManager pageManager, 
-            bool useDefaultPageTitle = true
+            PageManager pageManager
             )
 		{
             PageRequireServiceLevel = HohoemaAppServiceLevel.Offline;
@@ -72,7 +70,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			NowSignIn = false;
 
-            UseDefaultPageTitle = useDefaultPageTitle;
 
             _CompositeDisposable = new CompositeDisposable();
 			_NavigatingCompositeDisposable = new CompositeDisposable();
@@ -96,8 +93,7 @@ namespace NicoPlayerHohoema.ViewModels
             
         }
 
-        
-
+       
 		private void __OnSignin()
 		{
 			try
@@ -278,9 +274,20 @@ namespace NicoPlayerHohoema.ViewModels
             // PageManagerにナビゲーション動作を伝える
             PageManager.OnNavigated(e);
 
-            if (UseDefaultPageTitle)
+            if (!IsPageNameResolveOnPostNavigatedToAsync)
             {
-                Title = PageManager.CurrentDefaultPageTitle();                
+                if (false == (this is VideoPlayerPageViewModel || this is LivePlayerPageViewModel))
+                {
+                    try
+                    {
+                        Title = ResolvePageName();
+                    }
+                    catch
+                    {
+                        Title = PageManager.CurrentDefaultPageTitle();
+                    }
+
+                }
             }
 
             base.OnNavigatedTo(e, viewModelState);
@@ -302,6 +309,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (CoreApplication.GetCurrentView().IsMain)
             {
+                if (false == (this is VideoPlayerPageViewModel || this is LivePlayerPageViewModel))
                 if (!String.IsNullOrEmpty(Title))
                 {
                     PageManager.PageTitle = Title;
@@ -364,9 +372,13 @@ namespace NicoPlayerHohoema.ViewModels
                     HohoemaApp.OnSignin += __OnSignin;
                 }
 
-                if (string.IsNullOrEmpty(Title))
+                if (false == (this is VideoPlayerPageViewModel || this is LivePlayerPageViewModel))
                 {
-                    UpdateTitle(PageManager.CurrentDefaultPageTitle());
+                    if (IsPageNameResolveOnPostNavigatedToAsync)
+                    {
+                        PageManager.PageTitle = ResolvePageName();
+                        Title = PageManager.PageTitle;
+                    }
                 }
             }
         }
@@ -440,12 +452,14 @@ namespace NicoPlayerHohoema.ViewModels
             Debug.WriteLine(Title + " require service level: " + PageRequireServiceLevel.ToString());
         }
 
-	
-		protected void UpdateTitle(string title, string parameter = null)
-		{
-			PageManager.UpdatePageNavigationInfo(title, parameter);
-            Title = title;
+
+
+        public bool IsPageNameResolveOnPostNavigatedToAsync { get; protected set; } = false;
+        protected virtual string ResolvePageName()
+        {
+            return PageManager.CurrentDefaultPageTitle();
         }
+
 
         public async void Dispose()
 		{

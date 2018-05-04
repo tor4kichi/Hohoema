@@ -4,6 +4,7 @@
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema"
+    xmlns:model="using:NicoPlayerHohoema.Models"
     xmlns:conv="using:WinRTXamlToolkit.Converters"
     xmlns:myconv="using:NicoPlayerHohoema.Views.Converters"
     xmlns:view="using:NicoPlayerHohoema.Views"
@@ -11,7 +12,7 @@
     xmlns:uwpconv="using:Microsoft.Toolkit.Uwp.UI.Converters"
     xmlns:logicalModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.LogicalModifiers"
     xmlns:compareModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.ComparableModifiers"
-    >
+    xmlns:system="using:System">
 
     <prism:PrismUnityApplication.Resources>
        
@@ -21,6 +22,7 @@
                 <ResourceDictionary Source="Styles/VideoProgressBarStyle.xaml"/>
                 <ResourceDictionary Source="Styles/HohoemaListItemStyle.xaml"/>
                 <ResourceDictionary Source="Styles/UWPUIControlsDefaultStyles.xaml"/>
+                <ResourceDictionary Source="Styles/ListViewItemStyles.xaml"/>
 
                 <ResourceDictionary Source="Views/Controls/FloatContentContainer/FloatContentContainer.xaml"/>
                 <ResourceDictionary Source="Views/Controls/IncrementalLoadingList/IncrementalLoadingList.xaml"/>
@@ -223,9 +225,20 @@
             <SolidColorBrush x:Key="HohoemaPlayerBackgroundBrush"
                     Color="{ThemeResource SystemAltMediumColor}" 
                          />
-            
-            
-            
+
+            <Style TargetType="ListViewItem" x:Key="VideoListViewItemStyle">
+                <Setter Property="HorizontalContentAlignment"
+                                Value="Stretch" 
+                                    />
+                <Setter Property="Margin"
+                                Value="0 0 0 0" 
+                                />
+                <Setter Property="Padding" Value="0 8 16 8" />
+                <Setter Property="UseSystemFocusVisuals" Value="True" />
+                <Setter Property="BorderThickness" Value="0 0 0 1" />
+                <Setter Property="BorderBrush" Value="#44707070" />
+            </Style>
+
 
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">

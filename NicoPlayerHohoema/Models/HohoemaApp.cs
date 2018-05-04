@@ -44,10 +44,6 @@ namespace NicoPlayerHohoema.Models
 
         private bool IsInitialized = false;
 
-        public NicoAlertClient AlertClient { get; private set; }
-
-
-
         public static async Task<HohoemaApp> Create(IEventAggregator ea, HohoemaViewManager viewMan, HohoemaDialogService dialogService)
 		{
 			HohoemaApp.UIDispatcher = Window.Current.CoreWindow.Dispatcher;
@@ -1219,7 +1215,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			CacheManager?.Dispose();
 			LoggingChannel?.Dispose();
-            AlertClient?.Dispose();
+            HohoemaAlertClient?.Dispose();
         }
 
         public async Task<IPlayableList> ChoiceMylist(params string[] ignoreMylistId)

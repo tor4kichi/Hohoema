@@ -522,7 +522,7 @@ namespace NicoPlayerHohoema.Models
         {
             if (DefaultPlaylist == null)
             {
-                DefaultPlaylist = CreatePlaylist(WatchAfterPlaylistId, "あとで見る");
+                DefaultPlaylist = CreatePlaylist(WatchAfterPlaylistId, "@view".ToCulturelizeString());
             }
         }
 

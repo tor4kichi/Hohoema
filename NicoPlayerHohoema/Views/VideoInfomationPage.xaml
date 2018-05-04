@@ -37,7 +37,6 @@
                         <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TVModeMarginBordar.Height" Value="27"/>
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -97,11 +96,6 @@
                            >
             <StackPanel toolkit:DockPanel.Dock="Top" 
                     >
-
-                <Border x:Name="TVModeMarginBordar" />
-
-                <Border Height="{StaticResource TitleBarDummyHeight}" />
-
                 <toolkit:DockPanel >
 
                     <StackPanel toolkit:DockPanel.Dock="Right" 
@@ -153,11 +147,6 @@
                                 Margin="16 0 0 0"
                             x:Name="TitleLayout"
                                 >
-                        <TextBlock Text="{Binding Title}" 
-                                    VerticalAlignment="Center"
-                                    Style="{StaticResource TitleTextBlockStyle}"
-                                    >
-                        </TextBlock>
                     </Border>
                 </toolkit:DockPanel>
             </StackPanel>

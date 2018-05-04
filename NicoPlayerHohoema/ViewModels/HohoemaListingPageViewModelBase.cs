@@ -29,7 +29,7 @@ namespace NicoPlayerHohoema.ViewModels
         private AsyncLock _ItemsUpdateLock = new AsyncLock();
 
 		public HohoemaListingPageViewModelBase(HohoemaApp app, PageManager pageManager, bool useDefaultPageTitle = true)
-			: base(app, pageManager, useDefaultPageTitle: useDefaultPageTitle)
+			: base(app, pageManager)
 		{
 			NowLoading = new ReactiveProperty<bool>(true)
 				.AddTo(_CompositeDisposable);

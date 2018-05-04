@@ -50,10 +50,8 @@
                         <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
                         <Setter Target="ContentItemsView.Padding" Value="48 0 48 27" />
-
-                        <Setter Target="TVModeMarginBordar.Height" Value="27"/>
+                        <Setter Target="ScrollHeader.Mode" Value="None" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -68,7 +66,7 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
+                        <Setter Target="ScrollHeader.Mode" Value="QuickReturn" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -102,22 +100,15 @@
                 >
 
                 <GridView.Header>
-                    <uwptoolkit:ScrollHeader Mode="Sticky">
+                    <uwptoolkit:ScrollHeader 
+                        x:Name="ScrollHeader"
+                        Mode="Sticky">
 
                         <Grid x:Name="HeaderLayout"
                           VerticalAlignment="Top"
+                              Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
                           >
-
-                            <Border Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
-                            Opacity="0.75"
-                            />
-
                             <StackPanel>
-
-                                <Border x:Name="TVModeMarginBordar" />
-
-                                <Border Height="{StaticResource TitleBarDummyHeight}" />
-
                                 <toolkit:DockPanel >
                                     <CommandBar toolkit:DockPanel.Dock="Right" 
                                             Background="Transparent"
@@ -190,14 +181,7 @@
 
                                     <Border Background="Transparent" IsHitTestVisible="True"
                                         Margin="16 0 0 0"
-                                        Height="48"
                                     >
-                                        <TextBlock Text="{Binding Title}" 
-                                               VerticalAlignment="Center"
-                                               Style="{StaticResource TitleTextBlockStyle}"
-                                               x:Name="TitleLayout"
-                                    >
-                                        </TextBlock>
                                     </Border>
                                 </toolkit:DockPanel>
                             </StackPanel>
@@ -232,72 +216,8 @@
 
                 <GridView.ItemTemplate>
                     <DataTemplate>
-                        <UserControl>
-                            <Grid Width="180"
-                              Height="140"
-                                  Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
-                              >
+                        <local:MylistListItem />
 
-                                <VisualStateManager.VisualStateGroups>
-
-                                    <VisualStateGroup>
-                                        <VisualState>
-                                            <VisualState.StateTriggers>
-                                                <myTrigger:EqualConditionStateTrigger Condition="Local" Value="{Binding Origin}" />
-                                            </VisualState.StateTriggers>
-                                            <VisualState.Setters>
-                                                <Setter Target="OtherUserOwnedStatusText.Visibility" Value="Visible" />
-                                            </VisualState.Setters>
-                                        </VisualState>
-                                    </VisualStateGroup>
-
-                                </VisualStateManager.VisualStateGroups>
-
-                                <Image Source="{Binding ThumnailUrl}"
-                                       VerticalAlignment="Top"
-                                           />
-                                <toolkit:DockPanel
-                                
-                                >
-                                    <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom">
-
-                                        <StackPanel Background="#66000000"
-                                                    Padding="8"
-                                                    >
-
-                                            <TextBlock Text="{Binding Label}"   
-                                                       TextWrapping="Wrap"
-                                           />
-
-                                            <Grid>
-                                                <TextBlock Style="{StaticResource CaptionTextBlockStyle}"
-                                                           Opacity="0.7"
-                                                           >
-                                                    <Run Text="{Binding Count}" />
-                                                </TextBlock>
-
-                                                <TextBlock Text="Local"
-                                                           x:Name="OtherUserOwnedStatusText"
-                                                           Visibility="Collapsed"
-                                                           Style="{StaticResource CaptionTextBlockStyle}"
-                                                           Opacity="0.7"
-                                                           HorizontalAlignment="Right"
-                                                       />
-
-                                            </Grid>
-
-                                        </StackPanel>
-
-                                    </toolkit:DockPanel>
-
-
-                                    <Border />
-
-                                </toolkit:DockPanel>
-
-                            </Grid>
-                        </UserControl>
-                       
                     </DataTemplate>
                 </GridView.ItemTemplate>
 

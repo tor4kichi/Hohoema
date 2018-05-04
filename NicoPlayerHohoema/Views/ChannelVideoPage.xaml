@@ -13,6 +13,8 @@
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -32,9 +34,8 @@
                         <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="HeaderCommandBarContent.Margin" Value="64 0 0 0" />
-
-                        <Setter Target="TVModeMarginBordar.Height" Value="27"/>
+                        <Setter Target="ItemsList.Padding" Value="48 0 48 27" />
+                        <Setter Target="ScrollHeader.Mode" Value="None" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -49,7 +50,7 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="HeaderCommandBarContent.Margin" Value="64 0 0 0" />
+                        <Setter Target="ScrollHeader.Mode" Value="QuickReturn" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -67,7 +68,12 @@
 
                         <Setter Target="UpdateButton.Visibility" Value="Collapsed" />
                         <Setter Target="ShowWithBrowserButton.Visibility" Value="Collapsed" />
-                        
+
+                        <Setter Target="ItemsList.SelectionMode" Value="Multiple" />
+                        <Setter Target="ItemsList.IsItemClickEnabled" Value="False" />
+                        <Setter Target="ItemsList.IsMultiSelectCheckBoxEnabled" Value="True" />
+
+
                     </VisualState.Setters>
                 </VisualState>
 
@@ -76,61 +82,51 @@
         </VisualStateManager.VisualStateGroups>
 
 
-        
-        <controls:ListingWithHeader 
-            x:Name="ListingWithHeader"
+
+        <uwpcontrols:PullToRefreshListView
+            x:Name="ItemsList"
             ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
-            SelectedItems="{Binding SelectedItems}"
-            RefreshCommand="{Binding RefreshCommand}"
-            ItemCommand="{StaticResource OpenContentCommand}"
-            IsTVModeEnabled="{Binding IsForceTVModeEnable.Value}"
-            IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
-            NowLoading="{Binding NowLoading.Value}"
+            IsItemClickEnabled="True"
+            IncrementalLoadingTrigger="Edge"
+            PullThreshold="85"
+            UseSystemFocusVisuals="True"
+            SelectionMode="None"
+            HorizontalContentAlignment="Stretch"
+            uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
+            ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
             >
-            <controls:ListingWithHeader.HeaderContent>
-                <StackPanel >
+            <ListView.Header>
 
-                    <Border x:Name="TVModeMarginBordar" />
+                <uwpcontrols:ScrollHeader
+                    x:Name="ScrollHeader"
+                    Mode="Sticky" >
 
-                    <Border Height="{StaticResource TitleBarDummyHeight}" />
+                    <StackPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-                    <CommandBar 
+                        <CommandBar 
                             x:Name="TopCommandBar"
                                 >
-                        <CommandBar.Content>
-                            <StackPanel Background="Transparent" IsHitTestVisible="True"
+                            <CommandBar.Content>
+                                <StackPanel Background="Transparent" IsHitTestVisible="True"
                                     Margin="16 0 0 0"
                                     IsTapEnabled="True"
                                         x:Name="HeaderCommandBarContent"
                                 >
-                                <i:Interaction.Behaviors>
-                                    <core:EventTriggerBehavior EventName="Tapped">
-                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
-                                    </core:EventTriggerBehavior>
-                                </i:Interaction.Behaviors>
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Tapped">
+                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
 
-                                <TextBlock Text="{Binding ChannelName}" 
-                                        VerticalAlignment="Center"
-                                        Style="{StaticResource SubtitleTextBlockStyle}"
-                                        x:Name="TitleLayout"
-                                    />
+                                    <StackPanel Orientation="Horizontal" Margin="0 0 0 0">
 
-                                <StackPanel Orientation="Horizontal" Margin="0 0 0 0">
-
-                                    <TextBlock VerticalAlignment="Center"
-                                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                               Margin="0 0 8 0"
-                                        >
-                                            チャンネル動画一覧
-                                    </TextBlock>
-                                    
-                                    <TextBlock VerticalAlignment="Center"
-                                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                        <TextBlock VerticalAlignment="Center"
+                                               
                                         >
                                             <Run Text="{Binding ChannelScreenName}" />
-                                    </TextBlock>
-                                    
-                                    <!--
+                                        </TextBlock>
+
+                                        <!--
                                     <HyperlinkButton Command="{Binding OpenVideoOwnerUserPageCommand}">
                                         <TextBlock VerticalAlignment="Center"
                                                    Style="{StaticResource CaptionTextBlockStyle}"
@@ -140,26 +136,26 @@
                                         </TextBlock>
                                     </HyperlinkButton>
                                     -->
+                                    </StackPanel>
+
                                 </StackPanel>
+                            </CommandBar.Content>
 
-                            </StackPanel>
-                        </CommandBar.Content>
+                            <CommandBar.PrimaryCommands>
 
-                        <CommandBar.PrimaryCommands>
-
-                            <AppBarButton x:Name="UpdateButton"
+                                <AppBarButton x:Name="UpdateButton"
                                         Icon="Refresh"
                                           Label="更新" 
                                           Command="{Binding RefreshCommand}"
                                           />
-                            
-                            <AppBarButton x:Name="ShowWithBrowserButton"
+
+                                <AppBarButton x:Name="ShowWithBrowserButton"
                                         Icon="GlobalNavigationButton"
                                           Label="ブラウザで表示" 
                                           Command="{Binding ShowWithBrowserCommand}"
                                           />
 
-                            <AppBarButton x:Name="CacheReqesutSelectedItemButton"
+                                <AppBarButton x:Name="CacheReqesutSelectedItemButton"
                                 Command="{Binding RequestCacheDownload}"
                                               IsEnabled="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
                                               Icon="Download"
@@ -167,37 +163,38 @@
                                           Visibility="Collapsed"
                                             />
 
-                            <AppBarButton x:Name="AddMylistSelectedItemButton"
+                                <AppBarButton x:Name="AddMylistSelectedItemButton"
                                 Command="{Binding RegistratioMylistCommand}" 
                                           Icon="Add"
                                           Label="マイリストに追加"
                                           Visibility="Collapsed"
                                             />
 
-                            <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                             HorizontalContentAlignment="Stretch"
                                             VerticalContentAlignment="Stretch"
                                             
                                             >
-                                <StackPanel Orientation="Horizontal">
-                                    <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                                    <StackPanel Orientation="Horizontal">
+                                        <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"
                                                        />
 
-                                    <TextBlock Text="選択" Margin="16 0 0 0 "
+                                        <TextBlock Text="選択" Margin="16 0 0 0 "
                                                VerticalAlignment="Center" />
-                                </StackPanel>
-                            </AppBarToggleButton>
+                                    </StackPanel>
+                                </AppBarToggleButton>
 
-                        </CommandBar.PrimaryCommands>
+                            </CommandBar.PrimaryCommands>
 
-                    </CommandBar>
-                </StackPanel>
-            </controls:ListingWithHeader.HeaderContent>
+                        </CommandBar>
+                    </StackPanel>
+                </uwpcontrols:ScrollHeader>
+            </ListView.Header>
 
 
-            <controls:ListingWithHeader.ListItemTemplate>
+            <ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid>
 
@@ -212,26 +209,15 @@
                         <local:VideoInfoControl />
                     </Grid>
                 </DataTemplate>
-            </controls:ListingWithHeader.ListItemTemplate>
+            </ListView.ItemTemplate>
 
-            <controls:ListingWithHeader.GridItemTemplate>
-                <DataTemplate>
-
-                    <Grid>
-                        <controls:VideoInfoControl_TV />
-
-                        <iconPack:PackIconMaterial Kind="Shopping"
-                                                   VerticalAlignment="Bottom"
-                                                   HorizontalAlignment="Right"
-                                                   Visibility="{Binding IsRequirePayment, Converter={StaticResource BooleanToVisibility}}"
-                                                   Opacity="0.7"
-                                                   Margin="8"
-                                                   />
-
-                    </Grid>
-                </DataTemplate>
-            </controls:ListingWithHeader.GridItemTemplate>
-        </controls:ListingWithHeader>
-
+            <uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
+                <StackPanel  Margin="0 32 0 0" >
+                    <Border Margin="0 16 0 0" BorderThickness="0 0 0 1" BorderBrush="Gray" />
+                    <SymbolIcon Symbol="Refresh" VerticalAlignment="Bottom" Height="48" Width="48" Margin="0 24 0 8"
+                            />
+                </StackPanel>
+            </uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
+        </uwpcontrols:PullToRefreshListView>
     </Grid>
 </Page>

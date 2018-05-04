@@ -18,7 +18,6 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class SearchResultKeywordPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
 	{
-
         private static List<SearchSortOptionListItem> _VideoSearchOptionListItems = new List<SearchSortOptionListItem>()
         {
             new SearchSortOptionListItem()
@@ -115,6 +114,25 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<SearchSortOptionListItem> SelectedSearchSort { get; private set; }
 
 
+        public static List<SearchTarget> SearchTargets { get; } = Enum.GetValues(typeof(SearchTarget)).Cast<SearchTarget>().ToList();
+
+        private DelegateCommand<SearchTarget?> _ChangeSearchTargetCommand;
+        public DelegateCommand<SearchTarget?> ChangeSearchTargetCommand
+        {
+            get
+            {
+                return _ChangeSearchTargetCommand
+                    ?? (_ChangeSearchTargetCommand = new DelegateCommand<SearchTarget?>(target =>
+                    {
+                        if (target.HasValue && target.Value != SearchOption.SearchTarget)
+                        {
+                            var payload = SearchPagePayloadContentHelper.CreateDefault(target.Value, SearchOption.Keyword);
+                            PageManager.Search(payload, true);
+                        }
+                    }));
+            }
+        }
+
         public ReactiveProperty<bool> FailLoading { get; private set; }
 
 		public KeywordSearchPagePayloadContent SearchOption { get; private set; }
@@ -153,7 +171,7 @@ namespace NicoPlayerHohoema.ViewModels
                 );
 
             SelectedSearchSort
-               .Subscribe(_ =>
+               .Subscribe(async _ =>
                {
                    var selected = SelectedSearchSort.Value;
                    if (SearchOption.Order == selected.Order
@@ -192,6 +210,10 @@ namespace NicoPlayerHohoema.ViewModels
         #endregion
 
 
+        protected override string ResolvePageName()
+        {
+            return SearchOption.Keyword;
+        }
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
@@ -217,10 +239,10 @@ namespace NicoPlayerHohoema.ViewModels
                 };
             RaisePropertyChanged(nameof(KeywordSearchBookmark));
 
-            var target = "キーワード";
-			var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
-            UpdateTitle($"\"{SearchOption.Keyword}\"");
-            SearchOptionText = $"{target} - {optionText}";
+            SearchOptionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+
+            Database.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
+
 
             base.OnNavigatedTo(e, viewModelState);
 		}

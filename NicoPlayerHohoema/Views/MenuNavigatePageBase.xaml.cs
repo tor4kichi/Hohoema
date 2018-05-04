@@ -1,4 +1,6 @@
-﻿using Prism.Events;
+﻿using Microsoft.Toolkit.Uwp.UI.Animations;
+using NicoPlayerHohoema.Helpers;
+using Prism.Events;
 using Prism.Windows.AppModel;
 using Prism.Windows.Navigation;
 using System;
@@ -37,6 +39,8 @@ namespace NicoPlayerHohoema.Views
         private void MenuNavigatePageBase_Loaded(object sender, RoutedEventArgs e)
         {
             _UIDispatcher = Dispatcher;
+
+            
         }
         
 
@@ -80,7 +84,72 @@ namespace NicoPlayerHohoema.Views
                 (DataContext as ViewModels.MenuNavigatePageBaseViewModel).SetNavigationService(ns);
             }
 
+            // タイトルバーのハンドルできる範囲を自前で指定する
+            // バックボタンのカスタマイズ対応のため
+            // もしかしてモバイルやXboxOneで例外が出てクラッシュするのが怖いので
+            // 例外を握りつぶしておく
+            try
+            {
+                Window.Current.SetTitleBar(GetTemplateChild("DraggableContent") as UIElement);
+            }
+            catch { }
+
             base.OnApplyTemplate();
+        }
+
+
+
+
+
+        AsyncLock _MenuContentToggleLock = new AsyncLock();
+
+
+        private async void ToggleDisplayContent(FrameworkElement showTarget, FrameworkElement hideTarget)
+        {
+            using (var releaser = await _MenuContentToggleLock.LockAsync())
+            {
+                showTarget.Visibility = Visibility.Visible;
+                hideTarget.IsHitTestVisible = false;
+                await Task.WhenAll(
+                    showTarget.Fade(1.0f, 175).StartAsync(),
+                    hideTarget.Fade(0.0f, 175).StartAsync()
+                    );
+                showTarget.IsHitTestVisible = true;
+                hideTarget.Visibility = Visibility.Collapsed;
+            }
+        }
+        public void ShowMenuMainContent()
+        {
+            var menuMainContent = GetTemplateChild("MenuMainPageContent") as FrameworkElement;
+            var menuSubContent = GetTemplateChild("MenuSubPageContent") as FrameworkElement;
+
+            ToggleDisplayContent(menuMainContent, menuSubContent);
+        }
+
+        public void ShowMenuSubContent()
+        {
+            var menuMainContent = GetTemplateChild("MenuMainPageContent") as FrameworkElement;
+            var menuSubContent = GetTemplateChild("MenuSubPageContent") as FrameworkElement;
+
+            ToggleDisplayContent(menuSubContent, menuMainContent);
+        }
+
+
+        /// <summary>
+        /// 検索を実行した際、モバイルやXboxOneのときは自動でメニューを閉じる
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private void SearchTextBox_QuerySubmitted(AutoSuggestBox sender, AutoSuggestBoxQuerySubmittedEventArgs args)
+        {
+            var splitView = GetTemplateChild("ContentSplitView") as SplitView;
+            if (splitView != null)
+            {
+                if (splitView.DisplayMode == SplitViewDisplayMode.Overlay)
+                {
+                    splitView.IsPaneOpen = false;
+                }
+            }
         }
     }
 }

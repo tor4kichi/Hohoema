@@ -365,12 +365,6 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				NowLoading = false;
 			}
-
-			// UpdateTitle
-			if (!IsFailed)
-			{
-				UpdateTitle($"コミュニティ");
-			}
 		}
 
         private DelegateCommand _OpenCommunityWebPagePageCommand;

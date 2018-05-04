@@ -36,7 +36,12 @@ namespace NicoPlayerHohoema.ViewModels
 			});
 		}
 
-		protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        protected override string ResolvePageName()
+        {
+            return FeedGroup.Label;
+        }
+
+        protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			if (e.Parameter is int)
 			{
@@ -56,10 +61,6 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				// 削除済み？
 				PageManager.OpenPage(HohoemaPageType.FeedGroupManage);
-			}
-			else
-			{
-				UpdateTitle(FeedGroup.Label);
 			}
 
 			await Task.CompletedTask;

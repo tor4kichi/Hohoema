@@ -14,6 +14,9 @@ using Prism.Windows.Navigation;
 using Prism.Commands;
 using Windows.UI.Xaml.Navigation;
 using System.Collections.Async;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
+using System.Reactive.Linq;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -25,10 +28,110 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 		public CommunitySearchPagePayloadContent SearchOption { get; private set; }
 
+        private string _SearchOptionText;
+        public string SearchOptionText
+        {
+            get { return _SearchOptionText; }
+            set { SetProperty(ref _SearchOptionText, value); }
+        }
+
+        public static List<SearchTarget> SearchTargets { get; } = Enum.GetValues(typeof(SearchTarget)).Cast<SearchTarget>().ToList();
+
+        private DelegateCommand<SearchTarget?> _ChangeSearchTargetCommand;
+        public DelegateCommand<SearchTarget?> ChangeSearchTargetCommand
+        {
+            get
+            {
+                return _ChangeSearchTargetCommand
+                    ?? (_ChangeSearchTargetCommand = new DelegateCommand<SearchTarget?>(target =>
+                    {
+                        if (target.HasValue && target.Value != SearchOption.SearchTarget)
+                        {
+                            var payload = SearchPagePayloadContentHelper.CreateDefault(target.Value, SearchOption.Keyword);
+                            PageManager.Search(payload, true);
+                        }
+                    }));
+            }
+        }
+
+
+        public class CommunitySearchSortOptionListItem
+        {
+            public string Label { get; set; }
+            public CommunitySearchSort Sort { get; set; }
+            public Order Order { get; set; }
+        }
+
+        public class CommynitySearchModeOptionListItem
+        {
+            public string Label { get; set; }
+            public CommunitySearchMode Mode { get; set; }
+        }
+
+        public static IReadOnlyList<CommunitySearchSortOptionListItem> CommunitySearchSortOptionListItems { get; private set; }
+        public static IReadOnlyList<CommynitySearchModeOptionListItem> CommunitySearchModeOptionListItems { get; private set; }
+
+        static SearchResultCommunityPageViewModel()
+        {
+            var sortList = new[]
+            {
+                CommunitySearchSort.CreatedAt,
+                CommunitySearchSort.UpdateAt,
+                CommunitySearchSort.CommunityLevel,
+                CommunitySearchSort.VideoCount,
+                CommunitySearchSort.MemberCount
+            };
+
+            CommunitySearchSortOptionListItems = sortList.SelectMany(x =>
+            {
+                return new List<CommunitySearchSortOptionListItem>()
+                {
+                    new CommunitySearchSortOptionListItem()
+                    {
+                        Sort = x,
+                        Order = Order.Descending,
+                    },
+                    new CommunitySearchSortOptionListItem()
+                    {
+                        Sort = x,
+                        Order = Order.Ascending,
+                    },
+                };
+            })
+            .ToList();
+
+            foreach (var item in CommunitySearchSortOptionListItems)
+            {
+                item.Label = Helpers.SortHelper.ToCulturizedText(item.Sort, item.Order);
+            }
+
+
+            CommunitySearchModeOptionListItems = new List<CommynitySearchModeOptionListItem>()
+            {
+                new CommynitySearchModeOptionListItem()
+                {
+                    Label = "キーワードで探す",
+                    Mode = CommunitySearchMode.Keyword
+                },
+                new CommynitySearchModeOptionListItem()
+                {
+                    Label = "タグで探す",
+                    Mode = CommunitySearchMode.Tag
+                },
+            };
+        }
+
+        public ReactivePropertySlim<CommunitySearchSortOptionListItem> SelectedSearchSort { get; private set; }
+        public ReactivePropertySlim<CommynitySearchModeOptionListItem> SelectedSearchMode { get; private set; }
+
+
         public SearchResultCommunityPageViewModel(HohoemaApp app, PageManager pageManager)
             : base(app, pageManager, useDefaultPageTitle:false)
         {
             ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
+
+            SelectedSearchSort = new ReactivePropertySlim<CommunitySearchSortOptionListItem>();
+            SelectedSearchMode = new ReactivePropertySlim<CommynitySearchModeOptionListItem>();
         }
 		
 
@@ -49,10 +152,15 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		#endregion
+        #endregion
 
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        protected override string ResolvePageName()
+        {
+            return SearchOption.Keyword;
+        }
+
+        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
             if (e.Parameter is string)
             {
@@ -64,20 +172,46 @@ namespace NicoPlayerHohoema.ViewModels
                 throw new Exception("コミュニティ検索");
             }
 
+            SelectedSearchSort.Value = CommunitySearchSortOptionListItems.FirstOrDefault(x => x.Order == SearchOption.Order && x.Sort == SearchOption.Sort);
+            SelectedSearchMode.Value = CommunitySearchModeOptionListItems.FirstOrDefault(x => x.Mode == SearchOption.Mode);
 
 
-            var target = "コミュニティ";
-			var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
-			var mode = SearchOption.Mode == CommunitySearchMode.Keyword ? "キーワード" : "タグ";
-			UpdateTitle($"{SearchOption.Keyword} - {target}/{optionText}({mode})");
+            new[] {
+                SelectedSearchSort.ToUnit(),
+                SelectedSearchMode.ToUnit()
+                }
+            .CombineLatest()
+            .Subscribe(async _ =>
+            {
+                SearchOption.Sort = SelectedSearchSort.Value.Sort;
+                SearchOption.Order = SelectedSearchSort.Value.Order;
+                SearchOption.Mode = SelectedSearchMode.Value.Mode;
 
-			base.OnNavigatedTo(e, viewModelState);
+                await ResetList();
+
+                RefreshSearchOptionText();
+            })
+            .AddTo(_NavigatingCompositeDisposable);
+
+            Database.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
+
+
+            base.OnNavigatedTo(e, viewModelState);
 		}
 
 		protected override IIncrementalSource<CommunityInfoControlViewModel> GenerateIncrementalSource()
 		{
 			return new CommunitySearchSource(SearchOption, HohoemaApp, PageManager);
 		}
+
+
+        private void RefreshSearchOptionText()
+        {
+            var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+            var mode = SearchOption.Mode == CommunitySearchMode.Keyword ? "キーワード" : "タグ";
+
+            SearchOptionText = $"{optionText}({mode})";
+        }
 	}
 
 	public class CommunitySearchSource : IIncrementalSource<CommunityInfoControlViewModel>

@@ -138,6 +138,7 @@ namespace NicoPlayerHohoema.ViewModels
         public LiveSearchPagePayloadContent SearchOption { get; private set; }
 
 
+
         private string _SearchOptionText;
         public string SearchOptionText
         {
@@ -145,6 +146,25 @@ namespace NicoPlayerHohoema.ViewModels
             set { SetProperty(ref _SearchOptionText, value); }
         }
 
+
+        public static List<SearchTarget> SearchTargets { get; } = Enum.GetValues(typeof(SearchTarget)).Cast<SearchTarget>().ToList();
+
+        private DelegateCommand<SearchTarget?> _ChangeSearchTargetCommand;
+        public DelegateCommand<SearchTarget?> ChangeSearchTargetCommand
+        {
+            get
+            {
+                return _ChangeSearchTargetCommand
+                    ?? (_ChangeSearchTargetCommand = new DelegateCommand<SearchTarget?>(target =>
+                    {
+                        if (target.HasValue && target.Value != SearchOption.SearchTarget)
+                        {
+                            var payload = SearchPagePayloadContentHelper.CreateDefault(target.Value, SearchOption.Keyword);
+                            PageManager.Search(payload, true);
+                        }
+                    }));
+            }
+        }
 
         public SearchResultLivePageViewModel(
 			HohoemaApp app,
@@ -207,6 +227,10 @@ namespace NicoPlayerHohoema.ViewModels
 
         #endregion
 
+        protected override string ResolvePageName()
+        {
+            return SearchOption.Keyword;
+        }
 
         bool _NowNavigatingTo = false;
 
@@ -224,11 +248,10 @@ namespace NicoPlayerHohoema.ViewModels
 
             _NowNavigatingTo = true;
             SelectedSearchSort.Value = LiveSearchSortOptionListItems.FirstOrDefault(x => x.Sort == SearchOption.Sort && x.Order == SearchOption.Order);
-            SelectedSearchMode.Value = LiveSearchModeOptionListItems.FirstOrDefault(x => x.Mode == SearchOption.Mode);
+            SelectedSearchMode.Value = LiveSearchModeOptionListItems.FirstOrDefault(x => x.Mode == SearchOption.Mode) ?? LiveSearchModeOptionListItems.First();
             SelectedProvider.Value = LiveSearchProviderOptionListItems.FirstOrDefault(x => x.Provider == SearchOption.Provider);
             _NowNavigatingTo = false;
 
-            var target = "生放送";
             var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
             var providerText = SelectedProvider.Value.Label;
             string mode = "";
@@ -254,9 +277,9 @@ namespace NicoPlayerHohoema.ViewModels
                 mode = "すべて";
             }
 
-            //			UpdateTitle($"{SearchOption.Keyword} - {target}/{optionText}({mode})");
-            UpdateTitle($"\"{SearchOption.Keyword}\"");
-            SearchOptionText = $"{target} - {optionText}/{mode}/{providerText}";
+            SearchOptionText = $"{optionText}/{mode}/{providerText}";
+
+            Database.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
 
 
             base.OnNavigatedTo(e, viewModelState);

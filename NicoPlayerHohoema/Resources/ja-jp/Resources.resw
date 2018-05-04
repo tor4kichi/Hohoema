@@ -561,4 +561,16 @@
     <value>すごく高画質</value>
     <comment>Niconico Live Quality</comment>
   </data>
+  <data name="Live" xml:space="preserve">
+    <value>生放送</value>
+    <comment>NiconicoServiceType</comment>
+  </data>
+  <data name="Video" xml:space="preserve">
+    <value>動画</value>
+    <comment>NiconicoServiceType</comment>
+  </data>
+  <data name="@view" xml:space="preserve">
+    <value>あとで見る</value>
+    <comment>"watch later" niconico video content</comment>
+  </data>
 </root>

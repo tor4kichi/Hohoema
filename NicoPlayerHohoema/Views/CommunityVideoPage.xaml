@@ -13,6 +13,8 @@
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -33,8 +35,8 @@
                         <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
-                        <Setter Target="TVModeMarginBordar.Height" Value="27" />
+                        <Setter Target="ItemsList.Padding" Value="48 0 48 27" />
+                        <Setter Target="ScrollHeader.Mode" Value="None" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -49,7 +51,7 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />
+                        <Setter Target="ScrollHeader.Mode" Value="QuickReturn" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -65,66 +67,80 @@
                         <Setter Target="CacheRequestButton.Visibility" Value="Visible" />
 
                         <Setter Target="OpenCommunityPageButton.Visibility" Value="Collapsed" />
+
+                        <Setter Target="ItemsList.SelectionMode" Value="Multiple" />
+                        <Setter Target="ItemsList.IsItemClickEnabled" Value="False" />
+                        <Setter Target="ItemsList.IsMultiSelectCheckBoxEnabled" Value="True" />
+
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
 
         </VisualStateManager.VisualStateGroups>
 
-        <controls:ListingWithHeader 
-            x:Name="ListingWithHeader"
+        <uwpcontrols:PullToRefreshListView 
+            x:Name="ItemsList"
             ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
-            SelectedItems="{Binding SelectedItems}"
             RefreshCommand="{Binding RefreshCommand}"
-            ItemCommand="{StaticResource OpenContentCommand}"
-            IsTVModeEnabled="{Binding IsForceTVModeEnable.Value}"
-            IsSelectionEnabled="{Binding IsSelectionModeEnable.Value}"
-            NowLoading="{Binding NowLoading.Value}"
-            >
-            <controls:ListingWithHeader.HeaderContent>
-                <toolkit:DockPanel x:Name="HeaderLayout">
+            IsItemClickEnabled="True"
+            IncrementalLoadingTrigger="Edge"
+            PullThreshold="85"    
+            UseSystemFocusVisuals="True"
+            SelectionMode="None"
+            HorizontalContentAlignment="Stretch"
+            uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
+            ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+                            >
+            <i:Interaction.Behaviors>
+
+                <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems, Mode=TwoWay}" />
+
+                <mybehavior:KeyboardTrigger Key="F5">
+                    <mybehavior:KeyboardTrigger.Actions>
+                        <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
+                    </mybehavior:KeyboardTrigger.Actions>
+                </mybehavior:KeyboardTrigger>
+
+                <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
+            </i:Interaction.Behaviors>
+            <ListView.Header>
+                <uwpcontrols:ScrollHeader x:Name="ScrollHeader"
+                                          Mode="Sticky"
+                                          >
+                    <toolkit:DockPanel x:Name="HeaderLayout">
 
 
-                    <StackPanel >
+                        <StackPanel >
 
-                        <Border x:Name="TVModeMarginBordar" />
-
-                        <Border Height="{StaticResource TitleBarDummyHeight}" />
-
-                        <CommandBar 
+                            <CommandBar 
                             x:Name="TopCommandBar"
                                 >
-                            <CommandBar.Content>
-                                <Border Background="Transparent" IsHitTestVisible="True"
+                                <CommandBar.Content>
+                                    <Border Background="Transparent" IsHitTestVisible="True"
                                         Margin="16 0 0 0"
                                         >
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <core:ChangePropertyAction TargetObject="{x:Bind ListingWithHeader}" PropertyName="ListPosition" Value="0.0" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Tapped">
+                                                <core:ChangePropertyAction TargetObject="{Binding}" PropertyName="ListPosition" Value="0.0" />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
 
-                                    <TextBlock Text="{Binding Title}" 
-                                            VerticalAlignment="Center"
-                                            Style="{StaticResource TitleTextBlockStyle}"
-                                           x:Name="TitleLayout"
-                                    />
-                                </Border>
-                            </CommandBar.Content>
+                                    </Border>
+                                </CommandBar.Content>
 
-                            <CommandBar.PrimaryCommands>
-                                
-                                <!-- 未選択時に表示 -->
-                                <AppBarButton x:Name="OpenCommunityPageButton"
+                                <CommandBar.PrimaryCommands>
+
+                                    <!-- 未選択時に表示 -->
+                                    <AppBarButton x:Name="OpenCommunityPageButton"
                                               Command="{Binding OpenCommunityPageCommand}"
                                      >
-                                    <TextBlock>
+                                        <TextBlock>
                                         <Run Text="{Binding CommunityName}" />
-                                    </TextBlock>
-                                </AppBarButton>
-                                
-                                <!-- 選択時に表示 -->
-                                <AppBarButton x:Name="CacheRequestButton"
+                                        </TextBlock>
+                                    </AppBarButton>
+
+                                    <!-- 選択時に表示 -->
+                                    <AppBarButton x:Name="CacheRequestButton"
                                               Icon="Download" Label="キャッシュ取得" 
                                               Command="{Binding RequestCacheDownload}"
                                               IsEnabled="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
@@ -132,38 +148,34 @@
                                           />
 
 
-                                <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                    <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                             HorizontalContentAlignment="Stretch"
                                             VerticalContentAlignment="Stretch"
                                             Label="選択"
                                             >
-                                    <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                                        <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"
                                                        />
-                                </AppBarToggleButton>
+                                    </AppBarToggleButton>
 
-                            </CommandBar.PrimaryCommands>
+                                </CommandBar.PrimaryCommands>
 
-                        </CommandBar>
-                    </StackPanel>
-                </toolkit:DockPanel>
-            </controls:ListingWithHeader.HeaderContent>
+                            </CommandBar>
+                        </StackPanel>
+                    </toolkit:DockPanel>
+                </uwpcontrols:ScrollHeader>
+                
+            </ListView.Header>
 
 
-            <controls:ListingWithHeader.ListItemTemplate>
+            <ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid>
                         <local:VideoInfoControl />
                     </Grid>
                 </DataTemplate>
-            </controls:ListingWithHeader.ListItemTemplate>
-
-            <controls:ListingWithHeader.GridItemTemplate>
-                <DataTemplate>
-                    <controls:VideoInfoControl_TV />
-                </DataTemplate>
-            </controls:ListingWithHeader.GridItemTemplate>
-        </controls:ListingWithHeader>
+            </ListView.ItemTemplate>
+        </uwpcontrols:PullToRefreshListView>
     </Grid>
 </Page>
