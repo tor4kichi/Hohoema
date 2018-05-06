@@ -904,43 +904,8 @@
                                             
                                             <StackPanel x:Name="MenuMainPageContent">
                                                 <i:Interaction.Behaviors>
-
-                                                    <uwpAnimation:Fade x:Name="ShowFadeMenuMainPageContentAnimation" 
-                                                                       Value="1.0" 
-                                                                       Duration="{StaticResource MenuContentToggleAnimationDuration}" 
-                                                                       AutomaticallyStart="False"
-                                                                       />
-                                                    <uwpAnimation:Offset x:Name="ShowOffsetMenuMainPageContentAnimation" 
-                                                                         OffsetX="0" 
-                                                                         Duration="{StaticResource MenuContentToggleAnimationDuration}"
-                                                                         AutomaticallyStart="False"
-                                                                         />
-
-                                                    <uwpAnimation:Fade x:Name="HideFadeMenuMainPageContentAnimation" 
-                                                                       Value="0.0" 
-                                                                       Duration="{StaticResource MenuContentToggleAnimationDuration}"
-                                                                       AutomaticallyStart="False"
-                                                                       />
-                                                    <uwpAnimation:Offset x:Name="HideOffsetMenuMainPageContentAnimation" 
-                                                                         OffsetX="-400" 
-                                                                         Duration="{StaticResource MenuContentToggleAnimationDuration}"
-                                                                         AutomaticallyStart="False"
-                                                                       />
-
                                                     <core:DataTriggerBehavior Binding="{Binding CurrentSubPageContent.Value, Mode=OneWay}" ComparisonCondition="Equal" Value="{x:Null}" >
-                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=MenuMainPageContent}" PropertyName="Visibility" Value="Visible"  />
-                                                        <mybehavior:SetFocus TargetObject="{Binding ElementName=SubMenuPageTypesListView}" />
-                                                        <core:CallMethodAction TargetObject="{Binding ElementName=ShowFadeMenuMainPageContentAnimation}" MethodName="StartAnimation" />
-                                                        <core:CallMethodAction TargetObject="{Binding ElementName=ShowOffsetMenuMainPageContentAnimation}" MethodName="StartAnimation" />
-                                                    </core:DataTriggerBehavior>
-
-                                                    <core:DataTriggerBehavior Binding="{Binding CurrentSubPageContent.Value, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}" >
-                                                        <core:CallMethodAction TargetObject="{Binding ElementName=HideFadeMenuMainPageContentAnimation}" MethodName="StartAnimation" />
-                                                        <core:CallMethodAction TargetObject="{Binding ElementName=HideOffsetMenuMainPageContentAnimation}" MethodName="StartAnimation" />
-                                                    </core:DataTriggerBehavior>
-
-                                                    <core:DataTriggerBehavior Binding="{Binding ElementName=MenuMainPageContent, Path=Opacity}" ComparisonCondition="Equal" Value="0" >
-                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=MenuMainPageContent}" PropertyName="Visibility" Value="Collapsed"  />
+                                                        <mybehavior:SetFocus TargetObject="{Binding ElementName=SubMenuPageTypesListView}" Delay="0:0:0.2"  />
                                                     </core:DataTriggerBehavior>
                                                 </i:Interaction.Behaviors>
 
@@ -1000,46 +965,13 @@
                                             <toolkit:DockPanel Opacity="0.0" x:Name="MenuSubPageContent">
                                                 <i:Interaction.Behaviors>
 
-                                                    <uwpAnimation:Fade x:Name="ShowFadeMenuSubPageContentAnimation" 
-                                                                       Value="1.0" 
-                                                                       Duration="{StaticResource MenuContentToggleAnimationDuration}" 
-                                                                       AutomaticallyStart="False"
-                                                                       />
-                                                    <uwpAnimation:Offset x:Name="ShowOffsetMenuSubPageContentAnimation" 
-                                                                         OffsetX="0" 
-                                                                         Duration="{StaticResource MenuContentToggleAnimationDuration}"
-                                                                         AutomaticallyStart="False"
-                                                                         />
-
-                                                    <uwpAnimation:Fade x:Name="HideFadeMenuSubPageContentAnimation" 
-                                                                       Value="0.0" 
-                                                                       Duration="{StaticResource MenuContentToggleAnimationDuration}"
-                                                                       AutomaticallyStart="False"
-                                                                       />
-                                                    <uwpAnimation:Offset x:Name="HideOffsetMenuSubPageContentAnimation" 
-                                                                         OffsetX="400" 
-                                                                         Duration="{StaticResource MenuContentToggleAnimationDuration}"
-                                                                         AutomaticallyStart="True"
-                                                                       />
-                                                    <core:DataTriggerBehavior Binding="{Binding CurrentSubPageContent.Value, Mode=OneWay}" ComparisonCondition="Equal" Value="{x:Null}" >
-                                                        <core:CallMethodAction TargetObject="{Binding ElementName=HideFadeMenuSubPageContentAnimation}" MethodName="StartAnimation" />
-                                                        <core:CallMethodAction TargetObject="{Binding ElementName=HideOffsetMenuSubPageContentAnimation}" MethodName="StartAnimation" />
-                                                    </core:DataTriggerBehavior>
-
                                                     <core:DataTriggerBehavior Binding="{Binding CurrentSubPageContent.Value, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}" >
-                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=MenuSubPageContent}" PropertyName="Visibility" Value="Visible"  />
-                                                        <mybehavior:SetFocus TargetObject="{Binding ElementName=BackToMainMenuPageButton}" />
-                                                        <core:CallMethodAction TargetObject="{Binding ElementName=ShowFadeMenuSubPageContentAnimation}" MethodName="StartAnimation" />
-                                                        <core:CallMethodAction TargetObject="{Binding ElementName=ShowOffsetMenuSubPageContentAnimation}" MethodName="StartAnimation" />
-                                                    </core:DataTriggerBehavior>
-
-                                                    <core:DataTriggerBehavior Binding="{Binding ElementName=MenuSubPageContent, Path=Opacity}" ComparisonCondition="Equal" Value="0" >
-                                                        <core:ChangePropertyAction TargetObject="{Binding ElementName=MenuSubPageContent}" PropertyName="Visibility" Value="Collapsed"  />
+                                                        <mybehavior:SetFocus TargetObject="{Binding ElementName=BackToMainMenuPageButton}" Delay="0:0:0.2" />
                                                     </core:DataTriggerBehavior>
                                                 </i:Interaction.Behaviors>
 
 
-                                                <toolkit:DockPanel toolkit:DockPanel.Dock="Top" Margin="0 8">
+                                                <toolkit:DockPanel toolkit:DockPanel.Dock="Top" Margin="0 0 0 8">
                                                     <Button 
                                                         Command="{Binding SelectSubMenuPageCommand}"
                                                         CommandParameter="{x:Null}"
@@ -1080,6 +1012,7 @@
                                                             HorizontalContentAlignment="Stretch"
                                                             VerticalContentAlignment="Stretch"
                                                                 IsTabStop="False"
+                                                    x:Name="SubPageContentControl"
                                                             >
 
 
