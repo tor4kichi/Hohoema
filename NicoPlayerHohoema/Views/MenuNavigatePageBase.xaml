@@ -545,7 +545,6 @@
                             </VisualState.StateTriggers>
 
                             <VisualState.Setters>
-                                <Setter Target="WindowTitleLayout.Visibility" Value="Visible" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -561,6 +560,9 @@
 
                                 <Setter Target="MenuToggleTrigger.IsEnabled" Value="False" />
                                 <Setter Target="PlayerDisplayIntoSmallWindowTrigger.IsEnabled" Value="True" />
+
+                                <Setter Target="TitleBarTextBlock.Visibility" Value="Collapsed" />
+                                <Setter Target="BackButtonLayout.Visibility" Value="Collapsed" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -611,7 +613,7 @@
                                 <Setter Target="FloatPlayerLayout.HorizontalAlignment" Value="Left" />
                                 <Setter Target="FloatPlayerLayout.VerticalAlignment" Value="Bottom" />
 
-                                <Setter Target="WindowTitleLayout.Visibility" Value="Visible" />
+                                
                             </VisualState.Setters>
                         </VisualState>
 
@@ -633,6 +635,9 @@
 
                                 <Setter Target="FloatPlayerLayout.Height" Value="{StaticResource MobileFloatPlayerHeight}" />
                                 <Setter Target="FloatPlayerLayout.VerticalAlignment" Value="Top" />
+
+                                <Setter Target="TitleBarTextBlock.Visibility" Value="Collapsed" />
+                                
                             </VisualState.Setters>
                         </VisualState>
 
@@ -1205,33 +1210,34 @@
 
                 <toolkit:DockPanel Height="{StaticResource TitleBarDummyHeight}"
                         VerticalAlignment="Top"
-                        x:Name="WindowTitleLayout"
-                        Visibility="Collapsed"
                                         >
 
-                    <Border Visibility="{Binding CanGoBackNavigation.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
+                    <Border x:Name="BackButtonLayout">
+                        <Border Visibility="{Binding CanGoBackNavigation.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
                         toolkit:DockPanel.Dock="Left"
                         >
-                        <Button 
-                                Height="40"
-                                Width="40"
+                            <Button 
+                                MinHeight="{StaticResource TitleBarDummyHeight}"
                                 Background="Transparent"
                                 VerticalContentAlignment="Center"
                             Command="{Binding GoBackNavigationCommand}"
                                     >
-                            <SymbolIcon Symbol="Back" Height="10" Width="10" />
-                        </Button>
+                                <SymbolIcon Symbol="Back" Height="10" Width="10" />
+                            </Button>
+                        </Border>
                     </Border>
 
 
-                    <Border x:Name="DraggableContent" IsTapEnabled="True" Background="Transparent">
+                    <Border x:Name="DraggableContent" IsTapEnabled="True" Background="Transparent"
+                            >
                         <TextBlock Text="Hohoema"
                                 Margin="12 0 0 0"
                                 VerticalAlignment="Center"
                                Opacity="0.9"
                                FontSize="13"
                                HorizontalAlignment="Left"
-                               
+                                   x:Name="TitleBarTextBlock"
+                                   
                                                    >
                         </TextBlock>
                     </Border>
