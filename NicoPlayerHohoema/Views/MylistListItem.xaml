@@ -39,9 +39,12 @@
                                 >
             <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom">
 
-                <StackPanel Background="#66000000"
+                <StackPanel 
                                                     Padding="8"
                                                     >
+                    <StackPanel.Background>
+                        <SolidColorBrush Color="{ThemeResource SystemAltMediumHighColor}" Opacity="0.7" />
+                    </StackPanel.Background>
 
                     <TextBlock Text="{Binding Label}"   
                                                        TextWrapping="Wrap"
