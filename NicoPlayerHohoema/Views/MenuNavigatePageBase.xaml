@@ -535,6 +535,20 @@
 
                     </VisualStateGroup>
 
+                    <!-- ペインの開閉状態 -->
+                    <VisualStateGroup>
+
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <mytrigger:FocusTrigger Target="{Binding ElementName=SearchTextBox}" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="SearchSubmitWithEnterKeyTrigger.IsEnabled" Value="True" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                    </VisualStateGroup>
 
                     <!-- プレイヤーの表示状態 -->
                     <VisualStateGroup>
@@ -700,7 +714,7 @@
                                                 <core:ChangePropertyAction PropertyName="IsSuggestionListOpen" Value="True" />
                                             </core:EventTriggerBehavior>
                                             
-                                            <mybehavior:KeyboardTrigger Key="Enter">
+                                            <mybehavior:KeyboardTrigger Key="Enter" x:Name="SearchSubmitWithEnterKeyTrigger" IsEnabled="False">
                                                 <core:InvokeCommandAction Command="{Binding SearchCommand}" />
                                                 <core:ChangePropertyAction PropertyName="IsEnabled" Value="False" />
                                                 <core:ChangePropertyAction PropertyName="IsEnabled" Value="True" />
@@ -708,7 +722,6 @@
 
                                             <mybehavior:UINavigationTrigger Kind="Cancel">
                                                 <mybehavior:SetFocus TargetObject="{Binding ElementName=SubMenuPageTypesListView}" />
-                                                <mybehavior:SetFocus TargetObject="{Binding ElementName=MenuSubPageContent}" />
                                                 <core:ChangePropertyAction PropertyName="IsSuggestionListOpen" Value="False" />
                                             </mybehavior:UINavigationTrigger>
                                         </i:Interaction.Behaviors>
@@ -967,7 +980,7 @@
                                             </StackPanel>
 
 
-                                            <toolkit:DockPanel Opacity="0.0" x:Name="MenuSubPageContent">
+                                            <toolkit:DockPanel Opacity="0.0" x:Name="MenuSubPageContent" Visibility="Collapsed">
                                                 <i:Interaction.Behaviors>
 
                                                     <core:DataTriggerBehavior Binding="{Binding CurrentSubPageContent.Value, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}" >
@@ -1018,6 +1031,7 @@
                                                             VerticalContentAlignment="Stretch"
                                                                 IsTabStop="False"
                                                     x:Name="SubPageContentControl"
+                                                    
                                                             >
 
 
