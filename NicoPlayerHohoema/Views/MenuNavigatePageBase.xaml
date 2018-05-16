@@ -358,7 +358,13 @@
             <templateSelector:MenuSubPageTemplateSelector x:Name="MenuSubPageTemplateSelector" 
                                                           Video="{StaticResource VideoSubMenuContentTemplate}"
                                                           Live="{StaticResource LiveSubMenuContentTemplate}"
-                                                          />
+                                                          >
+                <templateSelector:MenuSubPageTemplateSelector.Empty>
+                    <DataTemplate>
+                        <Border />
+                    </DataTemplate>
+                </templateSelector:MenuSubPageTemplateSelector.Empty>
+            </templateSelector:MenuSubPageTemplateSelector>
 
 
             <Style x:Key="BaseStyle" TargetType="uwpcontrol:ImageExBase">
@@ -505,20 +511,6 @@
 
 
                     </VisualStateGroup>
-
-                    <!-- ナビゲーション時のコンテンツ表示状態制御 -->
-                    <VisualStateGroup>
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding NowNavigating.Value}" />
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="ContentLayout.Visibility" Value="Collapsed" />
-                            </VisualState.Setters>
-                        </VisualState>
-                    </VisualStateGroup>
-
 
 
                     <!-- ペインの開閉状態 -->
@@ -1124,12 +1116,6 @@
                                             </templateSelector:HohoemaFlyoutTemplateSelector>
                                         </myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
 
-
-                                        <i:Interaction.Behaviors>
-                                            <core:DataTriggerBehavior Binding="{Binding NowNavigating.Value, Converter={StaticResource BooleanInverted}}">
-                                                <mybehavior:SetFocus Delay="300" />
-                                            </core:DataTriggerBehavior>
-                                        </i:Interaction.Behaviors>
                                     </ContentPresenter>
 
 
@@ -1251,7 +1237,6 @@
                                FontSize="13"
                                HorizontalAlignment="Left"
                                    x:Name="TitleBarTextBlock"
-                                   
                                                    >
                         </TextBlock>
                     </Border>
