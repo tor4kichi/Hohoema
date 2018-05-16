@@ -15,6 +15,7 @@
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -72,6 +73,8 @@
                         <Setter Target="ItemsList.IsItemClickEnabled" Value="False" />
                         <Setter Target="ItemsList.IsMultiSelectCheckBoxEnabled" Value="True" />
 
+                        <Setter Target="ScrollToTopButton.Visibility" Value="Collapsed" />
+                        
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -90,6 +93,7 @@
             HorizontalContentAlignment="Stretch"
             uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
             ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+            uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
                             >
             <i:Interaction.Behaviors>
 
@@ -115,21 +119,20 @@
                             <CommandBar 
                             x:Name="TopCommandBar"
                                 >
-                                <CommandBar.Content>
-                                    <Border Background="Transparent" IsHitTestVisible="True"
-                                        Margin="16 0 0 0"
-                                        >
-                                        <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="Tapped">
-                                                <core:ChangePropertyAction TargetObject="{Binding}" PropertyName="ListPosition" Value="0.0" />
-                                            </core:EventTriggerBehavior>
-                                        </i:Interaction.Behaviors>
-
-                                    </Border>
-                                </CommandBar.Content>
 
                                 <CommandBar.PrimaryCommands>
 
+                                    <AppBarButton x:Name="ScrollToTopButton"
+                                              Label="トップへ戻る"
+                                              Icon="Up"
+                                            >
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Click">
+                                                <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </AppBarButton>
+                                    
                                     <!-- 未選択時に表示 -->
                                     <AppBarButton x:Name="OpenCommunityPageButton"
                                               Command="{Binding OpenCommunityPageCommand}"

@@ -18,6 +18,7 @@
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -72,6 +73,9 @@
                         <Setter Target="RegistrationMylistButton.Visibility" Value="Visible" />
 
                         <Setter Target="RefreshButton.Visibility" Value="Collapsed" />
+                        <Setter Target="ScrollToTopButton.Visibility" Value="Collapsed" />
+                        
+
 
                         <Setter Target="ItemsList.SelectionMode" Value="Multiple" />
                         <Setter Target="ItemsList.IsItemClickEnabled" Value="False" />
@@ -96,6 +100,7 @@
             HorizontalContentAlignment="Stretch"
             uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
             ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+            uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
                             >
             <i:Interaction.Behaviors>
 
@@ -107,7 +112,9 @@
                     </mybehavior:KeyboardTrigger.Actions>
                 </mybehavior:KeyboardTrigger>
 
+                <!--
                 <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
+                -->
             </i:Interaction.Behaviors>
 
             <ListView.Header>
@@ -116,12 +123,14 @@
                     Mode="Sticky" 
                     >
 
-                    <StackPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+                    <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-                        <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
+
+                        <CommandBar x:Name="VideoListCommandBar" Background="Transparent"
+                                    >
 
                             <CommandBar.Content>
-                                <toolkit:DockPanel 
+                                <uwpcontrol:DockPanel 
                                     Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                     >
                                     <HyperlinkButton 
@@ -131,7 +140,7 @@
                                             VerticalAlignment="Center"
                                             Opacity="0.7"
                                             Margin="16 0 0 0"
-                                            toolkit:DockPanel.Dock="Left"
+                                            uwpcontrol:DockPanel.Dock="Left"
                                              >
                                         <TextBlock Text="ランキング"
                                            Style="{StaticResource SubtitleTextBlockStyle}"
@@ -142,23 +151,24 @@
 
                                     </HyperlinkButton>
 
-                                    <Border Background="Transparent"
-                                            IsHitTestVisible="True"
-                                            Height="48"
-                                            Margin="16 0 0 0"
-                                            >
 
-                                        <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="Tapped">
-                                                <core:ChangePropertyAction TargetObject="{Binding}" PropertyName="ListPosition" Value="0.0" />
-                                            </core:EventTriggerBehavior>
-                                        </i:Interaction.Behaviors>
+                                    <Border />
 
-                                    </Border>
-                                </toolkit:DockPanel>
+                                </uwpcontrol:DockPanel>
                             </CommandBar.Content>
 
                             <CommandBar.PrimaryCommands>
+                                <AppBarButton x:Name="ScrollToTopButton"
+                                              Label="トップへ戻る"
+                                              Icon="Up"
+                                            >
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Click">
+                                            <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </AppBarButton>
+                                
                                 <AppBarButton Label="更新" 
                                                     Icon="Refresh"
                                                     Command="{Binding RefreshCommand}"
@@ -205,7 +215,7 @@
                             </CommandBar.PrimaryCommands>
 
                         </CommandBar>
-                    </StackPanel>
+                    </Grid>
                 </uwpcontrol:ScrollHeader>
             </ListView.Header>
 

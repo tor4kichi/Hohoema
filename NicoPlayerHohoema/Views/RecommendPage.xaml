@@ -15,6 +15,7 @@
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:uwpextensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -56,6 +57,8 @@
                         <StateTrigger IsActive="{Binding IsSelectionModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
+
+                        <Setter Target="ScrollToTopButton.Visibility" Value="Collapsed" />
                         <Setter Target="UpdateButton.Visibility" Value="Collapsed" />
 
                         <Setter Target="RegistMylistButton.Visibility" Value="Visible" />
@@ -88,6 +91,7 @@
             HorizontalContentAlignment="Stretch"
             uwpextensions:ListViewBase.Command="{StaticResource OpenContentCommand}"
             ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+            uwpextensions:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
                             >
             <i:Interaction.Behaviors>
 
@@ -120,6 +124,28 @@
 
                             <CommandBar.PrimaryCommands>
 
+                                
+                                
+                                <AppBarButton x:Name="ScrollToTopButton"
+                                              Label="トップへ戻る"
+                                              Icon="Up"
+                                            >
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Click">
+                                            <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </AppBarButton>
+
+                                
+                                <AppBarButton 
+                                        x:Name="UpdateButton"
+                                        Command="{Binding RefreshCommand}"
+                                        Background="Transparent" 
+                                        Icon="Refresh"
+                                        Label="更新"
+                                              
+                                        />
 
                                 <AppBarButton Label="関連タグ"
                                               Icon="Tag"
@@ -137,15 +163,7 @@
                                     </AppBarButton.Flyout>
                                 </AppBarButton>
 
-                                <AppBarButton 
-                                        x:Name="UpdateButton"
-                                        Command="{Binding RefreshCommand}"
-                                        Background="Transparent" 
-                                        Icon="Refresh"
-                                        Label="更新"
-                                              
-                                        />
-
+                                
 
                                 <AppBarButton x:Name="RegistMylistButton"
                                           Command="{Binding RegistratioMylistCommand}"

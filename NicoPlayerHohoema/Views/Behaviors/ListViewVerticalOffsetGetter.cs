@@ -20,7 +20,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			DependencyProperty.Register("VerticalOffset"
 				, typeof(double)
 				, typeof(ListViewVerticalOffsetGetter)
-				, new PropertyMetadata(0.0, OnVerticalOffsetPropertyChanged)
+				, new PropertyMetadata(0.0)
 			);
 
 		public double VerticalOffset
@@ -28,14 +28,6 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			get { return (double)GetValue(VerticalOffsetProperty); }
 			set { SetValue(VerticalOffsetProperty, value); }
 		}
-
-		public static void OnVerticalOffsetPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
-		{
-			var source = (ListViewVerticalOffsetGetter)sender;
-
-			source.ResetVerticalOffset();
-		}
-
 
 		#endregion
 
@@ -52,14 +44,11 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			
 		}
 
-
-		private void ResetVerticalOffset()
-		{
-			if (_ScrollViewer != null && !_NowChangingInViewChanged)
-			{
-				_ScrollViewer.ChangeView(null, VerticalOffset, null, false);
-			}
-		}
+        protected override void OnDetaching()
+        {
+            this.AssociatedObject.Loaded -= AssociatedObject_Loaded;
+            base.OnDetaching();
+        }
 
 		private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
 		{
@@ -68,8 +57,6 @@ namespace NicoPlayerHohoema.Views.Behaviors
             if (_ScrollViewer != null)
             {
                 _ScrollViewer.ViewChanged += AssociatedObject_ViewChanged;
-
-                ResetVerticalOffset();
             }
         }
 
