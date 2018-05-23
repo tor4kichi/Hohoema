@@ -542,6 +542,54 @@
 
                     </VisualStateGroup>
 
+                    <!-- モバイルデバイスでの表示調整 -->
+                    <VisualStateGroup>
+
+
+                        <!-- フルスクリーン時はステータスバーが非表示になる -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <uiTrigger:FullScreenTrigger />
+                            </VisualState.StateTriggers>
+                        </VisualState>
+
+
+                        <!-- モバイルかつ横持ち状態 -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <logicalTrigger:MultiTrigger ConditionModifier="{StaticResource AndModifier}">
+                                    <logicalTrigger:MultiTrigger.Triggers>
+                                        <hardwareTrigger:DeviceFamilyTrigger Condition="Mobile" />
+                                        <uiTrigger:OrientationTrigger Condition="Landscape" />
+                                    </logicalTrigger:MultiTrigger.Triggers>
+                                </logicalTrigger:MultiTrigger>
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="PaneLayout.Margin" Value="40 0 0 0" />
+                                <Setter Target="TopMenuLayout.Margin" Value="40 0 0 0" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <!-- モバイルかつ縦持ち状態 -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <logicalTrigger:MultiTrigger ConditionModifier="{StaticResource AndModifier}">
+                                    <logicalTrigger:MultiTrigger.Triggers>
+                                        <hardwareTrigger:DeviceFamilyTrigger Condition="Mobile" />
+                                        <uiTrigger:OrientationTrigger Condition="Portrait" />
+                                    </logicalTrigger:MultiTrigger.Triggers>
+                                </logicalTrigger:MultiTrigger>
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="PaneLayout.Margin" Value="0 24 0 0" />
+                                <Setter Target="TopMenuLayout.Margin" Value="0 24 0 0" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                    </VisualStateGroup>
+                    
                     <!-- プレイヤーの表示状態 -->
                     <VisualStateGroup>
 
@@ -674,7 +722,6 @@
                         <SplitView.Pane>
 
                             <toolkit:DockPanel x:Name="PaneLayout" 
-
                                                >
                                 <Border Height="{StaticResource TitleBarDummyHeight}"
                                         toolkit:DockPanel.Dock="Top"
@@ -1051,15 +1098,16 @@
 
                                 <toolkit:DockPanel 
                                           >
-                                    <toolkit:DockPanel x:Name="TopMenu" toolkit:DockPanel.Dock="Top">
-                                        
-                                        <Border Height="{StaticResource TitleBarDummyHeight}" 
+                                    <Border x:Name="TopMenu" toolkit:DockPanel.Dock="Top">
+                                        <toolkit:DockPanel x:Name="TopMenuLayout" >
+
+                                            <Border Height="{StaticResource TitleBarDummyHeight}" 
                                             toolkit:DockPanel.Dock="Top"
                                         >
-                                        </Border>
+                                            </Border>
 
-                                        <!-- モバイル時のメニュー開閉ボタン -->
-                                        <Button x:Name="MenuToggleButton"
+                                            <!-- モバイル時のメニュー開閉ボタン -->
+                                            <Button x:Name="MenuToggleButton"
                                                 Background="Transparent" 
                                                     Command="{Binding TogglePaneOpenCommand}"
                                                 Height="40"
@@ -1067,22 +1115,24 @@
                                                 toolkit:DockPanel.Dock="Left"
                                                 Visibility="Collapsed"
                                                 >
-                                            <iconPack:PackIconMaterial Kind="Menu" 
+                                                <iconPack:PackIconMaterial Kind="Menu" 
                                                                        Height="20"
                                                                        Width="20"
                                                                        Opacity="0.9"
                                                                        />
-                                        </Button>
+                                            </Button>
 
-                                        <TextBlock x:Name="MenuTitleText"
+                                            <TextBlock x:Name="MenuTitleText"
                                                 Text="{Binding TitleText}"
                                                Style="{StaticResource SubheaderTextBlockStyle}"
                                                Margin="16 0 16 0"
                                                    VerticalAlignment="Center"
                                                    />
 
-                                    </toolkit:DockPanel>
+                                        </toolkit:DockPanel>
 
+                                    </Border>
+                                    
 
                                     <!-- ページ毎のコンテンツ -->
                                     <ContentPresenter x:Name="ContentLayout"
