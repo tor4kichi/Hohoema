@@ -1067,10 +1067,11 @@
                                                 toolkit:DockPanel.Dock="Left"
                                                 Visibility="Collapsed"
                                                 >
-                                            <SymbolIcon Symbol="GlobalNavigationButton" 
-                                                            Height="24"
-                                                            Width="24"
-                                                            />
+                                            <iconPack:PackIconMaterial Kind="Menu" 
+                                                                       Height="20"
+                                                                       Width="20"
+                                                                       Opacity="0.9"
+                                                                       />
                                         </Button>
 
                                         <TextBlock x:Name="MenuTitleText"
