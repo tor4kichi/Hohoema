@@ -290,10 +290,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			LoadedItemsCount.Value = IncrementalLoadingItems?.Count ?? 0;
 			HasItem.Value = LoadedItemsCount.Value > 0;
-
-            var count = IncrementalLoadingItems.Source.OneTimeLoadCount;
-            var head = LoadedItemsCount.Value - count;
-            head = head < 0 ? 0 : head;
         }
 
 		protected virtual void PostResetList()

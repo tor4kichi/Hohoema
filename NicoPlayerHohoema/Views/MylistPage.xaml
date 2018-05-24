@@ -19,6 +19,7 @@
     xmlns:hohoemalistItem="using:NicoPlayerHohoema.Views.HohoemaListItem"
     xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -139,6 +140,7 @@
                         <Setter Target="CacheRequestSelectedItemButton.Visibility" Value="Visible" />
 
                         <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
+                        <Setter Target="ScrollToTopButton.Visibility" Value="Collapsed" />
                         <Setter Target="RefreshButton.Visibility" Value="Collapsed" />
 
                         <Setter Target="ItemsList.SelectionMode" Value="Multiple" />
@@ -164,6 +166,7 @@
             HorizontalContentAlignment="Stretch"
             uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
             ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+            uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
                             >
             <i:Interaction.Behaviors>
 
@@ -187,17 +190,10 @@
                         <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
 
                             <CommandBar.Content>
-                                <StackPanel Background="Transparent" IsHitTestVisible="True"
+                                <StackPanel 
                                     Margin="16 0 0 0"
                                 x:Name="TitleLayout"
                                     >
-
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <core:ChangePropertyAction TargetObject="{Binding}" PropertyName="ListPosition" Value="0.0" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
-
 
                                     <StackPanel Orientation="Horizontal" 
                                            Margin="0 0 0 0"
@@ -230,7 +226,19 @@
 
                             <CommandBar.PrimaryCommands>
 
+                                
                                 <!-- 非選択中 -->
+                                <AppBarButton x:Name="ScrollToTopButton"
+                                              Label="トップへ戻る"
+                                              Icon="Up"
+                                            >
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Click">
+                                            <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </AppBarButton>
+                                
                                 <AppBarButton x:Name="RefreshButton"
                                           Command="{Binding RefreshCommand}"
                                           Label="更新"

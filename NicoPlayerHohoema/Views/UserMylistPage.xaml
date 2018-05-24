@@ -24,18 +24,6 @@
     mc:Ignorable="d">
 
     <Page.Resources>
-        <DataTemplate x:Key="MylistTemplate">
-            <Border >
-                <hohoemaListitem:HohoemaListItemVideo />
-            </Border>
-        </DataTemplate>
-
-        <Style TargetType="ListViewItem" x:Key="MylistListViewContainerStyle">
-            <Setter Property="Padding" Value="0 8" />
-            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-            <Setter Property="BorderBrush" Value="{ThemeResource SystemControlBackgroundBaseLowBrush}" />
-            <Setter Property="BorderThickness" Value="0 0 0 1" />
-        </Style>
     </Page.Resources>
 
 

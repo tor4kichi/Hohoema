@@ -17,6 +17,7 @@
     xmlns:hardtrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -79,6 +80,7 @@
             HorizontalContentAlignment="Stretch"
             uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
             ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+            uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
                             >
             <i:Interaction.Behaviors>
 
@@ -101,22 +103,20 @@
                         <CommandBar 
                             x:Name="TopCommandBar"
                                 >
-                            <CommandBar.Content>
-                                <Border Background="Transparent" IsHitTestVisible="True"
-                                Margin="16 0 0 0"
-                                    Height="48"
-                                >
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <core:ChangePropertyAction TargetObject="{Binding}" PropertyName="ListPosition" Value="0.0" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
-
-                                </Border>
-                            </CommandBar.Content>
-
+                           
                             <CommandBar.PrimaryCommands>
 
+                                <AppBarButton x:Name="ScrollToTopButton"
+                                              Label="トップへ戻る"
+                                              Icon="Up"
+                                            >
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Click">
+                                            <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </AppBarButton>
+                                
                                 <AppBarButton Background="Transparent" 
                                         Command="{Binding RefreshCommand}"
                                         ToolTipService.ToolTip="更新"

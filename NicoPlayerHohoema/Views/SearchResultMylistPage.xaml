@@ -16,6 +16,7 @@
     xmlns:hohoemalistItem="using:NicoPlayerHohoema.Views.HohoemaListItem"
     xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     d:DesignHeight="300"
@@ -63,6 +64,7 @@
             SelectionMode="None"
             HorizontalContentAlignment="Stretch"
             Padding="16 0"
+            uwpExtensions:ScrollViewerEx.VerticalScrollBarMargin="0 96 0 0"
             >
             <i:Interaction.Behaviors>
 
@@ -111,6 +113,17 @@
                         <CommandBar>
 
                             <CommandBar.PrimaryCommands>
+                                <AppBarButton x:Name="ScrollToTopButton"
+                                              Label="トップへ戻る"
+                                              Icon="Up"
+                                            >
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Click">
+                                            <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </AppBarButton>
+                                
                                 <AppBarButton Background="Transparent" 
                                         Command="{Binding RefreshCommand}"
                                         ToolTipService.ToolTip="更新"

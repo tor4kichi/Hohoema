@@ -16,6 +16,7 @@
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -64,6 +65,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="UpdateButton.Visibility" Value="Collapsed" />
+                        <Setter Target="ScrollToTopButton.Visibility" Value="Collapsed" />
                         <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
 
                         <Setter Target="CancelCacheButton.Visibility" Value="Visible" />
@@ -119,6 +121,7 @@
                 SelectionMode="None"
                 HorizontalContentAlignment="Stretch"
                 ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+                uwpExtensions:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
             >
             <i:Interaction.Behaviors>
 
@@ -174,6 +177,16 @@
 
                                 <CommandBar.PrimaryCommands>
 
+                                    <AppBarButton x:Name="ScrollToTopButton"
+                                              Label="トップへ戻る"
+                                              Icon="Up"
+                                            >
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Click">
+                                                <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </AppBarButton>
                                     <AppBarButton 
                                         x:Name="UpdateButton"
                                         Command="{Binding RefreshCommand}"
@@ -211,22 +224,6 @@
 
 
                                 </CommandBar.PrimaryCommands>
-
-                                <CommandBar.Content>
-                                    <Border Background="Transparent"
-                                    IsHitTestVisible="True"
-                                    Margin="16 0 0 0"
-                                    VerticalAlignment="Bottom"
-                                    Height="48"
-                                >
-                                        <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="Tapped">
-                                                <core:ChangePropertyAction TargetObject="{x:Bind ItemsList}" PropertyName="ListPosition" Value="0.0" />
-                                            </core:EventTriggerBehavior>
-                                        </i:Interaction.Behaviors>
-
-                                    </Border>
-                                </CommandBar.Content>
 
                             </CommandBar>
 

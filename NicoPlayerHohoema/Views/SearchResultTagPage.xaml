@@ -16,6 +16,7 @@
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     d:DesignHeight="300"
@@ -73,6 +74,8 @@
                         <Setter Target="CacheRequestButton.Visibility" Value="Visible" />
                         <Setter Target="AddMylistButton.Visibility" Value="Visible" />
 
+                        
+                        <Setter Target="ScrollToTopButton.Visibility" Value="Collapsed" />
                         <Setter Target="RefreshListButton.Visibility" Value="Collapsed" />
                         <Setter Target="AddFeedButton.Visibility" Value="Collapsed" />
                         <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
@@ -95,6 +98,7 @@
                             HorizontalContentAlignment="Stretch"
                             uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
             ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+            uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
                             >
             <i:Interaction.Behaviors>
 
@@ -143,6 +147,17 @@
 
                             <CommandBar.PrimaryCommands>
 
+                                <AppBarButton x:Name="ScrollToTopButton"
+                                              Label="トップへ戻る"
+                                              Icon="Up"
+                                            >
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Click">
+                                            <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </AppBarButton>
+                                
                                 <AppBarButton x:Name="RefreshListButton"
                                             Label="更新"
                                             Command="{Binding RefreshCommand}"
@@ -213,13 +228,7 @@
                                             />
                                     </HyperlinkButton>
 
-                                    <StackPanel Background="Transparent" IsHitTestVisible="True">
-
-                                        <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="Tapped">
-                                                <core:ChangePropertyAction TargetObject="{Binding ListPosition}" Value="0.0" />
-                                            </core:EventTriggerBehavior>
-                                        </i:Interaction.Behaviors>
+                                    <StackPanel>
 
                                         <HyperlinkButton 
                                            toolkit:DockPanel.Dock="Bottom"

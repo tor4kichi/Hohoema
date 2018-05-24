@@ -15,6 +15,7 @@
     xmlns:hohoemalistItem="using:NicoPlayerHohoema.Views.HohoemaListItem"
     xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     d:DesignHeight="300"
@@ -70,6 +71,7 @@
             SelectionMode="None"
             HorizontalContentAlignment="Stretch"
             uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
+            uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 96 0 0"
             >
             <ListView.Header>
                 <uwpcontrols:ScrollHeader
@@ -104,6 +106,16 @@
                         <CommandBar toolkit:DockPanel.Dock="Right" Margin="8 0"
                                 >
                             <CommandBar.PrimaryCommands>
+                                <AppBarButton x:Name="ScrollToTopButton"
+                                              Label="トップへ戻る"
+                                              Icon="Up"
+                                            >
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Click">
+                                            <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </AppBarButton>
                                 <AppBarButton Background="Transparent" 
                                         Command="{Binding RefreshCommand}"
                                         ToolTipService.ToolTip="更新"
@@ -112,16 +124,10 @@
                             </CommandBar.PrimaryCommands>
 
                             <CommandBar.Content>
-                                <Border Background="Transparent" IsHitTestVisible="True"
+                                <Border 
                                 Margin="16 0 0 0"
                             x:Name="TitleLayout"
                                 >
-
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <core:ChangePropertyAction TargetObject="{Binding}" PropertyName="ListPosition" Value="0.0" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
 
                                     <toolkit:DockPanel VerticalAlignment="Center">
 

@@ -13,7 +13,7 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
 
         public DataTemplate Video { get; set; }
         public DataTemplate Live { get; set; }
-
+        public DataTemplate Empty { get; set; }
 
         protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
@@ -25,6 +25,8 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
                         return Video;
                     case ViewModels.LiveMenuSubPageContent _:
                         return Live;
+                    default:
+                        return Empty;
                 }
 
             }

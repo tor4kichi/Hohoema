@@ -3,6 +3,7 @@ using NicoPlayerHohoema.Helpers;
 using Prism.Events;
 using Prism.Windows.AppModel;
 using Prism.Windows.Navigation;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -40,7 +41,32 @@ namespace NicoPlayerHohoema.Views
         {
             _UIDispatcher = Dispatcher;
 
-            
+            // タイトルバーのハンドルできる範囲を自前で指定する
+            // バックボタンのカスタマイズ対応のため
+            // もしかしてモバイルやXboxOneで例外が出てクラッシュするのが怖いので
+            // 例外を握りつぶしておく
+            try
+            {
+                Window.Current.SetTitleBar(GetTemplateChild("DraggableContent") as UIElement);
+            }
+            catch { }
+
+            var subpageContentControl = GetTemplateChild("SubPageContentControl") as ContentControl;
+            if (subpageContentControl != null)
+            {
+                subpageContentControl.ObserveDependencyProperty(ContentControl.ContentProperty)
+                    .Subscribe(x =>
+                    {
+                        if (subpageContentControl.Content == null)
+                        {
+                            ShowMenuMainContent();
+                        }
+                        else
+                        {
+                            ShowMenuSubContent();
+                        }
+                    });
+            }
         }
         
 
@@ -84,15 +110,7 @@ namespace NicoPlayerHohoema.Views
                 (DataContext as ViewModels.MenuNavigatePageBaseViewModel).SetNavigationService(ns);
             }
 
-            // タイトルバーのハンドルできる範囲を自前で指定する
-            // バックボタンのカスタマイズ対応のため
-            // もしかしてモバイルやXboxOneで例外が出てクラッシュするのが怖いので
-            // 例外を握りつぶしておく
-            try
-            {
-                Window.Current.SetTitleBar(GetTemplateChild("DraggableContent") as UIElement);
-            }
-            catch { }
+            
 
             base.OnApplyTemplate();
         }
@@ -103,35 +121,41 @@ namespace NicoPlayerHohoema.Views
 
         AsyncLock _MenuContentToggleLock = new AsyncLock();
 
-
-        private async void ToggleDisplayContent(FrameworkElement showTarget, FrameworkElement hideTarget)
+        static readonly double MenuMainSubContentToggleAnimationDuration = 175;
+        public async void ShowMenuMainContent()
         {
+            var showTarget = GetTemplateChild("MenuMainPageContent") as FrameworkElement;
+            var hideTarget = GetTemplateChild("MenuSubPageContent") as FrameworkElement;
+
             using (var releaser = await _MenuContentToggleLock.LockAsync())
             {
                 showTarget.Visibility = Visibility.Visible;
                 hideTarget.IsHitTestVisible = false;
                 await Task.WhenAll(
-                    showTarget.Fade(1.0f, 175).StartAsync(),
-                    hideTarget.Fade(0.0f, 175).StartAsync()
+                    showTarget.Fade(1.0f, MenuMainSubContentToggleAnimationDuration).Offset(0, duration: MenuMainSubContentToggleAnimationDuration).StartAsync(),
+                    hideTarget.Fade(0.0f, MenuMainSubContentToggleAnimationDuration).Offset(100, duration: MenuMainSubContentToggleAnimationDuration).StartAsync()
                     );
                 showTarget.IsHitTestVisible = true;
                 hideTarget.Visibility = Visibility.Collapsed;
             }
         }
-        public void ShowMenuMainContent()
+
+        public async void ShowMenuSubContent()
         {
-            var menuMainContent = GetTemplateChild("MenuMainPageContent") as FrameworkElement;
-            var menuSubContent = GetTemplateChild("MenuSubPageContent") as FrameworkElement;
+            var hideTarget = GetTemplateChild("MenuMainPageContent") as FrameworkElement;
+            var showTarget = GetTemplateChild("MenuSubPageContent") as FrameworkElement;
 
-            ToggleDisplayContent(menuMainContent, menuSubContent);
-        }
-
-        public void ShowMenuSubContent()
-        {
-            var menuMainContent = GetTemplateChild("MenuMainPageContent") as FrameworkElement;
-            var menuSubContent = GetTemplateChild("MenuSubPageContent") as FrameworkElement;
-
-            ToggleDisplayContent(menuSubContent, menuMainContent);
+            using (var releaser = await _MenuContentToggleLock.LockAsync())
+            {
+                showTarget.Visibility = Visibility.Visible;
+                hideTarget.IsHitTestVisible = false;
+                await Task.WhenAll(
+                    showTarget.Fade(1.0f, MenuMainSubContentToggleAnimationDuration).Offset(0, duration:MenuMainSubContentToggleAnimationDuration).StartAsync(),
+                    hideTarget.Fade(0.0f, MenuMainSubContentToggleAnimationDuration).Offset(-100, duration: MenuMainSubContentToggleAnimationDuration).StartAsync()
+                    );
+                showTarget.IsHitTestVisible = true;
+                hideTarget.Visibility = Visibility.Collapsed;
+            }
         }
 
 
