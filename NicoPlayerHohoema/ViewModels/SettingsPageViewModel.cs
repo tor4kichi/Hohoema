@@ -27,6 +27,7 @@ using Windows.Storage;
 using System.Diagnostics;
 using Microsoft.Services.Store.Engagement;
 using Windows.System;
+using Windows.UI.StartScreen;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -282,6 +283,33 @@ namespace NicoPlayerHohoema.ViewModels
 
         public bool IsSupportedFeedbackHub { get; } = StoreServicesFeedbackLauncher.IsSupported();
 
+
+
+
+        // セカンダリタイル関連
+
+        private DelegateCommand _AddTransparencySecondaryTile;
+        public DelegateCommand AddTransparencySecondaryTile
+        {
+            get
+            {
+                return _AddTransparencySecondaryTile
+                    ?? (_AddTransparencySecondaryTile = new DelegateCommand(async () =>
+                    {
+                        Uri square150x150Logo = new Uri("ms-appx:///Assets/Square150x150Logo.scale-100.png");
+
+                        SecondaryTile secondaryTile = new SecondaryTile(@"Hohoema",
+                                                "Hohoema",
+                                                "temp",
+                                                square150x150Logo,
+                                                TileSize.Square150x150);
+                        secondaryTile.VisualElements.BackgroundColor = Windows.UI.Colors.Transparent;
+
+                        await secondaryTile.RequestCreateAsync();
+                    }
+                    ));
+            }
+        }
 
         NGSettings _NGSettings;
         RankingSettings _RankingSettings;

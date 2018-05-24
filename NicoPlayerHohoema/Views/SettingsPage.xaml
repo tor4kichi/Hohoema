@@ -134,6 +134,9 @@
                         <!-- Web連携無効化 -->
                         <Setter Target="WebCollaborationTitle.Visibility" Value="Collapsed" />
                         <Setter Target="WebCollaborationContent.Visibility" Value="Collapsed" />
+
+                        <!-- 透過背景のセカンダリタイル配置を無効化 -->
+                        <Setter Target="AddTransparencyTileButton.Visibility" Value="Collapsed" />
                     </VisualState.Setters>
                 </VisualState>
 
@@ -329,6 +332,18 @@
                                        />
 
                                     <ToggleSwitch IsOn="{Binding IsTVModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                            </StackPanel>
+
+
+
+
+                            <StackPanel x:Name="AddTransparencyTileButton" >
+                                <StackPanel Margin="0 8">
+
+                                    <Button Command="{Binding AddTransparencySecondaryTile}" 
+                                            Content="透過背景タイルをスタート画面に追加する"
+                                            />
                                 </StackPanel>
                             </StackPanel>
 
