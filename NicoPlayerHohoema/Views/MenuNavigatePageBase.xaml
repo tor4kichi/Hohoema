@@ -405,7 +405,7 @@
                                 <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
                                 <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
 
-
+                                <Setter Target="TopMenuLayout.Visibility" Value="Collapsed" />
                             </VisualState.Setters>
                         </VisualState>
 
