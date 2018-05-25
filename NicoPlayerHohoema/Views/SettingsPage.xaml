@@ -338,19 +338,16 @@
 
 
 
-                            <StackPanel x:Name="AddTransparencyTileButton" >
-                                <StackPanel Margin="0 8">
-
-                                    <Button Command="{Binding AddTransparencySecondaryTile}" 
-                                            Content="透過背景タイルをスタート画面に追加する"
-                                            />
-                                </StackPanel>
-                            </StackPanel>
+                            
 
 
 
 
                         </StackPanel>
+
+
+                        
+
 
 
 
@@ -518,7 +515,43 @@
                                  />
                         </StackPanel>
 
+
+
+
+                        <toolkit:DockPanel Margin="0 8">
+                            <TextBlock Text="Windowsとの統合"
+                                Style="{StaticResource SubtitleTextBlockStyle}"
+                                VerticalAlignment="Center"
+                                toolkit:DockPanel.Dock="Left"
+                            />
+
+                            <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                BorderThickness="0 1 0 0" 
+                                Margin="8 0 16 0"
+                                VerticalAlignment="Center"
+                                />
+                        </toolkit:DockPanel>
+
+                        <StackPanel Margin="0 0 0 0">
+
+                            <StackPanel x:Name="AddTransparencyTileButton" >
+                                <StackPanel Margin="0 8">
+
+                                    <Button Command="{Binding AddTransparencySecondaryTile}" 
+                                            Content="透過背景タイルをスタートメニューに追加する"
+                                            />
+                                </StackPanel>
+                            </StackPanel>
+
+
+
+                        </StackPanel>
+                        
+
                     </StackPanel>
+
+
+                    
 
                     <StackPanel Margin="16 0 0 0" MinWidth="300" HorizontalAlignment="Stretch">
 

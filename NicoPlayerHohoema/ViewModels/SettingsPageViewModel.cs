@@ -297,7 +297,6 @@ namespace NicoPlayerHohoema.ViewModels
                     ?? (_AddTransparencySecondaryTile = new DelegateCommand(async () =>
                     {
                         Uri square150x150Logo = new Uri("ms-appx:///Assets/Square150x150Logo.scale-100.png");
-
                         SecondaryTile secondaryTile = new SecondaryTile(@"Hohoema",
                                                 "Hohoema",
                                                 "temp",
@@ -305,7 +304,10 @@ namespace NicoPlayerHohoema.ViewModels
                                                 TileSize.Square150x150);
                         secondaryTile.VisualElements.BackgroundColor = Windows.UI.Colors.Transparent;
 
-                        await secondaryTile.RequestCreateAsync();
+                        if (false == await secondaryTile.RequestCreateAsync())
+                        {
+                            throw new Exception("Failed secondary tile creation.");
+                        }
                     }
                     ));
             }
