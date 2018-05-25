@@ -177,6 +177,7 @@
     <Content Include="Assets\UpdateNotices\0.13.11.md" />
     <Content Include="Assets\UpdateNotices\0.13.12.md" />
     <Content Include="Assets\UpdateNotices\0.13.25.md" />
+    <Content Include="Assets\UpdateNotices\0.13.26.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <PRIResource Include="Resources\zh-Hans\Resources.resw" />
     <PRIResource Include="Resources\ja-jp\Resources.resw" />
