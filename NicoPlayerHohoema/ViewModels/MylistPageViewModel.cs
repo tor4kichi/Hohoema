@@ -280,7 +280,41 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        
+        private DelegateCommand _PlayAllVideosFromHeadCommand;
+        public DelegateCommand PlayAllVideosFromHeadCommand
+        {
+            get
+            {
+                return _PlayAllVideosFromHeadCommand
+                    ?? (_PlayAllVideosFromHeadCommand = new DelegateCommand(() =>
+                    {
+                        var headItem = IncrementalLoadingItems.FirstOrDefault();
+                        if (headItem != null)
+                        {
+                            HohoemaApp.Playlist.PlaylistSettings.IsReverseModeEnable = false;
+                            HohoemaApp.Playlist.PlayVideoWithPlaylist(headItem);
+                        }
+                    }));
+            }
+        }
+
+        private DelegateCommand _PlayAllVideosFromTailCommand;
+        public DelegateCommand PlayAllVideosFromTailCommand
+        {
+            get
+            {
+                return _PlayAllVideosFromTailCommand
+                    ?? (_PlayAllVideosFromTailCommand = new DelegateCommand(() =>
+                    {
+                        var tailItem = IncrementalLoadingItems.LastOrDefault();
+                        if (tailItem != null)
+                        {
+                            HohoemaApp.Playlist.PlaylistSettings.IsReverseModeEnable = true;
+                            HohoemaApp.Playlist.PlayVideoWithPlaylist(tailItem);
+                        }
+                    }));
+            }
+        }
 
 
 

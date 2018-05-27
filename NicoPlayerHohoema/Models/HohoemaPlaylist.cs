@@ -410,6 +410,19 @@ namespace NicoPlayerHohoema.Models
                 return;
             }
 
+            var item = DefaultPlaylist.PlaylistItems.FirstOrDefault(x => x.Type == PlaylistItemType.Video && x.ContentId == video.Id)
+                ?? DefaultPlaylist.AddVideo(video.Id, video.Label, ContentInsertPosition.Head);
+            Play(item);
+        }
+
+
+        public void PlayVideoWithPlaylist(IVideoContent video)
+        {
+            if (!(NiconicoRegex.IsVideoId(video.Id) || video.Id.All(x => '0' <= x && x <= '9')))
+            {
+                return;
+            }
+
             if (video.Playlist != null)
             {
                 var playlistItem = video.Playlist.PlaylistItems.FirstOrDefault(x => x.ContentId == video.Id);
@@ -420,7 +433,6 @@ namespace NicoPlayerHohoema.Models
             }
             else
             {
-
                 var newItem = DefaultPlaylist.AddVideo(video.Id, video.Label, ContentInsertPosition.Head);
                 Play(newItem);
             }
