@@ -231,7 +231,6 @@
                                 <!-- 非選択中 -->
 
                                 <AppBarButton x:Name="PlayAllButton"
-                                          Command="{Binding RefreshCommand}"
                                           Label="全て再生"
                                           Icon="Play"
                                         >
