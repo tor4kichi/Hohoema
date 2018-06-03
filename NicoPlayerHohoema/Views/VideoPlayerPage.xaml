@@ -1159,148 +1159,105 @@
                                                 </Button>
                                                 
                                             </StackPanel>
-                                            
 
-                                            <StackPanel Orientation="Horizontal"
-                                                        toolkit:DockPanel.Dock="Right"
-                                                        >
+                                            <CommandBar toolkit:DockPanel.Dock="Right">
+                                                <CommandBar.PrimaryCommands>
+                                                    <AppBarButton Label="動画情報"
+                                                                  Command="{Binding OpenVideoInfoCommand}"
+                                                                  >
+                                                    </AppBarButton>
+                                                    <AppBarButton Label="共有"
+                                                                  Icon="Share"
+                                                                  Command="{Binding ShareCommand}"
+                                                                  >
+                                                        
+                                                    </AppBarButton>
+                                                    <AppBarButton Label="追加"
+                                                                  Icon="Add"
+                                                                  >
+                                                        <AppBarButton.Flyout>
+                                                            <MenuFlyout>
+                                                                <MenuFlyoutItem Text="マイリストに追加" Command="{Binding AddMylistCommand}" />
+                                                            </MenuFlyout>
+                                                        </AppBarButton.Flyout>
 
-                                                
+                                                    </AppBarButton>
 
-                                                    <Button x:Name="SmallWindowButton"  
+                                                    <AppBarSeparator />
+
+
+                                                    <AppBarButton x:Name="SmallWindowButton"  
                                                             Command="{Binding PlayerSmallWindowDisplayCommand}"
                                                             Background="Transparent"
                                                             Visibility="Collapsed"
                                                             Margin="8 0 0 0"
                                                             MinWidth="64"
+                                                                  Label="小窓"
                                                                         >
-                                                        <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                                                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE743;"
-                                                                                   FontSize="24"
-                                                                                   VerticalAlignment="Center"
-                                                                                   Height="24"
-                                                                                   Width="24"
-                                                                                   HorizontalAlignment="Center"
-                                                                                   Margin="0 0 0 8"
-                                                                               />
-
-                                                            <TextBlock Text="小窓" 
-                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                                                                   VerticalAlignment="Center" />
-
-                                                        </StackPanel>
-                                                    </Button>
+                                                        
+                                                    </AppBarButton>
 
 
 
 
 
 
-                                                    <Button x:Name="CompactOverlayButton"
+                                                    <AppBarButton x:Name="CompactOverlayButton"
                                                             Command="{Binding ToggleCompactOverlayCommand}"
                                                             Background="Transparent"
                                                             Visibility="Collapsed"
                                                             Margin="8 0 0 0"
                                                             MinWidth="64"
+                                                                  Label="小さく最前面"
                                                             >
-                                                        <StackPanel Orientation="Vertical">
-
-                                                            <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8A7;"
-                                                                                   FontSize="24"
-                                                                                   VerticalAlignment="Center"
-                                                                                   Height="24"
-                                                                                   Width="24"
-                                                                                   HorizontalAlignment="Center"
-                                                                                   Margin="0 0 0 8"
-                                                                               />
-                                                            <TextBlock Text="小さく最前面" 
-                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                                                                   VerticalAlignment="Center" />
-                                                        </StackPanel>
-                                                    </Button>
+                                                       
+                                                    </AppBarButton>
 
 
 
-                                                    <Button x:Name="FullscreenButton"  
+                                                    <AppBarButton x:Name="FullscreenButton"  
                                                             Command="{Binding ToggleFullScreenCommand}"
                                                             Background="Transparent"
                                                             Visibility="Collapsed"
                                                             Margin="8 0 0 0"
                                                             MinWidth="64"
+                                                                  Label="全画面"
+                                                                  Icon="FullScreen"
                                                                         >
-                                                        <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                                                            <toolkit:LayoutTransformControl Margin="0 0 0 8">
-                                                                <iconPack:PackIconMaterial x:Name="FullscreenButtonIcon"  
-                                                                                Kind="Fullscreen"                                                                                                        
-                                                                                Width="24"
-                                                                                Height="24"
-                                                                                HorizontalAlignment="Center"
-                                                                            >
-
-                                                                </iconPack:PackIconMaterial>
-                                                            </toolkit:LayoutTransformControl>
+                                                    </AppBarButton>
 
 
-                                                            <TextBlock Text="全画面" 
-                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                                                                   VerticalAlignment="Center" />
-
-                                                        </StackPanel>
-                                                    </Button>
 
 
                                                     
 
-                                                    <Button x:Name="DisplayWithSecondaryViewButton"
+
+                                                </CommandBar.PrimaryCommands>
+
+                                                <CommandBar.SecondaryCommands>
+                                                    <AppBarButton x:Name="DisplayWithSecondaryViewButton"
                                                             Command="{Binding PlayerDisplayWithSecondaryViewCommand}"
                                                             Background="Transparent"
                                                             Visibility="Collapsed"
                                                             Margin="8 0 0 0"
                                                             MinWidth="64"
+                                                                  Label="別ウィンドウ"
                                                             >
-                                                        <StackPanel Orientation="Vertical">
-                                                            <iconPack:PackIconMaterial Kind="CheckboxMultipleBlankOutline"
-                                                                                                   Margin="0 0 0 8"
-                                                                                                   Height="24"
-                                                                                                   Width="24"
-                                                                                                   HorizontalAlignment="Center"
-                                                                                                   />
+                                                       
+                                                    </AppBarButton>
 
-                                                            <TextBlock Text="別ウィンドウ" 
-                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                                                                   VerticalAlignment="Center" />
-                                                        </StackPanel>
-                                                    </Button>
-
-                                                <ToggleButton x:Name="ForceRotateToggleButton" 
+                                                    <AppBarToggleButton x:Name="ForceRotateToggleButton" 
                                                                   IsChecked="{Binding IsForceLandscape.Value, Mode=TwoWay}"
                                                                   Background="Transparent"
                                                                   Visibility="Collapsed"
                                                         Margin="8 0 0 0"
                                                               MinWidth="64"
+                                                                        Label="横持ち固定"
+                                                                        Icon="Orientation"
                                                         >
-                                                    <StackPanel>
-                                                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B4;"
-                                                                                   FontSize="24"
-                                                                                   VerticalAlignment="Center"
-                                                                                   Height="24"
-                                                                                   Width="24"
-                                                                                   HorizontalAlignment="Center"
-                                                                                   Margin="0 0 0 8"
-                                                                               />
-
-                                                        <TextBlock Text="横持ち固定"
-                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                                                                   VerticalAlignment="Center"
-                                                                                   />
-                                                    </StackPanel>
-                                                </ToggleButton>
-
-
-
-                                            </StackPanel>
-
-
+                                                    </AppBarToggleButton>
+                                                </CommandBar.SecondaryCommands>
+                                            </CommandBar>
 
                                             <Border />
 
@@ -1630,13 +1587,6 @@
                                                                 />
                                                 </Button>
 
-                                                <Button Background="Transparent"
-                                                        x:Name="VideoOptionsMenuButton"
-                                                        Flyout="{StaticResource VideoOptionsFlyout}"
-                                                        >
-                                                    <SymbolIcon Symbol="More" />
-
-                                                </Button>
                                             </toolkit:WrapPanel>
 
                                         </Grid>
