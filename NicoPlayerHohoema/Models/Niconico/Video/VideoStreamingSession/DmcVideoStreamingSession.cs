@@ -119,26 +119,7 @@ namespace NicoPlayerHohoema.Models
 
             if (VideoContent != null)
             {
-                if (VideoContent.Bitrate >= 4000_000)
-                {
-                    _Quality = NicoVideoQuality.Dmc_SuperHigh;
-                }
-                else if (VideoContent.Bitrate >= 1400_000)
-                {
-                    _Quality = NicoVideoQuality.Dmc_High;
-                }
-                else if (VideoContent.Bitrate >= 1000_000)
-                {
-                    _Quality = NicoVideoQuality.Dmc_Midium;
-                }
-                else if (VideoContent.Bitrate >= 600_000)
-                {
-                    _Quality = NicoVideoQuality.Dmc_Low;
-                }
-                else
-                {
-                    _Quality = NicoVideoQuality.Dmc_Mobile;
-                }
+                _Quality = NicoVideoVideoContentHelper.VideoContentToQuality(VideoContent);
 
                 Debug.WriteLine($"quality={_Quality}");
                 Debug.WriteLine($"{VideoContent.Id}/{VideoContent.Bitrate}/{VideoContent.Available}/w={VideoContent.Resolution.Width} h={VideoContent.Resolution.Height}");

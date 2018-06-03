@@ -14,7 +14,13 @@ namespace NicoPlayerHohoema.Views.Converters
 
         public object Convert(object value, Type targetType, object parameter, string language)
         {
-            var number = (double)value;
+            double number = 0.0;
+            if (Decimal.TryParse(value.ToString(), out var num))
+            {
+                number = Decimal.ToDouble(num);
+            }
+                
+
             long longNumber = (long)number;
             if (number == 0) { return "0"; }
 

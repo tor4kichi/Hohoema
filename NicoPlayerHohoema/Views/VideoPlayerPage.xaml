@@ -1301,7 +1301,7 @@
                                         <!-- シークバー -->
                                         <StackPanel >
 
-                                            <Grid Margin="0 0 0 4">
+                                            <Grid Margin="0 0 0 12">
 
                                                 <!--
                                         <local:DownloadProgressBar 
@@ -1354,20 +1354,50 @@
                                                             Visibility="{Binding CurrentVideoQuality.Value, Converter={StaticResource NotNullToVisibility}}"
                                                 >
 
-                                                    
                                                     <TextBlock  Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                                 Visibility="{Binding NowPlayingWithDmcVideo,Converter={StaticResource BooleanToVisibilityInverted}}"
                                                                 >
-                                                        <Run Text="{Binding CurrentVideoQuality.Value, Converter={StaticResource ToLocalText}}" />
-                                                        <Run Text="画質" />   
-                                                    </TextBlock>
-
-                                                    <TextBlock  Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                                                Visibility="{Binding NowPlayingWithDmcVideo,Converter={StaticResource BooleanToVisibility}}"
-                                                                >
-                                                        <Run Text="{Binding VideoHeight}" />p (<Run Text="{Binding VideoBitrate, Converter={StaticResource ToKMGTPEZY}}"></Run>bps)
+                                                                <Run Text="{Binding CurrentVideoQuality.Value, Converter={StaticResource ToLocalText}}" />
+                                                                <Run Text="画質" />
                                                     </TextBlock>
                                                     
+                                                    <HyperlinkButton IsEnabled="{Binding NowPlayingWithDmcVideo}" 
+                                                                     Padding="0"
+                                                                     >
+
+                                                        <i:Interaction.Behaviors>
+                                                            <core:EventTriggerBehavior EventName="Click">
+                                                                <mybehavior:OpenFlyout />
+                                                            </core:EventTriggerBehavior>
+                                                        </i:Interaction.Behaviors>
+                                                        
+                                                        <FlyoutBase.AttachedFlyout>
+                                                            <Flyout>
+                                                                <ListView ItemsSource="{Binding VideoQualities}"
+                                                                          SelectedItem="{Binding CurrentDmcQualityVideoContent, Mode=OneWay}"
+                                                                          SelectionMode="Single"
+                                                                          IsItemClickEnabled="True"
+                                                                          uwpui:ListViewBase.Command="{Binding ChangePlayQualityCommand}"
+                                                                          >
+                                                                    <ListView.ItemTemplate>
+                                                                        <DataTemplate>
+                                                                            <TextBlock toolkitext:ListViewItemExtensions.IsEnabled="{Binding Available}">
+                                                                                <Run Text="{Binding Bitrate, Converter={StaticResource ToKMGTPEZY}}" /> bps
+                                                                            </TextBlock>
+                                                                        </DataTemplate>
+                                                                    </ListView.ItemTemplate>
+                                                                </ListView>
+                                                            </Flyout>
+                                                        </FlyoutBase.AttachedFlyout>
+
+                                                        <TextBlock 
+                                                                Visibility="{Binding NowPlayingWithDmcVideo,Converter={StaticResource BooleanToVisibility}}"
+                                                                >
+                                                                <Run Text="{Binding VideoHeight}" />p (<Run Text="{Binding VideoBitrate, Converter={StaticResource ToKMGTPEZY}}"></Run>bps)
+                                                        </TextBlock>
+
+                                                    </HyperlinkButton>
+
                                                     <Border Width="8" />
 
                                                     <TextBlock  Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"

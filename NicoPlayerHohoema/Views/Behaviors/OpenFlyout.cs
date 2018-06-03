@@ -14,10 +14,26 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 		public object Execute(object sender, object parameter)
 		{
-			var flyout = FlyoutBase.GetAttachedFlyout((FrameworkElement)sender);
+            var feSender = sender as FrameworkElement;
+            var flyout = FlyoutBase.GetAttachedFlyout(feSender);
 			if (flyout != null)
 			{
-				FlyoutBase.ShowAttachedFlyout((FrameworkElement)sender);
+                if (flyout is Windows.UI.Xaml.Controls.Flyout fo)
+                {
+                    if (fo.Content is FrameworkElement flyoutContent)
+                    {
+                        flyoutContent.DataContext = feSender.DataContext;
+                    }
+                }
+                else if (flyout is Windows.UI.Xaml.Controls.MenuFlyout mf)
+                {
+                    foreach (var menuFlyoutItem in mf.Items)
+                    {
+                        menuFlyoutItem.DataContext = feSender.DataContext;
+                    }
+                }
+
+                FlyoutBase.ShowAttachedFlyout(feSender);
 			}
 
 			return true;

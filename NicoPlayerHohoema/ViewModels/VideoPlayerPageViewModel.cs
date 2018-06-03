@@ -49,6 +49,7 @@ using Windows.ApplicationModel.Core;
 using Windows.Foundation.Metadata;
 using Microsoft.Practices.Unity;
 using NicoPlayerHohoema.Services;
+using Mntone.Nico2.Videos.Dmc;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -1050,6 +1051,7 @@ namespace NicoPlayerHohoema.ViewModels
                 CurrentVideoQuality.Value = _CurrentPlayingVideoSession.Quality;
 
                 NowPlayingWithDmcVideo = false;
+                CurrentDmcQualityVideoContent = null;
                 if (_CurrentPlayingVideoSession is DmcVideoStreamingSession)
                 {
                     var dmcSession = _CurrentPlayingVideoSession as DmcVideoStreamingSession;
@@ -1061,6 +1063,17 @@ namespace NicoPlayerHohoema.ViewModels
                         VideoHeight = content.Resolution.Height;
                         VideoBitrate = content.Bitrate;
                     }
+
+                    VideoQualities.Clear();
+                    if (dmcSession.DmcWatchResponse?.Video?.DmcInfo?.Quality != null)
+                    {
+                        foreach (var videoContent in dmcSession.DmcWatchResponse.Video.DmcInfo.Quality.Videos)
+                        {
+                            VideoQualities.Add(videoContent);
+                        }
+                    }
+
+                    CurrentDmcQualityVideoContent = content;
                 }
 
                 MediaPlayer.PlaybackSession.Position = this._PreviosPlayingVideoPosition;
@@ -2302,7 +2315,44 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		public ReactiveCommand CommentSubmitCommand { get; private set; }
-		public ReactiveCommand<NicoVideoQuality> TogglePlayQualityCommand { get; private set; }
+
+
+        private DelegateCommand<object> _ChangePlayQualityCommand;
+        public DelegateCommand<object> ChangePlayQualityCommand
+        {
+            get
+            {
+                return _ChangePlayQualityCommand
+                    ?? (_ChangePlayQualityCommand = new DelegateCommand<object>(async (parameter) =>
+                    {
+                        if (parameter is VideoContent content && _CurrentPlayingVideoSession is DmcVideoStreamingSession dmcSession)
+                        {
+                            var videos = dmcSession.DmcWatchResponse.Video.DmcInfo.Quality.Videos;
+
+                            var index = videos.Reverse().ToList().IndexOf(content);
+                            var dmcQuality = (NicoVideoQuality)(6 - index); // 2~6の範囲に収める必要あり
+                            if (dmcQuality.IsDmc())
+                            {
+                                RequestVideoQuality.Value = NicoVideoVideoContentHelper.VideoContentToQuality(content);
+
+                                await PlayingQualityChangeAction();
+                            }
+                        }
+                    }
+                    ));
+            }
+        }
+
+        private VideoContent _CurrentDmcQualityVideoContent;
+        public VideoContent CurrentDmcQualityVideoContent
+        {
+            get { return _CurrentDmcQualityVideoContent; }
+            set { SetProperty(ref _CurrentDmcQualityVideoContent, value); }
+        }
+
+
+        public ObservableCollection<VideoContent> VideoQualities { get; } = new ObservableCollection<VideoContent>();
+
 
         private DelegateCommand _OpenVideoPageWithBrowser;
 		public DelegateCommand OpenVideoPageWithBrowser
