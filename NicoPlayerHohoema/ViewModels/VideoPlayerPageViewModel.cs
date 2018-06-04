@@ -2887,6 +2887,19 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<double> PlaybackRate { get; private set; }
         public DelegateCommand<double?> SetPlaybackRateCommand { get; private set; }
 
+        public static List<double> PlaybackRateList { get; } = new List<double>
+        {
+            2.0,
+            1.75,
+            1.5,
+            1.25,
+            1.0,
+            0.75,
+            0.5,
+            0.25,
+            0.05
+        };
+
         public ReactiveProperty<bool> IsAutoHideEnable { get; private set; }
         public ReactiveProperty<TimeSpan> AutoHideDelayTime { get; private set; }
 

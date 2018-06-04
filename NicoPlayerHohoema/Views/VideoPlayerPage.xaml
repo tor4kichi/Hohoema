@@ -1350,7 +1350,7 @@
                                                 <StackPanel HorizontalAlignment="Left"          
                                                             VerticalAlignment="Bottom"
                                                             Orientation="Horizontal"
-                                                            Margin="16 0 16 0"
+                                                            Margin="8 0 16 0"
                                                             Visibility="{Binding CurrentVideoQuality.Value, Converter={StaticResource NotNullToVisibility}}"
                                                 >
 
@@ -1363,6 +1363,7 @@
                                                     
                                                     <HyperlinkButton IsEnabled="{Binding NowPlayingWithDmcVideo}" 
                                                                      Padding="0"
+                                                                     Opacity="0.7"
                                                                      >
 
                                                         <i:Interaction.Behaviors>
@@ -1414,17 +1415,58 @@
                                                 </StackPanel>
 
 
-                                                <TextBlock  HorizontalAlignment="Right"
+                                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                                                    <TextBlock  
                                                         VerticalAlignment="Bottom"
                                                         IsHitTestVisible="False"
                                                         Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                                        Margin="16 0 16 0"
+                                                        Margin="16 0 8 0"
                                                     >
                                         
                                                     <Run Text="{Binding SliderVideoPosition.Value, Converter={StaticResource TimeToMovieLengthConverter}}" />
                                                     <Run Text="/" />
                                                     <Run Text="{Binding VideoLength.Value, Converter={StaticResource TimeToMovieLengthConverter}}" />
-                                                </TextBlock>
+                                                    </TextBlock>
+
+                                                    <HyperlinkButton Margin="0 0 16 0"
+                                                               VerticalAlignment="Bottom"
+                                                                     Opacity="0.7"
+                                                                     MinWidth="36"
+                                                                     HorizontalAlignment="Right"
+                                                                     Padding="0"
+                                                                     >
+
+                                                        <i:Interaction.Behaviors>
+                                                            <core:EventTriggerBehavior EventName="Click">
+                                                                <mybehavior:OpenFlyout />
+                                                            </core:EventTriggerBehavior>
+                                                        </i:Interaction.Behaviors>
+
+                                                        <FlyoutBase.AttachedFlyout>
+                                                            <Flyout>
+                                                                <ListView ItemsSource="{Binding PlaybackRateList}"
+                                                                          SelectedItem="{Binding PlaybackRate.Value, Mode=OneWay}"
+                                                                          SelectionMode="Single"
+                                                                          IsItemClickEnabled="True"
+                                                                          uwpui:ListViewBase.Command="{Binding SetPlaybackRateCommand}"
+                                                                          >
+                                                                    <ListView.ItemTemplate>
+                                                                        <DataTemplate>
+                                                                            <TextBlock>
+                                                                                x<Run Text="{Binding}" /> 
+                                                                            </TextBlock>
+                                                                        </DataTemplate>
+                                                                    </ListView.ItemTemplate>
+                                                                    
+                                                                </ListView>
+                                                            </Flyout>
+                                                        </FlyoutBase.AttachedFlyout>
+
+                                                        <TextBlock VerticalAlignment="Center">
+                                                            x<Run Text="{Binding PlaybackRate.Value}" />
+                                                        </TextBlock>
+                                                    </HyperlinkButton>
+                                                </StackPanel>
                                             </Grid>
                                         </StackPanel>
 
@@ -1454,7 +1496,7 @@
                                                       Height="66"
                                                     >
 
-                                                                <StackPanel Background="#AA777777"
+                                                                <StackPanel 
                                                     toolkit:DockPanel.Dock="Left"
                                                     >
                                                                     <AppBarButton Icon="Volume" 
@@ -1468,7 +1510,7 @@
                                                                 </StackPanel>
 
 
-                                                                <StackPanel Background="#AA777777" Margin="8 0" 
+                                                                <StackPanel Margin="8 0" 
                                                     Orientation="Vertical">
 
 
