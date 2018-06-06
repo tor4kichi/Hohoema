@@ -12,6 +12,7 @@
     xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:viewmodel="using:NicoPlayerHohoema.ViewModels"
+    xmlns:sidepaneVM="using:NicoPlayerHohoema.ViewModels.PlayerSidePaneContent"
     xmlns:logicalTrigger="using:AdaptiveTriggerLibrary.Triggers.LogicalTriggers"
     xmlns:intractionTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInteractionTriggers"
     xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
@@ -20,6 +21,7 @@
     xmlns:media="using:Microsoft.Xaml.Interactions.Media"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
     xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:model="using:NicoPlayerHohoema.Models"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
@@ -1174,9 +1176,12 @@
                                                     </AppBarButton>
                                                     <AppBarButton Label="追加"
                                                                   Icon="Add"
+                                                                  
+
                                                                   >
                                                         <AppBarButton.Flyout>
                                                             <MenuFlyout>
+                                                                
                                                                 <MenuFlyoutItem Text="マイリストに追加" Command="{Binding AddMylistCommand}" />
                                                             </MenuFlyout>
                                                         </AppBarButton.Flyout>
@@ -1190,7 +1195,6 @@
                                                             Command="{Binding PlayerSmallWindowDisplayCommand}"
                                                             Background="Transparent"
                                                             Visibility="Collapsed"
-                                                            Margin="8 0 0 0"
                                                             MinWidth="64"
                                                                   Label="小窓"
                                                                         >
@@ -1206,7 +1210,6 @@
                                                             Command="{Binding ToggleCompactOverlayCommand}"
                                                             Background="Transparent"
                                                             Visibility="Collapsed"
-                                                            Margin="8 0 0 0"
                                                             MinWidth="64"
                                                                   Label="小さく最前面"
                                                             >
@@ -1219,7 +1222,6 @@
                                                             Command="{Binding ToggleFullScreenCommand}"
                                                             Background="Transparent"
                                                             Visibility="Collapsed"
-                                                            Margin="8 0 0 0"
                                                             MinWidth="64"
                                                                   Label="全画面"
                                                                   Icon="FullScreen"
@@ -1239,7 +1241,6 @@
                                                             Command="{Binding PlayerDisplayWithSecondaryViewCommand}"
                                                             Background="Transparent"
                                                             Visibility="Collapsed"
-                                                            Margin="8 0 0 0"
                                                             MinWidth="64"
                                                                   Label="別ウィンドウ"
                                                             >
@@ -1250,12 +1251,17 @@
                                                                   IsChecked="{Binding IsForceLandscape.Value, Mode=TwoWay}"
                                                                   Background="Transparent"
                                                                   Visibility="Collapsed"
-                                                        Margin="8 0 0 0"
                                                               MinWidth="64"
                                                                         Label="横持ち固定"
                                                                         Icon="Orientation"
                                                         >
                                                     </AppBarToggleButton>
+
+                                                    <AppBarButton Command="{Binding SelectSidePaneContentCommand}"
+                                                            CommandParameter="RelatedVideos"
+                                                            Background="Transparent"
+                                                                  Label="関連情報"
+                                                />
                                                 </CommandBar.SecondaryCommands>
                                             </CommandBar>
 
@@ -1531,11 +1537,7 @@
                                                                 Width="160"
                                                                 Background="Transparent"
                                                             >
-                                                                        <i:Interaction.Behaviors>
-                                                                            <core:EventTriggerBehavior EventName="ValueChanged" >
-
-                                                                            </core:EventTriggerBehavior>
-                                                                        </i:Interaction.Behaviors>
+                                                                       
                                                                     </Slider>
                                                                     <TextBlock Text="音量" 
                                                            VerticalAlignment="Center"
@@ -1757,7 +1759,9 @@
                                         </i:Interaction.Behaviors>
                                     </Border>
 
-                                    <Border Height="32" VerticalAlignment="Top">
+                                    <Border Height="32" VerticalAlignment="Top"
+                                            Visibility="{Binding EndPlayRecommendAction, Converter={StaticResource NullToVisibility}}"
+                                            >
 
                                         <Border.Background>
                                             <LinearGradientBrush StartPoint="1, 1" EndPoint="1, 0">
@@ -1769,7 +1773,9 @@
                                     </Border>
 
 
-                                    <Border Height="48" BorderThickness="0" VerticalAlignment="Bottom" >
+                                    <Border Height="48" BorderThickness="0" VerticalAlignment="Bottom" 
+                                            Visibility="{Binding EndPlayRecommendAction, Converter={StaticResource NullToVisibility}}"
+                                            >
                                         <Border.Background>
                                             <LinearGradientBrush x:Name="ControlPanelBackgroundBrush" StartPoint="1, 0" EndPoint="1, 1">
                                                 <GradientStop Color="{Binding Source={StaticResource SystemAltMediumColor}, Converter={StaticResource ToTransparentColor}}" Offset="0.0" x:Name="GradientStop1"/>
@@ -1828,6 +1834,158 @@
 
 
 
+                                    
+                                    <Grid x:Name="RecommendActionLayout"
+                                          Visibility="{Binding EndPlayRecommendAction, Converter={StaticResource NotNullToVisibility}}"
+                                                           Background="{StaticResource HohoemaPlayerBackgroundBrush}"
+                                                           >
+
+                                        
+                                        <i:Interaction.Behaviors>
+
+                                            <uwptoolkit:Fade x:Name="FadeRecommendActionLayout"
+                                                             Value="1.0"
+                                                             Duration="125"
+                                                             AutomaticallyStart="False"
+                                                             />
+
+                                            <core:DataTriggerBehavior Binding="{Binding EndPlayRecommendAction}" ComparisonCondition="NotEqual" Value="{x:Null}">
+                                                <core:ChangePropertyAction TargetObject="{Binding ElementName=FadeRecommendActionLayout}" PropertyName="Value" Value="1.0" />
+                                                <core:CallMethodAction TargetObject="{Binding ElementName=FadeRecommendActionLayout}" MethodName="StartAnimation" />
+                                                
+                                            </core:DataTriggerBehavior>
+                                            <core:DataTriggerBehavior Binding="{Binding EndPlayRecommendAction}" ComparisonCondition="Equal" Value="{x:Null}">
+                                                <core:ChangePropertyAction TargetObject="{Binding ElementName=FadeRecommendActionLayout}" PropertyName="Value" Value="0.0" />
+                                                <core:CallMethodAction TargetObject="{Binding ElementName=FadeRecommendActionLayout}" MethodName="StartAnimation" />
+                                            </core:DataTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+
+                                        <StackPanel Margin="0 16">
+                                            <ContentControl Content="{Binding EndPlayRecommendAction, Mode=OneWay}" 
+                                                        HorizontalContentAlignment="Stretch"
+                                                        VerticalContentAlignment="Stretch"
+                                                        VerticalAlignment="Center"
+                                                            IsTabStop="False"
+                                                            x:Name="EndPlayRecommendActionControl"
+                                                        >
+                                                <ContentControl.ContentTemplate>
+                                                    <DataTemplate x:DataType="sidepaneVM:RelatedVideosSidePaneContentViewModel">
+                                                        <StackPanel>
+
+                                                            <ContentControl Content="{Binding NextVideo, Mode=OneWay}"
+                                                                         HorizontalContentAlignment="Stretch"
+                                                                         VerticalContentAlignment="Stretch"
+                                                                            Visibility="{Binding NextVideo, Converter={StaticResource NotNullToVisibility}}"
+                                                                            IsTabStop="False"
+                                                                        >
+                                                                <ContentControl.ContentTemplate>
+                                                                    <DataTemplate>
+                                                                        <StackPanel HorizontalAlignment="Center"
+                                                                                >
+                                                                            
+                                                                            <TextBlock Text="次の動画へご案内"
+                                                                                   HorizontalAlignment="Center"
+                                                                                       Margin="0 8 0 0"
+                                                                                       Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsEnableAutoPlayNextVideo, Converter={StaticResource BooleanToVisibility}}"
+                                                                                   />
+
+
+
+                                                                            <!-- 10秒 = 10000ms -->
+                                                                            <Button Command="{Binding ElementName=RecommendActionLayout, Path=DataContext.CancelAutoPlayNextVideoCommand}"
+                                                                                Background="Transparent"
+                                                                                HorizontalAlignment="Center"
+                                                                                    x:Name="CancelAutoNextVideoPlayButton"
+                                                                                    Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsEnableAutoPlayNextVideo, Converter={StaticResource BooleanToVisibility}}"
+                                                                                >
+
+                                                                                <Grid>
+                                                                                    <uwpControls:RadialProgressBar Maximum="10000.0" Minimum="0.0" 
+                                                                                                           Value="{Binding ElementName=RecommendActionLayout, Path=DataContext.NextPlayVideoProgressTime, Mode=OneWay}" 
+                                                                                                           Height="96"
+                                                                                                           Width="96"
+                                                                                                           Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
+                                                                                                                   Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsCanceledPlayNextVideo, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                                                                       />
+                                                                                    <StackPanel HorizontalAlignment="Center"
+                                                                                            VerticalAlignment="Center">
+
+                                                                                        <SymbolIcon Symbol="Pause" 
+                                                                                            Height="36"
+                                                                                            Width="36"
+                                                                                            Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsCanceledPlayNextVideo, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                                                            />
+
+                                                                                        <TextBlock Text="キャンセル" 
+                                                                                                   Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsCanceledPlayNextVideo, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                                                                   FontSize="12"
+                                                                                                   Opacity="0.7"
+                                                                                                   />
+
+                                                                                        <TextBlock Text="中止しました"
+                                                                                                   Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsCanceledPlayNextVideo, Converter={StaticResource BooleanToVisibility}}"
+                                                                                                   FontSize="12"
+                                                                                                   Opacity="0.7"
+                                                                                                   />
+                                                                                    </StackPanel>
+                                                                                </Grid>
+                                                                            </Button>
+
+                                                                            <Button Command="{Binding ElementName=RecommendActionLayout, Path=DataContext.ManualPlayNextVideoCommand}"
+                                                                                MinWidth="240"
+                                                                                Background="Transparent"
+                                                                                >
+
+                                                                                <toolkit:DockPanel Margin="16">
+
+                                                                                    <SymbolIcon Symbol="Forward" Margin="16 0 0 0" 
+                                                                                            toolkit:DockPanel.Dock="Right"
+                                                                                            />
+
+                                                                                    <TextBlock 
+                                                                                   FontSize="16"
+                                                                                   TextWrapping="Wrap"
+                                                                                   >
+                                                                                    <Run Text="{Binding Label}" />
+                                                                                    </TextBlock>
+
+                                                                                </toolkit:DockPanel>
+                                                                            </Button>
+
+
+                                                                        </StackPanel>
+                                                                    </DataTemplate>
+                                                                </ContentControl.ContentTemplate>
+                                                            </ContentControl>
+                                                        </StackPanel>
+                                                    </DataTemplate>
+                                                </ContentControl.ContentTemplate>
+                                            </ContentControl>
+
+                                            <Button Command="{Binding SelectSidePaneContentCommand}"
+                                                CommandParameter="RelatedVideos"
+                                                    Margin="0 16 0 0"
+                                                    HorizontalAlignment="Center"
+                                                    MinWidth="180"
+                                                    Background="Transparent"
+                                                >
+                                                <toolkit:DockPanel Margin="16">
+
+                                                    <SymbolIcon Symbol="Forward" Margin="16 0 0 0" 
+                                                                                            toolkit:DockPanel.Dock="Right"
+                                                                                            />
+
+                                                    <TextBlock Text="関連情報" />
+
+                                                </toolkit:DockPanel>
+                                                
+                                            </Button>
+                                        </StackPanel>
+
+                                        
+
+                                    </Grid>
+                                    
 
                                 </Grid>
                             </toolkit:DockPanel>
@@ -1898,6 +2056,10 @@
                                     </Slider>
 
                                     <StackPanel VerticalAlignment="Bottom">
+                                        
+                                        
+
+
                                         <!-- 再生コントロール -->
                                         
                                         <Grid Padding="8 0 8 0"  >
@@ -2075,11 +2237,95 @@
                                     </Button>
                                 </Border>
 
+                                <!-- 次動画キャンセル -->
+
+                                <ContentControl Content="{Binding EndPlayRecommendAction, Mode=OneWay}" 
+                                                        HorizontalContentAlignment="Stretch"
+                                                        VerticalContentAlignment="Stretch"
+                                                        VerticalAlignment="Center"
+                                                HorizontalAlignment="Center"
+                                                Visibility="{Binding EndPlayRecommendAction, Converter={StaticResource NotNullToVisibility}}"
+                                                        >
+                                    <ContentControl.ContentTemplate>
+                                        <DataTemplate x:DataType="sidepaneVM:RelatedVideosSidePaneContentViewModel">
+                                            <StackPanel>
+
+                                                <ContentControl Content="{Binding NextVideo, Mode=OneWay}"
+                                                                         HorizontalContentAlignment="Stretch"
+                                                                         VerticalContentAlignment="Stretch"
+                                                                            Visibility="{Binding NextVideo, Converter={StaticResource NotNullToVisibility}}"
+                                                                        >
+                                                    <ContentControl.ContentTemplate>
+                                                        <DataTemplate>
+                                                            <StackPanel HorizontalAlignment="Center"
+                                                                                >
+                                                                <!-- 10秒 = 10000ms -->
+                                                                <Border Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsCanceledPlayNextVideo, Converter={StaticResource BooleanToVisibilityInverted}}">
+                                                                    <Button Command="{Binding ElementName=RecommendActionLayout, Path=DataContext.CancelAutoPlayNextVideoCommand}"
+                                                                                Background="Transparent"
+                                                                                HorizontalAlignment="Center"
+                                                                        Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsEnableAutoPlayNextVideo, Converter={StaticResource BooleanToVisibility}}"
+                                                                                >
+                                                                        <Grid>
+                                                                            <uwpControls:RadialProgressBar Maximum="10000.0" Minimum="0.0" 
+                                                                                                           Value="{Binding ElementName=RecommendActionLayout, Path=DataContext.NextPlayVideoProgressTime, Mode=OneWay}" 
+                                                                                                           Height="48"
+                                                                                                           Width="48"
+                                                                                                           Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
+                                                                                                                   
+                                                                                                       />
+                                                                            <StackPanel HorizontalAlignment="Center"
+                                                                                            VerticalAlignment="Center">
+
+                                                                                <SymbolIcon Symbol="Pause" 
+                                                                                            Height="16"
+                                                                                            Width="16"
+                                                                                        Margin="0 0 4 0"
+                                                                                            Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsCanceledPlayNextVideo, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                                                            />
+                                                                            </StackPanel>
+                                                                        </Grid>
+                                                                    </Button>
+
+                                                                </Border>
+                                                                
+                                                                <Button Command="{Binding ElementName=RecommendActionLayout, Path=DataContext.ManualPlayNextVideoCommand}"
+                                                                                MinWidth="240"
+                                                                                Background="Transparent"
+                                                                                Margin="16"
+                                                                                >
+
+                                                                    <toolkit:DockPanel >
+
+                                                                        <SymbolIcon Symbol="Forward" Margin="16 0 0 0" 
+                                                                                            toolkit:DockPanel.Dock="Right"
+                                                                                            />
+
+                                                                        <TextBlock 
+                                                                                   FontSize="12"
+                                                                                   TextWrapping="Wrap"
+                                                                                   >
+                                                                                    <Run Text="{Binding Label}" />
+                                                                        </TextBlock>
+
+                                                                    </toolkit:DockPanel>
+                                                                </Button>
+
+
+                                                            </StackPanel>
+                                                        </DataTemplate>
+                                                    </ContentControl.ContentTemplate>
+                                                </ContentControl>
+                                            </StackPanel>
+                                        </DataTemplate>
+                                    </ContentControl.ContentTemplate>
+                                </ContentControl>
                             </Grid>
 
                             
                         </Grid>
 
+                        
 
                         <Grid Visibility="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
                             <Border IsHitTestVisible="True" Background="Transparent">
@@ -2091,8 +2337,9 @@
                             </Border>
                         </Grid>
 
-
                         
+
+
 
                         <Grid 
                             

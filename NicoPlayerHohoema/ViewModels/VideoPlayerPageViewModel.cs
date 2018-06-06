@@ -1335,6 +1335,8 @@ namespace NicoPlayerHohoema.ViewModels
         {
             Debug.WriteLine("VideoPlayer OnNavigatingFromAsync start.");
 
+            CancelPlayNextVideo();
+
             //			PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
 
             _CurrentPlayingVideoSession?.Dispose();
@@ -1575,56 +1577,148 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-
         bool _IsVideoPlayed = false;
+        DispatcherTimer _NextPlayVideoProgressTimer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(32) };
+
+        DateTime PlayEndTime;
+        private double _NextPlayVideoProgressTime = 0.0;
+        public double NextPlayVideoProgressTime
+        {
+            get { return _NextPlayVideoProgressTime; }
+            set { SetProperty(ref _NextPlayVideoProgressTime, value); }
+        }
+
+
+        private bool _HasNextVideo = false;
+        public bool HasNextVideo
+        {
+            get { return _HasNextVideo; }
+            set { SetProperty(ref _HasNextVideo, value); }
+        }
+
+        private bool _IsCanceledPlayNextVideo = true;
+        public bool IsCanceledPlayNextVideo
+        {
+            get { return _IsCanceledPlayNextVideo; }
+            set { SetProperty(ref _IsCanceledPlayNextVideo, value); }
+        }
+
+
+        public bool IsEnableAutoPlayNextVideo => HohoemaApp.UserSettings.PlaylistSettings.AutoMoveNextVideoOnPlaylistEmpty;
+
         private void VideoPlayed(bool canPlayNext = false)
         {
-            if (_IsVideoPlayed == false)
+            
+            // Note: 次の再生用VMの作成を現在ウィンドウのUIDsipatcher上で行わないと同期コンテキストが拾えず再生に失敗する
+            // VideoPlayedはMediaPlayerが動作しているコンテキスト上から呼ばれる可能性がある
+            CurrentWindowContextScheduler.Schedule(async () => 
             {
-                // Note: 次の再生用VMの作成を現在ウィンドウのUIDsipatcher上で行わないと同期コンテキストが拾えず再生に失敗する
-                // VideoPlayedはMediaPlayerが動作しているコンテキスト上から呼ばれる可能性がある
-                CurrentWindowContextScheduler.Schedule(() => 
-                {
-                    IsDisplayControlUI.Value = true;
+                IsDisplayControlUI.Value = true;
 
+                if (!_IsVideoPlayed == false)
+                {
                     HohoemaApp.Playlist.PlayDone(CurrentPlayingItem, canPlayNext);
 
-                    if (HohoemaApp.Playlist.CurrentPlaylist?.PlaylistItems.Count == 0)
+                    Database.VideoPlayedHistoryDb.VideoPlayed(CurrentPlayingItem.ContentId);
+                }
+
+                if (HohoemaApp.Playlist.CurrentPlaylist?.PlaylistItems.Count == 0)
+                {
+                    if (!IsPlayWithCache.Value)
                     {
-                        if (!IsPlayWithCache.Value)
+                        if (canPlayNext)
                         {
-                            SelectSidePaneContentCommand.Execute(PlayerSidePaneContentType.RelatedVideos.ToString());
+                            EndPlayRecommendAction = GetSidePaneContent(PlayerSidePaneContentType.RelatedVideos) as RelatedVideosSidePaneContentViewModel;
 
-                            if (canPlayNext)
+                            IsCanceledPlayNextVideo = false;
+                            CancelAutoPlayNextVideoCommand.RaiseCanExecuteChanged();
+
+                            // 自動で次動画へ移動する機能
+                            var sidePaneContent = GetSidePaneContent(PlayerSidePaneContentType.RelatedVideos) as RelatedVideosSidePaneContentViewModel;
+                            await sidePaneContent.InitializeRelatedVideos();
+
+                            if (sidePaneContent.NextVideo != null && HohoemaApp.UserSettings.PlaylistSettings.AutoMoveNextVideoOnPlaylistEmpty)
                             {
-                                // 自動で次動画へ移動する機能
-                                var sidePaneContent = GetSidePaneContent(PlayerSidePaneContentType.RelatedVideos) as RelatedVideosSidePaneContentViewModel;
-                                sidePaneContent.InitializeRelatedVideos()
-                                    .ContinueWith(prevTask =>
-                                    {
-                                        if (sidePaneContent.NextVideo != null && HohoemaApp.UserSettings.PlaylistSettings.AutoMoveNextVideoOnPlaylistEmpty)
-                                        {
-                                            HohoemaApp.Playlist.PlayVideo(sidePaneContent.NextVideo.RawVideoId, sidePaneContent.NextVideo.Label);
-                                        }
-                                    });
+                                HasNextVideo = true;
+                                PlayEndTime = DateTime.Now;
+
+                                NextPlayVideoProgressTime = 0.0;
+                                _NextPlayVideoProgressTimer.Tick += _NextPlayVideoProgressTimer_Tick;
+                                _NextPlayVideoProgressTimer.Start();
+
+                                await Task.Delay(TimeSpan.FromSeconds(10));
+
+                                _NextPlayVideoProgressTimer.Stop();
+                                _NextPlayVideoProgressTimer.Tick -= _NextPlayVideoProgressTimer_Tick;
+
+                                if (!IsCanceledPlayNextVideo)
+                                {
+                                    HohoemaApp.Playlist.PlayVideo(sidePaneContent.NextVideo.RawVideoId, sidePaneContent.NextVideo.Label);
+                                }
                             }
+                                    
                         }
+                            
                     }
-                });
+                }
+            });
 
-                
+            _IsVideoPlayed = true;
+        }
 
-                Database.VideoPlayedHistoryDb.VideoPlayed(CurrentPlayingItem.ContentId);
+        private void _NextPlayVideoProgressTimer_Tick(object sender, object e)
+        {
+            NextPlayVideoProgressTime = (DateTime.Now - PlayEndTime).TotalMilliseconds;
+        }
 
-                _IsVideoPlayed = true;
+        private void CancelPlayNextVideo()
+        {
+            IsCanceledPlayNextVideo = true;
+            _NextPlayVideoProgressTimer.Stop();
+
+        }
+
+        private DelegateCommand _CancelAutoPlayNextVideoCommand;
+        public DelegateCommand CancelAutoPlayNextVideoCommand
+        {
+            get
+            {
+                return _CancelAutoPlayNextVideoCommand
+                    ?? (_CancelAutoPlayNextVideoCommand = new DelegateCommand(() =>
+                    {
+                        CancelPlayNextVideo();
+                    }
+                    , () => !IsCanceledPlayNextVideo));
+            }
+        }
+
+        private DelegateCommand _ManualPlayNextVideoCommand;
+        public DelegateCommand ManualPlayNextVideoCommand
+        {
+            get
+            {
+                return _ManualPlayNextVideoCommand
+                    ?? (_ManualPlayNextVideoCommand = new DelegateCommand(() =>
+                    {
+                        CancelPlayNextVideo();
+
+                        var sidePaneContent = GetSidePaneContent(PlayerSidePaneContentType.RelatedVideos) as RelatedVideosSidePaneContentViewModel;
+                        sidePaneContent.InitializeRelatedVideos()
+                            .ContinueWith(prevTask =>
+                            {
+                                if (sidePaneContent.NextVideo != null)
+                                {
+                                    HohoemaApp.Playlist.PlayVideo(sidePaneContent.NextVideo.RawVideoId, sidePaneContent.NextVideo.Label);
+                                }
+                            });
+                    }
+                    ));
             }
         }
 
 
 
-
-
-		protected override void OnDispose()
+        protected override void OnDispose()
 		{
             _CurrentPlayingVideoSession?.Dispose();
 
@@ -2218,7 +2312,9 @@ namespace NicoPlayerHohoema.ViewModels
                 return _TogglePlayPauseCommand
                     ?? (_TogglePlayPauseCommand = new DelegateCommand(async () =>
                     {
-                        
+                        CancelPlayNextVideo();
+                        EndPlayRecommendAction = null;
+
                         var session = MediaPlayer.PlaybackSession;
                         if (session.PlaybackState == MediaPlaybackState.None)
                         {
@@ -2451,6 +2547,8 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenVideoInfoCommand
                     ?? (_OpenVideoInfoCommand = new DelegateCommand(() =>
                     {
+                        CancelPlayNextVideo();
+
                         if (HohoemaApp.Playlist.PlayerDisplayType == PlayerDisplayType.PrimaryView)
                         {
                             HohoemaApp.Playlist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
@@ -2471,6 +2569,8 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ShareCommand
                     ?? (_ShareCommand = new DelegateCommand(() =>
                     {
+                        CancelPlayNextVideo();
+
                         ShareHelper.Share(_VideoInfo);
                     }
                     , () => DataTransferManager.IsSupported()
@@ -2998,6 +3098,13 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _CannotPlayReason, value); }
 		}
 
+        // 再生終了後のリコメンドアクション
+        private RelatedVideosSidePaneContentViewModel _EndPlayRecommendAction;
+        public RelatedVideosSidePaneContentViewModel EndPlayRecommendAction
+        {
+            get { return _EndPlayRecommendAction; }
+            set { SetProperty(ref _EndPlayRecommendAction, value); }
+        }
 
         // プレイリスト
         public IPlayableList CurrentPlaylist { get; private set; }
@@ -3027,6 +3134,10 @@ namespace NicoPlayerHohoema.ViewModels
                 return _SelectSidePaneContentCommand
                     ?? (_SelectSidePaneContentCommand = new DelegateCommand<object>((type) => 
                     {
+                        // 再生終了後アクションとして関連動画を選択した場合には
+                        // 次動画自動再生をキャンセルする
+                        CancelPlayNextVideo();
+
                         if (type is PlayerSidePaneContentType)
                         {
                             CurrentSidePaneContentType.Value = (PlayerSidePaneContentType)type;
