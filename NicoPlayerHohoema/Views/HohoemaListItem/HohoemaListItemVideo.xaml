@@ -63,6 +63,7 @@
                                     VerticalAlignment="Center"
                                     VerticalContentAlignment="Center"
                                     IsCacheEnabled="True"
+                                    IsTabStop="False"
                    >
                 </uwptoolkit:ImageEx>
 
