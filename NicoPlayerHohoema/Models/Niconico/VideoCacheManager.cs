@@ -388,12 +388,9 @@ namespace NicoPlayerHohoema.Models
             // 及び、リクエストの再構築
             var list = await LoadDownloadRequestItems();
 
-            using (var releaser = await _CacheRequestProcessingLock.LockAsync())
+            foreach (var req in list)
             {
-                foreach (var req in list)
-                {
-                    _CacheDownloadPendingVideos.Add(req);
-                }
+                await RequestCache(req);
             }
 
             Debug.WriteLine("");
