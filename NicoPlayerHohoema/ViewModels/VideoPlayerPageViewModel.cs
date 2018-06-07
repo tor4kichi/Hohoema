@@ -2429,7 +2429,9 @@ namespace NicoPlayerHohoema.ViewModels
                             var dmcQuality = (NicoVideoQuality)(6 - index); // 2~6の範囲に収める必要あり
                             if (dmcQuality.IsDmc())
                             {
-                                RequestVideoQuality.Value = NicoVideoVideoContentHelper.VideoContentToQuality(content);
+                                RequestVideoQuality.Value = dmcQuality;
+
+                                _PreviosPlayingVideoPosition = ReadVideoPosition.Value;
 
                                 await PlayingQualityChangeAction();
                             }
