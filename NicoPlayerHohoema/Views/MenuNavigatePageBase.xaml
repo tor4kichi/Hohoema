@@ -773,8 +773,10 @@
                                         Background="Transparent"
                                         Command="{Binding TogglePlayerFloatDisplayCommand}"
                                         TabIndex="102"
+                                        HorizontalAlignment="Stretch"
+                                        Margin="8 0 0 0"
                                         >
-                                    <StackPanel Orientation="Horizontal">
+                                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE743;"
                                                                                 FontSize="24"
                                                                                 VerticalAlignment="Center"
@@ -783,7 +785,7 @@
                                                                                 HorizontalAlignment="Center"
                                                                             />
 
-                                        <TextBlock Text="プレイヤーを全体表示" 
+                                        <TextBlock Text="プレイヤー表示" 
                                        VerticalAlignment="Center"
                                        Margin="8 0 0 0"
                                        />
