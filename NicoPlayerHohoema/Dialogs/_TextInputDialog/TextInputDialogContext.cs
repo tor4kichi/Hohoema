@@ -2,21 +2,33 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Dialogs
 {
 	public class TextInputDialogContext
 	{
-		public TextInputDialogContext(string title, string placeholder, string defaultText, Func<string, bool> validater)
+        private SynchronizationContextScheduler _CurrentWindowContextScheduler;
+        public SynchronizationContextScheduler CurrentWindowContextScheduler
+        {
+            get
+            {
+                return _CurrentWindowContextScheduler
+                    ?? (_CurrentWindowContextScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current));
+            }
+        }
+
+        public TextInputDialogContext(string title, string placeholder, string defaultText, Func<string, bool> validater)
 		{
 			Title = title;
 			PlaceholderText = placeholder;
-			Text = new ReactiveProperty<string>(defaultText);
+			Text = new ReactiveProperty<string>(CurrentWindowContextScheduler, defaultText);
 			IsValid = Text.Select(validater)
-				.ToReactiveProperty();
+				.ToReactiveProperty(CurrentWindowContextScheduler);
 		}
 
 		public string Title { get; set; }
