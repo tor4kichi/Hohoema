@@ -153,7 +153,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 var ver = Windows.ApplicationModel.Package.Current.Id.Version;
                 return _CurrentVersion
-                    ?? (_CurrentVersion = new Version(ver.Major, ver.Minor, ver.Revision));
+                    ?? (_CurrentVersion = new Version(ver.Major, ver.Minor, ver.Build));
             }
         }
 
