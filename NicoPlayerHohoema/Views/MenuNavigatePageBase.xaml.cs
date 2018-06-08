@@ -66,6 +66,8 @@ namespace NicoPlayerHohoema.Views
                             ShowMenuSubContent();
                         }
                     });
+
+                ShowMenuMainContent();
             }
         }
         
