@@ -1169,7 +1169,7 @@
                                                                   >
                                                     </AppBarButton>
                                                     <AppBarButton Label="共有"
-                                                                  Icon="Share"
+                                                                  Icon="Link"
                                                                   Command="{Binding ShareCommand}"
                                                                   >
                                                         
