@@ -36,6 +36,7 @@
                                     IsCacheEnabled="True"
                                     Width="80"
                                     Height="90"
+                                        IsTabStop="False"
                    >
                     </uwptoolkit:ImageEx>
 
@@ -201,6 +202,7 @@
                                 x:Name="VideoOwnerOtherVideosListView"
                                 Background="{StaticResource HohoemaPlayerBackgroundBrush}"
                                   ItemTemplate="{StaticResource MiniListItemTemplate}"
+                                  IsTabStop="False"
                                 >
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem">
@@ -226,6 +228,7 @@
                                 IsItemClickEnabled="True"
                                 x:Name="VideoOwnerMylistsListView"
                                 Background="{StaticResource HohoemaPlayerBackgroundBrush}"
+                                  IsTabStop="False"
                                 >
                             <ListView.ItemContainerStyle>
                                 <Style TargetType="ListViewItem">
@@ -258,6 +261,7 @@
                                 x:Name="PlaylistItemsListView"
                                 Background="{StaticResource HohoemaPlayerBackgroundBrush}"
                                 ItemTemplate="{StaticResource MiniListItemTemplate}"
+                                  IsTabStop="False"
 
                               >
                             <ListView.ItemContainerStyle>

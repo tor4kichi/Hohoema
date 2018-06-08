@@ -11,7 +11,7 @@ using Windows.UI.Xaml.Input;
 
 namespace NicoPlayerHohoema.Views.Behaviors
 {
-	class SetFocus : Behavior<DependencyObject>, IAction
+	class SetFocus : Behavior<Control>, IAction
 	{
         public static readonly DependencyProperty IsEnabledProperty =
            DependencyProperty.Register("IsEnabled"
@@ -41,7 +41,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
             set { SetValue(DelayProperty, value); }
         }
 
-        public static readonly DependencyProperty StateProperty =
+        public static readonly DependencyProperty TargetObjectProperty =
 			DependencyProperty.Register("TargetObject"
 					, typeof(Control)
 					, typeof(SetFocus)
@@ -50,8 +50,8 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 		public Control TargetObject
 		{
-			get { return (Control)GetValue(StateProperty); }
-			set { SetValue(StateProperty, value); }
+			get { return (Control)GetValue(TargetObjectProperty); }
+			set { SetValue(TargetObjectProperty, value); }
 		}
 
 
@@ -104,12 +104,24 @@ namespace NicoPlayerHohoema.Views.Behaviors
             {
                 return TargetObject.Focus(FocusState.Programmatic);
             }
-            else
+            else 
             {
                 return FocusManager.TryMoveFocus(FocusNavigationDirection.None,
                     new FindNextElementOptions() { SearchRoot = AssociatedObject }
                     );
             }
         }
-	}
+
+        protected override void OnAttached()
+        {
+            AssociatedObject.Loaded += async (s, e) => 
+            {
+                await Task.Delay(Delay);
+
+                Focus();
+            };
+            
+            base.OnAttached();
+        }
+    }
 }

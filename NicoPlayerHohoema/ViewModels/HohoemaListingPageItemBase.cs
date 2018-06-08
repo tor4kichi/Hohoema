@@ -102,8 +102,8 @@ namespace NicoPlayerHohoema.ViewModels
         public bool HasImageCaption => !string.IsNullOrWhiteSpace(ImageCaption);
 
 
-        private Color _ThemeColor = Colors.Transparent;
-        public Color ThemeColor
+        private Color? _ThemeColor = null;
+        public Color? ThemeColor
         {
             get { return _ThemeColor; }
             set

@@ -83,10 +83,17 @@ namespace NicoPlayerHohoema.Models
 			_UserMylists.Clear();
 		}
 
-		private void App_OnSignin()
+		private async void App_OnSignin()
 		{
-            Initialize();
-		}
+            bool isInitialized = IsInitialized;
+
+            await Initialize();
+
+            if (isInitialized)
+            {
+                await SyncMylistGroups();
+            }
+        }
 
         public int MaxMylistGroupCountCurrentUser => HohoemaApp.IsPremiumUser ? MaxPremiumUserMylistGroupCount : MaxUserMylistGroupCount;
 

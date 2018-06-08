@@ -5,8 +5,10 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI;
 
@@ -14,7 +16,17 @@ namespace NicoPlayerHohoema.Dialogs
 {
 	public class EditMylistGroupDialogContext
 	{
-		public static List<IncoTypeVM> IconTypeList { get; private set; }
+        private SynchronizationContextScheduler _CurrentWindowContextScheduler;
+        public SynchronizationContextScheduler CurrentWindowContextScheduler
+        {
+            get
+            {
+                return _CurrentWindowContextScheduler
+                    ?? (_CurrentWindowContextScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current));
+            }
+        }
+
+        public static List<IncoTypeVM> IconTypeList { get; private set; }
 		public static List<string> MylistDefaultSortList { get; private set; }
 
 		static EditMylistGroupDialogContext()
@@ -56,13 +68,13 @@ namespace NicoPlayerHohoema.Dialogs
 		public EditMylistGroupDialogContext(MylistGroupEditData data, bool isCreate = false)
 		{
 			DialogTitle = "マイリストを" + (isCreate ? "作成" : "編集");
-			MylistName = new ReactiveProperty<string>(data.Name)
+			MylistName = new ReactiveProperty<string>(CurrentWindowContextScheduler, data.Name)
 				.SetValidateAttribute(() => MylistName);
 
-			MylistDescription = new ReactiveProperty<string>(data.Description);
-			MylistIconType = new ReactiveProperty<IncoTypeVM>(IconTypeList.Single(x => x.IconType == data.IconType));
-			MylistIsPublicIndex = new ReactiveProperty<int>(data.IsPublic ? 0 : 1); // 公開=1 非公開=0
-			MylistDefaultSortIndex = new ReactiveProperty<int>((int)data.MylistDefaultSort);
+			MylistDescription = new ReactiveProperty<string>(CurrentWindowContextScheduler, data.Description);
+			MylistIconType = new ReactiveProperty<IncoTypeVM>(CurrentWindowContextScheduler, IconTypeList.Single(x => x.IconType == data.IconType));
+			MylistIsPublicIndex = new ReactiveProperty<int>(CurrentWindowContextScheduler, data.IsPublic ? 0 : 1); // 公開=1 非公開=0
+			MylistDefaultSortIndex = new ReactiveProperty<int>(CurrentWindowContextScheduler, (int)data.MylistDefaultSort);
 
 			CanEditCompletion = MylistName.ObserveHasErrors
 				.Select(x => !x)

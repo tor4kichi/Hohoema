@@ -9,6 +9,7 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:myTrigger="using:NicoPlayerHohoema.Views.StateTrigger"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
@@ -23,6 +24,17 @@
                     <VisualState.Setters>
                         <Setter Target="ContentLayout.Visibility" Value="Collapsed" />
                         <Setter Target="ContentCollapsed.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <myTrigger:EqualConditionStateTrigger Value="{Binding ThemeColor}" Condition="#00FFFFFF" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="LabelTextBlock.Opacity" Value="0.7" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -51,6 +63,7 @@
                                     VerticalAlignment="Center"
                                     VerticalContentAlignment="Center"
                                     IsCacheEnabled="True"
+                                    IsTabStop="False"
                    >
                 </uwptoolkit:ImageEx>
 
@@ -98,6 +111,7 @@
                        FontSize="16"
                        TextWrapping="Wrap"
                        VerticalAlignment="Center"
+                       x:Name="LabelTextBlock"
                        />
 
 

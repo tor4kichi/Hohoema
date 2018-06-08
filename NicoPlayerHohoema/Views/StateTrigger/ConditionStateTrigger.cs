@@ -69,7 +69,7 @@ namespace NicoPlayerHohoema.Views.StateTrigger
             }
             else
             {
-                SetActive(Condition == Value);
+                SetActive(Condition?.ToString() == Value?.ToString());
             }
         }
         

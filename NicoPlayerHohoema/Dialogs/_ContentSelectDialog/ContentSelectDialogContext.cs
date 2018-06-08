@@ -5,15 +5,27 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Text;
+using System.Threading;
 
 namespace NicoPlayerHohoema.Dialogs
 {
 
     public class ContentSelectDialogContext : BindableBase, IDisposable
 	{
-		public List<ISelectableContainer> SelectableContainerList { get; private set; }
+        private SynchronizationContextScheduler _CurrentWindowContextScheduler;
+        public SynchronizationContextScheduler CurrentWindowContextScheduler
+        {
+            get
+            {
+                return _CurrentWindowContextScheduler
+                    ?? (_CurrentWindowContextScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current));
+            }
+        }
+
+        public List<ISelectableContainer> SelectableContainerList { get; private set; }
 
 		public ReactiveProperty<ISelectableContainer> SelectedContainer { get; private set; }
 		public ISelectableContainer _Prev;
@@ -32,7 +44,7 @@ namespace NicoPlayerHohoema.Dialogs
 			SelectableContainerList = containers.ToList();
             IsSingleContainer = SelectableContainerList.Count == 1;
 
-            SelectedContainer = new ReactiveProperty<ISelectableContainer>(firstSelected);
+            SelectedContainer = new ReactiveProperty<ISelectableContainer>(CurrentWindowContextScheduler, firstSelected);
             IsValidItemSelected = SelectedContainer.Select(x => x?.IsValidatedSelection ?? false)
                 .ToReactiveProperty();
 

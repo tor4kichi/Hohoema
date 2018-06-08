@@ -5,17 +5,28 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Dialogs
 {
     public class TextInputSelectableContainer : SelectableContainerBase
 	{
+        private SynchronizationContextScheduler _CurrentWindowContextScheduler;
+        public SynchronizationContextScheduler CurrentWindowContextScheduler
+        {
+            get
+            {
+                return _CurrentWindowContextScheduler
+                    ?? (_CurrentWindowContextScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current));
+            }
+        }
 
-		public Func<string, Task<List<SelectDialogPayload>>> GenerateCandidateList { get; private set; }
-		AsyncLock _UpdateCandidateListLock = new AsyncLock();
+        public Func<string, Task<List<SelectDialogPayload>>> GenerateCandidateList { get; private set; }
+        Helpers.AsyncLock _UpdateCandidateListLock = new Helpers.AsyncLock();
 
 		CompositeDisposable _CompositeDisposable;
 
@@ -25,13 +36,13 @@ namespace NicoPlayerHohoema.Dialogs
 			_CompositeDisposable = new CompositeDisposable();
 			IsSelectFromCandidate = generateCandiateList != null;
 			GenerateCandidateList = generateCandiateList;
-			NowUpdateCandidateList = new ReactiveProperty<bool>(false)
+			NowUpdateCandidateList = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false)
 				.AddTo(_CompositeDisposable);
 
-			Text = new ReactiveProperty<string>(defaultText)
+			Text = new ReactiveProperty<string>(CurrentWindowContextScheduler, defaultText)
 				.AddTo(_CompositeDisposable);
 			CandidateItems = new ObservableCollection<SelectDialogPayload>();
-			SelectedItem = new ReactiveProperty<SelectDialogPayload>()
+			SelectedItem = new ReactiveProperty<SelectDialogPayload>(CurrentWindowContextScheduler)
 				.AddTo(_CompositeDisposable);
 
 			if (IsSelectFromCandidate)
