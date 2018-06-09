@@ -13,17 +13,16 @@ namespace NicoPlayerHohoema.Commands
     {
         protected override bool CanExecute(object parameter)
         {
-            return parameter is ViewModels.MenuItemViewModel;
+            return parameter is HohoemaPin;
         }
 
         protected override void Execute(object parameter)
         {
-            if (parameter is ViewModels.MenuItemViewModel)
+            if (parameter is HohoemaPin pin)
             {
-                var menuItem = parameter as ViewModels.MenuItemViewModel;
                 var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
                 var pinSettings = hohoemaApp.UserSettings.PinSettings;
-                var pin = pinSettings.Pins.FirstOrDefault(x => x.PageType == menuItem.PageType && x.Parameter == menuItem.Parameter);
+                
                 if (pin != null)
                 {
                     pinSettings.Pins.Remove(pin);

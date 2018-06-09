@@ -113,11 +113,15 @@ namespace NicoPlayerHohoema.ViewModels
             MainSelectedItem = new ReactiveProperty<HohoemaListingPageItemBase>(null, ReactivePropertyMode.DistinctUntilChanged);
 
 
-            PinItems = HohoemaApp.UserSettings.PinSettings.Pins
-                .ToReadOnlyReactiveCollection(x => new MenuItemViewModel(x.Label, x.PageType, x.Parameter) as HohoemaListingPageItemBase);
-
+            PinItems = HohoemaApp.UserSettings.PinSettings.Pins;
+                
             ResetMenuItems();
 
+            PinItems.CollectionChangedAsObservable()
+                .Subscribe(async _ => 
+                {
+                    await HohoemaApp.UserSettings.PinSettings.Save();
+                });
 
             /*
             Observable.Merge(
@@ -456,7 +460,7 @@ namespace NicoPlayerHohoema.ViewModels
                             return;
                         }
 
-                        pinSettings.Pins.Add(new HohoemaPin()
+                        pinSettings.Pins.Insert(0, new HohoemaPin()
                         {
                             Label = PageManager.PageTitle,
                             PageType = PageManager.CurrentPageType,
@@ -616,7 +620,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public List<HohoemaListingPageItemBase> MenuItems { get; private set; }
-        public ReadOnlyReactiveCollection<HohoemaListingPageItemBase> PinItems { get; private set; }
+        public ObservableCollection<HohoemaPin> PinItems { get; private set; }
 
         public ReactiveProperty<HohoemaListingPageItemBase> MainSelectedItem { get; private set; }
         

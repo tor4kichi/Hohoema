@@ -19,7 +19,7 @@ namespace NicoPlayerHohoema.Commands
             }
             else
             {
-                return parameter is ViewModels.MenuItemViewModel;
+                return parameter is ViewModels.MenuItemViewModel || parameter is HohoemaPin;
             }
         }
 
@@ -33,11 +33,15 @@ namespace NicoPlayerHohoema.Commands
                     pageManager.OpenPage(pageType);
                 }
             }
-            if (parameter is ViewModels.MenuItemViewModel)
+            else if (parameter is ViewModels.MenuItemViewModel item)
             {
-                var menuItem = parameter as ViewModels.MenuItemViewModel;
                 var pageManager = App.Current.Container.Resolve<PageManager>();
-                pageManager.OpenPage(menuItem.PageType, menuItem.Parameter);
+                pageManager.OpenPage(item.PageType, item.Parameter);
+            }
+            else if (parameter is HohoemaPin pin)
+            {
+                var pageManager = App.Current.Container.Resolve<PageManager>();
+                pageManager.OpenPage(pin.PageType, pin.Parameter);
             }
         }
     }
