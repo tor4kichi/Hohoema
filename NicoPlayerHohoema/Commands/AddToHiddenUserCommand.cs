@@ -45,7 +45,7 @@ namespace NicoPlayerHohoema.Commands
                                 OwnerId = channelInfo.ChannelId.ToString(),
                                 UserType = Mntone.Nico2.Videos.Thumbnail.UserType.Channel,
                             };                        
-                        channel.ScreenName = channelInfo.ScreenName;
+                        channel.ScreenName = channelInfo.ScreenName ?? channel.ScreenName;
                         Database.NicoVideoOwnerDb.AddOrUpdate(channel);
                     }
                 }
@@ -61,7 +61,7 @@ namespace NicoPlayerHohoema.Commands
                     Label = "非表示に設定",
                     Invoked = (uicommand) =>
                     {
-                        hohoemaApp.UserSettings.NGSettings.AddNGVideoOwnerId(content.OwnerUserId.ToString(), content.OwnerUserName);
+                        hohoemaApp.UserSettings.NGSettings.AddNGVideoOwnerId(content.OwnerUserId.ToString(), ownerName);
 
                         // TODO: 表示中ページへの更新イベントをトリガー
                     }
