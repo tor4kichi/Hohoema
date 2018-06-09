@@ -14,6 +14,7 @@ using Prism.Windows.Navigation;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using System.Collections.Async;
+using Mntone.Nico2.Videos.Thumbnail;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -129,6 +130,7 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     _OwnerUserId = TimelineItem.SenderChannel.Id.ToString();
                     OwnerUserName = TimelineItem.SenderChannel.Name;
+                    OwnerUserType = UserType.User;
                 }
             }
             else if (TimelineItem.Video != null)
@@ -150,6 +152,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 _OwnerUserId = TimelineItem.SenderNiconicoUser.Id.ToString();
                 OwnerUserName = TimelineItem.SenderNiconicoUser.Nickname;
+                OwnerUserType = UserType.User;
             }
             
 
@@ -160,6 +163,7 @@ namespace NicoPlayerHohoema.ViewModels
             else if (TimelineItem.SenderChannel != null)
             {
                 this.Description = this.TimelineItem.SenderChannel.Name;
+                OwnerUserType = UserType.Channel;
             }
 
             switch (ItemTopic)
@@ -215,6 +219,8 @@ namespace NicoPlayerHohoema.ViewModels
         public string OwnerUserId => _OwnerUserId;
 
         public string OwnerUserName { get; private set; }
+
+        public UserType OwnerUserType { get; private set; }
 
         public string Id => TimelineItem.Video?.Id ?? TimelineItem.Program.Id;
 

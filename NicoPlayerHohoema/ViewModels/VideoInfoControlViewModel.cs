@@ -41,6 +41,7 @@ namespace NicoPlayerHohoema.ViewModels
         public string RawVideoId { get; private set; }
         public string OwnerUserId { get; private set; }
         public string OwnerUserName { get; private set; }
+        public UserType OwnerUserType { get; private set; }
 
         public IPlayableList Playlist => PlaylistItem?.Owner;
 
@@ -237,6 +238,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 OwnerUserId = info.Owner.OwnerId;
                 OwnerUserName = info.Owner.ScreenName;
+                OwnerUserType = info.Owner.UserType;
             }
 
         }

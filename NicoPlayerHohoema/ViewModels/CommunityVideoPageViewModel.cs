@@ -15,6 +15,7 @@ using Prism.Commands;
 using System.Windows.Input;
 using NicoPlayerHohoema.Interfaces;
 using System.Collections.Async;
+using Mntone.Nico2.Videos.Thumbnail;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -214,6 +215,8 @@ namespace NicoPlayerHohoema.ViewModels
         public string OwnerUserId => string.Empty;
 
         public string OwnerUserName => string.Empty;
+
+        public UserType OwnerUserType => UserType.User;
 
         IPlayableList IVideoContent.Playlist => null;
 

@@ -21,15 +21,32 @@ namespace NicoPlayerHohoema.Commands
                 var ownerName = content.OwnerUserName;
                 if (string.IsNullOrEmpty(ownerName))
                 {
-                    try
+                    if (content.OwnerUserType == Mntone.Nico2.Videos.Thumbnail.UserType.User)
                     {
-                        var userInfo = await hohoemaApp.ContentProvider.GetUserDetail(content.OwnerUserId);
+                        try
+                        {
+                            var userInfo = await hohoemaApp.ContentProvider.GetUserDetail(content.OwnerUserId);
 
-                        ownerName = userInfo.Nickname;
+                            ownerName = userInfo.Nickname;
+                        }
+                        catch
+                        {
+                            return;
+                        }
                     }
-                    catch
+                    else if (content.OwnerUserType == Mntone.Nico2.Videos.Thumbnail.UserType.Channel)
                     {
-                        return;
+                        var channelInfo = await hohoemaApp.ContentProvider.GetChannelInfo(content.OwnerUserId);
+                        ownerName = channelInfo.Name;
+
+                        var channel = Database.NicoVideoOwnerDb.Get(content.OwnerUserId) 
+                            ?? new Database.NicoVideoOwner()
+                            {
+                                OwnerId = channelInfo.ChannelId.ToString(),
+                                UserType = Mntone.Nico2.Videos.Thumbnail.UserType.Channel,
+                            };                        
+                        channel.ScreenName = channelInfo.ScreenName;
+                        Database.NicoVideoOwnerDb.AddOrUpdate(channel);
                     }
                 }
 
