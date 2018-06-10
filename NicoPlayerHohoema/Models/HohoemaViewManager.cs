@@ -125,6 +125,7 @@ namespace NicoPlayerHohoema.Models
                     view = ApplicationView.GetForCurrentView();
 
                     view.TitleBar.ButtonBackgroundColor = Windows.UI.Colors.Transparent;
+                    view.TitleBar.ButtonInactiveBackgroundColor = Windows.UI.Colors.Transparent;
 
                     Window.Current.Activate();
 
