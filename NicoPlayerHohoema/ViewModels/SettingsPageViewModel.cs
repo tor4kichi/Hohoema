@@ -307,10 +307,10 @@ namespace NicoPlayerHohoema.ViewModels
                         secondaryTile.VisualElements.Square71x71Logo = new Uri("ms-appx:///Assets/Square71x71Logo.scale-100.png");
                         secondaryTile.VisualElements.Square310x310Logo = new Uri("ms-appx:///Assets/Square310x310Logo.scale-100.png");
                         secondaryTile.VisualElements.Wide310x150Logo = new Uri("ms-appx:///Assets/Wide310x150Logo.scale-100.png");
+                        secondaryTile.VisualElements.Square44x44Logo = new Uri("ms-appx:///Assets/Square44x44Logo.targetsize-48.png");
                         secondaryTile.VisualElements.ShowNameOnSquare150x150Logo = true;
                         secondaryTile.VisualElements.ShowNameOnSquare310x310Logo = true;
                         secondaryTile.VisualElements.ShowNameOnWide310x150Logo = true;
-
 
                         if (false == await secondaryTile.RequestCreateAsync())
                         {
