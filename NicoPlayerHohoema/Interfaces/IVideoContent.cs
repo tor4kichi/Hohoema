@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mntone.Nico2.Videos.Thumbnail;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -11,6 +12,7 @@ namespace NicoPlayerHohoema.Interfaces
     {
         string OwnerUserId { get; }
         string OwnerUserName { get; }
+        UserType OwnerUserType { get; }
 
         Models.IPlayableList Playlist { get; }
     }

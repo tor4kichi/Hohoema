@@ -228,3 +228,6 @@ NicoPlayerHohoema/Assets/OAuth/twitter.json
 /NicoPlayerHohoema/*.targets
 /NicoPlayerHohoema/*.props
 NicoPlayerHohoema/Package.xml
+/NicoPlayerHohoema/lib/Mntone.Nico2.UWP.pdb
+/NicoPlayerHohoema/lib/Mntone.Nico2.UWP.pri
+/NicoPlayerHohoema/lib/Mntone.Nico2.UWP.dll

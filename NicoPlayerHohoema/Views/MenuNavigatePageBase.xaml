@@ -932,6 +932,8 @@
                                                         IsItemClickEnabled="True"
                                                         SelectionMode="None"
                                                       TabIndex="1"
+                                                      CanReorderItems="True"
+                                                      AllowDrop="True"
                                                         >
                                                 <ListView.ContextFlyout>
                                                     <MenuFlyout>
