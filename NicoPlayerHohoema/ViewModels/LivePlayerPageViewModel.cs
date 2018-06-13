@@ -975,14 +975,13 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
 
-            ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
+            ChangeRequireServiceLevel(HohoemaAppServiceLevel.OnlineWithoutLoggedIn);
 			
 			await base.NavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
-       
 
-        protected override async Task OnSignIn(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
+        protected override async Task OnOnlineWithoutSignIn(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
         {
             try
             {
@@ -1004,9 +1003,9 @@ namespace NicoPlayerHohoema.ViewModels
 
                 throw;
             }
-            
-//			base.OnSignIn(userSessionDisposer);
-		}
+
+            await base.OnOnlineWithoutSignIn(userSessionDisposer, cancelToken);
+        }
 
 
 		protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
@@ -1061,105 +1060,13 @@ namespace NicoPlayerHohoema.ViewModels
 
             try
             {
+                
                 MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
 
 				await NicoLiveVideo.StartLiveWatchingSessionAsync();
 
-				if (NicoLiveVideo.LiveStatusType == Models.Live.LiveStatusType.OnAir || 
-                    NicoLiveVideo.LiveStatusType == Models.Live.LiveStatusType.ComingSoon
-                    )
-				{
-                    CurrentState.Value = MediaElementState.Opening;
-
-                    LivePlayerType.Value = NicoLiveVideo.LivePlayerType;
-
-                    RaisePropertyChanged(nameof(MediaPlayer));
-
-                    await StartLiveElapsedTimer();
-
-                    CommunityId = NicoLiveVideo.BroadcasterCommunityId;
-
-
-                    RaisePropertyChanged(nameof(NicoLiveVideo));
-
-                    if (CommunityName == null)
-                    {
-                        if (CommunityId == null)
-                        {
-                            CommunityId = NicoLiveVideo.BroadcasterCommunityId;
-                        }
-
-                        try
-                        {
-                            var communityDetail = await HohoemaApp.ContentProvider.GetCommunityInfo(CommunityId);
-                            if (communityDetail.IsStatusOK)
-                            {
-                                CommunityName = communityDetail.Community.Name;
-                            }
-                        }
-                        catch { }
-                    }
-
-                    if (NicoLiveVideo.LivePlayerType == Models.Live.LivePlayerType.Leo)
-                    {
-                        CanChangeQuality.Value = true;
-
-                        NicoLiveVideo.ObserveProperty(x => x.RequestQuality)
-                            .Subscribe(q => 
-                            {
-                                RequestQuality.Value = q;
-                            });
-
-                        NicoLiveVideo.ObserveProperty(x => x.CurrentQuality)
-                            .Subscribe(x => 
-                            {
-                                CurrentQuality.Value = x;
-
-                                // MediaPlayer.PositionはSourceを再設定するたびに0にリセットされる
-                                // ソース更新後のコメント表示再生位置のズレを補正する
-                                WatchStartLiveElapsedTime.Value = (DateTime.Now - _OpenAt);
-                            });
-
-                        NicoLiveVideo.ObserveProperty(x => x.Qualities)
-                            .Subscribe(types => 
-                            {
-                                IsAvailableSuperLowQuality.Value    = types?.Any(x => x == "super_low") ?? false;
-                                IsAvailableLowQuality.Value         = types?.Any(x => x == "low") ?? false;
-                                IsAvailableNormalQuality.Value      = types?.Any(x => x == "normal") ?? false;
-                                IsAvailableHighQuality.Value        = types?.Any(x => x == "high") ?? false;
-
-                                var sidePaneContent = _SidePaneContentCache.ContainsKey(PlayerSidePaneContentType.Setting) ? _SidePaneContentCache[PlayerSidePaneContentType.Setting] : null;
-                                if (sidePaneContent != null && NicoLiveVideo != null)
-                                {
-                                    (sidePaneContent as SettingsSidePaneContentViewModel).SetupAvairableLiveQualities(
-                                        NicoLiveVideo.Qualities
-                                        );
-                                    (sidePaneContent as SettingsSidePaneContentViewModel).IsLeoPlayerLive = true;
-                                }
-
-                                ChangeQualityCommand.RaiseCanExecuteChanged();
-                            });
-
-                        // コメントのユーザー名解決
-                        CommentUserInfoResolvingAsync().ConfigureAwait(false);
-                    }
-                    else
-                    {
-                        // seet
-                        if (NicoLiveVideo.PlayerStatusResponse != null)
-                        {
-                            RoomName = NicoLiveVideo.PlayerStatusResponse.Room.Name;
-                            SeetId = NicoLiveVideo.PlayerStatusResponse.Room.SeatId;
-                        }
-                    }
-                }
-                else
-				{
-					Debug.WriteLine("生放送情報の取得失敗しました "  + LiveId);
-                }
-
-				ResetSuggestion(NicoLiveVideo.LiveStatusType);
-			}
+                ResetSuggestion(NicoLiveVideo.LiveStatusType);
+            }
 			catch (Exception ex)
 			{
 				Debug.WriteLine(ex.ToString());
@@ -1578,8 +1485,104 @@ namespace NicoPlayerHohoema.ViewModels
         {
         }
 
-        private void NicoLiveVideo_OpenLive(NicoLiveVideo sender)
+        private async void NicoLiveVideo_OpenLive(NicoLiveVideo sender)
         {
+            Debug.WriteLine("NicoLiveVideo_OpenLive");
+
+            if (NicoLiveVideo.LiveStatusType == Models.Live.LiveStatusType.OnAir ||
+                    NicoLiveVideo.LiveStatusType == Models.Live.LiveStatusType.ComingSoon
+                    )
+            {
+                CurrentState.Value = MediaElementState.Opening;
+
+                LivePlayerType.Value = NicoLiveVideo.LivePlayerType;
+
+                RaisePropertyChanged(nameof(MediaPlayer));
+
+                await StartLiveElapsedTimer();
+
+                CommunityId = NicoLiveVideo.BroadcasterCommunityId;
+
+
+                RaisePropertyChanged(nameof(NicoLiveVideo));
+
+                if (CommunityName == null)
+                {
+                    if (CommunityId == null)
+                    {
+                        CommunityId = NicoLiveVideo.BroadcasterCommunityId;
+                    }
+
+                    try
+                    {
+                        var communityDetail = await HohoemaApp.ContentProvider.GetCommunityInfo(CommunityId);
+                        if (communityDetail.IsStatusOK)
+                        {
+                            CommunityName = communityDetail.Community.Name;
+                        }
+                    }
+                    catch { }
+                }
+
+                if (NicoLiveVideo.LivePlayerType == Models.Live.LivePlayerType.Leo)
+                {
+                    CanChangeQuality.Value = true;
+
+                    NicoLiveVideo.ObserveProperty(x => x.RequestQuality)
+                        .Subscribe(q =>
+                        {
+                            RequestQuality.Value = q;
+                        });
+
+                    NicoLiveVideo.ObserveProperty(x => x.CurrentQuality)
+                        .Subscribe(x =>
+                        {
+                            CurrentQuality.Value = x;
+
+                                // MediaPlayer.PositionはSourceを再設定するたびに0にリセットされる
+                                // ソース更新後のコメント表示再生位置のズレを補正する
+                                WatchStartLiveElapsedTime.Value = (DateTime.Now - _OpenAt);
+                        });
+
+                    NicoLiveVideo.ObserveProperty(x => x.Qualities)
+                        .Subscribe(types =>
+                        {
+                            IsAvailableSuperLowQuality.Value = types?.Any(x => x == "super_low") ?? false;
+                            IsAvailableLowQuality.Value = types?.Any(x => x == "low") ?? false;
+                            IsAvailableNormalQuality.Value = types?.Any(x => x == "normal") ?? false;
+                            IsAvailableHighQuality.Value = types?.Any(x => x == "high") ?? false;
+
+                            var sidePaneContent = _SidePaneContentCache.ContainsKey(PlayerSidePaneContentType.Setting) ? _SidePaneContentCache[PlayerSidePaneContentType.Setting] : null;
+                            if (sidePaneContent != null && NicoLiveVideo != null)
+                            {
+                                (sidePaneContent as SettingsSidePaneContentViewModel).SetupAvairableLiveQualities(
+                                    NicoLiveVideo.Qualities
+                                    );
+                                (sidePaneContent as SettingsSidePaneContentViewModel).IsLeoPlayerLive = true;
+                            }
+
+                            ChangeQualityCommand.RaiseCanExecuteChanged();
+                        });
+
+                    // コメントのユーザー名解決
+                    CommentUserInfoResolvingAsync().ConfigureAwait(false);
+                }
+                else
+                {
+                    // seet
+                    if (NicoLiveVideo.PlayerStatusResponse != null)
+                    {
+                        RoomName = NicoLiveVideo.PlayerStatusResponse.Room.Name;
+                        SeetId = NicoLiveVideo.PlayerStatusResponse.Room.SeatId;
+                    }
+                }
+            }
+            else
+            {
+                Debug.WriteLine("生放送情報の取得失敗しました " + LiveId);
+            }
+
+            ResetSuggestion(NicoLiveVideo.LiveStatusType);
         }
 
 

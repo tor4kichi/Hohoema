@@ -39,7 +39,6 @@ namespace NicoPlayerHohoema.Models
         CacheManagement,
 
         Settings,
-        Login,
 
         Splash,
         VideoPlayer,

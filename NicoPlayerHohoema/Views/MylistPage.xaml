@@ -61,6 +61,7 @@
             </VisualStateGroup>
             
             <VisualStateGroup>
+                
                 <VisualState>
                     <VisualState.StateTriggers>
                         <StateTrigger IsActive="{Binding CanEditMylist, Converter={StaticResource BooleanInverted}}" />
@@ -93,11 +94,32 @@
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsLoggedIn, Converter={StaticResource BooleanInverted}}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+
+                </VisualState>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <mytrigger:EqualConditionStateTrigger Condition="OtherUser" Value="{Binding MylistOrigin.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ToggleMylistFavoriteButton.Visibility" Value="Visible" />
+
+                    </VisualState.Setters>
+                </VisualState>
+
+            </VisualStateGroup>
+            
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
                         <mytrigger:EqualConditionStateTrigger Condition="OtherUser" Value="{Binding MylistOrigin.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="FeedRegstrationButton.Visibility" Value="Visible" />
-                        <Setter Target="ToggleMylistFavoriteButton.Visibility" Value="Visible" />
 
                     </VisualState.Setters>
                 </VisualState>

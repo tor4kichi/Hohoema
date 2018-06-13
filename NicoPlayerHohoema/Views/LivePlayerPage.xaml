@@ -132,6 +132,21 @@
     <Border x:Name="LayoutRoot">
         <VisualStateManager.VisualStateGroups>
 
+            <!-- 生放送視聴状態ごとの表示切替 -->
+            <VisualStateGroup>
+
+                <VisualState x:Name="NotLoginVisualState">
+                    <VisualState.StateTriggers>
+                        <myTrigger:EqualConditionStateTrigger Condition="NotLogin" Value="{Binding LiveStatusType}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PauseButton.Visibility" Value="Visible" />
+                        <Setter Target="CO_PauseButton.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+
+            </VisualStateGroup>
+            
             <!-- 画面サイズごとの表示・非表示に切り替え -->
             <VisualStateGroup>
                 <!-- 一番幅が広いとき -->
@@ -1893,13 +1908,16 @@
                         </Border>
                     </Grid>
 
-                    <Border Margin="16 80 0 0"
+                    <Border Margin="16 96 0 0"
                             Visibility="{Binding HasSuggestion.Value, Converter={StaticResource BooleanToVisibility}}"
                             Background="{ThemeResource AppBarItemBackgroundThemeBrush}"
                             VerticalAlignment="Top"
                             HorizontalAlignment="Left"
+                            BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                            BorderThickness="1"
+                            Padding="16"
                             >
-                        <StackPanel Margin="16">
+                        <StackPanel>
                             <TextBlock Text="{Binding Suggestion.Value.Title}"
                                        FontSize="18"
                                        
@@ -1907,14 +1925,24 @@
 
 
                             <ItemsControl ItemsSource="{Binding Suggestion.Value.Actions}"
-                                          Margin="16 8 0 0"
+                                          Margin="0 16 0 0"
                                           >
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <HyperlinkButton Content="{Binding Label}"
-                                                         Command="{Binding SuggestActionCommand}"
-                                                         Margin="0 8"
-                                                         />
+                                        <Button Command="{Binding SuggestActionCommand}"
+                                                Margin="0 0 0 8"
+                                                Padding="16 8"
+                                                >
+                                            <toolkit:DockPanel >
+                                                <TextBlock Text="{Binding Label}" MaxWidth="240"
+                                                           MinWidth="120"
+                                                           TextWrapping="Wrap"
+                                                           FontSize="18"
+                                       
+                                                           />
+                                                <SymbolIcon Symbol="Forward" Margin="16 0 0 0" />
+                                            </toolkit:DockPanel>
+                                        </Button>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>

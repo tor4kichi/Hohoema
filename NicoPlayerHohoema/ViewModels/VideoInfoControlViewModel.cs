@@ -102,13 +102,15 @@ namespace NicoPlayerHohoema.ViewModels
                     return;
                 }
 
-                Database.NicoVideo info;
+                Database.NicoVideo info = null;
                 if (_IsRequireLatest)
                 {
                     var contentProvider = App.Current.Container.Resolve<NiconicoContentProvider>();
                     info = await contentProvider.GetNicoVideoInfo(RawVideoId);
                 }
-                else
+
+                // オフライン時はDBの情報を利用する
+                if (info == null)
                 {
                     info = Database.NicoVideoDb.Get(RawVideoId);
                 }

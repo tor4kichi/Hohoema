@@ -207,6 +207,23 @@
         
         <VisualStateManager.VisualStateGroups>
 
+
+            <!-- ログインしている場合に有効になるサービスを表示する -->
+            <VisualStateGroup>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsLoggedIn}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CommentLayout.Visibility" Value="Visible" />
+                        <Setter Target="CO_CommentBoxLayout.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+
+            </VisualStateGroup>
+
+
             <!-- 画面サイズごとの表示・非表示に切り替え -->
             <VisualStateGroup>
                 <!-- 一番幅が広いとき -->
@@ -1669,6 +1686,7 @@
                                         <!-- コメントを書く -->
                                         <Grid x:Name="CommentLayout"
                                                 Padding="0 8 0 0"
+                                              Visibility="Collapsed"
                                             >
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="*" />
@@ -1694,7 +1712,7 @@
                                                     toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
                                                     PlaceholderText="コメント"
                                                     HorizontalAlignment="Stretch"
-                                                    Margin="8 0 8 8"
+                                                    Margin="8 0 8 0"
                                                     HorizontalContentAlignment="Stretch"
                                                     Height="40"
                                                     Grid.RowSpan="2"
@@ -1711,7 +1729,7 @@
 
 
                                             <Button Content="{Binding CommandString.Value}" 
-                                                    Margin="8 0 8 8"
+                                                    Margin="8 0 8 0"
                                                     HorizontalAlignment="Stretch"
                                                     HorizontalContentAlignment="Center"
                                                     DataContext="{Binding}"
@@ -1729,7 +1747,7 @@
                                                 </Button.Flyout>
                                             </Button>
 
-                                            <Button Content="投稿"  Margin="8 0 8 8"
+                                            <Button Content="投稿"  Margin="8 0 8 0"
                                                     Height="40"
                                                     Command="{Binding CommentSubmitCommand}"
                                                     x:Name="CommentSubmitButton"
@@ -1742,6 +1760,8 @@
                                             
                                                     />
                                         </Grid>
+
+                                        <Border Height="8" />
                                     </StackPanel>
                                 </StackPanel>
 
@@ -2169,7 +2189,10 @@
 
                                         </Grid>
 
-                                        <TextBox x:Name="CO_CommentTextBox" 
+                                        <Border x:Name="CO_CommentBoxLayout"
+                                                Visibility="Collapsed"
+                                                >
+                                            <TextBox x:Name="CO_CommentTextBox" 
                                              Text="{Binding WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource BGTransparentTextBoxStyle}"
                                             FontSize="18"
@@ -2184,12 +2207,14 @@
                                             HorizontalContentAlignment="Stretch"
                                             Height="18"
                                                 >
-                                            <i:Interaction.Behaviors>
+                                                <i:Interaction.Behaviors>
 
-                                                <mybehavior:FocusGetter IsFocus="{Binding NowCommentWriting.Value, Mode=TwoWay}" />
+                                                    <mybehavior:FocusGetter IsFocus="{Binding NowCommentWriting.Value, Mode=TwoWay}" />
 
-                                            </i:Interaction.Behaviors>
-                                        </TextBox>
+                                                </i:Interaction.Behaviors>
+                                            </TextBox>
+
+                                        </Border>
                                     </StackPanel>
                                 </toolkit:DockPanel>
 

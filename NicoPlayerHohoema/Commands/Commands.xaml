@@ -13,6 +13,9 @@
     <local:FeedGroupRemoveCommand x:Key="FeedGroupRemoveCommand" />
     <local:FeedGroupUpdateCommand x:Key="FeedGroupUpdateCommand" />
 
+    <local:LoginToNiconicoCommand x:Key="LoginToNiconicoCommand" />
+    <local:LogoutFromNiconicoCommand x:Key="LogoutFromNiconicoCommand" />
+    
     <local:NicoLiveUserIdAddToNGCommand x:Key="NicoLiveUserIdAddToNGCommand" />
     <local:NicoLiveUserIdRemoveFromNGCommand x:Key="NicoLiveUserIdRemoveFromNGCommand" />
 

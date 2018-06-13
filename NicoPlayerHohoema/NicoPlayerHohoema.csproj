@@ -199,6 +199,8 @@
     <Compile Include="Commands\FeedGroupRemoveCommand.cs" />
     <Compile Include="Commands\FeedGroupUpdateCommand.cs" />
     <Compile Include="Commands\HohoemaCommnadHelper.cs" />
+    <Compile Include="Commands\LoginToNiconicoCommand.cs" />
+    <Compile Include="Commands\LogoutFromNiconicoCommand.cs" />
     <Compile Include="Commands\NicoLiveUserIdAddToNGCommand.cs" />
     <Compile Include="Commands\NicoLiveUserIdRemoveFromNGCommand.cs" />
     <Compile Include="Commands\OpenBroadcasterInfoCommand.cs" />
@@ -228,6 +230,9 @@
     <Compile Include="Database\SearchHistory.cs" />
     <Compile Include="Database\VideoCommentDb.cs" />
     <Compile Include="Database\VideoPlayedHistory.cs" />
+    <Compile Include="Dialogs\NiconicoLoginDialog.xaml.cs">
+      <DependentUpon>NiconicoLoginDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Dialogs\NiconicoTwoFactorAuthDialog.xaml.cs">
       <DependentUpon>NiconicoTwoFactorAuthDialog.xaml</DependentUpon>
     </Compile>
@@ -818,6 +823,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Include="Dialogs\NiconicoLoginDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Dialogs\NiconicoTwoFactorAuthDialog.xaml">
       <SubType>Designer</SubType>

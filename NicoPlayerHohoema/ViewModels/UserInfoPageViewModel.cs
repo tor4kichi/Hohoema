@@ -192,14 +192,17 @@ namespace NicoPlayerHohoema.ViewModels
 			// お気に入り状態の取得
 			_NowProcessFavorite = true;
 
-			var favManager = HohoemaApp.FollowManager;
-			IsFavorite.Value = favManager.IsFollowItem(FollowItemType.User, UserId);
+            if (HohoemaApp.IsLoggedIn)
+            {
+                var favManager = HohoemaApp.FollowManager;
+                IsFavorite.Value = favManager.IsFollowItem(FollowItemType.User, UserId);
 
-			CanChangeFavoriteState.Value =
-				IsFavorite.Value == true
-				|| favManager.CanMoreAddFollow(FollowItemType.User);
+                CanChangeFavoriteState.Value =
+                    IsFavorite.Value == true
+                    || favManager.CanMoreAddFollow(FollowItemType.User);
+            }
 
-			_NowProcessFavorite = false;
+            _NowProcessFavorite = false;
 
 			try
 			{
@@ -303,9 +306,6 @@ namespace NicoPlayerHohoema.ViewModels
                 return _LogoutCommand
                     ?? (_LogoutCommand = new DelegateCommand(async () =>
                     {
-                        await HohoemaApp.SignOut();
-
-                        PageManager.OpenPage(HohoemaPageType.Login);
                     }));
             }
         }

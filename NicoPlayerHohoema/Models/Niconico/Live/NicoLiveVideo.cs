@@ -360,6 +360,14 @@ namespace NicoPlayerHohoema.Models.Live
                 }
 
                 await StartLiveViewing();
+
+                // ログイン無し視聴に対応しているため
+                // 旧APIからログイン無しと応答があっても無視して
+                // 視聴を継続させる
+                if (LiveStatusType == LiveStatusType.NotLogin)
+                {
+                    LiveStatusType = default(LiveStatusType);
+                }
             }
             else
             {
@@ -490,13 +498,13 @@ namespace NicoPlayerHohoema.Models.Live
                 if (_IsFirstRecieveCurrentStream)
                 {
                     _IsFirstRecieveCurrentStream = false;
+
+                    OpenLive?.Invoke(this);
                 }
                 else
                 {
                     await RefreshLeoPlayer();
                 }
-
-                OpenLive?.Invoke(this);
             });
         }
 

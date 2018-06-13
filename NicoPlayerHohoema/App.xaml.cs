@@ -330,12 +330,13 @@ namespace NicoPlayerHohoema
                     }
                     else
                     {
-                        pageManager.OpenPage(HohoemaPageType.Login);
+                        pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
                     }
                 }
             }
             catch
             {
+                /*
                 if (!pageManager.NavigationService.CanGoBack())
                 {
                     if (!hohoemaApp.IsLoggedIn && AccountManager.HasPrimaryAccount())
@@ -349,6 +350,7 @@ namespace NicoPlayerHohoema
                         pageManager.OpenPage(HohoemaPageType.Login);
                     }
                 }
+                */
             }
 			
 
@@ -361,62 +363,19 @@ namespace NicoPlayerHohoema
             var hohoemaApp = Container.Resolve<HohoemaApp>();
             var pageManager = Container.Resolve<PageManager>();
 
-            if (hohoemaApp.IsLoggedIn)
-            {
-                hohoemaApp.Playlist.PlayVideo(videoId, videoTitle, quality);
-            }
-            else if (AccountManager.HasPrimaryAccount())
-            {
-                await hohoemaApp.SignInWithPrimaryAccount();
+            // TODO: ログインが必要な動画かをチェックしてログインダイアログを出す
 
-                hohoemaApp.Playlist.PlayVideo(videoId, videoTitle, quality);
-
-                pageManager.OpenStartupPage();
-            }
-            else
-            {
-                var payload = new LoginRedirectPayload()
-                {
-                    RedirectPageType = HohoemaPageType.VideoPlayer,
-                    RedirectParamter = new VideoPlayPayload()
-                    {
-                        VideoId = videoId,
-                        Quality = quality
-                    }
-                    .ToParameterString()
-                };
-                pageManager.OpenPage(HohoemaPageType.Login, payload.ToParameterString());
-            }
-
+            hohoemaApp.Playlist.PlayVideo(videoId, videoTitle, quality);
         }
         private async Task PlayLiveVideoFromExternal(string videoId)
         {
+            // TODO: ログインが必要な生放送かをチェックしてログインダイアログを出す
+
+
             var pageManager = Container.Resolve<PageManager>();
             var hohoemaApp = Container.Resolve<HohoemaApp>();
 
-            if (hohoemaApp.IsLoggedIn)
-            {
-                hohoemaApp.Playlist.PlayLiveVideo(videoId);
-            }
-            else if (AccountManager.HasPrimaryAccount())
-            {
-                await hohoemaApp.SignInWithPrimaryAccount();
-
-                hohoemaApp.Playlist.PlayLiveVideo(videoId);
-
-                pageManager.OpenStartupPage();
-            }
-            else
-            {
-//                var payload = new LoginRedirectPayload()
-                {
-//                    RedirectPageType = HohoemaPageType.vi,
-//                    RedirectParamter = 
-                };
-                // TODO: 
-                //                pageManager.OpenPage(HohoemaPageType.Login, payload.ToParameterString());
-                pageManager.OpenPage(HohoemaPageType.Login);
-            }
+            hohoemaApp.Playlist.PlayLiveVideo(videoId);
         }
 
         protected override void OnActivated(IActivatedEventArgs args)
@@ -565,7 +524,7 @@ namespace NicoPlayerHohoema
                         }
                         else
                         {
-                            pageManager.OpenPage(HohoemaPageType.Login);
+                            pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
                         }
 
                     }).ConfigureAwait(false);
@@ -573,12 +532,12 @@ namespace NicoPlayerHohoema
                 }
                 else
                 {
-                    pageManager.OpenPage(HohoemaPageType.Login);
+                    pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
                 }
             }
             catch
             {
-                pageManager.OpenPage(HohoemaPageType.Login);
+                pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
             }
 
 

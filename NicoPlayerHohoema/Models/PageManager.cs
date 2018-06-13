@@ -28,14 +28,12 @@ namespace NicoPlayerHohoema.Models
 		public static readonly HashSet<HohoemaPageType> IgnoreRecordNavigationStack = new HashSet<HohoemaPageType>
 		{
             HohoemaPageType.Splash,
-            HohoemaPageType.Login,
 		};
 
 
 		public static readonly HashSet<HohoemaPageType> DontNeedMenuPageTypes = new HashSet<HohoemaPageType>
 		{
             HohoemaPageType.Splash,
-            HohoemaPageType.Login,
 		};
 
         public static bool IsHiddenMenuPage(HohoemaPageType pageType)

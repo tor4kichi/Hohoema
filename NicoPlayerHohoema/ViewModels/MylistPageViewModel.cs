@@ -552,14 +552,17 @@ namespace NicoPlayerHohoema.ViewModels
 			// お気に入り状態の取得
 			_NowProcessFavorite = true;
 
-			var favManager = HohoemaApp.FollowManager;
-			IsFavoriteMylist.Value = favManager.IsFollowItem(FollowItemType.Mylist, PlayableList.Value.Id);
+            if (HohoemaApp.IsLoggedIn)
+            {
+                var favManager = HohoemaApp.FollowManager;
+                IsFavoriteMylist.Value = favManager.IsFollowItem(FollowItemType.Mylist, PlayableList.Value.Id);
 
-			CanChangeFavoriteMylistState.Value =
-				IsFavoriteMylist.Value == true
-				|| favManager.CanMoreAddFollow(FollowItemType.Mylist);
+                CanChangeFavoriteMylistState.Value =
+                    IsFavoriteMylist.Value == true
+                    || favManager.CanMoreAddFollow(FollowItemType.Mylist);
+            }
 
-			_NowProcessFavorite = false;
+            _NowProcessFavorite = false;
 
 
             

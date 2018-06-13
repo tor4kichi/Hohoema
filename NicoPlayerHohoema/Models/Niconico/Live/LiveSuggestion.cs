@@ -69,8 +69,17 @@ namespace NicoPlayerHohoema.Models.Live
 					title = "この放送はプレミアム会員限定です";
 					break;
 				case LiveStatusType.NotLogin:
-					title = "ログインしていません";
-					break;
+					title = "視聴するには「ニコニコ」にログインが必要です";
+                    actions.Add(new SuggestAction("ログイン", async () =>
+                    {
+                        var dialog = new Dialogs.NiconicoLoginDialog();
+                        var result = await dialog.ShowAsync();
+                        if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary)
+                        {
+                            await liveVideo.StartLiveWatchingSessionAsync();
+                        }
+                    }));
+                    break;
 				default:
 					break;
 			}
