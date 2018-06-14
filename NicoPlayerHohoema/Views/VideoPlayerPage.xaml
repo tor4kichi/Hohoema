@@ -14,6 +14,7 @@
     xmlns:viewmodel="using:NicoPlayerHohoema.ViewModels"
     xmlns:sidepaneVM="using:NicoPlayerHohoema.ViewModels.PlayerSidePaneContent"
     xmlns:logicalTrigger="using:AdaptiveTriggerLibrary.Triggers.LogicalTriggers"
+    xmlns:connectivityTrigger="using:AdaptiveTriggerLibrary.Triggers.ConnectivityTriggers"
     xmlns:intractionTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInteractionTriggers"
     xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
     xmlns:myTrigger ="using:NicoPlayerHohoema.Views.StateTrigger"
@@ -220,7 +221,22 @@
                         <Setter Target="CO_CommentBoxLayout.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
+                
+                
 
+            </VisualStateGroup>
+
+            <!-- インターネット接続状態による表示切替 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <connectivityTrigger:NetworkConnectionStateTrigger Condition="InternetAccess" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ShowVideoInfoButon.Visibility" Value="Visible" />
+                        <Setter Target="ShareButton.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
             </VisualStateGroup>
 
 
@@ -1181,17 +1197,22 @@
 
                                             <CommandBar toolkit:DockPanel.Dock="Right">
                                                 <CommandBar.PrimaryCommands>
-                                                    <AppBarButton Label="動画情報"
+                                                    <AppBarButton x:Name="ShowVideoInfoButon"
+                                                                  Label="動画情報"
                                                                   Command="{Binding OpenVideoInfoCommand}"
+                                                                  Visibility="Collapsed"
                                                                   >
                                                     </AppBarButton>
-                                                    <AppBarButton Label="共有"
+                                                    <AppBarButton x:Name="ShareButton"
+                                                                  Label="共有"
                                                                   Icon="Link"
                                                                   Command="{Binding ShareCommand}"
+                                                                  Visibility="Collapsed"
                                                                   >
                                                         
                                                     </AppBarButton>
-                                                    <AppBarButton Label="追加"
+                                                    <AppBarButton x:Name="AddContentButton"
+                                                                  Label="追加"
                                                                   Icon="Add"
                                                                   
 
