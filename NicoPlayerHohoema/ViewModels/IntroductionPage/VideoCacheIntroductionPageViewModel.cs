@@ -66,19 +66,6 @@ namespace NicoPlayerHohoema.ViewModels
             })
             .AddTo(_Disposables);
 
-            IsCompleteCacheSettings
-                .Where(x => x)
-                .Take(1)
-                .Delay(TimeSpan.FromSeconds(5))
-                .Subscribe(_ => 
-                {
-                    var goNextCommand = new Commands.GoNextIntroductionPageCommand() as System.Windows.Input.ICommand;
-                    if (goNextCommand != null)
-                    {
-                        goNextCommand.Execute(null);
-                    }
-                })
-                .AddTo(_Disposables);
         }
         
     }

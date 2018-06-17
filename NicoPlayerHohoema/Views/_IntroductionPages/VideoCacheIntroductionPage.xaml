@@ -27,7 +27,6 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="CompleteCacheSettingsView.Visibility" Value="Visible" />
-                        <Setter Target="CompleteCacheProgressRing.IsActive" Value="True" />
                     </VisualState.Setters>
                 </VisualState>
 
@@ -55,23 +54,65 @@
         </VisualStateManager.VisualStateGroups>
 
         <Grid>
-            <StackPanel x:Name="CacheSeetingsDefaultView" Visibility="Collapsed">
-                <TextBlock Text="動画キャッシュは手動で追加できます" />
-                <TextBlock Text="でもその前に「キャッシュ動画の" />
-                <TextBlock Text="動画キャッシュは保存フォルダ設定しないと有効になりません" />
+            <Grid Margin="48">
+                <Grid.Background>
+                    <ImageBrush ImageSource="ms-appx:///Assets/Square44x44Logo.targetsize-256_altform-unplated.png" 
+                                Stretch="Uniform" 
+                            Opacity="0.25" >
+                    </ImageBrush>
+                </Grid.Background>
 
+            </Grid>
+            <StackPanel x:Name="CacheSeetingsDefaultView" Visibility="Collapsed"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        >
+
+                <TextBlock 
+                           TextWrapping="Wrap"
+                           MaxWidth="260"
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                           HorizontalAlignment="Left"
+                           >
+                    動画データを端末にキャッシュしたいですか？<LineBreak/>それにはちょっと準備が必要です
+                </TextBlock>
+
+                <Border Height="16" />
+
+                <TextBlock TextWrapping="Wrap"
+                           >
+                    動画キャッシュを使えるようにするには
+                </TextBlock>
+
+                <Border Height="8" />
+                
+                <TextBlock TextWrapping="Wrap"
+                           >
+                    ・動画キャッシュに関する利用同意への承諾<LineBreak />・キャッシュの保存先
+                </TextBlock>
+
+                <Border Height="8" />
+                
+                <TextBlock Text="を設定する必要があります"
+                           TextWrapping="Wrap"
+                           
+                           />
+
+                <Border Height="16" />
+                
                 <Button Command="{Binding RequireEnablingCacheCommand}"
                     Style="{ThemeResource AccentButtonStyle}"
+                        Height="48"
                     >
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="キャッシュを有効にして保存先フォルダを設定する" />
+                        <TextBlock Text="キャッシュを利用同意を確認して、保存先を設定する" />
                         <SymbolIcon Symbol="Forward"
                                 Margin="8 0 0 0"
                                 />
                     </StackPanel>
                 </Button>
 
-
+                <Border Height="16" />
 
                 <Button Command="{StaticResource GoNextIntroductionPageCommand}">
                     <StackPanel Orientation="Horizontal">
@@ -85,7 +126,10 @@
             </StackPanel>
 
 
-            <StackPanel x:Name="CacheSettingsProgressView" Visibility="Collapsed">
+            <StackPanel x:Name="CacheSettingsProgressView" Visibility="Collapsed"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        >
 
                 <TextBlock Text="キャッシュを設定中" />
                 
@@ -94,11 +138,59 @@
             </StackPanel>
 
 
-            <StackPanel x:Name="CompleteCacheSettingsView" Visibility="Collapsed">
+            <StackPanel x:Name="CompleteCacheSettingsView" Visibility="Collapsed"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        MaxWidth="280"
+                        >
 
-                <TextBlock Text="キャッシュ設定完了" />
-                <ProgressRing x:Name="CompleteCacheProgressRing" IsActive="False"
-                              Height="64" Width="64" />
+                <uwpcontrols:DockPanel HorizontalAlignment="Left">
+
+                    <SymbolIcon Symbol="Accept" Height="48" Width="48" Margin="0 0 8 0"
+                                Foreground="{StaticResource SystemControlForegroundAccentBrush}"
+                                />
+
+                    <TextBlock Text="キャッシュの設定完了"
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                               VerticalAlignment="Center"
+                           />
+                </uwpcontrols:DockPanel>
+
+
+
+                <Border Height="32" />
+                
+                <TextBlock Text="動画キャッシュを追加する方法" 
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                           />
+
+                <Border Height="8" />
+
+                <TextBlock Text="動画がリスト表示されている時に動画アイテムを右クリックや長タップをすることで詳細操作メニューが開けます"
+                           TextWrapping="Wrap"
+                           MaxWidth="280"
+                           />
+                
+                <Border Height="8" />
+                
+                <TextBlock Text="そのメニューの中から「キャッシュ取得」を選択することでキャッシュできます"
+                           TextWrapping="Wrap"
+                           />
+
+                <Border Height="16" />
+
+                <Button Command="{StaticResource GoNextIntroductionPageCommand}"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Height="48"
+                        >
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="OK" />
+                        <SymbolIcon Symbol="Forward"
+                                Margin="16 0 0 0"
+                                />
+                    </StackPanel>
+                </Button>
+
             </StackPanel>
         </Grid>
         

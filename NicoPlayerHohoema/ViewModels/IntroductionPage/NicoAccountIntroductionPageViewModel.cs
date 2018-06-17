@@ -38,7 +38,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             IsLoggedIn.Where(x => x)
                 .Take(1)
-                .Delay(TimeSpan.FromSeconds(5))
+                .Delay(TimeSpan.FromSeconds(2.5)) /* ここでログイン確認後の遷移前タメ時間を調整 */
                 .Subscribe(_ => 
                 {
                     var goNextCommand = new Commands.GoNextIntroductionPageCommand() as ICommand;
