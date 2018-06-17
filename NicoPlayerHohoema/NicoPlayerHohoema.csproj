@@ -194,6 +194,7 @@
     <Compile Include="Commands\AddFeedSourceCommand.cs" />
     <Compile Include="Commands\AddMylistCommand.cs" />
     <Compile Include="Commands\AddToHiddenUserCommand.cs" />
+    <Compile Include="Commands\GoNextIntroductionPageCommand.cs" />
     <Compile Include="Commands\CopyToClipboardCommand.cs" />
     <Compile Include="Commands\FeedGroupEditCommand.cs" />
     <Compile Include="Commands\FeedGroupRemoveCommand.cs" />
@@ -396,6 +397,10 @@
     <Compile Include="ViewModels\FeedVideoInfoControlViewModel.cs" />
     <Compile Include="ViewModels\FeedGroupManagePageViewModel.cs" />
     <Compile Include="ViewModels\FeedGroupPageViewModel.cs" />
+    <Compile Include="ViewModels\IntroductionPage\EpilogueIntroductionPageViewModel.cs" />
+    <Compile Include="ViewModels\IntroductionPage\NicoAccountIntroductionPageViewModel.cs" />
+    <Compile Include="ViewModels\IntroductionPage\PrologueIntroductionPageViewModel.cs" />
+    <Compile Include="ViewModels\IntroductionPage\VideoCacheIntroductionPageViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\RelatedVideosSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\RecommendPageViewModel.cs" />
     <Compile Include="ViewModels\SearchSummaryPageViewModel.cs" />
@@ -529,6 +534,18 @@
       <DependentUpon>NicoRepoPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\_CommentRenderer\LiveComment.cs" />
+    <Compile Include="Views\_IntroductionPages\EpilogueIntroductionPage.xaml.cs">
+      <DependentUpon>EpilogueIntroductionPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\_IntroductionPages\PrologueIntroductionPage.xaml.cs">
+      <DependentUpon>PrologueIntroductionPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\_IntroductionPages\VideoCacheIntroductionPage.xaml.cs">
+      <DependentUpon>VideoCacheIntroductionPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\_IntroductionPages\NicoAccountIntroductionPage.xaml.cs">
+      <DependentUpon>NicoAccountIntroductionPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\_PlayerSidePaneContent\LiveSettingsSidePaneContent.xaml.cs">
       <DependentUpon>LiveSettingsSidePaneContent.xaml</DependentUpon>
     </Compile>
@@ -1073,6 +1090,22 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\NicoRepoPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\_IntroductionPages\EpilogueIntroductionPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\_IntroductionPages\PrologueIntroductionPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\_IntroductionPages\VideoCacheIntroductionPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\_IntroductionPages\NicoAccountIntroductionPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

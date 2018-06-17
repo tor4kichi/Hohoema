@@ -48,5 +48,10 @@ namespace NicoPlayerHohoema.Models
 
         ChannelInfo,
         ChannelVideo,
+
+        PrologueIntroduction,
+        NicoAccountIntroduction,
+        VideoCacheIntroduction,
+        EpilogueIntroduction,
     }
 }

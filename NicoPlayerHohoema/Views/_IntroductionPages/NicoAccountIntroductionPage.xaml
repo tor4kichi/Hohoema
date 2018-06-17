@@ -1,0 +1,226 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.NicoAccountIntroductionPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:controls="using:WinRTXamlToolkit.Controls"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsLoggedIn.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="LoggedInView.Visibility" Value="Visible" />
+                        
+                        <Setter Target="LoginButton.IsEnabled" Value="False" />
+                        <Setter Target="GoNextIntroductionButton.IsEnabled" Value="False" />
+
+                        <Setter Target="LoginProgressRing.Visibility" Value="Visible" />
+                        <Setter Target="LoginProgressRing.IsActive" Value="True" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="True" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="NotLoginView.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+
+            <VisualStateGroup x:Name="WindowsSizeVisualState">
+
+                <!-- TV Mode ON -->
+                <!--
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsTVModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+
+
+                    </VisualState.Setters>
+                </VisualState>
+                -->
+
+                <!-- マウス操作時、または画面が大きい時 -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="AppLogoView.Visibility" Value="Visible" />
+
+                        <Setter Target="AppLogoView.(Grid.Column)" Value="1" />
+                        <Setter Target="AppLogoView.(Grid.ColumnSpan)" Value="1" />
+                        <Setter Target="AppLogoView.(Grid.Row)" Value="1" />
+                        <Setter Target="AppLogoView.(Grid.RowSpan)" Value="1" />
+
+                        <Setter Target="ContentView.(Grid.Column)" Value="3" />
+                        <Setter Target="ContentView.(Grid.ColumnSpan)" Value="1" />
+                        <Setter Target="ContentView.(Grid.Row)" Value="1" />
+                        <Setter Target="ContentView.(Grid.RowSpan)" Value="1" />
+                        
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- 狭い -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ContentView.(Grid.Column)" Value="1" />
+                        <Setter Target="ContentView.(Grid.ColumnSpan)" Value="3" />
+                        <Setter Target="ContentView.(Grid.Row)" Value="1" />
+                        <Setter Target="ContentView.(Grid.RowSpan)" Value="1" />
+
+
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+        </VisualStateManager.VisualStateGroups>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="64" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="64" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="48" />
+            <ColumnDefinition Width="10*" />
+            <ColumnDefinition Width="48" />
+            <ColumnDefinition Width="8*" />
+            <ColumnDefinition Width="48" />
+        </Grid.ColumnDefinitions>
+
+
+        <!-- 背景 -->
+        <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
+              Grid.RowSpan="3" Grid.ColumnSpan="4"
+              Visibility="Collapsed"
+              x:Name="AppLogoView"
+              >
+            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Right" >
+                <uwpcontrols:RoundImageEx Source="ms-appx:///Assets/NewStoreLogo.scale-400.png" Height="128" Width="128"
+                       HorizontalAlignment="Center"
+                                          UseLayoutRounding="True"
+                                          CornerRadius="18"
+                       
+                       >
+                </uwpcontrols:RoundImageEx>
+
+            </StackPanel>
+        </Grid>
+
+        <!--  -->
+        <Grid Grid.RowSpan="3" Grid.ColumnSpan="4"
+              x:Name="ContentView"
+              >
+
+            <StackPanel x:Name="NotLoginView" 
+                        Visibility="Collapsed"
+                        VerticalAlignment="Center"
+                        >
+                <TextBlock Text="ニコニコへのアクセスを Hohoemaに任せることで もっと便利に"
+                           MaxWidth="200"
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                           TextWrapping="Wrap"
+                           HorizontalAlignment="Left"
+                           Margin="0 0 0 16"
+                           />
+                <Button x:Name="LoginButton"    
+                    Command="{StaticResource LoginToNiconicoCommand}"
+                    Style="{ThemeResource AccentButtonStyle}"
+                        Height="48"
+                        Margin="0 0 0 0"
+                    >
+                    <Grid>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="ログイン" />
+                            <SymbolIcon Symbol="Forward"
+                                Margin="8 0 0 0"
+                                />
+                        </StackPanel>
+
+                        <ProgressRing x:Name="LoginProgressRing"
+                                    IsActive="False"
+                                  Visibility="Collapsed"
+                                  />
+                    </Grid>
+                </Button>
+
+                <TextBlock Text="ログインすることでマイリストやフォロー、ニコレポや視聴履歴が利用できるようになります" 
+                           TextWrapping="Wrap"
+                           Opacity="0.7"
+                           Margin="0 8"
+                           />
+
+
+                <Border Height="16" />
+
+                <Button x:Name="GoNextIntroductionButton"
+                        Command="{StaticResource GoNextIntroductionPageCommand}"
+                        Margin="0 0 0 0"
+                        >
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="スキップ" />
+                        <SymbolIcon Symbol="Forward"
+                                Margin="8 0 0 0"
+                                />
+                    </StackPanel>
+                </Button>
+
+
+                <TextBlock Text="後からいつでもログインできます"
+                           TextWrapping="Wrap"
+                           Opacity="0.7"
+                           Margin="0 8"
+                       />
+            </StackPanel>
+
+
+            <Grid x:Name="LoggedInView" Visibility="Collapsed"
+                  VerticalAlignment="Center"
+                  >
+               
+                <controls:DockPanel>
+
+                    <ProgressBar Width="280" IsIndeterminate="True" Margin="0 16 0 0"
+                                 controls:DockPanel.Dock="Bottom"
+                                 />
+                    
+                    <iconPack:PackIconMaterial Kind="Check" Height="48" Width="48" Margin="0 0 16 0"
+                                               Foreground="{StaticResource SystemControlHighlightAccentBrush}"
+                                               controls:DockPanel.Dock="Left"
+                                               />
+
+                    <TextBlock Text="ログインを確認"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               VerticalAlignment="Center"
+                               />
+
+                </controls:DockPanel>
+            </Grid>
+        </Grid>
+        
+    </Grid>
+</Page>

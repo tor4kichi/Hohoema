@@ -1,0 +1,106 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.VideoCacheIntroductionPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+
+        <VisualStateManager.VisualStateGroups>
+            
+            
+            <VisualStateGroup>
+                
+                <!-- キャッシュ設定が完了した場合の表示 -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsCompleteCacheSettings.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CompleteCacheSettingsView.Visibility" Value="Visible" />
+                        <Setter Target="CompleteCacheProgressRing.IsActive" Value="True" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- キャッシュ設定中の表示 -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding CanChangeCacheSettings.Value, Converter={StaticResource BooleanInverted}}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CacheSettingsProgressView.Visibility" Value="Visible" />
+                        <Setter Target="ProgressCacheProgressRing.IsActive" Value="True" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="True" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CacheSeetingsDefaultView.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            
+        </VisualStateManager.VisualStateGroups>
+
+        <Grid>
+            <StackPanel x:Name="CacheSeetingsDefaultView" Visibility="Collapsed">
+                <TextBlock Text="動画キャッシュは手動で追加できます" />
+                <TextBlock Text="でもその前に「キャッシュ動画の" />
+                <TextBlock Text="動画キャッシュは保存フォルダ設定しないと有効になりません" />
+
+                <Button Command="{Binding RequireEnablingCacheCommand}"
+                    Style="{ThemeResource AccentButtonStyle}"
+                    >
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="キャッシュを有効にして保存先フォルダを設定する" />
+                        <SymbolIcon Symbol="Forward"
+                                Margin="8 0 0 0"
+                                />
+                    </StackPanel>
+                </Button>
+
+
+
+                <Button Command="{StaticResource GoNextIntroductionPageCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="スキップ" />
+                        <SymbolIcon Symbol="Forward"
+                                Margin="8 0 0 0"
+                                />
+                    </StackPanel>
+                </Button>
+
+            </StackPanel>
+
+
+            <StackPanel x:Name="CacheSettingsProgressView" Visibility="Collapsed">
+
+                <TextBlock Text="キャッシュを設定中" />
+                
+                <ProgressRing x:Name="ProgressCacheProgressRing" IsActive="False" 
+                              Height="64" Width="64" />
+            </StackPanel>
+
+
+            <StackPanel x:Name="CompleteCacheSettingsView" Visibility="Collapsed">
+
+                <TextBlock Text="キャッシュ設定完了" />
+                <ProgressRing x:Name="CompleteCacheProgressRing" IsActive="False"
+                              Height="64" Width="64" />
+            </StackPanel>
+        </Grid>
+        
+    </Grid>
+</Page>

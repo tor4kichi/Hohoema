@@ -87,6 +87,7 @@ namespace NicoPlayerHohoema.Models
         private HohoemaApp(IEventAggregator ea, HohoemaDialogService dialogService)
 		{
             EventAggregator = ea;
+            NiconicoContext = new NiconicoContext();
             _HohoemaDialogService = dialogService;
 			LoginUserId = uint.MaxValue;
 			LoggingChannel = new LoggingChannel("HohoemaLog", new LoggingChannelOptions(HohoemaLoggerGroupGuid));
@@ -724,7 +725,7 @@ namespace NicoPlayerHohoema.Models
 					{
 						Debug.WriteLine("login failed");
                         NiconicoContext?.Dispose();
-                        NiconicoContext = null;
+                        NiconicoContext = new NiconicoContext();
                     }
 
 					return result;
@@ -745,7 +746,7 @@ namespace NicoPlayerHohoema.Models
 
                 if (NiconicoContext == null)
 				{
-					return result;
+                    return result;
 				}
 
                 try

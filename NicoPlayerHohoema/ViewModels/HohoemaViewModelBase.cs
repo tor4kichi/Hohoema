@@ -238,9 +238,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
-            // PageManagerにナビゲーション動作を伝える
-            PageManager.OnNavigated(e);
-
             if (!IsPageNameResolveOnPostNavigatedToAsync)
             {
                 if (false == (this is VideoPlayerPageViewModel || this is LivePlayerPageViewModel))
