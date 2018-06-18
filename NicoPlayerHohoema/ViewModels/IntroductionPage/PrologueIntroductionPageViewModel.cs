@@ -13,6 +13,11 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
+            var goNextCommand = new Commands.GoNextIntroductionPageCommand() as System.Windows.Input.ICommand;
+            if (goNextCommand != null)
+            {
+                goNextCommand.Execute(null);
+            }
 
             base.OnNavigatedTo(e, viewModelState);
         }

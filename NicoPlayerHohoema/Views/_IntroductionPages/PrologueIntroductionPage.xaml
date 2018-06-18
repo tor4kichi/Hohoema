@@ -17,12 +17,7 @@
 
         <StackPanel>
 
-            <TextBlock Text="プロローグ" />
             
-            <Button Content="次へ"
-            Command="{StaticResource GoNextIntroductionPageCommand}">
-
-            </Button>
 
         </StackPanel>
     </Grid>

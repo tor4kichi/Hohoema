@@ -87,7 +87,6 @@ namespace NicoPlayerHohoema.Models
         private HohoemaApp(IEventAggregator ea, HohoemaDialogService dialogService)
 		{
             EventAggregator = ea;
-            NiconicoContext = new NiconicoContext();
             _HohoemaDialogService = dialogService;
 			LoginUserId = uint.MaxValue;
 			LoggingChannel = new LoggingChannel("HohoemaLog", new LoggingChannelOptions(HohoemaLoggerGroupGuid));
@@ -99,7 +98,10 @@ namespace NicoPlayerHohoema.Models
 
             FollowManager = null;
 
-//            ApplicationData.Current.DataChanged += Current_DataChanged;
+            NiconicoContext = new NiconicoContext();
+            ContentProvider.Context = NiconicoContext;
+
+            //            ApplicationData.Current.DataChanged += Current_DataChanged;
 
 
             UpdateServiceStatus();
@@ -665,7 +667,7 @@ namespace NicoPlayerHohoema.Models
 
 								NiconicoContext.Dispose();
                                 NiconicoContext = new NiconicoContext();
-
+                                
                                 return NiconicoSignInStatus.Failed;
 							}
 
@@ -1411,7 +1413,16 @@ namespace NicoPlayerHohoema.Models
 		public NiconicoContext NiconicoContext
 		{
 			get { return _NiconicoContext; }
-			set { SetProperty(ref _NiconicoContext, value); }
+			set
+            {
+                if (SetProperty(ref _NiconicoContext, value))
+                {
+                    if (ContentProvider != null)
+                    {
+                        ContentProvider.Context = value;
+                    }
+                }
+            }
 		}
 
 		public VideoCacheManager CacheManager { get; private set; }

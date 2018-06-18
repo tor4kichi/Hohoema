@@ -15,12 +15,6 @@
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
     <Grid>
-        <TextBlock Text="エピローグ" />
-
         
-        <Button Content="OK"
-            Command="{StaticResource GoNextIntroductionPageCommand}">
-
-        </Button>
     </Grid>
 </Page>
