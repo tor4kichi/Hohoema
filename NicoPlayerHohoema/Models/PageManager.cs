@@ -27,6 +27,8 @@ namespace NicoPlayerHohoema.Models
 		public static readonly HashSet<HohoemaPageType> IgnoreRecordNavigationStack = new HashSet<HohoemaPageType>
 		{
             HohoemaPageType.Splash,
+            HohoemaPageType.PrologueIntroduction,
+            HohoemaPageType.EpilogueIntroduction,
         };
 
 
