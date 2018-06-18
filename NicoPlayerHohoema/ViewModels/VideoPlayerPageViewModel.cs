@@ -1201,10 +1201,11 @@ namespace NicoPlayerHohoema.ViewModels
 
             await this.PlayingQualityChangeAction();
 
-
             // そのあとで表示情報を取得
-            _VideoInfo = await HohoemaApp.ContentProvider.GetNicoVideoInfo(VideoId);
+            _VideoInfo = await HohoemaApp.ContentProvider.GetNicoVideoInfo(VideoId)
+                ?? Database.NicoVideoDb.Get(VideoId);
 
+            
             Title = _VideoInfo.Title;
             VideoTitle = Title;
             ThumbnailUri.Value = _VideoInfo.ThumbnailUrl;

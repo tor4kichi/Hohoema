@@ -63,7 +63,6 @@ namespace NicoPlayerHohoema.ViewModels
 		{
             PageRequireServiceLevel = HohoemaAppServiceLevel.Offline;
 
-            _SignStatusLock = new SemaphoreSlim(1, 1);
 			_NavigationToLock = new SemaphoreSlim(1, 1);
 			HohoemaApp = hohoemaApp;
 			PageManager = pageManager;
@@ -94,42 +93,33 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
        
-		private void __OnSignin()
+		private async void __OnSignin()
 		{
-			try
-			{
-				_SignStatusLock.Wait();
+            using (var releaser = await _SignStatusLock.LockAsync())
+            {
+                if (!NowSignIn && HohoemaApp.IsLoggedIn)
+                {
+                    NowSignIn = HohoemaApp.IsLoggedIn;
 
-				if (!NowSignIn && HohoemaApp.IsLoggedIn)
-				{
-					NowSignIn = HohoemaApp.IsLoggedIn;
+                    RaisePropertyChanged(nameof(IsLoggedIn));
 
-                    CallAppServiceLevelSignIn(_NavigatedToTaskCancelToken?.Token ?? CancellationToken.None);
-				}
-			}
-			finally
-			{
-				_SignStatusLock.Release();
-			}			
+                    await CallAppServiceLevelSignIn(_NavigatedToTaskCancelToken?.Token ?? CancellationToken.None);
+                }
+            }
 		}
 
-		private void __OnSignout()
+		private async void __OnSignout()
 		{
-			try
-			{
-				_SignStatusLock.Wait();
-
+            using (var releaser = await _SignStatusLock.LockAsync())
+            {
 				NowSignIn = false;
+                RaisePropertyChanged(nameof(IsLoggedIn));
 
                 if (IsRequireSignIn)
                 {
-                    OnSignOut().ConfigureAwait(false);
+                    await OnSignOut().ConfigureAwait(false);
                 }
             }
-            finally
-			{
-				_SignStatusLock.Release();
-			}
 		}
 
 
@@ -165,8 +155,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected virtual Task OnFailedSignIn()
         {
-            PageManager.OpenPage(HohoemaPageType.Login);
-
             return Task.CompletedTask;
         }
 
@@ -220,28 +208,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected async Task<bool> CheckSignIn()
 		{
-            if (IsRequireSignIn)
-            {
-                var isSignIn = await HohoemaApp.CheckSignedInStatus() == Mntone.Nico2.NiconicoSignInStatus.Success;
-                if (!HohoemaApp.IsLoggedIn && !isSignIn)
-                {
-                    if (!AccountManager.HasPrimaryAccount())
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        var result = await HohoemaApp.SignInWithPrimaryAccount();
-
-                        if (result == Mntone.Nico2.NiconicoSignInStatus.Failed)
-                        {
-                            return false;
-                        }
-                    }
-                }
-            }
-
-            return HohoemaApp.IsLoggedIn;
+            return await HohoemaApp.CheckSignedInStatus() == Mntone.Nico2.NiconicoSignInStatus.Success;
 		}
 
 		private DelegateCommand _BackCommand;
@@ -271,9 +238,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
-            // PageManagerにナビゲーション動作を伝える
-            PageManager.OnNavigated(e);
-
             if (!IsPageNameResolveOnPostNavigatedToAsync)
             {
                 if (false == (this is VideoPlayerPageViewModel || this is LivePlayerPageViewModel))
@@ -497,8 +461,10 @@ namespace NicoPlayerHohoema.ViewModels
 		protected virtual void OnDispose() { }
 
 
-        private SemaphoreSlim _SignStatusLock;
+        private Helpers.AsyncLock _SignStatusLock = new Helpers.AsyncLock();
 
+
+        public bool IsLoggedIn => HohoemaApp.ServiceStatus.IsLoggedIn();
 
         public bool IsRequireSignIn => PageRequireServiceLevel == HohoemaAppServiceLevel.LoggedIn;
 

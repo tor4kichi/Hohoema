@@ -30,6 +30,17 @@
 
         <VisualStateManager.VisualStateGroups>
 
+            <!-- ログインしている場合に有効になるサービスを表示する -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsLoggedIn}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
             <!-- トップバー表示時のタイトル位置ずらし -->
             <VisualStateGroup>
                 <VisualState>

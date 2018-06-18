@@ -32,6 +32,26 @@
 
         <VisualStateManager.VisualStateGroups>
 
+            <!-- ログインしている場合に有効になるサービスを表示する -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsOwnedCommunity}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+                
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsLoggedIn}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CommunityFollowButton.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            
             <!-- トップバー表示時のタイトル位置ずらし -->
             <VisualStateGroup>
                 <VisualState>
@@ -157,9 +177,10 @@
                             <AppBarToggleButton Background="Transparent"
                                             IsChecked="{Binding IsFollowCommunity.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                             IsEnabled="{Binding CanChangeFollowCommunityState.Value}"
-                                                Visibility="{Binding IsOwnedCommunity, Converter={StaticResource BooleanToVisibilityInverted}}"
                                                 Icon="Favorite"
                                                 Label="フォロー"
+                                                Visibility="Collapsed"
+                                                x:Name="CommunityFollowButton"
                                                 />
 
                             <AppBarButton Label="ブラウザで開く"

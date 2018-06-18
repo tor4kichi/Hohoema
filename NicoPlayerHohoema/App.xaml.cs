@@ -59,6 +59,7 @@ namespace NicoPlayerHohoema
         public SplashScreen SplashScreen { get; private set; }
         const bool _DEBUG_XBOX_RESOURCE = true;
 
+        internal const string IS_COMPLETE_INTRODUCTION = "is_first_launch";
 
         public void PublishInAppNotification(InAppNotificationPayload payload)
         {
@@ -330,12 +331,13 @@ namespace NicoPlayerHohoema
                     }
                     else
                     {
-                        pageManager.OpenPage(HohoemaPageType.Login);
+                        pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
                     }
                 }
             }
             catch
             {
+                /*
                 if (!pageManager.NavigationService.CanGoBack())
                 {
                     if (!hohoemaApp.IsLoggedIn && AccountManager.HasPrimaryAccount())
@@ -349,6 +351,7 @@ namespace NicoPlayerHohoema
                         pageManager.OpenPage(HohoemaPageType.Login);
                     }
                 }
+                */
             }
 			
 
@@ -361,62 +364,19 @@ namespace NicoPlayerHohoema
             var hohoemaApp = Container.Resolve<HohoemaApp>();
             var pageManager = Container.Resolve<PageManager>();
 
-            if (hohoemaApp.IsLoggedIn)
-            {
-                hohoemaApp.Playlist.PlayVideo(videoId, videoTitle, quality);
-            }
-            else if (AccountManager.HasPrimaryAccount())
-            {
-                await hohoemaApp.SignInWithPrimaryAccount();
+            // TODO: ログインが必要な動画かをチェックしてログインダイアログを出す
 
-                hohoemaApp.Playlist.PlayVideo(videoId, videoTitle, quality);
-
-                pageManager.OpenStartupPage();
-            }
-            else
-            {
-                var payload = new LoginRedirectPayload()
-                {
-                    RedirectPageType = HohoemaPageType.VideoPlayer,
-                    RedirectParamter = new VideoPlayPayload()
-                    {
-                        VideoId = videoId,
-                        Quality = quality
-                    }
-                    .ToParameterString()
-                };
-                pageManager.OpenPage(HohoemaPageType.Login, payload.ToParameterString());
-            }
-
+            hohoemaApp.Playlist.PlayVideo(videoId, videoTitle, quality);
         }
         private async Task PlayLiveVideoFromExternal(string videoId)
         {
+            // TODO: ログインが必要な生放送かをチェックしてログインダイアログを出す
+
+
             var pageManager = Container.Resolve<PageManager>();
             var hohoemaApp = Container.Resolve<HohoemaApp>();
 
-            if (hohoemaApp.IsLoggedIn)
-            {
-                hohoemaApp.Playlist.PlayLiveVideo(videoId);
-            }
-            else if (AccountManager.HasPrimaryAccount())
-            {
-                await hohoemaApp.SignInWithPrimaryAccount();
-
-                hohoemaApp.Playlist.PlayLiveVideo(videoId);
-
-                pageManager.OpenStartupPage();
-            }
-            else
-            {
-//                var payload = new LoginRedirectPayload()
-                {
-//                    RedirectPageType = HohoemaPageType.vi,
-//                    RedirectParamter = 
-                };
-                // TODO: 
-                //                pageManager.OpenPage(HohoemaPageType.Login, payload.ToParameterString());
-                pageManager.OpenPage(HohoemaPageType.Login);
-            }
+            hohoemaApp.Playlist.PlayLiveVideo(videoId);
         }
 
         protected override void OnActivated(IActivatedEventArgs args)
@@ -550,35 +510,47 @@ namespace NicoPlayerHohoema
 #endif
 
 
+            var localStorge = new Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper();
+
+
             var pageManager = Container.Resolve<PageManager>();
             var hohoemaApp = Container.Resolve<HohoemaApp>();
 
             try
             {
-                if (!hohoemaApp.IsLoggedIn && AccountManager.HasPrimaryAccount())
+                if (localStorge.Read(IS_COMPLETE_INTRODUCTION, false) == false)
                 {
-                    await hohoemaApp.SignInWithPrimaryAccount().ContinueWith(prevTask =>
-                    {
-                        if (prevTask.Result == Mntone.Nico2.NiconicoSignInStatus.Success)
-                        {
-                            pageManager.OpenStartupPage();
-                        }
-                        else
-                        {
-                            pageManager.OpenPage(HohoemaPageType.Login);
-                        }
-
-                    }).ConfigureAwait(false);
-
+                    // アプリのイントロダクションを開始
+                    pageManager.OpenIntroductionPage();
                 }
                 else
                 {
-                    pageManager.OpenPage(HohoemaPageType.Login);
+                    // ログインを試行
+                    if (!hohoemaApp.IsLoggedIn && AccountManager.HasPrimaryAccount())
+                    {
+                        await hohoemaApp.SignInWithPrimaryAccount().ContinueWith(prevTask =>
+                        {
+                            if (prevTask.Result == Mntone.Nico2.NiconicoSignInStatus.Success)
+                            {
+                                pageManager.OpenStartupPage();
+                            }
+                            else
+                            {
+                                pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
+                            }
+
+                        }).ConfigureAwait(false);
+
+                    }
+                    else
+                    {
+                        pageManager.OpenStartupPage();
+                    }
                 }
             }
             catch
             {
-                pageManager.OpenPage(HohoemaPageType.Login);
+                pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
             }
 
 
@@ -789,6 +761,7 @@ namespace NicoPlayerHohoema
         protected override UIElement CreateShell(Frame rootFrame)
         {
             rootFrame.Navigating += RootFrame_Navigating;
+            rootFrame.Navigated += RootFrame_Navigated;
             rootFrame.NavigationFailed += RootFrame_NavigationFailed;
             
             var menuPageBase = new Views.MenuNavigatePageBase();
@@ -809,6 +782,12 @@ namespace NicoPlayerHohoema
             return grid;
 		}
 
+        private void RootFrame_Navigated(object sender, NavigationEventArgs e)
+        {
+            // PageManagerにナビゲーション動作を伝える
+            var pageManager = Container.Resolve<PageManager>();
+            pageManager.OnNavigated(e);
+        }
 
         private void RootFrame_NavigationFailed(object sender, NavigationFailedEventArgs e)
         {

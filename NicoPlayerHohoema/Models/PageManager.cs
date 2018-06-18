@@ -23,20 +23,23 @@ namespace NicoPlayerHohoema.Models
 {
 	public class PageManager : BindableBase
 	{
-		
 
 		public static readonly HashSet<HohoemaPageType> IgnoreRecordNavigationStack = new HashSet<HohoemaPageType>
 		{
             HohoemaPageType.Splash,
-            HohoemaPageType.Login,
-		};
+            HohoemaPageType.PrologueIntroduction,
+            HohoemaPageType.EpilogueIntroduction,
+        };
 
 
 		public static readonly HashSet<HohoemaPageType> DontNeedMenuPageTypes = new HashSet<HohoemaPageType>
 		{
             HohoemaPageType.Splash,
-            HohoemaPageType.Login,
-		};
+            HohoemaPageType.PrologueIntroduction,
+            HohoemaPageType.NicoAccountIntroduction,
+            HohoemaPageType.VideoCacheIntroduction,
+            HohoemaPageType.EpilogueIntroduction,
+        };
 
         public static bool IsHiddenMenuPage(HohoemaPageType pageType)
         {
@@ -219,7 +222,7 @@ namespace NicoPlayerHohoema.Models
 		/// <summary>
 		/// 外部で戻る処理が行われた際にPageManager上での整合性を取ります
 		/// </summary>
-		public void OnNavigated(NavigatedToEventArgs e)
+		public void OnNavigated(NavigationEventArgs e)
 		{
 			if (e.NavigationMode == NavigationMode.Back || e.NavigationMode == NavigationMode.Forward)
 			{
@@ -284,6 +287,11 @@ namespace NicoPlayerHohoema.Models
 			return PageTypeToTitle(CurrentPageType);
 		}
 
+
+        public void OpenIntroductionPage()
+        {
+            OpenPage(HohoemaPageType.PrologueIntroduction);
+        }
 
         public void OpenStartupPage()
         {

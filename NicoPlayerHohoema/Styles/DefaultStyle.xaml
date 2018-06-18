@@ -368,6 +368,116 @@
         </Setter>
     </Style>
 
-    
+
+    <Style x:Key="ScrollableContentDialogStyle"
+    TargetType="ContentDialog">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentDialog">
+                    <Border x:Name="Container">
+                        <Grid x:Name="LayoutRoot">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <Border x:Name="BackgroundElement"
+                            Background="{TemplateBinding Background}"
+                            FlowDirection="{TemplateBinding FlowDirection}"
+                            BorderThickness="{ThemeResource ContentDialogBorderWidth}"
+                            BorderBrush="{ThemeResource SystemControlForegroundAccentBrush}"
+                            MaxWidth="{TemplateBinding MaxWidth}"
+                            MaxHeight="{TemplateBinding MaxHeight}"
+                            MinWidth="{TemplateBinding MinWidth}"
+                            MinHeight="{TemplateBinding MinHeight}">
+                                <Grid x:Name="DialogSpace"
+                                VerticalAlignment="Stretch">
+                                    <Grid.RowDefinitions>
+                                        <!-- Modify to 'Height="*"' intead of 'Height="Auto"'-->
+                                        <RowDefinition Height="*" />
+                                        <!-- Modify to 'Height="Auto"' intead of 'Height="*"'-->
+                                        <RowDefinition Height="Auto" />
+                                        <!-- Delete' RowDefinition -->
+                                        <!--<RowDefinition Height="Auto" />-->
+                                    </Grid.RowDefinitions>
+                                    <ScrollViewer x:Name="ContentScrollViewer"
+                                            HorizontalScrollBarVisibility="Disabled"
+                                            VerticalScrollBarVisibility="Disabled"
+                                            ZoomMode="Disabled"
+                                            Margin="{ThemeResource ContentDialogContentScrollViewerMargin}"
+                                            IsTabStop="False">
+                                        <Grid>
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="Auto" />
+                                                <!-- Delete 'Height="Auto"' of RowDefinition.-->
+                                                <RowDefinition />
+                                            </Grid.RowDefinitions>
+                                            <ContentControl x:Name="Title"
+                                                    Margin="{ThemeResource ContentDialogTitleMargin}"
+                                                    Content="{TemplateBinding Title}"
+                                                    ContentTemplate="{TemplateBinding TitleTemplate}"
+                                                    FontSize="20"
+                                                    FontFamily="Segoe UI"
+                                                    FontWeight="Normal"
+                                                    Foreground="{TemplateBinding Foreground}"
+                                                    HorizontalAlignment="Left"
+                                                    VerticalAlignment="Top"
+                                                    IsTabStop="False"
+                                                    MaxHeight="{ThemeResource ContentDialogTitleMaxHeight}">
+                                                <ContentControl.Template>
+                                                    <ControlTemplate TargetType="ContentControl">
+                                                        <ContentPresenter Content="{TemplateBinding Content}"
+                                                                    MaxLines="2"
+                                                                    TextWrapping="Wrap"
+                                                                    ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                                    Margin="{TemplateBinding Padding}"
+                                                                    ContentTransitions="{TemplateBinding ContentTransitions}"
+                                                                    HorizontalAlignment="{TemplateBinding HorizontalContentAlignment}"
+                                                                    VerticalAlignment="{TemplateBinding VerticalContentAlignment}" />
+                                                    </ControlTemplate>
+                                                </ContentControl.Template>
+                                            </ContentControl>
+                                            <ContentPresenter x:Name="Content"
+                                                        ContentTemplate="{TemplateBinding ContentTemplate}"
+                                                        Content="{TemplateBinding Content}"
+                                                        FontSize="{ThemeResource ControlContentThemeFontSize}"
+                                                        FontFamily="{ThemeResource ContentControlThemeFontFamily}"
+                                                        Margin="{ThemeResource ContentDialogContentMargin}"
+                                                        Foreground="{TemplateBinding Foreground}"
+                                                        Grid.Row="1"
+                                                        TextWrapping="Wrap" />
+                                        </Grid>
+                                    </ScrollViewer>
+                                    <Grid x:Name="CommandSpace"
+                                    Grid.Row="1"
+                                    HorizontalAlignment="Stretch"
+                                    VerticalAlignment="Bottom">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition />
+                                            <ColumnDefinition />
+                                        </Grid.ColumnDefinitions>
+                                        <Border x:Name="Button1Host"
+                                        Margin="{ThemeResource ContentDialogButton1HostMargin}"
+                                        MinWidth="{ThemeResource ContentDialogButtonMinWidth}"
+                                        MaxWidth="{ThemeResource ContentDialogButtonMaxWidth}"
+                                        Height="{ThemeResource ContentDialogButtonHeight}"
+                                        HorizontalAlignment="Stretch" />
+                                        <Border x:Name="Button2Host"
+                                        Margin="{ThemeResource ContentDialogButton2HostMargin}"
+                                        MinWidth="{ThemeResource ContentDialogButtonMinWidth}"
+                                        MaxWidth="{ThemeResource ContentDialogButtonMaxWidth}"
+                                        Height="{ThemeResource ContentDialogButtonHeight}"
+                                        Grid.Column="1"
+                                        HorizontalAlignment="Stretch" />
+                                    </Grid>
+                                </Grid>
+                            </Border>
+                        </Grid>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
 
 </ResourceDictionary>

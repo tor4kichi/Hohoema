@@ -39,7 +39,6 @@ namespace NicoPlayerHohoema.Models
         CacheManagement,
 
         Settings,
-        Login,
 
         Splash,
         VideoPlayer,
@@ -49,5 +48,10 @@ namespace NicoPlayerHohoema.Models
 
         ChannelInfo,
         ChannelVideo,
+
+        PrologueIntroduction,
+        NicoAccountIntroduction,
+        VideoCacheIntroduction,
+        EpilogueIntroduction,
     }
 }

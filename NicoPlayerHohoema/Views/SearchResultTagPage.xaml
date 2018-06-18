@@ -31,6 +31,21 @@
     <Grid>
 
         <VisualStateManager.VisualStateGroups>
+
+            <!-- ログインしている場合に有効になるサービスを表示する -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsLoggedIn}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="TagFollowButton.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+
+
             <!-- トップバー表示時のタイトル位置ずらし -->
             <VisualStateGroup>
                 <VisualState>
@@ -201,11 +216,12 @@
                                         CommandParameter="{Binding TagSearchBookmark}"
                                     />
 
-                                <AppBarToggleButton 
+                                <AppBarToggleButton x:Name="TagFollowButton"
                                             Label="フォロー"
                                                     Icon="Favorite"
                                                   IsChecked="{Binding IsFavoriteTag.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                  IsEnabled="{Binding CanChangeFavoriteTagState.Value}"                                            
+                                                  IsEnabled="{Binding CanChangeFavoriteTagState.Value}"        
+                                    Visibility="Collapsed"
                                         />
                             </CommandBar.SecondaryCommands>
 

@@ -1,0 +1,198 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.VideoCacheIntroductionPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+
+        <VisualStateManager.VisualStateGroups>
+            
+            
+            <VisualStateGroup>
+                
+                <!-- キャッシュ設定が完了した場合の表示 -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsCompleteCacheSettings.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CompleteCacheSettingsView.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <!-- キャッシュ設定中の表示 -->
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding CanChangeCacheSettings.Value, Converter={StaticResource BooleanInverted}}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CacheSettingsProgressView.Visibility" Value="Visible" />
+                        <Setter Target="ProgressCacheProgressRing.IsActive" Value="True" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="True" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CacheSeetingsDefaultView.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            
+        </VisualStateManager.VisualStateGroups>
+
+        <Grid>
+            <Grid Margin="48">
+                <Grid.Background>
+                    <ImageBrush ImageSource="ms-appx:///Assets/Square44x44Logo.targetsize-256_altform-unplated.png" 
+                                Stretch="Uniform" 
+                            Opacity="0.25" >
+                    </ImageBrush>
+                </Grid.Background>
+
+            </Grid>
+            <StackPanel x:Name="CacheSeetingsDefaultView" Visibility="Collapsed"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        >
+
+                <TextBlock 
+                           TextWrapping="Wrap"
+                           MaxWidth="260"
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                           HorizontalAlignment="Left"
+                           >
+                    動画データを端末にキャッシュできますが<LineBreak/>それにはちょっと準備が必要です
+                </TextBlock>
+
+                <Border Height="16" />
+
+                <TextBlock TextWrapping="Wrap"
+                           >
+                    動画キャッシュを使えるようにするには
+                </TextBlock>
+
+                <Border Height="8" />
+                
+                <TextBlock TextWrapping="Wrap"
+                           >
+                    ・動画キャッシュに関する利用同意への承諾<LineBreak />・キャッシュの保存先
+                </TextBlock>
+
+                <Border Height="8" />
+                
+                <TextBlock Text="を設定する必要があります"
+                           TextWrapping="Wrap"
+                           
+                           />
+
+                <Border Height="16" />
+                
+                <Button Command="{Binding RequireEnablingCacheCommand}"
+                    Style="{ThemeResource AccentButtonStyle}"
+                        Height="48"
+                    >
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="キャッシュを利用同意を確認して、保存先を設定する" />
+                        <SymbolIcon Symbol="Forward"
+                                Margin="8 0 0 0"
+                                />
+                    </StackPanel>
+                </Button>
+
+                <Border Height="16" />
+
+                <Button Command="{StaticResource GoNextIntroductionPageCommand}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="スキップ" />
+                        <SymbolIcon Symbol="Forward"
+                                Margin="8 0 0 0"
+                                />
+                    </StackPanel>
+                </Button>
+
+            </StackPanel>
+
+
+            <StackPanel x:Name="CacheSettingsProgressView" Visibility="Collapsed"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        >
+
+                <TextBlock Text="キャッシュを設定中" />
+                
+                <ProgressRing x:Name="ProgressCacheProgressRing" IsActive="False" 
+                              Height="64" Width="64" />
+            </StackPanel>
+
+
+            <StackPanel x:Name="CompleteCacheSettingsView" Visibility="Collapsed"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        MaxWidth="280"
+                        >
+
+                <uwpcontrols:DockPanel HorizontalAlignment="Left">
+
+                    <SymbolIcon Symbol="Accept" Height="48" Width="48" Margin="0 0 8 0"
+                                Foreground="{StaticResource SystemControlForegroundAccentBrush}"
+                                />
+
+                    <TextBlock Text="キャッシュの設定完了"
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                               VerticalAlignment="Center"
+                           />
+                </uwpcontrols:DockPanel>
+
+
+
+                <Border Height="32" />
+                
+                <TextBlock Text="動画キャッシュを追加する方法" 
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                           />
+
+                <Border Height="8" />
+
+                <TextBlock Text="動画がリスト表示されている時に動画アイテムを右クリックや長タップをすることで詳細操作メニューが開けます"
+                           TextWrapping="Wrap"
+                           MaxWidth="280"
+                           />
+                
+                <Border Height="8" />
+                
+                <TextBlock Text="そのメニューの中から「キャッシュ取得」を選択することでキャッシュできます"
+                           TextWrapping="Wrap"
+                           />
+
+                <Border Height="16" />
+
+                <Button Command="{StaticResource GoNextIntroductionPageCommand}"
+                        Style="{StaticResource AccentButtonStyle}"
+                        Height="48"
+                        >
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="OK" />
+                        <SymbolIcon Symbol="Forward"
+                                Margin="16 0 0 0"
+                                />
+                    </StackPanel>
+                </Button>
+
+            </StackPanel>
+        </Grid>
+        
+    </Grid>
+</Page>

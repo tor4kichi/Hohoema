@@ -201,12 +201,6 @@ namespace NicoPlayerHohoema.Models
                 return null;
             }
 
-            if (await Context.GetIsSignedInAsync() != NiconicoSignInStatus.Success)
-            {
-                return null;
-            }
-
-
             await WaitNicoPageAccess();
 
             // TODO: 有害動画に指定されたページにアクセスした場合の対応
