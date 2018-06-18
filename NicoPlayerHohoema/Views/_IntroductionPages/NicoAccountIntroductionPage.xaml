@@ -91,6 +91,8 @@
                         <Setter Target="ContentView.(Grid.Row)" Value="1" />
                         <Setter Target="ContentView.(Grid.RowSpan)" Value="1" />
 
+                        <Setter Target="TopRow.Height" Value="0" />
+                        <Setter Target="BottomRow.Height" Value="0" />
 
                     </VisualState.Setters>
                 </VisualState>
@@ -99,9 +101,9 @@
         </VisualStateManager.VisualStateGroups>
 
         <Grid.RowDefinitions>
-            <RowDefinition Height="64" />
+            <RowDefinition Height="64" x:Name="TopRow" />
             <RowDefinition Height="*" />
-            <RowDefinition Height="64" />
+            <RowDefinition Height="64" x:Name="BottomRow" />
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>

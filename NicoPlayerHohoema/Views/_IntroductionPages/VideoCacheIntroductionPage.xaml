@@ -74,7 +74,7 @@
                            Style="{StaticResource SubtitleTextBlockStyle}"
                            HorizontalAlignment="Left"
                            >
-                    動画データを端末にキャッシュしたいですか？<LineBreak/>それにはちょっと準備が必要です
+                    動画データを端末にキャッシュできますが<LineBreak/>それにはちょっと準備が必要です
                 </TextBlock>
 
                 <Border Height="16" />
