@@ -27,7 +27,7 @@ namespace NicoPlayerHohoema.Services
             
             if (!showWithoutConfirmButton)
             {
-                dialog.PrimaryButtonText = "上記項目に同意してキャッシュを利用する";
+                dialog.PrimaryButtonText = "同意する";
                 dialog.SecondaryButtonText = "キャンセル";
             }
             else

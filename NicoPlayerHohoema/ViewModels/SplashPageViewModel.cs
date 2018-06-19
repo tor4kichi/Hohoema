@@ -21,7 +21,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenLoginPageCommand
                     ?? (_OpenLoginPageCommand = new DelegateCommand(() => 
                     {
-                        PageManager.OpenPage(HohoemaPageType.Login);
+                        // PageManager.OpenPage(HohoemaPageType.Login);
                     }));
             }
         }

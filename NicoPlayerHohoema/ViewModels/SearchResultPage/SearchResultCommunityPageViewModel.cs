@@ -128,7 +128,7 @@ namespace NicoPlayerHohoema.ViewModels
         public SearchResultCommunityPageViewModel(HohoemaApp app, PageManager pageManager)
             : base(app, pageManager, useDefaultPageTitle:false)
         {
-            ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
+            ChangeRequireServiceLevel(HohoemaAppServiceLevel.OnlineWithoutLoggedIn);
 
             SelectedSearchSort = new ReactivePropertySlim<CommunitySearchSortOptionListItem>();
             SelectedSearchMode = new ReactivePropertySlim<CommynitySearchModeOptionListItem>();

@@ -24,6 +24,7 @@ using NicoPlayerHohoema.Models.Live;
 using Windows.UI.Core;
 using Prism.Windows.Mvvm;
 using System.Collections.ObjectModel;
+using System.Reactive.Disposables;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -76,6 +77,9 @@ namespace NicoPlayerHohoema.ViewModels
             PageManager = pageManager;
             HohoemaApp = hohoemaApp;
             NicoLiveSubscriber = nicoLiveSubscriber;
+
+            HohoemaApp.OnSignin += HohoemaApp_OnSignin;
+            HohoemaApp.OnSignout += HohoemaApp_OnSignout;
 
             // Back Navigation
             CanGoBackNavigation = new ReactivePropertySlim<bool>();
@@ -195,7 +199,6 @@ namespace NicoPlayerHohoema.ViewModels
                 .Subscribe(x =>
                 {
                     UserName = x;
-                    UserMail = AccountManager.GetPrimaryAccountId();
                 });
 
             HohoemaApp.ObserveProperty(x => x.UserIconUrl)
@@ -287,20 +290,35 @@ namespace NicoPlayerHohoema.ViewModels
             ResetSearchHistoryItems();
         }
 
+        private void HohoemaApp_OnSignout()
+        {
+            ResetMenuItems();
+        }
+
+        private void HohoemaApp_OnSignin()
+        {
+            ResetMenuItems();
+        }
+
         /// <summary>
         /// メニューアイテムの更新
         /// メニュー初期化時、およびピン留めの内容を更新した際に呼び出します
         /// </summary>
         private void ResetMenuItems()
         {
-            MenuItems = new List<HohoemaListingPageItemBase>();
-            MenuItems.Add(new MenuItemViewModel("ニコレポ", HohoemaPageType.NicoRepo));
-            MenuItems.Add(new MenuItemViewModel("フォロー", HohoemaPageType.FollowManage));
-            MenuItems.Add(new MenuItemViewModel("マイリスト", HohoemaPageType.UserMylist));
-
-            RaisePropertyChanged(nameof(MenuItems));
-
             MainSelectedItem.Value = null;
+
+            MenuItems.Clear();
+            if (HohoemaApp.IsLoggedIn)
+            {
+                MenuItems.Add(new MenuItemViewModel("ニコレポ", HohoemaPageType.NicoRepo));
+                MenuItems.Add(new MenuItemViewModel("フォロー", HohoemaPageType.FollowManage));
+                MenuItems.Add(new MenuItemViewModel("マイリスト", HohoemaPageType.UserMylist));
+            }
+            else
+            {
+                MenuItems.Add(new MenuItemViewModel("マイリスト", HohoemaPageType.UserMylist));
+            }
         }
 
 
@@ -524,24 +542,6 @@ namespace NicoPlayerHohoema.ViewModels
             );
         }
 
-        internal async void OnAccountMenuItemSelected(HohoemaPageType pageType)
-        {
-            await HohoemaApp.CheckSignedInStatus();
-
-            if (pageType != PageManager.CurrentPageType)
-            {
-                if (ServiceLevel.Value == HohoemaAppServiceLevel.LoggedIn)
-                {
-                    PageManager.OpenPage(HohoemaPageType.UserInfo, HohoemaApp.LoginUserId.ToString());
-                }
-                else
-                {
-                    PageManager.OpenPage(HohoemaPageType.Login);
-                }
-            }
-        }
-
-
         private DelegateCommand _NavigationBackCommand;
         public DelegateCommand NavigationBackCommand
         {
@@ -583,18 +583,16 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         await HohoemaApp.CheckSignedInStatus();
 
-                        if (ServiceLevel.Value == HohoemaAppServiceLevel.LoggedIn)
+                        if (ServiceLevel.Value == HohoemaAppServiceLevel.LoggedIn || ServiceLevel.Value == HohoemaAppServiceLevel.LoggedInWithPremium)
                         {
                             PageManager.OpenPage(HohoemaPageType.UserInfo, HohoemaApp.LoginUserId.ToString());
                         }
-                        else
-                        {
-                            PageManager.OpenPage(HohoemaPageType.Login);
-                        }
-                        
                     }));
             }
         }
+
+
+       
 
 
         private DelegateCommand _ToggleFullScreenCommand;
@@ -619,7 +617,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        public List<HohoemaListingPageItemBase> MenuItems { get; private set; }
+        public ObservableCollection<HohoemaListingPageItemBase> MenuItems { get; private set; } = new ObservableCollection<HohoemaListingPageItemBase>();
         public ObservableCollection<HohoemaPin> PinItems { get; private set; }
 
         public ReactiveProperty<HohoemaListingPageItemBase> MainSelectedItem { get; private set; }
@@ -653,7 +651,7 @@ namespace NicoPlayerHohoema.ViewModels
                         switch (type)
                         {
                             case NiconicoServiceType.Video:
-                                content = new VideoMenuSubPageContent(HohoemaApp.UserMylistManager, HohoemaApp.Playlist);
+                                content = new VideoMenuSubPageContent(HohoemaApp, HohoemaApp.UserMylistManager, HohoemaApp.Playlist);
                                 break;
                             case NiconicoServiceType.Live:
                                 content = new LiveMenuSubPageContent(NicoLiveSubscriber);
@@ -688,14 +686,6 @@ namespace NicoPlayerHohoema.ViewModels
             get { return _UserName; }
             set { SetProperty(ref _UserName, value); }
         }
-
-        private string _UserMail;
-        public string UserMail
-        {
-            get { return _UserMail; }
-            set { SetProperty(ref _UserMail, value); }
-        }
-
 
         private bool _IsLoggedIn;
         public bool IsLoggedIn
@@ -797,31 +787,90 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-    public class VideoMenuSubPageContent : ViewModelBase
+    public class VideoMenuSubPageContent : ViewModelBase, IDisposable
     {
-        public List<HohoemaListingPageItemBase> MenuItems { get; private set; }
-        public VideoMenuSubPageContent(Models.UserMylistManager mylistManager, Models.HohoemaPlaylist playlist)
-        {
-            MenuItems = new List<HohoemaListingPageItemBase>();
-            MenuItems.Add(new MenuItemViewModel("ランキング", HohoemaPageType.RankingCategoryList));
-            MenuItems.Add(new MenuItemViewModel("オススメ", HohoemaPageType.Recommend));
-            MenuItems.Add(new MenuItemViewModel("新着", HohoemaPageType.FeedGroupManage));
-            MenuItems.Add(new MenuItemViewModel("視聴履歴", HohoemaPageType.WatchHistory));
-            MenuItems.Add(new MenuItemViewModel("キャッシュ", HohoemaPageType.CacheManagement));
-            MenuItems.Add(new MenuItemViewModel("あとで見る", HohoemaPageType.Mylist, new MylistPagePayload(HohoemaPlaylist.WatchAfterPlaylistId).ToParameterString()));
 
-            LocalMylists = playlist.Playlists
-                .ToReadOnlyReactiveCollection(x => 
-                new MenuItemViewModel(x.Label, HohoemaPageType.Mylist, new Models.MylistPagePayload(x).ToParameterString()) as HohoemaListingPageItemBase
-                );
-            Mylists = mylistManager.UserMylists
-                .ToReadOnlyReactiveCollection(x =>
-                new MenuItemViewModel(x.Label, HohoemaPageType.Mylist, new Models.MylistPagePayload(x).ToParameterString()) as HohoemaListingPageItemBase
-                );
-        }
+        private HohoemaApp _HohoemaApp;
+        private Models.UserMylistManager _MylistManager;
+        private Models.HohoemaPlaylist _Playlist;
 
+        private CompositeDisposable _CompositeDisposable = new CompositeDisposable();
+
+        public ObservableCollection<HohoemaListingPageItemBase> MenuItems { get; private set; }
         public ReadOnlyReactiveCollection<HohoemaListingPageItemBase> LocalMylists { get; private set; }
         public ReadOnlyReactiveCollection<HohoemaListingPageItemBase> Mylists { get; private set; }
+
+        public VideoMenuSubPageContent(HohoemaApp hohoemaApp, Models.UserMylistManager mylistManager, Models.HohoemaPlaylist playlist)
+        {
+            _HohoemaApp = hohoemaApp;
+            _Playlist = playlist;
+            _MylistManager = mylistManager;
+            MenuItems = new ObservableCollection<HohoemaListingPageItemBase>();
+            hohoemaApp.OnSignin += HohoemaApp_OnSignin;
+            hohoemaApp.OnSignout += HohoemaApp_OnSignout;
+
+            ResetMenuItems();
+
+            LocalMylists = _Playlist.Playlists
+               .ToReadOnlyReactiveCollection(x =>
+               new MenuItemViewModel(x.Label, HohoemaPageType.Mylist, new Models.MylistPagePayload(x).ToParameterString()) as HohoemaListingPageItemBase
+               )
+               .AddTo(_CompositeDisposable);
+            Mylists = _MylistManager.UserMylists
+                .ToReadOnlyReactiveCollection(x =>
+                new MenuItemViewModel(x.Label, HohoemaPageType.Mylist, new Models.MylistPagePayload(x).ToParameterString()) as HohoemaListingPageItemBase
+                )
+                .AddTo(_CompositeDisposable);
+        }
+
+
+        private void ResetMenuItems()
+        {
+            MenuItems.Clear();
+            if (_HohoemaApp.IsLoggedIn)
+            {
+                MenuItems.Add(new MenuItemViewModel("ランキング", HohoemaPageType.RankingCategoryList));
+                MenuItems.Add(new MenuItemViewModel("オススメ", HohoemaPageType.Recommend));
+                MenuItems.Add(new MenuItemViewModel("新着", HohoemaPageType.FeedGroupManage));
+                MenuItems.Add(new MenuItemViewModel("視聴履歴", HohoemaPageType.WatchHistory));
+                MenuItems.Add(new MenuItemViewModel("キャッシュ", HohoemaPageType.CacheManagement));
+                MenuItems.Add(new MenuItemViewModel("あとで見る", HohoemaPageType.Mylist, new MylistPagePayload(HohoemaPlaylist.WatchAfterPlaylistId).ToParameterString()));
+            }
+            else
+            {
+                MenuItems.Add(new MenuItemViewModel("ランキング", HohoemaPageType.RankingCategoryList));
+                MenuItems.Add(new MenuItemViewModel("新着", HohoemaPageType.FeedGroupManage));
+                //                MenuItems.Add(new MenuItemViewModel("視聴履歴", HohoemaPageType.WatchHistory));
+                MenuItems.Add(new MenuItemViewModel("キャッシュ", HohoemaPageType.CacheManagement));
+                MenuItems.Add(new MenuItemViewModel("あとで見る", HohoemaPageType.Mylist, new MylistPagePayload(HohoemaPlaylist.WatchAfterPlaylistId).ToParameterString()));
+            }
+
+            RaisePropertyChanged(nameof(MenuItems));
+        }
+
+        private void HohoemaApp_OnSignin()
+        {
+            ResetMenuItems();
+
+            System.Diagnostics.Debug.WriteLine("サインイン：メニューをリセットしました");
+        }
+
+        private void HohoemaApp_OnSignout()
+        {
+            ResetMenuItems();
+
+            System.Diagnostics.Debug.WriteLine("サインアウト：メニューをリセットしました");
+        }
+
+
+        public void Dispose()
+        {
+            _CompositeDisposable.Dispose();
+
+            _HohoemaApp.OnSignin -= HohoemaApp_OnSignin;
+            _HohoemaApp.OnSignout -= HohoemaApp_OnSignout;
+        }
+
     }
 
     public class LiveMenuSubPageContent : ViewModelBase

@@ -98,7 +98,10 @@ namespace NicoPlayerHohoema.Models
 
             FollowManager = null;
 
-//            ApplicationData.Current.DataChanged += Current_DataChanged;
+            NiconicoContext = new NiconicoContext();
+            ContentProvider.Context = NiconicoContext;
+
+            //            ApplicationData.Current.DataChanged += Current_DataChanged;
 
 
             UpdateServiceStatus();
@@ -530,7 +533,7 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public IAsyncOperation<NiconicoSignInStatus> SignIn(string mailOrTelephone, string password, bool withClearAuthenticationCache = false)
+		public IAsyncOperation<NiconicoSignInStatus> SignIn(string mailOrTelephone, string password, bool withClearAuthenticationCache = false, Func<Task> twoFactorAuth = null)
 		{
 			return AsyncInfo.Run<NiconicoSignInStatus>(async (cancelToken) => 
 			{
@@ -585,6 +588,10 @@ namespace NicoPlayerHohoema.Models
 
                             if (result == NiconicoSignInStatus.TwoFactorAuthRequired)
                             {
+                                if (twoFactorAuth != null)
+                                {
+                                    await twoFactorAuth.Invoke();
+                                }
 
                                 await _HohoemaDialogService.ShowNiconicoTwoFactorLoginDialog(context.LastRedirectHttpRequestMessage.RequestUri);
 
@@ -660,7 +667,7 @@ namespace NicoPlayerHohoema.Models
 
 								NiconicoContext.Dispose();
                                 NiconicoContext = new NiconicoContext();
-
+                                
                                 return NiconicoSignInStatus.Failed;
 							}
 
@@ -720,7 +727,7 @@ namespace NicoPlayerHohoema.Models
 					{
 						Debug.WriteLine("login failed");
                         NiconicoContext?.Dispose();
-                        NiconicoContext = null;
+                        NiconicoContext = new NiconicoContext();
                     }
 
 					return result;
@@ -737,9 +744,11 @@ namespace NicoPlayerHohoema.Models
 
             using (var releaser = await _SigninLock.LockAsync())
 			{
+                UpdateServiceStatus();
+
                 if (NiconicoContext == null)
 				{
-					return result;
+                    return result;
 				}
 
                 try
@@ -776,7 +785,7 @@ namespace NicoPlayerHohoema.Models
 				}
 			}
 
-            UpdateServiceStatus();
+            
 
             return result;
         }
@@ -1224,7 +1233,11 @@ namespace NicoPlayerHohoema.Models
             var mylists = UserMylistManager.UserMylists;
             var localMylists = Playlist.Playlists;
             var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
-            var selectDialogContent = new List<ISelectableContainer>()
+
+            List<ISelectableContainer> selectDialogContent;
+            if (IsLoggedIn)
+            {
+                selectDialogContent = new List<ISelectableContainer>()
                 {
                     new ChoiceFromListSelectableContainer("マイリスト",
                         mylists.Where(x => ignoreMylistId.All(y => x.Id != y))
@@ -1241,6 +1254,23 @@ namespace NicoPlayerHohoema.Models
                         }
                     )
                 };
+            }
+            else
+            {
+                selectDialogContent = new List<ISelectableContainer>()
+                {
+                    new ChoiceFromListSelectableContainer("ローカルマイリスト",
+                        localMylists.Where(x => ignoreMylistId.All(y => x.Id != y))
+                            .Select(x => new SelectDialogPayload() { Label = x.Label, Id = x.Id, Context = x })
+                    ),
+                    new ChoiceFromListSelectableContainer("新規作成",
+                        new [] {
+                            new SelectDialogPayload() { Label = "ローカルマイリストを作成", Id = "local", Context = CreateNewContextLabel},
+                        }
+                    )
+                };
+
+            }
 
             IPlayableList resultList = null;
             while (resultList == null)
@@ -1383,7 +1413,16 @@ namespace NicoPlayerHohoema.Models
 		public NiconicoContext NiconicoContext
 		{
 			get { return _NiconicoContext; }
-			set { SetProperty(ref _NiconicoContext, value); }
+			set
+            {
+                if (SetProperty(ref _NiconicoContext, value))
+                {
+                    if (ContentProvider != null)
+                    {
+                        ContentProvider.Context = value;
+                    }
+                }
+            }
 		}
 
 		public VideoCacheManager CacheManager { get; private set; }

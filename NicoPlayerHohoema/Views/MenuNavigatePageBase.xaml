@@ -477,7 +477,8 @@
                                 <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="Offline" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="ServiceStateText.Visibility" Value="Visible" />
+                                <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
+                                <Setter Target="SearchTextBox.Visibility" Value="Collapsed" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -486,7 +487,7 @@
                                 <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="OnlineButServiceUnavailable" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="ServiceStateText.Visibility" Value="Visible" />
+                                <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -496,7 +497,8 @@
                                 <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="OnlineWithoutLoggedIn" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-                                <Setter Target="ServiceStateText.Visibility" Value="Visible" />
+
+                                <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -505,7 +507,26 @@
                                 <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="LoggedIn" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
+                                <Setter Target="ServiceStateText.Visibility" Value="Collapsed" />
+                                
                                 <Setter Target="AccountInfoLayout.Visibility" Value="Visible" />
+
+                                <Setter Target="MenuFlyoutItem_OpenAccountInfo.Visibility" Value="Visible" />
+                                <Setter Target="MenuFlyoutItem_Logout.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <VisualState x:Name="LoggedInWithPremiumState">
+                            <VisualState.StateTriggers>
+                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="LoggedInWithPremium" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="ServiceStateText.Visibility" Value="Collapsed" />
+
+                                <Setter Target="AccountInfoLayout.Visibility" Value="Visible" />
+
+                                <Setter Target="MenuFlyoutItem_OpenAccountInfo.Visibility" Value="Visible" />
+                                <Setter Target="MenuFlyoutItem_Logout.Visibility" Value="Visible" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -729,7 +750,7 @@
 
 
 
-                                <Border toolkit:DockPanel.Dock="Top" Margin="8 16 8 8"
+                                <Border toolkit:DockPanel.Dock="Top" Margin="8 0 8 8"
                                         >
 
                                     <AutoSuggestBox Text="{Binding SearchKeyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -741,6 +762,7 @@
                                                     x:Name="SearchTextBox"
                                                     QuerySubmitted="SearchTextBox_QuerySubmitted" 
                                                     Padding="0"
+                                                    Margin="0 16 0 0"
                                              >
                                         <i:Interaction.Behaviors>
                                             <core:EventTriggerBehavior EventName="QuerySubmitted">
@@ -810,7 +832,8 @@
                                         <SymbolIcon Symbol="Setting" />
                                     </Button>
 
-                                    <Button Command="{Binding OpenAccountInfoCommand}"
+                                    <Grid>
+                                        <Button 
                                             Padding="16 0 0 0"
                                             Background="Transparent" 
                                             HorizontalAlignment="Stretch"
@@ -819,34 +842,52 @@
                                             x:Name="OpenAccountButton"
                                             TabIndex="100"
                                         >
-                                        <StackPanel>
-                                            <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource ToLocalText}}" 
-                                                   x:Name="ServiceStateText"
-                                                   Visibility="Collapsed"
-                                               />
+                                            <Button.Flyout>
+                                                <MenuFlyout>
+                                                    <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenAccountInfo"
+                                                                    Text="アカウント情報" 
+                                                                    Command="{Binding OpenAccountInfoCommand}"
+                                                                    Visibility="Collapsed"
+                                                                    />
 
-                                            <toolkit:DockPanel Margin="0 0"
+                                                    <MenuFlyoutItem x:Name="MenuFlyoutItem_Logout"
+                                                                    Text="ログアウト" 
+                                                                    Command="{StaticResource LogoutFromNiconicoCommand}"
+                                                                    Visibility="Collapsed"
+                                                                    />
+
+                                                    <MenuFlyoutItem x:Name="MenuFlyoutItem_Login"
+                                                                    Text="ログイン" 
+                                                                    Command="{StaticResource LoginToNiconicoCommand}"
+                                                                    Visibility="Collapsed"
+                                                                    />
+                                                </MenuFlyout>
+                                            </Button.Flyout>
+                                            <StackPanel>
+                                                <TextBlock Text="{Binding ServiceLevel.Value, Converter={StaticResource ToLocalText}}" 
+                                                   x:Name="ServiceStateText"
+                                                />
+
+                                                <toolkit:DockPanel Margin="0 0"
                                                            x:Name="AccountInfoLayout"
                                                            Visibility="Collapsed"
                                                            >
 
-                                                <Image Source="{Binding UserIconUrl}" 
+                                                    <Image Source="{Binding UserIconUrl}" 
                                                 toolkit:DockPanel.Dock="Left"
                                                 Height="24" Width="24"
                                                 Margin="0 0 8 0"
                                                             />
 
-                                                <StackPanel>
-                                                    <TextBlock Text="{Binding UserName}" />
-                                                    <TextBlock Text="{Binding UserMail}" FontWeight="Light" 
-                                                       TextWrapping="Wrap"
-                                                       FontSize="13"
-                                                       />
-                                                </StackPanel>
-                                            </toolkit:DockPanel>
+                                                    <StackPanel>
+                                                        <TextBlock Text="{Binding UserName}" />
+                                                    </StackPanel>
+                                                </toolkit:DockPanel>
 
-                                        </StackPanel>
-                                    </Button>
+                                            </StackPanel>
+                                        </Button>
+                                        
+                                    </Grid>
 
                                     
                                 </toolkit:DockPanel>
@@ -1128,7 +1169,7 @@
 
                                             <TextBlock x:Name="MenuTitleText"
                                                 Text="{Binding TitleText}"
-                                               Style="{StaticResource SubheaderTextBlockStyle}"
+                                               Style="{StaticResource SubtitleTextBlockStyle}"
                                                Margin="16 0 16 0"
                                                    VerticalAlignment="Center"
                                                    />

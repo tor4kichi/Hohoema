@@ -150,7 +150,6 @@
                                           />
 
                                 <AppBarButton x:Name="ShowWithBrowserButton"
-                                        Icon="GlobalNavigationButton"
                                           Label="ブラウザで表示" 
                                           Command="{Binding ShowWithBrowserCommand}"
                                           />

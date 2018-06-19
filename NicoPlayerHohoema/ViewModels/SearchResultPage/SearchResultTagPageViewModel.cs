@@ -356,11 +356,14 @@ namespace NicoPlayerHohoema.ViewModels
 			_NowProcessFavorite = true;
 			
 			// お気に入り登録されているかチェック
-			var favManager = HohoemaApp.FollowManager;
-			IsFavoriteTag.Value = favManager.IsFollowItem(FollowItemType.Tag, SearchOption.Keyword);
-			CanChangeFavoriteTagState.Value = IsFavoriteTag.Value == true || HohoemaApp.FollowManager.CanMoreAddFollow(FollowItemType.Tag);
+            if (HohoemaApp.IsLoggedIn)
+            {
+                var favManager = HohoemaApp.FollowManager;
+                IsFavoriteTag.Value = favManager.IsFollowItem(FollowItemType.Tag, SearchOption.Keyword);
+                CanChangeFavoriteTagState.Value = IsFavoriteTag.Value == true || HohoemaApp.FollowManager.CanMoreAddFollow(FollowItemType.Tag);
+            }
 
-			_NowProcessFavorite = false;
+            _NowProcessFavorite = false;
 
 			return base.ListPageNavigatedToAsync(cancelToken, e, viewModelState);
 		}

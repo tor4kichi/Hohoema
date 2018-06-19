@@ -201,12 +201,6 @@ namespace NicoPlayerHohoema.Models
                 return null;
             }
 
-            if (await Context.GetIsSignedInAsync() != NiconicoSignInStatus.Success)
-            {
-                return null;
-            }
-
-
             await WaitNicoPageAccess();
 
             // TODO: 有害動画に指定されたページにアクセスした場合の対応
@@ -963,10 +957,13 @@ namespace NicoPlayerHohoema.Models
         {
             await WaitNicoPageAccess();
 
+            ChannelVideoResponse res = null;
             using (var releaser = await _NicoPageAccessLock.LockAsync())
             {
-                return await Context.Channel.GetChannelVideosAsync(channelId, page);
+                res = await Context.Channel.GetChannelVideosAsync(channelId, page);
             }
+
+            return res;
         }
 
         public async Task<Mntone.Nico2.Channels.Info.ChannelInfo> GetChannelInfo(string channelId)

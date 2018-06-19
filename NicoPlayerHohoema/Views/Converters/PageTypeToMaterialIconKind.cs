@@ -86,9 +86,6 @@ namespace NicoPlayerHohoema.Views.Converters
                     case Models.HohoemaPageType.Settings:
                         kind = MahApps.Metro.IconPacks.PackIconMaterialKind.Settings;
                         break;
-                    case Models.HohoemaPageType.Login:
-                        kind = MahApps.Metro.IconPacks.PackIconMaterialKind.Login;
-                        break;
                     case Models.HohoemaPageType.Splash:
                         kind = MahApps.Metro.IconPacks.PackIconMaterialKind.Login;
                         break;

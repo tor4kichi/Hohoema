@@ -23,20 +23,23 @@ namespace NicoPlayerHohoema.Models
 {
 	public class PageManager : BindableBase
 	{
-		
 
 		public static readonly HashSet<HohoemaPageType> IgnoreRecordNavigationStack = new HashSet<HohoemaPageType>
 		{
             HohoemaPageType.Splash,
-            HohoemaPageType.Login,
-		};
+            HohoemaPageType.PrologueIntroduction,
+            HohoemaPageType.EpilogueIntroduction,
+        };
 
 
 		public static readonly HashSet<HohoemaPageType> DontNeedMenuPageTypes = new HashSet<HohoemaPageType>
 		{
             HohoemaPageType.Splash,
-            HohoemaPageType.Login,
-		};
+            HohoemaPageType.PrologueIntroduction,
+            HohoemaPageType.NicoAccountIntroduction,
+            HohoemaPageType.VideoCacheIntroduction,
+            HohoemaPageType.EpilogueIntroduction,
+        };
 
         public static bool IsHiddenMenuPage(HohoemaPageType pageType)
         {
@@ -285,38 +288,49 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
+        public void OpenIntroductionPage()
+        {
+            OpenPage(HohoemaPageType.PrologueIntroduction);
+        }
+
         public void OpenStartupPage()
         {
-            if (Models.AppUpdateNotice.HasNotCheckedUptedeNoticeVersion)
+            try
             {
-                try
+                HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
                 {
-                    HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                    if (Models.AppUpdateNotice.HasNotCheckedUptedeNoticeVersion)
                     {
                         await _HohoemaDialogService.ShowLatestUpdateNotice();
                         Models.AppUpdateNotice.UpdateLastCheckedVersionInCurrentVersion();
-                    })
-                    .AsTask()
-                    .ConfigureAwait(false);
-                }
-                catch { }
-            }
 
-            if (HohoemaApp.IsLoggedIn)
-            {
-                if (IsIgnoreRecordPageType(AppearanceSettings.StartupPageType))
-                {
-                    AppearanceSettings.StartupPageType = HohoemaPageType.RankingCategoryList;
-                }
+                    }
+                    if (HohoemaApp.IsLoggedIn)
+                    {
+                        if (IsIgnoreRecordPageType(AppearanceSettings.StartupPageType))
+                        {
+                            AppearanceSettings.StartupPageType = HohoemaPageType.RankingCategoryList;
+                        }
 
-                OpenPage(AppearanceSettings.StartupPageType);
+                        OpenPage(AppearanceSettings.StartupPageType);
+                    }
+                    else if (HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache)
+                    {
+                        OpenPage(HohoemaPageType.CacheManagement);
+                    }
+                    else if (Helpers.InternetConnection.IsInternet())
+                    {
+                        OpenPage(HohoemaPageType.RankingCategoryList);
+                    }
+                    else
+                    {
+                        OpenPage(HohoemaPageType.Settings);
+                    }
+                })
+                .AsTask()
+                .ConfigureAwait(false);
             }
-            else
-            {
-                OpenPage(HohoemaPageType.CacheManagement);
-            }
-
-            
+            catch { }
         }
 
 		public static string PageTypeToTitle(HohoemaPageType pageType)

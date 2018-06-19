@@ -14,6 +14,7 @@
     xmlns:viewmodel="using:NicoPlayerHohoema.ViewModels"
     xmlns:sidepaneVM="using:NicoPlayerHohoema.ViewModels.PlayerSidePaneContent"
     xmlns:logicalTrigger="using:AdaptiveTriggerLibrary.Triggers.LogicalTriggers"
+    xmlns:connectivityTrigger="using:AdaptiveTriggerLibrary.Triggers.ConnectivityTriggers"
     xmlns:intractionTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInteractionTriggers"
     xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
     xmlns:myTrigger ="using:NicoPlayerHohoema.Views.StateTrigger"
@@ -206,6 +207,38 @@
     <Grid x:Name="LayoutRoot" Background="{StaticResource AppBarBorderThemeBrush}">
         
         <VisualStateManager.VisualStateGroups>
+
+
+            <!-- ログインしている場合に有効になるサービスを表示する -->
+            <VisualStateGroup>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsLoggedIn}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CommentLayout.Visibility" Value="Visible" />
+                        <Setter Target="CO_CommentBoxLayout.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+                
+                
+
+            </VisualStateGroup>
+
+            <!-- インターネット接続状態による表示切替 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <connectivityTrigger:NetworkConnectionStateTrigger Condition="InternetAccess" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ShowVideoInfoButon.Visibility" Value="Visible" />
+                        <Setter Target="ShareButton.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
 
             <!-- 画面サイズごとの表示・非表示に切り替え -->
             <VisualStateGroup>
@@ -1164,17 +1197,22 @@
 
                                             <CommandBar toolkit:DockPanel.Dock="Right">
                                                 <CommandBar.PrimaryCommands>
-                                                    <AppBarButton Label="動画情報"
+                                                    <AppBarButton x:Name="ShowVideoInfoButon"
+                                                                  Label="動画情報"
                                                                   Command="{Binding OpenVideoInfoCommand}"
+                                                                  Visibility="Collapsed"
                                                                   >
                                                     </AppBarButton>
-                                                    <AppBarButton Label="共有"
+                                                    <AppBarButton x:Name="ShareButton"
+                                                                  Label="共有"
                                                                   Icon="Link"
                                                                   Command="{Binding ShareCommand}"
+                                                                  Visibility="Collapsed"
                                                                   >
                                                         
                                                     </AppBarButton>
-                                                    <AppBarButton Label="追加"
+                                                    <AppBarButton x:Name="AddContentButton"
+                                                                  Label="追加"
                                                                   Icon="Add"
                                                                   
 
@@ -1669,6 +1707,7 @@
                                         <!-- コメントを書く -->
                                         <Grid x:Name="CommentLayout"
                                                 Padding="0 8 0 0"
+                                              Visibility="Collapsed"
                                             >
                                             <Grid.RowDefinitions>
                                                 <RowDefinition Height="*" />
@@ -1694,7 +1733,7 @@
                                                     toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True"
                                                     PlaceholderText="コメント"
                                                     HorizontalAlignment="Stretch"
-                                                    Margin="8 0 8 8"
+                                                    Margin="8 0 8 0"
                                                     HorizontalContentAlignment="Stretch"
                                                     Height="40"
                                                     Grid.RowSpan="2"
@@ -1711,7 +1750,7 @@
 
 
                                             <Button Content="{Binding CommandString.Value}" 
-                                                    Margin="8 0 8 8"
+                                                    Margin="8 0 8 0"
                                                     HorizontalAlignment="Stretch"
                                                     HorizontalContentAlignment="Center"
                                                     DataContext="{Binding}"
@@ -1729,7 +1768,7 @@
                                                 </Button.Flyout>
                                             </Button>
 
-                                            <Button Content="投稿"  Margin="8 0 8 8"
+                                            <Button Content="投稿"  Margin="8 0 8 0"
                                                     Height="40"
                                                     Command="{Binding CommentSubmitCommand}"
                                                     x:Name="CommentSubmitButton"
@@ -1742,6 +1781,8 @@
                                             
                                                     />
                                         </Grid>
+
+                                        <Border Height="8" />
                                     </StackPanel>
                                 </StackPanel>
 
@@ -2169,7 +2210,10 @@
 
                                         </Grid>
 
-                                        <TextBox x:Name="CO_CommentTextBox" 
+                                        <Border x:Name="CO_CommentBoxLayout"
+                                                Visibility="Collapsed"
+                                                >
+                                            <TextBox x:Name="CO_CommentTextBox" 
                                              Text="{Binding WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource BGTransparentTextBoxStyle}"
                                             FontSize="18"
@@ -2184,12 +2228,14 @@
                                             HorizontalContentAlignment="Stretch"
                                             Height="18"
                                                 >
-                                            <i:Interaction.Behaviors>
+                                                <i:Interaction.Behaviors>
 
-                                                <mybehavior:FocusGetter IsFocus="{Binding NowCommentWriting.Value, Mode=TwoWay}" />
+                                                    <mybehavior:FocusGetter IsFocus="{Binding NowCommentWriting.Value, Mode=TwoWay}" />
 
-                                            </i:Interaction.Behaviors>
-                                        </TextBox>
+                                                </i:Interaction.Behaviors>
+                                            </TextBox>
+
+                                        </Border>
                                     </StackPanel>
                                 </toolkit:DockPanel>
 
