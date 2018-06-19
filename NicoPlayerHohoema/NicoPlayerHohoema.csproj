@@ -188,6 +188,7 @@
     <Compile Include="Database\Feed.cs" />
     <Compile Include="Database\FeedDb.cs" />
     <Compile Include="Database\HohoemaLiteDbContext.cs" />
+    <Compile Include="Database\NicoChannelInfo.cs" />
     <Compile Include="Database\NicoVideo.cs" />
     <Compile Include="Database\NicoVideoOwner.cs" />
     <Compile Include="Database\SearchHistory.cs" />

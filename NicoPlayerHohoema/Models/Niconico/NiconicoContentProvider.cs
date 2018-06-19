@@ -957,10 +957,13 @@ namespace NicoPlayerHohoema.Models
         {
             await WaitNicoPageAccess();
 
+            ChannelVideoResponse res = null;
             using (var releaser = await _NicoPageAccessLock.LockAsync())
             {
-                return await Context.Channel.GetChannelVideosAsync(channelId, page);
+                res = await Context.Channel.GetChannelVideosAsync(channelId, page);
             }
+
+            return res;
         }
 
         public async Task<Mntone.Nico2.Channels.Info.ChannelInfo> GetChannelInfo(string channelId)
