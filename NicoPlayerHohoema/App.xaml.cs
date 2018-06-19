@@ -761,7 +761,6 @@ namespace NicoPlayerHohoema
         protected override UIElement CreateShell(Frame rootFrame)
         {
             rootFrame.Navigating += RootFrame_Navigating;
-            rootFrame.Navigated += RootFrame_Navigated;
             rootFrame.NavigationFailed += RootFrame_NavigationFailed;
             
             var menuPageBase = new Views.MenuNavigatePageBase();
@@ -781,13 +780,6 @@ namespace NicoPlayerHohoema
 
             return grid;
 		}
-
-        private void RootFrame_Navigated(object sender, NavigationEventArgs e)
-        {
-            // PageManagerにナビゲーション動作を伝える
-            var pageManager = Container.Resolve<PageManager>();
-            pageManager.OnNavigated(e);
-        }
 
         private void RootFrame_NavigationFailed(object sender, NavigationFailedEventArgs e)
         {

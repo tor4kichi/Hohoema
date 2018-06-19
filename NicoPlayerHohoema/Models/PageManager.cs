@@ -222,7 +222,7 @@ namespace NicoPlayerHohoema.Models
 		/// <summary>
 		/// 外部で戻る処理が行われた際にPageManager上での整合性を取ります
 		/// </summary>
-		public void OnNavigated(NavigationEventArgs e)
+		public void OnNavigated(NavigatedToEventArgs e)
 		{
 			if (e.NavigationMode == NavigationMode.Back || e.NavigationMode == NavigationMode.Forward)
 			{
