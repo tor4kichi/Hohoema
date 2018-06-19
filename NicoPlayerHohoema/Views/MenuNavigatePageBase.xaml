@@ -1169,7 +1169,7 @@
 
                                             <TextBlock x:Name="MenuTitleText"
                                                 Text="{Binding TitleText}"
-                                               Style="{StaticResource SubheaderTextBlockStyle}"
+                                               Style="{StaticResource SubtitleTextBlockStyle}"
                                                Margin="16 0 16 0"
                                                    VerticalAlignment="Center"
                                                    />
