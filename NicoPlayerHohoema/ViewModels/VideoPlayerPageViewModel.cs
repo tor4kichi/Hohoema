@@ -1990,7 +1990,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         private static bool IsNicoScriptComment(string userId, string content)
         {
-            return userId == null && content.StartsWith("＠");
+            return userId == null && (content.StartsWith("＠") || content.StartsWith("@") || content.StartsWith("/"));
         }
 
 

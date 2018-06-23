@@ -1923,74 +1923,73 @@
                                                                     <DataTemplate>
                                                                         <StackPanel HorizontalAlignment="Center"
                                                                                 >
-                                                                            
-                                                                            <TextBlock Text="次の動画へご案内"
-                                                                                   HorizontalAlignment="Center"
-                                                                                       Margin="0 8 0 0"
-                                                                                       Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsEnableAutoPlayNextVideo, Converter={StaticResource BooleanToVisibility}}"
-                                                                                   />
 
+                                                                            <TextBlock Text="次の動画"
+                                                                                       Opacity="0.7"
+                                                                                       HorizontalAlignment="Center"
+                                                                                       />
 
+                                                                            <toolkit:DockPanel Margin="16 4">
+
+                                                                                <TextBlock 
+                                                                                   FontSize="16"
+                                                                                   TextWrapping="Wrap"
+                                                                                   >
+                                                                                    <Run Text="{Binding Label}" />
+                                                                                </TextBlock>
+
+                                                                            </toolkit:DockPanel>
 
                                                                             <!-- 10秒 = 10000ms -->
-                                                                            <Button Command="{Binding ElementName=RecommendActionLayout, Path=DataContext.CancelAutoPlayNextVideoCommand}"
+                                                                            <Button Command="{Binding ElementName=RecommendActionLayout, Path=DataContext.ManualPlayNextVideoCommand}"
                                                                                 Background="Transparent"
                                                                                 HorizontalAlignment="Center"
                                                                                     x:Name="CancelAutoNextVideoPlayButton"
                                                                                     Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsEnableAutoPlayNextVideo, Converter={StaticResource BooleanToVisibility}}"
                                                                                 >
 
-                                                                                <Grid>
+                                                                                <Grid Height="80"
+                                                                                                           Width="80">
+                                                                                    <Border
+                                                                                        CornerRadius="37" 
+                                                                                        Background="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                                                        Opacity="0.3"
+                                                                                        Height="74"
+                                                                                                           Width="74"
+                                                                                        />
                                                                                     <uwpControls:RadialProgressBar Maximum="10000.0" Minimum="0.0" 
                                                                                                            Value="{Binding ElementName=RecommendActionLayout, Path=DataContext.NextPlayVideoProgressTime, Mode=OneWay}" 
-                                                                                                           Height="96"
-                                                                                                           Width="96"
+                                                                                                           Height="80"
+                                                                                                           Width="80"
                                                                                                            Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
-                                                                                                                   Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsCanceledPlayNextVideo, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                                                                            Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsCanceledPlayNextVideo, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                                                                            
+                                                                                                                   Thickness="3"
                                                                                                        />
-                                                                                    <StackPanel HorizontalAlignment="Center"
-                                                                                            VerticalAlignment="Center">
 
-                                                                                        <SymbolIcon Symbol="Pause" 
-                                                                                            Height="36"
-                                                                                            Width="36"
-                                                                                            Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsCanceledPlayNextVideo, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                                                                            />
+                                                                                    <SymbolIcon Symbol="Next"
+                                                                                                Height="32"
+                                                                                                Width="32"
+                                                                                                />
 
-                                                                                        <TextBlock Text="キャンセル" 
-                                                                                                   Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsCanceledPlayNextVideo, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                                                                                   FontSize="12"
-                                                                                                   Opacity="0.7"
-                                                                                                   />
-
-                                                                                        <TextBlock Text="中止しました"
-                                                                                                   Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsCanceledPlayNextVideo, Converter={StaticResource BooleanToVisibility}}"
-                                                                                                   FontSize="12"
-                                                                                                   Opacity="0.7"
-                                                                                                   />
-                                                                                    </StackPanel>
                                                                                 </Grid>
                                                                             </Button>
 
-                                                                            <Button Command="{Binding ElementName=RecommendActionLayout, Path=DataContext.ManualPlayNextVideoCommand}"
+                                                                            <Button Command="{Binding ElementName=RecommendActionLayout, Path=DataContext.CancelAutoPlayNextVideoCommand}"
                                                                                 MinWidth="240"
                                                                                 Background="Transparent"
+                                                                                    Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsCanceledPlayNextVideo, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                                                    HorizontalAlignment="Center"
                                                                                 >
 
-                                                                                <toolkit:DockPanel Margin="16">
+                                                                                <StackPanel HorizontalAlignment="Center"
+                                                                                            VerticalAlignment="Center">
 
-                                                                                    <SymbolIcon Symbol="Forward" Margin="16 0 0 0" 
-                                                                                            toolkit:DockPanel.Dock="Right"
-                                                                                            />
-
-                                                                                    <TextBlock 
-                                                                                   FontSize="16"
-                                                                                   TextWrapping="Wrap"
-                                                                                   >
-                                                                                    <Run Text="{Binding Label}" />
-                                                                                    </TextBlock>
-
-                                                                                </toolkit:DockPanel>
+                                                                                    <TextBlock Text="キャンセル" 
+                                                                                                   />
+                                                                                </StackPanel>
+                                                                                
+                                                                                
                                                                             </Button>
 
 
@@ -2305,56 +2304,63 @@
                                                         <DataTemplate>
                                                             <StackPanel HorizontalAlignment="Center"
                                                                                 >
-                                                                <!-- 10秒 = 10000ms -->
-                                                                <Border Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsCanceledPlayNextVideo, Converter={StaticResource BooleanToVisibilityInverted}}">
-                                                                    <Button Command="{Binding ElementName=RecommendActionLayout, Path=DataContext.CancelAutoPlayNextVideoCommand}"
-                                                                                Background="Transparent"
-                                                                                HorizontalAlignment="Center"
-                                                                        Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsEnableAutoPlayNextVideo, Converter={StaticResource BooleanToVisibility}}"
-                                                                                >
-                                                                        <Grid>
-                                                                            <uwpControls:RadialProgressBar Maximum="10000.0" Minimum="0.0" 
-                                                                                                           Value="{Binding ElementName=RecommendActionLayout, Path=DataContext.NextPlayVideoProgressTime, Mode=OneWay}" 
-                                                                                                           Height="48"
-                                                                                                           Width="48"
-                                                                                                           Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
-                                                                                                                   
-                                                                                                       />
-                                                                            <StackPanel HorizontalAlignment="Center"
-                                                                                            VerticalAlignment="Center">
 
-                                                                                <SymbolIcon Symbol="Pause" 
-                                                                                            Height="16"
-                                                                                            Width="16"
-                                                                                        Margin="0 0 4 0"
-                                                                                            Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsCanceledPlayNextVideo, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                                                                            />
-                                                                            </StackPanel>
-                                                                        </Grid>
-                                                                    </Button>
-
-                                                                </Border>
-                                                                
-                                                                <Button Command="{Binding ElementName=RecommendActionLayout, Path=DataContext.ManualPlayNextVideoCommand}"
-                                                                                MinWidth="240"
-                                                                                Background="Transparent"
-                                                                                Margin="16"
-                                                                                >
-
-                                                                    <toolkit:DockPanel >
-
-                                                                        <SymbolIcon Symbol="Forward" Margin="16 0 0 0" 
-                                                                                            toolkit:DockPanel.Dock="Right"
-                                                                                            />
-
-                                                                        <TextBlock 
+                                                                <toolkit:DockPanel HorizontalAlignment="Center" >
+                                                                    <TextBlock 
                                                                                    FontSize="12"
                                                                                    TextWrapping="Wrap"
                                                                                    >
                                                                                     <Run Text="{Binding Label}" />
-                                                                        </TextBlock>
+                                                                    </TextBlock>
 
-                                                                    </toolkit:DockPanel>
+                                                                </toolkit:DockPanel>
+
+                                                                <Border Height="4" />
+
+                                                                <!-- 10秒 = 10000ms -->
+                                                                <Button Command="{Binding ElementName=RecommendActionLayout, Path=DataContext.ManualPlayNextVideoCommand}"
+                                                                                Background="Transparent"
+                                                                                HorizontalAlignment="Center"
+                                                                        Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsEnableAutoPlayNextVideo, Converter={StaticResource BooleanToVisibility}}"
+                                                                                >
+                                                                    <Grid>
+                                                                        <Border
+                                                                                        CornerRadius="21" 
+                                                                                        Background="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                                                        Opacity="0.3"
+                                                                                        Height="42"
+                                                                                                           Width="42"
+                                                                                        />
+                                                                        
+                                                                        <uwpControls:RadialProgressBar Maximum="10000.0" Minimum="0.0" 
+                                                                                                           Value="{Binding ElementName=RecommendActionLayout, Path=DataContext.NextPlayVideoProgressTime, Mode=OneWay}" 
+                                                                                                           Height="48"
+                                                                                                           Width="48"
+                                                                                                           Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
+                                                                                                                   Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsCanceledPlayNextVideo, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                                                                       />
+                                                                        <StackPanel HorizontalAlignment="Center"
+                                                                                            VerticalAlignment="Center">
+
+                                                                            <SymbolIcon Symbol="Next" 
+                                                                                            Height="16"
+                                                                                            Width="16"
+                                                                                        Margin="1 0 0 0"
+                                                                                            />
+                                                                        </StackPanel>
+                                                                    </Grid>
+                                                                </Button>
+
+                                                                <Border Height="4" />
+                                                                
+                                                                <Button Command="{Binding ElementName=RecommendActionLayout, Path=DataContext.CancelAutoPlayNextVideoCommand}"
+                                                                                Background="Transparent"
+                                                                        Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsCanceledPlayNextVideo, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                                        HorizontalAlignment="Center"
+                                                                                >
+                                                                    <TextBlock Text="キャンセル" />
+
+
                                                                 </Button>
 
 

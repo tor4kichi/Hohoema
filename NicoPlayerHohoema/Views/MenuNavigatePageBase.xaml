@@ -276,7 +276,7 @@
                         </Button>
 
                         <Button Command="{StaticResource OpenHohoemaPageCommand}"
-                                    CommandParameter="UserMylist"
+                                    CommandParameter="{x:Null}"
                                     HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Left"
                                     Background="Transparent"
