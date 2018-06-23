@@ -1953,7 +1953,7 @@
                                                                                     <Border
                                                                                         CornerRadius="37" 
                                                                                         Background="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                                                                        Opacity="0.7"
+                                                                                        Opacity="0.3"
                                                                                         Height="74"
                                                                                                            Width="74"
                                                                                         />
@@ -2318,33 +2318,38 @@
                                                                 <Border Height="4" />
 
                                                                 <!-- 10秒 = 10000ms -->
-                                                                <Border Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsCanceledPlayNextVideo, Converter={StaticResource BooleanToVisibilityInverted}}">
-                                                                    <Button Command="{Binding ElementName=RecommendActionLayout, Path=DataContext.ManualPlayNextVideoCommand}"
+                                                                <Button Command="{Binding ElementName=RecommendActionLayout, Path=DataContext.ManualPlayNextVideoCommand}"
                                                                                 Background="Transparent"
                                                                                 HorizontalAlignment="Center"
                                                                         Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsEnableAutoPlayNextVideo, Converter={StaticResource BooleanToVisibility}}"
                                                                                 >
-                                                                        <Grid>
-                                                                            <uwpControls:RadialProgressBar Maximum="10000.0" Minimum="0.0" 
+                                                                    <Grid>
+                                                                        <Border
+                                                                                        CornerRadius="21" 
+                                                                                        Background="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                                                        Opacity="0.3"
+                                                                                        Height="42"
+                                                                                                           Width="42"
+                                                                                        />
+                                                                        
+                                                                        <uwpControls:RadialProgressBar Maximum="10000.0" Minimum="0.0" 
                                                                                                            Value="{Binding ElementName=RecommendActionLayout, Path=DataContext.NextPlayVideoProgressTime, Mode=OneWay}" 
                                                                                                            Height="48"
                                                                                                            Width="48"
                                                                                                            Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
-                                                                                                                   
+                                                                                                                   Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsCanceledPlayNextVideo, Converter={StaticResource BooleanToVisibilityInverted}}"
                                                                                                        />
-                                                                            <StackPanel HorizontalAlignment="Center"
+                                                                        <StackPanel HorizontalAlignment="Center"
                                                                                             VerticalAlignment="Center">
 
-                                                                                <SymbolIcon Symbol="Next" 
+                                                                            <SymbolIcon Symbol="Next" 
                                                                                             Height="16"
                                                                                             Width="16"
+                                                                                        Margin="1 0 0 0"
                                                                                             />
-                                                                            </StackPanel>
-                                                                        </Grid>
-                                                                    </Button>
-
-                                                                </Border>
-
+                                                                        </StackPanel>
+                                                                    </Grid>
+                                                                </Button>
 
                                                                 <Border Height="4" />
                                                                 
