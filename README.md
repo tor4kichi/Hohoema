@@ -1,19 +1,18 @@
 # Hohoema
 
-## ニコニコ動画・生放送プレイヤーアプリ for Windows 10 families
+## Win10系向けニコニコ動画・生放送プレイヤーアプリ
 
 Windows 10系のデバイスに幅広く対応したニコニコ動画・生放送のプレイヤーアプリです。
 
-ご利用にはニコニコ動画アカウントが必要です。
+ニコニコ動画アカウントをアプリに登録することでさらに便利に利用できます。
 
 ## ダウンロード
 
-### [Hohoema - マイクロソフト ストア](https://www.microsoft.com/ja-jp/store/p/hohoema/9nblggh4rxt6)
+### [Hohoema - マイクロソフト ストア](https://www.microsoft.com/ja-jp/store/p/hohoema/9nblggh4rxt6?cid=hohoema\_github)
 
 Windows 10 や XboxOne のストアアプリからダウンロードできます。
 
 無料（＋アプリのアドオンから開発への寄付を募る形）で提供しています。
-
 
 ## 動作環境
 
@@ -24,7 +23,6 @@ Windows 10 や XboxOne のストアアプリからダウンロードできます
 Hohoema は UWPアプリです。（UWP = Universal Windows Platform）
 
 ご利用には『Anniversary Update』以降のOSバージョンに更新する必要があります。
-
 
 ## 機能一覧
 
@@ -46,7 +44,7 @@ Hohoema は UWPアプリです。（UWP = Universal Windows Platform）
   * 動画の次パート自動検出
   
 
-その他の機能や修正点は [リリースノート](https://github.com/tor4kichi/Hohoema/wiki/%E3%83%AA%E3%83%AA%E3%83%BC%E3%82%B9%E3%83%8E%E3%83%BC%E3%83%88) から確認できます
+その他の機能や修正点は [リリースノート](https://github.com/tor4kichi/Hohoema/releases) から確認できます
 
 ## 要望・バグ報告について
 
@@ -54,15 +52,13 @@ Hohoema は UWPアプリです。（UWP = Universal Windows Platform）
   * アプリ内の設定ページにある「フィードバックを送る」を選択
   * 利用にはストアから「フィードバックHub」のインストールが必要です
 
-* [目安箱 - Google Form](https://docs.google.com/forms/d/e/1FAIpQLSc0IvUdQ7WN73A5M0zV4t5fe20BVV7B4CXmiKpPTrHOlqyXiw/viewform)
-  
 * [新しい課題を立てる - GitHub](https://github.com/tor4kichi/Hohoema/issues)
   
 不具合報告の場合、デバッグモードを有効にして不具合情報を抽出、報告に添付して頂けると対応がスムーズに進みます
 
 * [Hohoemaのデバッグモードを有効にする方法](https://github.com/tor4kichi/Hohoema/wiki/Hohoema%E3%81%AE%E3%83%87%E3%83%90%E3%83%83%E3%82%B0%E3%83%A2%E3%83%BC%E3%83%89%E3%82%92%E6%9C%89%E5%8A%B9%E3%81%AB%E3%81%99%E3%82%8B)
 
-今後の変更や確認されているバグは [イシュー](https://github.com/tor4kichi/Hohoema/issues) から確認できます
+今後の変更や確認されているバグは [課題一覧](https://github.com/tor4kichi/Hohoema/issues) から確認できます
 
 
 ## ライセンス
@@ -80,6 +76,6 @@ GPL v3
 
 Hohoemaは [tor4kichi](https://twitter.com/tor4kichi) が個人で開発しています。また、問題報告や実機確認などTwitter・Github・FeedbackHub等で色んな方からの協力を頂きながら制作しています。
 
-アプリ開発の応援には、[ストアでのレビュー]((ms-windows-store://pdp/?ProductId=9nblggh4rxt6))や、金銭的な支援が Hohoemaアプリ内の「設定」→「Hohoemaのアドオン（ページ最下段）」→「Hohoemaを応援する」から出来るようになっています。（ストアでの売上は 30% がマイクロソフトに手数料として差し引かれます。）
+アプリ開発の応援には、[ストアでのレビュー]((ms-windows-store://pdp/?ProductId=9nblggh4rxt6))や、 Hohoemaアプリ内の「設定」→「Hohoemaのアドオン（ページ最下段）」→「Hohoemaを応援する」から支援が出来るようになっています。（ストアでの売上は 5% がマイクロソフトに手数料として差し引かれます。）
 
 使えるニコ動アプリとして制作を続けていきますので、ご支援頂けると助かります。
