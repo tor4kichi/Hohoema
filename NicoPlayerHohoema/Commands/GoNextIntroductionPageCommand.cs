@@ -34,9 +34,8 @@ namespace NicoPlayerHohoema.Commands
                 case Models.HohoemaPageType.EpilogueIntroduction:
                 default:
                     // 初回起動の案内が完了したことを記録
-#if !DEBUG || false
                     localStorge.Save(App.IS_COMPLETE_INTRODUCTION, true);
-#endif
+
                     // スタートアップページを開く
                     pageManager.OpenStartupPage();
 

@@ -295,42 +295,42 @@ namespace NicoPlayerHohoema.Models
 
         public void OpenStartupPage()
         {
-            try
+            HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
-                HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                try
                 {
                     if (Models.AppUpdateNotice.HasNotCheckedUptedeNoticeVersion)
                     {
                         await _HohoemaDialogService.ShowLatestUpdateNotice();
                         Models.AppUpdateNotice.UpdateLastCheckedVersionInCurrentVersion();
+                    }
+                }
+                catch { }
 
-                    }
-                    if (HohoemaApp.IsLoggedIn)
+                if (HohoemaApp.IsLoggedIn)
+                {
+                    if (IsIgnoreRecordPageType(AppearanceSettings.StartupPageType))
                     {
-                        if (IsIgnoreRecordPageType(AppearanceSettings.StartupPageType))
-                        {
-                            AppearanceSettings.StartupPageType = HohoemaPageType.RankingCategoryList;
-                        }
+                        AppearanceSettings.StartupPageType = HohoemaPageType.RankingCategoryList;
+                    }
 
-                        OpenPage(AppearanceSettings.StartupPageType);
-                    }
-                    else if (HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache)
-                    {
-                        OpenPage(HohoemaPageType.CacheManagement);
-                    }
-                    else if (Helpers.InternetConnection.IsInternet())
-                    {
-                        OpenPage(HohoemaPageType.RankingCategoryList);
-                    }
-                    else
-                    {
-                        OpenPage(HohoemaPageType.Settings);
-                    }
-                })
-                .AsTask()
-                .ConfigureAwait(false);
-            }
-            catch { }
+                    OpenPage(AppearanceSettings.StartupPageType);
+                }
+                else if (HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache)
+                {
+                    OpenPage(HohoemaPageType.CacheManagement);
+                }
+                else if (Helpers.InternetConnection.IsInternet())
+                {
+                    OpenPage(HohoemaPageType.RankingCategoryList);
+                }
+                else
+                {
+                    OpenPage(HohoemaPageType.Settings);
+                }
+            })
+            .AsTask()
+            .ConfigureAwait(false);
         }
 
 		public static string PageTypeToTitle(HohoemaPageType pageType)

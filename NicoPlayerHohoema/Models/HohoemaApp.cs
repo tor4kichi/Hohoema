@@ -537,6 +537,7 @@ namespace NicoPlayerHohoema.Models
 		{
 			return AsyncInfo.Run<NiconicoSignInStatus>(async (cancelToken) => 
 			{
+                using (var rel = await _InitializeLock.LockAsync())
                 using (var releaser = await _SigninLock.LockAsync())
                 {
                     if (!Helpers.InternetConnection.IsInternet())

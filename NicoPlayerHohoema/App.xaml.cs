@@ -518,6 +518,16 @@ namespace NicoPlayerHohoema
 
             try
             {
+                await hohoemaApp.InitializeAsync().ConfigureAwait(false);
+            }
+            catch
+            {
+                Debug.WriteLine("HohoemaAppの初期化に失敗");
+            }
+
+
+            try
+            {
                 if (localStorge.Read(IS_COMPLETE_INTRODUCTION, false) == false)
                 {
                     // アプリのイントロダクションを開始
@@ -525,42 +535,29 @@ namespace NicoPlayerHohoema
                 }
                 else
                 {
-                    // ログインを試行
-                    if (!hohoemaApp.IsLoggedIn && AccountManager.HasPrimaryAccount())
-                    {
-                        await hohoemaApp.SignInWithPrimaryAccount().ContinueWith(prevTask =>
-                        {
-                            if (prevTask.Result == Mntone.Nico2.NiconicoSignInStatus.Success)
-                            {
-                                pageManager.OpenStartupPage();
-                            }
-                            else
-                            {
-                                pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
-                            }
-
-                        }).ConfigureAwait(false);
-
-                    }
-                    else
-                    {
-                        pageManager.OpenStartupPage();
-                    }
+                    pageManager.OpenStartupPage();
                 }
             }
             catch
             {
+                Debug.WriteLine("イントロダクションまたはスタートアップのページ表示に失敗");
                 pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
             }
 
 
+            
             try
             {
-                await hohoemaApp.InitializeAsync().ConfigureAwait(false);
+                // ログインを試行
+                if (!hohoemaApp.IsLoggedIn && AccountManager.HasPrimaryAccount())
+                {
+                    // サインイン処理の待ちを初期化内でしないことで初期画面表示を早める
+                    hohoemaApp.SignInWithPrimaryAccount();
+                }
             }
             catch
             {
-                Debug.WriteLine("HohoemaAppの初期化に失敗");
+                Debug.WriteLine("ログイン処理に失敗");
             }
 
             await base.OnInitializeAsync(args);
