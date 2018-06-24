@@ -125,12 +125,9 @@
     <Content Include="Assets\Square30x30Logo.scale-100.png" />
     <Content Include="Assets\Square30x30Logo.scale-200.png" />
     <Content Include="Assets\CacheUsageConfirmation.md" />
-    <Content Include="Assets\UpdateNotices\0.13.25.md" />
-    <Content Include="Assets\UpdateNotices\0.13.26.md" />
-    <Content Include="Assets\UpdateNotices\0.13.27.md" />
-    <Content Include="Assets\UpdateNotices\0.13.28.md" />
     <Content Include="Assets\UpdateNotices\0.14.0.md" />
     <Content Include="Assets\UpdateNotices\0.14.1.md" />
+    <Content Include="Assets\UpdateNotices\0.14.3.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <PRIResource Include="Resources\zh-Hans\Resources.resw" />
     <PRIResource Include="Resources\ja-jp\Resources.resw" />
