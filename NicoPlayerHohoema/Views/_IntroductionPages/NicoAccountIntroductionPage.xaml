@@ -116,8 +116,7 @@
 
 
         <!-- 背景 -->
-        <Grid Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
-              Grid.RowSpan="3" Grid.ColumnSpan="4"
+        <Grid Grid.RowSpan="3" Grid.ColumnSpan="4"
               Visibility="Collapsed"
               x:Name="AppLogoView"
               >
