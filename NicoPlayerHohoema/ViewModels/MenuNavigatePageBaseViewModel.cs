@@ -81,6 +81,10 @@ namespace NicoPlayerHohoema.ViewModels
             HohoemaApp.OnSignin += HohoemaApp_OnSignin;
             HohoemaApp.OnSignout += HohoemaApp_OnSignout;
 
+            CurrentMenuType = new ReactiveProperty<ViewModelBase>();
+            VideoMenu = new VideoMenuSubPageContent(HohoemaApp, HohoemaApp.UserMylistManager, HohoemaApp.Playlist);
+            LiveMenu = new LiveMenuSubPageContent(NicoLiveSubscriber);
+
             // Back Navigation
             CanGoBackNavigation = new ReactivePropertySlim<bool>();
             GoBackNavigationCommand = CanGoBackNavigation
@@ -103,8 +107,6 @@ namespace NicoPlayerHohoema.ViewModels
                     .ToReactiveProperty();
             }
 
-            CurrentSubPageContent = new ReactivePropertySlim<ViewModelBase>();
-            CurrentSubPageType = new ReactivePropertySlim<NiconicoServiceType?>();
 
             ServiceLevel = HohoemaApp.ObserveProperty(x => x.ServiceStatus)
                 .ToReadOnlyReactiveProperty();
@@ -218,7 +220,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                 if (string.IsNullOrWhiteSpace(keyword)) { return; }
 
-                SearchTarget? searchType = CurrentSubPageType.Value == NiconicoServiceType.Live ? SearchTarget.Niconama : SearchTarget.Keyword;
+                SearchTarget? searchType = CurrentMenuType.Value is LiveMenuSubPageContent ? SearchTarget.Niconama : SearchTarget.Keyword;
                 var searched = Database.SearchHistoryDb.LastSearchedTarget(keyword);
                 if (searched != null)
                 {
@@ -630,41 +632,10 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<bool> IsForceXboxDisplayMode { get; private set; }
 
-        public List<NiconicoServiceType> SubMenuPageTypes { get; private set; }
-             = new List<NiconicoServiceType>
-             {
-                 NiconicoServiceType.Video,
-                 NiconicoServiceType.Live
-             };
-        public ReactivePropertySlim<ViewModelBase> CurrentSubPageContent { get; private set; }
-        public ReactivePropertySlim<NiconicoServiceType?> CurrentSubPageType { get; private set; }
 
-        private DelegateCommand<NiconicoServiceType?> _SelectSubMenuPageCommand;
-        public DelegateCommand<NiconicoServiceType?> SelectSubMenuPageCommand
-        {
-            get
-            {
-                return _SelectSubMenuPageCommand
-                    ?? (_SelectSubMenuPageCommand = new DelegateCommand<NiconicoServiceType?>((type) =>
-                    {
-                        ViewModelBase content = null;
-                        switch (type)
-                        {
-                            case NiconicoServiceType.Video:
-                                content = new VideoMenuSubPageContent(HohoemaApp, HohoemaApp.UserMylistManager, HohoemaApp.Playlist);
-                                break;
-                            case NiconicoServiceType.Live:
-                                content = new LiveMenuSubPageContent(NicoLiveSubscriber);
-                                break;
-                            default:
-                                break;
-                        }
-                        CurrentSubPageContent.Value = content;
-                        CurrentSubPageType.Value = type;
-                    }));
-            }
-        }
-
+        public ViewModelBase VideoMenu { get; private set; }
+        public ViewModelBase LiveMenu { get; private set; }
+        public ReactiveProperty<ViewModelBase> CurrentMenuType { get; }
 
         private string _TitleText;
 		public string TitleText
@@ -832,6 +803,8 @@ namespace NicoPlayerHohoema.ViewModels
                 MenuItems.Add(new MenuItemViewModel("ランキング", HohoemaPageType.RankingCategoryList));
                 MenuItems.Add(new MenuItemViewModel("オススメ", HohoemaPageType.Recommend));
                 MenuItems.Add(new MenuItemViewModel("新着", HohoemaPageType.FeedGroupManage));
+                MenuItems.Add(new MenuItemViewModel("ニコレポ", HohoemaPageType.NicoRepo));
+                MenuItems.Add(new MenuItemViewModel("フォロー", HohoemaPageType.FollowManage));
                 MenuItems.Add(new MenuItemViewModel("視聴履歴", HohoemaPageType.WatchHistory));
                 MenuItems.Add(new MenuItemViewModel("キャッシュ", HohoemaPageType.CacheManagement));
                 MenuItems.Add(new MenuItemViewModel("あとで見る", HohoemaPageType.Mylist, new MylistPagePayload(HohoemaPlaylist.WatchAfterPlaylistId).ToParameterString()));
@@ -919,9 +892,10 @@ namespace NicoPlayerHohoema.ViewModels
             );
 
             MenuItems = new List<HohoemaListingPageItemBase>();
-//            MenuItems.Add(new MenuItemViewModel("ランキング", HohoemaPageType.RankingCategoryList));
-//            MenuItems.Add(new MenuItemViewModel("タイムシフト", HohoemaPageType.Recommend));
-//            MenuItems.Add(new MenuItemViewModel("予約", HohoemaPageType.NicoRepo));
+            MenuItems.Add(new MenuItemViewModel("ニコレポ", HohoemaPageType.NicoRepo));
+            MenuItems.Add(new MenuItemViewModel("フォロー", HohoemaPageType.FollowManage));
+            //            MenuItems.Add(new MenuItemViewModel("タイムシフト", HohoemaPageType.Recommend));
+            //            MenuItems.Add(new MenuItemViewModel("予約", HohoemaPageType.NicoRepo));
         }
 
         public AsyncReactiveCommand UpdateOnAirStreamsCommand { get; }

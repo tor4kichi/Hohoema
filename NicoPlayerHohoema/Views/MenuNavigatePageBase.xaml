@@ -176,10 +176,14 @@
                                 />
 
                     <toolkit:DockPanel Margin="0 0" Opacity="0.7"
-                                       Visibility="{Binding Mylists, Converter={StaticResource CollectionVisibilityConverter}}"
                                        >
+                        <!--
+                    <toolkit:DockPanel Margin="0 0" Opacity="0.7"
+                                    Visibility="{Binding Mylists, Converter={StaticResource CollectionVisibilityConverter}}"
+                                    >
+                        -->
 
-                        <Button Command="{StaticResource OpenHohoemaPageCommand}"
+                            <Button Command="{StaticResource OpenHohoemaPageCommand}"
                                     CommandParameter="UserMylist"
                                     HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Left"
@@ -1001,139 +1005,22 @@
                                         </StackPanel>
 
 
-                                        <Grid>
+                                        <Pivot SelectedItem="{Binding CurrentMenuType.Value, Mode=TwoWay}">
 
-                                            
-                                            <StackPanel x:Name="MenuMainPageContent">
-                                                <i:Interaction.Behaviors>
-                                                    <core:DataTriggerBehavior Binding="{Binding CurrentSubPageContent.Value, Mode=OneWay}" ComparisonCondition="Equal" Value="{x:Null}" >
-                                                        <mybehavior:SetFocus TargetObject="{Binding ElementName=SubMenuPageTypesListView}" Delay="0:0:0.2"  />
-                                                    </core:DataTriggerBehavior>
-                                                </i:Interaction.Behaviors>
-
-
-
-                                                <ListView ItemsSource="{Binding SubMenuPageTypes}"
-                                                          uwpui:ListViewBase.Command="{Binding SelectSubMenuPageCommand}"
-                                                          IsItemClickEnabled="True"
-                                                          SelectionMode="None"
-                                                          x:Name="SubMenuPageTypesListView"
-                                                          IsTabStop="False"
-                                                          >
-                                                    <ListView.ItemContainerStyle>
-                                                        <Style TargetType="ListViewItem">
-                                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                                        </Style>
-                                                    </ListView.ItemContainerStyle>
-                                                    <ListView.ItemTemplate>
-                                                        <DataTemplate>
-                                                            <toolkit:DockPanel Margin="8 0" >
-                                                                <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" 
-                                                                           toolkit:DockPanel.Dock="Left" 
-                                                                           VerticalAlignment="Center"
-                                                                           Style="{StaticResource SubtitleTextBlockStyle}"
-                                                                           Opacity="0.8"
-                                                                           Margin="0"  />
-
-                                                                <TextBlock FontFamily="Segoe MDL2 Assets" 
-                                                                           Text="&#xE017;" 
-                                                                           FontSize="14"
-                                                                           Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                                                           toolkit:DockPanel.Dock="Right"
-                                                                           VerticalAlignment="Center"
-                                                                       />
-                                                                
-                                                                <Border />
-                                                            </toolkit:DockPanel>
-                                                        </DataTemplate>
-                                                    </ListView.ItemTemplate>
-                                                </ListView>
-
-                                                <Border BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}" Opacity="0.3"
-                                                        BorderThickness="0 1 0 0"
-                                                        Margin="12 8"
-                                                        />
-
-                                                <ItemsControl ItemsSource="{Binding MenuItems}"
-                                                              ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
-                                                              Background="Transparent"
-                                                              ScrollViewer.VerticalScrollMode="Disabled"
-                                                              IsTabStop="False"
-                                                              />
-
-                                            </StackPanel>
-
-
-                                            <toolkit:DockPanel Opacity="0.0" x:Name="MenuSubPageContent" Visibility="Collapsed">
-                                                <i:Interaction.Behaviors>
-
-                                                    <core:DataTriggerBehavior Binding="{Binding CurrentSubPageContent.Value, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}" >
-                                                        <mybehavior:SetFocus TargetObject="{Binding ElementName=BackToMainMenuPageButton}" Delay="0:0:0.2" />
-                                                    </core:DataTriggerBehavior>
-                                                </i:Interaction.Behaviors>
-
-
-                                                <toolkit:DockPanel toolkit:DockPanel.Dock="Top" Margin="0 0 0 8">
-                                                    <Button 
-                                                        Command="{Binding SelectSubMenuPageCommand}"
-                                                        CommandParameter="{x:Null}"
-                                                        Background="Transparent"
-                                                        HorizontalAlignment="Stretch"
-                                                        HorizontalContentAlignment="Stretch"
-                                                        x:Name="BackToMainMenuPageButton"
-                                                        Margin="4 0 0 0"
-                                                        Height="32"
-                                                        >
-                                                        <toolkit:DockPanel  Margin="8 0" >
-                                                            <TextBlock FontFamily="Segoe MDL2 Assets" 
-                                                               Text="&#xE016;" 
-                                                               FontSize="16"
-                                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                                                       VerticalAlignment="Center"
-                                                                       Opacity="0.8"
-                                                                       toolkit:DockPanel.Dock="Left"
-                                                               >
-                                                            </TextBlock>
-
-                                                            <TextBlock Text="{Binding CurrentSubPageType.Value, Converter={StaticResource ToLocalText}}"
-                                                               Opacity="0.8"
-                                                               Style="{StaticResource SubtitleTextBlockStyle}"
-                                                               Margin="8 0"
-                                                               VerticalAlignment="Center"
-                                                                       HorizontalAlignment="Center"
+                                            <PivotItem Header="動画"
+                                                               Content="{Binding VideoMenu}"
+                                                               ContentTemplate="{StaticResource VideoSubMenuContentTemplate}"
                                                                />
-                                                        </toolkit:DockPanel>
-                                                    </Button>
+
+                                            <PivotItem Header="生放送"
+                                                               Content="{Binding LiveMenu}"
+                                                               ContentTemplate="{StaticResource LiveSubMenuContentTemplate}"
+                                                               />
 
 
-                                                </toolkit:DockPanel>
-
-                                                <ContentControl 
-                                                            Content="{Binding CurrentSubPageContent.Value}"
-                                                            ContentTemplateSelector="{StaticResource MenuSubPageTemplateSelector}"
-                                                            HorizontalContentAlignment="Stretch"
-                                                            VerticalContentAlignment="Stretch"
-                                                                IsTabStop="False"
-                                                    x:Name="SubPageContentControl"
-                                                    
-                                                            >
-
-
-
-                                                </ContentControl>
-
-                                            </toolkit:DockPanel>
-                                            
-                                            
-                                            
-                                        </Grid>
-                                        
-                                        
-
+                                        </Pivot>
 
                                     </StackPanel>
-
-
 
                                 </ScrollViewer>
                             </toolkit:DockPanel>
