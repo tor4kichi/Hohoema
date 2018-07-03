@@ -252,6 +252,7 @@ namespace NicoPlayerHohoema
             base.OnLaunched(args);
         }
 
+        
         protected override async Task OnActivateApplicationAsync(IActivatedEventArgs args)
 		{
             var pageManager = Container.Resolve<PageManager>();
@@ -509,8 +510,22 @@ namespace NicoPlayerHohoema
             Views.UINavigationManager.Pressed += UINavigationManager_Pressed;
 #endif
 
+            // ウィンドウサイズの保存と復元
+            if (Helpers.DeviceTypeHelper.IsDesktop)
+            {
+                var localObjectStorageHelper = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
+                if (localObjectStorageHelper.KeyExists(HohoemaViewManager.primary_view_size))
+                {
+                    var view = ApplicationView.GetForCurrentView();
+                    MainViewId = view.Id;
+                    _PrevWindowSize = localObjectStorageHelper.Read<Size>(HohoemaViewManager.primary_view_size);
+                    view.TryResizeView(_PrevWindowSize);
+                    ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.Auto;
+                }
+            }
 
-            var localStorge = new Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper();
+
+            var localStorge = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
 
 
             var pageManager = Container.Resolve<PageManager>();
@@ -562,6 +577,21 @@ namespace NicoPlayerHohoema
 
             await base.OnInitializeAsync(args);
 		}
+
+
+        private int MainViewId = -1;
+
+        private void View_VisibleBoundsChanged(ApplicationView sender, object args)
+        {
+            if (MainViewId == sender.Id)
+            {
+                var localObjectStorageHelper = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
+                _PrevWindowSize = localObjectStorageHelper.Read<Size>(HohoemaViewManager.primary_view_size);
+                localObjectStorageHelper.Save(HohoemaViewManager.primary_view_size, new Size(sender.VisibleBounds.Width, sender.VisibleBounds.Height));
+
+                Debug.WriteLine("MainView VisibleBoundsChanged : " + sender.VisibleBounds.ToString());
+            }
+        }
 
         protected override IDeviceGestureService OnCreateDeviceGestureService()
         {
@@ -640,8 +670,8 @@ namespace NicoPlayerHohoema
             Container.RegisterInstance(hohoemaApp.CacheManager);
             Container.RegisterInstance(hohoemaApp.UserSettings);
             Container.RegisterInstance(new Models.Niconico.Live.NicoLiveSubscriber(hohoemaApp));
-            
 
+            Container.RegisterInstance(new Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper());
 #if DEBUG
             //			BackgroundUpdater.MaxTaskSlotCount = 1;
 #endif
@@ -748,12 +778,28 @@ namespace NicoPlayerHohoema
         protected override void OnWindowCreated(WindowCreatedEventArgs args)
 		{
 			base.OnWindowCreated(args);
-			
-//			var mainWindowView = ApplicationView.GetForCurrentView();
-//			mainWindowView.Consolidated += MainWindowView_Consolidated;
 
-		}
-        
+            //			var mainWindowView = ApplicationView.GetForCurrentView();
+            //			mainWindowView.Consolidated += MainWindowView_Consolidated;
+
+            var view = ApplicationView.GetForCurrentView();
+            view.VisibleBoundsChanged += View_VisibleBoundsChanged;
+            view.Consolidated += View_Consolidated;
+        }
+
+        private Size _PrevWindowSize;
+        private void View_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
+        {
+            if (sender.Id == MainViewId)
+            {
+                var localObjectStorageHelper = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
+                if (_PrevWindowSize != default(Size))
+                {
+                    localObjectStorageHelper.Save(HohoemaViewManager.primary_view_size, _PrevWindowSize);
+                }
+                MainViewId = -1;
+            }
+        }
 
         protected override UIElement CreateShell(Frame rootFrame)
         {
