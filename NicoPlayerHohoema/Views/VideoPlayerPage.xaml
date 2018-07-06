@@ -1229,30 +1229,7 @@
                                                     <AppBarSeparator />
 
 
-                                                    <AppBarButton x:Name="SmallWindowButton"  
-                                                            Command="{Binding PlayerSmallWindowDisplayCommand}"
-                                                            Background="Transparent"
-                                                            Visibility="Collapsed"
-                                                            MinWidth="64"
-                                                                  Label="小窓"
-                                                                        >
-                                                        
-                                                    </AppBarButton>
-
-
-
-
-
-
-                                                    <AppBarButton x:Name="CompactOverlayButton"
-                                                            Command="{Binding ToggleCompactOverlayCommand}"
-                                                            Background="Transparent"
-                                                            Visibility="Collapsed"
-                                                            MinWidth="64"
-                                                                  Label="小さく最前面"
-                                                            >
-                                                       
-                                                    </AppBarButton>
+                                                   
 
 
 
@@ -1268,8 +1245,31 @@
 
 
 
+                                                    <AppBarButton x:Name="CompactOverlayButton"
+                                                            Command="{Binding ToggleCompactOverlayCommand}"
+                                                            Background="Transparent"
+                                                            Visibility="Collapsed"
+                                                            MinWidth="64"
+                                                                  Label="小さく最前面"
+                                                            >
+                                                       
+                                                    </AppBarButton>
 
-                                                    
+
+
+                                                    <AppBarButton x:Name="SmallWindowButton"  
+                                                            Command="{Binding PlayerSmallWindowDisplayCommand}"
+                                                            Background="Transparent"
+                                                            Visibility="Collapsed"
+                                                            MinWidth="64"
+                                                                  Label="小窓"
+                                                                        >
+
+                                                    </AppBarButton>
+
+
+
+
 
 
                                                 </CommandBar.PrimaryCommands>
