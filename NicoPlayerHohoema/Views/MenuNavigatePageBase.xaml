@@ -1101,14 +1101,16 @@
 
                                                     <StackPanel Orientation="Horizontal">
                                                         <SymbolIcon Symbol="Find" Opacity="0.7" Margin="0 0 8 0"
+                                                                    VerticalAlignment="Center"
                                                                     >
                                                             <SymbolIcon.RenderTransform>
-                                                                <ScaleTransform ScaleX="0.9" ScaleY="0.9" CenterX="0.5" CenterY="0.5" />
+                                                                <ScaleTransform ScaleX="0.8" ScaleY="0.8" CenterX="13" CenterY="13" />
                                                             </SymbolIcon.RenderTransform>
                                                         </SymbolIcon>
                                                         <TextBlock Text="{Binding Source=Search, Converter={StaticResource ToLocalText}}"
                                                                    Opacity="0.7"
                                                                    VerticalAlignment="Center"
+                                                                   FontSize="13"
                                                                    />
                                                     </StackPanel>
                                                 </Button>
