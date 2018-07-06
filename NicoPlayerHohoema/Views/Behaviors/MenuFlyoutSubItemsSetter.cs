@@ -46,41 +46,81 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 
 
+
+        public static readonly DependencyProperty IsRequireInsertSeparateBetweenDefaultItemsProperty =
+            DependencyProperty.Register(
+                nameof(IsRequireInsertSeparateBetweenDefaultItems)
+                , typeof(bool)
+                , typeof(MenuFlyoutSubItemsSetter)
+                , new PropertyMetadata(true)
+            );
+
+        public bool IsRequireInsertSeparateBetweenDefaultItems
+        {
+            get { return (bool)GetValue(IsRequireInsertSeparateBetweenDefaultItemsProperty); }
+            set { SetValue(IsRequireInsertSeparateBetweenDefaultItemsProperty, value); }
+        }
+
+        bool IsInitialized = false;
         protected override void OnAttached()
         {
             base.OnAttached();
 
-            this.AssociatedObject.Loaded += AssociatedObject_Loaded;
-            this.AssociatedObject.Unloaded += AssociatedObject_Unloaded;
+            if (!IsInitialized)
+            {
+                this.AssociatedObject.Loaded += AssociatedObject_Loaded;
+                this.AssociatedObject.Unloaded += AssociatedObject_Unloaded;
+
+                IsInitialized = true;
+            }
+        }
+
+        protected override void OnDetaching()
+        {
+            base.OnDetaching();
         }
 
         private void AssociatedObject_Unloaded(object sender, RoutedEventArgs e)
         {
             var subItem = sender as MenuFlyoutSubItem;
-            subItem.Items.Clear();
+            foreach (var removeTarget in subItem.Items.Skip(AddedItemsCount).ToList())
+            {
+                subItem.Items.Remove(removeTarget);
+            }
+
+            AddedSubItems.Clear();
+            AddedItemsCount = 0;
         }
 
+        int AddedItemsCount = 0;
+        List<MenuFlyoutItemBase> AddedSubItems = new List<MenuFlyoutItemBase>();
         private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
         {
             
             var subItem = sender as MenuFlyoutSubItem;
 
             var itemsSrouce = ItemsSource.Cast<object>().ToList();
+            AddedItemsCount = itemsSrouce.Count;
+
+            // サブアイテムとデフォルトで配置したサブアイテムとの間にセパレータが必要な場合は配置する
+            // Unloaded時にこのセパレータも削除される（DefaultSubItemsCountの個数にセパレータが含まれないため）
+            if (IsRequireInsertSeparateBetweenDefaultItems)
+            {
+                if (itemsSrouce.Count >= 1 && subItem.Items.Count >= 1)
+                {
+                    subItem.Items.Add(new MenuFlyoutSeparator());
+                }
+            }
+
             foreach (var item in itemsSrouce)
             {
-                var elem = subItem.Items.ElementAtOrDefault(itemsSrouce.IndexOf(item));
-                if (elem == null)
-                {
-                    elem = ItemTemplate.LoadContent() as MenuFlyoutItemBase;
-                    elem.DataContext = item;
-                    subItem.Items.Add(elem);
-                    elem.UpdateLayout();
-                }
+                var elem = ItemTemplate.LoadContent() as MenuFlyoutItemBase;
 
                 elem.DataContext = item;
+                
+                subItem.Items.Add(elem);
+                AddedSubItems.Add(elem);
             }
-            
-            
         }
 
 

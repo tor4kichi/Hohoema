@@ -1,6 +1,7 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Mylist;
 using NicoPlayerHohoema.Helpers;
+using Prism.Commands;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using Windows.Foundation;
 using Windows.UI.Core;
 
@@ -151,22 +153,12 @@ namespace NicoPlayerHohoema.Models
                 // 追加分だけを検出してUserMylistに追加
                 var addedMylistGroups = mylistGroupDataLists
                     .Where(x => _UserMylists.All(y => x.Id != y.GroupId))
+                    .Select(x => MylistGroupInfo.FromMylistGroupData(x, HohoemaApp, this))
                     .ToArray();
 
                 foreach (var userMylist in addedMylistGroups)
                 {
-                    var addedMylistGroupInfo = MylistGroupInfo.FromMylistGroupData(userMylist, HohoemaApp, this);
-                    _UserMylists.Add(addedMylistGroupInfo);
-                    try
-                    {
-                        await addedMylistGroupInfo.Refresh();
-                    }
-                    catch (Exception e)
-                    {
-                        await (App.Current as App).WriteErrorFile(e);
-                    }
-
-                    await Task.Delay(500);
+                    _UserMylists.Add(userMylist);
                 }
 
                 // 削除分だけ検出してUserMylistから削除
@@ -178,6 +170,21 @@ namespace NicoPlayerHohoema.Models
                 foreach (var removeMylistGroup in removedMylistGroups)
                 {
                     _UserMylists.Remove(removeMylistGroup);
+                }
+
+                // 追加分の更新を実行
+                foreach (var userMylist in addedMylistGroups)
+                {
+                    try
+                    {
+                        await userMylist.Refresh();
+                    }
+                    catch (Exception e)
+                    {
+                        await (App.Current as App).WriteErrorFile(e);
+                    }
+
+                    await Task.Delay(500);
                 }
             }
 		}
@@ -292,9 +299,28 @@ namespace NicoPlayerHohoema.Models
             _VideoIdToThreadIdMap = new Dictionary<string, string>();
 		}
 
-		
+        private DelegateCommand<object> _AddItemCommand;
+        public ICommand AddItemCommand => _AddItemCommand
+            ?? (_AddItemCommand = new DelegateCommand<object>(async (p) =>
+            {
+                if (p is Interfaces.IVideoContent videoItem)
+                {
+                    var result = await Registration(videoItem.Id);
+                    (App.Current as App).PublishInAppNotification(
+                        Models.InAppNotificationPayload.CreateRegistrationResultNotification(
+                            result,
+                            "マイリスト",
+                            Label,
+                            videoItem.Label
+                            ));
+                }
+            }
+            , (p) => true
+            ));
 
-		public Windows.UI.Color ThemeColor
+
+
+        public Windows.UI.Color ThemeColor
 		{
 			get
 			{

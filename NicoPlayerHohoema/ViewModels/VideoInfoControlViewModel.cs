@@ -32,9 +32,28 @@ using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    
-	public class VideoInfoControlViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContent
+
+    public class VideoInfoControlViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContent
     {
+        public List<Tuple<IPlayableList, Interfaces.IVideoContent>> Mylists
+        {
+            get
+            {
+                var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
+                return hohoemaApp.UserMylistManager.UserMylists.Select(x => new Tuple<IPlayableList, Interfaces.IVideoContent>(x, this)).ToList();
+            }
+        }
+
+        public List<Tuple<IPlayableList, Interfaces.IVideoContent>> LocalMylists
+        {
+            get
+            {
+                var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
+                return hohoemaApp.Playlist.Playlists.Select(x => new Tuple<IPlayableList, Interfaces.IVideoContent>(x, this)).ToList();
+            }
+        }
+
+
         public string Id => RawVideoId;
 
 

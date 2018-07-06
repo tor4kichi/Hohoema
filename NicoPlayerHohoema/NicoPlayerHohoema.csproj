@@ -148,6 +148,8 @@
     <Compile Include="Commands\HohoemaCommnadHelper.cs" />
     <Compile Include="Commands\LoginToNiconicoCommand.cs" />
     <Compile Include="Commands\LogoutFromNiconicoCommand.cs" />
+    <Compile Include="Commands\Mylist\CreateLocalMylistCommand.cs" />
+    <Compile Include="Commands\Mylist\CreateMylistCommand.cs" />
     <Compile Include="Commands\NicoLiveUserIdAddToNGCommand.cs" />
     <Compile Include="Commands\NicoLiveUserIdRemoveFromNGCommand.cs" />
     <Compile Include="Commands\OpenBroadcasterInfoCommand.cs" />
@@ -429,6 +431,7 @@
     <Compile Include="Views\Converters\PageTypeToMaterialIconKind.cs" />
     <Compile Include="Views\Converters\SwipeSeekValueToTimeSpan.cs" />
     <Compile Include="Views\Converters\ToKMGTPEZYConverter.cs" />
+    <Compile Include="Views\Extensions\FlyoutMenuExtension.cs" />
     <Compile Include="Views\Flyouts\FeedSourceFlyout.xaml.cs">
       <DependentUpon>FeedSourceFlyout.xaml</DependentUpon>
     </Compile>

@@ -12,17 +12,18 @@
     xmlns:HohoemaCommand="using:NicoPlayerHohoema.Commands"
     mc:Ignorable="d">
 
-    <MenuFlyoutItem Text="再生" 
-                    Command="{StaticResource OpenContentCommand}"
-                    CommandParameter="{Binding}"
-                    />
+    
+    
+    
     
     <MenuFlyoutItem Text="あとで見る"
                     Command="{StaticResource AddAfterViewPlaylistCommand}"
                     CommandParameter="{Binding}"
                                 />
 
-    <MenuFlyoutSeparator />
+
+    
+    
 
 
     <MenuFlyoutItem Text="動画情報"
@@ -36,16 +37,6 @@
                                 />
 
     <MenuFlyoutSeparator />
-
-    <MenuFlyoutItem Text="マイリストに追加" 
-                    Command="{StaticResource AddMylistCommand}"
-                    CommandParameter="{Binding}"
-                    />
-
-    <MenuFlyoutItem Text="投稿者を新着チェックに追加" 
-                    Command="{StaticResource AddFeedSourceCommand}"
-                    CommandParameter="{Binding}"
-                    />
 
     <MenuFlyoutItem Text="共有" 
                     Command="{StaticResource ShareCommand}"
@@ -69,6 +60,54 @@
                         CommandParameter="{Binding}"
                         />
     </MenuFlyoutSubItem>
+    
+    <MenuFlyoutSubItem Text="マイリストに追加" 
+                    >
+        <i:Interaction.Behaviors>
+            <mybehavior:MenuFlyoutSubItemsSetter ItemsSource="{Binding Mylists}" >
+                <mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
+                    <DataTemplate>
+                        <MenuFlyoutItem Text="{Binding Item1.Label}"
+                                        Command="{Binding Item1.AddItemCommand}"
+                                        CommandParameter="{Binding Item2}"
+                                        />
+                    </DataTemplate>
+                </mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
+            </mybehavior:MenuFlyoutSubItemsSetter>
+        </i:Interaction.Behaviors>
+
+        <MenuFlyoutItem Text="新規作成…" Command="{StaticResource CreateMylistCommand}"
+                        CommandParameter="{Binding}"
+                        />
+    </MenuFlyoutSubItem>
+
+    <MenuFlyoutSubItem Text="ローカルマイリストに追加" 
+                    >
+        <i:Interaction.Behaviors>
+            <mybehavior:MenuFlyoutSubItemsSetter ItemsSource="{Binding LocalMylists}" >
+                <mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
+                    <DataTemplate>
+                        <MenuFlyoutItem Text="{Binding Item1.Label}"
+                                        Command="{Binding Item1.AddItemCommand}"
+                                        CommandParameter="{Binding Item2}"
+                                        />
+                    </DataTemplate>
+                </mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
+            </mybehavior:MenuFlyoutSubItemsSetter>
+        </i:Interaction.Behaviors>
+
+        <MenuFlyoutItem Text="新規作成…" Command="{StaticResource CreateLocalMylistCommand}"
+                        CommandParameter="{Binding}"
+                        />
+    </MenuFlyoutSubItem>
+    
+
+    <MenuFlyoutItem Text="投稿者を新着チェックに追加" 
+                    Command="{StaticResource AddFeedSourceCommand}"
+                    CommandParameter="{Binding}"
+                    />
+
+    
 
     <MenuFlyoutSeparator
         Visibility="{Binding Source={StaticResource IsCacheEnabled}, Converter={StaticResource BooleanToVisibility}}"
