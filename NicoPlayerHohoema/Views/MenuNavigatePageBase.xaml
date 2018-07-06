@@ -458,6 +458,9 @@
 
                                 <Setter Target="TopMenu.Background" Value="{StaticResource MenuBackgroundBrush}" />
 
+                                <Setter Target="Mobile_ShowSearchButton.Visibility" Value="Visible" />
+
+                                <Setter Target="SearchTextBox.Visibility" Value="Collapsed" />
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
@@ -562,6 +565,25 @@
 
                             <VisualState.Setters>
                                 <Setter Target="SearchSubmitWithEnterKeyTrigger.IsEnabled" Value="True" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                    </VisualStateGroup>
+
+
+                    <!-- モバイルの検索ボックスをフォーカス -->
+                    <VisualStateGroup>
+
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <mytrigger:FocusTrigger Target="{Binding ElementName=Mobile_SearchTextBox}" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="Mobile_BlindSearchTextBoxBorder.Visibility" Value="Visible" />
+                                <Setter Target="Mobile_BarrierSearchTextBoxBorder.Visibility" Value="Visible" />
+
+                                <Setter Target="Mobile_SearchSubmitWithEnterKeyTrigger.IsEnabled" Value="True" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -1054,12 +1076,88 @@
                                                                        />
                                             </Button>
 
-                                            <TextBlock x:Name="MenuTitleText"
-                                                Text="{Binding TitleText}"
-                                               Style="{StaticResource SubtitleTextBlockStyle}"
-                                               Margin="16 0 16 0"
+                                            <Grid>
+                                                <TextBlock x:Name="MenuTitleText"
+                                                    Text="{Binding TitleText}"
+                                                   Style="{StaticResource SubtitleTextBlockStyle}"
+                                                   Margin="16 0 16 0"
                                                    VerticalAlignment="Center"
                                                    />
+
+                                                <Button Background="Transparent"
+                                                        HorizontalAlignment="Right"
+                                                        x:Name="Mobile_ShowSearchButton"
+                                                        Visibility="Collapsed"
+                                                        Padding="16 0"
+                                                        >
+                                                    <i:Interaction.Behaviors>
+                                                        <core:EventTriggerBehavior EventName="Click">
+                                                            <core:ChangePropertyAction TargetObject="{Binding ElementName=Mobile_SearchTextBox}" PropertyName="Visibility" Value="Visible" />
+                                                            <mybehavior:SetFocus TargetObject="{Binding ElementName=Mobile_SearchTextBox}" />
+                                                        </core:EventTriggerBehavior>
+                                                    </i:Interaction.Behaviors>
+
+
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <SymbolIcon Symbol="Find" Opacity="0.7" Margin="0 0 8 0"
+                                                                    >
+                                                            <SymbolIcon.RenderTransform>
+                                                                <ScaleTransform ScaleX="0.9" ScaleY="0.9" CenterX="0.5" CenterY="0.5" />
+                                                            </SymbolIcon.RenderTransform>
+                                                        </SymbolIcon>
+                                                        <TextBlock Text="{Binding Source=Search, Converter={StaticResource ToLocalText}}"
+                                                                   Opacity="0.7"
+                                                                   VerticalAlignment="Center"
+                                                                   />
+                                                    </StackPanel>
+                                                </Button>
+
+
+                                                <Border Background="{StaticResource MenuBackgroundBrush}"
+                                                        x:Name="Mobile_BlindSearchTextBoxBorder"
+                                                        Visibility="Collapsed"
+                                                        />
+
+                                                <AutoSuggestBox Text="{Binding SearchKeyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                                    QueryIcon="Find"
+                                                    PlaceholderText="検索"
+                                                    UseSystemFocusVisuals="True"
+                                                    TabIndex="103"
+                                                    ItemsSource="{Binding SearchSuggestionWords}"
+                                                    x:Name="Mobile_SearchTextBox"
+                                                    QuerySubmitted="SearchTextBox_QuerySubmitted" 
+                                                    Padding="0"
+                                                                Visibility="Collapsed"
+                                                                VerticalAlignment="Center"
+                                                    >
+                                                    <i:Interaction.Behaviors>
+                                                        <core:EventTriggerBehavior EventName="QuerySubmitted">
+                                                            <core:InvokeCommandAction Command="{Binding SearchCommand}" />
+                                                            <core:ChangePropertyAction PropertyName="IsEnabled" Value="False" />
+                                                            <core:ChangePropertyAction PropertyName="IsEnabled" Value="True" />
+                                                        </core:EventTriggerBehavior>
+
+                                                        <core:EventTriggerBehavior EventName="GotFocus">
+                                                            <core:ChangePropertyAction PropertyName="IsSuggestionListOpen" Value="True" />
+                                                        </core:EventTriggerBehavior>
+
+                                                        <core:EventTriggerBehavior EventName="LostFocus">
+                                                            <core:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
+                                                        </core:EventTriggerBehavior>
+
+
+                                                        <mybehavior:KeyboardTrigger Key="Enter" x:Name="Mobile_SearchSubmitWithEnterKeyTrigger" IsEnabled="False">
+                                                            <core:InvokeCommandAction Command="{Binding SearchCommand}" />
+                                                            <core:ChangePropertyAction PropertyName="IsEnabled" Value="False" />
+                                                            <core:ChangePropertyAction PropertyName="IsEnabled" Value="True" />
+                                                        </mybehavior:KeyboardTrigger>
+
+                                                    </i:Interaction.Behaviors>
+                                                </AutoSuggestBox>
+
+                                               
+                                            </Grid>
+                                            
 
                                         </toolkit:DockPanel>
 
@@ -1067,39 +1165,49 @@
                                     
 
                                     <!-- ページ毎のコンテンツ -->
-                                    <ContentPresenter x:Name="ContentLayout"
+                                    <Grid>
+                                        <ContentPresenter x:Name="ContentLayout"
                                             >
-                                        <myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
-                                            <templateSelector:HohoemaFlyoutTemplateSelector>
-                                                <templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>
-                                                    <DataTemplate>
-                                                        <controls:VideoListItemFlyout />
-                                                    </DataTemplate>
-                                                </templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>
-                                                <templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
-                                                    <DataTemplate>
-                                                        <controls:LiveListItemFlyout />
-                                                    </DataTemplate>
-                                                </templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
-                                                <templateSelector:HohoemaFlyoutTemplateSelector.FeedGroupFlyoutTemplate>
-                                                    <DataTemplate>
-                                                        <controls:FeedGroupListItemFlyout />
-                                                    </DataTemplate>
-                                                </templateSelector:HohoemaFlyoutTemplateSelector.FeedGroupFlyoutTemplate>
-                                                <templateSelector:HohoemaFlyoutTemplateSelector.FeedSourceFlyoutTemplate>
-                                                    <DataTemplate>
-                                                        <controls:FeedSourceFlyout />
-                                                    </DataTemplate>
-                                                </templateSelector:HohoemaFlyoutTemplateSelector.FeedSourceFlyoutTemplate>
-                                                <templateSelector:HohoemaFlyoutTemplateSelector.SearchHistoryFlyoutTemplate>
-                                                    <DataTemplate>
-                                                        <local:SearchHistoryListItemFlyout />
-                                                    </DataTemplate>
-                                                </templateSelector:HohoemaFlyoutTemplateSelector.SearchHistoryFlyoutTemplate>
-                                            </templateSelector:HohoemaFlyoutTemplateSelector>
-                                        </myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
+                                            <myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
+                                                <templateSelector:HohoemaFlyoutTemplateSelector>
+                                                    <templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>
+                                                        <DataTemplate>
+                                                            <controls:VideoListItemFlyout />
+                                                        </DataTemplate>
+                                                    </templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>
+                                                    <templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
+                                                        <DataTemplate>
+                                                            <controls:LiveListItemFlyout />
+                                                        </DataTemplate>
+                                                    </templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
+                                                    <templateSelector:HohoemaFlyoutTemplateSelector.FeedGroupFlyoutTemplate>
+                                                        <DataTemplate>
+                                                            <controls:FeedGroupListItemFlyout />
+                                                        </DataTemplate>
+                                                    </templateSelector:HohoemaFlyoutTemplateSelector.FeedGroupFlyoutTemplate>
+                                                    <templateSelector:HohoemaFlyoutTemplateSelector.FeedSourceFlyoutTemplate>
+                                                        <DataTemplate>
+                                                            <controls:FeedSourceFlyout />
+                                                        </DataTemplate>
+                                                    </templateSelector:HohoemaFlyoutTemplateSelector.FeedSourceFlyoutTemplate>
+                                                    <templateSelector:HohoemaFlyoutTemplateSelector.SearchHistoryFlyoutTemplate>
+                                                        <DataTemplate>
+                                                            <local:SearchHistoryListItemFlyout />
+                                                        </DataTemplate>
+                                                    </templateSelector:HohoemaFlyoutTemplateSelector.SearchHistoryFlyoutTemplate>
+                                                </templateSelector:HohoemaFlyoutTemplateSelector>
+                                            </myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
 
-                                    </ContentPresenter>
+                                        </ContentPresenter>
+                                        
+                                        <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                                                x:Name="Mobile_BarrierSearchTextBoxBorder"
+                                                Visibility="Collapsed"
+                                                IsHitTestVisible="True"                         
+                                                Opacity="0.8"
+                                                        />
+                                    </Grid>
+                                    
 
 
                                 </toolkit:DockPanel>
