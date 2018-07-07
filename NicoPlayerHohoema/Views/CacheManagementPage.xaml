@@ -133,6 +133,7 @@
                 HorizontalContentAlignment="Stretch"
                 ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
                 uwpExtensions:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
+                ScrollViewer.BringIntoViewOnFocusChange="False"
             >
             <i:Interaction.Behaviors>
 

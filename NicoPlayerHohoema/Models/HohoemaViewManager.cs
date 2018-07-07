@@ -88,6 +88,7 @@ namespace NicoPlayerHohoema.Models
             if (CoreAppView == null)
             {
                 var playerView = CoreApplication.CreateNewView();
+
                 
                 HohoemaSecondaryViewFrameViewModel vm = null;
                 int id = 0;
@@ -134,17 +135,8 @@ namespace NicoPlayerHohoema.Models
                     view.TitleBar.ButtonInactiveBackgroundColor = Windows.UI.Colors.Transparent;
 
                     Window.Current.Activate();
-                    
 
-                    await ApplicationViewSwitcher.TryShowAsStandaloneAsync(
-                        id,
-                        ViewSizePreference.Default,
-                        MainView.Id,
-                        ViewSizePreference.Default
-                        );
-
-                    view.Consolidated += SecondaryAppView_Consolidated;
-
+                    await ApplicationViewSwitcher.TryShowAsViewModeAsync(id, ApplicationViewMode.Default);
 
                     // ウィンドウサイズの保存と復元
                     if (Helpers.DeviceTypeHelper.IsDesktop)
@@ -157,6 +149,9 @@ namespace NicoPlayerHohoema.Models
 
                         view.VisibleBoundsChanged += View_VisibleBoundsChanged;
                     }
+
+                    view.Consolidated += SecondaryAppView_Consolidated;
+
                 });
                 ViewId = id;
                 AppView = view;
@@ -165,11 +160,8 @@ namespace NicoPlayerHohoema.Models
                 NavigationService = ns;
             }
 
-            
-
             return this;
         }
-
 
         // アプリ終了時に正しいウィンドウサイズを保存するための一時的な箱
         private Size _PrevSecondaryViewSize;
@@ -208,7 +200,7 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-        public async Task OpenContent(PlaylistItem item, bool withActivationWindow)
+        public async Task OpenContent(PlaylistItem item)
         {
             var payload = new SecondaryViewNavigatePayload()
             {
@@ -243,17 +235,7 @@ namespace NicoPlayerHohoema.Models
             {
                 AppView.Title = !string.IsNullOrEmpty(item?.Title) ? item.Title : "Hohoema";
 
-                if (withActivationWindow)
-                {
-                    //                    Window.Current.Activate();
-                    await ApplicationViewSwitcher.TryShowAsStandaloneAsync(
-                        ViewId,
-                        ViewSizePreference.Default,
-                        MainView.Id,
-                        ViewSizePreference.Default
-                        );
-                }
-
+                
                 // Note: Can not complete automatically enter FullScreen on secondary window.
                 // AppView.TryEnterFullScreenMode will return 'false'
                 // how fix it ?

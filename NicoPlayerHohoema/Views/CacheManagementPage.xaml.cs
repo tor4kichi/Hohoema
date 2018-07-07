@@ -26,11 +26,11 @@ namespace NicoPlayerHohoema.Views
 		{
 			this.InitializeComponent();
 		}
-	}
+    }
 
 
 
-	public class ProgressTemplateSelector : DataTemplateSelector
+    public class ProgressTemplateSelector : DataTemplateSelector
 	{
 		public DataTemplate Progress { get; set; }
 		public DataTemplate Empty { get; set; }
