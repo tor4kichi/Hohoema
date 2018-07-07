@@ -314,22 +314,25 @@ namespace NicoPlayerHohoema.Models
                 }
                 catch { }
 
-                if (HohoemaApp.IsLoggedIn)
+                if (Helpers.InternetConnection.IsInternet())
                 {
                     if (IsIgnoreRecordPageType(AppearanceSettings.StartupPageType))
                     {
                         AppearanceSettings.StartupPageType = HohoemaPageType.RankingCategoryList;
                     }
 
-                    OpenPage(AppearanceSettings.StartupPageType);
+                    try
+                    {
+                        OpenPage(AppearanceSettings.StartupPageType);
+                    }
+                    catch
+                    {
+                        OpenPage(HohoemaPageType.RankingCategoryList);
+                    }
                 }
                 else if (HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache)
                 {
                     OpenPage(HohoemaPageType.CacheManagement);
-                }
-                else if (Helpers.InternetConnection.IsInternet())
-                {
-                    OpenPage(HohoemaPageType.RankingCategoryList);
                 }
                 else
                 {
