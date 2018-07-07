@@ -23,6 +23,15 @@ namespace NicoPlayerHohoema.Views.Behaviors
                 , new PropertyMetadata(Enumerable.Empty<object>())
             );
 
+        public IEnumerable ItemsSource
+        {
+            get { return (IEnumerable)GetValue(ItemsSourceProperty); }
+            set { SetValue(ItemsSourceProperty, value); }
+        }
+
+
+
+
         public static readonly DependencyProperty ItemTemplateProperty =
             DependencyProperty.Register(
                 "ItemTemplate"
@@ -30,13 +39,6 @@ namespace NicoPlayerHohoema.Views.Behaviors
                 , typeof(MenuFlyoutSubItemsSetter)
                 , new PropertyMetadata(default(DataTemplate))
             );
-
-
-        public IEnumerable ItemsSource
-        {
-            get { return (IEnumerable)GetValue(ItemsSourceProperty); }
-            set { SetValue(ItemsSourceProperty, value); }
-        }
 
         public DataTemplate ItemTemplate
         {
@@ -61,7 +63,39 @@ namespace NicoPlayerHohoema.Views.Behaviors
             set { SetValue(IsRequireInsertSeparateBetweenDefaultItemsProperty, value); }
         }
 
+
+
+
+        public static readonly DependencyProperty IsAssignParentDataContextToTagProperty =
+            DependencyProperty.Register(
+                nameof(IsAssignParentDataContextToTag)
+                , typeof(bool)
+                , typeof(MenuFlyoutSubItemsSetter)
+                , new PropertyMetadata(true)
+            );
+
+        /// <summary>
+        /// 子アイテムのTagプロパティに親MenuFlyoutSubItemに設定されたDataContextを与えるかを決めるフラグです。<br />
+        /// コードビハインドで生成されたDataTemplateからは親MenuFlyoutSubItemとの参照が切れてしまうことを回避する目的で利用します。
+        /// </summary>
+        public bool IsAssignParentDataContextToTag
+        {
+            get { return (bool)GetValue(IsAssignParentDataContextToTagProperty); }
+            set { SetValue(IsAssignParentDataContextToTagProperty, value); }
+        }
+
+
+
+
+
+
         bool IsInitialized = false;
+
+
+
+
+
+
         protected override void OnAttached()
         {
             base.OnAttached();
@@ -112,12 +146,18 @@ namespace NicoPlayerHohoema.Views.Behaviors
                 }
             }
 
+            bool isAssignParentDataContextToTag = IsAssignParentDataContextToTag;
             foreach (var item in itemsSrouce)
             {
                 var elem = ItemTemplate.LoadContent() as MenuFlyoutItemBase;
 
                 elem.DataContext = item;
-                
+
+                if (isAssignParentDataContextToTag)
+                {
+                    elem.Tag = subItem.DataContext;
+                }
+
                 subItem.Items.Add(elem);
                 AddedSubItems.Add(elem);
             }

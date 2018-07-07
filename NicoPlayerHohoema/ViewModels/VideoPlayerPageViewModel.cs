@@ -1204,7 +1204,6 @@ namespace NicoPlayerHohoema.ViewModels
             // そのあとで表示情報を取得
             _VideoInfo = await HohoemaApp.ContentProvider.GetNicoVideoInfo(VideoId)
                 ?? Database.NicoVideoDb.Get(VideoId);
-
             
             Title = _VideoInfo.Title;
             VideoTitle = Title;
@@ -1330,6 +1329,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             ToggleCacheRequestCommand.RaiseCanExecuteChanged();
 
+            RaisePropertyChanged(nameof(VideoOwnerId));
         }
 
         protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
@@ -2552,11 +2552,6 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         CancelPlayNextVideo();
 
-                        if (HohoemaApp.Playlist.PlayerDisplayType == PlayerDisplayType.PrimaryView)
-                        {
-                            HohoemaApp.Playlist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
-                        }
-
                         PageManager.OpenPage(HohoemaPageType.VideoInfomation, Video.RawVideoId);
                     }
                     ));
@@ -2934,6 +2929,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
+        public string VideoOwnerId => _VideoInfo?.Owner?.OwnerId;
 
         private bool _CanDownload;
 		public bool CanDownload
@@ -3085,9 +3081,28 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<string> CommandString { get; private set; }
 
 
-		// 再生できない場合の補助
+        public List<IPlayableList> Mylists
+        {
+            get
+            {
+                var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
+                return hohoemaApp.UserMylistManager.UserMylists.Cast<IPlayableList>().ToList();
+            }
+        }
 
-		private bool _IsCannotPlay;
+        public List<IPlayableList> LocalMylists
+        {
+            get
+            {
+                var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
+                return hohoemaApp.Playlist.Playlists.Cast<IPlayableList>().ToList();
+            }
+        }
+
+
+        // 再生できない場合の補助
+
+        private bool _IsCannotPlay;
 		public bool IsNotSupportVideoType
 		{
 			get { return _IsCannotPlay; }
@@ -3239,6 +3254,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 			return Task.CompletedTask;
 		}
+
+
 	}
 
 

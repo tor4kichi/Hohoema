@@ -161,6 +161,13 @@ namespace NicoPlayerHohoema.Models
             {
                 using (var releaser = await _NavigationLock.LockAsync())
                 {
+                    // メインウィンドウでウィンドウ全体で再生している場合は
+                    // 強制的に小窓モードに切り替えてページを表示する
+                    if (HohoemaApp.Playlist.IsDisplayMainViewPlayer && HohoemaApp.Playlist.PlayerDisplayType == PlayerDisplayType.PrimaryView)
+                    {
+                        HohoemaApp.Playlist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
+                    }
+
                     PageNavigating = true;
 
                     try

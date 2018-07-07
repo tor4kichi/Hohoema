@@ -87,6 +87,19 @@ namespace NicoPlayerHohoema.Models
                             $"登録完了\r「{Label}」に「{videoItem.Label}」を追加しました"
                             ));
                 }
+                else if (p is string maybeVideoId)
+                {
+                    var info = Database.NicoVideoDb.Get(maybeVideoId);
+                    if (info != null)
+                    {
+                        AddVideo(info.RawVideoId, info.Title);
+
+                        (App.Current as App).PublishInAppNotification(
+                        Models.InAppNotificationPayload.CreateReadOnlyNotification(
+                            $"登録完了\r「{Label}」に「{info.Title}」を追加しました"
+                            ));
+                    }
+                }
             }
             , (p) => true 
             ));

@@ -314,6 +314,21 @@ namespace NicoPlayerHohoema.Models
                             videoItem.Label
                             ));
                 }
+                else if (p is string maybeVideoId)
+                {
+                    var info = Database.NicoVideoDb.Get(maybeVideoId);
+                    if (info != null)
+                    {
+                        var result = await Registration(info.RawVideoId);
+                        (App.Current as App).PublishInAppNotification(
+                        Models.InAppNotificationPayload.CreateRegistrationResultNotification(
+                           result,
+                           "マイリスト",
+                           Label,
+                           info.Title
+                           ));
+                    }
+                }
             }
             , (p) => true
             ));

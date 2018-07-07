@@ -31,7 +31,7 @@ namespace NicoPlayerHohoema.Commands.Mylist
                 Debug.WriteLine("マイリスト作成：" + mylistCreateResult);
             }
 
-            if (parameter is Interfaces.IVideoContent video)
+            if (parameter is Interfaces.IVideoContent || parameter is string)
             {
                 var mylist = mylistManager.UserMylists.FirstOrDefault(x => x.Label == data.Name);
                 if (mylist.AddItemCommand?.CanExecute(parameter) ?? false)
