@@ -8,6 +8,14 @@ namespace NicoPlayerHohoema.Views.Extensions
 {
     public class ContextFlyoutExtension : DependencyObject
     {
+        // Note: Flyoutのキャッシュは保持しません
+        //
+        // 理由としては、動画アイテム向けのFlyoutでマイリストの子アイテムを
+        // 削除したり新規作成できるよう対応していますが、Flyoutをキャッシュして使いまわしてしまうと
+        // 子アイテムの操作が反映されない（最初に作られた時点の表示で固定になってしまう）ため
+        // キャッシュしない方針にしています
+
+
         public static readonly DependencyProperty FlyoutTemplateSelectorProperty =
             DependencyProperty.RegisterAttached(
                 "FlyoutTemplateSelector",
@@ -27,7 +35,6 @@ namespace NicoPlayerHohoema.Views.Extensions
 
 
         static Dictionary<UIElement, DataTemplateSelector> SelectorDict = new Dictionary<UIElement, DataTemplateSelector>();
-        static Dictionary<DataTemplate, FlyoutBase> TemplateToFlyoutInstance = new Dictionary<DataTemplate, FlyoutBase>();
 
 
         private static void FlyoutTemplateSelectorPropertyChanged(DependencyObject s, DependencyPropertyChangedEventArgs e)
@@ -83,16 +90,7 @@ namespace NicoPlayerHohoema.Views.Extensions
                     var template = flyoutTemplateSelector.SelectTemplate(dataContext, element);
                     if (template != null)
                     {
-                        FlyoutBase flyout = null;
-                        if (TemplateToFlyoutInstance.ContainsKey(template))
-                        {
-                            flyout = TemplateToFlyoutInstance[template];
-                        }
-                        else
-                        {
-                            flyout = template.LoadContent() as FlyoutBase;
-                            TemplateToFlyoutInstance.Add(template, flyout);
-                        }
+                        FlyoutBase flyout = template.LoadContent() as FlyoutBase;
 
                         if (flyout != null)
                         {

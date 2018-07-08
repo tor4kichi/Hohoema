@@ -211,7 +211,7 @@ namespace NicoPlayerHohoema.Models
 
         private void Player_PlayRequested(object sender, PlaylistItem e)
         {
-            Play(e, isPlayWithUser:false);
+            Play(e);
         }
 
         private void Smtc_AutoRepeatModeChangeRequested(SystemMediaTransportControls sender, AutoRepeatModeChangeRequestedEventArgs args)
@@ -346,18 +346,18 @@ namespace NicoPlayerHohoema.Models
 
         AsyncLock SecondaryViewLock = new AsyncLock();
         HohoemaViewManager _SecondaryView;
-        private async Task ShowVideoWithSecondaryView(PlaylistItem item, bool withActivationWindow)
+        private async Task ShowVideoWithSecondaryView(PlaylistItem item)
         {
             using (var releaser = await SecondaryViewLock.LockAsync())
             {
                 if (_SecondaryView != null)
                 {
-                    await _SecondaryView.OpenContent(item, withActivationWindow);
+                    await _SecondaryView.OpenContent(item);
                 }
             }
         }
 
-        public void Play(PlaylistItem item, bool isPlayWithUser = true)
+        public void Play(PlaylistItem item)
         {
             // プレイリストアイテムが不正
             var playlist = item.Owner;
@@ -377,7 +377,7 @@ namespace NicoPlayerHohoema.Models
 
             if (PlayerDisplayType == PlayerDisplayType.SecondaryView)
             {
-                ShowVideoWithSecondaryView(item, isPlayWithUser).ConfigureAwait(false);
+                ShowVideoWithSecondaryView(item).ConfigureAwait(false);
             }
             else
             {

@@ -252,6 +252,7 @@ namespace NicoPlayerHohoema
             base.OnLaunched(args);
         }
 
+        
         protected override async Task OnActivateApplicationAsync(IActivatedEventArgs args)
 		{
             var pageManager = Container.Resolve<PageManager>();
@@ -509,50 +510,26 @@ namespace NicoPlayerHohoema
             Views.UINavigationManager.Pressed += UINavigationManager_Pressed;
 #endif
 
+            // ウィンドウサイズの保存と復元
+            if (Helpers.DeviceTypeHelper.IsDesktop)
+            {
+                var localObjectStorageHelper = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
+                if (localObjectStorageHelper.KeyExists(HohoemaViewManager.primary_view_size))
+                {
+                    var view = ApplicationView.GetForCurrentView();
+                    MainViewId = view.Id;
+                    _PrevWindowSize = localObjectStorageHelper.Read<Size>(HohoemaViewManager.primary_view_size);
+                    view.TryResizeView(_PrevWindowSize);
+                    ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.Auto;
+                }
+            }
 
-            var localStorge = new Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper();
+
+            var localStorge = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
 
 
             var pageManager = Container.Resolve<PageManager>();
             var hohoemaApp = Container.Resolve<HohoemaApp>();
-
-            try
-            {
-                if (localStorge.Read(IS_COMPLETE_INTRODUCTION, false) == false)
-                {
-                    // アプリのイントロダクションを開始
-                    pageManager.OpenIntroductionPage();
-                }
-                else
-                {
-                    // ログインを試行
-                    if (!hohoemaApp.IsLoggedIn && AccountManager.HasPrimaryAccount())
-                    {
-                        await hohoemaApp.SignInWithPrimaryAccount().ContinueWith(prevTask =>
-                        {
-                            if (prevTask.Result == Mntone.Nico2.NiconicoSignInStatus.Success)
-                            {
-                                pageManager.OpenStartupPage();
-                            }
-                            else
-                            {
-                                pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
-                            }
-
-                        }).ConfigureAwait(false);
-
-                    }
-                    else
-                    {
-                        pageManager.OpenStartupPage();
-                    }
-                }
-            }
-            catch
-            {
-                pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
-            }
-
 
             try
             {
@@ -563,8 +540,58 @@ namespace NicoPlayerHohoema
                 Debug.WriteLine("HohoemaAppの初期化に失敗");
             }
 
+
+            try
+            {
+                if (localStorge.Read(IS_COMPLETE_INTRODUCTION, false) == false)
+                {
+                    // アプリのイントロダクションを開始
+                    pageManager.OpenIntroductionPage();
+                }
+                else
+                {
+                    pageManager.OpenStartupPage();
+                }
+            }
+            catch
+            {
+                Debug.WriteLine("イントロダクションまたはスタートアップのページ表示に失敗");
+                pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
+            }
+
+
+            
+            try
+            {
+                // ログインを試行
+                if (!hohoemaApp.IsLoggedIn && AccountManager.HasPrimaryAccount())
+                {
+                    // サインイン処理の待ちを初期化内でしないことで初期画面表示を早める
+                    hohoemaApp.SignInWithPrimaryAccount();
+                }
+            }
+            catch
+            {
+                Debug.WriteLine("ログイン処理に失敗");
+            }
+
             await base.OnInitializeAsync(args);
 		}
+
+
+        private int MainViewId = -1;
+
+        private void View_VisibleBoundsChanged(ApplicationView sender, object args)
+        {
+            if (MainViewId == sender.Id)
+            {
+                var localObjectStorageHelper = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
+                _PrevWindowSize = localObjectStorageHelper.Read<Size>(HohoemaViewManager.primary_view_size);
+                localObjectStorageHelper.Save(HohoemaViewManager.primary_view_size, new Size(sender.VisibleBounds.Width, sender.VisibleBounds.Height));
+
+                Debug.WriteLine("MainView VisibleBoundsChanged : " + sender.VisibleBounds.ToString());
+            }
+        }
 
         protected override IDeviceGestureService OnCreateDeviceGestureService()
         {
@@ -643,8 +670,8 @@ namespace NicoPlayerHohoema
             Container.RegisterInstance(hohoemaApp.CacheManager);
             Container.RegisterInstance(hohoemaApp.UserSettings);
             Container.RegisterInstance(new Models.Niconico.Live.NicoLiveSubscriber(hohoemaApp));
-            
 
+            Container.RegisterInstance(new Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper());
 #if DEBUG
             //			BackgroundUpdater.MaxTaskSlotCount = 1;
 #endif
@@ -751,12 +778,28 @@ namespace NicoPlayerHohoema
         protected override void OnWindowCreated(WindowCreatedEventArgs args)
 		{
 			base.OnWindowCreated(args);
-			
-//			var mainWindowView = ApplicationView.GetForCurrentView();
-//			mainWindowView.Consolidated += MainWindowView_Consolidated;
 
-		}
-        
+            //			var mainWindowView = ApplicationView.GetForCurrentView();
+            //			mainWindowView.Consolidated += MainWindowView_Consolidated;
+
+            var view = ApplicationView.GetForCurrentView();
+            view.VisibleBoundsChanged += View_VisibleBoundsChanged;
+            view.Consolidated += View_Consolidated;
+        }
+
+        private Size _PrevWindowSize;
+        private void View_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
+        {
+            if (sender.Id == MainViewId)
+            {
+                var localObjectStorageHelper = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
+                if (_PrevWindowSize != default(Size))
+                {
+                    localObjectStorageHelper.Save(HohoemaViewManager.primary_view_size, _PrevWindowSize);
+                }
+                MainViewId = -1;
+            }
+        }
 
         protected override UIElement CreateShell(Frame rootFrame)
         {

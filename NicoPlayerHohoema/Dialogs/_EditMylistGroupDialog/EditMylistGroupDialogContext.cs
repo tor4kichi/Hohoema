@@ -117,7 +117,7 @@ namespace NicoPlayerHohoema.Dialogs
 	public class MylistGroupEditData
 	{
 		public string Name { get; set; }
-		public string Description { get; set; }
+        public string Description { get; set; } = string.Empty;
 		public IconType IconType { get; set; }
 		public bool IsPublic { get; set; }
 		public MylistDefaultSort MylistDefaultSort { get; set; }

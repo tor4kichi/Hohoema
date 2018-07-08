@@ -125,24 +125,10 @@
     <Content Include="Assets\Square30x30Logo.scale-100.png" />
     <Content Include="Assets\Square30x30Logo.scale-200.png" />
     <Content Include="Assets\CacheUsageConfirmation.md" />
-    <Content Include="Assets\UpdateNotices\0.13.0.md" />
-    <Content Include="Assets\UpdateNotices\0.13.1.md" />
-    <Content Include="Assets\UpdateNotices\0.13.2.md" />
-    <Content Include="Assets\UpdateNotices\0.13.3.md" />
-    <Content Include="Assets\UpdateNotices\0.13.4.md" />
-    <Content Include="Assets\UpdateNotices\0.13.5.md" />
-    <Content Include="Assets\UpdateNotices\0.13.6.md" />
-    <Content Include="Assets\UpdateNotices\0.13.7.md" />
-    <Content Include="Assets\UpdateNotices\0.13.8.md" />
-    <Content Include="Assets\UpdateNotices\0.13.10.md" />
-    <Content Include="Assets\UpdateNotices\0.13.11.md" />
-    <Content Include="Assets\UpdateNotices\0.13.12.md" />
-    <Content Include="Assets\UpdateNotices\0.13.25.md" />
-    <Content Include="Assets\UpdateNotices\0.13.26.md" />
-    <Content Include="Assets\UpdateNotices\0.13.27.md" />
-    <Content Include="Assets\UpdateNotices\0.13.28.md" />
     <Content Include="Assets\UpdateNotices\0.14.0.md" />
     <Content Include="Assets\UpdateNotices\0.14.1.md" />
+    <Content Include="Assets\UpdateNotices\0.14.3.md" />
+    <Content Include="Assets\UpdateNotices\0.14.4.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <PRIResource Include="Resources\zh-Hans\Resources.resw" />
     <PRIResource Include="Resources\ja-jp\Resources.resw" />
@@ -163,6 +149,8 @@
     <Compile Include="Commands\HohoemaCommnadHelper.cs" />
     <Compile Include="Commands\LoginToNiconicoCommand.cs" />
     <Compile Include="Commands\LogoutFromNiconicoCommand.cs" />
+    <Compile Include="Commands\Mylist\CreateLocalMylistCommand.cs" />
+    <Compile Include="Commands\Mylist\CreateMylistCommand.cs" />
     <Compile Include="Commands\NicoLiveUserIdAddToNGCommand.cs" />
     <Compile Include="Commands\NicoLiveUserIdRemoveFromNGCommand.cs" />
     <Compile Include="Commands\OpenBroadcasterInfoCommand.cs" />
@@ -444,6 +432,7 @@
     <Compile Include="Views\Converters\PageTypeToMaterialIconKind.cs" />
     <Compile Include="Views\Converters\SwipeSeekValueToTimeSpan.cs" />
     <Compile Include="Views\Converters\ToKMGTPEZYConverter.cs" />
+    <Compile Include="Views\Extensions\FlyoutMenuExtension.cs" />
     <Compile Include="Views\Flyouts\FeedSourceFlyout.xaml.cs">
       <DependentUpon>FeedSourceFlyout.xaml</DependentUpon>
     </Compile>

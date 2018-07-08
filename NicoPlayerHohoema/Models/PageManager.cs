@@ -161,6 +161,13 @@ namespace NicoPlayerHohoema.Models
             {
                 using (var releaser = await _NavigationLock.LockAsync())
                 {
+                    // メインウィンドウでウィンドウ全体で再生している場合は
+                    // 強制的に小窓モードに切り替えてページを表示する
+                    if (HohoemaApp.Playlist.IsDisplayMainViewPlayer && HohoemaApp.Playlist.PlayerDisplayType == PlayerDisplayType.PrimaryView)
+                    {
+                        HohoemaApp.Playlist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
+                    }
+
                     PageNavigating = true;
 
                     try
@@ -295,42 +302,45 @@ namespace NicoPlayerHohoema.Models
 
         public void OpenStartupPage()
         {
-            try
+            HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
-                HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                try
                 {
                     if (Models.AppUpdateNotice.HasNotCheckedUptedeNoticeVersion)
                     {
                         await _HohoemaDialogService.ShowLatestUpdateNotice();
                         Models.AppUpdateNotice.UpdateLastCheckedVersionInCurrentVersion();
-
                     }
-                    if (HohoemaApp.IsLoggedIn)
-                    {
-                        if (IsIgnoreRecordPageType(AppearanceSettings.StartupPageType))
-                        {
-                            AppearanceSettings.StartupPageType = HohoemaPageType.RankingCategoryList;
-                        }
+                }
+                catch { }
 
+                if (Helpers.InternetConnection.IsInternet())
+                {
+                    if (IsIgnoreRecordPageType(AppearanceSettings.StartupPageType))
+                    {
+                        AppearanceSettings.StartupPageType = HohoemaPageType.RankingCategoryList;
+                    }
+
+                    try
+                    {
                         OpenPage(AppearanceSettings.StartupPageType);
                     }
-                    else if (HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache)
-                    {
-                        OpenPage(HohoemaPageType.CacheManagement);
-                    }
-                    else if (Helpers.InternetConnection.IsInternet())
+                    catch
                     {
                         OpenPage(HohoemaPageType.RankingCategoryList);
                     }
-                    else
-                    {
-                        OpenPage(HohoemaPageType.Settings);
-                    }
-                })
-                .AsTask()
-                .ConfigureAwait(false);
-            }
-            catch { }
+                }
+                else if (HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache)
+                {
+                    OpenPage(HohoemaPageType.CacheManagement);
+                }
+                else
+                {
+                    OpenPage(HohoemaPageType.Settings);
+                }
+            })
+            .AsTask()
+            .ConfigureAwait(false);
         }
 
 		public static string PageTypeToTitle(HohoemaPageType pageType)

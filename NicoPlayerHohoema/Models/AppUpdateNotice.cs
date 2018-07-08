@@ -31,7 +31,7 @@ namespace NicoPlayerHohoema.Models
         {
             var versionMarkdownTextList = new List<string>();
 
-            foreach (var version in versions)
+            foreach (var version in (versions as IEnumerable<Version>).Reverse())
             {
                 var updateNoticeText = await GetUpdateNoticeAsync(version);
                 versionMarkdownTextList.Add(updateNoticeText);

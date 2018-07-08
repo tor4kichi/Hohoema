@@ -9,11 +9,13 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
 using Windows.ApplicationModel.Resources.Core;
+using Windows.Foundation;
 using Windows.Foundation.Metadata;
 using Windows.Media.Playback;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
+using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -77,12 +79,17 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
+        public const string primary_view_size = "primary_view_size";
+        public const string secondary_view_size = "secondary_view_size";
+
+
         private async Task<HohoemaViewManager> GetEnsureSecondaryView()
         {
             if (CoreAppView == null)
             {
                 var playerView = CoreApplication.CreateNewView();
 
+                
                 HohoemaSecondaryViewFrameViewModel vm = null;
                 int id = 0;
                 ApplicationView view = null;
@@ -129,35 +136,71 @@ namespace NicoPlayerHohoema.Models
 
                     Window.Current.Activate();
 
-                    
-                    await ApplicationViewSwitcher.TryShowAsStandaloneAsync(
-                        id,
-                        ViewSizePreference.Default,
-                        MainView.Id,
-                        ViewSizePreference.Default
-                        );
+                    await ApplicationViewSwitcher.TryShowAsStandaloneAsync(id, ViewSizePreference.Default, MainView.Id, ViewSizePreference.Default);
+
+                    // ウィンドウサイズの保存と復元
+                    if (Helpers.DeviceTypeHelper.IsDesktop)
+                    {
+                        var localObjectStorageHelper = App.Current.Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
+                        if (localObjectStorageHelper.KeyExists(secondary_view_size))
+                        {
+                            view.TryResizeView(localObjectStorageHelper.Read<Size>(secondary_view_size));
+                        }
+
+                        view.VisibleBoundsChanged += View_VisibleBoundsChanged;
+                    }
 
                     view.Consolidated += SecondaryAppView_Consolidated;
+
                 });
                 ViewId = id;
                 AppView = view;
                 _SecondaryViewVM = vm;
                 CoreAppView = playerView;
                 NavigationService = ns;
-
-
             }
 
             return this;
         }
 
+        // アプリ終了時に正しいウィンドウサイズを保存するための一時的な箱
+        private Size _PrevSecondaryViewSize;
+
+        /// <summary>
+        /// ウィンドウサイズが変更された<br />
+        /// 前回表示のウィンドウサイズの保存操作を実行
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="args"></param>
+        private void View_VisibleBoundsChanged(ApplicationView sender, object args)
+        {
+            // ウィンドウサイズを保存する
+            if (sender.Id == AppView?.Id)
+            {
+                var localObjectStorageHelper = App.Current.Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
+                _PrevSecondaryViewSize = localObjectStorageHelper.Read<Size>(secondary_view_size);
+                localObjectStorageHelper.Save(secondary_view_size, new Size(sender.VisibleBounds.Width, sender.VisibleBounds.Height));
+            }
+
+            Debug.WriteLine($"SecondaryView VisibleBoundsChanged: {sender.VisibleBounds.ToString()}");
+        }
 
         private void SecondaryAppView_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
         {
              NavigationService.Navigate(nameof(Views.BlankPage), null);
+
+            // Note: 1803時点での話
+            // VisibleBoundsChanged がアプリ終了前に呼ばれるが
+            // この際メインウィンドウとセカンダリウィンドウのウィンドウサイズが互い違いに送られてくるため
+            // 直前のウィンドウサイズの値を前々回表示のウィンドウサイズ（_PrevSecondaryViewSize）で上書きする
+            if (_PrevSecondaryViewSize != default(Size))
+            {
+                var localObjectStorageHelper = App.Current.Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
+                localObjectStorageHelper.Save(secondary_view_size, _PrevSecondaryViewSize);
+            }
         }
 
-        public async Task OpenContent(PlaylistItem item, bool withActivationWindow)
+        public async Task OpenContent(PlaylistItem item)
         {
             var payload = new SecondaryViewNavigatePayload()
             {
@@ -192,17 +235,7 @@ namespace NicoPlayerHohoema.Models
             {
                 AppView.Title = !string.IsNullOrEmpty(item?.Title) ? item.Title : "Hohoema";
 
-                if (withActivationWindow)
-                {
-                    //                    Window.Current.Activate();
-                    await ApplicationViewSwitcher.TryShowAsStandaloneAsync(
-                        ViewId,
-                        ViewSizePreference.Default,
-                        MainView.Id,
-                        ViewSizePreference.Default
-                        );
-                }
-
+                
                 // Note: Can not complete automatically enter FullScreen on secondary window.
                 // AppView.TryEnterFullScreenMode will return 'false'
                 // how fix it ?

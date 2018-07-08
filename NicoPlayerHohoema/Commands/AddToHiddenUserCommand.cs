@@ -53,7 +53,7 @@ namespace NicoPlayerHohoema.Commands
                 var dialog = new MessageDialog(
                     $"この変更は投稿者（{ownerName} さん）のアプリ内ユーザー情報ページから取り消すことができます。",
 
-                    $"『{ownerName}』さんの投稿動画を非表示に設定しますか？"
+                    $"『{ownerName}』さんの投稿動画を非表示にしますか？"
                     );
 
                 dialog.Commands.Add(new UICommand()
@@ -62,13 +62,11 @@ namespace NicoPlayerHohoema.Commands
                     Invoked = (uicommand) =>
                     {
                         hohoemaApp.UserSettings.NGSettings.AddNGVideoOwnerId(content.OwnerUserId.ToString(), ownerName);
-
-                        // TODO: 表示中ページへの更新イベントをトリガー
                     }
                 });
                 dialog.Commands.Add(new UICommand() { Label = "キャンセル" });
 
-                dialog.DefaultCommandIndex = 1;
+                dialog.DefaultCommandIndex = 0;
 
                 await dialog.ShowAsync();
             }

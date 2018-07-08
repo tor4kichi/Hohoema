@@ -6,11 +6,12 @@ namespace NicoPlayerHohoema.Commands
     {
         protected override bool CanExecute(object parameter)
         {
-            return parameter is Interfaces.IVideoContent;
+            return parameter is Interfaces.IVideoContent || parameter is string;
         }
 
         protected override void Execute(object parameter)
         {
+            string ownerId = null;
             if (parameter is Interfaces.IVideoContent)
             {
                 var content = parameter as Interfaces.IVideoContent;
@@ -18,9 +19,17 @@ namespace NicoPlayerHohoema.Commands
                 {
                     return;
                 }
+                ownerId = content.OwnerUserId;
+            }
+            else if (parameter is string id)
+            {
+                ownerId = id;
+            }
 
+            if (ownerId != null)
+            {
                 var pageManager = HohoemaCommnadHelper.GetPageManager();
-                var ownerId = content.OwnerUserId;
+
                 if (Mntone.Nico2.NiconicoRegex.IsChannelId(ownerId))
                 {
                     pageManager.OpenPage(Models.HohoemaPageType.ChannelVideo, ownerId);
@@ -30,6 +39,7 @@ namespace NicoPlayerHohoema.Commands
                     pageManager.OpenPage(Models.HohoemaPageType.UserVideo, ownerId);
                 }
             }
+
         }
     }
 }

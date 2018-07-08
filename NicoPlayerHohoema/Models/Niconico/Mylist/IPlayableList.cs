@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -19,5 +20,7 @@ namespace NicoPlayerHohoema.Models
         string ThumnailUrl { get; }
 
         ReadOnlyObservableCollection<PlaylistItem> PlaylistItems { get; }
+
+        ICommand AddItemCommand { get; }
     }
 }

@@ -9,6 +9,8 @@ using Microsoft.Practices.Unity;
 using Hohoema.NicoAlert.Helpers;
 using Mntone.Nico2.Mylist.MylistGroup;
 using Mntone.Nico2.Searches.Mylist;
+using System.Windows.Input;
+using Prism.Commands;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -120,6 +122,10 @@ namespace NicoPlayerHohoema.Models
                 return _ThumnailUrl = video.ThumbnailUrl;
             }
         }
+
+
+        public ICommand AddItemCommand => new DelegateCommand(() => { }, () => false);
+
 
         public OtherOwneredMylist(Mylistgroup details)
             : this()

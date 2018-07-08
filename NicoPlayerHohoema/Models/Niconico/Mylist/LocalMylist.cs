@@ -1,4 +1,5 @@
-﻿using Prism.Mvvm;
+﻿using Prism.Commands;
+using Prism.Mvvm;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ using System.Reactive.Linq;
 using System.Runtime.Serialization;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 using Windows.Media;
 using Windows.Media.Core;
 using Windows.Media.Playback;
@@ -71,6 +73,37 @@ namespace NicoPlayerHohoema.Models
                 return video.ThumbnailUrl;
             }
         }
+
+        private DelegateCommand<object> _AddItemCommand;
+        public ICommand AddItemCommand => _AddItemCommand 
+            ?? (_AddItemCommand = new DelegateCommand<object>((p) => 
+            {
+                if (p is Interfaces.IVideoContent videoItem)
+                {
+                    AddVideo(videoItem.Id, videoItem.Label);
+
+                    (App.Current as App).PublishInAppNotification(
+                        Models.InAppNotificationPayload.CreateReadOnlyNotification(
+                            $"登録完了\r「{Label}」に「{videoItem.Label}」を追加しました"
+                            ));
+                }
+                else if (p is string maybeVideoId)
+                {
+                    var info = Database.NicoVideoDb.Get(maybeVideoId);
+                    if (info != null)
+                    {
+                        AddVideo(info.RawVideoId, info.Title);
+
+                        (App.Current as App).PublishInAppNotification(
+                        Models.InAppNotificationPayload.CreateReadOnlyNotification(
+                            $"登録完了\r「{Label}」に「{info.Title}」を追加しました"
+                            ));
+                    }
+                }
+            }
+            , (p) => true 
+            ));
+
 
         public LocalMylist()
         {
