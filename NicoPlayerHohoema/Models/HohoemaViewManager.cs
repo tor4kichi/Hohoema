@@ -136,7 +136,7 @@ namespace NicoPlayerHohoema.Models
 
                     Window.Current.Activate();
 
-                    await ApplicationViewSwitcher.TryShowAsViewModeAsync(id, ApplicationViewMode.Default);
+                    await ApplicationViewSwitcher.TryShowAsStandaloneAsync(id, ViewSizePreference.Default, MainView.Id, ViewSizePreference.Default);
 
                     // ウィンドウサイズの保存と復元
                     if (Helpers.DeviceTypeHelper.IsDesktop)
