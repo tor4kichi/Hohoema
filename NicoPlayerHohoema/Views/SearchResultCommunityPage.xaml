@@ -32,7 +32,7 @@
                         <StateTrigger IsActive="{Binding IsLoggedIn, Converter={StaticResource BooleanInverted}}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        
+                        <Setter Target="RequireLoginNoticePanel.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -276,6 +276,8 @@
         -->
         <StackPanel HorizontalAlignment="Center"
                     VerticalAlignment="Center"
+                    x:Name="RequireLoginNoticePanel"
+                    Visibility="Collapsed"
                     >
             <TextBlock Text="コミュニティを検索するには「ログイン」が必要です"
                        Margin="16 0 16 16"
