@@ -17,7 +17,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
     {
         public static readonly DependencyProperty ItemsSourceProperty =
             DependencyProperty.Register(
-                "ItemsSource"
+                nameof(ItemsSource)
                 , typeof(IEnumerable)
                 , typeof(MenuFlyoutSubItemsSetter)
                 , new PropertyMetadata(Enumerable.Empty<object>())
@@ -34,7 +34,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         public static readonly DependencyProperty ItemTemplateProperty =
             DependencyProperty.Register(
-                "ItemTemplate"
+                nameof(ItemTemplate)
                 , typeof(DataTemplate)
                 , typeof(MenuFlyoutSubItemsSetter)
                 , new PropertyMetadata(default(DataTemplate))
@@ -49,18 +49,22 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 
 
-        public static readonly DependencyProperty IsRequireInsertSeparateBetweenDefaultItemsProperty =
+        public static readonly DependencyProperty IsRequireInsertSeparaterBetweenDefaultItemsProperty =
             DependencyProperty.Register(
-                nameof(IsRequireInsertSeparateBetweenDefaultItems)
+                nameof(IsRequireInsertSeparaterBetweenDefaultItems)
                 , typeof(bool)
                 , typeof(MenuFlyoutSubItemsSetter)
                 , new PropertyMetadata(true)
             );
 
-        public bool IsRequireInsertSeparateBetweenDefaultItems
+        /// <summary>
+        /// デフォルトで配置された子アイテムとItemsSourceから生成された子アイテムの間にセパレータを配置するかのフラグです<br />
+        /// </summary>
+        /// <remarks>default is true</remarks>
+        public bool IsRequireInsertSeparaterBetweenDefaultItems
         {
-            get { return (bool)GetValue(IsRequireInsertSeparateBetweenDefaultItemsProperty); }
-            set { SetValue(IsRequireInsertSeparateBetweenDefaultItemsProperty, value); }
+            get { return (bool)GetValue(IsRequireInsertSeparaterBetweenDefaultItemsProperty); }
+            set { SetValue(IsRequireInsertSeparaterBetweenDefaultItemsProperty, value); }
         }
 
 
@@ -78,6 +82,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
         /// 子アイテムのTagプロパティに親MenuFlyoutSubItemに設定されたDataContextを与えるかを決めるフラグです。<br />
         /// コードビハインドで生成されたDataTemplateからは親MenuFlyoutSubItemとの参照が切れてしまうことを回避する目的で利用します。
         /// </summary>
+        /// <remarks>default is true</remarks>
         public bool IsAssignParentDataContextToTag
         {
             get { return (bool)GetValue(IsAssignParentDataContextToTagProperty); }
@@ -86,59 +91,21 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 
 
-
-
-
-        bool IsInitialized = false;
-
-
-
-
-
-
         protected override void OnAttached()
         {
             base.OnAttached();
 
-            if (!IsInitialized)
-            {
-                this.AssociatedObject.Loaded += AssociatedObject_Loaded;
-                this.AssociatedObject.Unloaded += AssociatedObject_Unloaded;
-
-                IsInitialized = true;
-            }
+            this.AssociatedObject.Loaded += AssociatedObject_Loaded;
         }
 
-        protected override void OnDetaching()
-        {
-            base.OnDetaching();
-        }
 
-        private void AssociatedObject_Unloaded(object sender, RoutedEventArgs e)
-        {
-            var subItem = sender as MenuFlyoutSubItem;
-            foreach (var removeTarget in subItem.Items.Skip(AddedItemsCount).ToList())
-            {
-                subItem.Items.Remove(removeTarget);
-            }
-
-            AddedSubItems.Clear();
-            AddedItemsCount = 0;
-        }
-
-        int AddedItemsCount = 0;
-        List<MenuFlyoutItemBase> AddedSubItems = new List<MenuFlyoutItemBase>();
         private void AssociatedObject_Loaded(object sender, RoutedEventArgs e)
         {
-            
             var subItem = sender as MenuFlyoutSubItem;
-
             var itemsSrouce = ItemsSource.Cast<object>().ToList();
-            AddedItemsCount = itemsSrouce.Count;
 
             // サブアイテムとデフォルトで配置したサブアイテムとの間にセパレータが必要な場合は配置する
-            // Unloaded時にこのセパレータも削除される（DefaultSubItemsCountの個数にセパレータが含まれないため）
-            if (IsRequireInsertSeparateBetweenDefaultItems)
+            if (IsRequireInsertSeparaterBetweenDefaultItems)
             {
                 if (itemsSrouce.Count >= 1 && subItem.Items.Count >= 1)
                 {
@@ -146,21 +113,26 @@ namespace NicoPlayerHohoema.Views.Behaviors
                 }
             }
 
+            // ItemTemplateからMenuFlyoutItemのインスタンスを生成してMenuFlyoutSubItemに追加する
             bool isAssignParentDataContextToTag = IsAssignParentDataContextToTag;
             foreach (var item in itemsSrouce)
             {
-                var elem = ItemTemplate.LoadContent() as MenuFlyoutItemBase;
-
-                elem.DataContext = item;
-
+                var flyoutItem = ItemTemplate.LoadContent() as MenuFlyoutItemBase;
+                if (flyoutItem == null)
+                {
+                    throw new Exception("MenuFlyoutSubItemsSetter.DataTemplate is must be MenuFlyoutItemBase inherit class.");
+                }
+               
+                flyoutItem.DataContext = item;
                 if (isAssignParentDataContextToTag)
                 {
-                    elem.Tag = subItem.DataContext;
+                    flyoutItem.Tag = subItem.DataContext;
                 }
 
-                subItem.Items.Add(elem);
-                AddedSubItems.Add(elem);
+                subItem.Items.Add(flyoutItem);
             }
+
+            this.AssociatedObject.Loaded -= AssociatedObject_Loaded;
         }
 
 
