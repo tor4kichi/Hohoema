@@ -17,6 +17,7 @@
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:myconverters="using:NicoPlayerHohoema.Views.Converters"
     xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -456,9 +457,104 @@
                         </StackPanel>
 
 
+                        
+                        <!-- キャッシュ設定 -->
+                        <toolkit:DockPanel Margin="0 8">
+                            <TextBlock Text="動画キャッシュ"
+                                Style="{StaticResource SubtitleTextBlockStyle}"
+                                VerticalAlignment="Center"
+                                toolkit:DockPanel.Dock="Left"
+                            />
+
+                            <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                BorderThickness="0 1 0 0" 
+                                Margin="8 0 16 0"
+                                VerticalAlignment="Center"
+                                />
+                        </toolkit:DockPanel>
+
+                        <StackPanel Margin="0 0 0 0">
 
 
 
+                            <StackPanel Margin="0 8">
+                                <TextBlock Text="デフォルトのキャッシュ画質"
+                           VerticalAlignment="Center"
+                           />
+                                <ComboBox ItemsSource="{Binding AvairableCacheQualities}" 
+                                          SelectedItem="{Binding DefaultCacheQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          >
+                                    <ComboBox.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock>
+                                                <Run Text="{Binding Converter={StaticResource ToLocalText}}" />
+                                            </TextBlock>
+                                        </DataTemplate>
+                                    </ComboBox.ItemTemplate>
+                                </ComboBox>
+                            </StackPanel>
+
+
+                            <!--
+
+
+                            <StackPanel Margin="0 8">
+                                <TextBlock Text="従量課金ネットワーク利用時の動画キャッシュダウンロードを許可する"
+                                   toolkit:DockPanel.Dock="Left"
+                                   VerticalAlignment="Center"
+                                           TextWrapping="Wrap"
+                                           MaxWidth="240"
+                                           HorizontalAlignment="Left"
+                                   />
+                                <ToggleSwitch 
+                                  IsOn="{Binding IsAllowDownloadOnMeteredNetwork.Value, Mode=TwoWay}"
+                                  OnContent="許可"
+                                    OffContent="不許可"
+                                          />
+                            </StackPanel>
+
+
+                            <StackPanel Margin="0 8">
+                                <TextBlock Text="従量課金ネットワーク利用時のキャッシュ画質"
+                           VerticalAlignment="Center"
+                           />
+                                <ComboBox ItemsSource="{Binding AvairableDefaultCacheQualitiesOnMeteredNetwork}" 
+                                          SelectedItem="{Binding DefaultCacheQualityOnMeteredNetwork.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                          >
+                                    <ComboBox.ItemTemplateSelector>
+                                        <templateselector:NicoVideoCacheQualityTemplateSelector>
+                                            <templateselector:NicoVideoCacheQualityTemplateSelector.UnknownTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock Text="「デフォルトのキャッシュ画質」と同じ" />
+                                                </DataTemplate>
+                                            </templateselector:NicoVideoCacheQualityTemplateSelector.UnknownTemplate>
+                                            <templateselector:NicoVideoCacheQualityTemplateSelector.DefaultTemplate>
+                                                <DataTemplate>
+                                                    <TextBlock>
+                                                        <Run Text="{Binding Converter={StaticResource ToLocalText}}" />
+                                                    </TextBlock>
+                                                </DataTemplate>
+                                            </templateselector:NicoVideoCacheQualityTemplateSelector.DefaultTemplate>
+                                            
+                                        </templateselector:NicoVideoCacheQualityTemplateSelector>
+                                        
+                                    </ComboBox.ItemTemplateSelector>
+                                </ComboBox>
+                            
+                            
+                            </StackPanel>
+                            
+                            -->
+
+
+                        </StackPanel>
+
+
+
+
+
+                        <!-- Twitter連携 -->
+                        
                         <toolkit:DockPanel Margin="0 8" x:Name="WebCollaborationTitle">
                             <TextBlock Text="TwitterのWeb連携"
                                 Style="{StaticResource SubtitleTextBlockStyle}"
