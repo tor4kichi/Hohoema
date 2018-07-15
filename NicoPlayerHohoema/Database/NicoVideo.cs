@@ -34,7 +34,7 @@ namespace NicoPlayerHohoema.Database
         /// <summary>
         /// [[deprecated]] ce.api経由では動画フォーマットが取得できない
         /// </summary>
-        public MovieType MovieType { get; set; }
+        public MovieType MovieType { get; set; } = MovieType.Mp4;
         public List<NicoVideoTag> Tags { get; set; }
 
         public string DescriptionWithHtml { get; set; }
