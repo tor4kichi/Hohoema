@@ -1495,7 +1495,6 @@
                                                                 Visibility="{Binding NowPlayingWithDmcVideo,Converter={StaticResource BooleanToVisibilityInverted}}"
                                                                 >
                                                                 <Run Text="{Binding CurrentVideoQuality.Value, Converter={StaticResource ToLocalText}}" />
-                                                                <Run Text="画質" />
                                                     </TextBlock>
                                                     
                                                     <HyperlinkButton IsEnabled="{Binding NowPlayingWithDmcVideo}" 

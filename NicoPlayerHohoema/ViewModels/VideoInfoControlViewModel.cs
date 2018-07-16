@@ -378,6 +378,7 @@ namespace NicoPlayerHohoema.ViewModels
     {
         public NicoVideoQuality Quality { get; private set; }
 
+        public IReadOnlyReactiveProperty<bool> IsCached { get; private set; }
         public IReadOnlyReactiveProperty<NicoVideoCacheState> CacheState { get; private set; }
         public IReadOnlyReactiveProperty<bool> IsCacheDownloading { get; }
         public IReactiveProperty<float> ProgressPercent { get; private set; }
@@ -461,6 +462,10 @@ namespace NicoPlayerHohoema.ViewModels
                 IsCacheDownloading = new ReactiveProperty<bool>(false);
                 ProgressPercent = new ReactiveProperty<float>(0.0f);
             }
+
+            IsCached = CacheState.Select(x => x == NicoVideoCacheState.Cached)
+                .ToReadOnlyReactivePropertySlim()
+                .AddTo(_CompositeDisposable);
         }
 
         public void Dispose()

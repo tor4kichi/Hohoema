@@ -430,27 +430,27 @@
     <comment>RankingCategory</comment>
   </data>
   <data name="Dmc_High" xml:space="preserve">
-    <value>高</value>
+    <value>高画質</value>
     <comment>NicoVideoQuality</comment>
   </data>
   <data name="Dmc_Low" xml:space="preserve">
-    <value>低</value>
+    <value>低画質</value>
     <comment>NicoVideoQuality</comment>
   </data>
   <data name="Dmc_Midium" xml:space="preserve">
-    <value>中</value>
+    <value>中画質</value>
     <comment>NicoVideoQuality</comment>
   </data>
   <data name="Dmc_Mobile" xml:space="preserve">
-    <value>モバイル</value>
+    <value>モバイル画質</value>
     <comment>NicoVideoQuality</comment>
   </data>
   <data name="Smile_Low" xml:space="preserve">
-    <value>旧 低</value>
+    <value>旧 低画質</value>
     <comment>NicoVideoQuality</comment>
   </data>
   <data name="Smile_Original" xml:space="preserve">
-    <value>旧 オリジナル</value>
+    <value>旧 オリジナル画質</value>
     <comment>NicoVideoQuality</comment>
   </data>
   <data name="WatchHistory" xml:space="preserve">
@@ -538,7 +538,7 @@
     <comment>Mntone.Nico2.PrivateReasonType</comment>
   </data>
   <data name="Dmc_SuperHigh" xml:space="preserve">
-    <value>すごく高</value>
+    <value>すごく高画質</value>
     <comment>NicoVideoQuality</comment>
   </data>
   <data name="Recommend" xml:space="preserve">

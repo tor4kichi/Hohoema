@@ -58,18 +58,11 @@
                             <toolkit:DockPanel Visibility="{Binding IsCacheDownloading.Value, Converter={StaticResource BooleanToVisibility}}"
                                Margin="8 4"
                                >
-                                <TextBlock toolkit:DockPanel.Dock="Left" 
-                                           Margin="8 0"
-                                           FontSize="12"
-                                           VerticalAlignment="Center"
-                                                >
-                                    <Run Text="{Binding Quality, Converter={StaticResource ToLocalText}}" />画質
-                                </TextBlock>
                                 
                                 <TextBlock toolkit:DockPanel.Dock="Right" 
                                            Margin="8 0 0 0"
-                                           FontSize="12"
                                            VerticalAlignment="Center"
+                                           Foreground="{ThemeResource  ApplicationSecondaryForegroundThemeBrush}"
                                                 >
                                     <Run Text="{Binding ProgressPercent.Value}" />
                                     <Run Text="%" />
@@ -79,6 +72,9 @@
                                 <ProgressBar Maximum="100.0" 
                                      Minimum="0.0" 
                                      Value="{Binding ProgressPercent.Value}"
+                                             Opacity="0.7"
+                                             VerticalAlignment="Center"
+                                             Margin="0 4 0 0"
                                      />
 
 
