@@ -32,6 +32,9 @@ namespace NicoPlayerHohoema.Models
         private HohoemaSecondaryViewFrameViewModel _SecondaryViewVM { get; set; }
 
 
+
+        public bool NowShowingSecondaryView { get; private set; }
+
         private MediaPlayer _MediaPlayer { get; set; }
         private Window _CurrentMediaPlayerWindow;
         public MediaPlayer GetCurrentWindowMediaPlayer()
@@ -160,6 +163,8 @@ namespace NicoPlayerHohoema.Models
                 NavigationService = ns;
             }
 
+            NowShowingSecondaryView = true;
+
             return this;
         }
 
@@ -185,7 +190,7 @@ namespace NicoPlayerHohoema.Models
             Debug.WriteLine($"SecondaryView VisibleBoundsChanged: {sender.VisibleBounds.ToString()}");
         }
 
-        private void SecondaryAppView_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
+        private async void SecondaryAppView_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
         {
              NavigationService.Navigate(nameof(Views.BlankPage), null);
 
@@ -198,6 +203,14 @@ namespace NicoPlayerHohoema.Models
                 var localObjectStorageHelper = App.Current.Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
                 localObjectStorageHelper.Save(secondary_view_size, _PrevSecondaryViewSize);
             }
+
+            NowShowingSecondaryView = false;
+
+
+            // セカンダリウィンドウを閉じるタイミングでキャッシュを再開する
+            // プレミアム会員の場合は何もおきない
+            var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
+            await hohoemaApp.CacheManager.ResumeCacheDownload();
         }
 
         public async Task OpenContent(PlaylistItem item)

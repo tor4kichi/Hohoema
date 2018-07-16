@@ -408,7 +408,7 @@ namespace NicoPlayerHohoema.ViewModels
             else { return false; }
         }
 
-        private void ClosePlayer()
+        private async void ClosePlayer()
         {
             NavigationService.Navigate("Blank", null);
 
@@ -417,6 +417,8 @@ namespace NicoPlayerHohoema.ViewModels
                 ApplicationView currentView = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView();
                 currentView.ExitFullScreenMode();
             }
+
+            await HohoemaApp.CacheManager.ResumeCacheDownload();
         }
 
         private DelegateCommand _PlayerFillDisplayCommand;
