@@ -54,7 +54,7 @@ namespace NicoPlayerHohoema.Models
 
 
 
-        private NicoVideoQuality _DefaultCacheQuality = NicoVideoQuality.Dmc_High;
+        private NicoVideoQuality _DefaultCacheQuality = NicoVideoQuality.Dmc_Midium;
 
         [DataMember]
         public NicoVideoQuality DefaultCacheQuality
