@@ -180,16 +180,21 @@
                     キャッシュ済み -> 緑色
                             
                     -->
-                <Border>
+                <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{Binding Quality, Converter={StaticResource ToLocalText}}"
-                           Foreground="{Binding CacheState.Value, Converter={StaticResource CacheStateToColorBrush}}"
-                            FontSize="13"
+                           Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"                               
                             Margin="0 0"
                             VerticalAlignment="Center"
                             x:Name="QualityText"
                             >
                     </TextBlock>
-                </Border>
+                    
+                    <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                               Visibility="{Binding IsCached.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
+                               >
+                        (<Run Text="{Binding CacheState.Value}" />)
+                    </TextBlock>
+                </StackPanel>
             </DataTemplate>
 
             <DataTemplate x:Key="QualityVideoTemplate_TV">

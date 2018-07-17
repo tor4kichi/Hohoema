@@ -58,7 +58,7 @@ namespace NicoPlayerHohoema.Models
 
             var folder = ApplicationData.Current.LocalFolder;
             var playlistFolder = await folder.CreateFolderAsync(PlaylistSaveFolderName, CreationCollisionOption.OpenIfExists);
-            app.Playlist = new HohoemaPlaylist(app.UserSettings.PlaylistSettings, playlistFolder, viewMan);
+            app.Playlist = new HohoemaPlaylist(app, app.UserSettings.PlaylistSettings, playlistFolder, viewMan);
 
             await app.Playlist.Load();
 
@@ -754,7 +754,7 @@ namespace NicoPlayerHohoema.Models
 
                 try
                 {
-                    CacheManager.StopCacheDownload();
+                    await CacheManager.SuspendCacheDownload();
 				}
 				catch { }
 
@@ -786,7 +786,7 @@ namespace NicoPlayerHohoema.Models
 				}
 			}
 
-            
+            await CacheManager.ResumeCacheDownload();
 
             return result;
         }
@@ -873,7 +873,7 @@ namespace NicoPlayerHohoema.Models
                 // フォルダーの移行作業を開始
 
                 // 現在あるダウンロードタスクは必ず終了させる必要があります
-                CacheManager?.StopCacheDownload();
+                //CacheManager?.SuspendCacheDownload();
                 /*
                 // v0.4.0以降の移行処理
                 if (_DownloadFolder != null)
@@ -979,7 +979,7 @@ namespace NicoPlayerHohoema.Models
 		
 		public async Task<bool> ChangeUserDataFolder()
 		{
-            CacheManager.StopCacheDownload();
+            await CacheManager.SuspendCacheDownload();
 
 
 			try
@@ -1035,7 +1035,9 @@ namespace NicoPlayerHohoema.Models
 				catch { }
 			}
 
-			return true;
+            await CacheManager.ResumeCacheDownload();
+
+            return true;
 		}
 
 

@@ -1153,6 +1153,8 @@ namespace NicoPlayerHohoema.ViewModels
 
             IsDisplayControlUI.Value = true;
 
+
+
             if (e?.Parameter is string)
 			{
 				var payload = VideoPlayPayload.FromParameterString(e.Parameter as string);
@@ -1413,7 +1415,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             App.Current.LeavingBackground -= Current_LeavingBackground;
             App.Current.EnteredBackground -= Current_EnteredBackground;
-
 
             Debug.WriteLine("VideoPlayer OnNavigatingFromAsync done.");
         }

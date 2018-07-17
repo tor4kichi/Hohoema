@@ -22,6 +22,7 @@ using Windows.Media.Playback;
 using Windows.Storage;
 using Windows.UI.ViewManagement;
 using Windows.UI.Core;
+using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -39,7 +40,8 @@ namespace NicoPlayerHohoema.Models
         // 画面の遷移自体はPageManagerに任せることにする
         // PageManagerに動画情報を渡すまでをやる
 
-        // データの保存
+        public HohoemaApp HohoemaApp { get; }
+
 
         public StorageFolder PlaylistsSaveFolder { get; private set; }
 
@@ -185,8 +187,9 @@ namespace NicoPlayerHohoema.Models
         public bool IsPlayerFloatingModeEnable => PlayerDisplayType == PlayerDisplayType.PrimaryWithSmall;
 
 
-        public HohoemaPlaylist(PlaylistSettings playlistSettings, StorageFolder playlistSaveFolder, HohoemaViewManager viewMan)
+        public HohoemaPlaylist(HohoemaApp hohoemaApp, PlaylistSettings playlistSettings, StorageFolder playlistSaveFolder, HohoemaViewManager viewMan)
         {
+            HohoemaApp = hohoemaApp;
             PlaylistSettings = playlistSettings;
             PlaylistsSaveFolder = playlistSaveFolder;
             Player = new PlaylistPlayer(this, playlistSettings);
@@ -357,7 +360,7 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-        public void Play(PlaylistItem item)
+        public async void Play(PlaylistItem item)
         {
             // プレイリストアイテムが不正
             var playlist = item.Owner;
@@ -370,6 +373,50 @@ namespace NicoPlayerHohoema.Models
                 {
                     throw new Exception();
                 }
+            }
+
+            
+            if (!HohoemaApp.IsPremiumUser && !HohoemaApp.CacheManager.CanAddDownloadLine)
+            {
+                // 一般ユーザーまたは未登録ユーザーの場合
+                // 視聴セッションを１つに制限するため、キャッシュダウンロードを止める必要がある
+                // キャッシュ済みのアイテムを再生中の場合はダウンロード可能なので確認をスキップする
+                bool playingVideoIsCached = false;
+                var currentItem = item;
+                if (currentItem != null && currentItem.Type == PlaylistItemType.Video)
+                {
+                    var cachedItems = await HohoemaApp.CacheManager.GetCacheRequest(currentItem.ContentId);
+                    if (cachedItems.FirstOrDefault(x => x.ToCacheState() == NicoVideoCacheState.Cached) != null)
+                    {
+                        playingVideoIsCached = true;
+                    }
+                }
+
+                if (!playingVideoIsCached)
+                {
+                    var currentDownloadingItems = await HohoemaApp.CacheManager.GetDownloadProgressVideosAsync();
+                    var downloadingItem = currentDownloadingItems.FirstOrDefault();
+                    var downloadingItemVideoInfo = Database.NicoVideoDb.Get(downloadingItem.RawVideoId);
+                    
+                    var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
+                    var totalSize = downloadingItem.DownloadOperation.Progress.TotalBytesToReceive;
+                    var receivedSize = downloadingItem.DownloadOperation.Progress.BytesReceived;
+                    var megaBytes = (totalSize - receivedSize) / 1000_000.0;
+                    var downloadProgressDescription = $"ダウンロード中\n{downloadingItemVideoInfo.Title}\n残り {megaBytes:0.0} MB ( {receivedSize / 1000_000.0:0.0} MB / {totalSize / 1000_000.0:0.0} MB)";
+                    var isCancelCacheAndPlay = await dialogService.ShowMessageDialog("ニコニコのプレミアム会員以外は 視聴とダウンロードは一つしか同時に行えません。\n視聴を開始する場合、キャッシュは中止されます。またキャッシュを再開する場合はダウンロードは最初からやり直しになります。\n\n" + downloadProgressDescription, "キャッシュを中止して視聴を開始しますか？", "キャッシュを中止して視聴する", "何もしない");
+                    if (isCancelCacheAndPlay)
+                    {
+                        await HohoemaApp.CacheManager.SuspendCacheDownload();
+                    }
+                    else
+                    {
+                        return;
+                    }
+                }
+            }
+            else if (!HohoemaApp.IsPremiumUser)
+            {
+                await HohoemaApp.CacheManager.SuspendCacheDownload();
             }
 
             CurrentPlaylist = playlist;

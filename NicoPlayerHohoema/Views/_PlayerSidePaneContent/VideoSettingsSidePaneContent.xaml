@@ -125,7 +125,6 @@
                                 <TextBlock Opacity="{Binding IsAvairable, Converter={StaticResource BoolToAvairableOpacityConverter}}">
                                     <Run Text="{Binding Path=Value, Converter={StaticResource ToLocalText}}"
                                          />
-                                    画質
                                 </TextBlock>
                             </DataTemplate>
                         </ComboBox.ItemTemplate>

@@ -98,6 +98,37 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
+        // キャッシュ
+        public ReactiveProperty<NicoVideoQuality> DefaultCacheQuality { get; private set; }
+
+        public List<NicoVideoQuality> AvairableCacheQualities { get; } = new List<NicoVideoQuality>()
+        {
+            NicoVideoQuality.Dmc_SuperHigh,
+            NicoVideoQuality.Dmc_High,
+            NicoVideoQuality.Dmc_Midium,
+            NicoVideoQuality.Dmc_Low,
+            NicoVideoQuality.Dmc_Mobile,
+        };
+
+        public ReactiveProperty<bool> IsAllowDownloadOnMeteredNetwork { get; private set; }
+
+        public ReactiveProperty<NicoVideoQuality> DefaultCacheQualityOnMeteredNetwork { get; private set; }
+
+
+        // Note: 従量課金時のキャッシュ画質指定は「デフォルトのキャッシュ画質の設定を継承」できるようにしたい
+        // 本来的には「キャッシュ用のNicoVIdeoQuality」として別のEnumを用意して対応すべきだが
+        // 
+        public List<NicoVideoQuality> AvairableDefaultCacheQualitiesOnMeteredNetwork { get; } = new List<NicoVideoQuality>()
+        {
+            NicoVideoQuality.Unknown,
+            NicoVideoQuality.Dmc_SuperHigh,
+            NicoVideoQuality.Dmc_High,
+            NicoVideoQuality.Dmc_Midium,
+            NicoVideoQuality.Dmc_Low,
+            NicoVideoQuality.Dmc_Mobile,
+        };
+
+
         // シェア
         public ReactiveProperty<bool> IsLoginTwitter { get; private set; }
         public ReactiveProperty<string> TwitterAccountScreenName { get; private set; }
@@ -430,6 +461,11 @@ namespace NicoPlayerHohoema.ViewModels
             StartupPageType = HohoemaApp.UserSettings.AppearanceSettings
                 .ToReactivePropertyAsSynchronized(x => x.StartupPageType);
 
+
+            // キャッシュ
+            DefaultCacheQuality = HohoemaApp.UserSettings.CacheSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCacheQuality);
+            IsAllowDownloadOnMeteredNetwork = HohoemaApp.UserSettings.CacheSettings.ToReactivePropertyAsSynchronized(x => x.IsAllowDownloadOnMeteredNetwork);
+            DefaultCacheQualityOnMeteredNetwork = HohoemaApp.UserSettings.CacheSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCacheQualityOnMeteredNetwork);
 
             // シェア
             IsLoginTwitter = new ReactiveProperty<bool>(/*TwitterHelper.IsLoggedIn*/ false);

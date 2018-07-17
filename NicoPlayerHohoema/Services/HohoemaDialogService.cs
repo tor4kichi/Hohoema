@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
+using Windows.UI.Popups;
 using Windows.Web.Http;
 
 namespace NicoPlayerHohoema.Services
@@ -299,5 +300,26 @@ namespace NicoPlayerHohoema.Services
         }
 
         #endregion
+
+
+
+
+        public async Task<bool> ShowMessageDialog(string content, string title, string acceptButtonText = null, string cancelButtonText = null)
+        {
+            var dialog = new MessageDialog(content, title);
+            if (acceptButtonText != null)
+            {
+                dialog.Commands.Add(new UICommand(acceptButtonText) { Id = "accept" });
+            }
+
+            if (cancelButtonText != null)
+            {
+                dialog.Commands.Add(new UICommand(cancelButtonText) { Id = "cancel" });
+            }
+
+            var result = await dialog.ShowAsync();
+
+            return (result?.Id as string) == "accept";
+        }
     }
 }

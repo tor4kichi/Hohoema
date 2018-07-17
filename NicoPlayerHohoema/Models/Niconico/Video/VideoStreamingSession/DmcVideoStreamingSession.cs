@@ -87,13 +87,6 @@ namespace NicoPlayerHohoema.Models
                 result = videos.ElementAtOrDefault(pos) ?? null;
             }
             
-            if (result == null || !result.Available)
-            {
-                result = videos.FirstOrDefault(x => x.Available);
-            }
-
-            
-
             return result;
         }
 
@@ -117,10 +110,18 @@ namespace NicoPlayerHohoema.Models
 
             VideoContent = ResetActualQuality();
 
+            if (VideoContent == null || !VideoContent.Available)
+            {
+                VideoContent = DmcWatchResponse.Video.DmcInfo.Quality.Videos.FirstOrDefault(x => x.Available);
+                _Quality = NicoVideoVideoContentHelper.VideoContentToQuality(VideoContent);
+            }
+            else
+            {
+                _Quality = requestQuality;
+            }
+
             if (VideoContent != null)
             {
-                _Quality = NicoVideoVideoContentHelper.VideoContentToQuality(VideoContent);
-
                 Debug.WriteLine($"quality={_Quality}");
                 Debug.WriteLine($"{VideoContent.Id}/{VideoContent.Bitrate}/{VideoContent.Available}/w={VideoContent.Resolution.Width} h={VideoContent.Resolution.Height}");
             }

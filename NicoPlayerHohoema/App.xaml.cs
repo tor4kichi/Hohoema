@@ -114,10 +114,6 @@ namespace NicoPlayerHohoema
         private void MemoryManager_AppMemoryUsageLimitChanging(object sender, Windows.System.AppMemoryUsageLimitChangingEventArgs e)
         {
             Debug.WriteLine($"Memory Limit: {e.OldLimit} -> {e.NewLimit}");
-            if (e.NewLimit < e.OldLimit)
-            {
-                GC.Collect();
-            }
         }
 
         private void App_LeavingBackground(object sender, LeavingBackgroundEventArgs e)
@@ -209,7 +205,7 @@ namespace NicoPlayerHohoema
 
 			try
 			{
-				await CheckVideoCacheFolderState();
+//				await CheckVideoCacheFolderState();
 			}
 			catch
 			{

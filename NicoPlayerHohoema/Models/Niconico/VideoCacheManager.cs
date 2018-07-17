@@ -51,8 +51,8 @@ namespace NicoPlayerHohoema.Models
 
         private const string TransferGroupName = @"hohoema_video";
         BackgroundTransferGroup _NicoCacheVideoBGTransferGroup = BackgroundTransferGroup.CreateGroup(TransferGroupName);
-            
 
+        private CacheManagerState State { get; set; } = CacheManagerState.NotInitialize;
 
 
         public event EventHandler<NicoVideoCacheProgress> DownloadProgress;
@@ -166,14 +166,14 @@ namespace NicoPlayerHohoema.Models
             return man;
 		}
 
-        // ダウンロードライン数
-        // 通常会員は1ライン（再生DL含む）
-        // プレミアム会員は2ライン（再生DL含まず）
-        public uint CurrentDownloadTaskCount { get; private set; }
-        public const uint MaxDownloadLineCount_Ippan = 1;
-        public const uint MaxDownloadLineCount_Premium = 1;
+        // ダウンロードライン数（再生中DLも含める）
+        // 未登録ユーザー = 1
+        // 通常会員       = 1
+        // プレミアム会員 = 3
+        public const int MaxDownloadLineCount = 1;
+        public const int MaxDownloadLineCount_Premium = 3;
 
-
+        public int CurrentDownloadTaskCount => _DownloadOperations.Count;
 
         public bool CanAddDownloadLine
         {
@@ -181,11 +181,10 @@ namespace NicoPlayerHohoema.Models
             {
                 return _HohoemaApp.IsPremiumUser
                     ? CurrentDownloadTaskCount < MaxDownloadLineCount_Premium
-                    : CurrentDownloadTaskCount < MaxDownloadLineCount_Ippan;
+                    : CurrentDownloadTaskCount < MaxDownloadLineCount;
             }
 
         }
-
 
 
         private VideoCacheManager(HohoemaApp app)
@@ -214,12 +213,19 @@ namespace NicoPlayerHohoema.Models
         /// <returns></returns>
         internal async Task OnCacheFolderChanged()
         {
-            StopCacheDownload();
+            var prevState = State;
+
+            await SuspendCacheDownload();
 
             // TODO: 現在データを破棄して、変更されたフォルダの内容で初期化しなおす
             _CacheVideos.Clear();
 
             await RetrieveCacheCompletedVideos();
+
+            if (prevState == CacheManagerState.Running)
+            {
+                await ResumeCacheDownload();
+            }
         }
 
 
@@ -246,18 +252,23 @@ namespace NicoPlayerHohoema.Models
 
             return HohoemaApp.UIDispatcher.RunIdleAsync(async (_) =>
             {
-                // ダウンロード中のアイテムをリストア
-                await RestoreBackgroundDownloadTask();
+                using (var releaser = await _CacheRequestProcessingLock.LockAsync())
+                {
+                    // ダウンロード中のアイテムをリストア
+                    await RestoreBackgroundDownloadTask();
 
-                // キャッシュ完了したアイテムをキャッシュフォルダから検索
-                await RetrieveCacheCompletedVideos();
+                    // キャッシュ完了したアイテムをキャッシュフォルダから検索
+                    await RetrieveCacheCompletedVideos();
 
-                // キャッシュリクエストファイルのアクセサーを初期化
-                var videoSaveFolder = await _HohoemaApp.GetApplicationLocalDataFolder();
-                _CacheRequestedItemsFileAccessor = new FolderBasedFileAccessor<IList<NicoVideoCacheRequest>>(videoSaveFolder, CACHE_REQUESTED_FILENAME);
+                    // キャッシュリクエストファイルのアクセサーを初期化
+                    var videoSaveFolder = await _HohoemaApp.GetApplicationLocalDataFolder();
+                    _CacheRequestedItemsFileAccessor = new FolderBasedFileAccessor<IList<NicoVideoCacheRequest>>(videoSaveFolder, CACHE_REQUESTED_FILENAME);
+                }
 
                 // ダウンロード待機中のアイテムを復元
                 await RestoreCacheRequestedItems();
+
+                State = CacheManagerState.Running;
             })
             .AsTask();
         }
@@ -312,28 +323,25 @@ namespace NicoPlayerHohoema.Models
                     };
 
 
-                    using (var releaser = await _CacheRequestProcessingLock.LockAsync())
+                    _CacheVideos.AddOrUpdate(info.RawVideoId,
+                    (x) =>
                     {
-                        _CacheVideos.AddOrUpdate(info.RawVideoId,
-                        (x) =>
+                        return new List<NicoVideoCacheInfo>() { info };
+                    },
+                    (x, y) =>
+                    {
+                        var tempinfo = y.FirstOrDefault(z => z.Quality == info.Quality);
+                        if (tempinfo == null)
                         {
-                            return new List<NicoVideoCacheInfo>() { info };
-                        },
-                        (x, y) =>
+                            y.Add(info);
+                        }
+                        else
                         {
-                            var tempinfo = y.FirstOrDefault(z => z.Quality == info.Quality);
-                            if (tempinfo == null)
-                            {
-                                y.Add(info);
-                            }
-                            else
-                            {
-                                tempinfo.RequestAt = info.RequestAt;
-                                tempinfo.FilePath = info.FilePath;
-                            }
-                            return y;
-                        });
-                    }
+                            tempinfo.RequestAt = info.RequestAt;
+                            tempinfo.FilePath = info.FilePath;
+                        }
+                        return y;
+                    });
 
                     VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
                     {
@@ -368,16 +376,16 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-        private async Task<IList<NicoVideoCacheRequest>> LoadDownloadRequestItems()
+        private async Task<IEnumerable<NicoVideoCacheRequest>> LoadDownloadRequestItems()
         {
 
             if (await _CacheRequestedItemsFileAccessor.ExistFile())
             {
-                return await _CacheRequestedItemsFileAccessor.Load();
+                return await _CacheRequestedItemsFileAccessor.Load() ?? Enumerable.Empty< NicoVideoCacheRequest>();
             }
             else
             {
-                return new List<NicoVideoCacheRequest>();
+                return Enumerable.Empty<NicoVideoCacheRequest>();
             }
 
         }
@@ -394,7 +402,7 @@ namespace NicoPlayerHohoema.Models
             }
 
             Debug.WriteLine("");
-            Debug.WriteLine($"{list.Count} 件のダウンロードリクエストを復元");
+            Debug.WriteLine($"{list.Count()} 件のダウンロードリクエストを復元");
         }
 
 
@@ -457,45 +465,111 @@ namespace NicoPlayerHohoema.Models
         }
 
 
+        Dictionary<int, NicoVideoCacheProgress> TaskIdToCacheProgress = new Dictionary<int, NicoVideoCacheProgress>();
 
         // 次のキャッシュダウンロードを試行
         // ダウンロード用の本数
         private async Task TryNextCacheRequestedVideoDownload()
         {
-            if (!IsInitialized) { return; }
-
-            if (!_HohoemaApp.IsLoggedIn) { return; }
-
+            if (State != CacheManagerState.Running) { return; }
 
             NicoVideoCacheRequest nextDownloadItem = null;
-            
+
             using (var releaser = await _CacheRequestProcessingLock.LockAsync())
             {
-                if (_DownloadOperations.Count == 0)
+                while (CanAddDownloadLine)
                 {
-                    nextDownloadItem = _CacheDownloadPendingVideos
-                        .FirstOrDefault();
-                }
-            }
+                    if (_DownloadOperations.Count == 0)
+                    {
+                        nextDownloadItem = _CacheDownloadPendingVideos
+                            .FirstOrDefault();
+                    }
 
-            if (nextDownloadItem != null)
-            {
-                var op = await DonwloadVideoInBackgroundTask(nextDownloadItem);
+                    if (nextDownloadItem == null)
+                    {
+                        break;
+                    }
 
-                // DL作業を作成できたらDL待ちリストから削除
-                using (var releaser = await _CacheRequestProcessingLock.LockAsync())
-                {
+                    if (_DownloadOperations.Any(x => x.RawVideoId == nextDownloadItem.RawVideoId && x.Quality == nextDownloadItem.Quality))
+                    {
+                        _CacheDownloadPendingVideos.Remove(nextDownloadItem);
+                        break;
+                    }
+
+                    Debug.WriteLine($"キャッシュ準備を開始: {nextDownloadItem.RawVideoId} {nextDownloadItem.Quality}");
+
+                    // 動画ダウンロードURLを取得
+                    var nicoVideo = new NicoVideo(nextDownloadItem.RawVideoId, _HohoemaApp.ContentProvider, _HohoemaApp.NiconicoContext, _HohoemaApp.CacheManager);
+                    var videoInfo = await _HohoemaApp.ContentProvider.GetNicoVideoInfo(nextDownloadItem.RawVideoId);
+
+                    // DownloadSessionを保持して、再生完了時にDisposeさせる必要がある
+                    var downloadSession = await nicoVideo.CreateVideoStreamingSession(nextDownloadItem.Quality, forceDownload: true);
+
+                    var uri = await downloadSession.GetDownloadUrlAndSetupDonwloadSession();
+
+                    var downloader = new BackgroundDownloader()
+                    {
+                        TransferGroup = _NicoCacheVideoBGTransferGroup
+                    };
+
+                    downloader.SuccessToastNotification = MakeSuccessToastNotification(videoInfo);
+                    downloader.FailureToastNotification = MakeFailureToastNotification(videoInfo);
+
+                    // 保存先ファイルの確保
+                    var filename = VideoCacheManager.MakeCacheVideoFileName(
+                        videoInfo.Title,
+                        nextDownloadItem.RawVideoId,
+                        videoInfo.MovieType,
+                        downloadSession.Quality
+                        );
+
+                    var videoFolder = await _HohoemaApp.GetVideoCacheFolder();
+                    var videoFile = await videoFolder.CreateFileAsync(filename, CreationCollisionOption.OpenIfExists);
+
+                    // ダウンロード操作を作成
+                    var operation = downloader.CreateDownload(uri, videoFile);
+
+                    var progress = new NicoVideoCacheProgress(nextDownloadItem, operation, downloadSession);
+                    await AddDownloadOperation(progress);
+
+                   
+                    Debug.WriteLine($"キャッシュ準備完了: {nextDownloadItem.RawVideoId} {nextDownloadItem.Quality}");
+
+
+                    // ダウンロードを開始
+                    /*
+                    if (Helpers.ApiContractHelper.IsFallCreatorsUpdateAvailable)
+                    {
+                        operation.IsRandomAccessRequired = true;
+                    }
+                    */
+
+                    var action = operation.StartAsync();
+                    action.Progress = OnDownloadProgress;
+                    var task = action.AsTask();
+                    TaskIdToCacheProgress.Add(task.Id, progress);
+                    var _ = task.ContinueWith(OnDownloadCompleted);
+
+
+                    
+                    VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
+                    {
+                        CacheState = NicoVideoCacheState.Downloading,
+                        Request = progress
+                    });
+
+                    Debug.WriteLine($"キャッシュ開始: {nextDownloadItem.RawVideoId} {nextDownloadItem.Quality}");
+
+                    SendUpdatableToastWithProgress(videoInfo.Title, nextDownloadItem);
+
+
+                    // DL作業を作成できたらDL待ちリストから削除
                     _CacheDownloadPendingVideos.Remove(nextDownloadItem);
+
                     await SaveDownloadRequestItems();
                 }
             }
         }
-
-        internal void StopCacheDownload()
-        {
-            // TODO: 
-        }
-
 
 
         private ToastNotification MakeSuccessToastNotification(Database.NicoVideo info)
@@ -631,83 +705,6 @@ namespace NicoPlayerHohoema.Models
 
             return new ToastNotification(content.GetXml());
         }
-
-        // バックグラウンドで動画キャッシュのダウンロードを行うタスクを作成
-        public async Task<NicoVideoCacheProgress> DonwloadVideoInBackgroundTask(NicoVideoCacheRequest req)
-        {
-            using (var bgTaskLock = await _CacheRequestProcessingLock.LockAsync())
-            {
-                if (_DownloadOperations.Any(x => x.RawVideoId == req.RawVideoId && x.Quality == req.Quality))
-                {
-                    return null;
-                }
-            }
-
-            Debug.WriteLine($"キャッシュ準備を開始: {req.RawVideoId} {req.Quality}");
-
-            // 動画ダウンロードURLを取得
-            var nicoVideo = new NicoVideo(req.RawVideoId, _HohoemaApp.ContentProvider, _HohoemaApp.NiconicoContext, _HohoemaApp.CacheManager);
-            var videoInfo = await _HohoemaApp.ContentProvider.GetNicoVideoInfo(req.RawVideoId);
-
-            // DownloadSessionを保持して、再生完了時にDisposeさせる必要がある
-            var downloadSession = await nicoVideo.CreateVideoStreamingSession(req.Quality, forceDownload: true);
-
-            var uri = await downloadSession.GetDownloadUrlAndSetupDonwloadSession();
-
-            var downloader = new BackgroundDownloader()
-            {
-                TransferGroup = _NicoCacheVideoBGTransferGroup
-            };
-
-            downloader.SuccessToastNotification = MakeSuccessToastNotification(videoInfo);
-            downloader.FailureToastNotification = MakeFailureToastNotification(videoInfo);
-
-            // 保存先ファイルの確保
-            var filename = VideoCacheManager.MakeCacheVideoFileName(
-                videoInfo.Title,
-                req.RawVideoId,
-                videoInfo.MovieType,
-                downloadSession.Quality
-                );
-
-            var videoFolder = await _HohoemaApp.GetVideoCacheFolder();
-            var videoFile = await videoFolder.CreateFileAsync(filename, CreationCollisionOption.OpenIfExists);
-
-            // ダウンロード操作を作成
-            var operation = downloader.CreateDownload(uri, videoFile);
-
-            var progress = new NicoVideoCacheProgress(req, operation, downloadSession);
-            await AddDownloadOperation(progress);
-
-            Debug.WriteLine($"キャッシュ準備完了: {req.RawVideoId} {req.Quality}");
-
-
-            // ダウンロードを開始
-            /*
-            if (Helpers.ApiContractHelper.IsFallCreatorsUpdateAvailable)
-            {
-                operation.IsRandomAccessRequired = true;
-            }
-            */
-
-            var action = operation.StartAsync();
-            action.Progress = OnDownloadProgress;
-            var task = action.AsTask().ContinueWith(OnDownloadCompleted).ConfigureAwait(false);
-
-
-            VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
-            {
-                CacheState = NicoVideoCacheState.Downloading,
-                Request = progress
-            });
-
-            Debug.WriteLine($"キャッシュ開始: {req.RawVideoId} {req.Quality}");
-
-            SendUpdatableToastWithProgress(videoInfo.Title, req);
-
-            return progress;
-        }
-
 
         public async Task<bool> DeleteCachedVideo(string videoId, NicoVideoQuality quality)
         {
@@ -866,6 +863,12 @@ namespace NicoPlayerHohoema.Models
             {
                 using (var releaser2 = await _CacheRequestProcessingLock.LockAsync())
                 {
+                    // 画質指定が無い場合はデフォルトのキャッシュ画質を選択
+                    if (req.Quality == NicoVideoQuality.Unknown)
+                    {
+                        req.Quality = _HohoemaApp.UserSettings.CacheSettings.DefaultCacheQuality;
+                    }
+
                     _CacheDownloadPendingVideos.Add(req);
 
                     Requested?.Invoke(this, req);
@@ -886,7 +889,7 @@ namespace NicoPlayerHohoema.Models
 		/// </summary>
 		/// <param name="req"></param>
 		/// <returns></returns>
-		public Task RequestCache(string rawVideoId, NicoVideoQuality quality, bool forceUpdate = false)
+		public Task RequestCache(string rawVideoId, NicoVideoQuality quality = NicoVideoQuality.Unknown, bool forceUpdate = false)
         {
             var req = new NicoVideoCacheRequest()
             {
@@ -931,6 +934,15 @@ namespace NicoPlayerHohoema.Models
                         break;
                     case NicoVideoCacheState.Downloading:
                         var canceledReq = await CancelDownload(rawVideoId, quality);
+
+                        await Task.Delay(500);
+
+                        using (var releaser2 = await _CacheRequestProcessingLock.LockAsync())
+                        {
+                            var removeTarget = _CacheDownloadPendingVideos.FirstOrDefault(x => x.RawVideoId == rawVideoId && x.Quality == quality);
+                            removed = _CacheDownloadPendingVideos.Remove(removeTarget);
+                            await SaveDownloadRequestItems();
+                        }
                         removed = canceledReq != null;
                         break;
                     case NicoVideoCacheState.Cached:
@@ -959,6 +971,59 @@ namespace NicoPlayerHohoema.Models
         }
 
 
+
+        /// <summary>
+        /// ダウンロードを停止します。
+        /// 現在ダウンロード中のアイテムはキャンセルしてPendingに積み直します
+        /// </summary>
+        /// <returns></returns>
+        public async Task SuspendCacheDownload()
+        {
+            if (State != CacheManagerState.Running) { return; }
+
+            List<NicoVideoCacheProgress> operations;
+            using (var releaser2 = await _CacheRequestProcessingLock.LockAsync())
+            {
+                operations = _DownloadOperations.ToList();
+                foreach (var progress in operations)
+                {
+                    await RemoveDownloadOperation(progress);
+                    _CacheDownloadPendingVideos.Remove(progress);
+                }
+
+                State = CacheManagerState.SuspendDownload;
+            }
+
+            operations.Reverse();
+
+            foreach (var progress in operations)
+            {
+                var cacheRequest = new NicoVideoCacheRequest()
+                {
+                    RawVideoId = progress.RawVideoId,
+                    RequestAt = progress.RequestAt,
+                    Quality = progress.Quality,
+                    IsRequireForceUpdate = progress.IsRequireForceUpdate
+                };
+                await RequestCache(cacheRequest);
+            }
+        }
+
+        /// <summary>
+        /// ダウンロードを再開します
+        /// </summary>
+        /// <returns></returns>
+        public async Task ResumeCacheDownload()
+        {
+            if (State != CacheManagerState.SuspendDownload) { return; }
+
+            using (var releaser2 = await _CacheRequestProcessingLock.LockAsync())
+            {
+                State = CacheManagerState.Running;
+            }
+
+            await TryNextCacheRequestedVideoDownload();
+        }
 
 
 
@@ -1102,51 +1167,45 @@ namespace NicoPlayerHohoema.Models
             // 進捗付きトースト表示を削除
             RemoveProgressToast();
 
+            var progress = TaskIdToCacheProgress[prevTask.Id];
+
+            await RemoveDownloadOperation(progress);
+
+            TaskIdToCacheProgress.Remove(prevTask.Id);
 
             if (prevTask.IsFaulted)
             {
-                try
+                Debug.WriteLine("キャッシュ失敗");
+
+
+                VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
                 {
-                    Debug.WriteLine("キャッシュ失敗");
-
-                    var op = prevTask.Result;
-                    var info = VideoCacheManager.CacheRequestInfoFromFileName(op.ResultFile);
-                    var progress = await GetCacheProgress(info.RawVideoId, info.Quality);
-                    await RemoveDownloadOperation(progress);
-
-                    VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
+                    Request = new NicoVideoCacheRequest()
                     {
-                        Request = progress,
-                        CacheState = NicoVideoCacheState.Pending
-                    });
+                        RawVideoId = progress.RawVideoId,
+                        RequestAt = progress.RequestAt,
+                        Quality = progress.Quality,
+                        IsRequireForceUpdate = progress.IsRequireForceUpdate
+                    },
+                    CacheState = NicoVideoCacheState.Pending
+                });
 
-                    return;
-                }
-                catch
-                {
-
-                }
-                finally
-                {
-                }
+                return;
             }
 
             Debug.WriteLine("キャッシュ完了");
 
-
             if (prevTask.Result != null)
             {
-                var op = prevTask.Result;
-                var req = VideoCacheManager.CacheRequestInfoFromFileName(op.ResultFile);
-                var progress = await GetCacheProgress(req.RawVideoId, req.Quality);
-                await RemoveDownloadOperation(progress);
+
+                var op = progress.DownloadOperation;
 
                 if (op.Progress.Status == BackgroundTransferStatus.Completed)
                 {
                     if (op.Progress.TotalBytesToReceive == op.Progress.BytesReceived)
                     {
                         Debug.WriteLine("キャッシュ済み: " + op.ResultFile.Name);
-                        var cacheInfo = new NicoVideoCacheInfo(req, op.ResultFile.Path);
+                        var cacheInfo = new NicoVideoCacheInfo(progress, op.ResultFile.Path);
 
                         _CacheVideos.AddOrUpdate(cacheInfo.RawVideoId,
                         (x) =>
@@ -1179,11 +1238,19 @@ namespace NicoPlayerHohoema.Models
                     else
                     {
                         Debug.WriteLine("キャッシュキャンセル: " + op.ResultFile.Name);
+                        
                         VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
                         {
-                            Request = progress,
-                            CacheState = NicoVideoCacheState.NotCacheRequested
+                            Request = new NicoVideoCacheRequest()
+                            {
+                                RawVideoId = progress.RawVideoId,
+                                RequestAt = progress.RequestAt,
+                                Quality = progress.Quality,
+                                IsRequireForceUpdate = progress.IsRequireForceUpdate
+                            },
+                            CacheState = NicoVideoCacheState.Pending
                         });
+                        
                     }
                 }
                 else
@@ -1191,8 +1258,14 @@ namespace NicoPlayerHohoema.Models
                     Debug.WriteLine($"キャッシュ失敗: {op.ResultFile.Name} （再ダウンロードします）");
                     VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
                     {
-                        Request = progress,
-                        CacheState = NicoVideoCacheState.Downloading
+                        Request = new NicoVideoCacheRequest()
+                        {
+                            RawVideoId = progress.RawVideoId,
+                            RequestAt = progress.RequestAt,
+                            Quality = progress.Quality,
+                            IsRequireForceUpdate = progress.IsRequireForceUpdate
+                        },
+                        CacheState = NicoVideoCacheState.Pending
                     });
                 }
             }
@@ -1251,33 +1324,31 @@ namespace NicoPlayerHohoema.Models
                 .ConfigureAwait(false);
         }
 
-        private async Task AddDownloadOperation(NicoVideoCacheProgress req)
+        private Task AddDownloadOperation(NicoVideoCacheProgress req)
         {
-            using (var releaser = await _CacheRequestProcessingLock.LockAsync())
-            {
-                _DownloadOperations.Add(req);
-            }
+            _DownloadOperations.Add(req);
+
+            return Task.CompletedTask;
         }
 
         private async Task RemoveDownloadOperation(NicoVideoCacheProgress req)
         {
-            using (var releaser = await _CacheRequestProcessingLock.LockAsync())
+            if (_DownloadOperations.Remove(req))
             {
-                if (_DownloadOperations.Remove(req))
-                {
-                    req.Session?.Dispose();
+                req.Session?.Dispose();
 
-                    var op = req.DownloadOperation;
-                    if (op.Progress.BytesReceived != op.Progress.TotalBytesToReceive)
-                    {
-                        op.AttachAsync().Cancel();
-                        await op.ResultFile.DeleteAsync();
-                    }
-                }
-                else
+                var op = req.DownloadOperation;
+                if (op.Progress.BytesReceived != op.Progress.TotalBytesToReceive)
                 {
-                    return;
+                    op.AttachAsync().Cancel();
+                    await op.ResultFile.DeleteAsync();
+
+                    
                 }
+            }
+            else
+            {
+                return;
             }
         }
 
@@ -1315,6 +1386,13 @@ namespace NicoPlayerHohoema.Models
 
     }
 
+
+    public enum CacheManagerState
+    {
+        NotInitialize,
+        Running,
+        SuspendDownload,
+    }
 
 
 

@@ -129,6 +129,7 @@
     <Content Include="Assets\UpdateNotices\0.14.1.md" />
     <Content Include="Assets\UpdateNotices\0.14.3.md" />
     <Content Include="Assets\UpdateNotices\0.14.4.md" />
+    <Content Include="Assets\UpdateNotices\0.14.5.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <PRIResource Include="Resources\zh-Hans\Resources.resw" />
     <PRIResource Include="Resources\ja-jp\Resources.resw" />
@@ -453,6 +454,7 @@
       <DependentUpon>RankingCategoryPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TemplateSelector\MenuSubPageTemplateSelector.cs" />
+    <Compile Include="Views\TemplateSelector\NullableTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\SearchTargetContentTemplateSelector.cs" />
     <Compile Include="Views\_CommentRenderer\CommentRendererCompositionUI.xaml.cs">
       <DependentUpon>CommentRendererCompositionUI.xaml</DependentUpon>

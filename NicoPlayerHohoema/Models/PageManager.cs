@@ -286,7 +286,12 @@ namespace NicoPlayerHohoema.Models
 		/// </remarks>
 		public void ClearNavigateHistory()
 		{
-			NavigationService.ClearHistory();
+            HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
+            {
+                NavigationService.ClearHistory();
+            })
+            .AsTask().ConfigureAwait(false);
+			
 		}
 
 		public string CurrentDefaultPageTitle()
