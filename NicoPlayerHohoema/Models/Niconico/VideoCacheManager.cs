@@ -473,46 +473,6 @@ namespace NicoPlayerHohoema.Models
         {
             if (State != CacheManagerState.Running) { return; }
 
-            if (!_HohoemaApp.IsLoggedIn) { return; }
-
-            // プレミアム会員以外の場合で、動画か生放送を視聴中の場合はダウンロードを開始できない
-            var viewManager = App.Current.Container.Resolve<Models.HohoemaViewManager>();
-            var nowPlayingContent = viewManager.NowShowingSecondaryView || _HohoemaApp.Playlist.IsDisplayMainViewPlayer;
-            if (!_HohoemaApp.IsPremiumUser && nowPlayingContent)
-            {
-                // キャッシュ済みのアイテムを再生中の場合はダウンロード可能なので確認をスキップする
-                bool playingVideoIsCached = false;
-                var currentItem = _HohoemaApp.Playlist.Player.Current;
-                if (currentItem != null && currentItem.Type == PlaylistItemType.Video)
-                {
-                    var cachedItems = await GetCacheRequest(currentItem.ContentId);
-                    if (cachedItems.FirstOrDefault(x => x.ToCacheState() == NicoVideoCacheState.Cached) != null)
-                    {
-                        playingVideoIsCached = true;
-                    }
-                }
-                
-                // 再生中コンテンツがキャッシュ済みでなければ確認を行う
-                if (!playingVideoIsCached)
-                {
-                    var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
-                    var closePlayerAndStartCache = await dialogService.ShowMessageDialog("ニコニコのプレミアム会員以外は 視聴とダウンロードは一つしか同時に行えません。\nキャッシュを開始するにはプレイヤーを閉じる必要があります。", "プレイヤーを閉じてキャッシュを開始しますか？", "キャッシュ開始", "何もしない");
-                    if (!closePlayerAndStartCache)
-                    {
-                        return;
-                    }
-
-                    if (viewManager.NowShowingSecondaryView)
-                    {
-                        await viewManager.Close();
-                    }
-                    else if (_HohoemaApp.Playlist.IsDisplayMainViewPlayer)
-                    {
-                        _HohoemaApp.Playlist.IsDisplayMainViewPlayer = false;
-                    }
-                }
-            }
-
             NicoVideoCacheRequest nextDownloadItem = null;
 
             using (var releaser = await _CacheRequestProcessingLock.LockAsync())
@@ -974,6 +934,15 @@ namespace NicoPlayerHohoema.Models
                         break;
                     case NicoVideoCacheState.Downloading:
                         var canceledReq = await CancelDownload(rawVideoId, quality);
+
+                        await Task.Delay(500);
+
+                        using (var releaser2 = await _CacheRequestProcessingLock.LockAsync())
+                        {
+                            var removeTarget = _CacheDownloadPendingVideos.FirstOrDefault(x => x.RawVideoId == rawVideoId && x.Quality == quality);
+                            removed = _CacheDownloadPendingVideos.Remove(removeTarget);
+                            await SaveDownloadRequestItems();
+                        }
                         removed = canceledReq != null;
                         break;
                     case NicoVideoCacheState.Cached:
@@ -1269,25 +1238,35 @@ namespace NicoPlayerHohoema.Models
                     else
                     {
                         Debug.WriteLine("キャッシュキャンセル: " + op.ResultFile.Name);
-                        /*
+                        
                         VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
                         {
-                            Request = progress,
+                            Request = new NicoVideoCacheRequest()
+                            {
+                                RawVideoId = progress.RawVideoId,
+                                RequestAt = progress.RequestAt,
+                                Quality = progress.Quality,
+                                IsRequireForceUpdate = progress.IsRequireForceUpdate
+                            },
                             CacheState = NicoVideoCacheState.Pending
                         });
-                        */
+                        
                     }
                 }
                 else
                 {
                     Debug.WriteLine($"キャッシュ失敗: {op.ResultFile.Name} （再ダウンロードします）");
-                    /*
                     VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
                     {
-                        Request = progress,
+                        Request = new NicoVideoCacheRequest()
+                        {
+                            RawVideoId = progress.RawVideoId,
+                            RequestAt = progress.RequestAt,
+                            Quality = progress.Quality,
+                            IsRequireForceUpdate = progress.IsRequireForceUpdate
+                        },
                         CacheState = NicoVideoCacheState.Pending
                     });
-                    */
                 }
             }
         }

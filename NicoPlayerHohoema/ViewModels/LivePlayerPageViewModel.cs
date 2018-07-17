@@ -1037,16 +1037,6 @@ namespace NicoPlayerHohoema.ViewModels
             _PrevPrevSidePaneContentType = CurrentSidePaneContentType.Value;
             CurrentSidePaneContentType.Value = null;
 
-
-            // 生放送視聴が終了したらキャッシュDLのラインを手放す
-            if (!HohoemaApp.IsPremiumUser && !HohoemaApp.CacheManager.CanAddDownloadLine)
-            {
-                // 一般ユーザーまたは未登録ユーザーの場合
-                // 視聴セッションを１つに制限するため、キャッシュダウンロードを止める必要がある
-
-                // TODO: 生放送視聴とキャッシュダウンロード制限の処理
-            }
-
             base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 		}
 

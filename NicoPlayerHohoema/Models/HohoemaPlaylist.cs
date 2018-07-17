@@ -414,6 +414,10 @@ namespace NicoPlayerHohoema.Models
                     }
                 }
             }
+            else if (!HohoemaApp.IsPremiumUser)
+            {
+                await HohoemaApp.CacheManager.SuspendCacheDownload();
+            }
 
             CurrentPlaylist = playlist;
             Player.PlayStarted(item);
