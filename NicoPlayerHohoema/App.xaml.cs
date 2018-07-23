@@ -537,6 +537,7 @@ namespace NicoPlayerHohoema
             }
 
 
+#if false
             try
             {
                 if (localStorge.Read(IS_COMPLETE_INTRODUCTION, false) == false)
@@ -554,9 +555,20 @@ namespace NicoPlayerHohoema
                 Debug.WriteLine("イントロダクションまたはスタートアップのページ表示に失敗");
                 pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
             }
+#else
+            try
+            {
+                pageManager.OpenStartupPage();
+            }
+            catch
+            {
+                Debug.WriteLine("スタートアップのページ表示に失敗");
+                pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
+            }
+#endif
 
 
-            
+
             try
             {
                 // ログインを試行
@@ -908,7 +920,7 @@ namespace NicoPlayerHohoema
 		}
 
 
-        #region Clipboard Support 
+#region Clipboard Support 
 
         private static readonly TimeSpan DefaultNotificationShowDuration = TimeSpan.FromSeconds(20);
 
@@ -1231,7 +1243,7 @@ namespace NicoPlayerHohoema
         }
 
 
-        #endregion
+#endregion
 
 
 
