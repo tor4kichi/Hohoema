@@ -22,7 +22,7 @@
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
     <AppxBundle>Always</AppxBundle>
     <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
-    <PackageCertificateThumbprint>44F742EF649A3F8D191302440466FA061FA61FD6</PackageCertificateThumbprint>
+    <PackageCertificateThumbprint>A968876E2F8F3DA9CDACE108F7CB17A1F4F8EA47</PackageCertificateThumbprint>
     <AppxPackageDir>D:\tor4kichi\Hohoema\packages\</AppxPackageDir>
     <RuntimeIdentifiers>win10-arm;win10-arm-aot;win10-x86;win10-x86-aot;win10-x64;win10-x64-aot</RuntimeIdentifiers>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
@@ -130,7 +130,7 @@
     <Content Include="Assets\UpdateNotices\0.14.3.md" />
     <Content Include="Assets\UpdateNotices\0.14.4.md" />
     <Content Include="Assets\UpdateNotices\0.14.5.md" />
-    <None Include="NicoPlayerHohoema_StoreKey.pfx" />
+    <Content Include="Assets\UpdateNotices\0.14.6.md" />
     <PRIResource Include="Resources\zh-Hans\Resources.resw" />
     <PRIResource Include="Resources\ja-jp\Resources.resw" />
   </ItemGroup>
@@ -722,6 +722,7 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
+    <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <None Include="NicoPlayerHohoema_TemporaryKey.pfx" />
   </ItemGroup>
   <ItemGroup>
