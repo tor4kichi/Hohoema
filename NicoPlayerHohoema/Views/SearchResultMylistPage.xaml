@@ -93,7 +93,7 @@
                                       IsItemClickEnabled="True"
                                       uwpExtensions:ListViewBase.Command="{Binding ChangeSearchTargetCommand}"
                                       ItemsSource="{Binding SearchTargets}"
-                                      SelectedItem="{Binding SearchOption.SearchTarget}"
+                                      SelectedItem="{Binding SelectedSearchTarget.Value, Mode=TwoWay}"
                                   Style="{StaticResource BandListViewStyle}"
                                       ItemContainerStyle="{StaticResource SimpleListViewItemStyle}"
                                       >

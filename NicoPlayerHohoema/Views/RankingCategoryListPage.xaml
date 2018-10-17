@@ -18,9 +18,17 @@
     xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
+    NavigationCacheMode="Enabled"
     >
 
 
+    <Page.Transitions>
+        <TransitionCollection>
+            <NavigationThemeTransition>
+                <DrillInNavigationTransitionInfo />
+            </NavigationThemeTransition>
+        </TransitionCollection>
+    </Page.Transitions>
 
 
     <Grid x:Name="ContentLayoutRoot">

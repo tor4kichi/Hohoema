@@ -1248,7 +1248,17 @@
                            
                            
                           
-                                            />
+                                            >
+                            <Frame.ContentTransitions>
+                                <TransitionCollection>
+                                    <NavigationThemeTransition>
+                                        <NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                                            <DrillInNavigationTransitionInfo />
+                                        </NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                                    </NavigationThemeTransition>
+                                </TransitionCollection>
+                            </Frame.ContentTransitions>
+                        </Frame>
                         <Button x:Name="TogglePlayerFloatButton"
                             Background="Transparent"
                             Command="{Binding TogglePlayerFloatDisplayCommand}"

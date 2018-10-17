@@ -19,7 +19,9 @@
     xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
-    mc:Ignorable="d">
+    mc:Ignorable="d"
+    NavigationCacheMode="Enabled"
+    >
 
     <Page.Resources>
         <DataTemplate x:Key="RemovableListItemTemplate">

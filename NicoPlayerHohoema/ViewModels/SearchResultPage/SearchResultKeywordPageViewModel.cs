@@ -116,6 +116,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         public static List<SearchTarget> SearchTargets { get; } = Enum.GetValues(typeof(SearchTarget)).Cast<SearchTarget>().ToList();
 
+        public ReactiveProperty<SearchTarget> SelectedSearchTarget { get; }
+
         private DelegateCommand<SearchTarget?> _ChangeSearchTargetCommand;
         public DelegateCommand<SearchTarget?> ChangeSearchTargetCommand
         {
@@ -170,6 +172,8 @@ namespace NicoPlayerHohoema.ViewModels
                 mode: ReactivePropertyMode.DistinctUntilChanged
                 );
 
+            SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
+
             SelectedSearchSort
                .Subscribe(async _ =>
                {
@@ -221,6 +225,8 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 SearchOption = PagePayloadBase.FromParameterString<KeywordSearchPagePayloadContent>(e.Parameter as string);
             }
+
+            SelectedSearchTarget.Value = SearchOption?.SearchTarget ?? SearchTarget.Keyword;
 
             if (SearchOption == null)
             {

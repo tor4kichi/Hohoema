@@ -560,7 +560,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 			ReadVideoPosition.Subscribe(x =>
 			{
-                PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
+                if (CurrentState.Value == MediaPlaybackState.Playing)
+                {
+                    PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
+                }
 
                 if (_NowControlSlider) { return; }
 
@@ -598,16 +601,13 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 				else if (x == MediaPlaybackState.None)
 				{
-                    if (Video != null)
+                    if (Video != null && !_IsVideoPlayed)
                     {
-                        //await Video.StopPlay();
-
-                        // TODO: ユーザー手動の再読み込みに変更する
-                        //                        await Task.Delay(500);
-
-                        //                        await this.PlayingQualityChangeAction();
-
                         Debug.WriteLine("再生中に動画がClosedになったため、強制的に再初期化を実行しました。これは非常措置です。");
+
+                        this._PreviosPlayingVideoPosition = TimeSpan.FromSeconds(PreviousVideoPosition);
+
+                        await this.PlayingQualityChangeAction();
                     }
                 }
 
