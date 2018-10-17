@@ -218,6 +218,8 @@
                                                 <Setter Property="MinWidth" Value="140" />
                                                 <Setter Property="MinHeight" Value="80" />
                                                 <Setter Property="Padding" Value="8" />
+                                                <Setter Property="BorderBrush" Value="{StaticResource ButtonBorderBrushPointerOver}" />
+                                                <Setter Property="BorderThickness" Value="1" />
                                             </Style>
                                         </GridView.ItemContainerStyle>
 
