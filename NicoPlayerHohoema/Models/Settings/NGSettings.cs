@@ -35,8 +35,11 @@ namespace NicoPlayerHohoema.Models
 		{
 			NGResult result = null;
 
-            result = IsNgVideoOwnerId(info.Owner.OwnerId);
-            if (result != null) return result;
+            if (info.Owner != null)
+            {
+                result = IsNgVideoOwnerId(info.Owner.OwnerId);
+                if (result != null) return result;
+            }
 
             result = IsNGVideoTitle(info.Title);
 			if (result != null) return result;
