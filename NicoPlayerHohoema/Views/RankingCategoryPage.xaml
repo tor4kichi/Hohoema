@@ -23,6 +23,15 @@
     mc:Ignorable="d"
     NavigationCacheMode="Enabled"
     >
+
+    <Page.Transitions>
+        <TransitionCollection>
+            <NavigationThemeTransition>
+                <DrillInNavigationTransitionInfo />
+            </NavigationThemeTransition>
+        </TransitionCollection>
+    </Page.Transitions>
+    
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                                         >
 
