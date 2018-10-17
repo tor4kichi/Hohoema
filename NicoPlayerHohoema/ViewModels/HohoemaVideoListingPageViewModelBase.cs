@@ -222,17 +222,9 @@ namespace NicoPlayerHohoema.ViewModels
             return base.OnSignIn(userSessionDisposer, cancelToken);
         }
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			base.OnNavigatedTo(e, viewModelState);
-
-            /*
-			if (IncrementalLoadingItems == null
-				|| CheckNeedUpdateOnNavigateTo(e.NavigationMode))
-			{
-//				ResetList();
-			}
-            */
 
             HohoemaApp.CacheManager.VideoCacheStateChanged += CacheManager_VideoCacheStateChanged;
 

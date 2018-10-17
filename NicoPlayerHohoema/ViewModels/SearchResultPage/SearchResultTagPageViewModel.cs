@@ -146,6 +146,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         public static List<SearchTarget> SearchTargets { get; } = Enum.GetValues(typeof(SearchTarget)).Cast<SearchTarget>().ToList();
 
+        public ReactiveProperty<SearchTarget> SelectedSearchTarget { get; }
+
         private DelegateCommand<SearchTarget?> _ChangeSearchTargetCommand;
         public DelegateCommand<SearchTarget?> ChangeSearchTargetCommand
         {
@@ -259,6 +261,8 @@ namespace NicoPlayerHohoema.ViewModels
                     pageManager.Search(SearchOption, forgetLastSearch:true);
                 })
                 .AddTo(_CompositeDisposable);
+
+            SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
         }
 
 		#region Commands
@@ -313,8 +317,10 @@ namespace NicoPlayerHohoema.ViewModels
 		{
             if (e.Parameter is string)
             {
-                SearchOption = PagePayloadBase.FromParameterString<TagSearchPagePayloadContent>(e.Parameter as string);
+                SearchOption = PagePayloadBase.FromParameterString<TagSearchPagePayloadContent>(e.Parameter as string);                
             }
+
+            SelectedSearchTarget.Value = SearchOption?.SearchTarget ?? SearchTarget.Tag;
 
             _NowProcessFavorite = true;
 

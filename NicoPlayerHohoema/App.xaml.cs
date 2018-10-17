@@ -811,6 +811,8 @@ namespace NicoPlayerHohoema
 
         protected override UIElement CreateShell(Frame rootFrame)
         {
+            rootFrame.CacheSize = 5;
+
             rootFrame.Navigating += RootFrame_Navigating;
             rootFrame.NavigationFailed += RootFrame_NavigationFailed;
             

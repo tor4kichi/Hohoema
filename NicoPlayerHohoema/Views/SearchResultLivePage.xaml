@@ -19,14 +19,10 @@
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     d:DesignHeight="300"
-    d:DesignWidth="400">
+    d:DesignWidth="400"
+    NavigationCacheMode="Enabled"
+    >
 
-    <i:Interaction.Behaviors>
-        <core:EventTriggerBehavior EventName="Unloaded">
-            <core:CallMethodAction TargetObject="{Binding}" MethodName="Dispose" />
-        </core:EventTriggerBehavior>
-    </i:Interaction.Behaviors>
-    
     <Grid>
 
         <VisualStateManager.VisualStateGroups>
@@ -85,7 +81,7 @@
                                       IsItemClickEnabled="True"
                                       uwpExtension:ListViewBase.Command="{Binding ChangeSearchTargetCommand}"
                                       ItemsSource="{Binding SearchTargets}"
-                                      SelectedItem="{Binding SearchOption.SearchTarget}"
+                                      SelectedItem="{Binding SelectedSearchTarget.Value, Mode=TwoWay}"
                                       Style="{StaticResource BandListViewStyle}"
                                       ItemContainerStyle="{StaticResource SimpleListViewItemStyle}"
                                   SingleSelectionFollowsFocus="False"
