@@ -276,6 +276,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
+
         private DelegateCommand<TagViewModel> _OpenTagSearchResultPageCommand;
         public DelegateCommand<TagViewModel> OpenTagSearchResultPageCommand
         {

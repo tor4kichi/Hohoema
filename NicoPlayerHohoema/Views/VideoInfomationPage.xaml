@@ -94,6 +94,59 @@
         
         <toolkit:DockPanel x:Name="ContentLayout" 
                            >
+            <Border x:Name="FailedLayout" Visibility="{Binding IsLoadFailed.Value, Converter={StaticResource BooleanToVisibility}}"
+                    
+                    toolkit:DockPanel.Dock="Top"
+                    
+                >
+                <StackPanel Margin="8 0 0 0">
+
+                    <StackPanel Orientation="Horizontal" Height="48">
+
+                        <iconPack:PackIconMaterial Kind="InformationOutline"
+                                                   Height="32"
+                                                   Width="32"
+                                                   VerticalAlignment="Center"
+                                                   />
+                        
+                        <TextBlock Text="動画情報の読み込みに失敗しました"
+                                   VerticalAlignment="Center"
+                                   Margin="8 0 0 0"
+                                   FontWeight="Bold"
+                                   />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal"  >
+                        <Button 
+                        Command="{Binding UpdateCommand}"
+                            
+                        >
+                            <StackPanel Orientation="Horizontal">
+                                <SymbolIcon Symbol="Refresh" Margin="0 0 8 0" />
+                                <TextBlock Text="再読み込み"
+                                       VerticalAlignment="Center"
+                                       />
+                            </StackPanel>
+                        </Button>
+
+                        <Button Margin="16 0 0 0"
+                        Command="{StaticResource OpenLinkCommand}"
+                        CommandParameter="{Binding VideoPageUri}"
+                            
+                        >
+                            <StackPanel Orientation="Horizontal">
+                                <SymbolIcon Symbol="Find" Margin="0 0 8 0" />
+                                <TextBlock Text="ブラウザで開く"
+                                       VerticalAlignment="Center"
+                                       />
+                            </StackPanel>
+                        </Button>
+
+                    </StackPanel>
+                    
+                </StackPanel>
+            </Border>
+            
             <StackPanel toolkit:DockPanel.Dock="Top" 
                     >
                 <toolkit:DockPanel >
@@ -439,22 +492,9 @@
                           />
                 </Border>
 
-                <Border x:Name="FailedLayout" Visibility="{Binding IsLoadFailed.Value, Converter={StaticResource BooleanToVisibility}}"
-                Background="#77000000"
-                >
-                    <StackPanel >
-                        <TextBlock Text="動画情報の読み込みに失敗しました" />
-
-                        <Button Content="再読み込み"
-                        Command="{Binding UpdateCommand}"
-                        />
-
-                        <HyperlinkButton NavigateUri="{Binding VideoPageUri}" 
-                                 Content="ブラウザーで開く"
-                                 />
-                    </StackPanel>
-                </Border>
+                
             </Grid>
+            
             
         </toolkit:DockPanel>
 
