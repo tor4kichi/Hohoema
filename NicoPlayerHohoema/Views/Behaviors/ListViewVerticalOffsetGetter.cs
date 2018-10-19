@@ -11,7 +11,7 @@ using Windows.UI.Xaml.Media;
 
 namespace NicoPlayerHohoema.Views.Behaviors
 {
-	public class ListViewVerticalOffsetGetter : Behavior<ListViewBase>
+	public class ListViewVerticalOffsetGetter : Behavior<ListViewBase>, IAction
 	{
 
 		#region WithCursor Property 
@@ -74,8 +74,14 @@ namespace NicoPlayerHohoema.Views.Behaviors
                 _NowChangingInViewChanged = false;
             }
         }
-		
-	}
+
+
+        object IAction.Execute(object sender, object parameter)
+        {
+            VerticalOffset = _ScrollViewer.VerticalOffset;
+            return true;
+        }
+    }
 
 
 }
