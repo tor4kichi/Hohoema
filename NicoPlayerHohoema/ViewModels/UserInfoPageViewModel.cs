@@ -115,12 +115,6 @@ namespace NicoPlayerHohoema.ViewModels
             });
 		}
 
-
-        protected override string ResolvePageName()
-        {
-            return UserName;
-        }
-
         protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
             NowLoading = true;
@@ -139,7 +133,11 @@ namespace NicoPlayerHohoema.ViewModels
                 userId = HohoemaApp.LoginUserId.ToString();
             }
 
-			if (userId == UserId) { return; }
+			if (userId == UserId)
+            {
+                NowLoading = false;
+                return;
+            }
 
 			UserId = userId;
 
