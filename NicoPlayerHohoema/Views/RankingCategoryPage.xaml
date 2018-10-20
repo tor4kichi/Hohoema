@@ -131,11 +131,6 @@
                                                                         Delay="0:0:0.001"
                                                                     />
                 </core:DataTriggerBehavior>
-
-                
-                <!--
-                <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
-                -->
             </i:Interaction.Behaviors>
 
             <ListView.Header>

@@ -188,7 +188,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (CheckNeedUpdateOnNavigateTo(e.NavigationMode))
 			{
-				IncrementalLoadingItems = null;
+//				IncrementalLoadingItems = null;
 			}
 			else
 			{
@@ -213,29 +213,29 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 if (TryGetListingCache(NavigationId, out var cached))
                 {
-                    // DataTriggerBehaviorがBackナビゲーション時に反応しない問題の対策
-                    await Task.Delay(100);
-
-                    IncrementalLoadingItems = null;
-                    RaisePropertyChanged(nameof(IncrementalLoadingItems));
-
-                    IncrementalLoadingItems = cached.List as IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>;
-
-                    ScrollPosition.Value = cached.ScrollPosition;
-
-                    RaisePropertyChanged(nameof(IncrementalLoadingItems));
-                    IncrementalLoadingItems.BeginLoading += BeginLoadingItems;
-                    IncrementalLoadingItems.DoneLoading += CompleteLoadingItems;
-
-                    if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
+                    var cachedList = cached.List as IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>;
+                    
+                    if (!ReferenceEquals(IncrementalLoadingItems, cachedList))
                     {
-                        (IncrementalLoadingItems.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error += HohoemaIncrementalSource_Error;
+                        // DataTriggerBehaviorがBackナビゲーション時に反応しない問題の対策
+                        await Task.Delay(100);
+
+                        ScrollPosition.Value = cached.ScrollPosition;
+                        IncrementalLoadingItems = cachedList;
+                        RaisePropertyChanged(nameof(IncrementalLoadingItems));
+                        IncrementalLoadingItems.BeginLoading += BeginLoadingItems;
+                        IncrementalLoadingItems.DoneLoading += CompleteLoadingItems;
+
+                        if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
+                        {
+                            (IncrementalLoadingItems.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error += HohoemaIncrementalSource_Error;
+                        }
+
+                        ItemsView.Source = IncrementalLoadingItems;
+                        RaisePropertyChanged(nameof(ItemsView));
+
+                        Debug.WriteLine($"restored {NavigationId} : {ScrollPosition.Value}");
                     }
-
-                    ItemsView.Source = IncrementalLoadingItems;
-                    RaisePropertyChanged(nameof(ItemsView));
-
-                    Debug.WriteLine($"restored {NavigationId} : {ScrollPosition.Value}");
 
                     ChangeCanIncmentalLoading(true);
                 }
@@ -282,9 +282,6 @@ namespace NicoPlayerHohoema.ViewModels
                     AddOrUpdateListingCache(NavigationId, IncrementalLoadingItems, ScrollPosition.Value);
 
                     Debug.WriteLine($"saved {NavigationId} : {ScrollPosition.Value}");
-
-                    IncrementalLoadingItems = null;
-                    RaisePropertyChanged(nameof(IncrementalLoadingItems));
                 }
             }
         }

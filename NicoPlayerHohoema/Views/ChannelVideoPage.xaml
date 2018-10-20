@@ -15,11 +15,20 @@
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     NavigationCacheMode="Enabled"
     >
 
+    <Page.Transitions>
+        <TransitionCollection>
+            <NavigationThemeTransition>
+                <SuppressNavigationTransitionInfo />
+            </NavigationThemeTransition>
+        </TransitionCollection>
+    </Page.Transitions>
+    
     <Grid>
 
         <VisualStateManager.VisualStateGroups>
@@ -91,6 +100,31 @@
             uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
             ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
             >
+            <uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
+                <TransitionCollection>
+
+                </TransitionCollection>
+            </uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
+            <i:Interaction.Behaviors>
+
+                <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems, Mode=TwoWay}" />
+
+                <mybehavior:KeyboardTrigger Key="F5">
+                    <mybehavior:KeyboardTrigger.Actions>
+                        <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
+                    </mybehavior:KeyboardTrigger.Actions>
+                </mybehavior:KeyboardTrigger>
+
+                <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ScrollPosition.Value, Mode=TwoWay}" />
+
+                <core:DataTriggerBehavior Binding="{Binding IncrementalLoadingItems, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}"  >
+                    <actions:ScrollViewerVerticalPositionSettingsAction Target="{x:Bind ItemsList}" 
+                                                                    VerticalOffset="{Binding ScrollPosition.Value}" 
+                                                                    WithAnimation="False" 
+                                                                        Delay="0:0:0.001"
+                                                                    />
+                </core:DataTriggerBehavior>
+            </i:Interaction.Behaviors>
             <ListView.Header>
 
                 <uwpcontrols:ScrollHeader
