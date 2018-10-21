@@ -174,6 +174,39 @@ namespace NicoPlayerHohoema.ViewModels
             await base.NavigatedToAsync(cancelToken, e, viewModelState);
         }
 
+
+
+
+        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        {
+            Windows.UI.Xaml.Window.Current.Activated += Current_Activated;
+            base.OnNavigatedTo(e, viewModelState);
+        }
+
+        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+        {
+            if (!suspending)
+            {
+                Windows.UI.Xaml.Window.Current.Activated -= Current_Activated;
+            }
+
+            base.OnNavigatingFrom(e, viewModelState, suspending);
+        }
+
+        // ウィンドウがアクティブになったタイミングで
+        // キャッシュフォルダ―が格納されたストレージをホットスタンバイ状態にしたい
+        // （コールドスタンバイ状態だと再生開始までのラグが大きい）
+        private async void Current_Activated(object sender, Windows.UI.Core.WindowActivatedEventArgs e)
+        {
+            if (e.WindowActivationState == Windows.UI.Core.CoreWindowActivationState.CodeActivated)
+            {
+                var folder = await HohoemaApp.GetVideoCacheFolder();
+            }
+        }
+
+
+
+
         protected override IIncrementalSource<CacheVideoViewModel> GenerateIncrementalSource()
 		{
 			return new CacheVideoInfoLoadingSource(HohoemaApp.CacheManager);

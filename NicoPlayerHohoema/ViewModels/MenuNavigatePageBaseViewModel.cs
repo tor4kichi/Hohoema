@@ -25,6 +25,7 @@ using Windows.UI.Core;
 using Prism.Windows.Mvvm;
 using System.Collections.ObjectModel;
 using System.Reactive.Disposables;
+using System.Diagnostics;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -499,7 +500,6 @@ namespace NicoPlayerHohoema.ViewModels
                     }));
             }
         }
-
 
         private void PageManager_StartWork(string title, uint totalCount)
 		{

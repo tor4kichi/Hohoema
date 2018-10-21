@@ -631,7 +631,13 @@
                         <StateTrigger IsActive="{Binding IsSmallWindowModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
+
+                        <Setter Target="DefaultUIControl.Visibility" Value="Collapsed" />
+                        <!--  UIControlLayout の表示をコントロールするとFadeアニメーションを含んだ操作によって表示が再開されてしまうので
+                             アニメーションの影響を受けない内部のレイアウトを非表示にする
+                        　　　DefaultUIControlはCompactOverlay時に非表示になるが小窓とは排他的な状態のため動作に競合は起きないはず
                         <Setter Target="UIControlLayout.Visibility" Value="Collapsed" />
+                        -->
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>

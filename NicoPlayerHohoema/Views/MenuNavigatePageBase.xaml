@@ -1,5 +1,4 @@
 ﻿<ContentControl
-    x:Name="RootLayout"
     x:Class="NicoPlayerHohoema.Views.MenuNavigatePageBase"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -81,19 +80,31 @@
                                                />
 
                     <Border Height="4" Width="16" />
+                    
+                    <!--  OverrideLabelが未設定の場合の表示 -->
+                    <StackPanel Orientation="Horizontal" Visibility="{Binding OverrideLabel, Converter={StaticResource NullToVisibility}}">
 
-                    <TextBlock Text="{Binding Label}"
-                           VerticalAlignment="Center"
-                           FontSize="15"
-                           />
+                        <TextBlock Text="{Binding Label}"
+                               VerticalAlignment="Center"
+                               FontSize="15"
+                               />
 
-                    <Border Height="4" Width="8" />
+                        <Border Height="4" Width="8" />
 
-                    <TextBlock Style="{StaticResource CaptionTextBlockStyle}"
+                        <TextBlock Style="{StaticResource CaptionTextBlockStyle}"
                                VerticalAlignment="Center"
                                >
-                        (<Run Text="{Binding PageType, Converter={StaticResource ToLocalText}}" />)
-                    </TextBlock>
+                            (<Run Text="{Binding PageType, Converter={StaticResource ToLocalText}}" />)
+                        </TextBlock>
+                    </StackPanel>
+                    
+                    <!-- OverrideLabelが設定済みの場合 -->
+                    <StackPanel Orientation="Horizontal" Visibility="{Binding OverrideLabel, Converter={StaticResource NotNullToVisibility}}">
+                        <TextBlock Text="{Binding OverrideLabel}" 
+                                   VerticalAlignment="Center"
+                                   FontSize="15"
+                                   />
+                    </StackPanel>
 
                 </StackPanel>
             </DataTemplate>
@@ -1005,6 +1016,11 @@
                                                         >
                                                 <ListView.ContextFlyout>
                                                     <MenuFlyout>
+
+                                                        <MenuFlyoutItem Text="ピンのタイトル変更" 
+                                                                        Command="{Binding ChangeOverrideLabelCommand}"
+                                                                        />
+
                                                         <MenuFlyoutItem Text="ピン留め解除" 
                                                                         Command="{StaticResource RemovePinCommand}"
                                                                         CommandParameter="{Binding}"

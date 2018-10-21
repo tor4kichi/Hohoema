@@ -232,7 +232,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override string ResolvePageName()
         {
-            return SearchOption.Keyword;
+            return $"\"{SearchOption.Keyword}\"";
         }
 
         bool _NowNavigatingTo = false;
