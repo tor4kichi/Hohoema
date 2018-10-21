@@ -20,11 +20,65 @@ using Windows.UI.Xaml;
 using NicoPlayerHohoema.Views.Service;
 using Microsoft.Practices.Unity;
 using Microsoft.Toolkit.Uwp.UI;
+using Windows.UI.Xaml.Data;
 
 namespace NicoPlayerHohoema.ViewModels
 {
+    
+
 	public abstract class HohoemaListingPageViewModelBase<ITEM_VM> : HohoemaViewModelBase
 	{
+        public class HohoemaListingCache
+        {
+            public ISupportIncrementalLoading List;
+            public double ScrollPosition;
+        }
+
+        static Dictionary<int, HohoemaListingCache> _ListingCache = new Dictionary<int, HohoemaListingCache>();
+
+        protected static int MaxListingCache = 5;
+
+        protected static bool TryGetListingCache(string navigationId, out HohoemaListingCache outCache)
+        {
+            if (_ListingCache.TryGetValue(navigationId.GetHashCode(), out var cached))
+            {
+                outCache = cached;
+            }
+            else outCache = null;
+
+            return outCache != null;
+        }
+
+        protected static void AddOrUpdateListingCache(string navigationId, ISupportIncrementalLoading list, double scrollPosition)
+        {
+            var hash = navigationId.GetHashCode();
+            if (_ListingCache.TryGetValue(hash, out var cached))
+            {
+                // 登録済みの場合は一旦削除して再登録することで辞書位置を更新する
+                _ListingCache.Remove(hash);
+                cached.ScrollPosition = scrollPosition;
+                _ListingCache.Add(hash, cached);
+            }
+            else
+            {
+                // キャッシュ上限以上の場合は古いアイテムを削除
+                if (_ListingCache.Count > MaxListingCache)
+                {
+                    // Dictionary の Last() は辞書へより先に追加されたアイテムが取得できる
+                    // https://stackoverflow.com/questions/436954/whos-on-dictionary-first
+                    _ListingCache.Remove(_ListingCache.Last().Key);
+                }
+
+                _ListingCache.Add(hash, new HohoemaListingCache() { List = list, ScrollPosition = scrollPosition });
+            }
+        }
+
+        string _NavigationId;
+        private string NavigationId
+        {
+            get { return _NavigationId; }
+        }
+
 
         private AsyncLock _ItemsUpdateLock = new AsyncLock();
 
@@ -71,8 +125,8 @@ namespace NicoPlayerHohoema.ViewModels
 				.ToReactiveCommand<object>()
 				.AddTo(_CompositeDisposable);
 
+            ScrollPosition = new ReactiveProperty<double>();
 
-			
 
 //			var SelectionItemsChanged = SelectedItems.ToCollectionChanged().ToUnit();
 /*
@@ -130,11 +184,11 @@ namespace NicoPlayerHohoema.ViewModels
         }
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+            _NavigationId = ResolveNavigationId(e);
 
-			if (CheckNeedUpdateOnNavigateTo(e.NavigationMode))
+            if (CheckNeedUpdateOnNavigateTo(e.NavigationMode))
 			{
-				IncrementalLoadingItems?.Clear();
-				IncrementalLoadingItems = null;
+//				IncrementalLoadingItems = null;
 			}
 			else
 			{
@@ -155,18 +209,58 @@ namespace NicoPlayerHohoema.ViewModels
 
 			await ListPageNavigatedToAsync(cancelToken, e, viewModelState);
 
-			if (IncrementalLoadingItems == null
-				|| CheckNeedUpdateOnNavigateTo(e.NavigationMode))
-			{
-				await ResetList();
-			}
-		}
+            if (e.NavigationMode == NavigationMode.Back || e.NavigationMode == NavigationMode.Forward)
+            {
+                if (TryGetListingCache(NavigationId, out var cached))
+                {
+                    var cachedList = cached.List as IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>;
+                    
+                    if (!ReferenceEquals(IncrementalLoadingItems, cachedList))
+                    {
+                        // DataTriggerBehaviorがBackナビゲーション時に反応しない問題の対策
+                        await Task.Delay(100);
+
+                        ScrollPosition.Value = cached.ScrollPosition;
+                        IncrementalLoadingItems = cachedList;
+                        RaisePropertyChanged(nameof(IncrementalLoadingItems));
+                        IncrementalLoadingItems.BeginLoading += BeginLoadingItems;
+                        IncrementalLoadingItems.DoneLoading += CompleteLoadingItems;
+
+                        if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
+                        {
+                            (IncrementalLoadingItems.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error += HohoemaIncrementalSource_Error;
+                        }
+
+                        ItemsView.Source = IncrementalLoadingItems;
+                        RaisePropertyChanged(nameof(ItemsView));
+
+                        Debug.WriteLine($"restored {NavigationId} : {ScrollPosition.Value}");
+                    }
+
+                    ChangeCanIncmentalLoading(true);
+                }
+                else
+                {
+                    ScrollPosition.Value = 0.0;
+                    await ResetList();
+                }
+            }
+            else
+            {
+                if (IncrementalLoadingItems == null
+                    || CheckNeedUpdateOnNavigateTo(e.NavigationMode))
+                {
+                    ScrollPosition.Value = 0.0;
+                    await ResetList();
+                }
+            }
+        }
 
 		protected override Task OnResumed()
 		{
-			ChangeCanIncmentalLoading(true);
+            ChangeCanIncmentalLoading(true);
 
-			return base.OnResumed();
+            return base.OnResumed();
 		}
 
 		protected virtual Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
@@ -182,7 +276,14 @@ namespace NicoPlayerHohoema.ViewModels
             if (!suspending)
 			{
 				ChangeCanIncmentalLoading(false);
-			}
+
+                if (IncrementalLoadingItems != null)
+                {
+                    AddOrUpdateListingCache(NavigationId, IncrementalLoadingItems, ScrollPosition.Value);
+
+                    Debug.WriteLine($"saved {NavigationId} : {ScrollPosition.Value}");
+                }
+            }
         }
 
 
@@ -228,14 +329,13 @@ namespace NicoPlayerHohoema.ViewModels
                     }
                     IncrementalLoadingItems.BeginLoading -= BeginLoadingItems;
                     IncrementalLoadingItems.DoneLoading -= CompleteLoadingItems;
-                    IncrementalLoadingItems.Dispose();
+//                    IncrementalLoadingItems.Dispose();
                     IncrementalLoadingItems = null;
                     RaisePropertyChanged(nameof(IncrementalLoadingItems));
                 }
 
                 try
                 {
-
                     var source = GenerateIncrementalSource();
 
                     if (source == null)
@@ -272,6 +372,18 @@ namespace NicoPlayerHohoema.ViewModels
                 }
             }
 		}
+
+        protected virtual string ResolveNavigationId(NavigatedToEventArgs e)
+        {
+            if (e.Parameter is string strParam)
+            {
+                return $"{e.SourcePageType.Name}_{strParam}";
+            }
+            else
+            {
+                return e.SourcePageType.Name;
+            }
+        }
 
 		private void HohoemaIncrementalSource_Error()
 		{
@@ -459,8 +571,9 @@ namespace NicoPlayerHohoema.ViewModels
 
         public AdvancedCollectionView ItemsView { get; private set; } = new AdvancedCollectionView();
 
+        public ReactiveProperty<double> ScrollPosition { get; }
 
-		public ReactiveProperty<bool> NowLoading { get; private set; }
+        public ReactiveProperty<bool> NowLoading { get; private set; }
         public ReactiveProperty<bool> CanChangeSort { get; private set; }
 
         public ReactiveProperty<bool> NowRefreshable { get; private set; }

@@ -22,6 +22,14 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
+    <Page.Transitions>
+        <TransitionCollection>
+            <NavigationThemeTransition>
+                <SuppressNavigationTransitionInfo />
+            </NavigationThemeTransition>
+        </TransitionCollection>
+    </Page.Transitions>
+    
     <Grid>
 
         <VisualStateManager.VisualStateGroups>
@@ -66,6 +74,13 @@
             Padding="16 0"
             uwpExtensions:ScrollViewerEx.VerticalScrollBarMargin="0 96 0 0"
             >
+
+            <GridView.ItemContainerTransitions>
+                <TransitionCollection>
+
+                </TransitionCollection>
+            </GridView.ItemContainerTransitions>
+            
             <i:Interaction.Behaviors>
 
                 <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems, Mode=TwoWay}" />
@@ -76,7 +91,15 @@
                     </mybehavior:KeyboardTrigger.Actions>
                 </mybehavior:KeyboardTrigger>
 
-                <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
+                <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ScrollPosition.Value, Mode=TwoWay}" />
+
+                <core:DataTriggerBehavior Binding="{Binding IncrementalLoadingItems, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}"  >
+                    <actions:ScrollViewerVerticalPositionSettingsAction Target="{x:Bind ItemsList}" 
+                                                                    VerticalOffset="{Binding ScrollPosition.Value}" 
+                                                                    WithAnimation="False" 
+                                                                        Delay="0:0:0.001"
+                                                                    />
+                </core:DataTriggerBehavior>
             </i:Interaction.Behaviors>
             
             <GridView.Header>

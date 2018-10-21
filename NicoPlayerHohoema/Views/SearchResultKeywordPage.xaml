@@ -24,7 +24,13 @@
     d:DesignWidth="400"
     NavigationCacheMode="Enabled"
     >
-        
+    <Page.Transitions>
+        <TransitionCollection>
+            <NavigationThemeTransition>
+                <SuppressNavigationTransitionInfo />
+            </NavigationThemeTransition>
+        </TransitionCollection>
+    </Page.Transitions>
     <Grid>
         <VisualStateManager.VisualStateGroups>
 
@@ -123,6 +129,13 @@
                             ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
                             uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 96 0 0"
                             >
+
+            <uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
+                <TransitionCollection>
+
+                </TransitionCollection>
+            </uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
+            
             <i:Interaction.Behaviors>
                 
                 <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems, Mode=TwoWay}" />
@@ -133,7 +146,15 @@
                     </mybehavior:KeyboardTrigger.Actions>
                 </mybehavior:KeyboardTrigger>
 
-                <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
+                <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ScrollPosition.Value, Mode=TwoWay}" />
+
+                <core:DataTriggerBehavior Binding="{Binding IncrementalLoadingItems, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}"  >
+                    <actions:ScrollViewerVerticalPositionSettingsAction Target="{x:Bind ItemsList}" 
+                                                                    VerticalOffset="{Binding ScrollPosition.Value}" 
+                                                                    WithAnimation="False" 
+                                                                        Delay="0:0:0.001"
+                                                                    />
+                </core:DataTriggerBehavior>
             </i:Interaction.Behaviors>
 
             

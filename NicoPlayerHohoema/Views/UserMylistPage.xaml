@@ -24,11 +24,6 @@
     mc:Ignorable="d"
     NavigationCacheMode="Enabled"
     >
-
-    <Page.Resources>
-    </Page.Resources>
-
-
     <Grid>
 
         <VisualStateManager.VisualStateGroups>

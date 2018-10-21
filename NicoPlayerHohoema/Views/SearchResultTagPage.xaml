@@ -23,7 +23,13 @@
     d:DesignWidth="400"
     NavigationCacheMode="Enabled"
     >
-    
+    <Page.Transitions>
+        <TransitionCollection>
+            <NavigationThemeTransition>
+                <SuppressNavigationTransitionInfo />
+            </NavigationThemeTransition>
+        </TransitionCollection>
+    </Page.Transitions>
     <Grid>
 
         <VisualStateManager.VisualStateGroups>
@@ -111,6 +117,12 @@
             ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
             uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
                             >
+            <uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
+                <TransitionCollection>
+
+                </TransitionCollection>
+            </uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
+            
             <i:Interaction.Behaviors>
 
                 <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems, Mode=TwoWay}" />
