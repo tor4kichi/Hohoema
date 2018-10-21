@@ -14,6 +14,8 @@ using System.IO;
 using NicoPlayerHohoema.Helpers;
 using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.ViewModels;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -124,6 +126,9 @@ namespace NicoPlayerHohoema.Models
             PlaylistSettings.PropertyChanged += Settings_PropertyChanged;
             AppearanceSettings.PropertyChanged += Settings_PropertyChanged;
             ActivityFeedSettings.PropertyChanged += Settings_PropertyChanged;
+
+            PinSettings.Pins.ObserveElementPropertyChanged()
+                .Subscribe(pair => Settings_PropertyChanged(PinSettings, pair.EventArgs));
         }
 
         private static void Settings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
