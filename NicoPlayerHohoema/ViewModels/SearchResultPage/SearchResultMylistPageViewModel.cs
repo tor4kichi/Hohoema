@@ -145,7 +145,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override string ResolvePageName()
         {
-            return SearchOption.Keyword;
+            return $"\"{SearchOption.Keyword}\"";
         }
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
