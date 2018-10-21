@@ -718,7 +718,7 @@ namespace NicoPlayerHohoema.Models
 
 			return await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
-				return await Context.Video.GetHistoriesAsync();
+				return await Context.Video.GetHistoriesFromMyPageAsync();
 			});	
 		}
 
