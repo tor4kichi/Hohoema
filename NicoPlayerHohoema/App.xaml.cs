@@ -979,7 +979,7 @@ namespace NicoPlayerHohoema
             }
         }
 
-        static readonly Regex NicoContentRegex = new Regex("http:\\/\\/([\\w\\W]*?)\\/((\\w*)\\/)?([\\w-]*)");
+        static readonly Regex NicoContentRegex = new Regex("https?:\\/\\/([\\w\\W]*?)\\/((\\w*)\\/)?([\\w-]*)");
         private async Task ExtractNicoContentId_And_SubmitSuggestion(Uri url)
         {
             var match = NicoContentRegex.Match(url.OriginalString);
@@ -990,6 +990,7 @@ namespace NicoPlayerHohoema
                 var contentIdGroup = match.Groups[4];
 
                 var contentId = contentIdGroup.Value;
+                
                 if (NiconicoRegex.IsVideoId(contentId))
                 {
                     SubmitVideoContentSuggestion(contentId);
@@ -1001,9 +1002,11 @@ namespace NicoPlayerHohoema
                 else if (contentTypeGroup.Success)
                 {
                     var contentType = contentTypeGroup.Value;
-
                     switch (contentType)
                     {
+                        case "watch":
+                            SubmitVideoContentSuggestion(contentId);
+                            break;
                         case "mylist":
                             await SubmitMylistContentSuggestion(contentId);
                             break;
@@ -1013,7 +1016,6 @@ namespace NicoPlayerHohoema
                         case "user":
                             await SubmitUserSuggestion(contentId);
                             break;
-
                     }
                 }
                 else if (hostNameGroup.Success)
