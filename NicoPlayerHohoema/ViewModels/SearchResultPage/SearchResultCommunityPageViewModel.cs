@@ -50,7 +50,7 @@ namespace NicoPlayerHohoema.ViewModels
                         if (target.HasValue && target.Value != SearchOption.SearchTarget)
                         {
                             var payload = SearchPagePayloadContentHelper.CreateDefault(target.Value, SearchOption.Keyword);
-                            PageManager.Search(payload, true);
+                            PageManager.Search(payload);
                         }
                     }));
             }
@@ -167,7 +167,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-            if (e.Parameter is string)
+            if (e.Parameter is string && e.NavigationMode == NavigationMode.New)
             {
                 SearchOption = PagePayloadBase.FromParameterString<CommunitySearchPagePayloadContent>(e.Parameter as string);
             }
@@ -195,8 +195,6 @@ namespace NicoPlayerHohoema.ViewModels
                 SearchOption.Mode = SelectedSearchMode.Value.Mode;
 
                 await ResetList();
-
-                RefreshSearchOptionText();
             })
             .AddTo(_NavigatingCompositeDisposable);
 
@@ -208,9 +206,24 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override IIncrementalSource<CommunityInfoControlViewModel> GenerateIncrementalSource()
 		{
-			return new CommunitySearchSource(SearchOption, HohoemaApp, PageManager);
+			return new CommunitySearchSource(new CommunitySearchPagePayloadContent()
+            {
+                Keyword = SearchOption.Keyword,
+                Mode = SearchOption.Mode,
+                Order = SearchOption.Order,
+                Sort = SearchOption.Sort
+            } 
+            , HohoemaApp
+            , PageManager
+            );
 		}
 
+        protected override void PostResetList()
+        {
+            RefreshSearchOptionText();
+
+            base.PostResetList();
+        }
 
         private void RefreshSearchOptionText()
         {

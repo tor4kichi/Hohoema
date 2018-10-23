@@ -129,7 +129,7 @@ namespace NicoPlayerHohoema.ViewModels
                         if (target.HasValue && target.Value != SearchOption.SearchTarget)
                         {
                             var payload = SearchPagePayloadContentHelper.CreateDefault(target.Value, SearchOption.Keyword);
-                            PageManager.Search(payload, true);
+                            PageManager.Search(payload);
                         }
                     }));
             }
@@ -182,13 +182,13 @@ namespace NicoPlayerHohoema.ViewModels
                        && SearchOption.Sort == selected.Sort
                    )
                    {
-                       return;
+//                       return;
                    }
 
                    SearchOption.Sort = SelectedSearchSort.Value.Sort;
                    SearchOption.Order = SelectedSearchSort.Value.Order;
 
-                   pageManager.Search(SearchOption, forgetLastSearch: true);
+                   await ResetList();
                })
                 .AddTo(_CompositeDisposable);
         }
@@ -221,7 +221,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-            if (e.Parameter is string)
+            if (e.Parameter is string && e.NavigationMode == NavigationMode.New)
             {
                 SearchOption = PagePayloadBase.FromParameterString<KeywordSearchPagePayloadContent>(e.Parameter as string);
             }
@@ -245,8 +245,6 @@ namespace NicoPlayerHohoema.ViewModels
                 };
             RaisePropertyChanged(nameof(KeywordSearchBookmark));
 
-            SearchOptionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
-
             Database.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
 
 
@@ -264,7 +262,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override void PostResetList()
 		{
-		}
+            SearchOptionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+        }
 		
 
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)

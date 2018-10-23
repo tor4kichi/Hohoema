@@ -15,6 +15,7 @@ using Reactive.Bindings;
 using System.Reactive.Linq;
 using Reactive.Bindings.Extensions;
 using System.Collections.Async;
+using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -162,7 +163,7 @@ namespace NicoPlayerHohoema.ViewModels
                         if (target.HasValue && target.Value != SearchOption.SearchTarget)
                         {
                             var payload = SearchPagePayloadContentHelper.CreateDefault(target.Value, SearchOption.Keyword);
-                            PageManager.Search(payload, true);
+                            PageManager.Search(payload);
                         }
                     }));
             }
@@ -187,7 +188,7 @@ namespace NicoPlayerHohoema.ViewModels
                 SelectedSearchMode.ToUnit(),
                 SelectedProvider.ToUnit()
                 )
-                .Subscribe(_ =>
+                .Subscribe(async _ =>
                 {
                     if (_NowNavigatingTo) { return; }
 
@@ -206,7 +207,7 @@ namespace NicoPlayerHohoema.ViewModels
                     SearchOption.Sort = SelectedSearchSort.Value.Sort;
                     SearchOption.Order = SelectedSearchSort.Value.Order;
 
-                    pageManager.Search(SearchOption, forgetLastSearch: true);
+                    await ResetList();
                 })
                 .AddTo(_CompositeDisposable);
 
@@ -238,8 +239,8 @@ namespace NicoPlayerHohoema.ViewModels
         bool _NowNavigatingTo = false;
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-            if (e.Parameter is string)
+        {
+            if (e.Parameter is string && e.NavigationMode == NavigationMode.New)
             {
                 SearchOption = PagePayloadBase.FromParameterString<LiveSearchPagePayloadContent>(e.Parameter as string);
             }
@@ -257,6 +258,15 @@ namespace NicoPlayerHohoema.ViewModels
             SelectedProvider.Value = LiveSearchProviderOptionListItems.FirstOrDefault(x => x.Provider == SearchOption.Provider);
             _NowNavigatingTo = false;
 
+
+            Database.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
+
+
+            base.OnNavigatedTo(e, viewModelState);
+        }
+
+        private void ResetSearchOptionText()
+        {
             var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
             var providerText = SelectedProvider.Value.Label;
             string mode = "";
@@ -283,15 +293,17 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
             SearchOptionText = $"{optionText}/{mode}/{providerText}";
+        }
 
-            Database.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
+        protected override void PostResetList()
+        {
+            ResetSearchOptionText();
+
+            base.PostResetList();
+        }
 
 
-            base.OnNavigatedTo(e, viewModelState);
-		}
-
-
-		protected override IIncrementalSource<LiveInfoViewModel> GenerateIncrementalSource()
+        protected override IIncrementalSource<LiveInfoViewModel> GenerateIncrementalSource()
 		{
 			return new LiveSearchSource(SearchOption, HohoemaApp, PageManager);
 		}

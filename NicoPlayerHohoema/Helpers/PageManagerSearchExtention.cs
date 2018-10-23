@@ -36,20 +36,10 @@ namespace NicoPlayerHohoema.Helpers
                 resultPageType = HohoemaPageType.SearchResultLive;
             }
 
-            bool isRequireForgetLastNavigation = false;
-            if (pageManager.CurrentPageType == HohoemaPageType.SearchResultCommunity ||
-                pageManager.CurrentPageType == HohoemaPageType.SearchResultKeyword ||
-                pageManager.CurrentPageType == HohoemaPageType.SearchResultTag ||
-                pageManager.CurrentPageType == HohoemaPageType.SearchResultLive ||
-                pageManager.CurrentPageType == HohoemaPageType.SearchResultMylist )
-            {
-                isRequireForgetLastNavigation = true;
-            }
-
-            pageManager.OpenPage(resultPageType, searchPayload.ToParameterString(), isRequireForgetLastNavigation);
+            pageManager.OpenPage(resultPageType, searchPayload.ToParameterString(), forgetLastSearch);
          }
 
-        public static void SearchTag(this PageManager pageManager, string content, Mntone.Nico2.Order order, Mntone.Nico2.Sort sort)
+        public static void SearchTag(this PageManager pageManager, string content, Mntone.Nico2.Order order, Mntone.Nico2.Sort sort, bool isForgetNavigation = false)
         {
             var payload = new KeywordSearchPagePayloadContent()
             {
@@ -58,10 +48,10 @@ namespace NicoPlayerHohoema.Helpers
                 Sort = sort
             };
 
-            pageManager.OpenPage(HohoemaPageType.SearchResultTag, payload.ToParameterString());
+            pageManager.OpenPage(HohoemaPageType.SearchResultTag, payload.ToParameterString(), isForgetNavigation);
         }
 
-        public static void SearchCommunity(this PageManager pageManager, string content, Mntone.Nico2.Order order, Mntone.Nico2.Sort sort)
+        public static void SearchCommunity(this PageManager pageManager, string content, Mntone.Nico2.Order order, Mntone.Nico2.Sort sort, bool isForgetNavigation = false)
         {
             var payload = new KeywordSearchPagePayloadContent()
             {
@@ -70,10 +60,10 @@ namespace NicoPlayerHohoema.Helpers
                 Sort = sort,
             };
 
-            pageManager.OpenPage(HohoemaPageType.SearchResultKeyword, payload.ToParameterString());
+            pageManager.OpenPage(HohoemaPageType.SearchResultKeyword, payload.ToParameterString(), isForgetNavigation);
         }
 
-        public static void SearchMylist(this PageManager pageManager, string content, Mntone.Nico2.Order order, Mntone.Nico2.Sort sort)
+        public static void SearchMylist(this PageManager pageManager, string content, Mntone.Nico2.Order order, Mntone.Nico2.Sort sort, bool isForgetNavigation = false)
         {
             var payload = new MylistSearchPagePayloadContent()
             {
@@ -82,10 +72,10 @@ namespace NicoPlayerHohoema.Helpers
                 Sort = sort,
             };
 
-            pageManager.OpenPage(HohoemaPageType.SearchResultMylist, payload.ToParameterString());
+            pageManager.OpenPage(HohoemaPageType.SearchResultMylist, payload.ToParameterString(), isForgetNavigation);
         }
 
-        public static void SearchCommunity(this PageManager pageManager, string content, Mntone.Nico2.Order order, CommunitySearchSort sort, CommunitySearchMode mode)
+        public static void SearchCommunity(this PageManager pageManager, string content, Mntone.Nico2.Order order, CommunitySearchSort sort, CommunitySearchMode mode, bool isForgetNavigation = false)
         {
             var payload = new CommunitySearchPagePayloadContent()
             {
@@ -95,10 +85,10 @@ namespace NicoPlayerHohoema.Helpers
                 Mode = mode
             };
 
-            pageManager.OpenPage(HohoemaPageType.SearchResultCommunity, payload.ToParameterString());
+            pageManager.OpenPage(HohoemaPageType.SearchResultCommunity, payload.ToParameterString(), isForgetNavigation);
         }
 
-        public static void SearchLive(this PageManager pageManager, string content, bool isTagSearch, CommunityType? provider, Mntone.Nico2.Order order, NicoliveSearchSort sort, NicoliveSearchMode? mode)
+        public static void SearchLive(this PageManager pageManager, string content, bool isTagSearch, CommunityType? provider, Mntone.Nico2.Order order, NicoliveSearchSort sort, NicoliveSearchMode? mode, bool isForgetNavigation = false)
         {
             var payload = new LiveSearchPagePayloadContent()
             {
@@ -110,7 +100,7 @@ namespace NicoPlayerHohoema.Helpers
                 Provider = provider
             };
 
-            pageManager.OpenPage(HohoemaPageType.SearchResultLive, payload.ToParameterString());
+            pageManager.OpenPage(HohoemaPageType.SearchResultLive, payload.ToParameterString(), isForgetNavigation);
         }
     }
 }

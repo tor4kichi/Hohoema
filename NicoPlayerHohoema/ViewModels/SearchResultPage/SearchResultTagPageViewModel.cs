@@ -159,7 +159,7 @@ namespace NicoPlayerHohoema.ViewModels
                         if (target.HasValue && target.Value != SearchOption.SearchTarget)
                         {
                             var payload = SearchPagePayloadContentHelper.CreateDefault(target.Value, SearchOption.Keyword);
-                            PageManager.Search(payload, true);
+                            PageManager.Search(payload);
                         }
                     }));
             }
@@ -245,7 +245,7 @@ namespace NicoPlayerHohoema.ViewModels
                 );
 
             SelectedSearchSort
-                .Subscribe(_ =>
+                .Subscribe(async _ =>
                 {
                     var selected = SelectedSearchSort.Value;
                     if (SearchOption.Order == selected.Order
@@ -255,10 +255,10 @@ namespace NicoPlayerHohoema.ViewModels
                         return;
                     }
 
-                    SearchOption.Sort = SelectedSearchSort.Value.Sort;
-                    SearchOption.Order = SelectedSearchSort.Value.Order;
+                    SearchOption.Order = selected.Order;
+                    SearchOption.Sort = selected.Sort;
 
-                    pageManager.Search(SearchOption, forgetLastSearch:true);
+                    await ResetList();
                 })
                 .AddTo(_CompositeDisposable);
 
@@ -315,7 +315,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-            if (e.Parameter is string)
+            if (e.Parameter is string && e.NavigationMode == NavigationMode.New)
             {
                 SearchOption = PagePayloadBase.FromParameterString<TagSearchPagePayloadContent>(e.Parameter as string);                
             }
@@ -349,7 +349,7 @@ namespace NicoPlayerHohoema.ViewModels
                 };
             RaisePropertyChanged(nameof(TagSearchBookmark));
 
-            SearchOptionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+            
 
             base.OnNavigatedTo(e, viewModelState);
 		}
@@ -374,9 +374,16 @@ namespace NicoPlayerHohoema.ViewModels
 			return base.ListPageNavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
-		#region Implement HohoemaVideListViewModelBase
+        protected override void PostResetList()
+        {
+            SearchOptionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
 
-		protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
+            base.PostResetList();
+        }
+
+        #region Implement HohoemaVideListViewModelBase
+
+        protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
 		{
 			return new VideoSearchSource(SearchOption, HohoemaApp, PageManager);
 		}
