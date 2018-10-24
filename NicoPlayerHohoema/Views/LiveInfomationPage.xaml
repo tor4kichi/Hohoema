@@ -1,0 +1,496 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.LiveInfomationPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    >
+
+    <Grid>
+        <VisualStateManager.VisualStateGroups>
+
+            <!-- ウィンドウサイズごとの表示 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+
+            <!-- Xbox -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+
+
+                    </VisualState.Setters>
+                </VisualState>
+
+            </VisualStateGroup>
+
+
+            <!-- Channel Owned Video -->
+
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsChannelOwnedVideo}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+
+
+                    </VisualState.Setters>
+                </VisualState>
+
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+
+        <toolkit:DockPanel x:Name="ContentLayout" 
+                           >
+            <Border x:Name="FailedLayout" Visibility="{Binding IsLoadFailed.Value, Converter={StaticResource BooleanToVisibility}}"
+                    
+                    toolkit:DockPanel.Dock="Top"
+                    
+                >
+                <StackPanel Margin="8 0 0 0">
+
+                    <StackPanel Orientation="Horizontal" Height="48">
+
+                        <iconPack:PackIconMaterial Kind="InformationOutline"
+                                                   Height="32"
+                                                   Width="32"
+                                                   VerticalAlignment="Center"
+                                                   />
+
+                        <TextBlock Text="生放送情報の読み込みに失敗しました"
+                                   VerticalAlignment="Center"
+                                   Margin="8 0 0 0"
+                                   FontWeight="Bold"
+                                   />
+                    </StackPanel>
+
+                    <StackPanel Orientation="Horizontal"  >
+                        <Button 
+                        Command="{Binding UpdateCommand}"
+                            
+                        >
+                            <StackPanel Orientation="Horizontal">
+                                <SymbolIcon Symbol="Refresh" Margin="0 0 8 0" />
+                                <TextBlock Text="再読み込み"
+                                       VerticalAlignment="Center"
+                                       />
+                            </StackPanel>
+                        </Button>
+
+                        <Button Margin="16 0 0 0"
+                        Command="{StaticResource OpenLinkCommand}"
+                        CommandParameter="{Binding VideoPageUri}"
+                            
+                        >
+                            <StackPanel Orientation="Horizontal">
+                                <SymbolIcon Symbol="Find" Margin="0 0 8 0" />
+                                <TextBlock Text="ブラウザで開く"
+                                       VerticalAlignment="Center"
+                                       />
+                            </StackPanel>
+                        </Button>
+
+                    </StackPanel>
+
+                    <StackPanel >
+                        <TextBlock Text="{Binding LoadFailedMessage.Value}"
+                                   Style="{StaticResource CaptionTextBlockStyle}"
+                                   Opacity="0.7"
+                                   />
+                    </StackPanel>
+
+                </StackPanel>
+            </Border>
+
+            <StackPanel toolkit:DockPanel.Dock="Top" 
+                    >
+                <toolkit:DockPanel >
+
+                    <StackPanel toolkit:DockPanel.Dock="Right" 
+                            Orientation="Horizontal"
+                            >
+
+                        <AppBarButton Icon="Play" Command="{Binding PlayVideoCommand}">
+
+                        </AppBarButton>
+                        <AppBarButton Icon="Download"
+                                      Command="{Binding CacheRequestCommand}"
+                                      Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
+                                      >
+
+                        </AppBarButton>
+
+                        <AppBarButton Icon="Add" Label="マイリストに追加"
+                                      Command="{Binding AddMylistCommand}"
+                                      >
+                        </AppBarButton>
+
+                        <Button Background="Transparent" x:Name="ShareSubButton">
+
+                            <iconPack:PackIconMaterial Kind="ShareVariant" />
+
+                            <Button.Flyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem Text="アプリを選択" Command="{Binding ShareCommand}" />
+                                    <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
+                                    <MenuFlyoutItem Text="動画情報をコピー" Command="{Binding VideoInfoCopyToClipboardCommand}"/>
+                                </MenuFlyout>
+                            </Button.Flyout>
+                        </Button>
+
+                        <Button Background="Transparent" 
+                                x:Name="ShareSubButton_TV" 
+                                Visibility="Collapsed"
+                                Command="{Binding ShareCommand}"
+                                >
+
+                            <iconPack:PackIconMaterial Kind="ShareVariant" />
+                        </Button>
+
+
+
+                    </StackPanel>
+
+                    <Border Background="Transparent" IsHitTestVisible="True"
+                                Margin="16 0 0 0"
+                            x:Name="TitleLayout"
+                                >
+                    </Border>
+                </toolkit:DockPanel>
+            </StackPanel>
+
+
+            <Grid>
+
+                <ScrollViewer Visibility="{Binding NowLoading.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
+
+                    <StackPanel Margin="16">
+
+                        <Border Visibility="{Binding IsSelfZoningContent, Converter={StaticResource BooleanToVisibility}}" 
+                                    Margin="0 16"
+                                Padding="16"
+                                    BorderBrush="DarkRed"
+                                    BorderThickness="2"
+                                >
+                            <toolkit:WrapPanel Orientation="Horizontal"
+                                          
+                                    >
+                                <StackPanel Orientation="Horizontal">
+
+                                    <iconPack:PackIconMaterial Kind="Information"  Margin="0 0 16 0" Width="32" Height="32"
+                                                               VerticalAlignment="Center"
+                                                               />
+
+                                    <TextBlock FontSize="20" Margin="0 0 0 8">
+                                    <Run Text="この動画はフィルタ指定されています" />
+                                    <LineBreak />
+                                    <Run Text="{Binding SelfZoningInfo.NGReason}" />
+                                    <Run Text=":" />
+                                    <Run Text="{Binding SelfZoningInfo.Content}" />
+                                    <Run Text="{Binding SelfZoningInfo.Description}" />
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <Button Content="フィルタ設定を確認する"
+                                    Command="{Binding OpenFilterSettingPageCommand}"
+                                        Margin="0 0 0 0"
+                                    />
+                            </toolkit:WrapPanel>
+                        </Border>
+
+
+                        <TextBlock Text="{Binding VideoTitle}" Style="{StaticResource TitleTextBlockStyle}"
+                                    TextWrapping="Wrap"
+                               Margin="0 0 0 8"
+                                    />
+
+
+                        <toolkit:WrapPanel Orientation="Horizontal">
+                            <Grid Margin="8 0">
+                                <uwptoolkit:ImageEx Source="{Binding ThumbnailUrl}"
+                                                toolkit:DockPanel.Dock="Left"
+                                                Width="226"
+                                                Height="164"
+                                            >
+
+                                </uwptoolkit:ImageEx>
+
+                                <Grid Padding="8" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0 0 4 4">
+                                    <Border Opacity="0.7">
+                                        <Border.Background>
+                                            <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                                        </Border.Background>
+
+                                    </Border>
+
+                                    <TextBlock VerticalAlignment="Center" FontSize="18">
+                                        <Run Text="{Binding VideoLength, Converter={StaticResource TimeToMovieLengthConverter}}" />
+                                    </TextBlock>
+
+                                </Grid>
+                            </Grid>
+
+
+
+                            <StackPanel Margin="8 0 0 0">
+
+                                <TextBlock 
+                               Margin="0 8 0 8"
+                               >
+                                <Run Text="投稿日:" Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}" />
+                                <Run Text="{Binding SubmitDate}" />
+                                </TextBlock>
+
+                                <StackPanel  Margin="0 0 0 8">
+
+                                    <TextBlock Margin="0 0 8 0">
+                                    <Run Text="再生:" Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}" />
+                                    <Run Text="{Binding ViewCount, Converter={StaticResource ToUserFriendlyNumber}}" />
+                                    </TextBlock>
+                                    <TextBlock Margin="0 0 8 0">
+                                    <Run Text="コメント:" Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}" />
+                                    <Run Text="{Binding CommentCount, Converter={StaticResource ToUserFriendlyNumber}}" />
+                                    </TextBlock>
+                                    <TextBlock Margin="0 0 8 0">
+                                    <Run Text="マイリスト:" Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}" />
+                                    <Run Text="{Binding MylistCount, Converter={StaticResource ToUserFriendlyNumber}}" />
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <StackPanel Orientation="Horizontal" >
+
+                                    <Button x:Name="OwnerInfoPageButton"
+                                            Command="{Binding OpenOwnerUserPageCommand}"
+                                            
+                                            >
+                                        <StackPanel Orientation="Horizontal">
+                                            <Image Source="{Binding OwnerIconUrl}"
+                                           Height="36"
+                                           Width="36"
+                                           />
+
+                                            <TextBlock Text="{Binding OwnerName}" 
+                                           VerticalAlignment="Center"
+                                           Margin="8 0 0 0"
+                                           />
+                                        </StackPanel>
+
+                                    </Button>
+
+                                    <Border Width="16" />
+
+                                    <HyperlinkButton x:Name="OpenOwnerVideosButton"
+                                            Content="動画一覧"
+                                         Command="{Binding OpenOwnerUserVideoPageCommand}"
+                                         >
+
+                                    </HyperlinkButton>
+
+                                </StackPanel>
+                            </StackPanel>
+
+                        </toolkit:WrapPanel>
+
+
+
+
+
+
+
+                        <Border Height="16" />
+
+
+
+
+                        <TextBlock Text="タグ"
+                                    Style="{StaticResource SubtitleTextBlockStyle}"
+                                />
+
+                        <ItemsControl ItemsSource="{Binding Tags}"
+                                    Margin="0 8"
+                                    HorizontalContentAlignment="Stretch"
+                                    >
+                            <ItemsControl.ItemContainerStyle>
+                                <Style TargetType="ContentPresenter">
+                                    <Setter Property="MinWidth" Value="80" />
+                                </Style>
+                            </ItemsControl.ItemContainerStyle>
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Margin="0 0 8 8" >
+                                        <Button Content="{Binding TagText}"
+                                            Command="{Binding OpenSearchPageWithTagCommand}"
+                                        >
+                                        </Button>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <toolkit:WrapPanel Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+
+
+
+                        <Border Height="16" />
+
+
+                        <TextBlock Text="動画紹介"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                                    />
+
+                        <WebView Source="{Binding DescriptionHtmlFileUri}"
+                                 MinWidth="320"
+                             Margin="0 8"
+                                 DefaultBackgroundColor="Transparent"
+                                 >
+                            <i:Interaction.Behaviors>
+                                <mybehavior:WebViewNotifyUriClicked Command="{Binding ScriptNotifyCommand}"  />
+
+                                <mybehavior:WebViewAutoResizeToContent />
+
+                                <!-- WebViewでUINavigationControllerがハマるバグに対応する -->
+                                <mybehavior:PreventSpoilerXYNavigationInWebView />
+                            </i:Interaction.Behaviors>
+                        </WebView>
+
+
+
+
+                        <StackPanel Visibility="{Binding IchibaItems, Converter={StaticResource CollectionVisibilityConverter}}">
+
+                            <TextBlock Text="ニコニコ市場"
+                                           Style="{StaticResource SubtitleTextBlockStyle}"
+                                           Margin="0 8"
+                                           />
+
+                            <ListView ItemsSource="{Binding IchibaItems}"
+                                          SelectionMode="None"
+                                      ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                                      ScrollViewer.VerticalScrollMode="Disabled"
+                                      ScrollViewer.HorizontalScrollBarVisibility="Visible"
+                                      ScrollViewer.HorizontalScrollMode="Auto"
+                                      VerticalContentAlignment="Top"
+                                          >
+                                <ListView.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <ItemsStackPanel Orientation="Horizontal" Margin="0 0 0 16" />
+                                    </ItemsPanelTemplate>
+                                </ListView.ItemsPanel>
+                                <ListView.ItemTemplate>
+                                    <DataTemplate>
+                                        <HyperlinkButton NavigateUri="{Binding AmazonItemLink}"  >
+                                            <toolkit:DockPanel 
+                                                      Width="120"
+                                                      >
+
+                                                <Image Source="{Binding ThumbnailUrl}"
+                                                       Height="120"
+                                                       toolkit:DockPanel.Dock="Top"
+                                                       />
+
+                                                <Border VerticalAlignment="Bottom"
+                                                        Margin="8"
+                                                        >
+                                                    <Border.Background>
+                                                        <SolidColorBrush Color="{StaticResource SystemAltMediumColor}" />
+                                                    </Border.Background>
+                                                    <TextBlock Text="{Binding Title}" 
+                                                               TextWrapping="Wrap"
+                                                               FontSize="13"
+                                                               >
+                                                        <TextBlock.Foreground>
+                                                            <SolidColorBrush Color="{StaticResource SystemBaseMediumHighColor}" />
+                                                        </TextBlock.Foreground>
+                                                    </TextBlock>
+                                                </Border>
+
+                                            </toolkit:DockPanel>
+
+                                        </HyperlinkButton>
+
+                                    </DataTemplate>
+                                </ListView.ItemTemplate>
+                            </ListView>
+                        </StackPanel>
+
+
+
+                        <Border Height="16" />
+
+
+
+
+
+
+
+
+
+
+
+                    </StackPanel>
+
+                </ScrollViewer>
+
+
+
+                <Border x:Name="LoadingLayout" Visibility="{Binding NowLoading.Value, Converter={StaticResource BooleanToVisibility}}">
+                    <ProgressRing IsActive="{Binding NowLoading.Value}" 
+                          HorizontalAlignment="Right"
+                          VerticalAlignment="Top"
+                          Margin="32"
+                                  Height="64"
+                                  Width="64"
+                          />
+                </Border>
+
+
+            </Grid>
+
+
+        </toolkit:DockPanel>
+
+    </Grid>
+</Page>
