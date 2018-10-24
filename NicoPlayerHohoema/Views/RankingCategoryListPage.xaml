@@ -18,7 +18,6 @@
     xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
-    NavigationCacheMode="Enabled"
     >
 
 

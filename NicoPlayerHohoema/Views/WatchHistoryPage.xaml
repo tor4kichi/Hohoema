@@ -19,7 +19,6 @@
     xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
-    NavigationCacheMode="Enabled"
     >
 
 

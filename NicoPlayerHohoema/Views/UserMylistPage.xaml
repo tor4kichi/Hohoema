@@ -22,7 +22,6 @@
     xmlns:myTrigger="using:NicoPlayerHohoema.Views.StateTrigger"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
-    NavigationCacheMode="Enabled"
     >
     <Grid>
 
