@@ -407,15 +407,6 @@
             <!-- コンパクトオーバーレイ表示中のコントロールUI切り替え -->
             <VisualStateGroup >
 
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <myTrigger:CompactOverlayViewModeTrigger />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="CompactOverlayUIControl.Visibility" Value="Visible" />
-                        <Setter Target="DefaultUIControl.Visibility" Value="Collapsed" />
-                    </VisualState.Setters>
-                </VisualState>
                 
 
             </VisualStateGroup>
@@ -624,8 +615,19 @@
                 </VisualState>
             </VisualStateGroup>
             
-            <!-- 小窓で開く -->
+            <!-- 小窓・コンパクトオーバーレイ -->
             <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <myTrigger:CompactOverlayViewModeTrigger />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CompactOverlayUIControl.Visibility" Value="Visible" />
+                        <Setter Target="DefaultUIControl.Visibility" Value="Collapsed" />
+                    </VisualState.Setters>
+                </VisualState>
+
+                
                 <VisualState>
                     <VisualState.StateTriggers>
                         <StateTrigger IsActive="{Binding IsSmallWindowModeEnable.Value}" />
