@@ -1101,7 +1101,7 @@ namespace NicoPlayerHohoema
                 Commands = {
                         new InAppNotificationCommand()
                         {
-                            Label = "視聴開始",
+                            Label = "視聴する",
                             Command = new DelegateCommand(() =>
                             {
                                 hohoemaApp.Playlist.PlayLiveVideo(liveId, liveDesc.Program.Title);
@@ -1109,7 +1109,18 @@ namespace NicoPlayerHohoema
                                 DismissInAppNotification();
                             })
                         },
-                        
+                        new InAppNotificationCommand()
+                        {
+                            Label = "放送情報を確認",
+                            Command = new DelegateCommand(() =>
+                            {
+                                var pageManager = App.Current.Container.Resolve<PageManager>();
+                                pageManager.OpenPage(HohoemaPageType.LiveInfomation, liveDesc.Program.Id);
+
+                                DismissInAppNotification();
+                            })
+                        },
+
                     }
             };
 

@@ -159,6 +159,7 @@
     <Compile Include="Commands\OpenFeedSourceCommand.cs" />
     <Compile Include="Commands\OpenHohoemaPageCommand.cs" />
     <Compile Include="Commands\OpenLinkCommand.cs" />
+    <Compile Include="Commands\OpenLiveInfoCommand.cs" />
     <Compile Include="Commands\OpenVideoInfoCommand.cs" />
     <Compile Include="Commands\OpenVideoOwnerVideoListCommand.cs" />
     <Compile Include="Commands\RemoveFeedSourceCommand.cs" />
@@ -429,6 +430,9 @@
     <Compile Include="Views\ChannelVideoPage.xaml.cs">
       <DependentUpon>ChannelVideoPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\IchibaItemCard.xaml.cs">
+      <DependentUpon>IchibaItemCard.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\TransientContainer\TransientContainer.cs" />
     <Compile Include="Views\Controls\TransientContainer\TransientContainer.Properties.cs" />
     <Compile Include="Views\Converters\PageTypeToMaterialIconKind.cs" />
@@ -460,6 +464,7 @@
     <Compile Include="Views\TemplateSelector\MenuSubPageTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\NullableTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\SearchTargetContentTemplateSelector.cs" />
+    <Compile Include="Views\TemplateSelector\ValueTemplateSelector.cs" />
     <Compile Include="Views\_CommentRenderer\CommentRendererCompositionUI.xaml.cs">
       <DependentUpon>CommentRendererCompositionUI.xaml</DependentUpon>
     </Compile>
@@ -849,6 +854,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\ChannelVideoPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\IchibaItemCard.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

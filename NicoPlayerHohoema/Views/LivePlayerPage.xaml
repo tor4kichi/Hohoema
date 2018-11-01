@@ -68,6 +68,11 @@
 
             <MenuFlyoutSeparator  />
 
+            <MenuFlyoutItem Text="放送情報" 
+                    Command="{StaticResource OpenLiveInfoCommand}"
+                    CommandParameter="{Binding LiveId}"
+                    />
+            
             <MenuFlyoutItem Text="配信者情報" Command="{Binding OpenBroadcastCommunityCommand}" />
 
             

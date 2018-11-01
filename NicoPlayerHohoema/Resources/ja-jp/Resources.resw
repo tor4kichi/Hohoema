@@ -573,4 +573,8 @@
     <value>あとで見る</value>
     <comment>"watch later" niconico video content</comment>
   </data>
+  <data name="LiveInfomation" xml:space="preserve">
+    <value>生放送情報</value>
+    <comment>HohoemaPageType</comment>
+  </data>
 </root>

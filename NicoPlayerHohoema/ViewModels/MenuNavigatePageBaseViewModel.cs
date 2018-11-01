@@ -872,7 +872,7 @@ namespace NicoPlayerHohoema.ViewModels
             OnAirStreams = _LiveSubscriber.OnAirStreams.ToReadOnlyReactiveCollection(x => 
             new OnAirStream()
             {
-                BroadcasterId = x.Video.UserId,
+                BroadcasterId = x.Video.UserId.ToString(),
                 Id = x.Video.Id,
                 Label = x.Video.Title,
                 Thumbnail = x.Community?.ThumbnailSmall,
@@ -884,7 +884,7 @@ namespace NicoPlayerHohoema.ViewModels
             ReservedStreams = _LiveSubscriber.ReservedStreams.ToReadOnlyReactiveCollection(x =>
             new OnAirStream()
             {
-                BroadcasterId = x.Video.UserId,
+                BroadcasterId = x.Video.UserId.ToString(),
                 Id = x.Video.Id,
                 Label = x.Video.Title,
                 Thumbnail = x.Community?.ThumbnailSmall,
