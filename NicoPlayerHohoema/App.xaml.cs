@@ -1088,13 +1088,15 @@ namespace NicoPlayerHohoema
         {
             var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
 
-            var liveDesc = await hohoemaApp.NiconicoContext.Live.GetPlayerStatusAsync(liveId);
+            var liveDesc = await hohoemaApp.NiconicoContext.Live.GetLiveVideoInfoAsync(liveId);
 
             if (liveDesc == null) { return; }
 
+            var liveTitle = liveDesc.VideoInfo.Video.Title;
+
             var payload = new InAppNotificationPayload()
             {
-                Content = $"{liveDesc.Program.Title} をお探しですか？",
+                Content = $"{liveTitle} をお探しですか？",
                 ShowDuration = DefaultNotificationShowDuration,
                 SymbolIcon = Symbol.Video,
                 IsShowDismissButton = true,
@@ -1104,7 +1106,7 @@ namespace NicoPlayerHohoema
                             Label = "視聴する",
                             Command = new DelegateCommand(() =>
                             {
-                                hohoemaApp.Playlist.PlayLiveVideo(liveId, liveDesc.Program.Title);
+                                hohoemaApp.Playlist.PlayLiveVideo(liveId, liveTitle);
 
                                 DismissInAppNotification();
                             })
@@ -1115,7 +1117,7 @@ namespace NicoPlayerHohoema
                             Command = new DelegateCommand(() =>
                             {
                                 var pageManager = App.Current.Container.Resolve<PageManager>();
-                                pageManager.OpenPage(HohoemaPageType.LiveInfomation, liveDesc.Program.Id);
+                                pageManager.OpenPage(HohoemaPageType.LiveInfomation, liveId);
 
                                 DismissInAppNotification();
                             })
@@ -1124,7 +1126,7 @@ namespace NicoPlayerHohoema
                     }
             };
 
-            if (liveDesc.Program.IsCommunity)
+            if (liveDesc.VideoInfo.Community != null)
             {
                 payload.Commands.Add(new InAppNotificationCommand()
                 {
@@ -1132,7 +1134,7 @@ namespace NicoPlayerHohoema
                     Command = new DelegateCommand(() =>
                     {
                         var pageManager = App.Current.Container.Resolve<PageManager>();
-                        pageManager.OpenPage(HohoemaPageType.Community, liveDesc.Program.CommunityId);
+                        pageManager.OpenPage(HohoemaPageType.Community, liveDesc.VideoInfo.Community.GlobalId);
 
                         DismissInAppNotification();
                     })

@@ -20,6 +20,17 @@ namespace NicoPlayerHohoema.Models.Live.Niwavided
         public string ThreadId { get; set; }
     }
 
+    public static class NiwavidedNicoLiveMessageHelper
+    {
+        public static string MakeNiwavidedMessage(int messageCount, string content)
+        {
+            var rs = messageCount;
+            var ps = messageCount * 5;
+            var pf = messageCount * 5;
+            var rf = messageCount;
+            return $"[{{\"ping\":{{\"content\":\"rs:{rs}\"}}}},{{\"ping\":{{\"content\":\"ps:{ps}\"}}}},{content},{{\"ping\":{{\"content\":\"pf:{pf}\"}}}},{{\"ping\":{{\"content\":\"rf:{rf}\"}}}}]";
+        }
+    }
 
 
     public sealed class NiwavidedNicoLiveCommentClient : INicoLiveCommentClient, IDisposable
@@ -231,12 +242,7 @@ namespace NicoPlayerHohoema.Models.Live.Niwavided
         /// <returns></returns>
         private Task SendNiwavidedMessage(string content)
         {
-            var rs = _MessageSendCount;
-            var ps = _MessageSendCount * 5;
-            var pf = _MessageSendCount * 5;
-            var rf = _MessageSendCount;
-            var message = $"[{{\"ping\":{{\"content\":\"rs:{rs}\"}}}},{{\"ping\":{{\"content\":\"ps:{ps}\"}}}},{content},{{\"ping\":{{\"content\":\"pf:{pf}\"}}}},{{\"ping\":{{\"content\":\"rf:{rf}\"}}}}]";
-
+            var message = NiwavidedNicoLiveMessageHelper.MakeNiwavidedMessage(_MessageSendCount, content);
             return SendMessageAsync(message);
         }
 
@@ -255,6 +261,7 @@ namespace NicoPlayerHohoema.Models.Live.Niwavided
             
         }
 
+        
 
         /// <summary>
         /// コメントを送信する

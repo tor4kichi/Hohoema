@@ -142,7 +142,7 @@ namespace NicoPlayerHohoema.ViewModels
             var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
             var hohoemaDialogService = App.Current.Container.Resolve<HohoemaDialogService>();
 
-            var token = await hohoemaApp.NiconicoContext.Live.GetReservationDeleteTokenAsync();
+            var token = await hohoemaApp.NiconicoContext.Live.GetReservationTokenAsync();
 
             if (token == null) { return isDeleted; }
 
@@ -374,8 +374,7 @@ namespace NicoPlayerHohoema.ViewModels
                     throw new Exception("Live not found. LiveId is " + LiveId);
                 }
 
-                LiveInfo = liveInfoResponse.VideoInfo;
-
+                var liveInfo = liveInfoResponse.VideoInfo;
                 {
                     _LiveTags.Clear();
 
@@ -383,9 +382,9 @@ namespace NicoPlayerHohoema.ViewModels
                         (x, type) => new LiveTagViewModel() { Tag = x, Type = type };
 
                     var tags = new[] {
-                        LiveInfo.Livetags.Category?.Tags.Select(x => ConvertToLiveTagVM(x, LiveTagType.Category)),
-                        LiveInfo.Livetags.Locked?.Tags.Select(x => ConvertToLiveTagVM(x, LiveTagType.Locked)),
-                        LiveInfo.Livetags.Free?.Tags.Select(x => ConvertToLiveTagVM(x, LiveTagType.Free)),
+                        liveInfo.Livetags.Category?.Tags.Select(x => ConvertToLiveTagVM(x, LiveTagType.Category)),
+                        liveInfo.Livetags.Locked?.Tags.Select(x => ConvertToLiveTagVM(x, LiveTagType.Locked)),
+                        liveInfo.Livetags.Free?.Tags.Select(x => ConvertToLiveTagVM(x, LiveTagType.Free)),
                     }
                     .SelectMany(x => x ?? Enumerable.Empty<LiveTagViewModel>());
 
@@ -399,6 +398,10 @@ namespace NicoPlayerHohoema.ViewModels
 
                 var reseevations = await HohoemaApp.NiconicoContext.Live.GetReservationsAsync();
                 _IsTsPreserved.Value = reseevations.Any(x => LiveId.EndsWith(x));
+
+                // タイムシフト視聴開始の判定処理のため_IsTsPreservedより後にLiveInfoを代入する
+                LiveInfo = liveInfo;
+
             }
             catch (Exception ex)
             {

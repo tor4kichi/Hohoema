@@ -69,7 +69,7 @@ namespace NicoPlayerHohoema.Models.Live
         AsyncLock _WebSocketLock = new AsyncLock();
         DataWriter _DataWriter;
 
-
+        private bool _IsWatchWithTimeshift => Props?.Program.Status == "ENDED";
 
         public event LiveStreamRecieveServerTimeHandler RecieveServerTime;
         public event LiveStreamRecievePermitHandler RecievePermit;
@@ -100,11 +100,9 @@ namespace NicoPlayerHohoema.Models.Live
             using (var releaser = await _WebSocketLock.LockAsync())
             {
                 Debug.WriteLine($"providerType: {Props.Program.ProviderType}");
-                var webSocketBaseUrl = Props.Program.ProviderType == "official" 
-                    ? "ws://a.live2.nicovideo.jp:2805/wsapi/v1/watch/" 
-                    : "ws://a.live2.nicovideo.jp:2805/unama/wsapi/v1/watch/";
-                var url = $"{webSocketBaseUrl}{broadcastId}?audience_token={audienceToken}";
-                await MessageWebSocket.ConnectAsync(new Uri(url));
+                Debug.WriteLine($"comment websocket url: {Props.Site.Relive.WebSocketUrl}");
+
+                await MessageWebSocket.ConnectAsync(new Uri(Props.Site.Relive.WebSocketUrl));
                 _DataWriter = new DataWriter(MessageWebSocket.OutputStream);
             }
 

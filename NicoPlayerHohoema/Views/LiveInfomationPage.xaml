@@ -228,9 +228,16 @@
 
                         <Button x:Name="DeleteTimeshiftButton"
                                 Content="タイムシフト予約済み" 
-                                Command="{Binding TogglePreserveTimeshift}"
                                 Visibility="{Binding IsShowDeleteTimeshiftButton.Value}"
-                                />
+                                >
+                            <Button.Flyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem Text="予約削除" Command="{Binding TogglePreserveTimeshift}"
+                                                    
+                                                    />
+                                </MenuFlyout>
+                            </Button.Flyout>
+                        </Button>
 
                     </StackPanel>
 

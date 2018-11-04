@@ -19,6 +19,9 @@ namespace NicoPlayerHohoema.Views
 {
     public sealed partial class LivePlayerPage : Page
     {
+        public TimeSpan ForwardSeekTime => TimeSpan.FromSeconds(30);
+        public TimeSpan PreviewSeekTime => TimeSpan.FromSeconds(-10);
+
         public LivePlayerPage()
         {
             this.InitializeComponent();

@@ -224,6 +224,7 @@
     <Compile Include="Models\Niconico\Live\LiveChatData.cs" />
     <Compile Include="Models\Niconico\Live\NicoLiveSubscriber.cs" />
     <Compile Include="Models\Niconico\Live\NiwavidedNicoLiveCommentClient.cs" />
+    <Compile Include="Models\Niconico\Live\NiwavidedNicoTimeshiftCommentClient.cs" />
     <Compile Include="Models\Niconico\Video\Comment\CommentCommandPermissionType.cs" />
     <Compile Include="Models\Niconico\CommentOpacityKind.cs" />
     <Compile Include="Models\Feed\FeedGroup.cs" />
