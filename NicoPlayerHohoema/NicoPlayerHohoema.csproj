@@ -178,6 +178,7 @@
     <Compile Include="Database\FeedDb.cs" />
     <Compile Include="Database\HohoemaLiteDbContext.cs" />
     <Compile Include="Database\NicoChannelInfo.cs" />
+    <Compile Include="Database\NicoLive.cs" />
     <Compile Include="Database\NicoVideo.cs" />
     <Compile Include="Database\NicoVideoOwner.cs" />
     <Compile Include="Database\SearchHistory.cs" />
@@ -359,6 +360,7 @@
     <Compile Include="ViewModels\RecommendPageViewModel.cs" />
     <Compile Include="ViewModels\SearchSummaryPageViewModel.cs" />
     <Compile Include="ViewModels\RankingCategoryPageViewModel.cs" />
+    <Compile Include="ViewModels\TimeshiftPageViewModel.cs" />
     <Compile Include="ViewModels\WatchHistoryPageViewModel.cs" />
     <Compile Include="ViewModels\HohoemaIncrementalSourceBase.cs" />
     <Compile Include="ViewModels\HohoemaListingPageItemBase.cs" />
@@ -436,6 +438,8 @@
     </Compile>
     <Compile Include="Views\Controls\TransientContainer\TransientContainer.cs" />
     <Compile Include="Views\Controls\TransientContainer\TransientContainer.Properties.cs" />
+    <Compile Include="Views\Converters\DateTimeToStringConverter.cs" />
+    <Compile Include="Views\Converters\ExpiredDateTimeToStringConverter.cs" />
     <Compile Include="Views\Converters\PageTypeToMaterialIconKind.cs" />
     <Compile Include="Views\Converters\SwipeSeekValueToTimeSpan.cs" />
     <Compile Include="Views\Converters\ToKMGTPEZYConverter.cs" />
@@ -465,7 +469,10 @@
     <Compile Include="Views\TemplateSelector\MenuSubPageTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\NullableTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\SearchTargetContentTemplateSelector.cs" />
-    <Compile Include="Views\TemplateSelector\ValueTemplateSelector.cs" />
+    <Compile Include="Views\TemplateSelector\ValueDataTemplateSelector.cs" />
+    <Compile Include="Views\TimeshiftPage.xaml.cs">
+      <DependentUpon>TimeshiftPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\_CommentRenderer\CommentRendererCompositionUI.xaml.cs">
       <DependentUpon>CommentRendererCompositionUI.xaml</DependentUpon>
     </Compile>
@@ -891,6 +898,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\RankingCategoryPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\TimeshiftPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

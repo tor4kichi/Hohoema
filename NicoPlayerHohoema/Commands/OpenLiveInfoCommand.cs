@@ -13,7 +13,7 @@ namespace NicoPlayerHohoema.Commands
     {
         protected override bool CanExecute(object parameter)
         {
-            return parameter is string;
+            return parameter is string || parameter is Interfaces.ILiveContent;
         }
 
         protected override void Execute(object parameter)
@@ -24,6 +24,11 @@ namespace NicoPlayerHohoema.Commands
             {
                 var pageManager = App.Current.Container.Resolve<Models.PageManager>();
                 pageManager.OpenPage(NicoPlayerHohoema.Models.HohoemaPageType.LiveInfomation, liveId);
+            }
+            else if (parameter is Interfaces.ILiveContent liveContent)
+            {
+                var pageManager = App.Current.Container.Resolve<Models.PageManager>();
+                pageManager.OpenPage(NicoPlayerHohoema.Models.HohoemaPageType.LiveInfomation, liveContent.Id);
             }
         }
     }

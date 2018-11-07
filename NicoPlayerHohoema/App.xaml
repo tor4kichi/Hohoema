@@ -92,6 +92,9 @@
             <myconv:TransparentColorConverter x:Key="ToTransparentColor" />
             <myconv:SwipeSeekValueToTimeSpan x:Key="SwipeSeekValueToTimeSpan" />
 
+            <myconv:DateTimeToStringConverter x:Key="DateTimeToString" />
+            <myconv:ExpiredDateTimeToStringConverter x:Key="ExpiredDateTimeToString" />
+
             <myconv:NGCommentScoreTypeTemplateSelector x:Key="NGCommentScoreTypeTemplateSelector">
                 <myconv:NGCommentScoreTypeTemplateSelector.NoneTemplate>
                     <DataTemplate>

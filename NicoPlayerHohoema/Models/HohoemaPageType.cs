@@ -55,5 +55,6 @@ namespace NicoPlayerHohoema.Models
         EpilogueIntroduction,
 
         LiveInfomation,
+        Timeshift,
     }
 }

@@ -577,4 +577,69 @@
     <value>生放送情報</value>
     <comment>HohoemaPageType</comment>
   </data>
+  <data name="Timeshift" xml:space="preserve">
+    <value>タイムシフト</value>
+    <comment>HohoemaPageType</comment>
+  </data>
+  <data name="Expired_AllDayLong" xml:space="preserve">
+    <value>終日</value>
+    <comment>NiconicoLive reservation</comment>
+  </data>
+  <data name="Expired_Unlimited" xml:space="preserve">
+    <value>期限未指定または無制限</value>
+    <comment>NiconicoLive reservation</comment>
+  </data>
+  <data name="FIRST_WATCH" xml:space="preserve">
+    <value>未視聴</value>
+    <comment>ReservationStatus</comment>
+  </data>
+  <data name="PRODUCT_ARCHIVE_TIMEOUT" xml:space="preserve">
+    <value>視聴期間終了</value>
+    <comment>ReservationStatus</comment>
+  </data>
+  <data name="PRODUCT_ARCHIVE_WATCH" xml:space="preserve">
+    <value>視聴可能</value>
+    <comment>ReservationStatus</comment>
+  </data>
+  <data name="RESERVED" xml:space="preserve">
+    <value>予約済み</value>
+    <comment>ReservationStatus</comment>
+  </data>
+  <data name="TSARCHIVE" xml:space="preserve">
+    <value>視聴可能</value>
+    <comment>ReservationStatus</comment>
+  </data>
+  <data name="USER_TIMESHIFT_DATE_OUT" xml:space="preserve">
+    <value>視聴期間終了</value>
+    <comment>ReservationStatus</comment>
+  </data>
+  <data name="USE_LIMIT_DATE_OUT" xml:space="preserve">
+    <value>視聴期間終了（視聴権の期限切れ）</value>
+    <comment>ReservationStatus</comment>
+  </data>
+  <data name="WATCH" xml:space="preserve">
+    <value>視聴可能</value>
+    <comment>ReservationStatus</comment>
+  </data>
+  <data name="cancel" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
+  <data name="DeleteOutdatedReservationConfirm_Title" xml:space="preserve">
+    <value>期限切れタイムシフトの一括削除</value>
+    <comment>Delete Reserations. notice dialog Title.</comment>
+  </data>
+  <data name="DeleteReservationConfirmText" xml:space="preserve">
+    <value>以下のタイムシフト予約を削除します</value>
+    <comment>Delete Reserations. notice delete outdated reservation items. in below this text, show outdated reservation items title.</comment>
+  </data>
+  <data name="DeleteReservationConfirm_Agree" xml:space="preserve">
+    <value>タイムシフト予約を削除する</value>
+    <comment>Delete Reserations. agree deletion outdated reservation items</comment>
+  </data>
+  <data name="DeleteSelectedReservationConfirm_Title" xml:space="preserve">
+    <value>選択されたタイムシフトの一括削除</value>
+  </data>
+  <data name="DeletingReservations" xml:space="preserve">
+    <value>タイムシフトを削除しています</value>
+  </data>
 </root>

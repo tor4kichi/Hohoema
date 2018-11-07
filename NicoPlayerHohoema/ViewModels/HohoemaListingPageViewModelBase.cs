@@ -357,8 +357,11 @@ namespace NicoPlayerHohoema.ViewModels
                         (IncrementalLoadingItems.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error += HohoemaIncrementalSource_Error;
                     }
 
-                    ItemsView.Source = IncrementalLoadingItems;
+
+                    ItemsView = new AdvancedCollectionView(IncrementalLoadingItems);
+                    
                     RaisePropertyChanged(nameof(ItemsView));
+
 
                     PostResetList();
                 }
