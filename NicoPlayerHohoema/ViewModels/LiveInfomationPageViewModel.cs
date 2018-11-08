@@ -19,6 +19,8 @@ using Prism.Windows.Navigation;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using Microsoft.Practices.Unity;
+using System.Text.RegularExpressions;
+using Windows.System;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -69,6 +71,35 @@ namespace NicoPlayerHohoema.ViewModels
             private set { SetProperty(ref _LiveInfo, value); }
         }
 
+        // 放送説明
+        private Uri _HtmlDescription;
+        public Uri HtmlDescription
+        {
+            get { return _HtmlDescription; }
+            private set { SetProperty(ref _HtmlDescription, value); }
+        }
+
+        private DelegateCommand<object> _ScriptNotifyCommand;
+        public DelegateCommand<object> ScriptNotifyCommand
+        {
+            get
+            {
+                return _ScriptNotifyCommand
+                    ?? (_ScriptNotifyCommand = new DelegateCommand<object>(async (parameter) =>
+                    {
+                        Uri url = parameter as Uri ?? (parameter as HyperlinkItem)?.Url;
+                        if (url != null)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"script notified: {url}");
+
+                            if (false == PageManager.OpenPage(url))
+                            {
+                                await Launcher.LaunchUriAsync(url);
+                            }
+                        }
+                    }));
+            }
+        }
 
         // ログイン状態
         public IReadOnlyReactiveProperty<bool> IsPremiumAccount { get; }
@@ -340,7 +371,10 @@ namespace NicoPlayerHohoema.ViewModels
 
         }
 
-        
+        Regex GeneralUrlRegex = new Regex(@"https?:\/\/([a-zA-Z0-9.\/?=_-]*)");
+        public ObservableCollection<HyperlinkItem> DescriptionHyperlinkItems { get; } = new ObservableCollection<HyperlinkItem>();
+
+
         protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
             LiveId = null;
@@ -354,6 +388,92 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
             await RefreshLiveInfoAsync();
+
+            string htmlDescription = null;
+            try
+            {
+                 htmlDescription = await HohoemaApp.NiconicoContext.Live.GetDescriptionAsync(LiveId);
+            }
+            catch
+            {
+                Debug.WriteLine("gateページによるHtml Descriptionの取得に失敗。programInfoによる取得に切り替えて試行");
+            }
+
+            if (htmlDescription == null)
+            {
+                await Task.Delay(1000);
+
+                var programInfo = await HohoemaApp.NiconicoContext.Live.GetProgramInfoAsync(LiveId);
+                if (programInfo.IsOK)
+                {
+                    htmlDescription = programInfo.Data.Description;
+                    Debug.WriteLine("programInfoから放送説明HTML取得：Success");
+                }
+                else
+                {
+                    Debug.WriteLine("programInfoから放送説明HTML取得：Failed");
+                }
+            }
+
+            if (htmlDescription != null)
+            {
+                HtmlDescription = await Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(LiveId, htmlDescription);
+
+                try
+                {
+                    var htmlDocument = new HtmlAgilityPack.HtmlDocument();
+                    htmlDocument.LoadHtml(htmlDescription);
+                    var root = htmlDocument.DocumentNode;
+                    var anchorNodes = root.Descendants("a");
+
+                    foreach (var anchor in anchorNodes)
+                    {
+                        var url =  new Uri(anchor.Attributes["href"].Value);
+                        string label = null;
+                        var text = anchor.InnerText;
+                        if (string.IsNullOrWhiteSpace(text) || text.Contains('\n') || text.Contains('\r'))
+                        {
+                            label = url.OriginalString;
+                        }
+                        else
+                        {
+                            label = new string(anchor.InnerText.TrimStart(' ', '\n', '\r').TakeWhile(c => c != ' ' || c != '　').ToArray());
+                        }                            
+
+                        DescriptionHyperlinkItems.Add(new HyperlinkItem()
+                        {
+                            Label =  label,
+                            Url = url
+                        });
+
+                        Debug.WriteLine($"{anchor.InnerText} : {anchor.Attributes["href"].Value}");
+                    }
+
+                    /*
+                    var matches = GeneralUrlRegex.Matches(HtmlDescription);
+                    foreach (var match in matches.Cast<Match>())
+                    {
+                        if (!VideoDescriptionHyperlinkItems.Any(x => x.Url.OriginalString == match.Value))
+                        {
+                            VideoDescriptionHyperlinkItems.Add(new HyperlinkItem()
+                            {
+                                Label = match.Value,
+                                Url = new Uri(match.Value)
+                            });
+
+                            Debug.WriteLine($"{match.Value} : {match.Value}");
+                        }
+                    }
+                    */
+
+                    RaisePropertyChanged(nameof(DescriptionHyperlinkItems));
+
+                }
+                catch
+                {
+                    Debug.WriteLine("動画説明からリンクを抜き出す処理に失敗");
+                }
+            }
 
             await base.NavigatedToAsync(cancelToken, e, viewModelState);
         }
@@ -516,6 +636,20 @@ namespace NicoPlayerHohoema.ViewModels
     {
         public string Tag { get; set; }
         public LiveTagType Type { get; set; }
+
+        private static DelegateCommand<LiveTagViewModel> _SearchLiveTagCommand;
+        public DelegateCommand<LiveTagViewModel> SearchLiveTagCommand
+        {
+            get
+            {
+                return _SearchLiveTagCommand
+                    ?? (_SearchLiveTagCommand = new DelegateCommand<LiveTagViewModel>((tagVM) => 
+                    {
+                        var pageManager = App.Current.Container.Resolve<PageManager>();
+                        pageManager.SearchLive(tagVM.Tag, true, null, Order.Ascending, Mntone.Nico2.Searches.Live.NicoliveSearchSort.Recent, Mntone.Nico2.Searches.Live.NicoliveSearchMode.OnAir);
+                    }));
+            }
+        }
     }
 
 

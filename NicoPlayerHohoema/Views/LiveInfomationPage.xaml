@@ -34,6 +34,7 @@
                         <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
+                        <Setter Target="DescriptionHyperlinkItems.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -183,9 +184,10 @@
                 <VisualState>
                     <VisualState.StateTriggers>
                         <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                        
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-
+                        
 
                     </VisualState.Setters>
                 </VisualState>
@@ -300,15 +302,67 @@
                                        Style="{StaticResource SubtitleTextBlockStyle}"
                                        />
                                 
+                                
                                 <TextBox Text="{Binding LiveInfo.Video.Description}" 
                                  IsReadOnly="True"
                                  Background="Transparent"
                                      MaxWidth="800"
                                      TextWrapping="Wrap"
                                      AcceptsReturn="True"
+                                         Visibility="{Binding HtmlDescription, Converter={StaticResource NullToVisibility}}"
                                  />
 
+                                <WebView Source="{Binding HtmlDescription}"
+                                         Visibility="{Binding HtmlDescription, Converter={StaticResource NotNullToVisibility}}"
+                                         MinWidth="320"
+                                        DefaultBackgroundColor="Transparent"
+                                         >
+                                    <i:Interaction.Behaviors>
+                                        <mybehavior:WebViewNotifyUriClicked Command="{Binding ScriptNotifyCommand}"  />
+
+                                        <mybehavior:WebViewAutoResizeToContent />
+
+                                        <!-- WebViewでUINavigationControllerがハマるバグに対応する -->
+                                        <mybehavior:PreventSpoilerXYNavigationInWebView />
+                                    </i:Interaction.Behaviors>
+                                </WebView>
+
                             </StackPanel>
+
+                            <uwptoolkit:Expander IsExpanded="False"
+                                                 Visibility="Collapsed"
+                                      x:Name="DescriptionHyperlinkItems"
+                                                 >
+                                <uwptoolkit:Expander.HeaderTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Text="放送説明のリンク"
+                                               Style="{StaticResource SubtitleTextBlockStyle}"
+                                               />
+                                    </DataTemplate>
+                                </uwptoolkit:Expander.HeaderTemplate>
+                                <GridView ItemsSource="{Binding DescriptionHyperlinkItems, Mode=OneWay}"
+                                      uwpExtension:ListViewBase.Command="{Binding ScriptNotifyCommand}" 
+                                      IsItemClickEnabled="True"
+                                      HorizontalContentAlignment="Stretch"
+                                      SelectionMode="None"
+                            >
+                                    
+
+                                    <GridView.ItemTemplate>
+                                        <DataTemplate>
+                                            <TextBlock Text="{Binding Label}" />
+                                        </DataTemplate>
+                                    </GridView.ItemTemplate>
+
+                                    <GridView.ItemContainerStyle>
+                                        <Style TargetType="GridViewItem">
+                                            <Setter Property="Padding" Value="16 8" />
+                                            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                                        </Style>
+                                    </GridView.ItemContainerStyle>
+                                </GridView>
+                            </uwptoolkit:Expander>
+                            
 
                             <!-- タグ -->
                             <StackPanel>
@@ -341,7 +395,9 @@
                                         <templateselector:ValueDataTemplateSelector PropertyName="Type">
                                             <templateselector:ValueDataTemplate Value="{x:Bind vm:LiveTagType.Category}">
                                                 <DataTemplate x:DataType="vm:LiveTagViewModel">
-                                                    <Button>
+                                                    <Button Command="{Binding SearchLiveTagCommand}"
+                                                            CommandParameter="{Binding}"
+                                                            >
                                                         <StackPanel Orientation="Horizontal">
 
                                                             <iconPack:PackIconMaterial Kind="Lock" Height="16" Width="16" Margin="0 0 8 0" 
@@ -360,7 +416,9 @@
                                             </templateselector:ValueDataTemplate>
                                             <templateselector:ValueDataTemplate Value="{x:Bind vm:LiveTagType.Locked}">
                                                 <DataTemplate x:DataType="vm:LiveTagViewModel">
-                                                    <Button>
+                                                    <Button Command="{Binding SearchLiveTagCommand}"
+                                                            CommandParameter="{Binding}"
+                                                            >
                                                         <StackPanel Orientation="Horizontal">
 
                                                             <iconPack:PackIconMaterial Kind="Lock" Height="16" Width="16" Margin="0 0 8 0"
@@ -378,7 +436,9 @@
                                             </templateselector:ValueDataTemplate>
                                             <templateselector:ValueDataTemplate Value="{x:Bind vm:LiveTagType.Free}">
                                                 <DataTemplate x:DataType="vm:LiveTagViewModel">
-                                                    <Button>
+                                                    <Button Command="{Binding SearchLiveTagCommand}"
+                                                            CommandParameter="{Binding}"
+                                                            >
                                                         <TextBlock Text="{Binding Tag}" TextWrapping="Wrap"
                                                         />
                                                     </Button>
