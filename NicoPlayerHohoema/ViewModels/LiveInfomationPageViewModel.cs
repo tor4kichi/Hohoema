@@ -21,9 +21,16 @@ using Reactive.Bindings.Extensions;
 using Microsoft.Practices.Unity;
 using System.Text.RegularExpressions;
 using Windows.System;
+using NicoPlayerHohoema.Interfaces;
 
 namespace NicoPlayerHohoema.ViewModels
 {
+    public class LiveCommunityInfo : Interfaces.ICommunity
+    {
+        public string Id { get; set; }
+
+        public string Label { get; set; }
+    }
     public sealed class LiveInfomationPageViewModel : HohoemaViewModelBase, Interfaces.ILiveContent
     {
         // TODO: 視聴開始（会場後のみ、チャンネル会員限定やチケット必要な場合あり）
@@ -68,7 +75,13 @@ namespace NicoPlayerHohoema.ViewModels
         public VideoInfo LiveInfo
         {
             get { return _LiveInfo; }
-            private set { SetProperty(ref _LiveInfo, value); }
+            private set
+            {
+                if (SetProperty(ref _LiveInfo, value))
+                {
+                    LivePageUrl = _LiveInfo != null ? NiconicoUrls.LiveWatchPageUrl + LiveId : null;
+                }
+            }
         }
 
         // 放送説明
@@ -77,6 +90,30 @@ namespace NicoPlayerHohoema.ViewModels
         {
             get { return _HtmlDescription; }
             private set { SetProperty(ref _HtmlDescription, value); }
+        }
+
+
+        // コミュニティ放送者情報
+        private LiveCommunityInfo _Community;
+        public LiveCommunityInfo Community
+        {
+            get { return _Community; }
+            private set { SetProperty(ref _Community, value); }
+        }
+
+        private DateTime? _ExpiredTime;
+        public DateTime? ExpiredTime
+        {
+            get { return _ExpiredTime; }
+            private set { SetProperty(ref _ExpiredTime, value); }
+        }
+
+
+        private string _LivePageUrl;
+        public string LivePageUrl
+        {
+            get { return _LivePageUrl; }
+            private set { SetProperty(ref _LivePageUrl, value); }
         }
 
         private DelegateCommand<object> _ScriptNotifyCommand;
@@ -516,11 +553,19 @@ namespace NicoPlayerHohoema.ViewModels
                     RaisePropertyChanged(nameof(LiveTags));
                 }
 
-                var reseevations = await HohoemaApp.NiconicoContext.Live.GetReservationsAsync();
-                _IsTsPreserved.Value = reseevations.Any(x => LiveId.EndsWith(x));
+                var reseevations = await HohoemaApp.NiconicoContext.Live.GetReservationsInDetailAsync();
+                var thisLiveReservation = reseevations.ReservedProgram.FirstOrDefault(x => LiveId.EndsWith(x.Id));
+                if (thisLiveReservation != null)
+                {
+                    ExpiredTime = thisLiveReservation.ExpiredAt.LocalDateTime;
+                }
+
+                _IsTsPreserved.Value = thisLiveReservation != null;
 
                 // タイムシフト視聴開始の判定処理のため_IsTsPreservedより後にLiveInfoを代入する
                 LiveInfo = liveInfo;
+
+                Community = LiveInfo.Community != null ? new LiveCommunityInfo() { Id = LiveInfo.Community.GlobalId, Label = LiveInfo.Community.Name } : null;
 
             }
             catch (Exception ex)

@@ -213,12 +213,21 @@
                                 x:Name="ViewActionButtonsLayout"
                                 >
                         <Button x:Name="OpenLiveContentButton"
-                                Content="視聴開始"
                                 Style="{StaticResource AccentButtonStyle}" 
                                 Command="{StaticResource OpenContentCommand}"
                                 CommandParameter="{Binding}"
                                 Visibility="{Binding IsShowOpenLiveContentButton.Value}"
-                                />
+                                >
+                            <StackPanel>
+                                <TextBlock Text="視聴する" HorizontalAlignment="Center" />
+                                <TextBlock Visibility="{Binding ExpiredTime, Converter={StaticResource NotNullToVisibility}}"
+                                           Opacity="0.7"
+                                           >
+                                    (視聴期間 <Run Text="{Binding ExpiredTime, Converter={StaticResource ExpiredDateTimeToString}}" />)
+                                </TextBlock>
+                            </StackPanel>
+                        </Button>
+                                
                         
                         <Border Width="8" Height="16" />
 
@@ -241,6 +250,25 @@
                             </Button.Flyout>
                         </Button>
 
+                        <Border Width="8" Height="16" />
+
+                        <Button >
+                            <SymbolIcon Symbol="More" />
+                            
+                            <Button.Flyout>
+                                <MenuFlyout>
+                                    <MenuFlyoutItem Text="ブラウザで開く" Command="{StaticResource OpenLinkCommand}" CommandParameter="{Binding LivePageUrl}" />
+                                    <MenuFlyoutItem Text="共有" Command="{StaticResource ShareCommand}" CommandParameter="{Binding}" />
+                                    <MenuFlyoutSubItem Text="コピー..." >
+                                        <MenuFlyoutItem Text="リンクをコピー" Command="{StaticResource CopyToClipboardCommand}" CommandParameter="{Binding LivePageUrl}" />
+                                        <MenuFlyoutItem Text="放送IDをコピー" Command="{StaticResource CopyToClipboardCommand}" CommandParameter="{Binding LiveId}" />
+                                        <MenuFlyoutItem Text="共有文章をコピー" Command="{StaticResource CopyToClipboardCommand}" CommandParameter="{Binding}" />
+                                    </MenuFlyoutSubItem>
+                                </MenuFlyout>
+                            </Button.Flyout>
+                        </Button>
+
+
                     </StackPanel>
 
                     
@@ -258,13 +286,14 @@
                     
                     <toolkit:DockPanel Margin="0 0 0 32">
 
-                        <StackPanel toolkit:DockPanel.Dock="Bottom" Margin="0 0">
-                            <TextBlock>
-                                    放送時間 <Run Text="{Binding LiveInfo.Video.OpenTime}" />  <Run Text="{Binding LiveInfo.Video.EndTime}" />
+                        <StackPanel toolkit:DockPanel.Dock="Bottom" Margin="16 0">
+                            <TextBlock Opacity="0.7" >
+                                開始 <Run Text="{Binding LiveInfo.Video.OpenTime, Converter={StaticResource DateTimeToString}}" /><LineBreak />
+                                終了 <Run Text="{Binding LiveInfo.Video.EndTime, Converter={StaticResource DateTimeToString}}" /> 
                             </TextBlock>
                         </StackPanel>
 
-                        <Border Height="16" toolkit:DockPanel.Dock="Bottom" />
+                        <Border Height="8" toolkit:DockPanel.Dock="Bottom" />
 
 
                         <TextBlock Text="{Binding LiveInfo.Video.Title}" 
@@ -508,9 +537,9 @@
                                 <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Top">
 
                                     <Button Content="コミュニティ詳細"
-                                            Command="{StaticResource OpenHohoemaPageCommand}"
-                                            CommandParameter="{Binding LiveInfo.Community.Id}"
-                                            Visibility="{Binding LiveInfo.Community, Converter={StaticResource NotNullToVisibility}}"
+                                            Command="{StaticResource OpenContentCommand}"
+                                            CommandParameter="{Binding Community}"
+                                            Visibility="{Binding Community, Converter={StaticResource NotNullToVisibility}}"
                                             />
 
                                 </StackPanel>
