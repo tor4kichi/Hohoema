@@ -687,7 +687,11 @@ namespace NicoPlayerHohoema.Models.Live
 			}
 		}
 
-	}
+        public void Seek(TimeSpan timeSpanFromOpenTime)
+        {
+            throw new NotSupportedException();
+        }
+    }
 
 	/// <summary>
 	/// ニコニコ生放送での送信用コメントデータ<br />

@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using NicoPlayerHohoema.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -98,36 +99,68 @@ namespace NicoPlayerHohoema.Models.Live.Niwavided
             }
         }
 
+        AsyncLock _ReOpenTimerLock = new AsyncLock();
+
+        private async Task ResetConnection(DateTime initialTime)
+        {
+            using (var releaser = await _ReOpenTimerLock.LockAsync())
+            {
+                StopReOpenTimer();
+
+                await CreateAndConnectWebSocket(new Uri(CommentSessionInfo.MessageServerUrl));
+
+                // オープンからスタートまでのコメントをざっくり取得
+                await SendStartMessage_Timeshift(-30, initialTime);
+                _NextTime = initialTime + TimeSpan.FromSeconds(90);
+
+                // 次のコメント取得の準備
+                StartReOpenTimer();
+
+                await Task.Delay(TimeSpan.FromSeconds(1));
+
+                Close();
+            }
+        }
+
         public async void Open()
         {
-            await CreateAndConnectWebSocket(new Uri(CommentSessionInfo.MessageServerUrl));
-
-            // オープンからスタートまでのコメントをざっくり取得
-           await SendStartMessage_Timeshift(-200, StartTime);
-            _NextTime = StartTime + TimeSpan.FromSeconds(90);
-
-            // 次のコメント取得の準備
-            StartReOpenTimer();
-
-            await Task.Delay(TimeSpan.FromSeconds(1));
-            Close();
+            await ResetConnection(StartTime.LocalDateTime);
         }
+
+
+        public async void Seek(TimeSpan timeSpan)
+        {
+            await ResetConnection(StartTime.LocalDateTime + timeSpan);
+        }
+
 
         Timer _ReOpenTimer;
 
         private void StartReOpenTimer()
         {
+            if (_ReOpenTimer != null)
+            {
+                _ReOpenTimer.Dispose();
+                _ReOpenTimer = null;
+            }
+
             _ReOpenTimer = new Timer(async _ => 
             {
-                await CreateAndConnectWebSocket(new Uri(CommentSessionInfo.MessageServerUrl));
+                using (var releaser = await _ReOpenTimerLock.LockAsync())
+                {
+                    await CreateAndConnectWebSocket(new Uri(CommentSessionInfo.MessageServerUrl));
 
-                await SendStartMessage_Timeshift(_LastRes + 1, _NextTime);
+                    await SendStartMessage_Timeshift(_LastRes + 1, _NextTime);
 
-                _NextTime = _NextTime + TimeSpan.FromSeconds(85);
+                    _NextTime = _NextTime + TimeSpan.FromSeconds(85);
+                }
 
                 await Task.Delay(TimeSpan.FromSeconds(5));
 
-                Close();
+                using (var releaser = await _ReOpenTimerLock.LockAsync())
+                {
+                    Close();
+                }
             }
             , null
             , TimeSpan.FromSeconds(5)
@@ -304,7 +337,7 @@ namespace NicoPlayerHohoema.Models.Live.Niwavided
             }
         }
 
-
+        
         public void PostComment(string comment, string command, string postKey, TimeSpan elapsedTime)
         {
             throw new NotSupportedException("it's timeshift, can not posting comment.");

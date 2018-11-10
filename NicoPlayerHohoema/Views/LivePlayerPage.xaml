@@ -145,8 +145,6 @@
                         <myTrigger:EqualConditionStateTrigger Condition="NotLogin" Value="{Binding LiveStatusType}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="PauseButton.Visibility" Value="Visible" />
-                        <Setter Target="CO_PauseButton.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
 
@@ -207,11 +205,25 @@
                         <StateTrigger IsActive="{Binding NowPlaying.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="PauseButton.Visibility" Value="Visible" />
-                        <Setter Target="CO_PauseButton.Visibility" Value="Visible" />
+                        <Setter Target="PlayPauseToggleButton.Visibility" Value="Visible" />
+                        <Setter Target="CO_PlayPauseToggleButton.Visibility" Value="Visible" />
+
+                        <Setter Target="PlayPauseButtonIcon.Kind" Value="Pause" />
+                        <Setter Target="CO_PlayPauseButtonIcon.Kind" Value="Pause" />
                     </VisualState.Setters>
                 </VisualState>
-                
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsWatchWithTimeshift.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PlayPauseToggleButton.Visibility" Value="Visible" />
+                        <Setter Target="CO_PlayPauseToggleButton.Visibility" Value="Visible" />
+
+                    </VisualState.Setters>
+                </VisualState>
+
                 <!-- ストリームの再開 -->
                 <VisualState>
                     <VisualState.StateTriggers>
@@ -235,11 +247,14 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="WhenTimeshiftIgnoreCommentLayout.Visibility" Value="Visible" />
-                        <!-- タイムシフトのシーク未実装につきコメントアウト
+                        <!-- タイムシフトのシーク未実装につきコメントアウト-->
                         <Setter Target="PreviewVideoPositionButon.Visibility" Value="Visible" />
                         <Setter Target="ForwardVideoPositionButon.Visibility" Value="Visible" />                        
-                        -->
+                        
                         <Setter Target="WatchWithTimeshiftText.Visibility" Value="Visible" />
+
+                        <Setter Target="SeekBarSlider.Visibility" Value="Visible" />
+                        
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -1457,6 +1472,29 @@
                                     </Border>
 
 
+                                    <!-- タイムシフト時のシークバー -->
+                                    <Border Background="{StaticResource HohoemaPlayerBackgroundBrush}"
+>
+                                        <Slider x:Name="SeekBarSlider"
+                                                Minimum="0.0" 
+                                                Maximum="{Binding MaxSeekablePosition.Value}"
+                                                Value="{Binding SeekBarTimeshiftPosition.Value, Mode=TwoWay}"
+                                                Style="{StaticResource VideoProgressBarStyle}"
+                                                Padding="0 16 0 8"
+                                                StepFrequency="0.1"
+                                                LargeChange="30"
+                                                SmallChange="5"
+                                                IsThumbToolTipEnabled="True"
+                                                ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch"
+                                                VerticalAlignment="Center"
+                                                Opacity="0.75"
+                                                Visibility="Collapsed"
+                                             />
+
+                                    </Border>
+                                    
 
 
                                     <!-- 再生コントロール -->
@@ -1588,27 +1626,30 @@
 
                                             </Button>
 
+                                            <Button x:Name="PlayPauseToggleButton"
+                                              Command="{Binding TogglePlayPauseCommand}"
+                                              VerticalAlignment="Stretch"
+                                              Background="Transparent"
+                                                Visibility="Collapsed"
+                                                    Opacity="1.0"
+                                              >
+                                                <iconPack:PackIconMaterial x:Name="PlayPauseButtonIcon" Kind="Play" Width="24" Height="24"
+                                                                           Opacity="1.0"
+                                                                           />
+                                            </Button>
+
+                                            
                                             <!-- 更新 -->
                                             <Button x:Name="RefreshButton"
                                               Command="{Binding RefreshCommand}"
                                               VerticalAlignment="Stretch"
-                                              UseSystemFocusVisuals="True"
                                               Background="Transparent"
                                                 Visibility="Collapsed"
                                               >
                                                 <SymbolIcon Symbol="Refresh" />
                                             </Button>
 
-                                            <Button x:Name="PauseButton"
-                                              Command="{Binding PauseCommand}"
-                                              VerticalAlignment="Stretch"
-                                              UseSystemFocusVisuals="True"
-                                              Background="Transparent"
-                                                Visibility="Collapsed"
-                                              >
-                                                <iconPack:PackIconMaterial Kind="Pause" Width="24" Height="24" />
-                                            </Button>
-
+                                            
 
                                             <Button x:Name="ForwardVideoPositionButon"
                                                         Background="Transparent"
@@ -1906,14 +1947,16 @@
                                                 <SymbolIcon Symbol="Refresh" />
                                             </Button>
 
-                                            <Button x:Name="CO_PauseButton"
-                                              Command="{Binding PauseCommand}"
+                                            <Button x:Name="CO_PlayPauseToggleButton"
+                                              Command="{Binding TogglePlayPauseCommand}"
                                               VerticalAlignment="Stretch"
                                               UseSystemFocusVisuals="True"
                                               Background="Transparent"
                                                 Visibility="Collapsed"
                                               >
-                                                <iconPack:PackIconMaterial Kind="Pause" Width="24" Height="24" />
+                                                <iconPack:PackIconMaterial Kind="Play" Width="24" Height="24"
+                                                                           x:Name="CO_PlayPauseButtonIcon"
+                                                                           />
                                             </Button>
 
 

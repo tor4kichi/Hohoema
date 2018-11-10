@@ -369,6 +369,8 @@ namespace NicoPlayerHohoema.Models.Live
             }
             catch { }
 
+            TimeshiftPosition = LiveInfo.VideoInfo.Video.StartTime - LiveInfo.VideoInfo.Video.OpenTime;
+
             // タイムシフトでの視聴かつタイムシフトの視聴予約済みかつ視聴権が未取得の場合は
             // 視聴権の使用を確認する
             if (_TimeshiftProgram?.GetReservationStatus() == Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus.FIRST_WATCH)
@@ -384,9 +386,12 @@ namespace NicoPlayerHohoema.Models.Live
                 if (result)
                 {
                     var token = await HohoemaApp.NiconicoContext.Live.GetReservationTokenAsync();
+
+                    await Task.Delay(1000);
+
                     await HohoemaApp.NiconicoContext.Live.UseReservationAsync(_TimeshiftProgram.Id, token);
 
-                    await Task.Delay(500);
+                    await Task.Delay(1000);
 
                     // タイムシフト予約一覧を更新
                     // 視聴権利用を開始したアイテムがFIRST_WATCH以外の視聴可能を示すステータスになっているはず
@@ -537,6 +542,15 @@ namespace NicoPlayerHohoema.Models.Live
             private set { SetProperty(ref _CurrentQuality, value); }
         }
 
+
+        private TimeSpan? _TimeshiftPosition;
+        public TimeSpan? TimeshiftPosition
+        {
+            get { return _TimeshiftPosition; }
+            set { SetProperty(ref _TimeshiftPosition, value); }
+        }
+
+
         public string[] Qualities { get; private set; }
 
         bool _IsLowLatency;
@@ -586,6 +600,19 @@ namespace NicoPlayerHohoema.Models.Live
         }
 
 
+        private static string MakeSeekedHLSUri(string hlsUri, TimeSpan position)
+        {
+            if (position > TimeSpan.FromSeconds(1))
+            {
+                return hlsUri += $"&start={position.TotalSeconds.ToString("F2")}";
+            }
+            else
+            {
+                return hlsUri;
+            }
+        }
+
+
         private async Task RefreshLeoPlayer()
         {
             if (_HLSUri == null) { return; }
@@ -601,26 +628,30 @@ namespace NicoPlayerHohoema.Models.Live
 
                 try
                 {
-                    var amsCreateResult = await AdaptiveMediaSource.CreateFromUriAsync(new Uri(_HLSUri), HohoemaApp.NiconicoContext.HttpClient);
+                    // 視聴開始後にスタート時間に自動シーク
+                    string hlsUri = _HLSUri;
+                    if (TimeshiftPosition != null)
+                    {
+                        hlsUri = MakeSeekedHLSUri(_HLSUri, TimeshiftPosition.Value);
+#if DEBUG
+                        Debug.WriteLine(hlsUri);
+#endif
+                    }
+
+                    var amsCreateResult = await AdaptiveMediaSource.CreateFromUriAsync(new Uri(hlsUri), HohoemaApp.NiconicoContext.HttpClient);
                     if (amsCreateResult.Status == AdaptiveMediaSourceCreationStatus.Success)
                     {
                         var ams = amsCreateResult.MediaSource;
-
                         _MediaSource = MediaSource.CreateFromAdaptiveMediaSource(ams);
                         _AdaptiveMediaSource = ams;
                     }
 
                     MediaPlayer.Source = _MediaSource;
-
-                    // 視聴開始後にスタート時間に自動シーク
-                    // ただ 0.14.x 時点ではPositionに新しい値を入れても反映されない
+                    
+                    // タイムシフトで見ている場合はコメントのシークも行う
                     if (IsWatchWithTimeshift)
                     {
-                        var pos = LiveInfo.VideoInfo.Video.StartTime - LiveInfo.VideoInfo.Video.OpenTime;
-                        if (pos != null)
-                        {
-                            MediaPlayer.PlaybackSession.Position = pos.Value;
-                        }
+                        _NicoLiveCommentClient.Seek(TimeshiftPosition.Value);
                     }
                 }
                 catch (Exception ex)
@@ -702,10 +733,13 @@ namespace NicoPlayerHohoema.Models.Live
 
                 // コメントの受信処理と映像のオープンが被ると
                 // 自動再生が失敗する？ので回避のため数秒遅らせる
+                // タイムシフトコメントはStartTimeへのシーク後に取得されることを想定して
+                if (!(_NicoLiveCommentClient is Niwavided.NiwavidedNicoTimeshiftCommentClient))
+                {
+                    _NicoLiveCommentClient.Open();
 
-                _NicoLiveCommentClient.Open();
-
-                await Task.Delay(500);
+                    await Task.Delay(500);
+                }
 
                 await RefreshLeoPlayer();
             }

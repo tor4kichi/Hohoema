@@ -308,5 +308,11 @@ namespace NicoPlayerHohoema.Models.Live.Niwavided
 
 
         #endregion
+
+
+        public void Seek(TimeSpan timeSpanFromOpenTime)
+        {
+            throw new NotSupportedException();
+        }
     }
 }
