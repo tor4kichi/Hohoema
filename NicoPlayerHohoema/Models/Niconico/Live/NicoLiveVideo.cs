@@ -387,11 +387,15 @@ namespace NicoPlayerHohoema.Models.Live
                 {
                     var token = await HohoemaApp.NiconicoContext.Live.GetReservationTokenAsync();
 
-                    await Task.Delay(1000);
+                    await Task.Delay(500);
 
                     await HohoemaApp.NiconicoContext.Live.UseReservationAsync(_TimeshiftProgram.Id, token);
 
-                    await Task.Delay(1000);
+                    await Task.Delay(250);
+
+                    await HohoemaApp.Relogin();
+
+                    await Task.Delay(500);
 
                     // タイムシフト予約一覧を更新
                     // 視聴権利用を開始したアイテムがFIRST_WATCH以外の視聴可能を示すステータスになっているはず
