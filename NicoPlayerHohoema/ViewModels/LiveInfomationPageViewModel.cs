@@ -594,15 +594,12 @@ namespace NicoPlayerHohoema.ViewModels
                     var ichibaResponse = await HohoemaApp.NiconicoContext.Embed.GetIchiba(LiveInfo.Video.Id);
                     if (ichibaResponse != null)
                     {
-                        var mainIchiba = ichibaResponse.GetMainIchibaItems() ?? new List<IchibaItem>();
-
-                        foreach (var ichibaItem in mainIchiba)
+                        foreach (var ichibaItem in ichibaResponse.GetMainIchibaItems() ?? Enumerable.Empty<IchibaItem>())
                         {
                             _IchibaItems.Add(ichibaItem);
                         }
 
-                        var pickupIchiba = ichibaResponse.GetPickupIchibaItems() ?? new List<IchibaItem>();
-                        foreach (var ichibaItem in mainIchiba)
+                        foreach (var ichibaItem in ichibaResponse.GetPickupIchibaItems() ?? Enumerable.Empty<IchibaItem>())
                         {
                             _IchibaItems.Add(ichibaItem);
                         }
