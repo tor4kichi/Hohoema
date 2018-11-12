@@ -38,7 +38,10 @@ namespace NicoPlayerHohoema.ViewModels
                     RankingCategory.dance,
                     RankingCategory.play,
                     RankingCategory.vocaloid,
-                    RankingCategory.nicoindies
+                    RankingCategory.nicoindies,
+                    RankingCategory.asmr,
+                    RankingCategory.mmd,
+                    RankingCategory.Virtual,
                 },
                 new List<RankingCategory>()
                 {
@@ -51,6 +54,7 @@ namespace NicoPlayerHohoema.ViewModels
                     RankingCategory.lecture,
                     RankingCategory.drive,
                     RankingCategory.history,
+                    RankingCategory.train,
                 },
                 new List<RankingCategory>()
                 {
@@ -74,6 +78,7 @@ namespace NicoPlayerHohoema.ViewModels
                     RankingCategory.imas,
                     RankingCategory.radio,
                     RankingCategory.draw,
+                    RankingCategory.trpg,
                 },
                 new List<RankingCategory>()
                 {
@@ -121,13 +126,20 @@ namespace NicoPlayerHohoema.ViewModels
                 items.SortDescriptions.Add(new SortDescription("IsFavorit", SortDirection.Descending));
                 items.SortDescriptions.Add(new SortDescription("Category", SortDirection.Ascending));
 
+                var highPriCat = HohoemaApp.UserSettings.RankingSettings.HighPriorityCategory;
+                var lowPriCat = HohoemaApp.UserSettings.RankingSettings.LowPriorityCategory;
                 foreach (var i in HohoemaApp.UserSettings.RankingSettings.HighPriorityCategory)
                 {
                     items.Add(new CategoryWithFav() { Category = i.Category, IsFavorit = true });
                 }
-                foreach (var i in HohoemaApp.UserSettings.RankingSettings.MiddlePriorityCategory)
+
+                var middleRankingCategories = Enum.GetValues(typeof(RankingCategory)).Cast<RankingCategory>()
+                    .Where(x => !highPriCat.Any(h => x == h.Category))
+                    .Where(x => !lowPriCat.Any(l => x == l.Category))
+                    ;
+                foreach (var category in middleRankingCategories)
                 {
-                    items.Add(new CategoryWithFav() { Category = i.Category });
+                    items.Add(new CategoryWithFav() { Category = category });
                 }
                 items.Refresh();
 
@@ -149,6 +161,8 @@ namespace NicoPlayerHohoema.ViewModels
                     _RankingSettings.AddFavoritCategory(cat.Category);
                 }
 
+                await _RankingSettings.Save();
+
                 ResetRankingCategoryItems();
             });
 
@@ -160,13 +174,19 @@ namespace NicoPlayerHohoema.ViewModels
                 items.SortDescriptions.Add(new SortDescription("IsFavorit", SortDirection.Descending));
                 items.SortDescriptions.Add(new SortDescription("Category", SortDirection.Ascending));
 
-                foreach (var i in HohoemaApp.UserSettings.RankingSettings.LowPriorityCategory)
+                var highPriCat = HohoemaApp.UserSettings.RankingSettings.HighPriorityCategory;
+                var lowPriCat = HohoemaApp.UserSettings.RankingSettings.LowPriorityCategory;
+                foreach (var i in lowPriCat)
                 {
                     items.Add(new CategoryWithFav() { Category = i.Category, IsFavorit = true });
                 }
-                foreach (var i in HohoemaApp.UserSettings.RankingSettings.MiddlePriorityCategory)
+                var middleRankingCategories = Enum.GetValues(typeof(RankingCategory)).Cast<RankingCategory>()
+                    .Where(x => !highPriCat.Any(h => x == h.Category))
+                    .Where(x => !lowPriCat.Any(l => x == l.Category))
+                    ;
+                foreach (var category in middleRankingCategories)
                 {
-                    items.Add(new CategoryWithFav() { Category = i.Category });
+                    items.Add(new CategoryWithFav() { Category = category });
                 }
                 items.Refresh();
 
@@ -187,6 +207,8 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     _RankingSettings.AddDislikeCategory(cat.Category);
                 }
+
+                await _RankingSettings.Save();
 
                 ResetRankingCategoryItems();
             });

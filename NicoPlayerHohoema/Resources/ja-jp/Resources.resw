@@ -642,4 +642,24 @@
   <data name="DeletingReservations" xml:space="preserve">
     <value>タイムシフトを削除しています</value>
   </data>
+  <data name="asmr" xml:space="preserve">
+    <value>ASMR</value>
+    <comment>RankingCategory</comment>
+  </data>
+  <data name="mmd" xml:space="preserve">
+    <value>MMD</value>
+    <comment>RankingCategory</comment>
+  </data>
+  <data name="train" xml:space="preserve">
+    <value>鉄道</value>
+    <comment>RankingCategory</comment>
+  </data>
+  <data name="trpg" xml:space="preserve">
+    <value>TRPG</value>
+    <comment>RankingCategory</comment>
+  </data>
+  <data name="Virtual" xml:space="preserve">
+    <value>バーチャル</value>
+    <comment>RankingCategory</comment>
+  </data>
 </root>
