@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NicoPlayerHohoema.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -62,7 +63,7 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
             {
                 return VideoFlyoutTemplate;
             }
-            else if (item is ViewModels.LiveInfoViewModel)
+            else if (item is ILiveContent)
             {
                 return LiveFlyoutTemplate;
             }

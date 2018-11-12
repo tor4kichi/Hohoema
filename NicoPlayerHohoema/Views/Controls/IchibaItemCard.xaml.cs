@@ -13,16 +13,13 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
+// ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
-namespace NicoPlayerHohoema.Views
+namespace NicoPlayerHohoema.Views.Controls
 {
-    public sealed partial class LivePlayerPage : Page
+    public sealed partial class IchibaItemCard : UserControl
     {
-        public TimeSpan ForwardSeekTime => TimeSpan.FromSeconds(30);
-        public TimeSpan PreviewSeekTime => TimeSpan.FromSeconds(-10);
-
-        public LivePlayerPage()
+        public IchibaItemCard()
         {
             this.InitializeComponent();
         }

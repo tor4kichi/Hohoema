@@ -427,36 +427,7 @@
                                 </ListView.ItemsPanel>
                                 <ListView.ItemTemplate>
                                     <DataTemplate>
-                                        <HyperlinkButton NavigateUri="{Binding AmazonItemLink}"  >
-                                            <toolkit:DockPanel 
-                                                      Width="120"
-                                                      >
-
-                                                <Image Source="{Binding ThumbnailUrl}"
-                                                       Height="120"
-                                                       toolkit:DockPanel.Dock="Top"
-                                                       />
-
-                                                <Border VerticalAlignment="Bottom"
-                                                        Margin="8"
-                                                        >
-                                                    <Border.Background>
-                                                        <SolidColorBrush Color="{StaticResource SystemAltMediumColor}" />
-                                                    </Border.Background>
-                                                    <TextBlock Text="{Binding Title}" 
-                                                               TextWrapping="Wrap"
-                                                               FontSize="13"
-                                                               >
-                                                        <TextBlock.Foreground>
-                                                            <SolidColorBrush Color="{StaticResource SystemBaseMediumHighColor}" />
-                                                        </TextBlock.Foreground>
-                                                    </TextBlock>
-                                                </Border>
-
-                                            </toolkit:DockPanel>
-
-                                        </HyperlinkButton>
-
+                                        <controls:IchibaItemCard />
                                     </DataTemplate>
                                 </ListView.ItemTemplate>
                             </ListView>

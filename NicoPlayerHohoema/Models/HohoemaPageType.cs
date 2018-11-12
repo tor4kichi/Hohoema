@@ -53,5 +53,8 @@ namespace NicoPlayerHohoema.Models
         NicoAccountIntroduction,
         VideoCacheIntroduction,
         EpilogueIntroduction,
+
+        LiveInfomation,
+        Timeshift,
     }
 }

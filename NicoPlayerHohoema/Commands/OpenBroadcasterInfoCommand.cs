@@ -11,16 +11,14 @@ namespace NicoPlayerHohoema.Commands
     {
         protected override bool CanExecute(object parameter)
         {
-            return parameter is Interfaces.ILiveContent 
-                && !string.IsNullOrEmpty((parameter as Interfaces.ILiveContent).BroadcasterId);
+            return parameter is Interfaces.ILiveContent liveContent
+                && !string.IsNullOrEmpty(liveContent.BroadcasterId);
         }
 
         protected override void Execute(object parameter)
         {
-            if (parameter is Interfaces.ILiveContent)
+            if (parameter is Interfaces.ILiveContent content)
             {
-                var content = parameter as Interfaces.ILiveContent;
-
                 if (!string.IsNullOrEmpty(content.BroadcasterId))
                 {
                     var pageManager = HohoemaCommnadHelper.GetPageManager();

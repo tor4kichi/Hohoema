@@ -13,16 +13,16 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
+// 空白ページの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
 namespace NicoPlayerHohoema.Views
 {
-    public sealed partial class LivePlayerPage : Page
+    /// <summary>
+    /// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
+    /// </summary>
+    public sealed partial class TimeshiftPage : Page
     {
-        public TimeSpan ForwardSeekTime => TimeSpan.FromSeconds(30);
-        public TimeSpan PreviewSeekTime => TimeSpan.FromSeconds(-10);
-
-        public LivePlayerPage()
+        public TimeshiftPage()
         {
             this.InitializeComponent();
         }
