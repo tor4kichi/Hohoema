@@ -119,7 +119,8 @@ namespace NicoPlayerHohoema.Models.Live
                 var reservtionStatus = _TimeshiftProgram?.GetReservationStatus();
 
                 return reservtionStatus != null &&
-                    (reservtionStatus == Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus.WATCH ||
+                    (reservtionStatus == Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus.FIRST_WATCH ||
+                    reservtionStatus == Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus.WATCH ||
                     reservtionStatus == Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus.PRODUCT_ARCHIVE_WATCH ||
                     reservtionStatus == Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus.TSARCHIVE
                     );
@@ -377,9 +378,24 @@ namespace NicoPlayerHohoema.Models.Live
             {
                 var dialog = App.Current.Container.Resolve<Services.HohoemaDialogService>();
 
-                // TODO: 視聴権に関する詳細な情報提示
+
+                // 視聴権に関する詳細な情報提示
+
+                // 視聴権の利用期限は 24H＋放送時間 まで
+                // ただし公開期限がそれより先に来る場合には公開期限が視聴期限となる
+                var outdatedTime = DateTime.Now + (LiveInfo.VideoInfo.Video.EndTime - LiveInfo.VideoInfo.Video.StartTime) + TimeSpan.FromHours(24);
+                string desc = string.Empty;
+                if (outdatedTime > _TimeshiftProgram.ExpiredAt)
+                {
+                    outdatedTime = _TimeshiftProgram.ExpiredAt.LocalDateTime;
+                    desc = $"この放送のタイムシフト視聴を開始しますか？\r公開期限内に限って繰り返し視聴できます。\r\r公開期限：{_TimeshiftProgram.ExpiredAt.ToString("g")}";
+                }
+                else
+                {
+                    desc = $"この放送のタイムシフト視聴を開始しますか？\r視聴開始を起点に視聴期限が設定されます。視聴期限内に限って繰り返し視聴できます。\r\r推定視聴期限：{outdatedTime.Value.ToString("g")}";
+                }
                 var result = await dialog.ShowMessageDialog(
-                    "この放送のタイムシフト視聴を開始しますか？"
+                    desc
                     , _TimeshiftProgram.Title, "視聴する", "キャンセル"
                     );
 
@@ -391,11 +407,7 @@ namespace NicoPlayerHohoema.Models.Live
 
                     await HohoemaApp.NiconicoContext.Live.UseReservationAsync(_TimeshiftProgram.Id, token);
 
-                    await Task.Delay(250);
-
-                    await HohoemaApp.Relogin();
-
-                    await Task.Delay(500);
+                    await Task.Delay(3000);
 
                     // タイムシフト予約一覧を更新
                     // 視聴権利用を開始したアイテムがFIRST_WATCH以外の視聴可能を示すステータスになっているはず
