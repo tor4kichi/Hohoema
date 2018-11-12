@@ -557,7 +557,8 @@ namespace NicoPlayerHohoema.ViewModels
                 var thisLiveReservation = reseevations.ReservedProgram.FirstOrDefault(x => LiveId.EndsWith(x.Id));
                 if (thisLiveReservation != null)
                 {
-                    ExpiredTime = thisLiveReservation.ExpiredAt.LocalDateTime;
+                    var timeshiftList = await HohoemaApp.NiconicoContext.Live.GetMyTimeshiftListAsync();
+                    ExpiredTime = (timeshiftList.Items.FirstOrDefault(x => x.Id == LiveId)?.WatchTimeLimit ?? thisLiveReservation.ExpiredAt).LocalDateTime;
                 }
 
                 _IsTsPreserved.Value = thisLiveReservation != null;

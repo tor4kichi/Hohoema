@@ -203,6 +203,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override uint OneTimeLoadCount => 30;
 
+        Mntone.Nico2.Live.Reservation.MyTimeshiftListData _TimeshiftList;
 
         public TimeshiftIncrementalCollectionSource(NiconicoContentProvider contentProvider)
         {
@@ -214,6 +215,8 @@ namespace NicoPlayerHohoema.ViewModels
             var reservations = await _ContentProvider.Context.Live.GetReservationsInDetailAsync();
 
             _Reservations = reservations.ReservedProgram;
+
+            _TimeshiftList = await _ContentProvider.Context.Live.GetMyTimeshiftListAsync();
 
             return reservations.ReservedProgram.Count;
         }
@@ -247,11 +250,12 @@ namespace NicoPlayerHohoema.ViewModels
                 .Select(x =>
                 {
                     var liveData = NicoLiveDb.Get(x.Id);
+                    var tsItem = _TimeshiftList?.Items.FirstOrDefault(y => y.Id == x.Id);
                     return new TimeshiftItemViewModel()
                     {
                         Id = x.Id.StartsWith("lv") ? x.Id : "lv" + x.Id,
                         Title = x.Title,
-                        ExpiredAt = x.ExpiredAt,
+                        ExpiredAt = tsItem?.WatchTimeLimit ?? x.ExpiredAt,
                         ReservationStatus = x.GetReservationStatus() ?? throw new NotSupportedException(),
                         IsUnwatched = x.IsUnwatched,
                         StartTime = liveData?.StartTime ?? DateTime.MaxValue,
