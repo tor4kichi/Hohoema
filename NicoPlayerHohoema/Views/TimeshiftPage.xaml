@@ -303,7 +303,6 @@
                     <VisualState.Setters>
                         <Setter Target="UpdateButton.Visibility" Value="Collapsed" />
                         <Setter Target="ScrollToTopButton.Visibility" Value="Collapsed" />
-                        <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
 
                         <Setter Target="SelectedDeletionButton.Visibility" Value="Visible" />
 

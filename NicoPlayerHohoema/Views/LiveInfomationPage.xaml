@@ -35,6 +35,8 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="DescriptionHyperlinkItems.Visibility" Value="Visible" />
+                        <Setter Target="RootScrollViewer.Padding" Value="48 0 48 0" />
+                        <Setter Target="Pivot.Padding" Value="0 0 0 27" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -198,8 +200,9 @@
 
         </VisualStateManager.VisualStateGroups>
 
-        <ScrollViewer>
-            <toolkit:DockPanel toolkit:DockPanel.Dock="Top" Margin="8 0">
+        <ScrollViewer x:Name="RootScrollViewer" Padding="16 0">
+            <toolkit:DockPanel toolkit:DockPanel.Dock="Top" 
+                               Margin="0 0">
 
                 
 
@@ -207,7 +210,7 @@
                 <toolkit:DockPanel toolkit:DockPanel.Dock="Top" Margin="8">
 
                     <!-- 視聴開始などのボタン -->
-                    <StackPanel Orientation="Horizontal" 
+                    <uwptoolkit:WrapPanel Orientation="Horizontal" 
                                 VerticalAlignment="Center"
                                 toolkit:DockPanel.Dock="Bottom"
                                 x:Name="ViewActionButtonsLayout"
@@ -217,29 +220,30 @@
                                 Command="{StaticResource OpenContentCommand}"
                                 CommandParameter="{Binding}"
                                 Visibility="{Binding IsShowOpenLiveContentButton.Value}"
+                                Margin="0 0 8 0"
                                 >
                             <StackPanel>
                                 <TextBlock Text="視聴する" HorizontalAlignment="Center" />
                                 <TextBlock Visibility="{Binding ExpiredTime, Converter={StaticResource NotNullToVisibility}}"
-                                           Opacity="0.7"
+                                           Opacity="0.8"
                                            >
                                     (視聴期間 <Run Text="{Binding ExpiredTime, Converter={StaticResource ExpiredDateTimeToString}}" />)
                                 </TextBlock>
                             </StackPanel>
                         </Button>
                                 
-                        
-                        <Border Width="8" Height="16" />
-
+                       
                         <Button x:Name="AddTimeshiftButton"
                                 Content="タイムシフト予約" 
                                 Command="{Binding TogglePreserveTimeshift}"
                                 Visibility="{Binding IsShowAddTimeshiftButton.Value}"
+                                Margin="0 0 8 0"
                                 />
 
                         <Button x:Name="DeleteTimeshiftButton"
                                 Content="タイムシフト予約済み" 
                                 Visibility="{Binding IsShowDeleteTimeshiftButton.Value}"
+                                Margin="0 0 8 0"
                                 >
                             <Button.Flyout>
                                 <MenuFlyout>
@@ -249,8 +253,6 @@
                                 </MenuFlyout>
                             </Button.Flyout>
                         </Button>
-
-                        <Border Width="8" Height="16" />
 
                         <Button >
                             <SymbolIcon Symbol="More" />
@@ -269,7 +271,7 @@
                         </Button>
 
 
-                    </StackPanel>
+                    </uwptoolkit:WrapPanel>
 
                     
                     
@@ -309,7 +311,7 @@
 
                 
                 
-                <Pivot Margin="0 8 0 0" x:Name="Pivot">
+                <Pivot Margin="0 8 0 16" x:Name="Pivot">
 
                     <i:Interaction.Behaviors>
                         <!-- Value="2" is 市場(Ichiba) PivotItem. if reorder items, change with that Value correctly. -->
