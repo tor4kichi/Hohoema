@@ -271,6 +271,7 @@
                                 ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
                                 Background="Transparent"
                                 ScrollViewer.VerticalScrollMode="Disabled"
+                                  IsTabStop="False"
                                 />
 
                     <Border BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}" Opacity="0.3"
@@ -1045,6 +1046,11 @@
 
 
                                         <Pivot >
+                                            <Pivot.ItemContainerStyle>
+                                                <Style TargetType="PivotItem">
+                                                    <Setter Property="Margin" Value="0" />
+                                                </Style>
+                                            </Pivot.ItemContainerStyle>
 
                                             <PivotItem Header="動画"
                                                                Content="{Binding VideoMenu}"
