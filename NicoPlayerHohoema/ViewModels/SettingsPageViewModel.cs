@@ -73,6 +73,7 @@ namespace NicoPlayerHohoema.ViewModels
             HohoemaPageType.FeedGroupManage,
             HohoemaPageType.FollowManage,
             HohoemaPageType.UserMylist,
+            HohoemaPageType.Timeshift,
         };
 
         private DelegateCommand _ToggleFullScreenCommand;
