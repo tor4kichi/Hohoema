@@ -322,7 +322,7 @@
                 x:Name="ItemsList"
                 ItemsSource="{Binding ItemsView, Mode=OneWay}"
                 RefreshCommand="{Binding RefreshCommand}"
-                uwpExtensions:ListViewBase.Command="{StaticResource OpenLiveInfoCommand}"
+                uwpExtensions:ListViewBase.Command="{StaticResource OpenContentCommand}"
                 IsItemClickEnabled="True"
                 IncrementalLoadingTrigger="Edge"
                 PullThreshold="85"    
