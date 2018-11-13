@@ -243,7 +243,7 @@
 
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsWatchWithTimeshift.Value}" />
+                        <StateTrigger IsActive="{Binding IsWatchWithTimeshift.Value, Mode=OneWay}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="WhenTimeshiftIgnoreCommentLayout.Visibility" Value="Visible" />
@@ -254,7 +254,8 @@
                         <Setter Target="WatchWithTimeshiftText.Visibility" Value="Visible" />
 
                         <Setter Target="SeekBarSlider.Visibility" Value="Visible" />
-                        
+
+                        <Setter Target="SeekSwipe.IsEnabled" Value="True" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -654,6 +655,7 @@
                                >
 
                 <i:Interaction.Behaviors>
+                    
                     <!-- サイドペインのコンテンツVMが指定されたらサイドペインを開く -->
 
                     <!-- 条件に{x:Null}ではなく PlayerSidePaneContentType.None を指定しているのは
@@ -699,10 +701,20 @@
 
                 <Grid x:Name="MediaControl"
                   ContextFlyout="{StaticResource LivePlayerFlyout}"
+                      ManipulationMode="TranslateX"
                   >
 
                     <i:Interaction.Behaviors>
 
+                        <!-- 左右スワイプでシーク （タイムシフト視聴時のみ有効）-->
+                        <mybehavior:Swipe x:Name="SeekSwipe"
+                                              SwipeCommand="{Binding SeekVideoCommand}"
+                                              SwipeAmountConverter="{StaticResource SwipeSeekValueToTimeSpan}"
+                                              SwipeAmountScale="0.15"
+                                              SwipeEdgeOfPlay="48"
+                                          IsEnabled="False"
+                                              />
+                        
                         <!-- マウスの非表示 -->
                         <mybehavior:AutoHideCursor x:Name="AutoHideCursor"
                                 IsAutoHideEnabled="False"
@@ -1039,6 +1051,29 @@
                                         <TextBlock FontSize="20" VerticalAlignment="Center">
                                                 <Run Text="音量" />:
                                                 <Run Text="{Binding Converter={StaticResource ToUserFriendlySoubleVolume}}" FontSize="22" />%
+                                        </TextBlock>
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </controls:TransientContainer.ContentTemplate>
+                    </controls:TransientContainer>
+
+                    <!-- シーク表示 -->
+                    <controls:TransientContainer Content="{x:Bind SeekSwipe.SwipeAmount, Mode=OneWay}"
+                                                 HorizontalAlignment="Center"
+                                                 VerticalAlignment="Center"
+                                                 Margin="16"
+                                                     DisplayDuration="0:0:3"
+                                                 >
+                        <controls:TransientContainer.Background>
+                            <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}" />
+                        </controls:TransientContainer.Background>
+                        <controls:TransientContainer.ContentTemplate>
+                            <DataTemplate>
+                                <Grid Margin="16 2 16 4">
+                                    <Border>
+                                        <TextBlock FontSize="25" VerticalAlignment="Center" TextLineBounds="TrimToBaseline">
+                                                シーク: <Run Text="{Binding Converter={StaticResource TimeToMovieLengthConverter}}" />秒
                                         </TextBlock>
                                     </Border>
                                 </Grid>
