@@ -51,6 +51,7 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
+                        <Setter Target="RootScrollViewer.Padding" Value="8 0 8 0" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -183,6 +184,16 @@
 
             <!-- Xbox -->
             <VisualStateGroup>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Mobile" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        
+
+                    </VisualState.Setters>
+                </VisualState>
                 <VisualState>
                     <VisualState.StateTriggers>
                         <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
@@ -195,8 +206,40 @@
                 </VisualState>
 
             </VisualStateGroup>
-            
 
+            <!-- WebViewを使った放送説明の表示 -->
+            <VisualStateGroup>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Mobile" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+
+
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <myTrigger:EqualConditionStateTrigger Condition="{x:Null}" Value="{Binding HtmlDescription, Mode=OneWay}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        
+                    </VisualState.Setters>
+                </VisualState>
+
+                <VisualState>
+                    <VisualState.Setters>
+                        <Setter Target="LiveDescTextBox.Visibility" Value="Collapsed" />
+                        <Setter Target="LiveDescWebView.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+
+            </VisualStateGroup>
+
+
+            
             <!-- 生放送情報の読み込み状態 -->
             <VisualStateGroup>
                 <VisualState>
@@ -341,6 +384,13 @@
                         </core:DataTriggerBehavior>
                         
                     </i:Interaction.Behaviors>
+
+                    <Pivot.ItemContainerStyle>
+                        <Style TargetType="PivotItem">
+                            <Setter Property="Padding" Value="0" />
+                        </Style>
+                    </Pivot.ItemContainerStyle>
+                    
                     <PivotItem x:Name="LiveInfoPivotItem" Header="放送情報">
                         <StackPanel>
 
@@ -358,13 +408,13 @@
                                      MaxWidth="800"
                                      TextWrapping="Wrap"
                                      AcceptsReturn="True"
-                                         Visibility="{Binding HtmlDescription, Converter={StaticResource NullToVisibility}}"
+                                         x:Name="LiveDescTextBox"
                                  />
 
                                 <WebView Source="{Binding HtmlDescription}"
-                                         Visibility="{Binding HtmlDescription, Converter={StaticResource NotNullToVisibility}}"
-                                         MinWidth="320"
                                         DefaultBackgroundColor="Transparent"
+                                         x:Name="LiveDescWebView"
+                                         Visibility="Collapsed"
                                          >
                                     <i:Interaction.Behaviors>
                                         <mybehavior:WebViewNotifyUriClicked Command="{Binding ScriptNotifyCommand}"  />
