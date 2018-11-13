@@ -158,7 +158,8 @@ namespace NicoPlayerHohoema.Helpers
 
             request.Data.SetText(_ShareText);
 
-            request.Data.Properties.Title = "ニコニコ動画の共有";
+            request.Data.Properties.Title = "　";
+            request.Data.Properties.ApplicationName = "Hohoema";
 
             sender.DataRequested -= DataTransferManager_DataRequested;
         }
