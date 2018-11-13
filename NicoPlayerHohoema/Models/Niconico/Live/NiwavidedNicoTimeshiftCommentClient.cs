@@ -289,6 +289,8 @@ namespace NicoPlayerHohoema.Models.Live.Niwavided
                 {
                     Debug.WriteLine("Not Support");
                 }
+
+                await Task.Delay(1);
             }
         }
 
