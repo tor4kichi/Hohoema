@@ -88,7 +88,6 @@ namespace NicoPlayerHohoema.ViewModels
                     Label = "放送予定",
                     Mode = NicoliveSearchMode.Reserved
                 },
-                /*
 				new LiveSearchModeOptionListItem()
 				{
 					Label = "放送終了",
@@ -99,7 +98,6 @@ namespace NicoPlayerHohoema.ViewModels
 					Label = "すべて",
 					Mode = null
 				},
-                */
 			};
 
 
