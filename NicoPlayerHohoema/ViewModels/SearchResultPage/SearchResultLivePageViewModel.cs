@@ -249,7 +249,13 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (SearchOption == null)
             {
-                throw new Exception();
+                var oldOption = viewModelState[nameof(SearchOption)] as string;
+                SearchOption = PagePayloadBase.FromParameterString<LiveSearchPagePayloadContent>(oldOption);
+
+                if (SearchOption == null)
+                {
+                    throw new Exception();
+                }
             }
 
             _NowNavigatingTo = true;
@@ -263,6 +269,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             base.OnNavigatedTo(e, viewModelState);
+        }
+
+        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+        {
+            viewModelState[nameof(SearchOption)] = SearchOption.ToParameterString();
+
+            base.OnNavigatingFrom(e, viewModelState, suspending);
         }
 
         private void ResetSearchOptionText()

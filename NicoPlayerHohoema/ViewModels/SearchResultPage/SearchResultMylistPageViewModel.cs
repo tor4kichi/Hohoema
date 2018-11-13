@@ -159,7 +159,13 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (SearchOption == null)
             {
-                throw new Exception();
+                var oldOption = viewModelState[nameof(SearchOption)] as string;
+                SearchOption = PagePayloadBase.FromParameterString<MylistSearchPagePayloadContent>(oldOption);
+
+                if (SearchOption == null)
+                {
+                    throw new Exception();
+                }
             }
 
             SelectedSearchSort.Value = MylistSearchOptionListItems.FirstOrDefault(x => x.Order == SearchOption.Order && x.Sort == SearchOption.Sort);
@@ -181,10 +187,17 @@ namespace NicoPlayerHohoema.ViewModels
             base.OnNavigatedTo(e, viewModelState);
 		}
 
-		#region Implement HohoemaVideListViewModelBase
+        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+        {
+            viewModelState[nameof(SearchOption)] = SearchOption.ToParameterString();
+
+            base.OnNavigatingFrom(e, viewModelState, suspending);
+        }
+
+        #region Implement HohoemaVideListViewModelBase
 
 
-		protected override IIncrementalSource<IPlayableList> GenerateIncrementalSource()
+        protected override IIncrementalSource<IPlayableList> GenerateIncrementalSource()
 		{
 			return new MylistSearchSource(new MylistSearchPagePayloadContent()
             {

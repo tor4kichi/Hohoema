@@ -230,7 +230,13 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (SearchOption == null)
             {
-                throw new Exception("");
+                var oldOption = viewModelState[nameof(SearchOption)] as string;
+                SearchOption = PagePayloadBase.FromParameterString<KeywordSearchPagePayloadContent>(oldOption);
+
+                if (SearchOption == null)
+                {
+                    throw new Exception();
+                }
             }
 
 
@@ -251,11 +257,16 @@ namespace NicoPlayerHohoema.ViewModels
             base.OnNavigatedTo(e, viewModelState);
 		}
 
-		#region Implement HohoemaVideListViewModelBase
+        #region Implement HohoemaVideListViewModelBase
 
+        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+        {
+            viewModelState[nameof(SearchOption)] = SearchOption.ToParameterString();
 
+            base.OnNavigatingFrom(e, viewModelState, suspending);
+        }
 
-		protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
+        protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
 		{
             return new VideoSearchSource(SearchOption, HohoemaApp, PageManager);
 		}

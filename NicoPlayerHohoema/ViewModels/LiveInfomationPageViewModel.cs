@@ -515,11 +515,13 @@ namespace NicoPlayerHohoema.ViewModels
             await base.NavigatedToAsync(cancelToken, e, viewModelState);
         }
 
+        public ReactiveProperty<bool> IsLiveInfoLoaded { get; } = new ReactiveProperty<bool>(false);
         private async Task RefreshLiveInfoAsync()
         {
             IsLoadFailed.Value = false;
             LoadFailedMessage.Value = string.Empty;
 
+            IsLiveInfoLoaded.Value = false;
             try
             {
                 if (LiveId == null) { throw new Exception("Require LiveId in LiveInfomationPage navigation with (e.Parameter as string)"); }
@@ -573,6 +575,10 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 IsLoadFailed.Value = true;
                 LoadFailedMessage.Value = ex.Message;
+            }
+            finally
+            {
+                IsLiveInfoLoaded.Value = true;
             }
 
 

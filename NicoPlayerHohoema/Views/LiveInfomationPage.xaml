@@ -195,12 +195,28 @@
                 </VisualState>
 
             </VisualStateGroup>
+            
 
+            <!-- 生放送情報の読み込み状態 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsLiveInfoLoaded.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
 
+                        <Setter Target="RootScrollViewer.Visibility" Value="Visible" />
+
+                    </VisualState.Setters>
+                </VisualState>
+
+            </VisualStateGroup>
+
+            
 
         </VisualStateManager.VisualStateGroups>
 
-        <ScrollViewer x:Name="RootScrollViewer" Padding="16 0">
+        <ScrollViewer x:Name="RootScrollViewer" Visibility="Collapsed" Padding="16 0">
             <toolkit:DockPanel toolkit:DockPanel.Dock="Top" 
                                Margin="0 0">
 

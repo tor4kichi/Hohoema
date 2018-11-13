@@ -204,7 +204,15 @@ namespace NicoPlayerHohoema.ViewModels
             base.OnNavigatedTo(e, viewModelState);
 		}
 
-		protected override IIncrementalSource<CommunityInfoControlViewModel> GenerateIncrementalSource()
+        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+        {
+            viewModelState[nameof(SearchOption)] = SearchOption.ToParameterString();
+
+            base.OnNavigatingFrom(e, viewModelState, suspending);
+        }
+
+
+        protected override IIncrementalSource<CommunityInfoControlViewModel> GenerateIncrementalSource()
 		{
 			return new CommunitySearchSource(new CommunitySearchPagePayloadContent()
             {
