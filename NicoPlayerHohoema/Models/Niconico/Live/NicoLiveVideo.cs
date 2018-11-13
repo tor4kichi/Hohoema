@@ -577,10 +577,17 @@ namespace NicoPlayerHohoema.Models.Live
             {
                 if (CurrentQuality == quality && _IsLowLatency == isLowLatency) { return; }
 
+                if (IsWatchWithTimeshift)
+                {
+                    _LiveComments.Clear();
+                    TimeshiftPosition = (TimeshiftPosition ?? TimeSpan.Zero) + MediaPlayer.PlaybackSession.Position;
+                }
+
                 MediaPlayer.Source = null;
 
                 RequestQuality = quality;
                 _IsLowLatency = isLowLatency;
+
                 await Live2WebSocket.SendChangeQualityMessageAsync(quality, isLowLatency);
             }
         }
@@ -667,6 +674,7 @@ namespace NicoPlayerHohoema.Models.Live
                     // タイムシフトで見ている場合はコメントのシークも行う
                     if (IsWatchWithTimeshift)
                     {
+                        _LiveComments.Clear();
                         _NicoLiveCommentClient.Seek(TimeshiftPosition.Value);
                     }
                 }
@@ -1083,7 +1091,9 @@ namespace NicoPlayerHohoema.Models.Live
         private async void _NicoLiveCommentClient_CommentRecieved(object sender, CommentRecievedEventArgs e)
         {
             var chat = e.Chat;
-            
+
+            Debug.Write(chat.Content + "|");
+
             await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, () =>
             {
                 _LiveComments.Add(e.Chat);

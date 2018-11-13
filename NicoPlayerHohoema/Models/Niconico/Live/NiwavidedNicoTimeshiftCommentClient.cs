@@ -113,10 +113,14 @@ namespace NicoPlayerHohoema.Models.Live.Niwavided
                 await SendStartMessage_Timeshift(-30, initialTime);
                 _NextTime = initialTime + TimeSpan.FromSeconds(90);
 
+                await SendStartMessage_Timeshift(_LastRes + 1, _NextTime);
+
+                _NextTime = _NextTime + TimeSpan.FromSeconds(85);
+
                 // 次のコメント取得の準備
                 StartReOpenTimer();
 
-                await Task.Delay(TimeSpan.FromSeconds(1));
+                await Task.Delay(TimeSpan.FromSeconds(3));
 
                 Close();
             }
@@ -155,7 +159,7 @@ namespace NicoPlayerHohoema.Models.Live.Niwavided
                     _NextTime = _NextTime + TimeSpan.FromSeconds(85);
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(5));
+                await Task.Delay(TimeSpan.FromSeconds(3));
 
                 using (var releaser = await _ReOpenTimerLock.LockAsync())
                 {
@@ -163,7 +167,7 @@ namespace NicoPlayerHohoema.Models.Live.Niwavided
                 }
             }
             , null
-            , TimeSpan.FromSeconds(5)
+            , TimeSpan.FromSeconds(85)
             , TimeSpan.FromSeconds(85)
             );
         }
