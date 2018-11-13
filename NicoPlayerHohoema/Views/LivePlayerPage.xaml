@@ -179,8 +179,8 @@
                     <VisualState.Setters>
                         <Setter Target="CommentTextBox.(Grid.Row)" Value="0" />
                         <Setter Target="CommentTextBox.(Grid.RowSpan)" Value="1" />
-                        <Setter Target="CommentTextBox.(Grid).Column)" Value="0" />
-                        <Setter Target="CommentTextBox.(Grid).ColumnSpan)" Value="6" />
+                        <Setter Target="CommentTextBox.(Grid.Column)" Value="0" />
+                        <Setter Target="CommentTextBox.(Grid.ColumnSpan)" Value="6" />
 
                         <Setter Target="CommentCommandEditButton.(Grid.Row)" Value="1" />
                         <Setter Target="CommentCommandEditButton.(Grid.RowSpan)" Value="1" />
@@ -191,6 +191,11 @@
                         <Setter Target="CommentSubmitButton.(Grid.RowSpan)" Value="1" />
                         <Setter Target="CommentSubmitButton.(Grid.Column)" Value="3" />
                         <Setter Target="CommentSubmitButton.(Grid.ColumnSpan)" Value="3" />
+                        
+                        
+                        <!-- モバイル時にタイトルのサイズを小さく -->
+                        <Setter Target="TitleTextBlock.FontSize" Value="20" />
+
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -221,6 +226,7 @@
                         <Setter Target="PlayPauseToggleButton.Visibility" Value="Visible" />
                         <Setter Target="CO_PlayPauseToggleButton.Visibility" Value="Visible" />
 
+
                     </VisualState.Setters>
                 </VisualState>
 
@@ -246,8 +252,8 @@
                         <StateTrigger IsActive="{Binding IsWatchWithTimeshift.Value, Mode=OneWay}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="WhenTimeshiftIgnoreCommentLayout.Visibility" Value="Visible" />
-                        <!-- タイムシフトのシーク未実装につきコメントアウト-->
+                        <Setter Target="CommentLayout.Visibility" Value="Collapsed" />
+                        
                         <Setter Target="PreviewVideoPositionButon.Visibility" Value="Visible" />
                         <Setter Target="ForwardVideoPositionButon.Visibility" Value="Visible" />                        
                         
@@ -480,7 +486,19 @@
             </VisualStateGroup>
 
 
-            <!-- Xbox -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding NowPlaying.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="TitleTextBlock.Opacity" Value="0.6" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+
+            <!-- プラットフォーム -->
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
@@ -555,7 +573,7 @@
                         <myTrigger:EqualConditionStateTrigger Value="{Binding LivePlayerType.Value}" Condition="Leo" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="PlayerTypeTextBlock.Text" Value="新配信" />
+                        <Setter Target="PlayerTypeTextBlock.Text" Value="" />
                         <!--
                         <Setter Target="LeoLiveQualityMenuFlyoutSubItem.Visibility" Value="Visible" />
                         <Setter Target="LeoLiveQualityMenuFlyoutSeparator.Visibility" Value="Visible" />
@@ -1341,13 +1359,15 @@
                                         </i:Interaction.Behaviors>
                                     </Border>
 
-                                    <StackPanel x:Name="TitleLayout" >
+                                    <StackPanel x:Name="TitleLayout" Padding="8" >
                                         <StackPanel.Background>
                                             <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
                                         </StackPanel.Background>
 
 
-                                        <TextBlock Text="{Binding LiveTitle}" FontSize="24" Margin="8" HorizontalAlignment="Center" TextWrapping="Wrap" />
+                                        <TextBlock Text="{Binding LiveTitle}" 
+                                                   x:Name="TitleTextBlock"
+                                                   FontSize="24" Margin="8 0" HorizontalAlignment="Center" TextWrapping="Wrap" />
 
                                         <i:Interaction.Behaviors>
                                             <core:EventTriggerBehavior EventName="Tapped">
@@ -1357,6 +1377,28 @@
                                     </StackPanel>
 
 
+                                    <!-- タイムシフト時のシークバー -->
+                                    <Border Background="{StaticResource HohoemaPlayerBackgroundBrush}"
+>
+                                        <Slider x:Name="SeekBarSlider"
+                                                Minimum="0.0" 
+                                                Maximum="{Binding MaxSeekablePosition.Value}"
+                                                Value="{Binding SeekBarTimeshiftPosition.Value, Mode=TwoWay}"
+                                                Style="{StaticResource VideoProgressBarStyle}"
+                                                Padding="0 0 0 16"
+                                                StepFrequency="0.1"
+                                                LargeChange="30"
+                                                SmallChange="5"
+                                                IsThumbToolTipEnabled="True"
+                                                ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch"
+                                                VerticalAlignment="Center"
+                                                Opacity="0.75"
+                                                Visibility="Collapsed"
+                                             />
+
+                                    </Border>
 
                                     <!-- 生放送情報 -->
                                     <Border toolkit:DockPanel.Dock="Top"
@@ -1369,63 +1411,59 @@
                                         <toolkit:DockPanel 
                                                >
 
-                                            <StackPanel Orientation="Horizontal"
-                                            toolkit:DockPanel.Dock="Left"
-                                            >
+                                            <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right"        
+                                                        Margin="16 0"
+                                                        >
 
 
 
                                                 <!-- 放送時間 -->
-                                                <toolkit:DockPanel
-                                     Margin="16"
-                                    
-                                     >
+                                                <StackPanel Orientation="Horizontal" Margin="0" >
 
                                                     <SymbolIcon Symbol="Clock" 
-                                                Margin="8 0"
-                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                                />
+                                                                Margin="8 0"
+                                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                                />
 
                                                     <TextBlock  HorizontalAlignment="Right"
-                                               VerticalAlignment="Bottom"
-                                               IsHitTestVisible="False"
-                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                               Margin="0 0 24 0"
-                                                FontSize="18"
-                                            >
-                                        <Run Text="{Binding LiveElapsedTime, Converter={StaticResource TimeToMovieLengthConverter}}" />
+                                                               VerticalAlignment="Center"
+                                                               IsHitTestVisible="False"
+                                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                               Margin="0 0 24 0"
+                                                                FontSize="18"
+                                                            >
+                                                        <Run Text="{Binding LiveElapsedTime, Converter={StaticResource TimeToMovieLengthConverter}}" />
                                                     </TextBlock>
-                                                </toolkit:DockPanel>
+                                                </StackPanel>
 
                                                 <!-- 来場者数・コメント数 -->
-                                                <StackPanel Orientation="Horizontal"
-                                            >
+                                                <StackPanel Orientation="Horizontal">
                                                     <SymbolIcon Symbol="View" 
-                                                Margin="8 0"
-                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                                />
+                                                            Margin="8 0"
+                                                            Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                            />
 
                                                     <TextBlock VerticalAlignment="Center"
-                                               IsHitTestVisible="False"
-                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                               Margin="0 0 8 0"
-                                                FontSize="18"
-                                            >
-                                        <Run Text="{Binding WatchCount.Value, Converter={StaticResource ToUserFriendlyNumber}}" />
+                                                               IsHitTestVisible="False"
+                                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                               Margin="0 0 8 0"
+                                                                FontSize="18"
+                                                            >
+                                                        <Run Text="{Binding WatchCount.Value, Converter={StaticResource ToUserFriendlyNumber}}" />
                                                     </TextBlock>
 
                                                     <SymbolIcon Symbol="Comment" 
-                                                Margin="8 0"
-                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                                />
+                                                                Margin="8 0"
+                                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                                />
 
                                                     <TextBlock VerticalAlignment="Center"
-                                               IsHitTestVisible="False"
-                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                               Margin="0 0 8 0"
-                                                FontSize="18"
-                                            >
-                                        <Run Text="{Binding CommentCount.Value, Converter={StaticResource ToUserFriendlyNumber}}" />
+                                                               IsHitTestVisible="False"
+                                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                               Margin="0 0 8 0"
+                                                                FontSize="18"
+                                                            >
+                                                        <Run Text="{Binding CommentCount.Value, Converter={StaticResource ToUserFriendlyNumber}}" />
                                                     </TextBlock>
 
                                                 </StackPanel>
@@ -1433,11 +1471,11 @@
 
 
                                             <StackPanel Orientation="Vertical"
-                                            toolkit:DockPanel.Dock="Right"
-                                            Margin="0 0 16 0"
-                                            VerticalAlignment="Center"
-                                            HorizontalAlignment="Right"
-                                            >
+                                                    toolkit:DockPanel.Dock="Left"
+                                                    Margin="16 0 16 0"
+                                                    VerticalAlignment="Center"
+                                                    HorizontalAlignment="Right"
+                                                    >
 
 
 
@@ -1447,27 +1485,30 @@
                                                         HorizontalAlignment="Right"
                                                         Visibility="{Binding CurrentQuality.Value, Converter={StaticResource NotNullToVisibility}}"
                                                 >
+                                                    
+                                                    <TextBlock VerticalAlignment="Center"
+                                                           Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                           x:Name="LeoLiveQualityTextBlock"
+                                                           >
+                                                        <Run Text="{Binding CurrentQuality.Value, Converter={StaticResource ToLocalText}}" />
+                                                    </TextBlock>
+
                                                     <TextBlock x:Name="PlayerTypeTextBlock"
                                                            Margin="0 0"
                                                            VerticalAlignment="Center"
                                                            Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                                           />
+                                                           >
 
-                                                    <TextBlock VerticalAlignment="Center"
-                                                   Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                                   x:Name="LeoLiveQualityTextBlock"
-                                                   >
-                                                    (<Run Text="{Binding CurrentQuality.Value, Converter={StaticResource ToLocalText}}" />)
                                                     </TextBlock>
 
-                                                    <TextBlock Visibility="{Binding IsLowLatency.Value, Converter={StaticResource BooleanToVisibility}}"
+                                                    <TextBlock Visibility="{Binding IsLowLatency.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                                            Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                            Margin="8 0 0 0"
                                                            >
-                                                    <Run Text="低遅延" />
+                                                        <Run Text="安定優先" />
                                                     </TextBlock>
 
-                                                    <TextBlock Text="タイムシフト" 
+                                                    <TextBlock Text="TS" 
                                                                Margin="8 0"
                                                                x:Name="WatchWithTimeshiftText"
                                                                Visibility="Collapsed"
@@ -1507,28 +1548,7 @@
                                     </Border>
 
 
-                                    <!-- タイムシフト時のシークバー -->
-                                    <Border Background="{StaticResource HohoemaPlayerBackgroundBrush}"
->
-                                        <Slider x:Name="SeekBarSlider"
-                                                Minimum="0.0" 
-                                                Maximum="{Binding MaxSeekablePosition.Value}"
-                                                Value="{Binding SeekBarTimeshiftPosition.Value, Mode=TwoWay}"
-                                                Style="{StaticResource VideoProgressBarStyle}"
-                                                Padding="0 16 0 8"
-                                                StepFrequency="0.1"
-                                                LargeChange="30"
-                                                SmallChange="5"
-                                                IsThumbToolTipEnabled="True"
-                                                ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}"
-                                                HorizontalAlignment="Stretch"
-                                                HorizontalContentAlignment="Stretch"
-                                                VerticalAlignment="Center"
-                                                Opacity="0.75"
-                                                Visibility="Collapsed"
-                                             />
-
-                                    </Border>
+                                    
                                     
 
 

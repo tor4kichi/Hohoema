@@ -319,7 +319,14 @@ namespace NicoPlayerHohoema.Models.Live
                 }
                 else
                 {
-                    LiveStatusType = LiveInfo.IsOK ? LiveStatusType.Closed : LiveStatusType.Unknown;
+                    if (!IsWatchWithTimeshift)
+                    {
+                        LiveStatusType = LiveInfo.IsOK ? LiveStatusType.Closed : LiveStatusType.Unknown;
+                    }
+                    else
+                    {
+                        LiveStatusType = LiveStatusType.Unknown;
+                    }
                 }
             }
 
@@ -448,10 +455,6 @@ namespace NicoPlayerHohoema.Models.Live
                     Live2WebSocket.RecieveDisconnect += Live2WebSocket_RecieveDisconnect;
                     Live2WebSocket.RecieveCurrentRoom += Live2WebSocket_RecieveCurrentRoom;
                     var quality = HohoemaApp.UserSettings.PlayerSettings.DefaultLiveQuality;
-                    if (BroadcasterCommunityType != CommunityType.Community)
-                    {
-                        quality = "high";
-                    }
 
                     _IsLowLatency = HohoemaApp.UserSettings.PlayerSettings.LiveWatchWithLowLatency;
                     await Live2WebSocket.StartAsync(quality, _IsLowLatency);
@@ -737,7 +740,7 @@ namespace NicoPlayerHohoema.Models.Live
                         e.ThreadId,
                         this.HohoemaApp.LoginUserId.ToString(),
                         waybackKey,
-                        new DateTimeOffset(LiveInfo.VideoInfo.Video.OpenTime.Value)
+                        LiveInfo.VideoInfo.Video.OpenTime.Value
                         );
                 }
                 else 

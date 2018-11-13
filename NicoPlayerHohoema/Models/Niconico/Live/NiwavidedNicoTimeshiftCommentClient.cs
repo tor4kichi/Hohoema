@@ -101,7 +101,7 @@ namespace NicoPlayerHohoema.Models.Live.Niwavided
 
         AsyncLock _ReOpenTimerLock = new AsyncLock();
 
-        private async Task ResetConnection(DateTime initialTime)
+        private async Task ResetConnection(DateTimeOffset initialTime)
         {
             using (var releaser = await _ReOpenTimerLock.LockAsync())
             {
@@ -128,13 +128,13 @@ namespace NicoPlayerHohoema.Models.Live.Niwavided
 
         public async void Open()
         {
-            await ResetConnection(StartTime.LocalDateTime);
+            await ResetConnection(StartTime);
         }
 
 
         public async void Seek(TimeSpan timeSpan)
         {
-            await ResetConnection(StartTime.LocalDateTime + timeSpan);
+            await ResetConnection(StartTime + timeSpan);
         }
 
 

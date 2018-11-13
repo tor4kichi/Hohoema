@@ -1338,7 +1338,7 @@ namespace NicoPlayerHohoema.ViewModels
 		/// <param name="liveStatus"></param>
 		private void ResetSuggestion(LiveStatusType? liveStatus)
 		{
-			if (liveStatus == null || liveStatus == Models.Live.LiveStatusType.OnAir)
+			if (liveStatus == null || liveStatus == Models.Live.LiveStatusType.OnAir || IsWatchWithTimeshift.Value)
 			{
 				Suggestion.Value = null;
 			}
