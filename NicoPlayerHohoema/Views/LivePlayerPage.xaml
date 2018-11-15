@@ -1427,24 +1427,7 @@
 
 
 
-                                                <!-- 放送時間 -->
-                                                <StackPanel Orientation="Horizontal" Margin="0" >
-
-                                                    <SymbolIcon Symbol="Clock" 
-                                                                Margin="8 0"
-                                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                                                />
-
-                                                    <TextBlock  HorizontalAlignment="Right"
-                                                               VerticalAlignment="Center"
-                                                               IsHitTestVisible="False"
-                                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                                               Margin="0 0 24 0"
-                                                                FontSize="18"
-                                                            >
-                                                        <Run Text="{Binding LiveElapsedTime, Converter={StaticResource TimeToMovieLengthConverter}}" />
-                                                    </TextBlock>
-                                                </StackPanel>
+                                                
 
                                                 <!-- 来場者数・コメント数 -->
                                                 <StackPanel Orientation="Horizontal">
@@ -1476,6 +1459,25 @@
                                                         <Run Text="{Binding CommentCount.Value, Converter={StaticResource ToUserFriendlyNumber}}" />
                                                     </TextBlock>
 
+                                                </StackPanel>
+
+                                                <!-- 放送時間 -->
+                                                <StackPanel Orientation="Horizontal" Margin="0" >
+
+                                                    <SymbolIcon Symbol="Clock" 
+                                                                Margin="8 0"
+                                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                                />
+
+                                                    <TextBlock  HorizontalAlignment="Right"
+                                                               VerticalAlignment="Center"
+                                                               IsHitTestVisible="False"
+                                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                               Margin="0 0 24 0"
+                                                                FontSize="18"
+                                                            >
+                                                        <Run Text="{Binding LiveElapsedTime, Converter={StaticResource TimeToMovieLengthConverter}}" />
+                                                    </TextBlock>
                                                 </StackPanel>
                                             </StackPanel>
 
