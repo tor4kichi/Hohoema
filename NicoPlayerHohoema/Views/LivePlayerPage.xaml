@@ -29,6 +29,16 @@
 
         <MenuFlyout x:Name="LivePlayerFlyout">
 
+            <ToggleMenuFlyoutItem IsChecked="{Binding IsMuted.Value, Mode=TwoWay}"
+                                  Text="ミュート"
+                                  />
+
+            <ToggleMenuFlyoutItem IsChecked="{Binding IsCommentDisplayEnable.Value, Mode=TwoWay, Converter={StaticResource BooleanInverted}}"
+                                  Text="コメント非表示"
+                                  />
+            
+            <MenuFlyoutSeparator />
+            
             <!--
             <MenuFlyoutSubItem Text="画質" 
                                                                x:Name="LeoLiveQualityMenuFlyoutSubItem"
