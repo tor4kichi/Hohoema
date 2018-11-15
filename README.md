@@ -6,6 +6,8 @@ Windows 10系のデバイスに幅広く対応したニコニコ動画・生放�
 
 ニコニコ動画アカウントをアプリに登録することでさらに便利に利用できます。
 
+（メニュー下側の「ログイン無し」とあるところからログインできます）
+
 ## ダウンロード
 
 ### [Hohoema - マイクロソフト ストア](https://www.microsoft.com/ja-jp/store/p/hohoema/9nblggh4rxt6?cid=hohoema\_github)
@@ -22,7 +24,7 @@ Windows 10 や XboxOne のストアアプリからダウンロードできます
 
 Hohoema は UWPアプリです。（UWP = Universal Windows Platform）
 
-ご利用には『Anniversary Update』以降のOSバージョンに更新する必要があります。
+ご利用には『Anniversary Update』以降のOSバージョンへの更新が必要です。
 
 ## 機能一覧
 
@@ -34,6 +36,7 @@ Hohoema は UWPアプリです。（UWP = Universal Windows Platform）
   * フォローやマイリストの表示
   * ニコレポ対応
   * オススメ動画の表示
+  * タイムシフト動画の視聴に対応（v0.15.0）
 
 * Hohoemaによるサポート機能
   * 動画キャッシュのダウンロード
@@ -48,18 +51,17 @@ Hohoema は UWPアプリです。（UWP = Universal Windows Platform）
 
 ## 要望・バグ報告について
 
-* フィードバックHub
-  * アプリ内の設定ページにある「フィードバックを送る」を選択
-  * 利用にはストアから「フィードバックHub」のインストールが必要です
+下記連絡先から伝えやすいものをお選びください。問題点とお使いのアプリのバージョン（アプリの設定画面右上に表示されてます）をお伝えください。
 
+* twitter.com/tor4kichi にリプライかDM
+* tor4kichi@hotmail.com にメール
 * [新しい課題を立てる - GitHub](https://github.com/tor4kichi/Hohoema/issues)
   
-不具合報告の場合、デバッグモードを有効にして不具合情報を抽出、報告に添付して頂けると対応がスムーズに進みます
+不具合報告の場合、デバッグモードを有効にして不具合情報を抽出、報告に添付して頂けると対応がスムーズに進むかもしれません。
 
 * [Hohoemaのデバッグモードを有効にする方法](https://github.com/tor4kichi/Hohoema/wiki/Hohoema%E3%81%AE%E3%83%87%E3%83%90%E3%83%83%E3%82%B0%E3%83%A2%E3%83%BC%E3%83%89%E3%82%92%E6%9C%89%E5%8A%B9%E3%81%AB%E3%81%99%E3%82%8B)
 
 今後の変更や確認されているバグは [課題一覧](https://github.com/tor4kichi/Hohoema/issues) から確認できます
-
 
 ## ライセンス
 
@@ -70,7 +72,6 @@ GPL v3
 * VisualStudio 2017 Community
 * VisualStudio Code
 * Inkscape
-
 
 ## 開発への支援について
 
