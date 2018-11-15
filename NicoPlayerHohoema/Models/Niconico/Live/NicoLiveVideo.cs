@@ -74,6 +74,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 	public class NicoLiveVideo : BindableBase, IDisposable
 	{
+        public static readonly TimeSpan JapanTimeZoneOffset = +TimeSpan.FromHours(9);
 		public static readonly TimeSpan DefaultNextLiveSubscribeDuration =
 			TimeSpan.FromMinutes(3);
 
@@ -351,13 +352,20 @@ namespace NicoPlayerHohoema.Models.Live
 
         private async Task RefreshTimeshiftProgram()
         {
-            var timeshiftDetailsRes = await HohoemaApp.NiconicoContext.Live.GetReservationsInDetailAsync();
-            foreach (var timeshift in timeshiftDetailsRes.ReservedProgram)
+            if (HohoemaApp.IsLoggedIn)
             {
-                if (LiveId.EndsWith(timeshift.Id))
+                var timeshiftDetailsRes = await HohoemaApp.NiconicoContext.Live.GetReservationsInDetailAsync();
+                foreach (var timeshift in timeshiftDetailsRes.ReservedProgram)
                 {
-                    _TimeshiftProgram = timeshift;
+                    if (LiveId.EndsWith(timeshift.Id))
+                    {
+                        _TimeshiftProgram = timeshift;
+                    }
                 }
+            }
+            else
+            {
+                _TimeshiftProgram = null;
             }
         }
 
@@ -382,7 +390,7 @@ namespace NicoPlayerHohoema.Models.Live
 
             if (IsWatchWithTimeshift)
             {
-                _StartTimeOffset = (DateTime.Now - LiveInfo.VideoInfo.Video.OpenTime) ?? TimeSpan.Zero;
+                _StartTimeOffset = (DateTimeOffset.Now.ToOffset(JapanTimeZoneOffset) - LiveInfo.VideoInfo.Video.OpenTime) ?? TimeSpan.Zero;
             }
             else
             {
@@ -401,7 +409,7 @@ namespace NicoPlayerHohoema.Models.Live
 
                 // 視聴権の利用期限は 24H＋放送時間 まで
                 // ただし公開期限がそれより先に来る場合には公開期限が視聴期限となる
-                var outdatedTime = DateTime.Now + (LiveInfo.VideoInfo.Video.EndTime - LiveInfo.VideoInfo.Video.StartTime) + TimeSpan.FromHours(24);
+                var outdatedTime = DateTimeOffset.Now.ToOffset(JapanTimeZoneOffset) + (LiveInfo.VideoInfo.Video.EndTime - LiveInfo.VideoInfo.Video.StartTime) + TimeSpan.FromHours(24);
                 string desc = string.Empty;
                 if (outdatedTime > _TimeshiftProgram.ExpiredAt)
                 {
@@ -559,12 +567,16 @@ namespace NicoPlayerHohoema.Models.Live
             using (var releaser = await _LiveElapsedTimeUpdateTimerLock.LockAsync())
             {
                 _ElapsedTimerDisposer = Observable.Interval(TimeSpan.FromSeconds(1))
+                    .SubscribeOnUIDispatcher()
                     .Subscribe(async _ =>
                     {
-                        await UpdateLiveElapsedTimeAsync();
+                        await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                        {
+                            await UpdateLiveElapsedTimeAsync();
 
-                        var time = LiveElapsedTimeFromOpen + TimeSpan.FromSeconds(2);
-                        await ProcessingBufferedCommentsAsync(time);
+                            var time = LiveElapsedTimeFromOpen + TimeSpan.FromSeconds(2);
+                            await ProcessingBufferedCommentsAsync(time);
+                        });
                     });
             }
 
@@ -604,8 +616,8 @@ namespace NicoPlayerHohoema.Models.Live
                 }
                 else
                 {
-                    LiveElapsedTimeFromOpen = DateTime.Now - _StartTimeOffset - liveInfo.OpenTime.Value;
-                    LiveElapsedTime = DateTime.Now - _StartTimeOffset - liveInfo.StartTime.Value;
+                    LiveElapsedTimeFromOpen = DateTimeOffset.Now.ToOffset(JapanTimeZoneOffset) - _StartTimeOffset - liveInfo.OpenTime.Value;
+                    LiveElapsedTime = DateTimeOffset.Now.ToOffset(JapanTimeZoneOffset) - _StartTimeOffset - liveInfo.StartTime.Value;
                 }
 
                 // 生放送の時間経過を通知
@@ -619,7 +631,15 @@ namespace NicoPlayerHohoema.Models.Live
                 {
                     _IsEndMarked = true;
 
+                    // 放送が終了しているか確認
                     await Task.Delay(TimeSpan.FromSeconds(3));
+                    await UpdateLiveStatus();
+                    if (PlayerStatusResponse?.Program.IsLive != true)
+                    {
+                        await ExitLiveViewing();
+
+                        CloseLive?.Invoke(this);
+                    }
                 }
             }
            
@@ -757,11 +777,9 @@ namespace NicoPlayerHohoema.Models.Live
 
                     OpenLive?.Invoke(this);
                 }
-                else
-                {
-                    await RefreshLeoPlayer();
-                }
             });
+
+            await RefreshLeoPlayer();
         }
 
 
@@ -795,7 +813,7 @@ namespace NicoPlayerHohoema.Models.Live
                 {
                     // 視聴開始後にスタート時間に自動シーク
                     string hlsUri = _HLSUri;
-                    if (TimeshiftPosition != null)
+                    if (IsWatchWithTimeshift && TimeshiftPosition != null)
                     {
                         hlsUri = MakeSeekedHLSUri(_HLSUri, TimeshiftPosition.Value);
 #if DEBUG
@@ -809,10 +827,13 @@ namespace NicoPlayerHohoema.Models.Live
                         var ams = amsCreateResult.MediaSource;
                         _MediaSource = MediaSource.CreateFromAdaptiveMediaSource(ams);
                         _AdaptiveMediaSource = ams;
+
+
+                        ams.Diagnostics.DiagnosticAvailable += Diagnostics_DiagnosticAvailable;
                     }
 
                     MediaPlayer.Source = _MediaSource;
-                    
+
                     // タイムシフトで見ている場合はコメントのシークも行う
                     if (IsWatchWithTimeshift)
                     {
@@ -828,7 +849,15 @@ namespace NicoPlayerHohoema.Models.Live
             });
         }
 
-        
+        private void Diagnostics_DiagnosticAvailable(AdaptiveMediaSourceDiagnostics sender, AdaptiveMediaSourceDiagnosticAvailableEventArgs args)
+        {
+            Debug.WriteLine(args.DiagnosticType);
+            if (args.ExtendedError != null)
+            {
+                Debug.WriteLine(args.ExtendedError.ToString());
+            }
+        }
+
         private async Task ClearLeoPlayer()
         {
             await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () =>
@@ -905,10 +934,8 @@ namespace NicoPlayerHohoema.Models.Live
                 {
                     _NicoLiveCommentClient.Open();
 
-                    await Task.Delay(500);
+                    await Task.Delay(Helpers.DeviceTypeHelper.IsMobile ? 3000 : 500);
                 }
-
-                await RefreshLeoPlayer();
             }
         }
 

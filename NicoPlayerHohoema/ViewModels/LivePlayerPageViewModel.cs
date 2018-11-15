@@ -580,7 +580,7 @@ namespace NicoPlayerHohoema.ViewModels
             // OnAirかCommingSoonの時
 
             CanRefresh = Observable.CombineLatest(
-                this.CurrentState.Select(x => x == MediaElementState.Closed),
+                this.CurrentState.Select(x => x == MediaElementState.Closed || x == MediaElementState.Paused),
                 this.LiveStatusType.Select(x => x == Models.Live.LiveStatusType.OnAir || x == Models.Live.LiveStatusType.ComingSoon)
                 )
                 .Select(x => x.All(y => y))
@@ -606,7 +606,7 @@ namespace NicoPlayerHohoema.ViewModels
                         // ソース更新後のコメント表示再生位置のズレを補正する
                         if (!IsWatchWithTimeshift.Value)
                         {
-                            WatchStartLiveElapsedTime.Value = (DateTime.Now - _OpenAt);
+                            WatchStartLiveElapsedTime.Value = (DateTimeOffset.Now.ToOffset(NicoLiveVideo.JapanTimeZoneOffset) - _OpenAt);
                         }
                     }
                 }
@@ -1001,7 +1001,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 LiveElapsedTime = e;
 
-                if (NicoLiveVideo.IsWatchWithTimeshift)
+                if (NicoLiveVideo?.IsWatchWithTimeshift == true)
                 {
                     _NowSeekBarPositionChanging = true;
                     SeekBarTimeshiftPosition.Value = (NicoLiveVideo.LiveElapsedTimeFromOpen).TotalSeconds;
@@ -1121,7 +1121,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                 if (!IsWatchWithTimeshift.Value)
                 {
-                    WatchStartLiveElapsedTime.Value = (DateTime.Now - _OpenAt);
+                    WatchStartLiveElapsedTime.Value = (DateTimeOffset.Now.ToOffset(NicoLiveVideo.JapanTimeZoneOffset) - _OpenAt);
                     ResetSuggestion(NicoLiveVideo.LiveStatusType);
                 }
                 else
@@ -1132,7 +1132,7 @@ namespace NicoPlayerHohoema.ViewModels
                 Debug.WriteLine(this.NicoLiveVideo.LiveInfo.VideoInfo.Video.TsArchiveStartTime);
                 Debug.WriteLine(this.NicoLiveVideo.LiveInfo.VideoInfo.Video.TsArchiveEndTime);
 
-                _MaxSeekablePosition.Value = (_EndAt.LocalDateTime - _OpenAt.LocalDateTime).TotalSeconds;
+                _MaxSeekablePosition.Value = (_EndAt - _OpenAt).TotalSeconds;
             }
             catch (Exception ex)
 			{
@@ -1532,7 +1532,7 @@ namespace NicoPlayerHohoema.ViewModels
                             // ソース更新後のコメント表示再生位置のズレを補正する
                             if (!IsWatchWithTimeshift.Value)
                             {
-                                WatchStartLiveElapsedTime.Value = (DateTime.Now - _OpenAt);
+                                WatchStartLiveElapsedTime.Value = (DateTimeOffset.Now.ToOffset(NicoLiveVideo.JapanTimeZoneOffset) - _OpenAt);
                             }
                         });
 

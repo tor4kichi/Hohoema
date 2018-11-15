@@ -926,6 +926,6 @@ namespace NicoPlayerHohoema.ViewModels
         public string CommunityName { get; internal set; }
         public string Thumbnail { get; internal set; }
 
-        public DateTime StartAt { get; internal set; }
+        public DateTimeOffset StartAt { get; internal set; }
     }
 }

@@ -37,15 +37,15 @@ namespace NicoPlayerHohoema.Database
         public int TsViewLimitNum { get; set; }
         public int TimeshiftLimit { get; set; }
 
-        public DateTime EndTime { get; set; }
-        public DateTime StartTime { get; set; }
-        public DateTime OpenTime { get; set; }
+        public DateTimeOffset EndTime { get; set; }
+        public DateTimeOffset StartTime { get; set; }
+        public DateTimeOffset OpenTime { get; set; }
 
         public bool TsIsEndless { get; set; }
         public string UseTsarchive { get; set; }
-        public DateTime? TsArchiveEndTime { get; set; }
-        public DateTime? TsArchiveStartTime { get; set; }
-        public DateTime? TsArchiveReleasedTime { get; set; }
+        public DateTimeOffset? TsArchiveEndTime { get; set; }
+        public DateTimeOffset? TsArchiveStartTime { get; set; }
+        public DateTimeOffset? TsArchiveReleasedTime { get; set; }
 
         public IList<string> CategoryTags { get; set; }
         public IList<string> LockedTags { get; set; }

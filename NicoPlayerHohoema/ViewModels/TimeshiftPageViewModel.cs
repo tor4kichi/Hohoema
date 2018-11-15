@@ -188,7 +188,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         string INiconicoContent.Label => Title;
 
-        public DateTime StartTime { get; set; }
+        public DateTimeOffset StartTime { get; set; }
         public string ThumbnailUrl { get; set; }
         public TimeSpan Duration { get; set; }
     }
@@ -258,7 +258,7 @@ namespace NicoPlayerHohoema.ViewModels
                         ExpiredAt = tsItem?.WatchTimeLimit ?? x.ExpiredAt,
                         ReservationStatus = x.GetReservationStatus() ?? throw new NotSupportedException(),
                         IsUnwatched = x.IsUnwatched,
-                        StartTime = liveData?.StartTime ?? DateTime.MaxValue,
+                        StartTime = liveData?.StartTime ?? DateTimeOffset.MaxValue,
                         ThumbnailUrl = liveData?.ThumbnailUrl,
                         Duration = liveData?.EndTime - liveData?.StartTime ?? TimeSpan.Zero
                     };
