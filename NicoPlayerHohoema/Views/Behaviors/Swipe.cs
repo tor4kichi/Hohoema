@@ -327,9 +327,12 @@ namespace NicoPlayerHohoema.Views.Behaviors
             }
             else
             {
-                AssociatedObject.ManipulationStarted -= AssociatedObject_ManipulationStarted;
-                AssociatedObject.ManipulationCompleted -= AssociatedObject_ManipulationCompleted;
-                AssociatedObject.ManipulationDelta -= AssociatedObject_ManipulationDelta;
+                if (AssociatedObject != null)
+                {
+                    AssociatedObject.ManipulationStarted -= AssociatedObject_ManipulationStarted;
+                    AssociatedObject.ManipulationCompleted -= AssociatedObject_ManipulationCompleted;
+                    AssociatedObject.ManipulationDelta -= AssociatedObject_ManipulationDelta;
+                }
             }
         }
     }

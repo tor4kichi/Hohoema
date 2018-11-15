@@ -33,6 +33,7 @@
     <local:OpenFeedSourceCommand x:Key="OpenFeedSourceCommand" />
     <local:OpenHohoemaPageCommand x:Key="OpenHohoemaPageCommand" />
     <local:OpenLinkCommand x:Key="OpenLinkCommand" />
+    <local:OpenLiveInfoCommand x:Key="OpenLiveInfoCommand" />
     <local:OpenVideoInfoCommand x:Key="OpenVideoInfoCommand" />
     <local:OpenVideoOwnerVideoListCommand x:Key="OpenVideoOwnerVideoListCommand" />
     

@@ -11,8 +11,13 @@
                     Command="{StaticResource OpenContentCommand}"
                     CommandParameter="{Binding}"
                                 />
+    
+    <MenuFlyoutItem Text="放送情報" 
+                    Command="{StaticResource OpenLiveInfoCommand}"
+                    CommandParameter="{Binding Id}"
+                    />
 
-    <MenuFlyoutItem Text="配信者情報を開く" 
+    <MenuFlyoutItem Text="配信者情報" 
                     Command="{StaticResource OpenBroadcasterInfoCommand}"
                     CommandParameter="{Binding}"
                     />

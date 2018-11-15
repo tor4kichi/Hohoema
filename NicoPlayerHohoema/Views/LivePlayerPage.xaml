@@ -25,10 +25,20 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <UserControl.Resources>
+    <Page.Resources>
 
         <MenuFlyout x:Name="LivePlayerFlyout">
 
+            <ToggleMenuFlyoutItem IsChecked="{Binding IsMuted.Value, Mode=TwoWay}"
+                                  Text="ミュート"
+                                  />
+
+            <ToggleMenuFlyoutItem IsChecked="{Binding IsCommentDisplayEnable.Value, Mode=TwoWay, Converter={StaticResource BooleanInverted}}"
+                                  Text="コメント非表示"
+                                  />
+            
+            <MenuFlyoutSeparator />
+            
             <!--
             <MenuFlyoutSubItem Text="画質" 
                                                                x:Name="LeoLiveQualityMenuFlyoutSubItem"
@@ -68,6 +78,11 @@
 
             <MenuFlyoutSeparator  />
 
+            <MenuFlyoutItem Text="放送情報" 
+                    Command="{StaticResource OpenLiveInfoCommand}"
+                    CommandParameter="{Binding LiveId}"
+                    />
+            
             <MenuFlyoutItem Text="配信者情報" Command="{Binding OpenBroadcastCommunityCommand}" />
 
             
@@ -120,7 +135,7 @@
 
         
         
-    </UserControl.Resources>
+    </Page.Resources>
 
     <i:Interaction.Behaviors>
         <core:EventTriggerBehavior EventName="Unloaded">
@@ -140,8 +155,6 @@
                         <myTrigger:EqualConditionStateTrigger Condition="NotLogin" Value="{Binding LiveStatusType}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="PauseButton.Visibility" Value="Visible" />
-                        <Setter Target="CO_PauseButton.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
 
@@ -176,8 +189,8 @@
                     <VisualState.Setters>
                         <Setter Target="CommentTextBox.(Grid.Row)" Value="0" />
                         <Setter Target="CommentTextBox.(Grid.RowSpan)" Value="1" />
-                        <Setter Target="CommentTextBox.(Grid).Column)" Value="0" />
-                        <Setter Target="CommentTextBox.(Grid).ColumnSpan)" Value="6" />
+                        <Setter Target="CommentTextBox.(Grid.Column)" Value="0" />
+                        <Setter Target="CommentTextBox.(Grid.ColumnSpan)" Value="6" />
 
                         <Setter Target="CommentCommandEditButton.(Grid.Row)" Value="1" />
                         <Setter Target="CommentCommandEditButton.(Grid.RowSpan)" Value="1" />
@@ -188,6 +201,11 @@
                         <Setter Target="CommentSubmitButton.(Grid.RowSpan)" Value="1" />
                         <Setter Target="CommentSubmitButton.(Grid.Column)" Value="3" />
                         <Setter Target="CommentSubmitButton.(Grid.ColumnSpan)" Value="3" />
+                        
+                        
+                        <!-- モバイル時にタイトルのサイズを小さく -->
+                        <Setter Target="TitleTextBlock.FontSize" Value="20" />
+
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -202,11 +220,26 @@
                         <StateTrigger IsActive="{Binding NowPlaying.Value}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="PauseButton.Visibility" Value="Visible" />
-                        <Setter Target="CO_PauseButton.Visibility" Value="Visible" />
+                        <Setter Target="PlayPauseToggleButton.Visibility" Value="Visible" />
+                        <Setter Target="CO_PlayPauseToggleButton.Visibility" Value="Visible" />
+
+                        <Setter Target="PlayPauseButtonIcon.Kind" Value="Pause" />
+                        <Setter Target="CO_PlayPauseButtonIcon.Kind" Value="Pause" />
                     </VisualState.Setters>
                 </VisualState>
-                
+
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsWatchWithTimeshift.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="PlayPauseToggleButton.Visibility" Value="Visible" />
+                        <Setter Target="CO_PlayPauseToggleButton.Visibility" Value="Visible" />
+
+
+                    </VisualState.Setters>
+                </VisualState>
+
                 <!-- ストリームの再開 -->
                 <VisualState>
                     <VisualState.StateTriggers>
@@ -219,7 +252,30 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
+            
+            
+            <!-- タイムシフト時の表示の切り替え -->
+            <VisualStateGroup>
 
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsWatchWithTimeshift.Value, Mode=OneWay}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CommentLayout.Visibility" Value="Collapsed" />
+                        
+                        <Setter Target="PreviewVideoPositionButon.Visibility" Value="Visible" />
+                        <Setter Target="ForwardVideoPositionButon.Visibility" Value="Visible" />                        
+                        
+                        <Setter Target="WatchWithTimeshiftText.Visibility" Value="Visible" />
+
+                        <Setter Target="SeekBarSlider.Visibility" Value="Visible" />
+
+                        <Setter Target="SeekSwipe.IsEnabled" Value="True" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            
 
             <!-- キーボード入力によるコメント書き込みショートカットの有効・無効 -->
             <VisualStateGroup>
@@ -440,7 +496,19 @@
             </VisualStateGroup>
 
 
-            <!-- Xbox -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding NowPlaying.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="TitleTextBlock.Opacity" Value="0.6" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+
+            <!-- プラットフォーム -->
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
@@ -515,7 +583,7 @@
                         <myTrigger:EqualConditionStateTrigger Value="{Binding LivePlayerType.Value}" Condition="Leo" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="PlayerTypeTextBlock.Text" Value="新配信" />
+                        <Setter Target="PlayerTypeTextBlock.Text" Value="" />
                         <!--
                         <Setter Target="LeoLiveQualityMenuFlyoutSubItem.Visibility" Value="Visible" />
                         <Setter Target="LeoLiveQualityMenuFlyoutSeparator.Visibility" Value="Visible" />
@@ -615,6 +683,7 @@
                                >
 
                 <i:Interaction.Behaviors>
+                    
                     <!-- サイドペインのコンテンツVMが指定されたらサイドペインを開く -->
 
                     <!-- 条件に{x:Null}ではなく PlayerSidePaneContentType.None を指定しているのは
@@ -660,10 +729,20 @@
 
                 <Grid x:Name="MediaControl"
                   ContextFlyout="{StaticResource LivePlayerFlyout}"
+                      ManipulationMode="TranslateX"
                   >
 
                     <i:Interaction.Behaviors>
 
+                        <!-- 左右スワイプでシーク （タイムシフト視聴時のみ有効）-->
+                        <mybehavior:Swipe x:Name="SeekSwipe"
+                                              SwipeCommand="{Binding SeekVideoCommand}"
+                                              SwipeAmountConverter="{StaticResource SwipeSeekValueToTimeSpan}"
+                                              SwipeAmountScale="0.15"
+                                              SwipeEdgeOfPlay="48"
+                                          IsEnabled="False"
+                                              />
+                        
                         <!-- マウスの非表示 -->
                         <mybehavior:AutoHideCursor x:Name="AutoHideCursor"
                                 IsAutoHideEnabled="False"
@@ -1007,6 +1086,29 @@
                         </controls:TransientContainer.ContentTemplate>
                     </controls:TransientContainer>
 
+                    <!-- シーク表示 -->
+                    <controls:TransientContainer Content="{x:Bind SeekSwipe.SwipeAmount, Mode=OneWay}"
+                                                 HorizontalAlignment="Center"
+                                                 VerticalAlignment="Center"
+                                                 Margin="16"
+                                                     DisplayDuration="0:0:3"
+                                                 >
+                        <controls:TransientContainer.Background>
+                            <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}" />
+                        </controls:TransientContainer.Background>
+                        <controls:TransientContainer.ContentTemplate>
+                            <DataTemplate>
+                                <Grid Margin="16 2 16 4">
+                                    <Border>
+                                        <TextBlock FontSize="25" VerticalAlignment="Center" TextLineBounds="TrimToBaseline">
+                                                シーク: <Run Text="{Binding Converter={StaticResource TimeToMovieLengthConverter}}" />秒
+                                        </TextBlock>
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </controls:TransientContainer.ContentTemplate>
+                    </controls:TransientContainer>
+
                     <Grid x:Name="ControlUIRoot" >
 
                         <i:Interaction.Behaviors>
@@ -1267,13 +1369,15 @@
                                         </i:Interaction.Behaviors>
                                     </Border>
 
-                                    <StackPanel x:Name="TitleLayout" >
+                                    <StackPanel x:Name="TitleLayout" Padding="8" >
                                         <StackPanel.Background>
                                             <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
                                         </StackPanel.Background>
 
 
-                                        <TextBlock Text="{Binding LiveTitle}" FontSize="24" Margin="8" HorizontalAlignment="Center" TextWrapping="Wrap" />
+                                        <TextBlock Text="{Binding LiveTitle}" 
+                                                   x:Name="TitleTextBlock"
+                                                   FontSize="24" Margin="8 0" HorizontalAlignment="Center" TextWrapping="Wrap" />
 
                                         <i:Interaction.Behaviors>
                                             <core:EventTriggerBehavior EventName="Tapped">
@@ -1283,6 +1387,28 @@
                                     </StackPanel>
 
 
+                                    <!-- タイムシフト時のシークバー -->
+                                    <Border Background="{StaticResource HohoemaPlayerBackgroundBrush}"
+>
+                                        <Slider x:Name="SeekBarSlider"
+                                                Minimum="0.0" 
+                                                Maximum="{Binding MaxSeekablePosition.Value}"
+                                                Value="{Binding SeekBarTimeshiftPosition.Value, Mode=TwoWay}"
+                                                Style="{StaticResource VideoProgressBarStyle}"
+                                                Padding="0 0 0 16"
+                                                StepFrequency="0.1"
+                                                LargeChange="30"
+                                                SmallChange="5"
+                                                IsThumbToolTipEnabled="True"
+                                                ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}"
+                                                HorizontalAlignment="Stretch"
+                                                HorizontalContentAlignment="Stretch"
+                                                VerticalAlignment="Center"
+                                                Opacity="0.75"
+                                                Visibility="Collapsed"
+                                             />
+
+                                    </Border>
 
                                     <!-- 生放送情報 -->
                                     <Border toolkit:DockPanel.Dock="Top"
@@ -1295,75 +1421,73 @@
                                         <toolkit:DockPanel 
                                                >
 
-                                            <StackPanel Orientation="Horizontal"
-                                            toolkit:DockPanel.Dock="Left"
-                                            >
+                                            <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Right"        
+                                                        Margin="16 0"
+                                                        >
 
 
 
-                                                <!-- 放送時間 -->
-                                                <toolkit:DockPanel
-                                     Margin="16"
-                                    
-                                     >
-
-                                                    <SymbolIcon Symbol="Clock" 
-                                                Margin="8 0"
-                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                                />
-
-                                                    <TextBlock  HorizontalAlignment="Right"
-                                               VerticalAlignment="Bottom"
-                                               IsHitTestVisible="False"
-                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                               Margin="0 0 24 0"
-                                                FontSize="18"
-                                            >
-                                        <Run Text="{Binding LiveElapsedTime, Converter={StaticResource TimeToMovieLengthConverter}}" />
-                                                    </TextBlock>
-                                                </toolkit:DockPanel>
+                                                
 
                                                 <!-- 来場者数・コメント数 -->
-                                                <StackPanel Orientation="Horizontal"
-                                            >
+                                                <StackPanel Orientation="Horizontal">
                                                     <SymbolIcon Symbol="View" 
-                                                Margin="8 0"
-                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                                />
+                                                            Margin="8 0"
+                                                            Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                            />
 
                                                     <TextBlock VerticalAlignment="Center"
-                                               IsHitTestVisible="False"
-                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                               Margin="0 0 8 0"
-                                                FontSize="18"
-                                            >
-                                        <Run Text="{Binding WatchCount.Value, Converter={StaticResource ToUserFriendlyNumber}}" />
+                                                               IsHitTestVisible="False"
+                                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                               Margin="0 0 8 0"
+                                                                FontSize="18"
+                                                            >
+                                                        <Run Text="{Binding WatchCount.Value, Converter={StaticResource ToUserFriendlyNumber}}" />
                                                     </TextBlock>
 
                                                     <SymbolIcon Symbol="Comment" 
-                                                Margin="8 0"
-                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                                />
+                                                                Margin="8 0"
+                                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                                />
 
                                                     <TextBlock VerticalAlignment="Center"
-                                               IsHitTestVisible="False"
-                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                               Margin="0 0 8 0"
-                                                FontSize="18"
-                                            >
-                                        <Run Text="{Binding CommentCount.Value, Converter={StaticResource ToUserFriendlyNumber}}" />
+                                                               IsHitTestVisible="False"
+                                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                               Margin="0 0 8 0"
+                                                                FontSize="18"
+                                                            >
+                                                        <Run Text="{Binding CommentCount.Value, Converter={StaticResource ToUserFriendlyNumber}}" />
                                                     </TextBlock>
 
+                                                </StackPanel>
+
+                                                <!-- 放送時間 -->
+                                                <StackPanel Orientation="Horizontal" Margin="0" >
+
+                                                    <SymbolIcon Symbol="Clock" 
+                                                                Margin="8 0"
+                                                                Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                                />
+
+                                                    <TextBlock  HorizontalAlignment="Right"
+                                                               VerticalAlignment="Center"
+                                                               IsHitTestVisible="False"
+                                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                               Margin="0 0 24 0"
+                                                                FontSize="18"
+                                                            >
+                                                        <Run Text="{Binding LiveElapsedTime, Converter={StaticResource TimeToMovieLengthConverter}}" />
+                                                    </TextBlock>
                                                 </StackPanel>
                                             </StackPanel>
 
 
                                             <StackPanel Orientation="Vertical"
-                                            toolkit:DockPanel.Dock="Right"
-                                            Margin="0 0 16 0"
-                                            VerticalAlignment="Center"
-                                            HorizontalAlignment="Right"
-                                            >
+                                                    toolkit:DockPanel.Dock="Left"
+                                                    Margin="16 0 16 0"
+                                                    VerticalAlignment="Center"
+                                                    HorizontalAlignment="Right"
+                                                    >
 
 
 
@@ -1373,25 +1497,35 @@
                                                         HorizontalAlignment="Right"
                                                         Visibility="{Binding CurrentQuality.Value, Converter={StaticResource NotNullToVisibility}}"
                                                 >
+                                                    
+                                                    <TextBlock VerticalAlignment="Center"
+                                                           Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                           x:Name="LeoLiveQualityTextBlock"
+                                                           >
+                                                        <Run Text="{Binding CurrentQuality.Value, Converter={StaticResource ToLocalText}}" />
+                                                    </TextBlock>
+
                                                     <TextBlock x:Name="PlayerTypeTextBlock"
                                                            Margin="0 0"
                                                            VerticalAlignment="Center"
                                                            Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                                           />
+                                                           >
 
-                                                    <TextBlock VerticalAlignment="Center"
-                                                   Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                                   x:Name="LeoLiveQualityTextBlock"
-                                                   >
-                                                    (<Run Text="{Binding CurrentQuality.Value, Converter={StaticResource ToLocalText}}" />)
                                                     </TextBlock>
 
-                                                    <TextBlock Visibility="{Binding IsLowLatency.Value, Converter={StaticResource BooleanToVisibility}}"
+                                                    <TextBlock Visibility="{Binding IsLowLatency.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                                            Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                                            Margin="8 0 0 0"
                                                            >
-                                                    <Run Text="低遅延" />
+                                                        <Run Text="安定優先" />
                                                     </TextBlock>
+
+                                                    <TextBlock Text="TS" 
+                                                               Margin="8 0"
+                                                               x:Name="WatchWithTimeshiftText"
+                                                               Visibility="Collapsed"
+                                                               Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                                               />
                                                 </StackPanel>
 
                                                 <StackPanel Orientation="Horizontal">
@@ -1426,6 +1560,8 @@
                                     </Border>
 
 
+                                    
+                                    
 
 
                                     <!-- 再生コントロール -->
@@ -1544,27 +1680,56 @@
                                         Grid.Column="1"
                                         >
 
+                                            <Button x:Name="PreviewVideoPositionButon"
+                                                Background="Transparent" 
+                                                    Command="{Binding SeekVideoCommand}"
+                                                    CommandParameter="{x:Bind PreviewSeekTime}"
+                                                    Margin="0 0 24 0"
+                                                    Visibility="Collapsed"
+                                                    >
+                                                <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" 
+                                                        FontSize="24"
+                                                    />
+
+                                            </Button>
+
+                                            <Button x:Name="PlayPauseToggleButton"
+                                              Command="{Binding TogglePlayPauseCommand}"
+                                              VerticalAlignment="Stretch"
+                                              Background="Transparent"
+                                                Visibility="Collapsed"
+                                                    Opacity="1.0"
+                                              >
+                                                <iconPack:PackIconMaterial x:Name="PlayPauseButtonIcon" Kind="Play" Width="24" Height="24"
+                                                                           Opacity="1.0"
+                                                                           />
+                                            </Button>
+
+                                            
                                             <!-- 更新 -->
                                             <Button x:Name="RefreshButton"
                                               Command="{Binding RefreshCommand}"
                                               VerticalAlignment="Stretch"
-                                              UseSystemFocusVisuals="True"
                                               Background="Transparent"
                                                 Visibility="Collapsed"
                                               >
                                                 <SymbolIcon Symbol="Refresh" />
                                             </Button>
 
-                                            <Button x:Name="PauseButton"
-                                              Command="{Binding PauseCommand}"
-                                              VerticalAlignment="Stretch"
-                                              UseSystemFocusVisuals="True"
-                                              Background="Transparent"
-                                                Visibility="Collapsed"
-                                              >
-                                                <iconPack:PackIconMaterial Kind="Pause" Width="24" Height="24" />
-                                            </Button>
+                                            
 
+                                            <Button x:Name="ForwardVideoPositionButon"
+                                                        Background="Transparent"
+                                                        Command="{Binding SeekVideoCommand}"
+                                                        CommandParameter="{x:Bind ForwardSeekTime}"
+                                                        Margin="24 0 0 0"
+                                                    Visibility="Collapsed"
+                                                        >
+                                                <TextBlock FontFamily="Segoe MDL2 Assets" 
+                                                               Text="&#xED3D;"
+                                                               FontSize="24"
+                                                                />
+                                            </Button>
 
                                         </StackPanel>
 
@@ -1623,7 +1788,7 @@
                                             <ColumnDefinition Width="1*" />
                                             <ColumnDefinition Width="1*" />
                                         </Grid.ColumnDefinitions>
-
+                                        
                                         <TextBox x:Name="CommentTextBox" 
                                                 Text="{Binding WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                                 Style="{StaticResource BGTransparentTextBoxStyle}"
@@ -1695,6 +1860,26 @@
                                              Grid.ColumnSpan="1"
                                             
                                                 />
+
+
+                                        <Border Grid.ColumnSpan="6"
+                                                Grid.RowSpan="2"
+                                                x:Name="WhenTimeshiftIgnoreCommentLayout"
+                                                Visibility="Collapsed"
+                                                >
+                                            <Border.Background>
+                                                <SolidColorBrush Color="{StaticResource SystemAltLowColor}"
+                                                                 
+                                                                 />
+                                            </Border.Background>
+                                            <TextBlock Text="タイムシフト視聴時はコメント出来ません"
+                                                       Margin="8"
+                                                       TextWrapping="Wrap"
+                                                       Opacity="0.9"
+                                                       VerticalAlignment="Center"
+                                                       HorizontalAlignment="Center"
+                                                       />
+                                        </Border>
                                     </Grid>
                                 </StackPanel>
 
@@ -1829,14 +2014,16 @@
                                                 <SymbolIcon Symbol="Refresh" />
                                             </Button>
 
-                                            <Button x:Name="CO_PauseButton"
-                                              Command="{Binding PauseCommand}"
+                                            <Button x:Name="CO_PlayPauseToggleButton"
+                                              Command="{Binding TogglePlayPauseCommand}"
                                               VerticalAlignment="Stretch"
                                               UseSystemFocusVisuals="True"
                                               Background="Transparent"
                                                 Visibility="Collapsed"
                                               >
-                                                <iconPack:PackIconMaterial Kind="Pause" Width="24" Height="24" />
+                                                <iconPack:PackIconMaterial Kind="Play" Width="24" Height="24"
+                                                                           x:Name="CO_PlayPauseButtonIcon"
+                                                                           />
                                             </Button>
 
 

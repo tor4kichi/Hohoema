@@ -234,6 +234,8 @@ namespace NicoPlayerHohoema.ViewModels
                         ItemsView.Source = IncrementalLoadingItems;
                         RaisePropertyChanged(nameof(ItemsView));
 
+                        PostResetList();
+
                         Debug.WriteLine($"restored {NavigationId} : {ScrollPosition.Value}");
                     }
 
@@ -357,8 +359,11 @@ namespace NicoPlayerHohoema.ViewModels
                         (IncrementalLoadingItems.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error += HohoemaIncrementalSource_Error;
                     }
 
-                    ItemsView.Source = IncrementalLoadingItems;
+
+                    ItemsView = new AdvancedCollectionView(IncrementalLoadingItems);
+                    
                     RaisePropertyChanged(nameof(ItemsView));
+
 
                     PostResetList();
                 }
@@ -366,7 +371,6 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     IncrementalLoadingItems = null;
                     NowLoading.Value = false;
-                    HasItem.Value = true;
                     HasError.Value = true;
                     Debug.WriteLine("failed GenerateIncrementalSource.");
                 }
@@ -375,6 +379,11 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected virtual string ResolveNavigationId(NavigatedToEventArgs e)
         {
+            if (e.SourcePageType == null)
+            {
+                return "empty";
+            }
+
             if (e.Parameter is string strParam)
             {
                 return $"{e.SourcePageType.Name}_{strParam}";
@@ -407,6 +416,7 @@ namespace NicoPlayerHohoema.ViewModels
 		protected virtual void PostResetList()
         {
             LatestUpdateTime = DateTime.Now;
+            HasItem.Value = IncrementalLoadingItems?.Count > 0;
         }
 
 		protected abstract IIncrementalSource<ITEM_VM> GenerateIncrementalSource();

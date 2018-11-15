@@ -17,6 +17,8 @@ namespace NicoPlayerHohoema.Models.Live
         void Open();
         void Close();
 
+        void Seek(TimeSpan timeSpanFromOpenTime);
+
         void PostComment(string comment, string command, string postKey, TimeSpan elapsedTime);
     }
 }

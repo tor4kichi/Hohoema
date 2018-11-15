@@ -159,6 +159,7 @@
     <Compile Include="Commands\OpenFeedSourceCommand.cs" />
     <Compile Include="Commands\OpenHohoemaPageCommand.cs" />
     <Compile Include="Commands\OpenLinkCommand.cs" />
+    <Compile Include="Commands\OpenLiveInfoCommand.cs" />
     <Compile Include="Commands\OpenVideoInfoCommand.cs" />
     <Compile Include="Commands\OpenVideoOwnerVideoListCommand.cs" />
     <Compile Include="Commands\RemoveFeedSourceCommand.cs" />
@@ -177,6 +178,7 @@
     <Compile Include="Database\FeedDb.cs" />
     <Compile Include="Database\HohoemaLiteDbContext.cs" />
     <Compile Include="Database\NicoChannelInfo.cs" />
+    <Compile Include="Database\NicoLive.cs" />
     <Compile Include="Database\NicoVideo.cs" />
     <Compile Include="Database\NicoVideoOwner.cs" />
     <Compile Include="Database\SearchHistory.cs" />
@@ -223,6 +225,7 @@
     <Compile Include="Models\Niconico\Live\LiveChatData.cs" />
     <Compile Include="Models\Niconico\Live\NicoLiveSubscriber.cs" />
     <Compile Include="Models\Niconico\Live\NiwavidedNicoLiveCommentClient.cs" />
+    <Compile Include="Models\Niconico\Live\NiwavidedNicoTimeshiftCommentClient.cs" />
     <Compile Include="Models\Niconico\Video\Comment\CommentCommandPermissionType.cs" />
     <Compile Include="Models\Niconico\CommentOpacityKind.cs" />
     <Compile Include="Models\Feed\FeedGroup.cs" />
@@ -352,10 +355,12 @@
     <Compile Include="ViewModels\IntroductionPage\NicoAccountIntroductionPageViewModel.cs" />
     <Compile Include="ViewModels\IntroductionPage\PrologueIntroductionPageViewModel.cs" />
     <Compile Include="ViewModels\IntroductionPage\VideoCacheIntroductionPageViewModel.cs" />
+    <Compile Include="ViewModels\LiveInfomationPageViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\RelatedVideosSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\RecommendPageViewModel.cs" />
     <Compile Include="ViewModels\SearchSummaryPageViewModel.cs" />
     <Compile Include="ViewModels\RankingCategoryPageViewModel.cs" />
+    <Compile Include="ViewModels\TimeshiftPageViewModel.cs" />
     <Compile Include="ViewModels\WatchHistoryPageViewModel.cs" />
     <Compile Include="ViewModels\HohoemaIncrementalSourceBase.cs" />
     <Compile Include="ViewModels\HohoemaListingPageItemBase.cs" />
@@ -428,8 +433,13 @@
     <Compile Include="Views\ChannelVideoPage.xaml.cs">
       <DependentUpon>ChannelVideoPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Controls\IchibaItemCard.xaml.cs">
+      <DependentUpon>IchibaItemCard.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\TransientContainer\TransientContainer.cs" />
     <Compile Include="Views\Controls\TransientContainer\TransientContainer.Properties.cs" />
+    <Compile Include="Views\Converters\DateTimeToStringConverter.cs" />
+    <Compile Include="Views\Converters\ExpiredDateTimeToStringConverter.cs" />
     <Compile Include="Views\Converters\PageTypeToMaterialIconKind.cs" />
     <Compile Include="Views\Converters\SwipeSeekValueToTimeSpan.cs" />
     <Compile Include="Views\Converters\ToKMGTPEZYConverter.cs" />
@@ -439,6 +449,9 @@
     </Compile>
     <Compile Include="Views\Flyouts\SearchHistoryListItemFlyout.xaml.cs">
       <DependentUpon>SearchHistoryListItemFlyout.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\LiveInfomationPage.xaml.cs">
+      <DependentUpon>LiveInfomationPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\MylistListItem.xaml.cs">
       <DependentUpon>MylistListItem.xaml</DependentUpon>
@@ -456,6 +469,10 @@
     <Compile Include="Views\TemplateSelector\MenuSubPageTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\NullableTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\SearchTargetContentTemplateSelector.cs" />
+    <Compile Include="Views\TemplateSelector\ValueDataTemplateSelector.cs" />
+    <Compile Include="Views\TimeshiftPage.xaml.cs">
+      <DependentUpon>TimeshiftPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\_CommentRenderer\CommentRendererCompositionUI.xaml.cs">
       <DependentUpon>CommentRendererCompositionUI.xaml</DependentUpon>
     </Compile>
@@ -724,6 +741,8 @@
     </AppxManifest>
     <Content Include="Assets\UpdateNotices\0.14.8.md" />
     <Content Include="Assets\UpdateNotices\0.14.10.md" />
+    <Content Include="Assets\UpdateNotices\0.14.11.md" />
+    <Content Include="Assets\UpdateNotices\0.15.0.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <None Include="NicoPlayerHohoema_TemporaryKey.pfx" />
   </ItemGroup>
@@ -847,6 +866,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Controls\IchibaItemCard.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Controls\TransientContainer\TransientContainer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -856,6 +879,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Flyouts\SearchHistoryListItemFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\LiveInfomationPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -872,6 +899,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\RankingCategoryPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\TimeshiftPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

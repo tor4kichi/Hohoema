@@ -979,7 +979,7 @@ namespace NicoPlayerHohoema
             }
         }
 
-        static readonly Regex NicoContentRegex = new Regex("http:\\/\\/([\\w\\W]*?)\\/((\\w*)\\/)?([\\w-]*)");
+        static readonly Regex NicoContentRegex = new Regex("https?:\\/\\/([\\w\\W]*?)\\/((\\w*)\\/)?([\\w-]*)");
         private async Task ExtractNicoContentId_And_SubmitSuggestion(Uri url)
         {
             var match = NicoContentRegex.Match(url.OriginalString);
@@ -990,6 +990,7 @@ namespace NicoPlayerHohoema
                 var contentIdGroup = match.Groups[4];
 
                 var contentId = contentIdGroup.Value;
+                
                 if (NiconicoRegex.IsVideoId(contentId))
                 {
                     SubmitVideoContentSuggestion(contentId);
@@ -1001,9 +1002,11 @@ namespace NicoPlayerHohoema
                 else if (contentTypeGroup.Success)
                 {
                     var contentType = contentTypeGroup.Value;
-
                     switch (contentType)
                     {
+                        case "watch":
+                            SubmitVideoContentSuggestion(contentId);
+                            break;
                         case "mylist":
                             await SubmitMylistContentSuggestion(contentId);
                             break;
@@ -1013,7 +1016,6 @@ namespace NicoPlayerHohoema
                         case "user":
                             await SubmitUserSuggestion(contentId);
                             break;
-
                     }
                 }
                 else if (hostNameGroup.Success)
@@ -1086,32 +1088,45 @@ namespace NicoPlayerHohoema
         {
             var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
 
-            var liveDesc = await hohoemaApp.NiconicoContext.Live.GetPlayerStatusAsync(liveId);
+            var liveDesc = await hohoemaApp.NiconicoContext.Live.GetLiveVideoInfoAsync(liveId);
 
             if (liveDesc == null) { return; }
 
+            var liveTitle = liveDesc.VideoInfo.Video.Title;
+
             var payload = new InAppNotificationPayload()
             {
-                Content = $"{liveDesc.Program.Title} をお探しですか？",
+                Content = $"{liveTitle} をお探しですか？",
                 ShowDuration = DefaultNotificationShowDuration,
                 SymbolIcon = Symbol.Video,
                 IsShowDismissButton = true,
                 Commands = {
                         new InAppNotificationCommand()
                         {
-                            Label = "視聴開始",
+                            Label = "視聴する",
                             Command = new DelegateCommand(() =>
                             {
-                                hohoemaApp.Playlist.PlayLiveVideo(liveId, liveDesc.Program.Title);
+                                hohoemaApp.Playlist.PlayLiveVideo(liveId, liveTitle);
 
                                 DismissInAppNotification();
                             })
                         },
-                        
+                        new InAppNotificationCommand()
+                        {
+                            Label = "放送情報を確認",
+                            Command = new DelegateCommand(() =>
+                            {
+                                var pageManager = App.Current.Container.Resolve<PageManager>();
+                                pageManager.OpenPage(HohoemaPageType.LiveInfomation, liveId);
+
+                                DismissInAppNotification();
+                            })
+                        },
+
                     }
             };
 
-            if (liveDesc.Program.IsCommunity)
+            if (liveDesc.VideoInfo.Community != null)
             {
                 payload.Commands.Add(new InAppNotificationCommand()
                 {
@@ -1119,7 +1134,7 @@ namespace NicoPlayerHohoema
                     Command = new DelegateCommand(() =>
                     {
                         var pageManager = App.Current.Container.Resolve<PageManager>();
-                        pageManager.OpenPage(HohoemaPageType.Community, liveDesc.Program.CommunityId);
+                        pageManager.OpenPage(HohoemaPageType.Community, liveDesc.VideoInfo.Community.GlobalId);
 
                         DismissInAppNotification();
                     })

@@ -77,12 +77,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         private CoreDispatcher _CurrentWindowDispatcher;
 
-		/// <summary>
-		/// 生放送の再生時間をローカルで更新する頻度
-		/// </summary>
-		/// <remarks>コメント描画を120fpsで行えるように0.008秒で更新しています</remarks>
-		public static TimeSpan LiveElapsedTimeUpdateInterval { get; private set; } 
-			= TimeSpan.FromSeconds(1);
 
 
 
@@ -153,13 +147,13 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _LiveElapsedTime, value); }
 		}
 
-		Helpers.AsyncLock _LiveElapsedTimeUpdateTimerLock = new Helpers.AsyncLock();
-		Timer _LiveElapsedTimeUpdateTimer;
 
-
+        
         private DateTimeOffset _OpenAt;
         private DateTimeOffset _StartAt;
         private DateTimeOffset _EndAt;
+
+        public ReactiveProperty<bool> IsWatchWithTimeshift { get; private set; }
 
         public ReactiveProperty<TimeSpan> WatchStartLiveElapsedTime { get; private set; }
         // play
@@ -190,8 +184,16 @@ namespace NicoPlayerHohoema.ViewModels
 
         public DelegateCommand<string> ChangeQualityCommand { get; }
 
-        // comment
+        public ReactiveCommand<TimeSpan?> SeekVideoCommand { get; private set; }
 
+        public IReadOnlyReactiveProperty<bool> CanSeek { get; }
+        public ReactiveProperty<double> SeekBarTimeshiftPosition { get; }
+        private ReactiveProperty<double> _MaxSeekablePosition { get; }
+        public IReadOnlyReactiveProperty<double> MaxSeekablePosition => _MaxSeekablePosition;
+        private bool _NowSeekBarPositionChanging = false;
+
+
+        // comment
 
         public ReactiveProperty<bool> IsCommentDisplayEnable { get; private set; }
         public ReactiveProperty<TimeSpan> CommentUpdateInterval { get; private set; }
@@ -265,18 +267,14 @@ namespace NicoPlayerHohoema.ViewModels
             LiveComments = new ReadOnlyObservableCollection<Views.Comment>(_LiveComments);
             FilterdComments.Source = LiveComments;
 
-            // next live dtection
-            NowRunningNextLiveDetection = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
-
             // play
-            WatchStartLiveElapsedTime = new ReactiveProperty<TimeSpan>(raiseEventScheduler:CurrentWindowContextScheduler);
+            WatchStartLiveElapsedTime = new ReactiveProperty<TimeSpan>(raiseEventScheduler:CurrentWindowContextScheduler, initialValue: TimeSpan.Zero);
             CurrentState = new ReactiveProperty<MediaElementState>(MediaElementState.Closed);
             NowPlaying = CurrentState.Select(x => x == MediaElementState.Playing)
                 .ToReactiveProperty(CurrentWindowContextScheduler);
 
             NowConnecting = Observable.CombineLatest(
-                CurrentState.Select(x => x == MediaElementState.Opening || x == MediaElementState.Buffering),
-                NowRunningNextLiveDetection
+                CurrentState.Select(x => x == MediaElementState.Opening || x == MediaElementState.Buffering)
                 )
                 .Select(x => x.Any(y => y))
                 .ToReadOnlyReactiveProperty(eventScheduler:CurrentWindowContextScheduler)
@@ -323,8 +321,43 @@ namespace NicoPlayerHohoema.ViewModels
                 .Subscribe(x => 
                 {
                     FilterdComments.RefreshFilter();
-                });
-                
+                })
+                .AddTo(_CompositeDisposable);
+
+
+            IsWatchWithTimeshift = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
+                .AddTo(_CompositeDisposable);
+
+            SeekVideoCommand = IsWatchWithTimeshift.ToReactiveCommand<TimeSpan?>(scheduler: CurrentWindowContextScheduler)
+                    .AddTo(_CompositeDisposable);
+            SeekVideoCommand.Subscribe(async time =>
+            {
+                if (!time.HasValue) { return; }
+                var session = MediaPlayer.PlaybackSession;
+
+                NicoLiveVideo.TimeshiftPosition = (NicoLiveVideo.TimeshiftPosition ?? TimeSpan.Zero) + session.Position + time;
+                await NicoLiveVideo.Refresh();
+            })
+            .AddTo(_CompositeDisposable);
+
+            SeekBarTimeshiftPosition = new ReactiveProperty<double>(CurrentWindowContextScheduler, 0.0, mode: ReactivePropertyMode.DistinctUntilChanged)
+                .AddTo(_CompositeDisposable);
+            _MaxSeekablePosition = new ReactiveProperty<double>(CurrentWindowContextScheduler, 0.0)
+                .AddTo(_CompositeDisposable);
+
+            SeekBarTimeshiftPosition
+                .Where(_ => !_NowSeekBarPositionChanging)
+                .Throttle(TimeSpan.FromSeconds(0.25))
+                .Subscribe(async x =>
+                {
+                    var time = TimeSpan.FromSeconds(x);
+
+                    var session = MediaPlayer.PlaybackSession;
+                    NicoLiveVideo.TimeshiftPosition = time;
+                    WatchStartLiveElapsedTime.Value = time;
+                    await NicoLiveVideo.Refresh();
+                })
+                .AddTo(_CompositeDisposable);
 
             // post comment
             WritingComment = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
@@ -356,10 +389,11 @@ namespace NicoPlayerHohoema.ViewModels
                     NowSubmittingComment.Value = true;
                     await NicoLiveVideo.PostComment(WritingComment.Value, CommandString.Value, LiveElapsedTime);
                 }
-			});
+			})
+            .AddTo(_CompositeDisposable);
 
 
-			// operation command
+            // operation command
             BroadcasterLiveOperationCommand = new ReactiveProperty<LiveOperationCommand>(PlayerWindowUIDispatcherScheduler)
                 .AddTo(_CompositeDisposable);
 
@@ -546,7 +580,7 @@ namespace NicoPlayerHohoema.ViewModels
             // OnAirかCommingSoonの時
 
             CanRefresh = Observable.CombineLatest(
-                this.CurrentState.Select(x => x == MediaElementState.Closed),
+                this.CurrentState.Select(x => x == MediaElementState.Closed || x == MediaElementState.Paused),
                 this.LiveStatusType.Select(x => x == Models.Live.LiveStatusType.OnAir || x == Models.Live.LiveStatusType.ComingSoon)
                 )
                 .Select(x => x.All(y => y))
@@ -558,36 +592,49 @@ namespace NicoPlayerHohoema.ViewModels
 
             RefreshCommand.Subscribe(async _ => 
             {
-                if (await TryUpdateLiveStatus())
+                if (IsWatchWithTimeshift.Value)
                 {
-                    await NicoLiveVideo.Refresh();
-
-                    // MediaPlayer.PositionはSourceを再設定するたびに0にリセットされる
-                    // ソース更新後のコメント表示再生位置のズレを補正する
-                    WatchStartLiveElapsedTime.Value = (DateTime.Now - _OpenAt);
-
-                    // 配信終了１分前であれば次枠検出をスタートさせる
-                    if (DateTime.Now > _EndAt - TimeSpan.FromMinutes(1))
-                    {
-                        NicoLiveVideo.StartNextLiveDetection(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
-                    }
+                    MediaPlayer.Play();
                 }
                 else
                 {
-                    // 配信時間内に別の枠を取り直していた場合に対応する
-                    NicoLiveVideo.StartNextLiveDetection(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
+                    if (await TryUpdateLiveStatus())
+                    {
+                        await NicoLiveVideo.Refresh();
+
+                        // MediaPlayer.PositionはSourceを再設定するたびに0にリセットされる
+                        // ソース更新後のコメント表示再生位置のズレを補正する
+                        if (!IsWatchWithTimeshift.Value)
+                        {
+                            WatchStartLiveElapsedTime.Value = (DateTimeOffset.Now.ToOffset(NicoLiveVideo.JapanTimeZoneOffset) - _OpenAt);
+                        }
+                    }
                 }
             })
             .AddTo(_CompositeDisposable);
 
-            PauseCommand = this.CurrentState.Select(x => x == MediaElementState.Playing)
-                .ToReactiveCommand(scheduler: PlayerWindowUIDispatcherScheduler)
+            TogglePlayPauseCommand = new ReactiveCommand(PlayerWindowUIDispatcherScheduler)
                 .AddTo(_CompositeDisposable);
 
-            PauseCommand.Subscribe(_ => 
+            TogglePlayPauseCommand.Subscribe(_ => 
             {
-                MediaPlayer.Source = null;
-            });
+                if (IsWatchWithTimeshift.Value)
+                {
+                    if (MediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Playing)
+                    {
+                        MediaPlayer.Pause();
+                    }
+                    else
+                    {
+                        MediaPlayer.Play();
+                    }
+                }
+                else
+                {
+                    MediaPlayer.Source = null;
+                }
+            })
+            .AddTo(_CompositeDisposable);
 
 
             CurrentState.Where(x => x == MediaElementState.Playing)
@@ -596,6 +643,12 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     IsDisplayControlUI.Value = false;
                 })
+                .AddTo(_CompositeDisposable);
+
+
+            CanSeek = Observable.CombineLatest(IsWatchWithTimeshift, CurrentState.Select(x => x == MediaElementState.Paused || x == MediaElementState.Playing || x == MediaElementState.Stopped))
+                .Select(x => x.All(y => y))
+                .ToReadOnlyReactiveProperty(eventScheduler: PlayerWindowUIDispatcherScheduler)
                 .AddTo(_CompositeDisposable);
         }
 
@@ -622,7 +675,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveCommand RefreshCommand { get; private set; }
 
-        public ReactiveCommand PauseCommand { get; private set; }
+        public ReactiveCommand TogglePlayPauseCommand { get; private set; }
 
 
 		private DelegateCommand _ToggleMuteCommand;
@@ -849,7 +902,7 @@ namespace NicoPlayerHohoema.ViewModels
                 })
                 .AddTo(_NavigatingCompositeDisposable);
 
-                NicoLiveVideo = new NicoLiveVideo(LiveId, MediaPlayer, HohoemaApp);
+                NicoLiveVideo = new NicoLiveVideo(LiveId, MediaPlayer, HohoemaApp, this.CurrentWindowContextScheduler);
                 
                 NicoLiveVideo.LiveComments.ObserveAddChanged()
                     .Subscribe(x =>
@@ -926,29 +979,36 @@ namespace NicoPlayerHohoema.ViewModels
 					.AddTo(_NavigatingCompositeDisposable);
 				RaisePropertyChanged(nameof(WatchCount));
 
-				CommunityId = NicoLiveVideo.BroadcasterCommunityId;
+				CommunityId = NicoLiveVideo.BroadcasterCommunityId;                
 
+                // post comment 
+                NicoLiveVideo.PostCommentResult += NicoLiveVideo_PostCommentResult;
 
-				// post comment 
-				NicoLiveVideo.PostCommentResult += NicoLiveVideo_PostCommentResult;
-
-
-                // next live
-                NicoLiveVideo.NextLiveDetectionStarted += NicoLiveVideo_StartNextLiveDetection;
-                NicoLiveVideo.NextLiveDetectionCompleted += NicoLiveVideo_CompleteNextLiveDetection;
 
                 NicoLiveVideo.OpenLive += NicoLiveVideo_OpenLive;
                 NicoLiveVideo.CloseLive += NicoLiveVideo_CloseLive;
                 NicoLiveVideo.FailedOpenLive += NicoLiveVideo_FailedOpenLive1;
                 NicoLiveVideo.OperationCommandRecieved += NicoLiveVideo_OperationCommandRecieved;
-
+                NicoLiveVideo.LiveElapsed += NicoLiveVideo_LiveElapsed;
             }
 
 			base.OnNavigatedTo(e, viewModelState);
 		}
 
-       
-       
+        private void NicoLiveVideo_LiveElapsed(object sender, TimeSpan e)
+        {
+            PlayerWindowUIDispatcherScheduler.Schedule(() => 
+            {
+                LiveElapsedTime = e;
+
+                if (NicoLiveVideo?.IsWatchWithTimeshift == true)
+                {
+                    _NowSeekBarPositionChanging = true;
+                    SeekBarTimeshiftPosition.Value = (NicoLiveVideo.LiveElapsedTimeFromOpen).TotalSeconds;
+                    _NowSeekBarPositionChanging = false;
+                }
+            });
+        }
 
         protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
@@ -965,8 +1025,6 @@ namespace NicoPlayerHohoema.ViewModels
                     _OpenAt = liveInfo.VideoInfo.Video.OpenTime.Value;
                     _StartAt = liveInfo.VideoInfo.Video.StartTime.Value;
                     _EndAt = liveInfo.VideoInfo.Video.EndTime.Value;
-
-                    WatchStartLiveElapsedTime.Value = (DateTime.Now - _OpenAt);
                 }
             }
             catch (Exception ex)
@@ -999,8 +1057,6 @@ namespace NicoPlayerHohoema.ViewModels
                 NicoLiveVideo?.Dispose();
                 NicoLiveVideo = null;
 
-                await StopLiveElapsedTimer().ConfigureAwait(false);
-
                 throw;
             }
 
@@ -1014,14 +1070,11 @@ namespace NicoPlayerHohoema.ViewModels
 			{
                 if (NicoLiveVideo != null)
                 {
-                    NicoLiveVideo.NextLiveDetectionStarted -= NicoLiveVideo_StartNextLiveDetection;
-                    NicoLiveVideo.NextLiveDetectionCompleted -= NicoLiveVideo_CompleteNextLiveDetection;
-
                     NicoLiveVideo.OpenLive -= NicoLiveVideo_OpenLive;
                     NicoLiveVideo.CloseLive -= NicoLiveVideo_CloseLive;
                     NicoLiveVideo.FailedOpenLive -= NicoLiveVideo_FailedOpenLive1;
                     NicoLiveVideo.OperationCommandRecieved -= NicoLiveVideo_OperationCommandRecieved;
-
+                    
                     NicoLiveVideo.Dispose();
                     NicoLiveVideo = null;
                 }
@@ -1032,7 +1085,6 @@ namespace NicoPlayerHohoema.ViewModels
             MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
 
 			IsFullScreen.Value = false;
-			StopLiveElapsedTimer().ConfigureAwait(false);
 
             _PrevPrevSidePaneContentType = CurrentSidePaneContentType.Value;
             CurrentSidePaneContentType.Value = null;
@@ -1063,11 +1115,26 @@ namespace NicoPlayerHohoema.ViewModels
                 
                 MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
 
-				await NicoLiveVideo.StartLiveWatchingSessionAsync();
+                await NicoLiveVideo.StartLiveWatchingSessionAsync();
 
-                ResetSuggestion(NicoLiveVideo.LiveStatusType);
+                IsWatchWithTimeshift.Value = NicoLiveVideo.IsWatchWithTimeshift;
+
+                if (!IsWatchWithTimeshift.Value)
+                {
+                    WatchStartLiveElapsedTime.Value = (DateTimeOffset.Now.ToOffset(NicoLiveVideo.JapanTimeZoneOffset) - _OpenAt);
+                    ResetSuggestion(NicoLiveVideo.LiveStatusType);
+                }
+                else
+                {
+                    WatchStartLiveElapsedTime.Value = NicoLiveVideo.TimeshiftPosition.Value;
+                }
+
+                Debug.WriteLine(this.NicoLiveVideo.LiveInfo.VideoInfo.Video.TsArchiveStartTime);
+                Debug.WriteLine(this.NicoLiveVideo.LiveInfo.VideoInfo.Video.TsArchiveEndTime);
+
+                _MaxSeekablePosition.Value = (_EndAt - _OpenAt).TotalSeconds;
             }
-			catch (Exception ex)
+            catch (Exception ex)
 			{
 				Debug.WriteLine(ex.ToString());
             }
@@ -1142,91 +1209,14 @@ namespace NicoPlayerHohoema.ViewModels
 
 			return liveStatus == null;
 		}
-
-	
-
-
-		private async Task StartLiveElapsedTimer()
-		{
-			await StopLiveElapsedTimer();
-
-			using (var releaser = await _LiveElapsedTimeUpdateTimerLock.LockAsync())
-			{
-				_LiveElapsedTimeUpdateTimer = new Timer(UpdateLiveElapsedTime,
-					null,
-					TimeSpan.Zero,
-					LiveElapsedTimeUpdateInterval
-				);
-			}
-
-			Debug.WriteLine("live elapsed timer started.");
-		}
-
-		private async Task StopLiveElapsedTimer()
-		{
-			using (var releaser = await _LiveElapsedTimeUpdateTimerLock.LockAsync())
-			{
-				if (_LiveElapsedTimeUpdateTimer != null)
-				{
-					_LiveElapsedTimeUpdateTimer?.Dispose();
-					_LiveElapsedTimeUpdateTimer = null;
-
-					Debug.WriteLine("live elapsed timer stoped.");
-
-					await Task.Delay(500);
-				}
-			}
-		}
-
-		bool _IsEndMarked;
 		
-		/// <summary>
-		/// 放送開始からの経過時間を更新します
-		/// </summary>
-		/// <param name="state">Timerオブジェクトのコールバックとして登録できるようにするためのダミー</param>
-		async void UpdateLiveElapsedTime(object state = null)
-		{
-			await _CurrentWindowDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, async () => 
-			{
-                using (var releaser = await _LiveElapsedTimeUpdateTimerLock.LockAsync())
-                {
-                    // ローカルの現在時刻から放送開始のベース時間を引いて
-                    // 放送経過時間の絶対値を求める
-                    LiveElapsedTime = DateTime.Now - _StartAt;
-
-                    // 終了時刻を過ぎたら生放送情報を更新する
-                    if (!_IsEndMarked && DateTime.Now > _EndAt)
-                    {
-                        _IsEndMarked = true;
-
-                        await Task.Delay(TimeSpan.FromSeconds(3));
-                        if (await TryUpdateLiveStatus())
-                        {
-                            // 放送が延長されていた場合は継続
-                            // _EndAtもTryUpdateLiveStatus内で更新されているはず
-                            _IsEndMarked = false;
-                        }
-                    }
-
-                    // 終了時刻の３０秒前から
-                    if (!(NicoLiveVideo?.NowRunningNextLiveDetection ?? true) && DateTime.Now > _EndAt - TimeSpan.FromSeconds(10))
-                    {
-                        NicoLiveVideo.StartNextLiveDetection(NicoLiveVideo.DefaultNextLiveSubscribeDuration);
-                    }
-
-                }
-            });
-        }
-
-
-
 		/// <summary>
 		/// 生放送終了後などに表示するユーザーアクションの候補を再設定します。
 		/// </summary>
 		/// <param name="liveStatus"></param>
 		private void ResetSuggestion(LiveStatusType? liveStatus)
 		{
-			if (liveStatus == null || liveStatus == Models.Live.LiveStatusType.OnAir)
+			if (liveStatus == null || liveStatus == Models.Live.LiveStatusType.OnAir || IsWatchWithTimeshift.Value)
 			{
 				Suggestion.Value = null;
 			}
@@ -1454,9 +1444,9 @@ namespace NicoPlayerHohoema.ViewModels
                     }
                     break;
                 case "disconnect":
-                    if (PauseCommand.CanExecute())
+                    if (TogglePlayPauseCommand.CanExecute())
                     {
-                        PauseCommand.Execute();
+                        TogglePlayPauseCommand.Execute();
                     }
 
                     ResetSuggestion(LiveStatusType.Value = Models.Live.LiveStatusType.Closed);
@@ -1490,7 +1480,8 @@ namespace NicoPlayerHohoema.ViewModels
             Debug.WriteLine("NicoLiveVideo_OpenLive");
 
             if (NicoLiveVideo.LiveStatusType == Models.Live.LiveStatusType.OnAir ||
-                    NicoLiveVideo.LiveStatusType == Models.Live.LiveStatusType.ComingSoon
+                    NicoLiveVideo.LiveStatusType == Models.Live.LiveStatusType.ComingSoon ||
+                    NicoLiveVideo.IsWatchWithTimeshift
                     )
             {
                 CurrentState.Value = MediaElementState.Opening;
@@ -1498,8 +1489,6 @@ namespace NicoPlayerHohoema.ViewModels
                 LivePlayerType.Value = NicoLiveVideo.LivePlayerType;
 
                 RaisePropertyChanged(nameof(MediaPlayer));
-
-                await StartLiveElapsedTimer();
 
                 CommunityId = NicoLiveVideo.BroadcasterCommunityId;
 
@@ -1539,9 +1528,12 @@ namespace NicoPlayerHohoema.ViewModels
                         {
                             CurrentQuality.Value = x;
 
-                                // MediaPlayer.PositionはSourceを再設定するたびに0にリセットされる
-                                // ソース更新後のコメント表示再生位置のズレを補正する
-                                WatchStartLiveElapsedTime.Value = (DateTime.Now - _OpenAt);
+                            // MediaPlayer.PositionはSourceを再設定するたびに0にリセットされる
+                            // ソース更新後のコメント表示再生位置のズレを補正する
+                            if (!IsWatchWithTimeshift.Value)
+                            {
+                                WatchStartLiveElapsedTime.Value = (DateTimeOffset.Now.ToOffset(NicoLiveVideo.JapanTimeZoneOffset) - _OpenAt);
+                            }
                         });
 
                     NicoLiveVideo.ObserveProperty(x => x.Qualities)
@@ -1579,37 +1571,15 @@ namespace NicoPlayerHohoema.ViewModels
             }
             else
             {
+                ResetSuggestion(NicoLiveVideo.LiveStatusType);
+
                 Debug.WriteLine("生放送情報の取得失敗しました " + LiveId);
             }
 
-            ResetSuggestion(NicoLiveVideo.LiveStatusType);
+            
         }
 
-
-
-
-        public ReactiveProperty<bool> NowRunningNextLiveDetection { get; private set; }
-
-        private void NicoLiveVideo_CompleteNextLiveDetection(object sender, CompleteNextLiveDetectionEventArgs e)
-        {
-            NowRunningNextLiveDetection.Value = false;
-
-            if (e.IsSuccess)
-            {
-                HohoemaApp.Playlist.PlayLiveVideo(e.NextLiveId, LiveTitle);
-            }
-            else
-            {
-                // 見つからない
-            }
-        }
-
-        private void NicoLiveVideo_StartNextLiveDetection(object sender, StartNextLiveDetectionEventArgs e)
-        {
-            // 次枠検出開始
-            NowRunningNextLiveDetection.Value = true;
-        }
-
+        
 
         #endregion
 

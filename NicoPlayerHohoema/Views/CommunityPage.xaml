@@ -20,7 +20,6 @@
     xmlns:listitem="using:NicoPlayerHohoema.Views.HohoemaListItem"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
-    NavigationCacheMode="Enabled"
     >
 
 

@@ -108,7 +108,7 @@ namespace NicoPlayerHohoema.ViewModels
                         if (target.HasValue && target.Value != SearchOption.SearchTarget)
                         {
                             var payload = SearchPagePayloadContentHelper.CreateDefault(target.Value, SearchOption.Keyword);
-                            PageManager.Search(payload, true);
+                            PageManager.Search(payload);
                         }
                     }));
             }
@@ -150,7 +150,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-            if (e.Parameter is string)
+            if (e.Parameter is string && e.NavigationMode == NavigationMode.New)
             {
                 SearchOption = PagePayloadBase.FromParameterString<MylistSearchPagePayloadContent>(e.Parameter as string);
             }
@@ -159,7 +159,13 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (SearchOption == null)
             {
-                throw new Exception();
+                var oldOption = viewModelState[nameof(SearchOption)] as string;
+                SearchOption = PagePayloadBase.FromParameterString<MylistSearchPagePayloadContent>(oldOption);
+
+                if (SearchOption == null)
+                {
+                    throw new Exception();
+                }
             }
 
             SelectedSearchSort.Value = MylistSearchOptionListItems.FirstOrDefault(x => x.Order == SearchOption.Order && x.Sort == SearchOption.Sort);
@@ -181,12 +187,27 @@ namespace NicoPlayerHohoema.ViewModels
             base.OnNavigatedTo(e, viewModelState);
 		}
 
-		#region Implement HohoemaVideListViewModelBase
+        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+        {
+            viewModelState[nameof(SearchOption)] = SearchOption.ToParameterString();
+
+            base.OnNavigatingFrom(e, viewModelState, suspending);
+        }
+
+        #region Implement HohoemaVideListViewModelBase
 
 
-		protected override IIncrementalSource<IPlayableList> GenerateIncrementalSource()
+        protected override IIncrementalSource<IPlayableList> GenerateIncrementalSource()
 		{
-			return new MylistSearchSource(SearchOption, HohoemaApp, PageManager);
+			return new MylistSearchSource(new MylistSearchPagePayloadContent()
+            {
+                Keyword = SearchOption.Keyword,
+                Sort = SearchOption.Sort,
+                Order = SearchOption.Order
+            } 
+            , HohoemaApp
+            , PageManager
+            );
 		}
 
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)

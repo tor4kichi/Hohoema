@@ -1,0 +1,440 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.TimeshiftPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
+    xmlns:viewmodels="using:NicoPlayerHohoema.ViewModels"
+    xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    xmlns:liveDetail="using:Mntone.Nico2.Live.ReservationsInDetail"
+    mc:Ignorable="d"
+    >
+
+    <Page.Resources>
+
+       
+        <DataTemplate x:Key="TimeshiftItem_Reserved" >
+            <Grid Opacity="0.6">
+                <TextBlock Text="{Binding ReservationStatus, Converter={StaticResource ToLocalText}}"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Bottom"
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                           Opacity="0.7"
+                           />
+
+                <!-- 状態 -->
+                <toolkit:DockPanel>
+
+                    <Grid toolkit:DockPanel.Dock="Left"
+                        Margin="16 0"
+                          >
+                        <uwpcontrols:ImageEx Source="{Binding ThumbnailUrl}"
+                                             Height="80" 
+                                             Width="80"
+                                             />
+
+                        <Border HorizontalAlignment="Right" 
+                                VerticalAlignment="Bottom"
+                                CornerRadius="4 0 0 0"
+                                >
+                            <Border.Background>
+                                <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                            </Border.Background>
+
+                            <TextBlock Text="{Binding Duration, Converter={StaticResource TimeToMovieLengthConverter}}" 
+                               Padding="4 0 3 3" 
+                               TextWrapping="Wrap" VerticalAlignment="Center" 
+                               FontSize="13"
+                               
+                               />
+                        </Border>
+                    </Grid>
+                    
+
+                    <TextBlock toolkit:DockPanel.Dock="Top"
+                                       FontSize="12"
+                                       Opacity="0.7"
+                                       >
+                        <Run Text="{Binding StartTime, Converter={StaticResource DateTimeToString}}" />
+                    </TextBlock>
+
+                    <TextBlock Text="{Binding ExpiredAt, Converter={StaticResource ExpiredDateTimeToString}}"
+                                       toolkit:DockPanel.Dock="Bottom"
+                                       FontSize="12"
+                                       Opacity="0.7"
+                               Visibility="Collapsed"
+                                       />
+
+                    <TextBlock Text="{Binding Title}" 
+                               FontSize="16"
+                               TextWrapping="Wrap"
+                                            />
+
+                </toolkit:DockPanel>
+
+
+
+
+            </Grid>
+        </DataTemplate>
+
+        <DataTemplate x:Key="TimeshiftItem_Watch" >
+            <Grid>
+                <TextBlock Text="{Binding ReservationStatus, Converter={StaticResource ToLocalText}}"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Bottom"
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                           Opacity="0.7"
+                           />
+                
+                <!-- 状態 -->
+                <toolkit:DockPanel>
+
+                    <Grid toolkit:DockPanel.Dock="Left"
+                          Margin="16 0"
+                          >
+                        <uwpcontrols:ImageEx Source="{Binding ThumbnailUrl}"
+                                    Height="80" 
+                                    Width="80"
+                                             />
+
+                        <Border HorizontalAlignment="Right" 
+                                VerticalAlignment="Bottom"
+                                CornerRadius="4 0 0 0"
+                                >
+                            <Border.Background>
+                                <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                            </Border.Background>
+
+                            <TextBlock Text="{Binding Duration, Converter={StaticResource TimeToMovieLengthConverter}}" 
+                               Padding="4 0 3 3" 
+                               TextWrapping="Wrap" VerticalAlignment="Center" 
+                               FontSize="13"
+                               
+                               />
+                        </Border>
+                    </Grid>
+
+                    <TextBlock toolkit:DockPanel.Dock="Top"
+                                       FontSize="12"
+                                       Opacity="0.7"
+                                       >
+                        <Run Text="{Binding StartTime, Converter={StaticResource DateTimeToString}}" />
+                    </TextBlock>
+
+                    <TextBlock Text="{Binding ExpiredAt, Converter={StaticResource ExpiredDateTimeToString}}"
+                                       toolkit:DockPanel.Dock="Bottom"
+                                       FontSize="12"
+                                       Opacity="0.7"
+                                       />
+
+                    <TextBlock Text="{Binding Title}" 
+                               FontSize="16"
+                               TextWrapping="Wrap"
+                                            />
+
+                </toolkit:DockPanel>
+                
+                
+                
+
+            </Grid>
+        </DataTemplate>
+
+        
+        <DataTemplate x:Key="TimeshiftItem_TimeOut" >
+            <Grid Opacity="0.6">
+                <TextBlock Text="{Binding ReservationStatus, Converter={StaticResource ToLocalText}}"
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Bottom"
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                           Opacity="0.7"
+                           />
+
+                <!-- 状態 -->
+                <toolkit:DockPanel>
+
+                    <Grid toolkit:DockPanel.Dock="Left"
+                          Margin="16 0"
+                          >
+                        <uwpcontrols:ImageEx Source="{Binding ThumbnailUrl}"
+                                    Height="80" 
+                                    Width="80"
+                                             />
+
+                        <Border HorizontalAlignment="Right" 
+                                VerticalAlignment="Bottom"
+                                CornerRadius="4 0 0 0"
+                                >
+                            <Border.Background>
+                                <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                            </Border.Background>
+
+                            <TextBlock Text="{Binding Duration, Converter={StaticResource TimeToMovieLengthConverter}}" 
+                               Padding="4 0 3 3" 
+                               TextWrapping="Wrap" VerticalAlignment="Center" 
+                               FontSize="13"
+                               
+                               />
+                        </Border>
+                    </Grid>
+
+                    <TextBlock toolkit:DockPanel.Dock="Top"
+                                       FontSize="12"
+                                       Opacity="0.7"
+                                       >
+                        <Run Text="{Binding StartTime, Converter={StaticResource DateTimeToString}}" />
+                    </TextBlock>
+
+                    <TextBlock Text="{Binding ExpiredAt, Converter={StaticResource ExpiredDateTimeToString}}"
+                                       toolkit:DockPanel.Dock="Bottom"
+                                       FontSize="12"
+                                       Opacity="0.7"
+                                       />
+
+                    <TextBlock Text="{Binding Title}" 
+                               FontSize="16"
+                               TextWrapping="Wrap"
+                                            />
+
+                </toolkit:DockPanel>
+
+
+
+
+            </Grid>
+        </DataTemplate>
+       
+        <templateselector:ValueDataTemplateSelector x:Key="TimeshiftItemTemplateSelector"
+                                                    PropertyName="ReservationStatus"
+                                                    >
+            <templateselector:ValueDataTemplate Value="{x:Bind liveDetail:ReservationStatus.RESERVED}"
+                                                Template="{StaticResource TimeshiftItem_Reserved}"
+                                                />
+
+            <templateselector:ValueDataTemplate Value="{x:Bind liveDetail:ReservationStatus.WATCH}"
+                                                Template="{StaticResource TimeshiftItem_Watch}"
+                                                />
+            <templateselector:ValueDataTemplate Value="{x:Bind liveDetail:ReservationStatus.FIRST_WATCH}"
+                                                Template="{StaticResource TimeshiftItem_Watch}"
+                                                />
+            <templateselector:ValueDataTemplate Value="{x:Bind liveDetail:ReservationStatus.TSARCHIVE}"
+                                                Template="{StaticResource TimeshiftItem_Watch}"
+                                                />
+            <templateselector:ValueDataTemplate Value="{x:Bind liveDetail:ReservationStatus.PRODUCT_ARCHIVE_WATCH}"
+                                                Template="{StaticResource TimeshiftItem_Watch}"
+                                                />
+
+            <templateselector:ValueDataTemplate Value="{x:Bind liveDetail:ReservationStatus.USER_TIMESHIFT_DATE_OUT}"
+                                                Template="{StaticResource TimeshiftItem_TimeOut}"
+                                                />
+            <templateselector:ValueDataTemplate Value="{x:Bind liveDetail:ReservationStatus.PRODUCT_ARCHIVE_TIMEOUT}"
+                                                Template="{StaticResource TimeshiftItem_TimeOut}"
+                                                />
+            <templateselector:ValueDataTemplate Value="{x:Bind liveDetail:ReservationStatus.USE_LIMIT_DATE_OUT}"
+                                                Template="{StaticResource TimeshiftItem_TimeOut}"
+                                                />
+
+            
+        </templateselector:ValueDataTemplateSelector>
+    </Page.Resources>
+
+    <Grid>
+
+        <VisualStateManager.VisualStateGroups>
+
+            <!-- ログインしている場合に有効になるサービスを表示する -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsLoggedIn}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+            <!-- トップバー表示時のタイトル位置ずらし -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ItemsList.Padding" Value="48 0 48 27" />
+                        <Setter Target="ScrollHeader.Mode" Value="None" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ScrollHeader.Mode" Value="QuickReturn" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsSelectionModeEnable.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="UpdateButton.Visibility" Value="Collapsed" />
+                        <Setter Target="ScrollToTopButton.Visibility" Value="Collapsed" />
+
+                        <Setter Target="SelectedDeletionButton.Visibility" Value="Visible" />
+
+                        <Setter Target="ItemsList.SelectionMode" Value="Multiple" />
+                        <Setter Target="ItemsList.IsItemClickEnabled" Value="False" />
+                        <Setter Target="ItemsList.IsMultiSelectCheckBoxEnabled" Value="True" />
+
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+
+
+        </VisualStateManager.VisualStateGroups>
+        
+        <uwpcontrols:PullToRefreshListView 
+                x:Name="ItemsList"
+                ItemsSource="{Binding ItemsView, Mode=OneWay}"
+                RefreshCommand="{Binding RefreshCommand}"
+                uwpExtensions:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                IsItemClickEnabled="True"
+                IncrementalLoadingTrigger="Edge"
+                PullThreshold="85"    
+                UseSystemFocusVisuals="True"
+                SelectionMode="None"
+                HorizontalContentAlignment="Stretch"
+                ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+                uwpExtensions:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
+                ScrollViewer.BringIntoViewOnFocusChange="False"
+            
+                ItemTemplateSelector="{StaticResource TimeshiftItemTemplateSelector}"
+            >
+            <i:Interaction.Behaviors>
+
+                <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems, Mode=TwoWay}" />
+
+                <mybehavior:KeyboardTrigger Key="F5">
+                    <mybehavior:KeyboardTrigger.Actions>
+                        <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
+                    </mybehavior:KeyboardTrigger.Actions>
+                </mybehavior:KeyboardTrigger>
+
+                <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
+            </i:Interaction.Behaviors>
+
+
+            <ListView.Header>
+                <uwpcontrols:ScrollHeader 
+                    x:Name="ScrollHeader"
+                    Mode="Sticky"
+                    
+                    >
+                    <toolkit:DockPanel x:Name="HeaderLayout"
+                                       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                                       >
+
+                        <StackPanel >
+
+                            <CommandBar x:Name="TopCommandBar"
+                                    toolkit:DockPanel.Dock="Right"
+                                    VerticalContentAlignment="Bottom"
+                                    >
+
+                                <CommandBar.SecondaryCommands>
+                                    <AppBarButton Label="{Binding Source=DeleteOutdatedReservationConfirm_Title, Converter={StaticResource ToLocalText}}"
+                                                  Icon="Delete" 
+                                                  Command="{Binding DeleteOutdatedReservations}"
+                                                  />
+
+                                </CommandBar.SecondaryCommands>
+
+                                <CommandBar.PrimaryCommands>
+
+                                    <AppBarButton x:Name="ScrollToTopButton"
+                                              Label="トップへ戻る"
+                                              Icon="Up"
+                                            >
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Click">
+                                                <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </AppBarButton>
+                                    <AppBarButton 
+                                        x:Name="UpdateButton"
+                                        Command="{Binding RefreshCommand}"
+                                        Background="Transparent" 
+                                        Icon="Refresh"
+                                        Label="更新"
+                                              
+                                        />
+
+                                    <AppBarButton x:Name="SelectedDeletionButton"
+                                          Command="{Binding DeleteSelectedReservations}"
+                                            Icon="Remove"
+                                            Label="予約削除"
+                                          Visibility="Collapsed"
+                                            />
+                                    <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            HorizontalContentAlignment="Stretch"
+                                            VerticalContentAlignment="Stretch"
+                                                x:Name="ToggleSelectionButton"
+                                            >
+                                        <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       />
+                                    </AppBarToggleButton>
+
+
+                                </CommandBar.PrimaryCommands>
+
+                            </CommandBar>
+
+                        </StackPanel>
+
+
+                    </toolkit:DockPanel>
+                </uwpcontrols:ScrollHeader>
+
+            </ListView.Header>
+
+            <uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
+                <StackPanel  Margin="0 32 0 0" >
+                    <Border Margin="0 16 0 0" BorderThickness="0 0 0 1" BorderBrush="Gray" />
+                    <SymbolIcon Symbol="Refresh" VerticalAlignment="Bottom" Height="48" Width="48" Margin="0 24 0 8"
+                            />
+                </StackPanel>
+            </uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
+
+        </uwpcontrols:PullToRefreshListView>
+
+    </Grid>
+    
+</Page>

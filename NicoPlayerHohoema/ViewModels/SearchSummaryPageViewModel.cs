@@ -130,7 +130,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .SelectMany(x => x)
                 .Select(x =>
                 {
-                    var liveVM = new LiveInfoViewModel(x, HohoemaApp.Playlist, PageManager);
+                    var liveVM = new LiveInfoViewModel(x);
                     return liveVM;
                 })
                 .ToReadOnlyReactiveCollection(onReset: this.ObserveProperty(x => x.Keyword).ToUnit());

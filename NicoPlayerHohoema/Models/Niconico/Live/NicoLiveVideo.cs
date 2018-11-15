@@ -20,6 +20,8 @@ using System.Xml.Linq;
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Media.Streaming.Adaptive;
+using Microsoft.Practices.Unity;
+using System.Reactive.Concurrency;
 
 namespace NicoPlayerHohoema.Models.Live
 {
@@ -73,6 +75,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 	public class NicoLiveVideo : BindableBase, IDisposable
 	{
+        public static readonly TimeSpan JapanTimeZoneOffset = +TimeSpan.FromHours(9);
 		public static readonly TimeSpan DefaultNextLiveSubscribeDuration =
 			TimeSpan.FromMinutes(3);
 
@@ -84,6 +87,8 @@ namespace NicoPlayerHohoema.Models.Live
         public event CloseLiveEventHandler CloseLive;
         public event FailedOpenLiveEventHandler FailedOpenLive;
         public event CommentPostedEventHandler PostCommentResult;
+
+        public event EventHandler<TimeSpan> LiveElapsed;
 
         public event EventHandler<OperationCommandRecievedEventArgs> OperationCommandRecieved;
 
@@ -107,8 +112,29 @@ namespace NicoPlayerHohoema.Models.Live
 
         public NicoliveVideoInfoResponse LiveInfo { get;private set; }
 
+
+
+        Mntone.Nico2.Live.ReservationsInDetail.Program _TimeshiftProgram;
+
+        public bool IsWatchWithTimeshift
+        {
+            get
+            {
+                var reservtionStatus = _TimeshiftProgram?.GetReservationStatus();
+
+                return reservtionStatus != null &&
+                    (reservtionStatus == Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus.FIRST_WATCH ||
+                    reservtionStatus == Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus.WATCH ||
+                    reservtionStatus == Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus.PRODUCT_ARCHIVE_WATCH ||
+                    reservtionStatus == Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus.TSARCHIVE
+                    );
+            }
+        }
+
+
+
 		private MediaStreamSource _VideoStreamSource;
-		private AsyncLock _VideoStreamSrouceAssignLock = new AsyncLock();
+		private Helpers.AsyncLock _VideoStreamSrouceAssignLock = new Helpers.AsyncLock();
 
 
 		/// <summary>
@@ -165,20 +191,17 @@ namespace NicoPlayerHohoema.Models.Live
 
 		public string NextLiveId { get; private set; }
 
-		Timer _NextLiveDetectionTimer;
-		AsyncLock _NextLiveSubscriveLock = new AsyncLock();
-
 		/// <summary>
 		/// 生放送動画をRTMPで受け取るための通信クライアント<br />
 		/// RTMPで正常に動画が受信できる状態になった場合 VideoStreamSource にインスタンスが渡される
 		/// </summary>
 		NicovideoRtmpClient _RtmpClient;
-		AsyncLock _RtmpClientAssignLock = new AsyncLock();
+        Helpers.AsyncLock _RtmpClientAssignLock = new Helpers.AsyncLock();
 
 
 
 		Timer _EnsureStartLiveTimer;
-		AsyncLock _EnsureStartLiveTimerLock = new AsyncLock();
+        Helpers.AsyncLock _EnsureStartLiveTimerLock = new Helpers.AsyncLock();
 
         public Live2WebSocket Live2WebSocket { get; private set; }
 
@@ -197,7 +220,9 @@ namespace NicoPlayerHohoema.Models.Live
 
 
 
-		AsyncLock _LiveSubscribeLock = new AsyncLock();
+        Helpers.AsyncLock _LiveSubscribeLock = new Helpers.AsyncLock();
+
+
 		
         public class OperatorCommand
         {
@@ -206,20 +231,23 @@ namespace NicoPlayerHohoema.Models.Live
             public string CommandParameter { get; set; }
         }
 
-		public NicoLiveVideo(string liveId, MediaPlayer mediaPlayer, HohoemaApp hohoemaApp, string communityId = null)
+        IScheduler _UIScheduler;
+
+		public NicoLiveVideo(string liveId, MediaPlayer mediaPlayer, HohoemaApp hohoemaApp, IScheduler scheduler, string communityId = null)
 		{
 			LiveId = liveId;
 			_CommunityId = communityId;
             MediaPlayer = mediaPlayer;
             HohoemaApp = hohoemaApp;
+            _UIScheduler = scheduler;
 
-			_LiveComments = new ObservableCollection<LiveChatData>();
+            _LiveComments = new ObservableCollection<LiveChatData>();
 			LiveComments = new ReadOnlyObservableCollection<LiveChatData>(_LiveComments);
 
 
             LiveComments.ObserveAddChanged()
                 .Where(x => x.IsOperater && x.HasOperatorCommand)
-                .SubscribeOnUIDispatcher()
+                .SubscribeOn(_UIScheduler)
                 .Subscribe(chat => 
                 {
                     OperationCommandRecieved?.Invoke(this, new OperationCommandRecievedEventArgs() { Chat = chat });
@@ -231,9 +259,6 @@ namespace NicoPlayerHohoema.Models.Live
             _Mss?.Dispose();
             _MediaSource?.Dispose();
 
-            // 次枠検出を終了
-            StopNextLiveDetection();
-
 			ExitLiveViewing().ConfigureAwait(false);
 
             Live2WebSocket?.Dispose();
@@ -241,11 +266,19 @@ namespace NicoPlayerHohoema.Models.Live
         }
 
 		public async Task UpdateLiveStatus()
-		{
-			LiveStatusType = LiveStatusType.Unknown;
+        {
+            LiveInfo = await HohoemaApp.NiconicoContext.Live.GetLiveVideoInfoAsync(LiveId);
+            if (LiveInfo == null)
+            {
+                throw new Exception("Invalid LiveId. (can not get Detail infomation from niconico)");
+            }
 
-			try
-			{
+            await RefreshTimeshiftProgram();
+
+            LiveStatusType = LiveStatusType.Unknown;
+
+            try
+            {
                 PlayerStatusResponse = await HohoemaApp.NiconicoContext.Live.GetPlayerStatusAsync(LiveId);
 
                 if (PlayerStatusResponse.Program.IsLive)
@@ -253,46 +286,57 @@ namespace NicoPlayerHohoema.Models.Live
                     LiveStatusType = Live.LiveStatusType.OnAir;
                 }
             }
-			catch (Exception ex)
-			{
-				if (ex.HResult == NiconicoHResult.ELiveNotFound)
-				{
-					LiveStatusType = Live.LiveStatusType.NotFound;
+            catch (Exception ex)
+            {
+                if (ex.HResult == NiconicoHResult.ELiveNotFound)
+                {
+                    LiveStatusType = Live.LiveStatusType.NotFound;
                 }
-				else if (ex.HResult == NiconicoHResult.ELiveClosed)
-				{
-					LiveStatusType = Live.LiveStatusType.Closed;
+                else if (ex.HResult == NiconicoHResult.ELiveClosed)
+                {
+                    LiveStatusType = Live.LiveStatusType.Closed;
                 }
-				else if (ex.HResult == NiconicoHResult.ELiveComingSoon)
-				{
-					LiveStatusType = Live.LiveStatusType.ComingSoon;
+                else if (ex.HResult == NiconicoHResult.ELiveComingSoon)
+                {
+                    LiveStatusType = Live.LiveStatusType.ComingSoon;
                 }
-				else if (ex.HResult == NiconicoHResult.EMaintenance)
-				{
-					LiveStatusType = Live.LiveStatusType.Maintenance;
+                else if (ex.HResult == NiconicoHResult.EMaintenance)
+                {
+                    LiveStatusType = Live.LiveStatusType.Maintenance;
                 }
-				else if (ex.HResult == NiconicoHResult.ELiveCommunityMemberOnly)
-				{
-					LiveStatusType = Live.LiveStatusType.CommunityMemberOnly;
+                else if (ex.HResult == NiconicoHResult.ELiveCommunityMemberOnly)
+                {
+                    LiveStatusType = Live.LiveStatusType.CommunityMemberOnly;
                 }
-				else if (ex.HResult == NiconicoHResult.ELiveFull)
-				{
-					LiveStatusType = Live.LiveStatusType.Full;
+                else if (ex.HResult == NiconicoHResult.ELiveFull)
+                {
+                    LiveStatusType = Live.LiveStatusType.Full;
                 }
-				else if (ex.HResult == NiconicoHResult.ELivePremiumOnly)
-				{
-					LiveStatusType = Live.LiveStatusType.PremiumOnly;
+                else if (ex.HResult == NiconicoHResult.ELivePremiumOnly)
+                {
+                    LiveStatusType = Live.LiveStatusType.PremiumOnly;
                 }
-				else if (ex.HResult == NiconicoHResult.ENotSigningIn)
-				{
-					LiveStatusType = Live.LiveStatusType.NotLogin;
+                else if (ex.HResult == NiconicoHResult.ENotSigningIn)
+                {
+                    LiveStatusType = Live.LiveStatusType.NotLogin;
                 }
-			}
+                else
+                {
+                    if (!IsWatchWithTimeshift)
+                    {
+                        LiveStatusType = LiveInfo.IsOK ? LiveStatusType.Closed : LiveStatusType.Unknown;
+                    }
+                    else
+                    {
+                        LiveStatusType = LiveStatusType.Unknown;
+                    }
+                }
+            }
 
-			if (LiveStatusType != LiveStatusType.OnAir)
-			{
-				await ExitLiveViewing();
-			}
+            if (LiveStatusType != LiveStatusType.OnAir)
+            {
+                await ExitLiveViewing();
+            }
 
             if (PlayerStatusResponse != null)
             {
@@ -305,9 +349,28 @@ namespace NicoPlayerHohoema.Models.Live
                 BroadcasterCommunityImageUri = PlayerStatusResponse.Program.CommunityImageUrl;
                 BroadcasterCommunityId = PlayerStatusResponse.Program.CommunityId;
             }
-		}
+        }
 
-		public async Task StartLiveWatchingSessionAsync()
+        private async Task RefreshTimeshiftProgram()
+        {
+            if (HohoemaApp.IsLoggedIn)
+            {
+                var timeshiftDetailsRes = await HohoemaApp.NiconicoContext.Live.GetReservationsInDetailAsync();
+                foreach (var timeshift in timeshiftDetailsRes.ReservedProgram)
+                {
+                    if (LiveId.EndsWith(timeshift.Id))
+                    {
+                        _TimeshiftProgram = timeshift;
+                    }
+                }
+            }
+            else
+            {
+                _TimeshiftProgram = null;
+            }
+        }
+
+        public async Task StartLiveWatchingSessionAsync()
 		{
             if (PlayerStatusResponse != null)
             {
@@ -318,7 +381,69 @@ namespace NicoPlayerHohoema.Models.Live
                 await Task.Delay(TimeSpan.FromSeconds(1));
             }
 
-            await UpdateLiveStatus();
+            try
+            {
+                await UpdateLiveStatus();
+            }
+            catch { }
+
+            TimeshiftPosition = LiveInfo.VideoInfo.Video.StartTime - LiveInfo.VideoInfo.Video.OpenTime;
+
+            if (IsWatchWithTimeshift)
+            {
+                _StartTimeOffset = (DateTimeOffset.Now.ToOffset(JapanTimeZoneOffset) - LiveInfo.VideoInfo.Video.OpenTime) ?? TimeSpan.Zero;
+            }
+            else
+            {
+                _StartTimeOffset = TimeSpan.Zero;
+            }
+
+
+            // タイムシフトでの視聴かつタイムシフトの視聴予約済みかつ視聴権が未取得の場合は
+            // 視聴権の使用を確認する
+            if (_TimeshiftProgram?.GetReservationStatus() == Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus.FIRST_WATCH)
+            {
+                var dialog = App.Current.Container.Resolve<Services.HohoemaDialogService>();
+
+
+                // 視聴権に関する詳細な情報提示
+
+                // 視聴権の利用期限は 24H＋放送時間 まで
+                // ただし公開期限がそれより先に来る場合には公開期限が視聴期限となる
+                var outdatedTime = DateTimeOffset.Now.ToOffset(JapanTimeZoneOffset) + (LiveInfo.VideoInfo.Video.EndTime - LiveInfo.VideoInfo.Video.StartTime) + TimeSpan.FromHours(24);
+                string desc = string.Empty;
+                if (outdatedTime > _TimeshiftProgram.ExpiredAt)
+                {
+                    outdatedTime = _TimeshiftProgram.ExpiredAt.LocalDateTime;
+                    desc = $"この放送のタイムシフト視聴を開始しますか？\r公開期限内に限って繰り返し視聴できます。\r\r公開期限：{_TimeshiftProgram.ExpiredAt.ToString("g")}";
+                }
+                else
+                {
+                    desc = $"この放送のタイムシフト視聴を開始しますか？\r視聴開始を起点に視聴期限が設定されます。視聴期限内に限って繰り返し視聴できます。\r\r推定視聴期限：{outdatedTime.Value.ToString("g")}";
+                }
+                var result = await dialog.ShowMessageDialog(
+                    desc
+                    , _TimeshiftProgram.Title, "視聴する", "キャンセル"
+                    );
+
+                if (result)
+                {
+                    var token = await HohoemaApp.NiconicoContext.Live.GetReservationTokenAsync();
+
+                    await Task.Delay(500);
+
+                    await HohoemaApp.NiconicoContext.Live.UseReservationAsync(_TimeshiftProgram.Id, token);
+
+                    await Task.Delay(3000);
+
+                    // タイムシフト予約一覧を更新
+                    // 視聴権利用を開始したアイテムがFIRST_WATCH以外の視聴可能を示すステータスになっているはず
+                    await RefreshTimeshiftProgram();
+
+                    Debug.WriteLine("use reservation after status: " + _TimeshiftProgram.Status);
+                }
+            }
+
 
             Mntone.Nico2.Live.Watch.Crescendo.CrescendoLeoProps leoPlayerProps = null;
             try
@@ -350,10 +475,6 @@ namespace NicoPlayerHohoema.Models.Live
                     Live2WebSocket.RecieveDisconnect += Live2WebSocket_RecieveDisconnect;
                     Live2WebSocket.RecieveCurrentRoom += Live2WebSocket_RecieveCurrentRoom;
                     var quality = HohoemaApp.UserSettings.PlayerSettings.DefaultLiveQuality;
-                    if (BroadcasterCommunityType != CommunityType.Community)
-                    {
-                        quality = "high";
-                    }
 
                     _IsLowLatency = HohoemaApp.UserSettings.PlayerSettings.LiveWatchWithLowLatency;
                     await Live2WebSocket.StartAsync(quality, _IsLowLatency);
@@ -389,10 +510,145 @@ namespace NicoPlayerHohoema.Models.Live
                     // 旧プレイヤーの場合のみ、古いコメントクライアントでコメント受信
                     StartCommentClientConnection();
                 }
+            }            
+        }
+
+        #region ElapsedTime and Buffered comment 
+
+        /// <summary>
+        /// 生放送の再生時間をローカルで更新する頻度
+        /// </summary>
+        /// <remarks>コメント描画を120fpsで行えるように0.008秒で更新しています</remarks>
+        public static TimeSpan LiveElapsedTimeUpdateInterval { get; private set; }
+            = TimeSpan.FromSeconds(1);
+
+        private TimeSpan? _LiveElapsedTime;
+        public TimeSpan LiveElapsedTime
+        {
+            get { return _LiveElapsedTime ?? TimeSpan.Zero; }
+            set { SetProperty(ref _LiveElapsedTime, value); }
+        }
+
+        private TimeSpan? _LiveElapsedTimeFromOpen;
+        public TimeSpan LiveElapsedTimeFromOpen
+        {
+            get { return _LiveElapsedTimeFromOpen ?? TimeSpan.Zero; }
+            set { SetProperty(ref _LiveElapsedTimeFromOpen, value); }
+        }
+
+        private TimeSpan? _DurationFromStart;
+        public TimeSpan DurationFromStart
+        {
+            get { return (_DurationFromStart ?? (_DurationFromStart = (LiveInfo.VideoInfo.Video.EndTime - LiveInfo.VideoInfo.Video.StartTime))).Value; }
+        }
+
+        private TimeSpan? _DurationFromOpen;
+        public TimeSpan DurationFromOpen
+        {
+            get { return (_DurationFromOpen ?? (_DurationFromOpen = (LiveInfo.VideoInfo.Video.EndTime - LiveInfo.VideoInfo.Video.OpenTime))).Value; }
+        }
+
+        private TimeSpan? _DurationBtwOpenToStart;
+        public TimeSpan DurationBtwOpenToStart
+        {
+            get { return (_DurationBtwOpenToStart ?? (_DurationBtwOpenToStart = (LiveInfo.VideoInfo.Video.StartTime - LiveInfo.VideoInfo.Video.OpenTime))).Value; }
+        }
+
+
+
+        Helpers.AsyncLock _LiveElapsedTimeUpdateTimerLock = new Helpers.AsyncLock();
+        
+        private TimeSpan _StartTimeOffset;
+
+        IDisposable _ElapsedTimerDisposer;
+        private async Task StartLiveElapsedTimer()
+        {
+            await StopLiveElapsedTimer();
+
+            using (var releaser = await _LiveElapsedTimeUpdateTimerLock.LockAsync())
+            {
+                _ElapsedTimerDisposer = Observable.Interval(TimeSpan.FromSeconds(1))
+                    .SubscribeOnUIDispatcher()
+                    .Subscribe(_ =>
+                    {
+                        _UIScheduler.Schedule(async () =>
+                        {
+                            await UpdateLiveElapsedTimeAsync();
+
+                            var time = LiveElapsedTimeFromOpen + TimeSpan.FromSeconds(2);
+                            await ProcessingBufferedCommentsAsync(time);
+                        });
+                    });
             }
-		}
+
+            Debug.WriteLine("live elapsed timer started.");
+        }
+
+        private async Task StopLiveElapsedTimer()
+        {
+            using (var releaser = await _LiveElapsedTimeUpdateTimerLock.LockAsync())
+            {
+                _ElapsedTimerDisposer?.Dispose();
+                _ElapsedTimerDisposer = null;
+
+                Debug.WriteLine("live elapsed timer stoped.");                
+            }
+        }
+
+
+        bool _IsEndMarked;
+
+        /// <summary>
+        /// 放送開始からの経過時間を更新します
+        /// </summary>
+        /// <param name="state">Timerオブジェクトのコールバックとして登録できるようにするためのダミー</param>
+        private async Task UpdateLiveElapsedTimeAsync()
+        {
+            using (var releaser = await _LiveElapsedTimeUpdateTimerLock.LockAsync())
+            {
+                var liveInfo = LiveInfo.VideoInfo.Video;
+                // ローカルの現在時刻から放送開始のベース時間を引いて
+                // 放送経過時間の絶対値を求める
+                if (IsWatchWithTimeshift)
+                {
+                    LiveElapsedTimeFromOpen = MediaPlayer.PlaybackSession.Position + (TimeshiftPosition ?? TimeSpan.Zero);
+                    LiveElapsedTime = LiveElapsedTimeFromOpen - DurationBtwOpenToStart;
+
+                }
+                else
+                {
+                    LiveElapsedTimeFromOpen = DateTimeOffset.Now.ToOffset(JapanTimeZoneOffset) - _StartTimeOffset - liveInfo.OpenTime.Value;
+                    LiveElapsedTime = DateTimeOffset.Now.ToOffset(JapanTimeZoneOffset) - _StartTimeOffset - liveInfo.StartTime.Value;
+                }
+
+                // 生放送の時間経過を通知
+                LiveElapsed?.Invoke(this, LiveElapsedTime);
+
+
+                var liveDuration = liveInfo.EndTime.Value - liveInfo.StartTime.Value;
+
+                // TODO: 終了時刻を過ぎたら生放送情報を更新する
+                if (!_IsEndMarked && liveDuration <= LiveElapsedTime)
+                {
+                    _IsEndMarked = true;
+
+                    // 放送が終了しているか確認
+                    await Task.Delay(TimeSpan.FromSeconds(3));
+                    await UpdateLiveStatus();
+                    if (PlayerStatusResponse?.Program.IsLive != true)
+                    {
+                        await ExitLiveViewing();
+
+                        CloseLive?.Invoke(this);
+                    }
+                }
+            }
+           
+        }
+
 
         
+        #endregion
 
         private async Task StartLiveViewing()
 		{
@@ -400,7 +656,10 @@ namespace NicoPlayerHohoema.Models.Live
 			{
                 // Display表示の維持リクエスト
                 Helpers.DisplayRequestHelper.RequestKeepDisplay();
-			}
+
+                // 経過時間の更新とバッファしたコメントを送るタイマーを開始
+                await StartLiveElapsedTimer();
+            }
 		}
 
 		/// <summary>
@@ -426,7 +685,9 @@ namespace NicoPlayerHohoema.Models.Live
 
 				// 放送からの離脱APIを叩く
 				await HohoemaApp.NiconicoContext.Live.LeaveAsync(LiveId);
-			}
+
+                await StopLiveElapsedTimer();
+            }
 		}
 
 
@@ -460,6 +721,15 @@ namespace NicoPlayerHohoema.Models.Live
             private set { SetProperty(ref _CurrentQuality, value); }
         }
 
+
+        private TimeSpan? _TimeshiftPosition;
+        public TimeSpan? TimeshiftPosition
+        {
+            get { return _TimeshiftPosition; }
+            set { SetProperty(ref _TimeshiftPosition, value); }
+        }
+
+
         public string[] Qualities { get; private set; }
 
         bool _IsLowLatency;
@@ -470,10 +740,17 @@ namespace NicoPlayerHohoema.Models.Live
             {
                 if (CurrentQuality == quality && _IsLowLatency == isLowLatency) { return; }
 
+                if (IsWatchWithTimeshift)
+                {
+                    _LiveComments.Clear();
+                    TimeshiftPosition = (TimeshiftPosition ?? TimeSpan.Zero) + MediaPlayer.PlaybackSession.Position;
+                }
+
                 MediaPlayer.Source = null;
 
                 RequestQuality = quality;
                 _IsLowLatency = isLowLatency;
+
                 await Live2WebSocket.SendChangeQualityMessageAsync(quality, isLowLatency);
             }
         }
@@ -484,7 +761,7 @@ namespace NicoPlayerHohoema.Models.Live
         {
             Debug.WriteLine(e.Uri);
 
-            await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () => 
+            _UIScheduler.Schedule(() => 
             {
                 _HLSUri = e.Uri;
                 
@@ -501,11 +778,22 @@ namespace NicoPlayerHohoema.Models.Live
 
                     OpenLive?.Invoke(this);
                 }
-                else
-                {
-                    await RefreshLeoPlayer();
-                }
             });
+
+            await RefreshLeoPlayer();
+        }
+
+
+        private static string MakeSeekedHLSUri(string hlsUri, TimeSpan position)
+        {
+            if (position > TimeSpan.FromSeconds(1))
+            {
+                return hlsUri += $"&start={position.TotalSeconds.ToString("F2")}";
+            }
+            else
+            {
+                return hlsUri;
+            }
         }
 
 
@@ -515,25 +803,45 @@ namespace NicoPlayerHohoema.Models.Live
 
             await ClearLeoPlayer();
 
-            
-            await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, async () => 
-            {
-//                var streamAsyncUri = _HLSUri.Replace("master.m3u8", "stream_sync.json");
 
-//                var playSetupRes = await HohoemaApp.NiconicoContext.HttpClient.GetAsync(new Uri(streamAsyncUri));
+            _UIScheduler.Schedule(async () => 
+            {
+                //                var streamAsyncUri = _HLSUri.Replace("master.m3u8", "stream_sync.json");
+
+                //                var playSetupRes = await HohoemaApp.NiconicoContext.HttpClient.GetAsync(new Uri(streamAsyncUri));
 
                 try
                 {
-                    var amsCreateResult = await AdaptiveMediaSource.CreateFromUriAsync(new Uri(_HLSUri), HohoemaApp.NiconicoContext.HttpClient);
+                    // 視聴開始後にスタート時間に自動シーク
+                    string hlsUri = _HLSUri;
+                    if (IsWatchWithTimeshift && TimeshiftPosition != null)
+                    {
+                        hlsUri = MakeSeekedHLSUri(_HLSUri, TimeshiftPosition.Value);
+#if DEBUG
+                        Debug.WriteLine(hlsUri);
+#endif
+                    }
+
+                    var amsCreateResult = await AdaptiveMediaSource.CreateFromUriAsync(new Uri(hlsUri), HohoemaApp.NiconicoContext.HttpClient);
                     if (amsCreateResult.Status == AdaptiveMediaSourceCreationStatus.Success)
                     {
                         var ams = amsCreateResult.MediaSource;
-
                         _MediaSource = MediaSource.CreateFromAdaptiveMediaSource(ams);
                         _AdaptiveMediaSource = ams;
+
+
+                        ams.Diagnostics.DiagnosticAvailable += Diagnostics_DiagnosticAvailable;
                     }
 
                     MediaPlayer.Source = _MediaSource;
+
+                    // タイムシフトで見ている場合はコメントのシークも行う
+                    if (IsWatchWithTimeshift)
+                    {
+                        await ClearCommentsCacheAsync();
+                        _LiveComments.Clear();
+                        _NicoLiveCommentClient.Seek(TimeshiftPosition.Value);
+                    }
                 }
                 catch (Exception ex)
                 {
@@ -542,9 +850,18 @@ namespace NicoPlayerHohoema.Models.Live
             });
         }
 
+        private void Diagnostics_DiagnosticAvailable(AdaptiveMediaSourceDiagnostics sender, AdaptiveMediaSourceDiagnosticAvailableEventArgs args)
+        {
+            Debug.WriteLine(args.DiagnosticType);
+            if (args.ExtendedError != null)
+            {
+                Debug.WriteLine(args.ExtendedError.ToString());
+            }
+        }
+
         private async Task ClearLeoPlayer()
         {
-            await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () =>
+            _UIScheduler.Schedule(() =>
             {
                 if (MediaPlayer.Source == _MediaSource)
                 {
@@ -560,17 +877,19 @@ namespace NicoPlayerHohoema.Models.Live
                 _AdaptiveMediaSource?.Dispose();
                 _AdaptiveMediaSource = null;
             });
+
+            await Task.CompletedTask;
         }
 
 
         private void Live2WebSocket_RecieveDisconnect()
         {
-            StartNextLiveDetection(TimeSpan.FromMinutes(2));
+
         }
 
-        private async void Live2WebSocket_RecieveStatistics(Live2StatisticsEventArgs e)
+        private void Live2WebSocket_RecieveStatistics(Live2StatisticsEventArgs e)
         {
-            await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            _UIScheduler.Schedule(() =>
             {
                 WatchCount = (uint)e.ViewCount;
                 CommentCount = (uint)e.CommentCount;
@@ -584,13 +903,28 @@ namespace NicoPlayerHohoema.Models.Live
 
             if (e.MessageServerType == "niwavided")
             {
-                _NicoLiveCommentClient = new Niwavided.NiwavidedNicoLiveCommentClient(
-                    e.MessageServerUrl,
-                    e.ThreadId,
-                    this.HohoemaApp.LoginUserId.ToString(),
-                    HohoemaApp.NiconicoContext.HttpClient
-                    );
-                
+                if (IsWatchWithTimeshift)
+                {
+                    string waybackKey = await HohoemaApp.NiconicoContext.Live.GetWaybackKeyAsync(e.ThreadId);
+
+                    _NicoLiveCommentClient = new Niwavided.NiwavidedNicoTimeshiftCommentClient(
+                        e.MessageServerUrl,
+                        e.ThreadId,
+                        this.HohoemaApp.LoginUserId.ToString(),
+                        waybackKey,
+                        LiveInfo.VideoInfo.Video.OpenTime.Value
+                        );
+                }
+                else 
+                {
+                    _NicoLiveCommentClient = new Niwavided.NiwavidedNicoLiveCommentClient(
+                        e.MessageServerUrl,
+                        e.ThreadId,
+                        this.HohoemaApp.LoginUserId.ToString(),
+                        HohoemaApp.NiconicoContext.HttpClient
+                        );
+                }
+
                 _NicoLiveCommentClient.Connected += _NicoLiveCommentClient_Connected;
                 _NicoLiveCommentClient.Disconnected += _NicoLiveCommentClient_Disconnected;
                 _NicoLiveCommentClient.CommentRecieved += _NicoLiveCommentClient_CommentRecieved;
@@ -598,12 +932,13 @@ namespace NicoPlayerHohoema.Models.Live
 
                 // コメントの受信処理と映像のオープンが被ると
                 // 自動再生が失敗する？ので回避のため数秒遅らせる
+                // タイムシフトコメントはStartTimeへのシーク後に取得されることを想定して
+                if (!(_NicoLiveCommentClient is Niwavided.NiwavidedNicoTimeshiftCommentClient))
+                {
+                    _NicoLiveCommentClient.Open();
 
-                _NicoLiveCommentClient.Open();
-
-                await Task.Delay(500);
-
-                await RefreshLeoPlayer();
+                    await Task.Delay(Helpers.DeviceTypeHelper.IsMobile ? 3000 : 500);
+                }
             }
         }
 
@@ -736,7 +1071,7 @@ namespace NicoPlayerHohoema.Models.Live
 			{
 				Debug.WriteLine("AGEIN ensure open rtmp connection ");
 
-				await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                _UIScheduler.Schedule(async () =>
 				{
 					await CloseRtmpConnection();
 
@@ -810,9 +1145,9 @@ namespace NicoPlayerHohoema.Models.Live
 		}
 
 
-		private async void _RtmpClient_Started(NicovideoRtmpClientStartedEventArgs args)
+		private void _RtmpClient_Started(NicovideoRtmpClientStartedEventArgs args)
 		{
-			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            _UIScheduler.Schedule(() =>
 			{
                 if (_MediaSource == null)
                 {
@@ -827,9 +1162,9 @@ namespace NicoPlayerHohoema.Models.Live
 			});
 		}
 
-		private async void _RtmpClient_Stopped(NicovideoRtmpClientStoppedEventArgs args)
+		private void _RtmpClient_Stopped(NicovideoRtmpClientStoppedEventArgs args)
 		{
-			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+            _UIScheduler.Schedule(async () =>
 			{
 				using (var releaser = await _VideoStreamSrouceAssignLock.LockAsync())
 				{
@@ -843,8 +1178,6 @@ namespace NicoPlayerHohoema.Models.Live
                 Debug.WriteLine("recieve exit live stream: " + LiveId);
 
                 CloseLive?.Invoke(this);
-
-                StartNextLiveDetection(DefaultNextLiveSubscribeDuration);
 			});
 		}
 
@@ -896,9 +1229,104 @@ namespace NicoPlayerHohoema.Models.Live
             }
         }
 
+        Helpers.AsyncLock _CommentRecievingLock = new Helpers.AsyncLock();
+        Dictionary<int, List<LiveChatData>> _TimeToCommentsDict = new Dictionary<int, List<LiveChatData>>();
 
 
-		private void StartCommentClientConnection()
+        private static int VposToCacheDictTime(TimeSpan position)
+        {
+            return (int)position.TotalMilliseconds / 1000;
+        }
+
+        private static int VposToCacheDictTime(int vpos)
+        {
+            return vpos / 100;
+        }
+
+        private async Task AddCommentToCacheAsync(LiveChatData chat)
+        {
+            using (var releaser = await _CommentRecievingLock.LockAsync())
+            {
+                var keyVpos = VposToCacheDictTime(chat.Vpos);
+                if (_TimeToCommentsDict.TryGetValue(keyVpos, out var alreadList))
+                {
+                    alreadList.Add(chat);
+                }
+                else
+                {
+                    var list = new List<LiveChatData>() { chat };
+                    _TimeToCommentsDict.Add(keyVpos, list);
+                }
+            }
+        }
+
+        private async Task<IList<LiveChatData>> GetCommentsFromCacheAsync(TimeSpan positionFromOpen)
+        {
+            using (var releaser = await _CommentRecievingLock.LockAsync())
+            {
+                var keyVpos = VposToCacheDictTime(positionFromOpen);
+                if (_TimeToCommentsDict.TryGetValue(keyVpos, out var list))
+                {
+                    return list;
+                }
+                else
+                {
+                    return new List<LiveChatData>();
+                }
+            }
+        }
+
+        private async Task RemoveCommentsFromCache(TimeSpan position)
+        {
+            using (var releaser = await _CommentRecievingLock.LockAsync())
+            {
+                var keyVpos = VposToCacheDictTime(position);
+                foreach (var removeKey in _TimeToCommentsDict.Keys.Where(x => x < keyVpos).ToArray())
+                {
+                    _TimeToCommentsDict.Remove(removeKey);
+                }
+            }
+        }
+
+        private async Task ClearCommentsCacheAsync()
+        {
+            using (var releaser = await _CommentRecievingLock.LockAsync())
+            {
+                _TimeToCommentsDict.Clear();
+            }
+        }
+
+
+        private const int PreviousProcessingRangeCommentsTimeInSeconds = 3;
+
+        private async Task ProcessingBufferedCommentsAsync(TimeSpan positionFromOpen)
+        {
+            var range = (int)HohoemaApp.UserSettings.PlayerSettings.CommentDisplayDuration.TotalSeconds + PreviousProcessingRangeCommentsTimeInSeconds;
+            List<LiveChatData> candidateChatItems = new List<LiveChatData>();
+            using (var releaser = await _CommentRecievingLock.LockAsync())
+            {
+                var keyVpos = VposToCacheDictTime(positionFromOpen);
+
+                foreach (var key in Enumerable.Range(keyVpos - range, range))
+                {
+                    if (_TimeToCommentsDict.TryGetValue(key, out var list))
+                    {
+                        candidateChatItems.AddRange(list);
+                    }
+                }
+            }
+
+            foreach (var comment in candidateChatItems)
+            {
+                _LiveComments.Add(comment);
+            }
+
+            await RemoveCommentsFromCache(positionFromOpen);
+        }
+
+
+
+        private void StartCommentClientConnection()
 		{
 			EndCommentClientConnection();
 
@@ -913,9 +1341,9 @@ namespace NicoPlayerHohoema.Models.Live
 			_NicoLiveCommentClient.Open();
 		}
 
-        private async void _NicoLiveCommentClient_CommentPosted(object sender, CommentPostedEventArgs e)
+        private void _NicoLiveCommentClient_CommentPosted(object sender, CommentPostedEventArgs e)
         {
-            await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            _UIScheduler.Schedule(() =>
             {
                 if (e.ChatResult == ChatResult.InvalidPostkey)
                 {
@@ -928,58 +1356,18 @@ namespace NicoPlayerHohoema.Models.Live
 
         private async void _NicoLiveCommentClient_CommentRecieved(object sender, CommentRecievedEventArgs e)
         {
-            var chat = e.Chat;
-            
-            await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Low, () =>
-            {
-                _LiveComments.Add(e.Chat);
-            });
-
-            /*
-            if (chat.UserId == BroadcasterId)
-            {
-                if (chat.Content.Contains("href"))
-                {
-                    var root = XDocument.Parse(chat.Content);
-                    var anchor = root.Element("a");
-                    if (anchor != null)
-                    {
-                        var href = anchor.Attribute("href");
-                        var link = href.Value;
-
-                        if (chat.Content.Contains("次"))
-                        {
-                            var liveId = link.Split('/').LastOrDefault();
-                            if (NiconicoRegex.IsLiveId(liveId))
-                            {
-                                // TODO: liveIdの放送情報を取得して、配信者が同一ユーザーかチェックする
-                                using (var releaser = await _NextLiveSubscriveLock.LockAsync())
-                                {
-                                    await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                                    {
-                                        NextLiveId = liveId;
-                                        NextLive?.Invoke(this, NextLiveId);
-                                    });
-
-                                }
-                            }
-                        }
-
-                        // TODO: linkをブラウザで開けるようにする
-                    }
-                }
-            }
-            */
+            await AddCommentToCacheAsync(e.Chat);
         }
 
         private void _NicoLiveCommentClient_Disconnected(object sender, CommentServerDisconnectedEventArgs e)
         {
         }
 
-        private async void _NicoLiveCommentClient_Connected(object sender, CommentServerConnectedEventArgs e)
+
+        private void _NicoLiveCommentClient_Connected(object sender, CommentServerConnectedEventArgs e)
         {
 
-            await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+            _UIScheduler.Schedule(async () =>
             {
                if (LivePlayerType == Live.LivePlayerType.Aries)
                {
@@ -987,7 +1375,7 @@ namespace NicoPlayerHohoema.Models.Live
                }
                else
                {
-                   await ClearLeoPlayer();
+//                   await ClearLeoPlayer();
                }
 
                /*
@@ -1019,156 +1407,6 @@ namespace NicoPlayerHohoema.Models.Live
 
 
 
-		#region Next Live Detection
-        
-        public event EventHandler<StartNextLiveDetectionEventArgs> NextLiveDetectionStarted;
-        public event EventHandler<CompleteNextLiveDetectionEventArgs> NextLiveDetectionCompleted;
-
-        TimeSpan NextLiveDetectDuration;
-		private DateTime ExitTimeOfNextLiveDetection;
-
-        public bool NowRunningNextLiveDetection => _NextLiveDetectionTimer != null;
-
-
-        public async void StartNextLiveDetection(TimeSpan duration)
-		{
-			using (var releaser = await _NextLiveSubscriveLock.LockAsync())
-			{
-                // コミュニティ以外の動画には現状対応していない
-                if (BroadcasterCommunityType != CommunityType.Community)
-                {
-                    return;
-                }
-
-				if (NextLiveId != null)
-				{
-					return;
-				}
-
-                if (_NextLiveDetectionTimer != null)
-                {
-                    _NextLiveDetectionTimer.Dispose();
-                }
-
-				_NextLiveDetectionTimer = new Timer(
-					NextLiveDetecting,
-					null,
-					TimeSpan.FromSeconds(3),
-					TimeSpan.FromSeconds(5)
-					);
-
-                ExitTimeOfNextLiveDetection = DateTime.Now + duration;
-                RaisePropertyChanged(nameof(NowRunningNextLiveDetection));
-
-				NextLiveDetectDuration = duration;
-
-                NextLiveDetectionStarted?.Invoke(this, new StartNextLiveDetectionEventArgs() { Duration = NextLiveDetectDuration });
-
-                Debug.WriteLine("start detect next live.");
-			}
-		}
-
-		private async void StopNextLiveDetection()
-		{
-			using (var releaser = await _NextLiveSubscriveLock.LockAsync())
-			{
-				if (_NextLiveDetectionTimer != null)
-				{
-					_NextLiveDetectionTimer.Dispose();
-					_NextLiveDetectionTimer = null;
-
-                    NextLiveDetectionCompleted?.Invoke(this, new CompleteNextLiveDetectionEventArgs() { NextLiveId = NextLiveId });
-
-                    RaisePropertyChanged(nameof(NowRunningNextLiveDetection));
-
-                    Debug.WriteLine("stop detect next live.");
-				}
-			}
-		}
-
-		private async void NextLiveDetecting(object state = null)
-		{
-			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
-			{
-
-				bool isDone = false;
-				using (var releaser = await _NextLiveSubscriveLock.LockAsync())
-				{
-					isDone = NextLiveId != null;
-
-				}
-
-				if (isDone)
-				{
-					Debug.WriteLine("exit detect next live. (success with operation comment) : " + NextLiveId);
-
-                    StopNextLiveDetection();
-                    
-					return;
-				}
-
-				// コミュニティページを取得して、放送中のLiveIdを取得する
-				try
-				{
-					var res = await HohoemaApp.NiconicoContext.Live.GetLiveCommunityVideoAsync(BroadcasterCommunityId);
-
-                    if (res.IsOK && res.Count > 0)
-                    {
-                        foreach (var live in res.VideoInfo)
-                        {
-                            if (live.Video.Id != LiveId)
-                            {
-                                var nextLiveId = live.Video.Id;
-                                using (var releaser = await _NextLiveSubscriveLock.LockAsync())
-                                {
-                                    NextLiveId = nextLiveId;
-
-                                    Debug.WriteLine("exit detect next live. (success) : " + NextLiveId);
-
-                                    isDone = true;
-                                }
-
-                                break;
-                            }
-                        }
-                    }
-				}
-				catch
-				{
-					Debug.WriteLine("exit detect next live. (failed community page access)");
-
-					StopNextLiveDetection();
-
-                    return;
-				}
-
-				// this.LiveIdと異なるLiveIdが複数ある場合は、それぞれの放送情報を取得して、
-				// 放送主のIDがBroadcasterIdと一致する方を次の枠として選択する
-				// （配信タイトルの似てる方で選択してもよさそう？）
-
-
-
-				// 定期チェックの終了時刻
-				using (var releaser = await _NextLiveSubscriveLock.LockAsync())
-				{
-					if (ExitTimeOfNextLiveDetection < DateTime.Now)
-					{
-						isDone = true;
-
-						Debug.WriteLine("detect next live time over");
-					}
-				}
-
-				if (isDone)
-				{
-					StopNextLiveDetection();
-
-                    return;
-				}
-			});
-		}
-
-		#endregion
 	}
 
 

@@ -115,42 +115,34 @@ namespace NicoPlayerHohoema.Models
 
 
 
-        public bool AddFavoritCategory(RankingCategory category)
+        public void AddFavoritCategory(RankingCategory category)
         {
-            var target = MiddlePriorityCategory.FirstOrDefault(x => x.Category == category);
-            if (target != null)
+            var allPrio = new[] { HighPriorityCategory, MiddlePriorityCategory, LowPriorityCategory };
+            foreach (var prio in allPrio)
             {
-                MiddlePriorityCategory.Remove(target);
-                HighPriorityCategory.Add(target);
-                return true;
-            }
-            else if ((target = LowPriorityCategory.FirstOrDefault(x => x.Category == category)) != null)
-            {
-                LowPriorityCategory.Remove(target);
-                HighPriorityCategory.Add(target);
-                return true;
+                var target = prio.FirstOrDefault(x => x.Category == category);
+                if (target != null)
+                {
+                    prio.Remove(target);
+                }
             }
 
-            return false;
+            HighPriorityCategory.Add(new RankingCategoryInfo(category));
         }
 
-        public bool AddDislikeCategory(RankingCategory category)
+        public void AddDislikeCategory(RankingCategory category)
         {
-            var target = MiddlePriorityCategory.FirstOrDefault(x => x.Category == category);
-            if (target != null)
+            var allPrio = new[] { HighPriorityCategory, MiddlePriorityCategory, LowPriorityCategory };
+            foreach (var prio in allPrio)
             {
-                MiddlePriorityCategory.Remove(target);
-                LowPriorityCategory.Add(target);
-                return true;
-            }
-            else if ((target = HighPriorityCategory.FirstOrDefault(x => x.Category == category)) != null)
-            {
-                HighPriorityCategory.Remove(target);
-                LowPriorityCategory.Add(target);
-                return true;
+                var target = prio.FirstOrDefault(x => x.Category == category);
+                if (target != null)
+                {
+                    prio.Remove(target);
+                }
             }
 
-            return false;
+            LowPriorityCategory.Add(new RankingCategoryInfo(category));
         }
 
         public void ResetFavoriteCategory()
