@@ -379,6 +379,11 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected virtual string ResolveNavigationId(NavigatedToEventArgs e)
         {
+            if (e.SourcePageType == null)
+            {
+                return "empty";
+            }
+
             if (e.Parameter is string strParam)
             {
                 return $"{e.SourcePageType.Name}_{strParam}";

@@ -902,7 +902,7 @@ namespace NicoPlayerHohoema.ViewModels
                 })
                 .AddTo(_NavigatingCompositeDisposable);
 
-                NicoLiveVideo = new NicoLiveVideo(LiveId, MediaPlayer, HohoemaApp);
+                NicoLiveVideo = new NicoLiveVideo(LiveId, MediaPlayer, HohoemaApp, this.CurrentWindowContextScheduler);
                 
                 NicoLiveVideo.LiveComments.ObserveAddChanged()
                     .Subscribe(x =>

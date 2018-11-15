@@ -21,6 +21,7 @@ using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Media.Streaming.Adaptive;
 using Microsoft.Practices.Unity;
+using System.Reactive.Concurrency;
 
 namespace NicoPlayerHohoema.Models.Live
 {
@@ -133,7 +134,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 
 		private MediaStreamSource _VideoStreamSource;
-		private AsyncLock _VideoStreamSrouceAssignLock = new AsyncLock();
+		private Helpers.AsyncLock _VideoStreamSrouceAssignLock = new Helpers.AsyncLock();
 
 
 		/// <summary>
@@ -190,20 +191,17 @@ namespace NicoPlayerHohoema.Models.Live
 
 		public string NextLiveId { get; private set; }
 
-		Timer _NextLiveDetectionTimer;
-		AsyncLock _NextLiveSubscriveLock = new AsyncLock();
-
 		/// <summary>
 		/// 生放送動画をRTMPで受け取るための通信クライアント<br />
 		/// RTMPで正常に動画が受信できる状態になった場合 VideoStreamSource にインスタンスが渡される
 		/// </summary>
 		NicovideoRtmpClient _RtmpClient;
-		AsyncLock _RtmpClientAssignLock = new AsyncLock();
+        Helpers.AsyncLock _RtmpClientAssignLock = new Helpers.AsyncLock();
 
 
 
 		Timer _EnsureStartLiveTimer;
-		AsyncLock _EnsureStartLiveTimerLock = new AsyncLock();
+        Helpers.AsyncLock _EnsureStartLiveTimerLock = new Helpers.AsyncLock();
 
         public Live2WebSocket Live2WebSocket { get; private set; }
 
@@ -221,8 +219,8 @@ namespace NicoPlayerHohoema.Models.Live
         INicoLiveCommentClient _NicoLiveCommentClient;
 
 
-        
-		AsyncLock _LiveSubscribeLock = new AsyncLock();
+
+        Helpers.AsyncLock _LiveSubscribeLock = new Helpers.AsyncLock();
 
 
 		
@@ -233,20 +231,23 @@ namespace NicoPlayerHohoema.Models.Live
             public string CommandParameter { get; set; }
         }
 
-		public NicoLiveVideo(string liveId, MediaPlayer mediaPlayer, HohoemaApp hohoemaApp, string communityId = null)
+        IScheduler _UIScheduler;
+
+		public NicoLiveVideo(string liveId, MediaPlayer mediaPlayer, HohoemaApp hohoemaApp, IScheduler scheduler, string communityId = null)
 		{
 			LiveId = liveId;
 			_CommunityId = communityId;
             MediaPlayer = mediaPlayer;
             HohoemaApp = hohoemaApp;
+            _UIScheduler = scheduler;
 
-			_LiveComments = new ObservableCollection<LiveChatData>();
+            _LiveComments = new ObservableCollection<LiveChatData>();
 			LiveComments = new ReadOnlyObservableCollection<LiveChatData>(_LiveComments);
 
 
             LiveComments.ObserveAddChanged()
                 .Where(x => x.IsOperater && x.HasOperatorCommand)
-                .SubscribeOnUIDispatcher()
+                .SubscribeOn(_UIScheduler)
                 .Subscribe(chat => 
                 {
                     OperationCommandRecieved?.Invoke(this, new OperationCommandRecievedEventArgs() { Chat = chat });
@@ -568,9 +569,9 @@ namespace NicoPlayerHohoema.Models.Live
             {
                 _ElapsedTimerDisposer = Observable.Interval(TimeSpan.FromSeconds(1))
                     .SubscribeOnUIDispatcher()
-                    .Subscribe(async _ =>
+                    .Subscribe(_ =>
                     {
-                        await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                        _UIScheduler.Schedule(async () =>
                         {
                             await UpdateLiveElapsedTimeAsync();
 
@@ -760,7 +761,7 @@ namespace NicoPlayerHohoema.Models.Live
         {
             Debug.WriteLine(e.Uri);
 
-            await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () => 
+            _UIScheduler.Schedule(() => 
             {
                 _HLSUri = e.Uri;
                 
@@ -802,8 +803,8 @@ namespace NicoPlayerHohoema.Models.Live
 
             await ClearLeoPlayer();
 
-            
-            await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, async () => 
+
+            _UIScheduler.Schedule(async () => 
             {
                 //                var streamAsyncUri = _HLSUri.Replace("master.m3u8", "stream_sync.json");
 
@@ -860,7 +861,7 @@ namespace NicoPlayerHohoema.Models.Live
 
         private async Task ClearLeoPlayer()
         {
-            await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.High, () =>
+            _UIScheduler.Schedule(() =>
             {
                 if (MediaPlayer.Source == _MediaSource)
                 {
@@ -876,6 +877,8 @@ namespace NicoPlayerHohoema.Models.Live
                 _AdaptiveMediaSource?.Dispose();
                 _AdaptiveMediaSource = null;
             });
+
+            await Task.CompletedTask;
         }
 
 
@@ -884,9 +887,9 @@ namespace NicoPlayerHohoema.Models.Live
 
         }
 
-        private async void Live2WebSocket_RecieveStatistics(Live2StatisticsEventArgs e)
+        private void Live2WebSocket_RecieveStatistics(Live2StatisticsEventArgs e)
         {
-            await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            _UIScheduler.Schedule(() =>
             {
                 WatchCount = (uint)e.ViewCount;
                 CommentCount = (uint)e.CommentCount;
@@ -1068,7 +1071,7 @@ namespace NicoPlayerHohoema.Models.Live
 			{
 				Debug.WriteLine("AGEIN ensure open rtmp connection ");
 
-				await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+                _UIScheduler.Schedule(async () =>
 				{
 					await CloseRtmpConnection();
 
@@ -1142,9 +1145,9 @@ namespace NicoPlayerHohoema.Models.Live
 		}
 
 
-		private async void _RtmpClient_Started(NicovideoRtmpClientStartedEventArgs args)
+		private void _RtmpClient_Started(NicovideoRtmpClientStartedEventArgs args)
 		{
-			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            _UIScheduler.Schedule(() =>
 			{
                 if (_MediaSource == null)
                 {
@@ -1159,9 +1162,9 @@ namespace NicoPlayerHohoema.Models.Live
 			});
 		}
 
-		private async void _RtmpClient_Stopped(NicovideoRtmpClientStoppedEventArgs args)
+		private void _RtmpClient_Stopped(NicovideoRtmpClientStoppedEventArgs args)
 		{
-			await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+            _UIScheduler.Schedule(async () =>
 			{
 				using (var releaser = await _VideoStreamSrouceAssignLock.LockAsync())
 				{
@@ -1226,7 +1229,7 @@ namespace NicoPlayerHohoema.Models.Live
             }
         }
 
-        AsyncLock _CommentRecievingLock= new AsyncLock();
+        Helpers.AsyncLock _CommentRecievingLock = new Helpers.AsyncLock();
         Dictionary<int, List<LiveChatData>> _TimeToCommentsDict = new Dictionary<int, List<LiveChatData>>();
 
 
@@ -1338,9 +1341,9 @@ namespace NicoPlayerHohoema.Models.Live
 			_NicoLiveCommentClient.Open();
 		}
 
-        private async void _NicoLiveCommentClient_CommentPosted(object sender, CommentPostedEventArgs e)
+        private void _NicoLiveCommentClient_CommentPosted(object sender, CommentPostedEventArgs e)
         {
-            await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            _UIScheduler.Schedule(() =>
             {
                 if (e.ChatResult == ChatResult.InvalidPostkey)
                 {
@@ -1361,10 +1364,10 @@ namespace NicoPlayerHohoema.Models.Live
         }
 
 
-        private async void _NicoLiveCommentClient_Connected(object sender, CommentServerConnectedEventArgs e)
+        private void _NicoLiveCommentClient_Connected(object sender, CommentServerConnectedEventArgs e)
         {
 
-            await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+            _UIScheduler.Schedule(async () =>
             {
                if (LivePlayerType == Live.LivePlayerType.Aries)
                {
