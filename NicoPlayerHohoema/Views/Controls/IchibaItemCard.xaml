@@ -13,26 +13,26 @@
     d:DataContext="{d:DesignData Type=ichiba:IchibaItem}"
     >
 
-    <Grid>
+    <Grid >
         <HyperlinkButton NavigateUri="{Binding AmazonItemLink}"  >
             <toolkit:DockPanel 
-                                                      Width="120"
+                                                      Width="100"
                                                       >
 
                 <Image Source="{Binding ThumbnailUrl}"
-                                                       Height="120"
+                                                       Height="100"
                                                        toolkit:DockPanel.Dock="Top"
                                                        />
 
                 <Border VerticalAlignment="Bottom"
-                                                        Margin="8"
+                                                        Margin="0 8"
                                                         >
                     <Border.Background>
                         <SolidColorBrush Color="{StaticResource SystemAltMediumColor}" />
                     </Border.Background>
                     <TextBlock Text="{Binding Title}" 
                                                                TextWrapping="Wrap"
-                                                               FontSize="13"
+                                                               FontSize="12"
                                                                >
                         <TextBlock.Foreground>
                             <SolidColorBrush Color="{StaticResource SystemBaseMediumHighColor}" />
