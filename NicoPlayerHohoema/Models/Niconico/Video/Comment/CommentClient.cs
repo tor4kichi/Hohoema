@@ -24,6 +24,16 @@ namespace NicoPlayerHohoema.Models
         private CommentSubmitInfo CommunityThreadSubmitInfo { get; set; }
 
 
+        private CommentSessionContext _CommentSessionContext;
+        public CommentSessionContext CommentSessionContext
+        {
+            get
+            {
+                return _CommentSessionContext ?? (_CommentSessionContext = LastAccessDmcWatchResponse != null ? Context.Video.GetCommentSessionContext(LastAccessDmcWatchResponse) : null);
+            }
+        }
+
+
         public CommentClient(NiconicoContext context, string rawVideoid)
         {
             RawVideoId = rawVideoid;
@@ -108,8 +118,6 @@ namespace NicoPlayerHohoema.Models
             }
 
             return commentRes?.Chat;
-
-
         }
 
 
@@ -117,125 +125,20 @@ namespace NicoPlayerHohoema.Models
         {
             get
             {
-                return LastAccessDmcWatchResponse != null &&
-                    LastAccessDmcWatchResponse.Video.DmcInfo != null;
+                return CommentSessionContext != null;
             }
         }
 
         public async Task<NMSG_Response> GetCommentsFromNMSG()
         {
-            if (LastAccessDmcWatchResponse == null) { return null; }
+            if (CommentSessionContext == null) { return null; }
 
-            var res = await Context.Video.GetNMSGCommentAsync(LastAccessDmcWatchResponse);
-
-            if (res != null && DefaultThreadSubmitInfo == null)
-            {
-                DefaultThreadSubmitInfo = new CommentSubmitInfo();
-                DefaultThreadSubmitInfo.Ticket = res.Threads.First(x => x.Thread == CommentServerInfo.DefaultThreadId.ToString()).Ticket;
-                DefaultThreadSubmitInfo.CommentCount = LastAccessDmcWatchResponse.Thread.CommentCount + 1;
-                DefaultThreadSubmitInfo.ThreadType = res.ThreadType;
-                if (CommentServerInfo.CommunityThreadId.HasValue)
-                {
-                    var communityThreadId = CommentServerInfo.CommunityThreadId.Value.ToString();
-                    var communityThread = res.Threads.FirstOrDefault(x => x.Thread == communityThreadId);
-                    if (communityThread != null)
-                    {
-                        CommunityThreadSubmitInfo = new CommentSubmitInfo()
-                        {
-                            Ticket = communityThread.Ticket,
-                            CommentCount = communityThread.LastRes,
-                            ThreadType = res.ThreadType
-                    };
-                    }
-                }
-            }
-
-            return res;
+            return await CommentSessionContext.GetCommentFirstAsync();
         }
 
         public async Task<PostCommentResponse> SubmitComment(string comment, TimeSpan position, string commands)
         {
-            if (CommentServerInfo == null) { return null; }
-            if (DefaultThreadSubmitInfo == null) { return null; }
-
-            if (CommentServerInfo == null)
-            {
-                throw new Exception("コメント投稿には事前に動画ページへのアクセスとコメント情報取得が必要です");
-            }
-
-            var threadType = DefaultThreadSubmitInfo.ThreadType;
-
-            Debug.WriteLine("threadType:" + threadType.ToString());
-
-            PostCommentResponse response = null;
-
-            // 視聴中にコメント数が増えていってコメントのblock_noが100毎の境界を超える場合に対応するため
-            // 投稿の試行ごとにコメント投稿先Blockを飛ばすため、コメント数に 試行数 * 100 を加算しています
-            if (CommentServerInfo.CommunityThreadId.HasValue)
-            {
-                Debug.WriteLine($"書き込み先:{CommentServerInfo.CommunityThreadId.Value} (community thread)");
-
-                var threadId = CommentServerInfo.CommunityThreadId.Value.ToString();
-                {
-                    try
-                    {
-                        response = await Context.Video.NMSGPostCommentAsync(
-                            //                        CommentServerInfo.ServerUrl,
-                            threadId,
-                            DefaultThreadSubmitInfo.Ticket,
-                            CommunityThreadSubmitInfo.CommentCount,
-                            CommentServerInfo.ViewerUserId,
-                            comment,
-                            position,
-                            commands,
-                            threadType
-                            );
-                    }
-                    catch
-                    {
-                        Debug.WriteLine("コメント投稿で致命的なエラー、投稿試行を中断します");
-                        return null;
-                    }
-                }
-            }
-            
-            if (response?.Chat_result.Status != ChatResult.Success)
-            {
-                Debug.WriteLine($"書き込み先:{CommentServerInfo.DefaultThreadId} (default thread)");
-
-                var threadId = CommentServerInfo.DefaultThreadId.ToString();
-                
-                try
-                {
-                    response = await Context.Video.NMSGPostCommentAsync(
-                        //                        CommentServerInfo.ServerUrl,
-                        threadId,
-                        DefaultThreadSubmitInfo.Ticket,
-                        DefaultThreadSubmitInfo.CommentCount,
-                        CommentServerInfo.ViewerUserId,
-                        comment,
-                        position,
-                        commands,
-                        threadType
-                        );
-                }
-                catch
-                {
-                    Debug.WriteLine("コメント投稿で致命的なエラー、投稿試行を中断します");
-                    return null;
-                }
-            }
-
-            Debug.WriteLine("コメント投稿結果： " + response?.Chat_result.Status);
-
-            if (response?.Chat_result.Status == ChatResult.Success)
-            {
-                DefaultThreadSubmitInfo.CommentCount = response?.Chat_result.No ?? DefaultThreadSubmitInfo.CommentCount;
-
-                Debug.WriteLine("投稿後のコメント数: " + DefaultThreadSubmitInfo.CommentCount);
-            }
-
-            return response;
+            return await CommentSessionContext.PostCommentAsync(position, comment, commands);
         }
 
         public bool IsAllowAnnonimityComment
