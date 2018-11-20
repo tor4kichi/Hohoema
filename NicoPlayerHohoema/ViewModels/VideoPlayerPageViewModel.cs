@@ -436,6 +436,7 @@ namespace NicoPlayerHohoema.ViewModels
             });
 
             NowCanSubmitComment = Observable.CombineLatest(
+                NowSubmittingComment.Select(x => !x),
                 CanSubmitComment,
                 IsCommentDisabledFromNicoScript.Select(x => HohoemaApp.UserSettings.PlayerSettings.NicoScript_DisallowComment_Enabled ? !x : true),
                 WritingComment.Select(x => !string.IsNullOrWhiteSpace(x))
@@ -2215,10 +2216,8 @@ namespace NicoPlayerHohoema.ViewModels
 				var commands = CommandString.Value;
 				var res = await Video.CommentClient.SubmitComment(WritingComment.Value, ReadVideoPosition.Value, commands);
 
-				if (res?.Chat_result.Status == ChatResult.Success)
+				if (res?.Chat_result.__Status == (int)ChatResult.Success)
 				{
-					_ToastService.ShowText("コメント投稿", $"{VideoId}に「{WritingComment.Value}」を投稿しました", isSuppress:true);
-
 					Debug.WriteLine("コメントの投稿に成功: " + res.Chat_result.No);
 
 					var commentVM = new Comment(this, HohoemaApp.UserSettings.NGSettings)
@@ -2246,7 +2245,9 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 				else
 				{
-					Debug.WriteLine("コメントの投稿に失敗: " + res?.Chat_result.Status.ToString());
+                    _ToastService.ShowText("コメント投稿", $"{VideoId} へのコメント投稿に失敗 （error code : {res?.Chat_result.__Status}" , duration: Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Short);
+
+                    Debug.WriteLine("コメントの投稿に失敗: " + res?.Chat_result.Status.ToString());
 				}
 
 			}

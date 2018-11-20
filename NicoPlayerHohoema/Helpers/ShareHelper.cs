@@ -171,6 +171,9 @@ namespace NicoPlayerHohoema.Helpers
             var datapackage = new DataPackage();
             datapackage.SetText(content);
 
+            // アプリのクリップボードチェックアクションをアプリ内部からのコピーでは作動させないようにする
+            (App.Current as App).SetIgnoreClipboardCheckingOnce(content);
+
             Clipboard.SetContent(datapackage);
         }
 

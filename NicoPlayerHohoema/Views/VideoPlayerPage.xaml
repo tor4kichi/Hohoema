@@ -322,8 +322,8 @@
 
                         <Setter Target="CommentTextBox.(Grid.Row)" Value="0" />
                         <Setter Target="CommentTextBox.(Grid.RowSpan)" Value="1" />
-                        <Setter Target="CommentTextBox.(Grid).Column)" Value="0" />
-                        <Setter Target="CommentTextBox.(Grid).ColumnSpan)" Value="6" />
+                        <Setter Target="CommentTextBox.(Grid.Column)" Value="0" />
+                        <Setter Target="CommentTextBox.(Grid.ColumnSpan)" Value="6" />
 
                         <Setter Target="CommentCommandEditButton.(Grid.Row)" Value="1" />
                         <Setter Target="CommentCommandEditButton.(Grid.RowSpan)" Value="1" />
@@ -737,6 +737,27 @@
                 </VisualState>
                 <VisualState>
                     <VisualState.StateTriggers>
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+
+            
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding NowSubmittingComment.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="CommentSubmittingProgressRing.IsActive" Value="True" />
+                        <Setter Target="CO_CommentSubmittingProgressRing.IsActive" Value="True" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                     </VisualState.Setters>
@@ -1848,6 +1869,8 @@
                                                 </i:Interaction.Behaviors>
                                             </TextBox>
 
+                                            
+
 
                                             <Button Content="{Binding CommandString.Value}" 
                                                     Margin="8 0 8 0"
@@ -1868,7 +1891,7 @@
                                                 </Button.Flyout>
                                             </Button>
 
-                                            <Button Content="投稿"  Margin="8 0 8 0"
+                                            <Button Margin="8 0 8 0"
                                                     Height="40"
                                                     Command="{Binding CommentSubmitCommand}"
                                                     x:Name="CommentSubmitButton"
@@ -1878,8 +1901,19 @@
                                                 Grid.RowSpan="2"
                                                  Grid.Column="5"
                                                  Grid.ColumnSpan="1"
-                                            
-                                                    />
+                                                    >
+                                                <Grid>
+
+                                                    <TextBlock Text="投稿" />
+                                                    
+                                                    <ProgressRing 
+                                                        x:Name="CommentSubmittingProgressRing"
+                                                        IsActive="False"
+                                                        Height="24" Width="24"
+                                                        VerticalAlignment="Center"
+                                                    />      
+                                                </Grid>
+                                            </Button>
                                         </Grid>
 
                                         <Border Height="8" />
@@ -2309,7 +2343,7 @@
 
                                         </Grid>
 
-                                        <Border x:Name="CO_CommentBoxLayout"
+                                        <Grid x:Name="CO_CommentBoxLayout"
                                                 Visibility="Collapsed"
                                                 >
                                             <TextBox x:Name="CO_CommentTextBox" 
@@ -2334,7 +2368,16 @@
                                                 </i:Interaction.Behaviors>
                                             </TextBox>
 
-                                        </Border>
+                                            <ProgressRing 
+                                                x:Name="CO_CommentSubmittingProgressRing"
+                                                IsActive="False"
+                                                Height="24" Width="24"
+                                                HorizontalAlignment="Right"
+                                                Margin="0 0 16 0"
+                                                />
+                                            
+                                            
+                                        </Grid>
                                     </StackPanel>
                                 </toolkit:DockPanel>
 

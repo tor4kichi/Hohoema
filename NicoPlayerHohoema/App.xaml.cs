@@ -964,7 +964,14 @@ namespace NicoPlayerHohoema
             }
         }
 
-
+        /// <summary>
+        /// アプリ内部からのコピーでクリップボードアクションを作動させないようにしたい場合に使用してください。
+        /// </summary>
+        /// <param name="ignoredContent"></param>
+        public void SetIgnoreClipboardCheckingOnce(string ignoredContent)
+        {
+            prevContent = ignoredContent;
+        }
 
 
         private async Task ExtractNicoContentId_And_SubmitSuggestion(string contentId)

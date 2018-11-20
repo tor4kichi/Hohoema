@@ -644,7 +644,9 @@
                                        Margin="16"
                                        />
 
-                            <ItemsControl ItemsSource="{Binding IchibaItems}">
+                            <ItemsControl ItemsSource="{Binding IchibaItems}"
+                                          IsTabStop="False"
+                                          >
 
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
@@ -654,7 +656,7 @@
 
                                 <ItemsControl.ItemContainerStyle>
                                     <Style TargetType="ContentPresenter">
-                                        <Setter Property="Margin" Value="0 0 8 8" />
+                                        <Setter Property="Margin" Value="0 0 16 8" />
                                     </Style>
                                 </ItemsControl.ItemContainerStyle>
 

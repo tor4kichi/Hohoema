@@ -717,9 +717,6 @@
     <Compile Include="Views\VideoInfomationPage.xaml.cs">
       <DependentUpon>VideoInfomationPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\VideoInfomationPage_TV.xaml.cs">
-      <DependentUpon>VideoInfomationPage_TV.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\RankingCategoryListPage.xaml.cs">
       <DependentUpon>RankingCategoryListPage.xaml</DependentUpon>
     </Compile>
@@ -743,6 +740,7 @@
     <Content Include="Assets\UpdateNotices\0.14.10.md" />
     <Content Include="Assets\UpdateNotices\0.14.11.md" />
     <Content Include="Assets\UpdateNotices\0.15.0.md" />
+    <Content Include="Assets\UpdateNotices\0.15.1.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <None Include="NicoPlayerHohoema_TemporaryKey.pfx" />
   </ItemGroup>
@@ -1185,10 +1183,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\VideoInfomationPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\VideoInfomationPage_TV.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
