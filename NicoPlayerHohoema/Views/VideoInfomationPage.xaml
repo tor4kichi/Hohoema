@@ -285,10 +285,10 @@
 
                         <i:Interaction.Behaviors>
                             
-                            <core:DataTriggerBehavior Binding="{x:Bind Pivot.SelectedIndex, Mode=OneWay}" Value="2">
+                            <core:DataTriggerBehavior Binding="{x:Bind Pivot.SelectedIndex, Mode=OneWay}" Value="1">
                                 <core:CallMethodAction TargetObject="{Binding}" MethodName="InitializeIchibaItems" />
                             </core:DataTriggerBehavior>
-                            <core:DataTriggerBehavior Binding="{x:Bind Pivot.SelectedIndex, Mode=OneWay}" Value="3">
+                            <core:DataTriggerBehavior Binding="{x:Bind Pivot.SelectedIndex, Mode=OneWay}" Value="2">
                                 <core:CallMethodAction TargetObject="{Binding}" MethodName="InitializeRelatedVideos" />
                             </core:DataTriggerBehavior>
 
