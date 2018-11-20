@@ -144,7 +144,7 @@ namespace NicoPlayerHohoema.ViewModels
         protected override void PostResetList()
         {
             AddSortDescription(
-                new Microsoft.Toolkit.Uwp.UI.SortDescription("IsTimedOut", Microsoft.Toolkit.Uwp.UI.SortDirection.Descending)
+                new Microsoft.Toolkit.Uwp.UI.SortDescription("IsTimedOut", Microsoft.Toolkit.Uwp.UI.SortDirection.Ascending)
                 );
 
             AddSortDescription(
@@ -172,15 +172,17 @@ namespace NicoPlayerHohoema.ViewModels
         public bool IsUnwatched { get; internal set; }
         public DateTimeOffset ExpiredAt { get; internal set; }
 
-        public ReservationStatus ReservationStatus { get; internal set; }
+        public ReservationStatus? ReservationStatus { get; internal set; }
 
         public bool IsTimedOut => 
-            ReservationStatus == ReservationStatus.PRODUCT_ARCHIVE_TIMEOUT 
-            || ReservationStatus == ReservationStatus.USER_TIMESHIFT_DATE_OUT
-            || ReservationStatus == ReservationStatus.USE_LIMIT_DATE_OUT
+            ReservationStatus == Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus.PRODUCT_ARCHIVE_TIMEOUT 
+            || ReservationStatus == Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus.USER_TIMESHIFT_DATE_OUT
+            || ReservationStatus == Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus.USE_LIMIT_DATE_OUT
             ;
 
-        public bool IsReserved => ReservationStatus == ReservationStatus.RESERVED;
+        public string StatusRawString { get; internal set; }
+
+        public bool IsReserved => ReservationStatus == Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus.RESERVED;
 
         string ILiveContent.BroadcasterId => null;
 
@@ -251,12 +253,14 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     var liveData = NicoLiveDb.Get(x.Id);
                     var tsItem = _TimeshiftList?.Items.FirstOrDefault(y => y.Id == x.Id);
+
                     return new TimeshiftItemViewModel()
                     {
                         Id = x.Id.StartsWith("lv") ? x.Id : "lv" + x.Id,
                         Title = x.Title,
                         ExpiredAt = tsItem?.WatchTimeLimit ?? x.ExpiredAt,
-                        ReservationStatus = x.GetReservationStatus() ?? throw new NotSupportedException(),
+                        ReservationStatus = x.GetReservationStatus(),
+                        StatusRawString = x.Status,
                         IsUnwatched = x.IsUnwatched,
                         StartTime = liveData?.StartTime ?? DateTimeOffset.MaxValue,
                         ThumbnailUrl = liveData?.ThumbnailUrl,

@@ -614,7 +614,7 @@
     <comment>ReservationStatus</comment>
   </data>
   <data name="USE_LIMIT_DATE_OUT" xml:space="preserve">
-    <value>視聴期間終了（視聴権の期限切れ）</value>
+    <value>視聴権の期限切れ</value>
     <comment>ReservationStatus</comment>
   </data>
   <data name="WATCH" xml:space="preserve">
@@ -661,5 +661,9 @@
   <data name="Virtual" xml:space="preserve">
     <value>バーチャル</value>
     <comment>RankingCategory</comment>
+  </data>
+  <data name="LIMIT_DATE_OUT" xml:space="preserve">
+    <value>視聴権の使用期限切れ</value>
+    <comment>ReservationStatus</comment>
   </data>
 </root>
