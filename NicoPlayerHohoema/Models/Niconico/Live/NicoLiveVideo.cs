@@ -757,11 +757,11 @@ namespace NicoPlayerHohoema.Models.Live
 
 
         private bool _IsFirstRecieveCurrentStream = true;
-        private async void Live2WebSocket_RecieveCurrentStream(Live2CurrentStreamEventArgs e)
+        private void Live2WebSocket_RecieveCurrentStream(Live2CurrentStreamEventArgs e)
         {
             Debug.WriteLine(e.Uri);
 
-            _UIScheduler.Schedule(() => 
+            _UIScheduler.Schedule(async () => 
             {
                 _HLSUri = e.Uri;
                 
@@ -778,9 +778,11 @@ namespace NicoPlayerHohoema.Models.Live
 
                     OpenLive?.Invoke(this);
                 }
+
+                await RefreshLeoPlayer();
             });
 
-            await RefreshLeoPlayer();
+            
         }
 
 
