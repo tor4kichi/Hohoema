@@ -91,7 +91,7 @@ namespace NicoPlayerHohoema.ViewModels
             SelectedItems = new ObservableCollection<ITEM_VM>();
 
             
-            HasItem = new ReactiveProperty<bool>(false);
+            HasItem = new ReactiveProperty<bool>(true);
 
 			HasError = new ReactiveProperty<bool>(false);
 
@@ -184,6 +184,8 @@ namespace NicoPlayerHohoema.ViewModels
         }
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
+            HasItem.Value = true;
+
             _NavigationId = ResolveNavigationId(e);
 
             if (CheckNeedUpdateOnNavigateTo(e.NavigationMode))
@@ -416,7 +418,6 @@ namespace NicoPlayerHohoema.ViewModels
 		protected virtual void PostResetList()
         {
             LatestUpdateTime = DateTime.Now;
-            HasItem.Value = IncrementalLoadingItems?.Count > 0;
         }
 
 		protected abstract IIncrementalSource<ITEM_VM> GenerateIncrementalSource();
