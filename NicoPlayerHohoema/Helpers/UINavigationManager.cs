@@ -47,6 +47,9 @@ namespace NicoPlayerHohoema.Views
 
         bool _IsDisposed;
 
+
+        public static bool InitialEnabling = true;
+
         static UINavigationManager()
         {
             __Instance = new UINavigationManager();
@@ -60,52 +63,63 @@ namespace NicoPlayerHohoema.Views
                 _ButtonHold[target] = TimeSpan.Zero;
             }
 
-            App.Current.EnteredBackground += Current_EnteredBackground;
-            App.Current.LeavingBackground += Current_LeavingBackground;
+            Window.Current.Activated += Current_Activated;
 
             UINavigationController.UINavigationControllerAdded += UINavigationController_UINavigationControllerAdded;
             UINavigationController.UINavigationControllerRemoved += UINavigationController_UINavigationControllerRemoved;
 
-            if (UINavigationController.UINavigationControllers.Count > 0)
+            IsEnabled = InitialEnabling;
+        }
+
+        private bool _IsEnabled;
+        public bool IsEnabled
+        {
+            get { return _IsEnabled; }
+            set
+            {
+                if (_IsEnabled != value)
+                {
+                    _IsEnabled = value;
+
+                    if (_IsEnabled)
+                    {
+                        ActivatePolling();
+                    }
+                    else
+                    {
+                        DeactivatePolling();
+                    }
+                }
+            }
+        }
+
+        private void Current_Activated(object sender, WindowActivatedEventArgs e)
+        {
+            if (e.WindowActivationState == CoreWindowActivationState.Deactivated)
+            {
+                DeactivatePolling();
+            }
+            else
             {
                 ActivatePolling();
             }
         }
 
-
         private void UINavigationController_UINavigationControllerAdded(object sender, UINavigationController e)
         {
-            if (UINavigationController.UINavigationControllers.Count > 0)
-            {
-                ActivatePolling();
-            }
+            ActivatePolling();
         }
 
         private void UINavigationController_UINavigationControllerRemoved(object sender, UINavigationController e)
         {
-            if (UINavigationController.UINavigationControllers.Count == 0)
-            {
-                DeactivatePolling();
-            }
-        }
-
-        private void Current_LeavingBackground(object sender, Windows.ApplicationModel.LeavingBackgroundEventArgs e)
-        {
-            if (UINavigationController.UINavigationControllers.Count > 0)
-            {
-                ActivatePolling();
-            }
-        }
-
-        private void Current_EnteredBackground(object sender, Windows.ApplicationModel.EnteredBackgroundEventArgs e)
-        {
             DeactivatePolling();
         }
+
+
 
         public void Dispose()
         {
-            DeactivatePolling();
-
+            _PollingTimer?.Dispose();
             _PollingTimer = null;
             _IsDisposed = true;
         }
@@ -119,6 +133,10 @@ namespace NicoPlayerHohoema.Views
         private void ActivatePolling()
         {
             if (_IsDisposed) { return; }
+
+            if (!IsEnabled) { return; }
+
+            if (UINavigationController.UINavigationControllers.Count == 0) { return; }
 
             if (_PollingTimer == null)
             {
@@ -134,6 +152,8 @@ namespace NicoPlayerHohoema.Views
         private void DeactivatePolling()
         {
             if (_IsDisposed) { return; }
+
+            if (UINavigationController.UINavigationControllers.Count > 0) { return; }
 
             _PollingTimer?.Dispose();
             _PollingTimer = null;

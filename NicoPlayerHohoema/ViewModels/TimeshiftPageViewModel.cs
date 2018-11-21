@@ -20,7 +20,7 @@ using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public sealed class TimeshiftPageViewModel : HohoemaListingPageViewModelBase<TimeshiftItemViewModel>
+    public sealed class TimeshiftPageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>
     {
         public TimeshiftPageViewModel(HohoemaApp app, PageManager pageManager) 
             : base(app, pageManager, useDefaultPageTitle: true)
@@ -97,7 +97,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                         var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
 
-                        var reservationTitlesText = string.Join("\r", selectedReservations.Select(x => x.Title));
+                        var reservationTitlesText = string.Join("\r", selectedReservations.Select(x => x.Label));
                         var acceptDeletion = await dialogService.ShowMessageDialog(
                             "DeleteReservationConfirmText".ToCulturelizeString() + "\r\r" + reservationTitlesText,
                             "DeleteSelectedReservationConfirm_Title".ToCulturelizeString(),
@@ -144,7 +144,11 @@ namespace NicoPlayerHohoema.ViewModels
         protected override void PostResetList()
         {
             AddSortDescription(
-                new Microsoft.Toolkit.Uwp.UI.SortDescription("IsTimedOut", Microsoft.Toolkit.Uwp.UI.SortDirection.Descending)
+                new Microsoft.Toolkit.Uwp.UI.SortDescription("NowLive", Microsoft.Toolkit.Uwp.UI.SortDirection.Descending)
+                );
+
+            AddSortDescription(
+                new Microsoft.Toolkit.Uwp.UI.SortDescription("IsTimedOut", Microsoft.Toolkit.Uwp.UI.SortDirection.Ascending)
                 );
 
             AddSortDescription(
@@ -158,43 +162,15 @@ namespace NicoPlayerHohoema.ViewModels
             base.PostResetList();
         }
 
-        protected override IIncrementalSource<TimeshiftItemViewModel> GenerateIncrementalSource()
+        protected override IIncrementalSource<LiveInfoListItemViewModel> GenerateIncrementalSource()
         {
             return new TimeshiftIncrementalCollectionSource(HohoemaApp.ContentProvider);
         }
     }
 
 
-    public sealed class TimeshiftItemViewModel : Interfaces.ILiveContent
-    {
-        public string Id { get; internal set; }
-        public string Title { get; internal set; }
-        public bool IsUnwatched { get; internal set; }
-        public DateTimeOffset ExpiredAt { get; internal set; }
 
-        public ReservationStatus ReservationStatus { get; internal set; }
-
-        public bool IsTimedOut => 
-            ReservationStatus == ReservationStatus.PRODUCT_ARCHIVE_TIMEOUT 
-            || ReservationStatus == ReservationStatus.USER_TIMESHIFT_DATE_OUT
-            || ReservationStatus == ReservationStatus.USE_LIMIT_DATE_OUT
-            ;
-
-        public bool IsReserved => ReservationStatus == ReservationStatus.RESERVED;
-
-        string ILiveContent.BroadcasterId => null;
-
-        string INiconicoContent.Id => Id;
-
-        string INiconicoContent.Label => Title;
-
-        public DateTimeOffset StartTime { get; set; }
-        public string ThumbnailUrl { get; set; }
-        public TimeSpan Duration { get; set; }
-    }
-
-
-    public class TimeshiftIncrementalCollectionSource : HohoemaIncrementalSourceBase<TimeshiftItemViewModel>
+    public class TimeshiftIncrementalCollectionSource : HohoemaIncrementalSourceBase<LiveInfoListItemViewModel>
     {
         NiconicoContentProvider _ContentProvider;
 
@@ -221,7 +197,7 @@ namespace NicoPlayerHohoema.ViewModels
             return reservations.ReservedProgram.Count;
         }
 
-        protected override async Task<IAsyncEnumerable<TimeshiftItemViewModel>> GetPagedItemsImpl(int head, int count)
+        protected override async Task<IAsyncEnumerable<LiveInfoListItemViewModel>> GetPagedItemsImpl(int head, int count)
         {
             var items = _Reservations.Skip(head).Take(count).ToArray();
 
@@ -251,16 +227,10 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     var liveData = NicoLiveDb.Get(x.Id);
                     var tsItem = _TimeshiftList?.Items.FirstOrDefault(y => y.Id == x.Id);
-                    return new TimeshiftItemViewModel()
+
+                    return new LiveInfoListItemViewModel(liveData, x)
                     {
-                        Id = x.Id.StartsWith("lv") ? x.Id : "lv" + x.Id,
-                        Title = x.Title,
                         ExpiredAt = tsItem?.WatchTimeLimit ?? x.ExpiredAt,
-                        ReservationStatus = x.GetReservationStatus() ?? throw new NotSupportedException(),
-                        IsUnwatched = x.IsUnwatched,
-                        StartTime = liveData?.StartTime ?? DateTimeOffset.MaxValue,
-                        ThumbnailUrl = liveData?.ThumbnailUrl,
-                        Duration = liveData?.EndTime - liveData?.StartTime ?? TimeSpan.Zero
                     };
                 }
                 )

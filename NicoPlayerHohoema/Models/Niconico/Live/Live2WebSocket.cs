@@ -230,13 +230,16 @@ namespace NicoPlayerHohoema.Models.Live
                         RecieveCurrentRoom?.Invoke(currentRoomArgs);
                         break;
                     case "statistics":
-                        var countItems = ((JArray)body["params"]).Select(x => x.ToString()).ToArray();
+                        var countItems = ((JArray)body["params"])
+                            .Select(x => x.ToString())
+                            .Select(x => long.TryParse(x, out var result) ? result : 0)
+                            .ToArray();
                         var statisticsArgs = new Live2StatisticsEventArgs()
                         {
-                            ViewCount = long.Parse(countItems[0]),
-                            CommentCount = long.Parse(countItems[1]),
-                            Count_3 = long.Parse(countItems[2]),
-                            Count_4 = long.Parse(countItems[3]),
+                            ViewCount = countItems[0],
+                            CommentCount = countItems[1],
+                            Count_3 = countItems[2],
+                            Count_4 = countItems[3],
                         };
                         RecieveStatistics?.Invoke(statisticsArgs);
                         break;
