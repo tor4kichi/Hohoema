@@ -27,264 +27,54 @@
 
        
         <DataTemplate x:Key="TimeshiftItem_Reserved" >
-            <Grid Opacity="0.6">
-                <TextBlock Text="{Binding ReservationStatus, Converter={StaticResource ToLocalText}}"
+            <StackPanel>
+                <TextBlock Text="{Binding ExpiredAt, Converter={StaticResource ExpiredDateTimeToString}}"
                            HorizontalAlignment="Right"
-                           VerticalAlignment="Bottom"
-                           Style="{StaticResource SubtitleTextBlockStyle}"
-                           Opacity="0.7"
+                           FontSize="13"
+                           Opacity="0.6"
                            />
-
-                <!-- 状態 -->
-                <toolkit:DockPanel>
-
-                    <Grid toolkit:DockPanel.Dock="Left"
-                        Margin="16 0"
-                          >
-                        <uwpcontrols:ImageEx Source="{Binding ThumbnailUrl}"
-                                             Height="80" 
-                                             Width="80"
-                                             />
-
-                        <Border HorizontalAlignment="Right" 
-                                VerticalAlignment="Bottom"
-                                CornerRadius="4 0 0 0"
-                                >
-                            <Border.Background>
-                                <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
-                            </Border.Background>
-
-                            <TextBlock Text="{Binding Duration, Converter={StaticResource TimeToMovieLengthConverter}}" 
-                               Padding="4 0 3 3" 
-                               TextWrapping="Wrap" VerticalAlignment="Center" 
-                               FontSize="13"
-                               
-                               />
-                        </Border>
-                    </Grid>
-                    
-
-                    <TextBlock toolkit:DockPanel.Dock="Top"
-                                       FontSize="12"
-                                       Opacity="0.7"
-                                       >
-                        <Run Text="{Binding StartTime, Converter={StaticResource DateTimeToString}}" />
-                    </TextBlock>
-
-                    <TextBlock Text="{Binding ExpiredAt, Converter={StaticResource ExpiredDateTimeToString}}"
-                                       toolkit:DockPanel.Dock="Bottom"
-                                       FontSize="12"
-                                       Opacity="0.7"
-                               Visibility="Collapsed"
-                                       />
-
-                    <TextBlock Text="{Binding Title}" 
-                               FontSize="16"
-                               TextWrapping="Wrap"
-                                            />
-
-                </toolkit:DockPanel>
-
-
-
-
-            </Grid>
+                <controls:LiveVideoListItem />
+            </StackPanel>
         </DataTemplate>
 
         <DataTemplate x:Key="TimeshiftItem_Watch" >
-            <Grid>
-                <TextBlock Text="{Binding ReservationStatus, Converter={StaticResource ToLocalText}}"
+            <StackPanel>
+                <TextBlock Text="{Binding ExpiredAt, Converter={StaticResource ExpiredDateTimeToString}}"
                            HorizontalAlignment="Right"
-                           VerticalAlignment="Bottom"
-                           Style="{StaticResource SubtitleTextBlockStyle}"
-                           Opacity="0.7"
+                           FontSize="13"
+                           Opacity="0.6"
                            />
-                
-                <!-- 状態 -->
-                <toolkit:DockPanel>
-
-                    <Grid toolkit:DockPanel.Dock="Left"
-                          Margin="16 0"
-                          >
-                        <uwpcontrols:ImageEx Source="{Binding ThumbnailUrl}"
-                                    Height="80" 
-                                    Width="80"
-                                             />
-
-                        <Border HorizontalAlignment="Right" 
-                                VerticalAlignment="Bottom"
-                                CornerRadius="4 0 0 0"
-                                >
-                            <Border.Background>
-                                <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
-                            </Border.Background>
-
-                            <TextBlock Text="{Binding Duration, Converter={StaticResource TimeToMovieLengthConverter}}" 
-                               Padding="4 0 3 3" 
-                               TextWrapping="Wrap" VerticalAlignment="Center" 
-                               FontSize="13"
-                               
-                               />
-                        </Border>
-                    </Grid>
-
-                    <TextBlock toolkit:DockPanel.Dock="Top"
-                                       FontSize="12"
-                                       Opacity="0.7"
-                                       >
-                        <Run Text="{Binding StartTime, Converter={StaticResource DateTimeToString}}" />
-                    </TextBlock>
-
-                    <TextBlock Text="{Binding ExpiredAt, Converter={StaticResource ExpiredDateTimeToString}}"
-                                       toolkit:DockPanel.Dock="Bottom"
-                                       FontSize="12"
-                                       Opacity="0.7"
-                                       />
-
-                    <TextBlock Text="{Binding Title}" 
-                               FontSize="16"
-                               TextWrapping="Wrap"
-                                            />
-
-                </toolkit:DockPanel>
-                
-                
-                
-
-            </Grid>
+                <controls:LiveVideoListItem />
+            </StackPanel>
         </DataTemplate>
 
         
         <DataTemplate x:Key="TimeshiftItem_TimeOut" >
-            <Grid Opacity="0.6">
-                <TextBlock Text="{Binding ReservationStatus, Converter={StaticResource ToLocalText}}"
+            <StackPanel>
+                <TextBlock Text="{Binding ExpiredAt, Converter={StaticResource ExpiredDateTimeToString}}"
                            HorizontalAlignment="Right"
-                           VerticalAlignment="Bottom"
-                           Style="{StaticResource SubtitleTextBlockStyle}"
-                           Opacity="0.7"
+                           FontSize="13"
+                           Opacity="0.6"
                            />
-
-                <!-- 状態 -->
-                <toolkit:DockPanel>
-
-                    <Grid toolkit:DockPanel.Dock="Left"
-                          Margin="16 0"
-                          >
-                        <uwpcontrols:ImageEx Source="{Binding ThumbnailUrl}"
-                                    Height="80" 
-                                    Width="80"
-                                             />
-
-                        <Border HorizontalAlignment="Right" 
-                                VerticalAlignment="Bottom"
-                                CornerRadius="4 0 0 0"
-                                >
-                            <Border.Background>
-                                <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
-                            </Border.Background>
-
-                            <TextBlock Text="{Binding Duration, Converter={StaticResource TimeToMovieLengthConverter}}" 
-                               Padding="4 0 3 3" 
-                               TextWrapping="Wrap" VerticalAlignment="Center" 
-                               FontSize="13"
-                               
-                               />
-                        </Border>
-                    </Grid>
-
-                    <TextBlock toolkit:DockPanel.Dock="Top"
-                                       FontSize="12"
-                                       Opacity="0.7"
-                                       >
-                        <Run Text="{Binding StartTime, Converter={StaticResource DateTimeToString}}" />
-                    </TextBlock>
-
-                    <TextBlock Text="{Binding ExpiredAt, Converter={StaticResource ExpiredDateTimeToString}}"
-                                       toolkit:DockPanel.Dock="Bottom"
-                                       FontSize="12"
-                                       Opacity="0.7"
-                                       />
-
-                    <TextBlock Text="{Binding Title}" 
-                               FontSize="16"
-                               TextWrapping="Wrap"
-                                            />
-
-                </toolkit:DockPanel>
-
-
-
-
-            </Grid>
+                <controls:LiveVideoListItem Opacity="0.6" />
+            </StackPanel>
         </DataTemplate>
 
 
         <DataTemplate x:Key="TimeshiftItem_UnknownStatus" >
-            <Grid Opacity="0.6">
-                <TextBlock Text="{Binding StatusRawString}"
+            <StackPanel>
+                <TextBlock Text="{Binding ExpiredAt, Converter={StaticResource ExpiredDateTimeToString}}"
                            HorizontalAlignment="Right"
-                           VerticalAlignment="Bottom"
-                           Style="{StaticResource SubtitleTextBlockStyle}"
-                           Opacity="0.7"
+                           FontSize="13"
+                           Opacity="0.6"
                            />
-
-                <!-- 状態 -->
-                <toolkit:DockPanel>
-
-                    <Grid toolkit:DockPanel.Dock="Left"
-                          Margin="16 0"
-                          >
-                        <uwpcontrols:ImageEx Source="{Binding ThumbnailUrl}"
-                                    Height="80" 
-                                    Width="80"
-                                             />
-
-                        <Border HorizontalAlignment="Right" 
-                                VerticalAlignment="Bottom"
-                                CornerRadius="4 0 0 0"
-                                >
-                            <Border.Background>
-                                <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
-                            </Border.Background>
-
-                            <TextBlock Text="{Binding Duration, Converter={StaticResource TimeToMovieLengthConverter}}" 
-                               Padding="4 0 3 3" 
-                               TextWrapping="Wrap" VerticalAlignment="Center" 
-                               FontSize="13"
-                               
-                               />
-                        </Border>
-                    </Grid>
-
-                    <TextBlock toolkit:DockPanel.Dock="Top"
-                                       FontSize="12"
-                                       Opacity="0.7"
-                                       >
-                        <Run Text="{Binding StartTime, Converter={StaticResource DateTimeToString}}" />
-                    </TextBlock>
-
-                    <TextBlock Text="{Binding ExpiredAt, Converter={StaticResource ExpiredDateTimeToString}}"
-                                       toolkit:DockPanel.Dock="Bottom"
-                                       FontSize="12"
-                                       Opacity="0.7"
-                                       />
-
-                    <TextBlock Text="{Binding Title}" 
-                               FontSize="16"
-                               TextWrapping="Wrap"
-                                            />
-
-                </toolkit:DockPanel>
-
-
-
-
-            </Grid>
+                <controls:LiveVideoListItem Opacity="0.6" />
+            </StackPanel>
         </DataTemplate>
 
         <templateselector:ValueDataTemplateSelector x:Key="TimeshiftItemTemplateSelector"
                                                     PropertyName="ReservationStatus"
-                                                    Default="{StaticResource TimeshiftItem_UnknownStatus}"
+                                                    Default="{StaticResource TimeshiftItem_Watch}"
                                                     >
             
             <templateselector:ValueDataTemplate Value="{x:Bind liveDetail:ReservationStatus.RESERVED}"

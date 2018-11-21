@@ -358,6 +358,7 @@
     <Compile Include="ViewModels\LiveInfomationPageViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\RelatedVideosSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\RecommendPageViewModel.cs" />
+    <Compile Include="ViewModels\LiveInfoListItemViewModel.cs" />
     <Compile Include="ViewModels\SearchSummaryPageViewModel.cs" />
     <Compile Include="ViewModels\RankingCategoryPageViewModel.cs" />
     <Compile Include="ViewModels\TimeshiftPageViewModel.cs" />

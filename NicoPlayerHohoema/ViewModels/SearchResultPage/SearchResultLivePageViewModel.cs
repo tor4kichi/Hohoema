@@ -19,7 +19,7 @@ using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class SearchResultLivePageViewModel : HohoemaListingPageViewModelBase<LiveInfoViewModel>
+    public class SearchResultLivePageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>
 	{
         public class LiveSearchSortOptionListItem
         {
@@ -314,7 +314,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        protected override IIncrementalSource<LiveInfoViewModel> GenerateIncrementalSource()
+        protected override IIncrementalSource<LiveInfoListItemViewModel> GenerateIncrementalSource()
 		{
 			return new LiveSearchSource(SearchOption, HohoemaApp, PageManager);
 		}
@@ -322,21 +322,24 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-	public class LiveSearchSource : IIncrementalSource<LiveInfoViewModel>
+	public class LiveSearchSource : IIncrementalSource<LiveInfoListItemViewModel>
 	{
 
 		public HohoemaApp HohoemaApp { get; private set; }
 		public PageManager PageManager { get; private set; }
 
 		public LiveSearchPagePayloadContent SearchOption { get; private set; }
-
-		public List<Tag> Tags { get; private set; }
+        
+        public List<Tag> Tags { get; private set; }
 
 		public uint OneTimeLoadCount => 10;
 
         public List<VideoInfo> Info { get; } = new List<VideoInfo>();
 
-		public LiveSearchSource(
+
+        Mntone.Nico2.Live.ReservationsInDetail.ReservationsInDetailResponse _Reservations;
+
+        public LiveSearchSource(
 			LiveSearchPagePayloadContent searchOption,
 			HohoemaApp app,
 			PageManager pageManager
@@ -384,7 +387,17 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 			catch { }
 
-			return totalCount;
+            try
+            {
+                // ログインしてない場合はタイムシフト予約は取れない
+                if(HohoemaApp.IsLoggedIn)
+                {
+                    _Reservations = await HohoemaApp.NiconicoContext.Live.GetReservationsInDetailAsync();
+                }
+            }
+            catch { }
+
+            return totalCount;
 		}
 
         private void AddLive(VideoInfo live)
@@ -395,7 +408,7 @@ namespace NicoPlayerHohoema.ViewModels
                 SearchedVideoIdsHash.Add(live.Video.Id);
             }
         }
-		public async Task<IAsyncEnumerable<LiveInfoViewModel>> GetPagedItems(int head, int count)
+		public async Task<IAsyncEnumerable<LiveInfoListItemViewModel>> GetPagedItems(int head, int count)
 		{
             if (Info.Count < (head + count))
             {
@@ -413,144 +426,9 @@ namespace NicoPlayerHohoema.ViewModels
 
             return Info.Skip(head).Take(count).Select(x =>
 			{
-				return new LiveInfoViewModel(x);
+				return new LiveInfoListItemViewModel(x, _Reservations?.ReservedProgram.FirstOrDefault(reservation => x.Video.Id == reservation.Id));
 			})
             .ToAsyncEnumerable();
 		}
 	}
-
-
-	public class LiveInfoViewModel : HohoemaListingPageItemBase, Interfaces.ILiveContent
-    {
-		public string LiveId { get; private set; }
-
-		public string CommunityName { get; private set; }
-		public string CommunityThumbnail { get; private set; }
-		public string CommunityGlobalId { get; private set; }
-		public Mntone.Nico2.Live.CommunityType CommunityType { get; private set; }
-
-		public string LiveTitle { get; private set; }
-		public int ViewCounter { get; private set; }
-		public int CommentCount { get; private set; }
-		public DateTime OpenTime { get; private set; }
-		public DateTime StartTime { get; private set; }
-		public bool HasEndTime { get; private set; }
-		public DateTime EndTime { get; private set; }
-		public string DurationText { get; private set; }
-		public bool IsTimeshiftEnabled { get; private set; }
-		public bool IsCommunityMemberOnly { get; private set; }
-
-        public bool IsXbox => Helpers.DeviceTypeHelper.IsXbox;
-
-
-        public string BroadcasterId => CommunityGlobalId;
-        public string Id => LiveId;
-
-
-        public LiveInfoViewModel(Mntone.Nico2.Live.Recommend.LiveRecommendData liveVideoInfo)
-        {
-            LiveId = "lv" + liveVideoInfo.ProgramId;
-
-            CommunityThumbnail = liveVideoInfo.ThumbnailUrl;
-
-            CommunityGlobalId = liveVideoInfo.DefaultCommunity;
-            CommunityType = liveVideoInfo.ProviderType;
-
-            LiveTitle = liveVideoInfo.Title;
-            OpenTime = liveVideoInfo.OpenTime.DateTime;
-            StartTime = liveVideoInfo.StartTime.DateTime;
-            //EndTime = liveVideoInfo.Video.EndTime;
-            //IsTimeshiftEnabled = liveVideoInfo.Video.TimeshiftEnabled;
-            //IsCommunityMemberOnly = liveVideoInfo.Video.CommunityOnly;
-
-            AddImageUrl(CommunityThumbnail);
-
-            //Description = $"来場者:{ViewCounter} コメ:{CommentCount}";
-
-            switch (liveVideoInfo.CurrentStatus)
-            {
-                case Mntone.Nico2.Live.StatusType.Invalid:
-                    break;
-                case Mntone.Nico2.Live.StatusType.OnAir:
-                    DurationText = $"{StartTime - DateTime.Now} 経過";
-                    break;
-                case Mntone.Nico2.Live.StatusType.ComingSoon:
-                    DurationText = $"開始予定: {StartTime}";
-                    break;
-                case Mntone.Nico2.Live.StatusType.Closed:
-                    DurationText = $"放送終了";
-                    break;
-                default:
-                    break;
-            }
-            
-            OptionText = DurationText;
-        }
-
-        public LiveInfoViewModel(VideoInfo liveVideoInfo)
-		{
-            LiveId = liveVideoInfo.Video.Id;
-            CommunityName = liveVideoInfo.Community?.Name;
-            if (liveVideoInfo.Community?.Thumbnail != null)
-            {
-                CommunityThumbnail = liveVideoInfo.Community?.Thumbnail;
-            }
-            else
-            {
-                CommunityThumbnail = liveVideoInfo.Video.ThumbnailUrl;
-            }
-            CommunityGlobalId = liveVideoInfo.Community?.GlobalId;
-			CommunityType = liveVideoInfo.Video.ProviderType;
-
-			LiveTitle = liveVideoInfo.Video.Title;
-			ViewCounter = int.Parse(liveVideoInfo.Video.ViewCounter);
-			CommentCount = int.Parse(liveVideoInfo.Video.CommentCount);
-			OpenTime = liveVideoInfo.Video.OpenTime;
-			StartTime = liveVideoInfo.Video.StartTime;
-			EndTime = liveVideoInfo.Video.EndTime;
-			IsTimeshiftEnabled = liveVideoInfo.Video.TimeshiftEnabled;
-			IsCommunityMemberOnly = liveVideoInfo.Video.CommunityOnly;
-
-            Label = liveVideoInfo.Video.Title;
-            AddImageUrl(CommunityThumbnail);
-
-            Description = $"来場者:{ViewCounter} コメ:{CommentCount}";
-
-			if (liveVideoInfo.Video.StartTime > DateTime.Now)
-			{
-				// 予約
-				DurationText = $" 開始予定: {liveVideoInfo.Video.StartTime}";
-			}
-			else if (liveVideoInfo.Video.EndTime > DateTime.Now)
-			{
-                var duration = DateTime.Now - StartTime;
-                // 放送中
-                if (duration.Hours > 0)
-                {
-                    DurationText = $"{duration.Hours}時間 {duration.Minutes}分 経過";
-                }
-                else
-                {
-                    DurationText = $"{duration.Minutes}分 経過";
-                }
-			}
-			else
-			{
-                var duration = EndTime - StartTime;
-                // 終了
-                if (duration.Hours > 0)
-                {
-                    DurationText = $"{liveVideoInfo.Video.EndTime} 終了（{duration.Hours}時間 {duration.Minutes}分）";
-                }
-                else
-                {
-                    DurationText = $"{liveVideoInfo.Video.EndTime} 終了（{duration.Minutes}分）";
-                }
-            }
-
-            OptionText = DurationText;
-        }
-
-        
-    }
 }

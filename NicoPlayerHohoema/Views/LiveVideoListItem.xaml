@@ -11,28 +11,165 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:behavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:uwpUI="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:templateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
+    xmlns:vm="using:NicoPlayerHohoema.ViewModels"
+    xmlns:icon="using:MahApps.Metro.IconPacks"
     mc:Ignorable="d"
     d:DesignHeight="60"
     d:DesignWidth="400">
 
+    <UserControl.Resources>
+
+        <Style x:Key="LiveInfoListItemElementTextStyle" TargetType="TextBlock" BasedOn="{StaticResource BaseTextBlockStyle}" >
+            <Setter Property="FontSize" Value="12" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+        </Style>
+
+        <Style x:Key="LiveInfoListItemIconStyle" TargetType="icon:PackIconMaterial">
+            <Setter Property="Kind" Value="PlayCircleOutline" />
+            <Setter Property="Width" Value="16" />
+            <Setter Property="Height" Value="14" />
+            <Setter Property="Margin" Value="0 0 2 0" />
+            <Setter Property="VerticalAlignment" Value="Bottom" />
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <ScaleTransform ScaleX="0.9" ScaleY="0.9" CenterX="0" CenterY="0" />
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <templateSelector:ValueDataTemplateSelector x:Name="LiveInfoListItemElementTemplateSelector"
+                                                    >
+            <templateSelector:ValueDataTemplateSelector.Default>
+                <DataTemplate>
+                    <TextBlock Text="{Binding}" Style="{StaticResource LiveInfoListItemElementTextStyle}" Opacity="0.5" />
+                </DataTemplate>
+            </templateSelector:ValueDataTemplateSelector.Default>
+            
+            
+            <templateSelector:ValueDataTemplate Value="{x:Bind vm:LiveContentElement.Provider_Community}" >
+                <DataTemplate>
+                    <TextBlock Text="コミュニティ" Style="{StaticResource LiveInfoListItemElementTextStyle}" />
+                </DataTemplate>
+            </templateSelector:ValueDataTemplate>
+
+            <templateSelector:ValueDataTemplate Value="{x:Bind vm:LiveContentElement.Provider_Channel}" >
+                <DataTemplate>
+                    <TextBlock Text="チャンネル" Style="{StaticResource LiveInfoListItemElementTextStyle}" />
+                </DataTemplate>
+            </templateSelector:ValueDataTemplate>
+            <templateSelector:ValueDataTemplate Value="{x:Bind vm:LiveContentElement.Provider_Official}" >
+                <DataTemplate>
+                    <TextBlock Text="公式" Style="{StaticResource LiveInfoListItemElementTextStyle}" />
+                </DataTemplate>
+            </templateSelector:ValueDataTemplate>
+
+            
+            
+            <templateSelector:ValueDataTemplate Value="{x:Bind vm:LiveContentElement.Status_Pending}" >
+                <DataTemplate>
+                    <TextBlock Text="放送前" Style="{StaticResource LiveInfoListItemElementTextStyle}" />
+                </DataTemplate>
+            </templateSelector:ValueDataTemplate>
+            <templateSelector:ValueDataTemplate Value="{x:Bind vm:LiveContentElement.Status_Open}" >
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <icon:PackIconMaterial Style="{StaticResource LiveInfoListItemIconStyle}" />
+
+                        <TextBlock Text="放送中（開演前）" Style="{StaticResource LiveInfoListItemElementTextStyle}" />
+                    </StackPanel>
+                </DataTemplate>
+            </templateSelector:ValueDataTemplate>
+            <templateSelector:ValueDataTemplate Value="{x:Bind vm:LiveContentElement.Status_Start}" >
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <icon:PackIconMaterial Style="{StaticResource LiveInfoListItemIconStyle}" />
+
+                        <TextBlock Text="放送中" Style="{StaticResource LiveInfoListItemElementTextStyle}" />
+                    </StackPanel>
+                </DataTemplate>
+            </templateSelector:ValueDataTemplate>
+            <templateSelector:ValueDataTemplate Value="{x:Bind vm:LiveContentElement.Status_Closed}" >
+                <DataTemplate>
+                    <TextBlock Text="放送終了" Style="{StaticResource LiveInfoListItemElementTextStyle}" />
+                </DataTemplate>
+            </templateSelector:ValueDataTemplate>
+
+            
+            
+            <templateSelector:ValueDataTemplate Value="{x:Bind vm:LiveContentElement.Timeshift_Enable}" >
+                <DataTemplate>
+                    <TextBlock Text="タイムシフト" Style="{StaticResource LiveInfoListItemElementTextStyle}" />
+                </DataTemplate>
+            </templateSelector:ValueDataTemplate>
+            <templateSelector:ValueDataTemplate Value="{x:Bind vm:LiveContentElement.Timeshift_Watch}" >
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <icon:PackIconMaterial Style="{StaticResource LiveInfoListItemIconStyle}" />
+
+                        <TextBlock Text="タイムシフト（予約済み）" Style="{StaticResource LiveInfoListItemElementTextStyle}" />
+                    </StackPanel>
+                </DataTemplate>
+            </templateSelector:ValueDataTemplate>
+            <templateSelector:ValueDataTemplate Value="{x:Bind vm:LiveContentElement.Timeshift_OutDated}" >
+                <DataTemplate>
+                    <TextBlock Text="タイムシフト（期限切れ）" Style="{StaticResource LiveInfoListItemElementTextStyle}" />
+                </DataTemplate>
+            </templateSelector:ValueDataTemplate>
+            <templateSelector:ValueDataTemplate Value="{x:Bind vm:LiveContentElement.Timeshift_Preserved}" >
+                <DataTemplate>
+                    <TextBlock Text="タイムシフト（予約済み）" Style="{StaticResource LiveInfoListItemElementTextStyle}" />
+                </DataTemplate>
+            </templateSelector:ValueDataTemplate>
+
+            
+            
+            <templateSelector:ValueDataTemplate Value="{x:Bind vm:LiveContentElement.MemberOnly}" >
+                <DataTemplate>
+                    <TextBlock Text="メンバー限定" Style="{StaticResource LiveInfoListItemElementTextStyle}" />
+                </DataTemplate>
+            </templateSelector:ValueDataTemplate>
+        </templateSelector:ValueDataTemplateSelector>
+    </UserControl.Resources>
+    
     <Grid>
+        <ItemsControl ItemsSource="{Binding Elements}" 
+                              ItemTemplateSelector="{StaticResource LiveInfoListItemElementTemplateSelector}"
+                              HorizontalAlignment="Right"
+                      VerticalAlignment="Bottom"
+                              >
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <uwpUI:WrapPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
 
-        <TextBlock HorizontalAlignment="Right" Margin="16"
-                   Text="{Binding CommunityType}"
-                   Foreground="DimGray"
-                   />
+            <ItemsControl.ItemContainerStyle>
+                <Style TargetType="ContentPresenter">
+                    <Setter Property="Margin" Value="0 0 4 2" />
+                    <Setter Property="Padding" Value="8 4" />
+                    <Setter Property="Background" >
+                        <Setter.Value>
+                            <SolidColorBrush Color="{StaticResource SystemBaseHighColor}" Opacity="0.35" />
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="Foreground" Value="{StaticResource ApplicationPageBackgroundThemeBrush}" />
+                    <Setter Property="Opacity" Value="1" />
+                    <Setter Property="CornerRadius" Value="2" />
+                </Style>
+            </ItemsControl.ItemContainerStyle>
+        </ItemsControl>
 
+        
         <toolkit:DockPanel x:Name="VideoInfo" IsHitTestVisible="True" Background="Transparent">
 
             
             <Grid Height="60" Width="100" toolkit:DockPanel.Dock="Left">
 
-
                 <uwpUI:ImageEx  Source="{Binding CommunityThumbnail}"
                                 IsCacheEnabled="False"
-                                
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
                                 Stretch="UniformToFill"
                                 VerticalContentAlignment="Center"
                                 HorizontalContentAlignment="Center"
@@ -67,25 +204,13 @@
 
                     <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" 
                                FontSize="12">
-                        <Run Text="{Binding StartTime}" />
-                        <Run Text="開始" />
-                        
                         <Run Text="{Binding DurationText}" />
                     </TextBlock>
-
-                    <Border Width="16" />
                     
-                    <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                               FontSize="12"
-                               Visibility="{Binding IsCommunityMemberOnly, Converter={StaticResource BooleanToVisibility}}"
-                               >
-                        <Run Text="コミュメンバー限定" />
-                    </TextBlock>
-
                 </StackPanel>
 
 
-
+                
 
 
                 <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Bottom">
@@ -97,9 +222,10 @@
                         <Run Text="コメ" />
                         <Run Text="{Binding CommentCount, Converter={StaticResource ToUserFriendlyNumber}}" />
                     </TextBlock>
+                    
                 </StackPanel>
 
-
+                
                 <TextBlock Text="{Binding LiveTitle}" 
                            FontSize="16"
                            TextWrapping="Wrap"

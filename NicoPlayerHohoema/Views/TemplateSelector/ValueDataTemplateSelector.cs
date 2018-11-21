@@ -34,38 +34,41 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
                 throw new Exception("not contain any ValueDataTemplate in Templates.");
             }
 
-            if (string.IsNullOrEmpty(FieldName) && string.IsNullOrEmpty(PropertyName))
-            {
-                throw new Exception($"{nameof(FieldName)} and {nameof(PropertyName)} is empty. require either one, or both.");
-            }
-
             if (item == null)
             {
                 return Default ?? base.SelectTemplateCore(item, container);
             }
 
-            var itemType = item.GetType();
             object value = null;
-
-            // check field member value
-            if (!string.IsNullOrEmpty(FieldName))
+            if (string.IsNullOrEmpty(FieldName) && string.IsNullOrEmpty(PropertyName))
             {
-                var fieldInfo = itemType.GetField(FieldName);
-                if (fieldInfo?.IsPublic ?? false)
+                value = item;
+            }
+            else
+            {
+                var itemType = item.GetType();
+
+                // check field member value
+                if (!string.IsNullOrEmpty(FieldName))
                 {
-                    value = fieldInfo.GetValue(item);
+                    var fieldInfo = itemType.GetField(FieldName);
+                    if (fieldInfo?.IsPublic ?? false)
+                    {
+                        value = fieldInfo.GetValue(item);
+                    }
+                }
+
+                // check property member value
+                if (value == null && !string.IsNullOrEmpty(PropertyName))
+                {
+                    var propInfo = itemType.GetProperty(PropertyName);
+                    if (propInfo?.CanRead ?? false)
+                    {
+                        value = propInfo.GetValue(item);
+                    }
                 }
             }
-
-            // check property member value
-            if (value == null && !string.IsNullOrEmpty(PropertyName))
-            {
-                var propInfo = itemType.GetProperty(PropertyName);
-                if (propInfo?.CanRead ?? false)
-                {
-                    value = propInfo.GetValue(item);
-                }
-            }
+            
 
             // compare values, and choose template
             if (value != null)

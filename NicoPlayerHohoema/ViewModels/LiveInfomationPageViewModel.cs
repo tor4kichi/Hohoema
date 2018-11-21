@@ -163,7 +163,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         private ObservableCollection<LiveRecommendData> _ReccomendItems = new ObservableCollection<LiveRecommendData>();
-        public ReadOnlyReactiveCollection<LiveInfoViewModel> ReccomendItems { get; }
+        public ReadOnlyReactiveCollection<LiveInfoListItemViewModel> ReccomendItems { get; }
 
 
         #region Commands
@@ -352,7 +352,11 @@ namespace NicoPlayerHohoema.ViewModels
 
             IchibaItems = new ReadOnlyObservableCollection<IchibaItem>(_IchibaItems);
 
-            ReccomendItems = _ReccomendItems.ToReadOnlyReactiveCollection(x => new LiveInfoViewModel(x))
+            ReccomendItems = _ReccomendItems.ToReadOnlyReactiveCollection(x =>
+                {
+                    var liveId = "lv" + x.ProgramId;
+                    return new LiveInfoListItemViewModel(x, _Reservations?.ReservedProgram.FirstOrDefault(reservation => liveId == reservation.Id));
+                })
                 .AddTo(_CompositeDisposable);
 
             IsShowOpenLiveContentButton = this.ObserveProperty(x => LiveInfo)
@@ -627,6 +631,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        Mntone.Nico2.Live.ReservationsInDetail.ReservationsInDetailResponse _Reservations;
 
         AsyncLock _LiveRecommendLock = new AsyncLock();
         public bool IsLiveRecommendInitialized { get; private set; } = false;
@@ -638,6 +643,16 @@ namespace NicoPlayerHohoema.ViewModels
                 if (LiveInfo == null) { return; }
 
                 if (IsLiveRecommendInitialized) { return; }
+
+                try
+                {
+                    // ログインしてない場合はタイムシフト予約は取れない
+                    if (HohoemaApp.IsLoggedIn)
+                    {
+                        _Reservations = await HohoemaApp.NiconicoContext.Live.GetReservationsInDetailAsync();
+                    }
+                }
+                catch { }
 
                 try
                 {

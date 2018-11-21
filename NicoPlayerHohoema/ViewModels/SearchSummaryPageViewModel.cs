@@ -35,7 +35,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ReadOnlyReactiveProperty<bool> HasKeywordSearchResultItems { get; }
         public ReadOnlyReactiveCollection<VideoInfoControlViewModel> KeywordSearchResultItems { get; }
         public ReadOnlyReactiveProperty<bool> HasLiveSearchResultItems { get; }
-        public ReadOnlyReactiveCollection<LiveInfoViewModel> LiveSearchResultItems { get; }
+        public ReadOnlyReactiveCollection<LiveInfoListItemViewModel> LiveSearchResultItems { get; }
 
         private int _KeywordSearchItemsTotalCount;
         public int KeywordSearchItemsTotalCount
@@ -130,7 +130,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .SelectMany(x => x)
                 .Select(x =>
                 {
-                    var liveVM = new LiveInfoViewModel(x);
+                    var liveVM = new LiveInfoListItemViewModel(x);
                     return liveVM;
                 })
                 .ToReadOnlyReactiveCollection(onReset: this.ObserveProperty(x => x.Keyword).ToUnit());
