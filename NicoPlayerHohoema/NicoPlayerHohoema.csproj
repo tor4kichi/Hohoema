@@ -742,6 +742,7 @@
     <Content Include="Assets\UpdateNotices\0.14.11.md" />
     <Content Include="Assets\UpdateNotices\0.15.0.md" />
     <Content Include="Assets\UpdateNotices\0.15.1.md" />
+    <Content Include="Assets\UpdateNotices\0.15.3.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <None Include="NicoPlayerHohoema_TemporaryKey.pfx" />
   </ItemGroup>
