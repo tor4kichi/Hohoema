@@ -60,6 +60,9 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> IsTVModeEnable { get; private set; }
         public bool IsXbox { get; private set; }
 
+        public ReactiveProperty<bool> IsForceMobileModeEnable { get; private set; }
+
+
         public ReactiveProperty<bool> IsDefaultFullScreen { get; private set; }
 
         public ReactiveProperty<HohoemaPageType> StartupPageType { get; private set; }
@@ -442,7 +445,8 @@ namespace NicoPlayerHohoema.ViewModels
                 .ToReactivePropertyAsSynchronized(x => x.IsForceTVModeEnable);
             IsXbox = Helpers.DeviceTypeHelper.IsXbox;
 
-
+            IsForceMobileModeEnable = HohoemaApp.UserSettings.AppearanceSettings
+                .ToReactivePropertyAsSynchronized(x => x.IsForceMobileModeEnable);
 
 
 

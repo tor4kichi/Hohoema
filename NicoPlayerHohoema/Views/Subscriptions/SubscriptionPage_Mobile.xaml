@@ -1,0 +1,132 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.SubscriptionPage_Mobile"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
+    xmlns:subscription="using:NicoPlayerHohoema.Models.Subscription"
+    xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="SubscriptionDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Page.Resources>
+    <Grid>
+
+        <i:Interaction.Behaviors>
+            <!-- show OverView, hide IndivisualItemView -->
+            <core:DataTriggerBehavior Binding="{Binding SelectedSubscription.Value, Mode=OneWay}" Value="{x:Null}" ComparisonCondition="Equal">
+                <core:CallMethodAction TargetObject="{x:Bind}" MethodName="HideIndivisualItemView" />
+            </core:DataTriggerBehavior>
+
+            <!-- show IndivisualItemView, hide OverView -->
+            <core:DataTriggerBehavior Binding="{Binding SelectedSubscription.Value, Mode=OneWay}" Value="{x:Null}" ComparisonCondition="NotEqual">
+                <core:CallMethodAction TargetObject="{x:Bind}" MethodName="ShowIndivisualItemView" />
+            </core:DataTriggerBehavior>
+        </i:Interaction.Behaviors>
+
+        <Grid x:Name="OverView">
+            <ListView ItemsSource="{Binding Subscriptions, Mode=TwoWay}"
+                  CanReorderItems="True"
+                  AllowDrop="True"
+                  SelectionMode="Single"
+                  SelectedItem="{Binding SelectedSubscription.Value, Mode=TwoWay}"
+                      ContextFlyout="{StaticResource SubscriptionOverViewSettingsFlyout}"
+                  >
+
+                <ListView.Header>
+                    <uwpcontrols:ScrollHeader Mode="Sticky">
+                        <CommandBar>
+                            <AppBarButton Label="新規購読" Icon="Add" />
+                            <AppBarButton Label="更新" Icon="Refresh" />
+                            <AppBarButton Label="設定" Icon="Setting"
+                                          Flyout="{StaticResource SubscriptionOverViewSettingsFlyout}"
+                                          />
+
+                        </CommandBar>
+                    </uwpcontrols:ScrollHeader>
+                </ListView.Header>
+                
+                <ListView.ItemTemplate>
+                    <DataTemplate x:DataType="subscription:Subscription">
+                        <toolkit:DockPanel>
+
+
+                            <StackPanel Orientation="Horizontal"
+                                    toolkit:DockPanel.Dock="Right"
+                                    >
+
+                                <!-- 更新中のアイコン表示 -->
+                                <Border />
+
+                                <SymbolIcon Symbol="Next" />
+
+                            </StackPanel>
+
+                            <TextBlock Text="{Binding Label}"
+                                   VerticalAlignment="Center"
+                                   />
+
+
+
+                        </toolkit:DockPanel>
+                    </DataTemplate>
+                </ListView.ItemTemplate>
+
+            </ListView>
+        </Grid>
+
+        <Grid x:Name="IndivisualItemView" Visibility="Collapsed">
+
+            <!--  -->
+
+
+            <Border Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
+                    Margin="32 0 0 0"
+                    >
+                <ContentControl Content="{Binding SelectedSubscription.Value, Mode=OneWay}"
+                            HorizontalContentAlignment="Stretch"
+                            VerticalContentAlignment="Stretch"
+                            Margin="8 0 0 0"
+                            >
+                    <ContentControl.ContentTemplateSelector>
+                        <templateselector:ContentTemplateSelector ContentTemplate="{StaticResource SubscriptionTemplate}" />
+                    </ContentControl.ContentTemplateSelector>
+                </ContentControl>
+
+            </Border>
+
+            <Border Background="{StaticResource ApplicationPageBackgroundThemeBrush}" Opacity="0.3"
+                    IsHitTestVisible="True"
+                    IsTapEnabled="True"
+                    Width="32"
+                    HorizontalAlignment="Left"
+                    >
+                <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Tapped">
+                        <core:ChangePropertyAction TargetObject="{Binding SelectedSubscription}" PropertyName="Value" Value="{x:Null}" />
+                    </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+            </Border>
+        </Grid>
+
+    </Grid>
+</Page>

@@ -63,6 +63,22 @@ namespace NicoPlayerHohoema.Database
             }
         }
 
+        public static IEnumerable<NicoVideo> Get(IEnumerable<string> videoIds)
+        {
+            var db = HohoemaLiteDb.GetTempLiteRepository();
+            {
+                var q = db
+                    .Query<NicoVideo>()
+                    .Include(x => x.Owner);
+
+                return videoIds
+                    .Select(x => q.Where(y => y.RawVideoId == x)
+                        .SingleOrDefault()
+                        ?? new NicoVideo() { RawVideoId = x })
+                    ;
+            }
+        }
+
         public static bool AddOrUpdate(NicoVideo video)
         {
             var db = HohoemaLiteDb.GetTempLiteRepository();

@@ -5,16 +5,30 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
 
 namespace NicoPlayerHohoema.Views.Behaviors
 {
 	public class OpenFlyout : Behavior<DependencyObject>, IAction
 	{
+        public static readonly DependencyProperty TargetFlyoutOwnerProperty =
+           DependencyProperty.Register(nameof(TargetFlyoutOwner)
+                   , typeof(FrameworkElement)
+                   , typeof(OpenFlyout)
+                   , new PropertyMetadata(default(FrameworkElement))
+               );
 
-		public object Execute(object sender, object parameter)
+        public FrameworkElement TargetFlyoutOwner
+        {
+            get { return (FrameworkElement)GetValue(TargetFlyoutOwnerProperty); }
+            set { SetValue(TargetFlyoutOwnerProperty, value); }
+        }
+
+
+        public object Execute(object sender, object parameter)
 		{
-            var feSender = sender as FrameworkElement;
+            var feSender = TargetFlyoutOwner ?? sender as FrameworkElement;
             var flyout = FlyoutBase.GetAttachedFlyout(feSender);
 			if (flyout != null)
 			{
@@ -33,10 +47,13 @@ namespace NicoPlayerHohoema.Views.Behaviors
                     }
                 }
 
-                FlyoutBase.ShowAttachedFlyout(feSender);
-			}
 
-			return true;
+
+                FlyoutBase.ShowAttachedFlyout(feSender);
+               
+            }
+
+            return true;
 		}
 	}
 }

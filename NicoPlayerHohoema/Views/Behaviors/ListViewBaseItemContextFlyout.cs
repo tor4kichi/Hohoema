@@ -57,23 +57,23 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
 
             var selectedItem = FocusManager.GetFocusedElement();
-            if (selectedItem is FrameworkElement)
+            if (selectedItem is FrameworkElement fe)
             {
-                var item = AssociatedObject.ItemFromContainer((selectedItem as FrameworkElement));
+                var item = AssociatedObject.ItemFromContainer(fe);
                 if (item != null)
                 {
-                    FlyoutSettingDataContext(AssociatedObject.ContextFlyout, item);
+                    FlyoutSettingDataContext(AssociatedObject.ContextFlyout, item, AssociatedObject.DataContext);
                     e.Handled = true;
                     _IsAssignedDataContextToFlyout = true;
                 }
             }
 
-            if (e.Handled == false && e.OriginalSource is FrameworkElement)
+            if (e.Handled == false && e.OriginalSource is FrameworkElement sourceFe)
             {
-                var dataContext = (e.OriginalSource as FrameworkElement).DataContext;
+                var dataContext = sourceFe.DataContext;
                 if (dataContext != null)
                 {
-                    FlyoutSettingDataContext(AssociatedObject.ContextFlyout, dataContext);
+                    FlyoutSettingDataContext(AssociatedObject.ContextFlyout, dataContext, AssociatedObject.DataContext);
                     _IsAssignedDataContextToFlyout = true;
                 }
             }
@@ -82,12 +82,12 @@ namespace NicoPlayerHohoema.Views.Behaviors
         private void ContextFlyout_Opening(object sender, object e)
         {
             var selectedItem = FocusManager.GetFocusedElement();
-            if (selectedItem is FrameworkElement)
+            if (selectedItem is FrameworkElement fe)
             {
-                var item = AssociatedObject.ItemFromContainer((selectedItem as FrameworkElement));
+                var item = AssociatedObject.ItemFromContainer(fe);
                 if (item != null)
                 {
-                    FlyoutSettingDataContext(AssociatedObject.ContextFlyout, item);
+                    FlyoutSettingDataContext(AssociatedObject.ContextFlyout, item, AssociatedObject.DataContext);
                     _IsAssignedDataContextToFlyout = true;
                 }
             }
@@ -103,31 +103,29 @@ namespace NicoPlayerHohoema.Views.Behaviors
             base.OnDetaching();
         }
        
-        private static void FlyoutSettingDataContext(FlyoutBase flyoutbase, object dataContext)
+        private static void FlyoutSettingDataContext(FlyoutBase flyoutbase, object dataContext, object parentDataContext)
         {
-            if (flyoutbase is MenuFlyout)
+            if (flyoutbase is MenuFlyout menuFlyout)
             {
-                var menuFlyout = flyoutbase as MenuFlyout;
                 foreach (var menuItem in menuFlyout.Items)
                 {
-                    RecurciveSettingDataContext(menuItem, dataContext);
+                    RecurciveSettingDataContext(menuItem, dataContext, parentDataContext);
                 }
             }
-            else if (flyoutbase is Flyout)
+            else if (flyoutbase is Flyout flyout)
             {
-                var flyout = flyoutbase as Flyout;
-                if (flyout.Content is FrameworkElement)
+                if (flyout.Content is FrameworkElement fe)
                 {
-                    (flyout.Content as FrameworkElement).DataContext = dataContext;
+                    fe.DataContext = dataContext;
+                    fe.Tag = parentDataContext;
                 }
             }
         }
 
         private static object GetFlyoutDataContext(FlyoutBase flyoutbase)
         {
-            if (flyoutbase is MenuFlyout)
+            if (flyoutbase is MenuFlyout menuFlyout)
             {
-                var menuFlyout = flyoutbase as MenuFlyout;
                 return menuFlyout.Items.FirstOrDefault()?.DataContext;
             }
             else
@@ -143,15 +141,14 @@ namespace NicoPlayerHohoema.Views.Behaviors
         }
 
 
-        private static void RecurciveSettingDataContext(MenuFlyoutItemBase item, object dataContext)
+        private static void RecurciveSettingDataContext(MenuFlyoutItemBase item, object dataContext, object parentDataContext)
         {
             item.DataContext = dataContext;
-            if (item is MenuFlyoutSubItem)
+            if (item is MenuFlyoutSubItem subItem)
             {
-                var subItem = item as MenuFlyoutSubItem;
                 foreach (var child in subItem.Items)
                 {
-                    RecurciveSettingDataContext(child, dataContext);
+                    RecurciveSettingDataContext(child, dataContext, parentDataContext);
                 }
             }
         }

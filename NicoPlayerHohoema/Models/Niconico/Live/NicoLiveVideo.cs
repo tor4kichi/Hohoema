@@ -4,7 +4,6 @@ using Mntone.Nico2.Live.PlayerStatus;
 using Mntone.Nico2.Live.Video;
 using Mntone.Nico2.Videos.Comment;
 using NicoPlayerHohoema.Helpers;
-using NicoVideoRtmpClient;
 using Prism.Mvvm;
 using Reactive.Bindings.Extensions;
 using System;
@@ -190,14 +189,6 @@ namespace NicoPlayerHohoema.Models.Live
 
 
 		public string NextLiveId { get; private set; }
-
-		/// <summary>
-		/// 生放送動画をRTMPで受け取るための通信クライアント<br />
-		/// RTMPで正常に動画が受信できる状態になった場合 VideoStreamSource にインスタンスが渡される
-		/// </summary>
-		NicovideoRtmpClient _RtmpClient;
-        Helpers.AsyncLock _RtmpClientAssignLock = new Helpers.AsyncLock();
-
 
 
 		Timer _EnsureStartLiveTimer;
@@ -492,24 +483,7 @@ namespace NicoPlayerHohoema.Models.Live
             }
             else
             {
-//                await Task.Delay(500);
-
-//                await UpdateLiveStatus();
-
-                if (PlayerStatusResponse != null && LiveStatusType == LiveStatusType.OnAir)
-                {
-                    Debug.WriteLine(PlayerStatusResponse.Stream.RtmpUrl);
-                    Debug.WriteLine(PlayerStatusResponse.Stream.Contents.Count);
-
-                    LivePlayerType = Live.LivePlayerType.Aries;
-
-                    await StartEnsureOpenRtmpConnection();
-
-                    await StartLiveViewing();
-
-                    // 旧プレイヤーの場合のみ、古いコメントクライアントでコメント受信
-                    StartCommentClientConnection();
-                }
+                throw new NotSupportedException("RTMP による放送は対応していません。");
             }            
         }
 
@@ -673,12 +647,6 @@ namespace NicoPlayerHohoema.Models.Live
 			{
                 // Display表示の維持リクエストを停止
                 Helpers.DisplayRequestHelper.StopKeepDisplay();
-
-                // 放送接続の確実化処理を終了
-                await ExitEnsureOpenRtmpConnection();
-
-				// ニコ生サーバーから切断
-				await CloseRtmpConnection();
 
 				// HeartbeatAPIへのアクセスを停止
 				EndCommentClientConnection();
@@ -967,12 +935,7 @@ namespace NicoPlayerHohoema.Models.Live
 
         public Task Refresh()
         {
-            
-            if (LivePlayerType == Live.LivePlayerType.Aries)
-            {
-                return RetryRtmpConnection();
-            }
-            else if (LivePlayerType == Live.LivePlayerType.Leo)
+            if (LivePlayerType == Live.LivePlayerType.Leo)
             {
                 return RefreshLeoPlayer();
             }
@@ -981,211 +944,6 @@ namespace NicoPlayerHohoema.Models.Live
                 return Task.CompletedTask;
             }
         }
-
-
-
-		#region LiveVideo RTMP
-
-		public async Task RetryRtmpConnection()
-		{
-			if (PlayerStatusResponse == null)
-			{
-                await UpdateLiveStatus();
-
-                if (LiveStatusType != LiveStatusType.OnAir)
-				{
-					return;
-				}
-			}
-
-			using (var releaser = await _VideoStreamSrouceAssignLock.LockAsync())
-			{
-                MediaPlayer.Source = null;
-                VideoStreamSource = null;
-                _MediaSource?.Dispose();
-                _MediaSource = null;
-
-            }
-
-			await StartEnsureOpenRtmpConnection();
-		}
-
-		TimeSpan EnsureOpenRtmpTryDuration = TimeSpan.FromMinutes(1);
-		DateTime EnsureOpenRtmpStartTime;
-
-		public async Task StartEnsureOpenRtmpConnection()
-		{
-			if (PlayerStatusResponse == null) { return; }
-
-			using (var releaser = await _EnsureStartLiveTimerLock.LockAsync())
-			{
-				if (_EnsureStartLiveTimer == null)
-				{
-					_EnsureStartLiveTimer = new Timer(
-						EnsureOpenRtmpConnectionInntenal,
-						this,
-						TimeSpan.FromSeconds(0),
-						TimeSpan.FromSeconds(5)
-						);
-					EnsureOpenRtmpStartTime = DateTime.Now;
-
-					Debug.WriteLine("START ensure open rtmp connection");
-				}
-			}
-		}
-
-		public async Task ExitEnsureOpenRtmpConnection()
-		{
-			using (var releaser = await _EnsureStartLiveTimerLock.LockAsync())
-			{
-				if (_EnsureStartLiveTimer != null)
-				{
-					_EnsureStartLiveTimer.Dispose();
-					_EnsureStartLiveTimer = null;
-
-					Debug.WriteLine("EXIT ensure open rtmp connection ");
-				}
-			}
-		}
-
-		private async void EnsureOpenRtmpConnectionInntenal(object state = null)
-		{
-			if (DateTime.Now > EnsureOpenRtmpStartTime + EnsureOpenRtmpTryDuration)
-			{
-				await ExitEnsureOpenRtmpConnection();
-
-                FailedOpenLive?.Invoke(this, new FailedOpenLiveEventArgs() { Message = "次の配信が見つかりませんでした" });
-
-                return;
-			}
-
-			Debug.WriteLine("TRY ensure open rtmp connection ");
-
-
-			bool isDone = false;
-			using (var releaser = await _VideoStreamSrouceAssignLock.LockAsync())
-			{
-				isDone = VideoStreamSource != null;
-			}
-
-
-			if (!isDone)
-			{
-				Debug.WriteLine("AGEIN ensure open rtmp connection ");
-
-                _UIScheduler.Schedule(async () =>
-				{
-					await CloseRtmpConnection();
-
-					await Task.Delay(1000);
-
-					await OpenRtmpConnection(PlayerStatusResponse);
-				});
-			}
-			else
-			{
-				Debug.WriteLine("DETECT ensure open rtmp connection");
-
-				await ExitEnsureOpenRtmpConnection();
-			}
-		}
-
-		private async Task OpenRtmpConnection(PlayerStatusResponse res)
-		{
-			await CloseRtmpConnection();
-
-			using (var releaser = await _RtmpClientAssignLock.LockAsync())
-			{
-				if (_RtmpClient == null)
-				{
-					_RtmpClient = new NicovideoRtmpClient();
-
-					_RtmpClient.Started += _RtmpClient_Started;
-					_RtmpClient.Stopped += _RtmpClient_Stopped;
-
-                    try
-                    {
-                        await _RtmpClient.ConnectAsync(res);
-                    }
-                    catch (Exception ex)
-                    {
-                        _RtmpClient.Started -= _RtmpClient_Started;
-                        _RtmpClient.Stopped -= _RtmpClient_Stopped;
-                        _RtmpClient.Dispose();
-                        _RtmpClient = null;
-                        _EnsureStartLiveTimer?.Dispose();
-                        _EnsureStartLiveTimer = null;
-
-                        Debug.WriteLine("CAN NOT play Rtmp, Stop ensure open timer. : " + res.Stream.RtmpUrl);
-
-                        FailedOpenLive?.Invoke(this, new FailedOpenLiveEventArgs()
-                        {
-                            Exception = ex,
-                            Message = "動画引用放送は未対応です"
-                        });
-                    }
-
-                }
-			}
-		}
-
-		private async Task CloseRtmpConnection()
-		{
-			using (var releaser = await _RtmpClientAssignLock.LockAsync())
-			{
-				if (_RtmpClient != null)
-				{
-					_RtmpClient.Started -= _RtmpClient_Started;
-					_RtmpClient.Stopped -= _RtmpClient_Stopped;
-
-					_RtmpClient?.Dispose();
-					_RtmpClient = null;
-
-					await Task.Delay(500);
-				}
-			}
-		}
-
-
-		private void _RtmpClient_Started(NicovideoRtmpClientStartedEventArgs args)
-		{
-            _UIScheduler.Schedule(() =>
-			{
-                if (_MediaSource == null)
-                {
-                    VideoStreamSource = args.MediaStreamSource;
-                    _MediaSource = MediaSource.CreateFromMediaStreamSource(args.MediaStreamSource);
-                    MediaPlayer.Source = _MediaSource;
-
-                    Debug.WriteLine("recieve start live stream: " + LiveId);
-
-                    OpenLive?.Invoke(this);
-                }
-			});
-		}
-
-		private void _RtmpClient_Stopped(NicovideoRtmpClientStoppedEventArgs args)
-		{
-            _UIScheduler.Schedule(async () =>
-			{
-				using (var releaser = await _VideoStreamSrouceAssignLock.LockAsync())
-				{
-                    MediaPlayer.Source = null;
-
-                    VideoStreamSource = null;
-                    _MediaSource?.Dispose();
-                    _MediaSource = null;
-                }
-
-                Debug.WriteLine("recieve exit live stream: " + LiveId);
-
-                CloseLive?.Invoke(this);
-			});
-		}
-
-
-		#endregion
-
 
 		#region Live Comment 
 
@@ -1369,24 +1127,6 @@ namespace NicoPlayerHohoema.Models.Live
         private void _NicoLiveCommentClient_Connected(object sender, CommentServerConnectedEventArgs e)
         {
 
-            _UIScheduler.Schedule(async () =>
-            {
-               if (LivePlayerType == Live.LivePlayerType.Aries)
-               {
-                   await CloseRtmpConnection();
-               }
-               else
-               {
-//                   await ClearLeoPlayer();
-               }
-
-               /*
-               if (reason == NicoLiveDisconnectReason.Close)
-               {
-                   await StartNextLiveSubscribe(DefaultNextLiveSubscribeDuration);
-               }
-               */
-            });
         }
 
 		private void EndCommentClientConnection()

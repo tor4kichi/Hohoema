@@ -56,5 +56,8 @@ namespace NicoPlayerHohoema.Models
 
         LiveInfomation,
         Timeshift,
+
+
+        Subscription,
     }
 }

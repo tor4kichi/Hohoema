@@ -25,15 +25,12 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
 
         public DataTemplate Default { get; set; }
 
+        public bool ForceCompereWithString { get; set; }
+
         public ValueDataTemplateCollection Templates { get; set; } = new ValueDataTemplateCollection();
 
         protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
-            if (!Templates.Any())
-            {
-                throw new Exception("not contain any ValueDataTemplate in Templates.");
-            }
-
             if (item == null)
             {
                 return Default ?? base.SelectTemplateCore(item, container);
@@ -73,9 +70,25 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
             // compare values, and choose template
             if (value != null)
             {
+                bool valueIsString = value is string;
+                var strSourceValue = value.ToString();
                 foreach (var valueDataTemplate in Templates)
                 {
-                    if (valueDataTemplate.Value.Equals(value))
+                    if (ForceCompereWithString || valueIsString)
+                    {
+                        if (valueDataTemplate.Value.ToString() == strSourceValue)
+                        {
+                            return valueDataTemplate.Template;
+                        }
+                    }
+                    else if (valueDataTemplate.Value is string strDestValue)
+                    {
+                        if (strSourceValue == strDestValue)
+                        {
+                            return valueDataTemplate.Template;
+                        }
+                    }
+                    else if (valueDataTemplate.Value.Equals(value))
                     {
                         return valueDataTemplate.Template;
                     }

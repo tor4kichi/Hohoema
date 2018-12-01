@@ -666,4 +666,8 @@
     <value>視聴権の使用期限切れ</value>
     <comment>ReservationStatus</comment>
   </data>
+  <data name="Subscription" xml:space="preserve">
+    <value>購読</value>
+    <comment>HohoemaPageType</comment>
+  </data>
 </root>

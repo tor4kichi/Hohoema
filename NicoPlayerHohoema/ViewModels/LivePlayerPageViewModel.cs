@@ -11,7 +11,6 @@ using System.Threading;
 using NicoPlayerHohoema.Helpers;
 using System.Diagnostics;
 using Windows.Foundation.Collections;
-using NicoVideoRtmpClient;
 using Mntone.Nico2.Live.PlayerStatus;
 using NicoPlayerHohoema.Models.Live;
 using Reactive.Bindings;

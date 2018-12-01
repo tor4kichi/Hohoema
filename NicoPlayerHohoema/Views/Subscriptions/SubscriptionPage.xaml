@@ -1,0 +1,147 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.SubscriptionPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
+    xmlns:subscription="using:NicoPlayerHohoema.Models.Subscription"
+    xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector"
+    xmlns:mytriggers="using:NicoPlayerHohoema.Views.StateTrigger"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d"
+    >
+    <Page.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="SubscriptionDictionary.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+
+    </Page.Resources>
+    
+    <Grid>
+
+        <Grid x:Name="EmptySubscriptionsNoticeLayout" Margin="16" VerticalAlignment="Center" Visibility="Collapsed">
+            <TextBlock Text="購読は動画の新着チェック自動化機能やで。購読グループを作って、そこにユーザーやらキーワードやら登録しとくと、定期的に自動巡回して新着があれば「あとで見る」とかのプレイリストに追加してくれる優れものや。" 
+                       TextWrapping="Wrap"
+                       Style="{StaticResource TitleTextBlockStyle}"
+                       Opacity="0.7"
+                       />
+        </Grid>
+
+        
+        
+        
+        <GridView ItemsSource="{Binding SubscriptionManager.Subscriptions, Mode=TwoWay}"
+                  ItemTemplate="{StaticResource SubscriptionTemplate}"
+                  CanReorderItems="True"
+                  AllowDrop="True"
+                  ContextFlyout="{StaticResource SubscriptionOverViewSettingsFlyout}"
+                  ScrollViewer.VerticalScrollMode="Disabled"
+                  ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                  ScrollViewer.HorizontalScrollMode="Auto"
+                  ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                  SingleSelectionFollowsFocus="False"
+                  SelectionMode="None"
+                  Margin="8 0"
+                  >
+
+            <i:Interaction.Behaviors>
+                <mybehavior:ListViewBaseItemContextFlyout />
+            </i:Interaction.Behaviors>
+
+            <GridView.ItemContainerStyle>
+                <Style TargetType="GridViewItem">
+                    <Setter Property="IsFocusEngagementEnabled" Value="True" />
+                    <Setter Property="HorizontalAlignment" Value="Stretch" />
+                    <Setter Property="VerticalAlignment" Value="Top" />
+                </Style>
+            </GridView.ItemContainerStyle>
+
+
+            <GridView.Header>
+                <uwpcontrols:ScrollHeader Mode="Sticky" >
+                    <CommandBar>
+                        <CommandBar.PrimaryCommands>
+                            <AppBarButton Label="購読グループを追加" Icon="Add" AllowFocusOnInteraction="True">
+                                <AppBarButton.Flyout>
+                                    <Flyout>
+                                        <StackPanel MinWidth="120">
+                                            <TextBox x:Name="SubscriptionGroupNameTextBox"
+                                                     Header="購読グループ名"
+                                                    InputScope="Text"
+                                                     MinWidth="80"
+                                                />
+                                            <Border Height="8" />
+                                            <Button Content="追加"
+                                                HorizontalAlignment="Right"
+                                                >
+                                                <i:Interaction.Behaviors>
+                                                    <core:EventTriggerBehavior EventName="Click">
+                                                        <core:InvokeCommandAction 
+                                                            Command="{Binding SubscriptionManager.AddSubscription}"
+                                                            CommandParameter="{Binding ElementName=SubscriptionGroupNameTextBox, Path=Text}"
+                                                            />
+                                                        <core:ChangePropertyAction TargetObject="{x:Bind SubscriptionGroupNameTextBox}" PropertyName="Text" Value="" />
+                                                    </core:EventTriggerBehavior>
+
+                                                    <mybehavior:KeyboardTrigger Key="Enter"
+                                                                        OnlyWhenFocus="{x:Bind SubscriptionGroupNameTextBox}"
+                                                                        IsEnabled="True"
+                                                                        >
+                                                        <core:InvokeCommandAction 
+                                                            Command="{Binding SubscriptionManager.AddSubscription}"
+                                                            CommandParameter="{Binding ElementName=SubscriptionGroupNameTextBox, Path=Text}"
+                                                            />
+                                                        <mybehavior:CloseFlyoutAction />
+                                                        <core:ChangePropertyAction TargetObject="{x:Bind SubscriptionGroupNameTextBox}" PropertyName="Text" Value="" />
+                                                    </mybehavior:KeyboardTrigger>
+                                                </i:Interaction.Behaviors>
+
+                                            </Button>
+                                        </StackPanel>
+                                    </Flyout>
+                                </AppBarButton.Flyout>
+                            </AppBarButton>
+                            <AppBarButton Label="更新" Icon="Refresh" Command="{Binding WatchItLater.Refresh}" />
+                            <AppBarButton Label="設定" Icon="Setting"
+                                          Flyout="{StaticResource SubscriptionOverViewSettingsFlyout}"
+                                          />
+
+                        </CommandBar.PrimaryCommands>
+                    </CommandBar>
+                </uwpcontrols:ScrollHeader>
+            </GridView.Header>
+        </GridView>
+
+
+
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState x:Name="EmptySubscriptions">
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding SubscriptionManager.Subscriptions, Mode=OneWay, Converter={StaticResource EmptyCollectionToBooleanConverter}}" />
+                    </VisualState.StateTriggers>
+
+                    <VisualState.Setters>
+                        <Setter Target="EmptySubscriptionsNoticeLayout.Visibility"  Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+
+
+    </Grid>
+</Page>

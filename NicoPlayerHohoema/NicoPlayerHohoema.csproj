@@ -12,7 +12,7 @@
     <DefaultLanguage>ja-JP</DefaultLanguage>
     <TargetPlatformIdentifier>UAP</TargetPlatformIdentifier>
     <TargetPlatformVersion>10.0.17134.0</TargetPlatformVersion>
-    <TargetPlatformMinVersion>10.0.14393.0</TargetPlatformMinVersion>
+    <TargetPlatformMinVersion>10.0.15063.0</TargetPlatformMinVersion>
     <MinimumVisualStudioVersion>14</MinimumVisualStudioVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{A5A43C5B-DE2A-4C0C-9213-0A381AF9435A};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -170,20 +170,21 @@
     <Compile Include="Commands\ShereCommand.cs" />
     <Compile Include="Commands\VideoDeleteCacheCommand.cs" />
     <Compile Include="Commands\VideoRequestCacheCommand.cs" />
-    <Compile Include="Database\Bookmark.cs" />
-    <Compile Include="Database\BookmarkDb.cs" />
-    <Compile Include="Database\BookmarkType.cs" />
-    <Compile Include="Database\FeedVideo.cs" />
-    <Compile Include="Database\Feed.cs" />
-    <Compile Include="Database\FeedDb.cs" />
+    <Compile Include="Database\Local\Bookmark.cs" />
+    <Compile Include="Database\Local\BookmarkDb.cs" />
+    <Compile Include="Database\Local\BookmarkType.cs" />
+    <Compile Include="Database\Local\FeedVideo.cs" />
+    <Compile Include="Database\Local\Feed.cs" />
+    <Compile Include="Database\Local\FeedDb.cs" />
     <Compile Include="Database\HohoemaLiteDbContext.cs" />
-    <Compile Include="Database\NicoChannelInfo.cs" />
-    <Compile Include="Database\NicoLive.cs" />
-    <Compile Include="Database\NicoVideo.cs" />
-    <Compile Include="Database\NicoVideoOwner.cs" />
-    <Compile Include="Database\SearchHistory.cs" />
-    <Compile Include="Database\VideoCommentDb.cs" />
-    <Compile Include="Database\VideoPlayedHistory.cs" />
+    <Compile Include="Database\Local\Subscription\SubscriptionDb.cs" />
+    <Compile Include="Database\Temporary\NicoChannelInfo.cs" />
+    <Compile Include="Database\Temporary\NicoLive.cs" />
+    <Compile Include="Database\Temporary\NicoVideo.cs" />
+    <Compile Include="Database\Temporary\NicoVideoOwner.cs" />
+    <Compile Include="Database\Local\SearchHistory.cs" />
+    <Compile Include="Database\Temporary\VideoCommentDb.cs" />
+    <Compile Include="Database\Local\VideoPlayedHistory.cs" />
     <Compile Include="Dialogs\NiconicoLoginDialog.xaml.cs">
       <DependentUpon>NiconicoLoginDialog.xaml</DependentUpon>
     </Compile>
@@ -339,6 +340,8 @@
     <Compile Include="Helpers\SortMethodHelper.cs" />
     <Compile Include="Helpers\StorageFolderExtention.cs" />
     <Compile Include="Helpers\TaskExtention.cs" />
+    <Compile Include="Models\Subscription\Subscription.cs" />
+    <Compile Include="Models\Subscription\WatchItLater.cs" />
     <Compile Include="Services\HohoemaDialogService.cs" />
     <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
     <Compile Include="ViewModels\ChannelVideoPageViewModel.cs" />
@@ -361,6 +364,7 @@
     <Compile Include="ViewModels\LiveInfoListItemViewModel.cs" />
     <Compile Include="ViewModels\SearchSummaryPageViewModel.cs" />
     <Compile Include="ViewModels\RankingCategoryPageViewModel.cs" />
+    <Compile Include="ViewModels\SubscriptionPageViewModel.cs" />
     <Compile Include="ViewModels\TimeshiftPageViewModel.cs" />
     <Compile Include="ViewModels\WatchHistoryPageViewModel.cs" />
     <Compile Include="ViewModels\HohoemaIncrementalSourceBase.cs" />
@@ -463,6 +467,17 @@
     <Compile Include="Views\SearchSummaryPage.xaml.cs">
       <DependentUpon>SearchSummaryPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Subscriptions\ChoiceSubscriptionSourceCommand.cs" />
+    <Compile Include="Views\Subscriptions\MultiSelectSubscriptionDestinationCommand.cs" />
+    <Compile Include="Views\Subscriptions\OpenSubscriptionDestinationCommand.cs" />
+    <Compile Include="Views\Subscriptions\OpenSubscriptionSourceCommand.cs" />
+    <Compile Include="Views\Subscriptions\SubscriptionPage.xaml.cs">
+      <DependentUpon>SubscriptionPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Subscriptions\SubscriptionPage_Mobile.xaml.cs">
+      <DependentUpon>SubscriptionPage_Mobile.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TemplateSelector\ContentTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\MenuItemTemplateSelector.cs" />
     <Compile Include="Views\RankingCategoryPage.xaml.cs">
       <DependentUpon>RankingCategoryPage.xaml</DependentUpon>
@@ -902,6 +917,18 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Subscriptions\SubscriptionDictionary.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Subscriptions\SubscriptionPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Subscriptions\SubscriptionPage_Mobile.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\TimeshiftPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1215,10 +1242,6 @@
       <Project>{973a1e65-a9f3-4144-a521-647ddfe06f2a}</Project>
       <Name>NicoAlert</Name>
     </ProjectReference>
-    <ProjectReference Include="..\NicoVideoRtmpClient\NicoVideoRtmpClient.csproj">
-      <Project>{4fa97e39-99df-423b-9de0-0d6662e98e7e}</Project>
-      <Name>NicoVideoRtmpClient</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ActionMessageFormat.UWP">
@@ -1268,9 +1291,6 @@
     </PackageReference>
     <PackageReference Include="ReactiveProperty">
       <Version>4.2.1</Version>
-    </PackageReference>
-    <PackageReference Include="RtmpClient.UWP">
-      <Version>1.3.0</Version>
     </PackageReference>
     <PackageReference Include="WinRTXamlToolkit.Controls.DataVisualization.UWP">
       <Version>2.3.0</Version>
