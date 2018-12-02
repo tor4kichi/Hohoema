@@ -546,9 +546,11 @@ namespace NicoPlayerHohoema.Models.Subscription
         {
             if (subscription.IsDeleted) { return new SubscriptionUpdateInfo() { Subscription = subscription, Source = source }; }
 
+            TimeSpan timeDiffarenceFromJapan = +TimeSpan.FromHours(9) - DateTimeOffset.Now.Offset;
+
             var feedResult = Database.Local.Subscription.SubscriptionFeedResultDb.GetEnsureFeedResult(subscription);
             var feedResultSet = feedResult.GetFeedResultSet(source);
-            var lastUpdated = feedResultSet?.LastUpdated ?? DateTimeOffset.MinValue;
+            var lastUpdated = feedResultSet != null ? feedResultSet.LastUpdated + timeDiffarenceFromJapan : DateTime.MinValue;
             var isFirstUpdate = feedResultSet == null;
             List<Database.NicoVideo> items = null;
             switch (source.SourceType)
@@ -746,12 +748,12 @@ namespace NicoPlayerHohoema.Models.Subscription
             return items;
         }
 
-        #endregion
+#endregion
 
 
 
 
-        #region FeedResult database access
+#region FeedResult database access
 
         private void AddOrUpdateFeedResult(ref SubscriptionUpdateInfo info)
         {
@@ -764,7 +766,7 @@ namespace NicoPlayerHohoema.Models.Subscription
         }
 
 
-        #endregion
+#endregion
     }
 
     public struct SubscriptionUpdateInfo

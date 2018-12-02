@@ -116,9 +116,14 @@
                                 </AppBarButton.Flyout>
                             </AppBarButton>
                             <AppBarButton Label="更新" Icon="Refresh" Command="{Binding WatchItLater.Refresh}" />
-                            <AppBarButton Label="設定" Icon="Setting"
-                                          Flyout="{StaticResource SubscriptionOverViewSettingsFlyout}"
-                                          />
+                            <AppBarButton Label="設定" Icon="Setting"                                          
+                                          >
+                                <AppBarButton.Flyout>
+                                    <MenuFlyout >
+                                        <ToggleMenuFlyoutItem Text="自動更新" IsChecked="{Binding WatchItLater.IsAutoUpdateEnabled, Mode=TwoWay}" />
+                                    </MenuFlyout>
+                                </AppBarButton.Flyout>
+                            </AppBarButton>
 
                         </CommandBar.PrimaryCommands>
                     </CommandBar>

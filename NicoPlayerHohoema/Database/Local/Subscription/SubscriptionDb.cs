@@ -133,7 +133,7 @@ namespace NicoPlayerHohoema.Database.Local.Subscription
 
         public List<string> NewItems { get; set; }
 
-        public DateTimeOffset LastUpdated { get; set; }
+        public DateTime LastUpdated { get; set; }
     }
 
     public class SubscriptionFeedResult
@@ -159,8 +159,8 @@ namespace NicoPlayerHohoema.Database.Local.Subscription
             }
 
             item.NewItems = items?.ToList() ?? new List<string>();
-            item.Items = (item.Items ?? new List<string>()).Concat(item.NewItems).Distinct().ToList();
-            item.LastUpdated = DateTimeOffset.Now;
+            item.Items = (item.Items ?? new List<string>()).Concat(item.NewItems).Where(x => x != null).Distinct().ToList();
+            item.LastUpdated = DateTime.Now;
 
             FeedResultItems.Add(item);
         }

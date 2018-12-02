@@ -1618,7 +1618,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 IsDisplayControlUI.Value = true;
 
-                if (!_IsVideoPlayed == false)
+                if (!_IsVideoPlayed == false && CurrentPlayingItem != null)
                 {
                     HohoemaApp.Playlist.PlayDone(CurrentPlayingItem, canPlayNext);
 

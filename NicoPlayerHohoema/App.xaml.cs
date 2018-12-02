@@ -274,8 +274,19 @@ namespace NicoPlayerHohoema
                     var toastArgs = args as IActivatedEventArgs as ToastNotificationActivatedEventArgs;
                     var arguments = toastArgs.Argument;
 
-
-                    if (arguments == ACTIVATION_WITH_ERROR)
+                    var serialize = Newtonsoft.Json.JsonConvert.DeserializeObject<LoginRedirectPayload>(arguments);
+                    if (serialize != null)
+                    {
+                        if (serialize.RedirectPageType == HohoemaPageType.VideoPlayer)
+                        {
+                            await PlayVideoFromExternal(serialize.RedirectParamter);
+                        }
+                        else
+                        {
+                            pageManager.OpenPage(serialize.RedirectPageType, serialize.RedirectParamter);
+                        }
+                    }
+                    else if (arguments == ACTIVATION_WITH_ERROR)
                     {
                         await ShowErrorLog().ConfigureAwait(false);
                     }
@@ -581,6 +592,9 @@ namespace NicoPlayerHohoema
             {
                 Debug.WriteLine("ログイン処理に失敗");
             }
+
+            // 購読機能を初期化
+            Models.Subscription.WatchItLater.Instance.Initialize();
 
             await base.OnInitializeAsync(args);
 		}

@@ -114,6 +114,12 @@ namespace NicoPlayerHohoema.Models.Subscription
         }
 
 
+        public void Initialize()
+        {
+            StartOrResetAutoUpdate();
+        }
+
+
         AsyncLock _UpdateLock = new AsyncLock();
 
         private async void StartOrResetAutoUpdate()
@@ -122,6 +128,8 @@ namespace NicoPlayerHohoema.Models.Subscription
             {
                 _autoUpdateDisposer?.Dispose();
                 _autoUpdateDisposer = null;
+
+                if (!IsAutoUpdateEnabled) { return; }
 
                 if (AutoUpdateInterval == TimeSpan.Zero)
                 {
@@ -194,11 +202,14 @@ namespace NicoPlayerHohoema.Models.Subscription
                 // 通知テスト
                 foreach (var subsc in SubscriptionManager.Instance.Subscriptions)
                 {
+                    var feedResult = Database.Local.Subscription.SubscriptionFeedResultDb.GetEnsureFeedResult(subsc);
+
+                    var result = feedResult.GetFeedResultSet(subsc.Sources[0]);
                     var info = new SubscriptionUpdateInfo()
                     {
                         Subscription = subsc,
                         Source = subsc.Sources[0],
-                        NewFeedItems = Enumerable.Range(0, 10).Select(_ => new Database.NicoVideo() { Title = "テスト" }).ToList(),
+                        NewFeedItems = result.Items.Take(5).Select(x => Database.NicoVideoDb.Get(x)).ToList(),
                     };
 
                     ShowNewVideosToastNotification(info.Subscription, info.Source, info.NewFeedItems);
@@ -307,11 +318,11 @@ namespace NicoPlayerHohoema.Models.Subscription
                 {
                     Buttons =
                     {
-                        new ToastButton("視聴する", "TODO")
+                        new ToastButton("視聴する", new LoginRedirectPayload() { RedirectPageType = HohoemaPageType.VideoPlayer, RedirectParamter = newItemsPerList.First().RawVideoId }.ToParameterString())
                         {
                             ActivationType = ToastActivationType.Foreground,
                         },
-                        new ToastButton("リストを確認", "TODO")
+                        new ToastButton("リストを確認", new LoginRedirectPayload() { RedirectPageType = HohoemaPageType.Subscription}.ToParameterString())
                         {
                             ActivationType = ToastActivationType.Foreground,
                         },

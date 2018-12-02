@@ -315,7 +315,6 @@
     </DataTemplate>
 
     <MenuFlyout x:Key="SubscriptionOverViewSettingsFlyout">
-        <ToggleMenuFlyoutItem Text="自動更新" IsChecked="{Binding WatchItLater.IsAutoUpdateEnabled, Mode=TwoWay}" />
     </MenuFlyout>
 
 </ResourceDictionary>
