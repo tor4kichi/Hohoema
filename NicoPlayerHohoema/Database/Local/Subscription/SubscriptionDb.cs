@@ -34,6 +34,8 @@ namespace NicoPlayerHohoema.Database.Local.Subscription
 
         public string Label { get; set; }
 
+        public bool IsEnabled { get; set; }
+
         public int Order { get; set; }
 
         public List<SubsciptionSourceData> Sources { get; set; }
@@ -57,6 +59,8 @@ namespace NicoPlayerHohoema.Database.Local.Subscription
                         x.Id,
                         x.Label
                         );
+
+                    subsc.IsEnabled = x.IsEnabled;
 
                     foreach (var source in x.Sources ?? Enumerable.Empty<SubsciptionSourceData>())
                     {
@@ -87,6 +91,7 @@ namespace NicoPlayerHohoema.Database.Local.Subscription
 
             data.Id = subscription.Id == default(Guid) ? Guid.NewGuid() : subscription.Id;
             data.Label = subscription.Label;
+            data.IsEnabled = subscription.IsEnabled;
             data.Order = order;
             data.Sources = subscription.Sources.Select(x => new SubsciptionSourceData()
             {

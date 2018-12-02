@@ -45,18 +45,35 @@ namespace NicoPlayerHohoema.Models.Subscription
 
     public struct SubscriptionSource 
     {
-        public Subscription Subscription { get; internal set; }
-
         public string Label { get; set; }
         public SubscriptionSourceType SourceType { get; }
         public string Parameter { get; }
 
         public SubscriptionSource(string label, SubscriptionSourceType sourceType, string parameter)
         {
-            Subscription = null;
+            _HashCode = null;
+
             Label = label;
             SourceType = sourceType;
             Parameter = parameter;
+
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is SubscriptionSource other)
+            {
+                return this.SourceType == other.SourceType
+                    && this.Parameter == other.Parameter;
+            }
+
+            return base.Equals(obj);
+        }
+
+        int? _HashCode;
+        public override int GetHashCode()
+        {
+            return _HashCode ?? (_HashCode = (Parameter + SourceType.ToString()).GetHashCode()).Value;
         }
     }
 
@@ -92,11 +109,18 @@ namespace NicoPlayerHohoema.Models.Subscription
             set { SetProperty(ref _Label, value); }
         }
 
+
+        private bool _IsEnabled = true;
+        public bool IsEnabled
+        {
+            get { return _IsEnabled; }
+            set { SetProperty(ref _IsEnabled, value); }
+        }
+
+
         public ObservableCollection<SubscriptionSource> Sources { get; } = new ObservableCollection<SubscriptionSource>();
 
         public ObservableCollection<SubscriptionDestination> Destinations { get; } = new ObservableCollection<SubscriptionDestination>();
-
-
 
 
         private string _DoNotNoticeKeyword = string.Empty;
@@ -166,6 +190,8 @@ namespace NicoPlayerHohoema.Models.Subscription
 
         public bool IsContainDoNotNoticeKeyword(string title)
         {
+            if (string.IsNullOrWhiteSpace(DoNotNoticeKeyword)) { return false; }
+
             if (DoNotNoticeKeywordAsRegex)
             {
                 return DoNotNoticeeKeywordRegex.IsMatch(title);
@@ -198,21 +224,16 @@ namespace NicoPlayerHohoema.Models.Subscription
             Id = id;
             Label = label;
 
-            Sources.ObserveAddChanged()
-                .Subscribe(x => x.Subscription = this)
-                .AddTo(_disposables);
-
-
             new[] {
                 this.ObserveProperty(x => x.DoNotNoticeKeywordAsRegex).ToUnit(),
                 this.ObserveProperty(x => x.DoNotNoticeKeyword).ToUnit(),
             }
-                .Merge()
-                .Subscribe(x => 
-                {
-                    _doNotNoticeKeywordRegex = null;
-                    UpdateDoNotNoticeKeyword.RaiseCanExecuteChanged();
-                });
+            .Merge()
+            .Subscribe(x => 
+            {
+                _doNotNoticeKeywordRegex = null;
+                UpdateDoNotNoticeKeyword.RaiseCanExecuteChanged();
+            });
             
         }
 
@@ -422,7 +443,9 @@ namespace NicoPlayerHohoema.Models.Subscription
             var disposer = new[] 
             {
                 subscription.Sources.ToCollectionChanged().ToUnit(),
+                subscription.Destinations.ToCollectionChanged().ToUnit(),
                 subscription.ObserveProperty(x => x.Label).ToUnit(),
+                subscription.ObserveProperty(x => x.IsEnabled).ToUnit(),
                 subscription.ObserveProperty(x => x.DoNotNoticeKeyword).ToUnit(),
                 subscription.ObserveProperty(x => x.DoNotNoticeKeywordAsRegex).ToUnit(),
             }
@@ -480,9 +503,16 @@ namespace NicoPlayerHohoema.Models.Subscription
 
         AsyncLock _FeedResultLock = new AsyncLock();
 
-        public IObservable<SubscriptionUpdateInfo> GetSubscriptionFeedResultAsObservable()
+        public IObservable<SubscriptionUpdateInfo> GetSubscriptionFeedResultAsObservable(bool withoutDisabled = false)
         {
-            return Observable.Concat(Subscriptions.Select(x => GetSubscriptionFeedResultAsObservable(x)));
+            if (withoutDisabled)
+            {
+                return Observable.Concat(Subscriptions.Where(x => x.IsEnabled).Select(x => GetSubscriptionFeedResultAsObservable(x)));
+            }
+            else
+            {
+                return Observable.Concat(Subscriptions.Select(x => GetSubscriptionFeedResultAsObservable(x)));
+            }
         }
 
         public IObservable<SubscriptionUpdateInfo> GetSubscriptionFeedResultAsObservable(Subscription subscription)

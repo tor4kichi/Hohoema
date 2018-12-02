@@ -22,17 +22,22 @@ namespace NicoPlayerHohoema.Views.Subscriptions
             {
                 var dialogService = Commands.HohoemaCommnadHelper.GetDialogService();
                 var hohoemaApp = Commands.HohoemaCommnadHelper.GetHohoemaApp();
-
-                var playlists = new List<Models.IPlayableList>();
-
                 var playlistMan = hohoemaApp.Playlist;
-                foreach (var playlist in playlistMan.Playlists)
+                var mylistMan = hohoemaApp.UserMylistManager;
+
+                // 既に登録済みのアイテムを先頭にして
+                // 続いてマイリスト、ローカルプレイリストと表示する
+                var playlists = new List<Models.IPlayableList>()
+                {
+                    playlistMan.DefaultPlaylist
+                };
+
+                foreach (var playlist in mylistMan.UserMylists)
                 {
                     playlists.Add(playlist);
                 }
 
-                var mylistMan = hohoemaApp.UserMylistManager;
-                foreach (var playlist in mylistMan.UserMylists)
+                foreach (var playlist in playlistMan.Playlists)
                 {
                     playlists.Add(playlist);
                 }
@@ -53,7 +58,7 @@ namespace NicoPlayerHohoema.Views.Subscriptions
 
 
                 var choiceItems = await dialogService.ShowMultiChoiceDialogAsync(
-                    "優先表示にするカテゴリを選択",
+                    $"購読『{subscription.Label}』の新着追加先を選択",
                     playlists,
                     selectedItems,
                     x => x.Label
@@ -61,9 +66,15 @@ namespace NicoPlayerHohoema.Views.Subscriptions
 
                 if (choiceItems == null) { return; }
 
+                subscription.Destinations.Clear();
                 foreach (var choiceItem in choiceItems)
                 {
-                    // TODO: 追加
+                    var dest = new Models.Subscription.SubscriptionDestination(
+                        choiceItem.Label,
+                        choiceItem.Origin == PlaylistOrigin.Local ? Models.Subscription.SubscriptionDestinationTarget.LocalPlaylist : Models.Subscription.SubscriptionDestinationTarget.LoginUserMylist,
+                        choiceItem.Id
+                        );
+                    subscription.Destinations.Add(dest);
                 }
             }
         }

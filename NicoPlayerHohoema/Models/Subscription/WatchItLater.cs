@@ -13,6 +13,8 @@ using System.Reactive.Linq;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Disposables;
 using Microsoft.Toolkit.Uwp.Helpers;
+using Windows.UI.Notifications;
+using Microsoft.Toolkit.Uwp.Notifications;
 
 namespace NicoPlayerHohoema.Models.Subscription
 {
@@ -155,10 +157,19 @@ namespace NicoPlayerHohoema.Models.Subscription
         {
             using (var relaser = await _UpdateLock.LockAsync())
             {
+                NewItemsPerPlayableList.Clear();
+
+#if true
                 // TODO: 前回更新時間から15分以上経っているか確認
-                return _SubscriptionManager.GetSubscriptionFeedResultAsObservable()
+                return _SubscriptionManager.GetSubscriptionFeedResultAsObservable(withoutDisabled: true)
                     .Subscribe(info =>
                     {
+                        if (!info.Subscription.IsEnabled)
+                        {
+                            Debug.WriteLine($"購読 {info.Subscription.Label} - {info.Source.Label} の通知をスキップ（理由：自動更新が無効）");
+                            return;
+                        }
+
                         if (info.IsFirstUpdate)
                         {
                             Debug.WriteLine($"購読 {info.Subscription.Label} - {info.Source.Label} の通知をスキップ（理由：初回更新）");
@@ -168,16 +179,167 @@ namespace NicoPlayerHohoema.Models.Subscription
                         if (info.NewFeedItems?.Any() ?? false)
                         {
                             // NGキーワードを含むタイトルの動画を取り除いて
-                            var filterdNewItems = info.NewFeedItems.Where(x => !info.Subscription.IsContainDoNotNoticeKeyword(x.Title));
+                            var filterdNewItems = info.NewFeedItems.Where(x => !info.Subscription.IsContainDoNotNoticeKeyword(x.Title)).ToList();
 
                             Debug.WriteLine($"{info.Subscription.Label} - {info.Source.Label} -> {string.Join(",", filterdNewItems.Select(x => x.RawVideoId))}");
 
                             // 新着動画を対象プレイリストに追加
-                            NewVideosAddToDestinations(info.Subscription.Destinations, filterdNewItems);
+                            WatchItLater.NewVideosAddToDestinations(info.Subscription.Destinations, filterdNewItems);
+
+                            // トースト通知を発行
+                            ShowNewVideosToastNotification(info.Subscription, info.Source, info.NewFeedItems);
                         }
                     });
+#else
+                // 通知テスト
+                foreach (var subsc in SubscriptionManager.Instance.Subscriptions)
+                {
+                    var info = new SubscriptionUpdateInfo()
+                    {
+                        Subscription = subsc,
+                        Source = subsc.Sources[0],
+                        NewFeedItems = Enumerable.Range(0, 10).Select(_ => new Database.NicoVideo() { Title = "テスト" }).ToList(),
+                    };
+
+                    ShowNewVideosToastNotification(info.Subscription, info.Source, info.NewFeedItems);
+                }
+                return new CompositeDisposable();
+#endif
+
             }
         }
+
+        // Note: ローカルなトースト通知の送信
+        // https://docs.microsoft.com/ja-jp/windows/uwp/design/shell/tiles-and-notifications/send-local-toast#send-a-toast
+
+        private const string TOAST_GROUP = nameof(WatchItLater);
+        private const string TOAST_HEADER_ID = nameof(WatchItLater);
+
+        private Dictionary<IPlayableList, Tuple<IList<Database.NicoVideo>, IList<Subscription>>> NewItemsPerPlayableList = new Dictionary<IPlayableList, Tuple<IList<Database.NicoVideo>, IList<Subscription>>>();
+        
+
+        private void ShowNewVideosToastNotification(Subscription subscription, SubscriptionSource source, IEnumerable<Database.NicoVideo> newItems)
+        {
+            var hohoemaPlaylist = (App.Current as App).Container.Resolve<HohoemaPlaylist>();
+            var mylistMan = (App.Current as App).Container.Resolve<UserMylistManager>();
+
+            var hohoemaApp = (App.Current as App).Container.Resolve<HohoemaApp>();
+
+            //Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.PreCacheAsync
+
+            // TODO: プレイリスト毎にまとめたほうがいい？
+
+            foreach (var dest in subscription.Destinations)
+            {
+                IPlayableList list = null;
+                if (dest.Target == SubscriptionDestinationTarget.LocalPlaylist)
+                {
+                    list = hohoemaApp.GetPlayableListInLocal(dest.PlaylistId, PlaylistOrigin.Local);
+                }
+                else if (dest.Target == SubscriptionDestinationTarget.LoginUserMylist)
+                {
+                    list = hohoemaApp.GetPlayableListInLocal(dest.PlaylistId, PlaylistOrigin.LoginUser);
+
+                }
+
+                IList<Database.NicoVideo> videoList;
+                if (NewItemsPerPlayableList.TryGetValue(list, out var cacheVideoList))
+                {
+                    videoList = cacheVideoList.Item1;
+
+                    if (!cacheVideoList.Item2.Contains(subscription))
+                    {
+                        cacheVideoList.Item2.Add(subscription);
+                    }
+                }
+                else
+                {
+                    videoList = new List<Database.NicoVideo>();
+                    NewItemsPerPlayableList.Add(list, new Tuple<IList<Database.NicoVideo>, IList<Subscription>>(videoList, new List<Subscription>() { subscription }));
+                }
+
+                foreach (var video in newItems)
+                {
+                    videoList.Add(video);
+                }
+
+
+
+            }
+
+
+
+            foreach (var pair in NewItemsPerPlayableList)
+            {
+                var playableList = pair.Key;
+                var newItemsPerList = pair.Value.Item1;
+                var subscriptions = pair.Value.Item2;
+
+                // 初回のプレイリストを再生したりプレイリストを開いたりするアクションメインの通知
+                
+                ToastVisual visual = new ToastVisual()
+                {
+                    BindingGeneric = new ToastBindingGeneric()
+                    {
+                        Children =
+                        {
+                            new AdaptiveText()
+                            {
+                                Text = $"『{playableList.Label}』に新着動画を追加",
+                                HintStyle = AdaptiveTextStyle.Base
+                            },
+                            new AdaptiveText()
+                            {
+                                Text = $"{newItemsPerList.Count} 件の動画",
+                                HintStyle = AdaptiveTextStyle.BaseSubtle
+                            },
+                            new AdaptiveText()
+                            {
+                                Text = string.Join(" - ", subscriptions.Select(x => x.Label)),
+                                HintStyle = AdaptiveTextStyle.BaseSubtle
+                            }
+
+                        }
+                    }
+                };
+
+                ToastActionsCustom action = new ToastActionsCustom()
+                {
+                    Buttons =
+                    {
+                        new ToastButton("視聴する", "TODO")
+                        {
+                            ActivationType = ToastActivationType.Foreground,
+                        },
+                        new ToastButton("リストを確認", "TODO")
+                        {
+                            ActivationType = ToastActivationType.Foreground,
+                        },
+                    }
+                };
+
+                ToastContent toastContent = new ToastContent()
+                {
+                    Visual = visual,
+                    Actions = action,
+                    // Launch
+                };
+
+                var toast = new ToastNotification(toastContent.GetXml());
+
+                var notifier = ToastNotificationManager.CreateToastNotifier();
+                if (notifier.Update(toast.Data, playableList.Id, TOAST_GROUP) == NotificationUpdateResult.NotificationNotFound)
+                {
+                    toast.Tag = playableList.Id;
+                    toast.Group = TOAST_GROUP;
+                    notifier.Show(toast);
+                }
+            }
+
+
+        }
+
+        
 
 
         private static void NewVideosAddToDestinations(IEnumerable<SubscriptionDestination> destinations, IEnumerable<Database.NicoVideo> newItems)

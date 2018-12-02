@@ -10,6 +10,7 @@ using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Subscription;
 using Prism.Commands;
 using Prism.Mvvm;
+using Prism.Windows.Navigation;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 
@@ -51,45 +52,6 @@ namespace NicoPlayerHohoema.ViewModels
                     SelectedSubscription.Value = SelectedSubscription.Value == item ? null : SelectedSubscription.Value;
                 })
                 .AddTo(_CompositeDisposable);
-        }
-
-
-       
-
-
-        
-
-
-        private DelegateCommand<SubscriptionSource?> _OpenSubscriptionSource;
-        public DelegateCommand<SubscriptionSource?> OpenSubscriptionSource
-        {
-            get
-            {
-                return OpenSubscriptionSource
-                    ?? (_OpenSubscriptionSource = new DelegateCommand<SubscriptionSource?>((source) => 
-                    {
-                        if (source == null) { return; }
-
-                    
-                        // TODO: 購読元を開く
-                    }));
-            }
-        }
-
-        private DelegateCommand<SubscriptionDestination?> _OpenSubscriptionDestination;
-        public DelegateCommand<SubscriptionDestination?> OpenSubscriptionDestination
-        {
-            get
-            {
-                return OpenSubscriptionDestination
-                    ?? (_OpenSubscriptionDestination = new DelegateCommand<SubscriptionDestination?>((dest) =>
-                    {
-                        if (dest == null) { return; }
-
-
-                        // TODO: 購読先を開く
-                    }));
-            }
         }
     }
 

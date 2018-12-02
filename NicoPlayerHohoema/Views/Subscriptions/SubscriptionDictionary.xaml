@@ -18,9 +18,11 @@
 
     <subscriptionCommands:OpenSubscriptionSourceCommand x:Key="OpenSubscriptionSource" />
     <subscriptionCommands:OpenSubscriptionDestinationCommand x:Key="OpenSubscriptionDestination" />
-
     <subscriptionCommands:ChoiceSubscriptionSourceCommand x:Key="ChoiceSubscriptionSource" />
-
+    <subscriptionCommands:MultiSelectSubscriptionDestinationCommand x:Key="MultiSelectSubscriptionDestination" />
+    
+    
+    
     <DataTemplate x:Key="UserSubscriptionSourceTemplate">
         <TextBlock Text="{Binding Label}" />
     </DataTemplate>
@@ -28,8 +30,48 @@
 
     <templateselector:ValueDataTemplateSelector x:Key="SubscriptionSourceTypeListViewItemTemplateSelector"
                                                 PropertyName="SourceType"
-                                                Default="{StaticResource UserSubscriptionSourceTemplate}"
                                                     >
+        <templateselector:ValueDataTemplate Value="User">
+            <DataTemplate>
+                <StackPanel Orientation="Horizontal">
+                    <SymbolIcon Symbol="People" />
+                    <TextBlock Text="{Binding Label}" />
+                </StackPanel>
+            </DataTemplate>
+        </templateselector:ValueDataTemplate>
+        <templateselector:ValueDataTemplate Value="Channel">
+            <DataTemplate>
+                <StackPanel Orientation="Horizontal">
+                    <SymbolIcon Symbol="Camera" />
+                    <TextBlock Text="{Binding Label}" />
+                </StackPanel>
+            </DataTemplate>
+        </templateselector:ValueDataTemplate>
+        <templateselector:ValueDataTemplate Value="Mylist">
+            <DataTemplate>
+                <StackPanel Orientation="Horizontal">
+                    <SymbolIcon Symbol="Folder" />
+                    <TextBlock Text="{Binding Label}" />
+                </StackPanel>
+            </DataTemplate>
+        </templateselector:ValueDataTemplate>
+
+        <templateselector:ValueDataTemplate Value="TagSearch">
+            <DataTemplate>
+                <StackPanel Orientation="Horizontal">
+                    <SymbolIcon Symbol="Tag" />
+                    <TextBlock Text="{Binding Label}" />
+                </StackPanel>
+            </DataTemplate>
+        </templateselector:ValueDataTemplate>
+        <templateselector:ValueDataTemplate Value="KeywordSearch">
+            <DataTemplate>
+                <StackPanel Orientation="Horizontal">
+                    <SymbolIcon Symbol="Find" />
+                    <TextBlock Text="{Binding Label}" />
+                </StackPanel>
+            </DataTemplate>
+        </templateselector:ValueDataTemplate>
     </templateselector:ValueDataTemplateSelector>
 
     <DataTemplate x:Key="SubscriptionTemplate">
@@ -105,67 +147,28 @@
 
                     <ListView.Header>
                         <uwpcontrols:ScrollHeader Mode="Sticky">
-                            <CommandBar >
-                                <CommandBar.PrimaryCommands>
-                                    <AppBarButton Label="購読追加" Icon="Add" x:Name="AddSubscriptionSourceButton" 
+                            <Grid>
+                                
+
+                                <CommandBar >
+                                    <CommandBar.PrimaryCommands>
+                                        <AppBarButton Label="購読追加" Icon="Add" x:Name="AddSubscriptionSourceButton" 
                                                   Command="{StaticResource ChoiceSubscriptionSource}"
                                                   CommandParameter="{Binding}"
                                                   />
-                                    <AppBarButton Label="設定" Icon="Setting" >
-                                        <AppBarButton.Flyout>
-                                            <MenuFlyout x:Name="SubscribeSettingFlyout">
-                                                <MenuFlyoutItem Text="ラベルの変更">
-                                                    <i:Interaction.Behaviors>
-                                                        <core:EventTriggerBehavior EventName="Click">
-                                                            <mybehavior:OpenFlyout TargetFlyoutOwner="{Binding ElementName=SubscriptionLabelTextBlock}" />
-                                                        </core:EventTriggerBehavior>
-                                                    </i:Interaction.Behaviors>
-                                                </MenuFlyoutItem>
-                                                <MenuFlyoutItem Text="NGタイトル設定" >
-                                                    <i:Interaction.Behaviors>
-                                                        <core:EventTriggerBehavior EventName="Click">
-                                                            <mybehavior:OpenFlyout TargetFlyoutOwner="{Binding ElementName=HiddenVideoTitleRegexFlyoutOwner}" />
-                                                        </core:EventTriggerBehavior>
-                                                    </i:Interaction.Behaviors>
-                                                </MenuFlyoutItem>
-                                                <MenuFlyoutSubItem Text="追加先プレイリスト" >
-                                                    <MenuFlyoutItem Text="編集" />
+                                        <AppBarButton Label="設定" Icon="Setting">
+                                            <i:Interaction.Behaviors>
+                                                <core:EventTriggerBehavior EventName="Click">
+                                                    <mybehavior:OpenFlyout TargetFlyoutOwner="{Binding ElementName=SetttingFlyoutOwner}" />
+                                                </core:EventTriggerBehavior>
+                                            </i:Interaction.Behaviors>
 
-                                                    <i:Interaction.Behaviors>
-                                                        <mybehavior:MenuFlyoutSubItemsSetter ItemsSource="{Binding Destinations, Mode=OneWay}"
-                                                                                             IsRequireInsertSeparaterBetweenDefaultItems="True"
-                                                                                             IsAssignParentDataContextToTag="True"
-                                                                                             >
-                                                            <mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
-                                                                <DataTemplate>
-                                                                    <MenuFlyoutItem Text="{Binding Label}" 
-                                                                                    Command="{StaticResource OpenSubscriptionDestination}"
-                                                                                    CommandParameter="{Binding}"
-                                                                                    >
-                                                                        
-                                                                    </MenuFlyoutItem>
-                                                                </DataTemplate>
-                                                            </mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
-                                                        </mybehavior:MenuFlyoutSubItemsSetter>
-                                                    </i:Interaction.Behaviors>
+                                        </AppBarButton>
+                                    </CommandBar.PrimaryCommands>
 
-                                                </MenuFlyoutSubItem>
-                                                <ToggleMenuFlyoutItem Text="自動更新" IsChecked="True" IsEnabled="False" />
-                                                
-                                                
-                                                <MenuFlyoutSeparator />
-
-                                                <MenuFlyoutSubItem Text="削除..." >
-                                                    <MenuFlyoutItem Text="削除" Command="{Binding Remove}" />
-                                                </MenuFlyoutSubItem>
-                                            </MenuFlyout>
-                                        </AppBarButton.Flyout>
-                                    </AppBarButton>
-                                </CommandBar.PrimaryCommands>
-
-                                <CommandBar.Content>
-                                    <Grid Margin="8 0 0 0">
-                                        <TextBlock Text="{Binding Label, Mode=OneWay}" 
+                                    <CommandBar.Content>
+                                        <Grid Margin="8 0 0 0">
+                                            <TextBlock Text="{Binding Label, Mode=OneWay}" 
                                                Style="{StaticResource SubtitleTextBlockStyle}"
                                                VerticalAlignment="Center"
                                                x:Name="SubscriptionLabelTextBlock"
@@ -216,11 +219,67 @@
                                                     </StackPanel>
                                                 </Flyout>
                                             </FlyoutBase.AttachedFlyout>
-                                        </TextBlock>
-                                    </Grid>
-                                    
-                                </CommandBar.Content>
-                            </CommandBar>
+                                            </TextBlock>
+                                        </Grid>
+
+                                    </CommandBar.Content>
+                                </CommandBar>
+
+                                <Border x:Name="SetttingFlyoutOwner" >
+                                    <FlyoutBase.AttachedFlyout>
+                                        <MenuFlyout x:Name="SubscribeSettingFlyout">
+                                            <MenuFlyoutItem Text="ラベルの変更">
+                                                <i:Interaction.Behaviors>
+                                                    <core:EventTriggerBehavior EventName="Click">
+                                                        <mybehavior:OpenFlyout TargetFlyoutOwner="{Binding ElementName=SubscriptionLabelTextBlock}" />
+                                                    </core:EventTriggerBehavior>
+                                                </i:Interaction.Behaviors>
+                                            </MenuFlyoutItem>
+                                            <MenuFlyoutItem Text="NGタイトル設定" >
+                                                <i:Interaction.Behaviors>
+                                                    <core:EventTriggerBehavior EventName="Click">
+                                                        <mybehavior:OpenFlyout TargetFlyoutOwner="{Binding ElementName=HiddenVideoTitleRegexFlyoutOwner}" />
+                                                    </core:EventTriggerBehavior>
+                                                </i:Interaction.Behaviors>
+                                            </MenuFlyoutItem>
+                                            <MenuFlyoutSubItem Text="追加先プレイリスト"
+                                                                   >
+                                                <MenuFlyoutItem Text="編集" Command="{StaticResource MultiSelectSubscriptionDestination}"
+                                                                    CommandParameter="{Binding}"
+                                                                    />
+
+                                                <i:Interaction.Behaviors>
+                                                    <mybehavior:MenuFlyoutSubItemsSetter ItemsSource="{Binding Destinations, Mode=OneWay}"
+                                                                                             IsRequireInsertSeparaterBetweenDefaultItems="True"
+                                                                                             IsAssignParentDataContextToTag="True"
+                                                                                             >
+                                                        <mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <MenuFlyoutItem Text="{Binding Label}" 
+                                                                                    Command="{StaticResource OpenSubscriptionDestination}"
+                                                                                    CommandParameter="{Binding}"
+                                                                                    >
+
+                                                                </MenuFlyoutItem>
+                                                            </DataTemplate>
+                                                        </mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
+                                                    </mybehavior:MenuFlyoutSubItemsSetter>
+                                                </i:Interaction.Behaviors>
+
+                                            </MenuFlyoutSubItem>
+                                            <ToggleMenuFlyoutItem Text="自動更新" IsChecked="{Binding IsEnabled, Mode=TwoWay}" />
+
+
+                                            <MenuFlyoutSeparator />
+
+                                            <MenuFlyoutSubItem Text="削除..." >
+                                                <MenuFlyoutItem Text="削除" Command="{Binding Remove}" />
+                                            </MenuFlyoutSubItem>
+                                        </MenuFlyout>
+                                    </FlyoutBase.AttachedFlyout>
+                                </Border>
+                            </Grid>
+                            
                         </uwpcontrols:ScrollHeader>
                     </ListView.Header>
 
