@@ -556,19 +556,19 @@ namespace NicoPlayerHohoema.Models.Subscription
             switch (source.SourceType)
             {
                 case SubscriptionSourceType.User:
-                    items = await GetUserVideosFeedResult(source.Parameter, lastUpdated);
+                    items = await GetUserVideosFeedResult(source.Parameter);
                     break;
                 case SubscriptionSourceType.Channel:
-                    items = await GetChannelVideosFeedResult(source.Parameter, lastUpdated);
+                    items = await GetChannelVideosFeedResult(source.Parameter);
                     break;
                 case SubscriptionSourceType.Mylist:
-                    items = await GetMylistFeedResult(source.Parameter, lastUpdated);
+                    items = await GetMylistFeedResult(source.Parameter);
                     break;
                 case SubscriptionSourceType.TagSearch:
-                    items = await GetTagSearchFeedResult(source.Parameter, lastUpdated);
+                    items = await GetTagSearchFeedResult(source.Parameter);
                     break;
                 case SubscriptionSourceType.KeywordSearch:
-                    items = await GetKeywordSearchFeedResult(source.Parameter, lastUpdated);
+                    items = await GetKeywordSearchFeedResult(source.Parameter);
                     break;
                 default:
                     break;
@@ -595,7 +595,7 @@ namespace NicoPlayerHohoema.Models.Subscription
         // 取得数が40になるか、lastUpdatedよりも古いアイテムが見つかるまでデータ取得する
 
        
-        private async Task<List<Database.NicoVideo>> GetUserVideosFeedResult(string userId, DateTimeOffset lastUpdated)
+        private async Task<List<Database.NicoVideo>> GetUserVideosFeedResult(string userId)
         {
             var id = uint.Parse(userId);
             List<Database.NicoVideo> items = new List<Database.NicoVideo>();
@@ -626,7 +626,7 @@ namespace NicoPlayerHohoema.Models.Subscription
             return items;
         }
 
-        private async Task<List<Database.NicoVideo>> GetChannelVideosFeedResult(string channelId, DateTimeOffset lastUpdated)
+        private async Task<List<Database.NicoVideo>> GetChannelVideosFeedResult(string channelId)
         {
             List<Database.NicoVideo> items = new List<Database.NicoVideo>();
             int page = 0;
@@ -654,7 +654,7 @@ namespace NicoPlayerHohoema.Models.Subscription
             return items;
         }
 
-        private async Task<List<Database.NicoVideo>> GetMylistFeedResult(string mylistId, DateTimeOffset lastUpdated)
+        private async Task<List<Database.NicoVideo>> GetMylistFeedResult(string mylistId)
         {
             List<Database.NicoVideo> items = new List<Database.NicoVideo>();
             int page = 0;
@@ -684,7 +684,7 @@ namespace NicoPlayerHohoema.Models.Subscription
             return items;
         }
 
-        private async Task<List<Database.NicoVideo>> GetKeywordSearchFeedResult(string keyword, DateTimeOffset lastUpdated)
+        private async Task<List<Database.NicoVideo>> GetKeywordSearchFeedResult(string keyword)
         {
             List<Database.NicoVideo> items = new List<Database.NicoVideo>();
             int page = 0;
@@ -716,7 +716,7 @@ namespace NicoPlayerHohoema.Models.Subscription
             return items;
         }
 
-        private async Task<List<Database.NicoVideo>> GetTagSearchFeedResult(string tag, DateTimeOffset lastUpdated)
+        private async Task<List<Database.NicoVideo>> GetTagSearchFeedResult(string tag)
         {
             List<Database.NicoVideo> items = new List<Database.NicoVideo>();
             int page = 0;

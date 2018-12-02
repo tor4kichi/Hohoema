@@ -279,20 +279,21 @@ namespace NicoPlayerHohoema.Models.Subscription
             }
 
 
-
-            foreach (var pair in NewItemsPerPlayableList)
+            try
             {
-                var playableList = pair.Key;
-                var newItemsPerList = pair.Value.Item1;
-                var subscriptions = pair.Value.Item2;
-
-                // 初回のプレイリストを再生したりプレイリストを開いたりするアクションメインの通知
-                
-                ToastVisual visual = new ToastVisual()
+                foreach (var pair in NewItemsPerPlayableList)
                 {
-                    BindingGeneric = new ToastBindingGeneric()
+                    var playableList = pair.Key;
+                    var newItemsPerList = pair.Value.Item1;
+                    var subscriptions = pair.Value.Item2;
+
+                    // 初回のプレイリストを再生したりプレイリストを開いたりするアクションメインの通知
+
+                    ToastVisual visual = new ToastVisual()
                     {
-                        Children =
+                        BindingGeneric = new ToastBindingGeneric()
+                        {
+                            Children =
                         {
                             new AdaptiveText()
                             {
@@ -311,12 +312,12 @@ namespace NicoPlayerHohoema.Models.Subscription
                             }
 
                         }
-                    }
-                };
+                        }
+                    };
 
-                ToastActionsCustom action = new ToastActionsCustom()
-                {
-                    Buttons =
+                    ToastActionsCustom action = new ToastActionsCustom()
+                    {
+                        Buttons =
                     {
                         new ToastButton("視聴する", new LoginRedirectPayload() { RedirectPageType = HohoemaPageType.VideoPlayer, RedirectParamter = newItemsPerList.First().RawVideoId }.ToParameterString())
                         {
@@ -327,25 +328,32 @@ namespace NicoPlayerHohoema.Models.Subscription
                             ActivationType = ToastActivationType.Foreground,
                         },
                     }
-                };
+                    };
 
-                ToastContent toastContent = new ToastContent()
-                {
-                    Visual = visual,
-                    Actions = action,
-                    // Launch
-                };
+                    ToastContent toastContent = new ToastContent()
+                    {
+                        Visual = visual,
+                        Actions = action,
+                        // Launch
+                    };
 
-                var toast = new ToastNotification(toastContent.GetXml());
+                    var toast = new ToastNotification(toastContent.GetXml());
 
-                var notifier = ToastNotificationManager.CreateToastNotifier();
-                if (notifier.Update(toast.Data, playableList.Id, TOAST_GROUP) == NotificationUpdateResult.NotificationNotFound)
-                {
-                    toast.Tag = playableList.Id;
-                    toast.Group = TOAST_GROUP;
-                    notifier.Show(toast);
+                    var notifier = ToastNotificationManager.CreateToastNotifier();
+                    if (notifier.Update(toast.Data, playableList.Id, TOAST_GROUP) == NotificationUpdateResult.NotificationNotFound)
+                    {
+                        toast.Tag = playableList.Id;
+                        toast.Group = TOAST_GROUP;
+                        notifier.Show(toast);
+                    }
                 }
+
             }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.ToString());
+            }
+
 
 
         }

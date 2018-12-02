@@ -12,13 +12,12 @@ namespace NicoPlayerHohoema.Views.Service
 {
 	public class ToastNotificationService
 	{
-		ToastNotifier _Nofifier;
 
 		
 
 		public ToastNotificationService()
 		{
-			_Nofifier = ToastNotificationManager.CreateToastNotifier();
+			
 		}
 
 
@@ -58,8 +57,8 @@ namespace NicoPlayerHohoema.Views.Service
 			{
 				toast.Activated += (ToastNotification sender, object args) => toastActivatedAction();
 			}
-			
-			_Nofifier.Show(toast);
+
+            ToastNotificationManager.CreateToastNotifier().Show(toast);
 		}
 	}
 }
