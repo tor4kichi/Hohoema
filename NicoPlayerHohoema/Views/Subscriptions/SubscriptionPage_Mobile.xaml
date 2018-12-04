@@ -33,9 +33,9 @@
     <Grid x:Name="RootLayout">
 
         <Grid x:Name="EmptySubscriptionsNoticeLayout" Margin="16" VerticalAlignment="Center" Visibility="Collapsed">
-            <TextBlock Text="購読は動画の新着チェック自動化機能やで。購読グループを作って、そこにユーザーやらキーワードやら登録しとくと、定期的に自動巡回して新着があれば「あとで見る」とかのプレイリストに追加してくれる優れものや。" 
+            <TextBlock Text="{Binding Source=SubscriptionsEmptyNotice, Converter={StaticResource ToLocalText}}" 
                        TextWrapping="Wrap"
-                       Style="{StaticResource TitleTextBlockStyle}"
+                       Style="{StaticResource SubtitleTextBlockStyle}"
                        Opacity="0.7"
                        />
         </Grid>
@@ -162,7 +162,6 @@
                 <ColumnDefinition Width="40" />
                 <ColumnDefinition Width="*" />
             </Grid.ColumnDefinitions>
-            <!--  -->
 
             <Border Background="{StaticResource ApplicationPageBackgroundThemeBrush}" Opacity="0.3"
                     IsHitTestVisible="True"

@@ -670,4 +670,7 @@
     <value>購読</value>
     <comment>HohoemaPageType</comment>
   </data>
+  <data name="SubscriptionsEmptyNotice" xml:space="preserve">
+    <value>購読は新着動画のチェックを自動化できる機能です。購読グループを作成して、購読グループにユーザーや検索キーワードや登録すると、定期的（15分毎）に自動巡回して新着があれば「あとで見る」などのプレイリストに追加してくれます。</value>
+  </data>
 </root>
