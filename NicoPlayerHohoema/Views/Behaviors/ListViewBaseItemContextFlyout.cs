@@ -144,6 +144,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
         private static void RecurciveSettingDataContext(MenuFlyoutItemBase item, object dataContext, object parentDataContext)
         {
             item.DataContext = dataContext;
+            item.Tag = parentDataContext;
             if (item is MenuFlyoutSubItem subItem)
             {
                 foreach (var child in subItem.Items)

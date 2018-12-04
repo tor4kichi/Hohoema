@@ -27,7 +27,11 @@ namespace NicoPlayerHohoema.ViewModels
 
         public AsyncReactiveCommand RefreshSubscriptions { get; }
 
-        
+
+        // 前回削除された購読IDを保持する
+        // これはListViewの入れ替えがNotifyCollectionChangedAction.Move ではなく
+        // Add /Removeで行われることに対するワークアラウンドです
+        Guid? _prevRemovedSubscriptionId;
 
         public SubscriptionPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
             : base(hohoemaApp, pageManager)
@@ -42,6 +46,8 @@ namespace NicoPlayerHohoema.ViewModels
             SubscriptionManager.Subscriptions.ObserveAddChanged()
                 .Subscribe(item =>
                 {
+                    if (_prevRemovedSubscriptionId == item.Id) { return; }
+
                     SelectedSubscription.Value = item;
                 })
                 .AddTo(_CompositeDisposable);
@@ -50,6 +56,8 @@ namespace NicoPlayerHohoema.ViewModels
                 .Subscribe(item =>
                 {
                     SelectedSubscription.Value = SelectedSubscription.Value == item ? null : SelectedSubscription.Value;
+
+                    _prevRemovedSubscriptionId = item.Id;
                 })
                 .AddTo(_CompositeDisposable);
         }

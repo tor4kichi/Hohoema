@@ -190,6 +190,12 @@ namespace NicoPlayerHohoema.Models.Subscription
             var order = Subscriptions.IndexOf(subscription);
             Database.Local.Subscription.SubscriptionDb.AddOrUpdateSubscription(subscription, order);
 
+            foreach (var subsc in Subscriptions.Where(x => x.Id != subscription.Id))
+            {
+                order = Subscriptions.IndexOf(subsc);
+                Database.Local.Subscription.SubscriptionDb.AddOrUpdateSubscription(subsc, order);
+
+            }
 #if DEBUG
             Debug.WriteLine($"購読 {subscription.Label} をローカルDBに保存 ({DateTime.Now})");
 #endif
