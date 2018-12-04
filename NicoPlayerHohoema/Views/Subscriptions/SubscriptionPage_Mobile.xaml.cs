@@ -60,7 +60,7 @@ namespace NicoPlayerHohoema.Views
                 {
                     IndivisualItemView.Visibility = Visibility.Visible;
 
-                    await IndivisualItemViewBackground.Fade(0.3f, duration: 150)
+                    await IndivisualItemViewBackground.Fade(0.3f, duration: 50)
                         .StartAsync();
                     await IndivisualItemViewContent.Offset(0, duration: 150)
                         .Fade(1.0f, duration:150)
@@ -71,7 +71,7 @@ namespace NicoPlayerHohoema.Views
                     await IndivisualItemViewContent.Offset(ContentOffsetAmount, duration: 150)
                         .Fade(0.0f, duration: 150)
                         .StartAsync();
-                    await IndivisualItemViewBackground.Fade(0.0f, duration: 150)
+                    await IndivisualItemViewBackground.Fade(0.0f, duration: 50)
                         .StartAsync();
                     
                     IndivisualItemView.Visibility = Visibility.Collapsed;

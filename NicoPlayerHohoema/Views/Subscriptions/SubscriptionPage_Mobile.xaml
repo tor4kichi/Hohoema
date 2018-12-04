@@ -46,6 +46,7 @@
                   AllowDrop="True"
                   SelectionMode="Single"
                   SelectedItem="{Binding SelectedSubscription.Value, Mode=TwoWay}"
+                      
                   >
 
                 <ListView.Header>
@@ -106,28 +107,47 @@
                         </CommandBar>
                     </uwpcontrols:ScrollHeader>
                 </ListView.Header>
-                
+
+                <ListView.ItemContainerStyle>
+                    <Style TargetType="ListViewItem">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                        <Setter Property="Padding" Value="16 8" />
+                    </Style>
+                </ListView.ItemContainerStyle>
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="subscription:Subscription">
                         <toolkit:DockPanel>
 
+                            <iconPack:PackIconMaterial toolkit:DockPanel.Dock="Right"
+                                Kind="ArrowRight" Opacity="0.5"
+                                                       VerticalAlignment="Center"
+                                                       />
 
-                            <StackPanel Orientation="Horizontal"
-                                    toolkit:DockPanel.Dock="Right"
-                                    >
-
-                                <!-- 更新中のアイコン表示 -->
-                                <Border />
-
-                                <SymbolIcon Symbol="Next" />
-
-                            </StackPanel>
-
+                            <ItemsControl toolkit:DockPanel.Dock="Bottom"
+                                          ItemsSource="{Binding Sources}"
+                                          ItemTemplateSelector="{StaticResource SubscriptionSourceTypeListViewItemTemplateSelector}"
+                                          Margin="0 4 0 0"
+                                          >
+                                <ItemsControl.ItemContainerStyle>
+                                    <Style TargetType="ContentPresenter">
+                                        <Setter Property="Opacity" Value="0.7" />
+                                        <Setter Property="RenderTransform">
+                                            <Setter.Value>
+                                                <ScaleTransform ScaleX="0.65" ScaleY="0.65" />
+                                            </Setter.Value>
+                                        </Setter>
+                                    </Style>
+                                </ItemsControl.ItemContainerStyle>
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <uwpcontrols:WrapPanel Orientation="Horizontal" />
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
+                            </ItemsControl>
+                            
                             <TextBlock Text="{Binding Label}"
                                    VerticalAlignment="Center"
                                    />
-
-
 
                         </toolkit:DockPanel>
                     </DataTemplate>

@@ -34,7 +34,7 @@
         <templateselector:ValueDataTemplate Value="User">
             <DataTemplate>
                 <StackPanel Orientation="Horizontal">
-                    <SymbolIcon Symbol="People" />
+                    <SymbolIcon Symbol="Account" Margin="0 0 8 0" />
                     <TextBlock Text="{Binding Label}" />
                 </StackPanel>
             </DataTemplate>
@@ -42,7 +42,7 @@
         <templateselector:ValueDataTemplate Value="Channel">
             <DataTemplate>
                 <StackPanel Orientation="Horizontal">
-                    <SymbolIcon Symbol="Camera" />
+                    <SymbolIcon Symbol="People" Margin="0 0 8 0" />
                     <TextBlock Text="{Binding Label}" />
                 </StackPanel>
             </DataTemplate>
@@ -50,7 +50,7 @@
         <templateselector:ValueDataTemplate Value="Mylist">
             <DataTemplate>
                 <StackPanel Orientation="Horizontal">
-                    <SymbolIcon Symbol="Folder" />
+                    <SymbolIcon Symbol="List" Margin="0 0 8 0" />
                     <TextBlock Text="{Binding Label}" />
                 </StackPanel>
             </DataTemplate>
@@ -59,7 +59,7 @@
         <templateselector:ValueDataTemplate Value="TagSearch">
             <DataTemplate>
                 <StackPanel Orientation="Horizontal">
-                    <SymbolIcon Symbol="Tag" />
+                    <SymbolIcon Symbol="Tag" Margin="0 0 8 0" />
                     <TextBlock Text="{Binding Label}" />
                 </StackPanel>
             </DataTemplate>
@@ -67,7 +67,7 @@
         <templateselector:ValueDataTemplate Value="KeywordSearch">
             <DataTemplate>
                 <StackPanel Orientation="Horizontal">
-                    <SymbolIcon Symbol="Find" />
+                    <SymbolIcon Symbol="Find" Margin="0 0 8 0" />
                     <TextBlock Text="{Binding Label}" />
                 </StackPanel>
             </DataTemplate>
