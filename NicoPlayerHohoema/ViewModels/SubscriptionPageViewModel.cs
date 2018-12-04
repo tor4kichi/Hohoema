@@ -53,6 +53,32 @@ namespace NicoPlayerHohoema.ViewModels
                 })
                 .AddTo(_CompositeDisposable);
         }
+
+
+        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        {
+            if (viewModelState?.ContainsKey(nameof(SelectedSubscription)) ?? false)
+            {
+                var id = (Guid)viewModelState[nameof(SelectedSubscription)];
+                SelectedSubscription.Value = SubscriptionManager.Subscriptions.FirstOrDefault(x => x.Id == id);
+            }
+
+            base.OnNavigatedTo(e, viewModelState);
+        }
+
+        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+        {
+            if (viewModelState != null)
+            {
+                if (SelectedSubscription.Value != null)
+                {
+                    viewModelState.Remove(nameof(SelectedSubscription));
+                    viewModelState.Add(nameof(SelectedSubscription), SelectedSubscription.Value.Id);
+                }
+            }
+
+            base.OnNavigatingFrom(e, viewModelState, suspending);
+        }
     }
 
 }

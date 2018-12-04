@@ -8,7 +8,7 @@ using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.Views.StateTrigger
 {
-    public class EqualConditionStateTrigger : StateTriggerBase
+    public class EqualConditionStateTrigger : InvertibleStateTrigger
     {
         #region Condition Property
 
@@ -61,15 +61,17 @@ namespace NicoPlayerHohoema.Views.StateTrigger
 
         private void Evaluation()
         {
-            if (Value is Enum)
+            if (Condition == null)
             {
-                var isActive = Condition.ToString() == Value?.ToString();
-                Debug.WriteLine(Condition.ToString() + ":" + Value?.ToString() + " : " + isActive);
-                SetActive(isActive);
+                SetActiveInvertible(Condition == Value);
+            }
+            else if (Condition is string || Value is string || Value is Enum || Condition is Enum)
+            {
+                SetActiveInvertible(Condition?.ToString() == Value?.ToString());
             }
             else
             {
-                SetActive(Condition?.ToString() == Value?.ToString());
+                SetActiveInvertible(ReferenceEquals(Condition, Value));
             }
         }
         

@@ -18,6 +18,7 @@
     xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
     xmlns:subscription="using:NicoPlayerHohoema.Models.Subscription"
     xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector"
+    xmlns:mytrigger="using:NicoPlayerHohoema.Views.StateTrigger"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -29,37 +30,78 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </Page.Resources>
-    <Grid>
+    <Grid x:Name="RootLayout">
 
-        <i:Interaction.Behaviors>
-            <!-- show OverView, hide IndivisualItemView -->
-            <core:DataTriggerBehavior Binding="{Binding SelectedSubscription.Value, Mode=OneWay}" Value="{x:Null}" ComparisonCondition="Equal">
-                <core:CallMethodAction TargetObject="{x:Bind}" MethodName="HideIndivisualItemView" />
-            </core:DataTriggerBehavior>
-
-            <!-- show IndivisualItemView, hide OverView -->
-            <core:DataTriggerBehavior Binding="{Binding SelectedSubscription.Value, Mode=OneWay}" Value="{x:Null}" ComparisonCondition="NotEqual">
-                <core:CallMethodAction TargetObject="{x:Bind}" MethodName="ShowIndivisualItemView" />
-            </core:DataTriggerBehavior>
-        </i:Interaction.Behaviors>
-
+        <Grid x:Name="EmptySubscriptionsNoticeLayout" Margin="16" VerticalAlignment="Center" Visibility="Collapsed">
+            <TextBlock Text="購読は動画の新着チェック自動化機能やで。購読グループを作って、そこにユーザーやらキーワードやら登録しとくと、定期的に自動巡回して新着があれば「あとで見る」とかのプレイリストに追加してくれる優れものや。" 
+                       TextWrapping="Wrap"
+                       Style="{StaticResource TitleTextBlockStyle}"
+                       Opacity="0.7"
+                       />
+        </Grid>
+        
         <Grid x:Name="OverView">
-            <ListView ItemsSource="{Binding Subscriptions, Mode=TwoWay}"
+            <ListView ItemsSource="{Binding SubscriptionManager.Subscriptions, Mode=TwoWay}"
                   CanReorderItems="True"
                   AllowDrop="True"
                   SelectionMode="Single"
                   SelectedItem="{Binding SelectedSubscription.Value, Mode=TwoWay}"
-                      ContextFlyout="{StaticResource SubscriptionOverViewSettingsFlyout}"
                   >
 
                 <ListView.Header>
                     <uwpcontrols:ScrollHeader Mode="Sticky">
                         <CommandBar>
-                            <AppBarButton Label="新規購読" Icon="Add" />
-                            <AppBarButton Label="更新" Icon="Refresh" />
+                            <AppBarButton Label="購読グループを追加" Icon="Add" AllowFocusOnInteraction="True">
+                                <AppBarButton.Flyout>
+                                    <Flyout>
+                                        <StackPanel MinWidth="180">
+                                            <TextBox x:Name="SubscriptionGroupNameTextBox"
+                                                    Header="購読グループ名"
+                                                InputScope="Text"
+                                                    MinWidth="80"
+                                            />
+                                            <Border Height="8" />
+                                            <Button Content="追加"
+                                            HorizontalAlignment="Stretch"
+                                                    Height="32"
+                                            >
+                                                <i:Interaction.Behaviors>
+                                                    <core:EventTriggerBehavior EventName="Click">
+                                                        <core:InvokeCommandAction 
+                                                        Command="{Binding SubscriptionManager.AddSubscription}"
+                                                        CommandParameter="{Binding ElementName=SubscriptionGroupNameTextBox, Path=Text}"
+                                                        />
+                                                        <core:ChangePropertyAction TargetObject="{x:Bind SubscriptionGroupNameTextBox}" PropertyName="Text" Value="" />
+                                                    </core:EventTriggerBehavior>
+
+                                                    <mybehavior:KeyboardTrigger Key="Enter"
+                                                                    OnlyWhenFocus="{x:Bind SubscriptionGroupNameTextBox}"
+                                                                    IsEnabled="True"
+                                                                    >
+                                                        <core:InvokeCommandAction 
+                                                        Command="{Binding SubscriptionManager.AddSubscription}"
+                                                        CommandParameter="{Binding ElementName=SubscriptionGroupNameTextBox, Path=Text}"
+                                                        />
+                                                        <mybehavior:CloseFlyoutAction />
+                                                        <core:ChangePropertyAction TargetObject="{x:Bind SubscriptionGroupNameTextBox}" PropertyName="Text" Value="" />
+                                                    </mybehavior:KeyboardTrigger>
+                                                </i:Interaction.Behaviors>
+
+                                            </Button>
+                                        </StackPanel>
+                                    </Flyout>
+                                </AppBarButton.Flyout>
+                            </AppBarButton>
+                            <AppBarButton Label="更新" Icon="Refresh" Command="{Binding WatchItLater.Refresh}" />
                             <AppBarButton Label="設定" Icon="Setting"
-                                          Flyout="{StaticResource SubscriptionOverViewSettingsFlyout}"
-                                          />
+                                          >
+                                <AppBarButton.Flyout>
+                                    <MenuFlyout >
+                                        <ToggleMenuFlyoutItem Text="自動更新" IsChecked="{Binding WatchItLater.IsAutoUpdateEnabled, Mode=TwoWay}" />
+                                    </MenuFlyout>
+                                </AppBarButton.Flyout>
+                            </AppBarButton>
+                                          
 
                         </CommandBar>
                     </uwpcontrols:ScrollHeader>
@@ -96,11 +138,29 @@
 
         <Grid x:Name="IndivisualItemView" Visibility="Collapsed">
 
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="40" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
             <!--  -->
 
+            <Border Background="{StaticResource ApplicationPageBackgroundThemeBrush}" Opacity="0.3"
+                    IsHitTestVisible="True"
+                    IsTapEnabled="True"
+                    x:Name="IndivisualItemViewBackground"
+                    Grid.ColumnSpan="2"
+                    >
+                <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Tapped">
+                        <core:ChangePropertyAction TargetObject="{Binding SelectedSubscription}" PropertyName="Value" Value="{x:Null}" />
+                    </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+            </Border>
 
             <Border Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
-                    Margin="32 0 0 0"
+                    x:Name="IndivisualItemViewContent"
+                    Grid.ColumnSpan="1"
+                    Grid.Column="1"
                     >
                 <ContentControl Content="{Binding SelectedSubscription.Value, Mode=OneWay}"
                             HorizontalContentAlignment="Stretch"
@@ -114,19 +174,36 @@
 
             </Border>
 
-            <Border Background="{StaticResource ApplicationPageBackgroundThemeBrush}" Opacity="0.3"
-                    IsHitTestVisible="True"
-                    IsTapEnabled="True"
-                    Width="32"
-                    HorizontalAlignment="Left"
-                    >
-                <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Tapped">
-                        <core:ChangePropertyAction TargetObject="{Binding SelectedSubscription}" PropertyName="Value" Value="{x:Null}" />
-                    </core:EventTriggerBehavior>
-                </i:Interaction.Behaviors>
-            </Border>
         </Grid>
 
+
+        <VisualStateManager.VisualStateGroups>
+
+            <VisualStateGroup x:Name="SubscriptionSelectStateGroup">
+                
+                <!-- Animation implementation with code behind -->
+                <VisualState x:Name="SubscriptionSelected">
+                    <VisualState.StateTriggers>
+                        <mytrigger:EqualConditionStateTrigger Value="{Binding SelectedSubscription.Value, Mode=OneWay}" 
+                                                              Condition="{x:Null}"
+                                                              Inverted="True"
+                                                              />
+                    </VisualState.StateTriggers>
+                </VisualState>
+
+            </VisualStateGroup>
+            
+            <VisualStateGroup >
+                <VisualState x:Name="EmptySubscriptions">
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding SubscriptionManager.Subscriptions, Mode=OneWay, Converter={StaticResource EmptyCollectionToBooleanConverter}}" />
+                    </VisualState.StateTriggers>
+
+                    <VisualState.Setters>
+                        <Setter Target="EmptySubscriptionsNoticeLayout.Visibility"  Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
     </Grid>
 </Page>

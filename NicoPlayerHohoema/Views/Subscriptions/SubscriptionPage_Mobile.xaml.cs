@@ -1,8 +1,12 @@
-﻿using System;
+﻿using Microsoft.Toolkit.Uwp.UI.Animations;
+using NicoPlayerHohoema.Helpers;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -25,18 +29,58 @@ namespace NicoPlayerHohoema.Views
         public SubscriptionPage_Mobile()
         {
             this.InitializeComponent();
+
+            SubscriptionSelectStateGroup.CurrentStateChanged += SubscriptionSelectStateGroup_CurrentStateChanged;
+
+            Loaded += SubscriptionPage_Mobile_InitializeSubscriptionSelectedAnimation;
         }
 
 
 
-        public void ShowIndivisualItemView()
+
+        #region Subscription Content Animations
+
+        const float ContentOffsetAmount = 50;
+
+        private void SubscriptionPage_Mobile_InitializeSubscriptionSelectedAnimation(object sender, RoutedEventArgs e)
         {
-            IndivisualItemView.Visibility = Visibility.Visible;
+            IndivisualItemViewContent.Offset(ContentOffsetAmount, duration: 1)
+                .Fade(0, duration: 1)
+                .Start();
+            IndivisualItemViewBackground.Fade(0, duration:1)
+                .Start();
         }
 
-        public void HideIndivisualItemView()
+        AsyncLock _SelectionVisualAnimationLock = new AsyncLock();
+        private async void SubscriptionSelectStateGroup_CurrentStateChanged(object sender, VisualStateChangedEventArgs e)
         {
-            IndivisualItemView.Visibility = Visibility.Collapsed;
+            using (_ = await _SelectionVisualAnimationLock.LockAsync())
+            {
+                if (e.NewState?.Name == SubscriptionSelected.Name)
+                {
+                    IndivisualItemView.Visibility = Visibility.Visible;
+
+                    await IndivisualItemViewBackground.Fade(0.3f, duration: 150)
+                        .StartAsync();
+                    await IndivisualItemViewContent.Offset(0, duration: 150)
+                        .Fade(1.0f, duration:150)
+                        .StartAsync();
+                }
+                else 
+                {
+                    await IndivisualItemViewContent.Offset(ContentOffsetAmount, duration: 150)
+                        .Fade(0.0f, duration: 150)
+                        .StartAsync();
+                    await IndivisualItemViewBackground.Fade(0.0f, duration: 150)
+                        .StartAsync();
+                    
+                    IndivisualItemView.Visibility = Visibility.Collapsed;
+                }
+            }
         }
+
+
+
+        #endregion
     }
 }

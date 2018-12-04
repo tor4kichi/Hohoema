@@ -78,49 +78,6 @@
         <UserControl>
             <Grid x:Name="SubscriptionItemLayoutRoot">
 
-                <Border x:Name="HiddenVideoTitleRegexFlyoutOwner">
-                    <FlyoutBase.AttachedFlyout>
-                        <Flyout x:Name="HiddenVideoTitleRegexFlyout">
-                            <StackPanel>
-                                <TextBox Header="除外する動画タイトルのキーワード"
-                                         Text="{Binding DoNotNoticeKeyword, Mode=OneWay}"
-                                         x:Name="HiddenVideoTitleRegexTextBox"
-                                         />
-
-                                <ToggleSwitch Header="正規表現" 
-                                              IsOn="{Binding DoNotNoticeKeywordAsRegex, Mode=TwoWay}"
-                                              >
-                                    
-                                </ToggleSwitch>
-
-                                <Button Content="決定">
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Click">
-                                            <core:InvokeCommandAction Command="{Binding UpdateDoNotNoticeKeyword}"
-                                                                      CommandParameter="{Binding ElementName=HiddenVideoTitleRegexTextBox, Path=Text}"
-                                                                      />
-                                            <core:CallMethodAction TargetObject="{Binding ElementName=HiddenVideoTitleRegexFlyout}" MethodName="Hide" />
-                                        </core:EventTriggerBehavior>
-
-                                        <mybehavior:KeyboardTrigger Key="Enter"
-                                                                    OnlyWhenFocus="{Binding ElementName=HiddenVideoTitleRegexTextBox}"
-                                                                    IsEnabled="True"
-                                                                    >
-                                            <core:InvokeCommandAction 
-                                                                        Command="{Binding UpdateDoNotNoticeKeyword}"
-                                                                        CommandParameter="{Binding ElementName=HiddenVideoTitleRegexTextBox, Path=Text}"
-                                                                        />
-
-                                            <core:CallMethodAction TargetObject="{Binding ElementName=HiddenVideoTitleRegexFlyout}" MethodName="Hide" />
-                                        </mybehavior:KeyboardTrigger>
-                                    </i:Interaction.Behaviors>
-                                </Button>
-
-
-                            </StackPanel>
-                        </Flyout>
-                    </FlyoutBase.AttachedFlyout>
-                </Border>
                 
                 
                 <ListView ItemsSource="{Binding Sources}"
@@ -129,6 +86,7 @@
                           CanReorderItems="True"
                           uwpUiExtension:ListViewBase.Command="{StaticResource OpenSubscriptionSource}"
                           IsItemClickEnabled="True"
+                          SelectionMode="None"
                       >
                     <!-- リストアイテムに対するメニューアクション -->
                     <i:Interaction.Behaviors>
@@ -148,7 +106,53 @@
                     <ListView.Header>
                         <uwpcontrols:ScrollHeader Mode="Sticky">
                             <Grid>
-                                
+
+                                <Border x:Name="HiddenVideoTitleRegexFlyoutOwner">
+                                    <FlyoutBase.AttachedFlyout>
+                                        <Flyout x:Name="HiddenVideoTitleRegexFlyout" >
+                                            <StackPanel MinWidth="180">
+                                                <TextBox Header="除外する動画タイトルのキーワード"
+                                                                     Text="{Binding DoNotNoticeKeyword, Mode=OneWay}"
+                                                                     x:Name="HiddenVideoTitleRegexTextBox"
+                                                                     />
+
+                                                <ToggleSwitch Header="正規表現" 
+                                                                          IsOn="{Binding DoNotNoticeKeywordAsRegex, Mode=TwoWay}"
+                                                                          >
+
+                                                </ToggleSwitch>
+
+                                                <Button Content="決定" HorizontalAlignment="Stretch"
+                                                                    Height="32"
+                                                                    >
+                                                    <i:Interaction.Behaviors>
+                                                        <core:EventTriggerBehavior EventName="Click">
+                                                            <core:InvokeCommandAction Command="{Binding UpdateDoNotNoticeKeyword}"
+                                                                      CommandParameter="{Binding ElementName=HiddenVideoTitleRegexTextBox, Path=Text}"
+                                                                      />
+                                                            <core:CallMethodAction TargetObject="{Binding ElementName=HiddenVideoTitleRegexFlyout}" MethodName="Hide" />
+                                                        </core:EventTriggerBehavior>
+
+                                                        <mybehavior:KeyboardTrigger Key="Enter"
+                                                                    OnlyWhenFocus="{Binding ElementName=HiddenVideoTitleRegexTextBox}"
+                                                                    IsEnabled="True"
+                                                                    >
+                                                            <core:InvokeCommandAction 
+                                                                        Command="{Binding UpdateDoNotNoticeKeyword}"
+                                                                        CommandParameter="{Binding ElementName=HiddenVideoTitleRegexTextBox, Path=Text}"
+                                                                        />
+
+                                                            <core:CallMethodAction TargetObject="{Binding ElementName=HiddenVideoTitleRegexFlyout}" MethodName="Hide" />
+                                                        </mybehavior:KeyboardTrigger>
+                                                    </i:Interaction.Behaviors>
+                                                </Button>
+
+
+                                            </StackPanel>
+                                        </Flyout>
+                                    </FlyoutBase.AttachedFlyout>
+                                </Border>
+
 
                                 <CommandBar >
                                     <CommandBar.PrimaryCommands>
@@ -175,51 +179,53 @@
                                                IsDoubleTapEnabled="True"
                                            >
                                         
-                                            <i:Interaction.Behaviors>
-                                                <core:EventTriggerBehavior EventName="DoubleTapped">
-                                                    <mybehavior:OpenFlyout TargetFlyoutOwner="{Binding ElementName=SubscriptionLabelTextBlock}" />
-                                                </core:EventTriggerBehavior>
-                                            </i:Interaction.Behaviors>
-                                            <FlyoutBase.AttachedFlyout>
-                                                <Flyout x:Name="RenameFlyout">
+                                                <i:Interaction.Behaviors>
+                                                    <core:EventTriggerBehavior EventName="DoubleTapped">
+                                                        <mybehavior:OpenFlyout TargetFlyoutOwner="{Binding ElementName=SubscriptionLabelTextBlock}" />
+                                                    </core:EventTriggerBehavior>
+                                                </i:Interaction.Behaviors>
+                                                <FlyoutBase.AttachedFlyout>
+                                                    <Flyout x:Name="RenameFlyout">
                                                 
-                                                    <StackPanel x:Name="RenameFlyoutLayout">
-                                                        <uwpcontrols:HeaderedTextBlock Text="{Binding Label, Mode=OneWay}"
-                                                                                       Header="現在"
-                                                                                       />
-                                                        <TextBox x:Name="SubscriptionRenameTextBox"
-                                                                 Header="変更後"
-                                                                 Text="{Binding Label}"
-                                                                 uiExtension:TextBoxFocusExtensions.AutoSelectOnFocus="True"
-                                                            />
+                                                        <StackPanel x:Name="RenameFlyoutLayout" MinWidth="180">
+                                                            <TextBox x:Name="SubscriptionRenameTextBox"
+                                                                     Text="{Binding Label}"
+                                                                     uiExtension:TextBoxFocusExtensions.AutoSelectOnFocus="True"
+                                                                />
                                                         
                                                     
-                                                        <Button Content="決定"
-                                                                Command="{Binding Rename}"
-                                                                CommandParameter="{Binding ElementName=SubscriptionRenameTextBox, Path=Text, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
-                                                            >
-                                                            <i:Interaction.Behaviors>
-                                                                <core:EventTriggerBehavior EventName="Click">
-                                                                    <core:CallMethodAction TargetObject="{Binding ElementName=RenameFlyout}" MethodName="Hide" />
-                                                                </core:EventTriggerBehavior>
+                                                            <Border Height="8" />
+                                                        
+                                                            <Button Content="決定"
+                                                                    Command="{Binding Rename}"
+                                                                    CommandParameter="{Binding ElementName=SubscriptionRenameTextBox, Path=Text, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                                                                    HorizontalAlignment="Stretch"
+                                                                    Height="32"
+                                                                >
+                                                                <i:Interaction.Behaviors>
+                                                                    <core:EventTriggerBehavior EventName="Click">
+                                                                        <core:CallMethodAction TargetObject="{Binding ElementName=RenameFlyout}" MethodName="Hide" />
+                                                                    </core:EventTriggerBehavior>
                                                             
-                                                                <mybehavior:KeyboardTrigger Key="Enter"
-                                                                            OnlyWhenFocus="{Binding ElementName=SubscriptionRenameTextBox}"
-                                                                            IsEnabled="True"
-                                                                            >
-                                                                    <core:InvokeCommandAction 
-                                                                        Command="{Binding Rename}"
-                                                                        CommandParameter="{Binding ElementName=SubscriptionRenameTextBox, Path=Text}"
-                                                                        />
+                                                                    <mybehavior:KeyboardTrigger Key="Enter"
+                                                                                OnlyWhenFocus="{Binding ElementName=SubscriptionRenameTextBox}"
+                                                                                IsEnabled="True"
+                                                                                >
+                                                                        <core:InvokeCommandAction 
+                                                                            Command="{Binding Rename}"
+                                                                            CommandParameter="{Binding ElementName=SubscriptionRenameTextBox, Path=Text}"
+                                                                            />
                                                                 
-                                                                    <core:CallMethodAction TargetObject="{Binding ElementName=RenameFlyout}" MethodName="Hide" />
-                                                                </mybehavior:KeyboardTrigger>
-                                                            </i:Interaction.Behaviors>
-                                                        </Button>
-                                                    </StackPanel>
-                                                </Flyout>
-                                            </FlyoutBase.AttachedFlyout>
+                                                                        <core:CallMethodAction TargetObject="{Binding ElementName=RenameFlyout}" MethodName="Hide" />
+                                                                    </mybehavior:KeyboardTrigger>
+                                                                </i:Interaction.Behaviors>
+                                                            </Button>
+                                                        </StackPanel>
+                                                    </Flyout>
+                                                </FlyoutBase.AttachedFlyout>
                                             </TextBlock>
+
+                                            
                                         </Grid>
 
                                     </CommandBar.Content>

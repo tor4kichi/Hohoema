@@ -341,6 +341,13 @@
     <Compile Include="Helpers\StorageFolderExtention.cs" />
     <Compile Include="Helpers\TaskExtention.cs" />
     <Compile Include="Models\Subscription\Subscription.cs" />
+    <Compile Include="Models\Subscription\SubscriptionDestination.cs" />
+    <Compile Include="Models\Subscription\SubscriptionDestinationTarget.cs" />
+    <Compile Include="Models\Subscription\SubscriptionManager.cs" />
+    <Compile Include="Models\Subscription\SubscriptionSource.cs" />
+    <Compile Include="Models\Subscription\SubscriptionSourceType.cs" />
+    <Compile Include="Models\Subscription\SubscriptionUpdateInfo.cs" />
+    <Compile Include="Models\Subscription\SubscriptionUpdateStatus.cs" />
     <Compile Include="Models\Subscription\WatchItLater.cs" />
     <Compile Include="Services\HohoemaDialogService.cs" />
     <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
@@ -704,7 +711,7 @@
     </Compile>
     <Compile Include="Dialogs\_TextInputDialog\TextInputDialogContext.cs" />
     <Compile Include="Services\ToastNotificationService.cs" />
-    <Compile Include="Views\StateTrigger\ConditionStateTrigger.cs" />
+    <Compile Include="Views\StateTrigger\EqualConditionStateTrigger.cs" />
     <Compile Include="Views\StateTrigger\FocusTrigger.cs" />
     <Compile Include="Views\StateTrigger\InvertibleStateTrigger.cs" />
     <Compile Include="Views\StateTrigger\PointerFocusTrigger.cs" />
