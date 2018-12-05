@@ -255,11 +255,11 @@
                                                                     />
 
                                                 <i:Interaction.Behaviors>
-                                                    <mybehavior:MenuFlyoutSubItemsSetter ItemsSource="{Binding Destinations, Mode=OneWay}"
+                                                    <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding Destinations, Mode=OneWay}"
+                                                                                             Owner="{Binding ElementName=SubscribeSettingFlyout}"
                                                                                              IsRequireInsertSeparaterBetweenDefaultItems="True"
-                                                                                             IsAssignParentDataContextToTag="True"
                                                                                              >
-                                                        <mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
+                                                        <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
                                                             <DataTemplate>
                                                                 <MenuFlyoutItem Text="{Binding Label}" 
                                                                                     Command="{StaticResource OpenSubscriptionDestination}"
@@ -268,8 +268,8 @@
 
                                                                 </MenuFlyoutItem>
                                                             </DataTemplate>
-                                                        </mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
-                                                    </mybehavior:MenuFlyoutSubItemsSetter>
+                                                        </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
+                                                    </mybehavior:MenuFlyoutSubItemItemsSetter>
                                                 </i:Interaction.Behaviors>
 
                                             </MenuFlyoutSubItem>

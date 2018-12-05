@@ -31,6 +31,8 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class MylistPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
 	{
+        public Models.Subscription.SubscriptionManager SubscriptionManager => Models.Subscription.SubscriptionManager.Instance;
+
         public ReactiveProperty<IPlayableList> PlayableList { get; private set; }
 
         public ReactiveProperty<PlaylistOrigin> MylistOrigin { get; }

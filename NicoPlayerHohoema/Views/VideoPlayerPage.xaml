@@ -42,8 +42,9 @@
                                x:Name="VideoQualityMenuFlyoutSubImte"
                                   >
                 <i:Interaction.Behaviors>
-                    <mybehavior:MenuFlyoutSubItemsSetter ItemsSource="{Binding VideoQualities}" >
-                        <mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
+                    <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding VideoQualities}"
+                                                             >
+                        <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
                             <DataTemplate>
                                 <MenuFlyoutItem IsEnabled="{Binding Available}"
                                                 Text="{Binding Bitrate, Converter={StaticResource ToKMGTPEZY}}"
@@ -52,8 +53,8 @@
                                                 >
                                 </MenuFlyoutItem>
                             </DataTemplate>
-                        </mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
-                    </mybehavior:MenuFlyoutSubItemsSetter>
+                        </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
+                    </mybehavior:MenuFlyoutSubItemItemsSetter>
                 </i:Interaction.Behaviors>
             </MenuFlyoutSubItem>
 
@@ -171,8 +172,10 @@
 
             <MenuFlyoutSubItem Text="マイリストに追加">
                 <i:Interaction.Behaviors>
-                    <mybehavior:MenuFlyoutSubItemsSetter ItemsSource="{Binding Mylists}" >
-                        <mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
+                    <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding Mylists}"
+                                                             Owner="{Binding ElementName=VideoOptionsFlyout}"
+                                                             >
+                        <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
                             <DataTemplate>
                                 <MenuFlyoutItem Text="{Binding Label}"
                                                 Command="{Binding AddItemCommand}"
@@ -180,8 +183,8 @@
                                                 >
                                 </MenuFlyoutItem>
                             </DataTemplate>
-                        </mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
-                    </mybehavior:MenuFlyoutSubItemsSetter>
+                        </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
+                    </mybehavior:MenuFlyoutSubItemItemsSetter>
                 </i:Interaction.Behaviors>
 
                 <MenuFlyoutItem Text="新規作成…" 
@@ -193,8 +196,10 @@
 
             <MenuFlyoutSubItem Text="ローカルマイリストに追加">
                 <i:Interaction.Behaviors>
-                    <mybehavior:MenuFlyoutSubItemsSetter ItemsSource="{Binding LocalMylists}" >
-                        <mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
+                    <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding LocalMylists}"
+                                                             Owner="{Binding ElementName=VideoOptionsFlyout}"
+                                                             >
+                        <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
                             <DataTemplate>
                                 <MenuFlyoutItem Text="{Binding Label}"
                                                 Command="{Binding AddItemCommand}"
@@ -202,8 +207,8 @@
                                                 >
                                 </MenuFlyoutItem>
                             </DataTemplate>
-                        </mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
-                    </mybehavior:MenuFlyoutSubItemsSetter>
+                        </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
+                    </mybehavior:MenuFlyoutSubItemItemsSetter>
                 </i:Interaction.Behaviors>
 
                 <MenuFlyoutItem Text="新規作成…" 
@@ -1301,8 +1306,8 @@
 
                                                                 <MenuFlyoutSubItem Text="マイリストに追加">
                                                                     <i:Interaction.Behaviors>
-                                                                        <mybehavior:MenuFlyoutSubItemsSetter ItemsSource="{Binding Mylists}" >
-                                                                            <mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
+                                                                        <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding Mylists}" >
+                                                                            <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
                                                                                 <DataTemplate>
                                                                                     <MenuFlyoutItem Text="{Binding Label}"
                                                                                                 Command="{Binding AddItemCommand}"
@@ -1310,8 +1315,8 @@
                                                                                                 >
                                                                                     </MenuFlyoutItem>
                                                                                 </DataTemplate>
-                                                                            </mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
-                                                                        </mybehavior:MenuFlyoutSubItemsSetter>
+                                                                            </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
+                                                                        </mybehavior:MenuFlyoutSubItemItemsSetter>
                                                                     </i:Interaction.Behaviors>
 
                                                                     <MenuFlyoutItem Text="新規作成…" 
@@ -1323,8 +1328,8 @@
 
                                                                 <MenuFlyoutSubItem Text="ローカルマイリストに追加">
                                                                     <i:Interaction.Behaviors>
-                                                                        <mybehavior:MenuFlyoutSubItemsSetter ItemsSource="{Binding LocalMylists}" >
-                                                                            <mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
+                                                                        <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding LocalMylists}" >
+                                                                            <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
                                                                                 <DataTemplate>
                                                                                     <MenuFlyoutItem Text="{Binding Label}"
                                                                                                     Command="{Binding AddItemCommand}"
@@ -1332,8 +1337,8 @@
                                                                                                     >
                                                                                     </MenuFlyoutItem>
                                                                                 </DataTemplate>
-                                                                            </mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
-                                                                        </mybehavior:MenuFlyoutSubItemsSetter>
+                                                                            </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
+                                                                        </mybehavior:MenuFlyoutSubItemItemsSetter>
                                                                     </i:Interaction.Behaviors>
 
                                                                     <MenuFlyoutItem Text="新規作成…" 

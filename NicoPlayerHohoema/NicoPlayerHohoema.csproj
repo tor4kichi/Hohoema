@@ -168,6 +168,7 @@
     <Compile Include="Commands\RemoveSearchHistoryCommand.cs" />
     <Compile Include="Commands\ShareWithTwitterCommand.cs" />
     <Compile Include="Commands\ShereCommand.cs" />
+    <Compile Include="Commands\Subscriptions\CreateSubscriptionGroupCommand.cs" />
     <Compile Include="Commands\VideoDeleteCacheCommand.cs" />
     <Compile Include="Commands\VideoRequestCacheCommand.cs" />
     <Compile Include="Database\Local\Bookmark.cs" />
@@ -413,10 +414,11 @@
     <Compile Include="Views\Behaviors\FocusGetter.cs" />
     <Compile Include="Views\Behaviors\AutoHideCursor.cs" />
     <Compile Include="Views\Behaviors\ListViewBaseItemContextFlyout.cs" />
+    <Compile Include="Views\Behaviors\MenuFlyoutItemsSetter.cs" />
     <Compile Include="Views\Behaviors\Swipe.cs" />
     <Compile Include="Views\Behaviors\WhenCompactOverlayTitleBarSetter.cs" />
     <Compile Include="Views\Behaviors\XYNavigationExtentions.cs" />
-    <Compile Include="Views\Behaviors\MenuFlyoutSubItemsSetter.cs" />
+    <Compile Include="Views\Behaviors\MenuFlyoutSubItemItemsSetter.cs" />
     <Compile Include="Views\Behaviors\CloseFlyoutAction.cs" />
     <Compile Include="Views\Behaviors\DataTriggerBehavior.cs" />
     <Compile Include="Views\Behaviors\EngagePassToFirstChild.cs" />
@@ -484,6 +486,7 @@
     <Compile Include="Views\Subscriptions\SubscriptionPage_Mobile.xaml.cs">
       <DependentUpon>SubscriptionPage_Mobile.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Subscriptions\SubscriptionSourceConverter.cs" />
     <Compile Include="Views\TemplateSelector\ContentTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\MenuItemTemplateSelector.cs" />
     <Compile Include="Views\RankingCategoryPage.xaml.cs">

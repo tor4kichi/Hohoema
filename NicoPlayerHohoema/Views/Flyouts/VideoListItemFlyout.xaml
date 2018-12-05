@@ -1,5 +1,5 @@
 ﻿<MenuFlyout
-    
+    x:Name="VideoListItemMenuFlyout"
     x:Class="NicoPlayerHohoema.Views.Controls.VideoListItemFlyout"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -64,16 +64,18 @@
     <MenuFlyoutSubItem Text="マイリストに追加" 
                     >
         <i:Interaction.Behaviors>
-            <mybehavior:MenuFlyoutSubItemsSetter ItemsSource="{Binding Mylists}" >
-                <mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
+            <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding Mylists}"
+                                                     Owner="{Binding ElementName=VideoListItemMenuFlyout}"
+                                                     >
+                <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
                     <DataTemplate>
                         <MenuFlyoutItem Text="{Binding Item1.Label}"
                                         Command="{Binding Item1.AddItemCommand}"
                                         CommandParameter="{Binding Item2}"
                                         />
                     </DataTemplate>
-                </mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
-            </mybehavior:MenuFlyoutSubItemsSetter>
+                </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
+            </mybehavior:MenuFlyoutSubItemItemsSetter>
         </i:Interaction.Behaviors>
 
         <MenuFlyoutItem Text="新規作成…" Command="{StaticResource CreateMylistCommand}"
@@ -84,30 +86,54 @@
     <MenuFlyoutSubItem Text="ローカルマイリストに追加" 
                     >
         <i:Interaction.Behaviors>
-            <mybehavior:MenuFlyoutSubItemsSetter ItemsSource="{Binding LocalMylists}" >
-                <mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
+            <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding LocalMylists}"
+                                                     Owner="{Binding ElementName=VideoListItemMenuFlyout}"
+                                                     >
+                <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
                     <DataTemplate>
                         <MenuFlyoutItem Text="{Binding Item1.Label}"
                                         Command="{Binding Item1.AddItemCommand}"
                                         CommandParameter="{Binding Item2}"
                                         />
                     </DataTemplate>
-                </mybehavior:MenuFlyoutSubItemsSetter.ItemTemplate>
-            </mybehavior:MenuFlyoutSubItemsSetter>
+                </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
+            </mybehavior:MenuFlyoutSubItemItemsSetter>
         </i:Interaction.Behaviors>
 
         <MenuFlyoutItem Text="新規作成…" Command="{StaticResource CreateLocalMylistCommand}"
                         CommandParameter="{Binding}"
                         />
     </MenuFlyoutSubItem>
-    
 
-    <MenuFlyoutItem Text="投稿者を新着チェックに追加" 
-                    Command="{StaticResource AddFeedSourceCommand}"
-                    CommandParameter="{Binding}"
-                    />
 
-    
+    <MenuFlyoutSubItem Text="投稿者を購読に追加…" 
+                    >
+
+        <i:Interaction.Behaviors>
+            <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding SubscriptionManager.Subscriptions}"
+                                                     Owner="{Binding ElementName=VideoListItemMenuFlyout}"
+                                                     CustomObjectToTag="{Binding}"
+                                                     >
+                <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
+                    <DataTemplate>
+                        <MenuFlyoutItem Text="{Binding Label}"
+                                        Command="{Binding AddSource}"
+                                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag, Converter={StaticResource SubscriptionSourceConverter}}"
+                                        />
+                    </DataTemplate>
+                </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
+            </mybehavior:MenuFlyoutSubItemItemsSetter>
+        </i:Interaction.Behaviors>
+
+        <MenuFlyoutItem Text="購読グループを作成"
+                        Command="{StaticResource CreateSubscriptionGroupCommand}"
+                        CommandParameter="{Binding}"
+                        >
+        </MenuFlyoutItem>
+
+    </MenuFlyoutSubItem>
+
+
 
     <MenuFlyoutSeparator
         Visibility="{Binding Source={StaticResource IsCacheEnabled}, Converter={StaticResource BooleanToVisibility}}"

@@ -215,6 +215,26 @@ namespace NicoPlayerHohoema.Models.Subscription
             }
         }
 
+
+        private DelegateCommand<SubscriptionSource?> _AddSource;
+        public DelegateCommand<SubscriptionSource?> AddSource
+        {
+            get
+            {
+                return _AddSource
+                    ?? (_AddSource = new DelegateCommand<SubscriptionSource?>((source) =>
+                    {
+                        this.Sources.Add(source.Value);
+                    },
+                    (source) =>
+                    {
+                        return source != null;
+                    }
+                    ));
+            }
+        }
+
+
     }
 
 }

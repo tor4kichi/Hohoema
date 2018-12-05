@@ -12,7 +12,8 @@
     xmlns:uwpconv="using:Microsoft.Toolkit.Uwp.UI.Converters"
     xmlns:logicalModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.LogicalModifiers"
     xmlns:compareModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.ComparableModifiers"
-    xmlns:system="using:System">
+    xmlns:system="using:System"
+    xmlns:subscriptionConverters="using:NicoPlayerHohoema.Views.Subscriptions">
 
     <prism:PrismUnityApplication.Resources>
        
@@ -185,6 +186,10 @@
             
             <controls:VideoListItemFlyout x:Key="VideoListItemFlyout" />
             <controls:LiveListItemFlyout x:Key="LiveListItemFlyout" />
+
+            
+            <!-- Subscriptions -->
+            <subscriptionConverters:SubscriptionSourceConverter x:Key="SubscriptionSourceConverter" />
 
             <DataTemplate x:Key="QualityVideoTemplate">
                 <!-- 画質ごとのキャッシュ状態を表示 
