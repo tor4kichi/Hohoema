@@ -20,6 +20,13 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class UserInfoPageViewModel : HohoemaViewModelBase
 	{
+        public Models.Subscription.SubscriptionManager SubscriptionManager => Models.Subscription.SubscriptionManager.Instance;
+
+        public Models.Subscription.SubscriptionSource? SubscriptionSource => new Models.Subscription.SubscriptionSource(UserName, Models.Subscription.SubscriptionSourceType.User, UserId);
+
+
+
+
         public UserInfoPageViewModel(
             HohoemaApp hohoemaApp
             , PageManager pageManager

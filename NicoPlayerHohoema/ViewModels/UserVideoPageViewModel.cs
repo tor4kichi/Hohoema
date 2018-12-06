@@ -18,7 +18,11 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class UserVideoPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
 	{
-		public UserVideoPageViewModel(HohoemaApp app, PageManager pageManager) 
+        public Models.Subscription.SubscriptionManager SubscriptionManager => Models.Subscription.SubscriptionManager.Instance;
+        public Models.Subscription.SubscriptionSource? SubscriptionSource => new Models.Subscription.SubscriptionSource(UserName, Models.Subscription.SubscriptionSourceType.User, UserId);
+
+
+        public UserVideoPageViewModel(HohoemaApp app, PageManager pageManager) 
 			: base(app, pageManager, isRequireSignIn:true)
 		{
 		}

@@ -291,6 +291,13 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
+
+        public Models.Subscription.SubscriptionSource? SubscriptionSource => this._VideoInfo?.Owner != null ? (new Models.Subscription.SubscriptionSource(OwnerName, this._VideoInfo.Owner.UserType == Mntone.Nico2.Videos.Thumbnail.UserType.User ? Models.Subscription.SubscriptionSourceType.User : Models.Subscription.SubscriptionSourceType.Channel, OwnerId)) : default(Models.Subscription.SubscriptionSource?);
+        public Models.Subscription.SubscriptionManager SubscriptionManager => Models.Subscription.SubscriptionManager.Instance;
+
+
+
+
         public List<LocalMylist> Playlists { get; private set; }
 
         Regex GeneralUrlRegex = new Regex(@"https?:\/\/([a-zA-Z0-9.\/?=_-]*)");
