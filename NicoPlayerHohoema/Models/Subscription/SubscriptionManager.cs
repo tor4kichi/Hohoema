@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 
@@ -151,7 +152,8 @@ namespace NicoPlayerHohoema.Models.Subscription
 
         private void SubscribeSubscriptionChanged(Subscription subscription)
         {
-            var disposer = new[] 
+            CompositeDisposable disposables = new CompositeDisposable();
+            new[] 
             {
                 subscription.Sources.ToCollectionChanged().ToUnit(),
                 subscription.Destinations.ToCollectionChanged().ToUnit(),
@@ -164,10 +166,69 @@ namespace NicoPlayerHohoema.Models.Subscription
             .Throttle(TimeSpan.FromSeconds(1))
             .Skip(1)
             .Subscribe(_ => AddOrUpdateToSubscriptionDatabase(subscription))
+            .AddTo(disposables)
             ;
 
-            _SubscriptionSubscribeDiposerMap.Add(subscription.Id, disposer);
+            subscription.Sources.ObserveAddChanged()
+                .DelaySubscription(TimeSpan.FromSeconds(2))
+                .Subscribe(async item => 
+                {
+                    if (string.IsNullOrEmpty(item.Label))
+                    {
+                        try
+                        {
+                            Debug.WriteLine($"購読ソース: {item.Parameter}({item.SourceType}) のラベルが無いのでオンラインから取得します。");
+                            var label = await SubscriptionManager.ResolveSubscriptionSourceLabel(item, _ContentProvider);
+
+                            if (!string.IsNullOrEmpty(label))
+                            {
+                                subscription.Sources.Remove(item);
+                                subscription.Sources.Add(new SubscriptionSource(label, item.SourceType, item.Parameter));
+
+                                Debug.WriteLine($"購読ソース: {item.Parameter}({item.SourceType}) -> {label}");
+                            }
+                            else
+                            {
+                                throw new Exception();
+                            }
+                        }
+                        catch
+                        {
+                            Debug.WriteLine($"購読ソース: {item.Parameter}({item.SourceType}) のラベル解決に失敗");
+                        }
+                    }
+                })
+                .AddTo(disposables)
+                ;
+
+            _SubscriptionSubscribeDiposerMap.Add(subscription.Id, disposables);
         }
+
+
+        private static async Task<string> ResolveSubscriptionSourceLabel(SubscriptionSource source, NiconicoContentProvider contentProvider)
+        {
+            switch (source.SourceType)
+            {
+                case SubscriptionSourceType.User:
+                    var info = await contentProvider.GetUserInfo(source.Parameter);
+                    return info.Nickname;
+                case SubscriptionSourceType.Channel:
+                    var channelInfo = await contentProvider.GetChannelInfo(source.Parameter);
+                    return channelInfo.Name;
+                case SubscriptionSourceType.Mylist:
+                    var mylistInfo = await contentProvider.GetMylistGroupDetail(source.Parameter);
+                    return mylistInfo.MylistGroup.Name;
+                case SubscriptionSourceType.TagSearch:
+                    return source.Parameter;
+                case SubscriptionSourceType.KeywordSearch:
+                    return source.Parameter;
+                default:
+                    break;
+            }
+
+            return null;
+        }
+
 
         private void UnsubscribeSubscriptionChanged(Subscription subscription)
         {
