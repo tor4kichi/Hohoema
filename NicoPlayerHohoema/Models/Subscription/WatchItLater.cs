@@ -340,12 +340,10 @@ namespace NicoPlayerHohoema.Models.Subscription
                     var toast = new ToastNotification(toastContent.GetXml());
 
                     var notifier = ToastNotificationManager.CreateToastNotifier();
-                    if (notifier.Update(toast.Data, playableList.Id, TOAST_GROUP) == NotificationUpdateResult.NotificationNotFound)
-                    {
-                        toast.Tag = playableList.Id;
-                        toast.Group = TOAST_GROUP;
-                        notifier.Show(toast);
-                    }
+
+                    toast.Tag = playableList.Id;
+                    toast.Group = TOAST_GROUP;
+                    notifier.Show(toast);
                 }
 
             }

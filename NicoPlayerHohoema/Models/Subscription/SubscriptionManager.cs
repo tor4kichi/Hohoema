@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Helpers;
+﻿using Microsoft.Toolkit.Uwp.Helpers;
+using NicoPlayerHohoema.Helpers;
 using Prism.Commands;
 using Prism.Mvvm;
 using Reactive.Bindings;
@@ -16,6 +17,57 @@ namespace NicoPlayerHohoema.Models.Subscription
 {
     public class SubscriptionManager : BindableBase
     {
+        #region Migrate Feed to Subscription
+
+
+        static void MigrateFeedGroupToSubscriptionManager()
+        {
+            var localObjectStorageHelper = new LocalObjectStorageHelper();
+
+            if (!localObjectStorageHelper.Read(nameof(MigrateFeedGroupToSubscriptionManager), false))
+            {
+                Debug.WriteLine("フィードを購読に移行：開始");
+
+                var feedGroups = Database.FeedDb.GetAll();
+
+                var subsc = SubscriptionManager.CreateNewSubscription("旧 新着");
+
+                subsc.Destinations.Add(new SubscriptionDestination(
+                    "@view".ToCulturelizeString(),
+                    SubscriptionDestinationTarget.LocalPlaylist,
+                    HohoemaPlaylist.WatchAfterPlaylistId)
+                    );
+
+                foreach (var feedSource in feedGroups.SelectMany(x => x.Sources))
+                {
+                    SubscriptionSourceType? sourceType = null;
+                    switch (feedSource.BookmarkType)
+                    {
+                        case Database.BookmarkType.User: sourceType = SubscriptionSourceType.User; break;
+                        case Database.BookmarkType.Mylist: sourceType = SubscriptionSourceType.Mylist; break;
+                        case Database.BookmarkType.SearchWithTag: sourceType = SubscriptionSourceType.TagSearch; break;
+                        case Database.BookmarkType.SearchWithKeyword: sourceType = SubscriptionSourceType.KeywordSearch; break;
+                    }
+                    if (sourceType.HasValue)
+                    {
+                        subsc.Sources.Add(new SubscriptionSource(feedSource.Label, sourceType.Value, feedSource.Content));
+                    }
+                }
+
+                Instance.Subscriptions.Add(subsc);
+
+                localObjectStorageHelper.Save(nameof(MigrateFeedGroupToSubscriptionManager), true);
+
+                Debug.WriteLine("フィードを購読に移行：完了!");
+
+            }
+
+        }
+
+
+        #endregion
+
+
         #region Singleton Pattern
 
         public static SubscriptionManager Instance { get; }
@@ -27,6 +79,8 @@ namespace NicoPlayerHohoema.Models.Subscription
         public static void Initialize(Models.NiconicoContentProvider contentProvider)
         {
             Instance.SetContentProvider(contentProvider);
+
+            MigrateFeedGroupToSubscriptionManager();
 
             Instance.IsInitialized = true;
         }
@@ -43,8 +97,7 @@ namespace NicoPlayerHohoema.Models.Subscription
             Instance = new SubscriptionManager(storedSubscriptions);
         }
 
-
-
+        
         #endregion
 
 
@@ -73,6 +126,8 @@ namespace NicoPlayerHohoema.Models.Subscription
                                 AddOrUpdateToSubscriptionDatabase(item);
 
                                 SubscribeSubscriptionChanged(item);
+
+                                item.IsDeleted = false;
                             }
                             break;
                         case System.Collections.Specialized.NotifyCollectionChangedAction.Move:
@@ -596,7 +651,7 @@ namespace NicoPlayerHohoema.Models.Subscription
 
 
 
-#region FeedResult database access
+        #region FeedResult database access
 
         private void AddOrUpdateFeedResult(ref SubscriptionUpdateInfo info)
         {
@@ -609,7 +664,7 @@ namespace NicoPlayerHohoema.Models.Subscription
         }
 
 
-#endregion
+        #endregion
     }
 
 }

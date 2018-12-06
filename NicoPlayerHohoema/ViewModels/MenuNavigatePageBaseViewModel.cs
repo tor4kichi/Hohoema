@@ -820,6 +820,11 @@ namespace NicoPlayerHohoema.ViewModels
                 MenuItems.Add(new MenuItemViewModel("あとで見る", HohoemaPageType.Mylist, new MylistPagePayload(HohoemaPlaylist.WatchAfterPlaylistId).ToParameterString()));
             }
 
+
+#if DEBUG
+            MenuItems.Add(new MenuItemViewModel("旧 新着(Debug)", HohoemaPageType.FeedGroupManage));
+#endif
+
             RaisePropertyChanged(nameof(MenuItems));
         }
 
