@@ -19,6 +19,9 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class FollowManagePageViewModel : HohoemaViewModelBase
 	{
+        public Models.Subscription.SubscriptionManager SubscriptionManager => Models.Subscription.SubscriptionManager.Instance;
+
+
 
         public ReactiveProperty<bool> NowUpdatingFavList { get; }
 		public FollowManagePageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)

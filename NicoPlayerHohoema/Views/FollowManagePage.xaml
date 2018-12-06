@@ -188,7 +188,7 @@
                                               SelectionMode="None"
                                           >
                                         <i:Interaction.Behaviors>
-                                            <mybehavior:ListViewBaseItemContextFlyout />
+                                            <mybehavior:ListViewBaseItemContextFlyout CustomObjectToTag="{Binding ElementName=PageRoot, Path=DataContext}" />
                                         </i:Interaction.Behaviors>
                                         
                                         
@@ -196,10 +196,32 @@
                                             <MenuFlyout>
                                                 <MenuFlyoutItem Text="{Binding Label}" IsEnabled="False" />
 
-                                                <MenuFlyoutItem Text="フィード登録"
-                                                                Command="{StaticResource AddFeedSourceCommand}"
-                                                                CommandParameter="{Binding FollowItemInfo}"
-                                                                />
+                                                <MenuFlyoutSubItem x:Name="AddSubscriptionButton"
+                                                    Text="購読に追加..."
+                                                    Icon="Add"
+                                                        >
+                                                    <i:Interaction.Behaviors>
+                                                        <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding ElementName=AddSubscriptionButton, Path=Tag.SubscriptionManager.Subscriptions}"
+                                                                        CustomObjectToTag="{Binding Converter={StaticResource SubscriptionSourceConverter}}"
+                                                                        >
+                                                            <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <MenuFlyoutItem Text="{Binding Label}"
+                                                                            Command="{Binding AddSource}"
+                                                                            CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}"
+                                                                            />
+                                                                </DataTemplate>
+                                                            </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
+                                                        </mybehavior:MenuFlyoutSubItemItemsSetter>
+                                                    </i:Interaction.Behaviors>
+
+                                                    <MenuFlyoutItem Text="購読グループを作成..."
+                                                        Command="{StaticResource CreateSubscriptionGroupCommand}"
+                                                        CommandParameter="{Binding Converter={StaticResource SubscriptionSourceConverter}}"
+                                                        />
+
+
+                                                </MenuFlyoutSubItem>
 
                                                 <MenuFlyoutSeparator />
 

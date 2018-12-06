@@ -16,6 +16,20 @@ namespace NicoPlayerHohoema.Views.Behaviors
 {
     public class ListViewBaseItemContextFlyout : Behavior<ListViewBase>
     {
+        public static readonly DependencyProperty CustomObjectToTagProperty =
+            DependencyProperty.Register(
+                nameof(CustomObjectToTag)
+                , typeof(object)
+                , typeof(ListViewBaseItemContextFlyout)
+                , new PropertyMetadata(default(object))
+            );
+
+        public object CustomObjectToTag
+        {
+            get { return (object)GetValue(CustomObjectToTagProperty); }
+            set { SetValue(CustomObjectToTagProperty, value); }
+        }
+
         CoreDispatcher _UIDispatcher;
 
         bool _IsAssignedDataContextToFlyout = false;
@@ -62,7 +76,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
                 var item = AssociatedObject.ItemFromContainer(fe);
                 if (item != null)
                 {
-                    FlyoutSettingDataContext(AssociatedObject.ContextFlyout, item, AssociatedObject.DataContext);
+                    FlyoutSettingDataContext(AssociatedObject.ContextFlyout, item, CustomObjectToTag ?? AssociatedObject.DataContext);
                     e.Handled = true;
                     _IsAssignedDataContextToFlyout = true;
                 }
@@ -73,7 +87,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
                 var dataContext = sourceFe.DataContext;
                 if (dataContext != null)
                 {
-                    FlyoutSettingDataContext(AssociatedObject.ContextFlyout, dataContext, AssociatedObject.DataContext);
+                    FlyoutSettingDataContext(AssociatedObject.ContextFlyout, dataContext, CustomObjectToTag ?? AssociatedObject.DataContext);
                     _IsAssignedDataContextToFlyout = true;
                 }
             }
@@ -87,7 +101,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
                 var item = AssociatedObject.ItemFromContainer(fe);
                 if (item != null)
                 {
-                    FlyoutSettingDataContext(AssociatedObject.ContextFlyout, item, AssociatedObject.DataContext);
+                    FlyoutSettingDataContext(AssociatedObject.ContextFlyout, item, CustomObjectToTag ?? AssociatedObject.DataContext);
                     _IsAssignedDataContextToFlyout = true;
                 }
             }
