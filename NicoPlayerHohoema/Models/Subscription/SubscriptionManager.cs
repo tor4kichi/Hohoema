@@ -169,8 +169,9 @@ namespace NicoPlayerHohoema.Models.Subscription
             .AddTo(disposables)
             ;
 
+            // Resolve SubscriptionSource Label if not valid.
             subscription.Sources.ObserveAddChanged()
-                .DelaySubscription(TimeSpan.FromSeconds(2))
+                .DelaySubscription(TimeSpan.FromSeconds(0.1))
                 .Subscribe(async item => 
                 {
                     if (string.IsNullOrEmpty(item.Label))
@@ -186,6 +187,9 @@ namespace NicoPlayerHohoema.Models.Subscription
                                 subscription.Sources.Add(new SubscriptionSource(label, item.SourceType, item.Parameter));
 
                                 Debug.WriteLine($"購読ソース: {item.Parameter}({item.SourceType}) -> {label}");
+
+                                // ラベル再取得後の動作が並べ替え時に追加通知を抑制する動作と競合することへの対応
+                                _prevRemovedSourceHashId = 0;
                             }
                             else
                             {
@@ -197,6 +201,66 @@ namespace NicoPlayerHohoema.Models.Subscription
                             Debug.WriteLine($"購読ソース: {item.Parameter}({item.SourceType}) のラベル解決に失敗");
                         }
                     }
+
+
+
+                })
+                .AddTo(disposables)
+                ;
+
+
+            // 追加・削除時の通知
+            subscription.Sources.CollectionChangedAsObservable()
+                .Do(e => 
+                {
+                    switch (e.Action)
+                    {
+                        case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
+                            _prevRemovedSourceHashId = ((SubscriptionSource)e.OldItems[0]).GetHashCode();
+                            break;
+                    }
+                })
+                .Throttle(TimeSpan.FromSeconds(0.5))
+                .Subscribe(e => 
+                {
+                    var action = e.Action;
+                    switch (e.Action)
+                    {
+                        case System.Collections.Specialized.NotifyCollectionChangedAction.Add:
+                            var newItem = (SubscriptionSource)e.NewItems[0];
+                            if (newItem.GetHashCode() != _prevRemovedSourceHashId)
+                            {
+                                // Add
+                                (App.Current as App).PublishInAppNotification(
+                                    InAppNotificationPayload.CreateReadOnlyNotification(
+                                        content: $"購読「{subscription.Label} 」に「 {newItem.Label}({newItem.SourceType.ToCulturelizeString()})」を追加",
+                                        showDuration:TimeSpan.FromSeconds(3)
+                                        ));
+                            }
+                            else
+                            {
+                                // Move
+                                // Do nothing.
+                            }
+                            break;
+                        case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
+                            var oldItem = (SubscriptionSource)e.OldItems[0];
+                            (App.Current as App).PublishInAppNotification(
+                                InAppNotificationPayload.CreateReadOnlyNotification(
+                                    content: $"購読「{subscription.Label}」から「{oldItem.Label}({oldItem.SourceType.ToCulturelizeString()})」を削除"
+                                    ));
+                            break;
+                        case System.Collections.Specialized.NotifyCollectionChangedAction.Move:
+                            break;
+                        case System.Collections.Specialized.NotifyCollectionChangedAction.Replace:
+                            break;
+                        case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
+                            break;
+                        default:
+                            break;
+                    }
+
+                    
                 })
                 .AddTo(disposables)
                 ;
@@ -204,6 +268,7 @@ namespace NicoPlayerHohoema.Models.Subscription
             _SubscriptionSubscribeDiposerMap.Add(subscription.Id, disposables);
         }
 
+        int _prevRemovedSourceHashId;
 
         private static async Task<string> ResolveSubscriptionSourceLabel(SubscriptionSource source, NiconicoContentProvider contentProvider)
         {
