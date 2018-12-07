@@ -173,7 +173,6 @@
             <MenuFlyoutSubItem Text="マイリストに追加">
                 <i:Interaction.Behaviors>
                     <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding Mylists}"
-                                                             Owner="{Binding ElementName=VideoOptionsFlyout}"
                                                              >
                         <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
                             <DataTemplate>
@@ -197,7 +196,6 @@
             <MenuFlyoutSubItem Text="ローカルマイリストに追加">
                 <i:Interaction.Behaviors>
                     <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding LocalMylists}"
-                                                             Owner="{Binding ElementName=VideoOptionsFlyout}"
                                                              >
                         <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
                             <DataTemplate>

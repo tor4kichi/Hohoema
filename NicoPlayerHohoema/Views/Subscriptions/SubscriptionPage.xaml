@@ -108,7 +108,6 @@
                   ItemTemplate="{StaticResource SubscriptionTemplate}"
                   CanReorderItems="True"
                   AllowDrop="True"
-                  ContextFlyout="{StaticResource SubscriptionOverViewSettingsFlyout}"
                   ScrollViewer.VerticalScrollMode="Disabled"
                   ScrollViewer.VerticalScrollBarVisibility="Hidden"
                   ScrollViewer.HorizontalScrollMode="Auto"
@@ -118,10 +117,6 @@
                   Margin="8 0"
                       x:Name="SubscriptionsGridView"
                   >
-
-                <i:Interaction.Behaviors>
-                    <mybehavior:ListViewBaseItemContextFlyout />
-                </i:Interaction.Behaviors>
 
                 <GridView.ItemContainerStyle>
                     <Style TargetType="GridViewItem">

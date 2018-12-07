@@ -265,6 +265,10 @@
             </Style>
 
 
+            <DataTemplate x:Key="VideoListItemFlyoutTemplate">
+                <controls:VideoListItemFlyout />
+            </DataTemplate>
+
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">
                     <LinearGradientBrush x:Key="TvHeaderBackgroundBrush"

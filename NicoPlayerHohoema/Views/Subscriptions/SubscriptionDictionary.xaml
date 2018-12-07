@@ -81,27 +81,27 @@
                 
                 
                 <ListView ItemsSource="{Binding Sources}"
-                          ItemTemplateSelector="{StaticResource SubscriptionSourceTypeListViewItemTemplateSelector}"
-                          AllowDrop="True"
-                          CanReorderItems="True"
-                          uwpUiExtension:ListViewBase.Command="{StaticResource OpenSubscriptionSource}"
-                          IsItemClickEnabled="True"
-                          SelectionMode="None"
-                      >
-                    <!-- リストアイテムに対するメニューアクション -->
-                    <i:Interaction.Behaviors>
-                        <mybehavior:ListViewBaseItemContextFlyout />
-                    </i:Interaction.Behaviors>
-                    <ListView.ContextFlyout>
-                        <MenuFlyout>
-                            <MenuFlyoutItem Text="削除"
+                            ItemTemplateSelector="{StaticResource SubscriptionSourceTypeListViewItemTemplateSelector}"
+                            AllowDrop="True"
+                            CanReorderItems="True"
+                            uwpUiExtension:ListViewBase.Command="{StaticResource OpenSubscriptionSource}"
+                            IsItemClickEnabled="True"
+                            SelectionMode="None"
+                          
+                          xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
+                          myExtensions:ListViewBase.ItemContextFlyoutCustomObjectToTag="{Binding}"
+                        >
+
+                    <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
+                        <DataTemplate>
+                            <MenuFlyout>
+                                <MenuFlyoutItem Text="削除"
                                             Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.RemoveSource}"
                                             CommandParameter="{Binding}"
-                                             />
-                        </MenuFlyout>
-                    </ListView.ContextFlyout>
-
-
+                                                />
+                            </MenuFlyout>
+                        </DataTemplate>
+                    </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
 
                     <ListView.Header>
                         <uwpcontrols:ScrollHeader Mode="Sticky">
@@ -256,7 +256,6 @@
 
                                                 <i:Interaction.Behaviors>
                                                     <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding Destinations, Mode=OneWay}"
-                                                                                             Owner="{Binding ElementName=SubscribeSettingFlyout}"
                                                                                              IsRequireInsertSeparaterBetweenDefaultItems="True"
                                                                                              >
                                                         <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
@@ -319,8 +318,5 @@
         </UserControl>
         
     </DataTemplate>
-
-    <MenuFlyout x:Key="SubscriptionOverViewSettingsFlyout">
-    </MenuFlyout>
 
 </ResourceDictionary>

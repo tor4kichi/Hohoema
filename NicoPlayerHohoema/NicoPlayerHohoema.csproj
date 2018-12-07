@@ -413,7 +413,6 @@
     <Compile Include="Views\Actions\ScrollViewerVerticalPositionSettingsAction.cs" />
     <Compile Include="Views\Behaviors\FocusGetter.cs" />
     <Compile Include="Views\Behaviors\AutoHideCursor.cs" />
-    <Compile Include="Views\Behaviors\ListViewBaseItemContextFlyout.cs" />
     <Compile Include="Views\Behaviors\MenuFlyoutItemsSetter.cs" />
     <Compile Include="Views\Behaviors\Swipe.cs" />
     <Compile Include="Views\Behaviors\WhenCompactOverlayTitleBarSetter.cs" />
@@ -457,7 +456,7 @@
     <Compile Include="Views\Converters\PageTypeToMaterialIconKind.cs" />
     <Compile Include="Views\Converters\SwipeSeekValueToTimeSpan.cs" />
     <Compile Include="Views\Converters\ToKMGTPEZYConverter.cs" />
-    <Compile Include="Views\Extensions\FlyoutMenuExtension.cs" />
+    <Compile Include="Views\Extensions\ListViewBase\ItemContextFlyoutTemplate.cs" />
     <Compile Include="Views\Flyouts\FeedSourceFlyout.xaml.cs">
       <DependentUpon>FeedSourceFlyout.xaml</DependentUpon>
     </Compile>

@@ -65,7 +65,6 @@
                     >
         <i:Interaction.Behaviors>
             <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding Mylists}"
-                                                     Owner="{Binding ElementName=VideoListItemMenuFlyout}"
                                                      >
                 <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
                     <DataTemplate>
@@ -87,7 +86,6 @@
                     >
         <i:Interaction.Behaviors>
             <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding LocalMylists}"
-                                                     Owner="{Binding ElementName=VideoListItemMenuFlyout}"
                                                      >
                 <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
                     <DataTemplate>
@@ -111,7 +109,6 @@
 
         <i:Interaction.Behaviors>
             <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding SubscriptionManager.Subscriptions}"
-                                                     Owner="{Binding ElementName=VideoListItemMenuFlyout}"
                                                      CustomObjectToTag="{Binding}"
                                                      >
                 <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>

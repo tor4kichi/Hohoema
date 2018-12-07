@@ -15,28 +15,12 @@ namespace NicoPlayerHohoema.Views.Behaviors
 {
     public class MenuFlyoutSubItemItemsSetter : Behavior<MenuFlyoutSubItem>
     {
-        
-
-        public static readonly DependencyProperty OwnerProperty =
-            DependencyProperty.Register(
-                nameof(Owner)
-                , typeof(MenuFlyout)
-                , typeof(MenuFlyoutSubItemItemsSetter)
-                , new PropertyMetadata(default(MenuFlyout), OnOwnerPropertyChanged)
-            );
-
-        public MenuFlyout Owner
-        {
-            get { return (MenuFlyout)GetValue(OwnerProperty); }
-            set { SetValue(OwnerProperty, value); }
-        }
-
         public static readonly DependencyProperty ItemsSourceProperty =
             DependencyProperty.Register(
                 nameof(ItemsSource)
                 , typeof(IEnumerable)
                 , typeof(MenuFlyoutSubItemItemsSetter)
-                , new PropertyMetadata(Enumerable.Empty<object>(), OnItemsSourcePropertyChanged)
+                , new PropertyMetadata(Enumerable.Empty<object>())
             );
 
         public IEnumerable ItemsSource
@@ -53,7 +37,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
                 nameof(ItemTemplate)
                 , typeof(DataTemplate)
                 , typeof(MenuFlyoutSubItemItemsSetter)
-                , new PropertyMetadata(default(DataTemplate), OnMenuFlyoutItemsSetterPropertyChanged)
+                , new PropertyMetadata(default(DataTemplate))
             );
 
         public DataTemplate ItemTemplate
@@ -71,7 +55,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
                 nameof(CustomObjectToTag)
                 , typeof(object)
                 , typeof(MenuFlyoutSubItemItemsSetter)
-                , new PropertyMetadata(default(object), OnMenuFlyoutItemsSetterPropertyChanged)
+                , new PropertyMetadata(default(object))
             );
 
         public object CustomObjectToTag
@@ -87,7 +71,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
                 nameof(IsRequireInsertSeparaterBetweenDefaultItems)
                 , typeof(bool)
                 , typeof(MenuFlyoutSubItemItemsSetter)
-                , new PropertyMetadata(true, OnMenuFlyoutItemsSetterPropertyChanged)
+                , new PropertyMetadata(true)
             );
 
         /// <summary>
@@ -117,8 +101,13 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
             if (AssociatedObject != null)
             {
-                AssociatedObject.Loading += OnFlyoutOpening;
+                AssociatedObject.Loaded += OnLoaded;
             }
+        }
+
+        protected override void OnDetaching()
+        {
+            base.OnDetaching();
         }
 
         private void ResetItems()
@@ -176,60 +165,14 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         #region Event Handler
 
-        private void OnFlyoutOpening(object sender, object e)
+        private void OnLoaded(object sender, object e)
         {
-            if (IsRequireReset)
-            {
-                ResetItems();
-            }
+            ResetItems();
+
+            AssociatedObject.Loaded -= OnLoaded;
         }
 
-
-        public static void OnOwnerPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
-        {
-            MenuFlyoutSubItemItemsSetter source = (MenuFlyoutSubItemItemsSetter)sender;
-
-            if (args.OldValue is MenuFlyout oldFlyout)
-            {
-                oldFlyout.Opened -= source.OnFlyoutOpening;
-            }
-
-            if (args.NewValue is MenuFlyout newFlyout)
-            {
-                newFlyout.Opened += source.OnFlyoutOpening;
-            }
-
-        }
-
-        public static void OnMenuFlyoutItemsSetterPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
-        {
-            MenuFlyoutSubItemItemsSetter source = (MenuFlyoutSubItemItemsSetter)sender;
-
-            source.IsRequireReset = true;
-        }
-
-        public static void OnItemsSourcePropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
-        {
-            MenuFlyoutSubItemItemsSetter source = (MenuFlyoutSubItemItemsSetter)sender;
-
-            if (args.OldValue is System.Collections.Specialized.INotifyCollectionChanged oldNotifyCollectionChanged)
-            {
-                oldNotifyCollectionChanged.CollectionChanged -= source.OldNotifyCollectionChanged_CollectionChanged;
-            }
-
-            if (args.NewValue is System.Collections.Specialized.INotifyCollectionChanged newNotifyCollectionChanged)
-            {
-                newNotifyCollectionChanged.CollectionChanged += source.OldNotifyCollectionChanged_CollectionChanged;
-            }
-
-            source.IsRequireReset = true;
-        }
-
-        private void OldNotifyCollectionChanged_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            IsRequireReset = true;
-        }
-
+        
         #endregion
     }
 

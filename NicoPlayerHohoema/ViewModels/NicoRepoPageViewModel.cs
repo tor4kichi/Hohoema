@@ -95,6 +95,8 @@ namespace NicoPlayerHohoema.ViewModels
 
     public class NicoRepoVideoTimeline : NicoRepoTimelineVM, Interfaces.IVideoContent
     {
+        public Models.Subscription.SubscriptionManager SubscriptionManager => Models.Subscription.SubscriptionManager.Instance;
+
         public NicoRepoVideoTimeline(NicoRepoTimelineItem timelineItem, NicoRepoItemTopic itemType, HohoemaPlaylist playlist) : base(timelineItem, itemType, playlist)
         {
         }
