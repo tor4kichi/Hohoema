@@ -153,6 +153,16 @@
                                     </FlyoutBase.AttachedFlyout>
                                 </Border>
 
+                                <Border x:Name="UpdatingNoticeLayout" Visibility="Collapsed"
+                                        VerticalAlignment="Top"
+                                        >
+                                    <ProgressBar x:Name="UpdatingProgressBar" 
+                                                     IsIndeterminate="False"
+                                                 Maximum="{Binding UpdateTargetCount}"
+                                                 Value="{Binding UpdateCompletedCount}"
+                                                     />
+                                </Border>
+
 
                                 <CommandBar >
                                     <CommandBar.PrimaryCommands>
@@ -175,6 +185,7 @@
                                             <TextBlock Text="{Binding Label, Mode=OneWay}" 
                                                Style="{StaticResource SubtitleTextBlockStyle}"
                                                VerticalAlignment="Center"
+                                                       Margin="0 0 0 4"
                                                x:Name="SubscriptionLabelTextBlock"
                                                IsDoubleTapEnabled="True"
                                            >
@@ -308,6 +319,40 @@
                         <VisualState>
                             <VisualState.Setters>
                                 <Setter Target="AddSubscriptionSourceButton.Visibility" Value="Collapsed" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+
+
+                    <VisualStateGroup x:Name="SubscriptionStatusVisualStateGroup">
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <myTrigger:EqualConditionStateTrigger Value="{Binding Status}" Condition="UpdatePending" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="UpdatingNoticeLayout.Visibility" Value="Visible" />
+
+                                <Setter Target="UpdatingProgressBar.IsIndeterminate" Value="True" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <myTrigger:EqualConditionStateTrigger Value="{Binding Status}" Condition="NowUpdating" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="UpdatingNoticeLayout.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <myTrigger:EqualConditionStateTrigger Value="{Binding Status}" Condition="Complete" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="UpdatingNoticeLayout.Visibility" Value="Collapsed" />
+
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>

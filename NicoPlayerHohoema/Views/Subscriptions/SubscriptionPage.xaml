@@ -100,6 +100,7 @@
                     </AppBarButton>
 
                 </CommandBar.PrimaryCommands>
+
             </CommandBar>
 
 
@@ -186,6 +187,7 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
+            
         </VisualStateManager.VisualStateGroups>
 
 

@@ -22,7 +22,7 @@ namespace NicoPlayerHohoema.Models.Subscription
     {
         public static WatchItLater Instance { get; } = new WatchItLater(SubscriptionManager.Instance);
 
-
+        public Models.NiconicoContentProvider ContentProvider { get; set; }
 
 
         public static readonly TimeSpan DefaultAutoUpdateInterval = TimeSpan.FromMinutes(15);
@@ -138,8 +138,8 @@ namespace NicoPlayerHohoema.Models.Subscription
 
                 Debug.WriteLine("購読自動更新をリセット: " + AutoUpdateInterval.ToString());
 
-                _autoUpdateDisposer = Observable.Interval(AutoUpdateInterval)
-                    .Subscribe(async _ => 
+                _autoUpdateDisposer = Observable.Timer(TimeSpan.FromSeconds(5), AutoUpdateInterval)
+                    .Subscribe(async _ =>
                     {
                         Debug.WriteLine("購読自動更新 処理開始");
 
@@ -167,29 +167,38 @@ namespace NicoPlayerHohoema.Models.Subscription
             {
                 NewItemsPerPlayableList.Clear();
 
+                // 視聴履歴を取得して再生済み動画の情報を更新する
+                _ = ContentProvider?.GetHistory();
+
 #if true
                 // TODO: 前回更新時間から15分以上経っているか確認
                 return _SubscriptionManager.GetSubscriptionFeedResultAsObservable(withoutDisabled: true)
                     .Subscribe(info =>
                     {
+                        Debug.WriteLine($"購読 {info.Subscription.Label} - {info.Source?.Label}");
+
                         if (!info.Subscription.IsEnabled)
                         {
-                            Debug.WriteLine($"購読 {info.Subscription.Label} - {info.Source.Label} の通知をスキップ（理由：自動更新が無効）");
+                            Debug.WriteLine($"購読 {info.Subscription.Label} - {info.Source?.Label} の通知をスキップ（理由：自動更新が無効）");
                             return;
                         }
 
                         if (info.IsFirstUpdate)
                         {
-                            Debug.WriteLine($"購読 {info.Subscription.Label} - {info.Source.Label} の通知をスキップ（理由：初回更新）");
+                            Debug.WriteLine($"購読 {info.Subscription.Label} - {info.Source?.Label} の通知をスキップ（理由：初回更新）");
                             return;
                         }
 
                         if (info.NewFeedItems?.Any() ?? false)
                         {
                             // NGキーワードを含むタイトルの動画を取り除いて
-                            var filterdNewItems = info.NewFeedItems.Where(x => !info.Subscription.IsContainDoNotNoticeKeyword(x.Title)).ToList();
+                            var filterdNewItems = info.NewFeedItems
+                            .Where(x => !WatchItLater.IsVideoPlayed(x.VideoId))
+                            .Where(x => !info.Subscription.IsContainDoNotNoticeKeyword(x.Title))
+                            .ToList()
+                            ;
 
-                            Debug.WriteLine($"{info.Subscription.Label} - {info.Source.Label} -> {string.Join(",", filterdNewItems.Select(x => x.RawVideoId))}");
+                            Debug.WriteLine($"{info.Subscription.Label} - {info.Source?.Label} -> {string.Join(",", filterdNewItems.Select(x => x.RawVideoId))}");
 
                             // 新着動画を対象プレイリストに追加
                             WatchItLater.NewVideosAddToDestinations(info.Subscription.Destinations, filterdNewItems);
@@ -229,7 +238,7 @@ namespace NicoPlayerHohoema.Models.Subscription
         private Dictionary<IPlayableList, Tuple<IList<Database.NicoVideo>, IList<Subscription>>> NewItemsPerPlayableList = new Dictionary<IPlayableList, Tuple<IList<Database.NicoVideo>, IList<Subscription>>>();
         
 
-        private void ShowNewVideosToastNotification(Subscription subscription, SubscriptionSource source, IEnumerable<Database.NicoVideo> newItems)
+        private void ShowNewVideosToastNotification(Subscription subscription, SubscriptionSource? source, IEnumerable<Database.NicoVideo> newItems)
         {
             var hohoemaPlaylist = (App.Current as App).Container.Resolve<HohoemaPlaylist>();
             var mylistMan = (App.Current as App).Container.Resolve<UserMylistManager>();
@@ -389,11 +398,17 @@ namespace NicoPlayerHohoema.Models.Subscription
 
                     foreach (var video in newItems)
                     {
-                        userMylist.Registration(video.RawVideoId);
+                        _ = userMylist.Registration(video.RawVideoId);
                     }
                 }
             }
         }
 
+
+
+        private static bool IsVideoPlayed(string videoId)
+        {
+            return Database.VideoPlayedHistoryDb.IsVideoPlayed(videoId);
+        }
     }
 }

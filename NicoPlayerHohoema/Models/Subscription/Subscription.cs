@@ -118,10 +118,24 @@ namespace NicoPlayerHohoema.Models.Subscription
             }
         }
 
-        
 
 
-        private SubscriptionUpdateStatus _Status = SubscriptionUpdateStatus.Ready;
+        private int _UpdateTargetCount;
+        public int UpdateTargetCount
+        {
+            get { return _UpdateTargetCount; }
+            internal set { SetProperty(ref _UpdateTargetCount, value); }
+        }
+
+        private int _UpdateCompletedCount;
+        public int UpdateCompletedCount
+        {
+            get { return _UpdateCompletedCount; }
+            internal set { SetProperty(ref _UpdateCompletedCount, value); }
+        }
+
+
+        private SubscriptionUpdateStatus _Status = SubscriptionUpdateStatus.Complete;
         public SubscriptionUpdateStatus Status
         {
             get { return _Status; }

@@ -116,40 +116,112 @@
                 </ListView.ItemContainerStyle>
                 <ListView.ItemTemplate>
                     <DataTemplate x:DataType="subscription:Subscription">
-                        <toolkit:DockPanel>
+                        <UserControl>
+                            <Grid>
+                                <toolkit:DockPanel>
+                                    <StackPanel toolkit:DockPanel.Dock="Right"
+                                                Orientation="Horizontal"
+                                                >
 
-                            <iconPack:PackIconMaterial toolkit:DockPanel.Dock="Right"
-                                Kind="ArrowRight" Opacity="0.5"
-                                                       VerticalAlignment="Center"
+                                        <Grid x:Name="UpdatingNoticeLayout" Visibility="Collapsed"
+                                                    VerticalAlignment="Center"
+                                              Margin="8 0"
+                                                    >
+                                            <uwpcontrols:RadialProgressBar 
+                                                    x:Name="UpdatingProgressBar" 
+                                                     IsIndeterminate="False"
+                                                     Maximum="{Binding UpdateTargetCount}"
+                                                     Value="{Binding UpdateCompletedCount}"
+                                                    Height="32"
+                                                    Width="32"
+                                                    VerticalAlignment="Center"
+                                                Visibility="Collapsed"
+                                                     />
+
+                                            <ProgressRing
+                                                    x:Name="UpdatingProgressRing" 
+                                                     IsActive="False"
+                                                    Visibility="Collapsed"
+                                                    Height="32"
+                                                    Width="32"
+                                                    VerticalAlignment="Center"
+                                                     />
+                                        </Grid>
+
+                                        <iconPack:PackIconMaterial Kind="ArrowRight" Opacity="0.5"
+                                                        VerticalAlignment="Center"
                                                        />
+                                    </StackPanel>
 
-                            <ItemsControl toolkit:DockPanel.Dock="Bottom"
+                                    <ItemsControl toolkit:DockPanel.Dock="Bottom"
                                           ItemsSource="{Binding Sources}"
                                           ItemTemplateSelector="{StaticResource SubscriptionSourceTypeListViewItemTemplateSelector}"
                                           Margin="0 4 0 0"
                                           >
-                                <ItemsControl.ItemContainerStyle>
-                                    <Style TargetType="ContentPresenter">
-                                        <Setter Property="Opacity" Value="0.7" />
-                                        <Setter Property="RenderTransform">
-                                            <Setter.Value>
-                                                <ScaleTransform ScaleX="0.65" ScaleY="0.65" />
-                                            </Setter.Value>
-                                        </Setter>
-                                    </Style>
-                                </ItemsControl.ItemContainerStyle>
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <uwpcontrols:WrapPanel Orientation="Horizontal" />
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                            </ItemsControl>
-                            
-                            <TextBlock Text="{Binding Label}"
-                                   VerticalAlignment="Center"
-                                   />
+                                        <ItemsControl.ItemContainerStyle>
+                                            <Style TargetType="ContentPresenter">
+                                                <Setter Property="Opacity" Value="0.7" />
+                                                <Setter Property="RenderTransform">
+                                                    <Setter.Value>
+                                                        <ScaleTransform ScaleX="0.65" ScaleY="0.65" />
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </Style>
+                                        </ItemsControl.ItemContainerStyle>
+                                        <ItemsControl.ItemsPanel>
+                                            <ItemsPanelTemplate>
+                                                <uwpcontrols:WrapPanel Orientation="Horizontal" />
+                                            </ItemsPanelTemplate>
+                                        </ItemsControl.ItemsPanel>
+                                    </ItemsControl>
 
-                        </toolkit:DockPanel>
+                                    <TextBlock Text="{Binding Label}"
+                                       VerticalAlignment="Center"
+                                       />
+                                </toolkit:DockPanel>
+
+                                <VisualStateManager.VisualStateGroups>
+                                    <VisualStateGroup x:Name="SubscriptionStatusVisualStateGroup_Mobile">
+                                        <VisualState>
+                                            <VisualState.StateTriggers>
+                                                <mytrigger:EqualConditionStateTrigger Value="{Binding Status}" Condition="UpdatePending" />
+                                            </VisualState.StateTriggers>
+
+                                            <VisualState.Setters>
+                                                <Setter Target="UpdatingNoticeLayout.Visibility" Value="Visible" />
+
+                                                <Setter Target="UpdatingProgressRing.Visibility" Value="Visible" />
+
+                                                <Setter Target="UpdatingProgressRing.IsActive" Value="True" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState>
+                                            <VisualState.StateTriggers>
+                                                <mytrigger:EqualConditionStateTrigger Value="{Binding Status}" Condition="NowUpdating" />
+                                            </VisualState.StateTriggers>
+
+                                            <VisualState.Setters>
+                                                <Setter Target="UpdatingNoticeLayout.Visibility" Value="Visible" />
+                                                <Setter Target="UpdatingProgressBar.Visibility" Value="Visible" />
+
+                                                <Setter Target="UpdatingProgressBar.IsIndeterminate" Value="True" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState>
+                                            <VisualState.StateTriggers>
+                                                <mytrigger:EqualConditionStateTrigger Value="{Binding Status}" Condition="Complete" />
+                                            </VisualState.StateTriggers>
+
+                                            <VisualState.Setters>
+
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateManager.VisualStateGroups>
+                            </Grid>
+                            
+                        </UserControl>
+                        
                     </DataTemplate>
                 </ListView.ItemTemplate>
 
@@ -223,6 +295,8 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
+
+            
         </VisualStateManager.VisualStateGroups>
     </Grid>
 </Page>

@@ -398,19 +398,64 @@ namespace NicoPlayerHohoema.Models.Subscription
 
         #region Feed Result
 
+        static readonly Action<Subscription, int> SetSubscriptionStatusToPendingOnUI = (subsc, updateTargetCount) =>
+        {
+            _ = HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                if (SubscriptionUpdateStatus.UpdatePending == subsc.Status) { return; }
+
+                subsc.UpdateTargetCount = updateTargetCount;
+                subsc.UpdateCompletedCount = 0;
+                subsc.Status = SubscriptionUpdateStatus.UpdatePending;
+
+                Debug.WriteLine($"{subsc.Label} : {subsc.Status}");
+            });
+        };
+        static readonly Action<Subscription> SetSubscriptionStatusToUpdatingOnUI = (subsc) =>
+        {
+            _ = HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+            {
+                if (SubscriptionUpdateStatus.NowUpdating == subsc.Status) { return; }
+
+                subsc.Status = SubscriptionUpdateStatus.NowUpdating;
+
+                Debug.WriteLine($"{subsc.Label} : {subsc.Status}");
+            });
+        };
+
+        static readonly Action<Subscription> SetSubscriptionUpdateCompletedOnUI = (subsc) =>
+        {
+            _ = HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+            {
+                if (SubscriptionUpdateStatus.Complete == subsc.Status) { return; }
+
+                subsc.UpdateCompletedCount++;
+
+                if (subsc.UpdateCompletedCount >= subsc.UpdateTargetCount)
+                {
+                    await Task.Delay(TimeSpan.FromSeconds(1));
+
+                    subsc.Status = SubscriptionUpdateStatus.Complete;
+                }
+
+                Debug.WriteLine($"{subsc.Label} : {subsc.Status}");
+            });
+        };
 
         AsyncLock _FeedResultLock = new AsyncLock();
 
         public IObservable<SubscriptionUpdateInfo> GetSubscriptionFeedResultAsObservable(bool withoutDisabled = false)
         {
-            if (withoutDisabled)
+            var targetSubscriptions = withoutDisabled
+                ? Subscriptions.Where(x => x.IsEnabled)
+                : Subscriptions;
+
+            foreach (var subsc in targetSubscriptions)
             {
-                return Observable.Concat(Subscriptions.Where(x => x.IsEnabled).Select(x => GetSubscriptionFeedResultAsObservable(x)));
+                SetSubscriptionStatusToPendingOnUI(subsc, subsc.Sources.Count);
             }
-            else
-            {
-                return Observable.Concat(Subscriptions.Select(x => GetSubscriptionFeedResultAsObservable(x)));
-            }
+
+            return Observable.Concat(targetSubscriptions.Select(x => GetSubscriptionFeedResultAsObservable(x)));
         }
 
         public IObservable<SubscriptionUpdateInfo> GetSubscriptionFeedResultAsObservable(Subscription subscription)
@@ -422,22 +467,37 @@ namespace NicoPlayerHohoema.Models.Subscription
         {
             ThrowExceptionIfNotInitialized();
 
+            if (!Helpers.InternetConnection.IsInternet())
+            {
+                subscription.Status = SubscriptionUpdateStatus.Complete;
+                return Observable.Empty<SubscriptionUpdateInfo>();
+            }
+
             var subscriptionAndSourceSets = subscription.Sources
                 .Where(x => sources.Any(y => x.SourceType == y.SourceType && x.Parameter == y.Parameter))
-                .Select(source => new { subscription, source });
+                .Select(source => new { subscription, source })
+                .ToArray();
 
-            return subscriptionAndSourceSets.ToObservable()
+            SetSubscriptionStatusToPendingOnUI(subscription, subscriptionAndSourceSets.Length);
+
+            var count = 0;
+            return Observable.Timer(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(3))
+                    .Select(_ => count++)
+                    .Take(subscriptionAndSourceSets.Length)
+                    .Select(x => subscriptionAndSourceSets[x])
                     .SelectMany(async x =>
                     {
                         using (var releaser = await _FeedResultLock.LockAsync())
                         {
-                            await Task.Delay(TimeSpan.FromSeconds(3));
+                            SetSubscriptionStatusToUpdatingOnUI(x.subscription);
 
-                            return await GetFeedResult(x.subscription, x.source);
+                            var info = await GetFeedResult(x.subscription, x.source);
+                            AddOrUpdateFeedResult(ref info);
+
+                            SetSubscriptionUpdateCompletedOnUI(subscription);
+                            return info;
                         }
-                    })
-                    .Do(info => AddOrUpdateFeedResult(ref info))
-                ;
+                    });
         }
 
         private async Task<SubscriptionUpdateInfo> GetFeedResult(Subscription subscription, SubscriptionSource source)
@@ -484,7 +544,7 @@ namespace NicoPlayerHohoema.Models.Subscription
                 Source = source,
                 FeedItems = items,
                 NewFeedItems = newItems,
-                IsFirstUpdate = isFirstUpdate
+                IsFirstUpdate = isFirstUpdate,
             };
             
         }
@@ -497,7 +557,7 @@ namespace NicoPlayerHohoema.Models.Subscription
         {
             var id = uint.Parse(userId);
             List<Database.NicoVideo> items = new List<Database.NicoVideo>();
-            uint page = 0;
+            uint page = 1;
             
             var res = await _ContentProvider.GetUserVideos(id, page);
 
@@ -646,7 +706,7 @@ namespace NicoPlayerHohoema.Models.Subscription
             return items;
         }
 
-#endregion
+        #endregion
 
 
 

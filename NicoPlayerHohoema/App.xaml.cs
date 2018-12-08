@@ -703,7 +703,7 @@ namespace NicoPlayerHohoema
 
             // サブスクリプション（動画の新着自動チェック機能）の初期化
             Models.Subscription.SubscriptionManager.Initialize(hohoemaApp.ContentProvider);
-
+            Models.Subscription.WatchItLater.Instance.ContentProvider = hohoemaApp.ContentProvider;
 
             // ViewModels
             Container.RegisterType<ViewModels.RankingCategoryListPageViewModel>(new ContainerControlledLifetimeManager());

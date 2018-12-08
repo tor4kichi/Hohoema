@@ -2,9 +2,9 @@
 {
     public enum SubscriptionUpdateStatus
     {
-        Ready,
-        PendingUpdate,
+        UpdatePending,
         NowUpdating,
+        Complete,
     }
 
 }
