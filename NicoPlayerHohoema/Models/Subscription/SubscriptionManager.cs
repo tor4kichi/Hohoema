@@ -97,7 +97,7 @@ namespace NicoPlayerHohoema.Models.Subscription
             Instance = new SubscriptionManager(storedSubscriptions);
         }
 
-        
+
         #endregion
 
 
@@ -116,7 +116,7 @@ namespace NicoPlayerHohoema.Models.Subscription
             Subscriptions = new ObservableCollection<Subscription>(storedSubscriptions);
 
             Subscriptions.CollectionChangedAsObservable()
-                .Subscribe(arg => 
+                .Subscribe(arg =>
                 {
                     switch (arg.Action)
                     {
@@ -151,7 +151,7 @@ namespace NicoPlayerHohoema.Models.Subscription
                             break;
                     }
                 });
-                
+
             foreach (var firstItem in storedSubscriptions)
             {
                 SubscribeSubscriptionChanged(firstItem);
@@ -208,7 +208,7 @@ namespace NicoPlayerHohoema.Models.Subscription
         private void SubscribeSubscriptionChanged(Subscription subscription)
         {
             CompositeDisposable disposables = new CompositeDisposable();
-            new[] 
+            new[]
             {
                 subscription.Sources.ToCollectionChanged().ToUnit(),
                 subscription.Destinations.ToCollectionChanged().ToUnit(),
@@ -227,21 +227,27 @@ namespace NicoPlayerHohoema.Models.Subscription
             // Resolve SubscriptionSource Label if not valid.
             subscription.Sources.ObserveAddChanged()
                 .DelaySubscription(TimeSpan.FromSeconds(0.1))
-                .Subscribe(async item => 
+                .Subscribe(async item =>
                 {
-                    if (string.IsNullOrEmpty(item.Label))
+                    // ラベルが空の場合は名前を解決
+                    // マイリストの場合は保有者名をOptionalLabelとして取得するよう追加判定
+                    if (string.IsNullOrEmpty(item.Label) || (item.SourceType == SubscriptionSourceType.Mylist && string.IsNullOrEmpty(item.OptionalLabel)))
                     {
                         try
                         {
                             Debug.WriteLine($"購読ソース: {item.Parameter}({item.SourceType}) のラベルが無いのでオンラインから取得します。");
-                            var label = await SubscriptionManager.ResolveSubscriptionSourceLabel(item, _ContentProvider);
+                            var tuple = await SubscriptionManager.ResolveSubscriptionSourceLabel(item, _ContentProvider);
 
-                            if (!string.IsNullOrEmpty(label))
+                            
+                            if (tuple != null)
                             {
-                                subscription.Sources.Remove(item);
-                                subscription.Sources.Add(new SubscriptionSource(label, item.SourceType, item.Parameter));
+                                var label = tuple.Item1;
+                                var optionLabel = tuple.Item2;
 
-                                Debug.WriteLine($"購読ソース: {item.Parameter}({item.SourceType}) -> {label}");
+                                subscription.Sources.Remove(item);
+                                subscription.Sources.Add(new SubscriptionSource(label, item.SourceType, item.Parameter, optionLabel));
+
+                                Debug.WriteLine($"購読ソース: {item.Parameter}({item.SourceType}) -> {label}/{optionLabel}");
 
                                 // ラベル再取得後の動作が並べ替え時に追加通知を抑制する動作と競合することへの対応
                                 _prevRemovedSourceHashId = 0;
@@ -266,7 +272,7 @@ namespace NicoPlayerHohoema.Models.Subscription
 
             // 追加・削除時の通知
             subscription.Sources.CollectionChangedAsObservable()
-                .Do(e => 
+                .Do(e =>
                 {
                     switch (e.Action)
                     {
@@ -276,7 +282,7 @@ namespace NicoPlayerHohoema.Models.Subscription
                     }
                 })
                 .Throttle(TimeSpan.FromSeconds(0.5))
-                .Subscribe(e => 
+                .Subscribe(e =>
                 {
                     var action = e.Action;
                     switch (e.Action)
@@ -289,7 +295,7 @@ namespace NicoPlayerHohoema.Models.Subscription
                                 (App.Current as App).PublishInAppNotification(
                                     InAppNotificationPayload.CreateReadOnlyNotification(
                                         content: $"購読「{subscription.Label} 」に「 {newItem.Label}({newItem.SourceType.ToCulturelizeString()})」を追加",
-                                        showDuration:TimeSpan.FromSeconds(3)
+                                        showDuration: TimeSpan.FromSeconds(3)
                                         ));
                             }
                             else
@@ -315,7 +321,7 @@ namespace NicoPlayerHohoema.Models.Subscription
                             break;
                     }
 
-                    
+
                 })
                 .AddTo(disposables)
                 ;
@@ -325,23 +331,25 @@ namespace NicoPlayerHohoema.Models.Subscription
 
         int _prevRemovedSourceHashId;
 
-        private static async Task<string> ResolveSubscriptionSourceLabel(SubscriptionSource source, NiconicoContentProvider contentProvider)
+        private static async Task<Tuple<string, string>> ResolveSubscriptionSourceLabel(SubscriptionSource source, NiconicoContentProvider contentProvider)
         {
             switch (source.SourceType)
             {
                 case SubscriptionSourceType.User:
                     var info = await contentProvider.GetUserInfo(source.Parameter);
-                    return info.Nickname;
+                    return new Tuple<string, string>(info.Nickname, null);
                 case SubscriptionSourceType.Channel:
                     var channelInfo = await contentProvider.GetChannelInfo(source.Parameter);
-                    return channelInfo.Name;
+                    return new Tuple<string, string>(channelInfo.Name, null);
                 case SubscriptionSourceType.Mylist:
                     var mylistInfo = await contentProvider.GetMylistGroupDetail(source.Parameter);
-                    return mylistInfo.MylistGroup.Name;
+                    var mylistOwner = await contentProvider.GetUserInfo(mylistInfo.MylistGroup.UserId);
+
+                    return new Tuple<string, string>(mylistInfo.MylistGroup.Name, mylistOwner.Nickname);
                 case SubscriptionSourceType.TagSearch:
-                    return source.Parameter;
+                    return new Tuple<string, string>(source.Parameter, null);
                 case SubscriptionSourceType.KeywordSearch:
-                    return source.Parameter;
+                    return new Tuple<string, string>(source.Parameter, null);
                 default:
                     break;
             }

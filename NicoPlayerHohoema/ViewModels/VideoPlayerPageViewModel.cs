@@ -305,7 +305,7 @@ namespace NicoPlayerHohoema.ViewModels
         Database.NicoVideo _VideoInfo;
 
 
-        public Models.Subscription.SubscriptionSource? SubscriptionSource => this._VideoInfo?.Owner != null ? (new Models.Subscription.SubscriptionSource(_VideoInfo.Owner.ScreenName, _VideoInfo.Owner.UserType == Mntone.Nico2.Videos.Thumbnail.UserType.User ? Models.Subscription.SubscriptionSourceType.User : Models.Subscription.SubscriptionSourceType.Channel, _VideoInfo.Owner.OwnerId)) : default(Models.Subscription.SubscriptionSource?);
+        public Models.Subscription.SubscriptionSource? SubscriptionSource => this._VideoInfo?.Owner != null ? (new Models.Subscription.SubscriptionSource(_VideoInfo.Owner.ScreenName, _VideoInfo.Owner.UserType == Mntone.Nico2.Videos.Thumbnail.UserType.User ? Models.Subscription.SubscriptionSourceType.User : Models.Subscription.SubscriptionSourceType.Channel, _VideoInfo.Owner.OwnerId)) : default(Models.Subscription.SubscriptionSource);
         public Models.Subscription.SubscriptionManager SubscriptionManager => Models.Subscription.SubscriptionManager.Instance;
 
 

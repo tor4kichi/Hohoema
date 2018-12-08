@@ -13,6 +13,7 @@ namespace NicoPlayerHohoema.Database.Local.Subscription
         public int Id { get; set; }
 
         public string Label { get; set; }
+        public string OptionalLabel { get; set; }
         public Models.Subscription.SubscriptionSourceType SourceType { get; set; }
         public string Parameter { get; set; }
     }
@@ -64,7 +65,7 @@ namespace NicoPlayerHohoema.Database.Local.Subscription
 
                     foreach (var source in x.Sources ?? Enumerable.Empty<SubsciptionSourceData>())
                     {
-                        subsc.Sources.Add(new Models.Subscription.SubscriptionSource(source.Label, source.SourceType, source.Parameter));
+                        subsc.Sources.Add(new Models.Subscription.SubscriptionSource(source.Label, source.SourceType, source.Parameter, source.OptionalLabel));
                     }
 
                     foreach (var dest in x.Destinations ?? Enumerable.Empty<SubscriptionDestinationData>())
@@ -96,6 +97,7 @@ namespace NicoPlayerHohoema.Database.Local.Subscription
             data.Sources = subscription.Sources.Select(x => new SubsciptionSourceData()
             {
                 Label = x.Label,
+                OptionalLabel = x.OptionalLabel,
                 SourceType = x.SourceType,
                 Parameter = x.Parameter
             })

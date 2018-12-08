@@ -167,7 +167,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-        public Models.Subscription.SubscriptionSource SubscriptionSource => new Models.Subscription.SubscriptionSource(SearchOption.Keyword, Models.Subscription.SubscriptionSourceType.TagSearch, SearchOption.Keyword);
+        public Models.Subscription.SubscriptionSource? SubscriptionSource => new Models.Subscription.SubscriptionSource(SearchOption.Keyword, Models.Subscription.SubscriptionSourceType.TagSearch, SearchOption.Keyword);
         public Models.Subscription.SubscriptionManager SubscriptionManager => Models.Subscription.SubscriptionManager.Instance;
 
 

@@ -204,7 +204,7 @@ namespace NicoPlayerHohoema.Models.Subscription
                             WatchItLater.NewVideosAddToDestinations(info.Subscription.Destinations, filterdNewItems);
 
                             // トースト通知を発行
-                            ShowNewVideosToastNotification(info.Subscription, info.Source, info.NewFeedItems);
+                            ShowNewVideosToastNotification(info.Subscription, info.Source.Value, info.NewFeedItems);
                         }
                     });
 #else
@@ -238,7 +238,7 @@ namespace NicoPlayerHohoema.Models.Subscription
         private Dictionary<IPlayableList, Tuple<IList<Database.NicoVideo>, IList<Subscription>>> NewItemsPerPlayableList = new Dictionary<IPlayableList, Tuple<IList<Database.NicoVideo>, IList<Subscription>>>();
         
 
-        private void ShowNewVideosToastNotification(Subscription subscription, SubscriptionSource? source, IEnumerable<Database.NicoVideo> newItems)
+        private void ShowNewVideosToastNotification(Subscription subscription, SubscriptionSource source, IEnumerable<Database.NicoVideo> newItems)
         {
             var hohoemaPlaylist = (App.Current as App).Container.Resolve<HohoemaPlaylist>();
             var mylistMan = (App.Current as App).Container.Resolve<UserMylistManager>();

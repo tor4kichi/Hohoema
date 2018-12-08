@@ -26,31 +26,73 @@ namespace NicoPlayerHohoema.Views.Behaviors
         }
 
 
+
+        public static readonly DependencyProperty TargetFlyoutProperty =
+           DependencyProperty.Register(nameof(TargetFlyout)
+                   , typeof(FlyoutBase)
+                   , typeof(OpenFlyout)
+                   , new PropertyMetadata(default(FlyoutBase))
+               );
+
+        public FlyoutBase TargetFlyout
+        {
+            get { return (FlyoutBase)GetValue(TargetFlyoutProperty); }
+            set { SetValue(TargetFlyoutProperty, value); }
+        }
+
+
+        public static readonly DependencyProperty DataContextProperty =
+           DependencyProperty.Register(nameof(DataContext)
+                   , typeof(object)
+                   , typeof(OpenFlyout)
+                   , new PropertyMetadata(default(object))
+               );
+
+        public object DataContext
+        {
+            get { return (object)GetValue(DataContextProperty); }
+            set { SetValue(DataContextProperty, value); }
+        }
+
+        public static readonly DependencyProperty ShowAtProperty =
+           DependencyProperty.Register(nameof(ShowAt)
+                   , typeof(FrameworkElement)
+                   , typeof(OpenFlyout)
+                   , new PropertyMetadata(default(FrameworkElement))
+               );
+
+        public FrameworkElement ShowAt
+        {
+            get { return (FrameworkElement)GetValue(ShowAtProperty); }
+            set { SetValue(ShowAtProperty, value); }
+        }
+
+
+
         public object Execute(object sender, object parameter)
 		{
             var feSender = TargetFlyoutOwner ?? sender as FrameworkElement;
-            var flyout = FlyoutBase.GetAttachedFlyout(feSender);
-			if (flyout != null)
+            var flyout = TargetFlyout ?? FlyoutBase.GetAttachedFlyout(feSender);
+            var dataContext = DataContext ?? feSender.DataContext;
+
+            if (flyout != null)
 			{
                 if (flyout is Windows.UI.Xaml.Controls.Flyout fo)
                 {
                     if (fo.Content is FrameworkElement flyoutContent)
                     {
-                        flyoutContent.DataContext = feSender.DataContext;
+                        flyoutContent.DataContext = dataContext;
                     }
                 }
                 else if (flyout is Windows.UI.Xaml.Controls.MenuFlyout mf)
                 {
                     foreach (var menuFlyoutItem in mf.Items)
                     {
-                        menuFlyoutItem.DataContext = feSender.DataContext;
+                        menuFlyoutItem.DataContext = dataContext;
                     }
                 }
 
-
-
-                FlyoutBase.ShowAttachedFlyout(feSender);
-               
+                flyout.ShowAt(ShowAt ?? feSender);               
             }
 
             return true;

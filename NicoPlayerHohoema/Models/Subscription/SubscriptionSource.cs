@@ -1,19 +1,23 @@
-﻿namespace NicoPlayerHohoema.Models.Subscription
+﻿
+namespace NicoPlayerHohoema.Models.Subscription
 {
     public struct SubscriptionSource 
     {
-        public string Label { get; set; }
         public SubscriptionSourceType SourceType { get; }
         public string Parameter { get; }
 
-        public SubscriptionSource(string label, SubscriptionSourceType sourceType, string parameter)
+        public string Label { get; }
+
+        public string OptionalLabel { get; }
+
+        public SubscriptionSource(string label, SubscriptionSourceType sourceType, string parameter, string optionalLabel = null)
         {
             _HashCode = null;
 
             Label = label;
             SourceType = sourceType;
             Parameter = parameter;
-
+            OptionalLabel = optionalLabel;
         }
 
         public override bool Equals(object obj)

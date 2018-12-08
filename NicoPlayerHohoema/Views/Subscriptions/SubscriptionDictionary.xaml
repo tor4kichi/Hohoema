@@ -49,10 +49,21 @@
         </templateselector:ValueDataTemplate>
         <templateselector:ValueDataTemplate Value="Mylist">
             <DataTemplate>
-                <StackPanel Orientation="Horizontal">
-                    <SymbolIcon Symbol="List" Margin="0 0 8 0" />
+                <uwpcontrols:DockPanel>
+                    <SymbolIcon Symbol="List" Margin="0 1 8 0" uwpcontrols:DockPanel.Dock="Left" 
+                                VerticalAlignment="Top"
+                                />
+
+                    <TextBlock uwpcontrols:DockPanel.Dock="Bottom"
+                                Text="{Binding OptionalLabel}"
+                               Foreground="{StaticResource ApplicationSecondaryForegroundThemeBrush}"
+                               FontSize="12"
+                               />
+
                     <TextBlock Text="{Binding Label}" />
-                </StackPanel>
+
+
+                </uwpcontrols:DockPanel>
             </DataTemplate>
         </templateselector:ValueDataTemplate>
 
@@ -78,8 +89,6 @@
         <UserControl>
             <Grid x:Name="SubscriptionItemLayoutRoot">
 
-                
-                
                 <ListView ItemsSource="{Binding Sources}"
                             ItemTemplateSelector="{StaticResource SubscriptionSourceTypeListViewItemTemplateSelector}"
                             AllowDrop="True"
@@ -94,7 +103,14 @@
 
                     <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
                         <DataTemplate>
-                            <MenuFlyout>
+                            <MenuFlyout x:Name="MenuFlyout">
+                                <MenuFlyoutItem Text="{Binding Label}" IsEnabled="False"
+                                                />
+                                <MenuFlyoutItem Text="{Binding OptionalLabel}" IsEnabled="False"
+                                                Visibility="{Binding OptionalLabel, Converter={StaticResource NotNullToVisibility}}"
+                                                />
+
+
                                 <MenuFlyoutItem Text="削除"
                                             Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.RemoveSource}"
                                             CommandParameter="{Binding}"
