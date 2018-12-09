@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Windows.System;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
+using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Markup;
 
 namespace NicoPlayerHohoema.Views.Behaviors
@@ -98,6 +99,52 @@ namespace NicoPlayerHohoema.Views.Behaviors
         // Using a DependencyProperty as the backing store for Key.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty IsEnableUINavigationButtonsProperty =
             DependencyProperty.Register("IsEnableUINavigationButtons", typeof(bool), typeof(KeyboardTrigger), new PropertyMetadata(false));
+
+
+
+
+        bool _NowFocusing_OnlyWhenFocus = false;
+
+        public FrameworkElement OnlyWhenFocus
+        {
+            get { return (FrameworkElement)GetValue(OnlyWhenFocusProperty); }
+            set { SetValue(OnlyWhenFocusProperty, value); }
+        }
+
+        // trigger timing limitation when focused in 
+        public static readonly DependencyProperty OnlyWhenFocusProperty =
+            DependencyProperty.Register(nameof(OnlyWhenFocus), typeof(FrameworkElement), typeof(KeyboardTrigger), new PropertyMetadata(default(FrameworkElement), OnIsAutoHideEnabledPropertyChanged));
+
+        public static void OnIsAutoHideEnabledPropertyChanged(object sender, DependencyPropertyChangedEventArgs args)
+        {
+            var source = (KeyboardTrigger)sender;
+
+            source._NowFocusing_OnlyWhenFocus = false;
+
+            if (args.OldValue is FrameworkElement oldControl)
+            {
+                oldControl.GotFocus -= source.OldControl_GotFocus;
+                oldControl.LostFocus -= source.OldControl_LostFocus;
+            }
+
+            if (args.NewValue is FrameworkElement newControl)
+            {
+                newControl.GotFocus += source.OldControl_GotFocus;
+                newControl.LostFocus += source.OldControl_LostFocus;
+            }
+        }
+
+        private void OldControl_GotFocus(object sender, RoutedEventArgs e)
+        {
+            _NowFocusing_OnlyWhenFocus = true;
+        }
+
+        private void OldControl_LostFocus(object sender, RoutedEventArgs e)
+        {
+            _NowFocusing_OnlyWhenFocus = false;
+        }
+
+
 
 
 
@@ -194,6 +241,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         private void CoreWindow_KeyDown(Windows.UI.Core.CoreWindow sender, Windows.UI.Core.KeyEventArgs args)
 		{
+            if (OnlyWhenFocus != null && !_NowFocusing_OnlyWhenFocus) { return; }
 			if (!IsEnabled) { return; }
 			if (args.Handled) { return; }
 

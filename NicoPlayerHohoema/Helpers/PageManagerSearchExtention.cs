@@ -39,6 +39,18 @@ namespace NicoPlayerHohoema.Helpers
             pageManager.OpenPage(resultPageType, searchPayload.ToParameterString(), forgetLastSearch);
          }
 
+        public static void SearchKeyword(this PageManager pageManager, string content, Mntone.Nico2.Order order, Mntone.Nico2.Sort sort, bool isForgetNavigation = false)
+        {
+            var payload = new KeywordSearchPagePayloadContent()
+            {
+                Keyword = content,
+                Order = order,
+                Sort = sort
+            };
+
+            pageManager.OpenPage(HohoemaPageType.SearchResultKeyword, payload.ToParameterString(), isForgetNavigation);
+        }
+
         public static void SearchTag(this PageManager pageManager, string content, Mntone.Nico2.Order order, Mntone.Nico2.Sort sort, bool isForgetNavigation = false)
         {
             var payload = new KeywordSearchPagePayloadContent()

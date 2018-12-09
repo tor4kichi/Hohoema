@@ -146,7 +146,11 @@ namespace NicoPlayerHohoema.ViewModels
             get { return _SearchOptionText; }
             set { SetProperty(ref _SearchOptionText, value); }
         }
-        
+
+
+        public Models.Subscription.SubscriptionSource? SubscriptionSource => new Models.Subscription.SubscriptionSource(SearchOption.Keyword, Models.Subscription.SubscriptionSourceType.KeywordSearch, SearchOption.Keyword);
+        public Models.Subscription.SubscriptionManager SubscriptionManager => Models.Subscription.SubscriptionManager.Instance;
+
 
         NiconicoContentProvider _ContentFinder;
 

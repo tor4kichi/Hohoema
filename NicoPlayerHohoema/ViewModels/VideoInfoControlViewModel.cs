@@ -54,6 +54,8 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
+        public Models.Subscription.SubscriptionManager SubscriptionManager => Models.Subscription.SubscriptionManager.Instance;
+
         public string Id => RawVideoId;
 
 

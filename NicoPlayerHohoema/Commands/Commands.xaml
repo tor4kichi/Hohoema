@@ -3,14 +3,17 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema.Commands"
     xmlns:mylistCommands="using:NicoPlayerHohoema.Commands.Mylist"
-    >
+    xmlns:subscriptionCommands="using:NicoPlayerHohoema.Commands.Subscriptions">
 
     
     <!-- Mylist -->
     <mylistCommands:CreateMylistCommand x:Key="CreateMylistCommand" />
     <mylistCommands:CreateLocalMylistCommand x:Key="CreateLocalMylistCommand" />
 
+    <!-- Subscriptions -->
+    <subscriptionCommands:CreateSubscriptionGroupCommand x:Key="CreateSubscriptionGroupCommand" />
 
+    <!-- Other -->
     <local:AddAfterViewPlaylistCommand x:Key="AddAfterViewPlaylistCommand" />
     <local:AddFeedSourceCommand x:Key="AddFeedSourceCommand" />
     <local:AddMylistCommand x:Key="AddMylistCommand" />

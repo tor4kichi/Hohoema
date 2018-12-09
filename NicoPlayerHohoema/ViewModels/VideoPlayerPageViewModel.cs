@@ -305,7 +305,12 @@ namespace NicoPlayerHohoema.ViewModels
         Database.NicoVideo _VideoInfo;
 
 
-		public VideoPlayerPageViewModel(
+        public Models.Subscription.SubscriptionSource? SubscriptionSource => this._VideoInfo?.Owner != null ? (new Models.Subscription.SubscriptionSource(_VideoInfo.Owner.ScreenName, _VideoInfo.Owner.UserType == Mntone.Nico2.Videos.Thumbnail.UserType.User ? Models.Subscription.SubscriptionSourceType.User : Models.Subscription.SubscriptionSourceType.Channel, _VideoInfo.Owner.OwnerId)) : default(Models.Subscription.SubscriptionSource);
+        public Models.Subscription.SubscriptionManager SubscriptionManager => Models.Subscription.SubscriptionManager.Instance;
+
+
+
+        public VideoPlayerPageViewModel(
 			HohoemaApp hohoemaApp, 
 			EventAggregator ea,
 			PageManager pageManager, 
@@ -1175,7 +1180,6 @@ namespace NicoPlayerHohoema.ViewModels
             // 先にプレイリストのセットアップをしないと
             // 再生に失敗した時のスキップ処理がうまく動かない
             CurrentPlaylist = HohoemaApp.Playlist.CurrentPlaylist;
-            CurrentPlayingItem = HohoemaApp.Playlist.Player.Current;
             CurrentPlaylistName.Value = CurrentPlaylist.Label;
             PlaylistItems = CurrentPlaylist.PlaylistItems.ToReadOnlyReactiveCollection();
             RaisePropertyChanged(nameof(PlaylistItems));
@@ -1618,7 +1622,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 IsDisplayControlUI.Value = true;
 
-                if (!_IsVideoPlayed == false)
+                if (!_IsVideoPlayed == false && CurrentPlayingItem != null)
                 {
                     HohoemaApp.Playlist.PlayDone(CurrentPlayingItem, canPlayNext);
 
@@ -2917,11 +2921,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         private PlaylistItem _CurrentPlayingItem;
-        public PlaylistItem CurrentPlayingItem
-        {
-            get { return _CurrentPlayingItem; }
-            set { SetProperty(ref _CurrentPlayingItem, value); }
-        }
+        public PlaylistItem CurrentPlayingItem => _CurrentPlayingItem ?? (_CurrentPlayingItem = CurrentPlaylist.PlaylistItems.FirstOrDefault(x => x.ContentId == this.VideoId));
 
         private string _VideoTitle;
         public string VideoTitle

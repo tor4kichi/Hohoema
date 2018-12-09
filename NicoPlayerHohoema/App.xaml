@@ -12,7 +12,8 @@
     xmlns:uwpconv="using:Microsoft.Toolkit.Uwp.UI.Converters"
     xmlns:logicalModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.LogicalModifiers"
     xmlns:compareModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.ComparableModifiers"
-    xmlns:system="using:System">
+    xmlns:system="using:System"
+    xmlns:subscriptionConverters="using:NicoPlayerHohoema.Views.Subscriptions">
 
     <prism:PrismUnityApplication.Resources>
        
@@ -69,6 +70,18 @@
                     <Visibility>Collapsed</Visibility>
                 </uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
             </uwpconv:EmptyCollectionToObjectConverter>
+
+            <uwpconv:EmptyCollectionToObjectConverter x:Key="EmptyCollectionToBooleanConverter"
+                                                      
+                                                      >
+                <uwpconv:EmptyCollectionToObjectConverter.EmptyValue>
+                    <x:Boolean>True</x:Boolean>
+                </uwpconv:EmptyCollectionToObjectConverter.EmptyValue>
+                <uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
+                    <x:Boolean>False</x:Boolean>
+                </uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
+            </uwpconv:EmptyCollectionToObjectConverter>
+
             <conv:ColorToBrushConverter x:Key="ColorToBrush" />
             <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
             
@@ -174,6 +187,10 @@
             <controls:VideoListItemFlyout x:Key="VideoListItemFlyout" />
             <controls:LiveListItemFlyout x:Key="LiveListItemFlyout" />
 
+            
+            <!-- Subscriptions -->
+            <subscriptionConverters:SubscriptionSourceConverter x:Key="SubscriptionSourceConverter" />
+
             <DataTemplate x:Key="QualityVideoTemplate">
                 <!-- 画質ごとのキャッシュ状態を表示 
                             
@@ -247,6 +264,10 @@
                 <Setter Property="BorderBrush" Value="#44707070" />
             </Style>
 
+
+            <DataTemplate x:Key="VideoListItemFlyoutTemplate">
+                <controls:VideoListItemFlyout />
+            </DataTemplate>
 
             <ResourceDictionary.ThemeDictionaries>
                 <ResourceDictionary x:Key="Light">

@@ -716,10 +716,17 @@ namespace NicoPlayerHohoema.Models
 
             await WaitNicoPageAccess();
 
-			return await ConnectionRetryUtil.TaskWithRetry(async () =>
+			var res = await ConnectionRetryUtil.TaskWithRetry(async () =>
 			{
 				return await Context.Video.GetHistoriesFromMyPageAsync();
-			});	
+			});
+
+            foreach (var history in res?.Histories ?? Enumerable.Empty<History>())
+            {
+                Database.VideoPlayedHistoryDb.VideoPlayed(history.Id);
+            }
+
+            return res;
 		}
 
 		

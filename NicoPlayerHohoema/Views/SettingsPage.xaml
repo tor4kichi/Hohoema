@@ -149,6 +149,7 @@
                     <VisualState.Setters>
                         <Setter Target="SwitchFullScreenButtonLayout.Visibility" Value="Visible" />
                         <Setter Target="DefaultFullScreenSwitchLayout.Visibility" Value="Visible" />
+                        
                     </VisualState.Setters>
                 </VisualState>
 
@@ -158,6 +159,8 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="TVModeSwitchLayout.Visibility" Value="Visible" />
+
+                        <Setter Target="MobileModeSwitchLayout.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -338,9 +341,20 @@
                             </StackPanel>
 
 
+                            <StackPanel x:Name="MobileModeSwitchLayout" Visibility="Collapsed">
+                                <StackPanel Margin="0 8">
+                                    <TextBlock Text="タッチ操作用のUIを利用する"
+                                       toolkit:DockPanel.Dock="Left"
+                                       VerticalAlignment="Center"
+                                       />
 
-
+                                    <ToggleSwitch IsOn="{Binding IsForceMobileModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                                </StackPanel>
+                            </StackPanel>
                             
+                            
+
+
 
 
 

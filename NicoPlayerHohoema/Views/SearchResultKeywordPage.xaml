@@ -99,7 +99,7 @@
                         
                         <Setter Target="ScrollToTopButton.Visibility" Value="Collapsed" />
                         <Setter Target="RefreshListButton.Visibility" Value="Collapsed" />
-                        <Setter Target="AddFeedButton.Visibility" Value="Collapsed" />
+                        <Setter Target="AddSubscriptionButton.Visibility" Value="Collapsed" />
 
 
                         <Setter Target="ItemsList.SelectionMode" Value="Multiple" />
@@ -127,6 +127,9 @@
                             uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
                             ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
                             uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 96 0 0"
+            
+                            xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
+                            myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
                             >
 
             <uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
@@ -136,7 +139,7 @@
             </uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
             
             <i:Interaction.Behaviors>
-                
+
                 <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems, Mode=TwoWay}" />
 
                 <mybehavior:KeyboardTrigger Key="F5">
@@ -210,6 +213,8 @@
                                                   Icon="Refresh"
                                         />
 
+                                    
+
                                     <!-- 選択中に表示するアイテム -->
                                     <AppBarButton x:Name="CacheRequestButton"
                                         Command="{Binding RequestCacheDownload}"
@@ -244,11 +249,37 @@
                                 <CommandBar.SecondaryCommands>
 
 
-                                    <AppBarButton x:Name="AddFeedButton"
-                                    Label="新着チェックに追加"
-                                        Command="{StaticResource AddFeedSourceCommand}"
-                                        CommandParameter="{Binding KeywordSearchBookmark}"
-                                    />
+                                    <AppBarButton x:Name="AddSubscriptionButton"
+                                                  Label="購読追加"
+                                                  Icon="Add"
+                                        >
+                                        <AppBarButton.Flyout>
+                                            <MenuFlyout>
+                                                <i:Interaction.Behaviors>
+                                                    <mybehavior:MenuFlyoutItemsSetter ItemsSource="{Binding SubscriptionManager.Subscriptions}"
+                                                                                CustomObjectToTag="{Binding SubscriptionSource}"
+                                                                                >
+                                                        <mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
+                                                            <DataTemplate>
+                                                                <MenuFlyoutItem Text="{Binding Label}"
+                                                                    Command="{Binding AddSource}"
+                                                                    CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}"
+                                                                    />
+                                                            </DataTemplate>
+                                                        </mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
+                                                    </mybehavior:MenuFlyoutItemsSetter>
+                                                </i:Interaction.Behaviors>
+
+                                                <MenuFlyoutItem Text="購読グループを作成..."
+                                                                Command="{StaticResource CreateSubscriptionGroupCommand}"
+                                                                CommandParameter="{Binding SubscriptionSource}"
+                                                                />
+
+
+                                            </MenuFlyout>
+                                        </AppBarButton.Flyout>
+                                    </AppBarButton>
+
 
 
                                 </CommandBar.SecondaryCommands>

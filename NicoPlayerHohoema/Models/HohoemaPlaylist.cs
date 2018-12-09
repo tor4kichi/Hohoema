@@ -197,7 +197,6 @@ namespace NicoPlayerHohoema.Models
 
             Playlists = new ReadOnlyObservableCollection<LocalMylist>(_Playlists);
 
-            MakeDefaultPlaylist();
             CurrentPlaylist = DefaultPlaylist;
 
             if (ApplicationData.Current.LocalSettings.Values.TryGetValue(nameof(PlayerDisplayType), out var showInMainView))
@@ -254,8 +253,7 @@ namespace NicoPlayerHohoema.Models
                 var playlistFileAccessor = new FolderBasedFileAccessor<LocalMylist>(PlaylistsSaveFolder, file.Name);
                 var playlist = await playlistFileAccessor.Load();
 
-                
-                if (playlist == null || playlist.Id == WatchAfterPlaylistId)
+                if (playlist == null)
                 {
                     await playlistFileAccessor.Delete();
                     continue;
@@ -295,8 +293,15 @@ namespace NicoPlayerHohoema.Models
                         loadedItem.Add(playlist);
                     }
 
+                    if (playlist.Id == WatchAfterPlaylistId)
+                    {
+                        DefaultPlaylist = playlist;
+                    }
                 }
             }
+
+            MakeDefaultPlaylist();
+
 
             loadedItem.Sort((x, y) => x.SortIndex - y.SortIndex);
 
@@ -581,7 +586,7 @@ namespace NicoPlayerHohoema.Models
         {
             if (DefaultPlaylist == null)
             {
-                DefaultPlaylist = CreatePlaylist(WatchAfterPlaylistId, "@view".ToCulturelizeString());
+                DefaultPlaylist = CreatePlaylist(HohoemaPlaylist.WatchAfterPlaylistId, "あとで見る");
             }
         }
 

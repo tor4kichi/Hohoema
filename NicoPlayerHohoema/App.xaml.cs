@@ -274,8 +274,19 @@ namespace NicoPlayerHohoema
                     var toastArgs = args as IActivatedEventArgs as ToastNotificationActivatedEventArgs;
                     var arguments = toastArgs.Argument;
 
-
-                    if (arguments == ACTIVATION_WITH_ERROR)
+                    var serialize = Newtonsoft.Json.JsonConvert.DeserializeObject<LoginRedirectPayload>(arguments);
+                    if (serialize != null)
+                    {
+                        if (serialize.RedirectPageType == HohoemaPageType.VideoPlayer)
+                        {
+                            await PlayVideoFromExternal(serialize.RedirectParamter);
+                        }
+                        else
+                        {
+                            pageManager.OpenPage(serialize.RedirectPageType, serialize.RedirectParamter);
+                        }
+                    }
+                    else if (arguments == ACTIVATION_WITH_ERROR)
                     {
                         await ShowErrorLog().ConfigureAwait(false);
                     }
@@ -518,8 +529,7 @@ namespace NicoPlayerHohoema
                     view.TryResizeView(_PrevWindowSize);
                     ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.Auto;
                 }
-            }
-
+            }            
 
             var localStorge = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
 
@@ -582,6 +592,9 @@ namespace NicoPlayerHohoema
             {
                 Debug.WriteLine("ログイン処理に失敗");
             }
+
+            // 購読機能を初期化
+            Models.Subscription.WatchItLater.Instance.Initialize();
 
             await base.OnInitializeAsync(args);
 		}
@@ -688,6 +701,10 @@ namespace NicoPlayerHohoema
             //			Container.RegisterInstance(backgroundTask);
 
 
+            // サブスクリプション（動画の新着自動チェック機能）の初期化
+            Models.Subscription.SubscriptionManager.Initialize(hohoemaApp.ContentProvider);
+            Models.Subscription.WatchItLater.Instance.ContentProvider = hohoemaApp.ContentProvider;
+
             // ViewModels
             Container.RegisterType<ViewModels.RankingCategoryListPageViewModel>(new ContainerControlledLifetimeManager());
             /*
@@ -727,6 +744,10 @@ namespace NicoPlayerHohoema
                 {
                     pageToken = pageToken.Remove(pageToken.IndexOf("_TV"));
                 }
+                else if (pageToken.EndsWith("_Mobile"))
+                {
+                    pageToken = pageToken.Remove(pageToken.IndexOf("_Mobile"));
+                }
 
                 var assemblyQualifiedAppType = viewType.AssemblyQualifiedName;
 
@@ -753,7 +774,9 @@ namespace NicoPlayerHohoema
         {
             var hohoemaApp = Container.Resolve<HohoemaApp>();
             var isForceTVModeEnable = hohoemaApp?.UserSettings?.AppearanceSettings.IsForceTVModeEnable ?? false;
+            var isForceMobileModeEnable = hohoemaApp?.UserSettings?.AppearanceSettings.IsForceMobileModeEnable ?? false;
 
+            Type viewType = null;
             if (isForceTVModeEnable || Helpers.DeviceTypeHelper.IsXbox)
             {
                 // pageTokenに対応するXbox表示用のページの型を取得
@@ -764,22 +787,25 @@ namespace NicoPlayerHohoema
                     var pageNameWithParameter = assemblyQualifiedAppType.Replace(this.GetType().FullName, this.GetType().Namespace + ".Views.{0}Page_TV");
 
                     var viewFullName = string.Format(CultureInfo.InvariantCulture, pageNameWithParameter, pageToken);
-                    var viewType = Type.GetType(viewFullName);
+                    viewType = Type.GetType(viewFullName);
+                }
+                catch { }
+            }
+            else if (isForceMobileModeEnable || Helpers.DeviceTypeHelper.IsMobile)
+            {
+                try
+                {
+                    var assemblyQualifiedAppType = this.GetType().AssemblyQualifiedName;
 
-                    if (viewType == null)
-                    {
-                        return base.GetPageType(pageToken);
-//                        throw new ArgumentException(
- //                           string.Format(CultureInfo.InvariantCulture, pageToken, this.GetType().Namespace + ".Views"),
-  //                          "pageToken");
-                    }
+                    var pageNameWithParameter = assemblyQualifiedAppType.Replace(this.GetType().FullName, this.GetType().Namespace + ".Views.{0}Page_Mobile");
 
-                    return viewType;
+                    var viewFullName = string.Format(CultureInfo.InvariantCulture, pageNameWithParameter, pageToken);
+                    viewType = Type.GetType(viewFullName);
                 }
                 catch { }
             }
 
-            return base.GetPageType(pageToken);
+            return viewType ?? base.GetPageType(pageToken);
         }
 
 

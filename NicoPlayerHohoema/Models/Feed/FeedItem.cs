@@ -11,7 +11,6 @@ namespace NicoPlayerHohoema.Models
 	[DataContract]
 	public class FeedItem : BindableBase, IEquatable<FeedItem>, IComparable<FeedItem>
 	{
-
 		string _VideoId;
 
 		[DataMember(Name = "video_id")]

@@ -29,5 +29,14 @@ namespace NicoPlayerHohoema.Models
             get { return _IsForceTVModeEnable; }
             set { SetProperty(ref _IsForceTVModeEnable, value); }
         }
+
+        private bool _IsForceMobileModeEnable = false;
+
+        [DataMember]
+        public bool IsForceMobileModeEnable
+        {
+            get { return _IsForceMobileModeEnable; }
+            set { SetProperty(ref _IsForceMobileModeEnable, value); }
+        }
     }
 }

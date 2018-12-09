@@ -81,7 +81,32 @@
                       Padding="8 0 8 24"
                       IncrementalLoadingTrigger="Edge"
                       IncrementalLoadingThreshold="80"
+
+                      xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
+                      myExtensions:ListViewBase.ItemContextFlyoutCustomObjectToTag="{Binding ElementName=ContentLayout, Path=DataContext}"
                 >
+
+                <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
+                    <DataTemplate>
+                        <MenuFlyout>
+                            <MenuFlyoutItem Text="全て再生"
+                                        Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.PlayAllCommand}"
+                                        CommandParameter="{Binding}"
+                                        />
+                            <!--
+                        <MenuFlyoutItem Text="名前を変更"
+                                        Command="{Binding ElementName=ContentLayout, Path=DataContext.EditMylistGroupCommand}"
+                                        CommandParameter="{Binding}"
+                                        />
+                        <MenuFlyoutItem Text="削除"
+                                        Command="{Binding ElementName=ContentLayout, Path=DataContext.RemoveMylistGroupCommand}"
+                                        CommandParameter="{Binding}"
+                                        />
+                        -->
+                        </MenuFlyout>
+                    </DataTemplate>
+                </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
+                
 
                 <GridView.Header>
                     <uwptoolkit:ScrollHeader 
@@ -173,30 +198,6 @@
                     </uwptoolkit:ScrollHeader>
 
                 </GridView.Header>
-
-                <i:Interaction.Behaviors>
-                    <mybehavior:ListViewBaseItemContextFlyout />
-                </i:Interaction.Behaviors>
-
-                <GridView.ContextFlyout>
-                    <MenuFlyout>
-                        <MenuFlyoutItem Text="全て再生"
-                                        Command="{Binding ElementName=ContentLayout, Path=DataContext.PlayAllCommand}"
-                                        CommandParameter="{Binding}"
-                                        />
-                        <!--
-                        <MenuFlyoutItem Text="名前を変更"
-                                        Command="{Binding ElementName=ContentLayout, Path=DataContext.EditMylistGroupCommand}"
-                                        CommandParameter="{Binding}"
-                                        />
-                        <MenuFlyoutItem Text="削除"
-                                        Command="{Binding ElementName=ContentLayout, Path=DataContext.RemoveMylistGroupCommand}"
-                                        CommandParameter="{Binding}"
-                                        />
-                        -->
-                    </MenuFlyout>
-                </GridView.ContextFlyout>
-
 
                 <GridView.ItemTemplate>
                     <DataTemplate>
