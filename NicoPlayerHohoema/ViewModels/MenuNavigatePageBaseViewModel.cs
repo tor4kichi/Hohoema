@@ -804,7 +804,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 MenuItems.Add(new MenuItemViewModel("ランキング", HohoemaPageType.RankingCategoryList));
                 MenuItems.Add(new MenuItemViewModel("ニコレポ", HohoemaPageType.NicoRepo));
-                MenuItems.Add(new MenuItemViewModel("新着", HohoemaPageType.FeedGroupManage));
+                MenuItems.Add(new MenuItemViewModel("新着", HohoemaPageType.Subscription));
                 MenuItems.Add(new MenuItemViewModel("フォロー", HohoemaPageType.FollowManage));
                 MenuItems.Add(new MenuItemViewModel("視聴履歴", HohoemaPageType.WatchHistory));
                 MenuItems.Add(new MenuItemViewModel("キャッシュ", HohoemaPageType.CacheManagement));
@@ -814,11 +814,16 @@ namespace NicoPlayerHohoema.ViewModels
             else
             {
                 MenuItems.Add(new MenuItemViewModel("ランキング", HohoemaPageType.RankingCategoryList));
-                MenuItems.Add(new MenuItemViewModel("新着", HohoemaPageType.FeedGroupManage));
+                MenuItems.Add(new MenuItemViewModel("新着", HohoemaPageType.Subscription));
                 //                MenuItems.Add(new MenuItemViewModel("視聴履歴", HohoemaPageType.WatchHistory));
                 MenuItems.Add(new MenuItemViewModel("キャッシュ", HohoemaPageType.CacheManagement));
                 MenuItems.Add(new MenuItemViewModel("あとで見る", HohoemaPageType.Mylist, new MylistPagePayload(HohoemaPlaylist.WatchAfterPlaylistId).ToParameterString()));
             }
+
+
+#if DEBUG
+            MenuItems.Add(new MenuItemViewModel("旧 新着(Debug)", HohoemaPageType.FeedGroupManage));
+#endif
 
             RaisePropertyChanged(nameof(MenuItems));
         }

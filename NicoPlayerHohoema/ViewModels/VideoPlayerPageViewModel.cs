@@ -305,7 +305,12 @@ namespace NicoPlayerHohoema.ViewModels
         Database.NicoVideo _VideoInfo;
 
 
-		public VideoPlayerPageViewModel(
+        public Models.Subscription.SubscriptionSource? SubscriptionSource => this._VideoInfo?.Owner != null ? (new Models.Subscription.SubscriptionSource(_VideoInfo.Owner.ScreenName, _VideoInfo.Owner.UserType == Mntone.Nico2.Videos.Thumbnail.UserType.User ? Models.Subscription.SubscriptionSourceType.User : Models.Subscription.SubscriptionSourceType.Channel, _VideoInfo.Owner.OwnerId)) : default(Models.Subscription.SubscriptionSource);
+        public Models.Subscription.SubscriptionManager SubscriptionManager => Models.Subscription.SubscriptionManager.Instance;
+
+
+
+        public VideoPlayerPageViewModel(
 			HohoemaApp hohoemaApp, 
 			EventAggregator ea,
 			PageManager pageManager, 
@@ -1175,7 +1180,6 @@ namespace NicoPlayerHohoema.ViewModels
             // 先にプレイリストのセットアップをしないと
             // 再生に失敗した時のスキップ処理がうまく動かない
             CurrentPlaylist = HohoemaApp.Playlist.CurrentPlaylist;
-            CurrentPlayingItem = HohoemaApp.Playlist.Player.Current;
             CurrentPlaylistName.Value = CurrentPlaylist.Label;
             PlaylistItems = CurrentPlaylist.PlaylistItems.ToReadOnlyReactiveCollection();
             RaisePropertyChanged(nameof(PlaylistItems));
@@ -1591,14 +1595,6 @@ namespace NicoPlayerHohoema.ViewModels
             set { SetProperty(ref _NextPlayVideoProgressTime, value); }
         }
 
-
-        private bool _HasNextVideo = false;
-        public bool HasNextVideo
-        {
-            get { return _HasNextVideo; }
-            set { SetProperty(ref _HasNextVideo, value); }
-        }
-
         private bool _IsCanceledPlayNextVideo = true;
         public bool IsCanceledPlayNextVideo
         {
@@ -1618,7 +1614,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 IsDisplayControlUI.Value = true;
 
-                if (!_IsVideoPlayed == false)
+                if (!_IsVideoPlayed == false && CurrentPlayingItem != null)
                 {
                     HohoemaApp.Playlist.PlayDone(CurrentPlayingItem, canPlayNext);
 
@@ -1633,7 +1629,7 @@ namespace NicoPlayerHohoema.ViewModels
                         {
                             EndPlayRecommendAction = GetSidePaneContent(PlayerSidePaneContentType.RelatedVideos) as RelatedVideosSidePaneContentViewModel;
 
-                            IsCanceledPlayNextVideo = false;
+                            IsCanceledPlayNextVideo = !IsEnableAutoPlayNextVideo; // 次動画へ自動で進まない場合はキャンセル操作が不要になる
                             CancelAutoPlayNextVideoCommand.RaiseCanExecuteChanged();
 
                             // 自動で次動画へ移動する機能
@@ -1642,21 +1638,25 @@ namespace NicoPlayerHohoema.ViewModels
 
                             if (sidePaneContent.NextVideo != null && HohoemaApp.UserSettings.PlaylistSettings.AutoMoveNextVideoOnPlaylistEmpty)
                             {
-                                HasNextVideo = true;
-                                PlayEndTime = DateTime.Now;
-
-                                NextPlayVideoProgressTime = 0.0;
-                                _NextPlayVideoProgressTimer.Tick += _NextPlayVideoProgressTimer_Tick;
-                                _NextPlayVideoProgressTimer.Start();
-
-                                await Task.Delay(TimeSpan.FromSeconds(10));
-
-                                _NextPlayVideoProgressTimer.Stop();
-                                _NextPlayVideoProgressTimer.Tick -= _NextPlayVideoProgressTimer_Tick;
-
-                                if (!IsCanceledPlayNextVideo)
+                                // 再生終了後アクションがプレイヤー表示に変更がない場合に自動次動画検出を開始する
+                                if (HohoemaApp.UserSettings.PlaylistSettings.PlaylistEndAction == PlaylistEndAction.NothingDo 
+                                || HohoemaApp.Playlist.PlayerDisplayType == PlayerDisplayType.SecondaryView)
                                 {
-                                    HohoemaApp.Playlist.PlayVideo(sidePaneContent.NextVideo.RawVideoId, sidePaneContent.NextVideo.Label);
+                                    PlayEndTime = DateTime.Now;
+
+                                    NextPlayVideoProgressTime = 0.0;
+                                    _NextPlayVideoProgressTimer.Tick += _NextPlayVideoProgressTimer_Tick;
+                                    _NextPlayVideoProgressTimer.Start();
+
+                                    await Task.Delay(TimeSpan.FromSeconds(10));
+
+                                    _NextPlayVideoProgressTimer.Stop();
+                                    _NextPlayVideoProgressTimer.Tick -= _NextPlayVideoProgressTimer_Tick;
+
+                                    if (!IsCanceledPlayNextVideo)
+                                    {
+                                        HohoemaApp.Playlist.PlayVideo(sidePaneContent.NextVideo.RawVideoId, sidePaneContent.NextVideo.Label);
+                                    }
                                 }
                             }
                                     
@@ -2917,11 +2917,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         private PlaylistItem _CurrentPlayingItem;
-        public PlaylistItem CurrentPlayingItem
-        {
-            get { return _CurrentPlayingItem; }
-            set { SetProperty(ref _CurrentPlayingItem, value); }
-        }
+        public PlaylistItem CurrentPlayingItem => _CurrentPlayingItem ?? (_CurrentPlayingItem = CurrentPlaylist.PlaylistItems.FirstOrDefault(x => x.ContentId == this.VideoId));
 
         private string _VideoTitle;
         public string VideoTitle

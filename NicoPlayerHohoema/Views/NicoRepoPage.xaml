@@ -18,6 +18,7 @@
     xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
+    xmlns:templateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     >
@@ -82,9 +83,42 @@
             uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
             ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
             uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
+            xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
                             >
-            <i:Interaction.Behaviors>
 
+            <myExtensions:ListViewBase.ItemContextFlyoutTemplateSelector>
+                <templateSelector:HohoemaFlyoutTemplateSelector>
+                    <templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>
+                        <DataTemplate>
+                            <controls:VideoListItemFlyout />
+                        </DataTemplate>
+                    </templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>
+                    <templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
+                        <DataTemplate>
+                            <controls:LiveListItemFlyout />
+                        </DataTemplate>
+                    </templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
+                    <templateSelector:HohoemaFlyoutTemplateSelector.FeedGroupFlyoutTemplate>
+                        <DataTemplate>
+                            <controls:FeedGroupListItemFlyout />
+                        </DataTemplate>
+                    </templateSelector:HohoemaFlyoutTemplateSelector.FeedGroupFlyoutTemplate>
+                    <templateSelector:HohoemaFlyoutTemplateSelector.FeedSourceFlyoutTemplate>
+                        <DataTemplate>
+                            <controls:FeedSourceFlyout />
+                        </DataTemplate>
+                    </templateSelector:HohoemaFlyoutTemplateSelector.FeedSourceFlyoutTemplate>
+                    <templateSelector:HohoemaFlyoutTemplateSelector.SearchHistoryFlyoutTemplate>
+                        <DataTemplate>
+                            <local:SearchHistoryListItemFlyout />
+                        </DataTemplate>
+                    </templateSelector:HohoemaFlyoutTemplateSelector.SearchHistoryFlyoutTemplate>
+                </templateSelector:HohoemaFlyoutTemplateSelector>
+            </myExtensions:ListViewBase.ItemContextFlyoutTemplateSelector>
+
+            <i:Interaction.Behaviors>
+                
+                
                 <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems, Mode=TwoWay}" />
 
                 <mybehavior:KeyboardTrigger Key="F5">
@@ -103,6 +137,7 @@
                     <StackPanel >
                         <CommandBar 
                             x:Name="TopCommandBar"
+                            Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                                 >
                            
                             <CommandBar.PrimaryCommands>

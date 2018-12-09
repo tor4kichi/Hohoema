@@ -1014,24 +1014,26 @@
                                                       TabIndex="1"
                                                       CanReorderItems="True"
                                                       AllowDrop="True"
+                                                      
+                                                      xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
                                                         >
-                                                <ListView.ContextFlyout>
-                                                    <MenuFlyout>
 
-                                                        <MenuFlyoutItem Text="ピンのタイトル変更" 
+                                                <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
+                                                    <DataTemplate>
+                                                        <MenuFlyout>
+
+                                                            <MenuFlyoutItem Text="ピンのタイトル変更" 
                                                                         Command="{Binding ChangeOverrideLabelCommand}"
                                                                         />
 
-                                                        <MenuFlyoutItem Text="ピン留め解除" 
+                                                            <MenuFlyoutItem Text="ピン留め解除" 
                                                                         Command="{StaticResource RemovePinCommand}"
                                                                         CommandParameter="{Binding}"
                                                                         />
-                                                    </MenuFlyout>
-                                                </ListView.ContextFlyout>
+                                                        </MenuFlyout>
+                                                    </DataTemplate>
+                                                </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
 
-                                                <i:Interaction.Behaviors>
-                                                    <mybehavior:ListViewBaseItemContextFlyout />
-                                                </i:Interaction.Behaviors>
                                             </ListView>
 
                                             <StackPanel Visibility="{Binding PinItems, Converter={StaticResource EmptyCollectionVisibilityConverter}}"
@@ -1195,11 +1197,6 @@
                                             >
                                             <myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
                                                 <templateSelector:HohoemaFlyoutTemplateSelector>
-                                                    <templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>
-                                                        <DataTemplate>
-                                                            <controls:VideoListItemFlyout />
-                                                        </DataTemplate>
-                                                    </templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>
                                                     <templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
                                                         <DataTemplate>
                                                             <controls:LiveListItemFlyout />

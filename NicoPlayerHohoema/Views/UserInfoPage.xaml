@@ -192,12 +192,38 @@
                                                 x:Name="UserFollowButton"
                                                 />
 
-                            <AppBarButton Background="Transparent"
-                                        Command="{StaticResource AddFeedSourceCommand}"
-                                      CommandParameter="{Binding UserBookmark}"
-                                        UseSystemFocusVisuals="True"
-                                          Label="新着チェックに追加"
-                                        />
+                            <AppBarButton 
+                                x:Name="FeedRegstrationButton"
+                                Label="購読に追加"
+                                Icon="Add"
+                                Visibility="{Binding IsVideoPrivate, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                >
+                                <AppBarButton.Flyout>
+                                    <MenuFlyout>
+                                        <i:Interaction.Behaviors>
+                                            <mybehavior:MenuFlyoutItemsSetter ItemsSource="{Binding SubscriptionManager.Subscriptions}"
+                                                                                CustomObjectToTag="{Binding SubscriptionSource}"
+                                                                                >
+                                                <mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <MenuFlyoutItem Text="{Binding Label}"
+                                                                    Command="{Binding AddSource}"
+                                                                    CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}"
+                                                                    />
+                                                    </DataTemplate>
+                                                </mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
+                                            </mybehavior:MenuFlyoutItemsSetter>
+                                        </i:Interaction.Behaviors>
+
+                                        <MenuFlyoutItem Text="購読グループを作成..."
+                                                                Command="{StaticResource CreateSubscriptionGroupCommand}"
+                                                                CommandParameter="{Binding SubscriptionSource}"
+                                                                />
+
+
+                                    </MenuFlyout>
+                                </AppBarButton.Flyout>
+                            </AppBarButton>
 
                             <AppBarButton Label="ブラウザで開く"
                                             Command="{Binding OpenUserAccountPageInBrowserCommand}"

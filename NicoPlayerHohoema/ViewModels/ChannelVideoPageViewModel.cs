@@ -90,6 +90,8 @@ namespace NicoPlayerHohoema.ViewModels
                 ChannelName = RawChannelId;
             }
 
+            PageManager.PageTitle = ChannelName;
+
             await base.NavigatedToAsync(cancelToken, e, viewModelState);
         }
 
@@ -98,6 +100,10 @@ namespace NicoPlayerHohoema.ViewModels
             return new ChannelVideoLoadingSource(ChannelId?.ToString() ?? RawChannelId, HohoemaApp.ContentProvider);
         }
 
+        protected override string ResolvePageName()
+        {
+            return ChannelName ?? base.ResolvePageName();
+        }
 
 
         private DelegateCommand _ShowWithBrowserCommand;

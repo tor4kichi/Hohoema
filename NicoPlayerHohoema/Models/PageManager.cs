@@ -239,12 +239,16 @@ namespace NicoPlayerHohoema.Models
                 {
                     pageTypeString = e.SourcePageType.Name.Remove(e.SourcePageType.Name.IndexOf("Page"));
                 }
-                if (e.SourcePageType.Name.EndsWith("Page_TV"))
+                else if (e.SourcePageType.Name.EndsWith("TV"))
                 {
                     pageTypeString = e.SourcePageType.Name.Remove(e.SourcePageType.Name.IndexOf("Page_TV"));
                 }
+                else if (e.SourcePageType.Name.EndsWith("Mobile"))
+                {
+                    pageTypeString = e.SourcePageType.Name.Remove(e.SourcePageType.Name.IndexOf("Page_Mobile"));
+                }
 
-                
+
                 if (pageTypeString != null)
                 { 
                     HohoemaPageType pageType;

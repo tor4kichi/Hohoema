@@ -97,6 +97,10 @@
             HorizontalContentAlignment="Stretch"
             ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
             uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
+            
+            xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
+            myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
+
             >
             <uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
                 <TransitionCollection>
@@ -206,6 +210,40 @@
 
                             </CommandBar.PrimaryCommands>
 
+                            <CommandBar.SecondaryCommands>
+                                <AppBarButton 
+                                    x:Name="FeedRegstrationButton"
+                                    Label="購読に追加"
+                                    Icon="Add"
+                                    Visibility="{Binding IsOwnerVideoPrivate, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                    >
+                                    <AppBarButton.Flyout>
+                                        <MenuFlyout>
+                                            <i:Interaction.Behaviors>
+                                                <mybehavior:MenuFlyoutItemsSetter ItemsSource="{Binding SubscriptionManager.Subscriptions}"
+                                                                                CustomObjectToTag="{Binding SubscriptionSource}"
+                                                                                >
+                                                    <mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <MenuFlyoutItem Text="{Binding Label}"
+                                                                    Command="{Binding AddSource}"
+                                                                    CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}"
+                                                                    />
+                                                        </DataTemplate>
+                                                    </mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
+                                                </mybehavior:MenuFlyoutItemsSetter>
+                                            </i:Interaction.Behaviors>
+
+                                            <MenuFlyoutItem Text="購読グループを作成..."
+                                                                Command="{StaticResource CreateSubscriptionGroupCommand}"
+                                                                CommandParameter="{Binding SubscriptionSource}"
+                                                                />
+
+
+                                        </MenuFlyout>
+                                    </AppBarButton.Flyout>
+                                </AppBarButton>
+                            </CommandBar.SecondaryCommands>
                         </CommandBar>
                     </StackPanel>
                 </uwpcontrols:ScrollHeader>

@@ -18,7 +18,11 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public class UserVideoPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
 	{
-		public UserVideoPageViewModel(HohoemaApp app, PageManager pageManager) 
+        public Models.Subscription.SubscriptionManager SubscriptionManager => Models.Subscription.SubscriptionManager.Instance;
+        public Models.Subscription.SubscriptionSource? SubscriptionSource => new Models.Subscription.SubscriptionSource(UserName, Models.Subscription.SubscriptionSourceType.User, UserId);
+
+
+        public UserVideoPageViewModel(HohoemaApp app, PageManager pageManager) 
 			: base(app, pageManager, isRequireSignIn:true)
 		{
 		}
@@ -34,6 +38,8 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 IsOwnerVideoPrivate = User.IsOwnerVideoPrivate;
                 UserName = User.Nickname;
+
+                PageManager.PageTitle = UserName;
             }
             else
             {
@@ -43,7 +49,12 @@ namespace NicoPlayerHohoema.ViewModels
             base.OnNavigatedTo(e, viewModelState);
 		}
 
-		protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        protected override string ResolvePageName()
+        {
+            return UserName ?? base.ResolvePageName();
+        }
+
+        protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
             if (e.Parameter is string)
             {
@@ -56,6 +67,8 @@ namespace NicoPlayerHohoema.ViewModels
 			{
                 IsOwnerVideoPrivate = User.IsOwnerVideoPrivate;
                 UserName = User.Nickname;
+
+                PageManager.PageTitle = UserName;
             }
             else
 			{

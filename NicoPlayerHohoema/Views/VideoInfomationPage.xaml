@@ -59,8 +59,19 @@
                 </VisualState>
             </VisualStateGroup>
             
-            <!-- Xbox -->
+            <!-- シェアボタンの表示 -->
             <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Desktop" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+
+                        <Setter Target="ShareSubButton.Icon" Value="Share" />
+
+                    </VisualState.Setters>
+                </VisualState>
+                
                 <VisualState>
                     <VisualState.StateTriggers>
                         <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
@@ -70,10 +81,14 @@
                         <Setter Target="ShareSubButton.Visibility" Value="Collapsed" />
                         <Setter Target="ShareSubButton_TV.Visibility" Value="Visible" />
 
+                        <Setter Target="ShareSubButton.Icon" Value="Share" />
+                        
                     </VisualState.Setters>
                 </VisualState>
+                
 
             </VisualStateGroup>
+            
 
             <!-- ページ読み込み状態 -->
             <VisualStateGroup>
@@ -231,6 +246,38 @@
                             >
 
                     <CommandBar.SecondaryCommands>
+
+                        <AppBarButton x:Name="AddSubscriptionButton"
+                                    Label="投稿者動画を購読"
+                                    Icon="Add"
+                                        >
+                            <AppBarButton.Flyout>
+                                <MenuFlyout>
+                                    <i:Interaction.Behaviors>
+                                        <mybehavior:MenuFlyoutItemsSetter ItemsSource="{Binding SubscriptionManager.Subscriptions}"
+                                                                                CustomObjectToTag="{Binding SubscriptionSource}"
+                                                                                >
+                                            <mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
+                                                <DataTemplate>
+                                                    <MenuFlyoutItem Text="{Binding Label}"
+                                                                    Command="{Binding AddSource}"
+                                                                    CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}"
+                                                                    />
+                                                </DataTemplate>
+                                            </mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
+                                        </mybehavior:MenuFlyoutItemsSetter>
+                                    </i:Interaction.Behaviors>
+
+                                    <MenuFlyoutItem Text="購読グループを作成..."
+                                                                Command="{StaticResource CreateSubscriptionGroupCommand}"
+                                                                CommandParameter="{Binding SubscriptionSource}"
+                                                                />
+
+
+                                </MenuFlyout>
+                            </AppBarButton.Flyout>
+                        </AppBarButton>
+
                         <AppBarButton Label="ブラウザで開く" Command="{StaticResource OpenLinkCommand}" CommandParameter="{Binding VideoPageUrl}" 
                                       />
                         <AppBarButton Label="コピー..." 
@@ -258,8 +305,9 @@
                                       Command="{Binding AddMylistCommand}"
                                       />
 
+                    
+
                     <AppBarButton x:Name="ShareSubButton"    
-                                      Icon="Share"
                                       Label="共有"
                                   Command="{Binding ShareCommand}"
                                           />
@@ -271,7 +319,6 @@
                                     x:Name="ShareSubButton_TV" 
                                     Visibility="Collapsed"
                                     Command="{Binding ShareCommand}"
-                                    Icon="Share"
                                       Content="共有"
                                     />
 
@@ -381,8 +428,14 @@
 
                                 <WebView Source="{Binding DescriptionHtmlFileUri}"
                                          MinWidth="320"
-                                         Margin="0 8"
+                                         Margin="0 8 16 8"
                                          DefaultBackgroundColor="Transparent"
+                                         
+                                         ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                                         ScrollViewer.VerticalScrollMode="Disabled"
+                                         
+                                         xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
+                                         myExtensions:WebView.IgnoreScrolling="True"
                                          >
                                     <i:Interaction.Behaviors>
 
