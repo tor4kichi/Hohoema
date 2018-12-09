@@ -457,6 +457,7 @@
     <Compile Include="Views\Converters\SwipeSeekValueToTimeSpan.cs" />
     <Compile Include="Views\Converters\ToKMGTPEZYConverter.cs" />
     <Compile Include="Views\Extensions\ListViewBase\ItemContextFlyoutTemplate.cs" />
+    <Compile Include="Views\Extensions\WebView\IgnoreScrolling.cs" />
     <Compile Include="Views\Flyouts\FeedSourceFlyout.xaml.cs">
       <DependentUpon>FeedSourceFlyout.xaml</DependentUpon>
     </Compile>
