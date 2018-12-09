@@ -296,54 +296,51 @@ namespace NicoPlayerHohoema.Models.Subscription
                     var newItemsPerList = pair.Value.Item1;
                     var subscriptions = pair.Value.Item2;
 
-                    // 初回のプレイリストを再生したりプレイリストを開いたりするアクションメインの通知
-
                     ToastVisual visual = new ToastVisual()
                     {
                         BindingGeneric = new ToastBindingGeneric()
                         {
-                            Children =
-                        {
-                            new AdaptiveText()
-                            {
-                                Text = $"『{playableList.Label}』に新着動画を追加",
-                                HintStyle = AdaptiveTextStyle.Base
-                            },
-                            new AdaptiveText()
-                            {
-                                Text = $"{newItemsPerList.Count} 件の動画",
-                                HintStyle = AdaptiveTextStyle.BaseSubtle
-                            },
-                            new AdaptiveText()
-                            {
-                                Text = string.Join(" - ", subscriptions.Select(x => x.Label)),
-                                HintStyle = AdaptiveTextStyle.BaseSubtle
-                            }
+                            Children = { }
 
-                        }
                         }
                     };
 
+                    visual.BindingGeneric.Children.Insert(0, new AdaptiveText()
+                    {
+                        Text = $"『{playableList.Label}』に新着動画を追加",
+                        HintStyle = AdaptiveTextStyle.Base
+                    });
+
+                    foreach (var item in newItemsPerList)
+                    {
+                        visual.BindingGeneric.Children.Add(new AdaptiveText()
+                        {
+                            Text = item.Title,
+                            HintStyle = AdaptiveTextStyle.BaseSubtle
+                        });
+                    }
+
+
+                        
                     ToastActionsCustom action = new ToastActionsCustom()
                     {
                         Buttons =
-                    {
-                        new ToastButton("視聴する", new LoginRedirectPayload() { RedirectPageType = HohoemaPageType.VideoPlayer, RedirectParamter = newItemsPerList.First().RawVideoId }.ToParameterString())
                         {
-                            ActivationType = ToastActivationType.Foreground,
-                        },
-                        new ToastButton("リストを確認", new LoginRedirectPayload() { RedirectPageType = HohoemaPageType.Subscription}.ToParameterString())
-                        {
-                            ActivationType = ToastActivationType.Foreground,
-                        },
-                    }
+                            new ToastButton("視聴する", new LoginRedirectPayload() { RedirectPageType = HohoemaPageType.VideoPlayer, RedirectParamter = newItemsPerList.First().RawVideoId }.ToParameterString())
+                            {
+                                ActivationType = ToastActivationType.Foreground,
+                            },
+                            new ToastButton("購読を管理", new LoginRedirectPayload() { RedirectPageType = HohoemaPageType.Subscription }.ToParameterString())
+                            {
+                                ActivationType = ToastActivationType.Foreground,
+                            },
+                        }
                     };
 
                     ToastContent toastContent = new ToastContent()
                     {
                         Visual = visual,
                         Actions = action,
-                        // Launch
                     };
 
                     var toast = new ToastNotification(toastContent.GetXml());

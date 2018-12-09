@@ -65,10 +65,20 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
+            Guid? restoreId = null;
             if (viewModelState?.ContainsKey(nameof(SelectedSubscription)) ?? false)
             {
-                var id = (Guid)viewModelState[nameof(SelectedSubscription)];
-                SelectedSubscription.Value = SubscriptionManager.Subscriptions.FirstOrDefault(x => x.Id == id);
+                restoreId = (Guid)viewModelState[nameof(SelectedSubscription)];
+                
+            }
+            else if (e.Parameter is Guid id || (e.Parameter is string strId && Guid.TryParse(strId, out id)))
+            {
+                restoreId = id;
+            }
+
+            if (restoreId.HasValue)
+            {
+                SelectedSubscription.Value = SubscriptionManager.Subscriptions.FirstOrDefault(x => x.Id == restoreId.Value);
             }
 
             base.OnNavigatedTo(e, viewModelState);
