@@ -125,12 +125,6 @@
     <Content Include="Assets\Square30x30Logo.scale-100.png" />
     <Content Include="Assets\Square30x30Logo.scale-200.png" />
     <Content Include="Assets\CacheUsageConfirmation.md" />
-    <Content Include="Assets\UpdateNotices\0.14.0.md" />
-    <Content Include="Assets\UpdateNotices\0.14.1.md" />
-    <Content Include="Assets\UpdateNotices\0.14.3.md" />
-    <Content Include="Assets\UpdateNotices\0.14.4.md" />
-    <Content Include="Assets\UpdateNotices\0.14.5.md" />
-    <Content Include="Assets\UpdateNotices\0.14.6.md" />
     <PRIResource Include="Resources\zh-Hans\Resources.resw" />
     <PRIResource Include="Resources\ja-jp\Resources.resw" />
   </ItemGroup>
@@ -762,12 +756,10 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-    <Content Include="Assets\UpdateNotices\0.14.8.md" />
-    <Content Include="Assets\UpdateNotices\0.14.10.md" />
-    <Content Include="Assets\UpdateNotices\0.14.11.md" />
     <Content Include="Assets\UpdateNotices\0.15.0.md" />
     <Content Include="Assets\UpdateNotices\0.15.1.md" />
     <Content Include="Assets\UpdateNotices\0.15.3.md" />
+    <Content Include="Assets\UpdateNotices\0.16.0.md" />
     <None Include="Models\Subscription\README.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <None Include="NicoPlayerHohoema_TemporaryKey.pfx" />

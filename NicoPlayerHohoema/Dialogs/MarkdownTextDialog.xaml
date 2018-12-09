@@ -15,7 +15,7 @@
             <uwpcontrol:MarkdownTextBlock Style="{StaticResource HohoemaMarkdownTextBlockStyle}"
                 Text="{x:Bind Text, Mode=OneWay}"
                 LinkClicked="MarkdownTextBlock_LinkClicked"
-                
+                Margin="0 0 16 0"
                 />
 
         </ScrollViewer>
