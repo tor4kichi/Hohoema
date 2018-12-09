@@ -1595,14 +1595,6 @@ namespace NicoPlayerHohoema.ViewModels
             set { SetProperty(ref _NextPlayVideoProgressTime, value); }
         }
 
-
-        private bool _HasNextVideo = false;
-        public bool HasNextVideo
-        {
-            get { return _HasNextVideo; }
-            set { SetProperty(ref _HasNextVideo, value); }
-        }
-
         private bool _IsCanceledPlayNextVideo = true;
         public bool IsCanceledPlayNextVideo
         {
@@ -1646,21 +1638,25 @@ namespace NicoPlayerHohoema.ViewModels
 
                             if (sidePaneContent.NextVideo != null && HohoemaApp.UserSettings.PlaylistSettings.AutoMoveNextVideoOnPlaylistEmpty)
                             {
-                                HasNextVideo = true;
-                                PlayEndTime = DateTime.Now;
-
-                                NextPlayVideoProgressTime = 0.0;
-                                _NextPlayVideoProgressTimer.Tick += _NextPlayVideoProgressTimer_Tick;
-                                _NextPlayVideoProgressTimer.Start();
-
-                                await Task.Delay(TimeSpan.FromSeconds(10));
-
-                                _NextPlayVideoProgressTimer.Stop();
-                                _NextPlayVideoProgressTimer.Tick -= _NextPlayVideoProgressTimer_Tick;
-
-                                if (!IsCanceledPlayNextVideo)
+                                // 再生終了後アクションがプレイヤー表示に変更がない場合に自動次動画検出を開始する
+                                if (HohoemaApp.UserSettings.PlaylistSettings.PlaylistEndAction == PlaylistEndAction.NothingDo 
+                                || HohoemaApp.Playlist.PlayerDisplayType == PlayerDisplayType.SecondaryView)
                                 {
-                                    HohoemaApp.Playlist.PlayVideo(sidePaneContent.NextVideo.RawVideoId, sidePaneContent.NextVideo.Label);
+                                    PlayEndTime = DateTime.Now;
+
+                                    NextPlayVideoProgressTime = 0.0;
+                                    _NextPlayVideoProgressTimer.Tick += _NextPlayVideoProgressTimer_Tick;
+                                    _NextPlayVideoProgressTimer.Start();
+
+                                    await Task.Delay(TimeSpan.FromSeconds(10));
+
+                                    _NextPlayVideoProgressTimer.Stop();
+                                    _NextPlayVideoProgressTimer.Tick -= _NextPlayVideoProgressTimer_Tick;
+
+                                    if (!IsCanceledPlayNextVideo)
+                                    {
+                                        HohoemaApp.Playlist.PlayVideo(sidePaneContent.NextVideo.RawVideoId, sidePaneContent.NextVideo.Label);
+                                    }
                                 }
                             }
                                     
