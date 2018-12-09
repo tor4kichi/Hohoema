@@ -421,7 +421,11 @@ namespace NicoPlayerHohoema.Models
             }
             else if (!HohoemaApp.IsPremiumUser)
             {
-                await HohoemaApp.CacheManager.SuspendCacheDownload();
+                // キャッシュ済みの場合はサスペンドを掛けない
+                if (item.Type == PlaylistItemType.Video && false == await HohoemaApp.CacheManager.CheckCached(item.ContentId))
+                {
+                    await HohoemaApp.CacheManager.SuspendCacheDownload();
+                }
             }
 
             CurrentPlaylist = playlist;
@@ -429,7 +433,7 @@ namespace NicoPlayerHohoema.Models
 
             if (PlayerDisplayType == PlayerDisplayType.SecondaryView)
             {
-                ShowVideoWithSecondaryView(item).ConfigureAwait(false);
+                _ = ShowVideoWithSecondaryView(item).ConfigureAwait(false);
             }
             else
             {

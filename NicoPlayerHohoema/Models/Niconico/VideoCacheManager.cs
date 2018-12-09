@@ -464,6 +464,7 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
+        
 
         Dictionary<int, NicoVideoCacheProgress> TaskIdToCacheProgress = new Dictionary<int, NicoVideoCacheProgress>();
 
@@ -1382,7 +1383,20 @@ namespace NicoPlayerHohoema.Models
 
 
 
-
+        internal async Task<bool> CheckCached(string contentId)
+        {
+            using (var releaser = await _CacheRequestProcessingLock.LockAsync())
+            {
+                if (_CacheVideos.TryGetValue(contentId, out var cacheInfoList))
+                {
+                    return cacheInfoList.Any(x => x.ToCacheState() == NicoVideoCacheState.Cached);
+                }
+                else
+                {
+                    return false;
+                }
+            }
+        }
 
     }
 
