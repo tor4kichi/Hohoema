@@ -54,9 +54,12 @@ namespace NicoPlayerHohoema.Models.Subscription
                     }
                 }
 
-                Instance.Subscriptions.Add(subsc);
+                if (subsc.Sources.Any())
+                {
+                    Instance.Subscriptions.Add(subsc);
 
-                localObjectStorageHelper.Save(nameof(MigrateFeedGroupToSubscriptionManager), true);
+                    localObjectStorageHelper.Save(nameof(MigrateFeedGroupToSubscriptionManager), true);
+                }
 
                 Debug.WriteLine("フィードを購読に移行：完了!");
 
