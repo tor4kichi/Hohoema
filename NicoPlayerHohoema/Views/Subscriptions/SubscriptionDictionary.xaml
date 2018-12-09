@@ -261,6 +261,10 @@
                                 <Border x:Name="SetttingFlyoutOwner" >
                                     <FlyoutBase.AttachedFlyout>
                                         <MenuFlyout x:Name="SubscribeSettingFlyout">
+                                            <ToggleMenuFlyoutItem Text="自動更新" IsChecked="{Binding IsEnabled, Mode=TwoWay}" />
+
+                                            <MenuFlyoutSeparator />
+                                            
                                             <MenuFlyoutItem Text="ラベルの変更">
                                                 <i:Interaction.Behaviors>
                                                     <core:EventTriggerBehavior EventName="Click">
@@ -299,8 +303,6 @@
                                                 </i:Interaction.Behaviors>
 
                                             </MenuFlyoutSubItem>
-                                            <ToggleMenuFlyoutItem Text="自動更新" IsChecked="{Binding IsEnabled, Mode=TwoWay}" />
-
 
                                             <MenuFlyoutSeparator />
 
