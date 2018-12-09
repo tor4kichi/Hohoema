@@ -2110,7 +2110,6 @@
                                                                                 Background="Transparent"
                                                                                 HorizontalAlignment="Center"
                                                                                     x:Name="CancelAutoNextVideoPlayButton"
-                                                                                    Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsEnableAutoPlayNextVideo, Converter={StaticResource BooleanToVisibility}}"
                                                                                 >
 
                                                                                 <Grid Height="80"
@@ -2128,8 +2127,7 @@
                                                                                                            Width="80"
                                                                                                            Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
                                                                                                             Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsCanceledPlayNextVideo, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                                                                                            
-                                                                                                                   Thickness="3"
+                                                                                                            Thickness="3"
                                                                                                        />
 
                                                                                     <SymbolIcon Symbol="Next"
@@ -2495,7 +2493,6 @@
                                                                 <Button Command="{Binding ElementName=RecommendActionLayout, Path=DataContext.ManualPlayNextVideoCommand}"
                                                                                 Background="Transparent"
                                                                                 HorizontalAlignment="Center"
-                                                                        Visibility="{Binding ElementName=RecommendActionLayout, Path=DataContext.IsEnableAutoPlayNextVideo, Converter={StaticResource BooleanToVisibility}}"
                                                                                 >
                                                                     <Grid>
                                                                         <Border

@@ -1637,7 +1637,7 @@ namespace NicoPlayerHohoema.ViewModels
                         {
                             EndPlayRecommendAction = GetSidePaneContent(PlayerSidePaneContentType.RelatedVideos) as RelatedVideosSidePaneContentViewModel;
 
-                            IsCanceledPlayNextVideo = false;
+                            IsCanceledPlayNextVideo = !IsEnableAutoPlayNextVideo; // 次動画へ自動で進まない場合はキャンセル操作が不要になる
                             CancelAutoPlayNextVideoCommand.RaiseCanExecuteChanged();
 
                             // 自動で次動画へ移動する機能
