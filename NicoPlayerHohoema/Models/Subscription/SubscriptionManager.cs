@@ -414,7 +414,7 @@ namespace NicoPlayerHohoema.Models.Subscription
 
                 subsc.UpdateTargetCount = updateTargetCount;
                 subsc.UpdateCompletedCount = 0;
-                subsc.Status = SubscriptionUpdateStatus.UpdatePending;
+                subsc.Status = updateTargetCount > 0 ? SubscriptionUpdateStatus.UpdatePending : SubscriptionUpdateStatus.Complete;
 
                 Debug.WriteLine($"{subsc.Label} : {subsc.Status}");
             });
