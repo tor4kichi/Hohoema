@@ -137,6 +137,7 @@
                     <StackPanel >
                         <CommandBar 
                             x:Name="TopCommandBar"
+                            Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                                 >
                            
                             <CommandBar.PrimaryCommands>
