@@ -261,6 +261,11 @@ namespace NicoPlayerHohoema.ViewModels
 
         }
 
+        protected override string ResolvePageName()
+        {
+            return UserName ?? base.ResolvePageName();
+        }
+
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			base.OnNavigatedTo(e, viewModelState);
@@ -297,13 +302,14 @@ namespace NicoPlayerHohoema.ViewModels
             else
             {
                 throw new Exception("UserMylistPage が不明なパラメータと共に開かれました : " + e.Parameter);
-            } 
-			
-			AddMylistGroupCommand.RaiseCanExecuteChanged();
+            }
+
+            PageManager.PageTitle = UserName;
+
+            AddMylistGroupCommand.RaiseCanExecuteChanged();
 
             await base.NavigatedToAsync(cancelToken, e, viewModelState);
 		}
-
 
         public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
         {

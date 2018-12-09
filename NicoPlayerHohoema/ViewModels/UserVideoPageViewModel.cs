@@ -38,6 +38,8 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 IsOwnerVideoPrivate = User.IsOwnerVideoPrivate;
                 UserName = User.Nickname;
+
+                PageManager.PageTitle = UserName;
             }
             else
             {
@@ -47,7 +49,12 @@ namespace NicoPlayerHohoema.ViewModels
             base.OnNavigatedTo(e, viewModelState);
 		}
 
-		protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        protected override string ResolvePageName()
+        {
+            return UserName ?? base.ResolvePageName();
+        }
+
+        protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
             if (e.Parameter is string)
             {
@@ -60,6 +67,8 @@ namespace NicoPlayerHohoema.ViewModels
 			{
                 IsOwnerVideoPrivate = User.IsOwnerVideoPrivate;
                 UserName = User.Nickname;
+
+                PageManager.PageTitle = UserName;
             }
             else
 			{

@@ -152,7 +152,7 @@
                                         <TextBlock VerticalAlignment="Center"
                                                
                                         >
-                                            <Run Text="{Binding ChannelScreenName}" />
+                                            <Run Text="{Binding ChannelName}" />
                                         </TextBlock>
 
                                         <!--
