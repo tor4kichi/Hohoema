@@ -18,7 +18,7 @@ using NicoPlayerHohoema.Helpers;
 using Windows.UI.Xaml;
 using Reactive.Bindings.Extensions;
 using System.Threading;
-using NicoPlayerHohoema.Views.Service;
+using NicoPlayerHohoema.Services;
 using Microsoft.Practices.Unity;
 using Windows.UI;
 using Mntone.Nico2.Live.PlayerStatus;
@@ -160,7 +160,7 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         if (PlayableList.Value.Origin == PlaylistOrigin.Local)
                         {
-                            var textInputDialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
+                            var textInputDialogService = App.Current.Container.Resolve<Services.DialogService>();
                             var localMylist = PlayableList.Value as LocalMylist;
                             var resultText = await textInputDialogService.GetTextAsync("プレイリスト名を変更",
                                 localMylist.Label,
@@ -188,7 +188,7 @@ namespace NicoPlayerHohoema.ViewModels
                                 IconType = mylistGroup.IconType,
                             };
 
-                            var editDialog = App.Current.Container.Resolve<Services.HohoemaDialogService>();
+                            var editDialog = App.Current.Container.Resolve<Services.DialogService>();
 
                             // 成功するかキャンセルが押されるまで繰り返す
                             while (true)
@@ -446,13 +446,13 @@ namespace NicoPlayerHohoema.ViewModels
 
                         // ユーザーに結果を通知
                         var titleText = $"「{mylistGroup.Label}」から {successCount}件 の動画が登録解除されました";
-                        var toastService = App.Current.Container.Resolve<ToastNotificationService>();
+                        var toastService = App.Current.Container.Resolve<NotificationService>();
                         var resultText = $"";
                         if (failedCount > 0)
                         {
                             resultText += $"\n登録解除に失敗した {failedCount}件 は選択されたままです";
                         }
-                        toastService.ShowText(titleText, resultText);
+                        toastService.ShowToast(titleText, resultText);
 
                         // 登録解除に失敗したアイテムだけを残すように
                         // マイリストから除外された動画を選択アイテムリストから削除

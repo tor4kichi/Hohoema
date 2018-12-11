@@ -1,5 +1,4 @@
 ﻿using Hohoema.NicoAlert;
-using NicoPlayerHohoema.Views.Service;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -9,6 +8,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Practices.Unity;
 using Mntone.Nico2.NicoRepo;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -41,7 +41,7 @@ namespace NicoPlayerHohoema.Models
             {
                 Debug.WriteLine("new video recieved!: " + args.Id);
 
-                var toastService = App.Current.Container.Resolve<ToastNotificationService>();
+                var toastService = App.Current.Container.Resolve<NotificationService>();
 
                 /*
                 var nicoInfo = await ContentProvider.GetNicoVideoInfo(args.Id);
@@ -60,13 +60,13 @@ namespace NicoPlayerHohoema.Models
 
                 Debug.WriteLine("new live recieved!: " + liveId);
 
-                var toastService = App.Current.Container.Resolve<ToastNotificationService>();
+                var toastService = App.Current.Container.Resolve<NotificationService>();
 
                 if (CurrentUserFollows.GetFollowCommunities().Any(x => x == args.CommunityId))
                 {
                     var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
                     var liveStatus = await hohoemaApp.NiconicoContext.Live.GetPlayerStatusAsync(liveId);
-                    toastService.ShowText($"{liveStatus.Program.BroadcasterName} さんのニコ生開始", $"{liveStatus.Program.Title}",
+                    toastService.ShowToast($"{liveStatus.Program.BroadcasterName} さんのニコ生開始", $"{liveStatus.Program.Title}",
                         luanchContent: "niconico://" + liveId
                         );
                 }
@@ -125,10 +125,10 @@ namespace NicoPlayerHohoema.Models
                         try
                         {
                             var liveStatus = await hohoemaApp.NiconicoContext.Live.GetPlayerStatusAsync(item.Program.Id);
-                            var toastService = App.Current.Container.Resolve<ToastNotificationService>();
+                            var toastService = App.Current.Container.Resolve<NotificationService>();
                             if (liveStatus.Program.EndedAt.DateTime > DateTime.Now)
                             {
-                                toastService.ShowText($"{liveStatus.Program.BroadcasterName} さんのニコ生開始", $"{liveStatus.Program.Title}",
+                                toastService.ShowToast($"{liveStatus.Program.BroadcasterName} さんのニコ生開始", $"{liveStatus.Program.Title}",
                                     luanchContent: "niconico://" + item.Program.Id
                                     );
                             }

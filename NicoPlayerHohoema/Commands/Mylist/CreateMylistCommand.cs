@@ -21,7 +21,7 @@ namespace NicoPlayerHohoema.Commands.Mylist
             var hohoemaApp = HohoemaCommnadHelper.GetHohoemaApp();
             var mylistManager = hohoemaApp.UserMylistManager;
 
-            var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
+            var dialogService = App.Current.Container.Resolve<Services.DialogService>();
             var data = new Dialogs.MylistGroupEditData() { };
             var result = await dialogService.ShowCreateMylistGroupDialogAsync(data);
             if (result)

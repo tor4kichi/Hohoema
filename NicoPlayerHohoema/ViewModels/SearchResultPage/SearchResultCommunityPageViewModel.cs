@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Views.Service;
+using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Helpers;
 using System.Windows.Input;
 using Mntone.Nico2.Searches.Community;

@@ -208,7 +208,7 @@ namespace NicoPlayerHohoema.ViewModels
             bool isDeleted = false;
 
             var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
-            var hohoemaDialogService = App.Current.Container.Resolve<HohoemaDialogService>();
+            var hohoemaDialogService = App.Current.Container.Resolve<DialogService>();
 
             var token = await hohoemaApp.NiconicoContext.Live.GetReservationTokenAsync();
 
@@ -230,7 +230,8 @@ namespace NicoPlayerHohoema.ViewModels
                 if (isDeleted)
                 {
                     // 削除成功
-                    (App.Current as App).PublishInAppNotification(new InAppNotificationPayload()
+                    var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
+                    notificationService.ShowInAppNotification(new InAppNotificationPayload()
                     {
                         Content = $"タイムシフト予約を削除しました。\r削除後の予約数は {deleteAfterReservations.Count}件 です。",
                         IsShowDismissButton = true,
@@ -239,7 +240,8 @@ namespace NicoPlayerHohoema.ViewModels
                 else
                 {
                     // まだ存在するゾイ
-                    (App.Current as App).PublishInAppNotification(new InAppNotificationPayload()
+                    var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
+                    notificationService.ShowInAppNotification(new InAppNotificationPayload()
                     {
                         Content = $"【失敗】タイムシフト予約を削除できませんでした。",
                         IsShowDismissButton = true,
@@ -255,7 +257,7 @@ namespace NicoPlayerHohoema.ViewModels
         private static async Task<bool> AddReservation(string liveId, string liveTitle)
         {
             var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
-            var hohoemaDialogService = App.Current.Container.Resolve<HohoemaDialogService>();
+            var hohoemaDialogService = App.Current.Container.Resolve<DialogService>();
 
             var result = await hohoemaApp.NiconicoContext.Live.ReservationAsync(liveId);
 
@@ -279,7 +281,8 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 // 予約できてるはず
                 // LiveInfoのタイムシフト周りの情報と共に通知
-                (App.Current as App).PublishInAppNotification(new InAppNotificationPayload()
+                var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
+                notificationService.ShowInAppNotification(new InAppNotificationPayload()
                 {
                     Content = $"『{liveTitle}』のタイムシフトを予約しました。",
                 });
@@ -292,14 +295,16 @@ namespace NicoPlayerHohoema.ViewModels
             }
             else if (result.IsReservationDeuplicated)
             {
-                (App.Current as App).PublishInAppNotification(new InAppNotificationPayload()
+                var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
+                notificationService.ShowInAppNotification(new InAppNotificationPayload()
                 {
                     Content = $"指定された放送は既にタイムシフト予約しています。",
                 });
             }
             else if (result.IsReservationExpired)
             {
-                (App.Current as App).PublishInAppNotification(new InAppNotificationPayload()
+                var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
+                notificationService.ShowInAppNotification(new InAppNotificationPayload()
                 {
                     Content = $"指定された放送はタイムシフト予約の期限を過ぎているため予約できませんでした。",
                 });
@@ -311,13 +316,18 @@ namespace NicoPlayerHohoema.ViewModels
         #endregion
 
 
-        HohoemaDialogService _HohoemaDialogService;
+        DialogService _HohoemaDialogService;
 
-        public LiveInfomationPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, NiconicoContentProvider contentProvider, HohoemaDialogService dialogService)
+        public LiveInfomationPageViewModel(
+            HohoemaApp hohoemaApp, 
+            PageManager pageManager, 
+            NiconicoContentProvider contentProvider, 
+            DialogService dialogService
+            )
             : base(hohoemaApp, pageManager)
         {
             _HohoemaDialogService = dialogService;
-
+            
             IsLoadFailed = new ReactiveProperty<bool>(false)
                .AddTo(_CompositeDisposable);
             LoadFailedMessage = new ReactiveProperty<string>()
@@ -636,6 +646,7 @@ namespace NicoPlayerHohoema.ViewModels
         AsyncLock _LiveRecommendLock = new AsyncLock();
         public bool IsLiveRecommendInitialized { get; private set; } = false;
         public bool IsEmptyLiveRecommendItems { get; private set; } = false;
+        
         public async void InitializeLiveRecommend()
         {
             using (var releaser = await _LiveRecommendLock.LockAsync())

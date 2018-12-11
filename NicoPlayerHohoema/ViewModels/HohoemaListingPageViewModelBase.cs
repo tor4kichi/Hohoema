@@ -4,29 +4,23 @@ using Prism.Commands;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Prism.Windows.Navigation;
-using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
 using System.Threading;
-using Windows.UI.Xaml;
-using NicoPlayerHohoema.Views.Service;
-using Microsoft.Practices.Unity;
 using Microsoft.Toolkit.Uwp.UI;
 using Windows.UI.Xaml.Data;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    
 
-	public abstract class HohoemaListingPageViewModelBase<ITEM_VM> : HohoemaViewModelBase
+
+    public abstract class HohoemaListingPageViewModelBase<ITEM_VM> : HohoemaViewModelBase
 	{
         public class HohoemaListingCache
         {

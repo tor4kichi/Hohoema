@@ -21,7 +21,7 @@ namespace NicoPlayerHohoema.Commands.Mylist
             var hohoemaApp = HohoemaCommnadHelper.GetHohoemaApp();
             var playlist = hohoemaApp.Playlist;
 
-            var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
+            var dialogService = App.Current.Container.Resolve<Services.DialogService>();
             var data = new Dialogs.MylistGroupEditData() { };
             var result = await dialogService.GetTextAsync("新しいローカルマイリストを作成", "ローカルマイリスト名", "", (s) => !string.IsNullOrWhiteSpace(s));
             if (result != null)

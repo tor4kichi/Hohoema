@@ -79,9 +79,10 @@ namespace NicoPlayerHohoema.Models.Subscription
 
         public bool IsInitialized { get; private set; } = false;
 
-        public static void Initialize(Models.NiconicoContentProvider contentProvider)
+        public static void Initialize(Models.NiconicoContentProvider contentProvider, Services.NotificationService notificationService)
         {
-            Instance.SetContentProvider(contentProvider);
+            Instance._ContentProvider = contentProvider;
+            Instance.NotificationService = notificationService;
 
             MigrateFeedGroupToSubscriptionManager();
 
@@ -104,12 +105,10 @@ namespace NicoPlayerHohoema.Models.Subscription
         #endregion
 
 
-        private void SetContentProvider(Models.NiconicoContentProvider contentProvider)
-        {
-            _ContentProvider = contentProvider;
-        }
 
         Models.NiconicoContentProvider _ContentProvider;
+        Services.NotificationService NotificationService;
+
         AsyncLock _UpdateLock = new AsyncLock();
 
         public ObservableCollection<Subscription> Subscriptions { get; }
@@ -295,8 +294,8 @@ namespace NicoPlayerHohoema.Models.Subscription
                             if (newItem.GetHashCode() != _prevRemovedSourceHashId)
                             {
                                 // Add
-                                (App.Current as App).PublishInAppNotification(
-                                    InAppNotificationPayload.CreateReadOnlyNotification(
+                                NotificationService.ShowInAppNotification(
+                                    Services.InAppNotificationPayload.CreateReadOnlyNotification(
                                         content: $"購読「{subscription.Label} 」に「 {newItem.Label}({newItem.SourceType.ToCulturelizeString()})」を追加",
                                         showDuration: TimeSpan.FromSeconds(3)
                                         ));
@@ -309,8 +308,8 @@ namespace NicoPlayerHohoema.Models.Subscription
                             break;
                         case System.Collections.Specialized.NotifyCollectionChangedAction.Remove:
                             var oldItem = (SubscriptionSource)e.OldItems[0];
-                            (App.Current as App).PublishInAppNotification(
-                                InAppNotificationPayload.CreateReadOnlyNotification(
+                            NotificationService.ShowInAppNotification(
+                                    Services.InAppNotificationPayload.CreateReadOnlyNotification(
                                     content: $"購読「{subscription.Label}」から「{oldItem.Label}({oldItem.SourceType.ToCulturelizeString()})」を削除"
                                     ));
                             break;

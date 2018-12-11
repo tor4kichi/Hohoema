@@ -166,25 +166,6 @@ namespace NicoPlayerHohoema.Helpers
 
 
 
-        public static void CopyToClipboard(string content)
-        {
-            var datapackage = new DataPackage();
-            datapackage.SetText(content);
-
-            // アプリのクリップボードチェックアクションをアプリ内部からのコピーでは作動させないようにする
-            (App.Current as App).SetIgnoreClipboardCheckingOnce(content);
-
-            Clipboard.SetContent(datapackage);
-        }
-
-        public static void CopyToClipboard(Database.NicoVideo video)
-        {
-            CopyToClipboard(MakeShareText(video));
-        }
-
-        public static void CopyToClipboard(NicoLiveVideo video)
-        {
-            CopyToClipboard(MakeShareText(video));
-        }
+        
     }
 }

@@ -23,7 +23,7 @@ namespace NicoPlayerHohoema.Models
                     {
                         Debug.WriteLine("ChangeOverrideLabelCommand");
 
-                        var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
+                        var dialogService = App.Current.Container.Resolve<Services.DialogService>();
                         if (dialogService != null)
                         {
                             var name = OverrideLabel ?? $"{Label} ({Helpers.CulturelizeHelper.ToCulturelizeString(PageType)})";

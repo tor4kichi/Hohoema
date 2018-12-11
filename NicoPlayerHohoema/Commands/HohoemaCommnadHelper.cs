@@ -29,9 +29,19 @@ namespace NicoPlayerHohoema.Commands
         {
             return (App.Current as App).Container.Resolve<Models.PageManager>();
         }
-        public static Services.HohoemaDialogService GetDialogService()
+        public static Services.DialogService GetDialogService()
         {
-            return (App.Current as App).Container.Resolve<Services.HohoemaDialogService>();
+            return (App.Current as App).Container.Resolve<Services.DialogService>();
+        }
+
+        public static Services.NotificationService GetNotificationService()
+        {
+            return (App.Current as App).Container.Resolve<Services.NotificationService>();
+        }
+
+        public static Services.HohoemaClipboardService GetClipboardService()
+        {
+            return (App.Current as App).Container.Resolve<Services.HohoemaClipboardService>();
         }
     }
 }

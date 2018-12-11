@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using NicoPlayerHohoema.Views.Service;
+using NicoPlayerHohoema.Services;
 using Windows.UI.Xaml.Navigation;
 using Mntone.Nico2.Searches.Mylist;
 using Prism.Commands;

@@ -186,7 +186,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _VideoInfoCopyToClipboardCommand
                     ?? (_VideoInfoCopyToClipboardCommand = new DelegateCommand(() =>
                     {
-                        ShareHelper.CopyToClipboard(_VideoInfo);
+                        ClipboardService.CopyToClipboard(_VideoInfo);
                     }
                     ));
             }
@@ -205,8 +205,8 @@ namespace NicoPlayerHohoema.ViewModels
                         if (targetMylist != null)
                         {
                             var result = await HohoemaApp.AddMylistItem(targetMylist, Title, VideoId);
-                            (App.Current as App).PublishInAppNotification(
-                                InAppNotificationPayload.CreateRegistrationResultNotification(
+                            NotificationService.ShowInAppNotification(
+                                Services.InAppNotificationPayload.CreateRegistrationResultNotification(
                                     result,
                                     "マイリスト",
                                     targetMylist.Label,
@@ -304,9 +304,11 @@ namespace NicoPlayerHohoema.ViewModels
         public List<HyperlinkItem> VideoDescriptionHyperlinkItems { get; } = new List<HyperlinkItem>();
 
         AsyncLock _WebViewFocusManagementLock = new AsyncLock();
-        public VideoInfomationPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
+        public VideoInfomationPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Services.NotificationService notificationService, Services.HohoemaClipboardService clipboardService) 
             : base(hohoemaApp, pageManager)
         {
+            NotificationService = notificationService;
+            ClipboardService = clipboardService;
             ChangeRequireServiceLevel(HohoemaAppServiceLevel.OnlineWithoutLoggedIn);
 
             NowLoading = new ReactiveProperty<bool>(false);
@@ -382,6 +384,9 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public List<VideoInfoControlViewModel> RelatedVideos { get; private set; }
+        public Services.NotificationService NotificationService { get; }
+        public Services.HohoemaClipboardService ClipboardService { get; }
+
         bool _IsInitializedRelatedVideos = false;
         public async void InitializeRelatedVideos()
         {

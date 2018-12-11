@@ -1,7 +1,7 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Helpers;
-using NicoPlayerHohoema.Views.Service;
+using NicoPlayerHohoema.Services;
 using Prism.Events;
 using Prism.Mvvm;
 using System;
@@ -23,7 +23,6 @@ using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Microsoft.Practices.Unity;
 using NicoPlayerHohoema.Dialogs;
-using NicoPlayerHohoema.Services;
 using Hohoema.NicoAlert;
 
 namespace NicoPlayerHohoema.Models
@@ -44,7 +43,7 @@ namespace NicoPlayerHohoema.Models
 
         private bool IsInitialized = false;
 
-        public static async Task<HohoemaApp> Create(IEventAggregator ea, HohoemaViewManager viewMan, HohoemaDialogService dialogService)
+        public static async Task<HohoemaApp> Create(IEventAggregator ea, HohoemaViewManager viewMan, DialogService dialogService)
 		{
 			HohoemaApp.UIDispatcher = Window.Current.CoreWindow.Dispatcher;
 
@@ -82,9 +81,9 @@ namespace NicoPlayerHohoema.Models
         private AsyncLock _SigninLock = new AsyncLock();
 		private const string ThumbnailLoadBackgroundTaskId = "ThumbnailLoader";
 
-        HohoemaDialogService _HohoemaDialogService;
+        DialogService _HohoemaDialogService;
 
-        private HohoemaApp(IEventAggregator ea, HohoemaDialogService dialogService)
+        private HohoemaApp(IEventAggregator ea, DialogService dialogService)
 		{
             EventAggregator = ea;
             _HohoemaDialogService = dialogService;
@@ -1235,7 +1234,7 @@ namespace NicoPlayerHohoema.Models
             const string CreateNewContextLabel = @"@create_new";
             var mylists = UserMylistManager.UserMylists;
             var localMylists = Playlist.Playlists;
-            var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
+            var dialogService = App.Current.Container.Resolve<Services.DialogService>();
 
             List<ISelectableContainer> selectDialogContent;
             if (IsLoggedIn)
@@ -1287,7 +1286,7 @@ namespace NicoPlayerHohoema.Models
 
                 if (result?.Context as string == CreateNewContextLabel)
                 {
-                    var textDialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
+                    var textDialogService = App.Current.Container.Resolve<Services.DialogService>();
                     var mylistTypeLabel = result.Id == "mylist" ? "マイリスト" : "ローカルマイリスト";
                     var title = await textDialogService.GetTextAsync(
                         $"{mylistTypeLabel}を作成",
@@ -1320,7 +1319,7 @@ namespace NicoPlayerHohoema.Models
 
         public async Task<Database.Feed> ChoiceFeedGroup(string title)
         {
-            var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
+            var dialogService = App.Current.Container.Resolve<Services.DialogService>();
 
             Database.Feed resultFeedGroup = null;
             while (resultFeedGroup == null)

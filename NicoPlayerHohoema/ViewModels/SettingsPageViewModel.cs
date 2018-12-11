@@ -15,7 +15,6 @@ using System.Reactive.Disposables;
 using Mntone.Nico2;
 using System.Collections.ObjectModel;
 using Mntone.Nico2.Videos.Ranking;
-using NicoPlayerHohoema.Views.Service;
 using System.Threading;
 using System.Windows.Input;
 using System.Text.RegularExpressions;
@@ -28,6 +27,7 @@ using System.Diagnostics;
 using Microsoft.Services.Store.Engagement;
 using Windows.System;
 using Windows.UI.StartScreen;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -311,7 +311,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _CopyVersionTextToClipboardCommand
                     ?? (_CopyVersionTextToClipboardCommand = new DelegateCommand(() =>
                     {
-                        Helpers.ShareHelper.CopyToClipboard(CurrentVersion.ToString());
+                        ClipboardService.CopyToClipboard(CurrentVersion.ToString());
                     }));
             }
         }
@@ -359,16 +359,17 @@ namespace NicoPlayerHohoema.ViewModels
 
         NGSettings _NGSettings;
         RankingSettings _RankingSettings;
-        Services.HohoemaDialogService _HohoemaDialogService;
+        Services.DialogService _HohoemaDialogService;
 
-        public ToastNotificationService ToastNotificationService { get; private set; }
-
+        public NotificationService ToastNotificationService { get; private set; }
+        public HohoemaClipboardService ClipboardService { get; }
 
         public SettingsPageViewModel(
 			HohoemaApp hohoemaApp
 			, PageManager pageManager
-			, ToastNotificationService toastService
-            , Services.HohoemaDialogService dialogService
+			, NotificationService toastService
+            , Services.DialogService dialogService
+            , Services.HohoemaClipboardService clipboardService
 			)
 			: base(hohoemaApp, pageManager)
 		{
@@ -376,6 +377,7 @@ namespace NicoPlayerHohoema.ViewModels
             _NGSettings = HohoemaApp.UserSettings.NGSettings;
             _RankingSettings = HohoemaApp.UserSettings.RankingSettings;
             _HohoemaDialogService = dialogService;
+            ClipboardService = clipboardService;
 
             IsLiveAlertEnabled = HohoemaApp.UserSettings.ActivityFeedSettings.ToReactivePropertyAsSynchronized(x => x.IsLiveAlertEnabled)
                 .AddTo(_CompositeDisposable);
@@ -434,7 +436,7 @@ namespace NicoPlayerHohoema.ViewModels
                 // 一度だけトースト通知
                 if (!ThemeChanged)
                 {
-                    toastService.ShowText("Hohoemaを再起動するとテーマが適用されます。", "");
+                    toastService.ShowToast("Hohoemaを再起動するとテーマが適用されます。", "");
                 }
 
                 ThemeChanged = true;

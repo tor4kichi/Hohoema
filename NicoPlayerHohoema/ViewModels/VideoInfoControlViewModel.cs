@@ -25,7 +25,7 @@ using System.Windows.Input;
 using Microsoft.Practices.Unity;
 using Windows.ApplicationModel.DataTransfer;
 using Windows.UI.Popups;
-using NicoPlayerHohoema.Views.Service;
+using NicoPlayerHohoema.Services;
 using System.Diagnostics;
 using Windows.UI.Core;
 using Windows.UI.Xaml;

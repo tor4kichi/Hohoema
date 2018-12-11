@@ -94,14 +94,14 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        Services.HohoemaDialogService _HohoemaDialogService;
+        Services.DialogService _HohoemaDialogService;
 
 
 
 
 
 
-        public RankingCategoryListPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Services.HohoemaDialogService dialogService)
+        public RankingCategoryListPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Services.DialogService dialogService)
             : base(hohoemaApp, pageManager)
         {
             _HohoemaDialogService = dialogService;

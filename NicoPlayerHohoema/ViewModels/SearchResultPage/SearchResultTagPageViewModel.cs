@@ -1,7 +1,6 @@
 ﻿using Mntone.Nico2;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Helpers;
-using NicoPlayerHohoema.Views.Service;
 using Prism.Commands;
 using Prism.Windows.Navigation;
 using Reactive.Bindings;
@@ -11,7 +10,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Navigation;
@@ -21,7 +19,7 @@ namespace NicoPlayerHohoema.ViewModels
 	public class SearchResultTagPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
 	{
         NiconicoContentProvider _ContentFinder;
-        Services.HohoemaDialogService _HohoemaDialogService;
+        Services.DialogService _HohoemaDialogService;
 
 
         private static List<SearchSortOptionListItem> _VideoSearchOptionListItems = new List<SearchSortOptionListItem>()
@@ -175,7 +173,7 @@ namespace NicoPlayerHohoema.ViewModels
         public SearchResultTagPageViewModel(
 			HohoemaApp hohoemaApp, 
 			PageManager pageManager,
-            Services.HohoemaDialogService dialogService
+            Services.DialogService dialogService
             ) 
 			: base(hohoemaApp, pageManager, useDefaultPageTitle: false)
 		{
@@ -285,29 +283,6 @@ namespace NicoPlayerHohoema.ViewModels
 					}));
 			}
 		}
-
-
-        private DelegateCommand _AddFeedSourceCommand;
-        public DelegateCommand AddFeedSourceCommand
-        {
-            get
-            {
-                return _AddFeedSourceCommand
-                    ?? (_AddFeedSourceCommand = new DelegateCommand(async () =>
-                    {
-                        var targetTitle = SearchOption.Keyword;
-                        var feedGroup = await HohoemaApp.ChoiceFeedGroup(targetTitle + "をフィードに追加");
-                        (App.Current as App).PublishInAppNotification(
-                                InAppNotificationPayload.CreateRegistrationResultNotification(
-                                    feedGroup != null ? ContentManageResult.Success : ContentManageResult.Failed,
-                                    "フィード",
-                                    feedGroup.Label,
-                                    targetTitle + "(タグ)"
-                                    ));
-                    }));
-            }
-        }
-        
 
         #endregion
 

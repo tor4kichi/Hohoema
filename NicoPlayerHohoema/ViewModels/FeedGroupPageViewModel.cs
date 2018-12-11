@@ -30,9 +30,9 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> IsPublicFeedSource { get; private set; }
 		
 
-		public Services.HohoemaDialogService HohoemaDialogService { get; private set; }
+		public Services.DialogService HohoemaDialogService { get; private set; }
 
-		public FeedGroupPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Services.HohoemaDialogService dialogService) 
+		public FeedGroupPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Services.DialogService dialogService) 
 			: base(hohoemaApp, pageManager)
 		{
 			HohoemaDialogService = dialogService;

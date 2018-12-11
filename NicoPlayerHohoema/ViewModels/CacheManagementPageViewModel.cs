@@ -1,35 +1,23 @@
-﻿using Mntone.Nico2.Videos.WatchAPI;
-using NicoPlayerHohoema.Models;
-using Prism.Mvvm;
-using Prism.Windows.Mvvm;
+﻿using NicoPlayerHohoema.Models;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using Windows.Storage;
 using Prism.Windows.Navigation;
 using System.Threading;
-using System.Reactive.Disposables;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Reactive.Concurrency;
 using NicoPlayerHohoema.Helpers;
 using Windows.UI.Xaml.Navigation;
 using Prism.Commands;
-using Windows.Networking.BackgroundTransfer;
-using NicoPlayerHohoema.Views.Service;
-using Windows.System;
-using Windows.UI.Popups;
 using NicoPlayerHohoema.Services;
+using Windows.System;
 using System.Collections.Async;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class CacheManagementPageViewModel : HohoemaVideoListingPageViewModelBase<CacheVideoViewModel>
+    public class CacheManagementPageViewModel : HohoemaVideoListingPageViewModelBase<CacheVideoViewModel>
 	{
 
         public ReadOnlyReactiveProperty<bool> IsCacheUserAccepted { get; private set; }
@@ -61,17 +49,22 @@ namespace NicoPlayerHohoema.ViewModels
 
         VideoCacheManager _MediaManager;
 
-        HohoemaDialogService _HohoemaDialogService;
+        DialogService _HohoemaDialogService;
+
+
+        public NotificationService NotificationService { get; }
 
         public CacheManagementPageViewModel(
             HohoemaApp app, 
             PageManager pageManager,
-            HohoemaDialogService dialogService
+            DialogService dialogService,
+            NotificationService notificationService
             )
 			: base(app, pageManager)
 		{
 			_MediaManager = app.CacheManager;
             _HohoemaDialogService = dialogService;
+            NotificationService = notificationService;
 
             IsRequireUpdateCacheSaveFolder = new ReactiveProperty<bool>(false);
 
@@ -89,7 +82,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                     await RefreshCacheSaveFolderStatus();
 
-                    (App.Current as App).PublishInAppNotification(
+                    NotificationService.ShowInAppNotification(
                         InAppNotificationPayload.CreateReadOnlyNotification("キャッシュの保存先フォルダを選択してください。\n保存先が選択されると利用準備が完了します。",
                         showDuration: TimeSpan.FromSeconds(30)
                         ));
@@ -99,7 +92,7 @@ namespace NicoPlayerHohoema.ViewModels
                         await RefreshCacheSaveFolderStatus();
                         await ResetList();
 
-                        (App.Current as App).PublishInAppNotification(
+                        NotificationService.ShowInAppNotification(
                             InAppNotificationPayload.CreateReadOnlyNotification("キャッシュの利用準備が出来ました")
                             );
                     }
@@ -134,7 +127,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                 if (await HohoemaApp.ChangeUserDataFolder())
                 {
-                    (App.Current as App).PublishInAppNotification(
+                    NotificationService.ShowInAppNotification(
                         InAppNotificationPayload.CreateReadOnlyNotification($"キャッシュの保存先を {CacheSaveFolderPath.Value} に変更しました")
                         );
 
@@ -153,7 +146,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (IsRequireUpdateCacheSaveFolder.Value)
             {
-                (App.Current as App).PublishInAppNotification(
+                NotificationService.ShowInAppNotification(
                     InAppNotificationPayload.CreateReadOnlyNotification("キャッシュの保存先フォルダを選択してください。\n保存先が選択されると利用準備が完了します。",
                     showDuration: TimeSpan.FromSeconds(30)
                     ));
@@ -163,7 +156,7 @@ namespace NicoPlayerHohoema.ViewModels
                     await RefreshCacheSaveFolderStatus();
                     await ResetList();
 
-                    (App.Current as App).PublishInAppNotification(
+                    NotificationService.ShowInAppNotification(
                         InAppNotificationPayload.CreateReadOnlyNotification("キャッシュの利用準備が出来ました")
                         );
                 }

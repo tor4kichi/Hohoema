@@ -1,30 +1,22 @@
 ﻿using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Helpers;
-using Prism.Commands;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Prism.Windows.Navigation;
-using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Navigation;
 using System.Threading;
-using Windows.UI.Xaml;
-using NicoPlayerHohoema.Views.Service;
+using NicoPlayerHohoema.Services;
 using Microsoft.Practices.Unity;
 using System.Runtime.InteropServices.WindowsRuntime;
-using Mntone.Nico2;
+using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public abstract class HohoemaVideoListingPageViewModelBase<VIDEO_INFO_VM> : HohoemaListingPageViewModelBase<VIDEO_INFO_VM>
+    public abstract class HohoemaVideoListingPageViewModelBase<VIDEO_INFO_VM> : HohoemaListingPageViewModelBase<VIDEO_INFO_VM>
 		where VIDEO_INFO_VM : VideoInfoControlViewModel
 	{
 		public HohoemaVideoListingPageViewModelBase(HohoemaApp app, PageManager pageManager, bool isRequireSignIn = true, bool useDefaultPageTitle = true)
@@ -189,7 +181,7 @@ namespace NicoPlayerHohoema.ViewModels
 							resultText += $"\n登録に失敗した {failedCount}件 は選択されたままです";
 						}
 
-                        (App.Current as App).PublishInAppNotification(InAppNotificationPayload.CreateReadOnlyNotification(
+                        (App.Current as App).Container.Resolve<Services.NotificationService>().ShowInAppNotification(InAppNotificationPayload.CreateReadOnlyNotification(
                             titleText,
                             TimeSpan.FromSeconds(7)
                             ));

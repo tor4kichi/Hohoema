@@ -8,7 +8,7 @@ using System.Windows.Input;
 using Windows.UI.Xaml.Controls;
 using Microsoft.Practices.Unity;
 
-namespace NicoPlayerHohoema.Models
+namespace NicoPlayerHohoema.Services
 {
     public class InAppNotificationEvent : PubSubEvent<InAppNotificationPayload>
     {

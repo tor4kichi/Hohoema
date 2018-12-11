@@ -121,9 +121,6 @@ namespace NicoPlayerHohoema.Models
                                     IsDisplayMainViewPlayer = true;
                                 }
                             });
-
-                        // Note: 
-                        (App.Current as App).PublishInAppNotification(InAppNotificationPayload.CreateReadOnlyNotification(""));
                     }
                     else
                     {
@@ -403,7 +400,7 @@ namespace NicoPlayerHohoema.Models
                     var downloadingItem = currentDownloadingItems.FirstOrDefault();
                     var downloadingItemVideoInfo = Database.NicoVideoDb.Get(downloadingItem.RawVideoId);
                     
-                    var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
+                    var dialogService = App.Current.Container.Resolve<Services.DialogService>();
                     var totalSize = downloadingItem.DownloadOperation.Progress.TotalBytesToReceive;
                     var receivedSize = downloadingItem.DownloadOperation.Progress.BytesReceived;
                     var megaBytes = (totalSize - receivedSize) / 1000_000.0;

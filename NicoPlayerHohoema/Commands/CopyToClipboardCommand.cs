@@ -16,11 +16,13 @@ namespace NicoPlayerHohoema.Commands
                 var content = parameter as Interfaces.INiconicoContent;
 
                 var shareContent = Helpers.ShareHelper.MakeShareText(content);
-                Helpers.ShareHelper.CopyToClipboard(shareContent);
+                var clipboardService = HohoemaCommnadHelper.GetClipboardService();
+                clipboardService.CopyToClipboard(shareContent);
             }
             else if (parameter != null)
             {
-                Helpers.ShareHelper.CopyToClipboard(parameter.ToString());
+                var clipboardService = HohoemaCommnadHelper.GetClipboardService();
+                clipboardService.CopyToClipboard(parameter.ToString());
             }
         }
     }

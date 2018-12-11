@@ -394,7 +394,7 @@ namespace NicoPlayerHohoema.Models.Live
             // 視聴権の使用を確認する
             if (_TimeshiftProgram?.GetReservationStatus() == Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus.FIRST_WATCH)
             {
-                var dialog = App.Current.Container.Resolve<Services.HohoemaDialogService>();
+                var dialog = App.Current.Container.Resolve<Services.DialogService>();
 
 
                 // 視聴権に関する詳細な情報提示

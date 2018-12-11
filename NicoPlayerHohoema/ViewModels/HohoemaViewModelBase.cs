@@ -21,7 +21,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using Windows.UI.Core;
-using NicoPlayerHohoema.Views.Service;
+using NicoPlayerHohoema.Services;
 using Mntone.Nico2;
 using System.Reactive.Concurrency;
 using Windows.ApplicationModel.Core;

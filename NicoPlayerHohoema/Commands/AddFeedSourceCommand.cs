@@ -91,11 +91,13 @@ namespace NicoPlayerHohoema.Commands
                 if (feedGroup != null)
                 {
                     // 通知
-                    (App.Current as App).PublishInAppNotification(
-                        Models.InAppNotificationPayload.CreateReadOnlyNotification(
+                    var notificationService = HohoemaCommnadHelper.GetNotificationService();
+                    notificationService.ShowInAppNotification(
+                        Services.InAppNotificationPayload.CreateReadOnlyNotification(
                             $"{feedGroup.Label} を新着チェック対象として追加しました"
                             )
                         );
+                        
                 }
             }
         }

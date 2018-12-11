@@ -306,8 +306,9 @@ namespace NicoPlayerHohoema.Models
                 if (p is Interfaces.IVideoContent videoItem)
                 {
                     var result = await Registration(videoItem.Id);
-                    (App.Current as App).PublishInAppNotification(
-                        Models.InAppNotificationPayload.CreateRegistrationResultNotification(
+                    var notificationService = Commands.HohoemaCommnadHelper.GetNotificationService();
+                    notificationService.ShowInAppNotification(
+                        Services.InAppNotificationPayload.CreateRegistrationResultNotification(
                             result,
                             "マイリスト",
                             Label,
@@ -320,8 +321,9 @@ namespace NicoPlayerHohoema.Models
                     if (info != null)
                     {
                         var result = await Registration(info.RawVideoId);
-                        (App.Current as App).PublishInAppNotification(
-                        Models.InAppNotificationPayload.CreateRegistrationResultNotification(
+                        var notificationService = Commands.HohoemaCommnadHelper.GetNotificationService();
+                        notificationService.ShowInAppNotification(
+                            Services.InAppNotificationPayload.CreateRegistrationResultNotification(
                            result,
                            "マイリスト",
                            Label,

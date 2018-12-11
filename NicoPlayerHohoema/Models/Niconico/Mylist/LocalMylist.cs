@@ -82,8 +82,9 @@ namespace NicoPlayerHohoema.Models
                 {
                     AddVideo(videoItem.Id, videoItem.Label);
 
-                    (App.Current as App).PublishInAppNotification(
-                        Models.InAppNotificationPayload.CreateReadOnlyNotification(
+                    var notificationService = Commands.HohoemaCommnadHelper.GetNotificationService();
+                    notificationService.ShowInAppNotification(
+                        Services.InAppNotificationPayload.CreateReadOnlyNotification(
                             $"登録完了\r「{Label}」に「{videoItem.Label}」を追加しました"
                             ));
                 }
@@ -94,8 +95,9 @@ namespace NicoPlayerHohoema.Models
                     {
                         AddVideo(info.RawVideoId, info.Title);
 
-                        (App.Current as App).PublishInAppNotification(
-                        Models.InAppNotificationPayload.CreateReadOnlyNotification(
+                        var notificationService = Commands.HohoemaCommnadHelper.GetNotificationService();
+                        notificationService.ShowInAppNotification(
+                            Services.InAppNotificationPayload.CreateReadOnlyNotification(
                             $"登録完了\r「{Label}」に「{info.Title}」を追加しました"
                             ));
                     }

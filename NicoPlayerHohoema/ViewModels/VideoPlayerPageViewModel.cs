@@ -7,7 +7,7 @@ using NicoPlayerHohoema.Helpers;
 using NicoPlayerHohoema.ViewModels.PlayerSidePaneContent;
 using NicoPlayerHohoema.Views;
 using NicoPlayerHohoema.Views.DownloadProgress;
-using NicoPlayerHohoema.Views.Service;
+using NicoPlayerHohoema.Services;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
@@ -315,13 +315,15 @@ namespace NicoPlayerHohoema.ViewModels
 			EventAggregator ea,
 			PageManager pageManager, 
             HohoemaViewManager viewManager,
-			ToastNotificationService toast,
-			HohoemaDialogService dialogService
+			NotificationService notificationService,
+			DialogService dialogService,
+            HohoemaClipboardService clipboardService
 			)
 			: base(hohoemaApp, pageManager)
 		{
-			_ToastService = toast;
+			_NotificationService = notificationService;
 			_HohoemaDialogService = dialogService;
+            ClipboardService = clipboardService;
 
             MediaPlayer = viewManager.GetCurrentWindowMediaPlayer();
 
@@ -869,7 +871,7 @@ namespace NicoPlayerHohoema.ViewModels
                         {
                             toastContent = $"削除された動画です";
                         }
-                        _ToastService.ShowText($"動画 {VideoId} は再生できません", toastContent);
+                        _NotificationService.ShowToast($"動画 {VideoId} は再生できません", toastContent);
                     })
                     .AsTask()
                     .ConfigureAwait(false);
@@ -2245,7 +2247,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 				else
 				{
-                    _ToastService.ShowText("コメント投稿", $"{VideoId} へのコメント投稿に失敗 （error code : {res?.Chat_result.__Status}" , duration: Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Short);
+                    _NotificationService.ShowToast("コメント投稿", $"{VideoId} へのコメント投稿に失敗 （error code : {res?.Chat_result.__Status}" , duration: Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Short);
 
                     Debug.WriteLine("コメントの投稿に失敗: " + res?.Chat_result.Status.ToString());
 				}
@@ -2600,7 +2602,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _VideoInfoCopyToClipboardCommand
                     ?? (_VideoInfoCopyToClipboardCommand = new DelegateCommand(() =>
                     {
-                        ShareHelper.CopyToClipboard(_VideoInfo);
+                        ClipboardService.CopyToClipboard(_VideoInfo);
                     }
                     ));
             }
@@ -2619,7 +2621,7 @@ namespace NicoPlayerHohoema.ViewModels
                         if (targetMylist != null)
                         {
                             var result = await HohoemaApp.AddMylistItem(targetMylist, _VideoInfo.Title, _VideoInfo.RawVideoId);
-                            (App.Current as App).PublishInAppNotification(
+                            _NotificationService.ShowInAppNotification(
                                 InAppNotificationPayload.CreateRegistrationResultNotification(
                                     result,
                                     "マイリスト",
@@ -3226,9 +3228,10 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public static EmptySidePaneContentViewModel EmptySidePaneContent { get; } = new EmptySidePaneContentViewModel();
+        public HohoemaClipboardService ClipboardService { get; }
 
-        ToastNotificationService _ToastService;
-        HohoemaDialogService _HohoemaDialogService;
+        NotificationService _NotificationService;
+        DialogService _HohoemaDialogService;
 
 
         // TODO: コメントのNGユーザー登録

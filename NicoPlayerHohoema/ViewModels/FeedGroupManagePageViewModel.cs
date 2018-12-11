@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using NicoPlayerHohoema.Models;
-using Prism.Mvvm;
 using Prism.Commands;
 using NicoPlayerHohoema.Helpers;
 using Reactive.Bindings;
@@ -13,19 +11,18 @@ using System.Collections.ObjectModel;
 using Prism.Windows.Navigation;
 using System.Reactive.Linq;
 using Reactive.Bindings.Extensions;
-using NicoPlayerHohoema.Views.Service;
 using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class FeedGroupManagePageViewModel : HohoemaViewModelBase
+    public class FeedGroupManagePageViewModel : HohoemaViewModelBase
 	{
-        private Services.HohoemaDialogService _HohoemaDialogService;
+        private Services.DialogService _HohoemaDialogService;
 
 		public ObservableCollection<FeedNewVideosList> FeedGroupItems { get; private set; }
 		
 
-		public FeedGroupManagePageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Services.HohoemaDialogService dialogService) 
+		public FeedGroupManagePageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Services.DialogService dialogService) 
 			: base(hohoemaApp, pageManager)
 		{
             _HohoemaDialogService = dialogService;

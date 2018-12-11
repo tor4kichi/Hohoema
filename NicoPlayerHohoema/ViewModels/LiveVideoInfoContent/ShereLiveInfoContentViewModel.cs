@@ -13,12 +13,12 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 	public class ShereLiveInfoContentViewModel : LiveInfoContentViewModelBase
 	{
 		public NicoLiveVideo NicoLiveVideo { get; private set; }
-		public Services.HohoemaDialogService HohoemaDialogService { get; private set; }
+		public Services.DialogService HohoemaDialogService { get; private set; }
 
 		public ReactiveProperty<bool> IsStillLoggedInTwitter { get; private set; }
 
 
-		public ShereLiveInfoContentViewModel(NicoLiveVideo liveVideo, Services.HohoemaDialogService dialogService)
+		public ShereLiveInfoContentViewModel(NicoLiveVideo liveVideo, Services.DialogService dialogService)
 		{
 			NicoLiveVideo = liveVideo;
 			HohoemaDialogService = dialogService;

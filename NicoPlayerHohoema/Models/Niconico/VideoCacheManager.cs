@@ -1372,8 +1372,8 @@ namespace NicoPlayerHohoema.Models
             if (deletedCount > 0)
             {
                 var videoInfo = Database.NicoVideoDb.Get(videoId);
-                var toastService = App.Current.Container.Resolve<Views.Service.ToastNotificationService>();
-                toastService.ShowText("動画削除：" + videoId
+                var notificationService = App.Current.Container.Resolve<Services.NotificationService>();
+                notificationService.ShowToast("動画削除：" + videoId
                     , $"『{videoInfo?.Title ?? videoId}』 はニコニコ動画サーバーから削除されたため、キャッシュを強制削除しました。"
                     , Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long
                     );

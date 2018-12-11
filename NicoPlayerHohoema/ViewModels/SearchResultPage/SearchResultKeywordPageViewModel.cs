@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Helpers;
-using NicoPlayerHohoema.Views.Service;
 using Windows.UI.Xaml.Navigation;
 using Prism.Windows.Navigation;
 using Reactive.Bindings;

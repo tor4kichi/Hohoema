@@ -43,7 +43,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                         if (dateOutReservations.Count == 0) { return; }
 
-                        var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
+                        var dialogService = App.Current.Container.Resolve<Services.DialogService>();
 
                         var reservationTitlesText = string.Join("\r", dateOutReservations.Select(x => x.Title));
                         var acceptDeletion = await dialogService.ShowMessageDialog(
@@ -95,7 +95,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                         if (selectedReservations.Count == 0) { return; }
 
-                        var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
+                        var dialogService = App.Current.Container.Resolve<Services.DialogService>();
 
                         var reservationTitlesText = string.Join("\r", selectedReservations.Select(x => x.Label));
                         var acceptDeletion = await dialogService.ShowMessageDialog(

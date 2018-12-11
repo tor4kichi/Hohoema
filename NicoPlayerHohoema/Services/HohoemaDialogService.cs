@@ -12,7 +12,7 @@ using Windows.Web.Http;
 
 namespace NicoPlayerHohoema.Services
 {
-    public class HohoemaDialogService
+    public class DialogService
     {
         #region Cache Accept Usase Dialog
 

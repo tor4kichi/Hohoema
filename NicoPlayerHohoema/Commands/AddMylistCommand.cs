@@ -16,12 +16,13 @@ namespace NicoPlayerHohoema.Commands
                 var content = parameter as Interfaces.IVideoContent;
 
                 var hohoemaApp = HohoemaCommnadHelper.GetHohoemaApp();
+                var notificationService = HohoemaCommnadHelper.GetNotificationService();
                 var targetMylist = await hohoemaApp.ChoiceMylist();
                 if (targetMylist != null)
                 {
                     var result = await hohoemaApp.AddMylistItem(targetMylist, content.Label, content.Id);
-                    (App.Current as App).PublishInAppNotification(
-                        Models.InAppNotificationPayload.CreateRegistrationResultNotification(
+                    notificationService.ShowInAppNotification(
+                        Services.InAppNotificationPayload.CreateRegistrationResultNotification(
                             result,
                             "マイリスト",
                             targetMylist.Label,

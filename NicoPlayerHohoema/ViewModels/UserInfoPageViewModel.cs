@@ -13,7 +13,7 @@ using Reactive.Bindings.Extensions;
 using System.Diagnostics;
 using System.Threading;
 using Prism.Commands;
-using NicoPlayerHohoema.Views.Service;
+using NicoPlayerHohoema.Services;
 using Windows.System;
 
 namespace NicoPlayerHohoema.ViewModels

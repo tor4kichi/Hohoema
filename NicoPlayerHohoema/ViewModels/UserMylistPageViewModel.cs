@@ -1,25 +1,16 @@
 ﻿using NicoPlayerHohoema.Models;
-using Prism.Windows.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Prism.Windows.Navigation;
-using Prism.Mvvm;
 using Prism.Commands;
 using Mntone.Nico2.Mylist.MylistGroup;
-using System.Collections.ObjectModel;
 using Reactive.Bindings;
 using Mntone.Nico2.Mylist;
-using Reactive.Bindings.Extensions;
 using System.Threading;
-using NicoPlayerHohoema.Views.Service;
 using Microsoft.Practices.Unity;
 using System.Reactive.Linq;
-using Windows.UI;
-using System.Windows.Input;
-using Windows.UI.Xaml.Controls;
 using Windows.UI.Popups;
 using NicoPlayerHohoema.Dialogs;
 using Mntone.Nico2.Searches.Mylist;
@@ -28,7 +19,7 @@ using System.Collections.Async;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class UserMylistPageViewModel : HohoemaListingPageViewModelBase<IPlayableList>
+    public class UserMylistPageViewModel : HohoemaListingPageViewModelBase<IPlayableList>
 	{
         public UserMylistManager UserMylistManager { get; private set; }
         public OtherOwneredMylistManager OtherOwneredMylistManager { get; }
@@ -83,7 +74,7 @@ namespace NicoPlayerHohoema.ViewModels
 					IconType = IconType.Default,
 				};
 
-				var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
+				var dialogService = App.Current.Container.Resolve<Services.DialogService>();
 
 				// 成功するかキャンセルが押されるまで繰り返す
 				while (true)
@@ -165,7 +156,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                 if (item.Origin == PlaylistOrigin.Local)
                 {
-                    var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
+                    var dialogService = App.Current.Container.Resolve<Services.DialogService>();
                     var localMylist = item as LocalMylist;
                     var resultText = await dialogService.GetTextAsync("プレイリスト名を変更",
                         localMylist.Label,
@@ -200,7 +191,7 @@ namespace NicoPlayerHohoema.ViewModels
                     // 成功するかキャンセルが押されるまで繰り返す
                     while (true)
                     {
-                        var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
+                        var dialogService = App.Current.Container.Resolve<Services.DialogService>();
                         if (true == await dialogService.ShowCreateMylistGroupDialogAsync(data))
                         {
                             var result = await mylistGroup.UpdateMylist(
@@ -239,7 +230,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             AddLocalMylistCommand = new DelegateCommand(async () => 
             {
-                var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
+                var dialogService = App.Current.Container.Resolve<Services.DialogService>();
                 var name = await dialogService.GetTextAsync("新しいローカルマイリスト名を入力", "ローカルマイリスト名", "",
                     (s) => 
                     {

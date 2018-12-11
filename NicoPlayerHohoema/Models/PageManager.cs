@@ -78,12 +78,12 @@ namespace NicoPlayerHohoema.Models
         public HohoemaPlaylist HohoemaPlaylist { get; private set; }
         public AppearanceSettings AppearanceSettings { get; }
         public HohoemaViewManager HohoemaViewManager { get; }
-        HohoemaDialogService _HohoemaDialogService;
+        DialogService _HohoemaDialogService;
 
 
         private AsyncLock _NavigationLock = new AsyncLock();
 
-        public PageManager(HohoemaApp hohoemaApp, INavigationService ns, AppearanceSettings appearanceSettings, HohoemaPlaylist playlist, HohoemaViewManager viewMan, HohoemaDialogService dialogService)
+        public PageManager(HohoemaApp hohoemaApp, INavigationService ns, AppearanceSettings appearanceSettings, HohoemaPlaylist playlist, HohoemaViewManager viewMan, DialogService dialogService)
 		{
             HohoemaApp = hohoemaApp;
             NavigationService = ns;

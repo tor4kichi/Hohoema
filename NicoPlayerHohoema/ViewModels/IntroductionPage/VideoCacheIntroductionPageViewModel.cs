@@ -21,12 +21,12 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<bool> CanChangeCacheSettings { get; private set; }
         public ReactiveProperty<bool> IsCompleteCacheSettings { get; private set; }
-        private HohoemaDialogService _HohoemaDialogService;
+        private DialogService _HohoemaDialogService;
         private HohoemaApp _HohoemaApp;
 
         CompositeDisposable _Disposables = new CompositeDisposable();
 
-        public VideoCacheIntroductionPageViewModel(HohoemaDialogService dialogService, HohoemaApp hohoemaApp)
+        public VideoCacheIntroductionPageViewModel(DialogService dialogService, HohoemaApp hohoemaApp)
         {
             _HohoemaDialogService = dialogService;
             _HohoemaApp = hohoemaApp;

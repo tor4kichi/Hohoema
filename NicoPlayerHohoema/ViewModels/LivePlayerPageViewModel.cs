@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using NicoPlayerHohoema.Models;
 using Prism.Windows.Navigation;
-using FFmpegInterop;
-using Windows.Media.Core;
 using System.Threading;
 using NicoPlayerHohoema.Helpers;
 using System.Diagnostics;
-using Windows.Foundation.Collections;
-using Mntone.Nico2.Live.PlayerStatus;
 using NicoPlayerHohoema.Models.Live;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -20,10 +15,8 @@ using Prism.Commands;
 using System.Reactive.Concurrency;
 using Windows.UI.ViewManagement;
 using System.Reactive.Linq;
-using NicoPlayerHohoema.ViewModels.LiveVideoInfoContent;
-using NicoPlayerHohoema.Views.Service;
+using NicoPlayerHohoema.Services;
 using Windows.UI.Xaml.Media;
-using Windows.ApplicationModel.DataTransfer;
 using Windows.Media.Playback;
 using System.Collections.ObjectModel;
 using Windows.System;
@@ -31,10 +24,8 @@ using Windows.ApplicationModel.Core;
 using Windows.Foundation.Metadata;
 using NicoPlayerHohoema.ViewModels.PlayerSidePaneContent;
 using Windows.UI.Core;
-using NicoPlayerHohoema.Services;
 using System.Collections.Concurrent;
 using Windows.UI.Xaml;
-using System.Text.RegularExpressions;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -80,8 +71,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		public HohoemaDialogService _HohoemaDialogService { get; private set; }
-        private ToastNotificationService _ToastNotificationService;
+		public DialogService _HohoemaDialogService { get; private set; }
+        public HohoemaClipboardService ClipboardService { get; }
+
+        private NotificationService _NotificationService;
 
 
         public MediaPlayer MediaPlayer { get; private set; }
@@ -249,15 +242,17 @@ namespace NicoPlayerHohoema.ViewModels
             HohoemaApp hohoemaApp, 
             PageManager pageManager, 
             HohoemaViewManager viewManager,
-            Services.HohoemaDialogService dialogService,
-            ToastNotificationService toast
+            Services.DialogService dialogService,
+            NotificationService notificationService,
+            HohoemaClipboardService clipboardService
             )
             : base(hohoemaApp, pageManager)
 		{
             _HohoemaViewManager = viewManager;
 
             _HohoemaDialogService = dialogService;
-            _ToastNotificationService = toast;
+            _NotificationService = notificationService;
+            ClipboardService = clipboardService;
 
             _CurrentWindowDispatcher = CoreApplication.GetCurrentView().Dispatcher;
 
@@ -845,7 +840,8 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ShareWithClipboardCommand
                     ?? (_ShareWithClipboardCommand = new DelegateCommand(() =>
                     {
-                        ShareHelper.CopyToClipboard(NicoLiveVideo);
+
+                        ClipboardService.CopyToClipboard(NicoLiveVideo);
                     }
                     ));
             }

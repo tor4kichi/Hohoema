@@ -262,7 +262,7 @@
     <Compile Include="Models\Niconico\Video\VideoStreamingSession\LocalVideoStreamingSession.cs" />
     <Compile Include="Models\Niconico\Video\VideoStreamingSession\SmileVideoStreamingSession.cs" />
     <Compile Include="Models\Niconico\Video\VideoStreamingSession\VideoStreamingSession.cs" />
-    <Compile Include="Models\PagePayload\InAppNotificationPayload.cs" />
+    <Compile Include="Services\InAppNotificationPayload.cs" />
     <Compile Include="Helpers\LisenceSummary.cs" />
     <Compile Include="Models\Niconico\Live\Live2WebSocket.cs" />
     <Compile Include="Models\Niconico\Live\LiveStatusType.cs" />
@@ -344,6 +344,7 @@
     <Compile Include="Models\Subscription\SubscriptionUpdateInfo.cs" />
     <Compile Include="Models\Subscription\SubscriptionUpdateStatus.cs" />
     <Compile Include="Models\Subscription\WatchItLater.cs" />
+    <Compile Include="Services\HohoemaClipboardService.cs" />
     <Compile Include="Services\HohoemaDialogService.cs" />
     <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
     <Compile Include="ViewModels\ChannelVideoPageViewModel.cs" />
@@ -707,7 +708,7 @@
       <DependentUpon>TextInputDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\_TextInputDialog\TextInputDialogContext.cs" />
-    <Compile Include="Services\ToastNotificationService.cs" />
+    <Compile Include="Services\NotificationService.cs" />
     <Compile Include="Views\StateTrigger\EqualConditionStateTrigger.cs" />
     <Compile Include="Views\StateTrigger\FocusTrigger.cs" />
     <Compile Include="Views\StateTrigger\InvertibleStateTrigger.cs" />
