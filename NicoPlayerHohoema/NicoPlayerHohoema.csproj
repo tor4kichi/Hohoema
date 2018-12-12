@@ -448,7 +448,6 @@
     <Compile Include="Views\Controls\TransientContainer\TransientContainer.Properties.cs" />
     <Compile Include="Views\Converters\DateTimeToStringConverter.cs" />
     <Compile Include="Views\Converters\ExpiredDateTimeToStringConverter.cs" />
-    <Compile Include="Views\Converters\PageTypeToMaterialIconKind.cs" />
     <Compile Include="Views\Converters\SwipeSeekValueToTimeSpan.cs" />
     <Compile Include="Views\Converters\ToKMGTPEZYConverter.cs" />
     <Compile Include="Views\Extensions\ListViewBase\ItemContextFlyoutTemplate.cs" />
@@ -494,13 +493,13 @@
     <Compile Include="Views\TimeshiftPage.xaml.cs">
       <DependentUpon>TimeshiftPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\_CommentRenderer\CommentRendererCompositionUI.xaml.cs">
+    <Compile Include="Views\Player\_CommentRenderer\CommentRendererCompositionUI.xaml.cs">
       <DependentUpon>CommentRendererCompositionUI.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\_CommentRenderer\CommentRendererEx.xaml.cs">
+    <Compile Include="Views\Player\_CommentRenderer\CommentRendererEx.xaml.cs">
       <DependentUpon>CommentRendererEx.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\_CommentRenderer\CommentRendererHelper.cs" />
+    <Compile Include="Views\Player\_CommentRenderer\CommentRendererHelper.cs" />
     <Compile Include="Views\Flyouts\FeedGroupListItemFlyout.xaml.cs">
       <DependentUpon>FeedGroupListItemFlyout.xaml</DependentUpon>
     </Compile>
@@ -513,7 +512,6 @@
     <Compile Include="Views\VideoInfoControl_TV.xaml.cs">
       <DependentUpon>VideoInfoControl_TV.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Converters\NGCommentScoreTypeTemplateSelector.cs" />
     <Compile Include="Views\Extensions\ContextFlyoutExtension.cs" />
     <Compile Include="Views\HohoemaInAppNotification.xaml.cs">
       <DependentUpon>HohoemaInAppNotification.xaml</DependentUpon>
@@ -524,7 +522,7 @@
     <Compile Include="Views\NicoRepoPage.xaml.cs">
       <DependentUpon>NicoRepoPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\_CommentRenderer\LiveComment.cs" />
+    <Compile Include="Views\Player\_CommentRenderer\LiveComment.cs" />
     <Compile Include="Views\_IntroductionPages\EpilogueIntroductionPage.xaml.cs">
       <DependentUpon>EpilogueIntroductionPage.xaml</DependentUpon>
     </Compile>
@@ -537,10 +535,10 @@
     <Compile Include="Views\_IntroductionPages\NicoAccountIntroductionPage.xaml.cs">
       <DependentUpon>NicoAccountIntroductionPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\_PlayerSidePaneContent\LiveSettingsSidePaneContent.xaml.cs">
+    <Compile Include="Views\Player\_PlayerSidePaneContent\LiveSettingsSidePaneContent.xaml.cs">
       <DependentUpon>LiveSettingsSidePaneContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\_PlayerSidePaneContent\PlaylistSidePaneContent.xaml.cs">
+    <Compile Include="Views\Player\_PlayerSidePaneContent\PlaylistSidePaneContent.xaml.cs">
       <DependentUpon>PlaylistSidePaneContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Dialogs\MarkdownTextDialog.xaml.cs">
@@ -639,7 +637,7 @@
     <Compile Include="Views\HohoemaListItem\HohoemaListItemVideo.xaml.cs">
       <DependentUpon>HohoemaListItemVideo.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\LivePlayerPage.xaml.cs">
+    <Compile Include="Views\Player\LivePlayerPage.xaml.cs">
       <DependentUpon>LivePlayerPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\LoginPage.xaml.cs">
@@ -681,8 +679,8 @@
     <Compile Include="Views\Behaviors\ShowFlyoutBehavior.cs" />
     <Compile Include="Views\Behaviors\WebViewAutoResizeToContent.cs" />
     <Compile Include="Views\Behaviors\WebViewNotifyUriClicked.cs" />
-    <Compile Include="Views\_CommentRenderer\Comment.cs" />
-    <Compile Include="Views\_CommentRenderer\CommentUI.xaml.cs">
+    <Compile Include="Views\Player\_CommentRenderer\Comment.cs" />
+    <Compile Include="Views\Player\_CommentRenderer\CommentUI.xaml.cs">
       <DependentUpon>CommentUI.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Converters\SoundVolumeConveter.cs" />
@@ -726,13 +724,13 @@
     <Compile Include="Views\UserVideoPage.xaml.cs">
       <DependentUpon>UserVideoPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\_PlayerSidePaneContent\LiveCommentsSidePaneContent.xaml.cs">
+    <Compile Include="Views\Player\_PlayerSidePaneContent\LiveCommentsSidePaneContent.xaml.cs">
       <DependentUpon>LiveCommentsSidePaneContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\_PlayerSidePaneContent\RelatedVideosSidePaneContent.xaml.cs">
+    <Compile Include="Views\Player\_PlayerSidePaneContent\RelatedVideosSidePaneContent.xaml.cs">
       <DependentUpon>RelatedVideosSidePaneContent.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\_PlayerSidePaneContent\VideoSettingsSidePaneContent.xaml.cs">
+    <Compile Include="Views\Player\_PlayerSidePaneContent\VideoSettingsSidePaneContent.xaml.cs">
       <DependentUpon>VideoSettingsSidePaneContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\VideoInfomationPage.xaml.cs">
@@ -748,7 +746,7 @@
     <Compile Include="Views\VideoInfoControl.xaml.cs">
       <DependentUpon>VideoInfoControl.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\VideoPlayerPage.xaml.cs">
+    <Compile Include="Views\Player\VideoPlayerPage.xaml.cs">
       <DependentUpon>VideoPlayerPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Helpers\VisualTreeExtention.cs" />
@@ -937,11 +935,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\_CommentRenderer\CommentRendererCompositionUI.xaml">
+    <Page Include="Views\Player\_CommentRenderer\CommentRendererCompositionUI.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Views\_CommentRenderer\CommentRendererEx.xaml">
+    <Page Include="Views\Player\_CommentRenderer\CommentRendererEx.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -965,7 +963,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\_CommentRenderer\CommentUI.xaml">
+    <Page Include="Views\Player\_CommentRenderer\CommentUI.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1091,7 +1089,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\LivePlayerPage.xaml">
+    <Page Include="Views\Player\LivePlayerPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1127,11 +1125,11 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\_PlayerSidePaneContent\LiveSettingsSidePaneContent.xaml">
+    <Page Include="Views\Player\_PlayerSidePaneContent\LiveSettingsSidePaneContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\_PlayerSidePaneContent\PlaylistSidePaneContent.xaml">
+    <Page Include="Views\Player\_PlayerSidePaneContent\PlaylistSidePaneContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1203,15 +1201,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\_PlayerSidePaneContent\LiveCommentsSidePaneContent.xaml">
+    <Page Include="Views\Player\_PlayerSidePaneContent\LiveCommentsSidePaneContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\_PlayerSidePaneContent\RelatedVideosSidePaneContent.xaml">
+    <Page Include="Views\Player\_PlayerSidePaneContent\RelatedVideosSidePaneContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\_PlayerSidePaneContent\VideoSettingsSidePaneContent.xaml">
+    <Page Include="Views\Player\_PlayerSidePaneContent\VideoSettingsSidePaneContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1231,7 +1229,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\VideoPlayerPage.xaml">
+    <Page Include="Views\Player\VideoPlayerPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

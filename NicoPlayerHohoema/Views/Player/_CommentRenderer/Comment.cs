@@ -41,6 +41,8 @@ namespace NicoPlayerHohoema.Views
 		public uint FontSize { get; set; } = 24;
 		public float FontScale { get; set; } = default_fontSize;
 
+        public int NGScore { get; set; }
+
 		private VerticalAlignment? _VAlign;
 		public VerticalAlignment? VAlign
 		{
@@ -484,6 +486,7 @@ namespace NicoPlayerHohoema.Views
                 return false;
             }
 
+            
             return NGSettings.IsNGComment(CommentText) != null;
         }
 

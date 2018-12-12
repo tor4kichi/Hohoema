@@ -1518,5 +1518,7 @@ namespace NicoPlayerHohoema.Models
 		UserId,
 		Keyword,
 		Tag,
+
+        Score,
 	}
 }

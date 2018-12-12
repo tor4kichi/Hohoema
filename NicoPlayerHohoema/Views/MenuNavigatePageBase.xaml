@@ -26,6 +26,7 @@
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     xmlns:templateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:myconv="using:NicoPlayerHohoema.Views.Converters"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400"    
@@ -45,17 +46,176 @@
 
             <x:Double x:Key="MenuContentToggleAnimationDuration">175</x:Double>
 
+
+            <Style TargetType="iconPack:PackIconMaterial">
+                <Setter Property="RenderTransform">
+                    <Setter.Value>
+                        <ScaleTransform ScaleX="1.25" ScaleY="1.25" CenterX="12" CenterY="12" />
+                        
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <templateSelector:ValueDataTemplateSelector x:Key="PageTypeIconTemplateSelector">
+                <templateSelector:ValueDataTemplate Value="RankingCategoryList">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Flag" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="RankingCategory">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Flag" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+
+                <templateSelector:ValueDataTemplate Value="UserMylist">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="List" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="Mylist">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="List" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="FollowManage">
+                    <DataTemplate>
+                        <iconPack:PackIconMaterial Kind="Star" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+
+                <templateSelector:ValueDataTemplate Value="WatchHistory">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Clock" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="Search">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Find" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="SearchSummary">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Find" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="SearchResultCommunity">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Find" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="SearchResultTag">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Find" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="SearchResultKeyword">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Find" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="SearchResultMylist">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Find" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="SearchResultLive">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Find" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="UserInfo">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Account" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="UserVideo">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="List" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="Community">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="People" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="CommunityVideo">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="People" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="VideoInfomation">
+                    <DataTemplate>
+                        <iconPack:PackIconMaterial Kind="Information" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="CacheManagement">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Download" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="Settings">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Setting" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="NicoRepo">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="List" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="Recommend">
+                    <DataTemplate>
+                        <iconPack:PackIconMaterial Kind="ThumbUp" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+
+                <templateSelector:ValueDataTemplate Value="Subscription">
+                    <DataTemplate>
+                        <iconPack:PackIconMaterial Kind="ClockFast" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+
+                <templateSelector:ValueDataTemplate Value="LiveInfomation">
+                    <DataTemplate>
+                        <iconPack:PackIconMaterial Kind="Information" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="Timeshift">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Clock" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+
+                <templateSelector:ValueDataTemplate Value="ChannelInfo">
+                    <DataTemplate>
+                        <iconPack:PackIconMaterial Kind="Group" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="ChannelVideo">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="List" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+
+            </templateSelector:ValueDataTemplateSelector>
+
+
+
             <DataTemplate x:Key="MenuItemTemplate">
                 <StackPanel Orientation="Horizontal" Opacity="0.85"
                         Margin="16 0 0 0"
                         >
 
-                    <iconPack:PackIconMaterial Kind="{Binding PageType, Converter={StaticResource PageTypeToMaterialIconKind}}" 
-                                               Width="16"
-                                               Height="16"
-                                               VerticalAlignment="Center"
-                                               Opacity="0.7"
-                                               />
+
+                    <ContentControl Content="{Binding PageType}"
+                                    ContentTemplateSelector="{StaticResource PageTypeIconTemplateSelector}"
+                                    HorizontalContentAlignment="Center"
+                                    VerticalContentAlignment="Center"
+                                    Opacity="0.7"
+                                    Width="24"
+                                    Height="24"
+                                    />
 
                     <Border Height="4" Width="16" />
 
@@ -69,15 +229,17 @@
 
             <DataTemplate x:Key="PinMenuItemTemplate">
                 <StackPanel Orientation="Horizontal" Opacity="0.85"
-                        Margin="16 0 0 0"
+                        Margin="0 0 0 0"
                         >
 
-                    <iconPack:PackIconMaterial Kind="{Binding PageType, Converter={StaticResource PageTypeToMaterialIconKind}}" 
-                                               Width="16"
-                                               Height="16"
-                                               VerticalAlignment="Center"
-                                               Opacity="0.7"
-                                               />
+                    <ContentControl Content="{Binding PageType}"
+                                    ContentTemplateSelector="{StaticResource PageTypeIconTemplateSelector}"
+                                    HorizontalContentAlignment="Center"
+                                    VerticalContentAlignment="Center"
+                                    Opacity="0.7"
+                                    Width="24"
+                                    Height="24"
+                                    />
 
                     <Border Height="4" Width="16" />
                     
@@ -398,6 +560,7 @@
                 <Setter Property="Height" Value="48" />
                 <Setter Property="CornerRadius" Value="999" />
             </Style>
+
 
         </ResourceDictionary>
 

@@ -7,13 +7,16 @@
     xmlns:model="using:NicoPlayerHohoema.Models"
     xmlns:conv="using:WinRTXamlToolkit.Converters"
     xmlns:myconv="using:NicoPlayerHohoema.Views.Converters"
+    xmlns:templateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
     xmlns:view="using:NicoPlayerHohoema.Views"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:uwpconv="using:Microsoft.Toolkit.Uwp.UI.Converters"
     xmlns:logicalModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.LogicalModifiers"
     xmlns:compareModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.ComparableModifiers"
     xmlns:system="using:System"
-    xmlns:subscriptionConverters="using:NicoPlayerHohoema.Views.Subscriptions">
+    xmlns:subscriptionConverters="using:NicoPlayerHohoema.Views.Subscriptions"
+    
+    >
 
     <prism:PrismUnityApplication.Resources>
        
@@ -35,7 +38,8 @@
             </ResourceDictionary.MergedDictionaries>
 
             <x:Double x:Key="DesktopWindowWidthBreakPoint">800</x:Double>
-            
+
+            <uwpconv:BoolNegationConverter x:Key="BoolNagation" />
             <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
             <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityInverted"
                                            IsInversed="True"
@@ -95,65 +99,15 @@
             </uwpconv:BoolToObjectConverter>
 
             <myconv:SoundVolumeConveter x:Key="ToUserFriendlySoubleVolume" />
-
-            <myconv:CacheStateToColorBrushConverter x:Key="CacheStateToColorBrush" />
-
             <myconv:VideoPositionToTimeConverter x:Key="VPosToTime" />
             <myconv:ToUserFriendlyNumber x:Key="ToUserFriendlyNumber" />
             <myconv:RelationalDateTimeConverter x:Key="ToRelationalTime" />
-
             <myconv:TransparentColorConverter x:Key="ToTransparentColor" />
             <myconv:SwipeSeekValueToTimeSpan x:Key="SwipeSeekValueToTimeSpan" />
 
             <myconv:DateTimeToStringConverter x:Key="DateTimeToString" />
             <myconv:ExpiredDateTimeToStringConverter x:Key="ExpiredDateTimeToString" />
-
-            <myconv:NGCommentScoreTypeTemplateSelector x:Key="NGCommentScoreTypeTemplateSelector">
-                <myconv:NGCommentScoreTypeTemplateSelector.NoneTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="なし" />
-                    </DataTemplate>
-                </myconv:NGCommentScoreTypeTemplateSelector.NoneTemplate>
-
-                <myconv:NGCommentScoreTypeTemplateSelector.LowTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="弱" />
-                    </DataTemplate>
-                </myconv:NGCommentScoreTypeTemplateSelector.LowTemplate>
-
-                <myconv:NGCommentScoreTypeTemplateSelector.MiddleTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="中" />
-                    </DataTemplate>
-                </myconv:NGCommentScoreTypeTemplateSelector.MiddleTemplate>
-
-                <myconv:NGCommentScoreTypeTemplateSelector.HighTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="強" />
-                    </DataTemplate>
-                </myconv:NGCommentScoreTypeTemplateSelector.HighTemplate>
-
-                <myconv:NGCommentScoreTypeTemplateSelector.VeryHighTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="さらに強" />
-                    </DataTemplate>
-                </myconv:NGCommentScoreTypeTemplateSelector.VeryHighTemplate>
-
-                <myconv:NGCommentScoreTypeTemplateSelector.SuperVeryHighTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="極めて強" />
-                    </DataTemplate>
-                </myconv:NGCommentScoreTypeTemplateSelector.SuperVeryHighTemplate>
-
-                <myconv:NGCommentScoreTypeTemplateSelector.UltraSuperVeryHighTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="最大" />
-                    </DataTemplate>
-                </myconv:NGCommentScoreTypeTemplateSelector.UltraSuperVeryHighTemplate>
-
-            </myconv:NGCommentScoreTypeTemplateSelector>
-
-
+            <myconv:ToKMGTPEZYConverter x:Key="ToKMGTPEZY" />
 
             <uwpconv:BoolToObjectConverter x:Name="BoolToAvairableOpacityConverter">
                 <uwpconv:BoolToObjectConverter.TrueValue>
@@ -165,10 +119,10 @@
             </uwpconv:BoolToObjectConverter>
 
             <uwpconv:ResourceNameToResourceStringConverter x:Key="ToLocalText" />
+            
+            <myconv:CacheStateToColorBrushConverter x:Key="CacheStateToColorBrush" />
 
-            <myconv:PageTypeToMaterialIconKind x:Key="PageTypeToMaterialIconKind" />
 
-            <myconv:ToKMGTPEZYConverter x:Key="ToKMGTPEZY" />
 
             <!-- Logical Modifier-->
             <logicalModifier:AndModifier x:Key="AndModifier" />
@@ -181,12 +135,7 @@
             <compareModifier:GreaterThanModifier x:Key="GreaterThanModifier" />
             <compareModifier:LessThanEqualToModifier x:Key="LessThanEqualToModifier" />
             <compareModifier:LessThanModifier x:Key="LessThanModifier" />
-
-
             
-            <controls:VideoListItemFlyout x:Key="VideoListItemFlyout" />
-            <controls:LiveListItemFlyout x:Key="LiveListItemFlyout" />
-
             
             <!-- Subscriptions -->
             <subscriptionConverters:SubscriptionSourceConverter x:Key="SubscriptionSourceConverter" />
