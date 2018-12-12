@@ -33,7 +33,7 @@
                 <!-- キャッシュ設定中の表示 -->
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding CanChangeCacheSettings.Value, Converter={StaticResource BooleanInverted}}" />
+                        <StateTrigger IsActive="{Binding CanChangeCacheSettings.Value, Converter={StaticResource BoolNegation}}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="CacheSettingsProgressView.Visibility" Value="Visible" />

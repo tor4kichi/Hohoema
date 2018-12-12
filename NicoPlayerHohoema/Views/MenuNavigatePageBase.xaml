@@ -578,7 +578,7 @@
                         <!-- トップメニュー非表示 -->
                         <VisualState>
                             <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding IsVisibleMenu.Value, Converter={StaticResource BooleanInverted}}" />
+                                <StateTrigger IsActive="{Binding IsVisibleMenu.Value, Converter={StaticResource BoolNegation}}" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
@@ -818,7 +818,7 @@
 
                         <VisualState x:Name="HiddenPlayer">
                             <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding IsShowPlayer.Value, Converter={StaticResource BooleanInverted}}" />
+                                <StateTrigger IsActive="{Binding IsShowPlayer.Value, Converter={StaticResource BoolNegation}}" />
                             </VisualState.StateTriggers>
 
                             <VisualState.Setters>

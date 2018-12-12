@@ -58,7 +58,7 @@
                 
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding CanEditMylist, Converter={StaticResource BooleanInverted}}" />
+                        <StateTrigger IsActive="{Binding CanEditMylist, Converter={StaticResource BoolNegation}}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                     </VisualState.Setters>
@@ -88,7 +88,7 @@
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsLoggedIn, Converter={StaticResource BooleanInverted}}" />
+                        <StateTrigger IsActive="{Binding IsLoggedIn, Converter={StaticResource BoolNegation}}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                     </VisualState.Setters>
@@ -135,7 +135,7 @@
                 
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanInverted}}" />
+                        <StateTrigger IsActive="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BoolNegation}}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="RemoveMylistSelectedItemButton.Visibility" Value="Collapsed" />

@@ -115,7 +115,7 @@
                            VerticalAlignment="Center"
                            />
 
-                    <ToggleSwitch IsOn="{Binding IsLowLatency.Value, Mode=TwoWay, Converter={StaticResource BooleanInverted}}" />
+                    <ToggleSwitch IsOn="{Binding IsLowLatency.Value, Mode=TwoWay, Converter={StaticResource BoolNegation}}" />
 
                     <TextBlock Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7"
                                Visibility="{Binding IsLowLatency.Value, Converter={StaticResource BooleanToVisibilityInverted}}"

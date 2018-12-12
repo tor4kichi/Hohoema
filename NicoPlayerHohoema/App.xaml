@@ -37,13 +37,21 @@
                 <ResourceDictionary Source="Commands/Commands.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
+            <Color x:Key="HohoemaThemeColor" >#F8B400</Color>
+            <SolidColorBrush x:Key="HohoemaThemeBackgroundBrush"
+                             Color="{StaticResource HohoemaThemeColor}"
+                             >
+            </SolidColorBrush>
+            <SolidColorBrush x:Key="HohoemaPlayerBackgroundBrush"
+                    Color="{ThemeResource SystemAltMediumColor}" 
+                         />
+
             <x:Double x:Key="DesktopWindowWidthBreakPoint">800</x:Double>
 
-            <uwpconv:BoolNegationConverter x:Key="BoolNagation" />
+            
+            <uwpconv:BoolNegationConverter x:Key="BoolNegation" />
             <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
-            <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityInverted"
-                                           IsInversed="True"
-                                           />
+            <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityInverted" IsInversed="True" />
             <myconv:InvertVisibilityConverter x:Key="InvertVisibility" />
 
             <uwpconv:EmptyObjectToObjectConverter x:Key="NotNullToVisibility">
@@ -54,7 +62,6 @@
                     <Visibility>Collapsed</Visibility>
                 </uwpconv:EmptyObjectToObjectConverter.EmptyValue>
             </uwpconv:EmptyObjectToObjectConverter>
-
             <uwpconv:EmptyObjectToObjectConverter x:Key="NullToVisibility">
                 <uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
                     <Visibility>Collapsed</Visibility>
@@ -63,8 +70,6 @@
                     <Visibility>Visible</Visibility>
                 </uwpconv:EmptyObjectToObjectConverter.EmptyValue>
             </uwpconv:EmptyObjectToObjectConverter>
-
-
             <uwpconv:CollectionVisibilityConverter x:Key="CollectionVisibilityConverter" />
             <uwpconv:EmptyCollectionToObjectConverter x:Key="EmptyCollectionVisibilityConverter">
                 <uwpconv:EmptyCollectionToObjectConverter.EmptyValue>
@@ -74,7 +79,6 @@
                     <Visibility>Collapsed</Visibility>
                 </uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
             </uwpconv:EmptyCollectionToObjectConverter>
-
             <uwpconv:EmptyCollectionToObjectConverter x:Key="EmptyCollectionToBooleanConverter"
                                                       
                                                       >
@@ -85,19 +89,10 @@
                     <x:Boolean>False</x:Boolean>
                 </uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
             </uwpconv:EmptyCollectionToObjectConverter>
+            <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
 
             <conv:ColorToBrushConverter x:Key="ColorToBrush" />
-            <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
             
-            <uwpconv:BoolToObjectConverter x:Key="BooleanInverted" >
-                <uwpconv:BoolToObjectConverter.TrueValue>
-                    <x:Boolean>False</x:Boolean>
-                </uwpconv:BoolToObjectConverter.TrueValue>
-                <uwpconv:BoolToObjectConverter.FalseValue>
-                    <x:Boolean>True</x:Boolean>
-                </uwpconv:BoolToObjectConverter.FalseValue>
-            </uwpconv:BoolToObjectConverter>
-
             <myconv:SoundVolumeConveter x:Key="ToUserFriendlySoubleVolume" />
             <myconv:VideoPositionToTimeConverter x:Key="VPosToTime" />
             <myconv:ToUserFriendlyNumber x:Key="ToUserFriendlyNumber" />
@@ -188,17 +183,6 @@
                 </Border>
             </DataTemplate>
 
-
-            <Color x:Key="HohoemaThemeColor" >#F8B400</Color>
-
-            <SolidColorBrush x:Key="HohoemaThemeBackgroundBrush"
-                             Color="{StaticResource HohoemaThemeColor}"
-                             >
-            </SolidColorBrush>
-
-            <SolidColorBrush x:Key="HohoemaPlayerBackgroundBrush"
-                    Color="{ThemeResource SystemAltMediumColor}" 
-                         />
 
             <Style TargetType="ListViewItem" x:Key="VideoListViewItemStyle">
                 <Setter Property="HorizontalContentAlignment"

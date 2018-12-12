@@ -113,7 +113,7 @@
                             <toolkit:DockPanel Margin="0 0 0 8" >
                                 <Border toolkit:DockPanel.Dock="Right" MinWidth="200">
                                     <TextBox Text="{Binding Mail.Value, Mode=TwoWay}"
-                                 IsEnabled="{Binding NowProcessLoggedIn.Value, Converter={StaticResource BooleanInverted}}"
+                                 IsEnabled="{Binding NowProcessLoggedIn.Value, Converter={StaticResource BoolNegation}}"
                                  InputScope="EmailSmtpAddress"
                                              XYFocusDown="{x:Bind Password}"
                                              x:Name="Mail"
@@ -137,7 +137,7 @@
                             <toolkit:DockPanel Margin="0 0 0 8">
                                 <Border toolkit:DockPanel.Dock="Right" MinWidth="200">
                                     <PasswordBox Password="{Binding Password.Value, Mode=TwoWay}"
-                                     IsEnabled="{Binding NowProcessLoggedIn.Value, Converter={StaticResource BooleanInverted}}"
+                                     IsEnabled="{Binding NowProcessLoggedIn.Value, Converter={StaticResource BoolNegation}}"
                                                  x:Name="Password"
                                                  XYFocusUp="{x:Bind Mail}"
                                                  XYFocusDown="{x:Bind IsRememberPassword}"
@@ -166,7 +166,7 @@
                             </Border>
                             <ToggleButton 
                                 IsChecked="{Binding IsRememberPassword.Value, Mode=TwoWay}"
-                                IsEnabled="{Binding NowProcessLoggedIn.Value, Converter={StaticResource BooleanInverted}}"
+                                IsEnabled="{Binding NowProcessLoggedIn.Value, Converter={StaticResource BoolNegation}}"
                                 Height="32" 
                                 Width="32"
                                 Margin="8 0"
@@ -200,7 +200,7 @@
                                 >
                             <HyperlinkButton Content="アカウントを新しく作成する場合はこちら" 
                                     NavigateUri="https://account.nicovideo.jp/register"
-                                    IsEnabled="{Binding NowProcessLoggedIn.Value, Converter={StaticResource BooleanInverted}}"
+                                    IsEnabled="{Binding NowProcessLoggedIn.Value, Converter={StaticResource BoolNegation}}"
                                              x:Name="NewAccountLink"
                                              XYFocusUp="{x:Bind LoginButton}"
                                              XYFocusDown="{x:Bind ForgetPasswordLink}"
@@ -211,7 +211,7 @@
                                 >
                             <HyperlinkButton Content="パスワードを忘れた方は再発行の手続きへ" 
                                      NavigateUri="https://account.nicovideo.jp/password/reset"
-                                     IsEnabled="{Binding NowProcessLoggedIn.Value, Converter={StaticResource BooleanInverted}}"
+                                     IsEnabled="{Binding NowProcessLoggedIn.Value, Converter={StaticResource BoolNegation}}"
                                              x:Name="ForgetPasswordLink"
                                              XYFocusUp="{x:Bind NewAccountLink}"
                                      />

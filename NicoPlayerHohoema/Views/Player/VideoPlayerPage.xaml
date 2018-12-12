@@ -141,7 +141,7 @@
                                   Text="ミュート"
                                   />
 
-            <ToggleMenuFlyoutItem IsChecked="{Binding IsCommentDisplayEnable.Value, Mode=TwoWay, Converter={StaticResource BooleanInverted}}"
+            <ToggleMenuFlyoutItem IsChecked="{Binding IsCommentDisplayEnable.Value, Mode=TwoWay, Converter={StaticResource BoolNegation}}"
                                   Text="コメント非表示"
                                   />
             
@@ -587,7 +587,7 @@
                 </VisualState>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsMuted.Value, Converter={StaticResource BooleanInverted}}" />
+                        <StateTrigger IsActive="{Binding IsMuted.Value, Converter={StaticResource BoolNegation}}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="VolumeButton.Symbol" Value="Volume" />
@@ -829,7 +829,7 @@
 
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsForceLandscape.Value, Converter={StaticResource BooleanInverted}}" />
+                        <StateTrigger IsActive="{Binding IsForceLandscape.Value, Converter={StaticResource BoolNegation}}" />
 
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
@@ -874,7 +874,7 @@
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding NowCanSeek.Value, Converter={StaticResource BooleanInverted}}" />
+                        <StateTrigger IsActive="{Binding NowCanSeek.Value, Converter={StaticResource BoolNegation}}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="SeekBarSlider.IsEnabled" Value="False" />
@@ -1061,9 +1061,9 @@
                             
                             <!--
                             <mybehavior:UINavigationTrigger Kind="Cancel" 
-                                                                IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
+                                                                IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BoolNegation}}"
                                                                 >
-                                <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanInverted}}" />
+                                <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource BoolNegation}}" />
                             </mybehavior:UINavigationTrigger>
                             -->
                     
@@ -1071,21 +1071,21 @@
 
 
                             <mybehavior:UINavigationTrigger Kind="Cancel" Hold="True" 
-                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
+                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BoolNegation}}"
                                                         >
                                 <core:InvokeCommandAction Command="{Binding ClosePlayerCommand}" />
                             </mybehavior:UINavigationTrigger>
 
 
                             <mybehavior:UINavigationTrigger Kind="PageLeft" 
-                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
+                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BoolNegation}}"
                                                         >
                                 <core:InvokeCommandAction Command="{Binding SeekVideoCommand}"
                                                           CommandParameter="{x:Bind PreviewSeekTime}"
                                                           />
                             </mybehavior:UINavigationTrigger>
                             <mybehavior:UINavigationTrigger Kind="PageRight" 
-                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
+                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BoolNegation}}"
                                                         >
                                 <core:InvokeCommandAction Command="{Binding SeekVideoCommand}"
                                                           CommandParameter="{x:Bind ForwardSeekTime}"
@@ -1093,7 +1093,7 @@
                             </mybehavior:UINavigationTrigger>
 
                             <mybehavior:UINavigationTrigger Kind="Context1" 
-                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
+                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BoolNegation}}"
                                                         >
                                 <core:InvokeCommandAction Command="{Binding TogglePlayPauseCommand}" />
                             </mybehavior:UINavigationTrigger>
@@ -1177,7 +1177,7 @@
                             <i:Interaction.Behaviors>
                                 
                                 <core:EventTriggerBehavior EventName="Tapped">
-                                    <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanInverted}}" />
+                                    <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource BoolNegation}}" />
                                 </core:EventTriggerBehavior>
                             </i:Interaction.Behaviors>
                         </Border>
@@ -1239,7 +1239,7 @@
 
                                 <mybehavior:VisiblityFadeChanger x:Name="PlayerControlAutoHide" 
                                                          Delay="{Binding AutoHideDelayTime.Value, Mode=OneWay}"
-                                                         IsAnimationEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BooleanInverted}}"
+                                                         IsAnimationEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BoolNegation}}"
                                                          IsVisible="{Binding IsDisplayControlUI.Value, Mode=TwoWay}"
                                                          IsAutoHideEnabled="{Binding IsAutoHideEnable.Value, Mode=OneWay}"
                                      />
@@ -1891,7 +1891,7 @@
                                                     Grid.RowSpan="2"
                                                     Grid.Column="1"
                                                     Grid.ColumnSpan="4"
-                                                     IsEnabled="{Binding IsCommentDisabledFromNicoScript.Value, Converter={StaticResource BooleanInverted}}"
+                                                     IsEnabled="{Binding IsCommentDisabledFromNicoScript.Value, Converter={StaticResource BoolNegation}}"
                                                     >
                                                 <i:Interaction.Behaviors>
 
@@ -2209,7 +2209,7 @@
                                         <i:Interaction.Behaviors>
 
                                             <core:EventTriggerBehavior EventName="Tapped">
-                                                <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanInverted}}" />
+                                                <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource BoolNegation}}" />
                                             </core:EventTriggerBehavior>
                                         </i:Interaction.Behaviors>
                                     </Border>
@@ -2554,7 +2554,7 @@
                             <Border IsHitTestVisible="True" Background="Transparent">
                                 <i:Interaction.Behaviors>
                                     <core:EventTriggerBehavior EventName="Tapped">
-                                        <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource BooleanInverted}}" />
+                                        <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource BoolNegation}}" />
                                     </core:EventTriggerBehavior>
                                 </i:Interaction.Behaviors>
                             </Border>

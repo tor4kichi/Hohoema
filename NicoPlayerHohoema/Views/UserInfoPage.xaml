@@ -30,7 +30,7 @@
                 
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsLoggedIn, Converter={StaticResource BooleanInverted}}" />
+                        <StateTrigger IsActive="{Binding IsLoggedIn, Converter={StaticResource BoolNegation}}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         
