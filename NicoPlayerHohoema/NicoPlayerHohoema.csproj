@@ -450,6 +450,9 @@
     <Compile Include="Views\Converters\ExpiredDateTimeToStringConverter.cs" />
     <Compile Include="Views\Converters\SwipeSeekValueToTimeSpan.cs" />
     <Compile Include="Views\Converters\ToKMGTPEZYConverter.cs" />
+    <Compile Include="Views\DebugPage.xaml.cs">
+      <DependentUpon>DebugPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Extensions\ListViewBase\ItemContextFlyoutTemplate.cs" />
     <Compile Include="Views\Extensions\WebView\IgnoreScrolling.cs" />
     <Compile Include="Views\Flyouts\FeedSourceFlyout.xaml.cs">
@@ -888,6 +891,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Controls\TransientContainer\TransientContainer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DebugPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

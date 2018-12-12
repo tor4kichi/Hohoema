@@ -293,11 +293,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ShowErrorFilesFolderCommand
                     ?? (_ShowErrorFilesFolderCommand = new DelegateCommand(async () =>
                     {
-                        var folder = await ApplicationData.Current.LocalFolder.GetFolderAsync("error");
-                        if (folder != null)
-                        {
-                            await Launcher.LaunchFolderAsync(folder);
-                        }
+                        await (App.Current as App).ShowErrorLogFolder();
                     }));
             }
         }

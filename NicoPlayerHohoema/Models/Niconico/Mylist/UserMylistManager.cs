@@ -181,7 +181,7 @@ namespace NicoPlayerHohoema.Models
                     }
                     catch (Exception e)
                     {
-                        await (App.Current as App).WriteErrorFile(e);
+                        await (App.Current as App).OutputErrorFile(e);
                     }
 
                     await Task.Delay(500);

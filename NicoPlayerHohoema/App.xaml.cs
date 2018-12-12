@@ -42,6 +42,8 @@ using Prism.Commands;
 using System.Text.RegularExpressions;
 using System.Threading;
 using Windows.UI;
+using Microsoft.Toolkit.Uwp.Notifications;
+using Windows.ApplicationModel.Background;
 
 namespace NicoPlayerHohoema
 {
@@ -58,8 +60,9 @@ namespace NicoPlayerHohoema
         private bool _IsPreLaunch;
 
 		public const string ACTIVATION_WITH_ERROR = "error";
+        public const string ACTIVATION_WITH_ERROR_OPEN_LOG = "error_open_log";
+        public const string ACTIVATION_WITH_ERROR_COPY_LOG = "error_copy_log";
 
-        
         internal const string IS_COMPLETE_INTRODUCTION = "is_first_launch";
 
 		/// <summary>
@@ -179,6 +182,11 @@ namespace NicoPlayerHohoema
             }
 
 
+#if DEBUG
+            Resources.Add("IsDebug", true);
+#else
+            Resources.Add("IsDebug", false);
+#endif
 
             Resources.Add("TitleBarCustomized", IsTitleBarCustomized);
             Resources.Add("TitleBarDummyHeight", IsTitleBarCustomized ? 32.0 : 0.0);
@@ -312,6 +320,11 @@ namespace NicoPlayerHohoema
             // 購読機能を初期化
             Models.Subscription.WatchItLater.Instance.Initialize();
 
+
+
+            // バックグラウンドでのトースト通知ハンドリングを初期化
+            await RegisterDebugToastNotificationBackgroundHandling();
+
             await base.OnInitializeAsync(args);
         }
 
@@ -363,14 +376,16 @@ namespace NicoPlayerHohoema
             // ログインしていない場合、
             bool isNeedNavigationDefault = !hohoemaApp.IsLoggedIn;
 
-            try
+            
+            if (args.Kind == ActivationKind.ToastNotification)
             {
-                if (args.Kind == ActivationKind.ToastNotification)
-                {
-                    //Get the pre-defined arguments and user inputs from the eventargs;
-                    var toastArgs = args as IActivatedEventArgs as ToastNotificationActivatedEventArgs;
-                    var arguments = toastArgs.Argument;
+                bool isHandled = false;
 
+                //Get the pre-defined arguments and user inputs from the eventargs;
+                var toastArgs = args as IActivatedEventArgs as ToastNotificationActivatedEventArgs;
+                var arguments = toastArgs.Argument;
+                try
+                {
                     var serialize = Newtonsoft.Json.JsonConvert.DeserializeObject<LoginRedirectPayload>(arguments);
                     if (serialize != null)
                     {
@@ -382,10 +397,27 @@ namespace NicoPlayerHohoema
                         {
                             pageManager.OpenPage(serialize.RedirectPageType, serialize.RedirectParamter);
                         }
+                        isHandled = true;
                     }
-                    else if (arguments == ACTIVATION_WITH_ERROR)
+                }
+                catch { }
+                
+                if (!isHandled)
+                {
+                    if (arguments == ACTIVATION_WITH_ERROR)
                     {
                         await ShowErrorLog().ConfigureAwait(false);
+                    }
+                    else if (arguments == ACTIVATION_WITH_ERROR_COPY_LOG)
+                    {
+                        var error = await GetMostRecentErrorText();
+
+                        var clipboardService = Container.Resolve<Services.HohoemaClipboardService>();
+                        clipboardService.CopyToClipboard(error);
+                    }
+                    else if (arguments == ACTIVATION_WITH_ERROR_OPEN_LOG)
+                    {
+                        await ShowErrorLogFolder();
                     }
                     else if (arguments.StartsWith("cache_cancel"))
                     {
@@ -411,42 +443,71 @@ namespace NicoPlayerHohoema
                         }
                     }
                 }
-                else if (args.Kind == ActivationKind.Protocol)
+
+                
+            }
+            else if (args.Kind == ActivationKind.Protocol)
+            {
+                var param = (args as IActivatedEventArgs) as ProtocolActivatedEventArgs;
+                var uri = param.Uri;
+                var maybeNicoContentId = new string(uri.OriginalString.Skip("niconico://".Length).TakeWhile(x => x != '?' && x != '/').ToArray());
+
+
+                if (Mntone.Nico2.NiconicoRegex.IsVideoId(maybeNicoContentId)
+                    || maybeNicoContentId.All(x => x >= '0' && x <= '9'))
                 {
-                    var param = (args as IActivatedEventArgs) as ProtocolActivatedEventArgs;
-                    var uri = param.Uri;
-                    var maybeNicoContentId = new string(uri.OriginalString.Skip("niconico://".Length).TakeWhile(x => x != '?' && x != '/').ToArray());
-
-
-                    if (Mntone.Nico2.NiconicoRegex.IsVideoId(maybeNicoContentId)
-                        || maybeNicoContentId.All(x => x >= '0' && x <= '9'))
-                    {
-                        PlayVideoFromExternal(maybeNicoContentId);
-                    }
-                    else if (Mntone.Nico2.NiconicoRegex.IsLiveId(maybeNicoContentId))
-                    {
-                        PlayLiveVideoFromExternal(maybeNicoContentId);
-                    }
+                    PlayVideoFromExternal(maybeNicoContentId);
+                }
+                else if (Mntone.Nico2.NiconicoRegex.IsLiveId(maybeNicoContentId))
+                {
+                    PlayLiveVideoFromExternal(maybeNicoContentId);
+                }
+            }
+            else
+            {
+                if (hohoemaApp.IsLoggedIn)
+                {
+                    pageManager.OpenStartupPage();
                 }
                 else
                 {
-                    if (hohoemaApp.IsLoggedIn)
-                    {
-                        pageManager.OpenStartupPage();
-                    }
-                    else
-                    {
-                        pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
-                    }
+                    pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
                 }
             }
-            catch
-            {
-                
-            }
+            
 			
 			await base.OnActivateApplicationAsync(args);
 		}
+
+
+
+       
+
+        protected override async void OnBackgroundActivated(BackgroundActivatedEventArgs args)
+        {
+            var deferral = args.TaskInstance.GetDeferral();
+
+            switch (args.TaskInstance.Task.Name)
+            {
+                case "ToastBackgroundTask":
+                    var details = args.TaskInstance.TriggerDetails as Windows.UI.Notifications.ToastNotificationActionTriggerDetail;
+                    if (details != null)
+                    {
+                        string arguments = details.Argument;
+                        var userInput = details.UserInput;
+
+                        await ProcessToastNotificationActivation(arguments, userInput);
+                    }
+                    break;
+            }
+
+            deferral.Complete();
+
+                
+            base.OnBackgroundActivated(args);
+        }
+
+
 
         private void PlayVideoFromExternal(string videoId, string videoTitle = null, NicoVideoQuality? quality = null)
         {
@@ -498,7 +559,7 @@ namespace NicoPlayerHohoema
 		}
 
 
-        #region Page and Application Appiarance
+#region Page and Application Appiarance
 
         protected override IDeviceGestureService OnCreateDeviceGestureService()
         {
@@ -607,7 +668,7 @@ namespace NicoPlayerHohoema
                 }
                 catch (Exception ex)
                 {
-                    WriteErrorFile(ex).ConfigureAwait(false);
+                    OutputErrorFile(ex).ConfigureAwait(false);
                 }
             };
             rootFrame.NavigationFailed += (_, e) => 
@@ -616,7 +677,7 @@ namespace NicoPlayerHohoema
                 Debug.WriteLine(e.SourcePageType.AssemblyQualifiedName);
                 Debug.WriteLine(e.Exception.ToString());
 
-                _ = WriteErrorFile(e.Exception, e.SourcePageType?.AssemblyQualifiedName);
+                _ = OutputErrorFile(e.Exception, e.SourcePageType?.AssemblyQualifiedName);
             };
 
             var menuPageBase = new Views.MenuNavigatePageBase()
@@ -647,10 +708,10 @@ namespace NicoPlayerHohoema
             return grid;
         }
 
-        #endregion
+#endregion
 
 
-        #region Multi Window Size Restoring
+#region Multi Window Size Restoring
 
 
         private int MainViewId = -1;
@@ -687,10 +748,10 @@ namespace NicoPlayerHohoema
         }
 
 
-        #endregion
+#endregion
 
 
-        #region Theme 
+#region Theme 
 
 
         const string ThemeTypeKey = "Theme";
@@ -721,10 +782,10 @@ namespace NicoPlayerHohoema
             return ApplicationTheme.Dark;
         }
 
-        #endregion
+#endregion
 
 
-        #region Debug
+#region Debug
 
         const string DEBUG_MODE_ENABLED_KEY = "Hohoema_DebugModeEnabled";
         public bool IsDebugModeEnabled
@@ -754,7 +815,6 @@ namespace NicoPlayerHohoema
             var errorFiles = await folder.GetItemsAsync();
 
             var errorFile = errorFiles
-                .Where(x => x.Name.StartsWith("hohoema_error"))
                 .OrderBy(x => x.DateCreated)
                 .LastOrDefault()
                 as StorageFile;
@@ -789,6 +849,14 @@ namespace NicoPlayerHohoema
             }
         }
 
+        public async Task ShowErrorLogFolder()
+        {
+            var folder = await ApplicationData.Current.LocalFolder.GetFolderAsync("error");
+            if (folder != null)
+            {
+                await Windows.System.Launcher.LaunchFolderAsync(folder);
+            }
+        }
 
         private async void PrismUnityApplication_UnhandledException(object sender, UnhandledExceptionEventArgs e)
         {
@@ -798,49 +866,153 @@ namespace NicoPlayerHohoema
 
             if (IsDebugModeEnabled)
             {
-                await WriteErrorFile(e.Exception);
-            }
+                await OutputErrorFile(e.Exception);
 
-            //ShowErrorToast();
+                ShowErrorToast(e.Message);
+            }
         }
 
-        public async Task WriteErrorFile(Exception e, string pageName = null)
+
+        struct ErrorReport
+        {
+            public string DeviceType { get; set; }
+            public string OperatingSystem { get; set; }
+            public string OperatingSystemVersion { get; set; }
+            public string OperatingSystemArchitecture { get; set; }
+
+            public string ApplicationVersion { get; set; }
+            public DateTime Time { get; set; }
+            public string RecentOpenedPageName { get; set; }
+            public string ErrorMessage { get; set; }
+
+            public bool IsInternetAvailable { get; set; }
+            public bool IsLoggedIn { get; set; }
+            public bool IsPremiumAccount { get; set; }
+
+        }
+
+        public async Task OutputErrorFile(Exception e, string pageName = null)
         {
             var pageManager = Container.Resolve<PageManager>();
             if (pageName == null)
             {
                 pageName = pageManager.CurrentPageType.ToString();
             }
+
+            var hohoemaApp = Container.Resolve<HohoemaApp>();
+
+
             try
             {
+                var v = Package.Current.Id.Version;
+                var versionText = $"{v.Major}.{v.Minor}.{v.Revision}.{v.Build}";
                 var folder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("error", CreationCollisionOption.OpenIfExists);
-                var errorFile = await folder.CreateFileAsync($"hohoema_{pageName}_{DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss")}.txt", CreationCollisionOption.OpenIfExists);
+                var errorFile = await folder.CreateFileAsync($"Hohoema-{versionText.Replace('.', '_')}-{Path.GetFileNameWithoutExtension(Path.GetRandomFileName())}.txt", CreationCollisionOption.OpenIfExists);
 
-                var version = Package.Current.Id.Version;
-                var versionText = $"{version.Major}.{version.Minor}.{version.Build}";
-                var stringBuilder = new StringBuilder();
-                stringBuilder.AppendLine($"Hohoema {versionText}");
-                stringBuilder.AppendLine("開いていたページ:" + pageName);
-                stringBuilder.AppendLine("");
-                stringBuilder.AppendLine("= = = = = = = = = = = = = = = =");
-                stringBuilder.AppendLine("");
-                stringBuilder.AppendLine(e.ToString());
+                var errorReport = new ErrorReport()
+                {
+                    ApplicationVersion = versionText,
+                    Time = DateTime.Now,
+                    RecentOpenedPageName = pageName,
+                    IsInternetAvailable = Helpers.InternetConnection.IsInternet(),
+                    IsLoggedIn = hohoemaApp.IsLoggedIn,
+                    IsPremiumAccount = hohoemaApp.IsPremiumUser,
+                    ErrorMessage = e.ToString(),
+                    DeviceType = Microsoft.Toolkit.Uwp.Helpers.SystemInformation.DeviceFamily,
+                    OperatingSystem = Microsoft.Toolkit.Uwp.Helpers.SystemInformation.OperatingSystem,
+                    OperatingSystemArchitecture = Microsoft.Toolkit.Uwp.Helpers.SystemInformation.OperatingSystemArchitecture.ToString(),
+                    OperatingSystemVersion = Microsoft.Toolkit.Uwp.Helpers.SystemInformation.OperatingSystemVersion.ToString(),
+                };
 
-                await FileIO.WriteTextAsync(errorFile, stringBuilder.ToString());
+                var errorReportJsonText = Newtonsoft.Json.JsonConvert.SerializeObject(
+                    errorReport, 
+                    Newtonsoft.Json.Formatting.Indented, 
+                    new Newtonsoft.Json.JsonSerializerSettings()
+                    {
+                        TypeNameHandling = Newtonsoft.Json.TypeNameHandling.None,
+                    });
+
+                await FileIO.WriteTextAsync(errorFile, errorReportJsonText);
             }
             catch { }
         }
 
-        public void ShowErrorToast()
+        public void ShowErrorToast(string message)
         {
             var toast = Container.Resolve<Services.NotificationService>();
-            toast.ShowToast("Hohoema実行中に不明なエラーが発生しました"
-                , "ここをタップすると再起動できます。"
+            toast.ShowToast("Hohoemaに問題が発生しました"
+                , message
                 , Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long
                 , luanchContent: ACTIVATION_WITH_ERROR
+                ,  toastButtons: new[] 
+                {
+                    new ToastButton("エラーログをコピー", ACTIVATION_WITH_ERROR_COPY_LOG) { ActivationType = ToastActivationType.Background },
+                    new ToastButton("ログフォルダを開く", ACTIVATION_WITH_ERROR_OPEN_LOG) { ActivationType = ToastActivationType.Background },
+                }
                 );
         }
 
+
+
+        private async Task RegisterDebugToastNotificationBackgroundHandling()
+        {
+            try
+            {
+                const string taskName = "ToastBackgroundTask";
+
+                // If background task is already registered, do nothing
+                if (BackgroundTaskRegistration.AllTasks.Any(i => i.Value.Name.Equals(taskName)))
+                    return;
+
+                // Otherwise request access
+                BackgroundAccessStatus status = await BackgroundExecutionManager.RequestAccessAsync();
+
+                // Create the background task
+                BackgroundTaskBuilder builder = new BackgroundTaskBuilder()
+                {
+                    Name = taskName
+                };
+
+                // Assign the toast action trigger
+                builder.SetTrigger(new ToastNotificationActionTrigger());
+
+                // And register the task
+                BackgroundTaskRegistration registration = builder.Register();
+            }
+            catch { }
+        }
+
+        private async Task ProcessToastNotificationActivation(string arguments, ValueSet userInput)
+        {
+            var hohoemaApp = Container.Resolve<HohoemaApp>();
+
+            // Perform tasks
+            if (arguments == ACTIVATION_WITH_ERROR)
+            {
+                await ShowErrorLog().ConfigureAwait(false);
+            }
+            else if (arguments == ACTIVATION_WITH_ERROR_COPY_LOG)
+            {
+                var error = await GetMostRecentErrorText();
+
+                var clipboardService = Container.Resolve<Services.HohoemaClipboardService>();
+                clipboardService.CopyToClipboard(error);
+            }
+            else if (arguments == ACTIVATION_WITH_ERROR_OPEN_LOG)
+            {
+                await ShowErrorLogFolder();
+            }
+            else if (arguments.StartsWith("cache_cancel"))
+            {
+                var query = arguments.Split('?')[1];
+                var decode = new WwwFormUrlDecoder(query);
+
+                var videoId = decode.GetFirstValueByName("id");
+                var quality = (NicoVideoQuality)Enum.Parse(typeof(NicoVideoQuality), decode.GetFirstValueByName("quality"));
+
+                await hohoemaApp.CacheManager.CancelCacheRequest(videoId, quality);
+            }
+        }
 
         private async void UINavigationManager_Pressed(Views.UINavigationManager sender, Views.UINavigationButtons buttons)
         {
@@ -861,7 +1033,7 @@ namespace NicoPlayerHohoema
 
 
 
-        #endregion
+#endregion
 
     }
 

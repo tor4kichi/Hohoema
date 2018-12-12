@@ -21,9 +21,9 @@ using System.Reactive.Disposables;
 namespace NicoPlayerHohoema.ViewModels
 {
     public class MenuNavigatePageBaseViewModel : BindableBase
-	{
-		public PageManager PageManager { get; private set; }
-		public HohoemaApp HohoemaApp { get; private set; }
+    {
+        public PageManager PageManager { get; private set; }
+        public HohoemaApp HohoemaApp { get; private set; }
         public Models.Niconico.Live.NicoLiveSubscriber NicoLiveSubscriber { get; private set; }
 
         public ReactiveProperty<bool> IsTVModeEnable { get; private set; }
@@ -32,6 +32,21 @@ namespace NicoPlayerHohoema.ViewModels
         public ReadOnlyReactiveProperty<HohoemaAppServiceLevel> ServiceLevel { get; private set; }
 
         public ReactiveProperty<bool> IsShowInAppNotification { get; private set; }
+
+        public bool IsDebug
+        {
+            get
+            {
+#if DEBUG
+                return true;
+#else
+                return false;
+#endif
+            }
+        }
+        
+        
+
 
 
 
@@ -586,8 +601,17 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        public DelegateCommand OpenDebugPageCommand
+        {
+            get
+            {
+                return  new DelegateCommand(() =>
+                    {
+                        PageManager.OpenDebugPage();
+                    });
+            }
+        }
 
-       
 
 
         private DelegateCommand _ToggleFullScreenCommand;
@@ -696,7 +720,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-        #region Search
+#region Search
 
 
         public ReactiveProperty<string> SearchKeyword { get; private set; }
@@ -705,7 +729,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveCommand SearchCommand { get; private set; }
 
-        #endregion
+#endregion
 
 
     }

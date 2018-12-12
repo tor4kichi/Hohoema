@@ -155,6 +155,11 @@ namespace NicoPlayerHohoema.Models
             return false;
         }
 
+        public void OpenDebugPage()
+        {
+            NavigationService.Navigate("Debug", null);
+        }
+
 		public void OpenPage(HohoemaPageType pageType, object parameter = null, bool isForgetNavigation = false)
 		{
             HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
@@ -208,7 +213,7 @@ namespace NicoPlayerHohoema.Models
                         PageNavigating = false;
                     }
 
-                    HohoemaViewManager.ShowMainView();
+                    _ = HohoemaViewManager.ShowMainView();
                 }
             })
             .AsTask()
