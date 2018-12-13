@@ -14,27 +14,24 @@ using Mntone.Nico2.Videos.Histories;
 using Mntone.Nico2.Videos.Ranking;
 using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
-using NicoPlayerHohoema.Helpers;
-using Prism.Mvvm;
+using NicoPlayerHohoema.Models.Helpers;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Net;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using NicoPlayerHohoema.Database;
 using Microsoft.Practices.Unity;
 using Mntone.Nico2.Videos.Recommend;
 using Mntone.Nico2.Channels.Video;
+using NicoPlayerHohoema.Models.Cache;
 
 namespace NicoPlayerHohoema.Models
 {
-	/// <summary>
-	/// 検索やランキングなどコンテンツを見つける機能をサポートします
-	/// </summary>
-	public class NiconicoContentProvider 
+    /// <summary>
+    /// 検索やランキングなどコンテンツを見つける機能をサポートします
+    /// </summary>
+    public class NiconicoContentProvider 
 	{
 		AsyncLock _NicoPageAccessLock = new AsyncLock();
 

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 using Microsoft.Practices.Unity;
 using Microsoft.Toolkit.Uwp.UI;
 using Mntone.Nico2.Channels.Video;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models;
 
 namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent

@@ -1,23 +1,15 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Videos.Dmc;
 using Mntone.Nico2.Videos.WatchAPI;
-using NicoPlayerHohoema.Helpers;
-using Prism.Mvvm;
 using System;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using Windows.Foundation;
 using Windows.Storage;
-using Windows.UI.Core;
-using System.Collections.Immutable;
-using System.Collections;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
+using NicoPlayerHohoema.Models.Cache;
+using NicoPlayerHohoema.Services.Helpers;
 
 namespace NicoPlayerHohoema.Models
 {

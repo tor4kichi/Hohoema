@@ -1,5 +1,5 @@
 ﻿using Mntone.Nico2.Videos.Ranking;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Services.Helpers;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -191,7 +191,7 @@ namespace NicoPlayerHohoema.Models
 		{
             Category = category;
             Parameter = category.ToString();
-            DisplayLabel = category.ToCultulizedText();
+            DisplayLabel = category.ToCulturelizeString();
         }
 
         public string ToParameterString()

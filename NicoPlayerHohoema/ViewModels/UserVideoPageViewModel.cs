@@ -1,22 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using Mntone.Nico2.Users.Video;
 using Prism.Windows.Navigation;
-using System.Diagnostics;
 using Mntone.Nico2.Users.User;
 using System.Threading;
 using Prism.Commands;
 using Windows.UI.Xaml.Navigation;
 using System.Collections.Async;
+using NicoPlayerHohoema.Models.Cache;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class UserVideoPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
+    public class UserVideoPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
 	{
         public Models.Subscription.SubscriptionManager SubscriptionManager => Models.Subscription.SubscriptionManager.Instance;
         public Models.Subscription.SubscriptionSource? SubscriptionSource => new Models.Subscription.SubscriptionSource(UserName, Models.Subscription.SubscriptionSourceType.User, UserId);

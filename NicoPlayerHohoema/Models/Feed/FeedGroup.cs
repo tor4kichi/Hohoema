@@ -1,4 +1,4 @@
-﻿using NicoPlayerHohoema.Helpers;
+﻿using NicoPlayerHohoema.Models.Helpers;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;

@@ -11,7 +11,7 @@ using System.Reactive.Disposables;
 using System.Threading;
 using Windows.UI.Xaml;
 using Windows.Foundation;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using System.Runtime.InteropServices.WindowsRuntime;
 using WinRTXamlToolkit.Async;
 using Windows.UI.Xaml.Navigation;
@@ -44,7 +44,7 @@ namespace NicoPlayerHohoema.ViewModels
         // 代替キャンセル動作の管理ID
         const string PlayerFillModeBackNavigationCancel = "fill_mode_cancel";
 
-        static Helpers.AsyncLock _NavigationLock = new Helpers.AsyncLock();
+        static Models.Helpers.AsyncLock _NavigationLock = new Models.Helpers.AsyncLock();
 
         /// <summary>
         /// このページが利用可能になるアプリサービス状態を指定します。
@@ -78,7 +78,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .ToReactiveProperty()
                 .AddTo(_CompositeDisposable);
 
-            if (Helpers.DeviceTypeHelper.IsXbox)
+            if (Services.Helpers.DeviceTypeHelper.IsXbox)
             {
                 IsForceTVModeEnable = new ReactiveProperty<bool>(true);
             }
@@ -464,7 +464,7 @@ namespace NicoPlayerHohoema.ViewModels
 		protected virtual void OnDispose() { }
 
 
-        private Helpers.AsyncLock _SignStatusLock = new Helpers.AsyncLock();
+        private Models.Helpers.AsyncLock _SignStatusLock = new Models.Helpers.AsyncLock();
 
 
         public bool IsLoggedIn => HohoemaApp.ServiceStatus.IsLoggedIn();

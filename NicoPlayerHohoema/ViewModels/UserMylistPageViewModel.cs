@@ -14,7 +14,7 @@ using System.Reactive.Linq;
 using Windows.UI.Popups;
 using NicoPlayerHohoema.Dialogs;
 using Mntone.Nico2.Searches.Mylist;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using System.Collections.Async;
 
 namespace NicoPlayerHohoema.ViewModels

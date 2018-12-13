@@ -15,7 +15,7 @@ namespace NicoPlayerHohoema.Commands
             {
                 var content = parameter as Interfaces.INiconicoContent;
 
-                var shareContent = Helpers.ShareHelper.MakeShareText(content);
+                var shareContent = Services.Helpers.ShareHelper.MakeShareText(content);
                 var clipboardService = HohoemaCommnadHelper.GetClipboardService();
                 clipboardService.CopyToClipboard(shareContent);
             }

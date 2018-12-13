@@ -3,7 +3,7 @@ using Mntone.Nico2.Live;
 using Mntone.Nico2.Live.PlayerStatus;
 using Mntone.Nico2.Live.Video;
 using Mntone.Nico2.Videos.Comment;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using Prism.Mvvm;
 using Reactive.Bindings.Extensions;
 using System;
@@ -133,7 +133,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 
 		private MediaStreamSource _VideoStreamSource;
-		private Helpers.AsyncLock _VideoStreamSrouceAssignLock = new Helpers.AsyncLock();
+		private Models.Helpers.AsyncLock _VideoStreamSrouceAssignLock = new Models.Helpers.AsyncLock();
 
 
 		/// <summary>
@@ -192,7 +192,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 
 		Timer _EnsureStartLiveTimer;
-        Helpers.AsyncLock _EnsureStartLiveTimerLock = new Helpers.AsyncLock();
+        Models.Helpers.AsyncLock _EnsureStartLiveTimerLock = new Models.Helpers.AsyncLock();
 
         public Live2WebSocket Live2WebSocket { get; private set; }
 
@@ -211,7 +211,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 
 
-        Helpers.AsyncLock _LiveSubscribeLock = new Helpers.AsyncLock();
+        Models.Helpers.AsyncLock _LiveSubscribeLock = new Models.Helpers.AsyncLock();
 
 
 		
@@ -530,7 +530,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 
 
-        Helpers.AsyncLock _LiveElapsedTimeUpdateTimerLock = new Helpers.AsyncLock();
+        Models.Helpers.AsyncLock _LiveElapsedTimeUpdateTimerLock = new Models.Helpers.AsyncLock();
         
         private TimeSpan _StartTimeOffset;
 
@@ -629,7 +629,7 @@ namespace NicoPlayerHohoema.Models.Live
 			using (var releaser = await _LiveSubscribeLock.LockAsync())
 			{
                 // Display表示の維持リクエスト
-                Helpers.DisplayRequestHelper.RequestKeepDisplay();
+                Services.Helpers.DisplayRequestHelper.RequestKeepDisplay();
 
                 // 経過時間の更新とバッファしたコメントを送るタイマーを開始
                 await StartLiveElapsedTimer();
@@ -646,7 +646,7 @@ namespace NicoPlayerHohoema.Models.Live
 			using (var releaser = await _LiveSubscribeLock.LockAsync())
 			{
                 // Display表示の維持リクエストを停止
-                Helpers.DisplayRequestHelper.StopKeepDisplay();
+                Services.Helpers.DisplayRequestHelper.StopKeepDisplay();
 
 				// HeartbeatAPIへのアクセスを停止
 				EndCommentClientConnection();
@@ -907,7 +907,7 @@ namespace NicoPlayerHohoema.Models.Live
                 {
                     _NicoLiveCommentClient.Open();
 
-                    await Task.Delay(Helpers.DeviceTypeHelper.IsMobile ? 3000 : 500);
+                    await Task.Delay(Services.Helpers.DeviceTypeHelper.IsMobile ? 3000 : 500);
                 }
             }
         }
@@ -989,7 +989,7 @@ namespace NicoPlayerHohoema.Models.Live
             }
         }
 
-        Helpers.AsyncLock _CommentRecievingLock = new Helpers.AsyncLock();
+        Models.Helpers.AsyncLock _CommentRecievingLock = new Models.Helpers.AsyncLock();
         Dictionary<int, List<LiveChatData>> _TimeToCommentsDict = new Dictionary<int, List<LiveChatData>>();
 
 

@@ -16,8 +16,6 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
         public DataTemplate MylistFlyoutTemplate { get; set; }
         public DataTemplate UserFlyoutTemplate { get; set; }
         public DataTemplate CommunityFlyoutTemplate { get; set; }
-        public DataTemplate FeedGroupFlyoutTemplate { get; set; }
-        public DataTemplate FeedSourceFlyoutTemplate { get; set; }
         public DataTemplate SearchHistoryFlyoutTemplate { get; set; }
 
         protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
@@ -66,14 +64,6 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
             else if (item is ILiveContent)
             {
                 return LiveFlyoutTemplate;
-            }
-            else if (item is ViewModels.FeedGroupListItem)
-            {
-                return FeedGroupFlyoutTemplate;
-            }
-            else if (item is ViewModels.FeedSourceBookmark)
-            {
-                return FeedSourceFlyoutTemplate;
             }
             else if (item is ViewModels.SearchHistoryListItem)
             {

@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using NicoPlayerHohoema.Models;
 using Prism.Commands;
-using NicoPlayerHohoema.Helpers;
 using Reactive.Bindings;
 using System.Collections.ObjectModel;
 using Prism.Windows.Navigation;
 using System.Reactive.Linq;
 using Reactive.Bindings.Extensions;
 using System.Threading;
+using NicoPlayerHohoema.Services.Helpers;
 
 namespace NicoPlayerHohoema.ViewModels
 {

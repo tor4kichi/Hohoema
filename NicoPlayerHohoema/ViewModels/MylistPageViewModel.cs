@@ -14,7 +14,7 @@ using Mntone.Nico2;
 using Reactive.Bindings;
 using System.Reactive.Linq;
 using System.Diagnostics;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using Windows.UI.Xaml;
 using Reactive.Bindings.Extensions;
 using System.Threading;

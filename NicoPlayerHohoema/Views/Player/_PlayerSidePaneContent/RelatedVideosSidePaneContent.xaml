@@ -14,6 +14,7 @@
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:uwpext="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+    xmlns:hohoemalistitem="using:NicoPlayerHohoema.Views.HohoemaListItem"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
@@ -238,7 +239,7 @@
                             </ListView.ItemContainerStyle>
                             <ListView.ItemTemplate>
                                 <DataTemplate>
-                                    <mycontrols:HohoemaListItem />
+                                    <hohoemalistitem:HohoemaListItemVideo  />
                                 </DataTemplate>
                             </ListView.ItemTemplate>
                         </ListView>

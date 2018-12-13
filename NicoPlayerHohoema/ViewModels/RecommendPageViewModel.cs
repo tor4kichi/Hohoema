@@ -1,17 +1,14 @@
-﻿using System;
-using System.Collections.Async;
+﻿using System.Collections.Async;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 using Mntone.Nico2.Videos.Recommend;
-using NicoPlayerHohoema.Database;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models;
 using Prism.Commands;
 using Prism.Windows.Navigation;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {

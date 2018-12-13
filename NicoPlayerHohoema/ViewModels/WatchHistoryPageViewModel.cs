@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Prism.Windows.Navigation;
 using System.Collections.ObjectModel;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using Mntone.Nico2.Videos.Histories;
 using Prism.Commands;
 using Reactive.Bindings;

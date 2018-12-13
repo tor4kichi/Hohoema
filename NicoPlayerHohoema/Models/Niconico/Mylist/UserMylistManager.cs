@@ -1,6 +1,6 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Mylist;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using Prism.Commands;
 using Prism.Mvvm;
 using System;

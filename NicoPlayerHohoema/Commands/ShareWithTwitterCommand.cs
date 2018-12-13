@@ -15,8 +15,8 @@ namespace NicoPlayerHohoema.Commands
             {
                 var content = parameter as Interfaces.INiconicoContent;
 
-                var shareContent = Helpers.ShareHelper.MakeShareText(content);
-                Helpers.ShareHelper.ShareToTwitter(shareContent).ConfigureAwait(false);
+                var shareContent = Services.Helpers.ShareHelper.MakeShareText(content);
+                Services.Helpers.ShareHelper.ShareToTwitter(shareContent).ConfigureAwait(false);
             }
         }
     }

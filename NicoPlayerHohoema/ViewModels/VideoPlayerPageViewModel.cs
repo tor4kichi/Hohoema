@@ -1,17 +1,13 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Videos.Comment;
 using Mntone.Nico2.Videos.Thumbnail;
-using Mntone.Nico2.Videos.WatchAPI;
 using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.ViewModels.PlayerSidePaneContent;
 using NicoPlayerHohoema.Views;
-using NicoPlayerHohoema.Views.DownloadProgress;
 using NicoPlayerHohoema.Services;
 using Prism.Commands;
 using Prism.Events;
-using Prism.Mvvm;
-using Prism.Windows.Mvvm;
 using Prism.Windows.Navigation;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -19,37 +15,28 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Reactive.Subjects;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.Background;
-using Windows.Foundation;
 using Windows.Media.Playback;
-using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI;
 using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
-using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Media;
-using FFmpegInterop;
-using Windows.Foundation.Collections;
 using Windows.ApplicationModel.DataTransfer;
-using Windows.Media.Core;
 using Windows.Media;
 using Windows.UI.Popups;
-using Windows.ApplicationModel.Core;
 using Windows.Foundation.Metadata;
 using Microsoft.Practices.Unity;
-using NicoPlayerHohoema.Services;
 using Mntone.Nico2.Videos.Dmc;
+using NicoPlayerHohoema.Services.Helpers;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -296,7 +283,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		const uint default_DisplayTime = 400; // 1 = 10ms, 400 = 4000ms = 4.0 Seconds
 
-        public bool IsXbox => Helpers.DeviceTypeHelper.IsXbox;
+        public bool IsXbox => Services.Helpers.DeviceTypeHelper.IsXbox;
 
 
 
@@ -773,7 +760,7 @@ namespace NicoPlayerHohoema.ViewModels
                 }
             });
 
-            if (Helpers.InputCapabilityHelper.IsMouseCapable && !IsForceTVModeEnable.Value)
+            if (Services.Helpers.InputCapabilityHelper.IsMouseCapable && !IsForceTVModeEnable.Value)
             {
                 IsAutoHideEnable = Observable.CombineLatest(
                     NowPlaying,

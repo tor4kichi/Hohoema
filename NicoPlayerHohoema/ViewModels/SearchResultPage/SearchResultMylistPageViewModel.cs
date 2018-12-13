@@ -1,13 +1,9 @@
-﻿using Mntone.Nico2.Mylist;
-using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Helpers;
+﻿using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Models.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Input;
-using NicoPlayerHohoema.Services;
 using Windows.UI.Xaml.Navigation;
 using Mntone.Nico2.Searches.Mylist;
 using Prism.Commands;
@@ -16,10 +12,11 @@ using Prism.Windows.Navigation;
 using System.Collections.Async;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class SearchResultMylistPageViewModel : HohoemaListingPageViewModelBase<IPlayableList>
+    public class SearchResultMylistPageViewModel : HohoemaListingPageViewModelBase<IPlayableList>
 	{
 		public MylistSearchPagePayloadContent SearchOption { get; private set; }
 
@@ -174,7 +171,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 SearchOption.Order = opt.Order;
                 SearchOption.Sort = opt.Sort;
-                SearchOptionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+                SearchOptionText = Services.Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
 
                 await ResetList();
             })

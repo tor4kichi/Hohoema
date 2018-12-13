@@ -11,7 +11,7 @@ using Prism.Windows.Navigation;
 using Prism.Commands;
 using NicoPlayerHohoema.Models;
 using System.Reactive.Linq;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using System.Text.RegularExpressions;
 using Prism.Mvvm;
 using NicoPlayerHohoema.Services;
@@ -137,7 +137,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override string ResolvePageName()
         {
-            return Helpers.CulturelizeHelper.ToCulturelizeString(RankingCategory);
+            return Services.Helpers.CulturelizeHelper.ToCulturelizeString(RankingCategory);
         }
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
@@ -229,7 +229,7 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     var vm = new RankedVideoInfoControlViewModel(
                         (uint)(head + index + 1)
-                        , x.GetVideoId()
+                        , NicoVideoIdHelper.UrlToVideoId(x.VideoUrl)
                     );
                     vm.SetTitle(RankingRankPrefixPatternRegex.Replace(x.Title, ""));
                     return vm;
@@ -283,7 +283,7 @@ namespace NicoPlayerHohoema.ViewModels
         public RankingTargetListItem(RankingTarget target)
         {
             TargetType = target;
-            Label = target.ToCultulizedText();
+            Label = target.ToString(); // TODO: RankingTarget のローカライズ
         }
 
         public string Label { get; private set; }
@@ -297,7 +297,7 @@ namespace NicoPlayerHohoema.ViewModels
         public RankingTimeSpanListItem(RankingTimeSpan rankingTimeSpan)
         {
             TimeSpan = rankingTimeSpan;
-            Label = rankingTimeSpan.ToCultulizedText();
+            Label = rankingTimeSpan.ToString(); //TODO: RankingTimeSpanのローカライズ
         }
 
         public string Label { get; private set; }

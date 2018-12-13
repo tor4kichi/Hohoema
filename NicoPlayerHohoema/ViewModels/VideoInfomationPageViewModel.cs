@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using NicoPlayerHohoema.Models;
 using Reactive.Bindings;
 using Prism.Commands;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using Windows.ApplicationModel.DataTransfer;
 using Microsoft.Practices.Unity;
 using Prism.Windows.Navigation;
@@ -157,7 +157,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ShareCommand
                     ?? (_ShareCommand = new DelegateCommand(() =>
                     {
-                        ShareHelper.Share(_VideoInfo);
+                        Services.Helpers.ShareHelper.Share(_VideoInfo);
                     }
                     , () => DataTransferManager.IsSupported()
                     ));
@@ -172,7 +172,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ShereWithTwitterCommand
                     ?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
                     {
-                        await ShareHelper.ShareToTwitter(_VideoInfo);
+                        await Services.Helpers.ShareHelper.ShareToTwitter(_VideoInfo);
                     }
                     ));
             }
@@ -365,7 +365,7 @@ namespace NicoPlayerHohoema.ViewModels
             
         }
 
-        Helpers.AsyncLock _UpdateLock = new AsyncLock();
+        Models.Helpers.AsyncLock _UpdateLock = new AsyncLock();
 
         bool _IsInitializedIchibaItems = false;
         public async void InitializeIchibaItems()
@@ -497,7 +497,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             try
             {
-                DescriptionHtmlFileUri = await Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoId, videoDescriptionHtml);
+                DescriptionHtmlFileUri = await Models.Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoId, videoDescriptionHtml);
                 RaisePropertyChanged(nameof(DescriptionHtmlFileUri));
             }
             catch

@@ -57,9 +57,6 @@
                                         </mybehavior:KeyboardTrigger.Actions>
                                     </mybehavior:KeyboardTrigger>
 
-                                    <!--
-                                    <mybehavior:RefreshableListViewRefreshableGetter IsRefreshable="{Binding NowRefreshable.Value, Mode=TwoWay}" />
-                                    -->
                                 </i:Interaction.Behaviors>
 
                             </GridView>

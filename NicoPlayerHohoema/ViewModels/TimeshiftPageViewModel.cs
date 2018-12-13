@@ -1,22 +1,16 @@
 ﻿using System;
 using System.Collections.Async;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using Mntone.Nico2;
-using Mntone.Nico2.Live.ReservationsInDetail;
 using NicoPlayerHohoema.Database;
-using NicoPlayerHohoema.Helpers;
-using NicoPlayerHohoema.Interfaces;
+using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models;
 using Prism.Commands;
 using Prism.Windows.Navigation;
-using Windows.Foundation;
 using Microsoft.Practices.Unity;
+using NicoPlayerHohoema.Services.Helpers;
 
 namespace NicoPlayerHohoema.ViewModels
 {

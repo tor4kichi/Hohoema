@@ -5,7 +5,7 @@ using Mntone.Nico2.Searches.Video;
 using Mntone.Nico2.Videos.Ranking;
 using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using Prism.Commands;
 using Prism.Mvvm;
 using Reactive.Bindings;
@@ -29,6 +29,8 @@ using NicoPlayerHohoema.Services;
 using System.Diagnostics;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
+using NicoPlayerHohoema.Services.Helpers;
+using NicoPlayerHohoema.Models.Cache;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -79,7 +81,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected CompositeDisposable _CompositeDisposable { get; private set; }
 
-        static Helpers.AsyncLock _DefferedUpdateLock = new Helpers.AsyncLock();
+        static Models.Helpers.AsyncLock _DefferedUpdateLock = new Models.Helpers.AsyncLock();
 
         bool _IsNGEnabled = false;
         bool _IsRequireLatest = true;

@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using NicoPlayerHohoema.Models;
 using Prism.Windows.Navigation;
 using System.Threading;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using System.Diagnostics;
 using NicoPlayerHohoema.Models.Live;
 using Reactive.Bindings;
@@ -472,7 +472,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             IsDisplayControlUI = HohoemaApp.Playlist.ToReactivePropertyAsSynchronized(x => x.IsDisplayPlayerControlUI, PlayerWindowUIDispatcherScheduler);
 
-            if (Helpers.InputCapabilityHelper.IsMouseCapable && !IsForceTVModeEnable.Value)
+            if (Services.Helpers.InputCapabilityHelper.IsMouseCapable && !IsForceTVModeEnable.Value)
             {
                 IsAutoHideEnable = Observable.CombineLatest(
                     NowPlaying,
@@ -812,7 +812,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ShareCommand
                     ?? (_ShareCommand = new DelegateCommand(() =>
                     {
-                        ShareHelper.Share(NicoLiveVideo);
+                        Services.Helpers.ShareHelper.Share(NicoLiveVideo);
                     }
                     ));
             }
@@ -826,7 +826,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ShereWithTwitterCommand
                     ?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
                     {
-                        await ShareHelper.ShareToTwitter(NicoLiveVideo);
+                        await Services.Helpers.ShareHelper.ShareToTwitter(NicoLiveVideo);
                     }
                     ));
             }
@@ -1552,7 +1552,7 @@ namespace NicoPlayerHohoema.ViewModels
                         });
 
                     // コメントのユーザー名解決
-                    CommentUserInfoResolvingAsync().ConfigureAwait(false);
+                    _ = CommentUserInfoResolvingAsync().ConfigureAwait(false);
                 }
                 else
                 {

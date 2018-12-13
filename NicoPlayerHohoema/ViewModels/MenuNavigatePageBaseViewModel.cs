@@ -10,13 +10,13 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Reactive.Linq;
 using Windows.UI.ViewManagement;
-using NicoPlayerHohoema.Helpers;
 using Windows.Foundation.Metadata;
 using NicoPlayerHohoema.Models.Live;
 using Windows.UI.Core;
 using Prism.Windows.Mvvm;
 using System.Collections.ObjectModel;
 using System.Reactive.Disposables;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -103,7 +103,7 @@ namespace NicoPlayerHohoema.ViewModels
             });
 
             // TV Mode
-            if (Helpers.DeviceTypeHelper.IsXbox)
+            if (Services.Helpers.DeviceTypeHelper.IsXbox)
             {
                 IsTVModeEnable = new ReactiveProperty<bool>(true);
             }
@@ -166,7 +166,7 @@ namespace NicoPlayerHohoema.ViewModels
                         MainSelectedItem.Value = null;
                     }
 
-                    if (Helpers.DeviceTypeHelper.IsXbox || HohoemaApp.UserSettings.AppearanceSettings.IsForceTVModeEnable)
+                    if (Services.Helpers.DeviceTypeHelper.IsXbox || HohoemaApp.UserSettings.AppearanceSettings.IsForceTVModeEnable)
                     {
                         IsOpenPane.Value = false;
                     }
@@ -397,11 +397,11 @@ namespace NicoPlayerHohoema.ViewModels
             if (NavigationService.Navigate(pageType, parameter))
             {
                 ApplicationView currentView = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView();
-                if (Helpers.DeviceTypeHelper.IsMobile)
+                if (Services.Helpers.DeviceTypeHelper.IsMobile)
                 {
                     currentView.TryEnterFullScreenMode();
                 }
-                else if (Helpers.DeviceTypeHelper.IsDesktop && !HohoemaApp.Playlist.IsPlayerFloatingModeEnable)
+                else if (Services.Helpers.DeviceTypeHelper.IsDesktop && !HohoemaApp.Playlist.IsPlayerFloatingModeEnable)
                 {
                     // 
                     if (currentView.AdjacentToLeftDisplayEdge && currentView.AdjacentToRightDisplayEdge)
@@ -834,11 +834,6 @@ namespace NicoPlayerHohoema.ViewModels
                 MenuItems.Add(new MenuItemViewModel("キャッシュ", HohoemaPageType.CacheManagement));
                 MenuItems.Add(new MenuItemViewModel("あとで見る", HohoemaPageType.Mylist, new MylistPagePayload(HohoemaPlaylist.WatchAfterPlaylistId).ToParameterString()));
             }
-
-
-#if DEBUG
-            MenuItems.Add(new MenuItemViewModel("旧 新着(Debug)", HohoemaPageType.FeedGroupManage));
-#endif
 
             RaisePropertyChanged(nameof(MenuItems));
         }

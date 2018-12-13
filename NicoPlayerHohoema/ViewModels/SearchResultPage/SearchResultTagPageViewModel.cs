@@ -1,6 +1,7 @@
 ﻿using Mntone.Nico2;
 using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
+using NicoPlayerHohoema.Services.Page;
 using Prism.Commands;
 using Prism.Windows.Navigation;
 using Reactive.Bindings;
@@ -371,7 +372,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override void PostResetList()
         {
-            SearchOptionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+            SearchOptionText = Services.Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
 
             base.PostResetList();
         }

@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
+using NicoPlayerHohoema.Services.Helpers;
 
 namespace NicoPlayerHohoema.Commands.Subscriptions
 {

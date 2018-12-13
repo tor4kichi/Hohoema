@@ -1,4 +1,4 @@
-﻿using NicoPlayerHohoema.Models;
+﻿using NicoPlayerHohoema.Models.Cache;
 using Prism.Commands;
 using System;
 using System.Linq;

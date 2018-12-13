@@ -18,8 +18,8 @@ namespace NicoPlayerHohoema.Commands
             {
                 var content = parameter as Interfaces.INiconicoContent;
                 
-                var shareContent = Helpers.ShareHelper.MakeShareText(content);
-                Helpers.ShareHelper.Share(shareContent);
+                var shareContent = Services.Helpers.ShareHelper.MakeShareText(content);
+                Services.Helpers.ShareHelper.Share(shareContent);
             }
         }
     }

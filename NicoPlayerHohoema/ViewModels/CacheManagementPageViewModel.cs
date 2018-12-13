@@ -8,12 +8,13 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Prism.Windows.Navigation;
 using System.Threading;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using Windows.UI.Xaml.Navigation;
 using Prism.Commands;
 using NicoPlayerHohoema.Services;
 using Windows.System;
 using System.Collections.Async;
+using NicoPlayerHohoema.Models.Cache;
 
 namespace NicoPlayerHohoema.ViewModels
 {

@@ -4,14 +4,13 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Mntone.Nico2;
 using Mntone.Nico2.Embed.Ichiba;
 using Mntone.Nico2.Live.Recommend;
 using Mntone.Nico2.Live.Video;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Services;
 using Prism.Commands;
@@ -21,7 +20,7 @@ using Reactive.Bindings.Extensions;
 using Microsoft.Practices.Unity;
 using System.Text.RegularExpressions;
 using Windows.System;
-using NicoPlayerHohoema.Interfaces;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -468,7 +467,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (htmlDescription != null)
             {
-                HtmlDescription = await Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(LiveId, htmlDescription);
+                HtmlDescription = await Models.Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(LiveId, htmlDescription);
 
                 try
                 {

@@ -36,7 +36,7 @@ namespace NicoPlayerHohoema.Models
 
         public static void LoadRecentLoginAccount()
         {
-            if (!Helpers.DeviceTypeHelper.IsXbox)
+            if (!Services.Helpers.DeviceTypeHelper.IsXbox)
             {
                 var vault = new Windows.Security.Credentials.PasswordVault();
 
@@ -90,9 +90,9 @@ namespace NicoPlayerHohoema.Models
         public static Task AddOrUpdateAccount(string mailAddress, string password)
         {
 #if !DEBUG
-            if (!Helpers.DeviceTypeHelper.IsXbox)
+            if (!Services.Helpers.DeviceTypeHelper.IsXbox)
 #else
-            if (!IsDebugXboxMode && !Helpers.DeviceTypeHelper.IsXbox)
+            if (!IsDebugXboxMode && !Services.Helpers.DeviceTypeHelper.IsXbox)
 #endif
             {
                 _AddOrUpdateAccount(mailAddress, password);
@@ -151,9 +151,9 @@ namespace NicoPlayerHohoema.Models
         public static bool RemoveAccount(string mailAddress)
         {
 #if !DEBUG
-            if (!Helpers.DeviceTypeHelper.IsXbox)
+            if (!Services.Helpers.DeviceTypeHelper.IsXbox)
 #else
-            if (!IsDebugXboxMode && !Helpers.DeviceTypeHelper.IsXbox)
+            if (!IsDebugXboxMode && !Services.Helpers.DeviceTypeHelper.IsXbox)
 #endif
             {
                 return _RemoveAccount(mailAddress);
@@ -209,9 +209,9 @@ namespace NicoPlayerHohoema.Models
             if (HasPrimaryAccount())
             {
 #if !DEBUG
-                if (!Helpers.DeviceTypeHelper.IsXbox)
+                if (!Services.Helpers.DeviceTypeHelper.IsXbox)
 #else
-                if (!IsDebugXboxMode && !Helpers.DeviceTypeHelper.IsXbox)
+                if (!IsDebugXboxMode && !Services.Helpers.DeviceTypeHelper.IsXbox)
 #endif
                 {
                     return Task.FromResult(_GetPrimaryAccount());

@@ -1,6 +1,6 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Videos.Thumbnail;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Services;
 using Prism.Events;
 using Prism.Mvvm;
@@ -24,6 +24,7 @@ using Windows.UI.Xaml;
 using Microsoft.Practices.Unity;
 using NicoPlayerHohoema.Dialogs;
 using Hohoema.NicoAlert;
+using NicoPlayerHohoema.Models.Cache;
 
 namespace NicoPlayerHohoema.Models
 {

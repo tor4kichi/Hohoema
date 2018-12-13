@@ -1,6 +1,6 @@
 ﻿using Mntone.Nico2;
 using NicoPlayerHohoema.Interfaces;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using Prism.Mvvm;
 using Reactive.Bindings.Extensions;
 using System;
@@ -9,20 +9,14 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Runtime.Serialization;
-using System.Text;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.Core;
-using Windows.Foundation.Metadata;
 using Windows.Media;
-using Windows.Media.Core;
-using Windows.Media.Playback;
 using Windows.Storage;
 using Windows.UI.ViewManagement;
-using Windows.UI.Core;
 using Microsoft.Practices.Unity;
+using NicoPlayerHohoema.Models.Cache;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -96,7 +90,7 @@ namespace NicoPlayerHohoema.Models
             get { return _PlayerDisplayType; }
             set
             {
-                if (value == PlayerDisplayType.SecondaryView && !DeviceTypeHelper.IsDesktop)
+                if (value == PlayerDisplayType.SecondaryView && !Services.Helpers.DeviceTypeHelper.IsDesktop)
                 {
                     throw new NotSupportedException("Secondary view only Desktop. not support on current device.");
                 }
@@ -139,11 +133,11 @@ namespace NicoPlayerHohoema.Models
                     ApplicationView currentView = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView();
                     if (_PlayerDisplayType == PlayerDisplayType.PrimaryView)
                     {
-                        if (Helpers.DeviceTypeHelper.IsMobile)
+                        if (Services.Helpers.DeviceTypeHelper.IsMobile)
                         {
                             currentView.TryEnterFullScreenMode();
                         }
-                        else if (Helpers.DeviceTypeHelper.IsDesktop)
+                        else if (Services.Helpers.DeviceTypeHelper.IsDesktop)
                         {
                             // 
                             if (currentView.AdjacentToLeftDisplayEdge && currentView.AdjacentToRightDisplayEdge)

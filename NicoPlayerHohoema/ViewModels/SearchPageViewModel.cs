@@ -1,32 +1,26 @@
-﻿using Prism.Windows.Mvvm;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Prism.Windows.Navigation;
 using NicoPlayerHohoema.Models;
 using System.Collections.ObjectModel;
-using NicoPlayerHohoema.Helpers;
 using Reactive.Bindings;
 using Prism.Commands;
 using Prism.Mvvm;
 using System.Reactive.Linq;
 using System.Diagnostics;
 using Reactive.Bindings.Extensions;
-using Windows.UI.Xaml.Navigation;
-using System.Threading;
-using Windows.UI.Xaml;
 using Mntone.Nico2;
 using Mntone.Nico2.Searches.Video;
 using Mntone.Nico2.Searches.Community;
-using System.Runtime.Serialization;
 using Mntone.Nico2.Searches.Live;
 using System.Collections.Async;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class SearchPageViewModel : HohoemaViewModelBase
+    public class SearchPageViewModel : HohoemaViewModelBase
     {
 		public ISearchPagePayloadContent RequireSearchOption { get; private set; }
 
@@ -564,7 +558,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			foreach (var item in CommunitySearchSortOptionListItems)
 			{
-				item.Label = Helpers.SortHelper.ToCulturizedText(item.Sort, item.Order);
+				item.Label = Services.Helpers.SortHelper.ToCulturizedText(item.Sort, item.Order);
 			}
 
 
@@ -659,7 +653,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			foreach (var item in LiveSearchSortOptionListItems)
 			{
-				item.Label = Helpers.SortHelper.ToCulturizedText(item.Sort, item.Order);
+				item.Label = Services.Helpers.SortHelper.ToCulturizedText(item.Sort, item.Order);
 			}
 
 

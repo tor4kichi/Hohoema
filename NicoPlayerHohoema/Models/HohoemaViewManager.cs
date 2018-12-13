@@ -142,7 +142,7 @@ namespace NicoPlayerHohoema.Models
                     await ApplicationViewSwitcher.TryShowAsStandaloneAsync(id, ViewSizePreference.Default, MainView.Id, ViewSizePreference.Default);
 
                     // ウィンドウサイズの保存と復元
-                    if (Helpers.DeviceTypeHelper.IsDesktop)
+                    if (Services.Helpers.DeviceTypeHelper.IsDesktop)
                     {
                         var localObjectStorageHelper = App.Current.Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
                         if (localObjectStorageHelper.KeyExists(secondary_view_size))
@@ -256,13 +256,13 @@ namespace NicoPlayerHohoema.Models
                 /*
                 await Task.Delay(1000);
 
-                if (Helpers.DeviceTypeHelper.IsMobile)
+                if (Services.Helpers.DeviceTypeHelper.IsMobile)
                 {
                     AppView.TryEnterFullScreenMode();
 
                     // Note: Mobile is not support Secondary View.
                 }
-                else if (Helpers.DeviceTypeHelper.IsDesktop)
+                else if (Services.Helpers.DeviceTypeHelper.IsDesktop)
                 {
                     if (AppView.AdjacentToLeftDisplayEdge && AppView.AdjacentToRightDisplayEdge)
                     {

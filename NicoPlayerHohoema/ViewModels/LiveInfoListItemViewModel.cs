@@ -28,7 +28,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public bool IsTimeshiftEnabled { get; private set; }
 		public bool IsCommunityMemberOnly { get; private set; }
 
-        public bool IsXbox => Helpers.DeviceTypeHelper.IsXbox;
+        public bool IsXbox => Services.Helpers.DeviceTypeHelper.IsXbox;
 
 
         public string BroadcasterId => CommunityGlobalId;

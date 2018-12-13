@@ -1,7 +1,5 @@
-﻿using NicoPlayerHohoema.ViewModels;
-using Prism.Mvvm;
+﻿using Prism.Mvvm;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -14,33 +12,14 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
-using Prism.Unity.Windows;
 using Microsoft.Practices.Unity;
 using NicoPlayerHohoema.Models;
 using Windows.UI.ViewManagement;
 using Windows.ApplicationModel.Core;
 using Windows.UI.Core;
-using Prism.Events;
-using NicoPlayerHohoema.Events;
-using Prism.Windows.Navigation;
 using Prism.Windows.AppModel;
-using Prism.Windows.Mvvm;
-//using BackgroundAudioShared;
-using Windows.Media;
 using Windows.Storage;
-using System.Text;
-using NicoPlayerHohoema.Helpers;
-using Windows.ApplicationModel.Resources;
-using Windows.ApplicationModel.DataTransfer;
-using Mntone.Nico2;
-using Prism.Commands;
-using System.Text.RegularExpressions;
-using System.Threading;
 using Windows.UI;
 using Microsoft.Toolkit.Uwp.Notifications;
 using Windows.ApplicationModel.Background;
@@ -137,11 +116,11 @@ namespace NicoPlayerHohoema
             // ViewModels
             Container.RegisterType<ViewModels.RankingCategoryListPageViewModel>(new ContainerControlledLifetimeManager());
 
-            Resources.Add("IsXbox", Helpers.DeviceTypeHelper.IsXbox);
-            Resources.Add("IsMobile", Helpers.DeviceTypeHelper.IsMobile);
+            Resources.Add("IsXbox", Services.Helpers.DeviceTypeHelper.IsXbox);
+            Resources.Add("IsMobile", Services.Helpers.DeviceTypeHelper.IsMobile);
 
             Resources.Add("IsCacheEnabled", hohoemaApp.UserSettings.CacheSettings.IsEnableCache);
-            Resources.Add("IsTVModeEnabled", Helpers.DeviceTypeHelper.IsXbox || hohoemaApp.UserSettings.AppearanceSettings.IsForceTVModeEnable);
+            Resources.Add("IsTVModeEnabled", Services.Helpers.DeviceTypeHelper.IsXbox || hohoemaApp.UserSettings.AppearanceSettings.IsForceTVModeEnable);
 
 
 #if DEBUG
@@ -154,7 +133,7 @@ namespace NicoPlayerHohoema
 
         }
 
-        public bool IsTitleBarCustomized { get; } = Helpers.DeviceTypeHelper.IsDesktop && Helpers.InputCapabilityHelper.IsMouseCapable;
+        public bool IsTitleBarCustomized { get; } = Services.Helpers.DeviceTypeHelper.IsDesktop && Services.Helpers.InputCapabilityHelper.IsMouseCapable;
         protected override async Task OnInitializeAsync(IActivatedEventArgs args)
         {
             await RegisterTypes();
@@ -168,7 +147,7 @@ namespace NicoPlayerHohoema
 #if DEBUG
             if (_DEBUG_XBOX_RESOURCE)
 #else
-                if (Helpers.DeviceTypeHelper.IsXbox)
+                if (Services.Helpers.DeviceTypeHelper.IsXbox)
 #endif
             {
                 this.Resources.MergedDictionaries.Add(new ResourceDictionary()
@@ -212,7 +191,7 @@ namespace NicoPlayerHohoema
 
 
             // ウィンドウサイズの保存と復元
-            if (Helpers.DeviceTypeHelper.IsDesktop)
+            if (Services.Helpers.DeviceTypeHelper.IsDesktop)
             {
                 var localObjectStorageHelper = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
                 if (localObjectStorageHelper.KeyExists(HohoemaViewManager.primary_view_size))
@@ -226,14 +205,14 @@ namespace NicoPlayerHohoema
             }
 
             // XboxOneで外枠表示を行わないように設定
-            if (Helpers.DeviceTypeHelper.IsXbox)
+            if (Services.Helpers.DeviceTypeHelper.IsXbox)
             {
                 Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().SetDesiredBoundsMode
                     (Windows.UI.ViewManagement.ApplicationViewBoundsMode.UseCoreWindow);
             }
 
             // モバイルでナビゲーションバーをアプリに被せないように設定
-            if (Helpers.DeviceTypeHelper.IsMobile)
+            if (Services.Helpers.DeviceTypeHelper.IsMobile)
             {
                 // モバイルで利用している場合に、ナビゲーションバーなどがページに被さらないように指定
                 ApplicationView.GetForCurrentView().SuppressSystemOverlays = true;
@@ -431,7 +410,7 @@ namespace NicoPlayerHohoema
                     }
                     else
                     {
-                        var nicoContentId = Helpers.NicoVideoExtention.UrlToVideoId(arguments);
+                        var nicoContentId = Models.Helpers.NicoVideoIdHelper.UrlToVideoId(arguments);
 
                         if (Mntone.Nico2.NiconicoRegex.IsVideoId(nicoContentId))
                         {
@@ -572,7 +551,6 @@ namespace NicoPlayerHohoema
 
         protected override void ConfigureViewModelLocator()
         {
-
             ViewModelLocationProvider.SetDefaultViewTypeToViewModelTypeResolver(viewType => 
             {
                 var pageToken = viewType.Name;
@@ -614,7 +592,7 @@ namespace NicoPlayerHohoema
             var isForceMobileModeEnable = hohoemaApp?.UserSettings?.AppearanceSettings.IsForceMobileModeEnable ?? false;
 
             Type viewType = null;
-            if (isForceTVModeEnable || Helpers.DeviceTypeHelper.IsXbox)
+            if (isForceTVModeEnable || Services.Helpers.DeviceTypeHelper.IsXbox)
             {
                 // pageTokenに対応するXbox表示用のページの型を取得
                 try
@@ -628,7 +606,7 @@ namespace NicoPlayerHohoema
                 }
                 catch { }
             }
-            else if (isForceMobileModeEnable || Helpers.DeviceTypeHelper.IsMobile)
+            else if (isForceMobileModeEnable || Services.Helpers.DeviceTypeHelper.IsMobile)
             {
                 try
                 {
@@ -914,7 +892,7 @@ namespace NicoPlayerHohoema
                     ApplicationVersion = versionText,
                     Time = DateTime.Now,
                     RecentOpenedPageName = pageName,
-                    IsInternetAvailable = Helpers.InternetConnection.IsInternet(),
+                    IsInternetAvailable = Models.Helpers.InternetConnection.IsInternet(),
                     IsLoggedIn = hohoemaApp.IsLoggedIn,
                     IsPremiumAccount = hohoemaApp.IsPremiumUser,
                     ErrorMessage = e.ToString(),

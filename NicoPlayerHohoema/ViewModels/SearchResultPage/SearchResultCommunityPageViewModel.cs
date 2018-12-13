@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Services;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using System.Windows.Input;
 using Mntone.Nico2.Searches.Community;
 using Mntone.Nico2;
@@ -17,6 +17,7 @@ using System.Collections.Async;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -104,7 +105,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             foreach (var item in CommunitySearchSortOptionListItems)
             {
-                item.Label = Helpers.SortHelper.ToCulturizedText(item.Sort, item.Order);
+                item.Label = Services.Helpers.SortHelper.ToCulturizedText(item.Sort, item.Order);
             }
 
 
@@ -235,7 +236,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         private void RefreshSearchOptionText()
         {
-            var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+            var optionText = Services.Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
             var mode = SearchOption.Mode == CommunitySearchMode.Keyword ? "キーワード" : "タグ";
 
             SearchOptionText = $"{optionText}({mode})";

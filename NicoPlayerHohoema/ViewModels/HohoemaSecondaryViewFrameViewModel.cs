@@ -10,7 +10,7 @@ using Microsoft.Practices.Unity;
 using Prism.Events;
 using System.Diagnostics;
 using NicoPlayerHohoema.Models.Live;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 
 namespace NicoPlayerHohoema.ViewModels
 {

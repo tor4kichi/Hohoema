@@ -2,20 +2,18 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Prism.Windows.Navigation;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using Mntone.Nico2.Searches.Live;
 using Prism.Commands;
-using System.Windows.Input;
-using Windows.ApplicationModel.DataTransfer;
 using Mntone.Nico2;
 using Reactive.Bindings;
 using System.Reactive.Linq;
 using Reactive.Bindings.Extensions;
 using System.Collections.Async;
 using Windows.UI.Xaml.Navigation;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -72,7 +70,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             foreach (var item in LiveSearchSortOptionListItems)
             {
-                item.Label = Helpers.SortHelper.ToCulturizedText(item.Sort, item.Order);
+                item.Label = Services.Helpers.SortHelper.ToCulturizedText(item.Sort, item.Order);
             }
 
 
@@ -278,7 +276,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         private void ResetSearchOptionText()
         {
-            var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+            var optionText = Services.Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
             var providerText = SelectedProvider.Value.Label;
             string mode = "";
             if (SearchOption.Mode.HasValue)

@@ -7,7 +7,7 @@ namespace NicoPlayerHohoema.Commands
         protected override bool CanExecute(object parameter)
         {
             return parameter is Interfaces.IVideoContent
-                && Helpers.InternetConnection.IsInternet()
+                && Models.Helpers.InternetConnection.IsInternet()
                 ;
         }
 

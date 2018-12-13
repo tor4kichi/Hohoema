@@ -20,7 +20,7 @@ using System.Windows.Input;
 using System.Text.RegularExpressions;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using Windows.ApplicationModel.Store;
 using Windows.Storage;
 using System.Diagnostics;
@@ -151,6 +151,8 @@ namespace NicoPlayerHohoema.ViewModels
                             TwitterAccountScreenName.Value = TwitterHelper.TwitterUser?.ScreenName ?? "";
                         }
                         */
+
+                        await Task.CompletedTask;
                     }
                     ));
             }
@@ -441,7 +443,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             IsTVModeEnable = HohoemaApp.UserSettings.AppearanceSettings
                 .ToReactivePropertyAsSynchronized(x => x.IsForceTVModeEnable);
-            IsXbox = Helpers.DeviceTypeHelper.IsXbox;
+            IsXbox = Services.Helpers.DeviceTypeHelper.IsXbox;
 
             IsForceMobileModeEnable = HohoemaApp.UserSettings.AppearanceSettings
                 .ToReactivePropertyAsSynchronized(x => x.IsForceMobileModeEnable);
@@ -562,7 +564,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             // TVMode有効フラグをXaml側に反映されるようリソースに書き込み
             // 汚いやり方かもしれない
-            App.Current.Resources["IsTVModeEnabled"] = Helpers.DeviceTypeHelper.IsXbox || HohoemaApp.UserSettings.AppearanceSettings.IsForceTVModeEnable;
+            App.Current.Resources["IsTVModeEnabled"] = Services.Helpers.DeviceTypeHelper.IsXbox || HohoemaApp.UserSettings.AppearanceSettings.IsForceTVModeEnable;
 
 
             _RankingSettings.GetFile().ContinueWith(async prevTask =>
@@ -781,19 +783,19 @@ namespace NicoPlayerHohoema.ViewModels
         {
             switch (type)
             {
-                case Helpers.LisenceType.MIT:
+                case Models.LisenceType.MIT:
                     return "MIT";
-                case Helpers.LisenceType.MS_PL:
+                case Models.LisenceType.MS_PL:
                     return "Microsoft Public Lisence";
-                case Helpers.LisenceType.Apache_v2:
+                case Models.LisenceType.Apache_v2:
                     return "Apache Lisence version 2.0";
-                case Helpers.LisenceType.GPL_v3:
+                case Models.LisenceType.GPL_v3:
                     return "GNU General Public License Version 3";
-                case Helpers.LisenceType.Simplified_BSD:
+                case Models.LisenceType.Simplified_BSD:
                     return "二条項BSDライセンス";
-                case Helpers.LisenceType.CC_BY_40:
+                case Models.LisenceType.CC_BY_40:
                     return "クリエイティブ・コモンズ 表示 4.0 国際";
-                case Helpers.LisenceType.SIL_OFL_v1_1:
+                case Models.LisenceType.SIL_OFL_v1_1:
                     return "SIL OPEN FONT LICENSE Version 1.1";
                 default:
                     throw new NotSupportedException(type.ToString());

@@ -12,7 +12,7 @@ using System.Threading;
 using NicoPlayerHohoema.Services;
 using Microsoft.Practices.Unity;
 using System.Runtime.InteropServices.WindowsRuntime;
-using Microsoft.Practices.Unity;
+using NicoPlayerHohoema.Models.Cache;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -214,7 +214,7 @@ namespace NicoPlayerHohoema.ViewModels
             return base.OnSignIn(userSessionDisposer, cancelToken);
         }
 
-		public override async void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			base.OnNavigatedTo(e, viewModelState);
 

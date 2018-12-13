@@ -1,18 +1,15 @@
 ﻿using Mntone.Nico2.Videos.Ranking;
-using Prism.Windows.Mvvm;
 using Reactive.Bindings;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Prism.Windows.Navigation;
 using Prism.Commands;
 using NicoPlayerHohoema.Models;
 using System.Reactive.Linq;
-using NicoPlayerHohoema.Helpers;
 using Microsoft.Toolkit.Uwp.UI;
+using NicoPlayerHohoema.Services.Helpers;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -244,7 +241,7 @@ namespace NicoPlayerHohoema.ViewModels
             foreach (var categoryList in RankingCategories)
             {
                 // 非表示ランキングを除外したカテゴリリストを作成
-                var label = categoryList.First().ToCultulizedText();
+                var label = categoryList.First().ToCulturelizeString();
 
                 var list = categoryList
                     .Where(x => !HohoemaApp.UserSettings.RankingSettings.IsDislikeRankingCategory(x))

@@ -1,5 +1,5 @@
 ﻿using Mntone.Nico2;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

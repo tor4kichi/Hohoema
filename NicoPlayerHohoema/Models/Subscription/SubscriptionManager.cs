@@ -1,5 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.Helpers;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
+using NicoPlayerHohoema.Services.Helpers;
 using Prism.Commands;
 using Prism.Mvvm;
 using Reactive.Bindings;

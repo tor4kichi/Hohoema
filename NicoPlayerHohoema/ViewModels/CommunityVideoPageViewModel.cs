@@ -1,5 +1,5 @@
 ﻿using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -201,7 +201,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public NiconicoVideoRssItem RssItem { get; private set; }
 
 
-		public string VideoId => RssItem.GetVideoId();
+		public string VideoId => NicoVideoIdHelper.UrlToVideoId(RssItem.VideoUrl);
 
 		public CommunityVideoInfoControlViewModel(NiconicoVideoRssItem rssItem, HohoemaPlaylist playlist)
 			: base()
