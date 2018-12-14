@@ -72,10 +72,10 @@ namespace NicoPlayerHohoema.Views.Subscriptions
                     {
                         source = new Models.Subscription.SubscriptionSource(result.Label, Models.Subscription.SubscriptionSourceType.KeywordSearch, result.Id);
                     }
-                        
-                    if (source != null)
+
+                    if (subscription.AddSource.CanExecute(source))
                     {
-                        subscription.Sources.Add(source.Value);
+                        subscription.AddSource.Execute(source);
                     }
                 }
             }

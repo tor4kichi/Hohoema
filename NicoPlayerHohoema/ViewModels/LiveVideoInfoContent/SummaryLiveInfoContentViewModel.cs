@@ -41,16 +41,17 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 				IsCommunityLive = liveVideo.BroadcasterCommunityId.StartsWith("co");
 			}
 
-			var playerStatus = NicoLiveVideo.PlayerStatusResponse;
-			if (playerStatus != null)
+            // TODO: リポジトリから直に取得していい？ Modelを通すべきかも
+            var liveData = Database.NicoLiveDb.Get(liveVideo.LiveId);
+			if (liveData != null)
 			{
-				OpenAt = playerStatus.Program.OpenedAt.DateTime;
-				StartAt = playerStatus.Program.StartedAt.DateTime;
-				EndAt = playerStatus.Program.EndedAt.DateTime;
+				OpenAt = liveData.OpenTime.DateTime;
+				StartAt = liveData.StartTime.DateTime;
+                EndAt = liveData.EndTime.DateTime;
 
-				BroadcasterName = playerStatus.Program.BroadcasterName;
-				BroadcasterImageUrl = playerStatus.Program.CommunityImageUrl.OriginalString;
-				Description = playerStatus.Program.Description;
+				BroadcasterName = liveData.BroadcasterId;
+				BroadcasterImageUrl = liveData.BroadcasterIconUrl;
+				Description = liveData.Description;
 			}
 		}
 

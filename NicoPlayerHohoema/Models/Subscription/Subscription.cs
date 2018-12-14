@@ -4,6 +4,7 @@ using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Reactive;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
@@ -242,7 +243,7 @@ namespace NicoPlayerHohoema.Models.Subscription
                     },
                     (source) =>
                     {
-                        return source != null;
+                        return source != null && this.Sources.All(x => !x.Equals(source.Value));
                     }
                     ));
             }

@@ -228,23 +228,6 @@ namespace NicoPlayerHohoema
 
         protected override void OnLaunched(LaunchActivatedEventArgs args)
         {
-            if (args.PreviousExecutionState != ApplicationExecutionState.Running
-                )
-            {
-                if (Helpers.DeviceTypeHelper.IsXbox)
-                {
-                    Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().SetDesiredBoundsMode
-                        (Windows.UI.ViewManagement.ApplicationViewBoundsMode.UseCoreWindow);
-                }
-                else
-                {
-                    // モバイルで利用している場合に、ナビゲーションバーなどがページに被さらないように指定
-                    ApplicationView.GetForCurrentView().SetDesiredBoundsMode(ApplicationViewBoundsMode.UseVisible);
-                }
-
-                Window.Current.CoreWindow.Activated += CoreWindow_Activated;
-            }
-
             base.OnLaunched(args);
         }
 
@@ -529,7 +512,20 @@ namespace NicoPlayerHohoema
                     view.TryResizeView(_PrevWindowSize);
                     ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.Auto;
                 }
-            }            
+            }
+            if (Helpers.DeviceTypeHelper.IsXbox)
+            {
+                Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().SetDesiredBoundsMode
+                    (Windows.UI.ViewManagement.ApplicationViewBoundsMode.UseCoreWindow);
+            }
+            if (Helpers.DeviceTypeHelper.IsMobile)
+            {
+                // モバイルで利用している場合に、ナビゲーションバーなどがページに被さらないように指定
+                ApplicationView.GetForCurrentView().SuppressSystemOverlays = true;
+                ApplicationView.GetForCurrentView().SetDesiredBoundsMode(ApplicationViewBoundsMode.UseVisible);
+            }
+
+            Window.Current.CoreWindow.Activated += CoreWindow_Activated;
 
             var localStorge = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
 
@@ -912,11 +908,16 @@ namespace NicoPlayerHohoema
 
 		public async Task WriteErrorFile(Exception e, string pageName = null)
 		{
-            var pageManager = Container.Resolve<PageManager>();
-            if (pageName == null)
+            try
             {
-                pageName = pageManager.CurrentPageType.ToString();
+                var pageManager = Container.Resolve<PageManager>();
+                if (pageName == null)
+                {
+                    pageName = pageManager.CurrentPageType.ToString();
+                }
             }
+            catch { }
+
             try
             {
 				var folder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("error", CreationCollisionOption.OpenIfExists);
