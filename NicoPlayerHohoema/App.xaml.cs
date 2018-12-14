@@ -908,11 +908,16 @@ namespace NicoPlayerHohoema
 
 		public async Task WriteErrorFile(Exception e, string pageName = null)
 		{
-            var pageManager = Container.Resolve<PageManager>();
-            if (pageName == null)
+            try
             {
-                pageName = pageManager.CurrentPageType.ToString();
+                var pageManager = Container.Resolve<PageManager>();
+                if (pageName == null)
+                {
+                    pageName = pageManager.CurrentPageType.ToString();
+                }
             }
+            catch { }
+
             try
             {
 				var folder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("error", CreationCollisionOption.OpenIfExists);
