@@ -956,16 +956,6 @@ namespace NicoPlayerHohoema.ViewModels
                 )
                 .AddTo(_NavigatingCompositeDisposable);
 
-                NicoLiveVideo.ObserveProperty(x => x.LiveStatusType)
-                    .Subscribe(x =>
-                    {
-                        CurrentWindowContextScheduler.Schedule(() =>
-                        {
-                            LiveStatusType.Value = x;
-                        });
-                    })
-                    .AddTo(_NavigatingCompositeDisposable);
-
                 FilterdComments.Source = LiveComments;
 
 				CommentCount = NicoLiveVideo.ObserveProperty(x => x.CommentCount)
@@ -1121,7 +1111,8 @@ namespace NicoPlayerHohoema.ViewModels
                 if (!IsWatchWithTimeshift.Value)
                 {
                     WatchStartLiveElapsedTime.Value = (DateTimeOffset.Now.ToOffset(NicoLiveVideo.JapanTimeZoneOffset) - _OpenAt);
-                    ResetSuggestion(NicoLiveVideo.LiveStatusType);
+
+//                    ResetSuggestion();
                 }
                 else
                 {
@@ -1185,10 +1176,10 @@ namespace NicoPlayerHohoema.ViewModels
 			{
                 await NicoLiveVideo.UpdateLiveStatus();
                 
-				if (NicoLiveVideo.PlayerStatusResponse != null)
+				if (NicoLiveVideo != null)
 				{
-					_StartAt = NicoLiveVideo.PlayerStatusResponse.Program.StartedAt;
-					_EndAt = NicoLiveVideo.PlayerStatusResponse.Program.EndedAt;
+					_StartAt = NicoLiveVideo.StartTime.Value;
+					_EndAt = NicoLiveVideo.EndTime.Value;
 				}
 				else
 				{
@@ -1478,8 +1469,8 @@ namespace NicoPlayerHohoema.ViewModels
         {
             Debug.WriteLine("NicoLiveVideo_OpenLive");
 
-            if (NicoLiveVideo.LiveStatusType == Models.Live.LiveStatusType.OnAir ||
-                    NicoLiveVideo.LiveStatusType == Models.Live.LiveStatusType.ComingSoon ||
+            if (NicoLiveVideo.LiveStatus == Mntone.Nico2.Live.StatusType.OnAir ||
+                    NicoLiveVideo.LiveStatus == Mntone.Nico2.Live.StatusType.ComingSoon ||
                     NicoLiveVideo.IsWatchWithTimeshift
                     )
             {
@@ -1494,13 +1485,8 @@ namespace NicoPlayerHohoema.ViewModels
 
                 RaisePropertyChanged(nameof(NicoLiveVideo));
 
-                if (CommunityName == null)
+                if (CommunityName == null && CommunityId != null)
                 {
-                    if (CommunityId == null)
-                    {
-                        CommunityId = NicoLiveVideo.BroadcasterCommunityId;
-                    }
-
                     try
                     {
                         var communityDetail = await HohoemaApp.ContentProvider.GetCommunityInfo(CommunityId);
@@ -1561,21 +1547,22 @@ namespace NicoPlayerHohoema.ViewModels
                 else
                 {
                     // seet
-                    if (NicoLiveVideo.PlayerStatusResponse != null)
+                    if (NicoLiveVideo != null)
                     {
-                        RoomName = NicoLiveVideo.PlayerStatusResponse.Room.Name;
-                        SeetId = NicoLiveVideo.PlayerStatusResponse.Room.SeatId;
+                        RoomName = NicoLiveVideo.RoomName;
+                        //SeetId = NicoLiveVideo.
                     }
                 }
             }
             else
             {
-                ResetSuggestion(NicoLiveVideo.LiveStatusType);
 
                 Debug.WriteLine("生放送情報の取得失敗しました " + LiveId);
+
+                ResetSuggestion(await NicoLiveVideo.GetLiveViewingFailedReason());
             }
 
-            
+
         }
 
         
