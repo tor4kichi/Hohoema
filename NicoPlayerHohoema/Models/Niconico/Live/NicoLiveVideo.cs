@@ -622,8 +622,15 @@ namespace NicoPlayerHohoema.Models.Live
                 // Display表示の維持リクエスト
                 Helpers.DisplayRequestHelper.RequestKeepDisplay();
 
+
+                // TODO: タイムシフトか生放送かによる処理の差は NiwavidedNicoTimeshiftCommentClient 等の実装側に持たせるべき
+
                 // 経過時間の更新とバッファしたコメントを送るタイマーを開始
-                await StartLiveElapsedTimer();
+                // タイムシフトでのみ有効にする
+                if (IsWatchWithTimeshift)
+                {
+                    await StartLiveElapsedTimer();
+                }
             }
 		}
 
@@ -1088,7 +1095,14 @@ namespace NicoPlayerHohoema.Models.Live
 
         private async void _NicoLiveCommentClient_CommentRecieved(object sender, CommentRecievedEventArgs e)
         {
-            await AddCommentToCacheAsync(e.Chat);
+            if (IsWatchWithTimeshift)
+            {
+                await AddCommentToCacheAsync(e.Chat);
+            }
+            else
+            {
+                _LiveComments.Add(e.Chat);
+            }
         }
 
         private void _NicoLiveCommentClient_Disconnected(object sender, CommentServerDisconnectedEventArgs e)
