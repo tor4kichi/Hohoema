@@ -42,6 +42,13 @@ namespace NicoPlayerHohoema.Models.Subscription
             set { SetProperty(ref _AutoUpdateInterval, value); }
         }
 
+        private bool _NowUpdating;
+        public bool NowUpdating
+        {
+            get { return _NowUpdating; }
+            set { SetProperty(ref _NowUpdating, value); }
+        }
+
 
 
         public AsyncReactiveCommand Refresh { get; }
@@ -59,7 +66,10 @@ namespace NicoPlayerHohoema.Models.Subscription
         {
             _SubscriptionManager = subscriptionManager;
 
-            Refresh = new AsyncReactiveCommand();
+            Refresh = new AsyncReactiveCommand(
+                this.ObserveProperty(x => x.NowUpdating).Select(x => !x)
+                )
+                .AddTo(_disposables);
             Refresh.Subscribe(async () => await Update())
                 .AddTo(_disposables);
 
@@ -165,6 +175,10 @@ namespace NicoPlayerHohoema.Models.Subscription
         {
             using (var relaser = await _UpdateLock.LockAsync())
             {
+                if (NowUpdating) { return Disposable.Empty; }
+
+                NowUpdating = true;
+
                 NewItemsPerPlayableList.Clear();
 
                 // 視聴履歴を取得して再生済み動画の情報を更新する
@@ -173,6 +187,10 @@ namespace NicoPlayerHohoema.Models.Subscription
 #if true
                 // TODO: 前回更新時間から15分以上経っているか確認
                 return _SubscriptionManager.GetSubscriptionFeedResultAsObservable(withoutDisabled: true)
+                    .Finally(() => 
+                    {
+                        NowUpdating = false;
+                    })
                     .Subscribe(info =>
                     {
                         Debug.WriteLine($"購読 {info.Subscription.Label} - {info.Source?.Label}");
