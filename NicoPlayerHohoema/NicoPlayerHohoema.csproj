@@ -773,7 +773,6 @@
     <Content Include="Assets\Wide310x150Logo.scale-150.png" />
     <Content Include="Assets\Wide310x150Logo.scale-400.png" />
     <Content Include="Assets\xbox_encrypt_key.txt" />
-    <Content Include="lib\Mntone.Nico2.UWP.dll" />
     <None Include="Package.StoreAssociation.xml" />
     <None Include="Package.xml" />
     <Content Include="Properties\Default.rd.xml" />
@@ -1158,14 +1157,13 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Mntone.Nico2.UWP">
-      <HintPath>lib\Mntone.Nico2.UWP.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\NicoAlert\NicoAlert.csproj">
       <Project>{973a1e65-a9f3-4144-a521-647ddfe06f2a}</Project>
       <Name>NicoAlert</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\OpenNiconico2\Mntone.Nico2.UWP\Mntone.Nico2.UWP.csproj">
+      <Project>{bbf8857d-550a-4228-b9fc-52c38d5346f1}</Project>
+      <Name>Mntone.Nico2.UWP</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -1230,9 +1228,6 @@
     </SDKReference>
     <SDKReference Include="Microsoft.VCLibs, Version=14.0">
       <Name>Visual C++ 2015 Runtime for Universal Windows Platform Apps</Name>
-    </SDKReference>
-    <SDKReference Include="WindowsMobile, Version=10.0.15063.0">
-      <Name>Windows Mobile Extensions for the UWP</Name>
     </SDKReference>
   </ItemGroup>
   <ItemGroup>
