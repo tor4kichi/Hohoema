@@ -16,20 +16,22 @@ namespace NicoPlayerHohoema.ViewModels
 {
     public sealed class NicoAccountIntroductionPageViewModel : ViewModelBase
     {
-        private HohoemaApp _HohoemaApp;
+        public NicoAccountIntroductionPageViewModel(
+            NiconicoSession niconicoSession
+            )
+        {
+            NiconicoSession = niconicoSession;
+
+            IsLoggedIn = NiconicoSession.ObserveProperty(x => x.IsLoggedIn)
+                .ToReadOnlyReactiveProperty();
+        }
 
         public ReadOnlyReactiveProperty<bool> IsLoggedIn { get; }
-
+        public NiconicoSession NiconicoSession { get; }
 
         CompositeDisposable disposables;
 
-        public NicoAccountIntroductionPageViewModel(HohoemaApp hohoema)
-        {
-            _HohoemaApp = hohoema;
-
-            IsLoggedIn = _HohoemaApp.ObserveProperty(x => x.IsLoggedIn)
-                .ToReadOnlyReactiveProperty();
-        }
+        
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
@@ -48,7 +50,11 @@ namespace NicoPlayerHohoema.ViewModels
                     }
                 });
 
-            _HohoemaApp.SignInWithPrimaryAccount().ConfigureAwait(false);
+            try
+            {
+                _ = NiconicoSession.SignInWithPrimaryAccount();
+            }
+            catch { }
 
             base.OnNavigatedTo(e, viewModelState);
         }

@@ -22,12 +22,12 @@ namespace NicoPlayerHohoema.Commands
                 && NiconicoRegex.IsLiveId(liveId)
                 )
             {
-                var pageManager = App.Current.Container.Resolve<Models.PageManager>();
+                var pageManager = HohoemaCommnadHelper.GetPageManager();
                 pageManager.OpenPage(NicoPlayerHohoema.Models.HohoemaPageType.LiveInfomation, liveId);
             }
             else if (parameter is Interfaces.ILiveContent liveContent)
             {
-                var pageManager = App.Current.Container.Resolve<Models.PageManager>();
+                var pageManager = HohoemaCommnadHelper.GetPageManager();
                 pageManager.OpenPage(NicoPlayerHohoema.Models.HohoemaPageType.LiveInfomation, liveContent.Id);
             }
         }

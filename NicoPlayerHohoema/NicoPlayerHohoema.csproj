@@ -133,14 +133,10 @@
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
     <Compile Include="Commands\AddAfterViewPlaylistCommand.cs" />
-    <Compile Include="Commands\AddFeedSourceCommand.cs" />
     <Compile Include="Commands\AddMylistCommand.cs" />
     <Compile Include="Commands\AddToHiddenUserCommand.cs" />
     <Compile Include="Commands\GoNextIntroductionPageCommand.cs" />
     <Compile Include="Commands\CopyToClipboardCommand.cs" />
-    <Compile Include="Commands\FeedGroupEditCommand.cs" />
-    <Compile Include="Commands\FeedGroupRemoveCommand.cs" />
-    <Compile Include="Commands\FeedGroupUpdateCommand.cs" />
     <Compile Include="Commands\HohoemaCommnadHelper.cs" />
     <Compile Include="Commands\LoginToNiconicoCommand.cs" />
     <Compile Include="Commands\LogoutFromNiconicoCommand.cs" />
@@ -150,13 +146,11 @@
     <Compile Include="Commands\NicoLiveUserIdRemoveFromNGCommand.cs" />
     <Compile Include="Commands\OpenBroadcasterInfoCommand.cs" />
     <Compile Include="Commands\OpenContentCommand.cs" />
-    <Compile Include="Commands\OpenFeedSourceCommand.cs" />
     <Compile Include="Commands\OpenHohoemaPageCommand.cs" />
     <Compile Include="Commands\OpenLinkCommand.cs" />
     <Compile Include="Commands\OpenLiveInfoCommand.cs" />
     <Compile Include="Commands\OpenVideoInfoCommand.cs" />
     <Compile Include="Commands\OpenVideoOwnerVideoListCommand.cs" />
-    <Compile Include="Commands\RemoveFeedSourceCommand.cs" />
     <Compile Include="Commands\RemoveFollowCommand.cs" />
     <Compile Include="Commands\RemovePinCommand.cs" />
     <Compile Include="Commands\RemoveSearchHistoryCommand.cs" />
@@ -173,6 +167,7 @@
     <Compile Include="Database\Local\FeedDb.cs" />
     <Compile Include="Database\HohoemaLiteDbContext.cs" />
     <Compile Include="Database\Local\Subscription\SubscriptionDb.cs" />
+    <Compile Include="Database\Temporary\MylistDb.cs" />
     <Compile Include="Database\Temporary\NicoChannelInfo.cs" />
     <Compile Include="Database\Temporary\NicoLive.cs" />
     <Compile Include="Database\Temporary\NicoVideo.cs" />
@@ -180,6 +175,31 @@
     <Compile Include="Database\Local\SearchHistory.cs" />
     <Compile Include="Database\Temporary\VideoCommentDb.cs" />
     <Compile Include="Database\Local\VideoPlayedHistory.cs" />
+    <Compile Include="Interfaces\IListViewBaseItemDeferUpdatable.cs" />
+    <Compile Include="Interfaces\ITag.cs" />
+    <Compile Include="Models\Helpers\MylistOriginExtension.cs" />
+    <Compile Include="Models\Cache\CachefolderAccessState.cs" />
+    <Compile Include="Models\LocalMylist\LocalMylist.cs" />
+    <Compile Include="Models\LocalMylist\LocalMylistManager.cs" />
+    <Compile Include="Database\Local\LocalMylist\LocalMylistDb.cs" />
+    <Compile Include="Models\NiconicoSession.cs" />
+    <Compile Include="Models\Niconico\Mylist\UserOwnedMylist.cs" />
+    <Compile Include="Models\Provider\ChannelProvider.cs" />
+    <Compile Include="Models\Provider\CommunityProvider.cs" />
+    <Compile Include="Models\Provider\LoginUserHistoryProvider.cs" />
+    <Compile Include="Models\Provider\LoginUserLiveReservationProvider.cs" />
+    <Compile Include="Models\Provider\LoginUserMylistProvider.cs" />
+    <Compile Include="Models\Provider\LoginUserNicoRepoProvider.cs" />
+    <Compile Include="Models\Provider\LoginUserRecommendProvider.cs" />
+    <Compile Include="Models\Provider\MylistProvider.cs" />
+    <Compile Include="Models\Provider\NicoLiveProvider.cs" />
+    <Compile Include="Models\Provider\NicoVideoProvider.cs" />
+    <Compile Include="Models\Provider\ProviderBase.cs" />
+    <Compile Include="Models\Provider\RankingProvider.cs" />
+    <Compile Include="Models\Provider\SearchProvider.cs" />
+    <Compile Include="Models\Provider\UserProvider.cs" />
+    <Compile Include="Services\Helpers\MylistHelper.cs" />
+    <Compile Include="ViewModels\Flyouts\VideoItemFlyoutViewModel.cs" />
     <Compile Include="Views\Dialogs\NiconicoLoginDialog.xaml.cs">
       <DependentUpon>NiconicoLoginDialog.xaml</DependentUpon>
     </Compile>
@@ -201,22 +221,21 @@
     <Compile Include="Interfaces\IFeedGroup.cs" />
     <Compile Include="Interfaces\IFollowable.cs" />
     <Compile Include="Interfaces\ILiveContent.cs" />
-    <Compile Include="Interfaces\IMylist.cs" />
     <Compile Include="Interfaces\INiconicoContent.cs" />
     <Compile Include="Interfaces\ISearchWithtag.cs" />
     <Compile Include="Interfaces\IUser.cs" />
     <Compile Include="Interfaces\IVideoContent.cs" />
-    <Compile Include="Models\AccountManager.cs" />
-    <Compile Include="Models\AppUpdateNotice.cs" />
+    <Compile Include="Models\Helpers\AccountManager.cs" />
+    <Compile Include="Models\Helpers\AppUpdateNotice.cs" />
     <Compile Include="Models\Niconico\Follow\ChannelFollowInfoGroup.cs" />
-    <Compile Include="Models\Niconico\HohoemaAlertClient.cs" />
+    <Compile Include="Services\HohoemaAlertClient.cs" />
     <Compile Include="Models\Niconico\Live\Event\CommentPostedEventArgs.cs" />
     <Compile Include="Models\Niconico\Live\Event\CommentRecievedEventArgs.cs" />
     <Compile Include="Models\Niconico\Live\Event\CommentServerConnectedEventArgs.cs" />
     <Compile Include="Models\Niconico\Live\Event\CommentServerDisconnectedEventArgs.cs" />
     <Compile Include="Models\Niconico\Live\INicoLiveCommentClient.cs" />
     <Compile Include="Models\Niconico\Live\LiveChatData.cs" />
-    <Compile Include="Models\Niconico\Live\NicoLiveSubscriber.cs" />
+    <Compile Include="Services\NicoLiveSubscriber.cs" />
     <Compile Include="Models\Niconico\Live\NiwavidedNicoLiveCommentClient.cs" />
     <Compile Include="Models\Niconico\Live\NiwavidedNicoTimeshiftCommentClient.cs" />
     <Compile Include="Models\Niconico\Video\Comment\CommentCommandPermissionType.cs" />
@@ -244,7 +263,6 @@
     <Compile Include="Models\Niconico\Follow\FollowItemType.cs" />
     <Compile Include="Models\Niconico\Follow\FollowPageParameter.cs" />
     <Compile Include="Models\Niconico\Follow\IFollowInfoGroup.cs" />
-    <Compile Include="Models\HohoemaApp.cs" />
     <Compile Include="Models\HohoemaAppServiceLevel.cs" />
     <Compile Include="Services\Page\HohoemaPageType.cs" />
     <Compile Include="Models\HohoemaPlaylist.cs" />
@@ -260,7 +278,7 @@
     <Compile Include="Models\Niconico\Video\VideoStreamingSession\SmileVideoStreamingSession.cs" />
     <Compile Include="Models\Niconico\Video\VideoStreamingSession\VideoStreamingSession.cs" />
     <Compile Include="Services\InAppNotificationPayload.cs" />
-    <Compile Include="Models\LisenceSummary.cs" />
+    <Compile Include="Models\Helpers\LisenceSummary.cs" />
     <Compile Include="Models\Niconico\Live\Live2WebSocket.cs" />
     <Compile Include="Models\Niconico\Live\LiveStatusType.cs" />
     <Compile Include="Models\Niconico\Live\LiveSuggestion.cs" />
@@ -270,9 +288,8 @@
     <Compile Include="Models\Niconico\Live\NicoLiveVideo.cs" />
     <Compile Include="Services\Page\PagePayload\LoginRedirectPayload.cs" />
     <Compile Include="Services\Page\PagePayload\MylistPagePayload.cs" />
-    <Compile Include="Models\Niconico\Mylist\IPlayableList.cs" />
-    <Compile Include="Models\Niconico\Mylist\LocalMylist.cs" />
-    <Compile Include="Models\Niconico\Mylist\MylistHohoemaAppExtentions.cs" />
+    <Compile Include="Interfaces\IMylist.cs" />
+    <Compile Include="Models\LocalMylist\LegacyLocalMylist.cs" />
     <Compile Include="Models\Niconico\Mylist\OtherOwneredMylist.cs" />
     <Compile Include="Services\Page\PageManagerSearchExtention.cs" />
     <Compile Include="Services\Page\PagePayload\Search\CommunitySearchPagePayloadContent.cs" />
@@ -303,7 +320,6 @@
     <Compile Include="Models\Cache\NicoVideoCacheState.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideoCanNotDownloadReason.cs" />
     <Compile Include="Models\Settings\HohoemaUserSettings.cs" />
-    <Compile Include="Models\Niconico\NiconicoContentProvider.cs" />
     <Compile Include="Models\Cache\VideoCacheManager.cs" />
     <Compile Include="Services\Page\PageManager.cs" />
     <Compile Include="Models\PlayerDisplayMode.cs" />
@@ -339,7 +355,7 @@
     <Compile Include="Models\Subscription\SubscriptionSourceType.cs" />
     <Compile Include="Models\Subscription\SubscriptionUpdateInfo.cs" />
     <Compile Include="Models\Subscription\SubscriptionUpdateStatus.cs" />
-    <Compile Include="Models\Subscription\WatchItLater.cs" />
+    <Compile Include="Services\WatchItLater.cs" />
     <Compile Include="Services\HohoemaClipboardService.cs" />
     <Compile Include="Services\HohoemaDialogService.cs" />
     <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
@@ -348,11 +364,7 @@
     <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
     <Compile Include="ViewModels\CommunityPageViewModel.cs" />
     <Compile Include="ViewModels\CommunityVideoPageViewModel.cs" />
-    <Compile Include="ViewModels\FeedVideoListPageViewModel.cs" />
     <Compile Include="ViewModels\FollowManagePageViewModel.cs" />
-    <Compile Include="ViewModels\FeedVideoInfoControlViewModel.cs" />
-    <Compile Include="ViewModels\FeedGroupManagePageViewModel.cs" />
-    <Compile Include="ViewModels\FeedGroupPageViewModel.cs" />
     <Compile Include="ViewModels\IntroductionPage\EpilogueIntroductionPageViewModel.cs" />
     <Compile Include="ViewModels\IntroductionPage\NicoAccountIntroductionPageViewModel.cs" />
     <Compile Include="ViewModels\IntroductionPage\PrologueIntroductionPageViewModel.cs" />
@@ -401,6 +413,7 @@
     <Compile Include="ViewModels\UserVideoPageViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\LiveCommentSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\SidePaneContentViewModelBase.cs" />
+    <Compile Include="Views\Extensions\ListViewBase\ListViewItemDeferUpdate.cs" />
     <Compile Include="Views\Interaction\Actions\ScrollViewerVerticalPositionSettingsAction.cs" />
     <Compile Include="Views\Interaction\Behaviors\FocusGetter.cs" />
     <Compile Include="Views\Interaction\Input\AutoHideCursor.cs" />
@@ -560,8 +573,8 @@
     <Compile Include="Views\Controls\IncrementalLoadingList\IncrementalLoadingList.cs" />
     <Compile Include="Views\Controls\IncrementalLoadingList\IncrementalLoadingList.Event.cs" />
     <Compile Include="Views\Controls\IncrementalLoadingList\IncrementalLoadingList.Properties.cs" />
-    <Compile Include="Views\Flyouts\VideoListItemFlyout.xaml.cs">
-      <DependentUpon>VideoListItemFlyout.xaml</DependentUpon>
+    <Compile Include="Views\Flyouts\VideoItemFlyout.xaml.cs">
+      <DependentUpon>VideoItemFlyout.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Converters\CacheStateToColorBrushConverter.cs" />
     <Compile Include="Views\Converters\InvertVisibilityConverter.cs" />
@@ -718,6 +731,7 @@
     <Content Include="Assets\UpdateNotices\0.15.1.md" />
     <Content Include="Assets\UpdateNotices\0.15.3.md" />
     <Content Include="Assets\UpdateNotices\0.16.0.md" />
+    <None Include="Models\Provider\README.md" />
     <None Include="Models\Subscription\README.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
     <None Include="NicoPlayerHohoema_TemporaryKey.pfx" />
@@ -959,7 +973,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Flyouts\VideoListItemFlyout.xaml">
+    <Page Include="Views\Flyouts\VideoItemFlyout.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

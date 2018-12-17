@@ -22,7 +22,7 @@ namespace NicoPlayerHohoema.Commands
                 var content = parameter as Interfaces.IVideoContent;
 
                 var player = HohoemaCommnadHelper.GetHohoemaPlaylist();
-                player.DefaultPlaylist.AddVideo(content.Id, content.Label);
+                player.DefaultPlaylist.AddMylistItem(content.Id);
             }
         }
     }

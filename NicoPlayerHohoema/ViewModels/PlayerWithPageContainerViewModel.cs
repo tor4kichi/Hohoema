@@ -19,41 +19,18 @@ using Windows.UI.Core;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation.Metadata;
 using Prism.Windows.Navigation;
+using System.Reactive.Concurrency;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public class PlayerWithPageContainerViewModel : BindableBase
     {
-        public HohoemaPlaylist HohoemaPlaylist { get; private set; }
-
-        public ReadOnlyReactiveProperty<bool> IsFillFloatContent { get; private set; }
-        public ReactiveProperty<bool> IsVisibleFloatContent { get; private set; }
-
-        public ReactiveProperty<bool> IsContentDisplayFloating { get; private set; }
-
-        private Dictionary<string, object> viewModelState = new Dictionary<string, object>();
-
-
-        /// <summary>
-        /// Playerの小窓状態の変化を遅延させて伝播させます、
-        /// 
-        /// 遅延させている理由は、Player上のFlyoutを閉じる前にリサイズが発生するとFlyoutが
-        /// ゴースト化（FlyoutのUIは表示されず閉じれないが、Visible状態と同じようなインタラクションだけは出来てしまう）
-        /// してしまうためです。（タブレット端末で発生、PCだと発生確認されず）
-        /// この問題を回避するためにFlyoutが閉じられた後にプレイヤーリサイズが走るように遅延を挟んでいます。
-        /// </summary>
-        public ReadOnlyReactiveProperty<bool> IsFillFloatContent_DelayedRead { get; private set; }
-
-
-        public INavigationService NavigationService { get; private set; }
-
-        public void SetNavigationService(INavigationService ns)
+        public PlayerWithPageContainerViewModel(
+            IScheduler scheduler,
+            HohoemaPlaylist playlist
+            )
         {
-            NavigationService = ns;
-        }
-
-        public PlayerWithPageContainerViewModel(HohoemaApp hohoemaApp, HohoemaPlaylist playlist)
-        {
+            Scheduler = scheduler;
             HohoemaPlaylist = playlist;
 
             IsFillFloatContent = HohoemaPlaylist
@@ -82,9 +59,9 @@ namespace NicoPlayerHohoema.ViewModels
             IsVisibleFloatContent
                 .Where(x => !x)
                 .Subscribe(x =>
-            {
-                ClosePlayer();
-            });
+                {
+                    ClosePlayer();
+                });
 
             if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
             {
@@ -103,9 +80,40 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        private async void HohoemaPlaylist_OpenPlaylistItem(IPlayableList playlist, PlaylistItem item)
+        public IScheduler Scheduler { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; private set; }
+
+        public ReadOnlyReactiveProperty<bool> IsFillFloatContent { get; private set; }
+        public ReactiveProperty<bool> IsVisibleFloatContent { get; private set; }
+
+        public ReactiveProperty<bool> IsContentDisplayFloating { get; private set; }
+
+        private Dictionary<string, object> viewModelState = new Dictionary<string, object>();
+
+
+        /// <summary>
+        /// Playerの小窓状態の変化を遅延させて伝播させます、
+        /// 
+        /// 遅延させている理由は、Player上のFlyoutを閉じる前にリサイズが発生するとFlyoutが
+        /// ゴースト化（FlyoutのUIは表示されず閉じれないが、Visible状態と同じようなインタラクションだけは出来てしまう）
+        /// してしまうためです。（タブレット端末で発生、PCだと発生確認されず）
+        /// この問題を回避するためにFlyoutが閉じられた後にプレイヤーリサイズが走るように遅延を挟んでいます。
+        /// </summary>
+        public ReadOnlyReactiveProperty<bool> IsFillFloatContent_DelayedRead { get; private set; }
+
+
+        public INavigationService NavigationService { get; private set; }
+
+        public void SetNavigationService(INavigationService ns)
         {
-            await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+            NavigationService = ns;
+        }
+
+        
+
+        private void HohoemaPlaylist_OpenPlaylistItem(Interfaces.IMylist playlist, PlaylistItem item)
+        {
+            Scheduler.Schedule(() => 
             {
                 ShowPlayer(item);
             });

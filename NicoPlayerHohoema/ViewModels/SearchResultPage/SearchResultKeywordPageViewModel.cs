@@ -11,12 +11,59 @@ using Prism.Commands;
 using Mntone.Nico2;
 using System.Reactive.Linq;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.Models.Subscription;
+using NicoPlayerHohoema.Models.Provider;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public class SearchResultKeywordPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
 	{
-        private static List<SearchSortOptionListItem> _VideoSearchOptionListItems = new List<SearchSortOptionListItem>()
+
+        public SearchResultKeywordPageViewModel(
+            NGSettings ngSettings,
+            SearchProvider searchProvider,
+            SubscriptionManager subscriptionManager,
+            Services.PageManager pageManager
+            )
+            : base(pageManager, useDefaultPageTitle: false)
+        {
+            FailLoading = new ReactiveProperty<bool>(false)
+                .AddTo(_CompositeDisposable);
+
+            LoadedPage = new ReactiveProperty<int>(1)
+                .AddTo(_CompositeDisposable);
+
+            SelectedSearchSort = new ReactiveProperty<SearchSortOptionListItem>(
+                VideoSearchOptionListItems.First(),
+                mode: ReactivePropertyMode.DistinctUntilChanged
+                );
+
+            SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
+
+            SelectedSearchSort
+               .Subscribe(async _ =>
+               {
+                   var selected = SelectedSearchSort.Value;
+                   if (SearchOption.Order == selected.Order
+                       && SearchOption.Sort == selected.Sort
+                   )
+                   {
+                       //                       return;
+                   }
+
+                   SearchOption.Sort = SelectedSearchSort.Value.Sort;
+                   SearchOption.Order = SelectedSearchSort.Value.Order;
+
+                   await ResetList();
+               })
+                .AddTo(_CompositeDisposable);
+            NgSettings = ngSettings;
+            SearchProvider = searchProvider;
+            SubscriptionManager1 = subscriptionManager;
+        }
+
+
+        static private List<SearchSortOptionListItem> _VideoSearchOptionListItems = new List<SearchSortOptionListItem>()
         {
             new SearchSortOptionListItem()
             {
@@ -112,7 +159,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<SearchSortOptionListItem> SelectedSearchSort { get; private set; }
 
 
-        public static List<SearchTarget> SearchTargets { get; } = Enum.GetValues(typeof(SearchTarget)).Cast<SearchTarget>().ToList();
+        static public List<SearchTarget> SearchTargets { get; } = Enum.GetValues(typeof(SearchTarget)).Cast<SearchTarget>().ToList();
 
         public ReactiveProperty<SearchTarget> SelectedSearchTarget { get; }
 
@@ -147,53 +194,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public Models.Subscription.SubscriptionSource? SubscriptionSource => new Models.Subscription.SubscriptionSource(SearchOption.Keyword, Models.Subscription.SubscriptionSourceType.KeywordSearch, SearchOption.Keyword);
-        public Models.Subscription.SubscriptionManager SubscriptionManager => Models.Subscription.SubscriptionManager.Instance;
-
-
-        NiconicoContentProvider _ContentFinder;
+        
 
         public Database.Bookmark KeywordSearchBookmark { get; private set; }
 
-
-		public SearchResultKeywordPageViewModel(
-			HohoemaApp hohoemaApp, 
-			PageManager pageManager
-			) 
-			: base(hohoemaApp, pageManager, useDefaultPageTitle: false)
-		{
-			_ContentFinder = HohoemaApp.ContentProvider;
-
-			FailLoading = new ReactiveProperty<bool>(false)
-				.AddTo(_CompositeDisposable);
-
-			LoadedPage = new ReactiveProperty<int>(1)
-				.AddTo(_CompositeDisposable);
-
-            SelectedSearchSort = new ReactiveProperty<SearchSortOptionListItem>(
-                VideoSearchOptionListItems.First(),
-                mode: ReactivePropertyMode.DistinctUntilChanged
-                );
-
-            SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
-
-            SelectedSearchSort
-               .Subscribe(async _ =>
-               {
-                   var selected = SelectedSearchSort.Value;
-                   if (SearchOption.Order == selected.Order
-                       && SearchOption.Sort == selected.Sort
-                   )
-                   {
-//                       return;
-                   }
-
-                   SearchOption.Sort = SelectedSearchSort.Value.Sort;
-                   SearchOption.Order = SelectedSearchSort.Value.Order;
-
-                   await ResetList();
-               })
-                .AddTo(_CompositeDisposable);
-        }
 
 
 		#region Commands
@@ -211,6 +215,10 @@ namespace NicoPlayerHohoema.ViewModels
 					}));
 			}
 		}
+
+        public NGSettings NgSettings { get; }
+        public SearchProvider SearchProvider { get; }
+        public SubscriptionManager SubscriptionManager1 { get; }
 
 
         #endregion
@@ -270,7 +278,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
 		{
-            return new VideoSearchSource(SearchOption, HohoemaApp, PageManager);
+            return new VideoSearchSource(SearchOption, SearchProvider, NgSettings);
 		}
 
 		protected override void PostResetList()

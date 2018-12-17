@@ -15,15 +15,15 @@ namespace NicoPlayerHohoema.Commands
             {
                 var content = parameter as Interfaces.IVideoContent;
 
-                var hohoemaApp = HohoemaCommnadHelper.GetHohoemaApp();
-                var notificationService = HohoemaCommnadHelper.GetNotificationService();
-                var targetMylist = await hohoemaApp.ChoiceMylist();
+                var dialogService = HohoemaCommnadHelper.GetDialogService();
+                var targetMylist = await dialogService.ChoiceMylist();
                 if (targetMylist != null)
                 {
-                    var result = await hohoemaApp.AddMylistItem(targetMylist, content.Label, content.Id);
+                    var notificationService = HohoemaCommnadHelper.GetNotificationService();
+                    var result = await targetMylist.AddMylistItem(content.Label);
                     notificationService.ShowInAppNotification(
                         Services.InAppNotificationPayload.CreateRegistrationResultNotification(
-                            result,
+                            result ? Mntone.Nico2.ContentManageResult.Success : Mntone.Nico2.ContentManageResult.Failed,
                             "マイリスト",
                             targetMylist.Label,
                             content.Label

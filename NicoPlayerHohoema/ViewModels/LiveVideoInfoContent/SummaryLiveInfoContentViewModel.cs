@@ -11,8 +11,38 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 {
 	public class SummaryLiveInfoContentViewModel : LiveInfoContentViewModelBase
 	{
-		public NicoLiveVideo NicoLiveVideo { get; private set; }
-		public PageManager PageManager { get; private set; }
+        public SummaryLiveInfoContentViewModel(
+            string communityName, 
+            NicoLiveVideo liveVideo, 
+            Services.PageManager pageManager
+            )
+        {
+            NicoLiveVideo = liveVideo;
+            PageManager = pageManager;
+
+            CommunityName = communityName;
+
+            if (liveVideo.BroadcasterCommunityId != null)
+            {
+                IsCommunityLive = liveVideo.BroadcasterCommunityId.StartsWith("co");
+            }
+
+            var playerStatus = NicoLiveVideo.PlayerStatusResponse;
+            if (playerStatus != null)
+            {
+                OpenAt = playerStatus.Program.OpenedAt.DateTime;
+                StartAt = playerStatus.Program.StartedAt.DateTime;
+                EndAt = playerStatus.Program.EndedAt.DateTime;
+
+                BroadcasterName = playerStatus.Program.BroadcasterName;
+                BroadcasterImageUrl = playerStatus.Program.CommunityImageUrl.OriginalString;
+                Description = playerStatus.Program.Description;
+            }
+        }
+
+
+        public NicoLiveVideo NicoLiveVideo { get; private set; }
+		public Services.PageManager PageManager { get; private set; }
 
 		public bool IsCommunityLive { get; private set; }
 
@@ -29,31 +59,7 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 		public DateTime StartAt { get; private set; }
 		public DateTime EndAt { get; private set; }
 
-		public SummaryLiveInfoContentViewModel(string communityName, NicoLiveVideo liveVideo, PageManager pageManager)
-		{
-			NicoLiveVideo = liveVideo;
-			PageManager = pageManager;
-
-			CommunityName = communityName;
-
-			if (liveVideo.BroadcasterCommunityId != null)
-			{
-				IsCommunityLive = liveVideo.BroadcasterCommunityId.StartsWith("co");
-			}
-
-			var playerStatus = NicoLiveVideo.PlayerStatusResponse;
-			if (playerStatus != null)
-			{
-				OpenAt = playerStatus.Program.OpenedAt.DateTime;
-				StartAt = playerStatus.Program.StartedAt.DateTime;
-				EndAt = playerStatus.Program.EndedAt.DateTime;
-
-				BroadcasterName = playerStatus.Program.BroadcasterName;
-				BroadcasterImageUrl = playerStatus.Program.CommunityImageUrl.OriginalString;
-				Description = playerStatus.Program.Description;
-			}
-		}
-
+		
 
 		public override async Task OnEnter()
 		{

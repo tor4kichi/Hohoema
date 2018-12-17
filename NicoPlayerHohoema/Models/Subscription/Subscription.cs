@@ -16,6 +16,25 @@ namespace NicoPlayerHohoema.Models.Subscription
 
     public sealed class Subscription : BindableBase, IDisposable
     {
+        // instantiate from only on SubscriptionManager.
+        internal Subscription(Guid id, string label)
+        {
+            Id = id;
+            Label = label;
+
+            new[] {
+                this.ObserveProperty(x => x.DoNotNoticeKeywordAsRegex).ToUnit(),
+                this.ObserveProperty(x => x.DoNotNoticeKeyword).ToUnit(),
+            }
+            .Merge()
+            .Subscribe(x =>
+            {
+                _doNotNoticeKeywordRegex = null;
+                UpdateDoNotNoticeKeyword.RaiseCanExecuteChanged();
+            });
+
+        }
+
         public Guid Id { get; }
 
         private string _Label;
@@ -148,24 +167,6 @@ namespace NicoPlayerHohoema.Models.Subscription
 
         CompositeDisposable _disposables = new CompositeDisposable();
 
-        // instantiate from only on SubscriptionManager.
-        internal Subscription(Guid id, string label)
-        {
-            Id = id;
-            Label = label;
-
-            new[] {
-                this.ObserveProperty(x => x.DoNotNoticeKeywordAsRegex).ToUnit(),
-                this.ObserveProperty(x => x.DoNotNoticeKeyword).ToUnit(),
-            }
-            .Merge()
-            .Subscribe(x => 
-            {
-                _doNotNoticeKeywordRegex = null;
-                UpdateDoNotNoticeKeyword.RaiseCanExecuteChanged();
-            });
-            
-        }
 
         public void Dispose()
         {
@@ -190,26 +191,6 @@ namespace NicoPlayerHohoema.Models.Subscription
                     ));
             }
         }
-
-
-        private DelegateCommand _Remove;
-        public DelegateCommand Remove
-        {
-            get
-            {
-                return _Remove
-                    ?? (_Remove = new DelegateCommand(() =>
-                    {
-                        SubscriptionManager.Instance.Subscriptions.Remove(this);
-                    },
-                    () =>
-                    {
-                        return !this.IsDeleted;
-                    }
-                    ));
-            }
-        }
-
 
         private DelegateCommand<SubscriptionSource?> _RemoveSource;
         public DelegateCommand<SubscriptionSource?> RemoveSource

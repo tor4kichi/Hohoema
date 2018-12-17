@@ -35,7 +35,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 	public static class LiveSuggestionExtention
 	{
-		public static LiveSuggestion Make(this LiveStatusType liveStatus, NicoLiveVideo liveVideo, PageManager pageManager)
+		public static LiveSuggestion Make(this LiveStatusType liveStatus, NicoLiveVideo liveVideo, Services.PageManager pageManager)
 		{
 			string title = liveStatus.ToString();
 

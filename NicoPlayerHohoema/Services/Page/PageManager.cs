@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Models.Helpers;
+﻿using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Helpers;
 using Prism.Mvvm;
@@ -7,18 +8,39 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.UI.Core;
 using Windows.UI.Xaml.Navigation;
 
-namespace NicoPlayerHohoema.Models
+namespace NicoPlayerHohoema.Services
 {
     public class PageManager : BindableBase
-	{
+    {
+        public PageManager(
+            INavigationService ns,
+            IScheduler scheduler,
+            AppearanceSettings appearanceSettings, 
+            CacheSettings cacheSettings,
+            HohoemaPlaylist playlist, 
+            HohoemaViewManager viewMan, 
+            DialogService dialogService
+            )
+        {
+            NavigationService = ns;
+            Scheduler = scheduler;
+            AppearanceSettings = appearanceSettings;
+            CacheSettings = cacheSettings;
+            HohoemaPlaylist = playlist;
+            HohoemaViewManager = viewMan;
+            HohoemaDialogService = dialogService;
+            CurrentPageType = HohoemaPageType.RankingCategoryList;
+        }
 
-		public static readonly HashSet<HohoemaPageType> IgnoreRecordNavigationStack = new HashSet<HohoemaPageType>
+
+        public static readonly HashSet<HohoemaPageType> IgnoreRecordNavigationStack = new HashSet<HohoemaPageType>
 		{
             HohoemaPageType.Splash,
             HohoemaPageType.PrologueIntroduction,
@@ -68,27 +90,17 @@ namespace NicoPlayerHohoema.Models
 			set { SetProperty(ref _PageNavigating, value); }
 		}
 
-        public HohoemaApp HohoemaApp { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; private set; }
         public AppearanceSettings AppearanceSettings { get; }
+        public CacheSettings CacheSettings { get; }
         public HohoemaViewManager HohoemaViewManager { get; }
-        DialogService _HohoemaDialogService;
+        public IScheduler Scheduler { get; }
+
+        public DialogService HohoemaDialogService { get; }
 
 
-        private AsyncLock _NavigationLock = new AsyncLock();
+        private Models.Helpers.AsyncLock _NavigationLock = new Models.Helpers.AsyncLock();
 
-        public PageManager(HohoemaApp hohoemaApp, INavigationService ns, AppearanceSettings appearanceSettings, HohoemaPlaylist playlist, HohoemaViewManager viewMan, DialogService dialogService)
-		{
-            HohoemaApp = hohoemaApp;
-            NavigationService = ns;
-            AppearanceSettings = appearanceSettings;
-            HohoemaPlaylist = playlist;
-            HohoemaViewManager = viewMan;
-            _HohoemaDialogService = dialogService;
-
-
-            CurrentPageType = HohoemaPageType.RankingCategoryList;
-        }
 
         public bool OpenPage(Uri uri)
 		{
@@ -156,15 +168,16 @@ namespace NicoPlayerHohoema.Models
 
 		public void OpenPage(HohoemaPageType pageType, object parameter = null, bool isForgetNavigation = false)
 		{
-            HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            Scheduler.Schedule(async () =>
             {
                 using (var releaser = await _NavigationLock.LockAsync())
                 {
                     // メインウィンドウでウィンドウ全体で再生している場合は
                     // 強制的に小窓モードに切り替えてページを表示する
-                    if (HohoemaApp.Playlist.IsDisplayMainViewPlayer && HohoemaApp.Playlist.PlayerDisplayType == PlayerDisplayType.PrimaryView)
+                    if (HohoemaPlaylist.IsDisplayMainViewPlayer 
+                    && HohoemaPlaylist.PlayerDisplayType == PlayerDisplayType.PrimaryView)
                     {
-                        HohoemaApp.Playlist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
+                        HohoemaPlaylist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
                     }
 
                     PageNavigating = true;
@@ -209,9 +222,7 @@ namespace NicoPlayerHohoema.Models
 
                     _ = HohoemaViewManager.ShowMainView();
                 }
-            })
-            .AsTask()
-            .ConfigureAwait(false);
+            });
         }
 
 		public bool IsIgnoreRecordPageType(HohoemaPageType pageType)
@@ -289,11 +300,10 @@ namespace NicoPlayerHohoema.Models
 		/// </remarks>
 		public void ClearNavigateHistory()
 		{
-            HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
+            Scheduler.Schedule(() =>
             {
                 NavigationService.ClearHistory();
-            })
-            .AsTask().ConfigureAwait(false);
+            });
 			
 		}
 
@@ -310,19 +320,11 @@ namespace NicoPlayerHohoema.Models
 
         public void OpenStartupPage()
         {
-            HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            Scheduler.Schedule(() =>
             {
-                try
-                {
-                    if (Models.AppUpdateNotice.HasNotCheckedUptedeNoticeVersion)
-                    {
-                        await _HohoemaDialogService.ShowLatestUpdateNotice();
-                        Models.AppUpdateNotice.UpdateLastCheckedVersionInCurrentVersion();
-                    }
-                }
-                catch { }
 
-                if (Helpers.InternetConnection.IsInternet())
+
+                if (Models.Helpers.InternetConnection.IsInternet())
                 {
                     if (IsIgnoreRecordPageType(AppearanceSettings.StartupPageType))
                     {
@@ -338,7 +340,7 @@ namespace NicoPlayerHohoema.Models
                         OpenPage(HohoemaPageType.RankingCategoryList);
                     }
                 }
-                else if (HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache)
+                else if (CacheSettings.IsUserAcceptedCache)
                 {
                     OpenPage(HohoemaPageType.CacheManagement);
                 }
@@ -346,9 +348,7 @@ namespace NicoPlayerHohoema.Models
                 {
                     OpenPage(HohoemaPageType.Settings);
                 }
-            })
-            .AsTask()
-            .ConfigureAwait(false);
+            });
         }
 
 		public static string PageTypeToTitle(HohoemaPageType pageType)

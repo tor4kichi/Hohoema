@@ -9,20 +9,27 @@ using NicoPlayerHohoema.Models;
 using Prism.Commands;
 using Prism.Windows.Navigation;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.Models.Provider;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public class RecommendPageViewModel : HohoemaVideoListingPageViewModelBase<RecommendVideoListItem>
     {
-        NiconicoContentProvider _NiconicoContentProvider;
+        public RecommendPageViewModel(
+            NGSettings ngSettings,
+            LoginUserRecommendProvider loginUserRecommendProvider,
+            Services.PageManager pageManager
+            )
+            : base(pageManager)
+        {
+            NgSettings = ngSettings;
+            LoginUserRecommendProvider = loginUserRecommendProvider;
+        }
+
+        public NGSettings NgSettings { get; }
+        public LoginUserRecommendProvider LoginUserRecommendProvider { get; }
 
         public ReadOnlyObservableCollection<string> RecommendSourceTags { get; private set; }
-
-        public RecommendPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, NiconicoContentProvider contentProvider)
-            : base(hohoemaApp, pageManager)
-        {
-            _NiconicoContentProvider = contentProvider;
-        }
 
         protected override void PostResetList()
         {
@@ -42,7 +49,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
         protected override IIncrementalSource<RecommendVideoListItem> GenerateIncrementalSource()
         {
-            return new RecommendVideoIncrementalLoadingSource(_NiconicoContentProvider);
+            return new RecommendVideoIncrementalLoadingSource(LoginUserRecommendProvider, NgSettings);
         }
 
 
@@ -59,7 +66,6 @@ namespace NicoPlayerHohoema.ViewModels
                     }));
             }
         }
-
     }
 
 
@@ -70,8 +76,8 @@ namespace NicoPlayerHohoema.ViewModels
         public string RecommendSourceTag { get; }
 
 
-        public RecommendVideoListItem(Database.NicoVideo nicoVideo, Mntone.Nico2.Videos.Recommend.Item recommendItem) 
-            : base(nicoVideo, isNgEnabled:true, playlistItem:null, requireLatest:true)
+        public RecommendVideoListItem(Database.NicoVideo nicoVideo, Mntone.Nico2.Videos.Recommend.Item recommendItem, NGSettings ngSettings) 
+            : base(nicoVideo, ngSettings)
         {
             _Item = recommendItem;
             RecommendSourceTag = _Item.AdditionalInfo?.Sherlock.Tag;
@@ -80,6 +86,18 @@ namespace NicoPlayerHohoema.ViewModels
 
     public sealed class RecommendVideoIncrementalLoadingSource : HohoemaIncrementalSourceBase<RecommendVideoListItem>
     {
+        public RecommendVideoIncrementalLoadingSource(
+            LoginUserRecommendProvider loginUserRecommendProvider,
+            NGSettings ngSettings
+            )
+        {
+            LoginUserRecommendProvider = loginUserRecommendProvider;
+            NgSettings = ngSettings;
+        }
+
+        public LoginUserRecommendProvider LoginUserRecommendProvider { get; }
+        public NGSettings NgSettings { get; }
+
         private RecommendResponse _RecommendResponse;
         private RecommendContent _PrevRecommendContent;
 
@@ -87,14 +105,10 @@ namespace NicoPlayerHohoema.ViewModels
         public ObservableCollection<string> RecommendSourceTags { get; } = new ObservableCollection<string>();
 
         private bool _EndOfRecommend = false;
-        NiconicoContentProvider NiconicoContentProvider;
-        public RecommendVideoIncrementalLoadingSource(NiconicoContentProvider contentProvider)
-        {
-            NiconicoContentProvider = contentProvider;
-        }
+
+        
 
         public override uint OneTimeLoadCount => 18;
-
 
 
         protected override async Task<IAsyncEnumerable<RecommendVideoListItem>> GetPagedItemsImpl(int head, int count)
@@ -111,7 +125,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
             else
             {
-                _PrevRecommendContent = await NiconicoContentProvider.GetRecommendAsync(_RecommendResponse, _PrevRecommendContent);
+                _PrevRecommendContent = await LoginUserRecommendProvider.GetRecommendAsync(_RecommendResponse, _PrevRecommendContent);
             }
 
 
@@ -137,7 +151,7 @@ namespace NicoPlayerHohoema.ViewModels
                     video.PostedAt = x.ParseForstRetroeveToDateTimeOffset().DateTime;
                     Database.NicoVideoDb.AddOrUpdate(video);
 
-                    return new RecommendVideoListItem(video, x);
+                    return new RecommendVideoListItem(video, x, NgSettings);
                 })
                 .ToAsyncEnumerable()
                 ;
@@ -151,7 +165,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override async Task<int> ResetSourceImpl()
         {
-            _RecommendResponse = await NiconicoContentProvider.GetRecommendFirstAsync();
+            _RecommendResponse = await LoginUserRecommendProvider.GetRecommendFirstAsync();
             if (_RecommendResponse.FirstData.Status == "ok")
             {
                 _EndOfRecommend = _RecommendResponse.FirstData.RecommendInfo.EndOfRecommend;

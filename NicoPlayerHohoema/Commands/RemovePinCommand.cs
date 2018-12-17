@@ -20,8 +20,7 @@ namespace NicoPlayerHohoema.Commands
         {
             if (parameter is HohoemaPin pin)
             {
-                var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
-                var pinSettings = hohoemaApp.UserSettings.PinSettings;
+                var pinSettings = App.Current.Container.Resolve<PinSettings>();
                 
                 if (pin != null)
                 {

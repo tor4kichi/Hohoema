@@ -15,15 +15,10 @@
 
     <!-- Other -->
     <local:AddAfterViewPlaylistCommand x:Key="AddAfterViewPlaylistCommand" />
-    <local:AddFeedSourceCommand x:Key="AddFeedSourceCommand" />
     <local:AddMylistCommand x:Key="AddMylistCommand" />
     <local:AddToHiddenUserCommand x:Key="AddToHiddenUserCommand" />
     <local:GoNextIntroductionPageCommand x:Key="GoNextIntroductionPageCommand" />
     <local:CopyToClipboardCommand x:Key="CopyToClipboardCommand" />
-
-    <local:FeedGroupEditCommand x:Key="FeedGroupEditCommand" />
-    <local:FeedGroupRemoveCommand x:Key="FeedGroupRemoveCommand" />
-    <local:FeedGroupUpdateCommand x:Key="FeedGroupUpdateCommand" />
 
     <local:LoginToNiconicoCommand x:Key="LoginToNiconicoCommand" />
     <local:LogoutFromNiconicoCommand x:Key="LogoutFromNiconicoCommand" />
@@ -33,7 +28,6 @@
 
     <local:OpenBroadcasterInfoCommand x:Key="OpenBroadcasterInfoCommand" />
     <local:OpenContentCommand x:Key="OpenContentCommand" />
-    <local:OpenFeedSourceCommand x:Key="OpenFeedSourceCommand" />
     <local:OpenHohoemaPageCommand x:Key="OpenHohoemaPageCommand" />
     <local:OpenLinkCommand x:Key="OpenLinkCommand" />
     <local:OpenLiveInfoCommand x:Key="OpenLiveInfoCommand" />
@@ -41,7 +35,6 @@
     <local:OpenVideoOwnerVideoListCommand x:Key="OpenVideoOwnerVideoListCommand" />
     
     <local:RemoveFollowCommand x:Key="RemoveFollowCommand" />
-    <local:RemoveFeedSourceCommand x:Key="RemoveFeedSourceCommand" />
     <local:RemovePinCommand x:Key="RemovePinCommand" />
 
     <local:ShareWithTwitterCommand x:Key="ShareWithTwitterCommand" />

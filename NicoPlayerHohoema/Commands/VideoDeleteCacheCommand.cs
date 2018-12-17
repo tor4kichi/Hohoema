@@ -20,7 +20,7 @@ namespace NicoPlayerHohoema.Commands
             {
                 var content = parameter as Interfaces.IVideoContent;
 
-                var cacheManager = HohoemaCommnadHelper.GetHohoemaApp().CacheManager;
+                var cacheManager = HohoemaCommnadHelper.GetVideoCacheManager();
                 var requests = await cacheManager.GetCacheRequest(content.Id);
                 if (requests.Any(x => x.ToCacheState() == NicoVideoCacheState.Cached))
                 {

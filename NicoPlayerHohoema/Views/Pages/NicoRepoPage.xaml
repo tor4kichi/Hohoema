@@ -91,7 +91,7 @@
                 <templateSelector:HohoemaFlyoutTemplateSelector>
                     <templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>
                         <DataTemplate>
-                            <controls:VideoListItemFlyout />
+                            <local:VideoItemFlyout />
                         </DataTemplate>
                     </templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>
                     <templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>

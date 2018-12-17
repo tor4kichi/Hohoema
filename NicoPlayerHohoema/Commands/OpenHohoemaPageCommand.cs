@@ -29,18 +29,18 @@ namespace NicoPlayerHohoema.Commands
             {
                 if (Enum.TryParse<Models.HohoemaPageType>(parameter as string, out var pageType))
                 {
-                    var pageManager = App.Current.Container.Resolve<PageManager>();
+                    var pageManager = HohoemaCommnadHelper.GetPageManager();
                     pageManager.OpenPage(pageType);
                 }
             }
             else if (parameter is ViewModels.MenuItemViewModel item)
             {
-                var pageManager = App.Current.Container.Resolve<PageManager>();
+                var pageManager = HohoemaCommnadHelper.GetPageManager();
                 pageManager.OpenPage(item.PageType, item.Parameter);
             }
             else if (parameter is HohoemaPin pin)
             {
-                var pageManager = App.Current.Container.Resolve<PageManager>();
+                var pageManager = HohoemaCommnadHelper.GetPageManager();
                 pageManager.OpenPage(pin.PageType, pin.Parameter);
             }
         }

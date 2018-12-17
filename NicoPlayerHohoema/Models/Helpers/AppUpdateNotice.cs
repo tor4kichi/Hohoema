@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 
-namespace NicoPlayerHohoema.Models
+namespace NicoPlayerHohoema.Models.Helpers
 {
     public static class AppUpdateNotice
     {

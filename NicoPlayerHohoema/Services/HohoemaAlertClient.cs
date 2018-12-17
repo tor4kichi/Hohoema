@@ -10,7 +10,7 @@ using Microsoft.Practices.Unity;
 using Mntone.Nico2.NicoRepo;
 using NicoPlayerHohoema.Services;
 
-namespace NicoPlayerHohoema.Models
+namespace NicoPlayerHohoema.Services
 {
     public sealed class HohoemaAlertClient : IDisposable
     {
@@ -18,10 +18,26 @@ namespace NicoPlayerHohoema.Models
 
         public static NicoAlertClient AlertClient = new NicoAlertClient();
 
+        public FollowInfo CurrentUserFollows { get; private set; }
+        public Models.ActivityFeedSettings FeedSettings { get; }
+        public Models.NiconicoSession NiconicoSession { get; }
+        public Models.Provider.NicoVideoProvider NicoVideoProvider { get; }
+        public NotificationService NotificationService { get; }
+
         bool _IsLoggedIn;
 
-        public HohoemaAlertClient(ActivityFeedSettings feedSettings)
+        public HohoemaAlertClient(
+            Models.ActivityFeedSettings feedSettings,
+            Models.NiconicoSession niconicoSession,
+            Models.Provider.NicoVideoProvider nicoVideoProvider,
+            Services.NotificationService notificationService
+            )
         {
+            FeedSettings = feedSettings;
+            NiconicoSession = niconicoSession;
+            NicoVideoProvider = nicoVideoProvider;
+            NotificationService = notificationService;
+
             feedSettings.ObserveProperty(x => x.IsLiveAlertEnabled)
                 .Subscribe(x => 
                 {
@@ -37,21 +53,17 @@ namespace NicoPlayerHohoema.Models
                     }
                 });
 
-            AlertClient.VideoRecieved += (sender, args) =>
+            AlertClient.VideoRecieved += async (sender, args) =>
             {
                 Debug.WriteLine("new video recieved!: " + args.Id);
 
-                var toastService = App.Current.Container.Resolve<NotificationService>();
-
-                /*
-                var nicoInfo = await ContentProvider.GetNicoVideoInfo(args.Id);
+                var nicoInfo = await NicoVideoProvider.GetNicoVideoInfo(args.Id);
                 if (nicoInfo != null)
                 {
-                    toastService.ShowText($"ニコニコ新着動画", $"{nicoInfo.Title} が投稿されました",
+                    NotificationService.ShowToast($"ニコニコ新着動画", $"{nicoInfo.Title} が投稿されました",
                         luanchContent: "niconico://" + nicoInfo.RawVideoId
                         );
                 }
-                */
             };
 
             AlertClient.LiveRecieved += async (sender, args) =>
@@ -60,13 +72,10 @@ namespace NicoPlayerHohoema.Models
 
                 Debug.WriteLine("new live recieved!: " + liveId);
 
-                var toastService = App.Current.Container.Resolve<NotificationService>();
-
                 if (CurrentUserFollows.GetFollowCommunities().Any(x => x == args.CommunityId))
                 {
-                    var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
-                    var liveStatus = await hohoemaApp.NiconicoContext.Live.GetPlayerStatusAsync(liveId);
-                    toastService.ShowToast($"{liveStatus.Program.BroadcasterName} さんのニコ生開始", $"{liveStatus.Program.Title}",
+                    var liveStatus = await NiconicoSession.Context.Live.GetPlayerStatusAsync(liveId);
+                    NotificationService.ShowToast($"{liveStatus.Program.BroadcasterName} さんのニコ生開始", $"{liveStatus.Program.Title}",
                         luanchContent: "niconico://" + liveId
                         );
                 }
@@ -81,7 +90,6 @@ namespace NicoPlayerHohoema.Models
             {
                 Debug.WriteLine("ニコニコアラートへの接続を終了");
             };
-
         }
 
         public async Task LoginAlertAsync(string mail, string password)
@@ -100,9 +108,6 @@ namespace NicoPlayerHohoema.Models
         }
 
 
-        public FollowInfo CurrentUserFollows { get; private set; }
-
-
         private async void StartAlert(params NiconicoAlertServiceType[] alertServiceTypes)
         {
             if (!_IsLoggedIn) { return; }
@@ -110,10 +115,9 @@ namespace NicoPlayerHohoema.Models
             await AlertClient.ConnectAlertWebScoketServerAsync(alertServiceTypes);
 
             // 既に始まっている生放送を検出して通知
-            var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
             NicoRepoTimelineItem lastNicoRepoItem = null;
             
-            var res = await hohoemaApp.NiconicoContext.NicoRepo.GetLoginUserNicoRepo(Mntone.Nico2.NicoRepo.NicoRepoTimelineType.all, lastNicoRepoItem?.Id);
+            var res = await NiconicoSession.Context.NicoRepo.GetLoginUserNicoRepo(Mntone.Nico2.NicoRepo.NicoRepoTimelineType.all, lastNicoRepoItem?.Id);
             foreach (var item in res.TimelineItems)
             {
                 var topicType = ViewModels.NicoRepoItemTopicExtension.ToNicoRepoTopicType(item.Topic);
@@ -124,7 +128,8 @@ namespace NicoPlayerHohoema.Models
                     {
                         try
                         {
-                            var liveStatus = await hohoemaApp.NiconicoContext.Live.GetPlayerStatusAsync(item.Program.Id);
+                            // TODO: GetPlayerStatusAsync を GetLiveVideoInfoAsyncに切り替えたい
+                            var liveStatus = await NiconicoSession.Context.Live.GetPlayerStatusAsync(item.Program.Id);
                             var toastService = App.Current.Container.Resolve<NotificationService>();
                             if (liveStatus.Program.EndedAt.DateTime > DateTime.Now)
                             {

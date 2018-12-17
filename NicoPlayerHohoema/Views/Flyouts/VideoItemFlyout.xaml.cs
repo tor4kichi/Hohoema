@@ -15,11 +15,11 @@ using Windows.UI.Xaml.Navigation;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
-namespace NicoPlayerHohoema.Views.Controls
+namespace NicoPlayerHohoema.Views
 {
-    public sealed partial class VideoListItemFlyout : MenuFlyout
+    public sealed partial class VideoItemFlyout : MenuFlyout
     {
-        public VideoListItemFlyout()
+        public VideoItemFlyout()
         {
             this.InitializeComponent();
         }

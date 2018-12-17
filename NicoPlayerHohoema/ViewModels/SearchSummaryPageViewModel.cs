@@ -13,51 +13,18 @@ using Prism.Windows.Navigation;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.Models.Provider;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public class SearchSummaryPageViewModel : HohoemaViewModelBase
     {
-        private string _Keyword;
-        public string Keyword
-        {
-            get { return _Keyword; }
-            set { SetProperty(ref _Keyword, value); }
-        }
 
-        private bool _NowUpdating;
-        public bool NowUpdating
-        {
-            get { return _NowUpdating; }
-            set { SetProperty(ref _NowUpdating, value); }
-        }
-
-
-        public ReadOnlyReactiveProperty<bool> HasKeywordSearchResultItems { get; }
-        public ReadOnlyReactiveCollection<VideoInfoControlViewModel> KeywordSearchResultItems { get; }
-        public ReadOnlyReactiveProperty<bool> HasLiveSearchResultItems { get; }
-        public ReadOnlyReactiveCollection<LiveInfoListItemViewModel> LiveSearchResultItems { get; }
-
-        private int _KeywordSearchItemsTotalCount;
-        public int KeywordSearchItemsTotalCount
-        {
-            get { return _KeywordSearchItemsTotalCount; }
-            set { SetProperty(ref _KeywordSearchItemsTotalCount, value); }
-        }
-
-        private int _LiveSearchItemsTotalCount;
-        public int LiveSearchItemsTotalCount
-        {
-            get { return _LiveSearchItemsTotalCount; }
-            set { SetProperty(ref _LiveSearchItemsTotalCount, value); }
-        }
-
-        public ObservableCollection<string> RelatedVideoTags { get; }
-        public ObservableCollection<string> RelatedLiveTags { get; }
-
-
-        public SearchSummaryPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
-            : base(hohoemaApp, pageManager)
+        public SearchSummaryPageViewModel(
+            SearchProvider searchProvider,
+            Services.PageManager pageManager
+            )
+            : base(pageManager)
         {
             RelatedVideoTags = new ObservableCollection<string>();
 
@@ -66,8 +33,8 @@ namespace NicoPlayerHohoema.ViewModels
                 .SelectMany(async (x, i, cancelToken) =>
                 {
                     RelatedVideoTags.Clear();
-                    var res = await HohoemaApp.ContentProvider.GetKeywordSearch(x, 0, 10);
-                    
+                    var res = await SearchProvider.GetKeywordSearch(x, 0, 10);
+
                     if (res.IsOK)
                     {
                         KeywordSearchItemsTotalCount = (int)res.GetTotalCount();
@@ -109,7 +76,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .SelectMany(async (x, i, cancelToken) =>
                 {
                     RelatedLiveTags.Clear();
-                    var res = await HohoemaApp.ContentProvider.LiveSearchAsync(x, false, length: 10);
+                    var res = await SearchProvider.LiveSearchAsync(x, false, length: 10);
                     if (res.IsStatusOK)
                     {
                         if (res.Tags != null)
@@ -140,7 +107,47 @@ namespace NicoPlayerHohoema.ViewModels
                 .Select(x => x > 0)
                 .ToReadOnlyReactiveProperty()
                 .AddTo(_CompositeDisposable);
+            SearchProvider = searchProvider;
         }
+
+
+        private string _Keyword;
+        public string Keyword
+        {
+            get { return _Keyword; }
+            set { SetProperty(ref _Keyword, value); }
+        }
+
+        private bool _NowUpdating;
+        public bool NowUpdating
+        {
+            get { return _NowUpdating; }
+            set { SetProperty(ref _NowUpdating, value); }
+        }
+
+
+        public ReadOnlyReactiveProperty<bool> HasKeywordSearchResultItems { get; }
+        public ReadOnlyReactiveCollection<VideoInfoControlViewModel> KeywordSearchResultItems { get; }
+        public ReadOnlyReactiveProperty<bool> HasLiveSearchResultItems { get; }
+        public ReadOnlyReactiveCollection<LiveInfoListItemViewModel> LiveSearchResultItems { get; }
+
+        private int _KeywordSearchItemsTotalCount;
+        public int KeywordSearchItemsTotalCount
+        {
+            get { return _KeywordSearchItemsTotalCount; }
+            set { SetProperty(ref _KeywordSearchItemsTotalCount, value); }
+        }
+
+        private int _LiveSearchItemsTotalCount;
+        public int LiveSearchItemsTotalCount
+        {
+            get { return _LiveSearchItemsTotalCount; }
+            set { SetProperty(ref _LiveSearchItemsTotalCount, value); }
+        }
+
+        public ObservableCollection<string> RelatedVideoTags { get; }
+        public ObservableCollection<string> RelatedLiveTags { get; }
+
 
 
         protected override string ResolvePageName()
@@ -221,5 +228,7 @@ namespace NicoPlayerHohoema.ViewModels
                     ));
             }
         }
+
+        public SearchProvider SearchProvider { get; }
     }
 }

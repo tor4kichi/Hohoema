@@ -16,6 +16,7 @@ using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Microsoft.Practices.Unity;
+using NicoPlayerHohoema.Models.Cache;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -209,8 +210,8 @@ namespace NicoPlayerHohoema.Models
 
             // セカンダリウィンドウを閉じるタイミングでキャッシュを再開する
             // プレミアム会員の場合は何もおきない
-            var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
-            await hohoemaApp.CacheManager.ResumeCacheDownload();
+            var cacheManager = App.Current.Container.Resolve<VideoCacheManager>();
+            await cacheManager.ResumeCacheDownload();
         }
 
         public async Task OpenContent(PlaylistItem item)

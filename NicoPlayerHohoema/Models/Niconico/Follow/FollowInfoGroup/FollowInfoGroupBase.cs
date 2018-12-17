@@ -23,18 +23,11 @@ namespace NicoPlayerHohoema.Models
 
         public ReadOnlyObservableCollection<FollowItemInfo> FollowInfoItems { get; private set; }
 
-		public HohoemaApp HohoemaApp { get; private set; }
-
-
-		public FollowInfoGroupBase(HohoemaApp hohoemaApp)
+		public FollowInfoGroupBase()
 		{
-			HohoemaApp = hohoemaApp;
-
 			_FollowInfoList = new ObservableCollection<FollowItemInfo>();
 			FollowInfoItems = new ReadOnlyObservableCollection<FollowItemInfo>(_FollowInfoList);
 		}
-
-
 
 		public abstract FollowItemType FollowItemType { get; }
 		public abstract uint MaxFollowItemCount { get; }

@@ -16,8 +16,8 @@ namespace NicoPlayerHohoema.Commands
 
         protected override async void Execute(object parameter)
         {
-            var hohoemaApp = HohoemaCommnadHelper.GetHohoemaApp();
-            await hohoemaApp.SignOut();
+            var niconicoSession = HohoemaCommnadHelper.GetNiconicoSession();
+            await niconicoSession.SignOut();
         }
     }
 }

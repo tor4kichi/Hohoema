@@ -15,8 +15,125 @@ namespace NicoPlayerHohoema.ViewModels
 {
     public class RankingCategoryListPageViewModel : HohoemaViewModelBase
     {
+        public RankingCategoryListPageViewModel(
+            Services.PageManager pageManager, 
+            Services.DialogService dialogService,
+            RankingSettings rankingSettings
+            )
+            : base(pageManager)
+        {
+            HohoemaDialogService = dialogService;
+            RankingSettings = rankingSettings;
 
-        private static readonly List<List<RankingCategory>> RankingCategories;
+
+            Func<RankingCategory, bool> checkFavorite = (RankingCategory cat) =>
+            {
+                return RankingSettings.HighPriorityCategory.Any(x => x.Category == cat);
+            };
+
+
+            RankingCategoryItems = new ObservableCollection<RankingCategoryHostListItem>();
+            FavoriteRankingCategoryItems = new ObservableCollection<RankingCategoryListPageListItem>();
+
+            SelectedRankingCategory = new ReactiveProperty<RankingCategoryListPageListItem>();
+
+            AddFavRankingCategory = new DelegateCommand(async () =>
+            {
+                var items = new AdvancedCollectionView();
+                items.SortDescriptions.Add(new SortDescription("IsFavorit", SortDirection.Descending));
+                items.SortDescriptions.Add(new SortDescription("Category", SortDirection.Ascending));
+
+                var highPriCat = RankingSettings.HighPriorityCategory;
+                var lowPriCat = RankingSettings.LowPriorityCategory;
+                foreach (var i in RankingSettings.HighPriorityCategory)
+                {
+                    items.Add(new CategoryWithFav() { Category = i.Category, IsFavorit = true });
+                }
+
+                var middleRankingCategories = Enum.GetValues(typeof(RankingCategory)).Cast<RankingCategory>()
+                    .Where(x => !highPriCat.Any(h => x == h.Category))
+                    .Where(x => !lowPriCat.Any(l => x == l.Category))
+                    ;
+                foreach (var category in middleRankingCategories)
+                {
+                    items.Add(new CategoryWithFav() { Category = category });
+                }
+                items.Refresh();
+
+                var choiceItems = await HohoemaDialogService.ShowMultiChoiceDialogAsync(
+                    "優先表示にするカテゴリを選択",
+                    items.Cast<CategoryWithFav>().Select(x => new RankingCategoryInfo(x.Category)),
+                    RankingSettings.HighPriorityCategory.ToArray(),
+                    x => x.DisplayLabel
+                    );
+
+                if (choiceItems == null) { return; }
+
+                // choiceItemsに含まれるカテゴリをMiddleとLowから削除
+                RankingSettings.ResetFavoriteCategory();
+
+                // HighにchoiceItemsを追加（重複しないよう注意）
+                foreach (var cat in choiceItems)
+                {
+                    RankingSettings.AddFavoritCategory(cat.Category);
+                }
+
+                await RankingSettings.Save();
+
+                ResetRankingCategoryItems();
+            });
+
+
+
+            AddDislikeRankingCategory = new DelegateCommand(async () =>
+            {
+                var items = new AdvancedCollectionView();
+                items.SortDescriptions.Add(new SortDescription("IsFavorit", SortDirection.Descending));
+                items.SortDescriptions.Add(new SortDescription("Category", SortDirection.Ascending));
+
+                var highPriCat = RankingSettings.HighPriorityCategory;
+                var lowPriCat = RankingSettings.LowPriorityCategory;
+                foreach (var i in lowPriCat)
+                {
+                    items.Add(new CategoryWithFav() { Category = i.Category, IsFavorit = true });
+                }
+                var middleRankingCategories = Enum.GetValues(typeof(RankingCategory)).Cast<RankingCategory>()
+                    .Where(x => !highPriCat.Any(h => x == h.Category))
+                    .Where(x => !lowPriCat.Any(l => x == l.Category))
+                    ;
+                foreach (var category in middleRankingCategories)
+                {
+                    items.Add(new CategoryWithFav() { Category = category });
+                }
+                items.Refresh();
+
+                var choiceItems = await HohoemaDialogService.ShowMultiChoiceDialogAsync(
+                    "非表示にするカテゴリを選択",
+                    items.Cast<CategoryWithFav>().Select(x => new RankingCategoryInfo(x.Category)),
+                    RankingSettings.LowPriorityCategory,
+                    x => x.DisplayLabel
+                    );
+
+                if (choiceItems == null) { return; }
+
+                // choiceItemsに含まれるカテゴリをMiddleとLowから削除
+                RankingSettings.ResetDislikeCategory();
+
+                // HighにchoiceItemsを追加（重複しないよう注意）
+                foreach (var cat in choiceItems)
+                {
+                    RankingSettings.AddDislikeCategory(cat.Category);
+                }
+
+                await RankingSettings.Save();
+
+                ResetRankingCategoryItems();
+            });
+
+            ResetRankingCategoryItems();
+        }
+
+        static private readonly List<List<RankingCategory>> RankingCategories;
 
         static RankingCategoryListPageViewModel()
         {
@@ -91,134 +208,22 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        Services.DialogService _HohoemaDialogService;
+        public Services.DialogService HohoemaDialogService { get; }
+        public RankingSettings RankingSettings { get; }
+
+
+        public ReactiveProperty<RankingCategoryListPageListItem> SelectedRankingCategory { get; }
+
+        public ObservableCollection<RankingCategoryListPageListItem> FavoriteRankingCategoryItems { get; private set; }
+        public ObservableCollection<RankingCategoryHostListItem> RankingCategoryItems { get; private set; }
+
+
+        public DelegateCommand AddFavRankingCategory { get; private set; }
+        public DelegateCommand AddDislikeRankingCategory { get; private set; }
 
 
 
 
-
-
-        public RankingCategoryListPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager, Services.DialogService dialogService)
-            : base(hohoemaApp, pageManager)
-        {
-            _HohoemaDialogService = dialogService;
-
-            _RankingSettings = HohoemaApp.UserSettings.RankingSettings;
-
-
-            Func<RankingCategory, bool> checkFavorite = (RankingCategory cat) =>
-            {
-                return _RankingSettings.HighPriorityCategory.Any(x => x.Category == cat);
-            };
-
-
-            RankingCategoryItems = new ObservableCollection<RankingCategoryHostListItem>();
-            FavoriteRankingCategoryItems = new ObservableCollection<RankingCategoryListPageListItem>();
-
-            SelectedRankingCategory = new ReactiveProperty<RankingCategoryListPageListItem>();
-
-            AddFavRankingCategory = new DelegateCommand(async () =>
-            {
-                var items = new AdvancedCollectionView();
-                items.SortDescriptions.Add(new SortDescription("IsFavorit", SortDirection.Descending));
-                items.SortDescriptions.Add(new SortDescription("Category", SortDirection.Ascending));
-
-                var highPriCat = HohoemaApp.UserSettings.RankingSettings.HighPriorityCategory;
-                var lowPriCat = HohoemaApp.UserSettings.RankingSettings.LowPriorityCategory;
-                foreach (var i in HohoemaApp.UserSettings.RankingSettings.HighPriorityCategory)
-                {
-                    items.Add(new CategoryWithFav() { Category = i.Category, IsFavorit = true });
-                }
-
-                var middleRankingCategories = Enum.GetValues(typeof(RankingCategory)).Cast<RankingCategory>()
-                    .Where(x => !highPriCat.Any(h => x == h.Category))
-                    .Where(x => !lowPriCat.Any(l => x == l.Category))
-                    ;
-                foreach (var category in middleRankingCategories)
-                {
-                    items.Add(new CategoryWithFav() { Category = category });
-                }
-                items.Refresh();
-
-                var choiceItems = await _HohoemaDialogService.ShowMultiChoiceDialogAsync(
-                    "優先表示にするカテゴリを選択",
-                    items.Cast<CategoryWithFav>().Select(x => new RankingCategoryInfo(x.Category)),
-                    _RankingSettings.HighPriorityCategory.ToArray(),
-                    x => x.DisplayLabel
-                    );
-
-                if (choiceItems == null) { return; }
-
-                // choiceItemsに含まれるカテゴリをMiddleとLowから削除
-                _RankingSettings.ResetFavoriteCategory();
-
-                // HighにchoiceItemsを追加（重複しないよう注意）
-                foreach (var cat in choiceItems)
-                {
-                    _RankingSettings.AddFavoritCategory(cat.Category);
-                }
-
-                await _RankingSettings.Save();
-
-                ResetRankingCategoryItems();
-            });
-
-
-
-            AddDislikeRankingCategory = new DelegateCommand(async () =>
-            {
-                var items = new AdvancedCollectionView();
-                items.SortDescriptions.Add(new SortDescription("IsFavorit", SortDirection.Descending));
-                items.SortDescriptions.Add(new SortDescription("Category", SortDirection.Ascending));
-
-                var highPriCat = HohoemaApp.UserSettings.RankingSettings.HighPriorityCategory;
-                var lowPriCat = HohoemaApp.UserSettings.RankingSettings.LowPriorityCategory;
-                foreach (var i in lowPriCat)
-                {
-                    items.Add(new CategoryWithFav() { Category = i.Category, IsFavorit = true });
-                }
-                var middleRankingCategories = Enum.GetValues(typeof(RankingCategory)).Cast<RankingCategory>()
-                    .Where(x => !highPriCat.Any(h => x == h.Category))
-                    .Where(x => !lowPriCat.Any(l => x == l.Category))
-                    ;
-                foreach (var category in middleRankingCategories)
-                {
-                    items.Add(new CategoryWithFav() { Category = category });
-                }
-                items.Refresh();
-
-                var choiceItems = await _HohoemaDialogService.ShowMultiChoiceDialogAsync(
-                    "非表示にするカテゴリを選択",
-                    items.Cast<CategoryWithFav>().Select(x => new RankingCategoryInfo(x.Category)),
-                    _RankingSettings.LowPriorityCategory,
-                    x => x.DisplayLabel
-                    );
-
-                if (choiceItems == null) { return; }
-
-                // choiceItemsに含まれるカテゴリをMiddleとLowから削除
-                _RankingSettings.ResetDislikeCategory();
-
-                // HighにchoiceItemsを追加（重複しないよう注意）
-                foreach (var cat in choiceItems)
-                {
-                    _RankingSettings.AddDislikeCategory(cat.Category);
-                }
-
-                await _RankingSettings.Save();
-
-                ResetRankingCategoryItems();
-            });
-
-            ResetRankingCategoryItems();
-        }
-
-        RankingCategoryListPageListItem CreateRankingCategryListItem(RankingCategory category)
-        {
-            var categoryInfo = RankingCategoryInfo.CreateFromRankingCategory(category);
-            var isFavoriteCategory = HohoemaApp.UserSettings.RankingSettings.HighPriorityCategory.Contains(categoryInfo);
-            return new RankingCategoryListPageListItem(category, isFavoriteCategory, OnRankingCategorySelected);
-        }
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
@@ -233,7 +238,7 @@ namespace NicoPlayerHohoema.ViewModels
             RankingCategoryItems.Add(
                 new RankingCategoryHostListItem("好きなランキング")
                 {
-                    ChildItems = HohoemaApp.UserSettings.RankingSettings.HighPriorityCategory
+                    ChildItems = RankingSettings.HighPriorityCategory
                         .Select(x => new RankingCategoryListPageListItem(x.Category, true, OnRankingCategorySelected))
                         .ToList()
                 }
@@ -244,7 +249,7 @@ namespace NicoPlayerHohoema.ViewModels
                 var label = categoryList.First().ToCulturelizeString();
 
                 var list = categoryList
-                    .Where(x => !HohoemaApp.UserSettings.RankingSettings.IsDislikeRankingCategory(x))
+                    .Where(x => !RankingSettings.IsDislikeRankingCategory(x))
                     .Select(x => CreateRankingCategryListItem(x))
                     .ToList();
 
@@ -263,18 +268,14 @@ namespace NicoPlayerHohoema.ViewModels
             PageManager.OpenPage(HohoemaPageType.RankingCategory, info.ToString());
         }
 
-        public ReactiveProperty<RankingCategoryListPageListItem> SelectedRankingCategory { get; }
-
-        public ObservableCollection<RankingCategoryListPageListItem> FavoriteRankingCategoryItems { get; private set; }
-        public ObservableCollection<RankingCategoryHostListItem> RankingCategoryItems { get; private set; }
-
-        RankingSettings _RankingSettings;
 
 
-
-        public DelegateCommand AddFavRankingCategory { get; private set; }
-        public DelegateCommand AddDislikeRankingCategory { get; private set; }
-
+        RankingCategoryListPageListItem CreateRankingCategryListItem(RankingCategory category)
+        {
+            var categoryInfo = RankingCategoryInfo.CreateFromRankingCategory(category);
+            var isFavoriteCategory = RankingSettings.HighPriorityCategory.Contains(categoryInfo);
+            return new RankingCategoryListPageListItem(category, isFavoriteCategory, OnRankingCategorySelected);
+        }
     }
 
 

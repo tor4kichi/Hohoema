@@ -14,11 +14,57 @@ using Reactive.Bindings.Extensions;
 using System.Collections.Async;
 using Windows.UI.Xaml.Navigation;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.Models.Provider;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public class SearchResultLivePageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>
 	{
+        public SearchResultLivePageViewModel(
+            Models.NiconicoSession niconicoSession,
+            SearchProvider searchProvider,
+            Services.PageManager pageManager
+            )
+            : base(pageManager, useDefaultPageTitle: false)
+        {
+            SelectedSearchSort = new ReactiveProperty<LiveSearchSortOptionListItem>(LiveSearchSortOptionListItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);
+            SelectedSearchMode = new ReactiveProperty<LiveSearchModeOptionListItem>(LiveSearchModeOptionListItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);
+            SelectedProvider = new ReactiveProperty<LiveSearchProviderOptionListItem>(LiveSearchProviderOptionListItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);
+
+            SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
+
+            Observable.Merge(
+                SelectedSearchSort.ToUnit(),
+                SelectedSearchMode.ToUnit(),
+                SelectedProvider.ToUnit()
+                )
+                .Subscribe(async _ =>
+                {
+                    if (_NowNavigatingTo) { return; }
+
+                    var selected = SelectedSearchSort.Value;
+                    if (SearchOption.Order == selected.Order
+                        && SearchOption.Sort == selected.Sort
+                        && SearchOption.Mode == SelectedSearchMode.Value?.Mode
+                        && SearchOption.Provider == SelectedProvider.Value?.Provider
+                    )
+                    {
+                        return;
+                    }
+
+                    SearchOption.Mode = SelectedSearchMode.Value.Mode;
+                    SearchOption.Provider = SelectedProvider.Value.Provider;
+                    SearchOption.Sort = SelectedSearchSort.Value.Sort;
+                    SearchOption.Order = SelectedSearchSort.Value.Order;
+
+                    await ResetList();
+                })
+                .AddTo(_CompositeDisposable);
+            NiconicoSession = niconicoSession;
+            SearchProvider = searchProvider;
+        }
+
+
         public class LiveSearchSortOptionListItem
         {
             public string Label { get; set; }
@@ -38,9 +84,9 @@ namespace NicoPlayerHohoema.ViewModels
             public Mntone.Nico2.Live.CommunityType? Provider { get; set; }
         }
 
-        public static IReadOnlyList<LiveSearchSortOptionListItem> LiveSearchSortOptionListItems { get; private set; }
-        public static IReadOnlyList<LiveSearchModeOptionListItem> LiveSearchModeOptionListItems { get; private set; }
-        public static IReadOnlyList<LiveSearchProviderOptionListItem> LiveSearchProviderOptionListItems { get; private set; }
+        static public IReadOnlyList<LiveSearchSortOptionListItem> LiveSearchSortOptionListItems { get; private set; }
+        static public IReadOnlyList<LiveSearchModeOptionListItem> LiveSearchModeOptionListItems { get; private set; }
+        static public IReadOnlyList<LiveSearchProviderOptionListItem> LiveSearchProviderOptionListItems { get; private set; }
 
         static SearchResultLivePageViewModel()
         {
@@ -165,50 +211,6 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        public SearchResultLivePageViewModel(
-			HohoemaApp app,
-			PageManager pageManager
-			) 
-			: base(app, pageManager, useDefaultPageTitle: false)
-		{
-            ChangeRequireServiceLevel(HohoemaAppServiceLevel.OnlineWithoutLoggedIn);
-
-            SelectedSearchSort = new ReactiveProperty<LiveSearchSortOptionListItem>(LiveSearchSortOptionListItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);
-            SelectedSearchMode = new ReactiveProperty<LiveSearchModeOptionListItem>(LiveSearchModeOptionListItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);
-            SelectedProvider = new ReactiveProperty<LiveSearchProviderOptionListItem>(LiveSearchProviderOptionListItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);
-
-            SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
-
-            Observable.Merge(
-                SelectedSearchSort.ToUnit(),
-                SelectedSearchMode.ToUnit(),
-                SelectedProvider.ToUnit()
-                )
-                .Subscribe(async _ =>
-                {
-                    if (_NowNavigatingTo) { return; }
-
-                    var selected = SelectedSearchSort.Value;
-                    if (SearchOption.Order == selected.Order
-                        && SearchOption.Sort == selected.Sort
-                        && SearchOption.Mode == SelectedSearchMode.Value?.Mode
-                        && SearchOption.Provider == SelectedProvider.Value?.Provider
-                    )
-                    {
-                        return;
-                    }
-
-                    SearchOption.Mode = SelectedSearchMode.Value.Mode;
-                    SearchOption.Provider = SelectedProvider.Value.Provider;
-                    SearchOption.Sort = SelectedSearchSort.Value.Sort;
-                    SearchOption.Order = SelectedSearchSort.Value.Order;
-
-                    await ResetList();
-                })
-                .AddTo(_CompositeDisposable);
-
-        }
-
         #region Commands
 
 
@@ -224,6 +226,9 @@ namespace NicoPlayerHohoema.ViewModels
 					}));
 			}
 		}
+
+        public Models.NiconicoSession NiconicoSession { get; }
+        public SearchProvider SearchProvider { get; }
 
         #endregion
 
@@ -314,7 +319,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override IIncrementalSource<LiveInfoListItemViewModel> GenerateIncrementalSource()
 		{
-			return new LiveSearchSource(SearchOption, HohoemaApp, PageManager);
+			return new LiveSearchSource(SearchOption, SearchProvider, NiconicoSession);
 		}
 	}
 
@@ -322,12 +327,20 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class LiveSearchSource : IIncrementalSource<LiveInfoListItemViewModel>
 	{
+        public LiveSearchSource(
+            LiveSearchPagePayloadContent searchOption,
+            SearchProvider searchProvider,
+            Models.NiconicoSession niconicoSession
+            )
+        {
+            SearchOption = searchOption;
+            SearchProvider = searchProvider;
+            NiconicoSession = niconicoSession;
+        }
 
-		public HohoemaApp HohoemaApp { get; private set; }
-		public PageManager PageManager { get; private set; }
-
-		public LiveSearchPagePayloadContent SearchOption { get; private set; }
-        
+        public LiveSearchPagePayloadContent SearchOption { get; private set; }
+        public SearchProvider SearchProvider { get; }
+        public Models.NiconicoSession NiconicoSession { get; }
         public List<Tag> Tags { get; private set; }
 
 		public uint OneTimeLoadCount => 10;
@@ -337,23 +350,14 @@ namespace NicoPlayerHohoema.ViewModels
 
         Mntone.Nico2.Live.ReservationsInDetail.ReservationsInDetailResponse _Reservations;
 
-        public LiveSearchSource(
-			LiveSearchPagePayloadContent searchOption,
-			HohoemaApp app,
-			PageManager pageManager
-			)
-		{
-			HohoemaApp = app;
-			PageManager = pageManager;
-			SearchOption = searchOption;
-		}
+        
 
 
         public HashSet<string> SearchedVideoIdsHash = new HashSet<string>();
 
 		private Task<NicoliveVideoResponse> GetLiveSearchResponseOnCurrentOption(uint from, uint length)
 		{
-			return HohoemaApp.ContentProvider.LiveSearchAsync(
+			return SearchProvider.LiveSearchAsync(
 					SearchOption.Keyword,
 					SearchOption.IsTagSearch,
 					from: from,
@@ -388,9 +392,9 @@ namespace NicoPlayerHohoema.ViewModels
             try
             {
                 // ログインしてない場合はタイムシフト予約は取れない
-                if(HohoemaApp.IsLoggedIn)
+                if(NiconicoSession.IsLoggedIn)
                 {
-                    _Reservations = await HohoemaApp.NiconicoContext.Live.GetReservationsInDetailAsync();
+                    _Reservations = await NiconicoSession.Context.Live.GetReservationsInDetailAsync();
                 }
             }
             catch { }

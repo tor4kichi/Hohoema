@@ -14,20 +14,23 @@ using System.Windows.Input;
 using Reactive.Bindings.Extensions;
 using Reactive.Bindings;
 using System.Diagnostics;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class FollowManagePageViewModel : HohoemaViewModelBase
 	{
-        public Models.Subscription.SubscriptionManager SubscriptionManager => Models.Subscription.SubscriptionManager.Instance;
-
-
-
-        public ReactiveProperty<bool> NowUpdatingFavList { get; }
-		public FollowManagePageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
-			: base(hohoemaApp, pageManager)
+     	public FollowManagePageViewModel(
+            PageManager pageManager,
+            NiconicoSession niconicoSession,
+            FollowManager followManager
+            )
+			: base(pageManager)
 		{
-			Lists = new ObservableCollection<FavoriteListViewModel>();
+            NiconicoSession = niconicoSession;
+            FollowManager = followManager;
+
+            Lists = new ObservableCollection<FavoriteListViewModel>();
 
             NowUpdatingFavList = new ReactiveProperty<bool>();
 
@@ -48,40 +51,24 @@ namespace NicoPlayerHohoema.ViewModels
                 }
             });
 
-            ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
-        }
 
-
-        protected override async Task OnSignIn(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
-        {
-            if (Lists.Count == 0)
+            if (NiconicoSession.IsLoggedIn)
             {
-                Lists.Add(new FavoriteListViewModel("ユーザー", HohoemaApp.FollowManager.User, HohoemaApp.FollowManager, PageManager));
-
-                Lists.Add(new FavoriteListViewModel("マイリスト", HohoemaApp.FollowManager.Mylist, HohoemaApp.FollowManager, PageManager));
-
-                Lists.Add(new FavoriteListViewModel("タグ", HohoemaApp.FollowManager.Tag, HohoemaApp.FollowManager, PageManager));
-
-                Lists.Add(new FavoriteListViewModel("コミュニティ", HohoemaApp.FollowManager.Community, HohoemaApp.FollowManager, PageManager));
-
-                Lists.Add(new FavoriteListViewModel("チャンネル", HohoemaApp.FollowManager.Channel, HohoemaApp.FollowManager, PageManager));
+                Lists.Add(new FavoriteListViewModel("ユーザー", FollowManager.User, FollowManager, PageManager));
+                Lists.Add(new FavoriteListViewModel("マイリスト", FollowManager.Mylist, FollowManager, PageManager));
+                Lists.Add(new FavoriteListViewModel("タグ", FollowManager.Tag, FollowManager, PageManager));
+                Lists.Add(new FavoriteListViewModel("コミュニティ", FollowManager.Community, FollowManager, PageManager));
+                Lists.Add(new FavoriteListViewModel("チャンネル", FollowManager.Channel, FollowManager, PageManager));
             }
-
-            await base.OnSignIn(userSessionDisposer, cancelToken);
         }
 
-        protected override Task OnSignOut()
-        {
-            Lists.Clear();
-
-            return base.OnSignOut();
-        }
+        public ReactiveProperty<bool> NowUpdatingFavList { get; }
 
         public ObservableCollection<FavoriteListViewModel> Lists { get; private set; }
 
         public DelegateCommand<FavoriteListViewModel> UpdateFavListCommand { get; }
-
-
+        public NiconicoSession NiconicoSession { get; }
+        public FollowManager FollowManager { get; }
     }
 
     public class FavoriteListViewModel : BindableBase
@@ -165,7 +152,7 @@ namespace NicoPlayerHohoema.ViewModels
         public string Tag => SourceId;
     }
 
-    public class MylistFavItemVM : FavoriteItemViewModel, Interfaces.IMylist
+    public class MylistFavItemVM : FavoriteItemViewModel, Interfaces.IMylistItem
     {
         public MylistFavItemVM(FollowItemInfo feedList) : base(feedList)
         {

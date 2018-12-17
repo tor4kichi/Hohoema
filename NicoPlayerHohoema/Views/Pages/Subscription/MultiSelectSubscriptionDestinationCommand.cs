@@ -1,5 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.UI;
 using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Models.Helpers;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -21,31 +22,32 @@ namespace NicoPlayerHohoema.Views.Subscriptions
             if (parameter is Models.Subscription.Subscription subscription)
             {
                 var dialogService = Commands.HohoemaCommnadHelper.GetDialogService();
-                var hohoemaApp = Commands.HohoemaCommnadHelper.GetHohoemaApp();
-                var playlistMan = hohoemaApp.Playlist;
-                var mylistMan = hohoemaApp.UserMylistManager;
+                var localMylistManager= Commands.HohoemaCommnadHelper.GetLocalMylistManager();
+                var userMylistManager = Commands.HohoemaCommnadHelper.GetUserMylistManager();
+                var hohoemaPlaylist = Commands.HohoemaCommnadHelper.GetHohoemaPlaylist();
+                var mylistHelper = Commands.HohoemaCommnadHelper.GetMylistHelper();
 
                 // 既に登録済みのアイテムを先頭にして
                 // 続いてマイリスト、ローカルプレイリストと表示する
-                var playlists = new List<Models.IPlayableList>()
+                var playlists = new List<Interfaces.IMylist>()
                 {
-                    playlistMan.DefaultPlaylist
+                    hohoemaPlaylist.DefaultPlaylist
                 };
 
-                foreach (var playlist in mylistMan.UserMylists)
+                foreach (var playlist in userMylistManager.UserMylists)
                 {
                     playlists.Add(playlist);
                 }
 
-                foreach (var playlist in playlistMan.Playlists)
+                foreach (var playlist in localMylistManager.LocalMylistGroups)
                 {
                     playlists.Add(playlist);
                 }
 
-                var selectedItems = new List<Models.IPlayableList>();
+                var selectedItems = new List<Interfaces.IMylist>();
                 foreach (var dest in subscription.Destinations.Reverse())
                 {
-                    var list = hohoemaApp.GetPlayableListInLocal(dest.PlaylistId, dest.Target == Models.Subscription.SubscriptionDestinationTarget.LocalPlaylist ? PlaylistOrigin.Local : PlaylistOrigin.LoginUser);
+                    var list = mylistHelper.FindMylistInCached(dest.PlaylistId, dest.Target == Models.Subscription.SubscriptionDestinationTarget.LocalPlaylist ? PlaylistOrigin.Local : PlaylistOrigin.LoginUser);
 
                     if (list != null)
                     {
@@ -71,7 +73,7 @@ namespace NicoPlayerHohoema.Views.Subscriptions
                 {
                     var dest = new Models.Subscription.SubscriptionDestination(
                         choiceItem.Label,
-                        choiceItem.Origin == PlaylistOrigin.Local ? Models.Subscription.SubscriptionDestinationTarget.LocalPlaylist : Models.Subscription.SubscriptionDestinationTarget.LoginUserMylist,
+                        choiceItem.ToMylistOrigin() == PlaylistOrigin.Local ? Models.Subscription.SubscriptionDestinationTarget.LocalPlaylist : Models.Subscription.SubscriptionDestinationTarget.LoginUserMylist,
                         choiceItem.Id
                         );
                     subscription.Destinations.Add(dest);

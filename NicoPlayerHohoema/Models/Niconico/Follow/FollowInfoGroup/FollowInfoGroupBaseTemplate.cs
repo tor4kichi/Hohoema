@@ -11,8 +11,7 @@ namespace NicoPlayerHohoema.Models
 {
 	public abstract class FollowInfoGroupBaseTemplate<FOLLOW_SOURCE> : FollowInfoGroupBase
 	{
-		public FollowInfoGroupBaseTemplate(HohoemaApp hohoemaApp) 
-			: base(hohoemaApp)
+		public FollowInfoGroupBaseTemplate() 
 		{
 
 		}

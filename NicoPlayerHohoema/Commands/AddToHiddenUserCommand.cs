@@ -17,7 +17,7 @@ namespace NicoPlayerHohoema.Commands
             {
                 var content = parameter as Interfaces.IVideoContent;
 
-                var hohoemaApp = HohoemaCommnadHelper.GetHohoemaApp();
+                
                 var ownerName = content.OwnerUserName;
                 if (string.IsNullOrEmpty(ownerName))
                 {
@@ -25,9 +25,10 @@ namespace NicoPlayerHohoema.Commands
                     {
                         try
                         {
-                            var userInfo = await hohoemaApp.ContentProvider.GetUserDetail(content.OwnerUserId);
+                            var userProvider = HohoemaCommnadHelper.Resolve<Models.Provider.UserProvider>();
+                            var userInfo = await userProvider.GetUser(content.OwnerUserId);
 
-                            ownerName = userInfo.Nickname;
+                            ownerName = userInfo.ScreenName;
                         }
                         catch
                         {
@@ -36,7 +37,8 @@ namespace NicoPlayerHohoema.Commands
                     }
                     else if (content.OwnerUserType == Mntone.Nico2.Videos.Thumbnail.UserType.Channel)
                     {
-                        var channelInfo = await hohoemaApp.ContentProvider.GetChannelInfo(content.OwnerUserId);
+                        var channelProvider = HohoemaCommnadHelper.Resolve<Models.Provider.ChannelProvider>();
+                        var channelInfo = await channelProvider.GetChannelInfo(content.OwnerUserId);
                         ownerName = channelInfo.Name;
 
                         var channel = Database.NicoVideoOwnerDb.Get(content.OwnerUserId) 
@@ -61,7 +63,8 @@ namespace NicoPlayerHohoema.Commands
                     Label = "非表示に設定",
                     Invoked = (uicommand) =>
                     {
-                        hohoemaApp.UserSettings.NGSettings.AddNGVideoOwnerId(content.OwnerUserId.ToString(), ownerName);
+                        var ngSettings = HohoemaCommnadHelper.Resolve<Models.NGSettings>();
+                        ngSettings.AddNGVideoOwnerId(content.OwnerUserId.ToString(), ownerName);
                     }
                 });
                 dialog.Commands.Add(new UICommand() { Label = "キャンセル" });

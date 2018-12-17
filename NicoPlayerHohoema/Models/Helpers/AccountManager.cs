@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 
-namespace NicoPlayerHohoema.Models
+namespace NicoPlayerHohoema.Models.Helpers
 {
     // Xboxとそれ以外でアカウント管理の方法を切り替えます
     // PCやモバイルでは Windows.Security.Credentials を利用し、
@@ -13,6 +13,8 @@ namespace NicoPlayerHohoema.Models
 
     public static class AccountManager 
     {
+        const string AccountResrouceKey = "HohoemaApp";
+
         // v0.3.9 以前との互換性のために残しています
         const string RECENT_LOGIN_ACCOUNT = "recent_login_account";
 
@@ -117,7 +119,7 @@ namespace NicoPlayerHohoema.Models
             var vault = new Windows.Security.Credentials.PasswordVault();
             try
             {
-                var credential = vault.Retrieve(nameof(HohoemaApp), id);
+                var credential = vault.Retrieve(AccountResrouceKey, id);
                 vault.Remove(credential);
             }
             catch
@@ -125,7 +127,7 @@ namespace NicoPlayerHohoema.Models
             }
 
             {
-                var credential = new Windows.Security.Credentials.PasswordCredential(nameof(HohoemaApp), id, password);
+                var credential = new Windows.Security.Credentials.PasswordCredential(AccountResrouceKey, id, password);
                 vault.Add(credential);
             }
         }
@@ -176,7 +178,7 @@ namespace NicoPlayerHohoema.Models
             var vault = new Windows.Security.Credentials.PasswordVault();
             try
             {
-                var credential = vault.Retrieve(nameof(HohoemaApp), id);
+                var credential = vault.Retrieve(AccountResrouceKey, id);
                 vault.Remove(credential);
                 return true;
             }
@@ -237,7 +239,7 @@ namespace NicoPlayerHohoema.Models
 
                 if (string.IsNullOrWhiteSpace(primary_id)) { return null; }
 
-                var credential = vault.Retrieve(nameof(HohoemaApp), primary_id);
+                var credential = vault.Retrieve(AccountResrouceKey, primary_id);
                 credential.RetrievePassword();
                 return new Tuple<string, string>(credential.UserName, credential.Password);
             }

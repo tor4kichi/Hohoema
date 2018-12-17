@@ -17,10 +17,13 @@ using Windows.Storage;
 using Windows.UI.ViewManagement;
 using Microsoft.Practices.Unity;
 using NicoPlayerHohoema.Models.Cache;
+using Windows.Media.Playback;
+using Windows.Media.Core;
+using System.Collections.Specialized;
 
 namespace NicoPlayerHohoema.Models
 {
-    public delegate void OpenPlaylistItemEventHandler(IPlayableList playlist, PlaylistItem item);
+    public delegate void OpenPlaylistItemEventHandler(Interfaces.IMylist playlist, PlaylistItem item);
     
     public class HohoemaPlaylist : BindableBase, IDisposable
     {
@@ -34,39 +37,56 @@ namespace NicoPlayerHohoema.Models
         // 画面の遷移自体はPageManagerに任せることにする
         // PageManagerに動画情報を渡すまでをやる
 
-        public HohoemaApp HohoemaApp { get; }
+        // TODO: 「あとで見る」プレイリストをローミングフォルダへ書き出す
 
+        public HohoemaPlaylist(
+            NiconicoSession niconicoSession,
+            VideoCacheManager videoCacheManager,
+            PlaylistSettings playlistSettings,
+            HohoemaViewManager viewMan
+            )
+        {
+            NiconicoSession = niconicoSession;
+            VideoCacheManager = videoCacheManager;
+            PlaylistSettings = playlistSettings;
+            _SecondaryView = viewMan;
 
-        public StorageFolder PlaylistsSaveFolder { get; private set; }
+            Player = new PlaylistPlayer(this, playlistSettings);
 
+            MakeDefaultPlaylist();
+            CurrentPlaylist = DefaultPlaylist;
+
+            if (ApplicationData.Current.LocalSettings.Values.TryGetValue(nameof(PlayerDisplayType), out var showInMainView))
+            {
+                try
+                {
+                    _PlayerDisplayType = (bool)showInMainView ? PlayerDisplayType.PrimaryView : PlayerDisplayType.SecondaryView;
+                }
+                catch { }
+            }
+
+            Player.PlayRequested += Player_PlayRequested;
+        }
 
         public const string WatchAfterPlaylistId = "@view";
 
         public event OpenPlaylistItemEventHandler OpenPlaylistItem;
 
-
+        public NiconicoSession NiconicoSession { get; }
+        public VideoCacheManager VideoCacheManager { get; }
         public PlaylistSettings PlaylistSettings { get; private set; }
 
         public PlaylistPlayer Player { get; }
 
-
-        private ObservableCollection<LocalMylist> _Playlists = new ObservableCollection<LocalMylist>();
-        public ReadOnlyObservableCollection<LocalMylist> Playlists { get; private set; }
-
-
-
-        private Dictionary<string, FolderBasedFileAccessor<LocalMylist>> _PlaylistFileAccessorMap = new Dictionary<string, FolderBasedFileAccessor<LocalMylist>>();
-
-
-        public LocalMylist DefaultPlaylist { get; private set; }
+        public LocalMylist.LocalMylistGroup DefaultPlaylist { get; private set; }
 
         /// <summary>
         /// Use for serialize only.
         /// </summary>
         private string _CurrentPlaylistId { get; set; }
 
-        private IPlayableList _CurrentPlaylist;
-        public IPlayableList CurrentPlaylist
+        private Interfaces.IMylist _CurrentPlaylist;
+        public Interfaces.IMylist CurrentPlaylist
         {
             get { return _CurrentPlaylist; }
             set
@@ -178,29 +198,7 @@ namespace NicoPlayerHohoema.Models
         public bool IsPlayerFloatingModeEnable => PlayerDisplayType == PlayerDisplayType.PrimaryWithSmall;
 
 
-        public HohoemaPlaylist(HohoemaApp hohoemaApp, PlaylistSettings playlistSettings, StorageFolder playlistSaveFolder, HohoemaViewManager viewMan)
-        {
-            HohoemaApp = hohoemaApp;
-            PlaylistSettings = playlistSettings;
-            PlaylistsSaveFolder = playlistSaveFolder;
-            Player = new PlaylistPlayer(this, playlistSettings);
-            _SecondaryView = viewMan;
-
-            Playlists = new ReadOnlyObservableCollection<LocalMylist>(_Playlists);
-
-            CurrentPlaylist = DefaultPlaylist;
-
-            if (ApplicationData.Current.LocalSettings.Values.TryGetValue(nameof(PlayerDisplayType), out var showInMainView))
-            {
-                try
-                {
-                    _PlayerDisplayType = (bool)showInMainView ? PlayerDisplayType.PrimaryView : PlayerDisplayType.SecondaryView;
-                }
-                catch { }
-            }
-
-            Player.PlayRequested += Player_PlayRequested;
-        }
+       
 
         private void Player_PlayRequested(object sender, PlaylistItem e)
         {
@@ -215,133 +213,13 @@ namespace NicoPlayerHohoema.Models
 
         public void Dispose()
         {
-            foreach (var playlist in _Playlists)
-            {
-                playlist.Dispose();
-            }
-
             _PlaylistItemsChangedObserver?.Dispose();
         }
 
 
-        public async Task Load()
-        {
-            var files = await HohoemaApp.GetSyncRoamingData(PlaylistsSaveFolder);
+        
 
-            // 古いデータを解放
-            foreach (var playlist in _Playlists)
-            {
-                playlist.Dispose();
-            }
-
-            _PlaylistFileAccessorMap.Clear();
-            _Playlists.Clear();
-
-            // 読み込み
-            List<LocalMylist> loadedItem = new List<LocalMylist>();
-            foreach (var file in files)
-            {
-                var playlistFileAccessor = new FolderBasedFileAccessor<LocalMylist>(PlaylistsSaveFolder, file.Name);
-                var playlist = await playlistFileAccessor.Load();
-
-                if (playlist == null)
-                {
-                    await playlistFileAccessor.Delete();
-                    continue;
-                }
-
-                if (playlist != null)
-                {
-                    playlist.HohoemaPlaylist = this;
-
-                    // 重複登録されている場合、ファイルの日付が古いほうを削除
-                    // （本来はリネームのミスがないようにするべき）
-                    if (_PlaylistFileAccessorMap.ContainsKey(playlist.Id))
-                    {
-                        var prevFileAccessor = _PlaylistFileAccessorMap[playlist.Id];
-
-                        var prevFile = await prevFileAccessor.TryGetFile();
-                        var prevFileProp = await prevFile.GetBasicPropertiesAsync();
-
-                        var fileProp = await file.GetBasicPropertiesAsync();
-                        if (prevFileProp.DateModified < fileProp.DateModified)
-                        {
-                            await prevFileAccessor.Delete(StorageDeleteOption.PermanentDelete);
-                            _PlaylistFileAccessorMap.Remove(playlist.Id);
-
-                            _PlaylistFileAccessorMap.Add(playlist.Id, playlistFileAccessor);
-                            loadedItem.Add(playlist);
-                        }
-                        else
-                        {
-                            await HohoemaApp.RoamingDataRemoved(file);
-                            await file.DeleteAsync();
-                        }
-                    }
-                    else
-                    {
-                        _PlaylistFileAccessorMap.Add(playlist.Id, playlistFileAccessor);
-                        loadedItem.Add(playlist);
-                    }
-
-                    if (playlist.Id == WatchAfterPlaylistId)
-                    {
-                        DefaultPlaylist = playlist;
-                    }
-                }
-            }
-
-            MakeDefaultPlaylist();
-
-
-            loadedItem.Sort((x, y) => x.SortIndex - y.SortIndex);
-
-            foreach (var sortedPlaylist in loadedItem)
-            {
-                _Playlists.Add(sortedPlaylist);
-            }
-        }
-
-        public async Task Save(LocalMylist playlist)
-        {
-            if (_PlaylistFileAccessorMap.ContainsKey(playlist.Id))
-            {
-                var fileAccessor = _PlaylistFileAccessorMap[playlist.Id];
-                await fileAccessor.Save(playlist);
-
-                var file = await fileAccessor.TryGetFile();
-                if (file != null)
-                {
-                    await HohoemaApp.PushToRoamingData(file);
-                }
-            }
-        }
-
-        public async Task Save()
-        {
-            foreach (var playlist in _Playlists)
-            {
-                await Save(playlist);
-            }
-        }
-
-
-
-        internal async void RenamePlaylist(LocalMylist playlist, string newName)
-        {
-            var fileAccessor = _PlaylistFileAccessorMap[playlist.Id];
-
-            // 古いファイルを同期から削除
-            var oldFile = await fileAccessor.TryGetFile();
-            await HohoemaApp.RoamingDataRemoved(oldFile);
-
-            // ファイル名を変更して保存
-            var newFileName = Helpers.FilePathHelper.ToSafeFilePath(Path.ChangeExtension(newName, ".json"));
-            await fileAccessor.Rename(newFileName, forceReplace:true);
-            playlist.Label = newName;
-            
-            await Save(playlist);
-        }
+        
 
         AsyncLock SecondaryViewLock = new AsyncLock();
         HohoemaViewManager _SecondaryView;
@@ -362,17 +240,14 @@ namespace NicoPlayerHohoema.Models
             var playlist = item.Owner;
             if (item.Type == PlaylistItemType.Video)
             {
-                if (playlist == null
-                    || item == null
-                    || playlist.PlaylistItems.FirstOrDefault(x => x.ContentId == item.ContentId) == null
-                    )
+                if (playlist != null && !playlist.Contains(item.ContentId))
                 {
                     throw new Exception();
                 }
             }
 
-            
-            if (!HohoemaApp.IsPremiumUser && !HohoemaApp.CacheManager.CanAddDownloadLine)
+
+            if (!NiconicoSession.IsPremiumAccount && !VideoCacheManager.CanAddDownloadLine)
             {
                 // 一般ユーザーまたは未登録ユーザーの場合
                 // 視聴セッションを１つに制限するため、キャッシュダウンロードを止める必要がある
@@ -381,7 +256,7 @@ namespace NicoPlayerHohoema.Models
                 var currentItem = item;
                 if (currentItem != null && currentItem.Type == PlaylistItemType.Video)
                 {
-                    var cachedItems = await HohoemaApp.CacheManager.GetCacheRequest(currentItem.ContentId);
+                    var cachedItems = await VideoCacheManager.GetCacheRequest(currentItem.ContentId);
                     if (cachedItems.FirstOrDefault(x => x.ToCacheState() == NicoVideoCacheState.Cached) != null)
                     {
                         playingVideoIsCached = true;
@@ -390,7 +265,7 @@ namespace NicoPlayerHohoema.Models
 
                 if (!playingVideoIsCached)
                 {
-                    var currentDownloadingItems = await HohoemaApp.CacheManager.GetDownloadProgressVideosAsync();
+                    var currentDownloadingItems = await VideoCacheManager.GetDownloadProgressVideosAsync();
                     var downloadingItem = currentDownloadingItems.FirstOrDefault();
                     var downloadingItemVideoInfo = Database.NicoVideoDb.Get(downloadingItem.RawVideoId);
                     
@@ -402,7 +277,7 @@ namespace NicoPlayerHohoema.Models
                     var isCancelCacheAndPlay = await dialogService.ShowMessageDialog("ニコニコのプレミアム会員以外は 視聴とダウンロードは一つしか同時に行えません。\n視聴を開始する場合、キャッシュは中止されます。またキャッシュを再開する場合はダウンロードは最初からやり直しになります。\n\n" + downloadProgressDescription, "キャッシュを中止して視聴を開始しますか？", "キャッシュを中止して視聴する", "何もしない");
                     if (isCancelCacheAndPlay)
                     {
-                        await HohoemaApp.CacheManager.SuspendCacheDownload();
+                        await VideoCacheManager.SuspendCacheDownload();
                     }
                     else
                     {
@@ -410,12 +285,12 @@ namespace NicoPlayerHohoema.Models
                     }
                 }
             }
-            else if (!HohoemaApp.IsPremiumUser)
+            else if (!NiconicoSession.IsPremiumAccount)
             {
                 // キャッシュ済みの場合はサスペンドを掛けない
-                if (item.Type == PlaylistItemType.Video && false == await HohoemaApp.CacheManager.CheckCached(item.ContentId))
+                if (item.Type == PlaylistItemType.Video && false == await VideoCacheManager.CheckCached(item.ContentId))
                 {
-                    await HohoemaApp.CacheManager.SuspendCacheDownload();
+                    await VideoCacheManager.SuspendCacheDownload();
                 }
             }
 
@@ -435,7 +310,12 @@ namespace NicoPlayerHohoema.Models
 
         }
 
-        
+        private void MediaBinder_Binding(MediaBinder sender, MediaBindingEventArgs args)
+        {
+            throw new NotImplementedException();
+        }
+
+
 
         // あとで見るプレイリストを通じての再生をサポート
         // プレイリストが空だった場合、その場で再生を開始
@@ -446,8 +326,15 @@ namespace NicoPlayerHohoema.Models
                 return;
             }
 
-            var newItem = DefaultPlaylist.AddVideo(contentId, title, ContentInsertPosition.Head);
-            Play(newItem);
+            var result = DefaultPlaylist.AddMylistItem(contentId, ContentInsertPosition.Head);
+            Play(new QualityVideoPlaylistItem()
+            {
+                ContentId = contentId,
+                Owner = DefaultPlaylist,
+                Title = title,
+                Type = PlaylistItemType.Video,
+                Quality = quality
+            } );
         }
 
         public void PlayVideo(IVideoContent video)
@@ -457,32 +344,53 @@ namespace NicoPlayerHohoema.Models
                 return;
             }
 
-            var item = DefaultPlaylist.PlaylistItems.FirstOrDefault(x => x.Type == PlaylistItemType.Video && x.ContentId == video.Id)
-                ?? DefaultPlaylist.AddVideo(video.Id, video.Label, ContentInsertPosition.Head);
-            Play(item);
+            DefaultPlaylist.AddMylistItem(video.Id, ContentInsertPosition.Head);
+            
+            Play(new QualityVideoPlaylistItem()
+            {
+                ContentId = video.Id,
+                Owner = DefaultPlaylist,
+                Title = video.Label,
+                Type = PlaylistItemType.Video,
+            });
         }
 
 
-        public void PlayVideoWithPlaylist(IVideoContent video)
+        public void PlayVideoWithPlaylist(IVideoContent video, IMylist mylist)
         {
             if (!(NiconicoRegex.IsVideoId(video.Id) || video.Id.All(x => '0' <= x && x <= '9')))
             {
-                return;
+                throw new Exception("Video Id not correct format. (\"sm0123456\" or \"12345678\") ");
             }
 
-            if (video.Playlist != null)
+            if (!mylist.Contains(video.Id))
             {
-                var playlistItem = video.Playlist.PlaylistItems.FirstOrDefault(x => x.ContentId == video.Id);
-                if (playlistItem != null)
-                {
-                    Play(playlistItem);
-                }
+                throw new Exception("mylist not contains videoId. can not play.");
             }
-            else
+
+            Play(new QualityVideoPlaylistItem()
             {
-                var newItem = DefaultPlaylist.AddVideo(video.Id, video.Label, ContentInsertPosition.Head);
-                Play(newItem);
+                ContentId = video.Id,
+                Owner = mylist,
+                Title = video.Label,
+                Type = PlaylistItemType.Video,
+            });
+        }
+
+        public void Play(IMylist mylist)
+        {
+            var videoId = mylist.FirstOrDefault();
+            if (!(NiconicoRegex.IsVideoId(videoId) || videoId.All(x => '0' <= x && x <= '9')))
+            {
+                throw new Exception("Video Id not correct format. (\"sm0123456\" or \"12345678\") ");
             }
+
+            Play(new QualityVideoPlaylistItem()
+            {
+                ContentId = videoId,
+                Owner = mylist,
+                Type = PlaylistItemType.Video,
+            });
         }
 
 
@@ -492,7 +400,8 @@ namespace NicoPlayerHohoema.Models
             {
                 Type = PlaylistItemType.Live,
                 ContentId = content.Id,
-                Title = content.Label
+                Title = content.Label,
+                Owner = DefaultPlaylist,
             });
         }
 
@@ -502,47 +411,11 @@ namespace NicoPlayerHohoema.Models
             {
                 Type = PlaylistItemType.Live,
                 ContentId = liveId,
-                Title = title
+                Title = title,
+                Owner = DefaultPlaylist,
             });
         }
 
-
-
-        public LocalMylist CreatePlaylist(string id, string name)
-        {
-            var sortIndex = _Playlists.Count > 0 ? _Playlists.Max(x => x.SortIndex) + 1 : 0;
-
-            var playlist = new LocalMylist(id, name)
-            {
-                HohoemaPlaylist = this,
-                SortIndex = sortIndex
-            };
-
-            var playlistFileAccessor = new FolderBasedFileAccessor<LocalMylist>(PlaylistsSaveFolder, playlist.Label + ".json");
-            _PlaylistFileAccessorMap.Add(playlist.Id, playlistFileAccessor);
-            _Playlists.Add(playlist);
-
-            Save(playlist).ConfigureAwait(false);
-
-            return playlist;
-        }
-
-        public async Task RemovePlaylist(LocalMylist playlist)
-        {
-            if (_Playlists.Contains(playlist))
-            {
-                _Playlists.Remove(playlist);
-                var fileAccessor = _PlaylistFileAccessorMap[playlist.Id];
-
-                var file = await fileAccessor.TryGetFile();
-                await HohoemaApp.RoamingDataRemoved(file);
-
-                await fileAccessor.Delete().ConfigureAwait(false);
-                _PlaylistFileAccessorMap.Remove(playlist.Id);
-
-                playlist.Dispose();
-            }
-        }
 
         
         public void PlayDone(PlaylistItem item, bool canPlayNext = false)
@@ -572,7 +445,7 @@ namespace NicoPlayerHohoema.Models
             // アイテムを削除する
             if (CurrentPlaylist == DefaultPlaylist)
             {
-                DefaultPlaylist.Remove(item);
+                DefaultPlaylist.Remove(item.ContentId);
             }
         }
 
@@ -581,7 +454,7 @@ namespace NicoPlayerHohoema.Models
         {
             if (DefaultPlaylist == null)
             {
-                DefaultPlaylist = CreatePlaylist(HohoemaPlaylist.WatchAfterPlaylistId, "あとで見る");
+                DefaultPlaylist = new LocalMylist.LocalMylistGroup(HohoemaPlaylist.WatchAfterPlaylistId, "あとで見る");
             }
         }
 
@@ -615,8 +488,8 @@ namespace NicoPlayerHohoema.Models
         public event EventHandler<PlaylistItem> PlayRequested;
 
 
-        private IPlayableList _Playlist;
-        public IPlayableList Playlist
+        private IMylist _Playlist;
+        public IMylist Playlist
         {
             get { return _Playlist; }
             private set
@@ -648,11 +521,9 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-
-        
         private int CurrentIndex { get; set; }
 
-        protected IList<PlaylistItem> SourceItems => Playlist?.PlaylistItems;
+        protected IList<PlaylistItem> SourceItems { get; } = new List<PlaylistItem>();
 
         private Queue<PlaylistItem> PlayedItems { get; } = new Queue<PlaylistItem>();
         public List<PlaylistItem> RandamizedItems { get; private set; } = new List<PlaylistItem>();
@@ -712,7 +583,7 @@ namespace NicoPlayerHohoema.Models
             _ItemsObservaeDisposer = null;
         }
 
-        internal async void ResetItems(IPlayableList newOwner)
+        internal async void ResetItems(Interfaces.IMylist newOwner)
         {
 
             using (var releaser = await _PlaylistUpdateLock.LockAsync())
@@ -724,9 +595,9 @@ namespace NicoPlayerHohoema.Models
 
                 Playlist = newOwner;
 
-                if (Playlist != null)
+                if (Playlist is INotifyCollectionChanged playlistNotifyCollectionChanged)
                 {
-                    _ItemsObservaeDisposer = Playlist.PlaylistItems.CollectionChangedAsObservable()
+                    _ItemsObservaeDisposer = playlistNotifyCollectionChanged.CollectionChangedAsObservable()
                         .Subscribe(async x =>
                         {
                             using (var releaser2 = await _PlaylistUpdateLock.LockAsync())
@@ -1008,7 +879,7 @@ namespace NicoPlayerHohoema.Models
         [DataMember]
         public string Title { get; set; }
 
-        public IPlayableList Owner { get; set; }
+        public IMylist Owner { get; set; }
     }
     
     public class QualityVideoPlaylistItem : PlaylistItem
@@ -1023,17 +894,17 @@ namespace NicoPlayerHohoema.Models
         internal LiveVideoPlaylistItem() { }
     }
 
+    public enum PlaylistItemType
+    {
+        Video,
+        Live,
+    }
+
     public enum PlaylistOrigin
     {
         LoginUser,
         OtherUser,
         Local,
-    }
-
-    public enum PlaylistItemType
-    {
-        Video,
-        Live,
     }
 
     public enum PlaybackMode

@@ -199,7 +199,7 @@
 
 
             <DataTemplate x:Key="VideoListItemFlyoutTemplate">
-                <controls:VideoListItemFlyout />
+                <view:VideoItemFlyout />
             </DataTemplate>
 
             <ResourceDictionary.ThemeDictionaries>

@@ -19,28 +19,5 @@ namespace NicoPlayerHohoema.Models
 
 		public override FollowItemType FollowItemType => FollowItemType.Mylist;
 
-		public override async Task<IEnumerable<FeedItem>> GetLatestItems(HohoemaApp hohoemaApp)
-		{
-			var items = await hohoemaApp.ContentProvider.GetMylistGroupVideo(this.Id, 0, 32);
-
-			if (items?.MylistVideoInfoItems != null)
-			{
-				return items.MylistVideoInfoItems.Select(x =>
-					new FeedItem()
-					{
-						Title = x.Video.Title,
-						VideoId = x.Video.Id,
-						CheckedTime = DateTime.MinValue,
-						SubmitDate = x.Video.FirstRetrieve,
-						IsDeleted = x.Video.IsDeleted,
-					})
-					.ToList();
-			}
-			else
-			{
-				return new List<FeedItem>();
-			}
-		}
-
 	}
 }

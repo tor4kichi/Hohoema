@@ -11,14 +11,19 @@ using NicoPlayerHohoema.Models;
 using Prism.Commands;
 using Prism.Windows.Navigation;
 using Windows.UI;
+using NicoPlayerHohoema.Models.Provider;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public sealed class ChannelVideoPageViewModel : HohoemaVideoListingPageViewModelBase<ChannelVideoListItemViewModel>
     {
-        public ChannelVideoPageViewModel(HohoemaApp app, PageManager pageManager) 
-            : base(app, pageManager, isRequireSignIn:false, useDefaultPageTitle:true)
+        public ChannelVideoPageViewModel(
+            Models.Provider.ChannelProvider channelProvider,
+            Services.PageManager pageManager
+            )
+            : base(pageManager, useDefaultPageTitle:true)
         {
+            ChannelProvider = channelProvider;
         }
 
         public string RawChannelId { get; set; }
@@ -77,7 +82,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             try
             {
-                var channelInfo = await HohoemaApp.ContentProvider.GetChannelInfo(RawChannelId);
+                var channelInfo = await ChannelProvider.GetChannelInfo(RawChannelId);
 
                 ChannelId = channelInfo.ChannelId;
                 ChannelName = channelInfo.Name;
@@ -97,7 +102,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override IIncrementalSource<ChannelVideoListItemViewModel> GenerateIncrementalSource()
         {
-            return new ChannelVideoLoadingSource(ChannelId?.ToString() ?? RawChannelId, HohoemaApp.ContentProvider);
+            return new ChannelVideoLoadingSource(ChannelId?.ToString() ?? RawChannelId, ChannelProvider);
         }
 
         protected override string ResolvePageName()
@@ -118,15 +123,16 @@ namespace NicoPlayerHohoema.ViewModels
                     }));
             }
         }
-        
+
+        public Models.Provider.ChannelProvider ChannelProvider { get; }
     }
 
     public sealed class ChannelVideoListItemViewModel : VideoInfoControlViewModel
     {
         public bool IsRequirePayment { get; }
 
-        public ChannelVideoListItemViewModel(string videoId, bool isRequirePayment, PlaylistItem playlistItem = null) 
-            : base(videoId, isNgEnabled:false, playlistItem:playlistItem)
+        public ChannelVideoListItemViewModel(string videoId, bool isRequirePayment) 
+            : base(videoId)
         {
             IsRequirePayment = isRequirePayment;
         }
@@ -135,13 +141,13 @@ namespace NicoPlayerHohoema.ViewModels
     public class ChannelVideoLoadingSource : HohoemaIncrementalSourceBase<ChannelVideoListItemViewModel>
     {
         public string ChannelId { get; }
-        NiconicoContentProvider _NiconicoContentProvider;
+        public ChannelProvider ChannelProvider { get; }
 
         ChannelVideoResponse _FirstResponse;
-        public ChannelVideoLoadingSource(string channelId, NiconicoContentProvider contentProvider)
+        public ChannelVideoLoadingSource(string channelId, ChannelProvider channelProvider)
         {
             ChannelId = channelId;
-            _NiconicoContentProvider = contentProvider;
+            ChannelProvider = channelProvider;
         }
 
 
@@ -170,7 +176,7 @@ namespace NicoPlayerHohoema.ViewModels
             else
             {
                 var page = (int)(head / OneTimeLoadCount);
-                res = await _NiconicoContentProvider.GetChannelVideo(ChannelId, page);
+                res = await ChannelProvider.GetChannelVideo(ChannelId, page);
             }
 
             _IsEndPage = res != null ? (res.Videos.Count < OneTimeLoadCount) : true;
@@ -201,7 +207,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override async Task<int> ResetSourceImpl()
         {
-            _FirstResponse = await _NiconicoContentProvider.GetChannelVideo(ChannelId, 0);
+            _FirstResponse = await ChannelProvider.GetChannelVideo(ChannelId, 0);
 
             return _FirstResponse?.TotalCount ?? 0;
         }

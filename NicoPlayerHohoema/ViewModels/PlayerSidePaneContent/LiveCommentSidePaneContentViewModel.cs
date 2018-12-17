@@ -15,15 +15,15 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 	public class LiveCommentSidePaneContentViewModel : SidePaneContentViewModelBase
 	{
 
-		public LiveCommentSidePaneContentViewModel(HohoemaUserSettings settings, Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView comments)
+		public LiveCommentSidePaneContentViewModel(NGSettings settings, Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView comments)
 		{
-			UserSettings = settings;
+            NGSettings = settings;
 			Comments = comments;
 			IsCommentListScrollWithVideo = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false)
 				.AddTo(_CompositeDisposable);
 
-            NGUsers = new ReadOnlyObservableCollection<NGUserIdInfo>(UserSettings.NGSettings.NGLiveCommentUserIds);
-            IsNGCommentUserIdEnabled = UserSettings.NGSettings.ToReactivePropertyAsSynchronized(x => x.IsNGLiveCommentUserEnable, CurrentWindowContextScheduler)
+            NGUsers = new ReadOnlyObservableCollection<NGUserIdInfo>(NGSettings.NGLiveCommentUserIds);
+            IsNGCommentUserIdEnabled = NGSettings.ToReactivePropertyAsSynchronized(x => x.IsNGLiveCommentUserEnable, CurrentWindowContextScheduler)
                 .AddTo(_CompositeDisposable);
         }
 
@@ -38,7 +38,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
 		public ReactiveProperty<bool> IsCommentListScrollWithVideo { get; private set; }
 
-		public HohoemaUserSettings UserSettings { get; private set; }
+		public NGSettings NGSettings { get; private set; }
         public ReactiveProperty<bool> IsNGCommentUserIdEnabled { get; private set; }
 
 

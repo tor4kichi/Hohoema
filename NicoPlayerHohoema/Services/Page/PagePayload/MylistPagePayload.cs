@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NicoPlayerHohoema.Interfaces;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -17,12 +18,6 @@ namespace NicoPlayerHohoema.Models
         public MylistPagePayload(string id)
         {
             Id = id;
-        }
-
-        public MylistPagePayload(IPlayableList list)
-        {
-            Id = list.Id;
-            Origin = list.Origin;
         }
     }
 }

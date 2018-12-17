@@ -13,31 +13,36 @@ namespace NicoPlayerHohoema.Commands.Mylist
     {
         protected override bool CanExecute(object parameter)
         {
-            return true;
+            if (parameter == null) { return false; }
+
+            return parameter is Interfaces.IVideoContent 
+                || Mntone.Nico2.NiconicoRegex.IsVideoId(parameter as string);
         }
 
         protected override async void Execute(object parameter)
         {
-            var hohoemaApp = HohoemaCommnadHelper.GetHohoemaApp();
-            var mylistManager = hohoemaApp.UserMylistManager;
+            var userMylistManager = HohoemaCommnadHelper.GetUserMylistManager();
 
             var dialogService = App.Current.Container.Resolve<Services.DialogService>();
             var data = new Dialogs.MylistGroupEditData() { };
             var result = await dialogService.ShowCreateMylistGroupDialogAsync(data);
             if (result)
             {
-                var mylistCreateResult = await mylistManager.AddMylist(data.Name, data.Description, data.IsPublic, data.MylistDefaultSort, data.IconType);
+                var mylistCreateResult = await userMylistManager.AddMylist(data.Name, data.Description, data.IsPublic, data.MylistDefaultSort, data.IconType);
 
                 Debug.WriteLine("マイリスト作成：" + mylistCreateResult);
             }
 
-            if (parameter is Interfaces.IVideoContent || parameter is string)
+            var mylist = userMylistManager.UserMylists.FirstOrDefault(x => x.Label == data.Name);
+            
+
+            if (parameter is Interfaces.IVideoContent content)
             {
-                var mylist = mylistManager.UserMylists.FirstOrDefault(x => x.Label == data.Name);
-                if (mylist.AddItemCommand?.CanExecute(parameter) ?? false)
-                {
-                    mylist.AddItemCommand.Execute(parameter);
-                }
+                await mylist.AddMylistItem(content.Id);
+            }
+            else if (parameter is string videoId)
+            {
+                await mylist.AddMylistItem(videoId);
             }
         }
     }

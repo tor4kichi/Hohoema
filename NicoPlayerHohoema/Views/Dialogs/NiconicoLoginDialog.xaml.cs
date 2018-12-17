@@ -16,6 +16,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Microsoft.Practices.Unity;
+using NicoPlayerHohoema.Models.Helpers;
 
 // コンテンツ ダイアログの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
@@ -23,6 +24,8 @@ namespace NicoPlayerHohoema.Dialogs
 {
     public sealed partial class NiconicoLoginDialog : ContentDialog
     {
+        // TODO: 2要素認証の再実装、Serviceとして切り出し
+
         public NiconicoLoginDialog()
         {
             this.InitializeComponent();
@@ -53,18 +56,11 @@ namespace NicoPlayerHohoema.Dialogs
             try
             {
 
-                var hohoemaApp = HohoemaCommnadHelper.GetHohoemaApp();
+                var hohoemaApp = HohoemaCommnadHelper.GetNiconicoSession();
 
                 var mail = Mail.Text;
                 var password = Password.Password;
-                var result = await hohoemaApp.SignIn(mail, password, twoFactorAuth: async () => 
-                {
-                    isTwoFactorLogin = true;
-
-                    defer.Complete();
-
-                    await Task.Delay(200);
-                });
+                var result = await hohoemaApp.SignIn(mail, password);
 
                 if (IsRememberPassword.IsOn)
                 {

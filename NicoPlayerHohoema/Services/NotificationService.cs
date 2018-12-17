@@ -20,20 +20,32 @@ namespace NicoPlayerHohoema.Services
 
         public PageManager PageManager { get; }
         public HohoemaPlaylist Playlist { get; }
-        public NiconicoContentProvider ContentProvider { get; }
         public NotificationService NotificationService { get; }
+        public Models.Provider.NicoVideoProvider NicoVideoProvider { get; }
+        public Models.Provider.MylistProvider MylistProvider { get; }
+        public Models.Provider.NicoLiveProvider NicoLiveProvider { get; }
+        public Models.Provider.CommunityProvider CommunityProvider { get; }
+        public Models.Provider.UserProvider UserProvider { get; }
 
         public HohoemaNotificationService(
             PageManager pageManager,
             HohoemaPlaylist playlist,
-            NiconicoContentProvider contentProvider,
-            NotificationService notificationService
+            NotificationService notificationService,
+            Models.Provider.NicoVideoProvider nicoVideoProvider,
+            Models.Provider.MylistProvider mylistProvider,
+            Models.Provider.NicoLiveProvider nicoLiveProvider,
+            Models.Provider.CommunityProvider communityProvider,
+            Models.Provider.UserProvider userProvider
             )
         {
             PageManager = pageManager;
             Playlist = playlist;
-            ContentProvider = contentProvider;
             NotificationService = notificationService;
+            NicoVideoProvider = nicoVideoProvider;
+            MylistProvider = mylistProvider;
+            NicoLiveProvider = nicoLiveProvider;
+            CommunityProvider = communityProvider;
+            UserProvider = userProvider;
         }
 
 
@@ -75,7 +87,7 @@ namespace NicoPlayerHohoema.Services
 
         private async Task<InAppNotificationPayload> SubmitVideoContentSuggestion(string videoId)
         {
-            var nicoVideo = await ContentProvider.GetNicoVideoInfo(videoId);
+            var nicoVideo = await NicoVideoProvider.GetNicoVideoInfo(videoId);
 
             if (nicoVideo.IsDeleted || string.IsNullOrEmpty(nicoVideo.Title)) { return null; }
 
@@ -101,7 +113,7 @@ namespace NicoPlayerHohoema.Services
                             Label = "あとで見る",
                             Command = new DelegateCommand(() =>
                             {
-                                Playlist.DefaultPlaylist.AddVideo(nicoVideo.RawVideoId, nicoVideo.Title);
+                                Playlist.DefaultPlaylist.AddMylistItem(nicoVideo.RawVideoId);
 
                                 NotificationService.DismissInAppNotification();
                             })
@@ -122,7 +134,7 @@ namespace NicoPlayerHohoema.Services
 
         private async Task<InAppNotificationPayload> SubmitLiveContentSuggestion(string liveId)
         {
-            var liveDesc = await ContentProvider.GetLiveInfoAsync(liveId);
+            var liveDesc = await NicoLiveProvider.GetLiveInfoAsync(liveId);
 
             if (liveDesc == null) { return null; }
 
@@ -181,7 +193,7 @@ namespace NicoPlayerHohoema.Services
             Mntone.Nico2.Mylist.MylistGroup.MylistGroupDetailResponse mylistDetail = null;
             try
             {
-                mylistDetail = await ContentProvider.GetMylistGroupDetail(mylistId);
+                mylistDetail = await MylistProvider.GetMylistGroupDetail(mylistId);
             }
             catch { }
 
@@ -214,7 +226,7 @@ namespace NicoPlayerHohoema.Services
             Mntone.Nico2.Communities.Detail.CommunityDetailResponse communityDetail = null;
             try
             {
-                communityDetail = await ContentProvider.GetCommunityDetail(communityId);
+                communityDetail = await CommunityProvider.GetCommunityDetail(communityId);
             }
             catch { }
 
@@ -244,13 +256,13 @@ namespace NicoPlayerHohoema.Services
 
         private async Task<InAppNotificationPayload> SubmitUserSuggestion(string userId)
         {
-            var user = await ContentProvider.GetUserInfo(userId);
+            var user = await UserProvider.GetUser(userId);
 
             if (user == null) { return null; }
 
             return new InAppNotificationPayload()
             {
-                Content = $"{user.Nickname} をお探しですか？",
+                Content = $"{user.ScreenName} をお探しですか？",
                 ShowDuration = DefaultNotificationShowDuration,
                 SymbolIcon = Symbol.Video,
                 IsShowDismissButton = true,
@@ -284,10 +296,10 @@ namespace NicoPlayerHohoema.Services
 
     public sealed class NotificationService
 	{
-        public EventAggregator EventAggregator { get; }
+        public IEventAggregator EventAggregator { get; }
         
         public NotificationService(
-            EventAggregator ea
+            IEventAggregator ea
             )
 		{
             EventAggregator = ea;

@@ -90,7 +90,6 @@ namespace NicoPlayerHohoema.Models
 
 		#region Properties
 
-		public HohoemaApp HohoemaApp { get; internal set; }
 		public FeedManager FeedManager { get; internal set; }
 
 		[DataMember(Name = "id")]

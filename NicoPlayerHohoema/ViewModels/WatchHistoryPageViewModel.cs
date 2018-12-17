@@ -16,6 +16,7 @@ using System.Reactive.Linq;
 using System.Threading;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Collections.Async;
+using NicoPlayerHohoema.Models.Provider;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -24,8 +25,11 @@ namespace NicoPlayerHohoema.ViewModels
 		HistoriesResponse _HistoriesResponse;
 
 
-		public WatchHistoryPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
-			: base(hohoemaApp, pageManager)
+		public WatchHistoryPageViewModel(
+            LoginUserHistoryProvider loginUserHistoryProvider,
+            Services.PageManager pageManager
+            )
+            : base(pageManager)
 		{
 			RemoveHistoryCommand = SelectedItems.ObserveProperty(x => x.Count)
 				.Select(x => x > 0)
@@ -49,7 +53,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 					await UpdateList();
 
-					_HistoriesResponse = await HohoemaApp.ContentProvider.GetHistory();
+					_HistoriesResponse = await LoginUserHistoryProvider.GetHistory();
 
 					RemoveAllHistoryCommand.RaiseCanExecuteChanged();
 				});
@@ -57,7 +61,8 @@ namespace NicoPlayerHohoema.ViewModels
 				await PageManager.StartNoUIWork("視聴履歴の削除", selectedItems.Length, () => action);
 			})
 			.AddTo(_CompositeDisposable);
-		}
+            LoginUserHistoryProvider = loginUserHistoryProvider;
+        }
 
 		public ReactiveCommand RemoveHistoryCommand { get; private set; }
 
@@ -76,16 +81,18 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-		protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        public LoginUserHistoryProvider LoginUserHistoryProvider { get; }
+
+        protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			_HistoriesResponse = await HohoemaApp.ContentProvider.GetHistory();
+			_HistoriesResponse = await LoginUserHistoryProvider.GetHistory();
 
 			await base.ListPageNavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
 		protected override IIncrementalSource<HistoryVideoInfoControlViewModel> GenerateIncrementalSource()
 		{
-			return new HistoryIncrementalLoadingSource(HohoemaApp, PageManager, _HistoriesResponse);
+			return new HistoryIncrementalLoadingSource(_HistoriesResponse);
 		}
 
 		protected override void PostResetList()
@@ -99,9 +106,9 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			var action = AsyncInfo.Run(async (cancelToken) => 
 			{
-				await HohoemaApp.NiconicoContext.Video.RemoveAllHistoriesAsync(_HistoriesResponse.Token);
+				await LoginUserHistoryProvider.RemoveAllHistoriesAsync(_HistoriesResponse.Token);
 
-				_HistoriesResponse = await HohoemaApp.ContentProvider.GetHistory();
+				_HistoriesResponse = await LoginUserHistoryProvider.GetHistory();
 
 				RemoveAllHistoryCommand.RaiseCanExecuteChanged();
 			});
@@ -113,7 +120,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		internal async Task RemoveHistory(string videoId)
 		{
-			await HohoemaApp.NiconicoContext.Video.RemoveHistoryAsync(_HistoriesResponse.Token, videoId);
+			await LoginUserHistoryProvider.RemoveHistoryAsync(_HistoriesResponse.Token, videoId);
 
 			var item = IncrementalLoadingItems.SingleOrDefault(x => x.RawVideoId == videoId);
 			IncrementalLoadingItems.Remove(item);
@@ -131,7 +138,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public uint UserViewCount { get; set; }
 
 		public HistoryVideoInfoControlViewModel(string itemId, string videoId, uint viewCount, DateTime lastWatchedAt)
-			: base(videoId, isNgEnabled:false)
+			: base(videoId)
 		{
             UserViewCount = viewCount;
             LastWatchedAt = lastWatchedAt;
@@ -149,13 +156,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 		HistoriesResponse _HistoriesResponse;
 
-		HohoemaApp _HohoemaApp;
-		PageManager _PageManager;
-
-		public HistoryIncrementalLoadingSource(HohoemaApp hohoemaApp, PageManager pageManager, HistoriesResponse historyRes)
+		public HistoryIncrementalLoadingSource(HistoriesResponse historyRes)
 		{
-			_HohoemaApp = hohoemaApp;
-			_PageManager = pageManager;
 			_HistoriesResponse = historyRes;
 		}
 

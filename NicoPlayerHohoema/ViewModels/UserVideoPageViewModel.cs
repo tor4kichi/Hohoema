@@ -11,19 +11,29 @@ using Prism.Commands;
 using Windows.UI.Xaml.Navigation;
 using System.Collections.Async;
 using NicoPlayerHohoema.Models.Cache;
+using NicoPlayerHohoema.Models.Provider;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public class UserVideoPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
 	{
-        public Models.Subscription.SubscriptionManager SubscriptionManager => Models.Subscription.SubscriptionManager.Instance;
+        public UserVideoPageViewModel(
+            Models.Subscription.SubscriptionManager subscriptionManager,
+            UserProvider userProvider,
+            Services.PageManager pageManager
+            )
+            : base(pageManager)
+        {
+            SubscriptionManager = subscriptionManager;
+            UserProvider = userProvider;
+        }
+
+
+        public Models.Subscription.SubscriptionManager SubscriptionManager { get; }
+        public UserProvider UserProvider { get; }
+
         public Models.Subscription.SubscriptionSource? SubscriptionSource => new Models.Subscription.SubscriptionSource(UserName, Models.Subscription.SubscriptionSourceType.User, UserId);
 
-
-        public UserVideoPageViewModel(HohoemaApp app, PageManager pageManager) 
-			: base(app, pageManager, isRequireSignIn:true)
-		{
-		}
 
         protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
         {
@@ -59,7 +69,7 @@ namespace NicoPlayerHohoema.ViewModels
                 UserId = e.Parameter as string;
             }
 
-            User = await HohoemaApp.ContentProvider.GetUserDetail(UserId);
+            User = await UserProvider.GetUserDetail(UserId);
 
             if (User != null)
 			{
@@ -85,10 +95,9 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			return new UserVideoIncrementalSource(
 				UserId,
-				User,
-				HohoemaApp,
-				PageManager
-				);
+				User, 
+                UserProvider
+                );
 		}
 
 
@@ -130,24 +139,20 @@ namespace NicoPlayerHohoema.ViewModels
 	public class UserVideoIncrementalSource : HohoemaIncrementalSourceBase<VideoInfoControlViewModel>
 	{
 		public uint UserId { get; }
-		public NiconicoContentProvider ContentFinder { get; }
+		public UserProvider UserProvider { get; }
 		public VideoCacheManager MediaManager { get; }
-        public HohoemaApp HohoemaApp { get; }
-		public PageManager PageManager { get; }
+        
 
 
 		public UserDetail User { get; private set;}
 
 		public List<UserVideoResponse> _ResList;
 		
-		public UserVideoIncrementalSource(string userId, UserDetail userDetail, HohoemaApp hohoemaApp, PageManager pageManager)
+		public UserVideoIncrementalSource(string userId, UserDetail userDetail, UserProvider userProvider)
 		{
 			UserId = uint.Parse(userId);
 			User = userDetail;
-            HohoemaApp = hohoemaApp;
-            ContentFinder = HohoemaApp.ContentProvider;
-			MediaManager = HohoemaApp.CacheManager;
-            PageManager = pageManager;
+            UserProvider = userProvider;
 			_ResList = new List<UserVideoResponse>();
 		}
 
@@ -161,7 +166,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 try
                 {
-                    res = await ContentFinder.GetUserVideos(UserId, (uint)page);
+                    res = await UserProvider.GetUserVideos(UserId, (uint)page);
                 }
                 catch
                 {
@@ -175,7 +180,7 @@ namespace NicoPlayerHohoema.ViewModels
             var items = res.Items.Skip(head).Take(count);
             return items.Select(x =>
             {
-                var vm = new VideoInfoControlViewModel(x.VideoId, isNgEnabled: false);
+                var vm = new VideoInfoControlViewModel(x.VideoId);
                 vm.SetupDisplay(x);
                 return vm;
             })

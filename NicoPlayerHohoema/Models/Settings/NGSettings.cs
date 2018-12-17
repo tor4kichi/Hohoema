@@ -436,4 +436,36 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 	}
+
+    public class NGResult
+    {
+        public NGReason NGReason { get; set; }
+        public string NGDescription { get; set; } = "";
+        public string Content { get; set; }
+
+        internal string GetReasonText()
+        {
+            switch (NGReason)
+            {
+                case NGReason.VideoId:
+                    return $"NG対象の動画ID : {Content}";
+                case NGReason.UserId:
+                    return $"NG対象の投稿者ID : {Content}";
+                case NGReason.Keyword:
+                    return $"NG対象のキーワード : {Content}";
+                default:
+                    throw new NotSupportedException();
+            }
+        }
+    }
+
+    public enum NGReason
+    {
+        VideoId,
+        UserId,
+        Keyword,
+        Tag,
+
+        Score,
+    }
 }

@@ -9,10 +9,9 @@ namespace NicoPlayerHohoema.Models
     public enum HohoemaAppServiceLevel
     {
         Offline,
-        OnlineButServiceUnavailable,
-        OnlineWithoutLoggedIn,
+        ServiceUnavailable,
+        WithoutLoggedIn,
         LoggedIn,
-        LoggedInWithPremium,
     }
 
 

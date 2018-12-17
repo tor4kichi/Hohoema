@@ -16,12 +16,23 @@ using System.Windows.Input;
 using NicoPlayerHohoema.Interfaces;
 using System.Collections.Async;
 using Mntone.Nico2.Videos.Thumbnail;
+using NicoPlayerHohoema.Models.Provider;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class CommunityVideoPageViewModel : HohoemaListingPageViewModelBase<CommunityVideoInfoControlViewModel>
 	{
-		public string CommunityId { get; private set; }
+        public CommunityVideoPageViewModel(
+            CommunityProvider communityProvider,
+            Services.PageManager pageManager
+            )
+            : base(pageManager)
+        {
+            CommunityProvider = communityProvider;
+        }
+
+
+        public string CommunityId { get; private set; }
 
 
 		public bool IsValidCommunity { get; private set; }
@@ -44,10 +55,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-		public CommunityVideoPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
-			: base(hohoemaApp, pageManager)
-		{
-		}
+		
 
 		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
@@ -64,10 +72,6 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			}
 
-            CanDownload = HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache
-                && HohoemaApp.UserSettings.CacheSettings.IsEnableCache
-                && HohoemaApp.IsLoggedIn;
-
             base.OnNavigatedTo(e, viewModelState);
 		}
 
@@ -79,7 +83,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				try
 				{
-					var res = await HohoemaApp.ContentProvider.GetCommunityDetail(CommunityId);
+					var res = await CommunityProvider.GetCommunityDetail(CommunityId);
 					CommunityDetail = res.CommunitySammary.CommunityDetail;
 
 					CommunityName = CommunityDetail.Name;
@@ -107,7 +111,7 @@ namespace NicoPlayerHohoema.ViewModels
 				throw new Exception();
 			}
 
-			return new CommunityVideoIncrementalSource(CommunityId, (int)CommunityDetail.VideoCount, HohoemaApp, PageManager);
+			return new CommunityVideoIncrementalSource(CommunityId, (int)CommunityDetail.VideoCount, CommunityProvider);
 		}
 
 
@@ -124,25 +128,23 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-
-	}
+        public CommunityProvider CommunityProvider { get; }
+    }
 
 
 	public class CommunityVideoIncrementalSource : HohoemaIncrementalSourceBase<CommunityVideoInfoControlViewModel>
 	{
-		HohoemaApp HohoemaApp;
-		PageManager _PageManager;
+        public CommunityProvider CommunityProvider { get; }
 
 		public string CommunityId { get; private set; }
 		public int VideoCount { get; private set; }
 
 		public List<NiconicoVideoRssItem> Items { get; private set; } = new List<NiconicoVideoRssItem>();
 
-		public CommunityVideoIncrementalSource(string communityId, int videoCount, HohoemaApp hohoemaApp, PageManager pageManager)
+		public CommunityVideoIncrementalSource(string communityId, int videoCount, CommunityProvider communityProvider)
 			: base()
 		{
-			HohoemaApp = hohoemaApp;
-			_PageManager = pageManager;
+            CommunityProvider = communityProvider;
 			CommunityId = communityId;
 			VideoCount = videoCount;
 		}
@@ -175,7 +177,7 @@ namespace NicoPlayerHohoema.ViewModels
 					var pageCount = (uint)(start / 20) + 1;
 
 					Debug.WriteLine("communitu video : page " + pageCount);
-					var videoRss = await HohoemaApp.ContentProvider.GetCommunityVideo(CommunityId, pageCount);
+					var videoRss = await CommunityProvider.GetCommunityVideo(CommunityId, pageCount);
 					var items = videoRss.Channel.Items;
 
 					Items.AddRange(items);
@@ -187,7 +189,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			}
 
-            return Items.Skip(start).Take(count).Select(x => new CommunityVideoInfoControlViewModel(x, HohoemaApp.Playlist)).ToAsyncEnumerable();
+            return Items.Skip(start).Take(count).Select(x => new CommunityVideoInfoControlViewModel(x)).ToAsyncEnumerable();
 		}
 
 
@@ -197,16 +199,14 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class CommunityVideoInfoControlViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContent
     {
-        public HohoemaPlaylist Playlist { get; private set; }
 		public NiconicoVideoRssItem RssItem { get; private set; }
 
 
 		public string VideoId => NicoVideoIdHelper.UrlToVideoId(RssItem.VideoUrl);
 
-		public CommunityVideoInfoControlViewModel(NiconicoVideoRssItem rssItem, HohoemaPlaylist playlist)
+		public CommunityVideoInfoControlViewModel(NiconicoVideoRssItem rssItem)
 			: base()
 		{
-            Playlist = playlist;
 			RssItem = rssItem;
 
             Label = RssItem.Title;
@@ -217,8 +217,6 @@ namespace NicoPlayerHohoema.ViewModels
         public string OwnerUserName => string.Empty;
 
         public UserType OwnerUserType => UserType.User;
-
-        IPlayableList IVideoContent.Playlist => null;
 
         public string Id => VideoId;
     }

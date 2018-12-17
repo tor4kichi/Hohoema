@@ -17,31 +17,32 @@ namespace NicoPlayerHohoema.Models
 
     public class NicoVideo
 	{
+        public NicoVideo(
+            Provider.NicoVideoProvider nicoVideoProvider, 
+            NiconicoSession niconicoSession, 
+            VideoCacheManager manager
+            )
+		{
+            NicoVideoProvider = nicoVideoProvider;
+            NiconicoSession = niconicoSession;
+			VideoCacheManager = manager;
+
+            CommentClient = new CommentClient(NiconicoSession.Context, RawVideoId);            
+        }
+
+        public string RawVideoId { get; set; }
+
+        public Provider.NicoVideoProvider NicoVideoProvider { get; }
+        public NiconicoSession NiconicoSession { get; }
+        public VideoCacheManager VideoCacheManager { get; }
+
         public CommentClient CommentClient { get; private set; }
-
-        public string RawVideoId { get; private set; }
-
-
         public bool IsForceSmileLowQuality { get; set; }
-
-        NiconicoContentProvider _ContentProvider;
-        VideoCacheManager CacheManager;
-        NiconicoContext _Context;
-
 
         private object _LastAccessResponse;
         public WatchApiResponse LastAccessWatchApiResponse => _LastAccessResponse as WatchApiResponse;
         public DmcWatchData LastAccessDmcWatchResponse => _LastAccessResponse as DmcWatchData;
 
-        public NicoVideo(string rawVideoid, NiconicoContentProvider contentProvider, NiconicoContext context, VideoCacheManager manager)
-		{
-            RawVideoId = rawVideoid;
-            _ContentProvider = contentProvider;
-            _Context = context;
-			CacheManager = manager;
-
-            CommentClient = new CommentClient(_Context, RawVideoId);            
-        }
 
         #region Playback
 
@@ -65,13 +66,10 @@ namespace NicoPlayerHohoema.Models
                 // 動画情報ページアクセスだけでも内部の動画情報データは更新される
                 var videoInfo = Database.NicoVideoDb.Get(RawVideoId);
 
-                // 動作互換性のためにサムネから拾うように戻す？
-                // var videoInfo = await _ContentProvider.GetNicoVideoInfo(RawVideoId);
-
                 if (videoInfo.IsDeleted)
                 {
                     // ニコニコサーバー側で動画削除済みの場合は再生不可
-                    // （NiconnicoContentProvider側で動画削除動作を実施している）
+                    // （NicoVideoProvider側で動画削除動作を実施している）
                     throw new NotSupportedException($"動画は {videoInfo.PrivateReasonType.ToCulturelizeString()} のため視聴できません");
                 }
 
@@ -80,7 +78,7 @@ namespace NicoPlayerHohoema.Models
             if (!forceDownload)
             {
                 // キャッシュ済みアイテムを問い合わせ
-                var cacheRequests = await CacheManager.GetCacheRequest(RawVideoId);
+                var cacheRequests = await VideoCacheManager.GetCacheRequest(RawVideoId);
 
                 NicoVideoCacheRequest playCandidateRequest = null;
                 var req = cacheRequests.FirstOrDefault(x => x.Quality == quality);
@@ -107,7 +105,7 @@ namespace NicoPlayerHohoema.Models
                     try
                     {
                         var file = await StorageFile.GetFileFromPathAsync(playCandidateCache.FilePath);
-                        return new LocalVideoStreamingSession(file, playCandidateCache.Quality, _Context);
+                        return new LocalVideoStreamingSession(file, playCandidateCache.Quality, NiconicoSession.Context);
                     }
                     catch
                     {
@@ -149,7 +147,7 @@ namespace NicoPlayerHohoema.Models
 
                 return new SmileVideoStreamingSession(
                     res.VideoUrl,
-                    _Context
+                    NiconicoSession.Context
                     );
             }
             else if (watchRes is DmcWatchData)
@@ -172,7 +170,7 @@ namespace NicoPlayerHohoema.Models
                     {
                         return new SmileVideoStreamingSession(
                             new Uri(res.DmcWatchResponse.Video.SmileInfo.Url),
-                            _Context
+                            NiconicoSession.Context
                             );
                     }
                     else
@@ -180,7 +178,7 @@ namespace NicoPlayerHohoema.Models
                         return new DmcVideoStreamingSession(
                             res,
                             quality.IsDmc() ? quality : NicoVideoQuality.Dmc_High,
-                            _Context
+                            NiconicoSession.Context
                             );
                     }
                 }
@@ -188,7 +186,7 @@ namespace NicoPlayerHohoema.Models
                 {
                     return new SmileVideoStreamingSession(
                         new Uri(res.DmcWatchResponse.Video.SmileInfo.Url),
-                        _Context
+                        NiconicoSession.Context
                         );
                 }
                 else
@@ -206,12 +204,12 @@ namespace NicoPlayerHohoema.Models
 
         private async Task<DmcWatchData> GetDmcWatchResponse()
         {
-            return await _ContentProvider.GetDmcWatchResponse(RawVideoId);
+            return await NicoVideoProvider.GetDmcWatchResponse(RawVideoId);
         }
 
         private async Task<WatchApiResponse> GetWatchApiResponse(bool forceLoqQuality = false)
         {
-            return await _ContentProvider.GetWatchApiResponse(RawVideoId, forceLoqQuality);
+            return await NicoVideoProvider.GetWatchApiResponse(RawVideoId, forceLoqQuality);
         }
 
 
@@ -244,7 +242,7 @@ namespace NicoPlayerHohoema.Models
             if (res is WatchApiResponse)
             {
                 var watchApiRes = res as WatchApiResponse;
-                CommentClient = new CommentClient(_Context, new CommentServerInfo()
+                CommentClient = new CommentClient(NiconicoSession.Context, new CommentServerInfo()
                 {
                     ServerUrl = watchApiRes.CommentServerUrl.OriginalString,
                     VideoId = RawVideoId,
@@ -260,7 +258,7 @@ namespace NicoPlayerHohoema.Models
             {
                 var watchdata = res as DmcWatchData;
                 var dmcRes = watchdata.DmcWatchResponse;
-                CommentClient = new CommentClient(_Context, new CommentServerInfo()
+                CommentClient = new CommentClient(NiconicoSession.Context, new CommentServerInfo()
                 {
                     ServerUrl = dmcRes.Thread.ServerUrl,
                     VideoId = RawVideoId,
@@ -292,7 +290,8 @@ namespace NicoPlayerHohoema.Models
         {
             if (LastAccessDmcWatchResponse?.DmcWatchResponse.Playlist != null)
             {
-                var res = await _ContentProvider.Context.Video.GetVideoPlaylistAsync(RawVideoId, LastAccessDmcWatchResponse?.DmcWatchResponse.Playlist.Referer);
+                // TODO: 動画プレイリスト情報の取得をProvider.NicoVideoProviderへ移す
+                var res = await NiconicoSession.Context.Video.GetVideoPlaylistAsync(RawVideoId, LastAccessDmcWatchResponse?.DmcWatchResponse.Playlist.Referer);
 
                 if (res.Status == "ok")
                 {

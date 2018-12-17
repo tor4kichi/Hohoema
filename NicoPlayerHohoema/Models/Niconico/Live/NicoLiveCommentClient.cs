@@ -101,8 +101,6 @@ namespace NicoPlayerHohoema.Models.Live
 
 	public sealed class NicoLiveCommentClient : IDisposable, INicoLiveCommentClient
     {
-		public NiconicoContext NiconicoContext { get; private set; }
-
 		private byte[] _Buffer = new byte[1024 * 2];
 
 		TcpClient _Client;
@@ -134,28 +132,28 @@ namespace NicoPlayerHohoema.Models.Live
 		private long _ServerTime;
 		private string _Ticket;
         private string UserId { get; }
-		public bool IsConnected { get; private set; }
+        public bool IsConnected { get; private set; }
 
+        public Provider.NicoLiveProvider NicoLiveProvider { get; }
 
-		AsyncLock _HeartbeatTimerLock = new AsyncLock();
+        AsyncLock _HeartbeatTimerLock = new AsyncLock();
 		Timer _HeartbeatTimer;
 		TimeSpan _HeartbeatInterval = TimeSpan.FromSeconds(30);
 
 		public uint CommentCount { get; private set; }
 		public uint WatchCount { get; private set; }
 
-		public NicoLiveCommentClient(string liveId, uint commentCount, string userId, DateTimeOffset baseTime, CommentServer commentServer, NiconicoContext context)
+		public NicoLiveCommentClient(string liveId, uint commentCount, string userId, DateTimeOffset baseTime, CommentServer commentServer, Provider.NicoLiveProvider nicoLiveProvider)
 		{
 			LiveId = liveId;
-			NiconicoContext = context;
 			ThreadIdNumber = commentServer.ThreadIds.ElementAt(0);
 			Host = commentServer.Host;
 			Port = commentServer.Port;
 			CommentCount = commentCount;
             UserId = userId;
             _BaseTime = baseTime;
-
-			_Client = new TcpClient();
+            NicoLiveProvider = nicoLiveProvider;
+            _Client = new TcpClient();
 		}
 
 		public async void Open()
@@ -625,18 +623,15 @@ namespace NicoPlayerHohoema.Models.Live
 
 				try
 				{
-					var res = await NiconicoContext.Live.HeartbeatAsync(LiveId);
+                    var res = await NicoLiveProvider.HeartbeatAsync(LiveId);
 
 					Debug.WriteLine("heartbeat to " + LiveId);
 
-					await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-					{
-						// TODO: 視聴者数やコメント数の更新
-						CommentCount = res.CommentCount;
-						WatchCount = res.WatchCount;
-						Heartbeat?.Invoke(res.CommentCount, res.WatchCount);
-					});
-				}
+                    // 視聴者数やコメント数の更新
+                    CommentCount = res.CommentCount;
+                    WatchCount = res.WatchCount;
+                    Heartbeat?.Invoke(res.CommentCount, res.WatchCount);
+                }
                 catch (Exception ex) when (ex.Message.Contains("NOTFOUND_SLOT"))
                 {
 //                    await Stop();

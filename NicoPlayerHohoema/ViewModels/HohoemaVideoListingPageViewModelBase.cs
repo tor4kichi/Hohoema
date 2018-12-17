@@ -19,8 +19,11 @@ namespace NicoPlayerHohoema.ViewModels
     public abstract class HohoemaVideoListingPageViewModelBase<VIDEO_INFO_VM> : HohoemaListingPageViewModelBase<VIDEO_INFO_VM>
 		where VIDEO_INFO_VM : VideoInfoControlViewModel
 	{
-		public HohoemaVideoListingPageViewModelBase(HohoemaApp app, PageManager pageManager, bool isRequireSignIn = true, bool useDefaultPageTitle = true)
-			: base(app, pageManager, useDefaultPageTitle:useDefaultPageTitle)
+		public HohoemaVideoListingPageViewModelBase(
+            PageManager pageManager, 
+            bool useDefaultPageTitle = true
+            )
+			: base(pageManager, useDefaultPageTitle:useDefaultPageTitle)
 		{
             var SelectionItemsChanged = SelectedItems.ToCollectionChanged().ToUnit();
 
@@ -52,6 +55,7 @@ namespace NicoPlayerHohoema.ViewModels
 			    })
 			    .AddTo(_CompositeDisposable);
 
+            /*
 			CancelCacheDownloadRequest = SelectionItemsChanged
 				.Select(_ => SelectedItems.Count > 0)
 				.ToReactiveCommand(false)
@@ -83,7 +87,7 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			)
 			.AddTo(_CompositeDisposable);
-
+            
 
             // クオリティ指定無しのキャッシュDLリクエスト
             RequestCacheDownload = SelectionItemsChanged
@@ -104,9 +108,9 @@ namespace NicoPlayerHohoema.ViewModels
 					await UpdateList();
 				})
 			.AddTo(_CompositeDisposable);
+            */
 
-
-
+            /*
 			RegistratioMylistCommand = SelectionItemsChanged
 				.Select(x => SelectedItems.Count > 0)
 				.ToReactiveCommand(false)
@@ -150,7 +154,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                         if (targetMylist.Origin == PlaylistOrigin.LoginUser)
                         {
-                            var mylistGroup = targetMylist as MylistGroupInfo;
+                            var mylistGroup = targetMylist as UserOwnedMylist;
                             await mylistGroup.Refresh();
 
                             // マイリストに追加に失敗したものを残すように
@@ -195,55 +199,40 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			)
             .AddTo(_CompositeDisposable);
+            */
 
-
-            Playlists = HohoemaApp.Playlist.Playlists.ToReadOnlyReactiveCollection();
+            //Playlists = HohoemaApp.Playlist.Playlists.ToReadOnlyReactiveCollection();
         }
 
 
-		protected override void OnDispose()
-		{
-			base.OnDispose();
-		}
 
 
-		protected override Task OnSignIn(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
+
+        private bool _CanDownload;
+        public bool CanDownload
         {
-            ReflectCanDownloadStatus();
-
-            return base.OnSignIn(userSessionDisposer, cancelToken);
+            get { return _CanDownload; }
+            set { SetProperty(ref _CanDownload, value); }
         }
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			base.OnNavigatedTo(e, viewModelState);
+        public ReadOnlyReactiveCollection<LegacyLocalMylist> Playlists { get; private set; }
 
-            HohoemaApp.CacheManager.VideoCacheStateChanged += CacheManager_VideoCacheStateChanged;
+        public ReactiveCommand PlayAllCommand { get; private set; }
+        public ReactiveCommand CancelCacheDownloadRequest { get; private set; }
+        public ReactiveCommand DeleteOriginalQualityCache { get; private set; }
+        public ReactiveCommand DeleteLowQualityCache { get; private set; }
 
-            ReflectCanDownloadStatus();
-        }
+        public ReactiveCommand RegistratioMylistCommand { get; private set; }
 
-        private async void CacheManager_VideoCacheStateChanged(object sender, VideoCacheStateChangedEventArgs e)
-        {
-            if (e.CacheState != NicoVideoCacheState.Cached)
-            {
-                var video = IncrementalLoadingItems?.FirstOrDefault(x => x.RawVideoId == e.Request.RawVideoId);
-                if (video != null)
-                {
-                    await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () => 
-                    {
-                        await video.RefrechCacheState();
-                    });
-                }
-            }
-        }
 
-        protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
-		{
-            HohoemaApp.CacheManager.VideoCacheStateChanged -= CacheManager_VideoCacheStateChanged;
 
-            base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
-		}
+        // クオリティ指定なしのコマンド
+        // VMがクオリティを実装している場合には、そのクオリティを仕様
+        // そうでない場合は、リクエスト時は低クオリティのみを
+        // 削除時はすべてのクオリティの動画を指定してアクションを実行します。
+        // 基本的にキャッシュ管理画面でしか使わないはずです
+        //public ReactiveCommand RequestCacheDownload { get; private set; }
+        //public ReactiveCommand DeleteCache { get; private set; }
 
 		private IEnumerable<VideoInfoControlViewModel> EnumerateCacheRequestedVideoItems()
 		{
@@ -253,47 +242,10 @@ namespace NicoPlayerHohoema.ViewModels
             });
 		}
 
-		
-
-        private void ReflectCanDownloadStatus()
-        {
-            CanDownload = HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache 
-                && HohoemaApp.UserSettings.CacheSettings.IsEnableCache
-                && HohoemaApp.IsLoggedIn
-                ;
-        }
 
 
 
 
-
-
-
-        private bool _CanDownload;
-		public bool CanDownload
-		{
-			get { return _CanDownload; }
-			set { SetProperty(ref _CanDownload, value); }
-		}
-
-        public ReadOnlyReactiveCollection<LocalMylist> Playlists { get; private set; }
-
-		public ReactiveCommand PlayAllCommand { get; private set; }
-        public ReactiveCommand CancelCacheDownloadRequest { get; private set; }
-		public ReactiveCommand DeleteOriginalQualityCache { get; private set; }
-		public ReactiveCommand DeleteLowQualityCache { get; private set; }
-
-		public ReactiveCommand RegistratioMylistCommand { get; private set; }
-
-        
-
-        // クオリティ指定なしのコマンド
-        // VMがクオリティを実装している場合には、そのクオリティを仕様
-        // そうでない場合は、リクエスト時は低クオリティのみを
-        // 削除時はすべてのクオリティの動画を指定してアクションを実行します。
-        // 基本的にキャッシュ管理画面でしか使わないはずです
-        public ReactiveCommand RequestCacheDownload { get; private set; }
-		public ReactiveCommand DeleteCache { get; private set; }
 	}
 
 

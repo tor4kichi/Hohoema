@@ -44,19 +44,7 @@ namespace NicoPlayerHohoema.Models
         #endregion
 
 
-        public static async Task<FollowManager> Create(HohoemaApp hohoemaApp, uint userId)
-		{
-			var followManager = new FollowManager(hohoemaApp, userId);
-
-            await followManager.Initialize();
-
-            return followManager;
-		}
-
-
 		#region Properties 
-
-		public uint UserId { get; set; }
 
 
 		public IFollowInfoGroup Tag { get; private set; }
@@ -64,6 +52,12 @@ namespace NicoPlayerHohoema.Models
 		public IFollowInfoGroup User { get; private set; }
 		public IFollowInfoGroup Community { get; private set; }
         public IFollowInfoGroup Channel { get; private set; }
+        public NiconicoSession NiconicoSession { get; }
+        public Provider.TagFollowProvider TagFollowProvider { get; }
+        public Provider.MylistFollowProvider MylistFollowProvider { get; }
+        public Provider.UserFollowProvider UserFollowProvider { get; }
+        public Provider.CommunityFollowProvider CommunityFollowProvider { get; }
+        public Provider.ChannelFollowProvider ChannelFollowProvider { get; }
 
         IReadOnlyList<IFollowInfoGroup> _AllFollowInfoGroups;
 
@@ -85,22 +79,31 @@ namespace NicoPlayerHohoema.Models
 
         #region Fields
 
-        HohoemaApp _HohoemaApp;
-
         AsyncLock _SyncLock = new AsyncLock();
 
         #endregion
 
-        internal FollowManager(HohoemaApp hohoemaApp, uint userId)
+        public FollowManager(
+            NiconicoSession niconicoSession, 
+            Provider.TagFollowProvider tagFollowProvider,
+            Provider.MylistFollowProvider mylistFollowProvider,
+            Provider.UserFollowProvider userFollowProvider,
+            Provider.CommunityFollowProvider communityFollowProvider,
+            Provider.ChannelFollowProvider channelFollowProvider
+            )
 		{
-			_HohoemaApp = hohoemaApp;
-			UserId = userId;
+            NiconicoSession = niconicoSession;
+            TagFollowProvider = tagFollowProvider;
+            MylistFollowProvider = mylistFollowProvider;
+            UserFollowProvider = userFollowProvider;
+            CommunityFollowProvider = communityFollowProvider;
+            ChannelFollowProvider = channelFollowProvider;
 
-            Tag = new TagFollowInfoGroup(_HohoemaApp);
-            Mylist = new MylistFollowInfoGroup(_HohoemaApp);
-            User = new UserFollowInfoGroup(_HohoemaApp);
-            Community = new CommunityFollowInfoGroup(_HohoemaApp);
-            Channel = new ChannelFollowInfoGroup(_HohoemaApp);
+            Tag = new TagFollowInfoGroup(NiconicoSession, TagFollowProvider);
+            Mylist = new MylistFollowInfoGroup(NiconicoSession, MylistFollowProvider);
+            User = new UserFollowInfoGroup(NiconicoSession, UserFollowProvider);
+            Community = new CommunityFollowInfoGroup(NiconicoSession, CommunityFollowProvider);
+            Channel = new ChannelFollowInfoGroup(NiconicoSession, ChannelFollowProvider);
 
             _FollowGroupsMap = new Dictionary<FollowItemType, IFollowInfoGroup>();
 
@@ -114,11 +117,7 @@ namespace NicoPlayerHohoema.Models
 
         protected override Task OnInitializeAsync(CancellationToken token)
         {
-            return HohoemaApp.UIDispatcher.RunIdleAsync(async (_) => 
-            {
-                await SyncAll(token);
-            })
-            .AsTask();
+            return Task.CompletedTask;
         }
 
 

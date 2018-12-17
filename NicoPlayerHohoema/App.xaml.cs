@@ -14,6 +14,7 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
 using Microsoft.Practices.Unity;
+using Microsoft.Practices.Unity.StaticFactory;
 using NicoPlayerHohoema.Models;
 using Windows.UI.ViewManagement;
 using Windows.ApplicationModel.Core;
@@ -23,6 +24,8 @@ using Windows.Storage;
 using Windows.UI;
 using Microsoft.Toolkit.Uwp.Notifications;
 using Windows.ApplicationModel.Background;
+using System.Reactive.Concurrency;
+using System.Threading;
 
 namespace NicoPlayerHohoema
 {
@@ -71,56 +74,58 @@ namespace NicoPlayerHohoema
         }
 
 
-
-        /*
-		private async void App_Suspending(object sender, SuspendingEventArgs e)
-		{
-			
-			var deferral = e.SuspendingOperation.GetDeferral();
-			var hohoemaApp = Container.Resolve<HohoemaApp>();
-			await hohoemaApp.OnSuspending();
-
-			deferral.Complete();
-		}
-		*/
-
-
         private async Task RegisterTypes()
-        {            
+        {
+            Container.RegisterType<IScheduler>(new InjectionFactory(c => new SynchronizationContextScheduler(SynchronizationContext.Current)));
+
             // Service
-            var dialogService = new Services.DialogService();
-            Container.RegisterInstance(dialogService);
+            Container.RegisterType<Services.DialogService>(lifetimeManager: new ContainerControlledLifetimeManager());
+            Container.RegisterType<Services.PageManager>(lifetimeManager: new ContainerControlledLifetimeManager());
+            Container.RegisterType<HohoemaViewManager>(lifetimeManager: new ContainerControlledLifetimeManager());
 
             // Models
-            var secondaryViewMan = new HohoemaViewManager();
-            var hohoemaApp = await HohoemaApp.Create(EventAggregator, secondaryViewMan, dialogService);
-            Container.RegisterInstance(secondaryViewMan);
-            Container.RegisterInstance(hohoemaApp);
-            Container.RegisterInstance(new PageManager(hohoemaApp, NavigationService, hohoemaApp.UserSettings.AppearanceSettings, hohoemaApp.Playlist, secondaryViewMan, dialogService));
-            Container.RegisterInstance(hohoemaApp.ContentProvider);
-            Container.RegisterInstance(hohoemaApp.Playlist);
-            Container.RegisterInstance(hohoemaApp.OtherOwneredMylistManager);
-            Container.RegisterInstance(hohoemaApp.FeedManager);
-            Container.RegisterInstance(hohoemaApp.CacheManager);
-            Container.RegisterInstance(hohoemaApp.UserSettings);
-            Container.RegisterInstance(new Models.Niconico.Live.NicoLiveSubscriber(hohoemaApp));
+            Container.RegisterType<Models.NiconicoSession>(lifetimeManager: new ContainerControlledLifetimeManager());
+            
+            var hohoemaSettings = await Models.HohoemaUserSettings.LoadSettings(ApplicationData.Current.LocalFolder);
+            Container.RegisterInstance(hohoemaSettings.PlayerSettings, lifetimeManager: new ContainerControlledLifetimeManager());
+            Container.RegisterInstance(hohoemaSettings.ActivityFeedSettings, lifetimeManager: new ContainerControlledLifetimeManager());
+            Container.RegisterInstance(hohoemaSettings.AppearanceSettings, lifetimeManager: new ContainerControlledLifetimeManager());
+            Container.RegisterInstance(hohoemaSettings.CacheSettings, lifetimeManager: new ContainerControlledLifetimeManager());
+            Container.RegisterInstance(hohoemaSettings.NGSettings, lifetimeManager: new ContainerControlledLifetimeManager());
+            Container.RegisterInstance(hohoemaSettings.PinSettings, lifetimeManager: new ContainerControlledLifetimeManager());
+            Container.RegisterInstance(hohoemaSettings.PlaylistSettings, lifetimeManager: new ContainerControlledLifetimeManager());
+            Container.RegisterInstance(hohoemaSettings.RankingSettings, lifetimeManager: new ContainerControlledLifetimeManager());
 
-            Container.RegisterInstance(new Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper());
+            
+            Container.RegisterType<Models.LocalMylist.LocalMylistManager>(lifetimeManager: new ContainerControlledLifetimeManager());
+            Container.RegisterType<Models.OtherOwneredMylistManager>(lifetimeManager: new ContainerControlledLifetimeManager());
+            Container.RegisterType<Models.UserMylistManager>(lifetimeManager: new ContainerControlledLifetimeManager());
+            Container.RegisterType<Models.FollowManager>(lifetimeManager: new ContainerControlledLifetimeManager());
 
+            Container.RegisterType<Models.HohoemaPlaylist>(lifetimeManager: new ContainerControlledLifetimeManager());
+            Container.RegisterType<Models.Cache.VideoCacheManager>(lifetimeManager: new ContainerControlledLifetimeManager());
+            Container.RegisterType<Models.Subscription.SubscriptionManager>(lifetimeManager: new ContainerControlledLifetimeManager());
+            Container.RegisterType<Services.NicoLiveSubscriber>(lifetimeManager: new ContainerControlledLifetimeManager());
 
+            // Note: インスタンス化が別途必要
+            Container.RegisterInstance(Container.Resolve<Services.HohoemaAlertClient>());
+            Container.RegisterInstance(Container.Resolve<Services.WatchItLater>());
 
-            // サブスクリプション（動画の新着自動チェック機能）の初期化
-            Models.Subscription.SubscriptionManager.Initialize(hohoemaApp.ContentProvider, Container.Resolve<Services.NotificationService>());
-            Models.Subscription.WatchItLater.Instance.ContentProvider = hohoemaApp.ContentProvider;
 
             // ViewModels
             Container.RegisterType<ViewModels.RankingCategoryListPageViewModel>(new ContainerControlledLifetimeManager());
 
-            Resources.Add("IsXbox", Services.Helpers.DeviceTypeHelper.IsXbox);
-            Resources.Add("IsMobile", Services.Helpers.DeviceTypeHelper.IsMobile);
+            {
+                Resources.Add("IsXbox", Services.Helpers.DeviceTypeHelper.IsXbox);
+                Resources.Add("IsMobile", Services.Helpers.DeviceTypeHelper.IsMobile);
 
-            Resources.Add("IsCacheEnabled", hohoemaApp.UserSettings.CacheSettings.IsEnableCache);
-            Resources.Add("IsTVModeEnabled", Services.Helpers.DeviceTypeHelper.IsXbox || hohoemaApp.UserSettings.AppearanceSettings.IsForceTVModeEnable);
+
+                var cacheSettings = Container.Resolve<CacheSettings>();
+                Resources.Add("IsCacheEnabled", cacheSettings.IsEnableCache);
+
+                var appearanceSettings = Container.Resolve<AppearanceSettings>();
+                Resources.Add("IsTVModeEnabled", Services.Helpers.DeviceTypeHelper.IsXbox || appearanceSettings.IsForceTVModeEnable);
+            }
 
 
 #if DEBUG
@@ -137,12 +142,6 @@ namespace NicoPlayerHohoema
         protected override async Task OnInitializeAsync(IActivatedEventArgs args)
         {
             await RegisterTypes();
-
-
-#if DEBUG
-            Views.UINavigationManager.Pressed += UINavigationManager_Pressed;
-#endif
-
 
 #if DEBUG
             if (_DEBUG_XBOX_RESOURCE)
@@ -237,18 +236,8 @@ namespace NicoPlayerHohoema
                 }
             };
 
-            var pageManager = Container.Resolve<PageManager>();
-            var hohoemaApp = Container.Resolve<HohoemaApp>();
-
-            try
-            {
-                await hohoemaApp.InitializeAsync().ConfigureAwait(false);
-            }
-            catch
-            {
-                Debug.WriteLine("HohoemaAppの初期化に失敗");
-            }
-
+            var pageManager = Container.Resolve<Services.PageManager>();
+            
 
 #if false
             try
@@ -282,13 +271,14 @@ namespace NicoPlayerHohoema
 
 
 
+            // ログイン
             try
             {
-                // ログインを試行
-                if (!hohoemaApp.IsLoggedIn && AccountManager.HasPrimaryAccount())
+                var niconicoSession = Container.Resolve<NiconicoSession>();
+                if (Models.Helpers.AccountManager.HasPrimaryAccount())
                 {
                     // サインイン処理の待ちを初期化内でしないことで初期画面表示を早める
-                    _ = hohoemaApp.SignInWithPrimaryAccount();
+                    _ = niconicoSession.SignInWithPrimaryAccount();
                 }
             }
             catch
@@ -296,13 +286,38 @@ namespace NicoPlayerHohoema
                 Debug.WriteLine("ログイン処理に失敗");
             }
 
-            // 購読機能を初期化
-            Models.Subscription.WatchItLater.Instance.Initialize();
 
+            // 購読機能を初期化
+            try
+            {
+                var watchItLater = Container.Resolve<Services.WatchItLater>();
+                watchItLater.Initialize();
+            }
+            catch (Exception e)
+            {
+                Debug.WriteLine("購読機能の初期化に失敗");
+                Debug.WriteLine(e.ToString());
+            }
 
 
             // バックグラウンドでのトースト通知ハンドリングを初期化
             await RegisterDebugToastNotificationBackgroundHandling();
+
+
+            // 更新通知を表示
+            try
+            {
+                var dialogService  = Container.Resolve<Services.DialogService>();
+                if (Models.Helpers.AppUpdateNotice.HasNotCheckedUptedeNoticeVersion)
+                {
+                    await dialogService.ShowLatestUpdateNotice();
+                    Models.Helpers.AppUpdateNotice.UpdateLastCheckedVersionInCurrentVersion();
+                }
+            }
+            catch { }
+
+
+
 
             await base.OnInitializeAsync(args);
         }
@@ -311,17 +326,6 @@ namespace NicoPlayerHohoema
 
         protected override Task OnResumeApplicationAsync(IActivatedEventArgs args)
         {
-            var hohoemaApp = Container.Resolve<HohoemaApp>();
-
-            try
-            {
-                hohoemaApp.Resumed();
-            }
-            catch
-            {
-                Debug.WriteLine("アプリモデルの復帰処理でエラーを検出しました。");
-                throw;
-            }
 
             return base.OnResumeApplicationAsync(args);
         }
@@ -340,21 +344,8 @@ namespace NicoPlayerHohoema
         
         protected override async Task OnActivateApplicationAsync(IActivatedEventArgs args)
 		{
-            var pageManager = Container.Resolve<PageManager>();
-            var hohoemaApp = Container.Resolve<HohoemaApp>();
-
-            try
-            {
-                if (!hohoemaApp.IsLoggedIn && AccountManager.HasPrimaryAccount())
-                {
-                    await hohoemaApp.SignInWithPrimaryAccount();
-                }
-            }
-            catch { }
-
-            // ログインしていない場合、
-            bool isNeedNavigationDefault = !hohoemaApp.IsLoggedIn;
-
+            var pageManager = Container.Resolve<Services.PageManager>();
+            
             
             if (args.Kind == ActivationKind.ToastNotification)
             {
@@ -406,7 +397,8 @@ namespace NicoPlayerHohoema
                         var videoId = decode.GetFirstValueByName("id");
                         var quality = (NicoVideoQuality)Enum.Parse(typeof(NicoVideoQuality), decode.GetFirstValueByName("quality"));
 
-                        await hohoemaApp.CacheManager.CancelCacheRequest(videoId, quality);
+                        var cacheManager = Container.Resolve<Models.Cache.VideoCacheManager>();
+                        await cacheManager.CancelCacheRequest(videoId, quality);
                     }
                     else
                     {
@@ -444,18 +436,11 @@ namespace NicoPlayerHohoema
             }
             else
             {
-                if (hohoemaApp.IsLoggedIn)
-                {
-                    pageManager.OpenStartupPage();
-                }
-                else
-                {
-                    pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
-                }
+                pageManager.OpenStartupPage();
             }
-            
-			
-			await base.OnActivateApplicationAsync(args);
+
+
+            await base.OnActivateApplicationAsync(args);
 		}
 
 
@@ -490,55 +475,26 @@ namespace NicoPlayerHohoema
 
         private void PlayVideoFromExternal(string videoId, string videoTitle = null, NicoVideoQuality? quality = null)
         {
-            var hohoemaApp = Container.Resolve<HohoemaApp>();
-            var pageManager = Container.Resolve<PageManager>();
+            var playlist = Container.Resolve<HohoemaPlaylist>();
 
             // TODO: ログインが必要な動画かをチェックしてログインダイアログを出す
 
-            hohoemaApp.Playlist.PlayVideo(videoId, videoTitle, quality);
+            playlist.PlayVideo(videoId, videoTitle, quality);
         }
         private void PlayLiveVideoFromExternal(string videoId)
         {
             // TODO: ログインが必要な生放送かをチェックしてログインダイアログを出す
 
+            var playlist = Container.Resolve<HohoemaPlaylist>();
 
-            var pageManager = Container.Resolve<PageManager>();
-            var hohoemaApp = Container.Resolve<HohoemaApp>();
-
-            hohoemaApp.Playlist.PlayLiveVideo(videoId);
+            playlist.PlayLiveVideo(videoId);
         }
 
 
-		/// <summary>
-		/// 動画キャッシュ保存先フォルダをチェックします
-		/// 選択済みだがフォルダが見つからない場合に、トースト通知を行います。
-		/// </summary>
-		/// <returns></returns>
-		public async Task CheckVideoCacheFolderState()
-		{
-			var hohoemaApp = Container.Resolve<HohoemaApp>();
-			var cacheFolderState = await hohoemaApp.GetVideoCacheFolderState();
-
-			if (cacheFolderState == CacheFolderAccessState.SelectedButNotExist)
-			{
-				var toastService = Container.Resolve<Services.NotificationService>();
-				toastService.ShowToast(
-					"キャッシュが利用できません"
-					, "キャッシュ保存先フォルダが見つかりません。（ここをタップで設定画面を表示）"
-					, duration: Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long
-					, toastActivatedAction: async () =>
-					{
-						await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
-						{
-							var pm = Container.Resolve<PageManager>();
-							pm.OpenPage(HohoemaPageType.CacheManagement);
-						});
-					});
-			}
-		}
+		
 
 
-#region Page and Application Appiarance
+        #region Page and Application Appiarance
 
         protected override IDeviceGestureService OnCreateDeviceGestureService()
         {
@@ -587,9 +543,9 @@ namespace NicoPlayerHohoema
 
         protected override Type GetPageType(string pageToken)
         {
-            var hohoemaApp = Container.Resolve<HohoemaApp>();
-            var isForceTVModeEnable = hohoemaApp?.UserSettings?.AppearanceSettings.IsForceTVModeEnable ?? false;
-            var isForceMobileModeEnable = hohoemaApp?.UserSettings?.AppearanceSettings.IsForceMobileModeEnable ?? false;
+            var appearanceSettings = Container.Resolve<AppearanceSettings>();
+            var isForceTVModeEnable = appearanceSettings.IsForceTVModeEnable;
+            var isForceMobileModeEnable = appearanceSettings.IsForceMobileModeEnable;
 
             Type viewType = null;
             if (isForceTVModeEnable || Services.Helpers.DeviceTypeHelper.IsXbox)
@@ -871,13 +827,13 @@ namespace NicoPlayerHohoema
 
         public async Task OutputErrorFile(Exception e, string pageName = null)
         {
-            var pageManager = Container.Resolve<PageManager>();
+            var pageManager = Container.Resolve<Services.PageManager>();
             if (pageName == null)
             {
                 pageName = pageManager.CurrentPageType.ToString();
             }
 
-            var hohoemaApp = Container.Resolve<HohoemaApp>();
+            var niconicoSession = Container.Resolve<NiconicoSession>();
 
 
             try
@@ -893,8 +849,8 @@ namespace NicoPlayerHohoema
                     Time = DateTime.Now,
                     RecentOpenedPageName = pageName,
                     IsInternetAvailable = Models.Helpers.InternetConnection.IsInternet(),
-                    IsLoggedIn = hohoemaApp.IsLoggedIn,
-                    IsPremiumAccount = hohoemaApp.IsPremiumUser,
+                    IsLoggedIn = niconicoSession.IsLoggedIn,
+                    IsPremiumAccount = niconicoSession.IsPremiumAccount,
                     ErrorMessage = e.ToString(),
                     DeviceType = Microsoft.Toolkit.Uwp.Helpers.SystemInformation.DeviceFamily,
                     OperatingSystem = Microsoft.Toolkit.Uwp.Helpers.SystemInformation.OperatingSystem,
@@ -962,8 +918,7 @@ namespace NicoPlayerHohoema
 
         private async Task ProcessToastNotificationActivation(string arguments, ValueSet userInput)
         {
-            var hohoemaApp = Container.Resolve<HohoemaApp>();
-
+            
             // Perform tasks
             if (arguments == ACTIVATION_WITH_ERROR)
             {
@@ -982,16 +937,19 @@ namespace NicoPlayerHohoema
             }
             else if (arguments.StartsWith("cache_cancel"))
             {
+                var cacheManager = Container.Resolve<Models.Cache.VideoCacheManager>();
+
                 var query = arguments.Split('?')[1];
                 var decode = new WwwFormUrlDecoder(query);
 
                 var videoId = decode.GetFirstValueByName("id");
                 var quality = (NicoVideoQuality)Enum.Parse(typeof(NicoVideoQuality), decode.GetFirstValueByName("quality"));
 
-                await hohoemaApp.CacheManager.CancelCacheRequest(videoId, quality);
+                await cacheManager.CancelCacheRequest(videoId, quality);
             }
         }
 
+        /*
         private async void UINavigationManager_Pressed(Views.UINavigationManager sender, Views.UINavigationButtons buttons)
         {
             await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
@@ -1007,7 +965,7 @@ namespace NicoPlayerHohoema
                 }
             });
         }
-
+        */
 
 
 

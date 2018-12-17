@@ -21,7 +21,7 @@ namespace NicoPlayerHohoema.Commands
 
                 // TODO: MessageDialogによるフォロー解除の確認
 
-                var followManager = HohoemaCommnadHelper.GetHohoemaApp().FollowManager;
+                var followManager = HohoemaCommnadHelper.GetFollowManager();
                 var followType = GetFollowItemType(parameter as Interfaces.IFollowable);
                 string id;
                 if (parameter is Interfaces.INiconicoContent)

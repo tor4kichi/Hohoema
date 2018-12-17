@@ -13,29 +13,32 @@ namespace NicoPlayerHohoema.Commands.Mylist
     {
         protected override bool CanExecute(object parameter)
         {
-            return true;
+            if (parameter == null) { return false; }
+
+            return parameter is Interfaces.IVideoContent || Mntone.Nico2.NiconicoRegex.IsVideoId(parameter as string);
         }
 
         protected override async void Execute(object parameter)
         {
-            var hohoemaApp = HohoemaCommnadHelper.GetHohoemaApp();
-            var playlist = hohoemaApp.Playlist;
-
+            var localMylistManager = HohoemaCommnadHelper.GetLocalMylistManager();
+            
             var dialogService = App.Current.Container.Resolve<Services.DialogService>();
             var data = new Dialogs.MylistGroupEditData() { };
             var result = await dialogService.GetTextAsync("新しいローカルマイリストを作成", "ローカルマイリスト名", "", (s) => !string.IsNullOrWhiteSpace(s));
             if (result != null)
             {
-                var newMylist = playlist.CreatePlaylist(Guid.NewGuid().ToString(), result);
+                var localMylist = new Models.LocalMylist.LocalMylistGroup(Guid.NewGuid().ToString(), result);
+                localMylistManager.LocalMylistGroups.Add(localMylist);
 
-                Debug.WriteLine("ローカルマイリスト作成：" + newMylist.Label);
+                Debug.WriteLine("ローカルマイリスト作成：" + result);
 
-                if (parameter is Interfaces.IVideoContent || parameter is string)
+                if (parameter is Interfaces.IVideoContent content)
                 {
-                    if (newMylist.AddItemCommand?.CanExecute(parameter) ?? false)
-                    {
-                        newMylist.AddItemCommand.Execute(parameter);
-                    }
+                    await localMylist.AddMylistItem(content.Id);
+                }
+                else if (parameter is string itemId)
+                {
+                    await localMylist.AddMylistItem(itemId);
                 }
             }
 

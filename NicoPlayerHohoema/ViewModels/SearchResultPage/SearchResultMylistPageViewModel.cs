@@ -13,12 +13,25 @@ using System.Collections.Async;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.Models.Provider;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class SearchResultMylistPageViewModel : HohoemaListingPageViewModelBase<IPlayableList>
+    public class SearchResultMylistPageViewModel : HohoemaListingPageViewModelBase<Interfaces.IMylist>
 	{
-		public MylistSearchPagePayloadContent SearchOption { get; private set; }
+        public SearchResultMylistPageViewModel(
+            SearchProvider searchProvider,
+            Services.PageManager pageManager
+            )
+            : base(pageManager, useDefaultPageTitle: false)
+        {
+            SelectedSearchSort = new ReactivePropertySlim<SearchSortOptionListItem>();
+            SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
+            SearchProvider = searchProvider;
+        }
+
+
+        public MylistSearchPagePayloadContent SearchOption { get; private set; }
 
         public static IReadOnlyList<SearchSortOptionListItem> MylistSearchOptionListItems { get; private set; }
 
@@ -111,16 +124,6 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        public SearchResultMylistPageViewModel(
-			HohoemaApp hohoemaApp
-			, PageManager pageManager
-			) 
-			: base(hohoemaApp, pageManager, useDefaultPageTitle: false)
-		{
-            SelectedSearchSort = new ReactivePropertySlim<SearchSortOptionListItem>();
-            SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
-        }
-
 
 		#region Commands
 
@@ -137,6 +140,8 @@ namespace NicoPlayerHohoema.ViewModels
 					}));
 			}
 		}
+
+        public SearchProvider SearchProvider { get; }
 
         #endregion
 
@@ -194,7 +199,7 @@ namespace NicoPlayerHohoema.ViewModels
         #region Implement HohoemaVideListViewModelBase
 
 
-        protected override IIncrementalSource<IPlayableList> GenerateIncrementalSource()
+        protected override IIncrementalSource<Interfaces.IMylist> GenerateIncrementalSource()
 		{
 			return new MylistSearchSource(new MylistSearchPagePayloadContent()
             {
@@ -202,8 +207,7 @@ namespace NicoPlayerHohoema.ViewModels
                 Sort = SearchOption.Sort,
                 Order = SearchOption.Order
             } 
-            , HohoemaApp
-            , PageManager
+            , SearchProvider
             );
 		}
 
@@ -225,24 +229,25 @@ namespace NicoPlayerHohoema.ViewModels
 		#endregion
 	}
 
-	public class MylistSearchSource : IIncrementalSource<IPlayableList>
+	public class MylistSearchSource : IIncrementalSource<Interfaces.IMylist>
 	{
-		public int MaxPageCount { get; private set; }
+        public MylistSearchSource(
+            MylistSearchPagePayloadContent searchOption,
+            SearchProvider searchProvider
+            )
+        {
+            SearchOption = searchOption;
+            SearchProvider = searchProvider;
+        }
 
-		HohoemaApp _HohoemaApp;
-		PageManager _PageManager;
+
+        public int MaxPageCount { get; private set; }
+
 		public MylistSearchPagePayloadContent SearchOption { get; private set; }
-		
-		private MylistSearchResponse _MylistGroupResponse;
+        public SearchProvider SearchProvider { get; }
 
+        private MylistSearchResponse _MylistGroupResponse;
 
-
-		public MylistSearchSource(MylistSearchPagePayloadContent searchOption, HohoemaApp hohoemaApp, PageManager pageManager)
-		{
-			_HohoemaApp = hohoemaApp;
-			_PageManager = pageManager;
-			SearchOption = searchOption;
-		}
 
 
 
@@ -260,7 +265,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public async Task<int> ResetSource()
 		{
 			// Note: 件数が1だとJsonのParseがエラーになる
-			_MylistGroupResponse = await _HohoemaApp.NiconicoContext.Search.MylistSearchAsync(
+			_MylistGroupResponse = await SearchProvider.MylistSearchAsync(
 				SearchOption.Keyword,
 				0,
 				2,
@@ -274,9 +279,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		
 
-		public async Task<IAsyncEnumerable<IPlayableList>> GetPagedItems(int head, int count)
+		public async Task<IAsyncEnumerable<Interfaces.IMylist>> GetPagedItems(int head, int count)
 		{
-			var response = await _HohoemaApp.NiconicoContext.Search.MylistSearchAsync(
+			var response = await SearchProvider.MylistSearchAsync(
 				SearchOption.Keyword
 				, (uint)head
 				, (uint)count
@@ -285,9 +290,16 @@ namespace NicoPlayerHohoema.ViewModels
 			);
 
             return response.MylistGroupItems?
-                .Select(item => new OtherOwneredMylist(item) as IPlayableList)
+                .Select(item => new OtherOwneredMylist(item.VideoInfoItems.Select(x => x.Video.Id).ToList() ?? Enumerable.Empty<string>().ToList())
+                {
+                    Label = item.Name,
+                    Description = item.Description,
+                    ItemCount = (int)item.ItemCount,
+
+                    
+                } as Interfaces.IMylist)
                 .ToAsyncEnumerable()
-            ?? AsyncEnumerable.Empty<IPlayableList>();
+            ?? AsyncEnumerable.Empty<Interfaces.IMylist>();
         }
 	}
 }

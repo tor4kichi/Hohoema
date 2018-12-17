@@ -15,50 +15,22 @@ using System.Reactive.Disposables;
 using Microsoft.Toolkit.Uwp.Helpers;
 using Windows.UI.Notifications;
 using Microsoft.Toolkit.Uwp.Notifications;
+using NicoPlayerHohoema.Models.Subscription;
+using NicoPlayerHohoema.Models;
 
-namespace NicoPlayerHohoema.Models.Subscription
+namespace NicoPlayerHohoema.Services
 {
     public class WatchItLater : BindableBase, IDisposable
     {
-        public static WatchItLater Instance { get; } = new WatchItLater(SubscriptionManager.Instance);
-
-        public Models.NiconicoContentProvider ContentProvider { get; set; }
-
-
-        public static readonly TimeSpan DefaultAutoUpdateInterval = TimeSpan.FromMinutes(15);
-
-        private bool _IsAutoUpdateEnabled = true;
-        public bool IsAutoUpdateEnabled
+        public WatchItLater(
+            SubscriptionManager subscriptionManager,
+            Models.Provider.LoginUserHistoryProvider loginUserDataProvider,
+            Services.Helpers.MylistHelper mylistHelper
+            )
         {
-            get { return _IsAutoUpdateEnabled; }
-            set { SetProperty(ref _IsAutoUpdateEnabled, value); }
-        }
-
-
-        private TimeSpan _AutoUpdateInterval = DefaultAutoUpdateInterval;
-        public TimeSpan AutoUpdateInterval
-        {
-            get { return _AutoUpdateInterval; }
-            set { SetProperty(ref _AutoUpdateInterval, value); }
-        }
-
-
-
-        public AsyncReactiveCommand Refresh { get; }
-
-
-
-        SubscriptionManager _SubscriptionManager;
-        CompositeDisposable _disposables = new CompositeDisposable();
-        IDisposable _autoUpdateDisposer;
-
-
-
-
-        private WatchItLater(SubscriptionManager subscriptionManager)
-        {
-            _SubscriptionManager = subscriptionManager;
-
+            SubscriptionManager = subscriptionManager;
+            LoginUserDataProvider = loginUserDataProvider;
+            MylistHelper = mylistHelper;
             Refresh = new AsyncReactiveCommand();
             Refresh.Subscribe(async () => await Update())
                 .AddTo(_disposables);
@@ -104,8 +76,40 @@ namespace NicoPlayerHohoema.Models.Subscription
                 .AddTo(_disposables);
         }
 
-        
 
+
+
+        public static readonly TimeSpan DefaultAutoUpdateInterval = TimeSpan.FromMinutes(15);
+
+        private bool _IsAutoUpdateEnabled = true;
+        public bool IsAutoUpdateEnabled
+        {
+            get { return _IsAutoUpdateEnabled; }
+            set { SetProperty(ref _IsAutoUpdateEnabled, value); }
+        }
+
+
+        private TimeSpan _AutoUpdateInterval = DefaultAutoUpdateInterval;
+        public TimeSpan AutoUpdateInterval
+        {
+            get { return _AutoUpdateInterval; }
+            set { SetProperty(ref _AutoUpdateInterval, value); }
+        }
+
+
+
+        public AsyncReactiveCommand Refresh { get; }
+
+        public SubscriptionManager SubscriptionManager { get; }
+        public Models.Provider.LoginUserHistoryProvider LoginUserDataProvider { get; }
+        public Services.Helpers.MylistHelper MylistHelper { get; }
+        CompositeDisposable _disposables { get; } = new CompositeDisposable();
+
+        IDisposable _autoUpdateDisposer;
+        AsyncLock _UpdateLock = new AsyncLock();
+
+
+        
 
         public void Dispose()
         {
@@ -120,7 +124,6 @@ namespace NicoPlayerHohoema.Models.Subscription
         }
 
 
-        AsyncLock _UpdateLock = new AsyncLock();
 
         private async void StartOrResetAutoUpdate()
         {
@@ -168,11 +171,11 @@ namespace NicoPlayerHohoema.Models.Subscription
                 NewItemsPerPlayableList.Clear();
 
                 // 視聴履歴を取得して再生済み動画の情報を更新する
-                _ = ContentProvider?.GetHistory();
+                _ = LoginUserDataProvider.GetHistory();
 
 #if true
                 // TODO: 前回更新時間から15分以上経っているか確認
-                return _SubscriptionManager.GetSubscriptionFeedResultAsObservable(withoutDisabled: true)
+                return SubscriptionManager.GetSubscriptionFeedResultAsObservable(withoutDisabled: true)
                     .Subscribe(info =>
                     {
                         Debug.WriteLine($"購読 {info.Subscription.Label} - {info.Source?.Label}");
@@ -201,7 +204,7 @@ namespace NicoPlayerHohoema.Models.Subscription
                             Debug.WriteLine($"{info.Subscription.Label} - {info.Source?.Label} -> {string.Join(",", filterdNewItems.Select(x => x.RawVideoId))}");
 
                             // 新着動画を対象プレイリストに追加
-                            WatchItLater.NewVideosAddToDestinations(info.Subscription.Destinations, filterdNewItems);
+                            NewVideosAddToDestinations(info.Subscription.Destinations, filterdNewItems);
 
                             // トースト通知を発行
                             ShowNewVideosToastNotification(info.Subscription, info.Source.Value, info.NewFeedItems);
@@ -235,30 +238,25 @@ namespace NicoPlayerHohoema.Models.Subscription
         private const string TOAST_GROUP = nameof(WatchItLater);
         private const string TOAST_HEADER_ID = nameof(WatchItLater);
 
-        private Dictionary<IPlayableList, Tuple<IList<Database.NicoVideo>, IList<Subscription>>> NewItemsPerPlayableList = new Dictionary<IPlayableList, Tuple<IList<Database.NicoVideo>, IList<Subscription>>>();
+        private Dictionary<Interfaces.IMylist, Tuple<IList<Database.NicoVideo>, IList<Subscription>>> NewItemsPerPlayableList = new Dictionary<Interfaces.IMylist, Tuple<IList<Database.NicoVideo>, IList<Subscription>>>();
         
 
         private void ShowNewVideosToastNotification(Subscription subscription, SubscriptionSource source, IEnumerable<Database.NicoVideo> newItems)
         {
-            var hohoemaPlaylist = (App.Current as App).Container.Resolve<HohoemaPlaylist>();
             var mylistMan = (App.Current as App).Container.Resolve<UserMylistManager>();
-
-            var hohoemaApp = (App.Current as App).Container.Resolve<HohoemaApp>();
-
-            //Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.PreCacheAsync
 
             // TODO: プレイリスト毎にまとめたほうがいい？
 
             foreach (var dest in subscription.Destinations)
             {
-                IPlayableList list = null;
+                Interfaces.IMylist list = null;
                 if (dest.Target == SubscriptionDestinationTarget.LocalPlaylist)
                 {
-                    list = hohoemaApp.GetPlayableListInLocal(dest.PlaylistId, PlaylistOrigin.Local);
+                    list = MylistHelper.FindMylistInCached(dest.PlaylistId, PlaylistOrigin.Local);
                 }
                 else if (dest.Target == SubscriptionDestinationTarget.LoginUserMylist)
                 {
-                    list = hohoemaApp.GetPlayableListInLocal(dest.PlaylistId, PlaylistOrigin.LoginUser);
+                    list = MylistHelper.FindMylistInCached(dest.PlaylistId, PlaylistOrigin.LoginUser);
 
                 }
 
@@ -365,37 +363,27 @@ namespace NicoPlayerHohoema.Models.Subscription
         
 
 
-        private static void NewVideosAddToDestinations(IEnumerable<SubscriptionDestination> destinations, IEnumerable<Database.NicoVideo> newItems)
-        {
-            var hohoemaPlaylist = (App.Current as App).Container.Resolve<HohoemaPlaylist>();
-            var mylistMan = (App.Current as App).Container.Resolve<UserMylistManager>();
-
-            var hohoemaApp = (App.Current as App).Container.Resolve<HohoemaApp>();
-            
+        private void NewVideosAddToDestinations(IEnumerable<SubscriptionDestination> destinations, IEnumerable<Database.NicoVideo> newItems)
+        {            
             // あとで見るに追加
             foreach (var dest in destinations)
             {
+                var origin = default(PlaylistOrigin?);
                 if (dest.Target == SubscriptionDestinationTarget.LocalPlaylist)
                 {
-                    var localMylist = hohoemaApp.GetPlayableListInLocal(dest.PlaylistId, PlaylistOrigin.Local) as LocalMylist;
-                    if (localMylist == null)
-                    {
-                        return;
-                    }
-                    foreach (var video in newItems)
-                    {
-                        localMylist.AddVideo(video.RawVideoId, video.Title);
-                    }
+                    origin = PlaylistOrigin.Local;
                 }
                 else if (dest.Target == SubscriptionDestinationTarget.LoginUserMylist)
                 {
-                    var localMylist = hohoemaApp.GetPlayableListInLocal(dest.PlaylistId, PlaylistOrigin.LoginUser) as MylistGroupInfo;
-                    var userMylist = mylistMan.GetMylistGroup(dest.PlaylistId);
-                    if (userMylist == null) { throw new Exception(); }
+                    origin = PlaylistOrigin.LoginUser;
+                }
 
+                var mylist = MylistHelper.FindMylistInCached(dest.PlaylistId, origin);
+                if (mylist is Interfaces.IUserOwnedMylist ownedMylist)
+                {
                     foreach (var video in newItems)
                     {
-                        _ = userMylist.Registration(video.RawVideoId);
+                        _ = ownedMylist.AddMylistItem(video.RawVideoId);
                     }
                 }
             }

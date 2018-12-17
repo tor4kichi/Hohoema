@@ -7,13 +7,10 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Interfaces
 {
-
     public interface IVideoContent : INiconicoContent
     {
         string OwnerUserId { get; }
         string OwnerUserName { get; }
         UserType OwnerUserType { get; }
-
-        Models.IPlayableList Playlist { get; }
     }
 }

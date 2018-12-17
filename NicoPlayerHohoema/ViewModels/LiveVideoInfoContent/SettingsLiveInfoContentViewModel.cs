@@ -14,8 +14,24 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 {
 	public class SettingsLiveInfoContentViewModel : LiveInfoContentViewModelBase
 	{
-		public static List<Color> CommentColorList { get; private set; }
-		public static List<uint> CommentRenderringFPSList { get; private set; }
+        public SettingsLiveInfoContentViewModel(NicoLiveVideo liveVideo, PlayerSettings playerSettings)
+        {
+            PlayerSettings = playerSettings;
+
+            CommentRenderingFPS = PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentRenderingFPS)
+                .AddTo(_CompositeDisposable);
+            CommentDisplayDuration = PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentDisplayDuration, x => x.TotalSeconds, x => TimeSpan.FromSeconds(x))
+                .AddTo(_CompositeDisposable);
+            CommentFontScale = PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentFontScale)
+                .AddTo(_CompositeDisposable);
+            CommentColor = PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentColor)
+                .AddTo(_CompositeDisposable);
+            ScrollVolumeFrequency = PlayerSettings.ToReactivePropertyAsSynchronized(x => x.SoundVolumeChangeFrequency)
+                .AddTo(_CompositeDisposable);
+        }
+
+        static public List<Color> CommentColorList { get; private set; }
+        static public List<uint> CommentRenderringFPSList { get; private set; }
 
 		static SettingsLiveInfoContentViewModel()
 		{
@@ -31,30 +47,16 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 			};
 		}
 
-		public SettingsLiveInfoContentViewModel(NicoLiveVideo liveVideo, HohoemaApp hohoemaApp)
-		{
-			_PlayerSettings = hohoemaApp.UserSettings.PlayerSettings;
+
+        public PlayerSettings PlayerSettings { get; }
 
 
-			CommentRenderingFPS = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentRenderingFPS)
-				.AddTo(_CompositeDisposable);
-			CommentDisplayDuration = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentDisplayDuration, x => x.TotalSeconds, x => TimeSpan.FromSeconds(x))
-				.AddTo(_CompositeDisposable);
-			CommentFontScale = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentFontScale)
-				.AddTo(_CompositeDisposable);
-			CommentColor = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentColor)
-				.AddTo(_CompositeDisposable);
-			ScrollVolumeFrequency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.SoundVolumeChangeFrequency)
-				.AddTo(_CompositeDisposable);
-		}
-
-
-		public ReactiveProperty<uint> CommentRenderingFPS { get; private set; }
+        public ReactiveProperty<uint> CommentRenderingFPS { get; private set; }
 		public ReactiveProperty<double> CommentDisplayDuration { get; private set; }
 		public ReactiveProperty<double> CommentFontScale { get; private set; }
 		public ReactiveProperty<Color> CommentColor { get; private set; }
 		public ReactiveProperty<double> ScrollVolumeFrequency { get; private set; }
 
-		private PlayerSettings _PlayerSettings;
+		
 	}
 }

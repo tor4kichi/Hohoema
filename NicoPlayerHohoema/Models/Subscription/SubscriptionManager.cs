@@ -21,7 +21,7 @@ namespace NicoPlayerHohoema.Models.Subscription
         #region Migrate Feed to Subscription
 
 
-        static void MigrateFeedGroupToSubscriptionManager()
+        public static void MigrateFeedGroupToSubscriptionManager(SubscriptionManager instance)
         {
             var localObjectStorageHelper = new LocalObjectStorageHelper();
 
@@ -57,7 +57,7 @@ namespace NicoPlayerHohoema.Models.Subscription
 
                 if (subsc.Sources.Any())
                 {
-                    Instance.Subscriptions.Add(subsc);
+                    instance.Subscriptions.Add(subsc);
 
                     localObjectStorageHelper.Save(nameof(MigrateFeedGroupToSubscriptionManager), true);
                 }
@@ -72,50 +72,24 @@ namespace NicoPlayerHohoema.Models.Subscription
         #endregion
 
 
-        #region Singleton Pattern
 
-        public static SubscriptionManager Instance { get; }
-
-
-
-        public bool IsInitialized { get; private set; } = false;
-
-        public static void Initialize(Models.NiconicoContentProvider contentProvider, Services.NotificationService notificationService)
+       
+        public SubscriptionManager(
+            Provider.ChannelProvider channelProvider,
+            Provider.SearchProvider searchProvider,
+            Provider.UserProvider userProvider,
+            Provider.MylistProvider mylistProvider,
+            Services.NotificationService notificationService
+            
+            )
         {
-            Instance._ContentProvider = contentProvider;
-            Instance.NotificationService = notificationService;
+            ChannelProvider = channelProvider;
+            SearchProvider = searchProvider;
+            UserProvider = userProvider;
+            MylistProvider = mylistProvider;
+            NotificationService = notificationService;
 
-            MigrateFeedGroupToSubscriptionManager();
-
-            Instance.IsInitialized = true;
-        }
-
-
-        void ThrowExceptionIfNotInitialized()
-        {
-            if (!IsInitialized) { throw new Exception("SubscriptionManager is not initialized. "); }
-        }
-
-        static SubscriptionManager()
-        {
             var storedSubscriptions = Database.Local.Subscription.SubscriptionDb.GetOrderedSubscriptions();
-            Instance = new SubscriptionManager(storedSubscriptions);
-        }
-
-
-        #endregion
-
-
-
-        Models.NiconicoContentProvider _ContentProvider;
-        Services.NotificationService NotificationService;
-
-        AsyncLock _UpdateLock = new AsyncLock();
-
-        public ObservableCollection<Subscription> Subscriptions { get; }
-
-        SubscriptionManager(IEnumerable<Subscription> storedSubscriptions)
-        {
             Subscriptions = new ObservableCollection<Subscription>(storedSubscriptions);
 
             Subscriptions.CollectionChangedAsObservable()
@@ -159,9 +133,23 @@ namespace NicoPlayerHohoema.Models.Subscription
             {
                 SubscribeSubscriptionChanged(firstItem);
             }
+
+            
         }
 
-        public static Subscription CreateNewSubscription(string label)
+
+        AsyncLock _UpdateLock = new AsyncLock();
+
+        public ObservableCollection<Subscription> Subscriptions { get; }
+
+        public Provider.ChannelProvider ChannelProvider { get; }
+        public Provider.SearchProvider SearchProvider { get; }
+        public Provider.UserProvider UserProvider { get; }
+        public Provider.MylistProvider MylistProvider { get; }
+        public Services.NotificationService NotificationService { get; }
+
+
+        static public Subscription CreateNewSubscription(string label)
         {
             return new Subscription(Guid.NewGuid(), label);
         }
@@ -185,7 +173,7 @@ namespace NicoPlayerHohoema.Models.Subscription
 
                         // TODO: "あとで見る"の多言語対応
                         newSubscription.Destinations.Add(new SubscriptionDestination("あとで見る", SubscriptionDestinationTarget.LocalPlaylist, HohoemaPlaylist.WatchAfterPlaylistId));
-                        SubscriptionManager.Instance.Subscriptions.Insert(0, newSubscription);
+                        Subscriptions.Insert(0, newSubscription);
 
                         // TODO: ソースアイテムの選択ダイアログ？を表示する
 
@@ -239,7 +227,7 @@ namespace NicoPlayerHohoema.Models.Subscription
                         try
                         {
                             Debug.WriteLine($"購読ソース: {item.Parameter}({item.SourceType}) のラベルが無いのでオンラインから取得します。");
-                            var tuple = await SubscriptionManager.ResolveSubscriptionSourceLabel(item, _ContentProvider);
+                            var tuple = await ResolveSubscriptionSourceLabel(item);
 
                             
                             if (tuple != null)
@@ -334,21 +322,21 @@ namespace NicoPlayerHohoema.Models.Subscription
 
         int _prevRemovedSourceHashId;
 
-        private static async Task<Tuple<string, string>> ResolveSubscriptionSourceLabel(SubscriptionSource source, NiconicoContentProvider contentProvider)
+        private async Task<Tuple<string, string>> ResolveSubscriptionSourceLabel(SubscriptionSource source)
         {
             switch (source.SourceType)
             {
                 case SubscriptionSourceType.User:
-                    var info = await contentProvider.GetUserInfo(source.Parameter);
-                    return new Tuple<string, string>(info.Nickname, null);
+                    var info = await UserProvider.GetUser(source.Parameter);
+                    return new Tuple<string, string>(info.ScreenName, null);
                 case SubscriptionSourceType.Channel:
-                    var channelInfo = await contentProvider.GetChannelInfo(source.Parameter);
+                    var channelInfo = await ChannelProvider.GetChannelInfo(source.Parameter);
                     return new Tuple<string, string>(channelInfo.Name, null);
                 case SubscriptionSourceType.Mylist:
-                    var mylistInfo = await contentProvider.GetMylistGroupDetail(source.Parameter);
-                    var mylistOwner = await contentProvider.GetUserInfo(mylistInfo.MylistGroup.UserId);
+                    var mylistInfo = await MylistProvider.GetMylistGroupDetail(source.Parameter);
+                    var mylistOwner = await UserProvider.GetUser(mylistInfo.MylistGroup.UserId);
 
-                    return new Tuple<string, string>(mylistInfo.MylistGroup.Name, mylistOwner.Nickname);
+                    return new Tuple<string, string>(mylistInfo.MylistGroup.Name, mylistOwner.ScreenName);
                 case SubscriptionSourceType.TagSearch:
                     return new Tuple<string, string>(source.Parameter, null);
                 case SubscriptionSourceType.KeywordSearch:
@@ -411,46 +399,37 @@ namespace NicoPlayerHohoema.Models.Subscription
 
         static readonly Action<Subscription, int> SetSubscriptionStatusToPendingOnUI = (subsc, updateTargetCount) =>
         {
-            _ = HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-            {
-                if (SubscriptionUpdateStatus.UpdatePending == subsc.Status) { return; }
+            if (SubscriptionUpdateStatus.UpdatePending == subsc.Status) { return; }
 
-                subsc.UpdateTargetCount = updateTargetCount;
-                subsc.UpdateCompletedCount = 0;
-                subsc.Status = updateTargetCount > 0 ? SubscriptionUpdateStatus.UpdatePending : SubscriptionUpdateStatus.Complete;
+            subsc.UpdateTargetCount = updateTargetCount;
+            subsc.UpdateCompletedCount = 0;
+            subsc.Status = updateTargetCount > 0 ? SubscriptionUpdateStatus.UpdatePending : SubscriptionUpdateStatus.Complete;
 
-                Debug.WriteLine($"{subsc.Label} : {subsc.Status}");
-            });
+            Debug.WriteLine($"{subsc.Label} : {subsc.Status}");
         };
         static readonly Action<Subscription> SetSubscriptionStatusToUpdatingOnUI = (subsc) =>
         {
-            _ = HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-            {
-                if (SubscriptionUpdateStatus.NowUpdating == subsc.Status) { return; }
+            if (SubscriptionUpdateStatus.NowUpdating == subsc.Status) { return; }
 
-                subsc.Status = SubscriptionUpdateStatus.NowUpdating;
+            subsc.Status = SubscriptionUpdateStatus.NowUpdating;
 
-                Debug.WriteLine($"{subsc.Label} : {subsc.Status}");
-            });
+            Debug.WriteLine($"{subsc.Label} : {subsc.Status}");
         };
 
-        static readonly Action<Subscription> SetSubscriptionUpdateCompletedOnUI = (subsc) =>
+        static readonly Action<Subscription> SetSubscriptionUpdateCompletedOnUI = async (subsc) =>
         {
-            _ = HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+            if (SubscriptionUpdateStatus.Complete == subsc.Status) { return; }
+
+            subsc.UpdateCompletedCount++;
+
+            if (subsc.UpdateCompletedCount >= subsc.UpdateTargetCount)
             {
-                if (SubscriptionUpdateStatus.Complete == subsc.Status) { return; }
+                await Task.Delay(TimeSpan.FromSeconds(1));
 
-                subsc.UpdateCompletedCount++;
+                subsc.Status = SubscriptionUpdateStatus.Complete;
+            }
 
-                if (subsc.UpdateCompletedCount >= subsc.UpdateTargetCount)
-                {
-                    await Task.Delay(TimeSpan.FromSeconds(1));
-
-                    subsc.Status = SubscriptionUpdateStatus.Complete;
-                }
-
-                Debug.WriteLine($"{subsc.Label} : {subsc.Status}");
-            });
+            Debug.WriteLine($"{subsc.Label} : {subsc.Status}");
         };
 
         AsyncLock _FeedResultLock = new AsyncLock();
@@ -476,8 +455,6 @@ namespace NicoPlayerHohoema.Models.Subscription
 
         public IObservable<SubscriptionUpdateInfo> GetSubscriptionFeedResultAsObservable(Subscription subscription, IEnumerable<SubscriptionSource> sources)
         {
-            ThrowExceptionIfNotInitialized();
-
             if (!Helpers.InternetConnection.IsInternet())
             {
                 subscription.Status = SubscriptionUpdateStatus.Complete;
@@ -525,19 +502,19 @@ namespace NicoPlayerHohoema.Models.Subscription
             switch (source.SourceType)
             {
                 case SubscriptionSourceType.User:
-                    items = await GetUserVideosFeedResult(source.Parameter);
+                    items = await GetUserVideosFeedResult(source.Parameter, UserProvider);
                     break;
                 case SubscriptionSourceType.Channel:
-                    items = await GetChannelVideosFeedResult(source.Parameter);
+                    items = await GetChannelVideosFeedResult(source.Parameter, ChannelProvider);
                     break;
                 case SubscriptionSourceType.Mylist:
-                    items = await GetMylistFeedResult(source.Parameter);
+                    items = await GetMylistFeedResult(source.Parameter, MylistProvider);
                     break;
                 case SubscriptionSourceType.TagSearch:
-                    items = await GetTagSearchFeedResult(source.Parameter);
+                    items = await GetTagSearchFeedResult(source.Parameter, SearchProvider);
                     break;
                 case SubscriptionSourceType.KeywordSearch:
-                    items = await GetKeywordSearchFeedResult(source.Parameter);
+                    items = await GetKeywordSearchFeedResult(source.Parameter, SearchProvider);
                     break;
                 default:
                     break;
@@ -564,13 +541,13 @@ namespace NicoPlayerHohoema.Models.Subscription
         // 取得数が40になるか、lastUpdatedよりも古いアイテムが見つかるまでデータ取得する
 
        
-        private async Task<List<Database.NicoVideo>> GetUserVideosFeedResult(string userId)
+        static private async Task<List<Database.NicoVideo>> GetUserVideosFeedResult(string userId, Provider.UserProvider userProvider)
         {
             var id = uint.Parse(userId);
             List<Database.NicoVideo> items = new List<Database.NicoVideo>();
             uint page = 1;
             
-            var res = await _ContentProvider.GetUserVideos(id, page);
+            var res = await userProvider.GetUserVideos(id, page);
 
             var videoItems = res.Items;
             var currentItemsCount = videoItems?.Count ?? 0;
@@ -595,11 +572,11 @@ namespace NicoPlayerHohoema.Models.Subscription
             return items;
         }
 
-        private async Task<List<Database.NicoVideo>> GetChannelVideosFeedResult(string channelId)
+        static private async Task<List<Database.NicoVideo>> GetChannelVideosFeedResult(string channelId, Provider.ChannelProvider channelProvider)
         {
             List<Database.NicoVideo> items = new List<Database.NicoVideo>();
             int page = 0;
-            var res = await _ContentProvider.GetChannelVideo(channelId, page);
+            var res = await channelProvider.GetChannelVideo(channelId, page);
 
             var videoItems = res.Videos;
             var currentItemsCount = videoItems?.Count ?? 0;
@@ -623,16 +600,16 @@ namespace NicoPlayerHohoema.Models.Subscription
             return items;
         }
 
-        private async Task<List<Database.NicoVideo>> GetMylistFeedResult(string mylistId)
+        static private async Task<List<Database.NicoVideo>> GetMylistFeedResult(string mylistId, Provider.MylistProvider mylistProvider)
         {
             List<Database.NicoVideo> items = new List<Database.NicoVideo>();
             int page = 0;
             const int itemGetCountPerPage = 50;
             var head = page * itemGetCountPerPage;
             var tail = head + itemGetCountPerPage;
-            var res = await _ContentProvider.GetMylistGroupVideo(mylistId, (uint)head, (uint)itemGetCountPerPage);
+            var res = await mylistProvider.GetMylistGroupVideo(mylistId, (uint)head, (uint)itemGetCountPerPage);
 
-            var videoItems = res.MylistVideoInfoItems;
+            var videoItems = res;
             var currentItemsCount = videoItems?.Count ?? 0;
             if (videoItems == null || currentItemsCount == 0)
             {
@@ -641,11 +618,7 @@ namespace NicoPlayerHohoema.Models.Subscription
             {
                 foreach (var item in videoItems)
                 {
-                    var video = Database.NicoVideoDb.Get(item.Video.Id);
-
-                    video.Title = item.Video.Title;
-                    video.PostedAt = item.Video.FirstRetrieve;
-
+                    var video = Database.NicoVideoDb.Get(item);
                     items.Add(video);
                 }
             }
@@ -653,14 +626,14 @@ namespace NicoPlayerHohoema.Models.Subscription
             return items;
         }
 
-        private async Task<List<Database.NicoVideo>> GetKeywordSearchFeedResult(string keyword)
+        static private async Task<List<Database.NicoVideo>> GetKeywordSearchFeedResult(string keyword, Provider.SearchProvider searchProvider)
         {
             List<Database.NicoVideo> items = new List<Database.NicoVideo>();
             int page = 0;
             const int itemGetCountPerPage = 50;
             
             var head = page * itemGetCountPerPage;
-            var res = await _ContentProvider.GetKeywordSearch(keyword, (uint)head, itemGetCountPerPage);
+            var res = await searchProvider.GetKeywordSearch(keyword, (uint)head, itemGetCountPerPage);
 
             var videoItems = res.VideoInfoItems;
             var currentItemsCount = videoItems?.Count ?? 0;
@@ -685,14 +658,14 @@ namespace NicoPlayerHohoema.Models.Subscription
             return items;
         }
 
-        private async Task<List<Database.NicoVideo>> GetTagSearchFeedResult(string tag)
+        static private async Task<List<Database.NicoVideo>> GetTagSearchFeedResult(string tag, Provider.SearchProvider searchProvider)
         {
             List<Database.NicoVideo> items = new List<Database.NicoVideo>();
             int page = 0;
             const int itemGetCountPerPage = 50;
 
             var head = page * itemGetCountPerPage;
-            var res = await _ContentProvider.GetTagSearch(tag, (uint)head, itemGetCountPerPage);
+            var res = await searchProvider.GetTagSearch(tag, (uint)head, itemGetCountPerPage);
 
             var videoItems = res.VideoInfoItems;
             var currentItemsCount = videoItems?.Count ?? 0;

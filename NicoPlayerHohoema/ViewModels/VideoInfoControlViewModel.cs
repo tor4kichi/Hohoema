@@ -31,32 +31,40 @@ using Windows.UI.Core;
 using Windows.UI.Xaml;
 using NicoPlayerHohoema.Services.Helpers;
 using NicoPlayerHohoema.Models.Cache;
+using NicoPlayerHohoema.Models.Provider;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 
-    public class VideoInfoControlViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContent
+    public class VideoInfoControlViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContent, Interfaces.IListViewBaseItemDeferUpdatable
     {
-        public List<Tuple<IPlayableList, Interfaces.IVideoContent>> Mylists
+        VideoInfoControlViewModel(string videoId)
         {
-            get
-            {
-                var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
-                return hohoemaApp.UserMylistManager.UserMylists.Select(x => new Tuple<IPlayableList, Interfaces.IVideoContent>(x, this)).ToList();
-            }
+            RawVideoId = videoId;
+            _CompositeDisposable = new CompositeDisposable();
         }
 
-        public List<Tuple<IPlayableList, Interfaces.IVideoContent>> LocalMylists
+        public VideoInfoControlViewModel(string videoId, NGSettings ngSettings = null, NicoVideoProvider nicoVideoProvider = null)
+            : this(videoId)
         {
-            get
-            {
-                var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
-                return hohoemaApp.Playlist.Playlists.Select(x => new Tuple<IPlayableList, Interfaces.IVideoContent>(x, this)).ToList();
-            }
+            NgSettings = ngSettings;
+            NicoVideoProvider = nicoVideoProvider;
         }
 
+        public VideoInfoControlViewModel(Database.NicoVideo nicoVideo, NGSettings ngSettings = null, NicoVideoProvider nicoVideoProvider = null)
+            : this(nicoVideo.RawVideoId)
+        {
+            Data = nicoVideo;
+            NgSettings = ngSettings;
+            NicoVideoProvider = nicoVideoProvider;
+        }
 
-        public Models.Subscription.SubscriptionManager SubscriptionManager => Models.Subscription.SubscriptionManager.Instance;
+        public Database.NicoVideo Data { get; private set; }
+
+        protected CompositeDisposable _CompositeDisposable { get; private set; }
+
+        public NicoVideoProvider NicoVideoProvider { get; }
+        public NGSettings NgSettings { get; }
 
         public string Id => RawVideoId;
 
@@ -66,8 +74,6 @@ namespace NicoPlayerHohoema.ViewModels
         public string OwnerUserName { get; private set; }
         public UserType OwnerUserType { get; private set; }
 
-        public IPlayableList Playlist => PlaylistItem?.Owner;
-
         public VideoStatus VideoStatus { get; private set; }
 
         public bool IsCacheEnabled { get; private set; }
@@ -75,93 +81,29 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ObservableCollection<CachedQualityNicoVideoListItemViewModel> CachedQualityVideos { get; } = new ObservableCollection<CachedQualityNicoVideoListItemViewModel>();
 
-
-        public PlaylistItem PlaylistItem { get; }
-
-
-        protected CompositeDisposable _CompositeDisposable { get; private set; }
-
-        static Models.Helpers.AsyncLock _DefferedUpdateLock = new Models.Helpers.AsyncLock();
-
-        bool _IsNGEnabled = false;
-        bool _IsRequireLatest = true;
-
-        IScheduler _EventShceduler;
-
-        public VideoInfoControlViewModel(string videoId, bool isNgEnabled = true, PlaylistItem playlistItem = null, IScheduler eventScheduler = null)
+        async void Interfaces.IListViewBaseItemDeferUpdatable.DeferUpdate()
         {
-            RawVideoId = videoId;
-            PlaylistItem = playlistItem;
-            _CompositeDisposable = new CompositeDisposable();
-
-            _IsNGEnabled = isNgEnabled;
-            _EventShceduler = eventScheduler;
-
-            OnDeferredUpdate().ConfigureAwait(false);
-        }
-
-        public VideoInfoControlViewModel(Database.NicoVideo nicoVideo, bool isNgEnabled = true, PlaylistItem playlistItem = null, bool requireLatest = true, IScheduler eventScheduler = null)
-        {
-            RawVideoId = nicoVideo.RawVideoId;
-            PlaylistItem = playlistItem;
-            _CompositeDisposable = new CompositeDisposable();
-
-            _IsNGEnabled = isNgEnabled;
-            _EventShceduler = eventScheduler;
-
-            _IsRequireLatest = requireLatest;
-
-            OnDeferredUpdate().ConfigureAwait(false);
-        }
-
-        protected override async Task OnDeferredUpdate()
-        {
-            // Note: 動画リストの一覧表示が終わってからサムネイル情報読み込みが掛かるようにする
-            using (var releaser = await _DefferedUpdateLock.LockAsync())
+            if (IsDisposed)
             {
-                if (IsDisposed)
-                {
-                    Debug.WriteLine("skip thumbnail loading: " + RawVideoId);
-                    return;
-                }
-
-                Database.NicoVideo info = null;
-                if (_IsRequireLatest)
-                {
-                    var contentProvider = App.Current.Container.Resolve<NiconicoContentProvider>();
-                    info = await contentProvider.GetNicoVideoInfo(RawVideoId);
-                }
-
-                // オフライン時はDBの情報を利用する
-                if (info == null)
-                {
-                    info = Database.NicoVideoDb.Get(RawVideoId);
-                }
-
-                if (_EventShceduler != null)
-                {
-                    _EventShceduler.Schedule(async () => 
-                    {
-                        SetupFromThumbnail(info);
-
-                        await RefrechCacheState();
-                    });
-                }
-                else
-                {
-                    await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
-                    {
-                        SetupFromThumbnail(info);
-
-                        await RefrechCacheState();
-                    });
-                }
+                Debug.WriteLine("skip thumbnail loading: " + RawVideoId);
+                return;
             }
-        }
 
-        protected override void OnCancelDeferrdUpdate()
-        {
-            // TODO: キャンセルの実装
+            
+            if (NicoVideoProvider != null)
+            {
+                Data = await NicoVideoProvider.GetNicoVideoInfo(RawVideoId);
+            }
+
+            // オフライン時はDBの情報を利用する
+            if (Data == null)
+            {
+                Data = Database.NicoVideoDb.Get(RawVideoId);
+            }
+
+            SetupFromThumbnail(Data);
+
+//            await RefrechCacheState();
         }
 
         public async Task RefrechCacheState()
@@ -208,16 +150,14 @@ namespace NicoPlayerHohoema.ViewModels
             Label = info.Title;
 
             // NG判定
-            if (_IsNGEnabled)
+            if (NgSettings != null)
             {
-                var hohoemaApp = App.Current.Container.Resolve<HohoemaApp>();
-
                 NGResult ngResult = null;
 
                 // タイトルをチェック
                 if (!_isTitleNgCheckProcessed && !string.IsNullOrEmpty(info.Title))
                 {
-                    ngResult = hohoemaApp.UserSettings.NGSettings.IsNGVideoTitle(info.Title);
+                    ngResult = NgSettings.IsNGVideoTitle(info.Title);
                     _isTitleNgCheckProcessed = true;
                 }
 
@@ -227,7 +167,7 @@ namespace NicoPlayerHohoema.ViewModels
                     !string.IsNullOrEmpty(info.Owner?.OwnerId)
                     )
                 {
-                    ngResult = hohoemaApp.UserSettings.NGSettings.IsNgVideoOwnerId(info.Owner.OwnerId);
+                    ngResult = NgSettings.IsNgVideoOwnerId(info.Owner.OwnerId);
                     _isOwnerIdNgCheckProcessed = true;
                 }
 
@@ -373,7 +313,6 @@ namespace NicoPlayerHohoema.ViewModels
             SetVideoDuration(data.Video.Length);
             SetDescription((int)data.Video.ViewCount, (int)data.Thread.GetCommentCount(), (int)data.Video.MylistCount);
         }
-
 
     }
 

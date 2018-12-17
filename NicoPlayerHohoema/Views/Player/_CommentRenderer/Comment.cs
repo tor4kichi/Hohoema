@@ -162,18 +162,12 @@ namespace NicoPlayerHohoema.Views
 
 
         NGSettings NGSettings { get; }
-        public Comment(VideoPlayerPageViewModel videoPlayerPageVM, NGSettings ngsettings)
+        public Comment(NGSettings ngsettings)
 		{
-			_VideoPlayerPageViewModel = videoPlayerPageVM;
             NGSettings = ngsettings;
             TextBGOffset = 1.0;
 		}
 
-		public Comment(NGSettings ngsettings)
-		{
-//			_VideoPlayerPageViewModel = videoPlayerPageVM;
-			TextBGOffset = 1.0;
-		}
 
 
 		
@@ -489,11 +483,5 @@ namespace NicoPlayerHohoema.Views
             
             return NGSettings.IsNGComment(CommentText) != null;
         }
-
-
-
-
-
-		private VideoPlayerPageViewModel _VideoPlayerPageViewModel;
 	}
 }

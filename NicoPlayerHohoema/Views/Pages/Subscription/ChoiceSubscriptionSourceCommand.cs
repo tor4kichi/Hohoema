@@ -15,12 +15,12 @@ namespace NicoPlayerHohoema.Views.Subscriptions
         {
             if (parameter is Models.Subscription.Subscription subscription)
             {
-                var hohoemaApp = Commands.HohoemaCommnadHelper.GetHohoemaApp();
+                var followManager = Commands.HohoemaCommnadHelper.GetFollowManager();
                 var dialogService = Commands.HohoemaCommnadHelper.GetDialogService();
 
                 // フォローしているアイテムから選択できるように
                 // （コミュニティを除く）
-                var selectableContents = hohoemaApp.FollowManager.GetAllFollowInfoGroups()
+                var selectableContents = followManager.GetAllFollowInfoGroups()
                             .Select(x => new Dialogs.ChoiceFromListSelectableContainer(x.FollowItemType.ToCulturelizeString(),
                                 x.FollowInfoItems.Where(y => y.FollowItemType != Models.FollowItemType.Community).Select(y => new Dialogs.SelectDialogPayload()
                                 {

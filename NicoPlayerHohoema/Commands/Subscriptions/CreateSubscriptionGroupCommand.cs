@@ -19,7 +19,7 @@ namespace NicoPlayerHohoema.Commands.Subscriptions
         protected override async void Execute(object parameter)
         {
             var dialog = Commands.HohoemaCommnadHelper.GetDialogService();
-
+            var subscriptionManager = Commands.HohoemaCommnadHelper.GetSubscriptionManager();
             var groupName = await dialog.GetTextAsync("SubscriptionGroup_Create".ToCulturelizeString(), "", validater: (s) => !string.IsNullOrWhiteSpace(s));
 
             if (groupName == null) { return; }
@@ -30,7 +30,7 @@ namespace NicoPlayerHohoema.Commands.Subscriptions
                 subscription.Sources.Add(source);
             }
 
-            Models.Subscription.SubscriptionManager.Instance.Subscriptions.Add(subscription);
+            subscriptionManager.Subscriptions.Add(subscription);
         }
     }
 }
