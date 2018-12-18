@@ -175,7 +175,6 @@
     <Compile Include="Database\Local\SearchHistory.cs" />
     <Compile Include="Database\Temporary\VideoCommentDb.cs" />
     <Compile Include="Database\Local\VideoPlayedHistory.cs" />
-    <Compile Include="Interfaces\IListViewBaseItemDeferUpdatable.cs" />
     <Compile Include="Interfaces\ITag.cs" />
     <Compile Include="Models\Helpers\MylistOriginExtension.cs" />
     <Compile Include="Models\Cache\CachefolderAccessState.cs" />
@@ -413,7 +412,7 @@
     <Compile Include="ViewModels\UserVideoPageViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\LiveCommentSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\SidePaneContentViewModelBase.cs" />
-    <Compile Include="Views\Extensions\ListViewBase\ListViewItemDeferUpdate.cs" />
+    <Compile Include="Views\Extensions\ListViewBase\ListViewItemDeferInitialize.cs" />
     <Compile Include="Views\Interaction\Actions\ScrollViewerVerticalPositionSettingsAction.cs" />
     <Compile Include="Views\Interaction\Behaviors\FocusGetter.cs" />
     <Compile Include="Views\Interaction\Input\AutoHideCursor.cs" />

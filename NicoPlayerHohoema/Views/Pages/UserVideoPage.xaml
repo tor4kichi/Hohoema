@@ -100,7 +100,7 @@
             
             xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
             myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
-
+            myExtensions:ListViewBase.DeferInitialize="True"
             >
             <uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
                 <TransitionCollection>

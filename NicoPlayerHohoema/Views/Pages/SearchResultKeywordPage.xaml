@@ -115,21 +115,22 @@
 
         
         <uwpcontrols:PullToRefreshListView 
-                            x:Name="ItemsList"
-                            ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
-                            RefreshCommand="{Binding RefreshCommand}"
-                            IsItemClickEnabled="True"
-                            IncrementalLoadingTrigger="Edge"
-                            PullThreshold="85"    
-                            UseSystemFocusVisuals="True"
-                            SelectionMode="None"
-                            HorizontalContentAlignment="Stretch"
-                            uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
-                            ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
-                            uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 96 0 0"
+            x:Name="ItemsList"
+            ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
+            RefreshCommand="{Binding RefreshCommand}"
+            IsItemClickEnabled="True"
+            IncrementalLoadingTrigger="Edge"
+            PullThreshold="85"    
+            UseSystemFocusVisuals="True"
+            SelectionMode="None"
+            HorizontalContentAlignment="Stretch"
+            uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
+            ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+            uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 96 0 0"
             
-                            xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
-                            myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
+            xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
+            myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
+            myExtensions:ListViewBase.DeferInitialize="True"
                             >
 
             <uwpcontrols:PullToRefreshListView.ItemContainerTransitions>

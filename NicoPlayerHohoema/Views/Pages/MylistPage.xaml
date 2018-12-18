@@ -188,6 +188,7 @@
             
             xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
             myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
+            myExtensions:ListViewBase.DeferInitialize="True"
 
                             >
             <i:Interaction.Behaviors>

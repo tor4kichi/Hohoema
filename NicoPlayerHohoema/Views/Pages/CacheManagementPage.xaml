@@ -131,6 +131,7 @@
                 uwpExtensions:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
                 ScrollViewer.BringIntoViewOnFocusChange="False"
                 myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
+                myExtensions:ListViewBase.DeferInitialize="True"
             >
             <i:Interaction.Behaviors>
 

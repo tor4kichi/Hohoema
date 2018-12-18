@@ -1,34 +1,20 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Mylist;
-using Mntone.Nico2.Mylist.MylistGroup;
 using Mntone.Nico2.Searches.Video;
-using Mntone.Nico2.Videos.Ranking;
 using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Models.Helpers;
-using Prism.Commands;
 using Prism.Mvvm;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Globalization;
 using System.Linq;
-using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using Microsoft.Practices.Unity;
-using Windows.ApplicationModel.DataTransfer;
-using Windows.UI.Popups;
-using NicoPlayerHohoema.Services;
 using System.Diagnostics;
 using Windows.UI.Core;
-using Windows.UI.Xaml;
 using NicoPlayerHohoema.Services.Helpers;
 using NicoPlayerHohoema.Models.Cache;
 using NicoPlayerHohoema.Models.Provider;
@@ -36,7 +22,7 @@ using NicoPlayerHohoema.Models.Provider;
 namespace NicoPlayerHohoema.ViewModels
 {
 
-    public class VideoInfoControlViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContent, Interfaces.IListViewBaseItemDeferUpdatable
+    public class VideoInfoControlViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContent, Views.Extensions.ListViewBase.IDeferInitialize
     {
         VideoInfoControlViewModel(string videoId)
         {
@@ -81,29 +67,44 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ObservableCollection<CachedQualityNicoVideoListItemViewModel> CachedQualityVideos { get; } = new ObservableCollection<CachedQualityNicoVideoListItemViewModel>();
 
-        async void Interfaces.IListViewBaseItemDeferUpdatable.DeferUpdate()
+        async Task Views.Extensions.ListViewBase.IDeferInitialize.DeferInitializeAsync()
         {
+            if (Data?.Title != null)
+            {
+                SetTitle(Data.Title);
+            }
+
+            await Task.Run(async () =>
+            {
+                if (IsDisposed)
+                {
+                    Debug.WriteLine("skip thumbnail loading: " + RawVideoId);
+                    return;
+                }
+
+                if (NicoVideoProvider != null)
+                {
+                    Data = await NicoVideoProvider.GetNicoVideoInfo(RawVideoId);
+                }
+
+                // オフライン時はローカルDBの情報を利用する
+                if (Data == null)
+                {
+                    Data = Database.NicoVideoDb.Get(RawVideoId);
+                }
+
+
+                //            await RefrechCacheState();
+            });
+
             if (IsDisposed)
             {
                 Debug.WriteLine("skip thumbnail loading: " + RawVideoId);
                 return;
             }
 
-            
-            if (NicoVideoProvider != null)
-            {
-                Data = await NicoVideoProvider.GetNicoVideoInfo(RawVideoId);
-            }
-
-            // オフライン時はDBの情報を利用する
-            if (Data == null)
-            {
-                Data = Database.NicoVideoDb.Get(RawVideoId);
-            }
 
             SetupFromThumbnail(Data);
-
-//            await RefrechCacheState();
         }
 
         public async Task RefrechCacheState()

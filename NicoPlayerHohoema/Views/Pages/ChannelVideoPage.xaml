@@ -98,6 +98,9 @@
             HorizontalContentAlignment="Stretch"
             uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
             ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+            
+            xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
+            myExtensions:ListViewBase.DeferInitialize="True"
             >
             <uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
                 <TransitionCollection>
