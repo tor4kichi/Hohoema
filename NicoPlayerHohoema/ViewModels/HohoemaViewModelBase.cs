@@ -82,7 +82,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public static Dictionary<string, Func<bool>> SubstitutionBackNavigation { get; private set; } = new Dictionary<string, Func<bool>>();
 
-        public PageManager PageManager { get; private set; }
+        public PageManager PageManager { get; }
 
         protected CompositeDisposable _CompositeDisposable { get; private set; }
         protected CompositeDisposable _NavigatingCompositeDisposable { get; private set; }

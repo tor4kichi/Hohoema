@@ -19,6 +19,8 @@ using Windows.UI.Popups;
 using NicoPlayerHohoema.Models.Provider;
 using NiconicoSession = NicoPlayerHohoema.Models.NiconicoSession;
 using Mntone.Nico2.Videos.Thumbnail;
+using NicoPlayerHohoema.Interfaces;
+using Mntone.Nico2.Live;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -315,7 +317,7 @@ namespace NicoPlayerHohoema.ViewModels
 					HasNews = NewsList.Count > 0;
 
 
-					CurrentLiveInfoList = CommunityDetail.CurrentLiveList.Select(x => new CurrentLiveInfoViewModel(x))
+					CurrentLiveInfoList = CommunityDetail.CurrentLiveList.Select(x => new CurrentLiveInfoViewModel(x, CommunityDetail))
 						.ToList();
 
 					HasCurrentLiveInfo = CurrentLiveInfoList.Count > 0;
@@ -456,17 +458,24 @@ namespace NicoPlayerHohoema.ViewModels
 		public string LiveTitle { get; private set; }
 		public string LiveId { get; private set; }
 
-		public CurrentLiveInfoViewModel(CommunityLiveInfo liveInfo)
-		{
+		public CurrentLiveInfoViewModel(CommunityLiveInfo liveInfo, CommunityDetail community)
+        {
 			LiveTitle = liveInfo.LiveTitle;
 			LiveId = liveInfo.LiveId;
-		}
 
-        public string BroadcasterId => null;
+            ProviderId = community.Id;
+            ProviderName = community.Name;
+		}
 
         public string Id => LiveId;
 
         public string Label => LiveTitle;
+
+        public string ProviderId { get; }
+
+        public string ProviderName { get; }
+
+        public CommunityType ProviderType => CommunityType.Community;
     }
 
 
@@ -532,7 +541,7 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	public class UserInfoViewModel
+	public class UserInfoViewModel : Interfaces.IUser
 	{
         public UserInfoViewModel(string name, string id, string iconUrl = null)
         {
@@ -547,7 +556,10 @@ namespace NicoPlayerHohoema.ViewModels
 		public string IconUrl { get; private set; }
 		public bool HasIconUrl { get; private set; }
 
-	}
+        string INiconicoObject.Id => Id;
+
+        string INiconicoObject.Label => Name;
+    }
 
 	public class CommunityLiveInfoViewModel : Interfaces.ILiveContent
 	{
@@ -576,6 +588,12 @@ namespace NicoPlayerHohoema.ViewModels
         public string Id => LiveId;
 
         public string Label => LiveTitle;
+
+        public string ProviderId => null;
+
+        public string ProviderName => StreamerName;
+
+        public CommunityType ProviderType => CommunityType.Official;
     }
 
 	public class CommunityVideoInfoViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContent
@@ -584,11 +602,11 @@ namespace NicoPlayerHohoema.ViewModels
 
         public string Title => VideoInfo.Title;
 
-        public string OwnerUserId => null;
+        public string ProviderId => null;
 
-        public string OwnerUserName => null;
+        public string ProviderName => null;
 
-        public Mntone.Nico2.Videos.Thumbnail.UserType OwnerUserType => Mntone.Nico2.Videos.Thumbnail.UserType.User;
+        public Mntone.Nico2.Videos.Thumbnail.UserType ProviderType => Mntone.Nico2.Videos.Thumbnail.UserType.User;
 
         public string Id => VideoInfo.VideoId;
 

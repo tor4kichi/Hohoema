@@ -23,7 +23,9 @@ namespace NicoPlayerHohoema.ViewModels
             NGSettings ngSettings,
             SearchProvider searchProvider,
             SubscriptionManager subscriptionManager,
-            Services.PageManager pageManager
+            HohoemaPlaylist hohoemaPlaylist,
+            Services.PageManager pageManager,
+            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
             : base(pageManager, useDefaultPageTitle: false)
         {
@@ -60,6 +62,8 @@ namespace NicoPlayerHohoema.ViewModels
             NgSettings = ngSettings;
             SearchProvider = searchProvider;
             SubscriptionManager1 = subscriptionManager;
+            HohoemaPlaylist = hohoemaPlaylist;
+            CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
         }
 
 
@@ -219,6 +223,8 @@ namespace NicoPlayerHohoema.ViewModels
         public NGSettings NgSettings { get; }
         public SearchProvider SearchProvider { get; }
         public SubscriptionManager SubscriptionManager1 { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
 
 
         #endregion

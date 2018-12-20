@@ -112,7 +112,7 @@
             UseSystemFocusVisuals="True"
             SelectionMode="None"
             HorizontalContentAlignment="Stretch"
-            uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
+            uwpExtension:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
             ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
             uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
 
@@ -253,7 +253,7 @@
                                             </i:Interaction.Behaviors>
 
                                             <MenuFlyoutItem Text="購読グループを作成..."
-                                                                Command="{StaticResource CreateSubscriptionGroupCommand}"
+                                                                Command="{Binding CreateSubscriptionGroupCommand}"
                                                                 CommandParameter="{Binding SubscriptionSource}"
                                                                 />
 
@@ -270,7 +270,7 @@
                             x:Name="TitleLayout"
                                 >
 
-                                    <HyperlinkButton Command="{StaticResource OpenHohoemaPageCommand}"
+                                    <HyperlinkButton Command="{Binding PageManager.OpenPageCommand}"
                                              CommandParameter="Search"
                                              Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                              Margin="0 0 16 0"

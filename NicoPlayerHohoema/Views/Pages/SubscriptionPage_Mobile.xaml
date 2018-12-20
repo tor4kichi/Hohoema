@@ -19,17 +19,11 @@
     xmlns:subscription="using:NicoPlayerHohoema.Models.Subscription"
     xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector"
     xmlns:mytrigger="using:NicoPlayerHohoema.Views.StateTrigger"
+    xmlns:subscriptionControls="using:NicoPlayerHohoema.Views.Pages.Subscription"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 
-    <Page.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="SubscriptionDictionary.xaml" />
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-    </Page.Resources>
     <Grid x:Name="RootLayout">
 
         <Grid x:Name="EmptySubscriptionsNoticeLayout" Margin="16" VerticalAlignment="Center" Visibility="Collapsed">
@@ -259,7 +253,13 @@
                             Margin="8 0 0 0"
                             >
                     <ContentControl.ContentTemplateSelector>
-                        <templateselector:ContentTemplateSelector ContentTemplate="{StaticResource SubscriptionTemplate}" />
+                        <templateselector:ContentTemplateSelector>
+                            <templateselector:ContentTemplateSelector.ContentTemplate>
+                                <DataTemplate>
+                                    <subscriptionControls:SubscriptionControl />
+                                </DataTemplate>
+                            </templateselector:ContentTemplateSelector.ContentTemplate>
+                        </templateselector:ContentTemplateSelector>
                     </ContentControl.ContentTemplateSelector>
                 </ContentControl>
 

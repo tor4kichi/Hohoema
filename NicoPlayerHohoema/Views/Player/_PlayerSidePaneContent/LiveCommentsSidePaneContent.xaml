@@ -15,10 +15,16 @@
     xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers"
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:uwpUiExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:myConv="using:NicoPlayerHohoema.Views.Converters"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
+    <UserControl.Resources>
+
+        <myConv:StringToUriConverter x:Key="StringToUriConverter" />
+    </UserControl.Resources>
+    
     <Grid>
 
         <VisualStateManager.VisualStateGroups>
@@ -79,17 +85,20 @@
                         <ListView ItemsSource="{Binding Comments}"
                                   x:Name="CommentListView"
                                   xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
+                                  myExtensions:ListViewBase.ItemContextFlyoutCustomObjectToTag="{Binding}"
                               >
                             <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
                                 <DataTemplate>
                                     <MenuFlyout>
                                         <MenuFlyoutSubItem Text="リンクを..." Visibility="{Binding IsLink, Converter={StaticResource BooleanToVisibility}}">
+                                            
+                                            <!-- TODO: LiveComment.CommentTextからリンクを抽出するConverterが必要 -->
                                             <MenuFlyoutItem Text="開く" 
-                                                Command="{StaticResource OpenLinkCommand}"
+                                                Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.ExternalAccessService.OpenLinkCommand}"
                                                 CommandParameter="{Binding Link}"
                                                 />
                                             <MenuFlyoutItem Text="コピー"
-                                                Command="{StaticResource CopyToClipboardCommand}"
+                                                Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.ExternalAccessService.CopyToClipboardCommand}"
                                                 CommandParameter="{Binding Link}"
                                                 />
                                         </MenuFlyoutSubItem>
@@ -97,7 +106,7 @@
                                         <MenuFlyoutSeparator Visibility="{Binding IsLink, Converter={StaticResource BooleanToVisibility}}" />
 
                                         <MenuFlyoutItem Text="このユーザーのコメントを非表示"
-                                            Command="{StaticResource NicoLiveUserIdAddToNGCommand}"
+                                            Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.NicoLiveUserIdAddToNGCommand}"
                                             CommandParameter="{Binding UserId}"
                                             />
 
@@ -154,9 +163,9 @@
                                         <DataTemplate>
                                             <MenuFlyout>
                                                 <MenuFlyoutItem Text="非表示を解除" 
-                                                            Command="{StaticResource NicoLiveUserIdRemoveFromNGCommand}"
-                                                            CommandParameter="{Binding UserId}"
-                                                            />
+                                                    Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.NicoLiveUserIdRemoveFromNGCommand}"
+                                                    CommandParameter="{Binding UserId}"
+                                                    />
                                             </MenuFlyout>
                                         </DataTemplate>
                                     </myExtensions:ListViewBase.ItemContextFlyoutTemplate>

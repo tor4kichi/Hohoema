@@ -65,13 +65,7 @@ namespace NicoPlayerHohoema.Models.Provider
 
                 try
                 {
-                    var res = await Helpers.ConnectionRetryUtil.TaskWithRetry(() =>
-                    {
-                        return NiconicoSession.Context.Search.GetVideoInfoAsync(rawVideoId);
-                    },
-                    retryCount: 5,
-                    retryInterval: 1000
-                    );
+                    var res = await NiconicoSession.Context.Search.GetVideoInfoAsync(rawVideoId);
 
                     if (res.Status == "ok")
                     {

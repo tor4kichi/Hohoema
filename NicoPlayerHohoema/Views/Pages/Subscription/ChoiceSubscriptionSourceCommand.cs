@@ -1,4 +1,6 @@
-﻿using NicoPlayerHohoema.Services.Helpers;
+﻿using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.Services.Helpers;
 using Prism.Commands;
 using System.Linq;
 
@@ -6,6 +8,17 @@ namespace NicoPlayerHohoema.Views.Subscriptions
 {
     public sealed class ChoiceSubscriptionSourceCommand : DelegateCommandBase
     {
+        public ChoiceSubscriptionSourceCommand(
+            FollowManager followManager,
+            DialogService dialogService)
+        {
+            FollowManager = followManager;
+            DialogService = dialogService;
+        }
+
+        public FollowManager FollowManager { get; }
+        public DialogService DialogService { get; }
+
         protected override bool CanExecute(object parameter)
         {
             return parameter is Models.Subscription.Subscription;
@@ -15,12 +28,9 @@ namespace NicoPlayerHohoema.Views.Subscriptions
         {
             if (parameter is Models.Subscription.Subscription subscription)
             {
-                var followManager = Commands.HohoemaCommnadHelper.GetFollowManager();
-                var dialogService = Commands.HohoemaCommnadHelper.GetDialogService();
-
                 // フォローしているアイテムから選択できるように
                 // （コミュニティを除く）
-                var selectableContents = followManager.GetAllFollowInfoGroups()
+                var selectableContents = FollowManager.GetAllFollowInfoGroups()
                             .Select(x => new Dialogs.ChoiceFromListSelectableContainer(x.FollowItemType.ToCulturelizeString(),
                                 x.FollowInfoItems.Where(y => y.FollowItemType != Models.FollowItemType.Community).Select(y => new Dialogs.SelectDialogPayload()
                                 {
@@ -31,7 +41,10 @@ namespace NicoPlayerHohoema.Views.Subscriptions
 
                 var keywordInput = new Dialogs.TextInputSelectableContainer("キーワード検索", null);
 
-                var result = await dialogService.ShowContentSelectDialogAsync($"『{subscription.Label}』へ購読を追加", Enumerable.Concat<Dialogs.ISelectableContainer>(new[] { keywordInput }, selectableContents));
+                var result = await DialogService.ShowContentSelectDialogAsync(
+                    $"『{subscription.Label}』へ購読を追加", 
+                    Enumerable.Concat<Dialogs.ISelectableContainer>(new[] { keywordInput }, selectableContents)
+                    );
 
                 if (result != null)
                 {

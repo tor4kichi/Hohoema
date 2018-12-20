@@ -26,13 +26,13 @@ namespace NicoPlayerHohoema.Views.Subscriptions
                         channel.Id
                         );
                 case Interfaces.IVideoContent video:
-                    if (string.IsNullOrEmpty(video.OwnerUserId))
+                    if (string.IsNullOrEmpty(video.ProviderId))
                     {
                         break;
                     }
                     Models.Subscription.SubscriptionSourceType? souceType = null;
-                    string ownerName = video.OwnerUserName;
-                    switch (video.OwnerUserType)
+                    string ownerName = video.ProviderName;
+                    switch (video.ProviderType)
                     {
                         case Mntone.Nico2.Videos.Thumbnail.UserType.User:
                             souceType = Models.Subscription.SubscriptionSourceType.User;
@@ -47,9 +47,9 @@ namespace NicoPlayerHohoema.Views.Subscriptions
                     if (souceType.HasValue)
                     {
                         return new Models.Subscription.SubscriptionSource(
-                            video.OwnerUserName,
+                            video.ProviderName,
                             souceType.Value,
-                            video.OwnerUserId
+                            video.ProviderId
                             );
                     }
                     break;

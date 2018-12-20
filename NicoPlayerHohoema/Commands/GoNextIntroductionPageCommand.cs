@@ -1,4 +1,5 @@
-﻿using Prism.Commands;
+﻿using NicoPlayerHohoema.Services;
+using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,13 @@ namespace NicoPlayerHohoema.Commands
 {
     public sealed class GoNextIntroductionPageCommand : DelegateCommandBase
     {
+        public GoNextIntroductionPageCommand(PageManager pageManager)
+        {
+            PageManager = pageManager;
+        }
+
+        public PageManager PageManager { get; }
+
         protected override bool CanExecute(object parameter)
         {
             return true;
@@ -16,20 +24,18 @@ namespace NicoPlayerHohoema.Commands
 
         protected override async void Execute(object parameter)
         {
-            var pageManager = HohoemaCommnadHelper.GetPageManager();
-
             var localStorge = new Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper();
 
-            switch (pageManager.CurrentPageType)
+            switch (PageManager.CurrentPageType)
             {
                 case Models.HohoemaPageType.PrologueIntroduction:
-                    pageManager.OpenPage(Models.HohoemaPageType.NicoAccountIntroduction);
+                    PageManager.OpenPage(Models.HohoemaPageType.NicoAccountIntroduction);
                     break;
                 case Models.HohoemaPageType.NicoAccountIntroduction:
-                    pageManager.OpenPage(Models.HohoemaPageType.VideoCacheIntroduction);
+                    PageManager.OpenPage(Models.HohoemaPageType.VideoCacheIntroduction);
                     break;
                 case Models.HohoemaPageType.VideoCacheIntroduction:
-                    pageManager.OpenPage(Models.HohoemaPageType.EpilogueIntroduction);
+                    PageManager.OpenPage(Models.HohoemaPageType.EpilogueIntroduction);
                     break;
                 case Models.HohoemaPageType.EpilogueIntroduction:
                 default:
@@ -37,11 +43,11 @@ namespace NicoPlayerHohoema.Commands
                     localStorge.Save(App.IS_COMPLETE_INTRODUCTION, true);
 
                     // スタートアップページを開く
-                    pageManager.OpenStartupPage();
+                    PageManager.OpenStartupPage();
 
                     // イントロダクション系ページに戻れないようページ履歴を消去
                     await Task.Delay(100);
-                    pageManager.ClearNavigateHistory();
+                    PageManager.ClearNavigateHistory();
 
                     break;
             }

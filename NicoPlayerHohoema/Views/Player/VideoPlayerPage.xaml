@@ -43,6 +43,7 @@
                                   >
                 <i:Interaction.Behaviors>
                     <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding VideoQualities}"
+                                                             CustomObjectToTag="{Binding}"
                                                              >
                         <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
                             <DataTemplate>
@@ -154,7 +155,7 @@
             <MenuFlyoutItem Text="動画情報" Command="{Binding OpenVideoInfoCommand}" />
             
             <MenuFlyoutItem Text="投稿者の動画一覧" 
-                            Command="{StaticResource OpenVideoOwnerVideoListCommand}"
+                            Command="{Binding OpenVideoOwnerVideoListCommand}"
                             CommandParameter="{Binding VideoOwnerId}"
                             />
 
@@ -172,13 +173,14 @@
 
             <MenuFlyoutSubItem Text="マイリストに追加">
                 <i:Interaction.Behaviors>
-                    <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding Mylists}"
+                    <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding UserMylistManager.Mylists}"
+                                                             CustomObjectToTag="{Binding VideoId}"
                                                              >
                         <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
                             <DataTemplate>
                                 <MenuFlyoutItem Text="{Binding Label}"
                                                 Command="{Binding AddItemCommand}"
-                                                CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.VideoId}"
+                                                CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}"
                                                 >
                                 </MenuFlyoutItem>
                             </DataTemplate>
@@ -187,7 +189,7 @@
                 </i:Interaction.Behaviors>
 
                 <MenuFlyoutItem Text="新規作成…" 
-                                Command="{StaticResource CreateMylistCommand}"
+                                Command="{Binding CreateMylistCommand}"
                                 CommandParameter="{Binding VideoId}"
                                 />
             </MenuFlyoutSubItem>
@@ -195,13 +197,14 @@
 
             <MenuFlyoutSubItem Text="ローカルマイリストに追加">
                 <i:Interaction.Behaviors>
-                    <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding LocalMylists}"
+                    <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding LocalMylistManager.Mylists}"
+                                                             CustomObjectToTag="{Binding VideoId}"
                                                              >
                         <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
                             <DataTemplate>
                                 <MenuFlyoutItem Text="{Binding Label}"
                                                 Command="{Binding AddItemCommand}"
-                                                CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.VideoId}"
+                                                CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}"
                                                 >
                                 </MenuFlyoutItem>
                             </DataTemplate>
@@ -210,7 +213,7 @@
                 </i:Interaction.Behaviors>
 
                 <MenuFlyoutItem Text="新規作成…" 
-                                Command="{StaticResource CreateLocalMylistCommand}"
+                                Command="{Binding CreateLocalMylistCommand}"
                                 CommandParameter="{Binding VideoId}"
                                 />
             </MenuFlyoutSubItem>
@@ -236,9 +239,9 @@
                 </i:Interaction.Behaviors>
 
                 <MenuFlyoutItem Text="購読グループを作成..."
-                                                        Command="{StaticResource CreateSubscriptionGroupCommand}"
-                                                        CommandParameter="{Binding SubscriptionSource}"
-                                                        />
+                                Command="{Binding CreateSubscriptionGroupCommand}"
+                                CommandParameter="{Binding SubscriptionSource}"
+                                />
 
 
             </MenuFlyoutSubItem>
@@ -1332,12 +1335,14 @@
 
                                                                 <MenuFlyoutSubItem Text="マイリストに追加">
                                                                     <i:Interaction.Behaviors>
-                                                                        <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding Mylists}" >
+                                                                        <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding Mylists}"
+                                                                                                                 CustomObjectToTag="{Binding VideoId}"
+                                                                                                                 >
                                                                             <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
                                                                                 <DataTemplate>
                                                                                     <MenuFlyoutItem Text="{Binding Label}"
                                                                                                 Command="{Binding AddItemCommand}"
-                                                                                                CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.VideoId}"
+                                                                                                CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}"
                                                                                                 >
                                                                                     </MenuFlyoutItem>
                                                                                 </DataTemplate>
@@ -1346,7 +1351,7 @@
                                                                     </i:Interaction.Behaviors>
 
                                                                     <MenuFlyoutItem Text="新規作成…" 
-                                                                                    Command="{StaticResource CreateMylistCommand}"
+                                                                                    Command="{Binding CreateMylistCommand}"
                                                                                     CommandParameter="{Binding VideoId}"
                                                                                     />
                                                                 </MenuFlyoutSubItem>
@@ -1354,12 +1359,14 @@
 
                                                                 <MenuFlyoutSubItem Text="ローカルマイリストに追加">
                                                                     <i:Interaction.Behaviors>
-                                                                        <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding LocalMylists}" >
+                                                                        <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding LocalMylists}"
+                                                                                                                 CustomObjectToTag="{Binding VideoId}"
+                                                                                                                 >
                                                                             <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
                                                                                 <DataTemplate>
                                                                                     <MenuFlyoutItem Text="{Binding Label}"
                                                                                                     Command="{Binding AddItemCommand}"
-                                                                                                    CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.VideoId}"
+                                                                                                    CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}"
                                                                                                     >
                                                                                     </MenuFlyoutItem>
                                                                                 </DataTemplate>
@@ -1368,7 +1375,7 @@
                                                                     </i:Interaction.Behaviors>
 
                                                                     <MenuFlyoutItem Text="新規作成…" 
-                                                                                    Command="{StaticResource CreateLocalMylistCommand}"
+                                                                                    Command="{Binding CreateLocalMylistCommand}"
                                                                                     CommandParameter="{Binding VideoId}"
                                                                                     />
                                                                 </MenuFlyoutSubItem>

@@ -21,10 +21,12 @@ using Windows.System;
 using NicoPlayerHohoema.Models.Cache;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Models.LocalMylist;
+using Mntone.Nico2.Videos.Thumbnail;
+using NicoPlayerHohoema.Interfaces;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class VideoInfomationPageViewModel : HohoemaViewModelBase
+    public class VideoInfomationPageViewModel : HohoemaViewModelBase, Interfaces.IVideoContent
     {
         public VideoInfomationPageViewModel(
             NGSettings ngSettings,
@@ -33,12 +35,15 @@ namespace NicoPlayerHohoema.ViewModels
             HohoemaPlaylist hohoemaPlaylist,
             NicoVideoProvider nicoVideoProvider,
             LoginUserMylistProvider loginUserMylistProvider,
+            VideoCacheManager videoCacheManager,
             Models.NicoVideo nicoVideo,
             Services.Helpers.MylistHelper mylistHelper,
             Services.PageManager pageManager,
             Services.NotificationService notificationService,
-            Services.HohoemaClipboardService clipboardService,
-            Services.DialogService dialogService
+            Services.DialogService dialogService,
+            Services.ExternalAccessService externalAccessService,
+            Commands.AddMylistCommand addMylistCommand,
+            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
            : base(pageManager)
         {
@@ -48,11 +53,14 @@ namespace NicoPlayerHohoema.ViewModels
             HohoemaPlaylist = hohoemaPlaylist;
             NicoVideoProvider = nicoVideoProvider;
             LoginUserMylistProvider = loginUserMylistProvider;
+            VideoCacheManager = videoCacheManager;
             NicoVideo = nicoVideo;
             MylistHelper = mylistHelper;
             NotificationService = notificationService;
-            ClipboardService = clipboardService;
             DialogService = dialogService;
+            ExternalAccessService = externalAccessService;
+            AddMylistCommand = addMylistCommand;
+            CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
             NowLoading = new ReactiveProperty<bool>(false);
             IsLoadFailed = new ReactiveProperty<bool>(false);
         }
@@ -72,8 +80,8 @@ namespace NicoPlayerHohoema.ViewModels
         public IList<TagViewModel> Tags { get; private set; }
 
         public bool IsChannelOwnedVideo { get; private set; }
-        public string OwnerName { get; private set; }
-        public string OwnerId { get; private set; }
+        public string ProviderName { get; private set; }
+        public string ProviderId { get; private set; }
         public string OwnerIconUrl { get; private set; }
 
         public TimeSpan VideoLength { get; private set; }
@@ -83,7 +91,6 @@ namespace NicoPlayerHohoema.ViewModels
         public uint ViewCount { get; private set; }
         public uint CommentCount { get; private set; }
         public uint MylistCount { get; private set; }
-        public Uri VideoPageUrl { get; private set; }
 
         public ReactiveProperty<bool> NowLoading { get; private set; }
         public ReactiveProperty<bool> IsLoadFailed { get; private set; }
@@ -179,20 +186,6 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        private DelegateCommand _ShereWithTwitterCommand;
-        public DelegateCommand ShereWithTwitterCommand
-        {
-            get
-            {
-                return _ShereWithTwitterCommand
-                    ?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
-                    {
-                        await Services.Helpers.ShareHelper.ShareToTwitter(_VideoInfo);
-                    }
-                    ));
-            }
-        }
-
         private DelegateCommand _VideoInfoCopyToClipboardCommand;
         public DelegateCommand VideoInfoCopyToClipboardCommand
         {
@@ -201,39 +194,11 @@ namespace NicoPlayerHohoema.ViewModels
                 return _VideoInfoCopyToClipboardCommand
                     ?? (_VideoInfoCopyToClipboardCommand = new DelegateCommand(() =>
                     {
-                        ClipboardService.CopyToClipboard(_VideoInfo);
+                        Services.Helpers.ClipboardHelper.CopyToClipboard(_VideoInfo);
                     }
                     ));
             }
         }
-
-        private DelegateCommand _AddMylistCommand;
-        public DelegateCommand AddMylistCommand
-        {
-            get
-            {
-                return _AddMylistCommand
-                    ?? (_AddMylistCommand = new DelegateCommand(async () =>
-                    {
-                        var targetMylist = await DialogService.ChoiceMylist();
-
-                        if (targetMylist is Interfaces.IUserOwnedMylist ownedMylist)
-                        {
-                            var result = await ownedMylist.AddMylistItem(VideoId);
-
-                            NotificationService.ShowInAppNotification(
-                                Services.InAppNotificationPayload.CreateRegistrationResultNotification(
-                                    result ? ContentManageResult.Success : ContentManageResult.Failed,
-                                    "マイリスト",
-                                    targetMylist.Label,
-                                    Title
-                                    ));                            
-                        }
-                    }
-                    ));
-            }
-        }
-
 
         private DelegateCommand<object> _ScriptNotifyCommand;
         public DelegateCommand<object> ScriptNotifyCommand
@@ -300,7 +265,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public Services.NotificationService NotificationService { get; }
-        public Services.HohoemaClipboardService ClipboardService { get; }
         public NGSettings NgSettings { get; }
         public Models.NiconicoSession NiconicoSession { get; }
         public UserMylistManager UserMylistManager { get; }
@@ -308,8 +272,23 @@ namespace NicoPlayerHohoema.ViewModels
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public LoginUserMylistProvider LoginUserMylistProvider { get; }
+        public VideoCacheManager VideoCacheManager { get; }
         public Services.Helpers.MylistHelper MylistHelper { get; }
         public Services.DialogService DialogService { get; }
+        public Services.ExternalAccessService ExternalAccessService { get; }
+        public Commands.AddMylistCommand AddMylistCommand { get; }
+        public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
+
+        string IVideoContent.ProviderId => _VideoInfo.Owner?.OwnerId;
+
+        string IVideoContent.ProviderName => _VideoInfo.Owner?.ScreenName;
+
+        Mntone.Nico2.Videos.Thumbnail.UserType IVideoContent.ProviderType => _VideoInfo.Owner.UserType;
+
+        string INiconicoObject.Id => _VideoInfo.RawVideoId;
+
+        string INiconicoObject.Label => _VideoInfo.Title;
+
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
@@ -329,9 +308,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             NicoVideo.RawVideoId = VideoId;
-
-            VideoPageUrl = new Uri("http://nicovideo.jp/watch/" + VideoId);
-            RaisePropertyChanged(nameof(VideoPageUrl));
 
             base.OnNavigatedTo(e, viewModelState);
         }
@@ -393,8 +369,11 @@ namespace NicoPlayerHohoema.ViewModels
                     var video = Database.NicoVideoDb.Get(x.Video.Id);
                     video.Title = x.Video.Title;
                     video.ThumbnailUrl = x.Video.Thumbnail_url;
-                    
-                    return new VideoInfoControlViewModel(video);
+
+                    var vm = App.Current.Container.Resolve<VideoInfoControlViewModel>();
+                    vm.RawVideoId = x.Video.Id;
+                    vm.Data = video;
+                    return vm;
                 })
                 .ToList();
 
@@ -433,7 +412,7 @@ namespace NicoPlayerHohoema.ViewModels
                         ViewCount = (uint)watchApi.videoDetail.viewCount.Value;
                         CommentCount = (uint)watchApi.videoDetail.commentCount.Value;
                         MylistCount = (uint)watchApi.videoDetail.mylistCount.Value;
-                        OwnerName = watchApi.UserName;
+                        ProviderName = watchApi.UserName;
                         OwnerIconUrl = watchApi.UploaderInfo?.icon_url ?? watchApi.channelInfo?.icon_url;
                         IsChannelOwnedVideo = watchApi.channelInfo != null;
 
@@ -452,8 +431,8 @@ namespace NicoPlayerHohoema.ViewModels
                         ViewCount = (uint)dmcWatchApi.Video.ViewCount;
                         CommentCount = (uint)dmcWatchApi.Thread.CommentCount;
                         MylistCount = (uint)dmcWatchApi.Video.MylistCount;
-                        OwnerId = dmcWatchApi.Owner?.Nickname ?? dmcWatchApi.Channel?.Name;
-                        OwnerName = dmcWatchApi.Owner?.Nickname ?? dmcWatchApi.Channel?.Name;
+                        ProviderId = dmcWatchApi.Owner?.Nickname ?? dmcWatchApi.Channel?.Name;
+                        ProviderName = dmcWatchApi.Owner?.Nickname ?? dmcWatchApi.Channel?.Name;
                         OwnerIconUrl = dmcWatchApi.Owner?.IconURL ?? dmcWatchApi.Channel?.IconURL;
                         IsChannelOwnedVideo = dmcWatchApi.Channel != null;
 
@@ -476,7 +455,7 @@ namespace NicoPlayerHohoema.ViewModels
                 RaisePropertyChanged(nameof(ViewCount));
                 RaisePropertyChanged(nameof(CommentCount));
                 RaisePropertyChanged(nameof(MylistCount));
-                RaisePropertyChanged(nameof(OwnerName));
+                RaisePropertyChanged(nameof(ProviderName));
                 RaisePropertyChanged(nameof(OwnerIconUrl));
 
             }

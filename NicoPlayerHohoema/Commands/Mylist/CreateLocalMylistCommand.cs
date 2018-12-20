@@ -6,11 +6,25 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Practices.Unity;
 using System.Diagnostics;
+using NicoPlayerHohoema.Models.LocalMylist;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.Commands.Mylist
 {
     public sealed class CreateLocalMylistCommand : DelegateCommandBase
     {
+        public CreateLocalMylistCommand(
+            LocalMylistManager localMylistManager,
+            DialogService dialogService
+            )
+        {
+            LocalMylistManager = localMylistManager;
+            DialogService = dialogService;
+        }
+
+        public LocalMylistManager LocalMylistManager { get; }
+        public DialogService DialogService { get; }
+
         protected override bool CanExecute(object parameter)
         {
             if (parameter == null) { return false; }
@@ -20,15 +34,12 @@ namespace NicoPlayerHohoema.Commands.Mylist
 
         protected override async void Execute(object parameter)
         {
-            var localMylistManager = HohoemaCommnadHelper.GetLocalMylistManager();
-            
-            var dialogService = App.Current.Container.Resolve<Services.DialogService>();
             var data = new Dialogs.MylistGroupEditData() { };
-            var result = await dialogService.GetTextAsync("新しいローカルマイリストを作成", "ローカルマイリスト名", "", (s) => !string.IsNullOrWhiteSpace(s));
+            var result = await DialogService.GetTextAsync("新しいローカルマイリストを作成", "ローカルマイリスト名", "", (s) => !string.IsNullOrWhiteSpace(s));
             if (result != null)
             {
                 var localMylist = new Models.LocalMylist.LocalMylistGroup(Guid.NewGuid().ToString(), result);
-                localMylistManager.LocalMylistGroups.Add(localMylist);
+                LocalMylistManager.Mylists.Add(localMylist);
 
                 Debug.WriteLine("ローカルマイリスト作成：" + result);
 

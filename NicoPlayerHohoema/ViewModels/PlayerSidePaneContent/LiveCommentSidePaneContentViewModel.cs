@@ -14,12 +14,20 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 {
 	public class LiveCommentSidePaneContentViewModel : SidePaneContentViewModelBase
 	{
-
-		public LiveCommentSidePaneContentViewModel(NGSettings settings, Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView comments)
+		public LiveCommentSidePaneContentViewModel(
+            NGSettings settings, 
+            Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView comments,
+            Services.ExternalAccessService externalAccessService,
+            Commands.NicoLiveUserIdAddToNGCommand nicoLiveUserIdAddToNGCommand,
+            Commands.NicoLiveUserIdRemoveFromNGCommand nicoLiveUserIdRemoveFromNGCommand
+            )
 		{
             NGSettings = settings;
 			Comments = comments;
-			IsCommentListScrollWithVideo = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false)
+            ExternalAccessService = externalAccessService;
+            NicoLiveUserIdAddToNGCommand = nicoLiveUserIdAddToNGCommand;
+            NicoLiveUserIdRemoveFromNGCommand = nicoLiveUserIdRemoveFromNGCommand;
+            IsCommentListScrollWithVideo = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false)
 				.AddTo(_CompositeDisposable);
 
             NGUsers = new ReadOnlyObservableCollection<NGUserIdInfo>(NGSettings.NGLiveCommentUserIds);
@@ -62,5 +70,9 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             get { return _Comments; }
             set { SetProperty(ref _Comments, value); }
         }
+
+        public Services.ExternalAccessService ExternalAccessService { get; }
+        public Commands.NicoLiveUserIdAddToNGCommand NicoLiveUserIdAddToNGCommand { get; }
+        public Commands.NicoLiveUserIdRemoveFromNGCommand NicoLiveUserIdRemoveFromNGCommand { get; }
     }
 }

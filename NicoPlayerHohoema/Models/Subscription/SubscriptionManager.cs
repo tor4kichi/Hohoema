@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
@@ -75,6 +76,7 @@ namespace NicoPlayerHohoema.Models.Subscription
 
        
         public SubscriptionManager(
+            IScheduler scheduler,
             Provider.ChannelProvider channelProvider,
             Provider.SearchProvider searchProvider,
             Provider.UserProvider userProvider,
@@ -83,6 +85,7 @@ namespace NicoPlayerHohoema.Models.Subscription
             
             )
         {
+            Scheduler = scheduler;
             ChannelProvider = channelProvider;
             SearchProvider = searchProvider;
             UserProvider = userProvider;
@@ -138,10 +141,10 @@ namespace NicoPlayerHohoema.Models.Subscription
         }
 
 
-        AsyncLock _UpdateLock = new AsyncLock();
+        Helpers.AsyncLock _UpdateLock = new Helpers.AsyncLock();
 
         public ObservableCollection<Subscription> Subscriptions { get; }
-
+        public IScheduler Scheduler { get; }
         public Provider.ChannelProvider ChannelProvider { get; }
         public Provider.SearchProvider SearchProvider { get; }
         public Provider.UserProvider UserProvider { get; }
@@ -186,6 +189,24 @@ namespace NicoPlayerHohoema.Models.Subscription
                     ));
             }
         }
+
+
+        private DelegateCommand<Subscription> _RemoveSubscription;
+        public DelegateCommand<Subscription> RemoveSubscription
+        {
+            get
+            {
+                return _RemoveSubscription
+                    ?? (_RemoveSubscription = new DelegateCommand<Subscription>((subscription) =>
+                    {
+                        Subscriptions.Remove(subscription);
+                    }
+                    , (subscription) => Subscriptions.Contains(subscription)
+                    ));
+            }
+        }
+
+
 
         #endregion
 
@@ -432,7 +453,7 @@ namespace NicoPlayerHohoema.Models.Subscription
             Debug.WriteLine($"{subsc.Label} : {subsc.Status}");
         };
 
-        AsyncLock _FeedResultLock = new AsyncLock();
+        Helpers.AsyncLock _FeedResultLock = new Helpers.AsyncLock();
 
         public IObservable<SubscriptionUpdateInfo> GetSubscriptionFeedResultAsObservable(bool withoutDisabled = false)
         {
@@ -477,12 +498,12 @@ namespace NicoPlayerHohoema.Models.Subscription
                     {
                         using (var releaser = await _FeedResultLock.LockAsync())
                         {
-                            SetSubscriptionStatusToUpdatingOnUI(x.subscription);
+                            Scheduler.Schedule(() => SetSubscriptionStatusToUpdatingOnUI(x.subscription));
 
                             var info = await GetFeedResult(x.subscription, x.source);
                             AddOrUpdateFeedResult(ref info);
 
-                            SetSubscriptionUpdateCompletedOnUI(subscription);
+                            Scheduler.Schedule(() => SetSubscriptionUpdateCompletedOnUI(subscription));
                             return info;
                         }
                     });

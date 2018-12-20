@@ -1,6 +1,9 @@
 ﻿using Microsoft.Toolkit.Uwp.UI;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Helpers;
+using NicoPlayerHohoema.Models.LocalMylist;
+using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.Services.Helpers;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -12,6 +15,27 @@ namespace NicoPlayerHohoema.Views.Subscriptions
 {
     public sealed class MultiSelectSubscriptionDestinationCommand : DelegateCommandBase
     {
+        public MultiSelectSubscriptionDestinationCommand(
+            DialogService dialogService,
+            LocalMylistManager localMylistManager,
+            UserMylistManager userMylistManager,
+            HohoemaPlaylist hohoemaPlaylist,
+            MylistHelper mylistHelper
+            )
+        {
+            DialogService = dialogService;
+            LocalMylistManager = localMylistManager;
+            UserMylistManager = userMylistManager;
+            HohoemaPlaylist = hohoemaPlaylist;
+            MylistHelper = mylistHelper;
+        }
+
+        public DialogService DialogService { get; }
+        public LocalMylistManager LocalMylistManager { get; }
+        public UserMylistManager UserMylistManager { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public MylistHelper MylistHelper { get; }
+
         protected override bool CanExecute(object parameter)
         {
             return parameter is Models.Subscription.Subscription;
@@ -21,25 +45,19 @@ namespace NicoPlayerHohoema.Views.Subscriptions
         {
             if (parameter is Models.Subscription.Subscription subscription)
             {
-                var dialogService = Commands.HohoemaCommnadHelper.GetDialogService();
-                var localMylistManager= Commands.HohoemaCommnadHelper.GetLocalMylistManager();
-                var userMylistManager = Commands.HohoemaCommnadHelper.GetUserMylistManager();
-                var hohoemaPlaylist = Commands.HohoemaCommnadHelper.GetHohoemaPlaylist();
-                var mylistHelper = Commands.HohoemaCommnadHelper.GetMylistHelper();
-
                 // 既に登録済みのアイテムを先頭にして
                 // 続いてマイリスト、ローカルプレイリストと表示する
                 var playlists = new List<Interfaces.IMylist>()
                 {
-                    hohoemaPlaylist.DefaultPlaylist
+                    HohoemaPlaylist.DefaultPlaylist
                 };
 
-                foreach (var playlist in userMylistManager.UserMylists)
+                foreach (var playlist in UserMylistManager.Mylists)
                 {
                     playlists.Add(playlist);
                 }
 
-                foreach (var playlist in localMylistManager.LocalMylistGroups)
+                foreach (var playlist in LocalMylistManager.Mylists)
                 {
                     playlists.Add(playlist);
                 }
@@ -47,7 +65,7 @@ namespace NicoPlayerHohoema.Views.Subscriptions
                 var selectedItems = new List<Interfaces.IMylist>();
                 foreach (var dest in subscription.Destinations.Reverse())
                 {
-                    var list = mylistHelper.FindMylistInCached(dest.PlaylistId, dest.Target == Models.Subscription.SubscriptionDestinationTarget.LocalPlaylist ? PlaylistOrigin.Local : PlaylistOrigin.LoginUser);
+                    var list = MylistHelper.FindMylistInCached(dest.PlaylistId, dest.Target == Models.Subscription.SubscriptionDestinationTarget.LocalPlaylist ? PlaylistOrigin.Local : PlaylistOrigin.LoginUser);
 
                     if (list != null)
                     {
@@ -59,7 +77,7 @@ namespace NicoPlayerHohoema.Views.Subscriptions
                 }
 
 
-                var choiceItems = await dialogService.ShowMultiChoiceDialogAsync(
+                var choiceItems = await DialogService.ShowMultiChoiceDialogAsync(
                     $"購読『{subscription.Label}』の新着追加先を選択",
                     playlists,
                     selectedItems,

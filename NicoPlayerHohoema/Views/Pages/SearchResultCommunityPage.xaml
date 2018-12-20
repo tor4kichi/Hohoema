@@ -85,7 +85,7 @@
             UseSystemFocusVisuals="True"
             SelectionMode="None"
             HorizontalContentAlignment="Stretch"
-            uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
+            uwpExtension:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
             ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
             uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 96 0 0"
             >
@@ -174,7 +174,7 @@
                                 Margin="16 0 0 0" x:Name="TitleLayout"
                                 >
 
-                                    <HyperlinkButton Command="{StaticResource OpenHohoemaPageCommand}"
+                                    <HyperlinkButton Command="{Binding PageManager.OpenPageCommand}"
                                              CommandParameter="Search"
                                              Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                              Margin="0 0 16 0"
@@ -305,7 +305,7 @@
                        Margin="16 0 16 16"
                        />
 
-            <Button Content="ログイン" Command="{StaticResource LoginToNiconicoCommand}" />
+            <Button Content="ログイン" Command="{Binding LoginToNiconicoCommand}" />
             
         </StackPanel>
     </Grid>

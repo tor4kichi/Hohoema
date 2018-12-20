@@ -12,18 +12,24 @@ using Prism.Commands;
 using Prism.Windows.Navigation;
 using Windows.UI;
 using NicoPlayerHohoema.Models.Provider;
+using Microsoft.Practices.Unity;
+using NicoPlayerHohoema.Interfaces;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public sealed class ChannelVideoPageViewModel : HohoemaVideoListingPageViewModelBase<ChannelVideoListItemViewModel>
+    public sealed class ChannelVideoPageViewModel : HohoemaVideoListingPageViewModelBase<ChannelVideoListItemViewModel>, Interfaces.IChannel
     {
         public ChannelVideoPageViewModel(
             Models.Provider.ChannelProvider channelProvider,
-            Services.PageManager pageManager
+            Services.PageManager pageManager,
+            HohoemaPlaylist hohoemaPlaylist,
+            Services.ExternalAccessService externalAccessService
             )
             : base(pageManager, useDefaultPageTitle:true)
         {
             ChannelProvider = channelProvider;
+            HohoemaPlaylist = hohoemaPlaylist;
+            ExternalAccessService = externalAccessService;
         }
 
         public string RawChannelId { get; set; }
@@ -125,16 +131,37 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public Models.Provider.ChannelProvider ChannelProvider { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.ExternalAccessService ExternalAccessService { get; }
+
+        string INiconicoObject.Id => RawChannelId;
+
+        string INiconicoObject.Label => ChannelName;
     }
 
     public sealed class ChannelVideoListItemViewModel : VideoInfoControlViewModel
     {
-        public bool IsRequirePayment { get; }
+        public bool IsRequirePayment { get; internal set; }
 
-        public ChannelVideoListItemViewModel(string videoId, bool isRequirePayment) 
-            : base(videoId)
+        public ChannelVideoListItemViewModel(
+            HohoemaPlaylist hohoemaPlaylist,
+            Services.ExternalAccessService externalAccessService,
+            Services.PageManager pageManager,
+            UserMylistManager userMylistManager,
+            Models.LocalMylist.LocalMylistManager localMylistManager,
+            Models.Subscription.SubscriptionManager subscriptionManager,
+            Models.Cache.VideoCacheManager videoCacheManager,
+            NicoVideoProvider nicoVideoProvider,
+            NGSettings ngSettings,
+            Commands.Mylist.CreateMylistCommand createMylistCommand,
+            Commands.Mylist.CreateLocalMylistCommand createLocalMylistCommand,
+            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand,
+            Commands.AddToHiddenUserCommand addToHiddenUserCommand
+            )
+            : base(hohoemaPlaylist, externalAccessService, pageManager, userMylistManager, localMylistManager, subscriptionManager,
+                  videoCacheManager, nicoVideoProvider, ngSettings, createMylistCommand, createLocalMylistCommand, createSubscriptionGroupCommand, addToHiddenUserCommand)
         {
-            IsRequirePayment = isRequirePayment;
+
         }
     }
 
@@ -188,7 +215,9 @@ namespace NicoPlayerHohoema.ViewModels
                     // so0123456のフォーマットの動画ID
                     // var videoId = video.PurchasePreviewUrl.Split('/').Last();
 
-                    var channelVideo = new ChannelVideoListItemViewModel(video.ItemId, video.IsRequirePayment);
+                    var channelVideo = App.Current.Container.Resolve<ChannelVideoListItemViewModel>();
+                    channelVideo.RawVideoId = video.ItemId;
+                    channelVideo.IsRequirePayment = video.IsRequirePayment;
                     channelVideo.SetTitle(video.Title);
                     channelVideo.SetThumbnailImage(video.ThumbnailUrl);
                     channelVideo.SetVideoDuration(video.Length);

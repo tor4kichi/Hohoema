@@ -20,6 +20,7 @@
     xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
     xmlns:templateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
     xmlns:listitem="using:NicoPlayerHohoema.Views.HohoemaListItem"
+    xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     >
@@ -81,7 +82,7 @@
             UseSystemFocusVisuals="True"
             SelectionMode="None"
             HorizontalContentAlignment="Stretch"
-            uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
+            uwpExtension:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
             ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
             uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
             xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
@@ -92,7 +93,7 @@
                 <templateSelector:HohoemaFlyoutTemplateSelector>
                     <templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>
                         <DataTemplate>
-                            <local:VideoItemFlyout />
+                            <flyouts:VideoItemFlyout />
                         </DataTemplate>
                     </templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>
                     <templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>

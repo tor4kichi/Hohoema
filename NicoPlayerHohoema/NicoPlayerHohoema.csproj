@@ -132,12 +132,9 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Commands\AddAfterViewPlaylistCommand.cs" />
     <Compile Include="Commands\AddMylistCommand.cs" />
     <Compile Include="Commands\AddToHiddenUserCommand.cs" />
     <Compile Include="Commands\GoNextIntroductionPageCommand.cs" />
-    <Compile Include="Commands\CopyToClipboardCommand.cs" />
-    <Compile Include="Commands\HohoemaCommnadHelper.cs" />
     <Compile Include="Commands\LoginToNiconicoCommand.cs" />
     <Compile Include="Commands\LogoutFromNiconicoCommand.cs" />
     <Compile Include="Commands\Mylist\CreateLocalMylistCommand.cs" />
@@ -145,20 +142,8 @@
     <Compile Include="Commands\NicoLiveUserIdAddToNGCommand.cs" />
     <Compile Include="Commands\NicoLiveUserIdRemoveFromNGCommand.cs" />
     <Compile Include="Commands\OpenBroadcasterInfoCommand.cs" />
-    <Compile Include="Commands\OpenContentCommand.cs" />
-    <Compile Include="Commands\OpenHohoemaPageCommand.cs" />
-    <Compile Include="Commands\OpenLinkCommand.cs" />
-    <Compile Include="Commands\OpenLiveInfoCommand.cs" />
-    <Compile Include="Commands\OpenVideoInfoCommand.cs" />
-    <Compile Include="Commands\OpenVideoOwnerVideoListCommand.cs" />
-    <Compile Include="Commands\RemoveFollowCommand.cs" />
-    <Compile Include="Commands\RemovePinCommand.cs" />
     <Compile Include="Commands\RemoveSearchHistoryCommand.cs" />
-    <Compile Include="Commands\ShareWithTwitterCommand.cs" />
-    <Compile Include="Commands\ShereCommand.cs" />
     <Compile Include="Commands\Subscriptions\CreateSubscriptionGroupCommand.cs" />
-    <Compile Include="Commands\VideoDeleteCacheCommand.cs" />
-    <Compile Include="Commands\VideoRequestCacheCommand.cs" />
     <Compile Include="Database\Local\Bookmark.cs" />
     <Compile Include="Database\Local\BookmarkDb.cs" />
     <Compile Include="Database\Local\BookmarkType.cs" />
@@ -197,8 +182,14 @@
     <Compile Include="Models\Provider\RankingProvider.cs" />
     <Compile Include="Models\Provider\SearchProvider.cs" />
     <Compile Include="Models\Provider\UserProvider.cs" />
+    <Compile Include="Services\ExternalAccessService.cs" />
     <Compile Include="Services\Helpers\MylistHelper.cs" />
-    <Compile Include="ViewModels\Flyouts\VideoItemFlyoutViewModel.cs" />
+    <Compile Include="ViewModels\Flyouts\LiveItemFlyoutViewModel.cs" />
+    <Compile Include="ViewModels\Flyouts\MylistItemFlyoutViewModel.cs" />
+    <Compile Include="ViewModels\Flyouts\FollowItemFlyoutViewModel.cs" />
+    <Compile Include="ViewModels\Flyouts\SubscriptionItemFlyoutViewModel.cs" />
+    <Compile Include="ViewModels\SubscriptionControlViewModel.cs" />
+    <Compile Include="Views\Converters\StringToUriConverter.cs" />
     <Compile Include="Views\Dialogs\NiconicoLoginDialog.xaml.cs">
       <DependentUpon>NiconicoLoginDialog.xaml</DependentUpon>
     </Compile>
@@ -217,7 +208,6 @@
     <Compile Include="Models\Helpers\StringHelper.cs" />
     <Compile Include="Interfaces\IChannel.cs" />
     <Compile Include="Interfaces\ICommunity.cs" />
-    <Compile Include="Interfaces\IFeedGroup.cs" />
     <Compile Include="Interfaces\IFollowable.cs" />
     <Compile Include="Interfaces\ILiveContent.cs" />
     <Compile Include="Interfaces\INiconicoContent.cs" />
@@ -355,7 +345,7 @@
     <Compile Include="Models\Subscription\SubscriptionUpdateInfo.cs" />
     <Compile Include="Models\Subscription\SubscriptionUpdateStatus.cs" />
     <Compile Include="Services\WatchItLater.cs" />
-    <Compile Include="Services\HohoemaClipboardService.cs" />
+    <Compile Include="Services\ClipboardHelper.cs" />
     <Compile Include="Services\HohoemaDialogService.cs" />
     <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
     <Compile Include="ViewModels\ChannelVideoPageViewModel.cs" />
@@ -412,7 +402,20 @@
     <Compile Include="ViewModels\UserVideoPageViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\LiveCommentSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\SidePaneContentViewModelBase.cs" />
+    <Compile Include="Views\Extensions\Flyout\FlyoutCustomContext.cs" />
     <Compile Include="Views\Extensions\ListViewBase\ListViewItemDeferInitialize.cs" />
+    <Compile Include="Views\Flyouts\SubscriptionItemFlyout.xaml.cs">
+      <DependentUpon>SubscriptionItemFlyout.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Flyouts\MylistItemFlyout.xaml.cs">
+      <DependentUpon>MylistItemFlyout.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Flyouts\FollowItemFlyout.xaml.cs">
+      <DependentUpon>FollowItemFlyout.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Flyouts\MenuPinItemFlyout.xaml.cs">
+      <DependentUpon>MenuPinItemFlyout.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Interaction\Actions\ScrollViewerVerticalPositionSettingsAction.cs" />
     <Compile Include="Views\Interaction\Behaviors\FocusGetter.cs" />
     <Compile Include="Views\Interaction\Input\AutoHideCursor.cs" />
@@ -480,9 +483,11 @@
     <Compile Include="Views\Pages\SubscriptionPage_Mobile.xaml.cs">
       <DependentUpon>SubscriptionPage_Mobile.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Pages\Subscription\SubscriptionControl.xaml.cs">
+      <DependentUpon>SubscriptionControl.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Pages\Subscription\SubscriptionSourceConverter.cs" />
     <Compile Include="Views\TemplateSelector\ContentTemplateSelector.cs" />
-    <Compile Include="Views\TemplateSelector\MenuItemTemplateSelector.cs" />
     <Compile Include="Views\Pages\RankingCategoryPage.xaml.cs">
       <DependentUpon>RankingCategoryPage.xaml</DependentUpon>
     </Compile>
@@ -799,11 +804,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Page Include="Commands\Commands.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Page>
     <Page Include="Views\Dialogs\NiconicoLoginDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -845,6 +845,22 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Page>
+    <Page Include="Views\Flyouts\SubscriptionItemFlyout.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Flyouts\MylistItemFlyout.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\Flyouts\FollowItemFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Flyouts\MenuPinItemFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Pages\BlankPage.xaml">
       <SubType>Designer</SubType>
@@ -890,7 +906,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Pages\Subscription\SubscriptionDictionary.xaml">
+    <Page Include="Views\Pages\Subscription\SubscriptionControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

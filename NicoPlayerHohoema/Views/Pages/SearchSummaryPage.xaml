@@ -137,7 +137,7 @@
                           ScrollViewer.HorizontalScrollMode="Auto"
                           ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                           ScrollViewer.VerticalScrollMode="Disabled"
-                          uwpExtensions:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                          uwpExtensions:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
                           IsItemClickEnabled="True"
                           >
                         <ListView.ItemContainerStyle>
@@ -226,7 +226,7 @@
                           ScrollViewer.HorizontalScrollMode="Auto"
                           ScrollViewer.HorizontalScrollBarVisibility="Hidden"
                           ScrollViewer.VerticalScrollMode="Disabled"
-                          uwpExtensions:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                          uwpExtensions:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
                           IsItemClickEnabled="True"
                           >
                         <ListView.ItemContainerStyle>

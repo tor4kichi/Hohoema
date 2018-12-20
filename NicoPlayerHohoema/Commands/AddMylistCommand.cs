@@ -1,9 +1,22 @@
-﻿using Prism.Commands;
+﻿using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Services;
+using Prism.Commands;
 
 namespace NicoPlayerHohoema.Commands
 {
     public sealed class AddMylistCommand : DelegateCommandBase
     {
+        public AddMylistCommand(
+            NotificationService notificationService,
+            DialogService dialogService)
+        {
+            NotificationService = notificationService;
+            DialogService = dialogService;
+        }
+
+        public NotificationService NotificationService { get; }
+        public DialogService DialogService { get; }
+
         protected override bool CanExecute(object parameter)
         {
             return parameter is Interfaces.IVideoContent;
@@ -15,13 +28,11 @@ namespace NicoPlayerHohoema.Commands
             {
                 var content = parameter as Interfaces.IVideoContent;
 
-                var dialogService = HohoemaCommnadHelper.GetDialogService();
-                var targetMylist = await dialogService.ChoiceMylist();
+                var targetMylist = await DialogService.ChoiceMylist();
                 if (targetMylist != null)
                 {
-                    var notificationService = HohoemaCommnadHelper.GetNotificationService();
                     var result = await targetMylist.AddMylistItem(content.Label);
-                    notificationService.ShowInAppNotification(
+                    NotificationService.ShowInAppNotification(
                         Services.InAppNotificationPayload.CreateRegistrationResultNotification(
                             result ? Mntone.Nico2.ContentManageResult.Success : Mntone.Nico2.ContentManageResult.Failed,
                             "マイリスト",

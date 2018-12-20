@@ -22,6 +22,7 @@ using System.Text.RegularExpressions;
 using Windows.System;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Models.Provider;
+using Mntone.Nico2.Live;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -31,6 +32,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public string Label { get; set; }
     }
+
     public sealed class LiveInfomationPageViewModel : HohoemaViewModelBase, Interfaces.ILiveContent
     {
         // TODO: 視聴開始（会場後のみ、チャンネル会員限定やチケット必要な場合あり）
@@ -53,14 +55,17 @@ namespace NicoPlayerHohoema.ViewModels
             PageManager pageManager,
             Models.NiconicoSession niconicoSession,
             NicoLiveProvider nicoLiveProvider,
-            DialogService dialogService
+            DialogService dialogService,
+            HohoemaPlaylist hohoemaPlaylist,
+            ExternalAccessService externalAccessService
             )
             : base(pageManager)
         {
             NiconicoSession = niconicoSession;
             NicoLiveProvider = nicoLiveProvider;
             HohoemaDialogService = dialogService;
-
+            HohoemaPlaylist = hohoemaPlaylist;
+            ExternalAccessService = externalAccessService;
             IsLoadFailed = new ReactiveProperty<bool>(false)
                .AddTo(_CompositeDisposable);
             LoadFailedMessage = new ReactiveProperty<string>()
@@ -95,7 +100,16 @@ namespace NicoPlayerHohoema.ViewModels
             ReccomendItems = _ReccomendItems.ToReadOnlyReactiveCollection(x =>
             {
                 var liveId = "lv" + x.ProgramId;
-                return new LiveInfoListItemViewModel(x, _Reservations?.ReservedProgram.FirstOrDefault(reservation => liveId == reservation.Id));
+                var liveInfoVM = App.Current.Container.Resolve<LiveInfoListItemViewModel>();
+                liveInfoVM.Setup(x);
+
+                var reserve = _Reservations?.ReservedProgram.FirstOrDefault(reservation => liveId == reservation.Id);
+                if (reserve != null)
+                {
+                    liveInfoVM.SetReservation(reserve);
+                }
+
+                return liveInfoVM;
             })
                 .AddTo(_CompositeDisposable);
 
@@ -154,17 +168,22 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public DialogService HohoemaDialogService { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public ExternalAccessService ExternalAccessService { get; }
 
 
 
 
         #region Interfaces.ILiveContent
 
-        string Interfaces.ILiveContent.BroadcasterId => LiveInfo.Community?.GlobalId;
+        string Interfaces.ILiveContent.ProviderId => LiveInfo.Community?.GlobalId;
+        string Interfaces.ILiveContent.ProviderName => LiveInfo.Community?.Name;
+        CommunityType Interfaces.ILiveContent.ProviderType => LiveInfo.Video.ProviderType;
 
-        string Interfaces.INiconicoContent.Id => LiveInfo.Video.Id;
 
-        string Interfaces.INiconicoContent.Label => LiveInfo.Video.Title;
+        string Interfaces.INiconicoObject.Id => LiveInfo.Video.Id;
+
+        string Interfaces.INiconicoObject.Label => LiveInfo.Video.Title;
 
         #endregion
 

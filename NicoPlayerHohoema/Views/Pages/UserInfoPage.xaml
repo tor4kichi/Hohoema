@@ -202,7 +202,7 @@
                                     <MenuFlyout>
                                         <i:Interaction.Behaviors>
                                             <mybehavior:MenuFlyoutItemsSetter ItemsSource="{Binding SubscriptionManager.Subscriptions}"
-                                                                                CustomObjectToTag="{Binding SubscriptionSource}"
+                                                                                CustomObjectToTag="{Binding Converter={StaticResource SubscriptionSourceConverter}}"
                                                                                 >
                                                 <mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
                                                     <DataTemplate>
@@ -216,9 +216,9 @@
                                         </i:Interaction.Behaviors>
 
                                         <MenuFlyoutItem Text="購読グループを作成..."
-                                                                Command="{StaticResource CreateSubscriptionGroupCommand}"
-                                                                CommandParameter="{Binding SubscriptionSource}"
-                                                                />
+                                                        Command="{Binding CreateSubscriptionGroupCommand}"
+                                                        CommandParameter="{Binding Converter={StaticResource SubscriptionSourceConverter}}"
+                                                        />
 
 
                                     </MenuFlyout>
@@ -226,7 +226,8 @@
                             </AppBarButton>
 
                             <AppBarButton Label="ブラウザで開く"
-                                            Command="{Binding OpenUserAccountPageInBrowserCommand}"
+                                            Command="{Binding ExternalAccessService.OpenLinkCommand}"
+                                          CommandParameter="{Binding}"
                                             VerticalAlignment="Center"
                                             UseSystemFocusVisuals="True"
                                             />
@@ -252,10 +253,11 @@
 
                             <toolkit:DockPanel x:Name="UserVideoTitleLayout">
 
-                                <HyperlinkButton Command="{Binding OpenUserVideoPageCommand}"
+                                <HyperlinkButton Command="{Binding PageManager.OpenVideoListPageCommand}"
+                                        CommandParameter="{Binding}"
                                         IsEnabled="{Binding HasOwnerVideo}"
-                                                 Foreground="{StaticResource ApplicationForegroundThemeBrush}"
-                                                 Margin="0 8"
+                                        Foreground="{StaticResource ApplicationForegroundThemeBrush}"
+                                        Margin="0 8"
                                         >
                                     <TextBlock Style="{StaticResource SubtitleTextBlockStyle}"
                                                  Text="投稿動画"  
@@ -270,7 +272,7 @@
                             <ListView ItemsSource="{Binding VideoInfoItems}"
                                       x:Name="UserVideosLayout"
                                           IsTabStop="False"
-                                          uwpui:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                                          uwpui:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
                                           SelectionMode="None"
                                           IsItemClickEnabled="True"
                                         ScrollViewer.VerticalScrollMode="Disabled"
@@ -347,7 +349,7 @@
                                         <ListView ItemsSource="{Binding MylistGroups}"
                                           x:Name="UserMylistLayout"
                                           IsTabStop="False"
-                                          uwpui:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                                          uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
                                           SelectionMode="None"
                                           IsItemClickEnabled="True"
                                 >

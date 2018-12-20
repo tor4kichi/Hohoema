@@ -4,12 +4,13 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Practices.Unity;
 using Microsoft.Toolkit.Uwp.UI;
 using Mntone.Nico2.Channels.Video;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Provider;
+using NicoPlayerHohoema.Services;
+using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 {
@@ -20,7 +21,9 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
            string jumpVideoId,
            NicoVideoProvider nicoVideoProvider,
            ChannelProvider channelProvider,
-           MylistProvider mylistProvider
+           MylistProvider mylistProvider,
+           HohoemaPlaylist hohoemaPlaylist,
+           PageManager pageManager
            )
         {
             Video = video;
@@ -28,6 +31,8 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             NicoVideoProvider = nicoVideoProvider;
             ChannelProvider = channelProvider;
             MylistProvider = mylistProvider;
+            HohoemaPlaylist = hohoemaPlaylist;
+            PageManager = pageManager;
             CurrentVideoId = video.RawVideoId;
             _VideoViewerHelpInfo = video.GetVideoRelatedInfomationWithVideoDescription(); ;
 
@@ -50,6 +55,8 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
         public NicoVideoProvider NicoVideoProvider { get; }
         public ChannelProvider ChannelProvider { get; }
         public MylistProvider MylistProvider { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public PageManager PageManager { get; }
         public bool HasVideoDescription { get; private set; }
         public ObservableCollection<VideoInfoControlViewModel> OtherVideos { get; } = new ObservableCollection<VideoInfoControlViewModel>();
         public VideoInfoControlViewModel NextVideo { get; private set; }
@@ -77,7 +84,9 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                     var video = await NicoVideoProvider.GetNicoVideoInfo(_JumpVideoId, requireLatest: true);
                     if (video != null)
                     {
-                        JumpVideo = new VideoInfoControlViewModel(video);
+                        JumpVideo = App.Current.Container.Resolve<VideoInfoControlViewModel>();
+                        JumpVideo.Data = video;
+                        JumpVideo.RawVideoId = video.RawVideoId;
                         RaisePropertyChanged(nameof(JumpVideo));
                     }
                 }
@@ -100,7 +109,10 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                     }
                     else
                     {
-                        OtherVideos.Add(new VideoInfoControlViewModel(video));
+                        var otherVideo = App.Current.Container.Resolve<VideoInfoControlViewModel>();
+                        otherVideo.Data = video;
+                        otherVideo.RawVideoId = video.RawVideoId;
+                        OtherVideos.Add(otherVideo);
                     }
                 }
 
@@ -113,7 +125,9 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 if (orderedSeriesVideos.Count - 1 > currentVideoIndex)
                 {
                     var nextVideo = orderedSeriesVideos.Last();
-                    NextVideo = new VideoInfoControlViewModel(nextVideo);
+                    NextVideo = App.Current.Container.Resolve<VideoInfoControlViewModel>();
+                    NextVideo.Data = nextVideo;
+                    NextVideo.RawVideoId = nextVideo.RawVideoId;
                     orderedSeriesVideos.Remove(nextVideo);
 
                     RaisePropertyChanged(nameof(NextVideo));
@@ -124,7 +138,10 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 orderedSeriesVideos.Reverse();
                 foreach (var video in orderedSeriesVideos)
                 {
-                    OtherVideos.Insert(0, new VideoInfoControlViewModel(video));
+                    var videoVM = App.Current.Container.Resolve<VideoInfoControlViewModel>();
+                    videoVM.Data = video;
+                    videoVM.RawVideoId = video.RawVideoId;
+                    OtherVideos.Insert(0, videoVM);
                 }
 
                 RaisePropertyChanged(nameof(OtherVideos));
@@ -132,7 +149,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
                 // チャンネル動画で次動画が見つからなかった場合は
                 // チャンネル動画一覧から次動画をサジェストする
-                if (sourceVideo.Owner.UserType == Mntone.Nico2.Videos.Thumbnail.UserType.Channel 
+                if (sourceVideo.Owner.UserType == Mntone.Nico2.Videos.Thumbnail.UserType.Channel
                     && NextVideo == null
                     )
                 {
@@ -183,9 +200,13 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                         var nextVideo = collectionView.ElementAtOrDefault(pos + 1) as ChannelVideoInfo;
                         if (nextVideo != null)
                         {
-                            NextVideo = new ChannelVideoListItemViewModel(nextVideo.ItemId, nextVideo.IsRequirePayment);
-                            NextVideo.SetTitle(nextVideo.Title);
+                            var videoVM = App.Current.Container.Resolve<ChannelVideoListItemViewModel>();
+                            videoVM.RawVideoId = nextVideo.ItemId;
+                            videoVM.IsRequirePayment = nextVideo.IsRequirePayment;
 
+                            videoVM.SetTitle(nextVideo.Title);
+
+                            NextVideo = videoVM;
                             RaisePropertyChanged(nameof(NextVideo));
                         }
                     }
@@ -205,7 +226,15 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 RaisePropertyChanged(nameof(Mylists));
 
                 var videos = await Video.GetRelatedVideos();
-                Videos = videos.Select(x => new VideoInfoControlViewModel(x)).ToList();
+                Videos = videos.Select(x =>
+                {
+                    var vm = App.Current.Container.Resolve<VideoInfoControlViewModel>();
+                    vm.RawVideoId = x.RawVideoId;
+                    vm.Data = x;
+                    return vm;
+                })
+                .ToList();
+            
                 CurrentVideo = Videos.FirstOrDefault(x => x.RawVideoId == CurrentVideoId);
 
                 RaisePropertyChanged(nameof(Videos));

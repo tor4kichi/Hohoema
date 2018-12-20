@@ -20,11 +20,12 @@ using NicoPlayerHohoema.Models.Cache;
 using Windows.Media.Playback;
 using Windows.Media.Core;
 using System.Collections.Specialized;
+using Prism.Commands;
 
 namespace NicoPlayerHohoema.Models
 {
     public delegate void OpenPlaylistItemEventHandler(Interfaces.IMylist playlist, PlaylistItem item);
-    
+
     public class HohoemaPlaylist : BindableBase, IDisposable
     {
         // Windows10のメディアコントロールとHohoemaのプレイリスト機能を統合してサポート
@@ -96,7 +97,7 @@ namespace NicoPlayerHohoema.Models
                     _CurrentPlaylistId = _CurrentPlaylist?.Id;
                     RaisePropertyChanged(nameof(Player));
 
-                    Player.ResetItems(_CurrentPlaylist);                
+                    Player.ResetItems(_CurrentPlaylist);
                 }
             }
         }
@@ -127,7 +128,7 @@ namespace NicoPlayerHohoema.Models
                     if (prevDisplayType == PlayerDisplayType.SecondaryView)
                     {
                         _SecondaryView.Close()
-                            .ContinueWith(prevTask => 
+                            .ContinueWith(prevTask =>
                             {
                                 if (prevItem != null)
                                 {
@@ -146,7 +147,7 @@ namespace NicoPlayerHohoema.Models
                         {
                             IsDisplayMainViewPlayer = _PlayerDisplayType != PlayerDisplayType.SecondaryView;
 
-                            Play(prevItem);                                
+                            Play(prevItem);
                         }
                     }
 
@@ -198,7 +199,7 @@ namespace NicoPlayerHohoema.Models
         public bool IsPlayerFloatingModeEnable => PlayerDisplayType == PlayerDisplayType.PrimaryWithSmall;
 
 
-       
+
 
         private void Player_PlayRequested(object sender, PlaylistItem e)
         {
@@ -217,9 +218,9 @@ namespace NicoPlayerHohoema.Models
         }
 
 
-        
 
-        
+
+
 
         AsyncLock SecondaryViewLock = new AsyncLock();
         HohoemaViewManager _SecondaryView;
@@ -268,7 +269,7 @@ namespace NicoPlayerHohoema.Models
                     var currentDownloadingItems = await VideoCacheManager.GetDownloadProgressVideosAsync();
                     var downloadingItem = currentDownloadingItems.FirstOrDefault();
                     var downloadingItemVideoInfo = Database.NicoVideoDb.Get(downloadingItem.RawVideoId);
-                    
+
                     var dialogService = App.Current.Container.Resolve<Services.DialogService>();
                     var totalSize = downloadingItem.DownloadOperation.Progress.TotalBytesToReceive;
                     var receivedSize = downloadingItem.DownloadOperation.Progress.BytesReceived;
@@ -288,7 +289,7 @@ namespace NicoPlayerHohoema.Models
             else if (!NiconicoSession.IsPremiumAccount)
             {
                 // キャッシュ済みの場合はサスペンドを掛けない
-                if (item.Type == PlaylistItemType.Video && false == await VideoCacheManager.CheckCached(item.ContentId))
+                if (item.Type == PlaylistItemType.Video && false == await VideoCacheManager.CheckCachedAsync(item.ContentId))
                 {
                     await VideoCacheManager.SuspendCacheDownload();
                 }
@@ -317,6 +318,17 @@ namespace NicoPlayerHohoema.Models
 
 
 
+        public void AddWatchAfterPlaylist(string contentId)
+        {
+            if (!NiconicoRegex.IsVideoId(contentId) && !int.TryParse(contentId, out var temp))
+            {
+                return;
+            }
+
+            var result = DefaultPlaylist.AddMylistItem(contentId, ContentInsertPosition.Tail);
+        }
+
+
         // あとで見るプレイリストを通じての再生をサポート
         // プレイリストが空だった場合、その場で再生を開始
         public void PlayVideo(string contentId, string title = "", NicoVideoQuality? quality = null)
@@ -334,7 +346,7 @@ namespace NicoPlayerHohoema.Models
                 Title = title,
                 Type = PlaylistItemType.Video,
                 Quality = quality
-            } );
+            });
         }
 
         public void PlayVideo(IVideoContent video)
@@ -345,7 +357,7 @@ namespace NicoPlayerHohoema.Models
             }
 
             DefaultPlaylist.AddMylistItem(video.Id, ContentInsertPosition.Head);
-            
+
             Play(new QualityVideoPlaylistItem()
             {
                 ContentId = video.Id,
@@ -417,7 +429,7 @@ namespace NicoPlayerHohoema.Models
         }
 
 
-        
+
         public void PlayDone(PlaylistItem item, bool canPlayNext = false)
         {
 
@@ -458,10 +470,72 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-        
+        private DelegateCommand<object> _PlayCommand;
+        public DelegateCommand<object> PlayCommand
+        {
+            get
+            {
+                return _PlayCommand
+                    ?? (_PlayCommand = new DelegateCommand<object>(item =>
+                    {
+                        if (item is string contentId)
+                        {
+                            if (contentId.StartsWith("lv"))
+                            {
+                                PlayLiveVideo(contentId);
+                            }
+                            else
+                            {
+                                PlayVideo(contentId);
+                            }
+                        }
+                        else if (item is IVideoContent videoContent)
+                        {
+                            PlayVideo(videoContent.Id);
+                        }
+                        else if (item is PlaylistItem playlistItem)
+                        {
+                            Play(playlistItem);
+                        }
+                        else if (item is ILiveContent liveContent)
+                        {
+                            PlayLiveVideo(liveContent);
+                        }
+                    },
+                    item => item is string || item is IVideoContent || item is PlaylistItem || item is ILiveContent
+                    ));
+            }
+        }
+
+
+        private DelegateCommand<object> _AddWatchAfterPlaylistCommand;
+        public DelegateCommand<object> AddWatchAfterPlaylistCommand
+        {
+            get
+            {
+                return _AddWatchAfterPlaylistCommand
+                    ?? (_AddWatchAfterPlaylistCommand = new DelegateCommand<object>(item =>
+                    {
+                        if (item is string contentId)
+                        {
+                            AddWatchAfterPlaylist(contentId);
+                        }
+                        else if (item is IVideoContent videoContent)
+                        {
+                            AddWatchAfterPlaylist(videoContent.Id);
+                        }
+                        else if (item is PlaylistItem playlistItem)
+                        {
+                            AddWatchAfterPlaylist(playlistItem.ContentId);
+                        }
+                    },
+                    item => item is string || item is IVideoContent || item is PlaylistItem
+                    ));
+            }
+        }
+
+
     }
-
-
 
     public enum PlayerDisplayType
     {

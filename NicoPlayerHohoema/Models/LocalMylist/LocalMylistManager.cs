@@ -26,9 +26,9 @@ namespace NicoPlayerHohoema.Models.LocalMylist
             NiconicoSession = niconicoSession;
             NotificationService = notificationService;
 
-            LocalMylistGroups = new ObservableCollection<LocalMylistGroup>(RestoreLocalMylistGroupsFromLocalDatabase());
+            Mylists = new ObservableCollection<LocalMylistGroup>(RestoreLocalMylistGroupsFromLocalDatabase());
 
-            LocalMylistGroups.CollectionChangedAsObservable()
+            Mylists.CollectionChangedAsObservable()
                 .Subscribe(e =>
                 {
                     if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
@@ -74,7 +74,7 @@ namespace NicoPlayerHohoema.Models.LocalMylist
                 });
         }
 
-        public ObservableCollection<LocalMylistGroup> LocalMylistGroups { get; }
+        public ObservableCollection<LocalMylistGroup> Mylists { get; }
 
         public NiconicoSession NiconicoSession { get; }
         public Services.NotificationService NotificationService { get; }
@@ -95,7 +95,7 @@ namespace NicoPlayerHohoema.Models.LocalMylist
         public DelegateCommand<string> AddCommand => _AddCommand
             ?? (_AddCommand = new DelegateCommand<string>((label) =>
             {
-                LocalMylistGroups.Add(new LocalMylistGroup(Guid.NewGuid().ToString(), label));
+                Mylists.Add(new LocalMylistGroup(Guid.NewGuid().ToString(), label));
             }
             , (p) => !string.IsNullOrWhiteSpace(p)
             ));
@@ -105,9 +105,9 @@ namespace NicoPlayerHohoema.Models.LocalMylist
         public DelegateCommand<LocalMylistGroup> RemoveCommand => _RemoveCommand
             ?? (_RemoveCommand = new DelegateCommand<LocalMylistGroup>((group) =>
             {
-                LocalMylistGroups.Remove(group);
+                Mylists.Remove(group);
             }
-            , (p) => p != null && LocalMylistGroups.Contains(p)
+            , (p) => p != null && Mylists.Contains(p)
             ));
 
 

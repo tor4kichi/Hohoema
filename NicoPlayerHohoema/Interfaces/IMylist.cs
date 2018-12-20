@@ -12,7 +12,6 @@ namespace NicoPlayerHohoema.Interfaces
 {
     public interface IMylistItem : INiconicoContent
     {
-
     }
 
     public interface IMylist : IMylistItem, IReadOnlyCollection<string>
@@ -46,17 +45,11 @@ namespace NicoPlayerHohoema.Interfaces
 
     public interface IUserOwnedRemoteMylist : IRemoteMylist, IUserOwnedMylist, IFollowable
     {
-        
-    }
-
-    public interface IDefaultMylist : IRemoteMylist, IUserOwnedMylist
-    {
-
+        bool IsDefaultMylist { get; }
     }
 
     public interface ILocalMylist : IUserOwnedMylist
     {
-        string Label { get; set; }
+        new string Label { get; set; }
     }
-    
 }

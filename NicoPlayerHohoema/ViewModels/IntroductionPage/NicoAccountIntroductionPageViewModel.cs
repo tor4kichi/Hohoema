@@ -17,17 +17,19 @@ namespace NicoPlayerHohoema.ViewModels
     public sealed class NicoAccountIntroductionPageViewModel : ViewModelBase
     {
         public NicoAccountIntroductionPageViewModel(
-            NiconicoSession niconicoSession
+            NiconicoSession niconicoSession,
+            Commands.GoNextIntroductionPageCommand goNextIntroduction
             )
         {
             NiconicoSession = niconicoSession;
-
+            GoNextIntroduction = goNextIntroduction;
             IsLoggedIn = NiconicoSession.ObserveProperty(x => x.IsLoggedIn)
                 .ToReadOnlyReactiveProperty();
         }
 
         public ReadOnlyReactiveProperty<bool> IsLoggedIn { get; }
         public NiconicoSession NiconicoSession { get; }
+        public ICommand GoNextIntroduction { get; }
 
         CompositeDisposable disposables;
 
@@ -43,11 +45,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .Delay(TimeSpan.FromSeconds(2.5)) /* ここでログイン確認後の遷移前タメ時間を調整 */
                 .Subscribe(_ => 
                 {
-                    var goNextCommand = new Commands.GoNextIntroductionPageCommand() as ICommand;
-                    if (goNextCommand != null)
-                    {
-                        goNextCommand.Execute(null);
-                    }
+                    GoNextIntroduction.Execute(null);
                 });
 
             try

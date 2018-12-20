@@ -6,11 +6,25 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Practices.Unity;
 using System.Diagnostics;
+using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.Commands.Mylist
 {
     public sealed class CreateMylistCommand : DelegateCommandBase
     {
+        public CreateMylistCommand(
+            UserMylistManager userMylistManager,
+            DialogService dialogService
+            )
+        {
+            UserMylistManager = userMylistManager;
+            DialogService = dialogService;
+        }
+
+        public UserMylistManager UserMylistManager { get; }
+        public DialogService DialogService { get; }
+
         protected override bool CanExecute(object parameter)
         {
             if (parameter == null) { return false; }
@@ -21,19 +35,16 @@ namespace NicoPlayerHohoema.Commands.Mylist
 
         protected override async void Execute(object parameter)
         {
-            var userMylistManager = HohoemaCommnadHelper.GetUserMylistManager();
-
-            var dialogService = App.Current.Container.Resolve<Services.DialogService>();
             var data = new Dialogs.MylistGroupEditData() { };
-            var result = await dialogService.ShowCreateMylistGroupDialogAsync(data);
+            var result = await DialogService.ShowCreateMylistGroupDialogAsync(data);
             if (result)
             {
-                var mylistCreateResult = await userMylistManager.AddMylist(data.Name, data.Description, data.IsPublic, data.MylistDefaultSort, data.IconType);
+                var mylistCreateResult = await UserMylistManager.AddMylist(data.Name, data.Description, data.IsPublic, data.MylistDefaultSort, data.IconType);
 
                 Debug.WriteLine("マイリスト作成：" + mylistCreateResult);
             }
 
-            var mylist = userMylistManager.UserMylists.FirstOrDefault(x => x.Label == data.Name);
+            var mylist = UserMylistManager.Mylists.FirstOrDefault(x => x.Label == data.Name);
             
 
             if (parameter is Interfaces.IVideoContent content)

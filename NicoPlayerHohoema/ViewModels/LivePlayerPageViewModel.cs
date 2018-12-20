@@ -27,6 +27,9 @@ using Windows.UI.Core;
 using System.Collections.Concurrent;
 using Windows.UI.Xaml;
 using NicoPlayerHohoema.Models.Provider;
+using Microsoft.Practices.Unity;
+using Mntone.Nico2.Live;
+using NicoPlayerHohoema.Interfaces;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -52,7 +55,7 @@ namespace NicoPlayerHohoema.ViewModels
     }
 
 
-	public class LivePlayerPageViewModel : HohoemaViewModelBase, IDisposable
+	public class LivePlayerPageViewModel : HohoemaViewModelBase, IDisposable, Interfaces.ILiveContent
 	{
 
         public LivePlayerPageViewModel(
@@ -70,8 +73,7 @@ namespace NicoPlayerHohoema.ViewModels
             HohoemaViewManager viewManager,
             Services.DialogService dialogService,
             PageManager pageManager,
-            NotificationService notificationService,
-            HohoemaClipboardService clipboardService
+            NotificationService notificationService
             )
             : base(pageManager)
         {
@@ -90,7 +92,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             _HohoemaDialogService = dialogService;
             _NotificationService = notificationService;
-            ClipboardService = clipboardService;
 
             MediaPlayer = HohoemaViewManager.GetCurrentWindowMediaPlayer();
 
@@ -507,8 +508,7 @@ namespace NicoPlayerHohoema.ViewModels
         public UserProvider UserProvider { get; }
         public CommunityProvider CommunityProvider { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
-        public DialogService _HohoemaDialogService { get; private set; }
-        public HohoemaClipboardService ClipboardService { get; }
+        public DialogService _HohoemaDialogService { get; }
 
         private NotificationService _NotificationService;
         public HohoemaViewManager HohoemaViewManager { get; }
@@ -866,8 +866,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ShareWithClipboardCommand
                     ?? (_ShareWithClipboardCommand = new DelegateCommand(() =>
                     {
-
-                        ClipboardService.CopyToClipboard(NicoLiveVideo);
+                        Services.Helpers.ClipboardHelper.CopyToClipboard(NicoLiveVideo);
                     }
                     ));
             }
@@ -1246,7 +1245,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				LiveSuggestion suggestion = null;
 
-				suggestion = liveStatus.Value.Make(NicoLiveVideo, PageManager);
+				suggestion = liveStatus.Value.Make(NicoLiveVideo, PageManager, NiconicoSession);
 
 				if (suggestion == null)
 				{
@@ -1647,7 +1646,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
             else if (!maybeType.HasValue)
             {
-                return new PlayerSidePaneContent.EmptySidePaneContentViewModel();
+                return EmptySidePaneContentViewModel.Default;
             }
             else
             {
@@ -1655,13 +1654,13 @@ namespace NicoPlayerHohoema.ViewModels
                 switch (maybeType.Value)
                 {
                     case PlayerSidePaneContentType.Playlist:
-                        sidePaneContent = new PlayerSidePaneContent.PlaylistSidePaneContentViewModel(MediaPlayer, HohoemaPlaylist, PlaylistSettings, PageManager);
+                        sidePaneContent = App.Current.Container.Resolve<PlaylistSidePaneContentViewModel>();
                         break;
-                    case PlayerSidePaneContentType.Comment:
-                        sidePaneContent = new PlayerSidePaneContent.LiveCommentSidePaneContentViewModel(NGSettings, FilterdComments);
+                    case PlayerSidePaneContentType.Comment:                        
+                        sidePaneContent = App.Current.Container.Resolve<LiveCommentSidePaneContentViewModel>(new ParameterOverride("comments", FilterdComments));
                         break;
                     case PlayerSidePaneContentType.Setting:
-                        sidePaneContent = new PlayerSidePaneContent.SettingsSidePaneContentViewModel(NGSettings, PlayerSettings, PlaylistSettings);
+                        sidePaneContent = App.Current.Container.Resolve<SettingsSidePaneContentViewModel>();
                         if (NicoLiveVideo != null)
                         {
                             if (LivePlayerType.Value == Models.Live.LivePlayerType.Leo)
@@ -1674,7 +1673,7 @@ namespace NicoPlayerHohoema.ViewModels
                         }
                         break;
                     default:
-                        sidePaneContent = new PlayerSidePaneContent.EmptySidePaneContentViewModel();
+                        sidePaneContent = EmptySidePaneContentViewModel.Default;
                         break;
                 }
 
@@ -1781,6 +1780,19 @@ namespace NicoPlayerHohoema.ViewModels
                     }));
             }
         }
+
+
+
+
+        string ILiveContent.ProviderId => this.NicoLiveVideo.BroadcasterCommunityId;
+
+        string ILiveContent.ProviderName => this.NicoLiveVideo.BroadcasterName;
+
+        CommunityType ILiveContent.ProviderType => NicoLiveVideo.BroadcasterCommunityType.Value;
+
+        string INiconicoObject.Id => NicoLiveVideo.LiveId;
+
+        string INiconicoObject.Label => NicoLiveVideo.LiveTitle;
 
 
         #endregion

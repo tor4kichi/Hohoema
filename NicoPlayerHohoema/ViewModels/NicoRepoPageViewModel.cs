@@ -15,23 +15,28 @@ using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using System.Collections.Async;
 using Mntone.Nico2.Videos.Thumbnail;
+using Mntone.Nico2.Live;
+using NicoPlayerHohoema.Interfaces;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public class NicoRepoPageViewModel : HohoemaListingPageViewModelBase<NicoRepoTimelineVM>
     {
         public NicoRepoPageViewModel(
-              Services.PageManager pageManager,
-              ActivityFeedSettings activityFeedSettings,
-              Models.Provider.LoginUserNicoRepoProvider loginUserNicoRepoProvider,
-              Models.Subscription.SubscriptionManager subscriptionManager
-              )
-              : base(pageManager, useDefaultPageTitle: true)
+            
+            HohoemaPlaylist hohoemaPlaylist,
+            Services.PageManager pageManager,
+            ActivityFeedSettings activityFeedSettings,
+            Models.Provider.LoginUserNicoRepoProvider loginUserNicoRepoProvider,
+            Models.Subscription.SubscriptionManager subscriptionManager
+            )
+            : base(pageManager, useDefaultPageTitle: true)
         {
+            HohoemaPlaylist = hohoemaPlaylist;
             ActivityFeedSettings = activityFeedSettings;
             LoginUserNicoRepoProvider = loginUserNicoRepoProvider;
             SubscriptionManager = subscriptionManager;
-            DisplayNicoRepoItemTopics = _NicoRepoFeedSettings.DisplayNicoRepoItemTopics.ToList();
+            DisplayNicoRepoItemTopics = ActivityFeedSettings.DisplayNicoRepoItemTopics.ToList();
 
             /*
             DisplayNicoRepoItemTopics.CollectionChangedAsObservable()
@@ -58,11 +63,10 @@ namespace NicoPlayerHohoema.ViewModels
         };
 
         public IList<NicoRepoItemTopic> DisplayNicoRepoItemTopics { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public ActivityFeedSettings ActivityFeedSettings { get; }
         public Models.Provider.LoginUserNicoRepoProvider LoginUserNicoRepoProvider { get; }
         public Models.Subscription.SubscriptionManager SubscriptionManager { get; }
-
-        private ActivityFeedSettings _NicoRepoFeedSettings;
 
        
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
@@ -78,8 +82,8 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 saveTopics.Add(NicoRepoItemTopic.NicoVideo_User_Video_Upload);
             }
-            _NicoRepoFeedSettings.DisplayNicoRepoItemTopics = DisplayNicoRepoItemTopics.Distinct().ToList();
-            _NicoRepoFeedSettings.Save().ConfigureAwait(false);
+            ActivityFeedSettings.DisplayNicoRepoItemTopics = DisplayNicoRepoItemTopics.Distinct().ToList();
+            ActivityFeedSettings.Save().ConfigureAwait(false);
 
             base.OnNavigatingFrom(e, viewModelState, suspending);
         }
@@ -100,9 +104,24 @@ namespace NicoPlayerHohoema.ViewModels
         public NicoRepoLiveTimeline(NicoRepoTimelineItem timelineItem, NicoRepoItemTopic itemType) 
             : base(timelineItem, itemType)
         {
+            if (timelineItem.SenderChannel != null)
+            {
+                this._ProviderType = CommunityType.Channel;
+            }
+            else if (timelineItem.Community != null)
+            {
+                this._ProviderType = CommunityType.Community;
+            }
+            else
+            {
+                this._ProviderType = CommunityType.Official;
+            }
         }
 
-        public string BroadcasterId => OwnerUserId.ToString();
+        public string BroadcasterId => ProviderId.ToString();
+
+        CommunityType _ProviderType;
+        CommunityType ILiveContent.ProviderType => _ProviderType;
     }
 
     public class NicoRepoVideoTimeline : NicoRepoTimelineVM, Interfaces.IVideoContent
@@ -140,13 +159,13 @@ namespace NicoPlayerHohoema.ViewModels
                 if (TimelineItem.Community != null)
                 {
                     _OwnerUserId = TimelineItem.Community.Id;
-                    OwnerUserName = TimelineItem.Community.Name;
+                    ProviderName = TimelineItem.Community.Name;
                 }
                 else
                 {
                     _OwnerUserId = TimelineItem.SenderChannel.Id.ToString();
-                    OwnerUserName = TimelineItem.SenderChannel.Name;
-                    OwnerUserType = UserType.User;
+                    ProviderName = TimelineItem.SenderChannel.Name;
+                    ProviderType = UserType.User;
                 }
             }
             else if (TimelineItem.Video != null)
@@ -167,8 +186,8 @@ namespace NicoPlayerHohoema.ViewModels
             if (TimelineItem.SenderNiconicoUser != null)
             {
                 _OwnerUserId = TimelineItem.SenderNiconicoUser.Id.ToString();
-                OwnerUserName = TimelineItem.SenderNiconicoUser.Nickname;
-                OwnerUserType = UserType.User;
+                ProviderName = TimelineItem.SenderNiconicoUser.Nickname;
+                ProviderType = UserType.User;
             }
             
 
@@ -179,7 +198,7 @@ namespace NicoPlayerHohoema.ViewModels
             else if (TimelineItem.SenderChannel != null)
             {
                 this.Description = this.TimelineItem.SenderChannel.Name;
-                OwnerUserType = UserType.Channel;
+                ProviderType = UserType.Channel;
             }
 
             switch (ItemTopic)
@@ -232,11 +251,11 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         private string _OwnerUserId;
-        public string OwnerUserId => _OwnerUserId;
+        public string ProviderId => _OwnerUserId;
 
-        public string OwnerUserName { get; private set; }
+        public string ProviderName { get; private set; }
 
-        public UserType OwnerUserType { get; private set; }
+        public UserType ProviderType { get; private set; }
 
         public string Id => TimelineItem.Video?.Id ?? TimelineItem.Program.Id;        
     }

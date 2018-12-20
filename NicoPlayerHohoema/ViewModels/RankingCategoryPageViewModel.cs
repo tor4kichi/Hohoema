@@ -1,14 +1,10 @@
 ﻿using Mntone.Nico2.Videos.Ranking;
-using Prism.Windows.Mvvm;
 using Reactive.Bindings;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Prism.Windows.Navigation;
-using Prism.Commands;
 using NicoPlayerHohoema.Models;
 using System.Reactive.Linq;
 using NicoPlayerHohoema.Models.Helpers;
@@ -18,6 +14,7 @@ using NicoPlayerHohoema.Services;
 using Reactive.Bindings.Extensions;
 using System.Collections.Async;
 using NicoPlayerHohoema.Models.Provider;
+using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -25,6 +22,7 @@ namespace NicoPlayerHohoema.ViewModels
     {
         public RankingCategoryPageViewModel(
             PageManager pageManager,
+            HohoemaPlaylist hohoemaPlaylist,
             NicoVideoProvider nicoVideoProvider,
             NGSettings ngSettings
             )
@@ -38,6 +36,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(_CompositeDisposable);
             CanChangeRankingParameter = new ReactiveProperty<bool>(false)
                 .AddTo(_CompositeDisposable);
+            HohoemaPlaylist = hohoemaPlaylist;
             NicoVideoProvider = nicoVideoProvider;
             NgSettings = ngSettings;
         }
@@ -140,6 +139,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<bool> IsFailedRefreshRanking { get; private set; }
         public ReactiveProperty<bool> CanChangeRankingParameter { get; private set; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public NGSettings NgSettings { get; }
 
@@ -240,12 +240,10 @@ namespace NicoPlayerHohoema.ViewModels
             return Task.FromResult(RankingRss.Channel.Items.Skip(head).Take(count)
                 .Select((x, index) =>
                 {
-                    var vm = new RankedVideoInfoControlViewModel(
-                        (uint)(head + index + 1)
-                        , NicoVideoIdHelper.UrlToVideoId(x.VideoUrl)
-                        , NgSettings
-                        , NicoVideoProvider
-                    );
+                    var vm = App.Current.Container.Resolve<RankedVideoInfoControlViewModel>();
+                    vm.RawVideoId = NicoVideoIdHelper.UrlToVideoId(x.VideoUrl);
+                    vm.Rank = (uint)(head + index + 1);
+
                     vm.SetTitle(RankingRankPrefixPatternRegex.Replace(x.Title, ""));
                     return vm;
                 })
@@ -281,15 +279,28 @@ namespace NicoPlayerHohoema.ViewModels
 
     public class RankedVideoInfoControlViewModel : VideoInfoControlViewModel
     {
-        public RankedVideoInfoControlViewModel(uint rank, string videoId, NGSettings ngSettings, NicoVideoProvider nicoVideoProvider)
-            : base(videoId, ngSettings, nicoVideoProvider)
+        public RankedVideoInfoControlViewModel(
+            HohoemaPlaylist hohoemaPlaylist,
+            ExternalAccessService externalAccessService,
+            PageManager pageManager,
+            UserMylistManager userMylistManager,
+            Models.LocalMylist.LocalMylistManager localMylistManager,
+            Models.Subscription.SubscriptionManager subscriptionManager,
+            Models.Cache.VideoCacheManager videoCacheManager,
+            NicoVideoProvider nicoVideoProvider,
+            NGSettings ngSettings,
+            Commands.Mylist.CreateMylistCommand createMylistCommand,
+            Commands.Mylist.CreateLocalMylistCommand createLocalMylistCommand,
+            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand,
+            Commands.AddToHiddenUserCommand addToHiddenUserCommand
+            )
+            : base(hohoemaPlaylist, externalAccessService, pageManager, userMylistManager, localMylistManager, subscriptionManager, 
+                  videoCacheManager, nicoVideoProvider, ngSettings,createMylistCommand, createLocalMylistCommand, createSubscriptionGroupCommand, addToHiddenUserCommand)
         {
-            Rank = rank;
+            
         }
 
-
-
-        public uint Rank { get; private set; }
+        public uint Rank { get; internal set; }
     }
 
 

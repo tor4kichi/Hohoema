@@ -9,6 +9,7 @@ namespace NicoPlayerHohoema.Views.Extensions
     {
         public interface IDeferInitialize
         {
+            bool IsInitialized { get; set; }
             Task DeferInitializeAsync();
         }
 
@@ -51,13 +52,14 @@ namespace NicoPlayerHohoema.Views.Extensions
         {
             if (args.Item is IDeferInitialize updatable)
             {
-                if (args.Phase != 0) { return; }
 
+                if (updatable.IsInitialized) { return; }
+                updatable.IsInitialized = true;
                 await updatable.DeferInitializeAsync();
 
                 // Handled = trueを指定すると、UIの描画が始まる模様
                 // データ受信などが完了してない状態ではHandledを変更しない
-                args.Handled = true;
+                //args.Handled = true;
             }
         }
 

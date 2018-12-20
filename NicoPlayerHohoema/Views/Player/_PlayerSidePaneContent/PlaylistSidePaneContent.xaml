@@ -221,27 +221,28 @@
                 <toolkit:DockPanel Height="60">
 
                     <Button HorizontalAlignment="Stretch"
-                                            Command="{Binding OpenCurrentPlaylistPageCommand}"
-                                            Background="Transparent"
-                                        toolkit:DockPanel.Dock="Left"
-                                            >
+                        Command="{Binding PageManager.OpenPageCommand}"
+                        CommandParameter="{Binding CurrentPlaylist}"
+                        Background="Transparent"
+                        toolkit:DockPanel.Dock="Left"
+                        >
                         <SymbolIcon Symbol="OpenLocal" />
                     </Button>
 
                     <TextBlock toolkit:DockPanel.Dock="Top"
-                                           Text="現在のプレイリスト"
-                                           Style="{StaticResource CaptionTextBlockStyle}"
-                                           Margin="8 6 0 0"
-                                           Opacity="0.7"
-                                           >
+                        Text="現在のプレイリスト"
+                        Style="{StaticResource CaptionTextBlockStyle}"
+                        Margin="8 6 0 0"
+                        Opacity="0.7"
+                        >
 
                     </TextBlock>
 
                     <TextBlock Text="{Binding CurrentPlaylistName.Value}" 
-                                           Style="{StaticResource SubtitleTextBlockStyle}"
-                                           Margin="8 0 16 0"
-                                           VerticalAlignment="Top"
-                                           />
+                        Style="{StaticResource SubtitleTextBlockStyle}"
+                        Margin="8 0 16 0"
+                        VerticalAlignment="Top"
+                        />
 
                 </toolkit:DockPanel>
 
@@ -249,15 +250,15 @@
             </StackPanel>
 
             <ListView ItemsSource="{Binding PlaylistItems}"
-                        SelectedItem="{Binding CurrentPlayingItem, Mode=TwoWay}"
-                        SelectionMode="Single"
-                        SingleSelectionFollowsFocus="False"
-                        uwpext:ListViewBase.Command="{Binding OpenPlaylistItemCommand}"
-                        IsItemClickEnabled="True"
-                        x:Name="PlaylistItemsListView"
-                        Background="{StaticResource HohoemaPlayerBackgroundBrush}"
-                      IsFocusEngagementEnabled="True"
-                      >
+                SelectedItem="{Binding CurrentPlayingItem, Mode=TwoWay}"
+                SelectionMode="Single"
+                SingleSelectionFollowsFocus="False"
+                uwpext:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
+                IsItemClickEnabled="True"
+                x:Name="PlaylistItemsListView"
+                Background="{StaticResource HohoemaPlayerBackgroundBrush}"
+                IsFocusEngagementEnabled="True"
+                >
                 <ListView.ItemContainerStyle>
                     <Style TargetType="ListViewItem">
                         <Setter Property="Padding" Value="8 6 8 6" />
@@ -266,9 +267,9 @@
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <TextBlock Text="{Binding Title}"
-                                                       TextWrapping="Wrap"
-                                               VerticalAlignment="Center"
-                                                       />
+                            TextWrapping="Wrap"
+                            VerticalAlignment="Center"
+                            />
                     </DataTemplate>
                 </ListView.ItemTemplate>
             </ListView>

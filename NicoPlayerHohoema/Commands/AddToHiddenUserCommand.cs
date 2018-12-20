@@ -1,4 +1,6 @@
-﻿using Prism.Commands;
+﻿using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Models.Provider;
+using Prism.Commands;
 using System;
 using Windows.UI.Popups;
 
@@ -6,9 +8,32 @@ namespace NicoPlayerHohoema.Commands
 {
     public sealed class AddToHiddenUserCommand : DelegateCommandBase
     {
+        public AddToHiddenUserCommand(
+            NGSettings ngSettings,
+            ChannelProvider channelProvider,
+            UserProvider userProvider
+            )
+        {
+            NgSettings = ngSettings;
+            ChannelProvider = channelProvider;
+            UserProvider = userProvider;
+        }
+
+        public NGSettings NgSettings { get; }
+        public ChannelProvider ChannelProvider { get; }
+        public UserProvider UserProvider { get; }
+
         protected override bool CanExecute(object parameter)
         {
-            return parameter is Interfaces.IVideoContent;
+            if (parameter is Interfaces.IVideoContent video)
+            {
+                if (video.ProviderId != null)
+                {
+                    return NgSettings.IsNgVideoOwnerId(video.ProviderId) == null;
+                }
+            }
+
+            return false;
         }
 
         protected override async void Execute(object parameter)
@@ -18,15 +43,14 @@ namespace NicoPlayerHohoema.Commands
                 var content = parameter as Interfaces.IVideoContent;
 
                 
-                var ownerName = content.OwnerUserName;
+                var ownerName = content.ProviderName;
                 if (string.IsNullOrEmpty(ownerName))
                 {
-                    if (content.OwnerUserType == Mntone.Nico2.Videos.Thumbnail.UserType.User)
+                    if (content.ProviderType == Mntone.Nico2.Videos.Thumbnail.UserType.User)
                     {
                         try
                         {
-                            var userProvider = HohoemaCommnadHelper.Resolve<Models.Provider.UserProvider>();
-                            var userInfo = await userProvider.GetUser(content.OwnerUserId);
+                            var userInfo = await UserProvider.GetUser(content.ProviderId);
 
                             ownerName = userInfo.ScreenName;
                         }
@@ -35,13 +59,12 @@ namespace NicoPlayerHohoema.Commands
                             return;
                         }
                     }
-                    else if (content.OwnerUserType == Mntone.Nico2.Videos.Thumbnail.UserType.Channel)
+                    else if (content.ProviderType == Mntone.Nico2.Videos.Thumbnail.UserType.Channel)
                     {
-                        var channelProvider = HohoemaCommnadHelper.Resolve<Models.Provider.ChannelProvider>();
-                        var channelInfo = await channelProvider.GetChannelInfo(content.OwnerUserId);
+                        var channelInfo = await ChannelProvider.GetChannelInfo(content.ProviderId);
                         ownerName = channelInfo.Name;
 
-                        var channel = Database.NicoVideoOwnerDb.Get(content.OwnerUserId) 
+                        var channel = Database.NicoVideoOwnerDb.Get(content.ProviderId) 
                             ?? new Database.NicoVideoOwner()
                             {
                                 OwnerId = channelInfo.ChannelId.ToString(),
@@ -63,8 +86,7 @@ namespace NicoPlayerHohoema.Commands
                     Label = "非表示に設定",
                     Invoked = (uicommand) =>
                     {
-                        var ngSettings = HohoemaCommnadHelper.Resolve<Models.NGSettings>();
-                        ngSettings.AddNGVideoOwnerId(content.OwnerUserId.ToString(), ownerName);
+                        NgSettings.AddNGVideoOwnerId(content.ProviderId.ToString(), ownerName);
                     }
                 });
                 dialog.Commands.Add(new UICommand() { Label = "キャンセル" });

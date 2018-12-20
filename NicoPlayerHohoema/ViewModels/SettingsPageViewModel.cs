@@ -42,8 +42,7 @@ namespace NicoPlayerHohoema.ViewModels
             RankingSettings rankingSettings,
             ActivityFeedSettings activityFeedSettings,
             AppearanceSettings appearanceSettings,
-            CacheSettings cacheSettings,
-            Services.HohoemaClipboardService clipboardService
+            CacheSettings cacheSettings
             )
             : base(pageManager)
         {
@@ -56,7 +55,7 @@ namespace NicoPlayerHohoema.ViewModels
             ActivityFeedSettings = activityFeedSettings;
             AppearanceSettings = appearanceSettings;
             CacheSettings = cacheSettings;
-            ClipboardService = clipboardService;
+            
 
             IsLiveAlertEnabled = ActivityFeedSettings.ToReactivePropertyAsSynchronized(x => x.IsLiveAlertEnabled)
                 .AddTo(_CompositeDisposable);
@@ -200,7 +199,6 @@ namespace NicoPlayerHohoema.ViewModels
         public ActivityFeedSettings ActivityFeedSettings { get; }
         public AppearanceSettings AppearanceSettings { get; }
         public CacheSettings CacheSettings { get; }
-        public HohoemaClipboardService ClipboardService { get; }
 
 
         public ReactiveProperty<bool> IsLiveAlertEnabled { get; private set; }
@@ -479,7 +477,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _CopyVersionTextToClipboardCommand
                     ?? (_CopyVersionTextToClipboardCommand = new DelegateCommand(() =>
                     {
-                        ClipboardService.CopyToClipboard(CurrentVersion.ToString());
+                        Services.Helpers.ClipboardHelper.CopyToClipboard(CurrentVersion.ToString());
                     }));
             }
         }

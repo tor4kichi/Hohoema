@@ -6,7 +6,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.DataTransfer;
 
-namespace NicoPlayerHohoema.Services
+namespace NicoPlayerHohoema.Services.Helpers
 {
     public enum ContentType
     {
@@ -25,9 +25,9 @@ namespace NicoPlayerHohoema.Services
         public string Id { get; set; }
     }
 
-    public sealed class HohoemaClipboardService
+    static public class ClipboardHelper
     {
-        public void CopyToClipboard(string content)
+        static public void CopyToClipboard(string content)
         {
             var datapackage = new DataPackage();
             datapackage.SetText(content);
@@ -38,26 +38,26 @@ namespace NicoPlayerHohoema.Services
             Clipboard.SetContent(datapackage);
         }
 
-        public void CopyToClipboard(Database.NicoVideo video)
+        static public void CopyToClipboard(Database.NicoVideo video)
         {
             CopyToClipboard(Helpers.ShareHelper.MakeShareText(video));
         }
 
-        public void CopyToClipboard(Models.Live.NicoLiveVideo video)
+        static public void CopyToClipboard(Models.Live.NicoLiveVideo video)
         {
             CopyToClipboard(Helpers.ShareHelper.MakeShareText(video));
         }
 
         static readonly Regex NicoContentRegex = new Regex("https?:\\/\\/([\\w\\W]*?)\\/((\\w*)\\/)?([\\w-]*)");
 
-        private static string prevContent = string.Empty;
-        public void SetIgnoreClipboardCheckingOnce(string ignoredContent)
+        static private string prevContent = string.Empty;
+        static public void SetIgnoreClipboardCheckingOnce(string ignoredContent)
         {
             prevContent = ignoredContent;
         }
 
 
-        public async Task<ClipboardDetectedEventArgs> CheckClipboard()
+        static public async Task<ClipboardDetectedEventArgs> CheckClipboard()
         {
             ClipboardDetectedEventArgs clipboardValue = null;
 
@@ -96,7 +96,7 @@ namespace NicoPlayerHohoema.Services
             return clipboardValue;
         }
 
-        private static ClipboardDetectedEventArgs ExtractNicoContentId(string contentId)
+        static private ClipboardDetectedEventArgs ExtractNicoContentId(string contentId)
         {
             ClipboardDetectedEventArgs clipboardValue = null;
 
@@ -120,7 +120,7 @@ namespace NicoPlayerHohoema.Services
             return clipboardValue;
         }
 
-        private static ClipboardDetectedEventArgs ExtractNicoContentId(Uri url)
+        static private ClipboardDetectedEventArgs ExtractNicoContentId(Uri url)
         {
             ClipboardDetectedEventArgs clipboardValue = null;
 

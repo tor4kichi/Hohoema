@@ -345,8 +345,8 @@ namespace NicoPlayerHohoema.Services
             )
         {
             const string CreateNewContextLabel = @"@create_new";
-            var mylists = UserMylistManager.UserMylists;
-            var localMylists = LocalMylistManager.LocalMylistGroups;
+            var mylists = UserMylistManager.Mylists;
+            var localMylists = LocalMylistManager.Mylists;
 
             List<ISelectableContainer> selectDialogContent;
             if (false)
@@ -412,12 +412,12 @@ namespace NicoPlayerHohoema.Services
                     if (result.Id == "mylist")
                     {
                         await UserMylistManager.AddMylist(title, "", false, Mntone.Nico2.Mylist.MylistDefaultSort.FirstRetrieve_Descending, Mntone.Nico2.Mylist.IconType.Default);
-                        resultList = UserMylistManager.UserMylists.FirstOrDefault(x => x.Label == title);
+                        resultList = UserMylistManager.Mylists.FirstOrDefault(x => x.Label == title);
                     }
                     else //if (result.Id == "local")
                     {
                         var localMylist = new LocalMylistGroup(Guid.NewGuid().ToString(), title);
-                        LocalMylistManager.LocalMylistGroups.Add(localMylist);
+                        LocalMylistManager.Mylists.Add(localMylist);
                         resultList = localMylist;
                     }
                 }

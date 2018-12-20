@@ -17,17 +17,20 @@ using Windows.UI.Notifications;
 using Microsoft.Toolkit.Uwp.Notifications;
 using NicoPlayerHohoema.Models.Subscription;
 using NicoPlayerHohoema.Models;
+using System.Reactive.Concurrency;
 
 namespace NicoPlayerHohoema.Services
 {
     public class WatchItLater : BindableBase, IDisposable
     {
         public WatchItLater(
+            IScheduler scheduler,
             SubscriptionManager subscriptionManager,
             Models.Provider.LoginUserHistoryProvider loginUserDataProvider,
             Services.Helpers.MylistHelper mylistHelper
             )
         {
+            Scheduler = scheduler;
             SubscriptionManager = subscriptionManager;
             LoginUserDataProvider = loginUserDataProvider;
             MylistHelper = mylistHelper;
@@ -99,14 +102,14 @@ namespace NicoPlayerHohoema.Services
 
 
         public AsyncReactiveCommand Refresh { get; }
-
+        public IScheduler Scheduler { get; }
         public SubscriptionManager SubscriptionManager { get; }
         public Models.Provider.LoginUserHistoryProvider LoginUserDataProvider { get; }
         public Services.Helpers.MylistHelper MylistHelper { get; }
         CompositeDisposable _disposables { get; } = new CompositeDisposable();
 
         IDisposable _autoUpdateDisposer;
-        AsyncLock _UpdateLock = new AsyncLock();
+        Models.Helpers.AsyncLock _UpdateLock = new Models.Helpers.AsyncLock();
 
 
         
@@ -194,20 +197,22 @@ namespace NicoPlayerHohoema.Services
 
                         if (info.NewFeedItems?.Any() ?? false)
                         {
-                            // NGキーワードを含むタイトルの動画を取り除いて
-                            var filterdNewItems = info.NewFeedItems
-                            .Where(x => !WatchItLater.IsVideoPlayed(x.VideoId))
-                            .Where(x => !info.Subscription.IsContainDoNotNoticeKeyword(x.Title))
-                            .ToList()
-                            ;
-
-                            Debug.WriteLine($"{info.Subscription.Label} - {info.Source?.Label} -> {string.Join(",", filterdNewItems.Select(x => x.RawVideoId))}");
-
                             // 新着動画を対象プレイリストに追加
-                            NewVideosAddToDestinations(info.Subscription.Destinations, filterdNewItems);
+                            Scheduler.Schedule(() => 
+                            {
+                                // NGキーワードを含むタイトルの動画を取り除いて
+                                var filterdNewItems = info.NewFeedItems
+                                    .Where(x => !WatchItLater.IsVideoPlayed(x.VideoId))
+                                    .Where(x => !info.Subscription.IsContainDoNotNoticeKeyword(x.Title))
+                                    .ToList()
+                                    ;
 
-                            // トースト通知を発行
-                            ShowNewVideosToastNotification(info.Subscription, info.Source.Value, info.NewFeedItems);
+                                Debug.WriteLine($"{info.Subscription.Label} - {info.Source?.Label} -> {string.Join(",", filterdNewItems.Select(x => x.RawVideoId))}");
+                                NewVideosAddToDestinations(info.Subscription.Destinations, filterdNewItems);
+
+                                // トースト通知を発行
+                                ShowNewVideosToastNotification(info.Subscription, info.Source.Value, info.NewFeedItems);
+                            });
                         }
                     });
 #else

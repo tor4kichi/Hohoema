@@ -15,8 +15,7 @@
     xmlns:compareModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.ComparableModifiers"
     xmlns:system="using:System"
     xmlns:subscriptionConverters="using:NicoPlayerHohoema.Views.Subscriptions"
-    
-    >
+    xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts">
 
     <prism:PrismUnityApplication.Resources>
        
@@ -33,8 +32,6 @@
                 <ResourceDictionary Source="Views/Controls/MasterDetailsView/MasterDetailsView.xaml"/>
                 <ResourceDictionary Source="Views/Controls/TransientContainer/TransientContainer.xaml"/>
 
-
-                <ResourceDictionary Source="Commands/Commands.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <Color x:Key="HohoemaThemeColor" >#F8B400</Color>
@@ -199,7 +196,7 @@
 
 
             <DataTemplate x:Key="VideoListItemFlyoutTemplate">
-                <view:VideoItemFlyout />
+                <flyouts:VideoItemFlyout />
             </DataTemplate>
 
             <ResourceDictionary.ThemeDictionaries>

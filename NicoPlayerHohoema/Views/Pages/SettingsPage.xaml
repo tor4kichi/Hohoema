@@ -387,8 +387,8 @@
 
                             <StackPanel Margin="0 8">
                                 <TextBlock Text="動画投稿者IDによるフィルタを有効にする"
-                           VerticalAlignment="Center"
-                           />
+                                   VerticalAlignment="Center"
+                                   />
                                 <ToggleSwitch
                                   IsOn="{Binding NGVideoOwnerUserIdEnable.Value, Mode=TwoWay}"
                                           />

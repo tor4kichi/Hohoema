@@ -8,41 +8,41 @@
     mc:Ignorable="d">
 
     <MenuFlyoutItem Text="再生"
-                    Command="{StaticResource OpenContentCommand}"
+                    Command="{Binding HohoemaPlaylist.PlayCommand}"
                     CommandParameter="{Binding}"
                                 />
     
-    <MenuFlyoutItem Text="放送情報" 
-                    Command="{StaticResource OpenLiveInfoCommand}"
-                    CommandParameter="{Binding Id}"
+    <MenuFlyoutItem Text="生放送情報" 
+                    Command="{Binding PageManager.OpenPageCommand}"
+                    CommandParameter="{Binding}"
                     />
 
     <MenuFlyoutItem Text="配信者情報" 
-                    Command="{StaticResource OpenBroadcasterInfoCommand}"
+                    Command="{Binding PageManager.OpenContentOwnerPageCommand}"
                     CommandParameter="{Binding}"
                     />
 
     <MenuFlyoutSeparator />
 
     <MenuFlyoutItem Text="共有" 
-                    Command="{StaticResource ShareCommand}"
+                    Command="{Binding ExternalAccessService.OpenShareUICommand}"
                     CommandParameter="{Binding}"
-                    Visibility="{Binding Source={StaticResource IsXbox}, Converter={StaticResource BooleanToVisibility}}"
+                    Visibility="{Binding Source={StaticResource IsXbox}, Converter={StaticResource BooleanToVisibilityInverted}}"
                     />
 
-    <MenuFlyoutSubItem Text="共有" 
+    <MenuFlyoutSubItem Text="コピー..." 
                        Visibility="{Binding Source={StaticResource IsXbox}, Converter={StaticResource BooleanToVisibilityInverted}}"
                        >
-        <MenuFlyoutItem Text="アプリを選択" 
-                        Command="{StaticResource ShareCommand}"
+        <MenuFlyoutItem Text="リンクをコピー" 
+                        Command="{Binding ExternalAccessService.CopyToClipboardCommand}"
                         CommandParameter="{Binding}"
                         />
-        <MenuFlyoutItem Text="Twitterで共有" 
-                        Command="{StaticResource ShareWithTwitterCommand}"
-                        CommandParameter="{Binding}"
+        <MenuFlyoutItem Text="生放送IDをコピー" 
+                        Command="{Binding ExternalAccessService.CopyToClipboardCommand}"
+                        CommandParameter="{Binding LiveId}"
                         />
-        <MenuFlyoutItem Text="コピー"
-                        Command="{StaticResource CopyToClipboardCommand}"
+        <MenuFlyoutItem Text="共有文章をコピー"
+                        Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}"
                         CommandParameter="{Binding}"
                         />
     </MenuFlyoutSubItem>

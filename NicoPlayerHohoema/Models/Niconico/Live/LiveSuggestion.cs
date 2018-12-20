@@ -35,7 +35,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 	public static class LiveSuggestionExtention
 	{
-		public static LiveSuggestion Make(this LiveStatusType liveStatus, NicoLiveVideo liveVideo, Services.PageManager pageManager)
+		public static LiveSuggestion Make(this LiveStatusType liveStatus, NicoLiveVideo liveVideo, Services.PageManager pageManager, NiconicoSession niconicoSession)
 		{
 			string title = liveStatus.ToString();
 
@@ -72,7 +72,7 @@ namespace NicoPlayerHohoema.Models.Live
 					title = "視聴するには「ニコニコ」にログインが必要です";
                     actions.Add(new SuggestAction("ログイン", async () =>
                     {
-                        var dialog = new Dialogs.NiconicoLoginDialog();
+                        var dialog = new Dialogs.NiconicoLoginDialog(niconicoSession);
                         var result = await dialog.ShowAsync();
                         if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary)
                         {

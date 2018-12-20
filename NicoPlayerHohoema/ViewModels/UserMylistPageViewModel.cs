@@ -93,7 +93,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             }
-            , () => UserMylistManager.UserMylists.Count < UserMylistManager.MaxMylistGroupCountCurrentUser
+            , () => UserMylistManager.Mylists.Count < UserMylistManager.MaxMylistGroupCountCurrentUser
             );
 
             RemoveMylistGroupCommand = new DelegateCommand<Interfaces.IMylist>(async (item) =>
@@ -224,7 +224,7 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         if (string.IsNullOrWhiteSpace(s)) { return false; }
 
-                        if (LocalMylistManager.LocalMylistGroups.Any(x => x.Label == s))
+                        if (LocalMylistManager.Mylists.Any(x => x.Label == s))
                         {
                             return false;
                         }
@@ -234,7 +234,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                 if (name != null)
                 {
-                    LocalMylistManager.LocalMylistGroups.Add(new LocalMylistGroup(Guid.NewGuid().ToString(), name));
+                    LocalMylistManager.Mylists.Add(new LocalMylistGroup(Guid.NewGuid().ToString(), name));
                 }
             });
             
@@ -340,15 +340,15 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     var items =
                         Enumerable.Concat(
-                            LocalMylistManager.LocalMylistGroups.Cast<Interfaces.IMylist>(),
-                            UserMylistManager.UserMylists ?? Enumerable.Empty<Interfaces.IMylist>()
+                            LocalMylistManager.Mylists.Cast<Interfaces.IMylist>(),
+                            UserMylistManager.Mylists ?? Enumerable.Empty<Interfaces.IMylist>()
                         )
                         .ToList();
                     return new ImmidiateIncrementalLoadingCollectionSource<Interfaces.IMylist>(items);
                 }
                 else
                 {
-                    return new ImmidiateIncrementalLoadingCollectionSource<Interfaces.IMylist>(LocalMylistManager.LocalMylistGroups);
+                    return new ImmidiateIncrementalLoadingCollectionSource<Interfaces.IMylist>(LocalMylistManager.Mylists);
 
                 }
             }

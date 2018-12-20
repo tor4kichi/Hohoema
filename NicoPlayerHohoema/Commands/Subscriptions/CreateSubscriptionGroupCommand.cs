@@ -6,11 +6,25 @@ using System.Text;
 using System.Threading.Tasks;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Services.Helpers;
+using NicoPlayerHohoema.Models.Subscription;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.Commands.Subscriptions
 {
     public sealed class CreateSubscriptionGroupCommand : DelegateCommandBase
     {
+        public CreateSubscriptionGroupCommand(
+            SubscriptionManager subscriptionManager,
+            DialogService dialogService
+            )
+        {
+            SubscriptionManager = subscriptionManager;
+            DialogService = dialogService;
+        }
+
+        public SubscriptionManager SubscriptionManager { get; }
+        public DialogService DialogService { get; }
+
         protected override bool CanExecute(object parameter)
         {
             return true;
@@ -18,9 +32,7 @@ namespace NicoPlayerHohoema.Commands.Subscriptions
 
         protected override async void Execute(object parameter)
         {
-            var dialog = Commands.HohoemaCommnadHelper.GetDialogService();
-            var subscriptionManager = Commands.HohoemaCommnadHelper.GetSubscriptionManager();
-            var groupName = await dialog.GetTextAsync("SubscriptionGroup_Create".ToCulturelizeString(), "", validater: (s) => !string.IsNullOrWhiteSpace(s));
+            var groupName = await DialogService.GetTextAsync("SubscriptionGroup_Create".ToCulturelizeString(), "", validater: (s) => !string.IsNullOrWhiteSpace(s));
 
             if (groupName == null) { return; }
 
@@ -30,7 +42,7 @@ namespace NicoPlayerHohoema.Commands.Subscriptions
                 subscription.Sources.Add(source);
             }
 
-            subscriptionManager.Subscriptions.Add(subscription);
+            SubscriptionManager.Subscriptions.Add(subscription);
         }
     }
 }

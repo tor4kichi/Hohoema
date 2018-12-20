@@ -249,15 +249,18 @@ namespace NicoPlayerHohoema.Models
                 userInfo = await Context.User.GetInfoAsync();
                 if (userInfo == null)
                 {
+                    IsLoggedIn = false;
                     throw new Exception("ログインに失敗");
                 }
             }
             catch (Exception e)
             {
+                IsLoggedIn = false;
                 HandleLoginError(e);
                 return;
             }
 
+            IsLoggedIn = true;
             UserId = userInfo.Id;
             IsPremiumAccount = userInfo.IsPremium;
 
@@ -269,6 +272,7 @@ namespace NicoPlayerHohoema.Models
             }
             catch (Exception ex)
             {
+                IsLoggedIn = false;
                 Debug.WriteLine("ユーザー名取得処理に失敗 + " + _UserId);
                 Debug.WriteLine(ex.ToString());
 #if DEBUG
@@ -360,6 +364,8 @@ namespace NicoPlayerHohoema.Models
 
                                         if (context != null)
                                         {
+                                            IsLoggedIn = true;
+
                                             await LoginAfterResolveUserDetailAction(context);
                                         }
                                     }
@@ -378,6 +384,8 @@ namespace NicoPlayerHohoema.Models
                         }
                         else if (result == NiconicoSignInStatus.Success)
                         {
+                            IsLoggedIn = true;
+
                             await LoginAfterResolveUserDetailAction(context);
                         }
                         else 
@@ -410,6 +418,8 @@ namespace NicoPlayerHohoema.Models
                 UserId = null;
                 UserName = null;
                 UserIconUrl = null;
+
+                IsLoggedIn = false;
 
                 UpdateServiceStatus();
 

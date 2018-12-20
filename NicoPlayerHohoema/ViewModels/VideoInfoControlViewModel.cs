@@ -18,47 +18,73 @@ using Windows.UI.Core;
 using NicoPlayerHohoema.Services.Helpers;
 using NicoPlayerHohoema.Models.Cache;
 using NicoPlayerHohoema.Models.Provider;
+using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.Models.LocalMylist;
+using NicoPlayerHohoema.Models.Subscription;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 
     public class VideoInfoControlViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContent, Views.Extensions.ListViewBase.IDeferInitialize
     {
-        VideoInfoControlViewModel(string videoId)
+        public VideoInfoControlViewModel(
+            HohoemaPlaylist hohoemaPlaylist,
+            ExternalAccessService externalAccessService,
+            PageManager pageManager,
+            UserMylistManager userMylistManager,
+            LocalMylistManager localMylistManager,
+            SubscriptionManager subscriptionManager,
+            VideoCacheManager videoCacheManager,
+            NicoVideoProvider nicoVideoProvider,
+            NGSettings ngSettings,
+            Commands.Mylist.CreateMylistCommand createMylistCommand,
+            Commands.Mylist.CreateLocalMylistCommand createLocalMylistCommand,
+            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand,
+            Commands.AddToHiddenUserCommand addToHiddenUserCommand
+            )
         {
-            RawVideoId = videoId;
+            NgSettings = ngSettings;
+            CreateMylistCommand = createMylistCommand;
+            CreateLocalMylistCommand = createLocalMylistCommand;
+            CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
+            AddToHiddenUserCommand = addToHiddenUserCommand;
+            HohoemaPlaylist = hohoemaPlaylist;
+            ExternalAccessService = externalAccessService;
+            PageManager = pageManager;
+            UserMylistManager = userMylistManager;
+            LocalMylistManager = localMylistManager;
+            SubscriptionManager = subscriptionManager;
+            VideoCacheManager = videoCacheManager;
+            NicoVideoProvider = nicoVideoProvider;
+
             _CompositeDisposable = new CompositeDisposable();
         }
 
-        public VideoInfoControlViewModel(string videoId, NGSettings ngSettings = null, NicoVideoProvider nicoVideoProvider = null)
-            : this(videoId)
-        {
-            NgSettings = ngSettings;
-            NicoVideoProvider = nicoVideoProvider;
-        }
 
-        public VideoInfoControlViewModel(Database.NicoVideo nicoVideo, NGSettings ngSettings = null, NicoVideoProvider nicoVideoProvider = null)
-            : this(nicoVideo.RawVideoId)
-        {
-            Data = nicoVideo;
-            NgSettings = ngSettings;
-            NicoVideoProvider = nicoVideoProvider;
-        }
-
-        public Database.NicoVideo Data { get; private set; }
+        public string RawVideoId { get; internal set; }
+        public Database.NicoVideo Data { get; internal set; }
 
         protected CompositeDisposable _CompositeDisposable { get; private set; }
-
+        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public ExternalAccessService ExternalAccessService { get; }
+        public PageManager PageManager { get; }
+        public UserMylistManager UserMylistManager { get; }
+        public LocalMylistManager LocalMylistManager { get; }
+        public SubscriptionManager SubscriptionManager { get; }
+        public VideoCacheManager VideoCacheManager { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public NGSettings NgSettings { get; }
+        public Commands.Mylist.CreateMylistCommand CreateMylistCommand { get; }
+        public Commands.Mylist.CreateLocalMylistCommand CreateLocalMylistCommand { get; }
+        public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
+        public Commands.AddToHiddenUserCommand AddToHiddenUserCommand { get; }
 
         public string Id => RawVideoId;
 
 
-        public string RawVideoId { get; private set; }
-        public string OwnerUserId { get; private set; }
-        public string OwnerUserName { get; private set; }
-        public UserType OwnerUserType { get; private set; }
+        public string ProviderId { get; private set; }
+        public string ProviderName { get; private set; }
+        public UserType ProviderType { get; private set; }
 
         public VideoStatus VideoStatus { get; private set; }
 
@@ -67,12 +93,16 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ObservableCollection<CachedQualityNicoVideoListItemViewModel> CachedQualityVideos { get; } = new ObservableCollection<CachedQualityNicoVideoListItemViewModel>();
 
+        bool Views.Extensions.ListViewBase.IDeferInitialize.IsInitialized { get; set; }
+
         async Task Views.Extensions.ListViewBase.IDeferInitialize.DeferInitializeAsync()
         {
             if (Data?.Title != null)
             {
                 SetTitle(Data.Title);
             }
+
+            _ = RefrechCacheState();
 
             await Task.Run(async () =>
             {
@@ -92,9 +122,6 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     Data = Database.NicoVideoDb.Get(RawVideoId);
                 }
-
-
-                //            await RefrechCacheState();
             });
 
             if (IsDisposed)
@@ -102,7 +129,6 @@ namespace NicoPlayerHohoema.ViewModels
                 Debug.WriteLine("skip thumbnail loading: " + RawVideoId);
                 return;
             }
-
 
             SetupFromThumbnail(Data);
         }
@@ -202,9 +228,9 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (info.Owner != null)
             {
-                OwnerUserId = info.Owner.OwnerId;
-                OwnerUserName = info.Owner.ScreenName;
-                OwnerUserType = info.Owner.UserType;
+                ProviderId = info.Owner.OwnerId;
+                ProviderName = info.Owner.ScreenName;
+                ProviderType = info.Owner.UserType;
             }
 
         }

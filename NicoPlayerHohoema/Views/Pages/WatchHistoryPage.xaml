@@ -80,7 +80,7 @@
             x:Name="ItemsList"
             ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
             RefreshCommand="{Binding RefreshCommand}"
-            uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
+            uwpExtension:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
             IsItemClickEnabled="True"
             IncrementalLoadingTrigger="Edge"
             PullThreshold="85"    

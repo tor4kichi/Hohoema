@@ -15,6 +15,7 @@ using Reactive.Bindings.Extensions;
 using Reactive.Bindings;
 using System.Diagnostics;
 using NicoPlayerHohoema.Services;
+using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -104,19 +105,19 @@ namespace NicoPlayerHohoema.ViewModels
             switch (type)
             {
                 case FollowItemType.Tag:
-                    fac = item => new TagFavItemVM(item);
+                    fac = item => App.Current.Container.Resolve<TagFavItemVM>(new ParameterOverride("follow", item));
                     break;
                 case FollowItemType.Mylist:
-                    fac = item => new MylistFavItemVM(item);
+                    fac = item => App.Current.Container.Resolve<MylistFavItemVM>(new ParameterOverride("follow", item));
                     break;
                 case FollowItemType.User:
-                    fac = item => new UserFavItemVM(item);
+                    fac = item => App.Current.Container.Resolve<UserFavItemVM>(new ParameterOverride("follow", item));
                     break;
                 case FollowItemType.Community:
-                    fac = item => new CommunityFavItemVM(item);
+                    fac = item => App.Current.Container.Resolve<CommunityFavItemVM>(new ParameterOverride("follow", item));
                     break;
                 case FollowItemType.Channel:
-                    fac = item => new ChannelFavItemVM(item);
+                    fac = item => App.Current.Container.Resolve<ChannelFavItemVM>(new ParameterOverride("follow", item));
                     break;
                 default:
                     throw new NotSupportedException();
@@ -145,16 +146,30 @@ namespace NicoPlayerHohoema.ViewModels
 
     public class TagFavItemVM : FavoriteItemViewModel, Interfaces.ISearchWithtag
     {
-        public TagFavItemVM(FollowItemInfo feedList) : base(feedList)
+        public TagFavItemVM(
+            FollowItemInfo follow,
+            FollowManager followManager,
+            Models.Subscription.SubscriptionManager subscriptionManager,
+            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
+            )
+            : base(follow, followManager, subscriptionManager, createSubscriptionGroupCommand)
         {
         }
 
         public string Tag => SourceId;
+
+        public string Id => SourceId;
     }
 
     public class MylistFavItemVM : FavoriteItemViewModel, Interfaces.IMylistItem
     {
-        public MylistFavItemVM(FollowItemInfo feedList) : base(feedList)
+        public MylistFavItemVM(
+            FollowItemInfo follow,
+            FollowManager followManager,
+            Models.Subscription.SubscriptionManager subscriptionManager,
+            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
+            )
+            : base(follow, followManager, subscriptionManager, createSubscriptionGroupCommand)
         {
         }
 
@@ -164,7 +179,13 @@ namespace NicoPlayerHohoema.ViewModels
 
     public class UserFavItemVM : FavoriteItemViewModel, Interfaces.IUser
     {
-        public UserFavItemVM(FollowItemInfo feedList) : base(feedList)
+        public UserFavItemVM(
+            FollowItemInfo follow,
+            FollowManager followManager,
+            Models.Subscription.SubscriptionManager subscriptionManager,
+            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
+            )
+            : base(follow, followManager, subscriptionManager, createSubscriptionGroupCommand)
         {
         }
 
@@ -173,7 +194,13 @@ namespace NicoPlayerHohoema.ViewModels
 
     public class CommunityFavItemVM : FavoriteItemViewModel, Interfaces.ICommunity
     {
-        public CommunityFavItemVM(FollowItemInfo feedList) : base(feedList)
+        public CommunityFavItemVM(
+            FollowItemInfo follow,
+            FollowManager followManager,
+            Models.Subscription.SubscriptionManager subscriptionManager,
+            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
+            )
+            : base(follow, followManager, subscriptionManager, createSubscriptionGroupCommand)
         {
         }
 
@@ -182,7 +209,13 @@ namespace NicoPlayerHohoema.ViewModels
 
     public class ChannelFavItemVM : FavoriteItemViewModel, Interfaces.IChannel
     {
-        public ChannelFavItemVM(FollowItemInfo feedList) : base(feedList)
+        public ChannelFavItemVM(
+            FollowItemInfo follow,
+            FollowManager followManager,
+            Models.Subscription.SubscriptionManager subscriptionManager,
+            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
+            ) 
+            : base(follow, followManager, subscriptionManager, createSubscriptionGroupCommand)
         {
         }
 
@@ -192,12 +225,20 @@ namespace NicoPlayerHohoema.ViewModels
 
     public class FavoriteItemViewModel : HohoemaListingPageItemBase
 	{
-		public FavoriteItemViewModel(FollowItemInfo feedList)
+		public FavoriteItemViewModel(
+            FollowItemInfo follow,
+            FollowManager followManager,
+            Models.Subscription.SubscriptionManager subscriptionManager,
+            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
+            )
 		{
-            FollowItemInfo = feedList;
-            Label = feedList.Name;
-			ItemType = feedList.FollowItemType;
-			SourceId = feedList.Id;
+            FollowItemInfo = follow;
+            FollowManager = followManager;
+            SubscriptionManager = subscriptionManager;
+            CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
+            Label = follow.Name;
+			ItemType = follow.FollowItemType;
+			SourceId = follow.Id;
         }
 
         
@@ -236,6 +277,9 @@ namespace NicoPlayerHohoema.ViewModels
 		public string SourceId { get; set; }
 
         public FollowItemInfo FollowItemInfo { get; }
+        public FollowManager FollowManager { get; }
+        public Models.Subscription.SubscriptionManager SubscriptionManager { get; }
+        public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
     }
 
 	

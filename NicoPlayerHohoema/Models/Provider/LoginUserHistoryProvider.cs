@@ -66,7 +66,7 @@ namespace NicoPlayerHohoema.Models.Provider
         {
             if (!NiconicoSession.IsLoggedIn)
             {
-                return null;
+                return new List<FollowData>();
             }
 
             await WaitNicoPageAccess();
@@ -107,7 +107,7 @@ namespace NicoPlayerHohoema.Models.Provider
         {
             if (!NiconicoSession.IsLoggedIn)
             {
-                return null;
+                return new List<string>();
             }
 
             await WaitNicoPageAccess();
@@ -148,7 +148,7 @@ namespace NicoPlayerHohoema.Models.Provider
         {
             if (!NiconicoSession.IsLoggedIn)
             {
-                return null;
+                return new List<FollowData>();
             }
 
             await WaitNicoPageAccess();
@@ -188,7 +188,7 @@ namespace NicoPlayerHohoema.Models.Provider
         {
             if (!NiconicoSession.IsLoggedIn)
             {
-                return null;
+                return new List<ChannelFollowData>();
             }
 
             await WaitNicoPageAccess();
@@ -234,7 +234,7 @@ namespace NicoPlayerHohoema.Models.Provider
         {
             if (!NiconicoSession.IsLoggedIn)
             {
-                return null;
+                return new List<FollowCommunityInfo>();
             }
 
             await WaitNicoPageAccess();

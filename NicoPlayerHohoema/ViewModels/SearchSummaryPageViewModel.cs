@@ -14,6 +14,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Models.Provider;
+using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -57,7 +58,8 @@ namespace NicoPlayerHohoema.ViewModels
                 .SelectMany(x => x)
                 .Select(x =>
                 {
-                    var vm = new VideoInfoControlViewModel(x.Video.Id);
+                    var vm = App.Current.Container.Resolve<VideoInfoControlViewModel>();
+                    vm.RawVideoId = x.Video.Id;
                     vm.SetTitle(x.Video.Title);
                     vm.SetThumbnailImage(x.Video.ThumbnailUrl.OriginalString);
                     return vm;
@@ -98,8 +100,9 @@ namespace NicoPlayerHohoema.ViewModels
                 .SelectMany(x => x)
                 .Select(x =>
                 {
-                    var liveVM = new LiveInfoListItemViewModel(x);
-                    return liveVM;
+                    var liveInfoVM = App.Current.Container.Resolve<LiveInfoListItemViewModel>();
+                    liveInfoVM.Setup(x);
+                    return liveInfoVM;
                 })
                 .ToReadOnlyReactiveCollection(onReset: this.ObserveProperty(x => x.Keyword).ToUnit());
             HasLiveSearchResultItems = LiveSearchResultItems

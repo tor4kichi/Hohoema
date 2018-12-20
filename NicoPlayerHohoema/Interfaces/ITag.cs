@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Interfaces
 {
-    public interface ITag 
+    public interface ITag
     {
         string Tag { get; }
         bool IsLocked { get; }

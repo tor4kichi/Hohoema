@@ -1,6 +1,7 @@
 ﻿using Microsoft.Toolkit.Uwp;
 using Microsoft.Toolkit.Uwp.Notifications;
 using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Services.Helpers;
 using Prism.Commands;
 using Prism.Events;
 using System;

@@ -19,21 +19,10 @@
     xmlns:subscription="using:NicoPlayerHohoema.Models.Subscription"
     xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector"
     xmlns:mytriggers="using:NicoPlayerHohoema.Views.StateTrigger"
+    xmlns:subscriptionControls="using:NicoPlayerHohoema.Views.Pages.Subscription"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     >
-    <Page.Resources>
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                
-                <!-- GridView内のSubscriptionテンプレートはデスクトップ・TV・モバイルで共通 -->
-                <ResourceDictionary Source="SubscriptionDictionary.xaml" />
-                
-                
-            </ResourceDictionary.MergedDictionaries>
-        </ResourceDictionary>
-
-    </Page.Resources>
     
     <Grid>
 
@@ -106,7 +95,6 @@
 
 
             <GridView ItemsSource="{Binding SubscriptionManager.Subscriptions, Mode=TwoWay}"
-                  ItemTemplate="{StaticResource SubscriptionTemplate}"
                   CanReorderItems="True"
                   AllowDrop="True"
                   ScrollViewer.VerticalScrollMode="Disabled"
@@ -119,6 +107,12 @@
                       x:Name="SubscriptionsGridView"
                   >
 
+                <GridView.ItemTemplate>
+                    <DataTemplate>
+                        <subscriptionControls:SubscriptionControl />
+                    </DataTemplate>
+                </GridView.ItemTemplate>
+                
                 <GridView.ItemContainerStyle>
                     <Style TargetType="GridViewItem">
                         <Setter Property="IsFocusEngagementEnabled" Value="True" />

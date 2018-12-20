@@ -27,6 +27,7 @@ using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using Microsoft.Toolkit.Uwp.Helpers;
 using System.Reactive.Concurrency;
+using Prism.Commands;
 
 namespace NicoPlayerHohoema.Models.Cache
 {
@@ -36,7 +37,7 @@ namespace NicoPlayerHohoema.Models.Cache
         static public List<NicoVideoCacheRequest> LoadCacheRequest()
         {
             var localObjectStorageHelper = new LocalObjectStorageHelper();
-            return localObjectStorageHelper.Read<List<NicoVideoCacheRequest>>(VideoCacheRequestItemsKey);
+            return localObjectStorageHelper.Read<List<NicoVideoCacheRequest>>(VideoCacheRequestItemsKey) ?? new List<NicoVideoCacheRequest>();
         }
 
         static public void SaveCacheRequest(IEnumerable<NicoVideoCacheRequest> requests)
@@ -297,6 +298,29 @@ namespace NicoPlayerHohoema.Models.Cache
         ObservableCollection<NicoVideoCacheRequest> _CacheDownloadPendingVideos = new ObservableCollection<NicoVideoCacheRequest>();
         ObservableCollection<NicoVideoCacheProgress> _DownloadOperations = new ObservableCollection<NicoVideoCacheProgress>();
 
+
+        #region Commands
+
+
+        private DelegateCommand<Interfaces.IVideoContent> _AddCacheRequestCommand;
+        public DelegateCommand<Interfaces.IVideoContent> AddCacheRequestCommand => _AddCacheRequestCommand
+            ?? (_AddCacheRequestCommand = new DelegateCommand<Interfaces.IVideoContent>(video => 
+            {
+
+            }));
+
+
+        private DelegateCommand<Interfaces.IVideoContent> _DeleteCacheRequestCommand;
+        public DelegateCommand<Interfaces.IVideoContent> DeleteCacheRequestCommand => _DeleteCacheRequestCommand
+            ?? (_DeleteCacheRequestCommand = new DelegateCommand<Interfaces.IVideoContent>(video =>
+            {
+
+            }
+            , video => video != null && this.CheckCached(video.Id)
+            ));
+
+
+        #endregion
 
 
 
@@ -1555,7 +1579,7 @@ namespace NicoPlayerHohoema.Models.Cache
 
 
 
-        internal async Task<bool> CheckCached(string contentId)
+        internal async Task<bool> CheckCachedAsync(string contentId)
         {
             using (var releaser = await _CacheRequestProcessingLock.LockAsync())
             {
@@ -1570,6 +1594,17 @@ namespace NicoPlayerHohoema.Models.Cache
             }
         }
 
+        internal bool CheckCached(string contentId)
+        {
+            if (_CacheVideos.TryGetValue(contentId, out var cacheInfoList))
+            {
+                return cacheInfoList.Any(x => x.ToCacheState() == NicoVideoCacheState.Cached);
+            }
+            else
+            {
+                return false;
+            }
+        }
     }
 
 

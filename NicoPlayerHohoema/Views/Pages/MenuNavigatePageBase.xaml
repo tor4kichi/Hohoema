@@ -274,7 +274,7 @@
             
 
             <DataTemplate x:Key="SingleMenuItemTemplate">
-                <ListView uwpui:ListViewBase.Command="{StaticResource OpenHohoemaPageCommand}"
+                <ListView uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
                               IsItemClickEnabled="True"
                           SelectionMode="None"
                           IsTabStop="False"
@@ -294,49 +294,13 @@
             </DataTemplate>
 
 
-            <templateSelector:MenuItemTemplateSelector x:Key="MenuItemTemplateSelector"
-                                                       MenuItem="{StaticResource SingleMenuItemTemplate}"
-                                                       >
-
-                <templateSelector:MenuItemTemplateSelector.SubMenuItem>
-                    <DataTemplate>
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal" Opacity="0.55"
-                        Margin="4 0 0 0"
-                        >
-                                <!--
-                            <SymbolIcon Symbol="{Binding IconType}" />
-                            -->
-                                <Border Height="4" Width="16" />
-
-                                <TextBlock Text="{Binding Label}"
-                                VerticalAlignment="Center"
-                                FontSize="14"
-                                           Margin="0 8"
-                                />
-
-                            </StackPanel>
-
-                            <ListView ItemsSource="{Binding SubItems}"
-                                      ItemTemplate="{StaticResource MenuItemTemplate}"
-                                      uwpui:ListViewBase.Command="{StaticResource OpenHohoemaPageCommand}"
-                                      IsItemClickEnabled="True"
-                                      SelectionMode="None"
-                                      >
-                                
-                            </ListView>
-                            
-                        </StackPanel>
-                    </DataTemplate>
-                </templateSelector:MenuItemTemplateSelector.SubMenuItem>
-            </templateSelector:MenuItemTemplateSelector>
-
-
-
             <DataTemplate x:Name="VideoSubMenuContentTemplate">
                 <StackPanel>
-                    <ItemsControl ItemsSource="{Binding MenuItems}"
-                                ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
+                    <ListView ItemsSource="{Binding MenuItems}"
+                                ItemTemplate="{StaticResource MenuItemTemplate}"
+                              uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
+                                IsItemClickEnabled="True"
+                                SelectionMode="None"
                                 IsTabStop="False"
                                 Background="Transparent"
                                 ScrollViewer.VerticalScrollMode="Disabled"
@@ -348,36 +312,31 @@
                                 Margin="16 8"
                                 />
 
-                    <toolkit:DockPanel Margin="0 0" Opacity="0.7"
-                                       >
-                        <!--
-                    <toolkit:DockPanel Margin="0 0" Opacity="0.7"
-                                    Visibility="{Binding Mylists, Converter={StaticResource CollectionVisibilityConverter}}"
-                                    >
-                        -->
-
-                            <Button Command="{StaticResource OpenHohoemaPageCommand}"
-                                    CommandParameter="UserMylist"
-                                    HorizontalAlignment="Stretch"
-                                HorizontalContentAlignment="Left"
-                                    Background="Transparent"
-                                Padding="16 0"
-                                    >
-                            <TextBlock Text="マイリスト"
+                    <Button Command="{Binding PageManager.OpenPageCommand}"
+                                CommandParameter="UserMylist"
+                                HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left"
+                                Background="Transparent"
+                            Padding="16 0"
+                                >
+                        <TextBlock Text="マイリスト"
                                    toolkit:DockPanel.Dock="Left"
                                    VerticalAlignment="Center"
                                        Style="{StaticResource SubtitleTextBlockStyle}"
                                    />
-                        </Button>
+                    </Button>
 
-                    </toolkit:DockPanel>
-
-                    <ItemsControl ItemsSource="{Binding Mylists}"
-                                ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
+                    <ListView ItemsSource="{Binding Mylists}"
+                                ItemTemplate="{StaticResource MenuItemTemplate}"
+                              uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
+                                IsItemClickEnabled="True"
+                                SelectionMode="None"
+                                IsTabStop="False"
                                 Background="Transparent"
-                                  IsTabStop="False"
+                                ScrollViewer.VerticalScrollMode="Disabled"
                                 />
 
+                   
                     <Border BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}" Opacity="0.3"
                                 BorderThickness="0 1 0 0"
                                 VerticalAlignment="Center"
@@ -385,13 +344,16 @@
                             Visibility="{Binding LocalMylists, Converter={StaticResource CollectionVisibilityConverter}}"
                                 />
 
-                    <ItemsControl ItemsSource="{Binding LocalMylists}"
-                                ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
+                    <ListView ItemsSource="{Binding LocalMylists}"
+                                ItemTemplate="{StaticResource MenuItemTemplate}"
+                              uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
+                                IsItemClickEnabled="True"
+                                SelectionMode="None"
+                                IsTabStop="False"
                                 Background="Transparent"
-                                  IsTabStop="False"
+                                ScrollViewer.VerticalScrollMode="Disabled"
                                 />
-
-                    
+                                        
 
                 </StackPanel>
             </DataTemplate>
@@ -429,11 +391,14 @@
             
             <DataTemplate x:Name="LiveSubMenuContentTemplate">
                 <StackPanel>
-                    <ItemsControl ItemsSource="{Binding MenuItems}"
-                                ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
+                    <ListView ItemsSource="{Binding MenuItems}"
+                                ItemTemplate="{StaticResource MenuItemTemplate}"
+                              uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
+                                IsItemClickEnabled="True"
+                                SelectionMode="None"
+                                IsTabStop="False"
                                 Background="Transparent"
                                 ScrollViewer.VerticalScrollMode="Disabled"
-                                  IsTabStop="False"
                                 />
 
                     <Border BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}" Opacity="0.3"
@@ -453,7 +418,7 @@
                             <SymbolIcon Symbol="Refresh" />
                         </Button>
 
-                        <Button Command="{StaticResource OpenHohoemaPageCommand}"
+                        <Button Command="{Binding PageManager.OpenPageCommand}"
                                     CommandParameter="{x:Null}"
                                     HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Left"
@@ -476,7 +441,7 @@
                                Margin="32 8 16 16"
                                />
 
-                    <ListView uwpui:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                    <ListView uwpui:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
                               ItemsSource="{Binding OnAirStreams}"
                               IsItemClickEnabled="True"
                               SelectionMode="None"
@@ -513,7 +478,7 @@
                                Margin="32 8 16 16"
                                />
 
-                    <ListView uwpui:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                    <ListView uwpui:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
                               ItemsSource="{Binding ReservedStreams}"
                               IsItemClickEnabled="True"
                               SelectionMode="None"
@@ -1042,7 +1007,7 @@
                                             toolkit:DockPanel.Dock="Bottom"
                                             />
 
-                                    <Button Command="{StaticResource OpenHohoemaPageCommand}"
+                                    <Button Command="{Binding PageManager.OpenPageCommand}"
                                             CommandParameter="Settings"
                                             toolkit:DockPanel.Dock="Right"
                                             Background="Transparent"
@@ -1071,13 +1036,13 @@
 
                                                     <MenuFlyoutItem x:Name="MenuFlyoutItem_Logout"
                                                                     Text="ログアウト" 
-                                                                    Command="{StaticResource LogoutFromNiconicoCommand}"
+                                                                    Command="{Binding LogoutFromNiconicoCommand}"
                                                                     Visibility="Collapsed"
                                                                     />
 
                                                     <MenuFlyoutItem x:Name="MenuFlyoutItem_Login"
                                                                     Text="ログイン" 
-                                                                    Command="{StaticResource LoginToNiconicoCommand}"
+                                                                    Command="{Binding LoginToNiconicoCommand}"
                                                                     Visibility="Collapsed"
                                                                     />
 
@@ -1194,7 +1159,7 @@
 
                                             <ListView ItemsSource="{Binding PinItems}"
                                                         ItemTemplate="{StaticResource PinMenuItemTemplate}"
-                                                        uwpui:ListViewBase.Command="{StaticResource OpenHohoemaPageCommand}"
+                                                        uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
                                                         IsItemClickEnabled="True"
                                                         SelectionMode="None"
                                                       TabIndex="1"
@@ -1206,17 +1171,7 @@
 
                                                 <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
                                                     <DataTemplate>
-                                                        <MenuFlyout>
-
-                                                            <MenuFlyoutItem Text="ピンのタイトル変更" 
-                                                                        Command="{Binding ChangeOverrideLabelCommand}"
-                                                                        />
-
-                                                            <MenuFlyoutItem Text="ピン留め解除" 
-                                                                        Command="{StaticResource RemovePinCommand}"
-                                                                        CommandParameter="{Binding}"
-                                                                        />
-                                                        </MenuFlyout>
+                                                        <local:MenuPinItemFlyout />
                                                     </DataTemplate>
                                                 </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
 
@@ -1240,16 +1195,20 @@
                                                 </Style>
                                             </Pivot.ItemContainerStyle>
 
+                                            
                                             <PivotItem Header="動画"
-                                                               Content="{Binding VideoMenu}"
-                                                               ContentTemplate="{StaticResource VideoSubMenuContentTemplate}"
-                                                               />
+                                                        Content="{Binding VideoMenu}"
+                                                        ContentTemplate="{StaticResource VideoSubMenuContentTemplate}"
+                                                        />
+                                            <!--
 
+                                            
                                             <PivotItem Header="生放送"
                                                                Content="{Binding LiveMenu}"
                                                                ContentTemplate="{StaticResource LiveSubMenuContentTemplate}"
                                                                />
-
+                                            
+-->
 
                                         </Pivot>
 
@@ -1511,9 +1470,9 @@
                         VerticalAlignment="Top"
                                         >
 
-                    <Border x:Name="BackButtonLayout">
+                    <Border x:Name="BackButtonLayout" toolkit:DockPanel.Dock="Left">
                         <Border Visibility="{Binding CanGoBackNavigation.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
-                        toolkit:DockPanel.Dock="Left"
+                        
                         >
                             <Button 
                                 MinHeight="{StaticResource TitleBarDummyHeight}"

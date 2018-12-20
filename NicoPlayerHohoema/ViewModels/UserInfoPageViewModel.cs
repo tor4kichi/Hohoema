@@ -17,20 +17,22 @@ using NicoPlayerHohoema.Services;
 using Windows.System;
 using NicoPlayerHohoema.Models.Subscription;
 using NicoPlayerHohoema.Models.Provider;
+using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class UserInfoPageViewModel : HohoemaViewModelBase
+	public class UserInfoPageViewModel : HohoemaViewModelBase, Interfaces.IUser
 	{
-
-
         public UserInfoPageViewModel(
-            PageManager pageManager,
+            UserProvider userProvider,
+            NGSettings ngSettings,
             Models.NiconicoSession niconicoSession,
             SubscriptionManager subscriptionManager,
             UserMylistManager userMylistManager,
-            UserProvider userProvider,
-            NGSettings ngSettings
+            HohoemaPlaylist hohoemaPlaylist,
+            PageManager pageManager,
+            ExternalAccessService externalAccessService,
+            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
             : base(pageManager)
         {
@@ -39,7 +41,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             MylistGroups = new ObservableCollection<MylistGroupListItem>();
             VideoInfoItems = new ObservableCollection<VideoInfoControlViewModel>();
-
 
             OpenUserVideoPageCommand = VideoInfoItems.ObserveProperty(x => x.Count)
                 .Select(x => x > 0)
@@ -52,7 +53,7 @@ namespace NicoPlayerHohoema.ViewModels
             })
             .AddTo(_CompositeDisposable);
 
-            IsNGVideoOwner = new ReactiveProperty<bool>(false);
+            IsNGVideoOwner = new ReactiveProperty<bool>(false, ReactivePropertyMode.DistinctUntilChanged);
 
             IsNGVideoOwner.Subscribe(isNgVideoOwner =>
             {
@@ -73,6 +74,8 @@ namespace NicoPlayerHohoema.ViewModels
             NiconicoSession = niconicoSession;
             SubscriptionManager = subscriptionManager;
             UserMylistManager = userMylistManager;
+            ExternalAccessService = externalAccessService;
+            CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
             UserProvider = userProvider;
             NgSettings = ngSettings;
         }
@@ -81,35 +84,12 @@ namespace NicoPlayerHohoema.ViewModels
         public Models.NiconicoSession NiconicoSession { get; }
         public SubscriptionManager SubscriptionManager { get; }
         public UserMylistManager UserMylistManager { get; }
+        public ExternalAccessService ExternalAccessService { get; }
+        public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
         public UserProvider UserProvider { get; }
         public NGSettings NgSettings { get; }
-
-        public Models.Subscription.SubscriptionSource? SubscriptionSource => new Models.Subscription.SubscriptionSource(UserName, Models.Subscription.SubscriptionSourceType.User, UserId);
        
         public Database.Bookmark UserBookmark { get; private set; }
-
-        private DelegateCommand _OpenUserAccountPageInBrowserCommand;
-        public DelegateCommand OpenUserAccountPageInBrowserCommand
-        {
-            get
-            {
-                return _OpenUserAccountPageInBrowserCommand
-                    ?? (_OpenUserAccountPageInBrowserCommand = new DelegateCommand(async () =>
-                    {
-                        if (IsLoginUser)
-                        {
-                            Uri UserAccountPageUri = new Uri("http://www.nicovideo.jp/my/top");
-                            await Launcher.LaunchUriAsync(UserAccountPageUri);
-                        }
-                        else
-                        {
-                            // www.nicovideo.jp/user/3914961
-                            var userPageUri = new Uri(NiconicoUrls.UserPageUrlBase + UserId);
-                            await Launcher.LaunchUriAsync(userPageUri);
-                        }
-                    }));
-            }
-        }
 
         private DelegateCommand _OpenUserMylistPageCommand;
         public DelegateCommand OpenUserMylistPageCommand
@@ -239,7 +219,9 @@ namespace NicoPlayerHohoema.ViewModels
 		public ObservableCollection<VideoInfoControlViewModel> VideoInfoItems { get; private set; }
 
 
+        string Interfaces.INiconicoObject.Id => UserId;
 
+        string Interfaces.INiconicoObject.Label => UserName;
 
         protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
@@ -318,7 +300,8 @@ namespace NicoPlayerHohoema.ViewModels
                 var userVideos = await UserProvider.GetUserVideos(uint.Parse(UserId), 1);
                 foreach (var item in userVideos.Items.Take(5))
                 {
-                    var vm = new VideoInfoControlViewModel(item.VideoId, NgSettings);
+                    var vm = App.Current.Container.Resolve<VideoInfoControlViewModel>();
+                    vm.RawVideoId = item.VideoId;
                     vm.SetTitle(item.Title);
                     vm.SetThumbnailImage(item.ThumbnailUrl.OriginalString);
                     VideoInfoItems.Add(vm);
@@ -337,7 +320,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (NiconicoSession.IsLoginUserId(UserId))
             {
-                foreach (var item in UserMylistManager.UserMylists)
+                foreach (var item in UserMylistManager.Mylists)
                 {
                     MylistGroups.Add(new MylistGroupListItem(item));
                 }

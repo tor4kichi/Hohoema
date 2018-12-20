@@ -15,6 +15,7 @@ using System.Collections.Async;
 using Windows.UI.Xaml.Navigation;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Models.Provider;
+using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -23,7 +24,8 @@ namespace NicoPlayerHohoema.ViewModels
         public SearchResultLivePageViewModel(
             Models.NiconicoSession niconicoSession,
             SearchProvider searchProvider,
-            Services.PageManager pageManager
+            Services.PageManager pageManager,
+            HohoemaPlaylist hohoemaPlaylist
             )
             : base(pageManager, useDefaultPageTitle: false)
         {
@@ -62,6 +64,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(_CompositeDisposable);
             NiconicoSession = niconicoSession;
             SearchProvider = searchProvider;
+            HohoemaPlaylist = hohoemaPlaylist;
         }
 
 
@@ -229,6 +232,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public Models.NiconicoSession NiconicoSession { get; }
         public SearchProvider SearchProvider { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
 
         #endregion
 
@@ -428,7 +432,16 @@ namespace NicoPlayerHohoema.ViewModels
 
             return Info.Skip(head).Take(count).Select(x =>
 			{
-				return new LiveInfoListItemViewModel(x, _Reservations?.ReservedProgram.FirstOrDefault(reservation => x.Video.Id == reservation.Id));
+                var liveInfoVM = App.Current.Container.Resolve<LiveInfoListItemViewModel>();
+                liveInfoVM.Setup(x);
+
+                var reserve = _Reservations?.ReservedProgram.FirstOrDefault(reservation => x.Video.Id == reservation.Id);
+                if (reserve != null)
+                {
+                    liveInfoVM.SetReservation(reserve);
+                }
+
+                return liveInfoVM;
 			})
             .ToAsyncEnumerable();
 		}

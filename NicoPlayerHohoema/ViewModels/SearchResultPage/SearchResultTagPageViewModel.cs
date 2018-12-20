@@ -25,16 +25,19 @@ namespace NicoPlayerHohoema.ViewModels
            NGSettings ngSettings,
            SearchProvider searchProvider,
            SubscriptionManager subscriptionManager,
+           HohoemaPlaylist hohoemaPlaylist,
            Services.PageManager pageManager,
-           Services.DialogService dialogService
+           Services.DialogService dialogService,
+           Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
            )
            : base(pageManager, useDefaultPageTitle: false)
         {
             SearchProvider = searchProvider;
             SubscriptionManager1 = subscriptionManager;
+            HohoemaPlaylist = hohoemaPlaylist;
             NgSettings = ngSettings;
             _HohoemaDialogService = dialogService;
-
+            CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
             FailLoading = new ReactiveProperty<bool>(false)
                 .AddTo(_CompositeDisposable);
 
@@ -227,6 +230,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         public SearchProvider SearchProvider { get; }
         public SubscriptionManager SubscriptionManager1 { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
         public NGSettings NgSettings { get; }
 
         #endregion

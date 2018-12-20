@@ -103,7 +103,7 @@
             UseSystemFocusVisuals="True"
             SelectionMode="None"
             HorizontalContentAlignment="Stretch"
-            uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
+            uwpExtension:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
             ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
             uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
             
@@ -155,7 +155,7 @@
                                     Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                     >
                                     <HyperlinkButton 
-                                             Command="{StaticResource OpenHohoemaPageCommand}"
+                                             Command="{Binding PageManager.OpenPageCommand}"
                                              CommandParameter="RankingCategoryList"
                                              Foreground="{StaticResource ApplicationForegroundThemeBrush}"
                                             VerticalAlignment="Center"

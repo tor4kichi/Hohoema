@@ -283,28 +283,30 @@ namespace NicoPlayerHohoema.ViewModels
         // TODO: HohoemaViewModelBaseとの依存性を排除（ViewModelBaseとの関係性は維持）
 
         public VideoPlayerPageViewModel(
-        IEventAggregator ea,
-        NicoVideo nicoVideo,
-        VideoCacheManager videoCacheManager,
-        UserMylistManager userMylistManager,
-        LocalMylistManager localMylistManager,
-        Models.Subscription.SubscriptionManager subscriptionManager,
-        Models.NiconicoSession niconicoSession,
-        NicoVideoProvider nicoVideoProvider,
-        ChannelProvider channelProvider,
-        MylistProvider mylistProvider,
-        PlayerSettings playerSettings,
-        PlaylistSettings playlistSettings,
-        CacheSettings cacheSettings,
-        NGSettings ngSettings,
-        AppearanceSettings appearanceSettings,
-        HohoemaPlaylist hohoemaPlaylist,
-        PageManager pageManager,
-        HohoemaViewManager viewManager,
-        NotificationService notificationService,
-        DialogService dialogService,
-        HohoemaClipboardService clipboardService
-        )
+            IEventAggregator ea,
+            NicoVideo nicoVideo,
+            VideoCacheManager videoCacheManager,
+            UserMylistManager userMylistManager,
+            LocalMylistManager localMylistManager,
+            Models.Subscription.SubscriptionManager subscriptionManager,
+            Models.NiconicoSession niconicoSession,
+            NicoVideoProvider nicoVideoProvider,
+            ChannelProvider channelProvider,
+            MylistProvider mylistProvider,
+            PlayerSettings playerSettings,
+            PlaylistSettings playlistSettings,
+            CacheSettings cacheSettings,
+            NGSettings ngSettings,
+            AppearanceSettings appearanceSettings,
+            HohoemaPlaylist hohoemaPlaylist,
+            PageManager pageManager,
+            HohoemaViewManager viewManager,
+            NotificationService notificationService,
+            DialogService dialogService,
+            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand,
+            Commands.Mylist.CreateLocalMylistCommand createLocalMylistCommand,
+            Commands.Mylist.CreateMylistCommand createMylistCommand
+            )
         : base(pageManager)
         {
             NicoVideo = nicoVideo;
@@ -324,8 +326,9 @@ namespace NicoPlayerHohoema.ViewModels
             HohoemaPlaylist = hohoemaPlaylist;
             _NotificationService = notificationService;
             _HohoemaDialogService = dialogService;
-            ClipboardService = clipboardService;
-
+            CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
+            CreateLocalMylistCommand = createLocalMylistCommand;
+            CreateMylistCommand = createMylistCommand;
             MediaPlayer = viewManager.GetCurrentWindowMediaPlayer();
 
             NicoScript_Default_Enabled = PlayerSettings
@@ -2617,7 +2620,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _VideoInfoCopyToClipboardCommand
                     ?? (_VideoInfoCopyToClipboardCommand = new DelegateCommand(() =>
                     {
-                        ClipboardService.CopyToClipboard(_VideoInfo);
+                        Services.Helpers.ClipboardHelper.CopyToClipboard(_VideoInfo);
                     }
                     ));
             }
@@ -3099,24 +3102,6 @@ namespace NicoPlayerHohoema.ViewModels
         public CommentCommandEditerViewModel CommandEditerVM { get; private set; }
 		public ReactiveProperty<string> CommandString { get; private set; }
 
-
-        public IReadOnlyCollection<Interfaces.IUserOwnedMylist> Mylists
-        {
-            get
-            {
-                return UserMylistManager.UserMylists;
-            }
-        }
-
-        public IReadOnlyCollection<Interfaces.ILocalMylist> LocalMylists
-        {
-            get
-            {
-                return LocalMylistManager.LocalMylistGroups;
-            }
-        }
-
-
         // 再生できない場合の補助
 
         private bool _IsCannotPlay;
@@ -3215,7 +3200,7 @@ namespace NicoPlayerHohoema.ViewModels
                     case PlayerSidePaneContentType.RelatedVideos:
                         if (NicoVideo != null)
                         {
-                            sidePaneContent = new PlayerSidePaneContent.RelatedVideosSidePaneContentViewModel(NicoVideo, _JumpVideoId, NicoVideoProvider, ChannelProvider, MylistProvider);
+                            sidePaneContent = new PlayerSidePaneContent.RelatedVideosSidePaneContentViewModel(NicoVideo, _JumpVideoId, NicoVideoProvider, ChannelProvider, MylistProvider,HohoemaPlaylist, PageManager);
                         }
                         else
                         {
@@ -3244,7 +3229,7 @@ namespace NicoPlayerHohoema.ViewModels
             await PlayingQualityChangeAction();
         }
 
-        public static EmptySidePaneContentViewModel EmptySidePaneContent { get; } = new EmptySidePaneContentViewModel();
+        public static EmptySidePaneContentViewModel EmptySidePaneContent { get; } = EmptySidePaneContentViewModel.Default;
         public VideoCacheManager VideoCacheManager { get; }
         public UserMylistManager UserMylistManager { get; }
         public LocalMylistManager LocalMylistManager { get; }
@@ -3259,7 +3244,9 @@ namespace NicoPlayerHohoema.ViewModels
         public NGSettings NgSettings { get; }
         public AppearanceSettings AppearanceSettings { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
-        public HohoemaClipboardService ClipboardService { get; }
+        public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
+        public Commands.Mylist.CreateLocalMylistCommand CreateLocalMylistCommand { get; }
+        public Commands.Mylist.CreateMylistCommand CreateMylistCommand { get; }
 
         NotificationService _NotificationService;
         DialogService _HohoemaDialogService;

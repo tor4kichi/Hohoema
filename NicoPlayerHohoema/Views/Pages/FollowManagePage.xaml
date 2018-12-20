@@ -16,6 +16,7 @@
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
+    xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d">
 
@@ -185,50 +186,12 @@
                                               HorizontalAlignment="Stretch"
                                                   HorizontalContentAlignment="Left"
                                               IsItemClickEnabled="True"
-                                              uwpui:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                                              uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
                                               SelectionMode="None"
-                                              myExtensions:ListViewBase.ItemContextFlyoutCustomObjectToTag="{Binding ElementName=PageRoot, Path=DataContext}"
                                           >
                                         <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
                                             <DataTemplate>
-                                                <MenuFlyout>
-                                                    <MenuFlyoutItem Text="{Binding Label}" IsEnabled="False" />
-
-                                                    <MenuFlyoutSubItem x:Name="AddSubscriptionButton"
-                                                                Text="購読に追加..."
-                                                                Icon="Add"
-                                                                    >
-                                                        <i:Interaction.Behaviors>
-                                                            <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding ElementName=AddSubscriptionButton, Path=Tag.SubscriptionManager.Subscriptions}"
-                                                                        CustomObjectToTag="{Binding Converter={StaticResource SubscriptionSourceConverter}}"
-                                                                        >
-                                                                <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
-                                                                    <DataTemplate>
-                                                                        <MenuFlyoutItem Text="{Binding Label}"
-                                                                            Command="{Binding AddSource}"
-                                                                            CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}"
-                                                                            />
-                                                                    </DataTemplate>
-                                                                </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
-                                                            </mybehavior:MenuFlyoutSubItemItemsSetter>
-                                                        </i:Interaction.Behaviors>
-
-                                                        <MenuFlyoutItem Text="購読グループを作成..."
-                                                                    Command="{StaticResource CreateSubscriptionGroupCommand}"
-                                                                    CommandParameter="{Binding Converter={StaticResource SubscriptionSourceConverter}}"
-                                                                    />
-
-
-                                                    </MenuFlyoutSubItem>
-
-                                                    <MenuFlyoutSeparator />
-
-                                                    <MenuFlyoutItem Text="フォロー解除"
-                                                                Command="{StaticResource RemoveFollowCommand}"
-                                                                CommandParameter="{Binding}"
-                                                                />
-
-                                                </MenuFlyout>
+                                                <flyouts:FollowItemFlyout />
                                             </DataTemplate>
                                         </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
                                         

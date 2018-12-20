@@ -90,7 +90,7 @@
             UseSystemFocusVisuals="True"
             SelectionMode="None"
             HorizontalContentAlignment="Stretch"
-            uwpextensions:ListViewBase.Command="{StaticResource OpenContentCommand}"
+            uwpextensions:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
             ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
             uwpextensions:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
                             >
@@ -155,8 +155,9 @@
                                         <Flyout>
                                             <ListView ItemsSource="{Binding RecommendSourceTags}"
                                                       IsItemClickEnabled="True"
-                                                      uwpextensions:ListViewBase.Command="{Binding OpenTagCommand}"
+                                                      uwpextensions:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
                                                       SelectionMode="None"
+                                                      DisplayMemberPath="Tag"
                                                       >
 
                                             </ListView>

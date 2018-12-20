@@ -1,4 +1,5 @@
-﻿using Prism.Commands;
+﻿using NicoPlayerHohoema.Models;
+using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +10,15 @@ namespace NicoPlayerHohoema.Commands
 {
     public sealed class LogoutFromNiconicoCommand : DelegateCommandBase
     {
+        public LogoutFromNiconicoCommand(
+            NiconicoSession niconicoSession
+            )
+        {
+            NiconicoSession = niconicoSession;
+        }
+
+        public NiconicoSession NiconicoSession { get; }
+
         protected override bool CanExecute(object parameter)
         {
             return true;
@@ -16,8 +26,7 @@ namespace NicoPlayerHohoema.Commands
 
         protected override async void Execute(object parameter)
         {
-            var niconicoSession = HohoemaCommnadHelper.GetNiconicoSession();
-            await niconicoSession.SignOut();
+            await NiconicoSession.SignOut();
         }
     }
 }

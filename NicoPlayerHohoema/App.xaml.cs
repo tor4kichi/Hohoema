@@ -107,6 +107,12 @@ namespace NicoPlayerHohoema
             Container.RegisterType<Models.Subscription.SubscriptionManager>(lifetimeManager: new ContainerControlledLifetimeManager());
             Container.RegisterType<Services.NicoLiveSubscriber>(lifetimeManager: new ContainerControlledLifetimeManager());
 
+            // Commands
+            Container.RegisterType<Commands.Mylist.CreateMylistCommand>(lifetimeManager: new ContainerControlledLifetimeManager());
+            Container.RegisterType<Commands.Mylist.CreateLocalMylistCommand>(lifetimeManager: new ContainerControlledLifetimeManager());
+            Container.RegisterType<Commands.Subscriptions.CreateSubscriptionGroupCommand>(lifetimeManager: new ContainerControlledLifetimeManager());
+            Container.RegisterType<Commands.AddToHiddenUserCommand>(lifetimeManager: new ContainerControlledLifetimeManager());
+
             // Note: インスタンス化が別途必要
             Container.RegisterInstance(Container.Resolve<Services.HohoemaAlertClient>());
             Container.RegisterInstance(Container.Resolve<Services.WatchItLater>());
@@ -223,11 +229,9 @@ namespace NicoPlayerHohoema
             // ウィンドウを有効化したタイミングでクリップボードをチェックする
             Window.Current.CoreWindow.Activated += async (__, activatedArgs) =>
             {
-                var clipboardService = Container.Resolve<Services.HohoemaClipboardService>();
-
                 if (activatedArgs.WindowActivationState == CoreWindowActivationState.PointerActivated)
                 {
-                    var clipboard = await clipboardService.CheckClipboard();
+                    var clipboard = await Services.Helpers.ClipboardHelper.CheckClipboard();
                     if (clipboard != null)
                     {
                         var hohoemaNotificationService = Container.Resolve<Services.HohoemaNotificationService>();
@@ -236,8 +240,25 @@ namespace NicoPlayerHohoema
                 }
             };
 
+
+
+
+
+            await base.OnInitializeAsync(args);
+        }
+
+        protected override async Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
+        {
+            SplashScreen = args.SplashScreen;
+#if DEBUG
+            DebugSettings.IsBindingTracingEnabled = true;
+#endif
+            _IsPreLaunch = args.PrelaunchActivated;
+
+
+
             var pageManager = Container.Resolve<Services.PageManager>();
-            
+
 
 #if false
             try
@@ -271,6 +292,18 @@ namespace NicoPlayerHohoema
 
 
 
+            // 更新通知を表示
+            try
+            {
+                var dialogService = Container.Resolve<Services.DialogService>();
+                if (Models.Helpers.AppUpdateNotice.HasNotCheckedUptedeNoticeVersion)
+                {
+                    _ = dialogService.ShowLatestUpdateNotice();
+                    Models.Helpers.AppUpdateNotice.UpdateLastCheckedVersionInCurrentVersion();
+                }
+            }
+            catch { }
+
             // ログイン
             try
             {
@@ -287,6 +320,14 @@ namespace NicoPlayerHohoema
             }
 
 
+            try
+            {
+                var cacheManager = Container.Resolve<Models.Cache.VideoCacheManager>();
+                _ = cacheManager.Initialize();
+            }
+            catch { }
+
+
             // 購読機能を初期化
             try
             {
@@ -300,45 +341,13 @@ namespace NicoPlayerHohoema
             }
 
 
+
+
             // バックグラウンドでのトースト通知ハンドリングを初期化
             await RegisterDebugToastNotificationBackgroundHandling();
 
 
-            // 更新通知を表示
-            try
-            {
-                var dialogService  = Container.Resolve<Services.DialogService>();
-                if (Models.Helpers.AppUpdateNotice.HasNotCheckedUptedeNoticeVersion)
-                {
-                    await dialogService.ShowLatestUpdateNotice();
-                    Models.Helpers.AppUpdateNotice.UpdateLastCheckedVersionInCurrentVersion();
-                }
-            }
-            catch { }
-
-
-
-
-            await base.OnInitializeAsync(args);
-        }
-
-
-
-        protected override Task OnResumeApplicationAsync(IActivatedEventArgs args)
-        {
-
-            return base.OnResumeApplicationAsync(args);
-        }
-
-        protected override Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
-        {
-            SplashScreen = args.SplashScreen;
-#if DEBUG
-            DebugSettings.IsBindingTracingEnabled = true;
-#endif
-            _IsPreLaunch = args.PrelaunchActivated;
-
-            return Task.CompletedTask;
+//            return Task.CompletedTask;
         }
 
         
@@ -346,7 +355,11 @@ namespace NicoPlayerHohoema
 		{
             var pageManager = Container.Resolve<Services.PageManager>();
             
-            
+            if (args.Kind == ActivationKind.Launch)
+            {
+
+            }
+
             if (args.Kind == ActivationKind.ToastNotification)
             {
                 bool isHandled = false;
@@ -382,8 +395,7 @@ namespace NicoPlayerHohoema
                     {
                         var error = await GetMostRecentErrorText();
 
-                        var clipboardService = Container.Resolve<Services.HohoemaClipboardService>();
-                        clipboardService.CopyToClipboard(error);
+                        Services.Helpers.ClipboardHelper.CopyToClipboard(error);
                     }
                     else if (arguments == ACTIVATION_WITH_ERROR_OPEN_LOG)
                     {
@@ -927,9 +939,7 @@ namespace NicoPlayerHohoema
             else if (arguments == ACTIVATION_WITH_ERROR_COPY_LOG)
             {
                 var error = await GetMostRecentErrorText();
-
-                var clipboardService = Container.Resolve<Services.HohoemaClipboardService>();
-                clipboardService.CopyToClipboard(error);
+                Services.Helpers.ClipboardHelper.CopyToClipboard(error);
             }
             else if (arguments == ACTIVATION_WITH_ERROR_OPEN_LOG)
             {

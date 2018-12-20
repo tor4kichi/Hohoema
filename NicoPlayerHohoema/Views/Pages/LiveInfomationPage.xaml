@@ -18,6 +18,7 @@
     xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:myTrigger="using:NicoPlayerHohoema.Views.StateTrigger"
+    xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
     xmlns:recommend="using:Mntone.Nico2.Live.Recommend"
     xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:live="using:Mntone.Nico2.Live"
@@ -276,7 +277,7 @@
                                 >
                         <Button x:Name="OpenLiveContentButton"
                                 Style="{StaticResource AccentButtonStyle}" 
-                                Command="{StaticResource OpenContentCommand}"
+                                Command="{Binding HohoemaPlaylist.PlayCommand}"
                                 CommandParameter="{Binding}"
                                 Visibility="{Binding IsShowOpenLiveContentButton.Value}"
                                 Margin="0 0 8 0"
@@ -320,12 +321,30 @@
                             
                             <Button.Flyout>
                                 <MenuFlyout>
-                                    <MenuFlyoutItem Text="ブラウザで開く" Command="{StaticResource OpenLinkCommand}" CommandParameter="{Binding LivePageUrl}" />
-                                    <MenuFlyoutItem Text="共有" Command="{StaticResource ShareCommand}" CommandParameter="{Binding}" />
-                                    <MenuFlyoutSubItem Text="コピー..." >
-                                        <MenuFlyoutItem Text="リンクをコピー" Command="{StaticResource CopyToClipboardCommand}" CommandParameter="{Binding LivePageUrl}" />
-                                        <MenuFlyoutItem Text="放送IDをコピー" Command="{StaticResource CopyToClipboardCommand}" CommandParameter="{Binding LiveId}" />
-                                        <MenuFlyoutItem Text="共有文章をコピー" Command="{StaticResource CopyToClipboardCommand}" CommandParameter="{Binding}" />
+                                    <MenuFlyoutItem Text="ブラウザで開く" 
+                                                    Command="{Binding ExternalAccessService.OpenLinkCommand}" 
+                                                    CommandParameter="{Binding}"
+                                                    />
+                                    <MenuFlyoutItem Text="共有" 
+                                                    Command="{Binding ExternalAccessService.OpenShareUICommand}" 
+                                                    CommandParameter="{Binding}" 
+                                                    Visibility="{Binding Source={StaticResource IsXbox}, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                    />
+                                    <MenuFlyoutSubItem Text="コピー..." 
+                                                       Visibility="{Binding Source={StaticResource IsXbox}, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                       >
+                                        <MenuFlyoutItem Text="リンクをコピー" 
+                                            Command="{Binding ExternalAccessService.CopyToClipboardCommand}"
+                                            CommandParameter="{Binding}"
+                                            />
+                                        <MenuFlyoutItem Text="生放送IDをコピー" 
+                                            Command="{Binding ExternalAccessService.CopyToClipboardCommand}"
+                                            CommandParameter="{Binding Id}"
+                                            />
+                                        <MenuFlyoutItem Text="共有文章をコピー"
+                                            Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}"
+                                            CommandParameter="{Binding}"
+                                            />
                                     </MenuFlyoutSubItem>
                                 </MenuFlyout>
                             </Button.Flyout>
@@ -416,7 +435,7 @@
                                          x:Name="LiveDescWebView"
                                          Visibility="Collapsed"
                                          
-                                         xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
+                                         
                                          myExtensions:WebView.UriNotifyCommand="{Binding ScriptNotifyCommand}"
                                          >
                                     <i:Interaction.Behaviors>
@@ -609,7 +628,7 @@
                                 <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Top">
 
                                     <Button Content="コミュニティ詳細"
-                                            Command="{StaticResource OpenContentCommand}"
+                                            Command="{Binding PageManager.OpenPageCommand}"
                                             CommandParameter="{Binding Community}"
                                             Visibility="{Binding Community, Converter={StaticResource NotNullToVisibility}}"
                                             />
@@ -687,7 +706,8 @@
                                       IsItemClickEnabled="True"
                                       SelectionMode="None"
                                         HorizontalContentAlignment="Stretch"
-                                        uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                                        uwpExtension:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
+                                      myExtensions:ListViewBase.DeferInitialize="True"
                                       >
 
                                 <ItemsControl.ItemTemplate>

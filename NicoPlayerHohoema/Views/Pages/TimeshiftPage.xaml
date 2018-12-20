@@ -181,7 +181,7 @@
                 x:Name="ItemsList"
                 ItemsSource="{Binding ItemsView, Mode=OneWay}"
                 RefreshCommand="{Binding RefreshCommand}"
-                uwpExtensions:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                uwpExtensions:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
                 IsItemClickEnabled="True"
                 IncrementalLoadingTrigger="Edge"
                 PullThreshold="85"    
@@ -193,6 +193,9 @@
                 ScrollViewer.BringIntoViewOnFocusChange="False"
             
                 ItemTemplateSelector="{StaticResource TimeshiftItemTemplateSelector}"
+            
+                xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
+                myExtensions:ListViewBase.DeferInitialize="True"
             >
             <i:Interaction.Behaviors>
 

@@ -72,8 +72,10 @@
             UseSystemFocusVisuals="True"
             SelectionMode="None"
             HorizontalContentAlignment="Stretch"
-            uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
+            uwpExtension:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
             uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 96 0 0"
+            xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
+            myExtensions:ListViewBase.DeferInitialize="True"
             >
             <uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
                 <TransitionCollection>
@@ -156,7 +158,7 @@
 
                                     <toolkit:DockPanel VerticalAlignment="Center">
 
-                                        <HyperlinkButton Command="{StaticResource OpenHohoemaPageCommand}"
+                                        <HyperlinkButton Command="{Binding PageManager.OpenPageCommand}"
                                              CommandParameter="Search"
                                              Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                              Margin="0 0 16 0"

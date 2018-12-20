@@ -12,11 +12,34 @@ namespace NicoPlayerHohoema.Database.Temporary
     // マイリストと動画IDの複合キーで
 
 
-    public class MylistItemIdContainer
+    public class MylistItemKey : IEquatable<MylistItemKey>, IEqualityComparer<MylistItemKey>
     {
         public string MylistGroupId { get; set; }
 
         public string VideoId { get; set; }
+
+        public bool Equals(MylistItemKey x, MylistItemKey y)
+        {
+            return x.MylistGroupId == y.MylistGroupId
+                && x.VideoId == y.VideoId;
+        }
+
+        public bool Equals(MylistItemKey other)
+        {
+            return Equals(this, other);
+        }
+
+        public int GetHashCode(MylistItemKey obj)
+        {
+            return obj.MylistGroupId.GetHashCode() ^ obj.VideoId.GetHashCode();
+        }
+    }
+
+
+    public class MylistItemIdContainer
+    {
+        [BsonId]
+        public MylistItemKey Key { get; set; }
 
         public string ItemId { get; set; }
     }
@@ -27,14 +50,12 @@ namespace NicoPlayerHohoema.Database.Temporary
         {
             var db = HohoemaLiteDb.GetTempLiteRepository();
             var col = db.Database.GetCollection<MylistItemIdContainer>();
-            col.EnsureIndex(x => x.MylistGroupId);
-            col.EnsureIndex(x => x.VideoId);
         }
 
         static public void Clear(string mylistGroupId)
         {
             var db = HohoemaLiteDb.GetTempLiteRepository();
-            db.Delete<MylistItemIdContainer>((x) => x.MylistGroupId == mylistGroupId);
+            db.Delete<MylistItemIdContainer>((x) => x.Key.MylistGroupId == mylistGroupId);
         }
 
         static public void Clear()
@@ -60,19 +81,20 @@ namespace NicoPlayerHohoema.Database.Temporary
         {
             var db = HohoemaLiteDb.GetTempLiteRepository();
             HashSet<string> s = new HashSet<string>(videoIds);
-            return db.Fetch<MylistItemIdContainer>(x => x.MylistGroupId == mylistGroupId && s.Contains(x.VideoId));
+            return db.Fetch<MylistItemIdContainer>(x => x.Key.MylistGroupId == mylistGroupId && s.Contains(x.Key.VideoId));
         }
 
         static public MylistItemIdContainer GetItemId(string mylistGroupId, string videoIds)
         {
+            var otherKey = new MylistItemKey() { MylistGroupId = mylistGroupId, VideoId = videoIds };
             var db = HohoemaLiteDb.GetTempLiteRepository();
-            return db.SingleOrDefault<MylistItemIdContainer>(x => x.MylistGroupId == mylistGroupId && x.VideoId == videoIds);
+            return db.SingleOrDefault<MylistItemIdContainer>(x => x.Key == otherKey);
         }
 
         static public bool RemoveItemId(MylistItemIdContainer item)
         {
             var db = HohoemaLiteDb.GetTempLiteRepository();
-            return db.Delete<MylistItemIdContainer>(x => x.VideoId == item.VideoId && x.MylistGroupId == item.MylistGroupId) > 0;
+            return db.Delete<MylistItemIdContainer>(x => x.Key == item.Key) > 0;
         }
 
     }

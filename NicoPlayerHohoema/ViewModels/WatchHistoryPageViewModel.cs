@@ -17,6 +17,7 @@ using System.Threading;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Collections.Async;
 using NicoPlayerHohoema.Models.Provider;
+using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -27,6 +28,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public WatchHistoryPageViewModel(
             LoginUserHistoryProvider loginUserHistoryProvider,
+            HohoemaPlaylist hohoemaPlaylist,
             Services.PageManager pageManager
             )
             : base(pageManager)
@@ -62,6 +64,7 @@ namespace NicoPlayerHohoema.ViewModels
 			})
 			.AddTo(_CompositeDisposable);
             LoginUserHistoryProvider = loginUserHistoryProvider;
+            HohoemaPlaylist = hohoemaPlaylist;
         }
 
 		public ReactiveCommand RemoveHistoryCommand { get; private set; }
@@ -82,6 +85,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
         public LoginUserHistoryProvider LoginUserHistoryProvider { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
 
         protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
@@ -137,18 +141,31 @@ namespace NicoPlayerHohoema.ViewModels
 		public DateTime LastWatchedAt { get; set; }
 		public uint UserViewCount { get; set; }
 
-		public HistoryVideoInfoControlViewModel(string itemId, string videoId, uint viewCount, DateTime lastWatchedAt)
-			: base(videoId)
-		{
-            UserViewCount = viewCount;
-            LastWatchedAt = lastWatchedAt;
+		public HistoryVideoInfoControlViewModel(
+            HohoemaPlaylist hohoemaPlaylist,
+            Services.ExternalAccessService externalAccessService,
+            Services.PageManager pageManager,
+            UserMylistManager userMylistManager,
+            Models.LocalMylist.LocalMylistManager localMylistManager,
+            Models.Subscription.SubscriptionManager subscriptionManager,
+            Models.Cache.VideoCacheManager videoCacheManager,
+            NicoVideoProvider nicoVideoProvider,
+            NGSettings ngSettings,
+            Commands.Mylist.CreateMylistCommand createMylistCommand,
+            Commands.Mylist.CreateLocalMylistCommand createLocalMylistCommand,
+            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand,
+            Commands.AddToHiddenUserCommand addToHiddenUserCommand
+            )
+            : base(hohoemaPlaylist, externalAccessService, pageManager, userMylistManager, localMylistManager, subscriptionManager,
+                  videoCacheManager, nicoVideoProvider, ngSettings, createMylistCommand, createLocalMylistCommand, createSubscriptionGroupCommand, addToHiddenUserCommand)
+        {
 
         }
 
 
 
-		
-	}
+
+    }
 
 
 	public class HistoryIncrementalLoadingSource : HohoemaIncrementalSourceBase<HistoryVideoInfoControlViewModel>
@@ -173,12 +190,11 @@ namespace NicoPlayerHohoema.ViewModels
         {
             return Task.FromResult(_HistoriesResponse.Histories.Skip(head).Take(count).Select(x => 
             {
-                var vm = new HistoryVideoInfoControlViewModel(
-                    x.ItemId
-                    , x.Id
-                    , x.WatchCount
-                    , x.WatchedAt.DateTime
-                    );
+                var vm = App.Current.Container.Resolve<HistoryVideoInfoControlViewModel>();
+                vm.RawVideoId = x.Id;
+                vm.ItemId = x.ItemId;
+                vm.LastWatchedAt = x.WatchedAt.DateTime;
+                vm.UserViewCount = x.WatchCount;
 
                 vm.SetTitle(x.Title);
                 vm.SetThumbnailImage(x.ThumbnailUrl.OriginalString);

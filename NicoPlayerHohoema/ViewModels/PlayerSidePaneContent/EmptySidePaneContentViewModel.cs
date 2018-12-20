@@ -8,5 +8,8 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 {
     public class EmptySidePaneContentViewModel : SidePaneContentViewModelBase
     {
+        public static EmptySidePaneContentViewModel Default { get; } = new EmptySidePaneContentViewModel();
+
+        private EmptySidePaneContentViewModel() { }
     }
 }

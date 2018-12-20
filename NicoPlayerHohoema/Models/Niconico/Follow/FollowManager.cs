@@ -17,6 +17,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using Prism.Mvvm;
 using Windows.UI.Core;
 using NicoPlayerHohoema.Models.Helpers;
+using Prism.Commands;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -112,8 +113,28 @@ namespace NicoPlayerHohoema.Models
             _FollowGroupsMap.Add(FollowItemType.User, User);
             _FollowGroupsMap.Add(FollowItemType.Community, Community);
             _FollowGroupsMap.Add(FollowItemType.Channel, Channel);
+
+            NiconicoSession.LogIn += NiconicoSession_LogIn;
+            NiconicoSession.LogOut += NiconicoSession_LogOut;
         }
 
+        
+
+        private async void NiconicoSession_LogIn(object sender, NiconicoSessionLoginEventArgs e)
+        {
+            using (var cancelTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+            {
+                await SyncAll(cancelTokenSource.Token);
+            }
+        }
+
+        private async void NiconicoSession_LogOut(object sender, EventArgs e)
+        {
+            using (var cancelTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+            {
+                await SyncAll(cancelTokenSource.Token);
+            }
+        }
 
         protected override Task OnInitializeAsync(CancellationToken token)
         {
@@ -183,6 +204,30 @@ namespace NicoPlayerHohoema.Models
 			return result;
 		}
 
-	}
+
+        private static Models.FollowItemType GetFollowItemType(Interfaces.IFollowable item)
+        {
+            if (item is Interfaces.ISearchWithtag) return Models.FollowItemType.Tag;
+            if (item is Interfaces.IUser) return Models.FollowItemType.User;
+            if (item is Interfaces.IMylist) return Models.FollowItemType.Mylist;
+            if (item is Interfaces.ICommunity) return Models.FollowItemType.Community;
+            if (item is Interfaces.IChannel) return Models.FollowItemType.Channel;
+
+            throw new NotSupportedException();
+        }
+
+        private DelegateCommand<Interfaces.IFollowable> _RemoveFollowCommand;
+        public DelegateCommand<Interfaces.IFollowable> RemoveFollowCommand => _RemoveFollowCommand
+            ?? (_RemoveFollowCommand = new DelegateCommand<Interfaces.IFollowable>(async followItem => 
+            {
+                var followType = GetFollowItemType(followItem as Interfaces.IFollowable);
+                var result = await RemoveFollow(followType, followItem.Id);
+            }
+            , followItem => followItem is Interfaces.IFollowable
+            ));
+
+
+
+    }
 
 }

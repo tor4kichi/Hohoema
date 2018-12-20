@@ -10,6 +10,9 @@ using Prism.Commands;
 using Prism.Windows.Navigation;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Models.Provider;
+using Microsoft.Practices.Unity;
+using Reactive.Bindings.Extensions;
+using Reactive.Bindings;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -18,23 +21,26 @@ namespace NicoPlayerHohoema.ViewModels
         public RecommendPageViewModel(
             NGSettings ngSettings,
             LoginUserRecommendProvider loginUserRecommendProvider,
+            HohoemaPlaylist hohoemaPlaylist,
             Services.PageManager pageManager
             )
             : base(pageManager)
         {
             NgSettings = ngSettings;
             LoginUserRecommendProvider = loginUserRecommendProvider;
+            HohoemaPlaylist = hohoemaPlaylist;
         }
 
         public NGSettings NgSettings { get; }
         public LoginUserRecommendProvider LoginUserRecommendProvider { get; }
-
-        public ReadOnlyObservableCollection<string> RecommendSourceTags { get; private set; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public ReadOnlyObservableCollection<TagViewModel> RecommendSourceTags { get; private set; }
 
         protected override void PostResetList()
         {
             var source = this.IncrementalLoadingItems.Source as RecommendVideoIncrementalLoadingSource;
-            RecommendSourceTags = new  ReadOnlyObservableCollection<string>(source.RecommendSourceTags);
+            RecommendSourceTags = source.RecommendSourceTags
+                .ToReadOnlyReactiveCollection(x => new TagViewModel(x));
             RaisePropertyChanged(nameof(RecommendSourceTags));
 
             base.PostResetList();
@@ -73,14 +79,36 @@ namespace NicoPlayerHohoema.ViewModels
     {
         Mntone.Nico2.Videos.Recommend.Item _Item;
 
-        public string RecommendSourceTag { get; }
+        public string RecommendSourceTag { get; private set; }
 
 
-        public RecommendVideoListItem(Database.NicoVideo nicoVideo, Mntone.Nico2.Videos.Recommend.Item recommendItem, NGSettings ngSettings) 
-            : base(nicoVideo, ngSettings)
+        public RecommendVideoListItem(
+            HohoemaPlaylist hohoemaPlaylist,
+            Services.ExternalAccessService externalAccessService,
+            Services.PageManager pageManager,
+            UserMylistManager userMylistManager,
+            Models.LocalMylist.LocalMylistManager localMylistManager,
+            Models.Subscription.SubscriptionManager subscriptionManager,
+            Models.Cache.VideoCacheManager videoCacheManager,
+            NicoVideoProvider nicoVideoProvider,
+            NGSettings ngSettings,
+            Commands.Mylist.CreateMylistCommand createMylistCommand,
+            Commands.Mylist.CreateLocalMylistCommand createLocalMylistCommand,
+            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand,
+            Commands.AddToHiddenUserCommand addToHiddenUserCommand
+            )
+            : base(hohoemaPlaylist, externalAccessService, pageManager, userMylistManager, localMylistManager, subscriptionManager,
+                  videoCacheManager, nicoVideoProvider, ngSettings, createMylistCommand, createLocalMylistCommand, createSubscriptionGroupCommand, addToHiddenUserCommand)
         {
-            _Item = recommendItem;
+
+        }
+
+
+        internal void SetRecommendItem(Mntone.Nico2.Videos.Recommend.Item item)
+        {
+            _Item = item;
             RecommendSourceTag = _Item.AdditionalInfo?.Sherlock.Tag;
+
         }
     }
 
@@ -151,7 +179,12 @@ namespace NicoPlayerHohoema.ViewModels
                     video.PostedAt = x.ParseForstRetroeveToDateTimeOffset().DateTime;
                     Database.NicoVideoDb.AddOrUpdate(video);
 
-                    return new RecommendVideoListItem(video, x, NgSettings);
+                    var vm = App.Current.Container.Resolve<RecommendVideoListItem>();
+                    vm.RawVideoId = video.RawVideoId;
+                    vm.SetupFromThumbnail(video);
+                    vm.Data = video;
+                    vm.SetRecommendItem(x);
+                    return vm;
                 })
                 .ToAsyncEnumerable()
                 ;

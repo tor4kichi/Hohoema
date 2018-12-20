@@ -24,11 +24,13 @@ namespace NicoPlayerHohoema.ViewModels
 	{
         public CommunityVideoPageViewModel(
             CommunityProvider communityProvider,
-            Services.PageManager pageManager
+            Services.PageManager pageManager,
+            HohoemaPlaylist hohoemaPlaylist
             )
             : base(pageManager)
         {
             CommunityProvider = communityProvider;
+            HohoemaPlaylist = hohoemaPlaylist;
         }
 
 
@@ -129,6 +131,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
         public CommunityProvider CommunityProvider { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
     }
 
 
@@ -212,11 +215,11 @@ namespace NicoPlayerHohoema.ViewModels
             Label = RssItem.Title;
 		}
 
-        public string OwnerUserId => string.Empty;
+        public string ProviderId => string.Empty;
 
-        public string OwnerUserName => string.Empty;
+        public string ProviderName => string.Empty;
 
-        public UserType OwnerUserType => UserType.User;
+        public UserType ProviderType => UserType.User;
 
         public string Id => VideoId;
     }

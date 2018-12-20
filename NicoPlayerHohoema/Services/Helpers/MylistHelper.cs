@@ -38,7 +38,7 @@ namespace NicoPlayerHohoema.Services.Helpers
                 {
                     origin = Models.PlaylistOrigin.Local;
                 }
-                else if (LocalMylistManager.LocalMylistGroups.FirstOrDefault(x => x.Id == id) != null)
+                else if (LocalMylistManager.Mylists.FirstOrDefault(x => x.Id == id) != null)
                 {
                     origin = Models.PlaylistOrigin.Local;
                 }
@@ -61,7 +61,7 @@ namespace NicoPlayerHohoema.Services.Helpers
                     }
                     else
                     {
-                        return LocalMylistManager.LocalMylistGroups.FirstOrDefault(x => x.Id == id);
+                        return LocalMylistManager.Mylists.FirstOrDefault(x => x.Id == id);
                     }
                 case Models.PlaylistOrigin.OtherUser:
                     // 他ユーザーのマイリスト
@@ -84,7 +84,7 @@ namespace NicoPlayerHohoema.Services.Helpers
                 {
                     origin = Models.PlaylistOrigin.Local;
                 }
-                else if (LocalMylistManager.LocalMylistGroups.FirstOrDefault(x => x.Id == id) != null)
+                else if (LocalMylistManager.Mylists.FirstOrDefault(x => x.Id == id) != null)
                 {
                     origin = Models.PlaylistOrigin.Local;
                 }
@@ -107,7 +107,7 @@ namespace NicoPlayerHohoema.Services.Helpers
                     }
                     else
                     {
-                        return LocalMylistManager.LocalMylistGroups.FirstOrDefault(x => x.Id == id);
+                        return LocalMylistManager.Mylists.FirstOrDefault(x => x.Id == id);
                     }
                 case Models.PlaylistOrigin.OtherUser:
                     // 他ユーザーのマイリスト

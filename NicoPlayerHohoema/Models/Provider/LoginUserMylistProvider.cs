@@ -46,8 +46,11 @@ namespace NicoPlayerHohoema.Models.Provider
                 Database.Temporary.MylistDb.AddItemId(
                     defMylist.Select(x => new Database.Temporary.MylistItemIdContainer()
                     {
-                        MylistGroupId = mylistId,
-                        VideoId = x.WatchId,
+                        Key = new Database.Temporary.MylistItemKey()
+                        {
+                            MylistGroupId = mylistId,
+                            VideoId = x.WatchId
+                        },
                         ItemId = x.ItemId
                     }));
             });
@@ -88,7 +91,7 @@ namespace NicoPlayerHohoema.Models.Provider
                     Description = mylistGroup.Description,
                     IsPublic = mylistGroup.GetIsPublic(),
                     IconType = mylistGroup.GetIconType(),
-                    ThumnailUrls = mylistGroup.ThumbnailUrls.ToList(),
+                    ThumnailUrls = mylistGroup.ThumbnailUrls?.ToList() ?? new List<Uri>(),
                 };
 
                 _ = Task.Run(() => 
@@ -97,8 +100,11 @@ namespace NicoPlayerHohoema.Models.Provider
                     Database.Temporary.MylistDb.AddItemId(
                         mylistItems.Select(x => new Database.Temporary.MylistItemIdContainer()
                         {
-                            MylistGroupId = mylistId,
-                            VideoId = x.WatchId,
+                            Key = new Database.Temporary.MylistItemKey()
+                            {
+                                MylistGroupId = mylistId,
+                                VideoId = x.WatchId
+                            },
                             ItemId = x.ItemId
                         }));
                 });

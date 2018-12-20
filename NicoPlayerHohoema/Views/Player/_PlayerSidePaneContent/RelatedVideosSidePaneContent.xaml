@@ -152,7 +152,7 @@
                                        />
 
                         <Button Content="{Binding JumpVideo}"
-                                    Command="{StaticResource OpenContentCommand}"
+                                    Command="{Binding HohoemaPlaylist.PlayCommand}"
                                     CommandParameter="{Binding JumpVideo}"
                                 Background="Transparent"
                                     >
@@ -175,7 +175,7 @@
                                        />
 
                         <Button Content="{Binding NextVideo}"
-                                    Command="{StaticResource OpenContentCommand}"
+                                    Command="{Binding HohoemaPlaylist.PlayCommand}"
                                     CommandParameter="{Binding NextVideo}"
                                 Background="Transparent"
                                     >
@@ -198,7 +198,7 @@
                         <ListView ItemsSource="{Binding OtherVideos}"
                                 SelectionMode="Single"
                                 SingleSelectionFollowsFocus="False"
-                                uwpext:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                                uwpext:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
                                 IsItemClickEnabled="True"
                                 x:Name="VideoOwnerOtherVideosListView"
                                 Background="{StaticResource HohoemaPlayerBackgroundBrush}"
@@ -225,7 +225,7 @@
                         <ListView ItemsSource="{Binding Mylists}"
                                 SelectionMode="Single"
                                 SingleSelectionFollowsFocus="False"
-                                uwpext:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                                uwpext:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
                                 IsItemClickEnabled="True"
                                 x:Name="VideoOwnerMylistsListView"
                                 Background="{StaticResource HohoemaPlayerBackgroundBrush}"
@@ -257,7 +257,7 @@
                                 SelectionMode="Single"
                                   SingleSelectionFollowsFocus="False"
                                   SelectedItem="{Binding CurrentVideo, Mode=OneTime}"
-                                uwpext:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                                uwpext:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
                                 IsItemClickEnabled="True"
                                 x:Name="PlaylistItemsListView"
                                 Background="{StaticResource HohoemaPlayerBackgroundBrush}"

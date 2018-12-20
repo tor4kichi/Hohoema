@@ -12,25 +12,32 @@ using Windows.UI.Xaml.Navigation;
 using System.Collections.Async;
 using NicoPlayerHohoema.Models.Cache;
 using NicoPlayerHohoema.Models.Provider;
+using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public class UserVideoPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
 	{
         public UserVideoPageViewModel(
-            Models.Subscription.SubscriptionManager subscriptionManager,
             UserProvider userProvider,
-            Services.PageManager pageManager
+            Models.Subscription.SubscriptionManager subscriptionManager,
+            HohoemaPlaylist hohoemaPlaylist,
+            Services.PageManager pageManager,
+            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
             : base(pageManager)
         {
             SubscriptionManager = subscriptionManager;
             UserProvider = userProvider;
+            HohoemaPlaylist = hohoemaPlaylist;
+            CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
         }
 
 
         public Models.Subscription.SubscriptionManager SubscriptionManager { get; }
         public UserProvider UserProvider { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
 
         public Models.Subscription.SubscriptionSource? SubscriptionSource => new Models.Subscription.SubscriptionSource(UserName, Models.Subscription.SubscriptionSourceType.User, UserId);
 
@@ -180,7 +187,8 @@ namespace NicoPlayerHohoema.ViewModels
             var items = res.Items.Skip(head).Take(count);
             return items.Select(x =>
             {
-                var vm = new VideoInfoControlViewModel(x.VideoId);
+                var vm = App.Current.Container.Resolve<VideoInfoControlViewModel>();
+                vm.RawVideoId = x.VideoId;
                 vm.SetupDisplay(x);
                 return vm;
             })

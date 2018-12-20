@@ -24,13 +24,16 @@ namespace NicoPlayerHohoema.Dialogs
 {
     public sealed partial class NiconicoLoginDialog : ContentDialog
     {
+        public NiconicoSession NiconicoSession { get; }
+
         // TODO: 2要素認証の再実装、Serviceとして切り出し
 
-        public NiconicoLoginDialog()
+        public NiconicoLoginDialog(NiconicoSession niconicoSession)
         {
             this.InitializeComponent();
 
             this.Loading += NiconicoLoginDialog_Loading;
+            NiconicoSession = niconicoSession;
         }
 
         private async void NiconicoLoginDialog_Loading(FrameworkElement sender, object args)
@@ -56,11 +59,9 @@ namespace NicoPlayerHohoema.Dialogs
             try
             {
 
-                var hohoemaApp = HohoemaCommnadHelper.GetNiconicoSession();
-
                 var mail = Mail.Text;
                 var password = Password.Password;
-                var result = await hohoemaApp.SignIn(mail, password);
+                var result = await NiconicoSession.SignIn(mail, password);
 
                 if (IsRememberPassword.IsOn)
                 {

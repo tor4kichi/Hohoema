@@ -2,6 +2,7 @@
 using Mntone.Nico2.Mylist;
 using NicoPlayerHohoema.Models.Helpers;
 using Prism.Mvvm;
+using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -24,8 +25,8 @@ namespace NicoPlayerHohoema.Models
             NiconicoSession = niconicoSession;
             LoginUserMylistProvider = loginUserMylistProvider;
 
-            _UserMylists = new ObservableCollection<UserOwnedMylist>();
-            UserMylists = new ReadOnlyObservableCollection<UserOwnedMylist>(_UserMylists);
+            _Mylists = new ObservableCollection<UserOwnedMylist>();
+            Mylists = new ReadOnlyObservableCollection<UserOwnedMylist>(_Mylists);
 
             NiconicoSession.LogIn += (_, e) =>
             {
@@ -33,7 +34,7 @@ namespace NicoPlayerHohoema.Models
             };
             NiconicoSession.LogOut += (_, e) =>
             {
-                _UserMylists.Clear();
+                _Mylists.Clear();
             };
         }
 
@@ -42,8 +43,8 @@ namespace NicoPlayerHohoema.Models
         public Provider.LoginUserMylistProvider LoginUserMylistProvider { get; }
         public UserOwnedMylist Deflist { get; private set; }
 
-		private ObservableCollection<UserOwnedMylist> _UserMylists;
-		public ReadOnlyObservableCollection<UserOwnedMylist> UserMylists { get; private set; }
+		private ObservableCollection<UserOwnedMylist> _Mylists;
+		public ReadOnlyObservableCollection<UserOwnedMylist> Mylists { get; private set; }
 
         private AsyncLock _UpdateLock = new AsyncLock();
 
@@ -54,7 +55,7 @@ namespace NicoPlayerHohoema.Models
         public int DeflistRegistrationCount => Deflist.ItemCount;
         public int MylistRegistrationCapacity => NiconicoSession.IsPremiumAccount ? 25000 : 100;
 
-        public int MylistRegistrationCount => UserMylists.Where(x => !x.IsDeflist).Sum((System.Func<UserOwnedMylist, int>)(x => (int)x.ItemCount));
+        public int MylistRegistrationCount => Mylists.Where(x => !x.IsDeflist).Sum((System.Func<UserOwnedMylist, int>)(x => (int)x.ItemCount));
 
         public const int MaxUserMylistGroupCount = 25;
         public const int MaxPremiumUserMylistGroupCount = 50;
@@ -64,7 +65,7 @@ namespace NicoPlayerHohoema.Models
 
 
 
-        public bool CanAddMylistGroup => UserMylists.Count < MaxMylistGroupCountCurrentUser;
+        public bool CanAddMylistGroup => Mylists.Count < MaxMylistGroupCountCurrentUser;
 
 
         public bool IsDeflistCapacityReached => DeflistRegistrationCount >= DeflistRegistrationCapacity;
@@ -77,13 +78,13 @@ namespace NicoPlayerHohoema.Models
 
 		public bool HasMylistGroup(string groupId)
 		{
-			return UserMylists.Any(x => x.GroupId == groupId);
+			return Mylists.Any(x => x.GroupId == groupId);
 		}
 
 
 		public UserOwnedMylist GetMylistGroup(string groupId)
 		{
-			return UserMylists.SingleOrDefault(x => x.GroupId == groupId);
+			return Mylists.SingleOrDefault(x => x.GroupId == groupId);
 		}
 
 
@@ -91,12 +92,14 @@ namespace NicoPlayerHohoema.Models
 		{
             using (var releaser = await _UpdateLock.LockAsync())
             {
-                _UserMylists.Clear();
+                _Mylists.Clear();
+
+                await Task.Delay(TimeSpan.FromSeconds(3));
 
                 var groups = await LoginUserMylistProvider.GetLoginUserMylistGroups();
                 foreach (var mylistGroup in groups ?? Enumerable.Empty<UserOwnedMylist>())
                 {
-                    _UserMylists.Add(mylistGroup);
+                    _Mylists.Add(mylistGroup);
                 }
             }
 		}
@@ -129,7 +132,7 @@ namespace NicoPlayerHohoema.Models
 
         public bool CheckIsRegistratedAnyMylist(string videoId)
 		{
-			return UserMylists.Any(x => x.ContainsVideoId(videoId));
+			return Mylists.Any(x => x.ContainsVideoId(videoId));
 		}
     }
 

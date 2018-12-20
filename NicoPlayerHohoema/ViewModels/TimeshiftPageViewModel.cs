@@ -20,6 +20,7 @@ namespace NicoPlayerHohoema.ViewModels
         public TimeshiftPageViewModel(
             LoginUserLiveReservationProvider loginUserLiveReservationProvider,
             NicoLiveProvider nicoLiveProvider,
+            HohoemaPlaylist hohoemaPlaylist,
             Services.PageManager pageManager, 
             Services.DialogService dialogService
             ) 
@@ -27,11 +28,13 @@ namespace NicoPlayerHohoema.ViewModels
         {
             LoginUserLiveReservationProvider = loginUserLiveReservationProvider;
             NicoLiveProvider = nicoLiveProvider;
+            HohoemaPlaylist = hohoemaPlaylist;
             DialogService = dialogService;
         }
 
         public LoginUserLiveReservationProvider LoginUserLiveReservationProvider { get; }
         public NicoLiveProvider NicoLiveProvider { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public Services.DialogService DialogService { get; }
 
         private DelegateCommand _DeleteOutdatedReservations;
@@ -120,7 +123,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                                 foreach (var reservation in selectedReservations)
                                 {
-                                    await LoginUserLiveReservationProvider.DeleteReservationAsync(reservation.Id, token);
+                                    await LoginUserLiveReservationProvider.DeleteReservationAsync(reservation.LiveId, token);
 
                                     await Task.Delay(TimeSpan.FromSeconds(1));
 
@@ -230,10 +233,13 @@ namespace NicoPlayerHohoema.ViewModels
                     var liveData = NicoLiveDb.Get(x.Id);
                     var tsItem = _TimeshiftList?.Items.FirstOrDefault(y => y.Id == x.Id);
 
-                    return new LiveInfoListItemViewModel(liveData, x)
-                    {
-                        ExpiredAt = tsItem?.WatchTimeLimit ?? x.ExpiredAt,
-                    };
+                    var liveInfoVM = App.Current.Container.Resolve<LiveInfoListItemViewModel>();
+                    liveInfoVM.ExpiredAt = tsItem?.WatchTimeLimit ?? x.ExpiredAt;
+                    liveInfoVM.Setup(liveData);
+
+                    liveInfoVM.SetReservation(x);
+
+                    return liveInfoVM;
                 }
                 )
                 .ToAsyncEnumerable();

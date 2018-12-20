@@ -1,15 +1,11 @@
 ﻿using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Services;
 using Prism.Commands;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Windows.Media;
 using Windows.Media.Playback;
 
@@ -102,47 +98,6 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             set { SetProperty(ref _CurrentPlayingItem, value); }
         }
 
-
-        
-
-
-        private DelegateCommand<PlaylistItem> _OpenPlaylistItemCommand;
-        public DelegateCommand<PlaylistItem> OpenPlaylistItemCommand
-        {
-            get
-            {
-                return _OpenPlaylistItemCommand
-                    ?? (_OpenPlaylistItemCommand = new DelegateCommand<PlaylistItem>((item) =>
-                    {
-                        if (item != CurrentPlayingItem)
-                        {
-                            HohoemaPlaylist.Play(item);
-                        }
-                    }
-                    ));
-            }
-        }
-
-        private DelegateCommand _OpenCurrentPlaylistPageCommand;
-        public DelegateCommand OpenCurrentPlaylistPageCommand
-        {
-            get
-            {
-                return _OpenCurrentPlaylistPageCommand
-                    ?? (_OpenCurrentPlaylistPageCommand = new DelegateCommand(() =>
-                    {
-                        if (HohoemaPlaylist.PlayerDisplayType == PlayerDisplayType.PrimaryView)
-                        {
-                            HohoemaPlaylist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
-                        }
-
-                        PageManager.OpenPage(HohoemaPageType.Mylist,
-                            new MylistPagePayload() { Origin = CurrentPlaylist.ToMylistOrigin(), Id = CurrentPlaylist.Id }.ToParameterString()
-                            );
-                    }
-                    ));
-            }
-        }
 
         private DelegateCommand _ToggleRepeatModeCommand;
         public DelegateCommand ToggleRepeatModeCommand

@@ -6,6 +6,13 @@ namespace NicoPlayerHohoema.Commands
 {
     public sealed class NicoLiveUserIdRemoveFromNGCommand : DelegateCommandBase
     {
+        public NicoLiveUserIdRemoveFromNGCommand(NGSettings ngSettings)
+        {
+            NgSettings = ngSettings;
+        }
+
+        public NGSettings NgSettings { get; }
+
         protected override bool CanExecute(object parameter)
         {
             return parameter is string;
@@ -13,9 +20,7 @@ namespace NicoPlayerHohoema.Commands
 
         protected override void Execute(object parameter)
         {
-            var userSettings = App.Current.Container.Resolve<HohoemaUserSettings>();
-
-            userSettings.NGSettings.RemoveNGLiveCommentUserId(parameter as string);
+            NgSettings.RemoveNGLiveCommentUserId(parameter as string);
         }
     }
 }

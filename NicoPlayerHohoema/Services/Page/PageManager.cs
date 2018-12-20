@@ -2,6 +2,8 @@
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Helpers;
+using NicoPlayerHohoema.Services.Page;
+using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Windows.Navigation;
 using System;
@@ -100,6 +102,151 @@ namespace NicoPlayerHohoema.Services
 
 
         private Models.Helpers.AsyncLock _NavigationLock = new Models.Helpers.AsyncLock();
+
+
+        private DelegateCommand<object> _OpenPageCommand;
+        public DelegateCommand<object> OpenPageCommand => _OpenPageCommand
+            ?? (_OpenPageCommand = new DelegateCommand<object>(parameter =>
+            {
+                switch (parameter)
+                {
+                    case string s:
+                        {
+                            if (Enum.TryParse<Models.HohoemaPageType>(s, out var pageType))
+                            {
+                                OpenPage(pageType);
+                            }
+
+                            break;
+                        }
+
+                    case ViewModels.MenuItemViewModel item:
+                        OpenPage(item.PageType, item.Parameter);
+                        break;
+                    case HohoemaPin pin:
+                        OpenPage(pin.PageType, pin.Parameter);
+                        break;
+                    case Interfaces.IVideoContent videoContent:
+                        OpenPage(Models.HohoemaPageType.VideoInfomation, videoContent.Id);
+                        break;
+                    case Interfaces.ILiveContent liveContent:
+                        OpenPage(Models.HohoemaPageType.LiveInfomation, liveContent.Id);
+                        break;
+                    case Interfaces.ICommunity communityContent:
+                        OpenPage(Models.HohoemaPageType.Community, communityContent.Id);
+                        break;
+                    case Interfaces.IMylist mylistContent:
+                        OpenPage(Models.HohoemaPageType.Mylist, new Models.MylistPagePayload(mylistContent.Id) { Origin = mylistContent.ToMylistOrigin() }.ToParameterString());
+                        break;
+                    case Interfaces.IMylistItem mylistItemContent:
+                        OpenPage(Models.HohoemaPageType.Mylist, new Models.MylistPagePayload(mylistItemContent.Id).ToParameterString());
+                        break;
+                    case Interfaces.IUser user:
+                        OpenPage(Models.HohoemaPageType.UserInfo, user.Id);
+                        break;
+                    case Interfaces.ISearchWithtag tag:
+                        this.Search(SearchPagePayloadContentHelper.CreateDefault(SearchTarget.Tag, tag.Tag));
+                        break;
+                    case Interfaces.ITag videoTag:
+                        this.Search(SearchPagePayloadContentHelper.CreateDefault(SearchTarget.Tag, videoTag.Tag));
+                        break;
+                    case Interfaces.ISearchHistory history:
+                        this.Search(SearchPagePayloadContentHelper.CreateDefault(history.Target, history.Keyword));
+                        break;
+                    case Interfaces.IChannel channel:
+                        OpenPage(HohoemaPageType.ChannelVideo, channel.Id);
+                        break;
+                }
+            }));
+
+
+        private DelegateCommand<object> _OpenVideoListPageCommand;
+        public DelegateCommand<object> OpenVideoListPageCommand => _OpenVideoListPageCommand
+            ?? (_OpenVideoListPageCommand = new DelegateCommand<object>(parameter =>
+            {
+                switch (parameter)
+                {
+                    case string s:
+                        {
+                            if (Enum.TryParse<Models.HohoemaPageType>(s, out var pageType))
+                            {
+                                OpenPage(pageType);
+                            }
+
+                            break;
+                        }
+
+                    case Interfaces.IVideoContent videoContent:
+                        if (videoContent.ProviderType == Mntone.Nico2.Videos.Thumbnail.UserType.User)
+                        {
+                            OpenPage(Models.HohoemaPageType.UserVideo, videoContent.ProviderId);
+                        }
+                        else if (videoContent.ProviderType == Mntone.Nico2.Videos.Thumbnail.UserType.Channel)
+                        {
+                            OpenPage(Models.HohoemaPageType.ChannelVideo, videoContent.ProviderId);
+                        }
+                        break;
+                    case Interfaces.ILiveContent liveContent:
+                        OpenPage(Models.HohoemaPageType.LiveInfomation, liveContent.Id);
+                        break;
+                    case Interfaces.ICommunity communityContent:
+                        OpenPage(Models.HohoemaPageType.CommunityVideo, communityContent.Id);
+                        break;
+                    case Interfaces.IMylist mylistContent:
+                        OpenPage(Models.HohoemaPageType.Mylist, new Models.MylistPagePayload(mylistContent.Id) { Origin = mylistContent.ToMylistOrigin() }.ToParameterString());
+                        break;
+                    case Interfaces.IMylistItem mylistItemContent:
+                        OpenPage(Models.HohoemaPageType.Mylist, new Models.MylistPagePayload(mylistItemContent.Id).ToParameterString());
+                        break;
+                    case Interfaces.IUser user:
+                        OpenPage(Models.HohoemaPageType.UserInfo, user.Id);
+                        break;
+                    case Interfaces.ISearchWithtag tag:
+                        this.Search(SearchPagePayloadContentHelper.CreateDefault(SearchTarget.Tag, tag.Tag));
+                        break;
+                    case Interfaces.ISearchHistory history:
+                        this.Search(SearchPagePayloadContentHelper.CreateDefault(history.Target, history.Keyword));
+                        break;
+                    case Interfaces.IChannel channel:
+                        OpenPage(HohoemaPageType.ChannelVideo, channel.Id);
+                        break;
+                }
+            }));
+
+
+
+        private DelegateCommand<object> _OpenContentOwnerPageCommand;
+        public DelegateCommand<object> OpenContentOwnerPageCommand => _OpenContentOwnerPageCommand
+            ?? (_OpenContentOwnerPageCommand = new DelegateCommand<object>(parameter =>
+            {
+                switch (parameter)
+                {
+                    case Interfaces.IVideoContent videoContent:
+                        if (videoContent.ProviderType == Mntone.Nico2.Videos.Thumbnail.UserType.User)
+                        {
+                            OpenPage(Models.HohoemaPageType.UserInfo, videoContent.ProviderId);
+                        }
+                        else if (videoContent.ProviderType == Mntone.Nico2.Videos.Thumbnail.UserType.Channel)
+                        {
+                            OpenPage(Models.HohoemaPageType.ChannelVideo, videoContent.ProviderId);
+                        }
+                        
+                        break;
+                    case Interfaces.ILiveContent liveContent:                        
+                        if (liveContent.ProviderType == Mntone.Nico2.Live.CommunityType.Community)
+                        {
+                            OpenPage(Models.HohoemaPageType.Community, liveContent.ProviderId);
+                        }
+                        break;
+                    case Interfaces.IMylist mylistContent:
+                        OpenPage(Models.HohoemaPageType.UserInfo, mylistContent);
+
+                        break;
+                    case Interfaces.IMylistItem mylistItemContent:
+                        OpenPage(Models.HohoemaPageType.Mylist, new Models.MylistPagePayload(mylistItemContent.Id).ToParameterString());
+                        break;
+                }
+            }));
 
 
         public bool OpenPage(Uri uri)
@@ -225,6 +372,7 @@ namespace NicoPlayerHohoema.Services
             });
         }
 
+
 		public bool IsIgnoreRecordPageType(HohoemaPageType pageType)
 		{
 			return IgnoreRecordNavigationStack.Contains(pageType);
@@ -322,8 +470,6 @@ namespace NicoPlayerHohoema.Services
         {
             Scheduler.Schedule(() =>
             {
-
-
                 if (Models.Helpers.InternetConnection.IsInternet())
                 {
                     if (IsIgnoreRecordPageType(AppearanceSettings.StartupPageType))
@@ -356,59 +502,68 @@ namespace NicoPlayerHohoema.Services
             return pageType.ToCulturelizeString();
 		}
 
-		public async Task StartNoUIWork(string title, Func<IAsyncAction> actionFactory)
-		{
-			StartWork?.Invoke(title, 1);
 
-			using (var cancelSource = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
-			{
-				await actionFactory().AsTask(cancelSource.Token);
-
-				ProgressWork?.Invoke(1);
-
-				await Task.Delay(1000);
-
-				if (cancelSource.IsCancellationRequested)
-				{
-					CancelWork?.Invoke();
-				}
-				else
-				{
-					CompleteWork?.Invoke();
-				}
-			}
-		}
-		public async Task StartNoUIWork(string title, int totalCount, Func<IAsyncActionWithProgress<uint>> actionFactory)
-		{
-			StartWork?.Invoke(title, (uint)totalCount);
-
-			var progressHandler = new Progress<uint>((x) => ProgressWork?.Invoke(x));
-
-			using (var cancelSource = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
-			{
-				await actionFactory().AsTask(cancelSource.Token, progressHandler);
-
-				await Task.Delay(500);
-
-				if (cancelSource.IsCancellationRequested)
-				{
-					CancelWork?.Invoke();
-				}
-				else 
-				{
-					CompleteWork?.Invoke();
-				}
-			}
-		}
-
-		public event StartExcludeUserInputWorkHandler StartWork;
-		public event ProgressExcludeUserInputWorkHandler ProgressWork;
-		public event CompleteExcludeUserInputWorkHandler CompleteWork;
-		public event CancelExcludeUserInputWorkHandler CancelWork;
-	}
+        #region Working Popup (with bloking UI)
 
 
-	public delegate void StartExcludeUserInputWorkHandler(string title, uint totalCount);
+        public async Task StartNoUIWork(string title, Func<IAsyncAction> actionFactory)
+        {
+            StartWork?.Invoke(title, 1);
+
+            using (var cancelSource = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+            {
+                await actionFactory().AsTask(cancelSource.Token);
+
+                ProgressWork?.Invoke(1);
+
+                await Task.Delay(1000);
+
+                if (cancelSource.IsCancellationRequested)
+                {
+                    CancelWork?.Invoke();
+                }
+                else
+                {
+                    CompleteWork?.Invoke();
+                }
+            }
+        }
+        public async Task StartNoUIWork(string title, int totalCount, Func<IAsyncActionWithProgress<uint>> actionFactory)
+        {
+            StartWork?.Invoke(title, (uint)totalCount);
+
+            var progressHandler = new Progress<uint>((x) => ProgressWork?.Invoke(x));
+
+            using (var cancelSource = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
+            {
+                await actionFactory().AsTask(cancelSource.Token, progressHandler);
+
+                await Task.Delay(500);
+
+                if (cancelSource.IsCancellationRequested)
+                {
+                    CancelWork?.Invoke();
+                }
+                else
+                {
+                    CompleteWork?.Invoke();
+                }
+            }
+        }
+
+        public event StartExcludeUserInputWorkHandler StartWork;
+        public event ProgressExcludeUserInputWorkHandler ProgressWork;
+        public event CompleteExcludeUserInputWorkHandler CompleteWork;
+        public event CancelExcludeUserInputWorkHandler CancelWork;
+
+
+
+        #endregion
+
+    }
+
+
+    public delegate void StartExcludeUserInputWorkHandler(string title, uint totalCount);
 	public delegate void ProgressExcludeUserInputWorkHandler(uint count);
 	public delegate void CompleteExcludeUserInputWorkHandler();
 	public delegate void CancelExcludeUserInputWorkHandler();

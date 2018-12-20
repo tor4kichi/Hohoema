@@ -65,7 +65,7 @@
         <GridView
             x:Name="ItemsList"
             ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
-            uwpExtensions:ListViewBase.Command="{StaticResource OpenContentCommand}"
+            uwpExtensions:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
             IsItemClickEnabled="True"
             IncrementalLoadingTrigger="Edge"
             UseSystemFocusVisuals="True"
@@ -162,7 +162,7 @@
                                                
                             >
                                     
-                                    <HyperlinkButton Command="{StaticResource OpenHohoemaPageCommand}"
+                                    <HyperlinkButton Command="{Binding PageManager.OpenPageCommand}"
                                              CommandParameter="Search"
                                              Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                              Margin="0 0 16 0"

@@ -36,45 +36,6 @@ namespace NicoPlayerHohoema.Views.Extensions
 
     public partial class ListViewBase
     {
-        
-        public static readonly DependencyProperty IsItemContextFlyoutParentDataContextToTagProperty =
-            DependencyProperty.RegisterAttached(
-                "IsItemContextFlyoutParentDataContextToTag",
-                typeof(bool),
-                typeof(ListViewBase),
-                new PropertyMetadata(true)
-            );
-
-        public static void SetIsItemContextFlyoutParentDataContextToTag(UIElement element, bool value)
-        {
-            element.SetValue(IsItemContextFlyoutParentDataContextToTagProperty, value);
-        }
-        public static bool GetIsItemContextFlyoutParentDataContextToTag(UIElement element)
-        {
-            return (bool)element.GetValue(IsItemContextFlyoutParentDataContextToTagProperty);
-        }
-
-
-        public static readonly DependencyProperty ItemContextFlyoutCustomObjectToTagProperty =
-            DependencyProperty.RegisterAttached(
-                "ItemContextFlyoutCustomObjectToTag",
-                typeof(object),
-                typeof(ListViewBase),
-                new PropertyMetadata(default(object))
-            );
-
-        public static void SetItemContextFlyoutCustomObjectToTag(UIElement element, object value)
-        {
-            element.SetValue(ItemContextFlyoutCustomObjectToTagProperty, value);
-        }
-        public static object GetItemContextFlyoutCustomObjectToTag(UIElement element)
-        {
-            return (object)element.GetValue(ItemContextFlyoutCustomObjectToTagProperty);
-        }
-
-
-
-
         public static readonly DependencyProperty ItemContextFlyoutTemplateProperty =
             DependencyProperty.RegisterAttached(
                 "ItemContextFlyoutTemplate",
@@ -115,21 +76,50 @@ namespace NicoPlayerHohoema.Views.Extensions
 
 
 
+
+        public static readonly DependencyProperty ItemContextFlyoutCustomObjectToTagProperty =
+            DependencyProperty.RegisterAttached(
+                "ItemContextFlyoutCustomObjectToTag",
+                typeof(object),
+                typeof(ListViewBase),
+                new PropertyMetadata(default(object))
+            );
+
+        public static void SetItemContextFlyoutCustomObjectToTag(UIElement element, object value)
+        {
+            element.SetValue(ItemContextFlyoutCustomObjectToTagProperty, value);
+        }
+        public static object GetItemContextFlyoutCustomObjectToTag(UIElement element)
+        {
+            return (object)element.GetValue(ItemContextFlyoutCustomObjectToTagProperty);
+        }
+
+
         private static void ItemContextFlyoutTemplatePropertyChanged(DependencyObject s, DependencyPropertyChangedEventArgs e)
         {
             if (s is Windows.UI.Xaml.Controls.ListViewBase target && e.NewValue is DataTemplate template)
             {
                 target.ContainerContentChanging += (sender, args) =>
                 {
-                    if (args.InRecycleQueue) { return; }
+                    if (args.Phase != 0) { return; }
 
-                    var customObjectToTag = GetItemContextFlyoutCustomObjectToTag(target) 
-                    ?? (GetIsItemContextFlyoutParentDataContextToTag(target) ? target.DataContext : null);
+                    args.RegisterUpdateCallback((_, __) => 
+                    {
+                        if (args.ItemContainer is FrameworkElement fe)
+                        {
+                            var contentPresenter = fe.FindFirstChild<FrameworkElement>();
 
-                    var flyout = template.LoadContent() as FlyoutBase;
-                    args.ItemContainer.ContextRequested += (_sender, _args) => OnListViewBaseItemContextRequested(
-                        (__d, __f) => flyout, _args, customObjectToTag
-                        );
+                            var flyout = template.LoadContent() as Windows.UI.Xaml.Controls.Primitives.FlyoutBase;
+                            contentPresenter.ContextFlyout = flyout;
+
+                            var customContext = GetItemContextFlyoutCustomObjectToTag(target);
+                            if (customContext != null)
+                            {
+                                FlyoutOpenerDataContextSetToTag(flyout, customContext);
+                            }
+                        }
+
+                    });
                 };
             }            
         }
@@ -141,87 +131,66 @@ namespace NicoPlayerHohoema.Views.Extensions
             {
                 target.ContainerContentChanging += (sender, args) =>
                 {
-                    if (args.InRecycleQueue) { return; }
+                    if (args.Phase != 0) { return; }
 
-                    var customObjectToTag = GetItemContextFlyoutCustomObjectToTag(target)
-                    ?? (GetIsItemContextFlyoutParentDataContextToTag(target) ? target.DataContext : null);
-
-                    Func<object, DependencyObject, FlyoutBase> flyoutSelector = (dataContext, placementTarget) => 
+                    args.RegisterUpdateCallback((_, __) =>
                     {
-                        var dataTemplate = templateSelector.SelectTemplate(dataContext, placementTarget);
-                        return dataTemplate.LoadContent() as FlyoutBase;
-                    };
-                    args.ItemContainer.ContextRequested += (_sender, _args) => OnListViewBaseItemContextRequested(
-                        flyoutSelector, _args, customObjectToTag
-                        );
+                        if (args.ItemContainer is FrameworkElement fe)
+                        {
+                            var dataContext = args.ItemContainer.Content;
+                            var dataTemplate = templateSelector.SelectTemplate(dataContext, args.ItemContainer);
+                            var flyout = dataTemplate.LoadContent() as Windows.UI.Xaml.Controls.Primitives.FlyoutBase;
+                            var contentPresenter = fe.FindFirstChild<FrameworkElement>();
+                            contentPresenter.ContextFlyout = flyout;
+
+                            var customContext = GetItemContextFlyoutCustomObjectToTag(target);
+                            if (customContext != null)
+                            {
+                                FlyoutOpenerDataContextSetToTag(flyout, customContext);
+                            }
+                        }
+
+                    });
                 };
             }
         }
 
-
-        private static void OnListViewBaseItemContextRequested(
-            Func<object, DependencyObject, FlyoutBase> flyoutSelector, 
-            ContextRequestedEventArgs args,
-            object customObjectToTag
-            )
-        {
-            FrameworkElement flyoutPlacementTarget = null;
-            object dataContext = null;
-
-            // カーソル操作（コントローラー操作など）によるContextRequestに対応する
-            // カーソル操作時はListViewItem/GridViewItemの一つ上階層にあるItemContainerがargs.OriginalSourceに渡される
-            if (args.OriginalSource is ContentControl contentControl)
-            {
-                flyoutPlacementTarget = contentControl;
-                dataContext = contentControl.Content;
-            }
-            else if (args.OriginalSource is FrameworkElement fe)
-            {
-                flyoutPlacementTarget = fe;
-                dataContext = fe?.DataContext;
-            }
-
-            var flyout = flyoutSelector?.Invoke(dataContext, flyoutPlacementTarget);
-
-            if (flyout != null)
-            {
-                FlyoutSettingDataContext(flyout, dataContext, customObjectToTag);
-
-                flyout.ShowAt(flyoutPlacementTarget);
-            }
-        }
+        
 
 
-        private static void FlyoutSettingDataContext(FlyoutBase flyoutbase, object dataContext, object customObjectToTag)
+       
+
+        private static void FlyoutOpenerDataContextSetToTag(Windows.UI.Xaml.Controls.Primitives.FlyoutBase flyoutbase, object dataContextToTag)
         {
             if (flyoutbase is MenuFlyout menuFlyout)
             {
                 foreach (var menuItem in menuFlyout.Items)
                 {
-                    RecurciveSettingDataContext(menuItem, dataContext, customObjectToTag);
+                    RecurciveSettingDataContext(menuItem, dataContextToTag);
                 }
             }
             else if (flyoutbase is Flyout flyout)
             {
                 if (flyout.Content is FrameworkElement fe)
                 {
-                    fe.DataContext = dataContext;
-                    fe.Tag = customObjectToTag;
+//                    fe.DataContext = dataContext;
+                    fe.Tag = dataContextToTag;
                 }
             }
         }
 
-        private static void RecurciveSettingDataContext(MenuFlyoutItemBase item, object dataContext, object customObjectToTag)
+        private static void RecurciveSettingDataContext(MenuFlyoutItemBase item, object dataContextToTag)
         {
-            item.DataContext = dataContext;
-            item.Tag = customObjectToTag;
+            item.Tag = dataContextToTag;
             if (item is MenuFlyoutSubItem subItem)
             {
                 foreach (var child in subItem.Items)
                 {
-                    RecurciveSettingDataContext(child, dataContext, customObjectToTag);
+                    RecurciveSettingDataContext(child, dataContextToTag);
                 }
             }
         }
+
+    
     }
 }

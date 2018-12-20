@@ -1,4 +1,5 @@
-﻿using Prism.Commands;
+﻿using Mntone.Nico2.Videos.Thumbnail;
+using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -30,7 +31,6 @@ namespace NicoPlayerHohoema.Models.LocalMylist
         }
 
         public int ItemCount => Count;
-
 
         public LocalMylistGroup(string id, string label, IEnumerable<string> initialItems = null)
             : base(initialItems ?? Enumerable.Empty<string>())
@@ -82,9 +82,9 @@ namespace NicoPlayerHohoema.Models.LocalMylist
         }
 
 
-        private DelegateCommand<string> _AddCommand;
-        public DelegateCommand<string> AddCommand => _AddCommand
-            ?? (_AddCommand = new DelegateCommand<string>((videoId) =>
+        private DelegateCommand<string> _AddItemCommand;
+        public DelegateCommand<string> AddItemCommand => _AddItemCommand
+            ?? (_AddItemCommand = new DelegateCommand<string>((videoId) =>
             {
                 Items.Add(videoId);
             }
@@ -92,13 +92,19 @@ namespace NicoPlayerHohoema.Models.LocalMylist
             ));
 
 
-        private DelegateCommand<string> _RemoveCommand;
-        public DelegateCommand<string> RemoveCommand => _RemoveCommand
-            ?? (_RemoveCommand = new DelegateCommand<string>(videoId =>
+        private DelegateCommand<string> _RemoveItemCommand;
+        public DelegateCommand<string> RemoveItemCommand => _RemoveItemCommand
+            ?? (_RemoveItemCommand = new DelegateCommand<string>(videoId =>
             {
                 Items.Remove(videoId);
             }
             , (videoId) => videoId != null && Items.Contains(videoId)
             ));
+
+        public string ProviderId => null;
+
+        public string ProviderName => string.Empty;
+
+        public UserType ProviderType => UserType.User;
     }
 }

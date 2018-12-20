@@ -1,4 +1,5 @@
-﻿using Prism.Commands;
+﻿using NicoPlayerHohoema.Services;
+using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,20 +10,28 @@ namespace NicoPlayerHohoema.Commands
 {
     public sealed class OpenBroadcasterInfoCommand : DelegateCommandBase
     {
+        public OpenBroadcasterInfoCommand(
+            PageManager pageManager
+            )
+        {
+            PageManager = pageManager;
+        }
+
+        public PageManager PageManager { get; }
+
         protected override bool CanExecute(object parameter)
         {
             return parameter is Interfaces.ILiveContent liveContent
-                && !string.IsNullOrEmpty(liveContent.BroadcasterId);
+                && !string.IsNullOrEmpty(liveContent.ProviderId);
         }
 
         protected override void Execute(object parameter)
         {
             if (parameter is Interfaces.ILiveContent content)
             {
-                if (!string.IsNullOrEmpty(content.BroadcasterId))
+                if (!string.IsNullOrEmpty(content.ProviderId))
                 {
-                    var pageManager = HohoemaCommnadHelper.GetPageManager();
-                    pageManager.OpenPage(Models.HohoemaPageType.Community, content.BroadcasterId);
+                    PageManager.OpenPage(Models.HohoemaPageType.Community, content.ProviderId);
                 }
             }
         }

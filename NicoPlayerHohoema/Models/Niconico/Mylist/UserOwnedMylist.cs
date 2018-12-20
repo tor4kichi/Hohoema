@@ -31,6 +31,8 @@ namespace NicoPlayerHohoema.Models
 
         public bool IsDeflist => GroupId == DefailtMylistId;
 
+        public bool IsDefaultMylist => IsDeflist;
+
         public Provider.LoginUserMylistProvider LoginUserMylistProvider { get; }
 
         HashSet<string> _VideoIdHashSet = new HashSet<string>();

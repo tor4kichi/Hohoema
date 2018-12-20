@@ -269,58 +269,63 @@
                                     </i:Interaction.Behaviors>
 
                                     <MenuFlyoutItem Text="購読グループを作成..."
-                                                                Command="{StaticResource CreateSubscriptionGroupCommand}"
-                                                                CommandParameter="{Binding SubscriptionSource}"
-                                                                />
+                                        Command="{Binding CreateSubscriptionGroupCommand}"
+                                        CommandParameter="{Binding Converter={StaticResource SubscriptionSourceConverter}}"
+                                        />
 
 
                                 </MenuFlyout>
                             </AppBarButton.Flyout>
                         </AppBarButton>
 
-                        <AppBarButton Label="ブラウザで開く" Command="{StaticResource OpenLinkCommand}" CommandParameter="{Binding VideoPageUrl}" 
+                        <AppBarButton Label="ブラウザで開く" Command="{Binding ExternalAccessService.OpenLinkCommand}" CommandParameter="{Binding}" 
                                       />
                         <AppBarButton Label="コピー..." 
                                       >
                             <AppBarButton.Flyout>
                                 <MenuFlyout>
-                                    <MenuFlyoutItem Text="リンクをコピー" Command="{StaticResource CopyToClipboardCommand}" CommandParameter="{Binding VideoPageUrl}" />
-                                    <MenuFlyoutItem Text="動画IDをコピー" Command="{StaticResource CopyToClipboardCommand}" CommandParameter="{Binding VideoId}" />
-                                    <MenuFlyoutItem Text="共有用文章をコピー" Command="{Binding VideoInfoCopyToClipboardCommand}"  />
+                                    <MenuFlyoutItem Text="リンクをコピー" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding}" />
+                                    <MenuFlyoutItem Text="動画IDをコピー" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding VideoId}" />
+                                    <MenuFlyoutItem Text="共有用文章をコピー" Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}" CommandParameter="{Binding}"  />
                                 </MenuFlyout> 
                             </AppBarButton.Flyout>
                         </AppBarButton>
                     </CommandBar.SecondaryCommands>
 
-                    <AppBarButton Icon="Play" Label="再生" Command="{Binding PlayVideoCommand}"
+                    <AppBarButton Icon="Play" Label="再生" Command="{Binding HohoemaPlaylist.PlayCommand}"
+                                  CommandParameter="{Binding}"
                                   />
 
                     <AppBarButton Icon="Download" 
-                                          Label="キャッシュ取得"
-                                          Command="{Binding CacheRequestCommand}"
-                                          Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
-                                          />
+                                  Label="キャッシュ取得"
+                                  Command="{Binding VideoCacheManager.CacheRequestCommand}"
+                                  CommandParameter="{Binding}"
+                                  Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
+                                  />
 
                     <AppBarButton Icon="Add" Label="マイリストに追加"
-                                      Command="{Binding AddMylistCommand}"
-                                      />
+                                  Command="{Binding AddMylistCommand}"
+                                  CommandParameter="{Binding}"
+                                  />
 
                     
 
                     <AppBarButton x:Name="ShareSubButton"    
-                                      Label="共有"
-                                  Command="{Binding ShareCommand}"
-                                          />
+                                  Label="共有"
+                                  Command="{Binding ExternalAccessService.OpenShareUICommand}"
+                                  CommandParameter="{Binding}"
+                                  />
 
                     
 
 
                     <AppBarButton 
-                                    x:Name="ShareSubButton_TV" 
-                                    Visibility="Collapsed"
-                                    Command="{Binding ShareCommand}"
-                                      Content="共有"
-                                    />
+                        x:Name="ShareSubButton_TV" 
+                        Visibility="Collapsed"
+                        Command="{Binding ExternalAccessService.OpenShareUICommand}"
+                        CommandParameter="{Binding}"
+                        Content="共有"
+                      />
 
                 </CommandBar>
 
@@ -351,17 +356,17 @@
                                 />
 
                                 <ItemsControl ItemsSource="{Binding Tags}"
-                                      Margin="0 8"
-                                  x:Name="TagsList"
-                                              IsTabStop="False"
+                                    Margin="0 8"
+                                    x:Name="TagsList"
+                                    IsTabStop="False"
                                     >
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Button Margin="0 0 0 0"
-                                                Command="{Binding ElementName=TagsList, Path=DataContext.OpenTagSearchResultPageCommand}"
+                                                Command="{Binding ElementName=TagsList, Path=DataContext.PageManager.OpenPageCommand}"
                                                 CommandParameter="{Binding}"
                                                 >
-                                                <TextBlock Text="{Binding TagText}" />
+                                                <TextBlock Text="{Binding Tag}" />
                                             </Button>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
@@ -404,11 +409,13 @@
                                         <Button.Flyout>
                                             <MenuFlyout>
                                                 <MenuFlyoutItem Text="投稿者の詳細"
-                                                                Command="{Binding OpenOwnerUserPageCommand}"
+                                                                Command="{Binding PageManager.OpenPageCommand}"
+                                                                CommandParameter="{Binding}"
                                                                 />
 
                                                 <MenuFlyoutItem Text="動画一覧"
-                                                             Command="{Binding OpenOwnerUserVideoPageCommand}"
+                                                                Command="{Binding PageManager.OpenVideoListPageCommand}"
+                                                                CommandParameter="{Binding}"
                                                              >
 
                                                 </MenuFlyoutItem>
@@ -539,7 +546,7 @@
                                            />
 
                                 <ListView ItemsSource="{Binding RelatedVideos, Mode=OneWay}" 
-                                      uwpExtensions:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                                      uwpExtensions:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
                                           IsItemClickEnabled="True"
                                           SelectionMode="None"
                                           SingleSelectionFollowsFocus="False"
@@ -579,8 +586,9 @@
                                         Command="{Binding UpdateCommand}"
                                         />
 
-                                <HyperlinkButton NavigateUri="{Binding VideoPageUri}" 
-                                                 Content="ブラウザーで開く"
+                                <HyperlinkButton Content="ブラウザーで開く"
+                                                 Command="{Binding ExternalAccessService.OpenLinkCommand}"
+                                                 CommandParameter="{Binding}"
                                                  />
                             </StackPanel>
                         </Border>

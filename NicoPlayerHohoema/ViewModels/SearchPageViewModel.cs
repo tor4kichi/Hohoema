@@ -18,6 +18,7 @@ using Mntone.Nico2.Searches.Live;
 using System.Collections.Async;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Models.Provider;
+using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -783,7 +784,9 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 return res.VideoInfoItems.Where(x => x != null).Select(item =>
                 {
-                    var vm = new VideoInfoControlViewModel(item.Video.Id, NgSettings);
+                    var vm = App.Current.Container.Resolve<VideoInfoControlViewModel>();
+                    vm.RawVideoId = item.Video.Id;
+
                     vm.SetupDisplay(item);
                     return vm;
                 })

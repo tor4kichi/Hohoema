@@ -22,12 +22,17 @@ using System.Reactive.Concurrency;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models.LocalMylist;
 using NicoPlayerHohoema.Models.Cache;
+using System.Windows.Input;
+using NicoPlayerHohoema.Services.Helpers;
+using Microsoft.Practices.Unity;
+using Mntone.Nico2.Live;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public class MenuNavigatePageBaseViewModel : BindableBase
     {
         public MenuNavigatePageBaseViewModel(
+            IUnityContainer container,
             IScheduler scheduler,
             AppearanceSettings appearanceSettings,
             PinSettings pinSettings,
@@ -37,10 +42,15 @@ namespace NicoPlayerHohoema.ViewModels
             VideoCacheManager videoCacheManager, 
             HohoemaPlaylist hohoemaPlaylist,
             NicoLiveSubscriber nicoLiveSubscriber,
-            PageManager pageManager
+            PageManager pageManager,
+            Commands.LoginToNiconicoCommand loginToNiconicoCommand,
+            Commands.LogoutFromNiconicoCommand logoutFromNiconicoCommand
             )
         {
             PageManager = pageManager;
+            LoginToNiconicoCommand = loginToNiconicoCommand;
+            LogoutFromNiconicoCommand = logoutFromNiconicoCommand;
+            Container = container;
             Scheduler = scheduler;
             AppearanceSettings = appearanceSettings;
             PinSettings = pinSettings;
@@ -55,8 +65,8 @@ namespace NicoPlayerHohoema.ViewModels
             NiconicoSession.LogOut += (sender, e) => ResetMenuItems();
 
             CurrentMenuType = new ReactiveProperty<ViewModelBase>();
-            VideoMenu = new VideoMenuSubPageContent(NiconicoSession, LocalMylistManager, UserMylistManager);
-            LiveMenu = new LiveMenuSubPageContent(NiconicoSession, NicoLiveSubscriber);
+            VideoMenu = new VideoMenuSubPageContent(NiconicoSession, LocalMylistManager, UserMylistManager, PageManager);
+            LiveMenu = new LiveMenuSubPageContent(NiconicoSession, NicoLiveSubscriber, hohoemaPlaylist, PageManager);
 
             // Back Navigation
             CanGoBackNavigation = new ReactivePropertySlim<bool>();
@@ -90,8 +100,33 @@ namespace NicoPlayerHohoema.ViewModels
 
             MainSelectedItem = new ReactiveProperty<HohoemaListingPageItemBase>(null, ReactivePropertyMode.DistinctUntilChanged);
 
-            
-            PinItems = PinSettings.Pins;
+
+            PinItems = new ObservableCollection<PinItemViewModel>(
+                PinSettings.Pins.Select(x => Container.Resolve<PinItemViewModel>(new ParameterOverride("pin", x)))
+                );
+            PinSettings.Pins.CollectionChangedAsObservable()
+                .Subscribe(args => 
+                {
+                    if (args.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
+                    {
+                        foreach (var item in args.NewItems)
+                        {
+                            PinItems.Add(Container.Resolve<PinItemViewModel>(new ParameterOverride("pin", item as HohoemaPin)));
+                        }
+                    }
+                    else if (args.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
+                    {
+                        foreach (var item in args.OldItems)
+                        {
+                            var removedPin = item as HohoemaPin;
+                            var pinVM = PinItems.FirstOrDefault(x => x.Pin == removedPin);
+                            if (pinVM != null)
+                            {
+                                PinItems.Remove(pinVM);
+                            }
+                        }
+                    }
+                });
 
             ResetMenuItems();
 
@@ -266,6 +301,9 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public PageManager PageManager { get; private set; }
+        public Commands.LoginToNiconicoCommand LoginToNiconicoCommand { get; }
+        public Commands.LogoutFromNiconicoCommand LogoutFromNiconicoCommand { get; }
+        public Microsoft.Practices.Unity.IUnityContainer Container { get; }
         public IScheduler Scheduler { get; }
         public AppearanceSettings AppearanceSettings { get; }
         public PinSettings PinSettings { get; }
@@ -655,7 +693,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public ObservableCollection<HohoemaListingPageItemBase> MenuItems { get; private set; } = new ObservableCollection<HohoemaListingPageItemBase>();
-        public ObservableCollection<HohoemaPin> PinItems { get; private set; }
+        public ObservableCollection<PinItemViewModel> PinItems { get; private set; }
 
         public ReactiveProperty<HohoemaListingPageItemBase> MainSelectedItem { get; private set; }
         
@@ -753,21 +791,72 @@ namespace NicoPlayerHohoema.ViewModels
     }
 
 
+    public sealed class PinItemViewModel : BindableBase
+    {
+        public PinItemViewModel(
+            HohoemaPin pin,
+            DialogService dialogService,
+            PinSettings pinSettings
+            )
+        {
+            Pin = pin;
+            DialogService = dialogService;
+            PinSettings = pinSettings;
+        }
+
+        public HohoemaPin Pin { get; }
+        public DialogService DialogService { get; }
+        public PinSettings PinSettings { get; }
+
+
+        public HohoemaPageType PageType => Pin.PageType;
+        public string Parameter => Pin.Parameter;
+        public string Label => Pin.Label;
+        public string OverrideLabel => Pin.OverrideLabel;
+
+        ICommand _ChangeOverrideLabelCommand;
+        public ICommand ChangeOverrideLabelCommand
+        {
+            get
+            {
+                return _ChangeOverrideLabelCommand
+                    ?? (_ChangeOverrideLabelCommand = new DelegateCommand(async () =>
+                    {
+                        var name = OverrideLabel ?? $"{Label} ({PageType.ToCulturelizeString()})";
+                        var result = await DialogService.GetTextAsync(
+                            $"{name} のリネーム",
+                            "例）音楽のランキング（空欄にするとデフォルト名に戻せます）",
+                            name,
+                            (s) => true
+                            );
+
+                        Pin.OverrideLabel = string.IsNullOrEmpty(result) ? null : result;
+                        RaisePropertyChanged(nameof(OverrideLabel));
+                        
+                    }));
+            }
+        }
+
+        ICommand _RemovePinCommand;
+        public ICommand RemovePinCommand
+        {
+            get
+            {
+                return _RemovePinCommand
+                    ?? (_RemovePinCommand = new DelegateCommand(() =>
+                    {
+                        PinSettings.Pins.Remove(Pin);
+                    }));
+            }
+        }
+    }
+
+
+
     public enum NiconicoServiceType
     {
         Video,
         Live
-    }
-
-
-    public class MenuSubItemViewModel : HohoemaListingPageItemBase
-    {
-        public MenuSubItemViewModel(string label)
-        {
-            Label = label;
-        }
-
-        public List<MenuItemViewModel> SubItems { get; set; }
     }
 
     public class MenuItemViewModel : HohoemaListingPageItemBase
@@ -798,22 +887,24 @@ namespace NicoPlayerHohoema.ViewModels
         public VideoMenuSubPageContent(
             NiconicoSession niconicoSession,  
             Models.LocalMylist.LocalMylistManager localMylistManager,
-            Models.UserMylistManager mylistManager
+            Models.UserMylistManager mylistManager,
+            PageManager pageManager
             )
         {
             NiconicoSession = niconicoSession;
             LocalMylistManager = localMylistManager;
-            _MylistManager = mylistManager;
+            MylistManager = mylistManager;
+            PageManager = pageManager;
             MenuItems = new ObservableCollection<HohoemaListingPageItemBase>();
 
             ResetMenuItems();
 
-            LocalMylists = LocalMylistManager.LocalMylistGroups
+            LocalMylists = LocalMylistManager.Mylists
                .ToReadOnlyReactiveCollection(x =>
                new MenuItemViewModel(x.Label, HohoemaPageType.Mylist, new Models.MylistPagePayload(x.Id) { Origin = x.ToMylistOrigin()}.ToParameterString()) as HohoemaListingPageItemBase
                )
                .AddTo(_CompositeDisposable);
-            Mylists = _MylistManager.UserMylists
+            Mylists = MylistManager.Mylists
                 .ToReadOnlyReactiveCollection(x =>
                 new MenuItemViewModel(x.Label, HohoemaPageType.Mylist, new Models.MylistPagePayload(x.Id) { Origin = x.ToMylistOrigin() }.ToParameterString()) as HohoemaListingPageItemBase
                 )
@@ -823,16 +914,16 @@ namespace NicoPlayerHohoema.ViewModels
             NiconicoSession.LogOut += OnLogOut;
         }
 
-        private Models.UserMylistManager _MylistManager;
-        private Models.HohoemaPlaylist HohoemaPlaylist;
+        public Models.UserMylistManager MylistManager { get;  }
+        public NiconicoSession NiconicoSession { get; }
+        public Models.LocalMylist.LocalMylistManager LocalMylistManager { get; }
+        public PageManager PageManager { get; }
 
         private CompositeDisposable _CompositeDisposable = new CompositeDisposable();
 
         public ObservableCollection<HohoemaListingPageItemBase> MenuItems { get; private set; }
         public ReadOnlyReactiveCollection<HohoemaListingPageItemBase> LocalMylists { get; private set; }
         public ReadOnlyReactiveCollection<HohoemaListingPageItemBase> Mylists { get; private set; }
-        public NiconicoSession NiconicoSession { get; }
-        public Models.LocalMylist.LocalMylistManager LocalMylistManager { get; }
 
         private void ResetMenuItems()
         {
@@ -888,11 +979,17 @@ namespace NicoPlayerHohoema.ViewModels
     public class LiveMenuSubPageContent : ViewModelBase
     {
         
-        public LiveMenuSubPageContent(NiconicoSession niconicoSession, NicoLiveSubscriber nicoLiveSubscriber)
+        public LiveMenuSubPageContent(
+            NiconicoSession niconicoSession, 
+            NicoLiveSubscriber nicoLiveSubscriber,
+            HohoemaPlaylist hohoemaPlaylist,
+            PageManager pageManager
+            )
         {
             NiconicoSession = niconicoSession;
             LiveSubscriber = nicoLiveSubscriber;
-
+            HohoemaPlaylist = hohoemaPlaylist;
+            PageManager = pageManager;
             UpdateOnAirStreamsCommand = new AsyncReactiveCommand();
             
             UpdateOnAirStreamsCommand.Subscribe(async _ => 
@@ -920,7 +1017,7 @@ namespace NicoPlayerHohoema.ViewModels
                 Label = x.Video.Title,
                 Thumbnail = x.Community?.ThumbnailSmall,
                 CommunityName = x.Community.Name,
-                StartAt = x.Video.StartTime.Value
+                StartAt = x.Video.StartTime.Value,
             }
             );
 
@@ -944,8 +1041,9 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public NiconicoSession NiconicoSession { get; }
-
         public NicoLiveSubscriber LiveSubscriber { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public PageManager PageManager { get; }
 
         public AsyncReactiveCommand UpdateOnAirStreamsCommand { get; }
 
@@ -966,5 +1064,11 @@ namespace NicoPlayerHohoema.ViewModels
         public string Thumbnail { get; internal set; }
 
         public DateTimeOffset StartAt { get; internal set; }
+
+        public string ProviderId => BroadcasterId;
+
+        public string ProviderName => CommunityName;
+
+        public CommunityType ProviderType => CommunityType.Community; // TODO: 
     }
 }

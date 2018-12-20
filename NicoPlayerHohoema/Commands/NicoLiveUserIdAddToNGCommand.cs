@@ -11,6 +11,13 @@ namespace NicoPlayerHohoema.Commands
 {
     public sealed class NicoLiveUserIdAddToNGCommand : DelegateCommandBase
     {
+        public NicoLiveUserIdAddToNGCommand(NGSettings ngSettings)
+        {
+            NgSettings = ngSettings;
+        }
+
+        public NGSettings NgSettings { get; }
+
         protected override bool CanExecute(object parameter)
         {
             return parameter is string;
@@ -18,12 +25,10 @@ namespace NicoPlayerHohoema.Commands
 
         protected override void Execute(object parameter)
         {
-            var userSettings = App.Current.Container.Resolve<HohoemaUserSettings>();
-
             var userId = parameter as string;
             var screenName = Database.NicoVideoOwnerDb.Get(userId)?.ScreenName;
 
-            userSettings.NGSettings.AddNGLiveCommentUserId(userId, screenName);
+            NgSettings.AddNGLiveCommentUserId(userId, screenName);
         }
     }
 }

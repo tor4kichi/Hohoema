@@ -96,7 +96,7 @@
             UseSystemFocusVisuals="True"
             SelectionMode="None"
             HorizontalContentAlignment="Stretch"
-            uwpExtension:ListViewBase.Command="{StaticResource OpenContentCommand}"
+            uwpExtension:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
             ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
             
             xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
@@ -113,7 +113,7 @@
 
                 <mybehavior:KeyboardTrigger Key="F5">
                     <mybehavior:KeyboardTrigger.Actions>
-                        <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
+                        <core:InvokeCommandAction Command="{Binding RefreshCommand}" />
                     </mybehavior:KeyboardTrigger.Actions>
                 </mybehavior:KeyboardTrigger>
 
@@ -183,23 +183,24 @@
 
                                 <AppBarButton x:Name="ShowWithBrowserButton"
                                           Label="ブラウザで表示" 
-                                          Command="{Binding ShowWithBrowserCommand}"
+                                          Command="{Binding ExternalAccessService.OpenLinkCommand}"
+                                              CommandParameter="{Binding}"
                                           />
 
                                 <AppBarButton x:Name="CacheReqesutSelectedItemButton"
-                                Command="{Binding RequestCacheDownload}"
-                                              IsEnabled="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
-                                              Icon="Download"
-                                              Label="キャッシュ"
-                                          Visibility="Collapsed"
-                                            />
+                                    Command="{Binding RequestCacheDownload}"
+                                    IsEnabled="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
+                                    Icon="Download"
+                                    Label="キャッシュ"
+                                    Visibility="Collapsed"
+                                    />
 
                                 <AppBarButton x:Name="AddMylistSelectedItemButton"
-                                Command="{Binding RegistratioMylistCommand}" 
-                                          Icon="Add"
-                                          Label="マイリストに追加"
-                                          Visibility="Collapsed"
-                                            />
+                                    Command="{Binding RegistratioMylistCommand}" 
+                                    Icon="Add"
+                                    Label="マイリストに追加"
+                                    Visibility="Collapsed"
+                                    />
 
                                 <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                             HorizontalContentAlignment="Stretch"
