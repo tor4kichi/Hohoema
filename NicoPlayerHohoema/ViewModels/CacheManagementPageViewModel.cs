@@ -277,7 +277,7 @@ namespace NicoPlayerHohoema.ViewModels
     public class CacheVideoViewModel : VideoInfoControlViewModel
 	{
 
-        public CacheVideoViewModel(HohoemaPlaylist hohoemaPlaylist,
+        public CacheVideoViewModel(Services.HohoemaPlaylist hohoemaPlaylist,
             ExternalAccessService externalAccessService,
             PageManager pageManager,
             UserMylistManager userMylistManager,

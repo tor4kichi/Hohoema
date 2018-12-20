@@ -20,6 +20,8 @@ using Windows.ApplicationModel.Core;
 using Windows.Foundation.Metadata;
 using Prism.Windows.Navigation;
 using System.Reactive.Concurrency;
+using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {

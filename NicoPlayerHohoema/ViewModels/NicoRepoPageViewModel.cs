@@ -17,6 +17,7 @@ using System.Collections.Async;
 using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Live;
 using NicoPlayerHohoema.Interfaces;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -24,7 +25,7 @@ namespace NicoPlayerHohoema.ViewModels
     {
         public NicoRepoPageViewModel(
             
-            HohoemaPlaylist hohoemaPlaylist,
+            Services.HohoemaPlaylist hohoemaPlaylist,
             Services.PageManager pageManager,
             ActivityFeedSettings activityFeedSettings,
             Models.Provider.LoginUserNicoRepoProvider loginUserNicoRepoProvider,
@@ -63,7 +64,7 @@ namespace NicoPlayerHohoema.ViewModels
         };
 
         public IList<NicoRepoItemTopic> DisplayNicoRepoItemTopics { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public ActivityFeedSettings ActivityFeedSettings { get; }
         public Models.Provider.LoginUserNicoRepoProvider LoginUserNicoRepoProvider { get; }
         public Models.Subscription.SubscriptionManager SubscriptionManager { get; }

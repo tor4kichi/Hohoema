@@ -21,7 +21,7 @@ namespace NicoPlayerHohoema.ViewModels
         public UserVideoPageViewModel(
             UserProvider userProvider,
             Models.Subscription.SubscriptionManager subscriptionManager,
-            HohoemaPlaylist hohoemaPlaylist,
+            Services.HohoemaPlaylist hohoemaPlaylist,
             Services.PageManager pageManager,
             Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
@@ -36,7 +36,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public Models.Subscription.SubscriptionManager SubscriptionManager { get; }
         public UserProvider UserProvider { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
 
         public Models.Subscription.SubscriptionSource? SubscriptionSource => new Models.Subscription.SubscriptionSource(UserName, Models.Subscription.SubscriptionSourceType.User, UserId);

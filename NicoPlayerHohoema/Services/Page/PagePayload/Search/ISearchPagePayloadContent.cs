@@ -1,4 +1,4 @@
-﻿namespace NicoPlayerHohoema.Models
+﻿namespace NicoPlayerHohoema.Services.Page
 {
     public interface ISearchPagePayloadContent
 	{

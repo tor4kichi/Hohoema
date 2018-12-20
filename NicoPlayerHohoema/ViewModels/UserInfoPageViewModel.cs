@@ -29,7 +29,7 @@ namespace NicoPlayerHohoema.ViewModels
             Models.NiconicoSession niconicoSession,
             SubscriptionManager subscriptionManager,
             UserMylistManager userMylistManager,
-            HohoemaPlaylist hohoemaPlaylist,
+            Services.HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
             ExternalAccessService externalAccessService,
             Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand

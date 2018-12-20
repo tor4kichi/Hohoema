@@ -19,7 +19,7 @@ namespace NicoPlayerHohoema.Views.Subscriptions
             DialogService dialogService,
             LocalMylistManager localMylistManager,
             UserMylistManager userMylistManager,
-            HohoemaPlaylist hohoemaPlaylist,
+            Services.HohoemaPlaylist hohoemaPlaylist,
             MylistHelper mylistHelper
             )
         {
@@ -33,7 +33,7 @@ namespace NicoPlayerHohoema.Views.Subscriptions
         public DialogService DialogService { get; }
         public LocalMylistManager LocalMylistManager { get; }
         public UserMylistManager UserMylistManager { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public MylistHelper MylistHelper { get; }
 
         protected override bool CanExecute(object parameter)

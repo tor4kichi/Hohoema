@@ -15,7 +15,7 @@ namespace NicoPlayerHohoema.ViewModels
     public class LiveInfoListItemViewModel : HohoemaListingPageItemBase, Interfaces.ILiveContent, Views.Extensions.ListViewBase.IDeferInitialize
     {
         public LiveInfoListItemViewModel(
-            HohoemaPlaylist hohoemaPlaylist,
+            Services.HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
             ExternalAccessService externalAccessService
             )         
@@ -25,7 +25,7 @@ namespace NicoPlayerHohoema.ViewModels
             ExternalAccessService = externalAccessService;
         }
 
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
         public ExternalAccessService ExternalAccessService { get; }
         public Mntone.Nico2.Live.ReservationsInDetail.Program Reservation { get; private set; }

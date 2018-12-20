@@ -20,7 +20,7 @@ namespace NicoPlayerHohoema.ViewModels
         public TimeshiftPageViewModel(
             LoginUserLiveReservationProvider loginUserLiveReservationProvider,
             NicoLiveProvider nicoLiveProvider,
-            HohoemaPlaylist hohoemaPlaylist,
+            Services.HohoemaPlaylist hohoemaPlaylist,
             Services.PageManager pageManager, 
             Services.DialogService dialogService
             ) 
@@ -34,7 +34,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public LoginUserLiveReservationProvider LoginUserLiveReservationProvider { get; }
         public NicoLiveProvider NicoLiveProvider { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public Services.DialogService DialogService { get; }
 
         private DelegateCommand _DeleteOutdatedReservations;

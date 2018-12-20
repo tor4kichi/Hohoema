@@ -12,7 +12,7 @@ namespace NicoPlayerHohoema.Services.Helpers
             Models.UserMylistManager userMylistManager,
             Models.OtherOwneredMylistManager otherOwneredMylistManager,
             Models.LocalMylist.LocalMylistManager localMylistManager,
-            Models.HohoemaPlaylist hohoemaPlaylist
+            Services.HohoemaPlaylist hohoemaPlaylist
             )
         {
             UserMylistManager = userMylistManager;
@@ -24,38 +24,38 @@ namespace NicoPlayerHohoema.Services.Helpers
         public Models.UserMylistManager UserMylistManager { get; }
         public Models.OtherOwneredMylistManager OtherOwneredMylistManager { get; }
         public Models.LocalMylist.LocalMylistManager LocalMylistManager { get; }
-        public Models.HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
 
-        public async Task<Interfaces.IMylist> FindMylist(string id, Models.PlaylistOrigin? origin = null)
+        public async Task<Interfaces.IMylist> FindMylist(string id, Services.PlaylistOrigin? origin = null)
         {
             if (!origin.HasValue)
             {
                 if (UserMylistManager.HasMylistGroup(id))
                 {
-                    origin = Models.PlaylistOrigin.LoginUser;
+                    origin = Services.PlaylistOrigin.LoginUser;
                 }
-                else if (Models.HohoemaPlaylist.WatchAfterPlaylistId == id)
+                else if (Services.HohoemaPlaylist.WatchAfterPlaylistId == id)
                 {
-                    origin = Models.PlaylistOrigin.Local;
+                    origin = Services.PlaylistOrigin.Local;
                 }
                 else if (LocalMylistManager.Mylists.FirstOrDefault(x => x.Id == id) != null)
                 {
-                    origin = Models.PlaylistOrigin.Local;
+                    origin = Services.PlaylistOrigin.Local;
                 }
                 else
                 {
-                    origin = Models.PlaylistOrigin.OtherUser;
+                    origin = Services.PlaylistOrigin.OtherUser;
                 }
             }
 
             switch (origin.Value)
             {
-                case Models.PlaylistOrigin.LoginUser:
+                case Services.PlaylistOrigin.LoginUser:
                     // ログインユーザーのマイリスト
                     return UserMylistManager.GetMylistGroup(id);
-                case Models.PlaylistOrigin.Local:
+                case Services.PlaylistOrigin.Local:
                     // ローカルマイリスト
-                    if (Models.HohoemaPlaylist.WatchAfterPlaylistId == id)
+                    if (Services.HohoemaPlaylist.WatchAfterPlaylistId == id)
                     {
                         return HohoemaPlaylist.DefaultPlaylist;
                     }
@@ -63,7 +63,7 @@ namespace NicoPlayerHohoema.Services.Helpers
                     {
                         return LocalMylistManager.Mylists.FirstOrDefault(x => x.Id == id);
                     }
-                case Models.PlaylistOrigin.OtherUser:
+                case Services.PlaylistOrigin.OtherUser:
                     // 他ユーザーのマイリスト
                     return await OtherOwneredMylistManager.GetMylist(id);
                 default:
@@ -72,36 +72,36 @@ namespace NicoPlayerHohoema.Services.Helpers
 
         }
 
-        public Interfaces.IMylist FindMylistInCached(string id, Models.PlaylistOrigin? origin = null)
+        public Interfaces.IMylist FindMylistInCached(string id, Services.PlaylistOrigin? origin = null)
         {
             if (!origin.HasValue)
             {
                 if (UserMylistManager.HasMylistGroup(id))
                 {
-                    origin = Models.PlaylistOrigin.LoginUser;
+                    origin = Services.PlaylistOrigin.LoginUser;
                 }
-                else if (Models.HohoemaPlaylist.WatchAfterPlaylistId == id)
+                else if (Services.HohoemaPlaylist.WatchAfterPlaylistId == id)
                 {
-                    origin = Models.PlaylistOrigin.Local;
+                    origin = Services.PlaylistOrigin.Local;
                 }
                 else if (LocalMylistManager.Mylists.FirstOrDefault(x => x.Id == id) != null)
                 {
-                    origin = Models.PlaylistOrigin.Local;
+                    origin = Services.PlaylistOrigin.Local;
                 }
                 else
                 {
-                    origin = Models.PlaylistOrigin.OtherUser;
+                    origin = Services.PlaylistOrigin.OtherUser;
                 }
             }
 
             switch (origin.Value)
             {
-                case Models.PlaylistOrigin.LoginUser:
+                case Services.PlaylistOrigin.LoginUser:
                     // ログインユーザーのマイリスト
                     return UserMylistManager.GetMylistGroup(id);
-                case Models.PlaylistOrigin.Local:
+                case Services.PlaylistOrigin.Local:
                     // ローカルマイリスト
-                    if (Models.HohoemaPlaylist.WatchAfterPlaylistId == id)
+                    if (Services.HohoemaPlaylist.WatchAfterPlaylistId == id)
                     {
                         return HohoemaPlaylist.DefaultPlaylist;
                     }
@@ -109,7 +109,7 @@ namespace NicoPlayerHohoema.Services.Helpers
                     {
                         return LocalMylistManager.Mylists.FirstOrDefault(x => x.Id == id);
                     }
-                case Models.PlaylistOrigin.OtherUser:
+                case Services.PlaylistOrigin.OtherUser:
                     // 他ユーザーのマイリスト
                     return OtherOwneredMylistManager.GetMylistIfCached(id);
                 default:

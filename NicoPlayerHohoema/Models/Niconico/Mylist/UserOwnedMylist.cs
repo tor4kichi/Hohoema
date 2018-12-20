@@ -14,7 +14,6 @@ namespace NicoPlayerHohoema.Models
     {
         public const string DefailtMylistId = "0";
 
-        public PlaylistOrigin Origin => PlaylistOrigin.LoginUser;
         public string Id => GroupId;
         public int SortIndex => 0;
 

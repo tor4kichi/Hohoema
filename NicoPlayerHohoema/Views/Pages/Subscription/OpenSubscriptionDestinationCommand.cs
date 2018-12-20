@@ -29,8 +29,8 @@ namespace NicoPlayerHohoema.Views.Subscriptions
                 var mylistPagePayload = new Models.MylistPagePayload(dest.PlaylistId)
                 {
                     Origin = dest.Target == Models.Subscription.SubscriptionDestinationTarget.LocalPlaylist 
-                    ? Models.PlaylistOrigin.Local 
-                    : Models.PlaylistOrigin.LoginUser
+                    ? Services.PlaylistOrigin.Local 
+                    : Services.PlaylistOrigin.LoginUser
                 };
                 PageManager.OpenPage(Models.HohoemaPageType.Mylist, mylistPagePayload.ToParameterString());
             }

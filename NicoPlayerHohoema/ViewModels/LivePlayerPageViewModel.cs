@@ -69,7 +69,7 @@ namespace NicoPlayerHohoema.ViewModels
             NiconicoSession niconicoSession,
             UserProvider userProvider,
             CommunityProvider communityProvider,
-            HohoemaPlaylist hohoemaPlaylist,
+            Services.HohoemaPlaylist hohoemaPlaylist,
             HohoemaViewManager viewManager,
             Services.DialogService dialogService,
             PageManager pageManager,
@@ -507,7 +507,7 @@ namespace NicoPlayerHohoema.ViewModels
         public NiconicoSession NiconicoSession { get; }
         public UserProvider UserProvider { get; }
         public CommunityProvider CommunityProvider { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public DialogService _HohoemaDialogService { get; }
 
         private NotificationService _NotificationService;

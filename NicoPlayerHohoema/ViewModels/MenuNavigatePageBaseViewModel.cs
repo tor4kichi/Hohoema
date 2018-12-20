@@ -40,7 +40,7 @@ namespace NicoPlayerHohoema.ViewModels
             LocalMylistManager localMylistManager,
             UserMylistManager userMylistManager,
             VideoCacheManager videoCacheManager, 
-            HohoemaPlaylist hohoemaPlaylist,
+            Services.HohoemaPlaylist hohoemaPlaylist,
             NicoLiveSubscriber nicoLiveSubscriber,
             PageManager pageManager,
             Commands.LoginToNiconicoCommand loginToNiconicoCommand,
@@ -311,7 +311,7 @@ namespace NicoPlayerHohoema.ViewModels
         public Models.LocalMylist.LocalMylistManager LocalMylistManager { get; }
         public UserMylistManager UserMylistManager { get; }
         public VideoCacheManager VideoCacheManager { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public Services.NicoLiveSubscriber NicoLiveSubscriber { get; private set; }
 
         public ReactiveProperty<bool> IsTVModeEnable { get; private set; }
@@ -982,7 +982,7 @@ namespace NicoPlayerHohoema.ViewModels
         public LiveMenuSubPageContent(
             NiconicoSession niconicoSession, 
             NicoLiveSubscriber nicoLiveSubscriber,
-            HohoemaPlaylist hohoemaPlaylist,
+            Services.HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager
             )
         {
@@ -1042,7 +1042,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public NiconicoSession NiconicoSession { get; }
         public NicoLiveSubscriber LiveSubscriber { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
 
         public AsyncReactiveCommand UpdateOnAirStreamsCommand { get; }

@@ -32,7 +32,7 @@ namespace NicoPlayerHohoema.Views.Subscriptions
                     case Models.Subscription.SubscriptionSourceType.Mylist:
                         var mylistPagePayload = new Models.MylistPagePayload(source.Parameter)
                         {
-                            Origin = Models.PlaylistOrigin.OtherUser
+                            Origin = Services.PlaylistOrigin.OtherUser
                         };
                         PageManager.OpenPage(Models.HohoemaPageType.Mylist, mylistPagePayload.ToParameterString());
                         break;

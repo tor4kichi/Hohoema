@@ -17,8 +17,9 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Microsoft.Practices.Unity;
 using NicoPlayerHohoema.Models.Cache;
+using NicoPlayerHohoema.Services.Page;
 
-namespace NicoPlayerHohoema.Models
+namespace NicoPlayerHohoema.Services
 {
     public class HohoemaViewManager
     {

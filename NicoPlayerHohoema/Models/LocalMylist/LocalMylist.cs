@@ -10,6 +10,12 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models.LocalMylist
 {
+    public enum ContentInsertPosition
+    {
+        Head,
+        Tail,
+    }
+
     public sealed class LocalMylistGroup : ObservableCollection<string>, Interfaces.ILocalMylist, INotifyPropertyChanged
     {
         public string Id { get; internal set; }

@@ -21,8 +21,11 @@ using Windows.Media.Playback;
 using Windows.Media.Core;
 using System.Collections.Specialized;
 using Prism.Commands;
+using NicoPlayerHohoema.Models;
+using NiconicoSession = NicoPlayerHohoema.Models.NiconicoSession;
+using NicoPlayerHohoema.Models.LocalMylist;
 
-namespace NicoPlayerHohoema.Models
+namespace NicoPlayerHohoema.Services
 {
     public delegate void OpenPlaylistItemEventHandler(Interfaces.IMylist playlist, PlaylistItem item);
 
@@ -79,7 +82,7 @@ namespace NicoPlayerHohoema.Models
 
         public PlaylistPlayer Player { get; }
 
-        public LocalMylist.LocalMylistGroup DefaultPlaylist { get; private set; }
+        public LocalMylistGroup DefaultPlaylist { get; private set; }
 
         /// <summary>
         /// Use for serialize only.
@@ -466,7 +469,7 @@ namespace NicoPlayerHohoema.Models
         {
             if (DefaultPlaylist == null)
             {
-                DefaultPlaylist = new LocalMylist.LocalMylistGroup(HohoemaPlaylist.WatchAfterPlaylistId, "あとで見る");
+                DefaultPlaylist = new LocalMylistGroup(HohoemaPlaylist.WatchAfterPlaylistId, "あとで見る");
             }
         }
 
@@ -578,7 +581,7 @@ namespace NicoPlayerHohoema.Models
 
         private AsyncLock _PlaylistUpdateLock = new AsyncLock();
 
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public PlaylistSettings PlaylistSettings { get; private set; }
 
         private PlaylistItem _Current;
@@ -623,7 +626,7 @@ namespace NicoPlayerHohoema.Models
 
 
 
-        public PlaylistPlayer(HohoemaPlaylist hohoemaPlaylist, PlaylistSettings playlistSettings)
+        public PlaylistPlayer(Services.HohoemaPlaylist hohoemaPlaylist, PlaylistSettings playlistSettings)
         {
             HohoemaPlaylist = hohoemaPlaylist;
             PlaylistSettings = playlistSettings;
@@ -988,9 +991,5 @@ namespace NicoPlayerHohoema.Models
         RepeatAll,
     }
     
-    public enum ContentInsertPosition
-    {
-        Head,
-        Tail,
-    }
+    
 }

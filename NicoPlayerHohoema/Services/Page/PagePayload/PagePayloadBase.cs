@@ -1,6 +1,6 @@
 ﻿using Prism.Mvvm;
 
-namespace NicoPlayerHohoema.Models
+namespace NicoPlayerHohoema.Services.Page
 {
     public abstract class PagePayloadBase : BindableBase
 	{

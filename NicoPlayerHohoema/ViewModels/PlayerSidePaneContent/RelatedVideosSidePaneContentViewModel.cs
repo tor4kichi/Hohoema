@@ -22,7 +22,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
            NicoVideoProvider nicoVideoProvider,
            ChannelProvider channelProvider,
            MylistProvider mylistProvider,
-           HohoemaPlaylist hohoemaPlaylist,
+           Services.HohoemaPlaylist hohoemaPlaylist,
            PageManager pageManager
            )
         {
@@ -55,7 +55,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
         public NicoVideoProvider NicoVideoProvider { get; }
         public ChannelProvider ChannelProvider { get; }
         public MylistProvider MylistProvider { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
         public bool HasVideoDescription { get; private set; }
         public ObservableCollection<VideoInfoControlViewModel> OtherVideos { get; } = new ObservableCollection<VideoInfoControlViewModel>();

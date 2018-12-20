@@ -5,7 +5,7 @@ using System.Windows.Input;
 using Microsoft.Practices.Unity;
 using NicoPlayerHohoema.Services.Helpers;
 
-namespace NicoPlayerHohoema.Models
+namespace NicoPlayerHohoema.Services.Page
 {
     public sealed class HohoemaPin : BindableBase
     {

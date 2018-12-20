@@ -1,4 +1,6 @@
-﻿namespace NicoPlayerHohoema.Models
+﻿using NicoPlayerHohoema.Models;
+
+namespace NicoPlayerHohoema.Services.Page
 {
     public class KeywordSearchPagePayloadContent : VideoSearchOption
 	{

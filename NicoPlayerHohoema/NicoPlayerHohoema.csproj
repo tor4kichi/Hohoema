@@ -254,8 +254,8 @@
     <Compile Include="Models\Niconico\Follow\IFollowInfoGroup.cs" />
     <Compile Include="Models\HohoemaAppServiceLevel.cs" />
     <Compile Include="Services\Page\HohoemaPageType.cs" />
-    <Compile Include="Models\HohoemaPlaylist.cs" />
-    <Compile Include="Models\HohoemaViewManager.cs" />
+    <Compile Include="Services\HohoemaPlaylist.cs" />
+    <Compile Include="Services\HohoemaViewManager.cs" />
     <Compile Include="Interfaces\IHohoemaListItem.cs" />
     <Compile Include="Models\Niconico\Video\Comment\CommentClient.cs" />
     <Compile Include="Models\Niconico\Video\Comment\CommentServerInfo.cs" />
@@ -311,7 +311,7 @@
     <Compile Include="Models\Settings\HohoemaUserSettings.cs" />
     <Compile Include="Models\Cache\VideoCacheManager.cs" />
     <Compile Include="Services\Page\PageManager.cs" />
-    <Compile Include="Models\PlayerDisplayMode.cs" />
+    <Compile Include="Services\PlayerDisplayMode.cs" />
     <Compile Include="Services\Page\PagePayload\Search\SearchPagePayloadContentBase.cs" />
     <Compile Include="Services\Page\SearchTarget.cs" />
     <Compile Include="Models\Settings\NGSettings.cs" />

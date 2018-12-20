@@ -2,7 +2,7 @@
 using System;
 using System.Runtime.Serialization;
 
-namespace NicoPlayerHohoema.Models
+namespace NicoPlayerHohoema.Services.Page
 {
     [DataContract]
 	public abstract class VideoSearchOption : SearchPagePayloadContentBase, IEquatable<VideoSearchOption>

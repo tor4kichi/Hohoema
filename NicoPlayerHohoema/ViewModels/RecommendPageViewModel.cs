@@ -21,7 +21,7 @@ namespace NicoPlayerHohoema.ViewModels
         public RecommendPageViewModel(
             NGSettings ngSettings,
             LoginUserRecommendProvider loginUserRecommendProvider,
-            HohoemaPlaylist hohoemaPlaylist,
+            Services.HohoemaPlaylist hohoemaPlaylist,
             Services.PageManager pageManager
             )
             : base(pageManager)
@@ -33,7 +33,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public NGSettings NgSettings { get; }
         public LoginUserRecommendProvider LoginUserRecommendProvider { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public ReadOnlyObservableCollection<TagViewModel> RecommendSourceTags { get; private set; }
 
         protected override void PostResetList()
@@ -83,7 +83,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public RecommendVideoListItem(
-            HohoemaPlaylist hohoemaPlaylist,
+            Services.HohoemaPlaylist hohoemaPlaylist,
             Services.ExternalAccessService externalAccessService,
             Services.PageManager pageManager,
             UserMylistManager userMylistManager,

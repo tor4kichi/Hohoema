@@ -32,7 +32,7 @@ namespace NicoPlayerHohoema.ViewModels
             NGSettings ngSettings,
             Models.NiconicoSession niconicoSession,
             UserMylistManager userMylistManager,
-            HohoemaPlaylist hohoemaPlaylist,
+            Services.HohoemaPlaylist hohoemaPlaylist,
             NicoVideoProvider nicoVideoProvider,
             LoginUserMylistProvider loginUserMylistProvider,
             VideoCacheManager videoCacheManager,
@@ -269,7 +269,7 @@ namespace NicoPlayerHohoema.ViewModels
         public Models.NiconicoSession NiconicoSession { get; }
         public UserMylistManager UserMylistManager { get; }
         public LocalMylistManager LocalMylistManager { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public LoginUserMylistProvider LoginUserMylistProvider { get; }
         public VideoCacheManager VideoCacheManager { get; }

@@ -1,10 +1,11 @@
-﻿using System;
+﻿using NicoPlayerHohoema.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NicoPlayerHohoema.Models
+namespace NicoPlayerHohoema.Services.Page
 {
     public class SecondaryViewNavigatePayload : PagePayloadBase
     {

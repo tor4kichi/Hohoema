@@ -1,7 +1,8 @@
 ﻿using Mntone.Nico2.Searches.Community;
+using NicoPlayerHohoema.Models;
 using System.Runtime.Serialization;
 
-namespace NicoPlayerHohoema.Models
+namespace NicoPlayerHohoema.Services.Page
 {
     public class CommunitySearchPagePayloadContent : SearchPagePayloadContentBase
 	{

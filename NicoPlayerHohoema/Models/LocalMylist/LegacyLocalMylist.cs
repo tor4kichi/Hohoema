@@ -1,4 +1,5 @@
-﻿using Prism.Commands;
+﻿using NicoPlayerHohoema.Services;
+using Prism.Commands;
 using Prism.Mvvm;
 using Reactive.Bindings.Extensions;
 using System;

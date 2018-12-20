@@ -56,7 +56,7 @@ namespace NicoPlayerHohoema.ViewModels
             Models.NiconicoSession niconicoSession,
             NicoLiveProvider nicoLiveProvider,
             DialogService dialogService,
-            HohoemaPlaylist hohoemaPlaylist,
+            Services.HohoemaPlaylist hohoemaPlaylist,
             ExternalAccessService externalAccessService
             )
             : base(pageManager)
@@ -168,7 +168,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public DialogService HohoemaDialogService { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public ExternalAccessService ExternalAccessService { get; }
 
 

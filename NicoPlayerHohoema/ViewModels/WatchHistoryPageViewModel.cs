@@ -28,7 +28,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public WatchHistoryPageViewModel(
             LoginUserHistoryProvider loginUserHistoryProvider,
-            HohoemaPlaylist hohoemaPlaylist,
+            Services.HohoemaPlaylist hohoemaPlaylist,
             Services.PageManager pageManager
             )
             : base(pageManager)
@@ -85,7 +85,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
         public LoginUserHistoryProvider LoginUserHistoryProvider { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
 
         protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
@@ -142,7 +142,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public uint UserViewCount { get; set; }
 
 		public HistoryVideoInfoControlViewModel(
-            HohoemaPlaylist hohoemaPlaylist,
+            Services.HohoemaPlaylist hohoemaPlaylist,
             Services.ExternalAccessService externalAccessService,
             Services.PageManager pageManager,
             UserMylistManager userMylistManager,

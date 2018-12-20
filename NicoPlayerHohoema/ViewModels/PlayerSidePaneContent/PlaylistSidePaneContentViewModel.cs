@@ -75,7 +75,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             RaisePropertyChanged(nameof(PlaylistItems));
         }
 
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public PlaylistSettings PlaylistSettings { get; }
         public MediaPlayer MediaPlayer { get; }
         public PageManager PageManager { get; }

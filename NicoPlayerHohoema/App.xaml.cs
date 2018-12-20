@@ -102,7 +102,7 @@ namespace NicoPlayerHohoema
             Container.RegisterType<Models.UserMylistManager>(lifetimeManager: new ContainerControlledLifetimeManager());
             Container.RegisterType<Models.FollowManager>(lifetimeManager: new ContainerControlledLifetimeManager());
 
-            Container.RegisterType<Models.HohoemaPlaylist>(lifetimeManager: new ContainerControlledLifetimeManager());
+            Container.RegisterType<Services.HohoemaPlaylist>(lifetimeManager: new ContainerControlledLifetimeManager());
             Container.RegisterType<Models.Cache.VideoCacheManager>(lifetimeManager: new ContainerControlledLifetimeManager());
             Container.RegisterType<Models.Subscription.SubscriptionManager>(lifetimeManager: new ContainerControlledLifetimeManager());
             Container.RegisterType<Services.NicoLiveSubscriber>(lifetimeManager: new ContainerControlledLifetimeManager());

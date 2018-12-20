@@ -1,6 +1,7 @@
-﻿using System.Runtime.Serialization;
+﻿using NicoPlayerHohoema.Models;
+using System.Runtime.Serialization;
 
-namespace NicoPlayerHohoema.Models
+namespace NicoPlayerHohoema.Services.Page
 {
     [DataContract]
 	public class SearchPagePayload : PagePayloadBase

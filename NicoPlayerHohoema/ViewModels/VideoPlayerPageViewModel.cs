@@ -298,7 +298,7 @@ namespace NicoPlayerHohoema.ViewModels
             CacheSettings cacheSettings,
             NGSettings ngSettings,
             AppearanceSettings appearanceSettings,
-            HohoemaPlaylist hohoemaPlaylist,
+            Services.HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
             HohoemaViewManager viewManager,
             NotificationService notificationService,
@@ -3243,7 +3243,7 @@ namespace NicoPlayerHohoema.ViewModels
         public CacheSettings CacheSettings { get; }
         public NGSettings NgSettings { get; }
         public AppearanceSettings AppearanceSettings { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
         public Commands.Mylist.CreateLocalMylistCommand CreateLocalMylistCommand { get; }
         public Commands.Mylist.CreateMylistCommand CreateMylistCommand { get; }

@@ -16,6 +16,7 @@ using Windows.UI.Xaml.Navigation;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Models.Provider;
 using Microsoft.Practices.Unity;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -232,7 +233,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public Models.NiconicoSession NiconicoSession { get; }
         public SearchProvider SearchProvider { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
 
         #endregion
 

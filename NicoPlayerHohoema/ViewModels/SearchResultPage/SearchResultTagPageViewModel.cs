@@ -3,6 +3,7 @@ using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Models.Subscription;
+using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
 using Prism.Commands;
 using Prism.Windows.Navigation;
@@ -25,7 +26,7 @@ namespace NicoPlayerHohoema.ViewModels
            NGSettings ngSettings,
            SearchProvider searchProvider,
            SubscriptionManager subscriptionManager,
-           HohoemaPlaylist hohoemaPlaylist,
+           Services.HohoemaPlaylist hohoemaPlaylist,
            Services.PageManager pageManager,
            Services.DialogService dialogService,
            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
@@ -230,7 +231,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public SearchProvider SearchProvider { get; }
         public SubscriptionManager SubscriptionManager1 { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
         public NGSettings NgSettings { get; }
 

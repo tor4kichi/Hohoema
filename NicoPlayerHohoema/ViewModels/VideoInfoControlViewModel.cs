@@ -21,6 +21,7 @@ using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Models.LocalMylist;
 using NicoPlayerHohoema.Models.Subscription;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -28,7 +29,7 @@ namespace NicoPlayerHohoema.ViewModels
     public class VideoInfoControlViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContent, Views.Extensions.ListViewBase.IDeferInitialize
     {
         public VideoInfoControlViewModel(
-            HohoemaPlaylist hohoemaPlaylist,
+            Services.HohoemaPlaylist hohoemaPlaylist,
             ExternalAccessService externalAccessService,
             PageManager pageManager,
             UserMylistManager userMylistManager,
@@ -65,7 +66,7 @@ namespace NicoPlayerHohoema.ViewModels
         public Database.NicoVideo Data { get; internal set; }
 
         protected CompositeDisposable _CompositeDisposable { get; private set; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public ExternalAccessService ExternalAccessService { get; }
         public PageManager PageManager { get; }
         public UserMylistManager UserMylistManager { get; }

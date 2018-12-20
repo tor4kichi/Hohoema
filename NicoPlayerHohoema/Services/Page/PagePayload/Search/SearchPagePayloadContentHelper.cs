@@ -1,6 +1,7 @@
-﻿using System;
+﻿using NicoPlayerHohoema.Models;
+using System;
 
-namespace NicoPlayerHohoema.Models
+namespace NicoPlayerHohoema.Services.Page
 {
     public static class SearchPagePayloadContentHelper
 	{

@@ -22,7 +22,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ChannelVideoPageViewModel(
             Models.Provider.ChannelProvider channelProvider,
             Services.PageManager pageManager,
-            HohoemaPlaylist hohoemaPlaylist,
+            Services.HohoemaPlaylist hohoemaPlaylist,
             Services.ExternalAccessService externalAccessService
             )
             : base(pageManager, useDefaultPageTitle:true)
@@ -131,7 +131,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public Models.Provider.ChannelProvider ChannelProvider { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public Services.ExternalAccessService ExternalAccessService { get; }
 
         string INiconicoObject.Id => RawChannelId;
@@ -144,7 +144,7 @@ namespace NicoPlayerHohoema.ViewModels
         public bool IsRequirePayment { get; internal set; }
 
         public ChannelVideoListItemViewModel(
-            HohoemaPlaylist hohoemaPlaylist,
+            Services.HohoemaPlaylist hohoemaPlaylist,
             Services.ExternalAccessService externalAccessService,
             Services.PageManager pageManager,
             UserMylistManager userMylistManager,

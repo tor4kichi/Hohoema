@@ -17,6 +17,8 @@ using NicoPlayerHohoema.Models.Helpers;
 using System.Collections.Async;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Models.LocalMylist;
+using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -242,7 +244,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public UserMylistManager UserMylistManager { get; private set; }
         public LocalMylistManager LocalMylistManager { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public OtherOwneredMylistManager OtherOwneredMylistManager { get; }
         public Services.DialogService DialogService { get; }
         public NiconicoSession NiconicoSession { get; }

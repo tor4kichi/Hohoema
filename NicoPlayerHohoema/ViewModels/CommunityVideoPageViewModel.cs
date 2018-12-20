@@ -17,6 +17,7 @@ using NicoPlayerHohoema.Interfaces;
 using System.Collections.Async;
 using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Models.Provider;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -25,7 +26,7 @@ namespace NicoPlayerHohoema.ViewModels
         public CommunityVideoPageViewModel(
             CommunityProvider communityProvider,
             Services.PageManager pageManager,
-            HohoemaPlaylist hohoemaPlaylist
+            Services.HohoemaPlaylist hohoemaPlaylist
             )
             : base(pageManager)
         {
@@ -131,7 +132,7 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
         public CommunityProvider CommunityProvider { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
     }
 
 

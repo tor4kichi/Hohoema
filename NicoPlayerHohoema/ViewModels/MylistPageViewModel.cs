@@ -18,6 +18,8 @@ using System.Collections.Async;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Models.LocalMylist;
 using NicoPlayerHohoema.Models.Subscription;
+using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -34,7 +36,7 @@ namespace NicoPlayerHohoema.ViewModels
             NGSettings ngSettings,
             UserMylistManager userMylistManager,
             LocalMylistManager localMylistManager,
-            HohoemaPlaylist hohoemaPlaylist,
+            Services.HohoemaPlaylist hohoemaPlaylist,
             SubscriptionManager subscriptionManager,
             Services.DialogService dialogService,
             Services.Helpers.MylistHelper mylistHelper,
@@ -56,7 +58,7 @@ namespace NicoPlayerHohoema.ViewModels
             MylistHelper = mylistHelper;
             CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
             Mylist = new ReactiveProperty<Interfaces.IMylist>();
-            MylistOrigin = new ReactiveProperty<Models.PlaylistOrigin>();
+            MylistOrigin = new ReactiveProperty<Services.PlaylistOrigin>();
 
             /*
             IsFavoriteMylist = new ReactiveProperty<bool>(mode: ReactivePropertyMode.DistinctUntilChanged)
@@ -215,7 +217,7 @@ namespace NicoPlayerHohoema.ViewModels
         public NGSettings NgSettings { get; }
         public UserMylistManager UserMylistManager { get; }
         public LocalMylistManager LocalMylistManager { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public Models.Subscription.SubscriptionManager SubscriptionManager { get; }
         public Services.DialogService DialogService { get; }
         public Services.Helpers.MylistHelper MylistHelper { get; }

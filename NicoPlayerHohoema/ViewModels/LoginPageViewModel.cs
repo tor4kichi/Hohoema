@@ -13,6 +13,7 @@ using System.Diagnostics;
 using Prism.Commands;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Models.Helpers;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {

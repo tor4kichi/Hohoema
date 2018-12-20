@@ -22,7 +22,7 @@ namespace NicoPlayerHohoema.ViewModels
     {
         public RankingCategoryPageViewModel(
             PageManager pageManager,
-            HohoemaPlaylist hohoemaPlaylist,
+            Services.HohoemaPlaylist hohoemaPlaylist,
             NicoVideoProvider nicoVideoProvider,
             NGSettings ngSettings
             )
@@ -139,7 +139,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<bool> IsFailedRefreshRanking { get; private set; }
         public ReactiveProperty<bool> CanChangeRankingParameter { get; private set; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public NGSettings NgSettings { get; }
 
@@ -280,7 +280,7 @@ namespace NicoPlayerHohoema.ViewModels
     public class RankedVideoInfoControlViewModel : VideoInfoControlViewModel
     {
         public RankedVideoInfoControlViewModel(
-            HohoemaPlaylist hohoemaPlaylist,
+            Services.HohoemaPlaylist hohoemaPlaylist,
             ExternalAccessService externalAccessService,
             PageManager pageManager,
             UserMylistManager userMylistManager,
