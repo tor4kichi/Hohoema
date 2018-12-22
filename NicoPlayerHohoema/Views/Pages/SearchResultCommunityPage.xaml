@@ -50,7 +50,7 @@
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
+                        <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="ItemsList.Padding" Value="48 0 48 27" />

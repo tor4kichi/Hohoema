@@ -860,6 +860,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         public bool IsXbox => Services.Helpers.DeviceTypeHelper.IsXbox;
 
+        public bool IsTVModeEnabled => AppearanceSettings.IsForceTVModeEnable || Services.Helpers.DeviceTypeHelper.IsXbox;
+
 
 
 

@@ -107,6 +107,7 @@ namespace NicoPlayerHohoema.Services
                 );
 
             EventAggregator.GetEvent<PlayerNowPlayingChangeEvent>()
+
                 .Subscribe(nowPlaying =>
                 {
                     NowPlaying = nowPlaying;
@@ -358,7 +359,6 @@ namespace NicoPlayerHohoema.Services
 
                     vm = content.DataContext as HohoemaSecondaryViewFrameViewModel;
 
-
                     Window.Current.Content = content;
 
                     id = ApplicationView.GetApplicationViewIdForWindow(playerView.CoreWindow);
@@ -370,7 +370,7 @@ namespace NicoPlayerHohoema.Services
 
                     Window.Current.Activate();
 
-                    await ApplicationViewSwitcher.TryShowAsStandaloneAsync(id, ViewSizePreference.Default, CurrentView.Id, ViewSizePreference.Default);
+                    await ApplicationViewSwitcher.TryShowAsStandaloneAsync(id, ViewSizePreference.UseHalf, MainViewId, ViewSizePreference.UseHalf);
 
                     // ウィンドウサイズの保存と復元
                     if (Services.Helpers.DeviceTypeHelper.IsDesktop)
@@ -476,6 +476,8 @@ namespace NicoPlayerHohoema.Services
                     PrimaryViewPlayerNavigationService.Navigate(pageType, parameter);
 
                     NowPlaying = true;
+
+                    _ = ApplicationViewSwitcher.TryShowAsStandaloneAsync(MainViewId);
                 });
             }
 
@@ -515,8 +517,6 @@ namespace NicoPlayerHohoema.Services
                 PrimaryViewScheduler.Schedule(() =>
                 {
                     PrimaryViewPlayerNavigationService.Navigate(nameof(Views.BlankPage), null);
-
-                    
                 });
             }
             else

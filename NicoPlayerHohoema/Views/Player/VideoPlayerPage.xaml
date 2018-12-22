@@ -1064,33 +1064,33 @@
 
 
                             
-                            <!--
+                            
                             <mybehavior:UINavigationTrigger Kind="Cancel" 
-                                                                IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BoolNegation}}"
+                                                                IsEnabled="{Binding PlayerViewManager.IsPlayerSmallWindowModeEnabled, Converter={StaticResource BoolNegation}}"
                                                                 >
                                 <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI}" PropertyName="Value" Value="{Binding IsDisplayControlUI.Value, Converter={StaticResource BoolNegation}}" />
                             </mybehavior:UINavigationTrigger>
-                            -->
+                            
                     
 
 
 
                             <mybehavior:UINavigationTrigger Kind="Cancel" Hold="True" 
-                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BoolNegation}}"
+                                                        IsEnabled="{Binding PlayerViewManager.IsPlayerSmallWindowModeEnabled, Converter={StaticResource BoolNegation}}"
                                                         >
                                 <core:InvokeCommandAction Command="{Binding PlayerViewManager.ClosePlayerCommand}" />
                             </mybehavior:UINavigationTrigger>
 
 
                             <mybehavior:UINavigationTrigger Kind="PageLeft" 
-                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BoolNegation}}"
+                                                        IsEnabled="{Binding PlayerViewManager.IsPlayerSmallWindowModeEnabled, Converter={StaticResource BoolNegation}}"
                                                         >
                                 <core:InvokeCommandAction Command="{Binding SeekVideoCommand}"
                                                           CommandParameter="{x:Bind PreviewSeekTime}"
                                                           />
                             </mybehavior:UINavigationTrigger>
                             <mybehavior:UINavigationTrigger Kind="PageRight" 
-                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BoolNegation}}"
+                                                        IsEnabled="{Binding PlayerViewManager.IsPlayerSmallWindowModeEnabled, Converter={StaticResource BoolNegation}}"
                                                         >
                                 <core:InvokeCommandAction Command="{Binding SeekVideoCommand}"
                                                           CommandParameter="{x:Bind ForwardSeekTime}"
@@ -1098,7 +1098,7 @@
                             </mybehavior:UINavigationTrigger>
 
                             <mybehavior:UINavigationTrigger Kind="Context1" 
-                                                        IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BoolNegation}}"
+                                                        IsEnabled="{Binding PlayerViewManager.IsPlayerSmallWindowModeEnabled, Converter={StaticResource BoolNegation}}"
                                                         >
                                 <core:InvokeCommandAction Command="{Binding TogglePlayPauseCommand}" />
                             </mybehavior:UINavigationTrigger>
@@ -1251,7 +1251,7 @@
 
                                 <core:DataTriggerBehavior Binding="{Binding IsDisplayControlUI.Value}" Value="True">
                                     <mybehavior:SetFocus TargetObject="{Binding ElementName=PlayPauseButton}" Delay="00:00:00" 
-                                                 IsEnabled="{Binding IsForceTVModeEnable.Value}"
+                                                 IsEnabled="{Binding IsTVModeEnabled}"
                                                  />
                                 </core:DataTriggerBehavior>
 

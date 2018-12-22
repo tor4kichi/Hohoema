@@ -663,14 +663,14 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> IsForceLandscape { get; private set; }
         public ReadOnlyReactiveProperty<bool> IsSmallWindowModeEnable { get; private set; }
 
+        public bool IsTVModeEnabled => AppearanceSettings.IsForceTVModeEnable || Services.Helpers.DeviceTypeHelper.IsXbox;
 
-		// suggestion
-		public ReactiveProperty<LiveSuggestion> Suggestion { get; private set; }
+        // suggestion
+        public ReactiveProperty<LiveSuggestion> Suggestion { get; private set; }
 		public ReactiveProperty<bool> HasSuggestion { get; private set; }
 
 
         // Side Pane Content
-        
 
 
 

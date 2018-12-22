@@ -25,11 +25,13 @@
 
 
                 <i:Interaction.Behaviors>
-                    <mybehavior:UINavigationTrigger Kind="View" 
-                                                        x:Name="PlayerDisplayIntoSmallWindowTrigger"
+                    
+                    <!-- フィル表示中に小窓モードへ -->
+                    <mybehavior:UINavigationTrigger Kind="Context1" 
+                                                        x:Name="PlayerDisplayModeSmallToFillTrigger"
                                                         IsEnabled="False"
                                                     >
-                        <core:ChangePropertyAction TargetObject="{Binding PlayerViewManager}" PropertyName="IsPlayerSmallWindowModeEnabled" Value="False" />
+                        <core:ChangePropertyAction TargetObject="{Binding PlayerViewManager}" PropertyName="IsPlayerSmallWindowModeEnabled" Value="True" />
                     </mybehavior:UINavigationTrigger>
                 </i:Interaction.Behaviors>
                 
@@ -70,23 +72,25 @@
                     </Grid>
 
                     <Grid x:Name="FloatPlayerLayout" Visibility="Collapsed">
-                        <Border HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Stretch"
-                                        Background="Transparent"
-                                        >
-
+                        <Button Background="Transparent"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                VerticalContentAlignment="Stretch"
+                                >
                             <i:Interaction.Behaviors>
-                                <core:EventTriggerBehavior EventName="Tapped">
+                                <core:EventTriggerBehavior EventName="Click">
                                     <core:ChangePropertyAction TargetObject="{Binding PlayerViewManager}" PropertyName="IsPlayerSmallWindowModeEnabled" Value="False" />
                                 </core:EventTriggerBehavior>
                             </i:Interaction.Behaviors>
 
-                            <Border.ContextFlyout>
+                            <Button.ContextFlyout>
                                 <MenuFlyout >
                                     <MenuFlyoutItem Text="閉じる" Command="{Binding PlayerViewManager.ClosePlayerCommand}" />
                                 </MenuFlyout>
-                            </Border.ContextFlyout>
-                        </Border>
+                            </Button.ContextFlyout>
+                            <Border />
+                        </Button>
                     </Grid>
 
 
@@ -121,7 +125,7 @@
                         <!-- プレイヤー非表示（デフォルト状態） -->
                         <VisualState x:Name="HiddenPlayer">
                             <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding RelativeSource={RelativeSource Mode=TemplatedParent}, Path=DataContext.PlayerViewManager.NowPlaying, Converter={StaticResource BoolNegation}}" />
+                                <StateTrigger IsActive="{Binding PlayerViewManager.NowPlaying, Converter={StaticResource BoolNegation}}" />
                             </VisualState.StateTriggers>
                         </VisualState>
 
@@ -148,6 +152,8 @@
                                 <Setter Target="ContentLayout.Visibility" Value="Collapsed" />
 
                                 <Setter Target="BackButtonLayout.Visibility" Value="Collapsed" />
+
+                                <Setter Target="PlayerDisplayModeSmallToFillTrigger.IsEnabled" Value="True" />
                             </VisualState.Setters>
                         </VisualState>
 
@@ -168,6 +174,7 @@
                                 <Setter Target="PlayerLayout.Margin" Value="0 0 8 8" />
                                 <Setter Target="PlayerLayout.VerticalAlignment" Value="Bottom" />
                                 <Setter Target="PlayerLayout.HorizontalAlignment" Value="Right" />
+
                             </VisualState.Setters>
                         </VisualState>
 
