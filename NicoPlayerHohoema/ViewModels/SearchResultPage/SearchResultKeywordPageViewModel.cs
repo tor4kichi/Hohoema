@@ -13,6 +13,7 @@ using System.Reactive.Linq;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Models.Subscription;
 using NicoPlayerHohoema.Models.Provider;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {

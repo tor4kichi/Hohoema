@@ -40,6 +40,9 @@ using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Models.Cache;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Models.LocalMylist;
+using static NicoPlayerHohoema.Services.PlayerViewManager;
+using System.Reactive;
+using NicoPlayerHohoema.Interfaces;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -278,12 +281,12 @@ namespace NicoPlayerHohoema.ViewModels
         }
     }
 
-    public class VideoPlayerPageViewModel : HohoemaViewModelBase, IDisposable
+    public class VideoPlayerPageViewModel : HohoemaViewModelBase, IDisposable, Interfaces.IVideoContent
 	{
         // TODO: HohoemaViewModelBaseとの依存性を排除（ViewModelBaseとの関係性は維持）
 
         public VideoPlayerPageViewModel(
-            IEventAggregator ea,
+            IEventAggregator eventAggregator,
             NicoVideo nicoVideo,
             VideoCacheManager videoCacheManager,
             UserMylistManager userMylistManager,
@@ -300,7 +303,7 @@ namespace NicoPlayerHohoema.ViewModels
             AppearanceSettings appearanceSettings,
             Services.HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
-            HohoemaViewManager viewManager,
+            PlayerViewManager playerViewManager,
             NotificationService notificationService,
             DialogService dialogService,
             Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand,
@@ -309,6 +312,7 @@ namespace NicoPlayerHohoema.ViewModels
             )
         : base(pageManager)
         {
+            EventAggregator = eventAggregator;
             NicoVideo = nicoVideo;
             VideoCacheManager = videoCacheManager;
             UserMylistManager = userMylistManager;
@@ -324,12 +328,13 @@ namespace NicoPlayerHohoema.ViewModels
             NgSettings = ngSettings;
             AppearanceSettings = appearanceSettings;
             HohoemaPlaylist = hohoemaPlaylist;
+            PlayerViewManager = playerViewManager;
             _NotificationService = notificationService;
             _HohoemaDialogService = dialogService;
             CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
             CreateLocalMylistCommand = createLocalMylistCommand;
             CreateMylistCommand = createMylistCommand;
-            MediaPlayer = viewManager.GetCurrentWindowMediaPlayer();
+            MediaPlayer = playerViewManager.GetCurrentWindowMediaPlayer();
 
             NicoScript_Default_Enabled = PlayerSettings
                 .ToReactivePropertyAsSynchronized(x => x.NicoScript_Default_Enabled, raiseEventScheduler: CurrentWindowContextScheduler)
@@ -724,8 +729,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-            IsSmallWindowModeEnable = HohoemaPlaylist
-                .ObserveProperty(x => x.IsPlayerFloatingModeEnable)
+            IsSmallWindowModeEnable = PlayerViewManager
+                .ObserveProperty(x => x.IsPlayerSmallWindowModeEnabled)
                 .ToReadOnlyReactiveProperty(eventScheduler: CurrentWindowContextScheduler)
                 .AddTo(_CompositeDisposable);
 
@@ -754,7 +759,7 @@ namespace NicoPlayerHohoema.ViewModels
             })
                 .AddTo(_CompositeDisposable);
 
-            IsDisplayControlUI = HohoemaPlaylist.ToReactivePropertyAsSynchronized(x => x.IsDisplayPlayerControlUI, CurrentWindowContextScheduler);
+            IsDisplayControlUI = new ReactiveProperty<bool>(CurrentWindowContextScheduler, true);
 
             PlaylistCanGoBack = HohoemaPlaylist.Player.ObserveProperty(x => x.CanGoBack).ToReactiveProperty(CurrentWindowContextScheduler);
             PlaylistCanGoNext = HohoemaPlaylist.Player.ObserveProperty(x => x.CanGoNext).ToReactiveProperty(CurrentWindowContextScheduler);
@@ -1660,7 +1665,7 @@ namespace NicoPlayerHohoema.ViewModels
                             {
                                 // 再生終了後アクションがプレイヤー表示に変更がない場合に自動次動画検出を開始する
                                 if (PlaylistSettings.PlaylistEndAction == PlaylistEndAction.NothingDo 
-                                || HohoemaPlaylist.PlayerDisplayType == PlayerDisplayType.SecondaryView)
+                                || PlayerViewManager.IsPlayerShowWithSecondaryView)
                                 {
                                     PlayEndTime = DateTime.Now;
 
@@ -2528,7 +2533,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayerSmallWindowDisplayCommand
                     ?? (_PlayerSmallWindowDisplayCommand = new DelegateCommand(() =>
                     {
-                        HohoemaPlaylist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
+                        PlayerViewManager.IsPlayerSmallWindowModeEnabled = true;
                     }
                     ));
             }
@@ -2542,7 +2547,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayerDisplayWithMainViewCommand
                     ?? (_PlayerDisplayWithMainViewCommand = new DelegateCommand(() =>
                     {
-                        HohoemaPlaylist.PlayerDisplayType = PlayerDisplayType.PrimaryView;
+                        _ = PlayerViewManager.ChangePlayerViewModeAsync(PlayerViewMode.PrimaryView);
                     }
                     ));
             }
@@ -2556,7 +2561,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayerDisplayWithSecondaryViewCommand
                     ?? (_PlayerDisplayWithSecondaryViewCommand = new DelegateCommand(() =>
                     {
-                        HohoemaPlaylist.PlayerDisplayType = PlayerDisplayType.SecondaryView;
+                        _ = PlayerViewManager.ChangePlayerViewModeAsync(PlayerViewMode.SecondaryView);
                     }
                     ));
             }
@@ -2652,21 +2657,6 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-
-
-        private DelegateCommand _ClosePlayerCommand;
-        public DelegateCommand ClosePlayerCommand
-        {
-            get
-            {
-                return _ClosePlayerCommand
-                    ?? (_ClosePlayerCommand = new DelegateCommand(() =>
-                    {
-                        HohoemaPlaylist.IsDisplayMainViewPlayer = false;
-                    }
-                    ));
-            }
-        }
 
         private DelegateCommand<string> _ToggleCacheRequestCommand;
         public DelegateCommand<string> ToggleCacheRequestCommand
@@ -2825,12 +2815,6 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenCurrentPlaylistPageCommand
                     ?? (_OpenCurrentPlaylistPageCommand = new DelegateCommand(() =>
                     {
-                        if (HohoemaPlaylist.PlayerDisplayType == PlayerDisplayType.PrimaryView)
-                        {
-                            HohoemaPlaylist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
-                        }
-
-
                         PageManager.OpenPage(HohoemaPageType.Mylist,
                             new MylistPagePayload()
                             {
@@ -2920,7 +2904,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 		private NicoVideo _Video;
-		public NicoVideo NicoVideo
+
+        public IEventAggregator EventAggregator { get; }
+
+        public NicoVideo NicoVideo
 		{
 			get { return _Video; }
 			set { SetProperty(ref _Video, value); }
@@ -2970,8 +2957,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public MediaPlayer MediaPlayer { get; private set; }
-
-        public bool IsDisplayInSecondaryView => HohoemaPlaylist.PlayerDisplayType == PlayerDisplayType.SecondaryView;
 
 
         public ReactiveProperty<NicoVideoQuality?> CurrentVideoQuality { get; private set; }
@@ -3244,9 +3229,20 @@ namespace NicoPlayerHohoema.ViewModels
         public NGSettings NgSettings { get; }
         public AppearanceSettings AppearanceSettings { get; }
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public PlayerViewManager PlayerViewManager { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
         public Commands.Mylist.CreateLocalMylistCommand CreateLocalMylistCommand { get; }
         public Commands.Mylist.CreateMylistCommand CreateMylistCommand { get; }
+
+        string IVideoContent.ProviderId => VideoOwnerId;
+
+        string IVideoContent.ProviderName => _VideoInfo.Owner?.ScreenName;
+
+        UserType IVideoContent.ProviderType => _VideoInfo.Owner.UserType;
+
+        string INiconicoObject.Id => _VideoInfo.RawVideoId;
+
+        string INiconicoObject.Label => _VideoInfo.Title;
 
         NotificationService _NotificationService;
         DialogService _HohoemaDialogService;

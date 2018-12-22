@@ -29,7 +29,8 @@ namespace NicoPlayerHohoema.ViewModels
             NicoVideoProvider nicoVideoProvider,
             PageManager pageManager,
             DialogService dialogService,
-            NotificationService notificationService
+            NotificationService notificationService,
+            HohoemaPlaylist hohoemaPlaylist
             )
             : base(pageManager)
         {
@@ -39,6 +40,7 @@ namespace NicoPlayerHohoema.ViewModels
             NicoVideoProvider = nicoVideoProvider;
             HohoemaDialogService = dialogService;
             NotificationService = notificationService;
+            HohoemaPlaylist = hohoemaPlaylist;
             IsRequireUpdateCacheSaveFolder = new ReactiveProperty<bool>(false);
 
             IsCacheUserAccepted = CacheSettings.ObserveProperty(x => x.IsUserAcceptedCache)
@@ -115,6 +117,7 @@ namespace NicoPlayerHohoema.ViewModels
         public CacheSaveFolder CacheSaveFolder { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public NotificationService NotificationService { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public DialogService HohoemaDialogService { get; }
 
 
@@ -277,23 +280,11 @@ namespace NicoPlayerHohoema.ViewModels
     public class CacheVideoViewModel : VideoInfoControlViewModel
 	{
 
-        public CacheVideoViewModel(Services.HohoemaPlaylist hohoemaPlaylist,
-            ExternalAccessService externalAccessService,
-            PageManager pageManager,
-            UserMylistManager userMylistManager,
-            Models.LocalMylist.LocalMylistManager localMylistManager,
-            Models.Subscription.SubscriptionManager subscriptionManager,
-            Models.Cache.VideoCacheManager videoCacheManager,
-            NicoVideoProvider nicoVideoProvider,
-            NGSettings ngSettings,
-            Commands.Mylist.CreateMylistCommand createMylistCommand,
-            Commands.Mylist.CreateLocalMylistCommand createLocalMylistCommand,
-            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand,
-            Commands.AddToHiddenUserCommand addToHiddenUserCommand
+        public CacheVideoViewModel(
             )
-            : base(hohoemaPlaylist, externalAccessService, pageManager, userMylistManager, localMylistManager, subscriptionManager,
-                  videoCacheManager, nicoVideoProvider, ngSettings, createMylistCommand, createLocalMylistCommand, createSubscriptionGroupCommand, addToHiddenUserCommand)
-        { 
+            : base()
+        {
+
         }
 
         public DateTime CacheRequestTime { get; internal set; }

@@ -148,14 +148,14 @@
         />
 
     <MenuFlyoutItem Text="キャッシュ取得"
-                    Command="{Binding VideoCacheManager.AddCacheRequestCommand}"
+                    Command="{Binding AddCacheRequestCommand}"
                     CommandParameter="{Binding}"
                     Visibility="{Binding Source={StaticResource IsCacheEnabled}, Converter={StaticResource BooleanToVisibility}}"
                     />
 
 
     <MenuFlyoutItem Text="キャッシュ削除"
-                    Command="{Binding VideoCacheManager.DeleteCacheRequestCommand}"
+                    Command="{Binding DeleteCacheRequestCommand}"
                     CommandParameter="{Binding}"
                     Visibility="{Binding Source={StaticResource IsCacheEnabled}, Converter={StaticResource BooleanToVisibility}}"
                     >

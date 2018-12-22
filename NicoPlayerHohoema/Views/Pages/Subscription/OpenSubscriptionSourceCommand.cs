@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Services.Page;
+﻿using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.Services.Page;
 using Prism.Commands;
 
 namespace NicoPlayerHohoema.Views.Subscriptions
@@ -24,17 +25,17 @@ namespace NicoPlayerHohoema.Views.Subscriptions
                 switch (source.SourceType)
                 {
                     case Models.Subscription.SubscriptionSourceType.User:
-                        PageManager.OpenPage(Models.HohoemaPageType.UserVideo, source.Parameter);
+                        PageManager.OpenPage(HohoemaPageType.UserVideo, source.Parameter);
                         break;
                     case Models.Subscription.SubscriptionSourceType.Channel:
-                        PageManager.OpenPage(Models.HohoemaPageType.ChannelVideo, source.Parameter);
+                        PageManager.OpenPage(HohoemaPageType.ChannelVideo, source.Parameter);
                         break;
                     case Models.Subscription.SubscriptionSourceType.Mylist:
-                        var mylistPagePayload = new Models.MylistPagePayload(source.Parameter)
+                        var mylistPagePayload = new MylistPagePayload(source.Parameter)
                         {
                             Origin = Services.PlaylistOrigin.OtherUser
                         };
-                        PageManager.OpenPage(Models.HohoemaPageType.Mylist, mylistPagePayload.ToParameterString());
+                        PageManager.OpenPage(HohoemaPageType.Mylist, mylistPagePayload.ToParameterString());
                         break;
                     case Models.Subscription.SubscriptionSourceType.TagSearch:
                         PageManager.SearchTag(source.Parameter, Mntone.Nico2.Order.Descending, Mntone.Nico2.Sort.FirstRetrieve);

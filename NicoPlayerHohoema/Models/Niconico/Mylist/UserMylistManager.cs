@@ -99,6 +99,11 @@ namespace NicoPlayerHohoema.Models
                 var groups = await LoginUserMylistProvider.GetLoginUserMylistGroups();
                 foreach (var mylistGroup in groups ?? Enumerable.Empty<UserOwnedMylist>())
                 {
+                    if (mylistGroup.Id == "0")
+                    {
+                        Deflist = mylistGroup;
+                    }
+
                     _Mylists.Add(mylistGroup);
                 }
             }

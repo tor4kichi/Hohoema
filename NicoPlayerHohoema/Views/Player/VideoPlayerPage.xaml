@@ -152,11 +152,13 @@
                             CommandParameter="RelatedVideos"
                             />
 
-            <MenuFlyoutItem Text="動画情報" Command="{Binding OpenVideoInfoCommand}" />
+            <MenuFlyoutItem Text="動画情報" Command="{Binding PageManager.OpenPageCommand}"
+                            CommandParameter="{Binding}"
+                            />
             
             <MenuFlyoutItem Text="投稿者の動画一覧" 
-                            Command="{Binding OpenVideoOwnerVideoListCommand}"
-                            CommandParameter="{Binding VideoOwnerId}"
+                            Command="{Binding PageManager.OpenVideoListPageCommand}"
+                            CommandParameter="{Binding}"
                             />
 
             
@@ -298,7 +300,7 @@
 
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsLoggedIn}" />
+                        <StateTrigger IsActive="{Binding NiconicoSession.IsLoggedIn}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="CommentLayout.Visibility" Value="Visible" />
@@ -629,7 +631,7 @@
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsDisplayInSecondaryView}" />
+                        <StateTrigger IsActive="{Binding PlayerViewManager.IsPlayerShowWithSecondaryView}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="DisplayWithMainViewButton.Visibility" Value="Visible" />
@@ -1076,7 +1078,7 @@
                             <mybehavior:UINavigationTrigger Kind="Cancel" Hold="True" 
                                                         IsEnabled="{Binding IsSmallWindowModeEnable.Value, Converter={StaticResource BoolNegation}}"
                                                         >
-                                <core:InvokeCommandAction Command="{Binding ClosePlayerCommand}" />
+                                <core:InvokeCommandAction Command="{Binding PlayerViewManager.ClosePlayerCommand}" />
                             </mybehavior:UINavigationTrigger>
 
 
@@ -1280,7 +1282,7 @@
                                                         >
 
                                                 <Button x:Name="CloseButton"
-                                                    Command="{Binding ClosePlayerCommand}"
+                                                    Command="{Binding PlayerViewManager.ClosePlayerCommand}"
                                                     Background="Transparent"
                                                     UseSystemFocusVisuals="True"
                                                     >
@@ -2238,7 +2240,7 @@
 
                                     <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
                                         <Button x:Name="CO_CloseButton"
-                                                Command="{Binding ClosePlayerCommand}"
+                                                Command="{Binding PlayerViewManager.ClosePlayerCommand}"
                                                 Background="Transparent"
                                                 toolkit:DockPanel.Dock="Left"
                                                 UseSystemFocusVisuals="True"

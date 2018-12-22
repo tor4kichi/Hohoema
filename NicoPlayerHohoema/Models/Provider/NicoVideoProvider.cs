@@ -139,6 +139,8 @@ namespace NicoPlayerHohoema.Models.Provider
                 }
                 */
 
+                await Task.Delay(10);
+
                 return info;
             }
         }

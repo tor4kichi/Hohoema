@@ -1,4 +1,5 @@
 ﻿using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.Services.Page;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -26,13 +27,13 @@ namespace NicoPlayerHohoema.Views.Subscriptions
         {
             if (parameter is Models.Subscription.SubscriptionDestination dest)
             {
-                var mylistPagePayload = new Models.MylistPagePayload(dest.PlaylistId)
+                var mylistPagePayload = new MylistPagePayload(dest.PlaylistId)
                 {
                     Origin = dest.Target == Models.Subscription.SubscriptionDestinationTarget.LocalPlaylist 
                     ? Services.PlaylistOrigin.Local 
                     : Services.PlaylistOrigin.LoginUser
                 };
-                PageManager.OpenPage(Models.HohoemaPageType.Mylist, mylistPagePayload.ToParameterString());
+                PageManager.OpenPage(HohoemaPageType.Mylist, mylistPagePayload.ToParameterString());
             }
         }
     }

@@ -8,7 +8,6 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
-    xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:mytrigger="using:NicoPlayerHohoema.Views.StateTrigger"
     xmlns:myextensions="using:NicoPlayerHohoema.Views.Extensions"
@@ -23,7 +22,6 @@
     xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:uwpAnimation="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
     IsTabStop="False"
-    mvvm:ViewModelLocator.AutoWireViewModel="True"
     xmlns:templateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:myconv="using:NicoPlayerHohoema.Views.Converters"
@@ -780,112 +778,7 @@
 
                     </VisualStateGroup>
                     
-                    <!-- プレイヤーの表示状態 -->
-                    <VisualStateGroup>
-
-                        <VisualState x:Name="HiddenPlayer">
-                            <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding IsShowPlayer.Value, Converter={StaticResource BoolNegation}}" />
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <VisualState x:Name="FillWindowPlayer">
-                            <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding IsShowPlayerInFill.Value}" />
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="PlayerLayoutGrid.Visibility" Value="Visible" />
-
-                                <Setter Target="ContentSplitView.Visibility" Value="Collapsed" />
-
-                                <Setter Target="MenuToggleTrigger.IsEnabled" Value="False" />
-                                <Setter Target="PlayerDisplayIntoSmallWindowTrigger.IsEnabled" Value="True" />
-
-                                <Setter Target="TitleBarTextBlock.Visibility" Value="Collapsed" />
-                                <Setter Target="BackButtonLayout.Visibility" Value="Collapsed" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <VisualState x:Name="DisplayIntoSide">
-                            <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding IsTVModeEnable.Value}" />
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="PlayerLayoutGrid.Visibility" Value="Visible" />
-                                <Setter Target="TogglePlayerFloatButton.Visibility" Value="Visible" />
-
-                                <Setter Target="FloatPlayerLayout.(Grid.Row)" Value="2" />
-                                <Setter Target="FloatPlayerLayout.(Grid.Column)" Value="0" />
-                                <Setter Target="FloatPlayerLayout.(Grid.RowSpan)" Value="1" />
-                                <Setter Target="FloatPlayerLayout.(Grid.ColumnSpan)" Value="1" />
-
-                                <Setter Target="FloatPlayerLayout.Height" Value="{StaticResource DesktopFloatPlayerHeight}" />
-                                <Setter Target="FloatPlayerLayout.Width" Value="{StaticResource SideMenuPaneLength}" />
-
-                                <Setter Target="TVModeFloatPlayerRewindSizeButton.Visibility" Value="Visible" />
-
-                                <Setter Target="FloatPlayerLayout.HorizontalAlignment" Value="Right" />
-                                <Setter Target="FloatPlayerLayout.VerticalAlignment" Value="Bottom" />
-
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <VisualState x:Name="DisplayIntoDesktopMenu">
-                            <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="PlayerLayoutGrid.Visibility" Value="Visible" />
-                                <Setter Target="TogglePlayerFloatButton.Visibility" Value="Visible" />
-
-                                <Setter Target="FloatPlayerLayout.(Grid.Row)" Value="2" />
-                                <Setter Target="FloatPlayerLayout.(Grid.Column)" Value="0" />
-                                <Setter Target="FloatPlayerLayout.(Grid.RowSpan)" Value="1" />
-                                <Setter Target="FloatPlayerLayout.(Grid.ColumnSpan)" Value="1" />
-
-                                <Setter Target="SideMenuFooterBottomMargin.Visibility" Value="Visible" />
-
-                                <Setter Target="FloatPlayerLayout.Height" Value="{StaticResource DesktopFloatPlayerHeight}" />
-                                <Setter Target="FloatPlayerLayout.Width" Value="{StaticResource SideMenuPaneLength}" />
-
-                                <Setter Target="FloatPlayerLayout.HorizontalAlignment" Value="Left" />
-                                <Setter Target="FloatPlayerLayout.VerticalAlignment" Value="Bottom" />
-
-                                
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <VisualState x:Name="DisplayIntoMobileTopSide">
-                            <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="0" />
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="PlayerLayoutGrid.Visibility" Value="Visible" />
-                                <Setter Target="TogglePlayerFloatButton.Visibility" Value="Visible" />
-
-                                <Setter Target="FloatPlayerLayout.(Grid.Row)" Value="0" />
-                                <Setter Target="FloatPlayerLayout.(Grid.Column)" Value="0" />
-                                <Setter Target="FloatPlayerLayout.(Grid.RowSpan)" Value="1" />
-                                <Setter Target="FloatPlayerLayout.(Grid.ColumnSpan)" Value="2" />
-
-                                <Setter Target="MobileHeaderMargin.Visibility" Value="Visible" />
-
-                                <Setter Target="FloatPlayerLayout.Height" Value="{StaticResource MobileFloatPlayerHeight}" />
-                                <Setter Target="FloatPlayerLayout.VerticalAlignment" Value="Top" />
-
-                                <Setter Target="TitleBarTextBlock.Visibility" Value="Collapsed" />
-                                
-                            </VisualState.Setters>
-                        </VisualState>
-
-                    </VisualStateGroup>
+                    
 
 
 
@@ -904,15 +797,19 @@
 
                 </VisualStateManager.VisualStateGroups>
 
+
+
+                <i:Interaction.Behaviors>
+                    <mybehavior:UINavigationTrigger Kind="View" 
+                                                        x:Name="MenuToggleTrigger"
+                                                    >
+                        <core:InvokeCommandAction Command="{Binding TogglePaneOpenCommand}" />
+                    </mybehavior:UINavigationTrigger>
+
+                </i:Interaction.Behaviors>
+                
                 <toolkit:DockPanel>
 
-                    <Border x:Name="MobileHeaderMargin"
-                            Height="{StaticResource MobileFloatPlayerHeight}"
-                            Visibility="Collapsed"
-                            toolkit:DockPanel.Dock="Top"
-                            >
-                        
-                    </Border>
 
 
 
@@ -1001,11 +898,6 @@
                                 <toolkit:DockPanel HorizontalAlignment="Stretch"
                                             toolkit:DockPanel.Dock="Bottom"
                                             >
-                                    <Border x:Name="SideMenuFooterBottomMargin" 
-                                            Height="{StaticResource DesktopFloatPlayerHeight}"
-                                            Visibility="Collapsed"
-                                            toolkit:DockPanel.Dock="Bottom"
-                                            />
 
                                     <Button Command="{Binding PageManager.OpenPageCommand}"
                                             CommandParameter="Settings"
@@ -1376,62 +1268,6 @@
                 </toolkit:DockPanel>
 
                 
-
-                <Grid x:Name="PlayerLayoutGrid"
-                    Visibility="Collapsed"
-                      >
-
-                    <i:Interaction.Behaviors>
-                        <mybehavior:UINavigationTrigger Kind="View" 
-                                                        x:Name="MenuToggleTrigger"
-                                                    >
-                            <core:InvokeCommandAction Command="{Binding TogglePaneOpenCommand}" />
-                        </mybehavior:UINavigationTrigger>
-
-                        <mybehavior:UINavigationTrigger Kind="View" 
-                                                        x:Name="PlayerDisplayIntoSmallWindowTrigger"
-                                                        IsEnabled="False"
-                                                    >
-                            <core:InvokeCommandAction Command="{Binding TogglePlayerFloatDisplayCommand}" />
-                        </mybehavior:UINavigationTrigger>
-                    </i:Interaction.Behaviors>
-
-                    <Grid x:Name="FloatPlayerLayout"
-                          >
-                        <Frame x:Name="PlayerFrame" 
-                           
-                           
-                          
-                                            >
-                            <Frame.ContentTransitions>
-                                <TransitionCollection>
-                                    <NavigationThemeTransition>
-                                        <NavigationThemeTransition.DefaultNavigationTransitionInfo>
-                                            <DrillInNavigationTransitionInfo />
-                                        </NavigationThemeTransition.DefaultNavigationTransitionInfo>
-                                    </NavigationThemeTransition>
-                                </TransitionCollection>
-                            </Frame.ContentTransitions>
-                        </Frame>
-                        <Button x:Name="TogglePlayerFloatButton"
-                            Background="Transparent"
-                            Command="{Binding TogglePlayerFloatDisplayCommand}"
-                            Visibility="Collapsed"
-                            HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"
-                            >
-                            <Button.ContextFlyout>
-                                <MenuFlyout>
-                                    <MenuFlyoutItem Text="閉じる" Command="{Binding ClosePlayerCommand}"/>
-                                </MenuFlyout>
-                            </Button.ContextFlyout>
-                        </Button>
-                    </Grid>
-
-                    
-                </Grid>
-
-                
                 <Grid Visibility="{Binding NowWorking, Converter={StaticResource BooleanToVisibility}}">
 
                     <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Opacity="0.8" />
@@ -1499,8 +1335,8 @@
                         </TextBlock>
                     </Border>
 
-                        
-                    
+
+
                 </toolkit:DockPanel>
 
 

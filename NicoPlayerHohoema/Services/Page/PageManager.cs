@@ -4,6 +4,7 @@ using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Helpers;
 using NicoPlayerHohoema.Services.Page;
 using Prism.Commands;
+using Prism.Events;
 using Prism.Mvvm;
 using Prism.Windows.Navigation;
 using System;
@@ -13,34 +14,130 @@ using System.Linq;
 using System.Reactive.Concurrency;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.ApplicationModel.Core;
 using Windows.Foundation;
 using Windows.UI.Core;
+using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.Services
 {
+    public struct PageNavigationEventArgs
+    {
+        public HohoemaPageType PageType { get; set; }
+        public object Paramter { get; set; }
+        public bool IsMainViewTarget { get; set; }
+        public bool IsForgetNavigation { get; set; }
+    }
+
+    public class PageNavigationEvenet : PubSubEvent<PageNavigationEventArgs> { }
+
+
     public class PageManager : BindableBase
     {
         public PageManager(
             INavigationService ns,
             IScheduler scheduler,
+            IEventAggregator eventAggregator,
             AppearanceSettings appearanceSettings, 
             CacheSettings cacheSettings,
             HohoemaPlaylist playlist, 
-            HohoemaViewManager viewMan, 
+            PlayerViewManager playerViewManager, 
             DialogService dialogService
             )
         {
             NavigationService = ns;
             Scheduler = scheduler;
+            EventAggregator = eventAggregator;
             AppearanceSettings = appearanceSettings;
             CacheSettings = cacheSettings;
             HohoemaPlaylist = playlist;
-            HohoemaViewManager = viewMan;
+            PlayerViewManager = playerViewManager;
             HohoemaDialogService = dialogService;
             CurrentPageType = HohoemaPageType.RankingCategoryList;
+
+
+            EventAggregator.GetEvent<PageNavigationEvenet>()
+                .Subscribe(args => 
+                {
+                    var isMainView = ApplicationView.GetForCurrentView().Id == MainViewId;
+                    if (args.IsMainViewTarget && isMainView)
+                    {
+                        Navigation(args);
+                    }
+                    
+                    if (!args.IsMainViewTarget && !isMainView)
+                    {
+                        Navigation(args);
+                    }
+                }
+                , ThreadOption.UIThread);
         }
 
+        void Navigation(PageNavigationEventArgs args)
+        {
+            var pageType = args.PageType;
+            var parameter = args.Paramter;
+            var isForgetNavigation = args.IsForgetNavigation;
+
+            Scheduler.Schedule(async () =>
+            {
+                using (var releaser = await _NavigationLock.LockAsync())
+                {
+                    // メインウィンドウでウィンドウ全体で再生している場合は
+                    // 強制的に小窓モードに切り替えてページを表示する
+                    if (!PlayerViewManager.IsPlayerSmallWindowModeEnabled
+                       && PlayerViewManager.IsPlayingWithPrimaryView)
+                    {
+                        PlayerViewManager.IsPlayerSmallWindowModeEnabled = true;
+                    }
+
+                    PageNavigating = true;
+
+                    try
+                    {
+                        if (CurrentPageType == pageType && PageNavigationParameter == parameter)
+                        {
+                            return;
+                        }
+
+                        await Task.Delay(30);
+
+                        var oldPageTitle = PageTitle;
+                        PageTitle = "";
+                        var oldPageType = CurrentPageType;
+                        CurrentPageType = pageType;
+                        var oldPageParameter = PageNavigationParameter;
+                        PageNavigationParameter = parameter;
+
+                        await Task.Delay(30);
+
+                        if (!NavigationService.Navigate(pageType.ToString(), parameter))
+                        {
+                            CurrentPageType = oldPageType;
+                            PageTitle = oldPageTitle;
+                            PageNavigationParameter = oldPageParameter;
+                        }
+                        else
+                        {
+                            if (isForgetNavigation || IsIgnoreRecordPageType(oldPageType))
+                            {
+                                ForgetLastPage();
+                            }
+                        }
+
+                    }
+                    finally
+                    {
+                        PageNavigating = false;
+                    }
+
+                    _ = PlayerViewManager.ShowMainView();
+                }
+            });
+        }
+
+        public static int MainViewId = ApplicationView.GetApplicationViewIdForWindow(CoreApplication.MainView.CoreWindow);
 
         public static readonly HashSet<HohoemaPageType> IgnoreRecordNavigationStack = new HashSet<HohoemaPageType>
 		{
@@ -95,9 +192,9 @@ namespace NicoPlayerHohoema.Services
         public HohoemaPlaylist HohoemaPlaylist { get; private set; }
         public AppearanceSettings AppearanceSettings { get; }
         public CacheSettings CacheSettings { get; }
-        public HohoemaViewManager HohoemaViewManager { get; }
+        public PlayerViewManager PlayerViewManager { get; }
         public IScheduler Scheduler { get; }
-
+        public IEventAggregator EventAggregator { get; }
         public DialogService HohoemaDialogService { get; }
 
 
@@ -112,7 +209,7 @@ namespace NicoPlayerHohoema.Services
                 {
                     case string s:
                         {
-                            if (Enum.TryParse<Models.HohoemaPageType>(s, out var pageType))
+                            if (Enum.TryParse<HohoemaPageType>(s, out var pageType))
                             {
                                 OpenPage(pageType);
                             }
@@ -127,22 +224,22 @@ namespace NicoPlayerHohoema.Services
                         OpenPage(pin.PageType, pin.Parameter);
                         break;
                     case Interfaces.IVideoContent videoContent:
-                        OpenPage(Models.HohoemaPageType.VideoInfomation, videoContent.Id);
+                        OpenPage(HohoemaPageType.VideoInfomation, videoContent.Id);
                         break;
                     case Interfaces.ILiveContent liveContent:
-                        OpenPage(Models.HohoemaPageType.LiveInfomation, liveContent.Id);
+                        OpenPage(HohoemaPageType.LiveInfomation, liveContent.Id);
                         break;
                     case Interfaces.ICommunity communityContent:
-                        OpenPage(Models.HohoemaPageType.Community, communityContent.Id);
+                        OpenPage(HohoemaPageType.Community, communityContent.Id);
                         break;
                     case Interfaces.IMylist mylistContent:
-                        OpenPage(Models.HohoemaPageType.Mylist, new Models.MylistPagePayload(mylistContent.Id) { Origin = mylistContent.ToMylistOrigin() }.ToParameterString());
+                        OpenPage(HohoemaPageType.Mylist, new MylistPagePayload(mylistContent.Id) { Origin = mylistContent.ToMylistOrigin() }.ToParameterString());
                         break;
                     case Interfaces.IMylistItem mylistItemContent:
-                        OpenPage(Models.HohoemaPageType.Mylist, new Models.MylistPagePayload(mylistItemContent.Id).ToParameterString());
+                        OpenPage(HohoemaPageType.Mylist, new MylistPagePayload(mylistItemContent.Id).ToParameterString());
                         break;
                     case Interfaces.IUser user:
-                        OpenPage(Models.HohoemaPageType.UserInfo, user.Id);
+                        OpenPage(HohoemaPageType.UserInfo, user.Id);
                         break;
                     case Interfaces.ISearchWithtag tag:
                         this.Search(SearchPagePayloadContentHelper.CreateDefault(SearchTarget.Tag, tag.Tag));
@@ -168,7 +265,7 @@ namespace NicoPlayerHohoema.Services
                 {
                     case string s:
                         {
-                            if (Enum.TryParse<Models.HohoemaPageType>(s, out var pageType))
+                            if (Enum.TryParse<HohoemaPageType>(s, out var pageType))
                             {
                                 OpenPage(pageType);
                             }
@@ -179,27 +276,27 @@ namespace NicoPlayerHohoema.Services
                     case Interfaces.IVideoContent videoContent:
                         if (videoContent.ProviderType == Mntone.Nico2.Videos.Thumbnail.UserType.User)
                         {
-                            OpenPage(Models.HohoemaPageType.UserVideo, videoContent.ProviderId);
+                            OpenPage(HohoemaPageType.UserVideo, videoContent.ProviderId);
                         }
                         else if (videoContent.ProviderType == Mntone.Nico2.Videos.Thumbnail.UserType.Channel)
                         {
-                            OpenPage(Models.HohoemaPageType.ChannelVideo, videoContent.ProviderId);
+                            OpenPage(HohoemaPageType.ChannelVideo, videoContent.ProviderId);
                         }
                         break;
                     case Interfaces.ILiveContent liveContent:
-                        OpenPage(Models.HohoemaPageType.LiveInfomation, liveContent.Id);
+                        OpenPage(HohoemaPageType.LiveInfomation, liveContent.Id);
                         break;
                     case Interfaces.ICommunity communityContent:
-                        OpenPage(Models.HohoemaPageType.CommunityVideo, communityContent.Id);
+                        OpenPage(HohoemaPageType.CommunityVideo, communityContent.Id);
                         break;
                     case Interfaces.IMylist mylistContent:
-                        OpenPage(Models.HohoemaPageType.Mylist, new Models.MylistPagePayload(mylistContent.Id) { Origin = mylistContent.ToMylistOrigin() }.ToParameterString());
+                        OpenPage(HohoemaPageType.Mylist, new MylistPagePayload(mylistContent.Id) { Origin = mylistContent.ToMylistOrigin() }.ToParameterString());
                         break;
                     case Interfaces.IMylistItem mylistItemContent:
-                        OpenPage(Models.HohoemaPageType.Mylist, new Models.MylistPagePayload(mylistItemContent.Id).ToParameterString());
+                        OpenPage(HohoemaPageType.Mylist, new MylistPagePayload(mylistItemContent.Id).ToParameterString());
                         break;
                     case Interfaces.IUser user:
-                        OpenPage(Models.HohoemaPageType.UserInfo, user.Id);
+                        OpenPage(HohoemaPageType.UserInfo, user.Id);
                         break;
                     case Interfaces.ISearchWithtag tag:
                         this.Search(SearchPagePayloadContentHelper.CreateDefault(SearchTarget.Tag, tag.Tag));
@@ -224,26 +321,26 @@ namespace NicoPlayerHohoema.Services
                     case Interfaces.IVideoContent videoContent:
                         if (videoContent.ProviderType == Mntone.Nico2.Videos.Thumbnail.UserType.User)
                         {
-                            OpenPage(Models.HohoemaPageType.UserInfo, videoContent.ProviderId);
+                            OpenPage(HohoemaPageType.UserInfo, videoContent.ProviderId);
                         }
                         else if (videoContent.ProviderType == Mntone.Nico2.Videos.Thumbnail.UserType.Channel)
                         {
-                            OpenPage(Models.HohoemaPageType.ChannelVideo, videoContent.ProviderId);
+                            OpenPage(HohoemaPageType.ChannelVideo, videoContent.ProviderId);
                         }
                         
                         break;
                     case Interfaces.ILiveContent liveContent:                        
                         if (liveContent.ProviderType == Mntone.Nico2.Live.CommunityType.Community)
                         {
-                            OpenPage(Models.HohoemaPageType.Community, liveContent.ProviderId);
+                            OpenPage(HohoemaPageType.Community, liveContent.ProviderId);
                         }
                         break;
                     case Interfaces.IMylist mylistContent:
-                        OpenPage(Models.HohoemaPageType.UserInfo, mylistContent);
+                        OpenPage(HohoemaPageType.UserInfo, mylistContent);
 
                         break;
                     case Interfaces.IMylistItem mylistItemContent:
-                        OpenPage(Models.HohoemaPageType.Mylist, new Models.MylistPagePayload(mylistItemContent.Id).ToParameterString());
+                        OpenPage(HohoemaPageType.Mylist, new MylistPagePayload(mylistItemContent.Id).ToParameterString());
                         break;
                 }
             }));
@@ -315,61 +412,14 @@ namespace NicoPlayerHohoema.Services
 
 		public void OpenPage(HohoemaPageType pageType, object parameter = null, bool isForgetNavigation = false)
 		{
-            Scheduler.Schedule(async () =>
-            {
-                using (var releaser = await _NavigationLock.LockAsync())
+            EventAggregator.GetEvent<PageNavigationEvenet>()
+                .Publish(new PageNavigationEventArgs()
                 {
-                    // メインウィンドウでウィンドウ全体で再生している場合は
-                    // 強制的に小窓モードに切り替えてページを表示する
-                    if (HohoemaPlaylist.IsDisplayMainViewPlayer 
-                    && HohoemaPlaylist.PlayerDisplayType == PlayerDisplayType.PrimaryView)
-                    {
-                        HohoemaPlaylist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
-                    }
-
-                    PageNavigating = true;
-
-                    try
-                    {
-                        if (CurrentPageType == pageType && PageNavigationParameter == parameter)
-                        {
-                            return;
-                        }
-
-                        await Task.Delay(30);
-
-                        var oldPageTitle = PageTitle;
-                        PageTitle = "";
-                        var oldPageType = CurrentPageType;
-                        CurrentPageType = pageType;
-                        var oldPageParameter = PageNavigationParameter;
-                        PageNavigationParameter = parameter;
-
-                        await Task.Delay(30);
-
-                        if (!NavigationService.Navigate(pageType.ToString(), parameter))
-                        {
-                            CurrentPageType = oldPageType;
-                            PageTitle = oldPageTitle;
-                            PageNavigationParameter = oldPageParameter;
-                        }
-                        else
-                        {
-                            if (isForgetNavigation || IsIgnoreRecordPageType(oldPageType))
-                            {
-                                ForgetLastPage();
-                            }
-                        }
-
-                    }
-                    finally
-                    {
-                        PageNavigating = false;
-                    }
-
-                    _ = HohoemaViewManager.ShowMainView();
-                }
-            });
+                    PageType = pageType,
+                    Paramter = parameter,
+                    IsForgetNavigation = isForgetNavigation,
+                    IsMainViewTarget = true,
+                });
         }
 
 

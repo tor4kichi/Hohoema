@@ -70,10 +70,11 @@ namespace NicoPlayerHohoema.ViewModels
             UserProvider userProvider,
             CommunityProvider communityProvider,
             Services.HohoemaPlaylist hohoemaPlaylist,
-            HohoemaViewManager viewManager,
+            PlayerViewManager playerViewManager,
             Services.DialogService dialogService,
             PageManager pageManager,
-            NotificationService notificationService
+            NotificationService notificationService,
+            ExternalAccessService externalAccessService
             )
             : base(pageManager)
         {
@@ -88,12 +89,12 @@ namespace NicoPlayerHohoema.ViewModels
             UserProvider = userProvider;
             CommunityProvider = communityProvider;
             HohoemaPlaylist = hohoemaPlaylist;
-            HohoemaViewManager = viewManager;
+            PlayerViewManager = playerViewManager;
 
             _HohoemaDialogService = dialogService;
             _NotificationService = notificationService;
-
-            MediaPlayer = HohoemaViewManager.GetCurrentWindowMediaPlayer();
+            ExternalAccessService = externalAccessService;
+            MediaPlayer = PlayerViewManager.GetCurrentWindowMediaPlayer();
 
             LiveComments = new ReadOnlyObservableCollection<Views.Comment>(_LiveComments);
             FilterdComments.Source = LiveComments;
@@ -297,8 +298,8 @@ namespace NicoPlayerHohoema.ViewModels
             .AddTo(_CompositeDisposable);
 
 
-            IsSmallWindowModeEnable = HohoemaPlaylist
-                .ObserveProperty(x => x.IsPlayerFloatingModeEnable)
+            IsSmallWindowModeEnable = PlayerViewManager
+                .ObserveProperty(x => x.IsPlayerSmallWindowModeEnabled)
                 .ToReadOnlyReactiveProperty(eventScheduler: PlayerWindowUIDispatcherScheduler)
                 .AddTo(_CompositeDisposable);
 
@@ -307,7 +308,7 @@ namespace NicoPlayerHohoema.ViewModels
             HasSuggestion = Suggestion.Select(x => x != null)
                 .ToReactiveProperty(PlayerWindowUIDispatcherScheduler);
 
-            IsDisplayControlUI = HohoemaPlaylist.ToReactivePropertyAsSynchronized(x => x.IsDisplayPlayerControlUI, PlayerWindowUIDispatcherScheduler);
+            IsDisplayControlUI = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, true);
 
             if (Services.Helpers.InputCapabilityHelper.IsMouseCapable && !AppearanceSettings.IsForceTVModeEnable)
             {
@@ -509,9 +510,10 @@ namespace NicoPlayerHohoema.ViewModels
         public CommunityProvider CommunityProvider { get; }
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public DialogService _HohoemaDialogService { get; }
+        public ExternalAccessService ExternalAccessService { get; }
 
         private NotificationService _NotificationService;
-        public HohoemaViewManager HohoemaViewManager { get; }
+        public PlayerViewManager PlayerViewManager { get; }
 
 
         public MediaPlayer MediaPlayer { get; private set; }
@@ -565,9 +567,6 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<LiveOperationCommand> BroadcasterLiveOperationCommand { get; }
         public ReactiveProperty<LiveOperationCommand> OperaterLiveOperationCommand { get; }
         public ReactiveProperty<LiveOperationCommand> PressLiveOperationCommand { get; }
-
-
-        public bool IsDisplayInSecondaryView => HohoemaPlaylist.PlayerDisplayType == PlayerDisplayType.SecondaryView;
 
         private TimeSpan _LiveElapsedTime;
 		public TimeSpan LiveElapsedTime
@@ -685,7 +684,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ClosePlayerCommand
                     ?? (_ClosePlayerCommand = new DelegateCommand(() =>
                     {
-                        HohoemaPlaylist.IsDisplayMainViewPlayer = false;
+                        PlayerViewManager.ClosePlayer();
                     }
                     ));
             }
@@ -795,7 +794,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayerSmallWindowDisplayCommand
                     ?? (_PlayerSmallWindowDisplayCommand = new DelegateCommand(() =>
                     {
-                        HohoemaPlaylist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
+                        PlayerViewManager.IsPlayerSmallWindowModeEnabled = true;
                     }
                     ));
             }
@@ -809,7 +808,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayerDisplayWithMainViewCommand
                     ?? (_PlayerDisplayWithMainViewCommand = new DelegateCommand(() =>
                     {
-                        HohoemaPlaylist.PlayerDisplayType = PlayerDisplayType.PrimaryView;
+                        _ = PlayerViewManager.ChangePlayerViewModeAsync(PlayerViewMode.PrimaryView);
                     }
                     ));
             }
@@ -823,7 +822,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayerDisplayWithSecondaryViewCommand
                     ?? (_PlayerDisplayWithSecondaryViewCommand = new DelegateCommand(() =>
                     {
-                        HohoemaPlaylist.PlayerDisplayType = PlayerDisplayType.SecondaryView;
+                        _ = PlayerViewManager.ChangePlayerViewModeAsync(PlayerViewMode.SecondaryView);
                     }
                     ));
             }
@@ -882,7 +881,6 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenBroadcastCommunityCommand
                     ?? (_OpenBroadcastCommunityCommand = new DelegateCommand(() =>
                     {
-                        HohoemaPlaylist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
                         PageManager.OpenPage(HohoemaPageType.Community, CommunityId);
                     }
                     ));

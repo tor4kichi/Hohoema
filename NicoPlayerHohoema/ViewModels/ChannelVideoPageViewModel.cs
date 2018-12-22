@@ -143,23 +143,7 @@ namespace NicoPlayerHohoema.ViewModels
     {
         public bool IsRequirePayment { get; internal set; }
 
-        public ChannelVideoListItemViewModel(
-            Services.HohoemaPlaylist hohoemaPlaylist,
-            Services.ExternalAccessService externalAccessService,
-            Services.PageManager pageManager,
-            UserMylistManager userMylistManager,
-            Models.LocalMylist.LocalMylistManager localMylistManager,
-            Models.Subscription.SubscriptionManager subscriptionManager,
-            Models.Cache.VideoCacheManager videoCacheManager,
-            NicoVideoProvider nicoVideoProvider,
-            NGSettings ngSettings,
-            Commands.Mylist.CreateMylistCommand createMylistCommand,
-            Commands.Mylist.CreateLocalMylistCommand createLocalMylistCommand,
-            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand,
-            Commands.AddToHiddenUserCommand addToHiddenUserCommand
-            )
-            : base(hohoemaPlaylist, externalAccessService, pageManager, userMylistManager, localMylistManager, subscriptionManager,
-                  videoCacheManager, nicoVideoProvider, ngSettings, createMylistCommand, createLocalMylistCommand, createSubscriptionGroupCommand, addToHiddenUserCommand)
+        public ChannelVideoListItemViewModel()
         {
 
         }

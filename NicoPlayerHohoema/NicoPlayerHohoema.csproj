@@ -134,6 +134,8 @@
     </Compile>
     <Compile Include="Commands\AddMylistCommand.cs" />
     <Compile Include="Commands\AddToHiddenUserCommand.cs" />
+    <Compile Include="Commands\Cache\AddCacheRequestCommand.cs" />
+    <Compile Include="Commands\Cache\DeleteCacheRequestCommand.cs" />
     <Compile Include="Commands\GoNextIntroductionPageCommand.cs" />
     <Compile Include="Commands\LoginToNiconicoCommand.cs" />
     <Compile Include="Commands\LogoutFromNiconicoCommand.cs" />
@@ -255,7 +257,7 @@
     <Compile Include="Models\HohoemaAppServiceLevel.cs" />
     <Compile Include="Services\Page\HohoemaPageType.cs" />
     <Compile Include="Services\HohoemaPlaylist.cs" />
-    <Compile Include="Services\HohoemaViewManager.cs" />
+    <Compile Include="Services\PlayerViewManager.cs" />
     <Compile Include="Interfaces\IHohoemaListItem.cs" />
     <Compile Include="Models\Niconico\Video\Comment\CommentClient.cs" />
     <Compile Include="Models\Niconico\Video\Comment\CommentServerInfo.cs" />
@@ -346,7 +348,7 @@
     <Compile Include="Models\Subscription\SubscriptionUpdateStatus.cs" />
     <Compile Include="Services\WatchItLater.cs" />
     <Compile Include="Services\ClipboardHelper.cs" />
-    <Compile Include="Services\HohoemaDialogService.cs" />
+    <Compile Include="Services\DialogService.cs" />
     <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
     <Compile Include="ViewModels\ChannelVideoPageViewModel.cs" />
     <Compile Include="ViewModels\CommentCommandEditerViewModel.cs" />
@@ -665,7 +667,7 @@
     <Compile Include="Views\Pages\WatchHistoryPage.xaml.cs">
       <DependentUpon>WatchHistoryPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Pages\MenuNavigatePageBase.xaml.cs">
+    <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
       <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Dialogs\_ContentSelectDialog\ContentSelectDialog.xaml.cs">
@@ -1052,7 +1054,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Pages\MenuNavigatePageBase.xaml">
+    <Page Include="Views\MenuNavigatePageBase.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

@@ -23,6 +23,7 @@ using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Models.LocalMylist;
 using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Interfaces;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {

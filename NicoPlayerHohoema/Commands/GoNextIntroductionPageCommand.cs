@@ -28,16 +28,16 @@ namespace NicoPlayerHohoema.Commands
 
             switch (PageManager.CurrentPageType)
             {
-                case Models.HohoemaPageType.PrologueIntroduction:
-                    PageManager.OpenPage(Models.HohoemaPageType.NicoAccountIntroduction);
+                case HohoemaPageType.PrologueIntroduction:
+                    PageManager.OpenPage(HohoemaPageType.NicoAccountIntroduction);
                     break;
-                case Models.HohoemaPageType.NicoAccountIntroduction:
-                    PageManager.OpenPage(Models.HohoemaPageType.VideoCacheIntroduction);
+                case HohoemaPageType.NicoAccountIntroduction:
+                    PageManager.OpenPage(HohoemaPageType.VideoCacheIntroduction);
                     break;
-                case Models.HohoemaPageType.VideoCacheIntroduction:
-                    PageManager.OpenPage(Models.HohoemaPageType.EpilogueIntroduction);
+                case HohoemaPageType.VideoCacheIntroduction:
+                    PageManager.OpenPage(HohoemaPageType.EpilogueIntroduction);
                     break;
-                case Models.HohoemaPageType.EpilogueIntroduction:
+                case HohoemaPageType.EpilogueIntroduction:
                 default:
                     // 初回起動の案内が完了したことを記録
                     localStorge.Save(App.IS_COMPLETE_INTRODUCTION, true);

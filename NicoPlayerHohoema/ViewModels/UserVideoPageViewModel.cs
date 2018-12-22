@@ -13,6 +13,7 @@ using System.Collections.Async;
 using NicoPlayerHohoema.Models.Cache;
 using NicoPlayerHohoema.Models.Provider;
 using Microsoft.Practices.Unity;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {

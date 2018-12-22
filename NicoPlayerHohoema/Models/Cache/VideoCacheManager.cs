@@ -306,7 +306,7 @@ namespace NicoPlayerHohoema.Models.Cache
         public DelegateCommand<Interfaces.IVideoContent> AddCacheRequestCommand => _AddCacheRequestCommand
             ?? (_AddCacheRequestCommand = new DelegateCommand<Interfaces.IVideoContent>(video => 
             {
-
+                _ = RequestCache(video.Id);
             }));
 
 
@@ -314,7 +314,7 @@ namespace NicoPlayerHohoema.Models.Cache
         public DelegateCommand<Interfaces.IVideoContent> DeleteCacheRequestCommand => _DeleteCacheRequestCommand
             ?? (_DeleteCacheRequestCommand = new DelegateCommand<Interfaces.IVideoContent>(video =>
             {
-
+                _ = DeleteCachedVideo(video.Id);
             }
             , video => video != null && this.CheckCached(video.Id)
             ));
@@ -463,6 +463,8 @@ namespace NicoPlayerHohoema.Models.Cache
 
             Scheduler.ScheduleAsync(async (shceduler, cancelToken) =>
             {
+                await Task.Delay(3000);
+
                 using (var releaser = await _CacheRequestProcessingLock.LockAsync())
                 {
                     // ダウンロード中のアイテムをリストア
@@ -551,11 +553,7 @@ namespace NicoPlayerHohoema.Models.Cache
                         return y;
                     });
 
-                    VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
-                    {
-                        Request = info,
-                        CacheState = NicoVideoCacheState.Cached
-                    });
+                    TriggerCacheStateChangedEventOnUIThread(info, NicoVideoCacheState.Cached);
 
                     Debug.Write(".");
                 }
@@ -615,7 +613,7 @@ namespace NicoPlayerHohoema.Models.Cache
                     var _info = VideoCacheManager.CacheRequestInfoFromFileName(task.ResultFile);
 
                     var nicoVideo = new NicoVideo(NicoVideoProvider, NiconicoSession, this);
-                    nicoVideo.RawVideoId = info.RawVideoId;
+                    nicoVideo.RawVideoId = _info.RawVideoId;
 
                     var session = await nicoVideo.CreateVideoStreamingSession(_info.Quality, forceDownload: true);
                     if (session?.Quality == _info.Quality)
@@ -743,12 +741,7 @@ namespace NicoPlayerHohoema.Models.Cache
                     var _ = task.ContinueWith(OnDownloadCompleted);
 
 
-                    
-                    VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
-                    {
-                        CacheState = NicoVideoCacheState.Downloading,
-                        Request = progress
-                    });
+                    TriggerCacheStateChangedEventOnUIThread(progress, NicoVideoCacheState.Downloading);
 
                     Debug.WriteLine($"キャッシュ開始: {nextDownloadItem.RawVideoId} {nextDownloadItem.Quality}");
 
@@ -919,11 +912,9 @@ namespace NicoPlayerHohoema.Models.Cache
                         }
 
                         RequestCanceled?.Invoke(this, removeCached);
-                        VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
-                        {
-                            CacheState = NicoVideoCacheState.NotCacheRequested,
-                            Request = removeCached
-                        });
+
+
+                        TriggerCacheStateChangedEventOnUIThread(removeCached, NicoVideoCacheState.NotCacheRequested);
 
 
                         return result;
@@ -950,11 +941,8 @@ namespace NicoPlayerHohoema.Models.Cache
                     }
 
                     RequestCanceled?.Invoke(this, target);
-                    VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
-                    {
-                        CacheState = NicoVideoCacheState.NotCacheRequested,
-                        Request = target
-                    });
+
+                    TriggerCacheStateChangedEventOnUIThread(target, NicoVideoCacheState.NotCacheRequested);
 
                     if (result)
                     {
@@ -1064,11 +1052,7 @@ namespace NicoPlayerHohoema.Models.Cache
                     _CacheDownloadPendingVideos.Add(req);
 
                     Requested?.Invoke(this, req);
-                    VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
-                    {
-                        CacheState = NicoVideoCacheState.Pending,
-                        Request = req
-                    });
+                    TriggerCacheStateChangedEventOnUIThread(req, NicoVideoCacheState.Pending);
                 }
             }
 
@@ -1148,11 +1132,7 @@ namespace NicoPlayerHohoema.Models.Cache
             if (removed)
             {
                 RequestCanceled?.Invoke(this, item);
-                VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
-                {
-                    CacheState = NicoVideoCacheState.NotCacheRequested,
-                    Request = item
-                });
+                TriggerCacheStateChangedEventOnUIThread(item, NicoVideoCacheState.NotCacheRequested);
 
                 return true;
             }
@@ -1375,17 +1355,16 @@ namespace NicoPlayerHohoema.Models.Cache
                 Debug.WriteLine("キャッシュ失敗");
 
 
-                VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
-                {
-                    Request = new NicoVideoCacheRequest()
+                TriggerCacheStateChangedEventOnUIThread(
+                    new NicoVideoCacheRequest()
                     {
                         RawVideoId = progress.RawVideoId,
                         RequestAt = progress.RequestAt,
                         Quality = progress.Quality,
                         IsRequireForceUpdate = progress.IsRequireForceUpdate
                     },
-                    CacheState = NicoVideoCacheState.Pending
-                });
+                    NicoVideoCacheState.Pending
+                );
 
                 return;
             }
@@ -1424,46 +1403,41 @@ namespace NicoPlayerHohoema.Models.Cache
                             return y;
                         });
 
-                        VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
-                        {
-                            Request = progress,
-                            CacheState = NicoVideoCacheState.Cached
-                        });
+                        TriggerCacheStateChangedEventOnUIThread(progress, NicoVideoCacheState.Cached);
 
                         
                     }
                     else
                     {
                         Debug.WriteLine("キャッシュキャンセル: " + op.ResultFile.Name);
-                        
-                        VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
-                        {
-                            Request = new NicoVideoCacheRequest()
+
+                        TriggerCacheStateChangedEventOnUIThread(
+                            new NicoVideoCacheRequest()
                             {
                                 RawVideoId = progress.RawVideoId,
                                 RequestAt = progress.RequestAt,
                                 Quality = progress.Quality,
                                 IsRequireForceUpdate = progress.IsRequireForceUpdate
                             },
-                            CacheState = NicoVideoCacheState.Pending
-                        });
+                            NicoVideoCacheState.Pending
+                        );
                         
                     }
                 }
                 else
                 {
                     Debug.WriteLine($"キャッシュ失敗: {op.ResultFile.Name} （再ダウンロードします）");
-                    VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
-                    {
-                        Request = new NicoVideoCacheRequest()
+
+                    TriggerCacheStateChangedEventOnUIThread(
+                        new NicoVideoCacheRequest()
                         {
                             RawVideoId = progress.RawVideoId,
                             RequestAt = progress.RequestAt,
                             Quality = progress.Quality,
                             IsRequireForceUpdate = progress.IsRequireForceUpdate
                         },
-                        CacheState = NicoVideoCacheState.Pending
-                    });
+                        NicoVideoCacheState.Pending
+                    );
                 }
             }
         }
@@ -1499,11 +1473,7 @@ namespace NicoPlayerHohoema.Models.Cache
 
             await RemoveDownloadOperation(progress);
 
-            VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
-            {
-                Request = progress,
-                CacheState = NicoVideoCacheState.NotCacheRequested
-            });
+            TriggerCacheStateChangedEventOnUIThread(progress, NicoVideoCacheState.NotCacheRequested);
 
             return progress;
             
@@ -1604,6 +1574,21 @@ namespace NicoPlayerHohoema.Models.Cache
             {
                 return false;
             }
+        }
+
+
+
+
+        private void TriggerCacheStateChangedEventOnUIThread(NicoVideoCacheRequest req, NicoVideoCacheState cacheState)
+        {
+            Scheduler.Schedule(() => 
+            {
+                VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
+                {
+                    Request = req,
+                    CacheState = cacheState
+                });
+            });
         }
     }
 

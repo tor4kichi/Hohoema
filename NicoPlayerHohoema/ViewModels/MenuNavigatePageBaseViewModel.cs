@@ -40,7 +40,6 @@ namespace NicoPlayerHohoema.ViewModels
             LocalMylistManager localMylistManager,
             UserMylistManager userMylistManager,
             VideoCacheManager videoCacheManager, 
-            Services.HohoemaPlaylist hohoemaPlaylist,
             NicoLiveSubscriber nicoLiveSubscriber,
             PageManager pageManager,
             Commands.LoginToNiconicoCommand loginToNiconicoCommand,
@@ -58,15 +57,14 @@ namespace NicoPlayerHohoema.ViewModels
             LocalMylistManager = localMylistManager;
             UserMylistManager = userMylistManager;
             VideoCacheManager = videoCacheManager;
-            HohoemaPlaylist = hohoemaPlaylist;
             NicoLiveSubscriber = nicoLiveSubscriber;
 
             NiconicoSession.LogIn += (sender, e) => ResetMenuItems();
             NiconicoSession.LogOut += (sender, e) => ResetMenuItems();
 
             CurrentMenuType = new ReactiveProperty<ViewModelBase>();
-            VideoMenu = new VideoMenuSubPageContent(NiconicoSession, LocalMylistManager, UserMylistManager, PageManager);
-            LiveMenu = new LiveMenuSubPageContent(NiconicoSession, NicoLiveSubscriber, hohoemaPlaylist, PageManager);
+            VideoMenu = App.Current.Container.Resolve<VideoMenuSubPageContent>();
+            LiveMenu = App.Current.Container.Resolve<LiveMenuSubPageContent>();
 
             // Back Navigation
             CanGoBackNavigation = new ReactivePropertySlim<bool>();
@@ -248,54 +246,6 @@ namespace NicoPlayerHohoema.ViewModels
             IsShowInAppNotification = new ReactiveProperty<bool>(true);
 
 
-
-            IsShowPlayerInFill = HohoemaPlaylist
-                .ObserveProperty(x => x.IsPlayerFloatingModeEnable)
-                .Select(x => !x)
-                .ToReadOnlyReactiveProperty();
-
-            IsShowPlayerInFill_DelayedRead = IsShowPlayerInFill
-                .Delay(TimeSpan.FromMilliseconds(300))
-                .ToReadOnlyReactiveProperty();
-
-
-            IsShowPlayer = HohoemaPlaylist.ObserveProperty(x => x.IsDisplayMainViewPlayer)
-                .ToReactiveProperty(mode: ReactivePropertyMode.DistinctUntilChanged);
-
-            IsContentDisplayFloating = Observable.CombineLatest(
-                IsShowPlayerInFill.Select(x => !x),
-                IsShowPlayer
-                )
-                .Select(x => x.All(y => y))
-                .ToReactiveProperty();
-
-
-            HohoemaPlaylist.OpenPlaylistItem += HohoemaPlaylist_OpenPlaylistItem;
-
-            IsShowPlayer
-                .Where(x => !x)
-                .Subscribe(x =>
-                {
-                    ClosePlayer();
-                });
-
-            if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
-            {
-                Observable.Merge(
-                    IsShowPlayer.Where(x => !x),
-                    IsContentDisplayFloating.Where(x => x)
-                    )
-                    .Subscribe(async x =>
-                    {
-                        var view = ApplicationView.GetForCurrentView();
-                        if (view.IsViewModeSupported(ApplicationViewMode.CompactOverlay))
-                        {
-                            var result = await view.TryEnterViewModeAsync(ApplicationViewMode.Default);
-                        }
-                    });
-            }
-
-
             // 検索履歴アイテムを初期化
             ResetSearchHistoryItems();
         }
@@ -311,6 +261,7 @@ namespace NicoPlayerHohoema.ViewModels
         public Models.LocalMylist.LocalMylistManager LocalMylistManager { get; }
         public UserMylistManager UserMylistManager { get; }
         public VideoCacheManager VideoCacheManager { get; }
+        public PlayerViewManager PlayerViewManager { get; }
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public Services.NicoLiveSubscriber NicoLiveSubscriber { get; private set; }
 
@@ -335,34 +286,11 @@ namespace NicoPlayerHohoema.ViewModels
         
         
 
-
-
-
-        public ReactiveProperty<bool> IsShowPlayer { get; private set; }
-        public ReadOnlyReactiveProperty<bool> IsShowPlayerInFill { get; private set; }
-
-        public ReactiveProperty<bool> IsContentDisplayFloating { get; private set; }
-
         private Dictionary<string, object> viewModelState = new Dictionary<string, object>();
-
-        /// <summary>
-        /// Playerの小窓状態の変化を遅延させて伝播させます、
-        /// 
-        /// 遅延させている理由は、Player上のFlyoutを閉じる前にリサイズが発生するとFlyoutが
-        /// ゴースト化（FlyoutのUIは表示されず閉じれないが、Visible状態と同じようなインタラクションだけは出来てしまう）
-        /// してしまうためです。（タブレット端末で発生、PCだと発生確認されず）
-        /// この問題を回避するためにFlyoutが閉じられた後にプレイヤーリサイズが走るように遅延を挟んでいます。
-        /// </summary>
-        public ReadOnlyReactiveProperty<bool> IsShowPlayerInFill_DelayedRead { get; private set; }
 
 
         public ReactivePropertySlim<bool> CanGoBackNavigation { get; private set; }
         public ReactiveCommand GoBackNavigationCommand { get; private set; }
-
-
-
-        public INavigationService NavigationService { get; private set; }
-
 
 
 
@@ -403,13 +331,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-
-        internal void SetNavigationService(INavigationService ns)
-        {
-            NavigationService = ns;
-        }
-
-
+       
         private async void UpdateCanGoBackNavigation()
         {
             await Task.Delay(50);
@@ -417,111 +339,111 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        private void HohoemaPlaylist_OpenPlaylistItem(Interfaces.IMylist playlist, PlaylistItem item)
-        {
-            Scheduler.Schedule(() =>
-            {
-                ShowPlayer(item);
-            });
-        }
+        //private void HohoemaPlaylist_OpenPlaylistItem(Interfaces.IMylist playlist, PlaylistItem item)
+        //{
+        //    Scheduler.Schedule(() =>
+        //    {
+        //        ShowPlayer(item);
+        //    });
+        //}
 
-        private bool ShowPlayer(PlaylistItem item)
-        {
-            string pageType = null;
-            string parameter = null;
-            switch (item.Type)
-            {
-                case PlaylistItemType.Video:
-                    pageType = nameof(Views.VideoPlayerPage);
-                    parameter = new VideoPlayPayload()
-                    {
-                        VideoId = item.ContentId
-                    }
-                    .ToParameterString();
-                    break;
-                case PlaylistItemType.Live:
-                    pageType = nameof(Views.LivePlayerPage);
-                    parameter = new LiveVideoPagePayload(item.ContentId)
-                    {
-                        LiveTitle = item.Title,
-                    }
-                    .ToParameterString();
-                    break;
-                default:
-                    break;
-            }
+        //private bool ShowPlayer(PlaylistItem item)
+        //{
+        //    string pageType = null;
+        //    string parameter = null;
+        //    switch (item.Type)
+        //    {
+        //        case PlaylistItemType.Video:
+        //            pageType = nameof(Views.VideoPlayerPage);
+        //            parameter = new VideoPlayPayload()
+        //            {
+        //                VideoId = item.ContentId
+        //            }
+        //            .ToParameterString();
+        //            break;
+        //        case PlaylistItemType.Live:
+        //            pageType = nameof(Views.LivePlayerPage);
+        //            parameter = new LiveVideoPagePayload(item.ContentId)
+        //            {
+        //                LiveTitle = item.Title,
+        //            }
+        //            .ToParameterString();
+        //            break;
+        //        default:
+        //            break;
+        //    }
 
-            if (NavigationService.Navigate(pageType, parameter))
-            {
-                ApplicationView currentView = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView();
-                if (Services.Helpers.DeviceTypeHelper.IsMobile)
-                {
-                    currentView.TryEnterFullScreenMode();
-                }
-                else if (Services.Helpers.DeviceTypeHelper.IsDesktop && !HohoemaPlaylist.IsPlayerFloatingModeEnable)
-                {
-                    // 
-                    if (currentView.AdjacentToLeftDisplayEdge && currentView.AdjacentToRightDisplayEdge)
-                    {
-                        currentView.TryEnterFullScreenMode();
-                    }
-                }
+        //    if (NavigationService.Navigate(pageType, parameter))
+        //    {
+        //        ApplicationView currentView = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView();
+        //        if (Services.Helpers.DeviceTypeHelper.IsMobile)
+        //        {
+        //            currentView.TryEnterFullScreenMode();
+        //        }
+        //        else if (Services.Helpers.DeviceTypeHelper.IsDesktop && !HohoemaPlaylist.IsPlayerFloatingModeEnable)
+        //        {
+        //            // 
+        //            if (currentView.AdjacentToLeftDisplayEdge && currentView.AdjacentToRightDisplayEdge)
+        //            {
+        //                currentView.TryEnterFullScreenMode();
+        //            }
+        //        }
 
-                return true;
-            }
-            else { return false; }
-        }
+        //        return true;
+        //    }
+        //    else { return false; }
+        //}
 
-        private async void ClosePlayer()
-        {
-            NavigationService.Navigate("Blank", null);
+        //private async void ClosePlayer()
+        //{
+        //    NavigationService.Navigate("Blank", null);
 
-            if (ApplicationView.PreferredLaunchWindowingMode != ApplicationViewWindowingMode.FullScreen)
-            {
-                ApplicationView currentView = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView();
-                currentView.ExitFullScreenMode();
-            }
+        //    if (ApplicationView.PreferredLaunchWindowingMode != ApplicationViewWindowingMode.FullScreen)
+        //    {
+        //        ApplicationView currentView = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView();
+        //        currentView.ExitFullScreenMode();
+        //    }
 
-            await VideoCacheManager.ResumeCacheDownload();
-        }
+        //    await VideoCacheManager.ResumeCacheDownload();
+        //}
 
-        private DelegateCommand _PlayerFillDisplayCommand;
-        public DelegateCommand TogglePlayerFloatDisplayCommand
-        {
-            get
-            {
-                return _PlayerFillDisplayCommand
-                    ?? (_PlayerFillDisplayCommand = new DelegateCommand(() =>
-                    {
-                        // プレイヤー表示中だけ切り替えを受け付け
-                        if (!HohoemaPlaylist.IsDisplayMainViewPlayer) { return; }
+        //private DelegateCommand _PlayerFillDisplayCommand;
+        //public DelegateCommand TogglePlayerFloatDisplayCommand
+        //{
+        //    get
+        //    {
+        //        return _PlayerFillDisplayCommand
+        //            ?? (_PlayerFillDisplayCommand = new DelegateCommand(() =>
+        //            {
+        //                // プレイヤー表示中だけ切り替えを受け付け
+        //                if (!HohoemaPlaylist.IsDisplayMainViewPlayer) { return; }
 
-                        // メインウィンドウでの表示状態を「ウィンドウ全体」⇔「小窓表示」と切り替える
-                        if (HohoemaPlaylist.PlayerDisplayType == PlayerDisplayType.PrimaryView)
-                        {
-                            HohoemaPlaylist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
-                        }
-                        else if (HohoemaPlaylist.PlayerDisplayType == PlayerDisplayType.PrimaryWithSmall)
-                        {
-                            HohoemaPlaylist.PlayerDisplayType = PlayerDisplayType.PrimaryView;
-                        }
-                    }));
-            }
-        }
+        //                // メインウィンドウでの表示状態を「ウィンドウ全体」⇔「小窓表示」と切り替える
+        //                if (HohoemaPlaylist.PlayerDisplayType == PlayerViewMode.PrimaryView)
+        //                {
+        //                    HohoemaPlaylist.PlayerDisplayType = PlayerViewMode.PrimaryWithSmall;
+        //                }
+        //                else if (HohoemaPlaylist.PlayerDisplayType == PlayerViewMode.PrimaryWithSmall)
+        //                {
+        //                    HohoemaPlaylist.PlayerDisplayType = PlayerViewMode.PrimaryView;
+        //                }
+        //            }));
+        //    }
+        //}
 
 
-        private DelegateCommand _ClosePlayerCommand;
-        public DelegateCommand ClosePlayerCommand
-        {
-            get
-            {
-                return _ClosePlayerCommand
-                    ?? (_ClosePlayerCommand = new DelegateCommand(() =>
-                    {
-                        HohoemaPlaylist.IsDisplayMainViewPlayer = false;
-                    }));
-            }
-        }
+        //private DelegateCommand _ClosePlayerCommand;
+        //public DelegateCommand ClosePlayerCommand
+        //{
+        //    get
+        //    {
+        //        return _ClosePlayerCommand
+        //            ?? (_ClosePlayerCommand = new DelegateCommand(() =>
+        //            {
+        //                HohoemaPlaylist.IsDisplayMainViewPlayer = false;
+        //            }));
+        //    }
+        //}
 
 
         private DelegateCommand _AddPinToCurrentPageCommand;
@@ -901,12 +823,12 @@ namespace NicoPlayerHohoema.ViewModels
 
             LocalMylists = LocalMylistManager.Mylists
                .ToReadOnlyReactiveCollection(x =>
-               new MenuItemViewModel(x.Label, HohoemaPageType.Mylist, new Models.MylistPagePayload(x.Id) { Origin = x.ToMylistOrigin()}.ToParameterString()) as HohoemaListingPageItemBase
+               new MenuItemViewModel(x.Label, HohoemaPageType.Mylist, new MylistPagePayload(x.Id) { Origin = x.ToMylistOrigin()}.ToParameterString()) as HohoemaListingPageItemBase
                )
                .AddTo(_CompositeDisposable);
             Mylists = MylistManager.Mylists
                 .ToReadOnlyReactiveCollection(x =>
-                new MenuItemViewModel(x.Label, HohoemaPageType.Mylist, new Models.MylistPagePayload(x.Id) { Origin = x.ToMylistOrigin() }.ToParameterString()) as HohoemaListingPageItemBase
+                new MenuItemViewModel(x.Label, HohoemaPageType.Mylist, new MylistPagePayload(x.Id) { Origin = x.ToMylistOrigin() }.ToParameterString()) as HohoemaListingPageItemBase
                 )
                 .AddTo(_CompositeDisposable);
 

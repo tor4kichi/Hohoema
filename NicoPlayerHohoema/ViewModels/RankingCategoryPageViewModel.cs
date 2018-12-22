@@ -279,25 +279,9 @@ namespace NicoPlayerHohoema.ViewModels
 
     public class RankedVideoInfoControlViewModel : VideoInfoControlViewModel
     {
-        public RankedVideoInfoControlViewModel(
-            Services.HohoemaPlaylist hohoemaPlaylist,
-            ExternalAccessService externalAccessService,
-            PageManager pageManager,
-            UserMylistManager userMylistManager,
-            Models.LocalMylist.LocalMylistManager localMylistManager,
-            Models.Subscription.SubscriptionManager subscriptionManager,
-            Models.Cache.VideoCacheManager videoCacheManager,
-            NicoVideoProvider nicoVideoProvider,
-            NGSettings ngSettings,
-            Commands.Mylist.CreateMylistCommand createMylistCommand,
-            Commands.Mylist.CreateLocalMylistCommand createLocalMylistCommand,
-            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand,
-            Commands.AddToHiddenUserCommand addToHiddenUserCommand
-            )
-            : base(hohoemaPlaylist, externalAccessService, pageManager, userMylistManager, localMylistManager, subscriptionManager, 
-                  videoCacheManager, nicoVideoProvider, ngSettings,createMylistCommand, createLocalMylistCommand, createSubscriptionGroupCommand, addToHiddenUserCommand)
+        public RankedVideoInfoControlViewModel()
         {
-            
+
         }
 
         public uint Rank { get; internal set; }

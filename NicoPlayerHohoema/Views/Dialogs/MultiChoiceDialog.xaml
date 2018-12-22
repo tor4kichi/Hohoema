@@ -26,7 +26,6 @@
               Height="340"    
               Margin="0 0 0 0"
               IsFocusEngagementEnabled="True"
-              
               >
         <i:Interaction.Behaviors>
             <mybehavior:ListViewSelectedItemsGetter SelectedItems="{x:Bind SelectedItems, Mode=OneWay}" />

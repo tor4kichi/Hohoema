@@ -21,6 +21,7 @@ using NiconicoSession = NicoPlayerHohoema.Models.NiconicoSession;
 using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Interfaces;
 using Mntone.Nico2.Live;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {

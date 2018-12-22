@@ -31,7 +31,7 @@ namespace NicoPlayerHohoema.Commands
             {
                 if (!string.IsNullOrEmpty(content.ProviderId))
                 {
-                    PageManager.OpenPage(Models.HohoemaPageType.Community, content.ProviderId);
+                    PageManager.OpenPage(HohoemaPageType.Community, content.ProviderId);
                 }
             }
         }

@@ -75,7 +75,10 @@ namespace NicoPlayerHohoema.Models.Helpers
                 {
                     try
                     {
-                        items = await _Source.GetPagedItems((int)_Position, (int)_Source.OneTimeLoadCount);
+                        await _UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => 
+                        {
+                            items = await _Source.GetPagedItems((int)_Position, (int)_Source.OneTimeLoadCount);
+                        });
                     }
                     catch (OperationCanceledException)
                     {
@@ -97,12 +100,16 @@ namespace NicoPlayerHohoema.Models.Helpers
                     //       
                     //      俺たちは雰囲気で非同期処理をやっているんだ」
                     // 
-                    await Task.WhenAll(Task.Delay(50),
-                        items.ForEachAsync(async (item) =>
+                    await Task.WhenAll(
+                        Task.Delay(50),
+                        _UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
                         {
-                            await _UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () => { this.Add(item); });
-                            ++resultCount;
-                        })
+                            items.ForEachAsync((item) =>
+                            {
+                                this.Add(item);
+                                ++resultCount;
+                            });
+                        }).AsTask()
                         );
 
                     _Position += resultCount;
