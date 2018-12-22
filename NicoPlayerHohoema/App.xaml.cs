@@ -123,7 +123,7 @@ namespace NicoPlayerHohoema
             // Note: インスタンス化が別途必要
             Container.RegisterInstance(Container.Resolve<Services.HohoemaAlertClient>());
             Container.RegisterInstance(Container.Resolve<Services.WatchItLater>());
-
+            Container.RegisterInstance(Container.Resolve<Services.Notification.NotificationCacheVideoDeletedService>());
 
             // ViewModels
             Container.RegisterType<ViewModels.RankingCategoryListPageViewModel>(new ContainerControlledLifetimeManager());

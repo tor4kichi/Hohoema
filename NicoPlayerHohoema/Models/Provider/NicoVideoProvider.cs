@@ -6,6 +6,7 @@ using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
 using NicoPlayerHohoema.Database;
 using NicoPlayerHohoema.Models.Helpers;
+using Prism.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,19 +15,40 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models.Provider
 {
+    public class VideoDeletedEvent : PubSubEvent<Database.NicoVideo>
+    { }
+
+
+
+
     public sealed class NicoVideoProvider : ProviderBase
     {
         public NicoVideoProvider(
+            EventAggregator eventAggregator,
             NiconicoSession niconicoSession
             )
             : base(niconicoSession)
         {
+            EventAggregator = eventAggregator;
         }
 
+
+       
+
+
         static TimeSpan ThumbnailExpirationSpan { get; set; } = TimeSpan.FromMinutes(30);
+        public EventAggregator EventAggregator { get;  }
 
         AsyncLock _ThumbnailAccessLock = new AsyncLock();
 
+
+        private void PublishVideoDeletedEvent(Database.NicoVideo deletedVideo)
+        {
+            if (deletedVideo.IsDeleted)
+            {
+                EventAggregator.GetEvent<VideoDeletedEvent>().Publish(deletedVideo);
+            }
+        }
 
         /// <summary>
         /// ニコニコ動画コンテンツの情報を取得します。
@@ -113,10 +135,10 @@ namespace NicoPlayerHohoema.Models.Provider
                             catch { }
                         }
                     }
-                    else
-                    {
-                        info.IsDeleted = true;
-                    }
+                    //else
+                    //{
+                    //    info.IsDeleted = true;
+                    //}
                 }
 
                 catch (Exception ex) when (ex.Message.Contains("DELETE") || ex.Message.Contains("NOT_FOUND"))
@@ -132,12 +154,11 @@ namespace NicoPlayerHohoema.Models.Provider
                     }
                 }
 
-                /*
                 if (info.IsDeleted)
                 {
-                    await VideoCacheManager.VideoDeletedFromNiconicoServer(info.RawVideoId).ConfigureAwait(false);
+                    PublishVideoDeletedEvent(info);
                 }
-                */
+
 
                 await Task.Delay(10);
 
@@ -173,9 +194,9 @@ namespace NicoPlayerHohoema.Models.Provider
 
                     var res = data?.DmcWatchResponse;
 
+                    var info = NicoVideoDb.Get(rawVideoId);
                     if (res != null)
                     {
-                        var info = NicoVideoDb.Get(rawVideoId);
                         if (info == null)
                         {
                             info = new Database.NicoVideo()
@@ -247,12 +268,12 @@ namespace NicoPlayerHohoema.Models.Provider
                         NicoVideoDb.AddOrUpdate(info);
                     }
 
-                    /*
-                    if (data.DmcWatchResponse.Video.IsDeleted)
+                    
+                    if (info.IsDeleted)
                     {
-                        await VideoCacheManager.VideoDeletedFromNiconicoServer(rawVideoId).ConfigureAwait(false);
+                        PublishVideoDeletedEvent(info);
                     }
-                    */
+                    
 
                     return data;
                 }
@@ -356,12 +377,11 @@ namespace NicoPlayerHohoema.Models.Provider
                     NicoVideoDb.AddOrUpdate(info);
                     //                    NicoVideoOwnerDb.AddOrUpdate(info.Owner);
 
-                    /*
-                    if (res.IsDeleted)
+                    if (info.IsDeleted)
                     {
-                        await VideoCacheManager.VideoDeletedFromNiconicoServer(rawVideoId).ConfigureAwait(false);
+                        PublishVideoDeletedEvent(info);
                     }
-                    */
+
 
                     return res;
                 }

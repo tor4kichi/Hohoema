@@ -186,6 +186,7 @@
     <Compile Include="Models\Provider\UserProvider.cs" />
     <Compile Include="Services\ExternalAccessService.cs" />
     <Compile Include="Services\Helpers\MylistHelper.cs" />
+    <Compile Include="Services\Notification\NotificationCacheVideoDeletedService.cs" />
     <Compile Include="ViewModels\Flyouts\LiveItemFlyoutViewModel.cs" />
     <Compile Include="ViewModels\Flyouts\MylistItemFlyoutViewModel.cs" />
     <Compile Include="ViewModels\Flyouts\FollowItemFlyoutViewModel.cs" />

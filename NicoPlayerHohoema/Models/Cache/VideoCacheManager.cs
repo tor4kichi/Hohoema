@@ -1519,36 +1519,7 @@ namespace NicoPlayerHohoema.Models.Cache
             }
         }
 
-
-
-
-        internal async Task VideoDeletedFromNiconicoServer(string videoId)
-        {
-            // キャッシュ登録を削除
-            int deletedCount = 0;
-            try
-            {
-                deletedCount = await DeleteCachedVideo(videoId);
-            }
-            catch
-            {
-                // 削除に失敗
-            }
-
-            if (deletedCount > 0)
-            {
-                var videoInfo = Database.NicoVideoDb.Get(videoId);
-                var notificationService = App.Current.Container.Resolve<Services.NotificationService>();
-                notificationService.ShowToast("動画削除：" + videoId
-                    , $"『{videoInfo?.Title ?? videoId}』 はニコニコ動画サーバーから削除されたため、キャッシュを強制削除しました。"
-                    , Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long
-                    );
-
-            }
-        }
-
-
-
+        
         internal async Task<bool> CheckCachedAsync(string contentId)
         {
             using (var releaser = await _CacheRequestProcessingLock.LockAsync())
