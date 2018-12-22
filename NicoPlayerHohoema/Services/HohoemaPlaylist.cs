@@ -337,19 +337,18 @@ namespace NicoPlayerHohoema.Services
             }
             else if (canPlayNext)
             {
-                /*
-                if (PlaylistSettings.PlaylistEndAction == PlaylistEndAction.ChangeIntoSplit)
+                if (PlayerViewManager.IsPlayerShowWithPrimaryView)
                 {
-                    if (PlayerDisplayType == PlayerViewMode.PrimaryView)
+                    switch (PlaylistSettings.PlaylistEndAction)
                     {
-                        PlayerDisplayType = PlayerViewMode.PrimaryWithSmall;
+                        case PlaylistEndAction.ChangeIntoSplit:
+                            PlayerViewManager.IsPlayerSmallWindowModeEnabled = true;
+                            break;
+                        case PlaylistEndAction.CloseIfPlayWithCurrentWindow:
+                            PlayerViewManager.ClosePlayer();
+                            break;
                     }
                 }
-                else if (PlaylistSettings.PlaylistEndAction == PlaylistEndAction.CloseIfPlayWithCurrentWindow)
-                {
-                    IsDisplayMainViewPlayer = false;
-                }
-                */
             }
 
             // あとで見るプレイリストの場合、再生後に

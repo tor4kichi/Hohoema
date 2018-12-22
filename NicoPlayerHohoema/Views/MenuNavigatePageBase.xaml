@@ -534,270 +534,6 @@
         <ControlTemplate>
 
             <Grid x:Name="RootLayout" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-                <VisualStateManager.VisualStateGroups>
-                    <VisualStateGroup x:Name="TopBarStateGroup">
-
-
-                        <!-- トップメニュー非表示 -->
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding IsVisibleMenu.Value, Converter={StaticResource BoolNegation}}" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
-                                <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
-
-                                <Setter Target="TopMenuLayout.Visibility" Value="Collapsed" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <!-- TV Mode ON -->
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding IsTVModeEnable.Value}" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-
-                                <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
-                                <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
-                                <Setter Target="PaneLayout.Margin" Value="48 27 0 27" />
-                                <Setter Target="ContentSplitView.OpenPaneLength" Value="{StaticResource SideMenuPaneLength_TVMode}" />
-
-                                <Setter Target="TopMenu.Margin" Value="48 27 0 0" />
-                                <Setter Target="MenuTitleText.Margin" Value="16 5 16 8" />
-
-                                <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
-
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <!-- マウス操作時、または画面が大きい時 -->
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="ContentSplitView.DisplayMode" Value="CompactInline" />
-                                <Setter Target="ContentSplitView.IsPaneOpen" Value="True" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <!-- 狭い -->
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="0" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
-                                <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
-
-                                <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
-                                <Setter Target="MenuTitleText.Style" Value="{StaticResource BodyTextBlockStyle}" />
-                                <Setter Target="MenuTitleText.Margin" Value="16 0 16 0" />
-
-                                <Setter Target="TopMenu.Background" Value="{StaticResource MenuBackgroundBrush}" />
-
-                                <Setter Target="Mobile_ShowSearchButton.Visibility" Value="Visible" />
-
-                                <Setter Target="SearchTextBox.Visibility" Value="Collapsed" />
-                            </VisualState.Setters>
-                        </VisualState>
-                    </VisualStateGroup>
-
-                    <VisualStateGroup>
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding IsNeedFullScreenToggleHelp}" />
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="ToggleFullScreenButton_Wide.Visibility" Value="Visible" />
-                            </VisualState.Setters>
-                        </VisualState>
-                    </VisualStateGroup>
-
-                    
-                    
-                    <!-- アプリのサービス状態 -->
-                    <VisualStateGroup>
-                        <VisualState x:Name="OfflineState">
-                            <VisualState.StateTriggers>
-                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="Offline" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
-                                <Setter Target="SearchTextBox.Visibility" Value="Collapsed" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <VisualState x:Name="ServiceUnavailableState">
-                            <VisualState.StateTriggers>
-                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="OnlineButServiceUnavailable" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-
-                        <VisualState x:Name="WithoutLoggedInState">
-                            <VisualState.StateTriggers>
-                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="OnlineWithoutLoggedIn" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-
-                                <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <VisualState x:Name="LoggedInState">
-                            <VisualState.StateTriggers>
-                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="LoggedIn" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="ServiceStateText.Visibility" Value="Collapsed" />
-                                
-                                <Setter Target="AccountInfoLayout.Visibility" Value="Visible" />
-
-                                <Setter Target="MenuFlyoutItem_OpenAccountInfo.Visibility" Value="Visible" />
-                                <Setter Target="MenuFlyoutItem_Logout.Visibility" Value="Visible" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <VisualState x:Name="LoggedInWithPremiumState">
-                            <VisualState.StateTriggers>
-                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="LoggedInWithPremium" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="ServiceStateText.Visibility" Value="Collapsed" />
-
-                                <Setter Target="AccountInfoLayout.Visibility" Value="Visible" />
-
-                                <Setter Target="MenuFlyoutItem_OpenAccountInfo.Visibility" Value="Visible" />
-                                <Setter Target="MenuFlyoutItem_Logout.Visibility" Value="Visible" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-
-                    </VisualStateGroup>
-
-
-                    <!-- ペインの開閉状態 -->
-                    <VisualStateGroup>
-                        
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding ElementName=ContentSplitView, Path=IsPaneOpen}" />
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                            </VisualState.Setters>
-                        </VisualState>
-
-                    </VisualStateGroup>
-
-                    <!-- ペインの開閉状態 -->
-                    <VisualStateGroup>
-
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <mytrigger:FocusTrigger Target="{Binding ElementName=SearchTextBox}" />
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="SearchSubmitWithEnterKeyTrigger.IsEnabled" Value="True" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                    </VisualStateGroup>
-
-
-                    <!-- モバイルの検索ボックスをフォーカス -->
-                    <VisualStateGroup>
-
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <mytrigger:FocusTrigger Target="{Binding ElementName=Mobile_SearchTextBox}" />
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="Mobile_BlindSearchTextBoxBorder.Visibility" Value="Visible" />
-                                <Setter Target="Mobile_BarrierSearchTextBoxBorder.Visibility" Value="Visible" />
-
-                                <Setter Target="Mobile_SearchSubmitWithEnterKeyTrigger.IsEnabled" Value="True" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                    </VisualStateGroup>
-
-                    <!-- モバイルデバイスでの表示調整 -->
-                    <VisualStateGroup>
-
-
-                        <!-- フルスクリーン時はステータスバーが非表示になる -->
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <uiTrigger:FullScreenTrigger />
-                            </VisualState.StateTriggers>
-                        </VisualState>
-
-
-                        <!-- モバイルかつ横持ち状態 -->
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <logicalTrigger:MultiTrigger ConditionModifier="{StaticResource AndModifier}">
-                                    <logicalTrigger:MultiTrigger.Triggers>
-                                        <hardwareTrigger:DeviceFamilyTrigger Condition="Mobile" />
-                                        <uiTrigger:OrientationTrigger Condition="Landscape" />
-                                    </logicalTrigger:MultiTrigger.Triggers>
-                                </logicalTrigger:MultiTrigger>
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="PaneLayout.Margin" Value="40 0 0 0" />
-                                <Setter Target="TopMenuLayout.Margin" Value="40 0 0 0" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <!-- モバイルかつ縦持ち状態 -->
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <logicalTrigger:MultiTrigger ConditionModifier="{StaticResource AndModifier}">
-                                    <logicalTrigger:MultiTrigger.Triggers>
-                                        <hardwareTrigger:DeviceFamilyTrigger Condition="Mobile" />
-                                        <uiTrigger:OrientationTrigger Condition="Portrait" />
-                                    </logicalTrigger:MultiTrigger.Triggers>
-                                </logicalTrigger:MultiTrigger>
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="PaneLayout.Margin" Value="0 24 0 0" />
-                                <Setter Target="TopMenuLayout.Margin" Value="0 24 0 0" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                    </VisualStateGroup>
-                    
-                    
-
-
-
-                    <!-- Debug -->
-                    <VisualStateGroup>
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding IsDebug}" />
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="MenuFlyoutItem_OpenDebugPage.Visibility" Value="Visible" />
-                            </VisualState.Setters>
-                        </VisualState>
-                    </VisualStateGroup>
-
-                </VisualStateManager.VisualStateGroups>
-
-
 
                 <i:Interaction.Behaviors>
                     <mybehavior:UINavigationTrigger Kind="View" 
@@ -1111,7 +847,7 @@
                         </SplitView.Pane>
                         <SplitView.Content>
                             <Grid x:Name="SplitViewContentLayout">
-
+                                
                                 <toolkit:DockPanel 
                                           >
                                     <Border x:Name="TopMenu" toolkit:DockPanel.Dock="Top">
@@ -1230,7 +966,7 @@
 
                                     <!-- ページ毎のコンテンツ -->
                                     <Grid>
-                                        <ContentPresenter x:Name="ContentLayout"
+                                        <ContentPresenter x:Name="ContentLayout"         
                                             >
                                             <myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
                                                 <templateSelector:HohoemaFlyoutTemplateSelector>
@@ -1260,7 +996,16 @@
 
 
                                 </toolkit:DockPanel>
-                                
+
+                                <Grid x:Name="MenuBackgroundGrid"
+                                        Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                                      Opacity="0.5"
+                                      Visibility="Collapsed"
+                                      IsTapEnabled="True"
+                                      IsHitTestVisible="True"
+                                      >
+                                    <UserControl IsTabStop="True" />
+                                </Grid>
                             </Grid>
 
                         </SplitView.Content>
@@ -1338,6 +1083,283 @@
 
 
                 </toolkit:DockPanel>
+
+
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroup x:Name="TopBarStateGroup">
+
+
+                        <!-- トップメニュー非表示 -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding IsVisibleMenu.Value, Converter={StaticResource BoolNegation}}" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
+                                <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
+
+                                <Setter Target="TopMenuLayout.Visibility" Value="Collapsed" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <!-- TV Mode ON -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding IsTVModeEnable.Value}" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+
+                                <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
+                                <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
+                                <Setter Target="PaneLayout.Margin" Value="48 27 0 27" />
+                                <Setter Target="ContentSplitView.OpenPaneLength" Value="{StaticResource SideMenuPaneLength_TVMode}" />
+
+                                <Setter Target="TopMenu.Margin" Value="48 27 0 0" />
+                                <Setter Target="MenuTitleText.Margin" Value="16 5 16 8" />
+
+                                <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
+
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <!-- マウス操作時、または画面が大きい時 -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="ContentSplitView.DisplayMode" Value="CompactInline" />
+                                <Setter Target="ContentSplitView.IsPaneOpen" Value="True" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <!-- 狭い -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <AdaptiveTrigger MinWindowWidth="0" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
+                                <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
+
+                                <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
+                                <Setter Target="MenuTitleText.Style" Value="{StaticResource BodyTextBlockStyle}" />
+                                <Setter Target="MenuTitleText.Margin" Value="16 0 16 0" />
+
+                                <Setter Target="TopMenu.Background" Value="{StaticResource MenuBackgroundBrush}" />
+
+                                <Setter Target="Mobile_ShowSearchButton.Visibility" Value="Visible" />
+
+                                <Setter Target="SearchTextBox.Visibility" Value="Collapsed" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+
+                    <VisualStateGroup>
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding IsNeedFullScreenToggleHelp}" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="ToggleFullScreenButton_Wide.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+
+
+
+                    <!-- アプリのサービス状態 -->
+                    <VisualStateGroup>
+                        <VisualState x:Name="OfflineState">
+                            <VisualState.StateTriggers>
+                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="Offline" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
+                                <Setter Target="SearchTextBox.Visibility" Value="Collapsed" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <VisualState x:Name="ServiceUnavailableState">
+                            <VisualState.StateTriggers>
+                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="OnlineButServiceUnavailable" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+
+                        <VisualState x:Name="WithoutLoggedInState">
+                            <VisualState.StateTriggers>
+                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="OnlineWithoutLoggedIn" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+
+                                <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <VisualState x:Name="LoggedInState">
+                            <VisualState.StateTriggers>
+                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="LoggedIn" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="ServiceStateText.Visibility" Value="Collapsed" />
+
+                                <Setter Target="AccountInfoLayout.Visibility" Value="Visible" />
+
+                                <Setter Target="MenuFlyoutItem_OpenAccountInfo.Visibility" Value="Visible" />
+                                <Setter Target="MenuFlyoutItem_Logout.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <VisualState x:Name="LoggedInWithPremiumState">
+                            <VisualState.StateTriggers>
+                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="LoggedInWithPremium" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="ServiceStateText.Visibility" Value="Collapsed" />
+
+                                <Setter Target="AccountInfoLayout.Visibility" Value="Visible" />
+
+                                <Setter Target="MenuFlyoutItem_OpenAccountInfo.Visibility" Value="Visible" />
+                                <Setter Target="MenuFlyoutItem_Logout.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+
+                    </VisualStateGroup>
+
+
+                    <!-- ペインの開閉状態 -->
+                    <VisualStateGroup>
+
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <mytrigger:EqualConditionStateTrigger Condition="{Binding ElementName=ContentSplitView, Path=DisplayMode, Mode=OneWay}" Value="CompactInline" />
+                                <mytrigger:EqualConditionStateTrigger Condition="{Binding ElementName=ContentSplitView, Path=DisplayMode, Mode=OneWay}" Value="Inline" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding ElementName=ContentSplitView, Path=IsPaneOpen,Mode=OneWay}" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="MenuBackgroundGrid.Visibility" Value="Visible" />
+                                <Setter Target="ContentLayout.IsHitTestVisible" Value="False" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                    </VisualStateGroup>
+
+                    <!-- 検索ボックス -->
+                    <VisualStateGroup>
+
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <mytrigger:FocusTrigger Target="{Binding ElementName=SearchTextBox}" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="SearchSubmitWithEnterKeyTrigger.IsEnabled" Value="True" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                    </VisualStateGroup>
+
+
+                    <!-- モバイルの検索ボックスをフォーカス -->
+                    <VisualStateGroup>
+
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <mytrigger:FocusTrigger Target="{Binding ElementName=Mobile_SearchTextBox}" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="Mobile_BlindSearchTextBoxBorder.Visibility" Value="Visible" />
+                                <Setter Target="Mobile_BarrierSearchTextBoxBorder.Visibility" Value="Visible" />
+
+                                <Setter Target="Mobile_SearchSubmitWithEnterKeyTrigger.IsEnabled" Value="True" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                    </VisualStateGroup>
+
+                    <!-- モバイルデバイスでの表示調整 -->
+                    <VisualStateGroup>
+
+
+                        <!-- フルスクリーン時はステータスバーが非表示になる -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <uiTrigger:FullScreenTrigger />
+                            </VisualState.StateTriggers>
+                        </VisualState>
+
+
+                        <!-- モバイルかつ横持ち状態 -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <logicalTrigger:MultiTrigger ConditionModifier="{StaticResource AndModifier}">
+                                    <logicalTrigger:MultiTrigger.Triggers>
+                                        <hardwareTrigger:DeviceFamilyTrigger Condition="Mobile" />
+                                        <uiTrigger:OrientationTrigger Condition="Landscape" />
+                                    </logicalTrigger:MultiTrigger.Triggers>
+                                </logicalTrigger:MultiTrigger>
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="PaneLayout.Margin" Value="40 0 0 0" />
+                                <Setter Target="TopMenuLayout.Margin" Value="40 0 0 0" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <!-- モバイルかつ縦持ち状態 -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <logicalTrigger:MultiTrigger ConditionModifier="{StaticResource AndModifier}">
+                                    <logicalTrigger:MultiTrigger.Triggers>
+                                        <hardwareTrigger:DeviceFamilyTrigger Condition="Mobile" />
+                                        <uiTrigger:OrientationTrigger Condition="Portrait" />
+                                    </logicalTrigger:MultiTrigger.Triggers>
+                                </logicalTrigger:MultiTrigger>
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="PaneLayout.Margin" Value="0 24 0 0" />
+                                <Setter Target="TopMenuLayout.Margin" Value="0 24 0 0" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                    </VisualStateGroup>
+
+
+
+
+
+                    <!-- Debug -->
+                    <VisualStateGroup>
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding IsDebug}" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="MenuFlyoutItem_OpenDebugPage.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+
+                </VisualStateManager.VisualStateGroups>
+
 
 
             </Grid>

@@ -31,7 +31,7 @@
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsForceTVModeEnable.Value}" />
+                        <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="ContentLayout.Margin" Value="48 27 0 0" />
