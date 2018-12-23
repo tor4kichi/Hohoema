@@ -149,7 +149,7 @@ namespace NicoPlayerHohoema.Models
 
         public IScheduler Scheduler { get; }
 
-        private AsyncLock _SigninLock = new AsyncLock();
+        public AsyncLock SigninLock { get; } = new AsyncLock();
 
 
 
@@ -255,9 +255,10 @@ namespace NicoPlayerHohoema.Models
             Context = context;
 
             Mntone.Nico2.Users.Info.InfoResponse userInfo = null;
+
             try
             {
-                await Task.Delay(500);
+                await Task.Delay(50);
 
                 userInfo = await Context.User.GetInfoAsync();
                 if (userInfo == null)
@@ -270,7 +271,6 @@ namespace NicoPlayerHohoema.Models
             {
                 IsLoggedIn = false;
                 HandleLoginError(e);
-                return;
             }
 
             IsLoggedIn = true;
@@ -303,6 +303,9 @@ namespace NicoPlayerHohoema.Models
                 UserName = UserName,
                 UserIconUrl = UserIconUrl,
             });
+            
+
+            
 
             Debug.WriteLine("Login Done! " + ServiceStatus);
         }
@@ -311,7 +314,7 @@ namespace NicoPlayerHohoema.Models
         {
             return AsyncInfo.Run<NiconicoSignInStatus>(async (cancelToken) =>
             {
-                using (var releaser = await _SigninLock.LockAsync())
+                using (var releaser = await SigninLock.LockAsync())
                 {
                     if (!Helpers.InternetConnection.IsInternet())
                     {
@@ -338,7 +341,7 @@ namespace NicoPlayerHohoema.Models
                 cancelToken.ThrowIfCancellationRequested();
 
 
-                using (_ = await _SigninLock.LockAsync())
+                using (_ = await SigninLock.LockAsync())
                 {
                     Debug.WriteLine("try login");
 
@@ -353,10 +356,10 @@ namespace NicoPlayerHohoema.Models
 
 
                     NiconicoSignInStatus result = NiconicoSignInStatus.Failed;
-                    if ((result = await context.GetIsSignedInAsync()) == NiconicoSignInStatus.ServiceUnavailable)
-                    {
-                        return result;
-                    }
+                    //if ((result = await context.GetIsSignedInAsync()) == NiconicoSignInStatus.ServiceUnavailable)
+                    //{
+                    //    return result;
+                    //}
                     try
                     {
                         result = await context.SignInAsync();
@@ -367,7 +370,7 @@ namespace NicoPlayerHohoema.Models
                         {
                             var deferral = new Deferral(async () =>
                             {
-                                using (_ = await _SigninLock.LockAsync())
+                                using (_ = await SigninLock.LockAsync())
                                 {
                                     try
                                     {
@@ -428,7 +431,7 @@ namespace NicoPlayerHohoema.Models
         {
             NiconicoSignInStatus result = NiconicoSignInStatus.Failed;
 
-            using (var releaser = await _SigninLock.LockAsync())
+            using (var releaser = await SigninLock.LockAsync())
             {
                 UserId = null;
                 UserName = null;
@@ -497,7 +500,7 @@ namespace NicoPlayerHohoema.Models
         {
             NiconicoSignInStatus result = NiconicoSignInStatus.Failed;
 
-            using (var releaser = await _SigninLock.LockAsync())
+            using (var releaser = await SigninLock.LockAsync())
             {
                 try
                 {

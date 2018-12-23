@@ -155,9 +155,36 @@ namespace NicoPlayerHohoema
         }
 
         public bool IsTitleBarCustomized { get; } = Services.Helpers.DeviceTypeHelper.IsDesktop && Services.Helpers.InputCapabilityHelper.IsMouseCapable;
+
+
+        /// <summary>
+        /// アプリ動作に必要な機能を初期化する
+        /// </summary>
+        /// <param name="args"></param>
+        /// <returns></returns>
         protected override async Task OnInitializeAsync(IActivatedEventArgs args)
         {
             await RegisterTypes();
+
+
+            // ログイン
+            try
+            {
+                var niconicoSession = Container.Resolve<NiconicoSession>();
+                if (Models.Helpers.AccountManager.HasPrimaryAccount())
+                {
+                    // サインイン処理の待ちを初期化内でしないことで初期画面表示を早める
+                    _ = niconicoSession.SignInWithPrimaryAccount();
+                }
+            }
+            catch
+            {
+                Debug.WriteLine("ログイン処理に失敗");
+            }
+
+
+
+
 
 #if DEBUG
             if (_DEBUG_XBOX_RESOURCE)
@@ -251,22 +278,6 @@ namespace NicoPlayerHohoema
             };
 
 
-
-
-
-            await base.OnInitializeAsync(args);
-        }
-
-        protected override async Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
-        {
-            SplashScreen = args.SplashScreen;
-#if DEBUG
-            DebugSettings.IsBindingTracingEnabled = true;
-#endif
-            _IsPreLaunch = args.PrelaunchActivated;
-
-
-
             var pageManager = Container.Resolve<Services.PageManager>();
 
 
@@ -300,8 +311,6 @@ namespace NicoPlayerHohoema
             }
 #endif
 
-
-
             // 更新通知を表示
             try
             {
@@ -313,25 +322,6 @@ namespace NicoPlayerHohoema
                 }
             }
             catch { }
-
-            // ログイン
-            try
-            {
-                var niconicoSession = Container.Resolve<NiconicoSession>();
-                if (Models.Helpers.AccountManager.HasPrimaryAccount())
-                {
-                    // サインイン処理の待ちを初期化内でしないことで初期画面表示を早める
-                    _ = niconicoSession.SignInWithPrimaryAccount();
-                }
-            }
-            catch
-            {
-                Debug.WriteLine("ログイン処理に失敗");
-            }
-
-
-            
-
 
             // 購読機能を初期化
             try
@@ -359,18 +349,37 @@ namespace NicoPlayerHohoema
             }
             catch { }
 
-            //            return Task.CompletedTask;
+            await base.OnInitializeAsync(args);
         }
 
         
+        protected override async Task OnLaunchApplicationAsync(LaunchActivatedEventArgs args)
+        {
+            SplashScreen = args.SplashScreen;
+#if DEBUG
+            DebugSettings.IsBindingTracingEnabled = true;
+#endif
+            _IsPreLaunch = args.PrelaunchActivated;
+
+
+            
+
+
+            await Task.CompletedTask;
+        }
+
         protected override async Task OnActivateApplicationAsync(IActivatedEventArgs args)
 		{
-            var pageManager = Container.Resolve<Services.PageManager>();
-            
-            if (args.Kind == ActivationKind.Launch)
-            {
+            var niconicoSession = Container.Resolve<NiconicoSession>();
 
+            // 外部から起動した場合にサインイン動作と排他的動作にさせたい
+            // こうしないと再生処理を正常に開始できない
+            using (await niconicoSession.SigninLock.LockAsync())
+            {
+                await Task.Delay(50);
             }
+
+
 
             if (args.Kind == ActivationKind.ToastNotification)
             {
@@ -390,6 +399,7 @@ namespace NicoPlayerHohoema
                         }
                         else
                         {
+                            var pageManager = Container.Resolve<Services.PageManager>();
                             pageManager.OpenPage(serialize.RedirectPageType, serialize.RedirectParamter);
                         }
                         isHandled = true;
@@ -447,7 +457,6 @@ namespace NicoPlayerHohoema
                 var uri = param.Uri;
                 var maybeNicoContentId = new string(uri.OriginalString.Skip("niconico://".Length).TakeWhile(x => x != '?' && x != '/').ToArray());
 
-
                 if (Mntone.Nico2.NiconicoRegex.IsVideoId(maybeNicoContentId)
                     || maybeNicoContentId.All(x => x >= '0' && x <= '9'))
                 {
@@ -457,10 +466,7 @@ namespace NicoPlayerHohoema
                 {
                     PlayLiveVideoFromExternal(maybeNicoContentId);
                 }
-            }
-            else
-            {
-                pageManager.OpenStartupPage();
+
             }
 
 
