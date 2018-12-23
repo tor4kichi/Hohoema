@@ -88,6 +88,8 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                         JumpVideo.Data = video;
                         JumpVideo.RawVideoId = video.RawVideoId;
                         RaisePropertyChanged(nameof(JumpVideo));
+
+                        JumpVideo.SetupFromThumbnail(video);
                     }
                 }
 
@@ -112,6 +114,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                         var otherVideo = App.Current.Container.Resolve<VideoInfoControlViewModel>();
                         otherVideo.Data = video;
                         otherVideo.RawVideoId = video.RawVideoId;
+                        otherVideo.SetupFromThumbnail(video);
                         OtherVideos.Add(otherVideo);
                     }
                 }
@@ -126,8 +129,9 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 {
                     var nextVideo = orderedSeriesVideos.Last();
                     NextVideo = App.Current.Container.Resolve<VideoInfoControlViewModel>();
-                    NextVideo.Data = nextVideo;
+                    
                     NextVideo.RawVideoId = nextVideo.RawVideoId;
+                    NextVideo.SetupFromThumbnail(nextVideo);
                     orderedSeriesVideos.Remove(nextVideo);
 
                     RaisePropertyChanged(nameof(NextVideo));
@@ -139,8 +143,8 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 foreach (var video in orderedSeriesVideos)
                 {
                     var videoVM = App.Current.Container.Resolve<VideoInfoControlViewModel>();
-                    videoVM.Data = video;
                     videoVM.RawVideoId = video.RawVideoId;
+                    videoVM.SetupFromThumbnail(video);
                     OtherVideos.Insert(0, videoVM);
                 }
 
@@ -203,8 +207,11 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                             var videoVM = App.Current.Container.Resolve<ChannelVideoListItemViewModel>();
                             videoVM.RawVideoId = nextVideo.ItemId;
                             videoVM.IsRequirePayment = nextVideo.IsRequirePayment;
-
                             videoVM.SetTitle(nextVideo.Title);
+                            videoVM.SetSubmitDate(nextVideo.PostedAt);
+                            videoVM.SetThumbnailImage(nextVideo.ThumbnailUrl);
+                            videoVM.SetVideoDuration(nextVideo.Length);
+                            videoVM.SetDescription(nextVideo.ViewCount, nextVideo.CommentCount, nextVideo.MylistCount);
 
                             NextVideo = videoVM;
                             RaisePropertyChanged(nameof(NextVideo));
@@ -230,7 +237,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 {
                     var vm = App.Current.Container.Resolve<VideoInfoControlViewModel>();
                     vm.RawVideoId = x.RawVideoId;
-                    vm.Data = x;
+                    vm.SetupFromThumbnail(x);
                     return vm;
                 })
                 .ToList();
