@@ -745,10 +745,9 @@ namespace NicoPlayerHohoema.ViewModels
 
             return PlayableList.Skip(head).Take(count).Select(x =>
                 {
-                    var vm = App.Current.Container.Resolve<VideoInfoControlViewModel>();
+                    var vm = new VideoInfoControlViewModel() { };
                     var video = Database.NicoVideoDb.Get(x);
                     vm.RawVideoId = x;
-                    vm.Data = video;
                     vm.SetTitle(video.Title);
                     return vm;
                 })

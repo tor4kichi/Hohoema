@@ -36,7 +36,7 @@ namespace NicoPlayerHohoema.Models.Provider
        
 
 
-        static TimeSpan ThumbnailExpirationSpan { get; set; } = TimeSpan.FromMinutes(30);
+        static TimeSpan ThumbnailExpirationSpan { get; set; } = TimeSpan.FromMinutes(5);
         public EventAggregator EventAggregator { get;  }
 
         AsyncLock _ThumbnailAccessLock = new AsyncLock();
@@ -71,7 +71,8 @@ namespace NicoPlayerHohoema.Models.Provider
                 // 最新情報が不要な場合は内部DBのキャッシュをそのまま返す
                 if (info != null && !requireLatest)
                 {
-                    if (info.LastUpdated > DateTime.Now - ThumbnailExpirationSpan)
+                    if (info.ViewCount != 0 
+                        && info.LastUpdated > DateTime.Now - ThumbnailExpirationSpan)
                     {
                         return info;
                     }

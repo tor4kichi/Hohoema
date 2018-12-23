@@ -40,7 +40,9 @@ namespace NicoPlayerHohoema.Models.Helpers
 		private bool _HasMoreItems;
 		private uint _Position;
 
-		private SemaphoreSlim _LoadingLock;
+
+        static AsyncLock LoadingLock { get; } = new AsyncLock();
+
         CoreDispatcher _UIDispatcher;
 		public IncrementalLoadingCollection(T source)
 		{
@@ -48,7 +50,6 @@ namespace NicoPlayerHohoema.Models.Helpers
 			this._HasMoreItems = true;
 			_Position = 0;
 			IsPuaseLoading = false;
-			_LoadingLock = new SemaphoreSlim(1, 1);
             _UIDispatcher = Window.Current.Dispatcher;
         }
 
@@ -57,79 +58,69 @@ namespace NicoPlayerHohoema.Models.Helpers
             // 多重読み込み防止のため
             // リスト表示に反映されるまで
             // タスクの終了を遅延させる必要があります
+            return LoadDataAsync(count, new CancellationToken(false))
+                .AsAsyncOperation();
 
-            return LoadDataAsync(count, new CancellationToken(false)).AsAsyncOperation();
         }
 
         public async Task<LoadMoreItemsResult> LoadDataAsync(uint count, CancellationToken cancellationToken)
         {
+            
+            uint resultCount = 0;
+
+            BeginLoading?.Invoke();
+
+            IAsyncEnumerable<I> items = null;
+
+            cancellationToken.ThrowIfCancellationRequested();
+
             try
             {
-                await _LoadingLock.WaitAsync();
-
-                BeginLoading?.Invoke();
-
-                uint resultCount = 0;
-                IAsyncEnumerable<I> items = null;
-                if (!cancellationToken.IsCancellationRequested)
-                {
-                    try
-                    {
-                        await _UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => 
-                        {
-                            items = await _Source.GetPagedItems((int)_Position, (int)_Source.OneTimeLoadCount);
-                        });
-                    }
-                    catch (OperationCanceledException)
-                    {
-
-                    }
-                    catch (Exception ex)
-                    {
-                        Debug.WriteLine(ex.Message);
-                    }
-                }
-
-                if (items != null && !cancellationToken.IsCancellationRequested)
-                {
-                    // Task.Delay(50)は多重読み込み防止のためのおまじない
-                    // アイテム追加完了のタイミングで次の追加読み込みの判定が走るっぽいので
-                    // アイテム追加が完了するまでUIスレッドが止まっている必要があるっぽい、つまり
-                    // 
-                    // 「非同期処理のことはよくわからない
-                    //       
-                    //      俺たちは雰囲気で非同期処理をやっているんだ」
-                    // 
-                    await Task.WhenAll(
-                        Task.Delay(50),
-                        _UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-                        {
-                            items.ForEachAsync((item) =>
-                            {
-                                this.Add(item);
-                                ++resultCount;
-                            });
-                        }).AsTask()
-                        );
-
-                    _Position += resultCount;
-                }
-
-                if (resultCount == 0)
-                {
-                    _HasMoreItems = false;
-                }
-
-
-
-                DoneLoading?.Invoke();
-
-                return new LoadMoreItemsResult() { Count = resultCount };
+                items = await _Source.GetPagedItems((int)_Position, (int)_Source.OneTimeLoadCount);
             }
-            finally
+            catch (OperationCanceledException)
             {
-                _LoadingLock.Release();
+
             }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(ex.Message);
+            }
+
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (items != null)
+            {
+                // Task.Delay(50)は多重読み込み防止のためのおまじない
+                // アイテム追加完了のタイミングで次の追加読み込みの判定が走るっぽいので
+                // アイテム追加が完了するまでUIスレッドが止まっている必要があるっぽい、つまり
+                // 
+                // 「非同期処理のことはよくわからない
+                //       
+                //      俺たちは雰囲気で非同期処理をやっているんだ」
+                // 
+
+
+                await Task.WhenAll(
+                    items.ForEachAsync((item) =>
+                    {
+                        this.Add(item);
+                        ++resultCount;
+                    })
+                    , Task.Delay(50)
+                    );
+
+                _Position += resultCount;
+            }
+
+            if (resultCount == 0)
+            {
+                _HasMoreItems = false;
+            }
+
+            DoneLoading?.Invoke();
+            return new LoadMoreItemsResult() { Count = resultCount };
+            
         }
 
 

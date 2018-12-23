@@ -18,12 +18,14 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Navigation;
 
+
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class SearchResultTagPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
 	{
         public SearchResultTagPageViewModel(
            NGSettings ngSettings,
+           Models.NiconicoSession niconicoSession,
            SearchProvider searchProvider,
            SubscriptionManager subscriptionManager,
            Services.HohoemaPlaylist hohoemaPlaylist,
@@ -34,10 +36,11 @@ namespace NicoPlayerHohoema.ViewModels
            : base(pageManager, useDefaultPageTitle: false)
         {
             SearchProvider = searchProvider;
-            SubscriptionManager1 = subscriptionManager;
+            SubscriptionManager = subscriptionManager;
             HohoemaPlaylist = hohoemaPlaylist;
             NgSettings = ngSettings;
-            _HohoemaDialogService = dialogService;
+            NiconicoSession = niconicoSession;
+            HohoemaDialogService = dialogService;
             CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
             FailLoading = new ReactiveProperty<bool>(false)
                 .AddTo(_CompositeDisposable);
@@ -73,7 +76,15 @@ namespace NicoPlayerHohoema.ViewModels
             SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
         }
 
-        Services.DialogService _HohoemaDialogService;
+
+        public NGSettings NgSettings { get; }
+        public Models.NiconicoSession NiconicoSession { get; }
+        public SearchProvider SearchProvider { get; }
+        public SubscriptionManager SubscriptionManager { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.DialogService HohoemaDialogService { get; }
+        public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
+
         public Models.Subscription.SubscriptionSource? SubscriptionSource => new Models.Subscription.SubscriptionSource(SearchOption.Keyword, Models.Subscription.SubscriptionSourceType.TagSearch, SearchOption.Keyword);
 
 
@@ -228,12 +239,6 @@ namespace NicoPlayerHohoema.ViewModels
 					}));
 			}
 		}
-
-        public SearchProvider SearchProvider { get; }
-        public SubscriptionManager SubscriptionManager1 { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
-        public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
-        public NGSettings NgSettings { get; }
 
         #endregion
 

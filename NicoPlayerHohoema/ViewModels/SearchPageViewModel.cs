@@ -752,21 +752,21 @@ namespace NicoPlayerHohoema.ViewModels
 	{
         public VideoSearchSource(VideoSearchOption searchOption, SearchProvider searchProvider, NGSettings ngSettings)
         {
+            SearchOption = searchOption;
             SearchProvider = searchProvider;
             NgSettings = ngSettings;
         }
 
         public SearchProvider SearchProvider { get; }
         public NGSettings NgSettings { get; }
-        public int MaxPageCount { get; private set; }
-		public VideoSearchOption SearchOption { get; private set; }
+		public VideoSearchOption SearchOption { get; }
 
-        VideoListingResponse res;
 
 		
 
         protected override async Task<IAsyncEnumerable<VideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
         {
+            VideoListingResponse res = null;
             if (SearchOption.SearchTarget == SearchTarget.Keyword)
             {
                 res = await SearchProvider.GetKeywordSearch(SearchOption.Keyword, (uint)head, (uint)count, SearchOption.Sort, SearchOption.Order);
