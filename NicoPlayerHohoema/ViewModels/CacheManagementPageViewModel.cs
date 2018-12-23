@@ -107,6 +107,9 @@ namespace NicoPlayerHohoema.ViewModels
                         );
 
                     await RefreshCacheSaveFolderStatus();
+
+                    await VideoCacheManager.OnCacheFolderChanged();
+
                     await ResetList();
                 }
             });

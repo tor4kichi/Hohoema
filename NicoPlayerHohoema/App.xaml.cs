@@ -84,6 +84,7 @@ namespace NicoPlayerHohoema
             Container.RegisterType<IScheduler>(new InjectionFactory(c => SynchronizationContext.Current != null ? new SynchronizationContextScheduler(SynchronizationContext.Current) : null));
 
             // Service
+            Container.RegisterType<Services.NiconicoLoginService>(new ContainerControlledLifetimeManager());
             Container.RegisterType<Services.DialogService>(lifetimeManager: new ContainerControlledLifetimeManager());
             Container.RegisterType<Services.PageManager>(new PerThreadLifetimeManager());
             Container.RegisterType<PlayerViewManager>(new PerThreadLifetimeManager());
@@ -124,7 +125,7 @@ namespace NicoPlayerHohoema
             Container.RegisterInstance(Container.Resolve<Services.HohoemaAlertClient>());
             Container.RegisterInstance(Container.Resolve<Services.WatchItLater>());
             Container.RegisterInstance(Container.Resolve<Services.Notification.NotificationCacheVideoDeletedService>());
-
+            
             // ViewModels
             Container.RegisterType<ViewModels.RankingCategoryListPageViewModel>(new ContainerControlledLifetimeManager());
 

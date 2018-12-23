@@ -9,11 +9,9 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     mc:Ignorable="d"
-    Title="ニコニコサービスにログイン"
+    Title="ニコニコ動画にログイン"
     PrimaryButtonText="ログイン"
     SecondaryButtonText="キャンセル"
-    PrimaryButtonClick="ContentDialog_PrimaryButtonClick"
-    SecondaryButtonClick="ContentDialog_SecondaryButtonClick"
     FullSizeDesired="True"
     ScrollViewer.VerticalScrollBarVisibility="Auto"
     ScrollViewer.VerticalScrollMode="Auto"
@@ -25,32 +23,41 @@
                       IsTabStop="False"
                       >
             <StackPanel x:Name="LoginFormLayout">
-                <TextBox x:Name="Mail"
+
+                <TextBlock Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Text, Converter={StaticResource CollectionVisibilityConverter}}"
+                           x:Name="WarningTextBlock"
+                           TextWrapping="Wrap"
+                           Margin="0 0 0 16"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           />
+
+
+                <TextBox x:Name="MailTextBox"
                      InputScope="EmailSmtpAddress"
-                     XYFocusDown="{x:Bind Password}"
+                     XYFocusDown="{x:Bind PasswordBox}"
                      Header="メール"
                      Margin="0 0 0 8"
                      >
 
                     <i:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Loaded">
-                            <mybehavior:SetFocus TargetObject="{Binding ElementName=Mail}" />
+                            <mybehavior:SetFocus TargetObject="{x:Bind MailTextBox}" />
                         </core:EventTriggerBehavior>
                     </i:Interaction.Behaviors>
                 </TextBox>
 
-                <PasswordBox x:Name="Password"
-                         XYFocusUp="{x:Bind Mail}"
-                         XYFocusDown="{x:Bind IsRememberPassword}"
+                <PasswordBox x:Name="PasswordBox"
+                         XYFocusUp="{x:Bind MailTextBox}"
+                         XYFocusDown="{x:Bind IsRememberPasswordToggle}"
                          Header="パスワード"
                          Margin="0 0 0 8"
                          >
 
                 </PasswordBox>
 
-                <ToggleSwitch x:Name="IsRememberPassword"
+                <ToggleSwitch x:Name="IsRememberPasswordToggle"
                           Width="32"
-                          XYFocusUp="{x:Bind Password}"
+                          XYFocusUp="{x:Bind PasswordBox}"
                           Header="パスワードを保存"
                           Margin="0 0 0 8"
                            >
@@ -95,24 +102,5 @@
 
             </StackPanel>
         </ScrollViewer>
-        
-
-
-        <Grid x:Name="ProcessingBarrier" Visibility="Collapsed"
-              >
-            <Grid.Background>
-                <SolidColorBrush Color="#7F000000" />
-            </Grid.Background>
-            <StackPanel HorizontalAlignment="Center"
-                        VerticalAlignment="Center"
-                        >
-
-                <ProgressRing x:Name="LoginProgressRing"
-                              IsActive="False"
-                              Height="48"
-                              Width="48"
-                          />
-            </StackPanel>
-        </Grid>
     </Grid>
 </ContentDialog>

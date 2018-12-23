@@ -24,80 +24,35 @@ namespace NicoPlayerHohoema.Dialogs
 {
     public sealed partial class NiconicoLoginDialog : ContentDialog
     {
-        public NiconicoSession NiconicoSession { get; }
-
-        // TODO: 2要素認証の再実装、Serviceとして切り出し
-
-        public NiconicoLoginDialog(NiconicoSession niconicoSession)
+        public NiconicoLoginDialog()
         {
             this.InitializeComponent();
-
-            this.Loading += NiconicoLoginDialog_Loading;
-            NiconicoSession = niconicoSession;
         }
 
-        private async void NiconicoLoginDialog_Loading(FrameworkElement sender, object args)
+        public string Mail
         {
-            var account = await AccountManager.GetPrimaryAccount();
-            if (account != null)
-            {
-                Mail.Text = account.Item1;
-                Password.Password = account.Item2;
-
-                IsRememberPassword.IsOn = true;
-            }
-        }
-
-        private async void ContentDialog_PrimaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
-        {
-            ProcessingBarrier.Visibility = Visibility.Visible;
-            LoginProgressRing.IsActive = true;
-
-            var defer = args.GetDeferral();
-
-            bool isTwoFactorLogin = false;
-            try
-            {
-
-                var mail = Mail.Text;
-                var password = Password.Password;
-                var result = await NiconicoSession.SignIn(mail, password);
-
-                if (IsRememberPassword.IsOn)
-                {
-                    await AccountManager.AddOrUpdateAccount(mail, password);
-                    AccountManager.SetPrimaryAccountId(mail);
-                }
-                else
-                {
-                    AccountManager.SetPrimaryAccountId("");
-                    AccountManager.RemoveAccount(mail);
-                }
-
-                if (!isTwoFactorLogin 
-                    && (result == Mntone.Nico2.NiconicoSignInStatus.Failed || result == Mntone.Nico2.NiconicoSignInStatus.ServiceUnavailable))
-                {
-                    args.Cancel = true;
-                }
-
-                
-            }
-            finally
-            {
-                if (!isTwoFactorLogin)
-                {
-                    defer.Complete();
-                }
-
-                ProcessingBarrier.Visibility = Visibility.Collapsed;
-                LoginProgressRing.IsActive = false;
-            }
+            get { return MailTextBox.Text; }
+            set { MailTextBox.Text = value; }
         }
 
 
-
-        private void ContentDialog_SecondaryButtonClick(ContentDialog sender, ContentDialogButtonClickEventArgs args)
+        public string Password
         {
+            get { return PasswordBox.Password; }
+            set { PasswordBox.Password = value; }
+        }
+
+
+        public bool IsRememberPassword
+        {
+            get { return IsRememberPasswordToggle.IsOn; }
+            set { IsRememberPasswordToggle.IsOn = value; }
+        }
+
+        public string WarningText
+        {
+            get { return WarningTextBlock.Text; }
+            set { WarningTextBlock.Text = value; }
         }
     }
 }

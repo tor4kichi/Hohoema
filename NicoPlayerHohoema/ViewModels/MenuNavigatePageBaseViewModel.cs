@@ -42,12 +42,12 @@ namespace NicoPlayerHohoema.ViewModels
             VideoCacheManager videoCacheManager, 
             NicoLiveSubscriber nicoLiveSubscriber,
             PageManager pageManager,
-            Commands.LoginToNiconicoCommand loginToNiconicoCommand,
+            Services.NiconicoLoginService niconicoLoginService,
             Commands.LogoutFromNiconicoCommand logoutFromNiconicoCommand
             )
         {
             PageManager = pageManager;
-            LoginToNiconicoCommand = loginToNiconicoCommand;
+            NiconicoLoginService = niconicoLoginService;
             LogoutFromNiconicoCommand = logoutFromNiconicoCommand;
             Container = container;
             Scheduler = scheduler;
@@ -251,7 +251,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public PageManager PageManager { get; private set; }
-        public Commands.LoginToNiconicoCommand LoginToNiconicoCommand { get; }
+        public NiconicoLoginService NiconicoLoginService { get; }
         public Commands.LogoutFromNiconicoCommand LogoutFromNiconicoCommand { get; }
         public Microsoft.Practices.Unity.IUnityContainer Container { get; }
         public IScheduler Scheduler { get; }

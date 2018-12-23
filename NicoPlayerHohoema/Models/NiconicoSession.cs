@@ -5,12 +5,14 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Networking.Connectivity;
 using Windows.UI.Core;
+using AsyncLock = NicoPlayerHohoema.Models.Helpers.AsyncLock;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -46,6 +48,24 @@ namespace NicoPlayerHohoema.Models
 
     public sealed class NiconicoSession : BindableBase
     {
+        public NiconicoSession( 
+            IScheduler scheduler
+            )
+        {
+            UpdateServiceStatus(NiconicoSignInStatus.Failed);
+
+            NetworkInformation.NetworkStatusChanged += (args) =>
+            {
+                Scheduler.Schedule(async () => 
+                {
+                    await CheckSignedInStatus();
+                });
+            };
+            Scheduler = scheduler;
+        }
+
+
+
         public const string HohoemaUserAgent = "Hohoema_UWP";
 
 
@@ -127,17 +147,10 @@ namespace NicoPlayerHohoema.Models
             private set { _Context = value; }
         }
 
+        public IScheduler Scheduler { get; }
 
         private AsyncLock _SigninLock = new AsyncLock();
 
-
-        public NiconicoSession()
-        {
-            NetworkInformation.NetworkStatusChanged += (args) => 
-            {
-                _ = CheckSignedInStatus();
-            };
-        }
 
 
         public bool IsLoginUserId(string id)
@@ -381,6 +394,8 @@ namespace NicoPlayerHohoema.Models
                                 Deferral = deferral,
                                 TwoFactorAuthPageUri = context.LastRedirectHttpRequestMessage.RequestUri
                             });
+
+                            
                         }
                         else if (result == NiconicoSignInStatus.Success)
                         {

@@ -137,7 +137,6 @@
     <Compile Include="Commands\Cache\AddCacheRequestCommand.cs" />
     <Compile Include="Commands\Cache\DeleteCacheRequestCommand.cs" />
     <Compile Include="Commands\GoNextIntroductionPageCommand.cs" />
-    <Compile Include="Commands\LoginToNiconicoCommand.cs" />
     <Compile Include="Commands\LogoutFromNiconicoCommand.cs" />
     <Compile Include="Commands\Mylist\CreateLocalMylistCommand.cs" />
     <Compile Include="Commands\Mylist\CreateMylistCommand.cs" />
@@ -186,6 +185,7 @@
     <Compile Include="Models\Provider\UserProvider.cs" />
     <Compile Include="Services\ExternalAccessService.cs" />
     <Compile Include="Services\Helpers\MylistHelper.cs" />
+    <Compile Include="Services\NiconicoLoginService.cs" />
     <Compile Include="Services\Notification\NotificationCacheVideoDeletedService.cs" />
     <Compile Include="ViewModels\Flyouts\LiveItemFlyoutViewModel.cs" />
     <Compile Include="ViewModels\Flyouts\MylistItemFlyoutViewModel.cs" />

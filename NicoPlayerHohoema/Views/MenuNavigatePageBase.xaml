@@ -25,6 +25,7 @@
     xmlns:templateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:myconv="using:NicoPlayerHohoema.Views.Converters"
+    xmlns:models="using:NicoPlayerHohoema.Models"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400"    
@@ -670,7 +671,7 @@
 
                                                     <MenuFlyoutItem x:Name="MenuFlyoutItem_Login"
                                                                     Text="ログイン" 
-                                                                    Command="{Binding LoginToNiconicoCommand}"
+                                                                    Command="{Binding NiconicoLoginService.LoginCommand}"
                                                                     Visibility="Collapsed"
                                                                     />
 
@@ -1183,7 +1184,7 @@
 
                         <VisualState x:Name="ServiceUnavailableState">
                             <VisualState.StateTriggers>
-                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="OnlineButServiceUnavailable" />
+                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="ServiceUnavailable" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
                                 <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
@@ -1193,10 +1194,9 @@
 
                         <VisualState x:Name="WithoutLoggedInState">
                             <VisualState.StateTriggers>
-                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="OnlineWithoutLoggedIn" />
+                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="WithoutLoggedIn" />
                             </VisualState.StateTriggers>
                             <VisualState.Setters>
-
                                 <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
                             </VisualState.Setters>
                         </VisualState>
@@ -1214,21 +1214,6 @@
                                 <Setter Target="MenuFlyoutItem_Logout.Visibility" Value="Visible" />
                             </VisualState.Setters>
                         </VisualState>
-
-                        <VisualState x:Name="LoggedInWithPremiumState">
-                            <VisualState.StateTriggers>
-                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="LoggedInWithPremium" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="ServiceStateText.Visibility" Value="Collapsed" />
-
-                                <Setter Target="AccountInfoLayout.Visibility" Value="Visible" />
-
-                                <Setter Target="MenuFlyoutItem_OpenAccountInfo.Visibility" Value="Visible" />
-                                <Setter Target="MenuFlyoutItem_Logout.Visibility" Value="Visible" />
-                            </VisualState.Setters>
-                        </VisualState>
-
 
                     </VisualStateGroup>
 

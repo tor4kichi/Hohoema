@@ -31,12 +31,12 @@ namespace NicoPlayerHohoema.ViewModels
         public SearchResultCommunityPageViewModel(
             PageManager pageManager, 
             SearchProvider searchProvider,
-            Commands.LoginToNiconicoCommand loginToNiconicoCommand
+            Services.NiconicoLoginService niconicoLoginService
             )
             : base(pageManager, useDefaultPageTitle: false)
         {
             SearchProvider = searchProvider;
-            LoginToNiconicoCommand = loginToNiconicoCommand;
+            NiconicoLoginService = niconicoLoginService;
             SelectedSearchSort = new ReactivePropertySlim<CommunitySearchSortOptionListItem>();
             SelectedSearchMode = new ReactivePropertySlim<CommynitySearchModeOptionListItem>();
 
@@ -45,7 +45,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public SearchProvider SearchProvider { get; }
-        public Commands.LoginToNiconicoCommand LoginToNiconicoCommand { get; }
+        public NiconicoLoginService NiconicoLoginService { get; }
 
         public CommunitySearchPagePayloadContent SearchOption { get; private set; }
 

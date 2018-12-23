@@ -305,7 +305,7 @@
                        Margin="16 0 16 16"
                        />
 
-            <Button Content="ログイン" Command="{Binding LoginToNiconicoCommand}" />
+            <Button Content="ログイン" Command="{Binding NiconicoLoginService.LoginCommand}" />
             
         </StackPanel>
     </Grid>

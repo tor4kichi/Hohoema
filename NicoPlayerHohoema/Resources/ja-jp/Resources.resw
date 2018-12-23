@@ -261,10 +261,6 @@
     <value>ログイン</value>
     <comment>HohoemaAppServiceLevel</comment>
   </data>
-  <data name="LoggedInWithPremium" xml:space="preserve">
-    <value>ログイン（プレミアム会員）</value>
-    <comment>HohoemaAppServiceLevel</comment>
-  </data>
   <data name="low" xml:space="preserve">
     <value>低画質</value>
     <comment>Niconico Live Quality</comment>
@@ -317,11 +313,11 @@
     <value>オフライン</value>
     <comment>HohoemaAppServiceLevel</comment>
   </data>
-  <data name="OnlineButServiceUnavailable" xml:space="preserve">
+  <data name="ServiceUnavailable" xml:space="preserve">
     <value>ニコニコ動画サービス利用不可</value>
     <comment>HohoemaAppServiceLevel</comment>
   </data>
-  <data name="OnlineWithoutLoggedIn" xml:space="preserve">
+  <data name="WithoutLoggedIn" xml:space="preserve">
     <value>ログイン無し</value>
     <comment>HohoemaAppServiceLevel</comment>
   </data>
