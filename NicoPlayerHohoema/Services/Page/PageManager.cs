@@ -220,7 +220,7 @@ namespace NicoPlayerHohoema.Services
                     case ViewModels.MenuItemViewModel item:
                         OpenPage(item.PageType, item.Parameter);
                         break;
-                    case HohoemaPin pin:
+                    case ViewModels.PinItemViewModel pin:
                         OpenPage(pin.PageType, pin.Parameter);
                         break;
                     case Interfaces.IVideoContent videoContent:
