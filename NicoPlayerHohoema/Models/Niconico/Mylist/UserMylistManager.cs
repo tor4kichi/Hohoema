@@ -28,16 +28,38 @@ namespace NicoPlayerHohoema.Models
             _Mylists = new ObservableCollection<UserOwnedMylist>();
             Mylists = new ReadOnlyObservableCollection<UserOwnedMylist>(_Mylists);
 
-            NiconicoSession.LogIn += (_, e) =>
+            NiconicoSession.LogIn += async (_, e) =>
             {
-                _ = SyncMylistGroups();
+                using (await _mylistSyncLock.LockAsync())
+                {
+                    IsLoginUserMylistReady = false;
+
+                    await SyncMylistGroups();
+
+                    IsLoginUserMylistReady = true;
+                }
             };
-            NiconicoSession.LogOut += (_, e) =>
+
+            NiconicoSession.LogOut += async (_, e) =>
             {
-                _Mylists.Clear();
+                using (await _mylistSyncLock.LockAsync())
+                {
+                    IsLoginUserMylistReady = false;
+
+                    _Mylists.Clear();
+                }
             };
         }
 
+        AsyncLock _mylistSyncLock = new AsyncLock();
+
+        private bool _IsLoginUserMylistReady;
+        public bool IsLoginUserMylistReady
+        {
+            get { return _IsLoginUserMylistReady; }
+            set { SetProperty(ref _IsLoginUserMylistReady, value); }
+        }
+       
 
         public NiconicoSession NiconicoSession { get; }
         public Provider.LoginUserMylistProvider LoginUserMylistProvider { get; }

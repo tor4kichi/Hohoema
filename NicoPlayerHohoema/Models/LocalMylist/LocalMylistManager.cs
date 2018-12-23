@@ -19,12 +19,10 @@ namespace NicoPlayerHohoema.Models.LocalMylist
     public sealed class LocalMylistManager : IDisposable
     {
         public LocalMylistManager(
-            NiconicoSession niconicoSession, 
-            Services.NotificationService notificationService
+            NiconicoSession niconicoSession
             )
         {
             NiconicoSession = niconicoSession;
-            NotificationService = notificationService;
 
             Mylists = new ObservableCollection<LocalMylistGroup>(RestoreLocalMylistGroupsFromLocalDatabase());
 
@@ -77,7 +75,6 @@ namespace NicoPlayerHohoema.Models.LocalMylist
         public ObservableCollection<LocalMylistGroup> Mylists { get; }
 
         public NiconicoSession NiconicoSession { get; }
-        public Services.NotificationService NotificationService { get; }
 
         Dictionary<string, IDisposable> LocalMylistPropertyChangedObserverMap = new Dictionary<string, IDisposable>();
 

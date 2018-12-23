@@ -125,7 +125,8 @@ namespace NicoPlayerHohoema
             Container.RegisterInstance(Container.Resolve<Services.HohoemaAlertClient>());
             Container.RegisterInstance(Container.Resolve<Services.WatchItLater>());
             Container.RegisterInstance(Container.Resolve<Services.Notification.NotificationCacheVideoDeletedService>());
-            
+            Container.RegisterInstance(Container.Resolve<Services.Notification.NotificationMylistUpdatedService>());
+
             // ViewModels
             Container.RegisterType<ViewModels.RankingCategoryListPageViewModel>(new ContainerControlledLifetimeManager());
 
