@@ -31,6 +31,19 @@ namespace NicoPlayerHohoema.ViewModels
 {
 	public abstract class HohoemaViewModelBase : ViewModelBase, IDisposable
 	{
+
+        public HohoemaViewModelBase(
+            PageManager pageManager
+            )
+        {
+            PageManager = pageManager;
+
+            _CompositeDisposable = new CompositeDisposable();
+            _NavigatingCompositeDisposable = new CompositeDisposable();
+        }
+
+
+
         private SynchronizationContextScheduler _CurrentWindowContextScheduler;
         public SynchronizationContextScheduler CurrentWindowContextScheduler
         {
@@ -41,37 +54,17 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        // 代替キャンセル動作の管理ID
-        const string PlayerFillModeBackNavigationCancel = "fill_mode_cancel";
+
+        public PageManager PageManager { get; }
+
+        protected CompositeDisposable _CompositeDisposable { get; private set; }
+        protected CompositeDisposable _NavigatingCompositeDisposable { get; private set; }
+
+
 
         static Models.Helpers.AsyncLock _NavigationLock = new Models.Helpers.AsyncLock();
-
-
-
-        public HohoemaViewModelBase(
-            PageManager pageManager
-            )
-		{
-			_NavigationToLock = new SemaphoreSlim(1, 1);
-			PageManager = pageManager;
-
-            _CompositeDisposable = new CompositeDisposable();
-			_NavigatingCompositeDisposable = new CompositeDisposable();
-
-            SubstitutionBackNavigation = new Dictionary<string, Func<bool>>();
-            
-        }
-
-
-
-
-
-
         CancellationTokenSource _NavigatedToTaskCancelToken;
         Task _NavigatedToTask;
-
-        private SemaphoreSlim _NavigationToLock;
-
 
         private string _Title;
         public string Title
@@ -80,12 +73,6 @@ namespace NicoPlayerHohoema.ViewModels
             set { SetProperty(ref _Title, value); }
         }
 
-        public static Dictionary<string, Func<bool>> SubstitutionBackNavigation { get; private set; } = new Dictionary<string, Func<bool>>();
-
-        public PageManager PageManager { get; }
-
-        protected CompositeDisposable _CompositeDisposable { get; private set; }
-        protected CompositeDisposable _NavigatingCompositeDisposable { get; private set; }
 
 
         private DelegateCommand _BackCommand;
@@ -101,10 +88,6 @@ namespace NicoPlayerHohoema.ViewModels
 							{
 								PageManager.NavigationService.GoBack();
 							}
-							else
-							{
-								PageManager.OpenStartupPage();
-                            }
 						}));
 			}
 		}
@@ -116,7 +99,22 @@ namespace NicoPlayerHohoema.ViewModels
 
         public bool IsDisposed { get; private set; }
 
+
+        public async void Dispose()
+        {
+            using (var releaser = await _NavigationLock.LockAsync())
+            {
+                IsDisposed = true;
+
+                OnDispose();
+
+                _CompositeDisposable?.Dispose();
+            }
+        }
+
         protected virtual void OnDispose() { }
+
+        
 
 
 
@@ -216,7 +214,7 @@ namespace NicoPlayerHohoema.ViewModels
                 // バックナビゲーションをキャンセルします。
                 if (!suspending
                     && e.NavigationMode == NavigationMode.Back
-                    && SubstitutionBackNavigation.Count > 0
+                    && PageManager.PreventBackNavigation
                     )
                 {
                     e.Cancel = true;
@@ -249,7 +247,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected virtual void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
         {
-
         }
 
         public bool IsPageNameResolveOnPostNavigatedToAsync { get; protected set; } = false;
@@ -257,21 +254,6 @@ namespace NicoPlayerHohoema.ViewModels
         {
             return PageManager.CurrentDefaultPageTitle();
         }
-
-
-        public async void Dispose()
-		{
-			using (var releaser = await _NavigationLock.LockAsync())
-			{
-				IsDisposed = true;
-
-				OnDispose();
-
-				_CompositeDisposable?.Dispose();
-			}
-		}
-
-
 
 	}
 }

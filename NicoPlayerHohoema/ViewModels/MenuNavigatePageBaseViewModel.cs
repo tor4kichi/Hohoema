@@ -530,24 +530,6 @@ namespace NicoPlayerHohoema.ViewModels
             );
         }
 
-        private DelegateCommand _NavigationBackCommand;
-        public DelegateCommand NavigationBackCommand
-        {
-            get
-            {
-                return _NavigationBackCommand
-                    ?? (_NavigationBackCommand = new DelegateCommand(() =>
-                    {
-                        if (PageManager.NavigationService.CanGoBack())
-                        {
-                            PageManager.NavigationService.GoBack();
-                        }
-                    } 
-                    ));
-            }
-        }
-
-
         private DelegateCommand _TogglePaneOpenCommand;
         public DelegateCommand TogglePaneOpenCommand
         {

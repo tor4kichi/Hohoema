@@ -201,6 +201,12 @@ namespace NicoPlayerHohoema.Services
         private Models.Helpers.AsyncLock _NavigationLock = new Models.Helpers.AsyncLock();
 
 
+        /// <summary>
+        /// バックナビゲーションの暴発防止等に対応したい場合に利用します
+        /// </summary>
+        public bool PreventBackNavigation { get; internal set; }
+
+
         private DelegateCommand<object> _OpenPageCommand;
         public DelegateCommand<object> OpenPageCommand => _OpenPageCommand
             ?? (_OpenPageCommand = new DelegateCommand<object>(parameter =>
@@ -344,7 +350,6 @@ namespace NicoPlayerHohoema.Services
                         break;
                 }
             }));
-
 
         public bool OpenPage(Uri uri)
 		{
@@ -609,6 +614,9 @@ namespace NicoPlayerHohoema.Services
 
 
         #endregion
+
+
+
 
     }
 

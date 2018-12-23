@@ -188,6 +188,7 @@
     <Compile Include="Services\NiconicoLoginService.cs" />
     <Compile Include="Services\Notification\NotificationCacheVideoDeletedService.cs" />
     <Compile Include="Services\Notification\NotificationMylistUpdatedService.cs" />
+    <Compile Include="Services\Page\PreventBackNavigationOnShowPlayerService.cs" />
     <Compile Include="ViewModels\Flyouts\LiveItemFlyoutViewModel.cs" />
     <Compile Include="ViewModels\Flyouts\MylistItemFlyoutViewModel.cs" />
     <Compile Include="ViewModels\Flyouts\FollowItemFlyoutViewModel.cs" />
