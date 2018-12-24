@@ -611,6 +611,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         public string Id => VideoInfo.VideoId;
 
+        Interfaces.IMylist IVideoContent.OnwerPlaylist => null;
+
         public CommunityVideoInfoViewModel(CommunityVideo info)
 		{
 			VideoInfo = info;

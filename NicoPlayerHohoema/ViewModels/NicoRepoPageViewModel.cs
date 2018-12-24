@@ -134,7 +134,8 @@ namespace NicoPlayerHohoema.ViewModels
         {
             SubscriptionManager = subscriptionManager;
         }
-        
+
+        Interfaces.IMylist IVideoContent.OnwerPlaylist => null;
     }
 
 

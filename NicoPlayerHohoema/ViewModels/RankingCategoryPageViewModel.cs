@@ -240,8 +240,7 @@ namespace NicoPlayerHohoema.ViewModels
             return Task.FromResult(RankingRss.Channel.Items.Skip(head).Take(count)
                 .Select((x, index) =>
                 {
-                    var vm = App.Current.Container.Resolve<RankedVideoInfoControlViewModel>();
-                    vm.RawVideoId = NicoVideoIdHelper.UrlToVideoId(x.VideoUrl);
+                    var vm = new RankedVideoInfoControlViewModel(NicoVideoIdHelper.UrlToVideoId(x.VideoUrl));
                     vm.Rank = (uint)(head + index + 1);
 
                     vm.SetTitle(RankingRankPrefixPatternRegex.Replace(x.Title, ""));
@@ -279,7 +278,20 @@ namespace NicoPlayerHohoema.ViewModels
 
     public class RankedVideoInfoControlViewModel : VideoInfoControlViewModel
     {
-        public RankedVideoInfoControlViewModel()
+        public RankedVideoInfoControlViewModel(
+            string rawVideoId,
+            Interfaces.IMylist ownerPlaylist = null
+            )
+            : base(rawVideoId, ownerPlaylist)
+        {
+
+        }
+
+        public RankedVideoInfoControlViewModel(
+            Database.NicoVideo data,
+            Interfaces.IMylist ownerPlaylist = null
+            )
+            : base(data, ownerPlaylist)
         {
 
         }

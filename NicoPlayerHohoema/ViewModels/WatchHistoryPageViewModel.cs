@@ -141,7 +141,11 @@ namespace NicoPlayerHohoema.ViewModels
 		public DateTime LastWatchedAt { get; set; }
 		public uint UserViewCount { get; set; }
 
-		public HistoryVideoInfoControlViewModel()
+		public HistoryVideoInfoControlViewModel(
+            string rawVideoId,
+            Interfaces.IMylist ownerPlaylist = null
+            )
+            : base(rawVideoId, ownerPlaylist)
         {
 
         }
@@ -174,8 +178,7 @@ namespace NicoPlayerHohoema.ViewModels
         {
             return Task.FromResult(_HistoriesResponse.Histories.Skip(head).Take(count).Select(x => 
             {
-                var vm = App.Current.Container.Resolve<HistoryVideoInfoControlViewModel>();
-                vm.RawVideoId = x.Id;
+                var vm = new HistoryVideoInfoControlViewModel(x.Id);
                 vm.ItemId = x.ItemId;
                 vm.LastWatchedAt = x.WatchedAt.DateTime;
                 vm.UserViewCount = x.WatchCount;

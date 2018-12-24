@@ -471,18 +471,22 @@ namespace NicoPlayerHohoema.Services
 
             if (PlayerViewMode == PlayerViewMode.PrimaryView)
             {
+                Debug.WriteLine("Play with Primary : " + parameter);
+
                 PrimaryViewScheduler.Schedule(() =>
                 {
                     PrimaryViewPlayerNavigationService.Navigate(pageType, parameter);
 
                     NowPlaying = true;
 
-                    _ = ApplicationViewSwitcher.TryShowAsStandaloneAsync(MainViewId);
+//                    _ = ApplicationViewSwitcher.TryShowAsStandaloneAsync(MainViewId);
                 });
             }
 
             if (PlayerViewMode == PlayerViewMode.SecondaryView)
             {
+                Debug.WriteLine("Play with Secondary : " + parameter);
+
                 // サブウィンドウをアクティベートして、サブウィンドウにPlayerページナビゲーションを飛ばす
                 await GetEnsureSecondaryView();
 

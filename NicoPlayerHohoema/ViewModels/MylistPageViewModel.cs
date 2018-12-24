@@ -496,7 +496,7 @@ namespace NicoPlayerHohoema.ViewModels
                         if (headItem != null)
                         {
                             HohoemaPlaylist.PlaylistSettings.IsReverseModeEnable = false;
-                            HohoemaPlaylist.PlayVideoWithPlaylist(headItem, Mylist.Value);
+                            HohoemaPlaylist.PlayVideo(headItem);
                         }
                     }));
             }
@@ -514,7 +514,7 @@ namespace NicoPlayerHohoema.ViewModels
                         if (tailItem != null)
                         {
                             HohoemaPlaylist.PlaylistSettings.IsReverseModeEnable = true;
-                            HohoemaPlaylist.PlayVideoWithPlaylist(tailItem, Mylist.Value);
+                            HohoemaPlaylist.PlayVideo(tailItem);
                         }
                     }));
             }
@@ -745,10 +745,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             return PlayableList.Skip(head).Take(count).Select(x =>
                 {
-                    var vm = new VideoInfoControlViewModel() { };
-                    var video = Database.NicoVideoDb.Get(x);
-                    vm.RawVideoId = x;
-                    vm.SetTitle(video.Title);
+                    var vm = new VideoInfoControlViewModel(x, PlayableList);
                     return vm;
                 })
                 .ToAsyncEnumerable();

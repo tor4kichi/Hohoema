@@ -82,18 +82,15 @@ namespace NicoPlayerHohoema.ViewModels
         public string RecommendSourceTag { get; private set; }
 
 
-        public RecommendVideoListItem()
-        {
-
-        }
-
-
-        internal void SetRecommendItem(Mntone.Nico2.Videos.Recommend.Item item)
+        public RecommendVideoListItem(
+            Mntone.Nico2.Videos.Recommend.Item item
+            )
+            : base(item.Id, null)
         {
             _Item = item;
             RecommendSourceTag = _Item.AdditionalInfo?.Sherlock.Tag;
-
         }
+
     }
 
     public sealed class RecommendVideoIncrementalLoadingSource : HohoemaIncrementalSourceBase<RecommendVideoListItem>
@@ -163,11 +160,8 @@ namespace NicoPlayerHohoema.ViewModels
                     video.PostedAt = x.ParseForstRetroeveToDateTimeOffset().DateTime;
                     Database.NicoVideoDb.AddOrUpdate(video);
 
-                    var vm = App.Current.Container.Resolve<RecommendVideoListItem>();
-                    vm.RawVideoId = video.RawVideoId;
+                    var vm = new RecommendVideoListItem(x);
                     vm.SetupFromThumbnail(video);
-                    vm.Data = video;
-                    vm.SetRecommendItem(x);
                     return vm;
                 })
                 .ToAsyncEnumerable()

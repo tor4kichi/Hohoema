@@ -58,8 +58,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .SelectMany(x => x)
                 .Select(x =>
                 {
-                    var vm = App.Current.Container.Resolve<VideoInfoControlViewModel>();
-                    vm.RawVideoId = x.Video.Id;
+                    var vm = new VideoInfoControlViewModel(x.Video.Id);
                     vm.SetTitle(x.Video.Title);
                     vm.SetThumbnailImage(x.Video.ThumbnailUrl.OriginalString);
                     return vm;

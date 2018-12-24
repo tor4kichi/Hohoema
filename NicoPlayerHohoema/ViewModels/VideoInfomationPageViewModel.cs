@@ -290,6 +290,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         string INiconicoObject.Label => _VideoInfo.Title;
 
+        IMylist IVideoContent.OnwerPlaylist => throw new NotImplementedException();
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
@@ -371,9 +372,7 @@ namespace NicoPlayerHohoema.ViewModels
                     video.Title = x.Video.Title;
                     video.ThumbnailUrl = x.Video.Thumbnail_url;
 
-                    var vm = App.Current.Container.Resolve<VideoInfoControlViewModel>();
-                    vm.RawVideoId = x.Video.Id;
-                    vm.Data = video;
+                    var vm = new VideoInfoControlViewModel(video);
                     return vm;
                 })
                 .ToList();

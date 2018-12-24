@@ -50,7 +50,7 @@ namespace NicoPlayerHohoema.Models.LocalMylist
             if (!Items.Any(x => x == videoId))
             {
                 var video = Database.NicoVideoDb.Get(videoId);
-                Items.Add(videoId);
+                Add(videoId);
                 return Task.FromResult(true);
             }
             else
@@ -59,12 +59,19 @@ namespace NicoPlayerHohoema.Models.LocalMylist
             }
         }
 
-        public Task<bool> AddMylistItem(string videoId, ContentInsertPosition insertPosition)
+        public Task<bool> AddMylistItem(string videoId, ContentInsertPosition insertPosition = ContentInsertPosition.Tail)
         {
             if (!Items.Any(x => x == videoId))
             {
                 var video = Database.NicoVideoDb.Get(videoId);
-                Items.Add(videoId);
+                if (insertPosition == ContentInsertPosition.Head)
+                {
+                    Insert(0, videoId);
+                }
+                else
+                {
+                    Add(videoId);
+                }
                 return Task.FromResult(true);
             }
             else
@@ -78,7 +85,7 @@ namespace NicoPlayerHohoema.Models.LocalMylist
             var target = Items.SingleOrDefault(x => x == videoId);
             if (target != null)
             {
-                Items.Remove(target);
+                Remove(target);
                 return Task.FromResult(true);
             }
             else
@@ -92,9 +99,9 @@ namespace NicoPlayerHohoema.Models.LocalMylist
         public DelegateCommand<string> AddItemCommand => _AddItemCommand
             ?? (_AddItemCommand = new DelegateCommand<string>((videoId) =>
             {
-                Items.Add(videoId);
+                Add(videoId);
             }
-            , (videoId) => videoId != null && !Items.Contains(videoId)
+            , (videoId) => videoId != null && !Contains(videoId)
             ));
 
 
@@ -102,9 +109,9 @@ namespace NicoPlayerHohoema.Models.LocalMylist
         public DelegateCommand<string> RemoveItemCommand => _RemoveItemCommand
             ?? (_RemoveItemCommand = new DelegateCommand<string>(videoId =>
             {
-                Items.Remove(videoId);
+                Remove(videoId);
             }
-            , (videoId) => videoId != null && Items.Contains(videoId)
+            , (videoId) => videoId != null && Contains(videoId)
             ));
 
         public string ProviderId => null;

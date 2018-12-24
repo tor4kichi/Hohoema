@@ -300,8 +300,7 @@ namespace NicoPlayerHohoema.ViewModels
                 var userVideos = await UserProvider.GetUserVideos(uint.Parse(UserId), 1);
                 foreach (var item in userVideos.Items.Take(5))
                 {
-                    var vm = App.Current.Container.Resolve<VideoInfoControlViewModel>();
-                    vm.RawVideoId = item.VideoId;
+                    var vm = new VideoInfoControlViewModel(item.VideoId);
                     vm.SetTitle(item.Title);
                     vm.SetThumbnailImage(item.ThumbnailUrl.OriginalString);
                     VideoInfoItems.Add(vm);

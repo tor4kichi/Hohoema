@@ -151,6 +151,8 @@ namespace NicoPlayerHohoema.Models
             {
                 Items.Add(videoId);
                 _VideoIdHashSet.Add(videoId);
+
+                OnCollectionChanged(new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized.NotifyCollectionChangedAction.Add, videoId));
             }
 
             return result == ContentManageResult.Success;
@@ -167,6 +169,7 @@ namespace NicoPlayerHohoema.Models
             if (result == ContentManageResult.Success)
             {
                 Items.Remove(videoId);
+                OnCollectionChanged(new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized.NotifyCollectionChangedAction.Remove, videoId));
                 _VideoIdHashSet.Remove(videoId);
             }
 

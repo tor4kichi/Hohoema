@@ -58,7 +58,6 @@ namespace NicoPlayerHohoema.Services
             Player = new PlaylistPlayer(this, playlistSettings);
 
             MakeDefaultPlaylist();
-            CurrentPlaylist = DefaultPlaylist;
 
             Player.PlayRequested += Player_PlayRequested;
 
@@ -87,26 +86,10 @@ namespace NicoPlayerHohoema.Services
 
         public LocalMylistGroup DefaultPlaylist { get; private set; }
 
-        /// <summary>
-        /// Use for serialize only.
-        /// </summary>
-        private string _CurrentPlaylistId { get; set; }
 
         private Interfaces.IMylist _CurrentPlaylist;
-        public Interfaces.IMylist CurrentPlaylist
-        {
-            get { return _CurrentPlaylist; }
-            set
-            {
-                if (SetProperty(ref _CurrentPlaylist, value))
-                {
-                    _CurrentPlaylistId = _CurrentPlaylist?.Id;
-                    RaisePropertyChanged(nameof(Player));
-
-                    Player.ResetItems(_CurrentPlaylist);
-                }
-            }
-        }
+        public Interfaces.IMylist CurrentPlaylist => Player.Playlist;
+       
 
 
         IDisposable _PlaylistItemsChangedObserver;
@@ -208,7 +191,6 @@ namespace NicoPlayerHohoema.Services
                 }
             }
 
-            CurrentPlaylist = playlist;
             Player.PlayStarted(item);
 
             _ = PlayerViewManager.PlayWithCurrentPlayerView(item);
@@ -258,29 +240,7 @@ namespace NicoPlayerHohoema.Services
             Play(new QualityVideoPlaylistItem()
             {
                 ContentId = video.Id,
-                Owner = DefaultPlaylist,
-                Title = video.Label,
-                Type = PlaylistItemType.Video,
-            });
-        }
-
-
-        public void PlayVideoWithPlaylist(IVideoContent video, IMylist mylist)
-        {
-            if (!(NiconicoRegex.IsVideoId(video.Id) || video.Id.All(x => '0' <= x && x <= '9')))
-            {
-                throw new Exception("Video Id not correct format. (\"sm0123456\" or \"12345678\") ");
-            }
-
-            if (!mylist.Contains(video.Id))
-            {
-                throw new Exception("mylist not contains videoId. can not play.");
-            }
-
-            Play(new QualityVideoPlaylistItem()
-            {
-                ContentId = video.Id,
-                Owner = mylist,
+                Owner = video.OnwerPlaylist ?? DefaultPlaylist,
                 Title = video.Label,
                 Type = PlaylistItemType.Video,
             });
@@ -389,7 +349,7 @@ namespace NicoPlayerHohoema.Services
                         }
                         else if (item is IVideoContent videoContent)
                         {
-                            PlayVideo(videoContent.Id);
+                            PlayVideo(videoContent);
                         }
                         else if (item is PlaylistItem playlistItem)
                         {
@@ -467,7 +427,7 @@ namespace NicoPlayerHohoema.Services
             {
                 if (SetProperty(ref _Playlist, value))
                 {
-                    ResetItems(_Playlist);
+                    ResetItems();
                 }
             }
         }
@@ -536,7 +496,7 @@ namespace NicoPlayerHohoema.Services
                     {
                         _RepeatMode = PlaylistSettings.RepeatMode;
 
-                        ResetRandmizedItems();
+                        ResetRandmizedItems(SourceItems);
 
                         CurrentIndex = PlaylistSettings.IsShuffleEnable ? 0 : (SourceItems?.IndexOf(Current) ?? 0);
 
@@ -554,22 +514,20 @@ namespace NicoPlayerHohoema.Services
             _ItemsObservaeDisposer = null;
         }
 
-        internal async void ResetItems(Interfaces.IMylist newOwner)
+        private async void ResetItems()
         {
-
+            var newOwner = Playlist;
             using (var releaser = await _PlaylistUpdateLock.LockAsync())
             {
                 PlayedItems.Clear();
-                ResetRandmizedItems();
                 _ItemsObservaeDisposer?.Dispose();
                 _ItemsObservaeDisposer = null;
 
-                Playlist = newOwner;
-
-                if (Playlist is INotifyCollectionChanged playlistNotifyCollectionChanged)
+                ResetRandmizedItems(SourceItems);
+                if (newOwner is INotifyCollectionChanged playlistNotifyCollectionChanged)
                 {
                     _ItemsObservaeDisposer = playlistNotifyCollectionChanged.CollectionChangedAsObservable()
-                        .Subscribe(async x =>
+                        .Subscribe(async _ =>
                         {
                             using (var releaser2 = await _PlaylistUpdateLock.LockAsync())
                             {
@@ -577,8 +535,19 @@ namespace NicoPlayerHohoema.Services
 
                                 // 動画プレイヤーには影響を与えないこととする
                                 // 連続再生動作の継続性が確保できればOK
-                                
-                                ResetRandmizedItems();
+
+                                SourceItems.Clear();
+                                foreach (var newItem in newOwner.Select(x => new PlaylistItem()
+                                {
+                                    ContentId = x,
+                                    Owner = newOwner,
+                                    Type = PlaylistItemType.Video,
+                                }))
+                                {
+                                    SourceItems.Add(newItem);
+                                }
+
+                                ResetRandmizedItems(SourceItems);
 
                                 if (PlaylistSettings.IsShuffleEnable)
                                 {
@@ -600,17 +569,17 @@ namespace NicoPlayerHohoema.Services
             }
         }
 
-        private void ResetRandmizedItems()
+        private void ResetRandmizedItems(IEnumerable<PlaylistItem> items)
         {
             RandamizedItems.Clear();
 
-            if (SourceItems != null)
+            if (items != null)
             {
-                var firstItem = SourceItems.Take(1).SingleOrDefault();
+                var firstItem = items.Take(1).SingleOrDefault();
                 if (firstItem != null)
                 {
                     RandamizedItems.Add(firstItem);
-                    RandamizedItems.AddRange(SourceItems.Skip(1).Shuffle());
+                    RandamizedItems.AddRange(items.Skip(1).Shuffle());
                 }
             }
         }
@@ -758,7 +727,7 @@ namespace NicoPlayerHohoema.Services
 
                 if (nextIndex >= SourceItems.Count)
                 {
-                    ResetRandmizedItems();
+                    ResetRandmizedItems(SourceItems);
                     nextIndex = 0;
                 }
 
@@ -801,6 +770,21 @@ namespace NicoPlayerHohoema.Services
                     }
                 }
 
+                SourceItems.Clear();
+                foreach (var newItem in Playlist.Select(x => new PlaylistItem()
+                {
+                    ContentId = x,
+                    Owner = Playlist,
+                    Type = PlaylistItemType.Video,
+                }))
+                {
+                    SourceItems.Add(newItem);
+                }
+
+                RaisePropertyChanged(nameof(CanGoBack));
+                RaisePropertyChanged(nameof(CanGoNext));
+                //                Current = SourceItems.First(x => item.ContentId == x.ContentId);
+
                 // GoNext/GoBack内でCurrentが既に変更済みの場合はスキップ
                 // Playlist外から直接PlaylistItemが変更された場合にのみ
                 // 現在再生位置の更新を行う
@@ -837,7 +821,7 @@ namespace NicoPlayerHohoema.Services
     
 
     [DataContract]
-    public class PlaylistItem
+    public class PlaylistItem : IEquatable<PlaylistItem>, IEqualityComparer<PlaylistItem>
     {
         internal PlaylistItem() { }
 
@@ -851,6 +835,23 @@ namespace NicoPlayerHohoema.Services
         public string Title { get; set; }
 
         public IMylist Owner { get; set; }
+
+        public bool Equals(PlaylistItem other)
+        {
+            return this.Type == other.Type
+                && this.ContentId == other.ContentId;
+        }
+
+        bool IEqualityComparer<PlaylistItem>.Equals(PlaylistItem x, PlaylistItem y)
+        {
+            return x.Type == y.Type
+                && x.ContentId == y.ContentId;
+        }
+
+        int IEqualityComparer<PlaylistItem>.GetHashCode(PlaylistItem obj)
+        {
+            return obj.Type.GetHashCode() ^ (obj.ContentId?.GetHashCode() ?? 0);
+        }
     }
     
     public class QualityVideoPlaylistItem : PlaylistItem

@@ -143,7 +143,18 @@ namespace NicoPlayerHohoema.ViewModels
     {
         public bool IsRequirePayment { get; internal set; }
 
-        public ChannelVideoListItemViewModel()
+        public ChannelVideoListItemViewModel(
+            string rawVideoId
+            )
+            : base(rawVideoId, null)
+        {
+
+        }
+
+        public ChannelVideoListItemViewModel(
+           Database.NicoVideo data
+           )
+           : base(data, null)
         {
 
         }
@@ -199,8 +210,7 @@ namespace NicoPlayerHohoema.ViewModels
                     // so0123456のフォーマットの動画ID
                     // var videoId = video.PurchasePreviewUrl.Split('/').Last();
 
-                    var channelVideo = App.Current.Container.Resolve<ChannelVideoListItemViewModel>();
-                    channelVideo.RawVideoId = video.ItemId;
+                    var channelVideo = new ChannelVideoListItemViewModel(video.ItemId);
                     channelVideo.IsRequirePayment = video.IsRequirePayment;
                     channelVideo.SetTitle(video.Title);
                     channelVideo.SetThumbnailImage(video.ThumbnailUrl);

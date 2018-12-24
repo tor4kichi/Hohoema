@@ -223,6 +223,8 @@ namespace NicoPlayerHohoema.ViewModels
         public UserType ProviderType => UserType.User;
 
         public string Id => VideoId;
+
+        Interfaces.IMylist IVideoContent.OnwerPlaylist => null;
     }
 
 	

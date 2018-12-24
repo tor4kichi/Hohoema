@@ -33,9 +33,13 @@ namespace NicoPlayerHohoema.ViewModels
 
     public class VideoInfoControlViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContent, Views.Extensions.ListViewBase.IDeferInitialize
     {
-        public VideoInfoControlViewModel(
-            )
+        public VideoInfoControlViewModel(Database.NicoVideo data, Interfaces.IMylist ownerPlaylist = null)
+            
         {
+            RawVideoId = data?.RawVideoId ?? RawVideoId;
+            Data = data;
+            OnwerPlaylist = ownerPlaylist;
+
             NgSettings = App.Current.Container.Resolve<NGSettings>();
             CreateMylistCommand = App.Current.Container.Resolve<CreateMylistCommand>();
             CreateLocalMylistCommand = App.Current.Container.Resolve<CreateLocalMylistCommand>();
@@ -56,6 +60,21 @@ namespace NicoPlayerHohoema.ViewModels
             _CompositeDisposable = new CompositeDisposable();
 
             VideoCacheManager.VideoCacheStateChanged += VideoCacheManager_VideoCacheStateChanged;
+
+            if (Data != null)
+            {
+                SetupFromThumbnail(Data);
+            }
+        }
+
+
+        public VideoInfoControlViewModel(
+            string rawVideoId, 
+            Interfaces.IMylist ownerPlaylist = null
+            )
+            : this(data: null, ownerPlaylist:ownerPlaylist)
+        {
+            RawVideoId = rawVideoId;
         }
 
         private async void VideoCacheManager_VideoCacheStateChanged(object sender, VideoCacheStateChangedEventArgs e)
@@ -66,8 +85,8 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        public string RawVideoId { get; internal set; }
-        public Database.NicoVideo Data { get; internal set; }
+        public string RawVideoId { get; }
+        public Database.NicoVideo Data { get; private set; }
 
         protected CompositeDisposable _CompositeDisposable { get; private set; }
         public IScheduler Scheduler { get; }
@@ -93,6 +112,8 @@ namespace NicoPlayerHohoema.ViewModels
         public string ProviderId { get; private set; }
         public string ProviderName { get; private set; }
         public UserType ProviderType { get; private set; }
+
+        public Interfaces.IMylist OnwerPlaylist { get; }
 
         public VideoStatus VideoStatus { get; private set; }
 
@@ -317,7 +338,7 @@ namespace NicoPlayerHohoema.ViewModels
         
         public void SetupDisplay(Mntone.Nico2.Users.Video.VideoData data)
         {
-            RawVideoId = data.VideoId;
+            if (data.VideoId != RawVideoId) { throw new Exception(); }
 
             SetTitle(data.Title);
             SetThumbnailImage(data.ThumbnailUrl.OriginalString);
@@ -329,7 +350,7 @@ namespace NicoPlayerHohoema.ViewModels
         // とりあえずマイリストから取得したデータによる初期化
         public void SetupDisplay(MylistData data)
         {
-            RawVideoId = data.WatchId;
+            if (data.WatchId != RawVideoId) { throw new Exception(); }
 
             SetTitle(data.Title);
             SetThumbnailImage(data.ThumbnailUrl.OriginalString);
@@ -342,7 +363,8 @@ namespace NicoPlayerHohoema.ViewModels
         // 個別マイリストから取得したデータによる初期化
         public void SetupDisplay(VideoInfo data)
         {
-            RawVideoId = data.Video.Id;
+            if (data.Video.Id != RawVideoId) { throw new Exception(); }
+
 
             SetTitle(data.Video.Title);
             SetThumbnailImage(data.Video.ThumbnailUrl.OriginalString);

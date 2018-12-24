@@ -284,8 +284,19 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 
         public CacheVideoViewModel(
+            string rawVideoId,
+            Interfaces.IMylist ownerPlaylist = null
             )
-            : base()
+            : base(rawVideoId, ownerPlaylist)
+        {
+
+        }
+
+        public CacheVideoViewModel(
+            Database.NicoVideo data,
+            Interfaces.IMylist ownerPlaylist = null
+            )
+            : base(data, ownerPlaylist)
         {
 
         }
@@ -319,8 +330,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .Select(x => new { VideoId = x, CacheRequests = _CacheRequestMap[x] })
                 .Select(x =>
                 {
-                    var vm = App.Current.Container.Resolve<CacheVideoViewModel>();
-                    vm.RawVideoId = x.VideoId;
+                    var vm = new CacheVideoViewModel(x.VideoId);
                     vm.CacheRequestTime = x.CacheRequests.First().RequestAt;
                     return vm;
                 })

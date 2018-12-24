@@ -3246,6 +3246,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         string INiconicoObject.Label => _VideoInfo.Title;
 
+        IMylist IVideoContent.OnwerPlaylist => CurrentPlaylist;
+
         NotificationService _NotificationService;
         DialogService _HohoemaDialogService;
 

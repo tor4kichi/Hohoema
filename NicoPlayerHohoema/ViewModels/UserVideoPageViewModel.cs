@@ -188,8 +188,7 @@ namespace NicoPlayerHohoema.ViewModels
             var items = res.Items.Skip(head).Take(count);
             return items.Select(x =>
             {
-                var vm = App.Current.Container.Resolve<VideoInfoControlViewModel>();
-                vm.RawVideoId = x.VideoId;
+                var vm = new VideoInfoControlViewModel(x.VideoId);
                 vm.SetupDisplay(x);
                 return vm;
             })
