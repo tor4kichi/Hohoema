@@ -41,7 +41,7 @@ namespace NicoPlayerHohoema.ViewModels
             CreateLocalMylistCommand = App.Current.Container.Resolve<CreateLocalMylistCommand>();
             CreateSubscriptionGroupCommand = App.Current.Container.Resolve<CreateSubscriptionGroupCommand>();
             AddToHiddenUserCommand = App.Current.Container.Resolve<AddToHiddenUserCommand>();
-            AddCacheRequestCommand = App.Current.Container.Resolve<AddCacheRequestCommand>();
+            AddCacheRequestCommand = App.Current.Container.Resolve<Commands.Cache.AddCacheRequestCommand>();
             DeleteCacheRequestCommand = App.Current.Container.Resolve<DeleteCacheRequestCommand>();
             Scheduler = App.Current.Container.Resolve<IScheduler>();
             HohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();

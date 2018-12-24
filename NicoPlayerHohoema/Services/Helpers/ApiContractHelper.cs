@@ -9,6 +9,32 @@ namespace NicoPlayerHohoema.Services.Helpers
 {
     public static class ApiContractHelper
     {
+        /// <summary>
+        /// 1809
+        /// </summary>
+        public static bool Is2018FallUpdateAvailable
+        {
+            get
+            {
+                return ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 7);
+            }
+        }
+
+
+        /// <summary>
+        /// 1803
+        /// </summary>
+        public static bool Is2018SpringUpdateAvailable
+        {
+            get
+            {
+                return ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 6);
+            }
+        }
+
+        /// <summary>
+        /// 1709
+        /// </summary>
         public static bool IsFallCreatorsUpdateAvailable
         {
             get 
@@ -17,6 +43,9 @@ namespace NicoPlayerHohoema.Services.Helpers
             }
         }
 
+        /// <summary>
+        /// 1703
+        /// </summary>
         public static bool IsCreatorsUpdateAvailable
         {
             get
@@ -25,6 +54,9 @@ namespace NicoPlayerHohoema.Services.Helpers
             }
         }
 
+        /// <summary>
+        /// 1607
+        /// </summary>
         public static bool IsAnniversaryUpdateAvailable
         {
             get

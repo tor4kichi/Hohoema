@@ -165,7 +165,9 @@ namespace NicoPlayerHohoema.ViewModels
                         MainSelectedItem.Value = null;
                     }
 
-                    if (Services.Helpers.DeviceTypeHelper.IsXbox || AppearanceSettings.IsForceTVModeEnable)
+                    if (Services.Helpers.DeviceTypeHelper.IsXbox || AppearanceSettings.IsForceTVModeEnable
+                    || Services.Helpers.DeviceTypeHelper.IsMobile
+                    )
                     {
                         IsOpenPane.Value = false;
                     }

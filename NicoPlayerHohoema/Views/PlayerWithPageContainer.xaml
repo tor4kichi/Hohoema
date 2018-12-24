@@ -191,6 +191,7 @@
                                 <Setter Target="FloatPlayerLayout.Visibility" Value="Visible" />
 
                                 <Setter Target="MobilePlayerTopMargin.Visibility" Value="Visible" />
+                                <Setter Target="MobilePlayerTopMargin.Height" Value="240" />
 
                                 <Setter Target="PlayerLayout.VerticalAlignment" Value="Top" />
                             </VisualState.Setters>

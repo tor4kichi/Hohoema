@@ -113,7 +113,7 @@ namespace NicoPlayerHohoema
             Container.RegisterType<Models.Subscription.SubscriptionManager>(lifetimeManager: new ContainerControlledLifetimeManager());
             Container.RegisterType<Services.NicoLiveSubscriber>(lifetimeManager: new ContainerControlledLifetimeManager());
 
-            // Commands
+            // Commands 
             Container.RegisterType<Commands.Mylist.CreateMylistCommand>(lifetimeManager: new ContainerControlledLifetimeManager());
             Container.RegisterType<Commands.Mylist.CreateLocalMylistCommand>(lifetimeManager: new ContainerControlledLifetimeManager());
             Container.RegisterType<Commands.Subscriptions.CreateSubscriptionGroupCommand>(lifetimeManager: new ContainerControlledLifetimeManager());
@@ -127,6 +127,7 @@ namespace NicoPlayerHohoema
             Container.RegisterInstance(Container.Resolve<Services.Notification.NotificationCacheVideoDeletedService>());
             Container.RegisterInstance(Container.Resolve<Services.Notification.NotificationMylistUpdatedService>());
             Container.RegisterInstance(Container.Resolve<Services.Page.PreventBackNavigationOnShowPlayerService>());
+            Container.RegisterInstance(Container.Resolve<Services.Notification.CheckingClipboardAndNotificationService>());
 
             // ViewModels
             Container.RegisterType<ViewModels.RankingCategoryListPageViewModel>(new ContainerControlledLifetimeManager());
@@ -263,53 +264,10 @@ namespace NicoPlayerHohoema
 
 
 
-            // ウィンドウを有効化したタイミングでクリップボードをチェックする
-            Window.Current.CoreWindow.Activated += async (__, activatedArgs) =>
-            {
-                if (activatedArgs.WindowActivationState == CoreWindowActivationState.PointerActivated)
-                {
-                    var clipboard = await Services.Helpers.ClipboardHelper.CheckClipboard();
-                    if (clipboard != null)
-                    {
-                        var hohoemaNotificationService = Container.Resolve<Services.HohoemaNotificationService>();
-                        hohoemaNotificationService.ShowInAppNotification(clipboard.Type, clipboard.Id);
-                    }
-                }
-            };
+            
 
 
-            var pageManager = Container.Resolve<Services.PageManager>();
-
-
-#if false
-            try
-            {
-                if (localStorge.Read(IS_COMPLETE_INTRODUCTION, false) == false)
-                {
-                    // アプリのイントロダクションを開始
-                    pageManager.OpenIntroductionPage();
-                }
-                else
-                {
-                    pageManager.OpenStartupPage();
-                }
-            }
-            catch
-            {
-                Debug.WriteLine("イントロダクションまたはスタートアップのページ表示に失敗");
-                pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
-            }
-#else
-            try
-            {
-                pageManager.OpenStartupPage();
-            }
-            catch
-            {
-                Debug.WriteLine("スタートアップのページ表示に失敗");
-                pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
-            }
-#endif
+            
 
             // 更新通知を表示
             try
@@ -348,6 +306,54 @@ namespace NicoPlayerHohoema
                 _ = cacheManager.Initialize();
             }
             catch { }
+
+
+            if (args.PreviousExecutionState == ApplicationExecutionState.Terminated
+                || args.PreviousExecutionState == ApplicationExecutionState.ClosedByUser)
+            {
+                if (!Services.Helpers.ApiContractHelper.Is2018FallUpdateAvailable)
+                {
+                    var pageManager = Container.Resolve<Services.PageManager>();
+                    pageManager.OpenStartupPage();
+                }
+            }
+            else
+            { 
+                var pageManager = Container.Resolve<Services.PageManager>();
+
+
+#if false
+                try
+                {
+                    if (localStorge.Read(IS_COMPLETE_INTRODUCTION, false) == false)
+                    {
+                        // アプリのイントロダクションを開始
+                        pageManager.OpenIntroductionPage();
+                    }
+                    else
+                    {
+                        pageManager.OpenStartupPage();
+                    }
+                }
+                catch
+                {
+                    Debug.WriteLine("イントロダクションまたはスタートアップのページ表示に失敗");
+                    pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
+                }
+#else
+                try
+                {
+                    pageManager.OpenStartupPage();
+                }
+                catch
+                {
+                    Debug.WriteLine("スタートアップのページ表示に失敗");
+                    pageManager.OpenPage(HohoemaPageType.RankingCategoryList);
+                }
+#endif
+            }
+
+
 
             await base.OnInitializeAsync(args);
         }
@@ -466,9 +472,7 @@ namespace NicoPlayerHohoema
                 {
                     PlayLiveVideoFromExternal(maybeNicoContentId);
                 }
-
             }
-
 
             await base.OnActivateApplicationAsync(args);
 		}

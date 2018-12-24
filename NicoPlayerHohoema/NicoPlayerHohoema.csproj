@@ -132,19 +132,19 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Commands\AddMylistCommand.cs" />
-    <Compile Include="Commands\AddToHiddenUserCommand.cs" />
-    <Compile Include="Commands\Cache\AddCacheRequestCommand.cs" />
-    <Compile Include="Commands\Cache\DeleteCacheRequestCommand.cs" />
-    <Compile Include="Commands\GoNextIntroductionPageCommand.cs" />
-    <Compile Include="Commands\LogoutFromNiconicoCommand.cs" />
-    <Compile Include="Commands\Mylist\CreateLocalMylistCommand.cs" />
-    <Compile Include="Commands\Mylist\CreateMylistCommand.cs" />
-    <Compile Include="Commands\NicoLiveUserIdAddToNGCommand.cs" />
-    <Compile Include="Commands\NicoLiveUserIdRemoveFromNGCommand.cs" />
-    <Compile Include="Commands\OpenBroadcasterInfoCommand.cs" />
-    <Compile Include="Commands\RemoveSearchHistoryCommand.cs" />
-    <Compile Include="Commands\Subscriptions\CreateSubscriptionGroupCommand.cs" />
+    <Compile Include="Services\Commands\AddMylistCommand.cs" />
+    <Compile Include="Services\Commands\AddToHiddenUserCommand.cs" />
+    <Compile Include="Services\Commands\Cache\AddCacheRequestCommand.cs" />
+    <Compile Include="Services\Commands\Cache\DeleteCacheRequestCommand.cs" />
+    <Compile Include="Services\Commands\GoNextIntroductionPageCommand.cs" />
+    <Compile Include="Services\Commands\LogoutFromNiconicoCommand.cs" />
+    <Compile Include="Services\Commands\Mylist\CreateLocalMylistCommand.cs" />
+    <Compile Include="Services\Commands\Mylist\CreateMylistCommand.cs" />
+    <Compile Include="Services\Commands\NicoLiveUserIdAddToNGCommand.cs" />
+    <Compile Include="Services\Commands\NicoLiveUserIdRemoveFromNGCommand.cs" />
+    <Compile Include="Services\Commands\OpenBroadcasterInfoCommand.cs" />
+    <Compile Include="Services\Commands\RemoveSearchHistoryCommand.cs" />
+    <Compile Include="Services\Commands\Subscriptions\CreateSubscriptionGroupCommand.cs" />
     <Compile Include="Database\Local\Bookmark.cs" />
     <Compile Include="Database\Local\BookmarkDb.cs" />
     <Compile Include="Database\Local\BookmarkType.cs" />
@@ -186,6 +186,7 @@
     <Compile Include="Services\ExternalAccessService.cs" />
     <Compile Include="Services\Helpers\MylistHelper.cs" />
     <Compile Include="Services\NiconicoLoginService.cs" />
+    <Compile Include="Services\Notification\CheckingClipboardAndNotificationService.cs" />
     <Compile Include="Services\Notification\NotificationCacheVideoDeletedService.cs" />
     <Compile Include="Services\Notification\NotificationMylistUpdatedService.cs" />
     <Compile Include="Services\Page\PreventBackNavigationOnShowPlayerService.cs" />
