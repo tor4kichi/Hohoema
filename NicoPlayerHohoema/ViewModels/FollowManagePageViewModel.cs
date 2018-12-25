@@ -148,12 +148,13 @@ namespace NicoPlayerHohoema.ViewModels
     {
         public TagFavItemVM(
             FollowItemInfo follow,
-            FollowManager followManager,
+            Services.NiconicoFollowToggleButtonService followToggleButtonService,
             Models.Subscription.SubscriptionManager subscriptionManager,
             Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
-            : base(follow, followManager, subscriptionManager, createSubscriptionGroupCommand)
+            : base(follow, followToggleButtonService, subscriptionManager, createSubscriptionGroupCommand)
         {
+            FollowToggleButtonService.SetFollowTarget(this);
         }
 
         public string Tag => SourceId;
@@ -165,12 +166,13 @@ namespace NicoPlayerHohoema.ViewModels
     {
         public MylistFavItemVM(
             FollowItemInfo follow,
-            FollowManager followManager,
+            Services.NiconicoFollowToggleButtonService followToggleButtonService,
             Models.Subscription.SubscriptionManager subscriptionManager,
             Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
-            : base(follow, followManager, subscriptionManager, createSubscriptionGroupCommand)
+            : base(follow, followToggleButtonService, subscriptionManager, createSubscriptionGroupCommand)
         {
+            FollowToggleButtonService.SetFollowTarget(this);
         }
 
         public string Id => SourceId;
@@ -181,12 +183,13 @@ namespace NicoPlayerHohoema.ViewModels
     {
         public UserFavItemVM(
             FollowItemInfo follow,
-            FollowManager followManager,
+            Services.NiconicoFollowToggleButtonService followToggleButtonService,
             Models.Subscription.SubscriptionManager subscriptionManager,
             Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
-            : base(follow, followManager, subscriptionManager, createSubscriptionGroupCommand)
+            : base(follow, followToggleButtonService, subscriptionManager, createSubscriptionGroupCommand)
         {
+            FollowToggleButtonService.SetFollowTarget(this);
         }
 
         public string Id => SourceId;
@@ -196,12 +199,13 @@ namespace NicoPlayerHohoema.ViewModels
     {
         public CommunityFavItemVM(
             FollowItemInfo follow,
-            FollowManager followManager,
+            Services.NiconicoFollowToggleButtonService followToggleButtonService,
             Models.Subscription.SubscriptionManager subscriptionManager,
             Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
-            : base(follow, followManager, subscriptionManager, createSubscriptionGroupCommand)
+            : base(follow, followToggleButtonService, subscriptionManager, createSubscriptionGroupCommand)
         {
+            FollowToggleButtonService.SetFollowTarget(this);
         }
 
         public string Id => SourceId;
@@ -211,12 +215,13 @@ namespace NicoPlayerHohoema.ViewModels
     {
         public ChannelFavItemVM(
             FollowItemInfo follow,
-            FollowManager followManager,
+            Services.NiconicoFollowToggleButtonService followToggleButtonService,
             Models.Subscription.SubscriptionManager subscriptionManager,
             Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             ) 
-            : base(follow, followManager, subscriptionManager, createSubscriptionGroupCommand)
+            : base(follow, followToggleButtonService, subscriptionManager, createSubscriptionGroupCommand)
         {
+            FollowToggleButtonService.SetFollowTarget(this);
         }
 
         public string Id => SourceId;
@@ -227,13 +232,13 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 		public FavoriteItemViewModel(
             FollowItemInfo follow,
-            FollowManager followManager,
+            Services.NiconicoFollowToggleButtonService followToggleButtonService,
             Models.Subscription.SubscriptionManager subscriptionManager,
             Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
 		{
             FollowItemInfo = follow;
-            FollowManager = followManager;
+            FollowToggleButtonService = followToggleButtonService;
             SubscriptionManager = subscriptionManager;
             CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
             Label = follow.Name;
@@ -277,6 +282,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public string SourceId { get; set; }
 
         public FollowItemInfo FollowItemInfo { get; }
+        public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
         public FollowManager FollowManager { get; }
         public Models.Subscription.SubscriptionManager SubscriptionManager { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }

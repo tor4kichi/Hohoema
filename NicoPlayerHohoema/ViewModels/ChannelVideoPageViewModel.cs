@@ -20,16 +20,20 @@ namespace NicoPlayerHohoema.ViewModels
     public sealed class ChannelVideoPageViewModel : HohoemaVideoListingPageViewModelBase<ChannelVideoListItemViewModel>, Interfaces.IChannel
     {
         public ChannelVideoPageViewModel(
+            NiconicoSession niconicoSession,
             Models.Provider.ChannelProvider channelProvider,
             Services.PageManager pageManager,
             Services.HohoemaPlaylist hohoemaPlaylist,
-            Services.ExternalAccessService externalAccessService
+            Services.ExternalAccessService externalAccessService,
+            Services.NiconicoFollowToggleButtonService followToggleButtonService
             )
             : base(pageManager, useDefaultPageTitle:true)
         {
+            NiconicoSession = niconicoSession;
             ChannelProvider = channelProvider;
             HohoemaPlaylist = hohoemaPlaylist;
             ExternalAccessService = externalAccessService;
+            FollowToggleButtonService = followToggleButtonService;
         }
 
         public string RawChannelId { get; set; }
@@ -101,6 +105,8 @@ namespace NicoPlayerHohoema.ViewModels
                 ChannelName = RawChannelId;
             }
 
+            FollowToggleButtonService.SetFollowTarget(this);
+
             PageManager.PageTitle = ChannelName;
 
             await base.NavigatedToAsync(cancelToken, e, viewModelState);
@@ -130,9 +136,11 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        public NiconicoSession NiconicoSession { get; }
         public Models.Provider.ChannelProvider ChannelProvider { get; }
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public Services.ExternalAccessService ExternalAccessService { get; }
+        public Services.NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
 
         string INiconicoObject.Id => RawChannelId;
 

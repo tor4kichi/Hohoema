@@ -10,7 +10,7 @@ using System.Windows.Input;
 
 namespace NicoPlayerHohoema.Interfaces
 {
-    public interface IMylistItem : INiconicoContent
+    public interface IMylistItem : INiconicoContent, IFollowable
     {
     }
 

@@ -1,4 +1,5 @@
 ﻿using Mntone.Nico2;
+using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models.Provider;
@@ -21,8 +22,8 @@ using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class SearchResultTagPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
-	{
+	public class SearchResultTagPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>, Interfaces.ISearchWithtag
+    {
         public SearchResultTagPageViewModel(
            NGSettings ngSettings,
            Models.NiconicoSession niconicoSession,
@@ -31,7 +32,8 @@ namespace NicoPlayerHohoema.ViewModels
            Services.HohoemaPlaylist hohoemaPlaylist,
            Services.PageManager pageManager,
            Services.DialogService dialogService,
-           Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
+           Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand,
+           NiconicoFollowToggleButtonService followButtonService
            )
            : base(pageManager, useDefaultPageTitle: false)
         {
@@ -42,6 +44,7 @@ namespace NicoPlayerHohoema.ViewModels
             NiconicoSession = niconicoSession;
             HohoemaDialogService = dialogService;
             CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
+            FollowButtonService = followButtonService;
             FailLoading = new ReactiveProperty<bool>(false)
                 .AddTo(_CompositeDisposable);
 
@@ -84,6 +87,7 @@ namespace NicoPlayerHohoema.ViewModels
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public Services.DialogService HohoemaDialogService { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
+        public NiconicoFollowToggleButtonService FollowButtonService { get; }
 
         public Models.Subscription.SubscriptionSource? SubscriptionSource => new Models.Subscription.SubscriptionSource(SearchOption.Keyword, Models.Subscription.SubscriptionSourceType.TagSearch, SearchOption.Keyword);
 
@@ -240,6 +244,12 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+        string ISearchWithtag.Tag => SearchOption.Keyword;
+
+        string INiconicoObject.Id => SearchOption.Keyword;
+
+        string INiconicoObject.Label => SearchOption.Keyword;
+
         #endregion
 
         protected override string ResolvePageName()
@@ -268,6 +278,9 @@ namespace NicoPlayerHohoema.ViewModels
                     Label = SearchOption.Keyword,
                     Content = SearchOption.Keyword
                 };
+
+            FollowButtonService.SetFollowTarget(this);
+
             RaisePropertyChanged(nameof(TagSearchBookmark));
 
             

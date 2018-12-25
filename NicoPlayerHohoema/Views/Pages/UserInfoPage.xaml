@@ -184,8 +184,8 @@
                                 >
 
                             <AppBarToggleButton Background="Transparent"
-                                                IsChecked="{Binding IsFavorite.Value, Mode=TwoWay}"
-                                                IsEnabled="{Binding CanChangeFavoriteState.Value}"
+                                                IsChecked="{Binding FollowToggleButtonService.IsFollowTarget.Value, Mode=TwoWay}"
+                                                Command="{Binding FollowToggleButtonService.ToggleFollowCommand}"
                                                 Visibility="Collapsed"
                                                 Icon="Favorite"
                                                 Label="フォロー"

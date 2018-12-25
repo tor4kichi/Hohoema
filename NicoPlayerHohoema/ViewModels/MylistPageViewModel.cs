@@ -39,6 +39,7 @@ namespace NicoPlayerHohoema.ViewModels
             Services.HohoemaPlaylist hohoemaPlaylist,
             SubscriptionManager subscriptionManager,
             Services.DialogService dialogService,
+            NiconicoFollowToggleButtonService followToggleButtonService,
             Services.Helpers.MylistHelper mylistHelper,
             Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
@@ -55,6 +56,7 @@ namespace NicoPlayerHohoema.ViewModels
             HohoemaPlaylist = hohoemaPlaylist;
             SubscriptionManager = subscriptionManager;
             DialogService = dialogService;
+            FollowToggleButtonService = followToggleButtonService;
             MylistHelper = mylistHelper;
             CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
             Mylist = new ReactiveProperty<Interfaces.IMylist>();
@@ -220,6 +222,7 @@ namespace NicoPlayerHohoema.ViewModels
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public Models.Subscription.SubscriptionManager SubscriptionManager { get; }
         public Services.DialogService DialogService { get; }
+        public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
         public Services.Helpers.MylistHelper MylistHelper { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
 
@@ -579,6 +582,8 @@ namespace NicoPlayerHohoema.ViewModels
                         Content = Mylist.Value.Id,
                         BookmarkType = Database.BookmarkType.Mylist,
                     };
+
+                FollowToggleButtonService.SetFollowTarget(Mylist.Value as Interfaces.IFollowable);
 
                 RaisePropertyChanged(nameof(MylistBookmark));
             }

@@ -128,6 +128,7 @@ namespace NicoPlayerHohoema
             Container.RegisterInstance(Container.Resolve<Services.Notification.NotificationMylistUpdatedService>());
             Container.RegisterInstance(Container.Resolve<Services.Page.PreventBackNavigationOnShowPlayerService>());
             Container.RegisterInstance(Container.Resolve<Services.Notification.CheckingClipboardAndNotificationService>());
+            Container.RegisterInstance(Container.Resolve<Services.Notification.NotificationFollowUpdatedService>());
 
             // ViewModels
             Container.RegisterType<ViewModels.RankingCategoryListPageViewModel>(new ContainerControlledLifetimeManager());

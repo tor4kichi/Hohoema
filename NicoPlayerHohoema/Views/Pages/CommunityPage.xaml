@@ -39,7 +39,7 @@
                 
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsLoggedIn}" />
+                        <StateTrigger IsActive="{Binding NiconicoSession.IsLoggedIn}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="CommunityFollowButton.Visibility" Value="Visible" />
@@ -170,8 +170,8 @@
                                 >
 
                             <AppBarToggleButton Background="Transparent"
-                                            IsChecked="{Binding IsFollowCommunity.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            IsEnabled="{Binding CanChangeFollowCommunityState.Value}"
+                                            IsChecked="{Binding FollowToggleButtonService.IsFollowTarget.Value, Mode=TwoWay}"
+                                            Command="{Binding FollowToggleButtonService.ToggleFollowCommand}"
                                                 Icon="Favorite"
                                                 Label="フォロー"
                                                 Visibility="Collapsed"

@@ -340,8 +340,8 @@
                                 <CommandBar.SecondaryCommands>
 
                                     <AppBarToggleButton x:Name="ToggleMylistFavoriteButton"
-                                        IsChecked="{Binding IsFavoriteMylist.Value, Mode=TwoWay}"
-                                        IsEnabled="{Binding CanChangeFavoriteMylistState.Value}"
+                                        IsChecked="{Binding FollowToggleButtonService.IsFollowTarget.Value, Mode=TwoWay}"
+                                        Command="{Binding FollowToggleButtonService.ToggleFollowCommand}"
                                         Visibility="Collapsed"
                                         Icon="Favorite"
                                         Label="フォロー"

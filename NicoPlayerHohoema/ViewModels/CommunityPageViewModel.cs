@@ -25,73 +25,21 @@ using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class CommunityPageViewModel : HohoemaViewModelBase
+	public class CommunityPageViewModel : HohoemaViewModelBase, ICommunity
 	{
         public CommunityPageViewModel(Services.PageManager pageManager,
             NiconicoSession niconicoSession,
             CommunityFollowProvider followProvider,
             CommunityProvider communityProvider,
-            FollowManager followManager
+            FollowManager followManager,
+            NiconicoFollowToggleButtonService followToggleButtonService
             )
             : base(pageManager)
         {
             NiconicoSession = niconicoSession;
             FollowProvider = followProvider;
             CommunityProvider = communityProvider;
-            FollowManager = followManager;
-            IsFollowCommunity = new ReactiveProperty<bool>(mode: ReactivePropertyMode.DistinctUntilChanged)
-                .AddTo(_CompositeDisposable);
-            CanChangeFollowCommunityState = new ReactiveProperty<bool>()
-                .AddTo(_CompositeDisposable);
-
-            IsFollowCommunity
-                .Where(x => CommunityId != null)
-                .Subscribe(async x =>
-                {
-                    if (_NowProcessCommunity) { return; }
-
-                    _NowProcessCommunity = true;
-
-                    CanChangeFollowCommunityState.Value = false;
-                    if (x)
-                    {
-                        if (await FollowCommunity())
-                        {
-                            Debug.WriteLine(CommunityName + "のコミュニティをお気に入り登録しました.");
-                        }
-                        else
-                        {
-                            // お気に入り登録に失敗した場合は状態を差し戻し
-                            Debug.WriteLine(CommunityName + "のコミュニティをお気に入り登録に失敗");
-                            IsFollowCommunity.Value = false;
-                        }
-                    }
-                    else
-                    {
-                        if (await UnfollowCommunity())
-                        {
-                            Debug.WriteLine(CommunityName + "のコミュニティをお気に入り解除しました.");
-                        }
-                        else
-                        {
-                            // お気に入り解除に失敗した場合は状態を差し戻し
-                            Debug.WriteLine(CommunityName + "のコミュニティをお気に入り解除に失敗");
-                            IsFollowCommunity.Value = true;
-                        }
-                    }
-
-                    var isAutoJoinAccept = CommunityInfo.IsPublic;
-                    var isJoinRequireUserInfo = CommunityInfo.option_flag_details.CommunityPrivUserAuth == "1";
-                    CanChangeFollowCommunityState.Value =
-                        IsFollowCommunity.Value == true
-                        || (isAutoJoinAccept && !isJoinRequireUserInfo);
-
-                    _NowProcessCommunity = false;
-
-                    UpdateCanNotFollowReason();
-                })
-                .AddTo(_CompositeDisposable);
-            
+            FollowToggleButtonService = followToggleButtonService;
         }
 
 
@@ -189,61 +137,7 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _IsFailed, value); }
 		}
 
-
-
-		public ReactiveProperty<bool> IsFollowCommunity { get; private set; }
-		public ReactiveProperty<bool> CanChangeFollowCommunityState { get; private set; }
-
-		bool _NowProcessCommunity;
-
 		
-		private async Task<bool> FollowCommunity()
-		{
-			if (CommunityId == null) { return false; }
-
-            
-			var result = await FollowProvider.AddFollowAsync(CommunityId);
-
-			return result == ContentManageResult.Success || result == ContentManageResult.Exist;
-		}
-
-		private async Task<bool> UnfollowCommunity()
-		{
-            const string CANCEL_BUTTON_ID = "cancel";
-
-			if (CommunityId == null) { return false; }
-
-            var dialog = new MessageDialog(
-                $"『{CommunityInfo.Name}』へのフォローを解除してもいいですか？ ",
-                "コミュニティフォローの解除確認"
-                );
-
-            dialog.Commands.Add(new UICommand("フォロー解除") { Id = CANCEL_BUTTON_ID });
-            dialog.Commands.Add(new UICommand("キャンセル"));
-
-            dialog.DefaultCommandIndex = 1;
-            dialog.CancelCommandIndex = 1;
-            dialog.Options = MessageDialogOptions.AcceptUserInputAfterDelay;
-
-            var dialogResult = await dialog.ShowAsync();
-            if (dialogResult.Id as string == CANCEL_BUTTON_ID)
-            {
-                try
-                {
-                    var result = await FollowProvider.RemoveFollowAsync(CommunityId);
-
-                    return result == ContentManageResult.Success;
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                return false;
-            }
-        }
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
@@ -351,23 +245,21 @@ namespace NicoPlayerHohoema.ViewModels
 					RaisePropertyChanged(nameof(HasCurrentLiveInfo));
 					RaisePropertyChanged(nameof(CommunityVideoSamples));
 
+                    
+                    // フォロー表示・操作の準備
 
-					// お気に入り状態の取得
-					_NowProcessCommunity = true;
+                    // Note: オーナーコミュニティのフォローを解除＝コミュニティの解散操作となるため注意が必要
+                    // 安全管理上、アプリ上でコミュニティの解散は不可の方向に倒して対応したい
+                    if (!IsOwnedCommunity)
+                    {
+                        FollowToggleButtonService.SetFollowTarget(this);
+                    }
+                    else
+                    {
+                        FollowToggleButtonService.SetFollowTarget(null);
+                    }
 
-					var favManager = FollowManager;
-					IsFollowCommunity.Value = favManager.IsFollowItem(FollowItemType.Community, CommunityId);
-
-					// 
-					var isAutoJoinAccept = CommunityInfo.IsPublic;
-					var isJoinRequireUserInfo = CommunityInfo.option_flag_details.CommunityPrivUserAuth == "1";
-					CanChangeFollowCommunityState.Value =
-						IsFollowCommunity.Value == true
-						|| (favManager.CanMoreAddFollow(FollowItemType.Community) && isAutoJoinAccept && !isJoinRequireUserInfo);
-
-					_NowProcessCommunity = false;
-
-					UpdateCanNotFollowReason();
+                    UpdateCanNotFollowReason();
 				}
 			}
 			catch (Exception ex)
@@ -425,11 +317,15 @@ namespace NicoPlayerHohoema.ViewModels
         public NiconicoSession NiconicoSession { get; }
         public Models.Provider.CommunityFollowProvider FollowProvider { get; }
         public CommunityProvider CommunityProvider { get; }
-        public FollowManager FollowManager { get; }
+        public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
+
+        string INiconicoObject.Id => CommunityId;
+
+        string INiconicoObject.Label => CommunityName;
 
         private void UpdateCanNotFollowReason()
 		{
-			if (FollowManager.IsFollowItem(FollowItemType.Community, CommunityId))
+			if (FollowToggleButtonService.IsFollowTarget.Value)
 			{
 				CanNotFollowReason = null;
 			}

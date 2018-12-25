@@ -118,18 +118,23 @@ namespace NicoPlayerHohoema.Models
             NiconicoSession.LogOut += NiconicoSession_LogOut;
         }
 
-        
+        public bool IsLoginUserFollowsReady { get; private set; }
 
         private async void NiconicoSession_LogIn(object sender, NiconicoSessionLoginEventArgs e)
         {
+            IsLoginUserFollowsReady = false;
             using (var cancelTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
             {
                 await SyncAll(cancelTokenSource.Token);
+
+                IsLoginUserFollowsReady = true;
             }
         }
 
         private async void NiconicoSession_LogOut(object sender, EventArgs e)
         {
+            IsLoginUserFollowsReady = false;
+
             using (var cancelTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
             {
                 await SyncAll(cancelTokenSource.Token);
@@ -141,15 +146,42 @@ namespace NicoPlayerHohoema.Models
             return Task.CompletedTask;
         }
 
+        public bool CanMoreAddFollow(Interfaces.IFollowable followItem)
+        {
+            if (followItem == null) { return false; }
 
-		public bool CanMoreAddFollow(FollowItemType itemType)
+            return CanMoreAddFollow(ToFollowItemType(followItem));
+        }
+
+        public bool CanMoreAddFollow(FollowItemType itemType)
 		{
 			return _FollowGroupsMap[itemType].CanMoreAddFollow();
 		}
 
-		
 
-		public bool IsFollowItem(FollowItemType itemType, string id)
+        static FollowItemType ToFollowItemType(Interfaces.IFollowable followItem)
+        {
+            switch (followItem)
+            {
+                case Interfaces.IChannel _: return FollowItemType.Channel;
+                case Interfaces.ICommunity _: return FollowItemType.Community;
+                case Interfaces.IUser _: return FollowItemType.User;
+                case Interfaces.IMylistItem _: return FollowItemType.Mylist;
+                case Interfaces.ITag _: return FollowItemType.Tag;
+                case Interfaces.ISearchWithtag _: return FollowItemType.Tag;
+
+                default: throw new NotSupportedException();
+            }
+        }
+
+        public bool IsFollowItem(Interfaces.IFollowable followItem)
+        {
+            if (followItem == null) { return false; }
+
+            return IsFollowItem(ToFollowItemType(followItem), followItem.Id);
+        }
+
+        public bool IsFollowItem(FollowItemType itemType, string id)
 		{
 			var group = _FollowGroupsMap[itemType];
 
@@ -186,7 +218,12 @@ namespace NicoPlayerHohoema.Models
 			return _FollowGroupsMap[itemType].FollowInfoItems.SingleOrDefault(x => x.Id == id);
 		}
 
-		public async Task<ContentManageResult> AddFollow(FollowItemType itemType, string id, string name, object token = null)
+        public async Task<ContentManageResult> AddFollow(Interfaces.IFollowable followItem, object token = null)
+        {
+            return await AddFollow(ToFollowItemType(followItem), followItem.Id, followItem.Label, token);
+        }
+
+        public async Task<ContentManageResult> AddFollow(FollowItemType itemType, string id, string name, object token = null)
 		{
 			var group = _FollowGroupsMap[itemType];
 
@@ -195,7 +232,12 @@ namespace NicoPlayerHohoema.Models
 			return result;
 		}
 
-		public async Task<ContentManageResult> RemoveFollow(FollowItemType itemType, string id)
+        public async Task<ContentManageResult> RemoveFollow(Interfaces.IFollowable followItem)
+        {
+            return await RemoveFollow(ToFollowItemType(followItem), followItem.Id);
+        }
+
+        public async Task<ContentManageResult> RemoveFollow(FollowItemType itemType, string id)
 		{
 			var group = _FollowGroupsMap[itemType];
 
@@ -205,23 +247,11 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-        private static Models.FollowItemType GetFollowItemType(Interfaces.IFollowable item)
-        {
-            if (item is Interfaces.ISearchWithtag) return Models.FollowItemType.Tag;
-            if (item is Interfaces.IUser) return Models.FollowItemType.User;
-            if (item is Interfaces.IMylist) return Models.FollowItemType.Mylist;
-            if (item is Interfaces.ICommunity) return Models.FollowItemType.Community;
-            if (item is Interfaces.IChannel) return Models.FollowItemType.Channel;
-
-            throw new NotSupportedException();
-        }
-
         private DelegateCommand<Interfaces.IFollowable> _RemoveFollowCommand;
         public DelegateCommand<Interfaces.IFollowable> RemoveFollowCommand => _RemoveFollowCommand
             ?? (_RemoveFollowCommand = new DelegateCommand<Interfaces.IFollowable>(async followItem => 
             {
-                var followType = GetFollowItemType(followItem as Interfaces.IFollowable);
-                var result = await RemoveFollow(followType, followItem.Id);
+                var result = await RemoveFollow(followItem);
             }
             , followItem => followItem is Interfaces.IFollowable
             ));

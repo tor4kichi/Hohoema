@@ -32,6 +32,7 @@ namespace NicoPlayerHohoema.ViewModels
             Services.HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
             ExternalAccessService externalAccessService,
+            NiconicoFollowToggleButtonService followToggleButtonService,
             Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
             : base(pageManager)
@@ -75,6 +76,7 @@ namespace NicoPlayerHohoema.ViewModels
             SubscriptionManager = subscriptionManager;
             UserMylistManager = userMylistManager;
             ExternalAccessService = externalAccessService;
+            FollowToggleButtonService = followToggleButtonService;
             CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
             UserProvider = userProvider;
             NgSettings = ngSettings;
@@ -85,6 +87,7 @@ namespace NicoPlayerHohoema.ViewModels
         public SubscriptionManager SubscriptionManager { get; }
         public UserMylistManager UserMylistManager { get; }
         public ExternalAccessService ExternalAccessService { get; }
+        public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
         public UserProvider UserProvider { get; }
         public NGSettings NgSettings { get; }
@@ -354,6 +357,10 @@ namespace NicoPlayerHohoema.ViewModels
             };
 
             RaisePropertyChanged(nameof(UserBookmark));
+
+
+            FollowToggleButtonService.SetFollowTarget(this);
+
 
             NowLoading = false;
         }

@@ -31,6 +31,18 @@
     <Grid>
 
         <VisualStateManager.VisualStateGroups>
+
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding NiconicoSession.IsLoggedIn}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ChannelFollowButton.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            
             <!-- トップバー表示時のタイトル位置ずらし -->
             <VisualStateGroup>
                 <VisualState>
@@ -180,13 +192,7 @@
                                           Label="更新" 
                                           Command="{Binding RefreshCommand}"
                                           />
-
-                                <AppBarButton x:Name="ShowWithBrowserButton"
-                                          Label="ブラウザで表示" 
-                                          Command="{Binding ExternalAccessService.OpenLinkCommand}"
-                                              CommandParameter="{Binding}"
-                                          />
-
+                                
                                 <AppBarButton x:Name="CacheReqesutSelectedItemButton"
                                     Command="{Binding RequestCacheDownload}"
                                     IsEnabled="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
@@ -219,6 +225,25 @@
                                 </AppBarToggleButton>
 
                             </CommandBar.PrimaryCommands>
+
+                            <CommandBar.SecondaryCommands>
+                                <AppBarToggleButton Background="Transparent"
+                                                IsChecked="{Binding FollowToggleButtonService.IsFollowTarget.Value, Mode=TwoWay}"
+                                                Command="{Binding FollowToggleButtonService.ToggleFollowCommand}"
+                                                Icon="Favorite"
+                                                Label="フォロー"
+                                                Visibility="Collapsed"
+                                                x:Name="ChannelFollowButton"
+                                                />
+                                
+                                <AppBarButton Label="ブラウザで開く"
+                                            Command="{Binding ExternalAccessService.OpenLinkCommnad}"
+                                              CommandParameter="{Binding}"
+                                            VerticalAlignment="Center"
+                                            UseSystemFocusVisuals="True"
+                                            />
+                                
+                            </CommandBar.SecondaryCommands>
 
                         </CommandBar>
                     </StackPanel>

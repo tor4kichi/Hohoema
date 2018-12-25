@@ -42,7 +42,6 @@
     <MenuFlyoutSeparator />
 
     <MenuFlyoutItem Text="フォロー解除"
-                    Command="{Binding FollowManager.RemoveFollowCommand}"
-                    CommandParameter="{Binding}"
+                    Command="{Binding FollowToggleButtonService.ToggleFollowCommand}"
                     />
 </MenuFlyout>
