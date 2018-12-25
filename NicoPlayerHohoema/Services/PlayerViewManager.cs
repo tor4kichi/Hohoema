@@ -289,7 +289,7 @@ namespace NicoPlayerHohoema.Services
         // メインビューを閉じたらプレイヤービューも閉じる
         private async void MainView_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
         {
-            if (!IsMainView)
+            if (sender.Id == MainViewId)
             {
                 if (SecondaryCoreAppView != null)
                 {
