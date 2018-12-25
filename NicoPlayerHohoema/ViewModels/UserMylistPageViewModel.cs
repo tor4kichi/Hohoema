@@ -290,7 +290,7 @@ namespace NicoPlayerHohoema.ViewModels
 				UserId = e.Parameter as string;				
 			}
 
-            if (NiconicoSession.IsLoginUserId(UserId))
+            if (e.Parameter == null || NiconicoSession.IsLoginUserId(UserId))
             {
                 IsLoginUserMylist.Value = true;
 
