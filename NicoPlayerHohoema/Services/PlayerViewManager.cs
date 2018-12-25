@@ -25,6 +25,8 @@ using Prism.Events;
 using Prism.Commands;
 using System.Reactive;
 using System.Threading;
+using Reactive.Bindings.Extensions;
+using System.Reactive.Linq;
 
 namespace NicoPlayerHohoema.Services
 {
@@ -116,7 +118,6 @@ namespace NicoPlayerHohoema.Services
                 },
                 ThreadOption.UIThread
                 );
-                
         }
 
         public bool IsMainView => MainViewId == CurrentView.Id;
@@ -235,10 +236,17 @@ namespace NicoPlayerHohoema.Services
             {
                 if (NowPlaying)
                 {
-                    if (currentView.AdjacentToLeftDisplayEdge && currentView.AdjacentToRightDisplayEdge)
+                    if (IsPlayerSmallWindowModeEnabled)
+                    {
+                        if (currentView.IsFullScreenMode)
+                        {
+                            currentView.ExitFullScreenMode();
+                        }
+                    }
+                    else if (currentView.AdjacentToLeftDisplayEdge && currentView.AdjacentToRightDisplayEdge)
                     {
                         currentView.TryEnterFullScreenMode();
-                    }
+                    }                    
                 }
                 else
                 {
