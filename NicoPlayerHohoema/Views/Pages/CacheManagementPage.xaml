@@ -64,28 +64,6 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
-            
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsSelectionModeEnable.Value}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="UpdateButton.Visibility" Value="Collapsed" />
-                        <Setter Target="ScrollToTopButton.Visibility" Value="Collapsed" />
-                        <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
-
-                        <Setter Target="CancelCacheButton.Visibility" Value="Visible" />
-                        <Setter Target="RegistMylistButton.Visibility" Value="Visible" />
-
-                        <Setter Target="ItemsList.SelectionMode" Value="Multiple" />
-                        <Setter Target="ItemsList.IsItemClickEnabled" Value="False" />
-                        <Setter Target="ItemsList.IsMultiSelectCheckBoxEnabled" Value="True" />
-
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-
 
 
             <VisualStateGroup>
@@ -134,8 +112,6 @@
                 myExtensions:ListViewBase.DeferInitialize="True"
             >
             <i:Interaction.Behaviors>
-
-                <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems, Mode=TwoWay}" />
 
                 <mybehavior:KeyboardTrigger Key="F5">
                     <mybehavior:KeyboardTrigger.Actions>
@@ -205,32 +181,6 @@
                                         Label="更新"
                                               
                                         />
-
-                                    <AppBarButton x:Name="CancelCacheButton"
-                                          Command="{Binding CancelCacheDownloadRequest}"
-                                            Icon="Remove"
-                                            Label="キャッシュ削除"
-                                          Visibility="Collapsed"
-                                            />
-
-                                    <AppBarButton x:Name="RegistMylistButton"
-                                          Command="{Binding RegistratioMylistCommand}"
-                                          Label="マイリストに追加"
-                                          Icon="Add"
-                                          Visibility="Collapsed"
-                                            >
-                                    </AppBarButton>
-
-                                    <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            HorizontalContentAlignment="Stretch"
-                                            VerticalContentAlignment="Stretch"
-                                                x:Name="ToggleSelectionButton"
-                                            >
-                                        <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"
-                                                       />
-                                    </AppBarToggleButton>
 
 
                                 </CommandBar.PrimaryCommands>

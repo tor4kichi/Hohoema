@@ -9,9 +9,16 @@ namespace NicoPlayerHohoema.Models.Provider
 {
     public sealed class LoginUserMylistProvider : ProviderBase
     {
+
+        static LoginUserMylistProvider()
+        {
+            Database.Temporary.MylistDb.Clear();
+        }
+
         public LoginUserMylistProvider(NiconicoSession niconicoSession)
             : base(niconicoSession)
         {
+            
         }
 
 
@@ -32,7 +39,8 @@ namespace NicoPlayerHohoema.Models.Provider
                 }
             }
 
-            var mylist = new UserOwnedMylist(UserOwnedMylist.DefailtMylistId, videoItems.Select(x => x.RawVideoId), this)
+
+            var mylist = new UserOwnedMylist(UserOwnedMylist.DefailtMylistId, this, new System.Collections.ObjectModel.ObservableCollection<string>(videoItems.Select(x => x.RawVideoId)))
             {
                 Label = "とりあえずマイリスト",
                 UserId = NiconicoSession.UserId.ToString(),
@@ -46,11 +54,8 @@ namespace NicoPlayerHohoema.Models.Provider
                 Database.Temporary.MylistDb.AddItemId(
                     defMylist.Select(x => new Database.Temporary.MylistItemIdContainer()
                     {
-                        Key = new Database.Temporary.MylistItemKey()
-                        {
-                            MylistGroupId = mylistId,
-                            VideoId = x.WatchId
-                        },
+                        MylistGroupId = mylistId,
+                        VideoId = x.WatchId,
                         ItemId = x.ItemId
                     }));
             });
@@ -84,7 +89,7 @@ namespace NicoPlayerHohoema.Models.Provider
                 var mylistItems = await Context.User.GetMylistItemListAsync(mylistGroup.Id);
 
                 var videos = mylistItems.Select(x => MylistDataToNicoVideoData(x).RawVideoId);
-                var mylist = new UserOwnedMylist(mylistGroup.Id, videos, this)
+                var mylist = new UserOwnedMylist(mylistGroup.Id, this, new System.Collections.ObjectModel.ObservableCollection<string>(videos))
                 {
                     UserId = mylistGroup.UserId,
                     Label = mylistGroup.Name,
@@ -100,11 +105,8 @@ namespace NicoPlayerHohoema.Models.Provider
                     Database.Temporary.MylistDb.AddItemId(
                         mylistItems.Select(x => new Database.Temporary.MylistItemIdContainer()
                         {
-                            Key = new Database.Temporary.MylistItemKey()
-                            {
-                                MylistGroupId = mylistId,
-                                VideoId = x.WatchId
-                            },
+                            MylistGroupId = mylistId,
+                            VideoId = x.WatchId,
                             ItemId = x.ItemId
                         }));
                 });

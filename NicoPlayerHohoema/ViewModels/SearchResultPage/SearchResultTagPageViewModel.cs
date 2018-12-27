@@ -22,7 +22,7 @@ using Windows.UI.Xaml.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class SearchResultTagPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>, Interfaces.ISearchWithtag
+	public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, Interfaces.ISearchWithtag
     {
         public SearchResultTagPageViewModel(
            NGSettings ngSettings,

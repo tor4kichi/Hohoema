@@ -17,7 +17,7 @@ using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class SearchResultKeywordPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
+    public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>
 	{
 
         public SearchResultKeywordPageViewModel(

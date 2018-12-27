@@ -17,7 +17,7 @@ using NicoPlayerHohoema.Interfaces;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public sealed class ChannelVideoPageViewModel : HohoemaVideoListingPageViewModelBase<ChannelVideoListItemViewModel>, Interfaces.IChannel
+    public sealed class ChannelVideoPageViewModel : HohoemaListingPageViewModelBase<ChannelVideoListItemViewModel>, Interfaces.IChannel
     {
         public ChannelVideoPageViewModel(
             NiconicoSession niconicoSession,

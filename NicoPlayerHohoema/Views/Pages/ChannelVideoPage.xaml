@@ -71,30 +71,6 @@
                 </VisualState>
             </VisualStateGroup>
 
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsSelectionModeEnable.Value}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="AddMylistSelectedItemButton.Visibility" Value="Visible" />
-                        <Setter Target="CacheReqesutSelectedItemButton.Visibility" Value="Visible" />
-
-                        <Setter Target="HeaderCommandBarContent.Visibility" Value="Collapsed" />
-
-                        <Setter Target="UpdateButton.Visibility" Value="Collapsed" />
-                        <Setter Target="ShowWithBrowserButton.Visibility" Value="Collapsed" />
-
-                        <Setter Target="ItemsList.SelectionMode" Value="Multiple" />
-                        <Setter Target="ItemsList.IsItemClickEnabled" Value="False" />
-                        <Setter Target="ItemsList.IsMultiSelectCheckBoxEnabled" Value="True" />
-
-
-                    </VisualState.Setters>
-                </VisualState>
-
-            </VisualStateGroup>
-
         </VisualStateManager.VisualStateGroups>
 
 
@@ -120,8 +96,6 @@
                 </TransitionCollection>
             </uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
             <i:Interaction.Behaviors>
-
-                <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems, Mode=TwoWay}" />
 
                 <mybehavior:KeyboardTrigger Key="F5">
                     <mybehavior:KeyboardTrigger.Actions>
@@ -192,41 +166,7 @@
                                           Label="更新" 
                                           Command="{Binding RefreshCommand}"
                                           />
-                                
-                                <AppBarButton x:Name="CacheReqesutSelectedItemButton"
-                                    Command="{Binding RequestCacheDownload}"
-                                    IsEnabled="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
-                                    Icon="Download"
-                                    Label="キャッシュ"
-                                    Visibility="Collapsed"
-                                    />
 
-                                <AppBarButton x:Name="AddMylistSelectedItemButton"
-                                    Command="{Binding RegistratioMylistCommand}" 
-                                    Icon="Add"
-                                    Label="マイリストに追加"
-                                    Visibility="Collapsed"
-                                    />
-
-                                <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            HorizontalContentAlignment="Stretch"
-                                            VerticalContentAlignment="Stretch"
-                                            
-                                            >
-                                    <StackPanel Orientation="Horizontal">
-                                        <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"
-                                                       />
-
-                                        <TextBlock Text="選択" Margin="16 0 0 0 "
-                                               VerticalAlignment="Center" />
-                                    </StackPanel>
-                                </AppBarToggleButton>
-
-                            </CommandBar.PrimaryCommands>
-
-                            <CommandBar.SecondaryCommands>
                                 <AppBarToggleButton Background="Transparent"
                                                 IsChecked="{Binding FollowToggleButtonService.IsFollowTarget.Value, Mode=TwoWay}"
                                                 Command="{Binding FollowToggleButtonService.ToggleFollowCommand}"
@@ -235,16 +175,15 @@
                                                 Visibility="Collapsed"
                                                 x:Name="ChannelFollowButton"
                                                 />
-                                
+
                                 <AppBarButton Label="ブラウザで開く"
                                             Command="{Binding ExternalAccessService.OpenLinkCommnad}"
                                               CommandParameter="{Binding}"
                                             VerticalAlignment="Center"
                                             UseSystemFocusVisuals="True"
                                             />
-                                
-                            </CommandBar.SecondaryCommands>
 
+                            </CommandBar.PrimaryCommands>
                         </CommandBar>
                     </StackPanel>
                 </uwpcontrols:ScrollHeader>

@@ -20,7 +20,7 @@ using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class CacheManagementPageViewModel : HohoemaVideoListingPageViewModelBase<CacheVideoViewModel>
+    public class CacheManagementPageViewModel : HohoemaListingPageViewModelBase<CacheVideoViewModel>
 	{
         public CacheManagementPageViewModel(
             CacheSettings cacheSettings,

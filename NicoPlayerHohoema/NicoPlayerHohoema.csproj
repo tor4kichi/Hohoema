@@ -379,7 +379,6 @@
     <Compile Include="ViewModels\HohoemaListingPageItemBase.cs" />
     <Compile Include="ViewModels\HohoemaListingPageViewModelBase.cs" />
     <Compile Include="ViewModels\HohoemaSecondaryViewFrameViewModel.cs" />
-    <Compile Include="ViewModels\HohoemaVideoListingPageViewModelBase.cs" />
     <Compile Include="ViewModels\HohoemaViewModelBase.cs" />
     <Compile Include="Interfaces\ISearchHistory.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\CommentLiveInfoContentViewModel.cs" />
@@ -412,6 +411,9 @@
     <Compile Include="ViewModels\PlayerSidePaneContent\SidePaneContentViewModelBase.cs" />
     <Compile Include="Views\Extensions\Flyout\FlyoutCustomContext.cs" />
     <Compile Include="Views\Extensions\ListViewBase\ListViewItemDeferInitialize.cs" />
+    <Compile Include="Views\Flyouts\MylistVideoItemFlyout.xaml.cs">
+      <DependentUpon>MylistVideoItemFlyout.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Flyouts\SubscriptionItemFlyout.xaml.cs">
       <DependentUpon>SubscriptionItemFlyout.xaml</DependentUpon>
     </Compile>
@@ -424,8 +426,12 @@
     <Compile Include="Views\Flyouts\MenuPinItemFlyout.xaml.cs">
       <DependentUpon>MenuPinItemFlyout.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Flyouts\VideoHistoryItemFlyout.xaml.cs">
+      <DependentUpon>VideoHistoryItemFlyout.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Interaction\Actions\ScrollViewerVerticalPositionSettingsAction.cs" />
     <Compile Include="Views\Interaction\Behaviors\FocusGetter.cs" />
+    <Compile Include="Views\Interaction\Behaviors\MultiSelection.cs" />
     <Compile Include="Views\Interaction\Input\AutoHideCursor.cs" />
     <Compile Include="Views\Interaction\Flyout\MenuFlyoutItemsSetter.cs" />
     <Compile Include="Views\Interaction\Input\Swipe.cs" />
@@ -592,9 +598,6 @@
     <Compile Include="Views\Converters\InvertVisibilityConverter.cs" />
     <Compile Include="Views\Converters\NicoVideoQualityToCultualizedTextConverter.cs" />
     <Compile Include="Views\Converters\TransparentColorConverter.cs" />
-    <Compile Include="Views\Controls\ListingSelectionControl.xaml.cs">
-      <DependentUpon>ListingSelectionControl.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\Pages\ListItem\LiveVideoListItem.xaml.cs">
       <DependentUpon>LiveVideoListItem.xaml</DependentUpon>
     </Compile>
@@ -854,6 +857,10 @@
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Page>
+    <Page Include="Views\Flyouts\MylistVideoItemFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Flyouts\SubscriptionItemFlyout.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -867,6 +874,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Flyouts\MenuPinItemFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Flyouts\VideoHistoryItemFlyout.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1001,10 +1012,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\HohoemaInAppNotification.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Controls\ListingSelectionControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

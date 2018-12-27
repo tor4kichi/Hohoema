@@ -12,6 +12,8 @@ using Prism.Windows.Navigation;
 using Microsoft.Practices.Unity;
 using NicoPlayerHohoema.Services.Helpers;
 using NicoPlayerHohoema.Models.Provider;
+using Reactive.Bindings.Extensions;
+using System.Reactive.Linq;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -87,59 +89,6 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        private DelegateCommand _DeleteSelectedReservations;
-        public DelegateCommand DeleteSelectedReservations
-        {
-            get
-            {
-                return _DeleteSelectedReservations
-                    ?? (_DeleteSelectedReservations = new DelegateCommand(async () =>
-                    {
-                        var reservations = await LoginUserLiveReservationProvider.GetReservtionsAsync();
-
-                        var selectedReservations = SelectedItems.ToList();
-
-                        if (selectedReservations.Count == 0) { return; }
-
-                        var dialogService = App.Current.Container.Resolve<Services.DialogService>();
-
-                        var reservationTitlesText = string.Join("\r", selectedReservations.Select(x => x.Label));
-                        var acceptDeletion = await dialogService.ShowMessageDialog(
-                            "DeleteReservationConfirmText".ToCulturelizeString() + "\r\r" + reservationTitlesText,
-                            "DeleteSelectedReservationConfirm_Title".ToCulturelizeString(),
-                            "DeleteReservationConfirm_Agree".ToCulturelizeString(),
-                            "Cancel".ToCulturelizeString()
-                            );
-
-                        if (!acceptDeletion) { return; }
-
-                        await PageManager.StartNoUIWork(
-                            "DeletingReservations".ToCulturelizeString()
-                            , selectedReservations.Count,
-                            () => AsyncInfo.Run<uint>(async (cancelToken, progress) =>
-                            {
-                                uint cnt = 0;
-                                var token = await LoginUserLiveReservationProvider.GetReservationTokenAsync();
-
-                                foreach (var reservation in selectedReservations)
-                                {
-                                    await LoginUserLiveReservationProvider.DeleteReservationAsync(reservation.LiveId, token);
-
-                                    await Task.Delay(TimeSpan.FromSeconds(1));
-
-                                    cnt++;
-
-                                    progress.Report(cnt);
-                                }
-
-                                await ResetList();
-                            })
-                            );
-                    }));
-            }
-        }
-
-
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
             base.OnNavigatedTo(e, viewModelState);
@@ -162,6 +111,13 @@ namespace NicoPlayerHohoema.ViewModels
             AddSortDescription(
                 new Microsoft.Toolkit.Uwp.UI.SortDescription("ExpiredAt", Microsoft.Toolkit.Uwp.UI.SortDirection.Ascending)
                 );
+
+            IncrementalLoadingItems.ObserveElementPropertyChanged()
+                .Where(x => x.EventArgs.PropertyName == nameof(x.Sender.Reservation) && x.Sender.Reservation == null)
+                .Subscribe(x =>
+                {
+                    ItemsView.Remove(x.Sender);
+                });
 
             base.PostResetList();
         }

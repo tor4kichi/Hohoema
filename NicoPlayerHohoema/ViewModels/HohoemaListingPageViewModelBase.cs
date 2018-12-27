@@ -31,9 +31,6 @@ namespace NicoPlayerHohoema.ViewModels
             NowLoading = new ReactiveProperty<bool>(true)
                 .AddTo(_CompositeDisposable);
 
-            SelectedItems = new ObservableCollection<ITEM_VM>();
-
-
             HasItem = new ReactiveProperty<bool>(true);
 
             HasError = new ReactiveProperty<bool>(false);
@@ -42,65 +39,14 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(_CompositeDisposable);
             LoadedItemsCount = new ReactiveProperty<int>(0)
                 .AddTo(_CompositeDisposable);
-            SelectedItemsCount = SelectedItems.ObserveProperty(x => x.Count)
-                .ToReactiveProperty(0)
-                .AddTo(_CompositeDisposable);
-
-            IsItemSelected = SelectedItems.ObserveProperty(x => x.Count)
-                .Select(x => x > 0)
-                .ToReactiveProperty()
-                .AddTo(_CompositeDisposable);
-
 
             NowRefreshable = new ReactiveProperty<bool>(false);
 
-            // 複数選択モード
-            IsSelectionModeEnable = new ReactiveProperty<bool>(false)
-                .AddTo(_CompositeDisposable);
-
-            IsSelectionModeEnable.Where(x => !x)
-                .Subscribe(x => ClearSelection())
-                .AddTo(_CompositeDisposable);
-
-            // 複数選択モードによって再生コマンドの呼び出しを制御する
-            SelectItemCommand = IsSelectionModeEnable
-                .Select(x => !x)
-                .ToReactiveCommand<object>()
-                .AddTo(_CompositeDisposable);
-
             ScrollPosition = new ReactiveProperty<double>();
-
-
-            //			var SelectionItemsChanged = SelectedItems.ToCollectionChanged().ToUnit();
-            /*
-                        SelectionItemsChanged.Subscribe(_ => 
-                        {
-                            if (!IsSelectionModeEnable.Value)
-                            {
-                                var item = SelectedItems.FirstOrDefault();
-                                if (item != null)
-                                {
-                                    if (item.PrimaryCommand.CanExecute(null))
-                                    {
-                                        item.PrimaryCommand.Execute(null);
-                                    }
-                                }
-                            }
-                        });
-                        */
-#if DEBUG
-            SelectedItems.CollectionChangedAsObservable()
-                .Subscribe(x =>
-                {
-                    Debug.WriteLine("Selected Count: " + SelectedItems.Count);
-                })
-                .AddTo(_CompositeDisposable);
-#endif
 
             // 読み込み厨または選択中はソートを変更できない
             CanChangeSort = Observable.CombineLatest(
-                NowLoading,
-                IsSelectionModeEnable
+                NowLoading
                 )
                 .Select(x => !x.Any(y => y))
                 .ToReactiveProperty()
@@ -314,10 +260,6 @@ namespace NicoPlayerHohoema.ViewModels
                 HasItem.Value = true;
                 LoadedItemsCount.Value = 0;
 
-                IsSelectionModeEnable.Value = false;
-
-                SelectedItems.Clear();
-
                 if (IncrementalLoadingItems != null)
                 {
                     if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
@@ -431,11 +373,6 @@ namespace NicoPlayerHohoema.ViewModels
             return false;
         }
 
-		protected void ClearSelection()
-		{
-			SelectedItems.Clear();
-		}
-
         private DelegateCommand _ResetSortCommand;
         public DelegateCommand ResetSortCommand
         {
@@ -510,44 +447,6 @@ namespace NicoPlayerHohoema.ViewModels
             ItemsView.RefreshFilter();
         }
 
-		#region Selection
-
-
-		public ReactiveProperty<bool> IsSelectionModeEnable { get; private set; }
-		
-
-		public ReactiveCommand<object> SelectItemCommand { get; private set; }
-
-                
-        private DelegateCommand _EnableSelectionCommand;
-		public DelegateCommand EnableSelectionCommand
-		{
-			get
-			{
-				return _EnableSelectionCommand
-					?? (_EnableSelectionCommand = new DelegateCommand(() => 
-					{
-						IsSelectionModeEnable.Value = true;
-					}));
-			}
-		}
-
-
-		private DelegateCommand _DisableSelectionCommand;
-		public DelegateCommand DisableSelectionCommand
-		{
-			get
-			{
-				return _DisableSelectionCommand
-					?? (_DisableSelectionCommand = new DelegateCommand(() =>
-					{
-						IsSelectionModeEnable.Value = false;
-					}));
-			}
-		}
-
-		#endregion
-
 
 
 		private DelegateCommand _RefreshCommand;
@@ -565,11 +464,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<int> MaxItemsCount { get; private set; }
 		public ReactiveProperty<int> LoadedItemsCount { get; private set; }
-		public ReactiveProperty<int> SelectedItemsCount { get; private set; }
-
-        public ReactiveProperty<bool> IsItemSelected { get; private set; }
-
-        public ObservableCollection<ITEM_VM> SelectedItems { get; private set; }
 
 		public IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> IncrementalLoadingItems { get; private set; }
 

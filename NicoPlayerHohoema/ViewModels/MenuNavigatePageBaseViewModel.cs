@@ -927,24 +927,32 @@ namespace NicoPlayerHohoema.ViewModels
             }
             );
 
-            MenuItems = new List<HohoemaListingPageItemBase>();
-
-            NiconicoSession.ObserveProperty(x => x.IsLoggedIn)
-                .Subscribe(isLoggedIn => 
-                {
-                    MenuItems.Clear();
-                    if (isLoggedIn)
-                    {
-                        MenuItems.Add(new MenuItemViewModel("タイムシフト", HohoemaPageType.Timeshift));
-                        MenuItems.Add(new MenuItemViewModel("ニコレポ", HohoemaPageType.NicoRepo));
-                        MenuItems.Add(new MenuItemViewModel("フォロー", HohoemaPageType.FollowManage));
-                    }
-
-                    RaisePropertyChanged(nameof(MenuItems));
-                });
-
+            MenuItems = new ObservableCollection<HohoemaListingPageItemBase>();
             //            MenuItems.Add(new MenuItemViewModel("予約", HohoemaPageType.NicoRepo));
+
+            NiconicoSession.LogIn += (_, __) => ResetItems();
+            NiconicoSession.LogOut += (_, __) => ResetItems();
+
+            ResetItems();
         }
+
+        private async void ResetItems()
+        {
+            using (await NiconicoSession.SigninLock.LockAsync())
+            {
+                MenuItems.Clear();
+
+                if (NiconicoSession.IsLoggedIn)
+                {
+                    MenuItems.Add(new MenuItemViewModel("タイムシフト", HohoemaPageType.Timeshift));
+                    MenuItems.Add(new MenuItemViewModel("ニコレポ", HohoemaPageType.NicoRepo));
+                    MenuItems.Add(new MenuItemViewModel("フォロー", HohoemaPageType.FollowManage));
+                }
+
+                RaisePropertyChanged(nameof(MenuItems));
+            }
+        }
+
 
         public NiconicoSession NiconicoSession { get; }
         public NicoLiveSubscriber LiveSubscriber { get; }
@@ -953,7 +961,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public AsyncReactiveCommand UpdateOnAirStreamsCommand { get; }
 
-        public List<HohoemaListingPageItemBase> MenuItems { get; private set; }
+        public ObservableCollection<HohoemaListingPageItemBase> MenuItems { get; private set; }
 
         public ReadOnlyReactiveCollection<OnAirStream> OnAirStreams { get; }
         public ReadOnlyReactiveCollection<OnAirStream> ReservedStreams { get; }

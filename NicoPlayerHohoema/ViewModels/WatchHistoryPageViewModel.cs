@@ -21,11 +21,8 @@ using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class WatchHistoryPageViewModel : HohoemaVideoListingPageViewModelBase<HistoryVideoInfoControlViewModel>
+	public class WatchHistoryPageViewModel : HohoemaViewModelBase
 	{
-		HistoriesResponse _HistoriesResponse;
-
-
 		public WatchHistoryPageViewModel(
             LoginUserHistoryProvider loginUserHistoryProvider,
             Services.HohoemaPlaylist hohoemaPlaylist,
@@ -33,113 +30,104 @@ namespace NicoPlayerHohoema.ViewModels
             )
             : base(pageManager)
 		{
-			RemoveHistoryCommand = SelectedItems.ObserveProperty(x => x.Count)
-				.Select(x => x > 0)
-				.ToReactiveCommand()
-				.AddTo(_CompositeDisposable);
-
-			RemoveHistoryCommand.Subscribe(async _ => 
-			{
-				var selectedItems = SelectedItems.ToArray();
-
-				var action = AsyncInfo.Run<uint>(async (cancelToken, progress) => 
-				{
-					foreach (var item in selectedItems)
-					{
-						await RemoveHistory(item.RawVideoId);
-
-						SelectedItems.Remove(item);
-
-						await Task.Delay(250);
-					}
-
-					await UpdateList();
-
-					_HistoriesResponse = await LoginUserHistoryProvider.GetHistory();
-
-					RemoveAllHistoryCommand.RaiseCanExecuteChanged();
-				});
-
-				await PageManager.StartNoUIWork("視聴履歴の削除", selectedItems.Length, () => action);
-			})
-			.AddTo(_CompositeDisposable);
             LoginUserHistoryProvider = loginUserHistoryProvider;
             HohoemaPlaylist = hohoemaPlaylist;
+
+            Histories = new ObservableCollection<HistoryVideoInfoControlViewModel>();
+
+            Histories.ObserveElementPropertyChanged()
+                .Where(x => x.EventArgs.PropertyName == nameof(HistoryVideoInfoControlViewModel.IsRemoved))
+                .Where(x => x.Sender.IsRemoved)
+                .Subscribe(x => Histories.Remove(x.Sender))
+                .AddTo(_CompositeDisposable);
         }
 
-		public ReactiveCommand RemoveHistoryCommand { get; private set; }
-
-		private DelegateCommand _RemoveAllHistoryCommand;
-		public DelegateCommand RemoveAllHistoryCommand
-		{
-			get
-			{
-				return _RemoveAllHistoryCommand
-					?? (_RemoveAllHistoryCommand = new DelegateCommand(async () =>
-					{
-						await RemoveAllHistory();
-					}
-					, () => MaxItemsCount.Value > 0
-					));
-			}
-		}
 
         public LoginUserHistoryProvider LoginUserHistoryProvider { get; }
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
 
-        protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			_HistoriesResponse = await LoginUserHistoryProvider.GetHistory();
+        public ObservableCollection<HistoryVideoInfoControlViewModel> Histories { get; }
 
-			await base.ListPageNavigatedToAsync(cancelToken, e, viewModelState);
-		}
+        HistoriesResponse _HistoriesResponse;
+        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        {
+            if (RefreshCommand.CanExecute())
+            {
+                RefreshCommand.Execute();
+            }
 
-		protected override IIncrementalSource<HistoryVideoInfoControlViewModel> GenerateIncrementalSource()
-		{
-			return new HistoryIncrementalLoadingSource(_HistoriesResponse);
-		}
+            base.OnNavigatedTo(e, viewModelState);
+        }
 
-		protected override void PostResetList()
-		{
-			RemoveAllHistoryCommand.RaiseCanExecuteChanged();
+        private DelegateCommand _RefreshCommand;
+        public DelegateCommand RefreshCommand
+        {
+            get
+            {
+                return _RefreshCommand
+                    ?? (_RefreshCommand = new DelegateCommand(async () =>
+                    {
+                        Histories.Clear();
 
-			base.PostResetList();
-		}
+                        _HistoriesResponse = await LoginUserHistoryProvider.GetHistory();
 
-		internal async Task RemoveAllHistory()
-		{
-			var action = AsyncInfo.Run(async (cancelToken) => 
-			{
-				await LoginUserHistoryProvider.RemoveAllHistoriesAsync(_HistoriesResponse.Token);
+                        foreach (var x in _HistoriesResponse.Histories ?? Enumerable.Empty<History>())
+                        {
+                            var vm = new HistoryVideoInfoControlViewModel(x.Id);
+                            vm.ItemId = x.ItemId;
+                            vm.LastWatchedAt = x.WatchedAt.DateTime;
+                            vm.UserViewCount = x.WatchCount;
 
-				_HistoriesResponse = await LoginUserHistoryProvider.GetHistory();
+                            vm.SetTitle(x.Title);
+                            vm.SetThumbnailImage(x.ThumbnailUrl.OriginalString);
+                            vm.SetVideoDuration(x.Length);
 
-				RemoveAllHistoryCommand.RaiseCanExecuteChanged();
-			});
+                            vm.RemoveToken = _HistoriesResponse.Token;
 
-			await PageManager.StartNoUIWork("全ての視聴履歴を削除", () => action);
+                            Histories.Add(vm);
+                        }
 
-			await ResetList();
-		}
+                        RemoveAllHistoryCommand.RaiseCanExecuteChanged();
+                    }
+                    , () => LoginUserHistoryProvider.NiconicoSession.IsLoggedIn
+                    ));
+            }
+        }
 
-		internal async Task RemoveHistory(string videoId)
-		{
-			await LoginUserHistoryProvider.RemoveHistoryAsync(_HistoriesResponse.Token, videoId);
+        private DelegateCommand _RemoveAllHistoryCommand;
+        public DelegateCommand RemoveAllHistoryCommand
+        {
+            get
+            {
+                return _RemoveAllHistoryCommand
+                    ?? (_RemoveAllHistoryCommand = new DelegateCommand(async () =>
+                    {
+                        await LoginUserHistoryProvider.RemoveAllHistoriesAsync(_HistoriesResponse.Token);
 
-			var item = IncrementalLoadingItems.SingleOrDefault(x => x.RawVideoId == videoId);
-			IncrementalLoadingItems.Remove(item);
+                        _HistoriesResponse = await LoginUserHistoryProvider.GetHistory();
 
-//			await UpdateList();
-		}
+                        Histories.Clear();
 
-	}
+                        RemoveAllHistoryCommand.RaiseCanExecuteChanged();
+                    }
+                    , () => Histories.Count > 0
+                    ));
+            }
+        }
+
+    }
 
 
-	public class HistoryVideoInfoControlViewModel : VideoInfoControlViewModel
+    public class HistoryVideoInfoControlViewModel : VideoInfoControlViewModel
 	{
+        public string RemoveToken { get; set; }
+
         public string ItemId { get; set; }
 		public DateTime LastWatchedAt { get; set; }
 		public uint UserViewCount { get; set; }
+
+
+        public bool IsRemoved { get; private set; }
 
 		public HistoryVideoInfoControlViewModel(
             string rawVideoId,
@@ -147,16 +135,24 @@ namespace NicoPlayerHohoema.ViewModels
             )
             : base(rawVideoId, ownerPlaylist)
         {
-
+            
         }
 
+        private DelegateCommand _RemoveHistoryCommand;
+        public DelegateCommand RemoveHistoryCommand => _RemoveHistoryCommand
+            ?? (_RemoveHistoryCommand = new DelegateCommand(() => 
+            {
+                var provider = App.Current.Container.Resolve<LoginUserHistoryProvider>();
+                _ = provider.RemoveHistoryAsync(RemoveToken, ItemId);
 
-
+                IsRemoved = true;
+                RaisePropertyChanged(nameof(IsRemoved));
+            }));
 
     }
 
 
-	public class HistoryIncrementalLoadingSource : HohoemaIncrementalSourceBase<HistoryVideoInfoControlViewModel>
+    public class HistoryIncrementalLoadingSource : HohoemaIncrementalSourceBase<HistoryVideoInfoControlViewModel>
 	{
 
 		HistoriesResponse _HistoriesResponse;

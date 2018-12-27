@@ -88,12 +88,12 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			
 			if (pointer.Properties.MouseWheelDelta > 0)
 			{
-				Interaction.ExecuteActions(this, this.UpActions, args);
+                Microsoft.Xaml.Interactivity.Interaction.ExecuteActions(this, this.UpActions, args);
 				args.Handled = true;
 			}
 			else if (pointer.Properties.MouseWheelDelta < 0)
 			{
-				Interaction.ExecuteActions(this, this.DownActions, args);
+                Microsoft.Xaml.Interactivity.Interaction.ExecuteActions(this, this.DownActions, args);
 				args.Handled = true;
 			}
 
@@ -106,12 +106,12 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			
 			if (pointer.Properties.MouseWheelDelta > 0)
 			{
-				Interaction.ExecuteActions(this, this.UpActions, args);
+                Microsoft.Xaml.Interactivity.Interaction.ExecuteActions(this, this.UpActions, args);
 				args.Handled = true;
 			}
 			else if (pointer.Properties.MouseWheelDelta < 0)
 			{
-				Interaction.ExecuteActions(this, this.DownActions, args);
+                Microsoft.Xaml.Interactivity.Interaction.ExecuteActions(this, this.DownActions, args);
 				args.Handled = true;
 			}
 		}

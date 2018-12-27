@@ -119,7 +119,9 @@
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsLoggedIn}" />
+                        <!--
+                        <StateTrigger IsActive="{Binding NiconicoSession.IsLoggedIn}" />
+                        -->
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                     </VisualState.Setters>
@@ -154,27 +156,6 @@
                 </VisualState>
             </VisualStateGroup>
 
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsSelectionModeEnable.Value}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="UpdateButton.Visibility" Value="Collapsed" />
-                        <Setter Target="ScrollToTopButton.Visibility" Value="Collapsed" />
-
-                        <Setter Target="SelectedDeletionButton.Visibility" Value="Visible" />
-
-                        <Setter Target="ItemsList.SelectionMode" Value="Multiple" />
-                        <Setter Target="ItemsList.IsItemClickEnabled" Value="False" />
-                        <Setter Target="ItemsList.IsMultiSelectCheckBoxEnabled" Value="True" />
-
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-
-
-
         </VisualStateManager.VisualStateGroups>
         
         <uwpcontrols:PullToRefreshListView 
@@ -199,15 +180,13 @@
             >
             <i:Interaction.Behaviors>
 
-                <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems, Mode=TwoWay}" />
-
                 <mybehavior:KeyboardTrigger Key="F5">
                     <mybehavior:KeyboardTrigger.Actions>
                         <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
                     </mybehavior:KeyboardTrigger.Actions>
                 </mybehavior:KeyboardTrigger>
 
-                <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
+                <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ScrollPosition.Value, Mode=TwoWay}" />
             </i:Interaction.Behaviors>
 
 
@@ -256,23 +235,6 @@
                                         Label="更新"
                                               
                                         />
-
-                                    <AppBarButton x:Name="SelectedDeletionButton"
-                                          Command="{Binding DeleteSelectedReservations}"
-                                            Icon="Remove"
-                                            Label="予約削除"
-                                          Visibility="Collapsed"
-                                            />
-                                    <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            HorizontalContentAlignment="Stretch"
-                                            VerticalContentAlignment="Stretch"
-                                                x:Name="ToggleSelectionButton"
-                                            >
-                                        <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"
-                                                       />
-                                    </AppBarToggleButton>
 
 
                                 </CommandBar.PrimaryCommands>

@@ -50,29 +50,7 @@
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
-
-            <!-- 選択中の表示 -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsSelectionModeEnable.Value}" />
-                    </VisualState.StateTriggers>
-
-                    <VisualState.Setters>
-                        <Setter Target="CacheRequestButton.Visibility" Value="Visible" />
-
-                        <Setter Target="OpenCommunityPageButton.Visibility" Value="Collapsed" />
-
-                        <Setter Target="ItemsList.SelectionMode" Value="Multiple" />
-                        <Setter Target="ItemsList.IsItemClickEnabled" Value="False" />
-                        <Setter Target="ItemsList.IsMultiSelectCheckBoxEnabled" Value="True" />
-
-                        <Setter Target="ScrollToTopButton.Visibility" Value="Collapsed" />
-                        
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-
+            
         </VisualStateManager.VisualStateGroups>
 
         <uwpcontrols:PullToRefreshListView 
@@ -98,8 +76,6 @@
                 </TransitionCollection>
             </uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
             <i:Interaction.Behaviors>
-
-                <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems, Mode=TwoWay}" />
 
                 <mybehavior:KeyboardTrigger Key="F5">
                     <mybehavior:KeyboardTrigger.Actions>
@@ -144,7 +120,6 @@
                                         </i:Interaction.Behaviors>
                                     </AppBarButton>
                                     
-                                    <!-- 未選択時に表示 -->
                                     <AppBarButton x:Name="OpenCommunityPageButton"
                                               Command="{Binding OpenCommunityPageCommand}"
                                      >
@@ -152,26 +127,6 @@
                                         <Run Text="{Binding CommunityName}" />
                                         </TextBlock>
                                     </AppBarButton>
-
-                                    <!-- 選択時に表示 -->
-                                    <AppBarButton x:Name="CacheRequestButton"
-                                              Icon="Download" Label="キャッシュ取得" 
-                                              Command="{Binding RequestCacheDownload}"
-                                              IsEnabled="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
-                                              Visibility="Collapsed"
-                                          />
-
-
-                                    <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            HorizontalContentAlignment="Stretch"
-                                            VerticalContentAlignment="Stretch"
-                                            Label="選択"
-                                            >
-                                        <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"
-                                                       />
-                                    </AppBarToggleButton>
 
                                 </CommandBar.PrimaryCommands>
 

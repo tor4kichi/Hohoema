@@ -9,6 +9,9 @@ using NicoPlayerHohoema.Database;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Services;
+using Prism.Commands;
+using Microsoft.Practices.Unity;
+using NicoPlayerHohoema.Services.Helpers;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -63,8 +66,6 @@ namespace NicoPlayerHohoema.ViewModels
         public Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus? ReservationStatus { get; internal set; }
 
 
-
-
         string ILiveContent.ProviderId => CommunityGlobalId;
 
         string ILiveContent.ProviderName => CommunityName;
@@ -92,6 +93,7 @@ namespace NicoPlayerHohoema.ViewModels
         {
             Reservation = reservationInfo;
             ReservationStatus = NowLive ? null : reservationInfo?.GetReservationStatus();
+            DeleteReservation.RaiseCanExecuteChanged();
         }
 
         public void Setup(Mntone.Nico2.Live.Recommend.LiveRecommendData liveVideoInfo)
@@ -330,6 +332,46 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+
+
+        private DelegateCommand _DeleteReservation;
+        public DelegateCommand DeleteReservation
+        {
+            get
+            {
+                return _DeleteReservation
+                    ?? (_DeleteReservation = new DelegateCommand(async () =>
+                    {
+                        var reservationProvider = App.Current.Container.Resolve<Models.Provider.LoginUserLiveReservationProvider>();
+                        var reservations = await reservationProvider.GetReservtionsAsync();
+                        var dialogService = App.Current.Container.Resolve<Services.DialogService>();
+
+                        var reservationTitlesText = LiveTitle;
+                        var acceptDeletion = await dialogService.ShowMessageDialog(
+                            "DeleteReservationConfirmText".ToCulturelizeString() + "\r\r" + reservationTitlesText,
+                            "DeleteSelectedReservationConfirm_Title".ToCulturelizeString(),
+                            "DeleteReservationConfirm_Agree".ToCulturelizeString(),
+                            "Cancel".ToCulturelizeString()
+                            );
+
+                        if (!acceptDeletion) { return; }
+
+                        var token = await reservationProvider.GetReservationTokenAsync();
+
+                        await reservationProvider.DeleteReservationAsync(LiveId, token);
+
+                        // 予約状態が削除になったことを通知
+                        Reservation = null;
+                        RaisePropertyChanged(nameof(Reservation));
+                        ReservationStatus = null;
+                        RaisePropertyChanged(nameof(ReservationStatus));
+
+                        ResetElements();
+                    }
+                    , () => Reservation != null
+                    ));
+            }
+        }
     }
 
 

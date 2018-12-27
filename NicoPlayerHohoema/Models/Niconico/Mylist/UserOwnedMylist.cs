@@ -12,6 +12,22 @@ namespace NicoPlayerHohoema.Models
 {
     public class UserOwnedMylist : ReadOnlyObservableCollection<string>, Interfaces.IUserOwnedRemoteMylist
     {
+        public UserOwnedMylist(string groupId, Provider.LoginUserMylistProvider loginUserMylistProvider, ObservableCollection<string> collection)
+            : base(collection)
+        {
+            OriginalCollection = collection;
+
+            GroupId = groupId;
+            LoginUserMylistProvider = loginUserMylistProvider;
+
+            foreach (var item in Items)
+            {
+                _VideoIdHashSet.Add(item);
+            }
+        }
+
+        private ObservableCollection<string> OriginalCollection { get; }
+
         public const string DefailtMylistId = "0";
 
         public string Id => GroupId;
@@ -37,17 +53,7 @@ namespace NicoPlayerHohoema.Models
         HashSet<string> _VideoIdHashSet = new HashSet<string>();
 
 
-        public UserOwnedMylist(string groupId, IEnumerable<string> initialItems, Provider.LoginUserMylistProvider loginUserMylistProvider)
-            : base(new ObservableCollection<string>(initialItems))
-		{
-			GroupId = groupId;
-            LoginUserMylistProvider = loginUserMylistProvider;
-
-            foreach (var item in Items)
-            {
-                _VideoIdHashSet.Add(item);
-            }
-        }
+        
 
         private DelegateCommand<object> _AddItemCommand;
         public ICommand AddItemCommand => _AddItemCommand
@@ -149,10 +155,8 @@ namespace NicoPlayerHohoema.Models
             var result = await LoginUserMylistProvider.AddMylistItem(this.GroupId, videoId);
             if (result == ContentManageResult.Success)
             {
-                Items.Add(videoId);
                 _VideoIdHashSet.Add(videoId);
-
-                OnCollectionChanged(new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized.NotifyCollectionChangedAction.Add, videoId));
+                OriginalCollection.Add(videoId);
             }
 
             return result == ContentManageResult.Success;
@@ -168,9 +172,8 @@ namespace NicoPlayerHohoema.Models
             var result = await LoginUserMylistProvider.RemoveMylistItem(this.GroupId, videoId);
             if (result == ContentManageResult.Success)
             {
-                Items.Remove(videoId);
-                OnCollectionChanged(new System.Collections.Specialized.NotifyCollectionChangedEventArgs(System.Collections.Specialized.NotifyCollectionChangedAction.Remove, videoId));
                 _VideoIdHashSet.Remove(videoId);
+                OriginalCollection.Remove(videoId);
             }
 
             return result == ContentManageResult.Success;

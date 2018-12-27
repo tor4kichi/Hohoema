@@ -17,6 +17,7 @@
     xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
+    xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     >
@@ -53,37 +54,14 @@
                 </VisualState>
             </VisualStateGroup>
 
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsSelectionModeEnable.Value}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="ScrollToTopButton.Visibility" Value="Collapsed" />
-                        
-                        <Setter Target="ItemsList.SelectionMode" Value="Multiple" />
-                        <Setter Target="ItemsList.IsItemClickEnabled" Value="False" />
-                        <Setter Target="ItemsList.IsMultiSelectCheckBoxEnabled" Value="True" />
-                        
-                        <Setter Target="AddMylistSelectedItemButton.Visibility" Value="Visible" />
-                        <Setter Target="CacheRequestSelectedItemButton.Visibility" Value="Visible" />
-                        <Setter Target="RemovePlayHistorySelectedItemButton.Visibility" Value="Visible" />
-                       
-                    </VisualState.Setters>
-                </VisualState>
-
-            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
 
-        <uwpcontrols:PullToRefreshListView
+        <ListView
             x:Name="ItemsList"
-            ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
-            RefreshCommand="{Binding RefreshCommand}"
+            ItemsSource="{Binding Histories, Mode=OneWay}"
             uwpExtension:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
             IsItemClickEnabled="True"
-            IncrementalLoadingTrigger="Edge"
-            PullThreshold="85"    
             UseSystemFocusVisuals="True"
             SelectionMode="None"
             HorizontalContentAlignment="Stretch"
@@ -91,20 +69,22 @@
             uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
             
             xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
-            myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
             myExtensions:ListViewBase.DeferInitialize="True"
             >
+            <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
+                <DataTemplate>
+                    <flyouts:VideoHistoryItemFlyout />
+                </DataTemplate>
+            </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
+            
             <i:Interaction.Behaviors>
-
-                <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems, Mode=TwoWay}" />
 
                 <mybehavior:KeyboardTrigger Key="F5">
                     <mybehavior:KeyboardTrigger.Actions>
-                        <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
+                        <core:InvokeCommandAction Command="{Binding RefreshCommand}" />
                     </mybehavior:KeyboardTrigger.Actions>
                 </mybehavior:KeyboardTrigger>
 
-                <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
             </i:Interaction.Behaviors>
             
             <ListView.Header>
@@ -128,81 +108,41 @@
                                         </core:EventTriggerBehavior>
                                     </i:Interaction.Behaviors>
                                 </AppBarButton>
-                                
-                                <!-- 選択中 -->
-                                <AppBarButton 
-                                        x:Name="RemovePlayHistorySelectedItemButton"
-                                        Command="{Binding RemoveHistoryCommand}"
-                                          Icon="Remove"
-                                          Label="履歴削除"
-                                          Visibility="Collapsed"
-                                            />
 
-                                <AppBarButton x:Name="AddMylistSelectedItemButton"
-                                        Command="{Binding RegistratioMylistCommand}"   
-                                          Icon="Add"
-                                          Label="マイリストに追加"
-                                          Visibility="Collapsed"
-                                            >
-                                </AppBarButton>
-
-                                <AppBarButton x:Name="CacheRequestSelectedItemButton"
-                                          Command="{Binding RequestCacheDownload}"
-                                            IsEnabled="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
-                                            Background="Transparent"
-                                            Icon="Download"
-                                          Label="キャッシュ"
-                                          Visibility="Collapsed"
-                                            >
-                                </AppBarButton>
-
-                                <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            >
-
-                                    <StackPanel  Orientation="Horizontal">
-                                        <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"
-                                                       />
-                                        <TextBlock Text="選択" VerticalAlignment="Center"
-                                               Margin="8 0 0 0"
-                                               Style="{StaticResource CaptionTextBlockStyle}"
-                                               />
-
-                                    </StackPanel>
-                                </AppBarToggleButton>
-
-                            </CommandBar.PrimaryCommands>
-
-                            <CommandBar.SecondaryCommands>
                                 <AppBarButton 
                                         Command="{Binding RefreshCommand}"
                                         Label="更新"
                                               Icon="Refresh"
                                         />
+                                
+                            </CommandBar.PrimaryCommands>
+
+                            <CommandBar.SecondaryCommands>
+                                
 
                                 <AppBarButton 
-                                IsEnabled="{Binding HasItem.Value}"
-                                Label="全ての履歴を削除"
-                                Icon="Delete"
-                                >
+                                    IsEnabled="{Binding HasItem.Value}"
+                                    Label="全ての履歴を削除"
+                                    Icon="Delete"
+                                    AllowFocusOnInteraction="True"
+                                    >
 
                                     <AppBarButton.Flyout>
                                         <Flyout>
                                             <StackPanel Margin="8" Width="240">
                                                 <TextBlock Margin="0 0 0 16"
-                                               LineHeight="20"
-                                               TextWrapping="Wrap"
-                                               >
-                                        <Run>視聴履歴を全て削除します</Run>
-                                        <LineBreak />
-                                        <Run>本当に削除してもいいですか？</Run>
+                                                   LineHeight="20"
+                                                   TextWrapping="Wrap"
+                                                   >
+                                                    <Run>視聴履歴を全て削除します</Run>
+                                                    <LineBreak />
+                                                    <Run>本当に削除してもいいですか？</Run>
                                                 </TextBlock>
 
                                                 <Button Content="本当に削除" 
-                                            Command="{Binding RemoveAllHistoryCommand}"
-                                            HorizontalAlignment="Stretch"
-                                            />
+                                                    Command="{Binding RemoveAllHistoryCommand}"
+                                                    HorizontalAlignment="Stretch"
+                                                    />
                                             </StackPanel>
                                         </Flyout>
                                     </AppBarButton.Flyout>
@@ -243,15 +183,6 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
 
-            <uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
-                <StackPanel  Margin="0 32 0 0" >
-                    <Border Margin="0 16 0 0" BorderThickness="0 0 0 1" BorderBrush="Gray" />
-                    <SymbolIcon Symbol="Refresh" VerticalAlignment="Bottom" Height="48" Width="48" Margin="0 24 0 8"
-                            />
-                </StackPanel>
-            </uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
-
-            
-        </uwpcontrols:PullToRefreshListView>
+        </ListView>
     </Grid>
 </Page>

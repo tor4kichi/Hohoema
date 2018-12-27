@@ -7,6 +7,19 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
     mc:Ignorable="d">
 
+    <MenuFlyoutSubItem Text="タイムシフト予約を削除"
+        Visibility="{Binding ReservationStatus, Converter={StaticResource NotNullToVisibility}}"
+        >
+        <MenuFlyoutItem Text="削除する"
+                    Command="{Binding DeleteReservation}"                    
+        />
+
+    </MenuFlyoutSubItem>
+
+    <MenuFlyoutSeparator Visibility="{Binding ReservationStatus, Converter={StaticResource NotNullToVisibility}}" />
+
+    
+    
     <MenuFlyoutItem Text="再生"
                     Command="{Binding HohoemaPlaylist.PlayCommand}"
                     CommandParameter="{Binding}"

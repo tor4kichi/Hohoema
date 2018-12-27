@@ -16,7 +16,7 @@ using Reactive.Bindings;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class RecommendPageViewModel : HohoemaVideoListingPageViewModelBase<RecommendVideoListItem>
+    public class RecommendPageViewModel : HohoemaListingPageViewModelBase<RecommendVideoListItem>
     {
         public RecommendPageViewModel(
             NGSettings ngSettings,

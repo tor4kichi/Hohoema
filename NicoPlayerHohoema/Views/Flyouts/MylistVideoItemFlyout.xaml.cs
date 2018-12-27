@@ -13,18 +13,15 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
-// The Blank Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234238
+// ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
-namespace NicoPlayerHohoema.Views.Controls
+namespace NicoPlayerHohoema.Views.Flyouts
 {
-	/// <summary>
-	/// An empty page that can be used on its own or navigated to within a Frame.
-	/// </summary>
-	public sealed partial class ListingSelectionControl : UserControl
-	{
-		public ListingSelectionControl()
-		{
-			this.InitializeComponent();
-		}
-	}
+    public sealed partial class MylistVideoItemFlyout : MenuFlyout
+    {
+        public MylistVideoItemFlyout()
+        {
+            this.InitializeComponent();
+        }
+    }
 }

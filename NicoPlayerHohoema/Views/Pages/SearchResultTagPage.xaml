@@ -75,30 +75,6 @@
                 </VisualState>
             </VisualStateGroup>
 
-            <VisualStateGroup x:Name="SelectionModeVisualStateGroup">
-
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsSelectionModeEnable.Value}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="ItemsList.SelectionMode" Value="Multiple" />
-                        <Setter Target="ItemsList.IsItemClickEnabled" Value="False" />
-                        <Setter Target="ItemsList.IsMultiSelectCheckBoxEnabled" Value="True" />
-
-
-                        <Setter Target="CacheRequestButton.Visibility" Value="Visible" />
-                        <Setter Target="AddMylistButton.Visibility" Value="Visible" />
-
-                        
-                        <Setter Target="ScrollToTopButton.Visibility" Value="Collapsed" />
-                        <Setter Target="RefreshListButton.Visibility" Value="Collapsed" />
-                        <Setter Target="AddSubscriptionButton.Visibility" Value="Collapsed" />
-                        <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
-                    </VisualState.Setters>
-                </VisualState>
-
-            </VisualStateGroup>
 
         </VisualStateManager.VisualStateGroups>
 
@@ -127,8 +103,6 @@
             </uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
             
             <i:Interaction.Behaviors>
-
-                <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems, Mode=TwoWay}" />
 
                 <mybehavior:KeyboardTrigger Key="F5">
                     <mybehavior:KeyboardTrigger.Actions>
@@ -183,45 +157,12 @@
                                         </core:EventTriggerBehavior>
                                     </i:Interaction.Behaviors>
                                 </AppBarButton>
-                                
+
                                 <AppBarButton x:Name="RefreshListButton"
                                             Label="更新"
                                             Command="{Binding RefreshCommand}"
                                             Icon="Refresh"
                                         />
-
-                                
-                                
-<!--
-                                <AppBarButton x:Name="CacheRequestButton"
-                                                Command="{Binding RequestCacheDownload}"
-                                              Icon="Download"
-                                              Label="キャッシュ"
-                                          Visibility="Collapsed"
-                                            />
-                                -->
-
-                                <AppBarButton x:Name="AddMylistButton"
-                                    Command="{Binding RegistratioMylistCommand}" 
-                                          Icon="Add"
-                                          Label="マイリストに追加"
-                                          Visibility="Collapsed"
-                                            />
-
-                                <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            HorizontalContentAlignment="Stretch"
-                                            VerticalContentAlignment="Stretch"
-                                            Label="選択"
-                                            >
-                                    <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"
-                                                       />
-                                </AppBarToggleButton>
-
-                            </CommandBar.PrimaryCommands>
-
-                            <CommandBar.SecondaryCommands>
 
                                 <AppBarToggleButton x:Name="TagFollowButton"
                                             Label="フォロー"
@@ -261,14 +202,15 @@
                                         </MenuFlyout>
                                     </AppBarButton.Flyout>
                                 </AppBarButton>
-                            </CommandBar.SecondaryCommands>
 
-
+                            </CommandBar.PrimaryCommands>
+                            
+                            
                             <CommandBar.Content>
                                 <toolkit:DockPanel 
-                                Margin="16 0 0 0"
-                            x:Name="TitleLayout"
-                                >
+                                    Margin="16 0 0 0"
+                                    x:Name="TitleLayout"
+                                    >
 
                                     <HyperlinkButton Command="{Binding PageManager.OpenPageCommand}"
                                              CommandParameter="Search"
@@ -285,8 +227,8 @@
                                     <StackPanel>
 
                                         <HyperlinkButton 
-                                           toolkit:DockPanel.Dock="Bottom"
-                                    >
+                                            toolkit:DockPanel.Dock="Bottom"
+                                            >
                                             <i:Interaction.Behaviors>
                                                 <core:EventTriggerBehavior EventName="Click" >
                                                     <mybehavior:OpenFlyout />

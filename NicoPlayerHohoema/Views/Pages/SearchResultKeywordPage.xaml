@@ -86,30 +86,6 @@
             </VisualStateGroup>
 
 
-            <VisualStateGroup x:Name="SelectionModeVisualStateGroup">
-
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsSelectionModeEnable.Value}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="CacheRequestButton.Visibility" Value="Visible" />
-                        <Setter Target="AddMylistButton.Visibility" Value="Visible" />
-
-                        
-                        <Setter Target="ScrollToTopButton.Visibility" Value="Collapsed" />
-                        <Setter Target="RefreshListButton.Visibility" Value="Collapsed" />
-                        <Setter Target="AddSubscriptionButton.Visibility" Value="Collapsed" />
-
-
-                        <Setter Target="ItemsList.SelectionMode" Value="Multiple" />
-                        <Setter Target="ItemsList.IsItemClickEnabled" Value="False" />
-                        <Setter Target="ItemsList.IsMultiSelectCheckBoxEnabled" Value="True" />
-
-                    </VisualState.Setters>
-                </VisualState>
-
-            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
 
@@ -140,8 +116,6 @@
             </uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
             
             <i:Interaction.Behaviors>
-
-                <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems, Mode=TwoWay}" />
 
                 <mybehavior:KeyboardTrigger Key="F5">
                     <mybehavior:KeyboardTrigger.Actions>
@@ -207,7 +181,6 @@
                                         </i:Interaction.Behaviors>
                                     </AppBarButton>
                                     
-                                    <!-- 非選択中に -->
                                     <AppBarButton x:Name="RefreshListButton"
                                                   Command="{Binding RefreshCommand}"
                                                   Label="更新"
@@ -215,35 +188,6 @@
                                         />
 
                                     
-
-                                    <!-- 選択中に表示するアイテム -->
-                                    <AppBarButton x:Name="CacheRequestButton"
-                                        Command="{Binding RequestCacheDownload}"
-                                              IsEnabled="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
-                                              Icon="Download"
-                                              Label="キャッシュ"
-                                          Visibility="Collapsed"
-                                              
-                                            />
-
-                                    <AppBarButton x:Name="AddMylistButton"
-                                    Command="{Binding RegistratioMylistCommand}" 
-                                          Icon="Add"
-                                          Label="マイリストに追加"
-                                          Visibility="Collapsed"
-                                            />
-
-                                    <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                            HorizontalContentAlignment="Stretch"
-                                            VerticalContentAlignment="Stretch"
-                                            Label="選択"
-                                                    IsCompact="True"
-                                            >
-                                        <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"
-                                                       />
-                                    </AppBarToggleButton>
 
 
                                 </CommandBar.PrimaryCommands>

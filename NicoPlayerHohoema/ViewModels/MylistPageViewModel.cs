@@ -20,10 +20,14 @@ using NicoPlayerHohoema.Models.LocalMylist;
 using NicoPlayerHohoema.Models.Subscription;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.Database;
+using NicoPlayerHohoema.Interfaces;
+using Reactive.Bindings.Extensions;
+using System.Collections.ObjectModel;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class MylistPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
+    public class MylistPageViewModel : HohoemaViewModelBase
 	{
 
         public MylistPageViewModel(
@@ -231,7 +235,10 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<PlaylistOrigin> MylistOrigin { get; }
 
-        private bool _NowProcessFavorite;
+        
+        public ReadOnlyObservableCollection<MylistVideItemViewModel> MylistItems { get; private set; }
+
+        public int MaxItemsCount { get; private set; }
 
         private string _MylistState;
         public string MylistState
@@ -412,7 +419,6 @@ namespace NicoPlayerHohoema.ViewModels
 
                                         MylistDescription = data.Description;
 
-                                        await ResetList();
                                         // TODO: IsPublicなどの情報を表示
 
                                         break;
@@ -495,7 +501,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayAllVideosFromHeadCommand
                     ?? (_PlayAllVideosFromHeadCommand = new DelegateCommand(() =>
                     {
-                        var headItem = IncrementalLoadingItems.FirstOrDefault();
+                        var headItem = MylistItems?.FirstOrDefault();
                         if (headItem != null)
                         {
                             HohoemaPlaylist.PlaylistSettings.IsReverseModeEnable = false;
@@ -513,7 +519,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayAllVideosFromTailCommand
                     ?? (_PlayAllVideosFromTailCommand = new DelegateCommand(() =>
                     {
-                        var tailItem = IncrementalLoadingItems.LastOrDefault();
+                        var tailItem = MylistItems?.LastOrDefault();
                         if (tailItem != null)
                         {
                             HohoemaPlaylist.PlaylistSettings.IsReverseModeEnable = true;
@@ -588,22 +594,20 @@ namespace NicoPlayerHohoema.ViewModels
                 RaisePropertyChanged(nameof(MylistBookmark));
             }
 
+            await Reset();
+
             await base.NavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
-        protected override string ResolvePageName()
+
+        private async Task Reset()
         {
-            return MylistTitle;
-        }
+            if (Mylist.Value == null)
+            {
+                return;
+            }
 
-        protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			if (Mylist.Value == null)
-			{
-				return;
-			}
-
-			CanEditMylist = false;
+            CanEditMylist = false;
 
             var mylistOrigin = Mylist.Value?.ToMylistOrigin();
             IsLoginUserDeflist = false;
@@ -614,41 +618,48 @@ namespace NicoPlayerHohoema.ViewModels
 
             IsLoginUserMylistWithoutDeflist = false;
 
+            MaxItemsCount = Mylist.Value.ItemCount;
+            RaisePropertyChanged(nameof(MaxItemsCount));
 
             switch (mylistOrigin)
             {
                 case PlaylistOrigin.LoginUser:
-
-                    var mylistGroup = UserMylistManager.GetMylistGroup(Mylist.Value.Id);
-                    MylistTitle = mylistGroup.Label;
-                    MylistDescription = mylistGroup.Description;
-                    ThemeColor = mylistGroup.IconType.ToColor();
-                    IsPublic = mylistGroup.IsPublic;
-                    IsLoginUserDeflist = mylistGroup.IsDeflist;
-
-                    OwnerUserId = mylistGroup.UserId;
-                    UserName = NiconicoSession.UserName;
-
-                    CanEditMylist = !IsLoginUserDeflist;
-
-                    if (IsLoginUserDeflist)
                     {
-                        MylistState = "とりあえずマイリスト";
-                        DeflistRegistrationCapacity = UserMylistManager.DeflistRegistrationCapacity;
-                        DeflistRegistrationCount = UserMylistManager.DeflistRegistrationCount;
-                    }
-                    else
-                    {
-                        IsLoginUserMylistWithoutDeflist = true;
-                        MylistState = IsPublic ? "公開マイリスト" : "非公開マイリスト";
-                        MylistRegistrationCapacity = UserMylistManager.MylistRegistrationCapacity;
-                        MylistRegistrationCount = UserMylistManager.MylistRegistrationCount;
+                        var mylistGroup = UserMylistManager.GetMylistGroup(Mylist.Value.Id);
+                        MylistItems = mylistGroup.ToReadOnlyReactiveCollection(x => new MylistVideItemViewModel(x, mylistGroup))
+                            .AddTo(_NavigatingCompositeDisposable);
+
+                        MylistTitle = mylistGroup.Label;
+                        MylistDescription = mylistGroup.Description;
+                        ThemeColor = mylistGroup.IconType.ToColor();
+                        IsPublic = mylistGroup.IsPublic;
+                        IsLoginUserDeflist = mylistGroup.IsDeflist;
+
+                        OwnerUserId = mylistGroup.UserId;
+                        UserName = NiconicoSession.UserName;
+
+                        CanEditMylist = !IsLoginUserDeflist;
+
+                        if (IsLoginUserDeflist)
+                        {
+                            MylistState = "とりあえずマイリスト";
+                            DeflistRegistrationCapacity = UserMylistManager.DeflistRegistrationCapacity;
+                            DeflistRegistrationCount = UserMylistManager.DeflistRegistrationCount;
+                        }
+                        else
+                        {
+                            IsLoginUserMylistWithoutDeflist = true;
+                            MylistState = IsPublic ? "公開マイリスト" : "非公開マイリスト";
+                            MylistRegistrationCapacity = UserMylistManager.MylistRegistrationCapacity;
+                            MylistRegistrationCount = UserMylistManager.MylistRegistrationCount;
+                        }
                     }
                     break;
 
 
                 case PlaylistOrigin.OtherUser:
                     var otherOwnedMylist = Mylist.Value as OtherOwneredMylist;
+                    MylistItems = new ReadOnlyObservableCollection<MylistVideItemViewModel>(new ObservableCollection<MylistVideItemViewModel>(otherOwnedMylist.Select(x => new MylistVideItemViewModel(x, otherOwnedMylist))));
 
                     var response = await MylistProvider.GetMylistGroupDetail(Mylist.Value.Id);
                     var mylistGroupDetail = response.MylistGroup;
@@ -683,34 +694,42 @@ namespace NicoPlayerHohoema.ViewModels
 
 
                 case PlaylistOrigin.Local:
+                    {
+                        var localMylist = Mylist.Value as LocalMylistGroup;
+                        MylistItems = localMylist.ToReadOnlyReactiveCollection(x => new MylistVideItemViewModel(x, localMylist))
+                        .AddTo(_NavigatingCompositeDisposable);
 
-                    MylistTitle = Mylist.Value.Label;
-                    OwnerUserId = NiconicoSession.UserId.ToString();
-                    UserName = NiconicoSession.UserName;
+                        MylistTitle = Mylist.Value.Label;
+                        OwnerUserId = NiconicoSession.UserId.ToString();
+                        UserName = NiconicoSession.UserName;
 
-                    MylistState = "ローカル";
+                        MylistState = "ローカル";
 
-                    CanEditMylist = !IsWatchAfterLocalMylist;
+                        CanEditMylist = !IsWatchAfterLocalMylist;
+
+                    }
 
                     break;
                 default:
                     break;
             }
 
-			EditMylistGroupCommand.RaiseCanExecuteChanged();
+            RaisePropertyChanged(nameof(MylistItems));
+
+            EditMylistGroupCommand.RaiseCanExecuteChanged();
             DeleteMylistCommand.RaiseCanExecuteChanged();
 
         }
 
 
-
-        protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
-		{
-            return new MylistIncrementalSource(Mylist.Value, NgSettings);
+        protected override string ResolvePageName()
+        {
+            return MylistTitle;
         }
+
     }
     
-	public class MylistIncrementalSource : HohoemaIncrementalSourceBase<VideoInfoControlViewModel>
+	public class MylistIncrementalSource : HohoemaIncrementalSourceBase<MylistVideItemViewModel>
 	{
         public MylistIncrementalSource(Interfaces.IMylist list, NGSettings ngSettings = null)
             : base()
@@ -733,7 +752,7 @@ namespace NicoPlayerHohoema.ViewModels
 		#region Implements HohoemaPreloadingIncrementalSourceBase		
 	
 
-        protected override async Task<IAsyncEnumerable<VideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
+        protected override async Task<IAsyncEnumerable<MylistVideItemViewModel>> GetPagedItemsImpl(int head, int count)
         {
             // MylistのFillAllVideosAsync で内容が読み込まれるのを待つ
             if (head == 0 && PlayableList.Count > 0)
@@ -750,7 +769,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             return PlayableList.Skip(head).Take(count).Select(x =>
                 {
-                    var vm = new VideoInfoControlViewModel(x, PlayableList);
+                    var vm = new MylistVideItemViewModel(x, PlayableList);
                     return vm;
                 })
                 .ToAsyncEnumerable();
@@ -765,6 +784,30 @@ namespace NicoPlayerHohoema.ViewModels
 
         #endregion
 
+    }
+
+
+
+    public sealed class MylistVideItemViewModel : VideoInfoControlViewModel
+    {
+        public MylistVideItemViewModel(string rawVideoId, IMylist ownerPlaylist) 
+            : base(rawVideoId, ownerPlaylist)
+        {
+        }
+
+        public bool IsOwnedMylistItem => OnwerPlaylist is Interfaces.IUserOwnedMylist;
+
+
+        DelegateCommand _RemoveMylistItemCommand;
+        public DelegateCommand RemoveMylistItemCommand => _RemoveMylistItemCommand
+            ?? (_RemoveMylistItemCommand = new DelegateCommand(() => 
+            {
+                if (OnwerPlaylist is Interfaces.IUserOwnedMylist ownedMylist)
+                {
+                    _ = ownedMylist.RemoveMylistItem(this.RawVideoId);
+                }
+
+            }));
     }
 
 

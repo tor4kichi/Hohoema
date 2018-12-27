@@ -19,6 +19,7 @@
     xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
+    xmlns:behaviors="using:NicoPlayerHohoema.Views.Interaction.Behaviors"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     >
@@ -66,31 +67,6 @@
                 </VisualState>
             </VisualStateGroup>
 
-            <!-- 選択中の表示 -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsSelectionModeEnable.Value}" />
-                    </VisualState.StateTriggers>
-
-                    <VisualState.Setters>
-                        <Setter Target="RequestCacheButton.Visibility" Value="Visible" />
-                        <Setter Target="RegistrationMylistButton.Visibility" Value="Visible" />
-
-                        <Setter Target="RefreshButton.Visibility" Value="Collapsed" />
-                        <Setter Target="ScrollToTopButton.Visibility" Value="Collapsed" />
-                        
-
-
-                        <Setter Target="ItemsList.SelectionMode" Value="Multiple" />
-                        <Setter Target="ItemsList.IsItemClickEnabled" Value="False" />
-                        <Setter Target="ItemsList.IsMultiSelectCheckBoxEnabled" Value="True" />
-
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-
-
         </VisualStateManager.VisualStateGroups>
 
         <uwpcontrol:PullToRefreshListView 
@@ -119,8 +95,6 @@
             </uwpcontrol:PullToRefreshListView.ItemContainerTransitions>
             <i:Interaction.Behaviors>
 
-                <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems, Mode=TwoWay}" />
-
                 <mybehavior:KeyboardTrigger Key="F5">
                     <mybehavior:KeyboardTrigger.Actions>
                         <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
@@ -136,6 +110,7 @@
                                                                         Delay="0:0:0.001"
                                                                     />
                 </core:DataTriggerBehavior>
+
             </i:Interaction.Behaviors>
 
             <ListView.Header>
@@ -145,14 +120,12 @@
                     >
 
                     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
-
+                        
                         <CommandBar x:Name="VideoListCommandBar" Background="Transparent"
                                     >
 
                             <CommandBar.Content>
                                 <uwpcontrol:DockPanel 
-                                    Visibility="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                     >
                                     <HyperlinkButton 
                                              Command="{Binding PageManager.OpenPageCommand}"
@@ -198,40 +171,6 @@
                                                     VerticalAlignment="Center"
                                                 >
                                 </AppBarButton>
-
-                                <AppBarButton Command="{Binding RequestCacheDownload}"
-                                                IsEnabled="{Binding CanDownload}"
-                                                Background="Transparent"
-                                                Label="キャッシュ"
-                                                Icon="Download"
-                                                x:Name="RequestCacheButton"
-                                                VerticalAlignment="Center"
-                                                              Visibility="Collapsed"
-                                            >
-                                </AppBarButton>
-
-
-                                <AppBarButton Command="{Binding RegistratioMylistCommand}"
-                                                    Label="マイリストに追加"
-                                                    Icon="Add"
-                                                    x:Name="RegistrationMylistButton"
-                                                    VerticalAlignment="Center"
-                                                              Visibility="Collapsed"
-                                                >
-                                </AppBarButton>
-
-
-                                <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                                        HorizontalContentAlignment="Stretch"
-                                                        VerticalContentAlignment="Stretch"
-                                                        Label="選択"
-                                                        VerticalAlignment="Center"
-                                        >
-                                    <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
-                                                    HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center"
-                                                    />
-                                </AppBarToggleButton>
 
                             </CommandBar.PrimaryCommands>
 

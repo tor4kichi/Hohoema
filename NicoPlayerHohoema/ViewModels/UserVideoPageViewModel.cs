@@ -17,7 +17,7 @@ using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class UserVideoPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
+    public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>
 	{
         public UserVideoPageViewModel(
             UserProvider userProvider,

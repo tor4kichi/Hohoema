@@ -18,7 +18,7 @@ using Microsoft.Practices.Unity;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class RankingCategoryPageViewModel : HohoemaVideoListingPageViewModelBase<RankedVideoInfoControlViewModel>
+    public class RankingCategoryPageViewModel : HohoemaListingPageViewModelBase<RankedVideoInfoControlViewModel>
     {
         public RankingCategoryPageViewModel(
             PageManager pageManager,

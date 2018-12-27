@@ -19,6 +19,7 @@
     xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
+    xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     >
@@ -87,7 +88,7 @@
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsLoggedIn, Converter={StaticResource BoolNegation}}" />
+                        <StateTrigger IsActive="{Binding NiconicoSession.IsLoggedIn, Converter={StaticResource BoolNegation}}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                     </VisualState.Setters>
@@ -119,66 +120,15 @@
 
             </VisualStateGroup>
 
-
-            <!-- コマンドバーに表示する内容をコントロールする -->
-            <!-- マイリストされたアイテムを解除する操作はマイリスト編集可能かつ選択中のみ -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <mytrigger:EqualConditionStateTrigger Condition="OtherUser" Value="{Binding MylistOrigin.Value}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="RemoveMylistSelectedItemButton.Visibility" Value="Collapsed" />
-                    </VisualState.Setters>
-                </VisualState>
-                
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsSelectionModeEnable.Value, Converter={StaticResource BoolNegation}}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="RemoveMylistSelectedItemButton.Visibility" Value="Collapsed" />
-                    </VisualState.Setters>
-                </VisualState>
-
-            </VisualStateGroup>
-
-            <!-- コマンドバーに表示する内容をコントロールする -->
-            <!-- 選択中 -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsSelectionModeEnable.Value}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="AddMylistSelectedItemButton.Visibility" Value="Visible" />
-                        <Setter Target="CacheRequestSelectedItemButton.Visibility" Value="Visible" />
-
-                        <Setter Target="TitleLayout.Visibility" Value="Collapsed" />
-                        <Setter Target="ScrollToTopButton.Visibility" Value="Collapsed" />
-                        <Setter Target="PlayAllButton.Visibility" Value="Collapsed" />
-                        <Setter Target="RefreshButton.Visibility" Value="Collapsed" />
-
-                        <Setter Target="ItemsList.SelectionMode" Value="Multiple" />
-                        <Setter Target="ItemsList.IsItemClickEnabled" Value="False" />
-                        <Setter Target="ItemsList.IsMultiSelectCheckBoxEnabled" Value="True" />
-
-                    </VisualState.Setters>
-                </VisualState>
-
-            </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
 
-        
 
-        <uwpcontrols:PullToRefreshListView 
+
+        <ListView
             x:Name="ItemsList"
-            ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
-            RefreshCommand="{Binding RefreshCommand}"
+            ItemsSource="{Binding MylistItems, Mode=OneWay}"
             IsItemClickEnabled="True"
-            IncrementalLoadingTrigger="Edge"
-            PullThreshold="85"    
             UseSystemFocusVisuals="True"
             SelectionMode="None"
             HorizontalContentAlignment="Stretch"
@@ -187,22 +137,14 @@
             uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
             
             xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
-            myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
             myExtensions:ListViewBase.DeferInitialize="True"
-
-                            >
-            <i:Interaction.Behaviors>
-
-                <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems, Mode=TwoWay}" />
-
-                <mybehavior:KeyboardTrigger Key="F5">
-                    <mybehavior:KeyboardTrigger.Actions>
-                        <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
-                    </mybehavior:KeyboardTrigger.Actions>
-                </mybehavior:KeyboardTrigger>
-
-                <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
-            </i:Interaction.Behaviors>
+            >
+            <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
+                <DataTemplate>
+                    <flyouts:MylistVideoItemFlyout />
+                </DataTemplate>
+            </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
+                        
             <ListView.Header>
 
 
@@ -242,7 +184,7 @@
                                                 Margin="8 0 0 0"
                                                 >
                                                 <TextBlock >
-                                                    (登録:<Run Text="{Binding MaxItemsCount.Value}" /> 合計:<Run Text="{Binding MylistRegistrationCount}" /> 上限:<Run Text="{Binding MylistRegistrationCapacity}" />)
+                                                    (登録:<Run Text="{Binding MaxItemsCount}" /> 合計:<Run Text="{Binding MylistRegistrationCount}" /> 上限:<Run Text="{Binding MylistRegistrationCapacity}" />)
                                                 </TextBlock>
 
                                             </Border>
@@ -282,77 +224,18 @@
                                         </i:Interaction.Behaviors>
                                     </AppBarButton>
 
-                                    <AppBarButton x:Name="RefreshButton"
-                                        Command="{Binding RefreshCommand}"
-                                        Label="更新"
-                                        Icon="Refresh"
-                                    />
-
-                                    <!-- 選択中 -->
-                                    <AppBarButton x:Name="AddMylistSelectedItemButton"
-                                        Command="{Binding RegistratioMylistCommand}"    
-                                        Icon="Add"
-                                        Label="マイリストに追加"
-                                        Visibility="Collapsed"
-                                        >
-                                    </AppBarButton>
-
-                                    <AppBarButton x:Name="RemoveMylistSelectedItemButton"
-                                        Command="{Binding UnregistrationMylistCommand}"
-                                        Icon="Remove"
-                                        Label="マイリスト解除"
-                                          
-                                        >
-                                    </AppBarButton>
-
-                                    <AppBarButton x:Name="CacheRequestSelectedItemButton"
-                                    Command="{Binding RequestCacheDownload}"
-                                        Background="Transparent"
-                                        Icon="Download"
-                                        Label="キャッシュ"
-                                        Visibility="Collapsed"
-                                        >
-                                    </AppBarButton>
-
-                                    <AppBarToggleButton IsChecked="{Binding IsSelectionModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                        >
-
-                                        <StackPanel  Orientation="Horizontal">
-                                            <iconPack:PackIconMaterial Kind="CheckboxMarkedOutline" 
-                                                    HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center"
-                                                    />
-                                            <TextBlock Text="選択" VerticalAlignment="Center"
-                                            Margin="8 0 0 0"
-                                            Style="{StaticResource CaptionTextBlockStyle}"
-                                            />
-
-                                        </StackPanel>
-                                    </AppBarToggleButton>
-
-
-
-
-
-
-                                </CommandBar.PrimaryCommands>
-
-                                <CommandBar.SecondaryCommands>
-
                                     <AppBarToggleButton x:Name="ToggleMylistFavoriteButton"
                                         IsChecked="{Binding FollowToggleButtonService.IsFollowTarget.Value, Mode=TwoWay}"
                                         Command="{Binding FollowToggleButtonService.ToggleFollowCommand}"
                                         Visibility="Collapsed"
                                         Icon="Favorite"
                                         Label="フォロー"
-                                        >
-
-                                    </AppBarToggleButton>
+                                        />
 
                                     <AppBarButton 
                                         x:Name="FeedRegstrationButton"
                                         Visibility="Collapsed"
-                                        Label="購読に追加"
+                                        Label="マイリストを購読に追加"
                                         Icon="Add"
                                         >
                                         <AppBarButton.Flyout>
@@ -382,6 +265,15 @@
                                         </AppBarButton.Flyout>
                                     </AppBarButton>
 
+
+                                </CommandBar.PrimaryCommands>
+
+                                <CommandBar.SecondaryCommands>
+
+                                    
+
+
+                                    
                                     <AppBarButton Command="{Binding OpenMylistOwnerCommand}"
                                         Background="Transparent"
                                         x:Name="OpenUserPageButton"
@@ -435,14 +327,7 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
 
-            <uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
-                <StackPanel  Margin="0 32 0 0" >
-                    <Border Margin="0 16 0 0" BorderThickness="0 0 0 1" BorderBrush="Gray" />
-                    <SymbolIcon Symbol="Refresh" VerticalAlignment="Bottom" Height="48" Width="48" Margin="0 24 0 8"
-                            />
-                </StackPanel>
-            </uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
-        </uwpcontrols:PullToRefreshListView>
+        </ListView>
 
     </Grid>
 </Page>

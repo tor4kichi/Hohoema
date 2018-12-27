@@ -829,7 +829,7 @@
                                                         Content="{Binding VideoMenu}"
                                                         ContentTemplate="{StaticResource VideoSubMenuContentTemplate}"
                                                         />
-                                            <!--
+                                            
 
                                             
                                             <PivotItem Header="生放送"
@@ -837,7 +837,7 @@
                                                                ContentTemplate="{StaticResource LiveSubMenuContentTemplate}"
                                                                />
                                             
--->
+
 
                                         </Pivot>
 

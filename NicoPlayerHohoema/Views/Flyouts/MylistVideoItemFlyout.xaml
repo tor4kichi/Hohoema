@@ -1,6 +1,6 @@
 ﻿<MenuFlyout
     xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts"
-    x:Class="NicoPlayerHohoema.Views.Flyouts.VideoItemFlyout"
+    x:Class="NicoPlayerHohoema.Views.Flyouts.MylistVideoItemFlyout"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:NicoPlayerHohoema.Views.Controls"
@@ -13,9 +13,19 @@
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     x:Name="FlyoutRoot"    
     mc:Ignorable="d">
-    <i:Interaction.Behaviors>
-        
-    </i:Interaction.Behaviors>
+
+    <MenuFlyoutSubItem Text="マイリスト登録を解除"
+                       Visibility="{Binding IsOwnedMylistItem, Converter={StaticResource BooleanToVisibility}}"
+                       >
+        <MenuFlyoutItem Text="解除する"
+                    Command="{Binding RemoveMylistItemCommand}"
+                    />
+
+    </MenuFlyoutSubItem>
+    
+    <MenuFlyoutSeparator
+        Visibility="{Binding IsOwnedMylistItem, Converter={StaticResource BooleanToVisibility}}"
+        />
     
     <MenuFlyoutItem Text="あとで見る"
                     Command="{Binding HohoemaPlaylist.AddWatchAfterPlaylistCommand}"
@@ -26,7 +36,7 @@
                     Command="{Binding PageManager.OpenPageCommand}"
                     CommandParameter="{Binding}"
                                 />
-    
+
     <MenuFlyoutItem Text="投稿者の動画一覧"
                     Command="{Binding PageManager.OpenVideoListPageCommand}"
                     CommandParameter="{Binding}"
@@ -34,14 +44,14 @@
 
     <MenuFlyoutSeparator />
 
-    
+
     <MenuFlyoutItem Text="共有" 
                     Command="{Binding ExternalAccessService.OpenShareUICommand}"
                     CommandParameter="{Binding}"
                     Visibility="{Binding Source={StaticResource IsXbox}, Converter={StaticResource BooleanToVisibility}}"
                     />
 
-    
+
     <MenuFlyoutItem Text="共有" 
                     Command="{Binding ExternalAccessService.OpenShareUICommand}"
                     CommandParameter="{Binding}"
@@ -61,7 +71,7 @@
                     Command="{Binding ExternalAccessService.CopyToClipboardCommand}"
                     CommandParameter="{Binding}"
                     />
-        
+
         <MenuFlyoutItem Text="共有用文章をコピー"
                     Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}"
                     CommandParameter="{Binding}"

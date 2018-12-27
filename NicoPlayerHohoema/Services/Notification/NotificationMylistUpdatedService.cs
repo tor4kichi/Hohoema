@@ -194,7 +194,7 @@ namespace NicoPlayerHohoema.Services.Notification
                     }
                     else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
                     {
-                        var item = e.NewItems.Cast<string>().First();
+                        var item = e.OldItems.Cast<string>().First();
 
                         var video = Database.NicoVideoDb.Get(item);
                         if (video != null)

@@ -111,9 +111,7 @@
 
             <i:Interaction.Behaviors>
                 
-                
-                <mybehavior:ListViewSelectedItemsGetter SelectedItems="{Binding SelectedItems, Mode=TwoWay}" />
-
+               
                 <mybehavior:KeyboardTrigger Key="F5">
                     <mybehavior:KeyboardTrigger.Actions>
                         <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
