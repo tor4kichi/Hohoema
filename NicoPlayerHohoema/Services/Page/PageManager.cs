@@ -302,7 +302,7 @@ namespace NicoPlayerHohoema.Services
                         OpenPage(HohoemaPageType.Mylist, new MylistPagePayload(mylistItemContent.Id).ToParameterString());
                         break;
                     case Interfaces.IUser user:
-                        OpenPage(HohoemaPageType.UserInfo, user.Id);
+                        OpenPage(HohoemaPageType.UserVideo, user.Id);
                         break;
                     case Interfaces.ISearchWithtag tag:
                         this.Search(SearchPagePayloadContentHelper.CreateDefault(SearchTarget.Tag, tag.Tag));
