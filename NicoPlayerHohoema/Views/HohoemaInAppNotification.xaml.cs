@@ -29,10 +29,10 @@ namespace NicoPlayerHohoema.Views
 
 
             var ea = App.Current.Container.Resolve<IEventAggregator>();
-            var notificationEvent = ea.GetEvent<Models.InAppNotificationEvent>();
+            var notificationEvent = ea.GetEvent<Services.InAppNotificationEvent>();
             notificationEvent.Subscribe(OnNotificationRequested, ThreadOption.UIThread);
 
-            var notificationDismissEvent = ea.GetEvent<Models.InAppNotificationDismissEvent>();
+            var notificationDismissEvent = ea.GetEvent<Services.InAppNotificationDismissEvent>();
             notificationDismissEvent.Subscribe((_) =>
             {
                 LiteNotification.Dismiss();
@@ -43,11 +43,11 @@ namespace NicoPlayerHohoema.Views
 
         }
 
-        private Models.InAppNotificationPayload _CurrentNotication;
+        private Services.InAppNotificationPayload _CurrentNotication;
 
-        private ConcurrentQueue<Models.InAppNotificationPayload> NoticationRequestQueue = new ConcurrentQueue<Models.InAppNotificationPayload>();
+        private ConcurrentQueue<Services.InAppNotificationPayload> NoticationRequestQueue = new ConcurrentQueue<Services.InAppNotificationPayload>();
 
-        private void PushNextNotication(Models.InAppNotificationPayload payload)
+        private void PushNextNotication(Services.InAppNotificationPayload payload)
         {
             NoticationRequestQueue.Enqueue(payload);
 
@@ -73,7 +73,7 @@ namespace NicoPlayerHohoema.Views
             }
         }
 
-        private void OnNotificationRequested(Models.InAppNotificationPayload payload)
+        private void OnNotificationRequested(Services.InAppNotificationPayload payload)
         {
             PushNextNotication(payload);
         }

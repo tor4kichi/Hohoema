@@ -16,7 +16,8 @@ using Windows.Foundation;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Prism.Mvvm;
 using Windows.UI.Core;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
+using Prism.Commands;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -44,19 +45,7 @@ namespace NicoPlayerHohoema.Models
         #endregion
 
 
-        public static async Task<FollowManager> Create(HohoemaApp hohoemaApp, uint userId)
-		{
-			var followManager = new FollowManager(hohoemaApp, userId);
-
-            await followManager.Initialize();
-
-            return followManager;
-		}
-
-
 		#region Properties 
-
-		public uint UserId { get; set; }
 
 
 		public IFollowInfoGroup Tag { get; private set; }
@@ -64,6 +53,12 @@ namespace NicoPlayerHohoema.Models
 		public IFollowInfoGroup User { get; private set; }
 		public IFollowInfoGroup Community { get; private set; }
         public IFollowInfoGroup Channel { get; private set; }
+        public NiconicoSession NiconicoSession { get; }
+        public Provider.TagFollowProvider TagFollowProvider { get; }
+        public Provider.MylistFollowProvider MylistFollowProvider { get; }
+        public Provider.UserFollowProvider UserFollowProvider { get; }
+        public Provider.CommunityFollowProvider CommunityFollowProvider { get; }
+        public Provider.ChannelFollowProvider ChannelFollowProvider { get; }
 
         IReadOnlyList<IFollowInfoGroup> _AllFollowInfoGroups;
 
@@ -85,22 +80,31 @@ namespace NicoPlayerHohoema.Models
 
         #region Fields
 
-        HohoemaApp _HohoemaApp;
-
         AsyncLock _SyncLock = new AsyncLock();
 
         #endregion
 
-        internal FollowManager(HohoemaApp hohoemaApp, uint userId)
+        public FollowManager(
+            NiconicoSession niconicoSession, 
+            Provider.TagFollowProvider tagFollowProvider,
+            Provider.MylistFollowProvider mylistFollowProvider,
+            Provider.UserFollowProvider userFollowProvider,
+            Provider.CommunityFollowProvider communityFollowProvider,
+            Provider.ChannelFollowProvider channelFollowProvider
+            )
 		{
-			_HohoemaApp = hohoemaApp;
-			UserId = userId;
+            NiconicoSession = niconicoSession;
+            TagFollowProvider = tagFollowProvider;
+            MylistFollowProvider = mylistFollowProvider;
+            UserFollowProvider = userFollowProvider;
+            CommunityFollowProvider = communityFollowProvider;
+            ChannelFollowProvider = channelFollowProvider;
 
-            Tag = new TagFollowInfoGroup(_HohoemaApp);
-            Mylist = new MylistFollowInfoGroup(_HohoemaApp);
-            User = new UserFollowInfoGroup(_HohoemaApp);
-            Community = new CommunityFollowInfoGroup(_HohoemaApp);
-            Channel = new ChannelFollowInfoGroup(_HohoemaApp);
+            Tag = new TagFollowInfoGroup(NiconicoSession, TagFollowProvider);
+            Mylist = new MylistFollowInfoGroup(NiconicoSession, MylistFollowProvider);
+            User = new UserFollowInfoGroup(NiconicoSession, UserFollowProvider);
+            Community = new CommunityFollowInfoGroup(NiconicoSession, CommunityFollowProvider);
+            Channel = new ChannelFollowInfoGroup(NiconicoSession, ChannelFollowProvider);
 
             _FollowGroupsMap = new Dictionary<FollowItemType, IFollowInfoGroup>();
 
@@ -109,27 +113,75 @@ namespace NicoPlayerHohoema.Models
             _FollowGroupsMap.Add(FollowItemType.User, User);
             _FollowGroupsMap.Add(FollowItemType.Community, Community);
             _FollowGroupsMap.Add(FollowItemType.Channel, Channel);
+
+            NiconicoSession.LogIn += NiconicoSession_LogIn;
+            NiconicoSession.LogOut += NiconicoSession_LogOut;
         }
 
+        public bool IsLoginUserFollowsReady { get; private set; }
+
+        private async void NiconicoSession_LogIn(object sender, NiconicoSessionLoginEventArgs e)
+        {
+            IsLoginUserFollowsReady = false;
+            using (var cancelTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+            {
+                await SyncAll(cancelTokenSource.Token);
+
+                IsLoginUserFollowsReady = true;
+            }
+        }
+
+        private async void NiconicoSession_LogOut(object sender, EventArgs e)
+        {
+            IsLoginUserFollowsReady = false;
+
+            using (var cancelTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+            {
+                await SyncAll(cancelTokenSource.Token);
+            }
+        }
 
         protected override Task OnInitializeAsync(CancellationToken token)
         {
-            return HohoemaApp.UIDispatcher.RunIdleAsync(async (_) => 
-            {
-                await SyncAll(token);
-            })
-            .AsTask();
+            return Task.CompletedTask;
         }
 
+        public bool CanMoreAddFollow(Interfaces.IFollowable followItem)
+        {
+            if (followItem == null) { return false; }
 
-		public bool CanMoreAddFollow(FollowItemType itemType)
+            return CanMoreAddFollow(ToFollowItemType(followItem));
+        }
+
+        public bool CanMoreAddFollow(FollowItemType itemType)
 		{
 			return _FollowGroupsMap[itemType].CanMoreAddFollow();
 		}
 
-		
 
-		public bool IsFollowItem(FollowItemType itemType, string id)
+        static FollowItemType ToFollowItemType(Interfaces.IFollowable followItem)
+        {
+            switch (followItem)
+            {
+                case Interfaces.IChannel _: return FollowItemType.Channel;
+                case Interfaces.ICommunity _: return FollowItemType.Community;
+                case Interfaces.IUser _: return FollowItemType.User;
+                case Interfaces.IMylistItem _: return FollowItemType.Mylist;
+                case Interfaces.ITag _: return FollowItemType.Tag;
+                case Interfaces.ISearchWithtag _: return FollowItemType.Tag;
+
+                default: throw new NotSupportedException();
+            }
+        }
+
+        public bool IsFollowItem(Interfaces.IFollowable followItem)
+        {
+            if (followItem == null) { return false; }
+
+            return IsFollowItem(ToFollowItemType(followItem), followItem.Id);
+        }
+
+        public bool IsFollowItem(FollowItemType itemType, string id)
 		{
 			var group = _FollowGroupsMap[itemType];
 
@@ -166,7 +218,12 @@ namespace NicoPlayerHohoema.Models
 			return _FollowGroupsMap[itemType].FollowInfoItems.SingleOrDefault(x => x.Id == id);
 		}
 
-		public async Task<ContentManageResult> AddFollow(FollowItemType itemType, string id, string name, object token = null)
+        public async Task<ContentManageResult> AddFollow(Interfaces.IFollowable followItem, object token = null)
+        {
+            return await AddFollow(ToFollowItemType(followItem), followItem.Id, followItem.Label, token);
+        }
+
+        public async Task<ContentManageResult> AddFollow(FollowItemType itemType, string id, string name, object token = null)
 		{
 			var group = _FollowGroupsMap[itemType];
 
@@ -175,7 +232,12 @@ namespace NicoPlayerHohoema.Models
 			return result;
 		}
 
-		public async Task<ContentManageResult> RemoveFollow(FollowItemType itemType, string id)
+        public async Task<ContentManageResult> RemoveFollow(Interfaces.IFollowable followItem)
+        {
+            return await RemoveFollow(ToFollowItemType(followItem), followItem.Id);
+        }
+
+        public async Task<ContentManageResult> RemoveFollow(FollowItemType itemType, string id)
 		{
 			var group = _FollowGroupsMap[itemType];
 
@@ -184,6 +246,18 @@ namespace NicoPlayerHohoema.Models
 			return result;
 		}
 
-	}
+
+        private DelegateCommand<Interfaces.IFollowable> _RemoveFollowCommand;
+        public DelegateCommand<Interfaces.IFollowable> RemoveFollowCommand => _RemoveFollowCommand
+            ?? (_RemoveFollowCommand = new DelegateCommand<Interfaces.IFollowable>(async followItem => 
+            {
+                var result = await RemoveFollow(followItem);
+            }
+            , followItem => followItem is Interfaces.IFollowable
+            ));
+
+
+
+    }
 
 }

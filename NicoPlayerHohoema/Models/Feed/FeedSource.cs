@@ -25,7 +25,5 @@ namespace NicoPlayerHohoema.Models
 
 		public abstract FollowItemType FollowItemType { get; }
 
-		public abstract Task<IEnumerable<FeedItem>> GetLatestItems(HohoemaApp hohoemaApp);
-
 	}
 }

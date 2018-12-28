@@ -1,4 +1,5 @@
 ﻿using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Models.Cache;
 using NicoPlayerHohoema.Services;
 using Prism.Commands;
 using Prism.Windows.Mvvm;
@@ -17,23 +18,19 @@ namespace NicoPlayerHohoema.ViewModels
 {
     public sealed class VideoCacheIntroductionPageViewModel : ViewModelBase
     {
-        public AsyncReactiveCommand RequireEnablingCacheCommand { get; private set; }
-
-        public ReactiveProperty<bool> CanChangeCacheSettings { get; private set; }
-        public ReactiveProperty<bool> IsCompleteCacheSettings { get; private set; }
-        private HohoemaDialogService _HohoemaDialogService;
-        private HohoemaApp _HohoemaApp;
-
-        CompositeDisposable _Disposables = new CompositeDisposable();
-
-        public VideoCacheIntroductionPageViewModel(HohoemaDialogService dialogService, HohoemaApp hohoemaApp)
+        public VideoCacheIntroductionPageViewModel(
+            CacheSettings cacheSettings,
+            CacheSaveFolder cacheSaveFolder,
+            DialogService dialogService
+            )
         {
-            _HohoemaDialogService = dialogService;
-            _HohoemaApp = hohoemaApp;
+            CacheSettings = cacheSettings;
+            CacheSaveFolder = cacheSaveFolder;
+            HohoemaDialogService = dialogService;
 
             var hasCacheFolder = Windows.Storage.AccessCache.StorageApplicationPermissions.
                     FutureAccessList.Entries.Count > 0;
-            IsCompleteCacheSettings = new ReactiveProperty<bool>(_HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache && hasCacheFolder)
+            IsCompleteCacheSettings = new ReactiveProperty<bool>(CacheSettings.IsUserAcceptedCache && hasCacheFolder)
                 .AddTo(_Disposables);
 
             CanChangeCacheSettings = new ReactiveProperty<bool>(!IsCompleteCacheSettings.Value)
@@ -43,14 +40,14 @@ namespace NicoPlayerHohoema.ViewModels
 
             RequireEnablingCacheCommand.Subscribe(async () =>
             {
-                bool isAcceptedCache = _HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache;
+                bool isAcceptedCache = CacheSettings.IsUserAcceptedCache;
                 if (!isAcceptedCache)
                 {
-                    isAcceptedCache = await _HohoemaDialogService.ShowAcceptCacheUsaseDialogAsync();
+                    isAcceptedCache = await HohoemaDialogService.ShowAcceptCacheUsaseDialogAsync();
                     if (isAcceptedCache)
                     {
-                        _HohoemaApp.UserSettings.CacheSettings.IsEnableCache = true;
-                        _HohoemaApp.UserSettings.CacheSettings.IsUserAcceptedCache = true;
+                        CacheSettings.IsEnableCache = true;
+                        CacheSettings.IsUserAcceptedCache = true;
 
                         (App.Current).Resources["IsCacheEnabled"] = true;
                     }
@@ -58,7 +55,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                 if (isAcceptedCache)
                 {
-                    if (await _HohoemaApp.ChangeUserDataFolder())
+                    if (await CacheSaveFolder.ChangeUserDataFolder())
                     {
                         IsCompleteCacheSettings.Value = true;
                     }
@@ -67,6 +64,18 @@ namespace NicoPlayerHohoema.ViewModels
             .AddTo(_Disposables);
 
         }
-        
+
+        public CacheSettings CacheSettings { get; }
+        public CacheSaveFolder CacheSaveFolder { get; }
+        public DialogService HohoemaDialogService { get; }
+
+        public AsyncReactiveCommand RequireEnablingCacheCommand { get; private set; }
+
+        public ReactiveProperty<bool> CanChangeCacheSettings { get; private set; }
+        public ReactiveProperty<bool> IsCompleteCacheSettings { get; private set; }
+
+        CompositeDisposable _Disposables = new CompositeDisposable();
+
+       
     }
 }

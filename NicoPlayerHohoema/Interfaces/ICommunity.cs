@@ -1,6 +1,6 @@
 ﻿namespace NicoPlayerHohoema.Interfaces
 {
-    public interface ICommunity : INiconicoContent, IFollowable
+    public interface ICommunity : INiconicoGroup, IFollowable
     {
         
     }

@@ -31,9 +31,7 @@ namespace NicoPlayerHohoema.ViewModels
         public void Dispose()
         {
             IsDisposed = true;
-
-            CancelDefrredUpdate();
-
+            
             OnDispose();
         }
 
@@ -164,24 +162,6 @@ namespace NicoPlayerHohoema.ViewModels
         public HohoemaListingPageItemBase()
         {
             ImageUrls = new ReadOnlyObservableCollection<string>(ImageUrlsSource);
-
-        }
-
-        public Task DeferredUpdate()
-        {
-            return OnDeferredUpdate();
-        }
-
-        protected virtual Task OnDeferredUpdate() { return Task.CompletedTask; }
-
-
-        public void CancelDefrredUpdate()
-        {
-            OnCancelDeferrdUpdate();
-        }
-
-        protected virtual void OnCancelDeferrdUpdate()
-        {
 
         }
     }

@@ -1,4 +1,5 @@
-﻿using Prism.Commands;
+﻿using NicoPlayerHohoema.Services;
+using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +36,7 @@ namespace NicoPlayerHohoema.Models.Live
 
 	public static class LiveSuggestionExtention
 	{
-		public static LiveSuggestion Make(this LiveStatusType liveStatus, NicoLiveVideo liveVideo, PageManager pageManager)
+		public static LiveSuggestion Make(this LiveStatusType liveStatus, NicoLiveVideo liveVideo, Services.PageManager pageManager, NiconicoSession niconicoSession)
 		{
 			string title = liveStatus.ToString();
 
@@ -70,15 +71,7 @@ namespace NicoPlayerHohoema.Models.Live
 					break;
 				case LiveStatusType.NotLogin:
 					title = "視聴するには「ニコニコ」にログインが必要です";
-                    actions.Add(new SuggestAction("ログイン", async () =>
-                    {
-                        var dialog = new Dialogs.NiconicoLoginDialog();
-                        var result = await dialog.ShowAsync();
-                        if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary)
-                        {
-                            await liveVideo.StartLiveWatchingSessionAsync();
-                        }
-                    }));
+                    
                     break;
 				default:
 					break;

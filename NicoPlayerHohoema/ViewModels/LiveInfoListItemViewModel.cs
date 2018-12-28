@@ -1,25 +1,46 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using Mntone.Nico2.Live;
 using Mntone.Nico2.Live.Reservation;
 using Mntone.Nico2.Searches.Live;
 using NicoPlayerHohoema.Database;
+using NicoPlayerHohoema.Interfaces;
+using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Services;
+using Prism.Commands;
+using Microsoft.Practices.Unity;
+using NicoPlayerHohoema.Services.Helpers;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class LiveInfoListItemViewModel : HohoemaListingPageItemBase, Interfaces.ILiveContent
+    public class LiveInfoListItemViewModel : HohoemaListingPageItemBase, Interfaces.ILiveContent, Views.Extensions.ListViewBase.IDeferInitialize
     {
-        public string LiveId { get; private set; }
+        public LiveInfoListItemViewModel(string liveId)
+        {
+            LiveId = liveId;
+            HohoemaPlaylist = App.Current.Container.Resolve<Services.HohoemaPlaylist>();
+            PageManager = App.Current.Container.Resolve<Services.PageManager>();
+            ExternalAccessService = App.Current.Container.Resolve<Services.ExternalAccessService>();
+        }
 
-		public string CommunityName { get; private set; }
-		public string CommunityThumbnail { get; private set; }
-		public string CommunityGlobalId { get; private set; }
-		public Mntone.Nico2.Live.CommunityType CommunityType { get; private set; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public PageManager PageManager { get; }
+        public ExternalAccessService ExternalAccessService { get; }
+        public Mntone.Nico2.Live.ReservationsInDetail.Program Reservation { get; private set; }
 
-		public string LiveTitle { get; private set; }
-		public int ViewCounter { get; private set; }
-		public int CommentCount { get; private set; }
+
+        public string LiveId { get; }
+
+		public string CommunityName { get; protected set; }
+		public string CommunityThumbnail { get; protected set; }
+		public string CommunityGlobalId { get; protected set; }
+		public Mntone.Nico2.Live.CommunityType CommunityType { get; protected set; }
+
+		public string LiveTitle { get; protected set; }
+		public int ViewCounter { get; protected set; }
+		public int CommentCount { get; protected set; }
 		public DateTimeOffset OpenTime { get; private set; }
 		public DateTimeOffset StartTime { get; private set; }
 		public bool HasEndTime { get; private set; }
@@ -28,11 +49,9 @@ namespace NicoPlayerHohoema.ViewModels
 		public bool IsTimeshiftEnabled { get; private set; }
 		public bool IsCommunityMemberOnly { get; private set; }
 
-        public bool IsXbox => Helpers.DeviceTypeHelper.IsXbox;
+        public bool IsXbox => Services.Helpers.DeviceTypeHelper.IsXbox;
 
 
-        public string BroadcasterId => CommunityGlobalId;
-        public string Id => LiveId;
 
         public bool NowLive => Elements.Any(x => x == LiveContentElement.Status_Open || x == LiveContentElement.Status_Start);
 
@@ -43,10 +62,39 @@ namespace NicoPlayerHohoema.ViewModels
         public DateTimeOffset ExpiredAt { get; internal set; }
         public Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus? ReservationStatus { get; internal set; }
 
-        public LiveInfoListItemViewModel(Mntone.Nico2.Live.Recommend.LiveRecommendData liveVideoInfo, Mntone.Nico2.Live.ReservationsInDetail.Program reservationInfo = null)
-        {
-            LiveId = "lv" + liveVideoInfo.ProgramId;
 
+        string ILiveContent.ProviderId => CommunityGlobalId;
+
+        string ILiveContent.ProviderName => CommunityName;
+
+        CommunityType ILiveContent.ProviderType => CommunityType;
+
+        string INiconicoObject.Id => LiveId;
+
+        string INiconicoObject.Label => LiveTitle;
+
+
+
+
+        bool Views.Extensions.ListViewBase.IDeferInitialize.IsInitialized { get; set; }
+        
+        Task Views.Extensions.ListViewBase.IDeferInitialize.DeferInitializeAsync()
+        {
+            ResetElements();
+            return Task.CompletedTask;
+        }
+
+
+
+        public void SetReservation(Mntone.Nico2.Live.ReservationsInDetail.Program reservationInfo)
+        {
+            Reservation = reservationInfo;
+            ReservationStatus = NowLive ? null : reservationInfo?.GetReservationStatus();
+            DeleteReservation.RaiseCanExecuteChanged();
+        }
+
+        public void Setup(Mntone.Nico2.Live.Recommend.LiveRecommendData liveVideoInfo)
+        {
             CommunityThumbnail = liveVideoInfo.ThumbnailUrl;
 
             CommunityGlobalId = liveVideoInfo.DefaultCommunity;
@@ -55,7 +103,7 @@ namespace NicoPlayerHohoema.ViewModels
             LiveTitle = liveVideoInfo.Title;
             OpenTime = liveVideoInfo.OpenTime;
             StartTime = liveVideoInfo.StartTime;
-            
+
             //IsTimeshiftEnabled = liveVideoInfo.Video.TimeshiftEnabled;
             //IsCommunityMemberOnly = liveVideoInfo.Video.CommunityOnly;
 
@@ -79,18 +127,15 @@ namespace NicoPlayerHohoema.ViewModels
                 default:
                     break;
             }
-            
+
             OptionText = DurationText;
 
             var endTime = liveVideoInfo.CurrentStatus == StatusType.Closed ? DateTimeOffset.Now + TimeSpan.FromMinutes(60) : DateTime.MaxValue;
-            ResetElements(CommunityType, OpenTime, StartTime, endTime, false, false, reservationInfo);
-
-            ReservationStatus = NowLive ? null : reservationInfo?.GetReservationStatus();
         }
 
-        public LiveInfoListItemViewModel(VideoInfo liveVideoInfo, Mntone.Nico2.Live.ReservationsInDetail.Program reservationInfo = null)
-		{
-            LiveId = liveVideoInfo.Video.Id;
+
+        public void Setup(VideoInfo liveVideoInfo)
+        {
             CommunityName = liveVideoInfo.Community?.Name;
             if (liveVideoInfo.Community?.Thumbnail != null)
             {
@@ -101,29 +146,29 @@ namespace NicoPlayerHohoema.ViewModels
                 CommunityThumbnail = liveVideoInfo.Video.ThumbnailUrl;
             }
             CommunityGlobalId = liveVideoInfo.Community?.GlobalId;
-			CommunityType = liveVideoInfo.Video.ProviderType;
+            CommunityType = liveVideoInfo.Video.ProviderType;
 
-			LiveTitle = liveVideoInfo.Video.Title;
-			ViewCounter = int.Parse(liveVideoInfo.Video.ViewCounter);
-			CommentCount = int.Parse(liveVideoInfo.Video.CommentCount);
-			OpenTime = new DateTimeOffset(liveVideoInfo.Video.OpenTime, TimeSpan.FromHours(9));
-			StartTime = new DateTimeOffset(liveVideoInfo.Video.StartTime, TimeSpan.FromHours(9));
+            LiveTitle = liveVideoInfo.Video.Title;
+            ViewCounter = int.Parse(liveVideoInfo.Video.ViewCounter);
+            CommentCount = int.Parse(liveVideoInfo.Video.CommentCount);
+            OpenTime = new DateTimeOffset(liveVideoInfo.Video.OpenTime, TimeSpan.FromHours(9));
+            StartTime = new DateTimeOffset(liveVideoInfo.Video.StartTime, TimeSpan.FromHours(9));
             EndTime = new DateTimeOffset(liveVideoInfo.Video.EndTime, TimeSpan.FromHours(9));
-			IsTimeshiftEnabled = liveVideoInfo.Video.TimeshiftEnabled;
-			IsCommunityMemberOnly = liveVideoInfo.Video.CommunityOnly;
+            IsTimeshiftEnabled = liveVideoInfo.Video.TimeshiftEnabled;
+            IsCommunityMemberOnly = liveVideoInfo.Video.CommunityOnly;
 
             Label = liveVideoInfo.Video.Title;
             AddImageUrl(CommunityThumbnail);
 
             Description = $"来場者:{ViewCounter} コメ:{CommentCount}";
 
-			if (StartTime > DateTimeOffset.Now)
-			{
-				// 予約
-				DurationText = $" 開始予定: {StartTime.LocalDateTime.ToString("g")}";
-			}
-			else if (EndTime > DateTimeOffset.Now)
-			{
+            if (StartTime > DateTimeOffset.Now)
+            {
+                // 予約
+                DurationText = $" 開始予定: {StartTime.LocalDateTime.ToString("g")}";
+            }
+            else if (EndTime > DateTimeOffset.Now)
+            {
                 var duration = DateTimeOffset.Now - StartTime;
                 // 放送中
                 if (duration.Hours > 0)
@@ -134,9 +179,9 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     DurationText = $"{duration.Minutes}分 経過";
                 }
-			}
-			else
-			{
+            }
+            else
+            {
                 var duration = EndTime - StartTime;
                 // 終了
                 if (duration.Hours > 0)
@@ -150,15 +195,10 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
             OptionText = DurationText;
-
-            ResetElements(liveVideoInfo.Video.ProviderType, OpenTime, StartTime, EndTime, IsCommunityMemberOnly, IsTimeshiftEnabled, reservationInfo);
-
-            ReservationStatus = NowLive ? null : reservationInfo?.GetReservationStatus();
         }
 
-        public LiveInfoListItemViewModel(NicoLive liveData, Mntone.Nico2.Live.ReservationsInDetail.Program reservationInfo = null)
+        public void Setup(NicoLive liveData)
         {
-            LiveId = liveData.LiveId;
             CommunityName = liveData.BroadcasterName;
             if (liveData.ThumbnailUrl != null)
             {
@@ -219,24 +259,22 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
             OptionText = DurationText;
-
-            ResetElements(CommunityType, OpenTime, StartTime, EndTime, IsCommunityMemberOnly, IsTimeshiftEnabled, reservationInfo);
-            ReservationStatus = NowLive ? null : reservationInfo?.GetReservationStatus();
         }
 
-        private void ResetElements(CommunityType providerType, DateTimeOffset openAt, DateTimeOffset startAt, DateTimeOffset endAt, bool isMemberOnly, bool isEnableTimeshift, Mntone.Nico2.Live.ReservationsInDetail.Program reservation = null)
+
+        private void ResetElements()
         {
             Elements.Clear();
             
-            if (DateTimeOffset.Now < openAt)
+            if (DateTimeOffset.Now < OpenTime)
             {
                 Elements.Add(LiveContentElement.Status_Pending);
             }
-            else if (openAt < DateTimeOffset.Now && DateTimeOffset.Now < startAt)
+            else if (OpenTime < DateTimeOffset.Now && DateTimeOffset.Now < StartTime)
             {
                 Elements.Add(LiveContentElement.Status_Open);
             }
-            else if (startAt < DateTimeOffset.Now && DateTimeOffset.Now < endAt)
+            else if (StartTime < DateTimeOffset.Now && DateTimeOffset.Now < EndTime)
             {
                 Elements.Add(LiveContentElement.Status_Start);
             }
@@ -245,7 +283,7 @@ namespace NicoPlayerHohoema.ViewModels
                 Elements.Add(LiveContentElement.Status_Closed);
             }
 
-            switch (providerType)
+            switch (CommunityType)
             {
                 case CommunityType.Official:
                     Elements.Add(LiveContentElement.Provider_Official);
@@ -261,18 +299,18 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
            
-            if (isMemberOnly)
+            if (IsCommunityMemberOnly)
             {
                 Elements.Add(LiveContentElement.MemberOnly);
             }
 
-            if (reservation != null)
+            if (Reservation != null)
             {
-                if (reservation.IsCanWatch && Elements.Any(x => x == LiveContentElement.Status_Closed))
+                if (Reservation.IsCanWatch && Elements.Any(x => x == LiveContentElement.Status_Closed))
                 {
                     Elements.Add(LiveContentElement.Timeshift_Watch);
                 }
-                else if (reservation.IsOutDated)
+                else if (Reservation.IsOutDated)
                 {
                     Elements.Add(LiveContentElement.Timeshift_OutDated);
                 }
@@ -281,13 +319,52 @@ namespace NicoPlayerHohoema.ViewModels
                     Elements.Add(LiveContentElement.Timeshift_Preserved);
                 }
             }
-            else if (isEnableTimeshift)
+            else if (IsTimeshiftEnabled)
             {
                 Elements.Add(LiveContentElement.Timeshift_Enable);
             }
         }
 
-        
+
+
+        private DelegateCommand _DeleteReservation;
+        public DelegateCommand DeleteReservation
+        {
+            get
+            {
+                return _DeleteReservation
+                    ?? (_DeleteReservation = new DelegateCommand(async () =>
+                    {
+                        var reservationProvider = App.Current.Container.Resolve<Models.Provider.LoginUserLiveReservationProvider>();
+                        var reservations = await reservationProvider.GetReservtionsAsync();
+                        var dialogService = App.Current.Container.Resolve<Services.DialogService>();
+
+                        var reservationTitlesText = LiveTitle;
+                        var acceptDeletion = await dialogService.ShowMessageDialog(
+                            "DeleteReservationConfirmText".ToCulturelizeString() + "\r\r" + reservationTitlesText,
+                            "DeleteSelectedReservationConfirm_Title".ToCulturelizeString(),
+                            "DeleteReservationConfirm_Agree".ToCulturelizeString(),
+                            "Cancel".ToCulturelizeString()
+                            );
+
+                        if (!acceptDeletion) { return; }
+
+                        var token = await reservationProvider.GetReservationTokenAsync();
+
+                        await reservationProvider.DeleteReservationAsync(LiveId, token);
+
+                        // 予約状態が削除になったことを通知
+                        Reservation = null;
+                        RaisePropertyChanged(nameof(Reservation));
+                        ReservationStatus = null;
+                        RaisePropertyChanged(nameof(ReservationStatus));
+
+                        ResetElements();
+                    }
+                    , () => Reservation != null
+                    ));
+            }
+        }
     }
 
 

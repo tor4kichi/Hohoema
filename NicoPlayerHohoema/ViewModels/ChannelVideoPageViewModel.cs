@@ -6,19 +6,34 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Mntone.Nico2.Channels.Video;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models;
 using Prism.Commands;
 using Prism.Windows.Navigation;
 using Windows.UI;
+using NicoPlayerHohoema.Models.Provider;
+using Microsoft.Practices.Unity;
+using NicoPlayerHohoema.Interfaces;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public sealed class ChannelVideoPageViewModel : HohoemaVideoListingPageViewModelBase<ChannelVideoListItemViewModel>
+    public sealed class ChannelVideoPageViewModel : HohoemaListingPageViewModelBase<ChannelVideoListItemViewModel>, Interfaces.IChannel
     {
-        public ChannelVideoPageViewModel(HohoemaApp app, PageManager pageManager) 
-            : base(app, pageManager, isRequireSignIn:false, useDefaultPageTitle:true)
+        public ChannelVideoPageViewModel(
+            NiconicoSession niconicoSession,
+            Models.Provider.ChannelProvider channelProvider,
+            Services.PageManager pageManager,
+            Services.HohoemaPlaylist hohoemaPlaylist,
+            Services.ExternalAccessService externalAccessService,
+            Services.NiconicoFollowToggleButtonService followToggleButtonService
+            )
+            : base(pageManager, useDefaultPageTitle:true)
         {
+            NiconicoSession = niconicoSession;
+            ChannelProvider = channelProvider;
+            HohoemaPlaylist = hohoemaPlaylist;
+            ExternalAccessService = externalAccessService;
+            FollowToggleButtonService = followToggleButtonService;
         }
 
         public string RawChannelId { get; set; }
@@ -77,7 +92,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             try
             {
-                var channelInfo = await HohoemaApp.ContentProvider.GetChannelInfo(RawChannelId);
+                var channelInfo = await ChannelProvider.GetChannelInfo(RawChannelId);
 
                 ChannelId = channelInfo.ChannelId;
                 ChannelName = channelInfo.Name;
@@ -90,6 +105,8 @@ namespace NicoPlayerHohoema.ViewModels
                 ChannelName = RawChannelId;
             }
 
+            FollowToggleButtonService.SetFollowTarget(this);
+
             PageManager.PageTitle = ChannelName;
 
             await base.NavigatedToAsync(cancelToken, e, viewModelState);
@@ -97,7 +114,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override IIncrementalSource<ChannelVideoListItemViewModel> GenerateIncrementalSource()
         {
-            return new ChannelVideoLoadingSource(ChannelId?.ToString() ?? RawChannelId, HohoemaApp.ContentProvider);
+            return new ChannelVideoLoadingSource(ChannelId?.ToString() ?? RawChannelId, ChannelProvider);
         }
 
         protected override string ResolvePageName()
@@ -118,30 +135,49 @@ namespace NicoPlayerHohoema.ViewModels
                     }));
             }
         }
-        
+
+        public NiconicoSession NiconicoSession { get; }
+        public Models.Provider.ChannelProvider ChannelProvider { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.ExternalAccessService ExternalAccessService { get; }
+        public Services.NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
+
+        string INiconicoObject.Id => RawChannelId;
+
+        string INiconicoObject.Label => ChannelName;
     }
 
     public sealed class ChannelVideoListItemViewModel : VideoInfoControlViewModel
     {
-        public bool IsRequirePayment { get; }
+        public bool IsRequirePayment { get; internal set; }
 
-        public ChannelVideoListItemViewModel(string videoId, bool isRequirePayment, PlaylistItem playlistItem = null) 
-            : base(videoId, isNgEnabled:false, playlistItem:playlistItem)
+        public ChannelVideoListItemViewModel(
+            string rawVideoId
+            )
+            : base(rawVideoId, null)
         {
-            IsRequirePayment = isRequirePayment;
+
+        }
+
+        public ChannelVideoListItemViewModel(
+           Database.NicoVideo data
+           )
+           : base(data, null)
+        {
+
         }
     }
 
     public class ChannelVideoLoadingSource : HohoemaIncrementalSourceBase<ChannelVideoListItemViewModel>
     {
         public string ChannelId { get; }
-        NiconicoContentProvider _NiconicoContentProvider;
+        public ChannelProvider ChannelProvider { get; }
 
         ChannelVideoResponse _FirstResponse;
-        public ChannelVideoLoadingSource(string channelId, NiconicoContentProvider contentProvider)
+        public ChannelVideoLoadingSource(string channelId, ChannelProvider channelProvider)
         {
             ChannelId = channelId;
-            _NiconicoContentProvider = contentProvider;
+            ChannelProvider = channelProvider;
         }
 
 
@@ -170,7 +206,7 @@ namespace NicoPlayerHohoema.ViewModels
             else
             {
                 var page = (int)(head / OneTimeLoadCount);
-                res = await _NiconicoContentProvider.GetChannelVideo(ChannelId, page);
+                res = await ChannelProvider.GetChannelVideo(ChannelId, page);
             }
 
             _IsEndPage = res != null ? (res.Videos.Count < OneTimeLoadCount) : true;
@@ -182,7 +218,8 @@ namespace NicoPlayerHohoema.ViewModels
                     // so0123456のフォーマットの動画ID
                     // var videoId = video.PurchasePreviewUrl.Split('/').Last();
 
-                    var channelVideo = new ChannelVideoListItemViewModel(video.ItemId, video.IsRequirePayment);
+                    var channelVideo = new ChannelVideoListItemViewModel(video.ItemId);
+                    channelVideo.IsRequirePayment = video.IsRequirePayment;
                     channelVideo.SetTitle(video.Title);
                     channelVideo.SetThumbnailImage(video.ThumbnailUrl);
                     channelVideo.SetVideoDuration(video.Length);
@@ -201,7 +238,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override async Task<int> ResetSourceImpl()
         {
-            _FirstResponse = await _NiconicoContentProvider.GetChannelVideo(ChannelId, 0);
+            _FirstResponse = await ChannelProvider.GetChannelVideo(ChannelId, 0);
 
             return _FirstResponse?.TotalCount ?? 0;
         }

@@ -253,10 +253,6 @@
     <value>已登陆</value>
     <comment>HohoemaAppServiceLevel</comment>
   </data>
-  <data name="LoggedInWithPremium" xml:space="preserve">
-    <value>已登陆（高级会员）</value>
-    <comment>HohoemaAppServiceLevel</comment>
-  </data>
   <data name="low" xml:space="preserve">
     <value>低画质</value>
     <comment>Niconico Live Quality</comment>
@@ -305,11 +301,11 @@
     <value>离线</value>
     <comment>HohoemaAppServiceLevel</comment>
   </data>
-  <data name="OnlineButServiceUnavailable" xml:space="preserve">
+  <data name="ServiceUnavailable" xml:space="preserve">
     <value>Niconico动画服务不可用</value>
     <comment>HohoemaAppServiceLevel</comment>
   </data>
-  <data name="OnlineWithoutLoggedIn" xml:space="preserve">
+  <data name="WithoutLoggedIn" xml:space="preserve">
     <value>未登录</value>
     <comment>HohoemaAppServiceLevel</comment>
   </data>

@@ -1,7 +1,11 @@
 ﻿using Mntone.Nico2;
+using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Helpers;
-using NicoPlayerHohoema.Views.Service;
+using NicoPlayerHohoema.Models.Helpers;
+using NicoPlayerHohoema.Models.Provider;
+using NicoPlayerHohoema.Models.Subscription;
+using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.Services.Page;
 using Prism.Commands;
 using Prism.Windows.Navigation;
 using Reactive.Bindings;
@@ -11,20 +15,84 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Navigation;
 
+
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class SearchResultTagPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
-	{
-        NiconicoContentProvider _ContentFinder;
-        Services.HohoemaDialogService _HohoemaDialogService;
+	public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, Interfaces.ISearchWithtag
+    {
+        public SearchResultTagPageViewModel(
+           NGSettings ngSettings,
+           Models.NiconicoSession niconicoSession,
+           SearchProvider searchProvider,
+           SubscriptionManager subscriptionManager,
+           Services.HohoemaPlaylist hohoemaPlaylist,
+           Services.PageManager pageManager,
+           Services.DialogService dialogService,
+           Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand,
+           NiconicoFollowToggleButtonService followButtonService
+           )
+           : base(pageManager, useDefaultPageTitle: false)
+        {
+            SearchProvider = searchProvider;
+            SubscriptionManager = subscriptionManager;
+            HohoemaPlaylist = hohoemaPlaylist;
+            NgSettings = ngSettings;
+            NiconicoSession = niconicoSession;
+            HohoemaDialogService = dialogService;
+            CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
+            FollowButtonService = followButtonService;
+            FailLoading = new ReactiveProperty<bool>(false)
+                .AddTo(_CompositeDisposable);
+
+            LoadedPage = new ReactiveProperty<int>(1)
+                .AddTo(_CompositeDisposable);
 
 
-        private static List<SearchSortOptionListItem> _VideoSearchOptionListItems = new List<SearchSortOptionListItem>()
+
+            SelectedSearchSort = new ReactiveProperty<SearchSortOptionListItem>(
+                VideoSearchOptionListItems.First(),
+                mode: ReactivePropertyMode.DistinctUntilChanged
+                );
+
+            SelectedSearchSort
+                .Subscribe(async _ =>
+                {
+                    var selected = SelectedSearchSort.Value;
+                    if (SearchOption.Order == selected.Order
+                        && SearchOption.Sort == selected.Sort
+                    )
+                    {
+                        return;
+                    }
+
+                    SearchOption.Order = selected.Order;
+                    SearchOption.Sort = selected.Sort;
+
+                    await ResetList();
+                })
+                .AddTo(_CompositeDisposable);
+
+            SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
+        }
+
+
+        public NGSettings NgSettings { get; }
+        public Models.NiconicoSession NiconicoSession { get; }
+        public SearchProvider SearchProvider { get; }
+        public SubscriptionManager SubscriptionManager { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.DialogService HohoemaDialogService { get; }
+        public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
+        public NiconicoFollowToggleButtonService FollowButtonService { get; }
+
+        public Models.Subscription.SubscriptionSource? SubscriptionSource => new Models.Subscription.SubscriptionSource(SearchOption.Keyword, Models.Subscription.SubscriptionSourceType.TagSearch, SearchOption.Keyword);
+
+
+        static private List<SearchSortOptionListItem> _VideoSearchOptionListItems = new List<SearchSortOptionListItem>()
         {
             new SearchSortOptionListItem()
             {
@@ -126,15 +194,6 @@ namespace NicoPlayerHohoema.ViewModels
             set { SetProperty(ref _SearchOptionText, value); }
         }
 
-
-        public ReactiveProperty<bool> IsFavoriteTag { get; private set; }
-		public ReactiveProperty<bool> CanChangeFavoriteTagState { get; private set; }
-
-
-		public ReactiveCommand AddFavoriteTagCommand { get; private set; }
-		public ReactiveCommand RemoveFavoriteTagCommand { get; private set; }
-
-
 		public ReactiveProperty<bool> FailLoading { get; private set; }
 
 		public TagSearchPagePayloadContent SearchOption { get; private set; }
@@ -144,7 +203,7 @@ namespace NicoPlayerHohoema.ViewModels
         public Database.Bookmark TagSearchBookmark { get; private set; }
 
 
-        public static List<SearchTarget> SearchTargets { get; } = Enum.GetValues(typeof(SearchTarget)).Cast<SearchTarget>().ToList();
+        static public List<SearchTarget> SearchTargets { get; } = Enum.GetValues(typeof(SearchTarget)).Cast<SearchTarget>().ToList();
 
         public ReactiveProperty<SearchTarget> SelectedSearchTarget { get; }
 
@@ -167,108 +226,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-        public Models.Subscription.SubscriptionSource? SubscriptionSource => new Models.Subscription.SubscriptionSource(SearchOption.Keyword, Models.Subscription.SubscriptionSourceType.TagSearch, SearchOption.Keyword);
-        public Models.Subscription.SubscriptionManager SubscriptionManager => Models.Subscription.SubscriptionManager.Instance;
-
-
-
-        public SearchResultTagPageViewModel(
-			HohoemaApp hohoemaApp, 
-			PageManager pageManager,
-            Services.HohoemaDialogService dialogService
-            ) 
-			: base(hohoemaApp, pageManager, useDefaultPageTitle: false)
-		{
-			_ContentFinder = HohoemaApp.ContentProvider;
-            _HohoemaDialogService = dialogService;
-
-            FailLoading = new ReactiveProperty<bool>(false)
-				.AddTo(_CompositeDisposable);
-
-			LoadedPage = new ReactiveProperty<int>(1)
-				.AddTo(_CompositeDisposable);
-
-
-			IsFavoriteTag = new ReactiveProperty<bool>(mode: ReactivePropertyMode.DistinctUntilChanged)
-				.AddTo(_CompositeDisposable);
-			CanChangeFavoriteTagState = new ReactiveProperty<bool>()
-				.AddTo(_CompositeDisposable);
-
-			AddFavoriteTagCommand = CanChangeFavoriteTagState
-				.ToReactiveCommand()
-				.AddTo(_CompositeDisposable);
-
-			RemoveFavoriteTagCommand = IsFavoriteTag
-				.ToReactiveCommand()
-				.AddTo(_CompositeDisposable);
-
-
-			IsFavoriteTag.Subscribe(async x =>
-			{
-				if (_NowProcessFavorite) { return; }
-
-				_NowProcessFavorite = true;
-
-				CanChangeFavoriteTagState.Value = false;
-				if (x)
-				{
-					if (await FavoriteTag())
-					{
-						Debug.WriteLine(SearchOption.Keyword + "のタグをお気に入り登録しました.");
-					}
-					else
-					{
-						// お気に入り登録に失敗した場合は状態を差し戻し
-						Debug.WriteLine(SearchOption.Keyword + "のタグをお気に入り登録に失敗");
-						IsFavoriteTag.Value = false;
-					}
-				}
-				else
-				{
-					if (await UnfavoriteTag())
-					{
-						Debug.WriteLine(SearchOption.Keyword + "のタグをお気に入り解除しました.");
-					}
-					else
-					{
-						// お気に入り解除に失敗した場合は状態を差し戻し
-						Debug.WriteLine(SearchOption.Keyword + "のタグをお気に入り解除に失敗");
-						IsFavoriteTag.Value = true;
-					}
-				}
-
-				CanChangeFavoriteTagState.Value = IsFavoriteTag.Value == true || HohoemaApp.FollowManager.CanMoreAddFollow(FollowItemType.Tag);
-
-
-				_NowProcessFavorite = false;
-			})
-			.AddTo(_CompositeDisposable);
-
-            SelectedSearchSort = new ReactiveProperty<SearchSortOptionListItem>(
-                VideoSearchOptionListItems.First(),
-                mode:ReactivePropertyMode.DistinctUntilChanged
-                );
-
-            SelectedSearchSort
-                .Subscribe(async _ =>
-                {
-                    var selected = SelectedSearchSort.Value;
-                    if (SearchOption.Order == selected.Order
-                        && SearchOption.Sort == selected.Sort
-                    )
-                    {
-                        return;
-                    }
-
-                    SearchOption.Order = selected.Order;
-                    SearchOption.Sort = selected.Sort;
-
-                    await ResetList();
-                })
-                .AddTo(_CompositeDisposable);
-
-            SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
-        }
+       
 
 		#region Commands
 
@@ -286,32 +244,13 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+        string ISearchWithtag.Tag => SearchOption.Keyword;
 
-        private DelegateCommand _AddFeedSourceCommand;
-        public DelegateCommand AddFeedSourceCommand
-        {
-            get
-            {
-                return _AddFeedSourceCommand
-                    ?? (_AddFeedSourceCommand = new DelegateCommand(async () =>
-                    {
-                        var targetTitle = SearchOption.Keyword;
-                        var feedGroup = await HohoemaApp.ChoiceFeedGroup(targetTitle + "をフィードに追加");
-                        (App.Current as App).PublishInAppNotification(
-                                InAppNotificationPayload.CreateRegistrationResultNotification(
-                                    feedGroup != null ? ContentManageResult.Success : ContentManageResult.Failed,
-                                    "フィード",
-                                    feedGroup.Label,
-                                    targetTitle + "(タグ)"
-                                    ));
-                    }));
-            }
-        }
-        
+        string INiconicoObject.Id => SearchOption.Keyword;
+
+        string INiconicoObject.Label => SearchOption.Keyword;
 
         #endregion
-
-        bool _NowProcessFavorite = false;
 
         protected override string ResolvePageName()
         {
@@ -327,25 +266,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             SelectedSearchTarget.Value = SearchOption?.SearchTarget ?? SearchTarget.Tag;
 
-            _NowProcessFavorite = true;
-
-			IsFavoriteTag.Value = false;
-			CanChangeFavoriteTagState.Value = false;
-
-			_NowProcessFavorite = false;
-
-            if (SearchOption == null)
-            {
-                var oldOption = viewModelState[nameof(SearchOption)] as string;
-                SearchOption = PagePayloadBase.FromParameterString<TagSearchPagePayloadContent>(oldOption);
-
-                if (SearchOption == null)
-                {
-                    throw new Exception();
-                }
-            }
-
-
             SelectedSearchSort.Value = VideoSearchOptionListItems.First(x => x.Sort == SearchOption.Sort && x.Order == SearchOption.Order);
 
 
@@ -358,6 +278,9 @@ namespace NicoPlayerHohoema.ViewModels
                     Label = SearchOption.Keyword,
                     Content = SearchOption.Keyword
                 };
+
+            FollowButtonService.SetFollowTarget(this);
+
             RaisePropertyChanged(nameof(TagSearchBookmark));
 
             
@@ -369,18 +292,6 @@ namespace NicoPlayerHohoema.ViewModels
         protected override Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			if (SearchOption == null) { return Task.CompletedTask; }
-
-			_NowProcessFavorite = true;
-			
-			// お気に入り登録されているかチェック
-            if (HohoemaApp.IsLoggedIn)
-            {
-                var favManager = HohoemaApp.FollowManager;
-                IsFavoriteTag.Value = favManager.IsFollowItem(FollowItemType.Tag, SearchOption.Keyword);
-                CanChangeFavoriteTagState.Value = IsFavoriteTag.Value == true || HohoemaApp.FollowManager.CanMoreAddFollow(FollowItemType.Tag);
-            }
-
-            _NowProcessFavorite = false;
 
 			return base.ListPageNavigatedToAsync(cancelToken, e, viewModelState);
 		}
@@ -396,7 +307,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override void PostResetList()
         {
-            SearchOptionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+            SearchOptionText = Services.Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
 
             base.PostResetList();
         }
@@ -405,7 +316,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
 		{
-			return new VideoSearchSource(SearchOption, HohoemaApp, PageManager);
+			return new VideoSearchSource(SearchOption, SearchProvider, NgSettings);
 		}
 
 		
@@ -427,20 +338,5 @@ namespace NicoPlayerHohoema.ViewModels
 		#endregion
 
 
-		private async Task<bool> FavoriteTag()
-		{
-			var favManager = HohoemaApp.FollowManager;
-			var result = await favManager.AddFollow(FollowItemType.Tag, SearchOption.Keyword, SearchOption.Keyword);
-
-			return result == Mntone.Nico2.ContentManageResult.Success || result == Mntone.Nico2.ContentManageResult.Exist;
-		}
-
-		private async Task<bool> UnfavoriteTag()
-		{
-			var favManager = HohoemaApp.FollowManager;
-			var result = await favManager.RemoveFollow(FollowItemType.Tag, SearchOption.Keyword);
-
-			return result == Mntone.Nico2.ContentManageResult.Success;
-		}
 	}
 }

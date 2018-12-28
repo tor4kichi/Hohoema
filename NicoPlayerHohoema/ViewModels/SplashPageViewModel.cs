@@ -13,6 +13,21 @@ namespace NicoPlayerHohoema.ViewModels
 {
     public class SplashPageViewModel : ViewModelBase
     {
+        public SplashPageViewModel(
+            INavigationService ns,
+            Services.PageManager pageManager
+            )
+        {
+            PageManager = pageManager;
+            NavigationService = ns;
+        }
+
+
+        Services.PageManager PageManager { get; }
+        INavigationService NavigationService { get; }
+
+
+
         private DelegateCommand _OpenLoginPageCommand;
         public DelegateCommand OpenLoginPageCommand
         {
@@ -26,15 +41,6 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        PageManager PageManager { get; }
-
-        INavigationService NavigationService { get; }
-
-        public SplashPageViewModel(PageManager pageManager, INavigationService ns)
-        {
-            PageManager = pageManager;
-            NavigationService = ns;
-        }
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {

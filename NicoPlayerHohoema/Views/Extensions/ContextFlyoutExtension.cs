@@ -90,7 +90,7 @@ namespace NicoPlayerHohoema.Views.Extensions
                     var template = flyoutTemplateSelector.SelectTemplate(dataContext, element);
                     if (template != null)
                     {
-                        FlyoutBase flyout = template.LoadContent() as FlyoutBase;
+                        var flyout = template.LoadContent() as Windows.UI.Xaml.Controls.Primitives.FlyoutBase;
 
                         if (flyout != null)
                         {

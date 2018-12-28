@@ -1,0 +1,106 @@
+﻿<ContentDialog
+    x:Class="NicoPlayerHohoema.Dialogs.NiconicoLoginDialog"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Dialogs"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    mc:Ignorable="d"
+    Title="ニコニコ動画にログイン"
+    PrimaryButtonText="ログイン"
+    SecondaryButtonText="キャンセル"
+    FullSizeDesired="True"
+    ScrollViewer.VerticalScrollBarVisibility="Auto"
+    ScrollViewer.VerticalScrollMode="Auto"
+    >
+    <Grid x:Name="LayoutRoot">
+        
+
+        <ScrollViewer 
+                      IsTabStop="False"
+                      >
+            <StackPanel x:Name="LoginFormLayout">
+
+                <TextBlock Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Text, Converter={StaticResource CollectionVisibilityConverter}}"
+                           x:Name="WarningTextBlock"
+                           TextWrapping="Wrap"
+                           Margin="0 0 0 16"
+                           Style="{StaticResource BodyTextBlockStyle}"
+                           />
+
+
+                <TextBox x:Name="MailTextBox"
+                     InputScope="EmailSmtpAddress"
+                     XYFocusDown="{x:Bind PasswordBox}"
+                     Header="メール"
+                     Margin="0 0 0 8"
+                     >
+
+                    <i:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="Loaded">
+                            <mybehavior:SetFocus TargetObject="{x:Bind MailTextBox}" />
+                        </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
+                </TextBox>
+
+                <PasswordBox x:Name="PasswordBox"
+                         XYFocusUp="{x:Bind MailTextBox}"
+                         XYFocusDown="{x:Bind IsRememberPasswordToggle}"
+                         Header="パスワード"
+                         Margin="0 0 0 8"
+                         >
+
+                </PasswordBox>
+
+                <ToggleSwitch x:Name="IsRememberPasswordToggle"
+                          Width="32"
+                          XYFocusUp="{x:Bind PasswordBox}"
+                          Header="パスワードを保存"
+                          Margin="0 0 0 8"
+                           >
+                    <ToggleSwitch.OnContent>
+                        <TextBlock Text="保存する" />
+                    </ToggleSwitch.OnContent>
+                    <ToggleSwitch.OffContent>
+                        <TextBlock Text="保存しない" />
+                    </ToggleSwitch.OffContent>
+                </ToggleSwitch>
+
+
+                <Border Height="8" />
+
+                <Border 
+                                >
+                    <HyperlinkButton Content="アカウントを新しく作成する場合はこちら" 
+                                    NavigateUri="https://account.nicovideo.jp/register"
+                                             x:Name="NewAccountLink"
+                                             XYFocusDown="{x:Bind ForgetPasswordLink}"
+                                    />
+                </Border>
+
+                <Border 
+                                >
+                    <HyperlinkButton Content="パスワードを忘れた方は再発行の手続きへ" 
+                                     NavigateUri="https://account.nicovideo.jp/password/reset"
+                                             x:Name="ForgetPasswordLink"
+                                             XYFocusUp="{x:Bind NewAccountLink}"
+                                     />
+                </Border>
+
+                <Border 
+                Margin="0 16 0 0"
+                >
+                    <HyperlinkButton 
+                             Content="Hohoemaのプライバシーポリシー"
+                             NavigateUri="https://github.com/tor4kichi/Hohoema/wiki/Privacy-policy"
+                       >
+                    </HyperlinkButton>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</ContentDialog>

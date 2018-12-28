@@ -10,8 +10,7 @@ namespace NicoPlayerHohoema.Models
 	public abstract class FollowInfoGroupWithFollowData : FollowInfoGroupBaseTemplate<FollowData>
 	{
 
-		public FollowInfoGroupWithFollowData(HohoemaApp hohoemaApp)
-			: base(hohoemaApp)
+		public FollowInfoGroupWithFollowData()
 		{
 		}
 		protected override FollowItemInfo ConvertToFollowInfo(FollowData source)

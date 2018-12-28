@@ -1,4 +1,4 @@
-﻿using NicoPlayerHohoema.Helpers;
+﻿using NicoPlayerHohoema.Models.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -62,9 +62,6 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-
-        public HohoemaApp HohoemaApp { get; private set; }
-
         public event FeedGroupAddedEventHanlder FeedGroupAdded;
         public event FeedGroupRemovedEventHanlder FeedGroupRemoved;
         public event EventHandler<FeedUpdateEventArgs> FeedUpdated;
@@ -74,9 +71,8 @@ namespace NicoPlayerHohoema.Models
 
 
 
-        public FeedManager(HohoemaApp hohoemaApp)
+        public FeedManager()
 		{
-			HohoemaApp = hohoemaApp;
 		}
 
         public List<Database.Feed> GetAllFeedGroup()
@@ -84,26 +80,14 @@ namespace NicoPlayerHohoema.Models
             return Database.FeedDb.GetAll();
         }
 
-		public Task<StorageFolder> GetFeedGroupFolder()
+		public async Task<StorageFolder> GetFeedGroupFolder()
 		{
-			return HohoemaApp.GetFeedSettingsFolder();
-		}
+			return await ApplicationData.Current.LocalFolder.GetFolderAsync("feed");
+        }
 
         protected override Task OnInitializeAsync(CancellationToken token)
         {
-            return HohoemaApp.UIDispatcher.RunIdleAsync(async (_) =>
-            {
-                // フィードのJSONファイルからLiteDBへの移行処理
-                try
-                {
-                    await MigrateBefore_0_11();
-                }
-                catch
-                {
-                    // 正常動作に影響を与えぬよう例外を握りつぶす
-                }
-            })
-            .AsTask();
+            return Task.CompletedTask;
         }
 
         /// <summary>
@@ -219,120 +203,7 @@ namespace NicoPlayerHohoema.Models
             Database.FeedDb.AddOrUpdate(feedGroup);
         }
 
-        public async Task<List<Tuple<Database.NicoVideo, Database.Bookmark>>> RefreshFeedItemsAsync(Database.Feed feedGroup)
-        {
-            var items = feedGroup.Sources;
-
-            List<Tuple<Database.NicoVideo, Database.Bookmark>> itemsContainer = new List<Tuple<Database.NicoVideo, Database.Bookmark>>();
-            foreach (var source in items)
-            {
-                var feedItems = await GetItems(source);
-                itemsContainer.AddRange(feedItems.Select(x => new Tuple<Database.NicoVideo, Database.Bookmark>(x, source)));
-            }
-
-            feedGroup.UpdateAt = DateTime.Now;
-
-            UpdateFeedGroup(feedGroup);
-
-            var finalItemsList = itemsContainer
-                .OrderByDescending(x => x.Item1.PostedAt)
-                .ToList();
-
-            // フィードの動画一覧を更新
-            Database.FeedVideoDb.Upsert(feedGroup.Id, finalItemsList.Select(x => x.Item1.RawVideoId));
-
-            FeedUpdated?.Invoke(this, new FeedUpdateEventArgs()
-            {
-                Feed = feedGroup,
-                Items = finalItemsList
-            });
-
-            return finalItemsList;
-        }
-
         
-        
-        private async Task<IEnumerable<Database.NicoVideo>> GetItems(Database.Bookmark source)
-        {
-            var contentProvider = HohoemaApp.ContentProvider;
-            switch (source.BookmarkType)
-            {
-                case Database.BookmarkType.User:
-                    {
-                        var items = await contentProvider.GetUserVideos(uint.Parse(source.Content), 1);
-                        return items.Items.Select(x =>
-                        {
-                            var nicoVideo = Database.NicoVideoDb.Get(x.VideoId);
-                            nicoVideo.Title = x.Title;
-                            nicoVideo.ThumbnailUrl= x.ThumbnailUrl.OriginalString;
-                            nicoVideo.PostedAt = x.SubmitTime;
-                            nicoVideo.Length = x.Length;
-                            return nicoVideo;
-                        }
-                        );
-                    }
-                case Database.BookmarkType.Mylist:
-                    {
-                        var items = await contentProvider.GetMylistGroupVideo(source.Content, 0, 30);
-
-                        return items.MylistVideoInfoItems.Select(x =>
-                        {
-                            var nicoVideo = Database.NicoVideoDb.Get(x.Video.Id);
-                            nicoVideo.Title = x.Video.Title;
-                            nicoVideo.ThumbnailUrl = x.Video.ThumbnailUrl.OriginalString;
-                            nicoVideo.PostedAt = x.Video.FirstRetrieve;
-                            nicoVideo.Length = x.Video.Length;
-                            nicoVideo.IsDeleted = x.Video.IsDeleted;
-                            nicoVideo.DescriptionWithHtml = x.Video.Description;
-                            nicoVideo.MylistCount = (int)x.Video.MylistCount;
-                            nicoVideo.CommentCount = (int)x.Thread.GetCommentCount();
-                            nicoVideo.ViewCount = (int)x.Video.ViewCount;
-                            return nicoVideo;
-                        });
-                    }
-                case Database.BookmarkType.SearchWithTag:
-                    {
-                        var items = await contentProvider.GetTagSearch(source.Content, 0, 30);
-
-                        return items.VideoInfoItems.Select(x =>
-                        {
-                            var nicoVideo = Database.NicoVideoDb.Get(x.Video.Id);
-                            nicoVideo.Title = x.Video.Title;
-                            nicoVideo.ThumbnailUrl = x.Video.ThumbnailUrl.OriginalString;
-                            nicoVideo.PostedAt = x.Video.FirstRetrieve;
-                            nicoVideo.Length = x.Video.Length;
-                            nicoVideo.IsDeleted = x.Video.IsDeleted;
-                            nicoVideo.DescriptionWithHtml = x.Video.Description;
-                            nicoVideo.MylistCount = (int)x.Video.MylistCount;
-                            nicoVideo.CommentCount = (int)x.Thread.GetCommentCount();
-                            nicoVideo.ViewCount = (int)x.Video.ViewCount;
-                            return nicoVideo;
-                        });
-                    }
-                case Database.BookmarkType.SearchWithKeyword:
-                    {
-                        var items = await contentProvider.GetKeywordSearch(source.Content, 0, 30);
-
-                        return items.VideoInfoItems.Select(x =>
-                        {
-                            var nicoVideo = Database.NicoVideoDb.Get(x.Video.Id);
-                            nicoVideo.Title = x.Video.Title;
-                            nicoVideo.ThumbnailUrl = x.Video.ThumbnailUrl.OriginalString;
-                            nicoVideo.PostedAt = x.Video.FirstRetrieve;
-                            nicoVideo.Length = x.Video.Length;
-                            nicoVideo.IsDeleted = x.Video.IsDeleted;
-                            nicoVideo.DescriptionWithHtml = x.Video.Description;
-                            nicoVideo.MylistCount = (int)x.Video.MylistCount;
-                            nicoVideo.CommentCount = (int)x.Thread.GetCommentCount();
-                            nicoVideo.ViewCount = (int)x.Video.ViewCount;
-                            return nicoVideo;
-                        });
-                    }
-                default:
-                    return null;
-            }
-        }
-
 
 
 

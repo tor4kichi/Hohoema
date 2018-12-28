@@ -19,17 +19,24 @@ using Windows.UI.Core;
 using Windows.ApplicationModel.Core;
 using Windows.Foundation.Metadata;
 using Prism.Windows.Navigation;
+using System.Reactive.Concurrency;
+using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public class PlayerWithPageContainerViewModel : BindableBase
     {
-        public HohoemaPlaylist HohoemaPlaylist { get; private set; }
+        public PlayerWithPageContainerViewModel(
+            PlayerViewManager playerViewManager
+            )
+        {
+            PlayerViewManager = playerViewManager;
 
-        public ReadOnlyReactiveProperty<bool> IsFillFloatContent { get; private set; }
-        public ReactiveProperty<bool> IsVisibleFloatContent { get; private set; }
 
-        public ReactiveProperty<bool> IsContentDisplayFloating { get; private set; }
+        }
+
+        public PlayerViewManager PlayerViewManager { get; }
 
         private Dictionary<string, object> viewModelState = new Dictionary<string, object>();
 
@@ -42,146 +49,7 @@ namespace NicoPlayerHohoema.ViewModels
         /// してしまうためです。（タブレット端末で発生、PCだと発生確認されず）
         /// この問題を回避するためにFlyoutが閉じられた後にプレイヤーリサイズが走るように遅延を挟んでいます。
         /// </summary>
-        public ReadOnlyReactiveProperty<bool> IsFillFloatContent_DelayedRead { get; private set; }
-
-
-        public INavigationService NavigationService { get; private set; }
-
-        public void SetNavigationService(INavigationService ns)
-        {
-            NavigationService = ns;
-        }
-
-        public PlayerWithPageContainerViewModel(HohoemaApp hohoemaApp, HohoemaPlaylist playlist)
-        {
-            HohoemaPlaylist = playlist;
-
-            IsFillFloatContent = HohoemaPlaylist
-                .ObserveProperty(x => x.IsPlayerFloatingModeEnable)
-                .Select(x => !x)
-                .ToReadOnlyReactiveProperty();
-
-            IsFillFloatContent_DelayedRead = IsFillFloatContent
-                .Delay(TimeSpan.FromMilliseconds(300))
-                .ToReadOnlyReactiveProperty();
-
-
-            IsVisibleFloatContent = HohoemaPlaylist.ObserveProperty(x => x.IsDisplayMainViewPlayer)
-                .ToReactiveProperty(mode: ReactivePropertyMode.DistinctUntilChanged);
-
-            IsContentDisplayFloating = Observable.CombineLatest(
-                IsFillFloatContent.Select(x => !x),
-                IsVisibleFloatContent
-                )
-                .Select(x => x.All(y => y))
-                .ToReactiveProperty();
-
-
-            HohoemaPlaylist.OpenPlaylistItem += HohoemaPlaylist_OpenPlaylistItem;
-
-            IsVisibleFloatContent
-                .Where(x => !x)
-                .Subscribe(x =>
-            {
-                ClosePlayer();
-            });
-
-            if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
-            {
-                Observable.Merge(
-                    IsVisibleFloatContent.Where(x => !x),
-                    IsContentDisplayFloating.Where(x => x)
-                    )
-                    .Subscribe(async x =>
-                    {
-                        var view = ApplicationView.GetForCurrentView();
-                        if (view.IsViewModeSupported(ApplicationViewMode.CompactOverlay))
-                        {
-                            var result = await view.TryEnterViewModeAsync(ApplicationViewMode.Default);
-                        }
-                    });
-            }
-        }
-
-        private async void HohoemaPlaylist_OpenPlaylistItem(IPlayableList playlist, PlaylistItem item)
-        {
-            await HohoemaApp.UIDispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
-            {
-                ShowPlayer(item);
-            });
-        }
-
-        private bool ShowPlayer(PlaylistItem item)
-        {
-            string pageType = null;
-            string parameter = null;
-            switch (item.Type)
-            {
-                case PlaylistItemType.Video:
-                    pageType = nameof(Views.VideoPlayerPage);
-                    parameter = new VideoPlayPayload()
-                    {
-                        VideoId = item.ContentId
-                    }
-                    .ToParameterString();
-                    break;
-                case PlaylistItemType.Live:
-                    pageType = nameof(Views.LivePlayerPage);
-                    parameter = new LiveVideoPagePayload(item.ContentId)
-                    {
-                        LiveTitle = item.Title,
-                    }
-                    .ToParameterString();
-                    break;
-                default:
-                    break;
-            }
-
-            return NavigationService.Navigate(pageType, parameter);
-        }
-
-        private void ClosePlayer()
-        {
-            NavigationService.Navigate("Blank", null);
-        }
-
-        private DelegateCommand _PlayerFillDisplayCommand;
-        public DelegateCommand TogglePlayerFloatDisplayCommand
-        {
-            get
-            {
-                return _PlayerFillDisplayCommand
-                    ?? (_PlayerFillDisplayCommand = new DelegateCommand(() =>
-                    {
-                        // プレイヤー表示中だけ切り替えを受け付け
-                        if (!HohoemaPlaylist.IsDisplayMainViewPlayer) { return; }
-
-                        // メインウィンドウでの表示状態を「ウィンドウ全体」⇔「小窓表示」と切り替える
-                        if (HohoemaPlaylist.PlayerDisplayType == PlayerDisplayType.PrimaryView)
-                        {
-                            HohoemaPlaylist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
-                        }
-                        else if (HohoemaPlaylist.PlayerDisplayType == PlayerDisplayType.PrimaryWithSmall)
-                        {
-                            HohoemaPlaylist.PlayerDisplayType = PlayerDisplayType.PrimaryView;
-                        }
-                    }));
-            }
-        }
-
-
-        private DelegateCommand _ClosePlayerCommand;
-        public DelegateCommand ClosePlayerCommand
-        {
-            get
-            {
-                return _ClosePlayerCommand
-                    ?? (_ClosePlayerCommand = new DelegateCommand(() =>
-                    {
-                        HohoemaPlaylist.IsDisplayMainViewPlayer = false;
-                    }));
-            }
-        }
+        //public ReadOnlyReactiveProperty<bool> IsPlayerSmallWindowModeEnabled_DelayedRead { get; private set; }
     }
 
 }

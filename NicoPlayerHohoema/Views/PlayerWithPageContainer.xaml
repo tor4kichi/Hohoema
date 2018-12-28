@@ -14,8 +14,6 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:templateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
-    xmlns:mvvm="using:Prism.Windows.Mvvm"
-    mvvm:ViewModelLocator.AutoWireViewModel="True"
     IsTabStop="False"
     mc:Ignorable="d"
     d:DesignHeight="300"
@@ -23,82 +21,184 @@
 
     <ContentControl.Template>
         <ControlTemplate>
-            <Grid>
+            <Grid x:Name="RootLayout">
+
+
                 <i:Interaction.Behaviors>
-                    <mybehavior:UINavigationTrigger Kind="View" 
+                    
+                    <!-- フィル表示中に小窓モードへ -->
+                    <mybehavior:UINavigationTrigger Kind="Context1" 
+                                                        x:Name="PlayerDisplayModeSmallToFillTrigger"
+                                                        IsEnabled="False"
                                                     >
-                        <core:InvokeCommandAction Command="{Binding TogglePlayerFloatDisplayCommand}" />
+                        <core:ChangePropertyAction TargetObject="{Binding PlayerViewManager}" PropertyName="IsPlayerSmallWindowModeEnabled" Value="True" />
                     </mybehavior:UINavigationTrigger>
                 </i:Interaction.Behaviors>
+                
+                <Grid x:Name="ContentLayout">
+                    <toolkit:DockPanel>
 
-                <controls:FloatContentContainer x:Name="FloatContentContainer"
-                                                IsFillFloatContent="{Binding IsFillFloatContent_DelayedRead.Value}"
-                                                FloatContentVisiblity="{Binding IsVisibleFloatContent.Value, Converter={StaticResource BooleanToVisibility}}"
-                                                IsTabStop="False"
-                                                >
-                    <controls:FloatContentContainer.Content>
-                        <Grid>
-                            <ContentPresenter />
-                        </Grid>
-                    </controls:FloatContentContainer.Content>
+                        <Border toolkit:DockPanel.Dock="Top"
+                                x:Name="MobilePlayerTopMargin"
+                                Height="{Binding ElementName=PlayerFrame, Path=ActualHeight, Mode=OneWay}"
+                                Visibility="Collapsed"
+                                />
 
-                    <controls:FloatContentContainer.FloatContent>
-                        <Grid>
-                            <Frame x:Name="PlayerFrame"
-                                            />
+                        <ContentPresenter />
+                    </toolkit:DockPanel>
+                </Grid>
 
-                            
-                            <Grid x:Name="FillPlayerLayout" Visibility="Collapsed" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                                
-                            </Grid>
 
-                            <Grid x:Name="FloatPlayerLayout" Visibility="Collapsed">
+                <Grid x:Name="PlayerLayout" 
+                      Visibility="Collapsed"
+                      >
+                    <Frame x:Name="PlayerFrame"
+                           VerticalContentAlignment="Top"
+                                            >
+                        <Frame.ContentTransitions>
+                            <TransitionCollection>
+                                <NavigationThemeTransition>
+                                    <NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                                        <DrillInNavigationTransitionInfo />
+                                    </NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                                </NavigationThemeTransition>
+                            </TransitionCollection>
+                        </Frame.ContentTransitions>
+                    </Frame>
 
-                                
-                                
-                                <Border HorizontalAlignment="Stretch"
-                                        VerticalAlignment="Stretch"
-                                        Background="Transparent"
+
+                    <Grid x:Name="FillPlayerLayout" Visibility="Collapsed" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+
+                    </Grid>
+
+                    <Grid x:Name="FloatPlayerLayout" Visibility="Collapsed">
+                        <Button Background="Transparent"
+                                HorizontalAlignment="Stretch"
+                                VerticalAlignment="Stretch"
+                                HorizontalContentAlignment="Stretch"
+                                VerticalContentAlignment="Stretch"
+                                >
+                            <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="Click">
+                                    <core:ChangePropertyAction TargetObject="{Binding PlayerViewManager}" PropertyName="IsPlayerSmallWindowModeEnabled" Value="False" />
+                                </core:EventTriggerBehavior>
+                            </i:Interaction.Behaviors>
+
+                            <Button.ContextFlyout>
+                                <MenuFlyout >
+                                    <MenuFlyoutItem Text="閉じる" Command="{Binding PlayerViewManager.ClosePlayerCommand}" />
+                                </MenuFlyout>
+                            </Button.ContextFlyout>
+                            <Border />
+                        </Button>
+                    </Grid>
+
+
+                    
+                </Grid>
+
+                <toolkit:DockPanel Height="{StaticResource TitleBarDummyHeight}"
+                        VerticalAlignment="Top"
                                         >
 
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <core:InvokeCommandAction Command="{Binding TogglePlayerFloatDisplayCommand}" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
+                    <Border x:Name="BackButtonLayout" toolkit:DockPanel.Dock="Left"
+                                Width="48"
+                                >
 
-                                    <Border.ContextFlyout>
-                                        <MenuFlyout >
-                                            <MenuFlyoutItem Text="閉じる" Command="{Binding ClosePlayerCommand}"/>
-                                        </MenuFlyout>
-                                    </Border.ContextFlyout>
-                                </Border>
-                            </Grid>
-                        </Grid>
-                    </controls:FloatContentContainer.FloatContent>
-                </controls:FloatContentContainer>
+                    </Border>
 
+
+                    <Border x:Name="DraggableContent" IsTapEnabled="True" Background="Transparent"
+                            >
+
+                    </Border>
+
+
+
+                </toolkit:DockPanel>
 
                 <VisualStateManager.VisualStateGroups>
+
+                    <!-- プレイヤーの表示状態 -->
                     <VisualStateGroup>
-                        <VisualState x:Name="Fill">
+
+                        <!-- プレイヤー非表示（デフォルト状態） -->
+                        <VisualState x:Name="HiddenPlayer">
                             <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding ElementName=FloatContentContainer, Path=IsFillFloatContent}" />
+                                <StateTrigger IsActive="{Binding PlayerViewManager.NowPlaying, Converter={StaticResource BoolNegation}}" />
                             </VisualState.StateTriggers>
+                        </VisualState>
+
+                        
+                        <!-- ここから下はプレイヤー表示中の表示分岐 -->
+
+                        
+                        <!-- SecondaryViewで表示中 -->
+                        <VisualState x:Name="PlayingWithSecondaryView">
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding PlayerViewManager.IsPlayingWithSecondaryView}" />
+                            </VisualState.StateTriggers>
+                        </VisualState>
+
+
+                        <!-- PrimaryViewでウィンドウ全体で表示中 -->
+                        <VisualState x:Name="PlayingInPrimaryView">
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding PlayerViewManager.IsPlayerSmallWindowModeEnabled, Converter={StaticResource BoolNegation}}" />
+                            </VisualState.StateTriggers>
+
                             <VisualState.Setters>
-                                <Setter Target="FillPlayerLayout.Visibility" Value="Visible" />
+                                <Setter Target="PlayerLayout.Visibility" Value="Visible" />
+                                <Setter Target="ContentLayout.Visibility" Value="Collapsed" />
+
+                                <Setter Target="BackButtonLayout.Visibility" Value="Collapsed" />
+
+                                <Setter Target="PlayerDisplayModeSmallToFillTrigger.IsEnabled" Value="True" />
                             </VisualState.Setters>
                         </VisualState>
+
                         
-                        <VisualState x:Name="Floating">
+                        <!-- デスクトップサイズで小窓表示中 -->
+                        <VisualState x:Name="DisplayIntoDesktopMenu">
                             <VisualState.StateTriggers>
-                                <StateTrigger IsActive="True" />
+                                <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
                             </VisualState.StateTriggers>
+
                             <VisualState.Setters>
+                                <Setter Target="PlayerLayout.Visibility" Value="Visible" />
                                 <Setter Target="FloatPlayerLayout.Visibility" Value="Visible" />
+
+
+                                <Setter Target="PlayerLayout.Width" Value="240" />
+                                <Setter Target="PlayerLayout.Height" Value="156" />
+                                <Setter Target="PlayerLayout.Margin" Value="0 0 8 8" />
+                                <Setter Target="PlayerLayout.VerticalAlignment" Value="Bottom" />
+                                <Setter Target="PlayerLayout.HorizontalAlignment" Value="Right" />
+
                             </VisualState.Setters>
                         </VisualState>
+
                         
+                        <!-- モバイルサイズで小窓表示中 -->
+                        <VisualState x:Name="DisplayIntoMobileTopSide">
+                            <VisualState.StateTriggers>
+                                <AdaptiveTrigger MinWindowWidth="0" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="PlayerLayout.Visibility" Value="Visible" />
+                                <Setter Target="PlayerLayout.Height" Value="240" />
+                                <Setter Target="FloatPlayerLayout.Visibility" Value="Visible" />
+
+                                <Setter Target="MobilePlayerTopMargin.Visibility" Value="Visible" />
+                                <Setter Target="MobilePlayerTopMargin.Height" Value="240" />
+
+                                <Setter Target="PlayerLayout.VerticalAlignment" Value="Top" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+
+
                     </VisualStateGroup>
                 </VisualStateManager.VisualStateGroups>
 

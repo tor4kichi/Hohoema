@@ -7,13 +7,15 @@
     xmlns:model="using:NicoPlayerHohoema.Models"
     xmlns:conv="using:WinRTXamlToolkit.Converters"
     xmlns:myconv="using:NicoPlayerHohoema.Views.Converters"
+    xmlns:templateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
     xmlns:view="using:NicoPlayerHohoema.Views"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:uwpconv="using:Microsoft.Toolkit.Uwp.UI.Converters"
     xmlns:logicalModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.LogicalModifiers"
     xmlns:compareModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.ComparableModifiers"
     xmlns:system="using:System"
-    xmlns:subscriptionConverters="using:NicoPlayerHohoema.Views.Subscriptions">
+    xmlns:subscriptionConverters="using:NicoPlayerHohoema.Views.Subscriptions"
+    xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts">
 
     <prism:PrismUnityApplication.Resources>
        
@@ -30,17 +32,42 @@
                 <ResourceDictionary Source="Views/Controls/MasterDetailsView/MasterDetailsView.xaml"/>
                 <ResourceDictionary Source="Views/Controls/TransientContainer/TransientContainer.xaml"/>
 
-
-                <ResourceDictionary Source="Commands/Commands.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
+            <Color x:Key="HohoemaThemeColor" >#F8B400</Color>
+            <SolidColorBrush x:Key="HohoemaThemeBackgroundBrush"
+                             Color="{StaticResource HohoemaThemeColor}"
+                             >
+            </SolidColorBrush>
+            <SolidColorBrush x:Key="HohoemaPlayerBackgroundBrush"
+                    Color="{ThemeResource SystemAltMediumColor}" 
+                         />
+
             <x:Double x:Key="DesktopWindowWidthBreakPoint">800</x:Double>
+
             
+            <uwpconv:BoolNegationConverter x:Key="BoolNegation" />
             <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
-            <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityInverted"
-                                           IsInversed="True"
-                                           />
+            <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityInverted" IsInversed="True" />
             <myconv:InvertVisibilityConverter x:Key="InvertVisibility" />
+
+            <uwpconv:EmptyObjectToObjectConverter x:Key="NotNullToBoolean">
+                <uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
+                    <x:Boolean>True</x:Boolean>
+                </uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
+                <uwpconv:EmptyObjectToObjectConverter.EmptyValue>
+                    <x:Boolean>False</x:Boolean>
+                </uwpconv:EmptyObjectToObjectConverter.EmptyValue>
+            </uwpconv:EmptyObjectToObjectConverter>
+
+            <uwpconv:EmptyObjectToObjectConverter x:Key="NullToBoolean">
+                <uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
+                    <x:Boolean>False</x:Boolean>
+                </uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
+                <uwpconv:EmptyObjectToObjectConverter.EmptyValue>
+                    <x:Boolean>True</x:Boolean>
+                </uwpconv:EmptyObjectToObjectConverter.EmptyValue>
+            </uwpconv:EmptyObjectToObjectConverter>
 
             <uwpconv:EmptyObjectToObjectConverter x:Key="NotNullToVisibility">
                 <uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
@@ -50,7 +77,6 @@
                     <Visibility>Collapsed</Visibility>
                 </uwpconv:EmptyObjectToObjectConverter.EmptyValue>
             </uwpconv:EmptyObjectToObjectConverter>
-
             <uwpconv:EmptyObjectToObjectConverter x:Key="NullToVisibility">
                 <uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
                     <Visibility>Collapsed</Visibility>
@@ -59,8 +85,6 @@
                     <Visibility>Visible</Visibility>
                 </uwpconv:EmptyObjectToObjectConverter.EmptyValue>
             </uwpconv:EmptyObjectToObjectConverter>
-
-
             <uwpconv:CollectionVisibilityConverter x:Key="CollectionVisibilityConverter" />
             <uwpconv:EmptyCollectionToObjectConverter x:Key="EmptyCollectionVisibilityConverter">
                 <uwpconv:EmptyCollectionToObjectConverter.EmptyValue>
@@ -70,7 +94,6 @@
                     <Visibility>Collapsed</Visibility>
                 </uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
             </uwpconv:EmptyCollectionToObjectConverter>
-
             <uwpconv:EmptyCollectionToObjectConverter x:Key="EmptyCollectionToBooleanConverter"
                                                       
                                                       >
@@ -81,79 +104,20 @@
                     <x:Boolean>False</x:Boolean>
                 </uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
             </uwpconv:EmptyCollectionToObjectConverter>
+            <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
 
             <conv:ColorToBrushConverter x:Key="ColorToBrush" />
-            <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
             
-            <uwpconv:BoolToObjectConverter x:Key="BooleanInverted" >
-                <uwpconv:BoolToObjectConverter.TrueValue>
-                    <x:Boolean>False</x:Boolean>
-                </uwpconv:BoolToObjectConverter.TrueValue>
-                <uwpconv:BoolToObjectConverter.FalseValue>
-                    <x:Boolean>True</x:Boolean>
-                </uwpconv:BoolToObjectConverter.FalseValue>
-            </uwpconv:BoolToObjectConverter>
-
             <myconv:SoundVolumeConveter x:Key="ToUserFriendlySoubleVolume" />
-
-            <myconv:CacheStateToColorBrushConverter x:Key="CacheStateToColorBrush" />
-
             <myconv:VideoPositionToTimeConverter x:Key="VPosToTime" />
             <myconv:ToUserFriendlyNumber x:Key="ToUserFriendlyNumber" />
             <myconv:RelationalDateTimeConverter x:Key="ToRelationalTime" />
-
             <myconv:TransparentColorConverter x:Key="ToTransparentColor" />
             <myconv:SwipeSeekValueToTimeSpan x:Key="SwipeSeekValueToTimeSpan" />
 
             <myconv:DateTimeToStringConverter x:Key="DateTimeToString" />
             <myconv:ExpiredDateTimeToStringConverter x:Key="ExpiredDateTimeToString" />
-
-            <myconv:NGCommentScoreTypeTemplateSelector x:Key="NGCommentScoreTypeTemplateSelector">
-                <myconv:NGCommentScoreTypeTemplateSelector.NoneTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="なし" />
-                    </DataTemplate>
-                </myconv:NGCommentScoreTypeTemplateSelector.NoneTemplate>
-
-                <myconv:NGCommentScoreTypeTemplateSelector.LowTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="弱" />
-                    </DataTemplate>
-                </myconv:NGCommentScoreTypeTemplateSelector.LowTemplate>
-
-                <myconv:NGCommentScoreTypeTemplateSelector.MiddleTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="中" />
-                    </DataTemplate>
-                </myconv:NGCommentScoreTypeTemplateSelector.MiddleTemplate>
-
-                <myconv:NGCommentScoreTypeTemplateSelector.HighTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="強" />
-                    </DataTemplate>
-                </myconv:NGCommentScoreTypeTemplateSelector.HighTemplate>
-
-                <myconv:NGCommentScoreTypeTemplateSelector.VeryHighTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="さらに強" />
-                    </DataTemplate>
-                </myconv:NGCommentScoreTypeTemplateSelector.VeryHighTemplate>
-
-                <myconv:NGCommentScoreTypeTemplateSelector.SuperVeryHighTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="極めて強" />
-                    </DataTemplate>
-                </myconv:NGCommentScoreTypeTemplateSelector.SuperVeryHighTemplate>
-
-                <myconv:NGCommentScoreTypeTemplateSelector.UltraSuperVeryHighTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="最大" />
-                    </DataTemplate>
-                </myconv:NGCommentScoreTypeTemplateSelector.UltraSuperVeryHighTemplate>
-
-            </myconv:NGCommentScoreTypeTemplateSelector>
-
-
+            <myconv:ToKMGTPEZYConverter x:Key="ToKMGTPEZY" />
 
             <uwpconv:BoolToObjectConverter x:Name="BoolToAvairableOpacityConverter">
                 <uwpconv:BoolToObjectConverter.TrueValue>
@@ -165,10 +129,10 @@
             </uwpconv:BoolToObjectConverter>
 
             <uwpconv:ResourceNameToResourceStringConverter x:Key="ToLocalText" />
+            
+            <myconv:CacheStateToColorBrushConverter x:Key="CacheStateToColorBrush" />
 
-            <myconv:PageTypeToMaterialIconKind x:Key="PageTypeToMaterialIconKind" />
 
-            <myconv:ToKMGTPEZYConverter x:Key="ToKMGTPEZY" />
 
             <!-- Logical Modifier-->
             <logicalModifier:AndModifier x:Key="AndModifier" />
@@ -181,12 +145,7 @@
             <compareModifier:GreaterThanModifier x:Key="GreaterThanModifier" />
             <compareModifier:LessThanEqualToModifier x:Key="LessThanEqualToModifier" />
             <compareModifier:LessThanModifier x:Key="LessThanModifier" />
-
-
             
-            <controls:VideoListItemFlyout x:Key="VideoListItemFlyout" />
-            <controls:LiveListItemFlyout x:Key="LiveListItemFlyout" />
-
             
             <!-- Subscriptions -->
             <subscriptionConverters:SubscriptionSourceConverter x:Key="SubscriptionSourceConverter" />
@@ -240,17 +199,6 @@
             </DataTemplate>
 
 
-            <Color x:Key="HohoemaThemeColor" >#F8B400</Color>
-
-            <SolidColorBrush x:Key="HohoemaThemeBackgroundBrush"
-                             Color="{StaticResource HohoemaThemeColor}"
-                             >
-            </SolidColorBrush>
-
-            <SolidColorBrush x:Key="HohoemaPlayerBackgroundBrush"
-                    Color="{ThemeResource SystemAltMediumColor}" 
-                         />
-
             <Style TargetType="ListViewItem" x:Key="VideoListViewItemStyle">
                 <Setter Property="HorizontalContentAlignment"
                                 Value="Stretch" 
@@ -266,7 +214,7 @@
 
 
             <DataTemplate x:Key="VideoListItemFlyoutTemplate">
-                <controls:VideoListItemFlyout />
+                <flyouts:VideoItemFlyout />
             </DataTemplate>
 
             <ResourceDictionary.ThemeDictionaries>

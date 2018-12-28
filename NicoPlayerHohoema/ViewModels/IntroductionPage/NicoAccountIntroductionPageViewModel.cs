@@ -16,20 +16,24 @@ namespace NicoPlayerHohoema.ViewModels
 {
     public sealed class NicoAccountIntroductionPageViewModel : ViewModelBase
     {
-        private HohoemaApp _HohoemaApp;
+        public NicoAccountIntroductionPageViewModel(
+            NiconicoSession niconicoSession,
+            Commands.GoNextIntroductionPageCommand goNextIntroduction
+            )
+        {
+            NiconicoSession = niconicoSession;
+            GoNextIntroduction = goNextIntroduction;
+            IsLoggedIn = NiconicoSession.ObserveProperty(x => x.IsLoggedIn)
+                .ToReadOnlyReactiveProperty();
+        }
 
         public ReadOnlyReactiveProperty<bool> IsLoggedIn { get; }
-
+        public NiconicoSession NiconicoSession { get; }
+        public ICommand GoNextIntroduction { get; }
 
         CompositeDisposable disposables;
 
-        public NicoAccountIntroductionPageViewModel(HohoemaApp hohoema)
-        {
-            _HohoemaApp = hohoema;
-
-            IsLoggedIn = _HohoemaApp.ObserveProperty(x => x.IsLoggedIn)
-                .ToReadOnlyReactiveProperty();
-        }
+        
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
@@ -41,14 +45,14 @@ namespace NicoPlayerHohoema.ViewModels
                 .Delay(TimeSpan.FromSeconds(2.5)) /* ここでログイン確認後の遷移前タメ時間を調整 */
                 .Subscribe(_ => 
                 {
-                    var goNextCommand = new Commands.GoNextIntroductionPageCommand() as ICommand;
-                    if (goNextCommand != null)
-                    {
-                        goNextCommand.Execute(null);
-                    }
+                    GoNextIntroduction.Execute(null);
                 });
 
-            _HohoemaApp.SignInWithPrimaryAccount().ConfigureAwait(false);
+            try
+            {
+                _ = NiconicoSession.SignInWithPrimaryAccount();
+            }
+            catch { }
 
             base.OnNavigatedTo(e, viewModelState);
         }

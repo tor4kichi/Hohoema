@@ -39,7 +39,7 @@ namespace NicoPlayerHohoema.Models.Live.Niwavided
 
         MessageWebSocket _CommentSessionWebSocket { get; }
         DataWriter _DataWriter;
-        Helpers.AsyncLock _CommentSessionLock = new Helpers.AsyncLock();
+        Models.Helpers.AsyncLock _CommentSessionLock = new Models.Helpers.AsyncLock();
 
         public CommentSessionInfo CommentSessionInfo { get; private set; }
         Mntone.Nico2.Videos.Comment.NGMS_Thread_Response _Thread;

@@ -18,27 +18,15 @@ namespace NicoPlayerHohoema.ViewModels
 {
     public sealed class SubscriptionPageViewModel : HohoemaViewModelBase
     {
-
-        public SubscriptionManager SubscriptionManager { get; }
-
-        public WatchItLater WatchItLater { get; }
-
-        public ReactiveProperty<Subscription> SelectedSubscription { get; }
-
-        public AsyncReactiveCommand RefreshSubscriptions { get; }
-
-
-        // 前回削除された購読IDを保持する
-        // これはListViewの入れ替えがNotifyCollectionChangedAction.Move ではなく
-        // Add /Removeで行われることに対するワークアラウンドです
-        Guid? _prevRemovedSubscriptionId;
-
-        public SubscriptionPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
-            : base(hohoemaApp, pageManager)
+        public SubscriptionPageViewModel(
+            SubscriptionManager subscriptionManager,
+            Services.PageManager pageManager,
+            Services.WatchItLater watchItLater
+            )
+            : base(pageManager)
         {
-            SubscriptionManager = SubscriptionManager.Instance;
-
-            WatchItLater = WatchItLater.Instance;
+            SubscriptionManager = subscriptionManager;
+            WatchItLater = watchItLater;
 
             SelectedSubscription = new ReactiveProperty<Subscription>()
                 .AddTo(_CompositeDisposable);
@@ -62,6 +50,22 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(_CompositeDisposable);
         }
 
+
+        public Services.WatchItLater WatchItLater { get; }
+        public SubscriptionManager SubscriptionManager { get; }
+
+
+        public ReactiveProperty<Subscription> SelectedSubscription { get; }
+
+        public AsyncReactiveCommand RefreshSubscriptions { get; }
+
+
+        // 前回削除された購読IDを保持する
+        // これはListViewの入れ替えがNotifyCollectionChangedAction.Move ではなく
+        // Add /Removeで行われることに対するワークアラウンドです
+        Guid? _prevRemovedSubscriptionId;
+
+        
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
@@ -98,5 +102,6 @@ namespace NicoPlayerHohoema.ViewModels
             base.OnNavigatingFrom(e, viewModelState, suspending);
         }
     }
+
 
 }

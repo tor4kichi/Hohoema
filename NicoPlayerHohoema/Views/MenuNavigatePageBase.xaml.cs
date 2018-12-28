@@ -1,5 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.UI.Animations;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using Prism.Events;
 using Prism.Windows.AppModel;
 using Prism.Windows.Navigation;
@@ -26,30 +26,12 @@ namespace NicoPlayerHohoema.Views
 		{
 			this.InitializeComponent();
 
-            this.Loading += MenuNavigatePageBase_Loading;
             this.Loaded += MenuNavigatePageBase_Loaded;
-        }
-
-       
-        private void MenuNavigatePageBase_Loading(FrameworkElement sender, object args)
-		{
-			ForceChangeChildDataContext();
-
         }
 
         private void MenuNavigatePageBase_Loaded(object sender, RoutedEventArgs e)
         {
             _UIDispatcher = Dispatcher;
-
-            // タイトルバーのハンドルできる範囲を自前で指定する
-            // バックボタンのカスタマイズ対応のため
-            // もしかしてモバイルやXboxOneで例外が出てクラッシュするのが怖いので
-            // 例外を握りつぶしておく
-            try
-            {
-                Window.Current.SetTitleBar(GetTemplateChild("DraggableContent") as UIElement);
-            }
-            catch { }
 
             var subpageContentControl = GetTemplateChild("SubPageContentControl") as ContentControl;
             if (subpageContentControl != null)
@@ -71,54 +53,6 @@ namespace NicoPlayerHohoema.Views
             }
         }
         
-
-        private void ForceChangeChildDataContext()
-		{
-			if (Parent is FrameworkElement && Content is FrameworkElement)
-			{
-				var depContent = Content as FrameworkElement;
-				depContent.DataContext = (Parent as FrameworkElement).DataContext;
-			}
-		}
-
-        public Frame Frame { get; private set; }
-
-        protected override void OnApplyTemplate()
-        {
-            Frame = GetTemplateChild("PlayerFrame") as Frame;
-
-            {
-                var frameFacade = new FrameFacadeAdapter(Frame);
-
-                var sessionStateService = new SessionStateService();
-
-                var ns = new FrameNavigationService(frameFacade
-                    , (pageToken) =>
-                    {
-                        if (pageToken == nameof(Views.VideoPlayerPage))
-                        {
-                            return typeof(Views.VideoPlayerPage);
-                        }
-                        else if (pageToken == nameof(Views.LivePlayerPage))
-                        {
-                            return typeof(Views.LivePlayerPage);
-                        }
-                        else
-                        {
-                            return typeof(Views.BlankPage);
-                        }
-                    }, sessionStateService);
-
-                (DataContext as ViewModels.MenuNavigatePageBaseViewModel).SetNavigationService(ns);
-            }
-
-            
-
-            base.OnApplyTemplate();
-        }
-
-
-
 
 
         AsyncLock _MenuContentToggleLock = new AsyncLock();

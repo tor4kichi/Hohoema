@@ -8,7 +8,6 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
-    xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:mytrigger="using:NicoPlayerHohoema.Views.StateTrigger"
     xmlns:myextensions="using:NicoPlayerHohoema.Views.Extensions"
@@ -23,9 +22,10 @@
     xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:uwpAnimation="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
     IsTabStop="False"
-    mvvm:ViewModelLocator.AutoWireViewModel="True"
     xmlns:templateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:myconv="using:NicoPlayerHohoema.Views.Converters"
+    xmlns:models="using:NicoPlayerHohoema.Models"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400"    
@@ -45,17 +45,176 @@
 
             <x:Double x:Key="MenuContentToggleAnimationDuration">175</x:Double>
 
+
+            <Style TargetType="iconPack:PackIconMaterial">
+                <Setter Property="RenderTransform">
+                    <Setter.Value>
+                        <ScaleTransform ScaleX="1.25" ScaleY="1.25" CenterX="12" CenterY="12" />
+                        
+                    </Setter.Value>
+                </Setter>
+            </Style>
+
+            <templateSelector:ValueDataTemplateSelector x:Key="PageTypeIconTemplateSelector">
+                <templateSelector:ValueDataTemplate Value="RankingCategoryList">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Flag" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="RankingCategory">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Flag" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+
+                <templateSelector:ValueDataTemplate Value="UserMylist">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="List" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="Mylist">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="List" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="FollowManage">
+                    <DataTemplate>
+                        <iconPack:PackIconMaterial Kind="Star" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+
+                <templateSelector:ValueDataTemplate Value="WatchHistory">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Clock" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="Search">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Find" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="SearchSummary">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Find" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="SearchResultCommunity">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Find" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="SearchResultTag">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Find" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="SearchResultKeyword">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Find" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="SearchResultMylist">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Find" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="SearchResultLive">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Find" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="UserInfo">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Account" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="UserVideo">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="List" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="Community">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="People" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="CommunityVideo">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="People" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="VideoInfomation">
+                    <DataTemplate>
+                        <iconPack:PackIconMaterial Kind="Information" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="CacheManagement">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Download" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="Settings">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Setting" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="NicoRepo">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="List" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="Recommend">
+                    <DataTemplate>
+                        <iconPack:PackIconMaterial Kind="ThumbUp" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+
+                <templateSelector:ValueDataTemplate Value="Subscription">
+                    <DataTemplate>
+                        <iconPack:PackIconMaterial Kind="ClockFast" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+
+                <templateSelector:ValueDataTemplate Value="LiveInfomation">
+                    <DataTemplate>
+                        <iconPack:PackIconMaterial Kind="Information" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="Timeshift">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="Clock" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+
+                <templateSelector:ValueDataTemplate Value="ChannelInfo">
+                    <DataTemplate>
+                        <iconPack:PackIconMaterial Kind="Group" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+                <templateSelector:ValueDataTemplate Value="ChannelVideo">
+                    <DataTemplate>
+                        <SymbolIcon Symbol="List" />
+                    </DataTemplate>
+                </templateSelector:ValueDataTemplate>
+
+            </templateSelector:ValueDataTemplateSelector>
+
+
+
             <DataTemplate x:Key="MenuItemTemplate">
                 <StackPanel Orientation="Horizontal" Opacity="0.85"
                         Margin="16 0 0 0"
                         >
 
-                    <iconPack:PackIconMaterial Kind="{Binding PageType, Converter={StaticResource PageTypeToMaterialIconKind}}" 
-                                               Width="16"
-                                               Height="16"
-                                               VerticalAlignment="Center"
-                                               Opacity="0.7"
-                                               />
+
+                    <ContentControl Content="{Binding PageType}"
+                                    ContentTemplateSelector="{StaticResource PageTypeIconTemplateSelector}"
+                                    HorizontalContentAlignment="Center"
+                                    VerticalContentAlignment="Center"
+                                    Opacity="0.7"
+                                    Width="24"
+                                    Height="24"
+                                    />
 
                     <Border Height="4" Width="16" />
 
@@ -69,15 +228,17 @@
 
             <DataTemplate x:Key="PinMenuItemTemplate">
                 <StackPanel Orientation="Horizontal" Opacity="0.85"
-                        Margin="16 0 0 0"
+                        Margin="0 0 0 0"
                         >
 
-                    <iconPack:PackIconMaterial Kind="{Binding PageType, Converter={StaticResource PageTypeToMaterialIconKind}}" 
-                                               Width="16"
-                                               Height="16"
-                                               VerticalAlignment="Center"
-                                               Opacity="0.7"
-                                               />
+                    <ContentControl Content="{Binding PageType}"
+                                    ContentTemplateSelector="{StaticResource PageTypeIconTemplateSelector}"
+                                    HorizontalContentAlignment="Center"
+                                    VerticalContentAlignment="Center"
+                                    Opacity="0.7"
+                                    Width="24"
+                                    Height="24"
+                                    />
 
                     <Border Height="4" Width="16" />
                     
@@ -112,7 +273,7 @@
             
 
             <DataTemplate x:Key="SingleMenuItemTemplate">
-                <ListView uwpui:ListViewBase.Command="{StaticResource OpenHohoemaPageCommand}"
+                <ListView uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
                               IsItemClickEnabled="True"
                           SelectionMode="None"
                           IsTabStop="False"
@@ -132,49 +293,13 @@
             </DataTemplate>
 
 
-            <templateSelector:MenuItemTemplateSelector x:Key="MenuItemTemplateSelector"
-                                                       MenuItem="{StaticResource SingleMenuItemTemplate}"
-                                                       >
-
-                <templateSelector:MenuItemTemplateSelector.SubMenuItem>
-                    <DataTemplate>
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal" Opacity="0.55"
-                        Margin="4 0 0 0"
-                        >
-                                <!--
-                            <SymbolIcon Symbol="{Binding IconType}" />
-                            -->
-                                <Border Height="4" Width="16" />
-
-                                <TextBlock Text="{Binding Label}"
-                                VerticalAlignment="Center"
-                                FontSize="14"
-                                           Margin="0 8"
-                                />
-
-                            </StackPanel>
-
-                            <ListView ItemsSource="{Binding SubItems}"
-                                      ItemTemplate="{StaticResource MenuItemTemplate}"
-                                      uwpui:ListViewBase.Command="{StaticResource OpenHohoemaPageCommand}"
-                                      IsItemClickEnabled="True"
-                                      SelectionMode="None"
-                                      >
-                                
-                            </ListView>
-                            
-                        </StackPanel>
-                    </DataTemplate>
-                </templateSelector:MenuItemTemplateSelector.SubMenuItem>
-            </templateSelector:MenuItemTemplateSelector>
-
-
-
             <DataTemplate x:Name="VideoSubMenuContentTemplate">
                 <StackPanel>
-                    <ItemsControl ItemsSource="{Binding MenuItems}"
-                                ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
+                    <ListView ItemsSource="{Binding MenuItems}"
+                                ItemTemplate="{StaticResource MenuItemTemplate}"
+                              uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
+                                IsItemClickEnabled="True"
+                                SelectionMode="None"
                                 IsTabStop="False"
                                 Background="Transparent"
                                 ScrollViewer.VerticalScrollMode="Disabled"
@@ -186,36 +311,31 @@
                                 Margin="16 8"
                                 />
 
-                    <toolkit:DockPanel Margin="0 0" Opacity="0.7"
-                                       >
-                        <!--
-                    <toolkit:DockPanel Margin="0 0" Opacity="0.7"
-                                    Visibility="{Binding Mylists, Converter={StaticResource CollectionVisibilityConverter}}"
-                                    >
-                        -->
-
-                            <Button Command="{StaticResource OpenHohoemaPageCommand}"
-                                    CommandParameter="UserMylist"
-                                    HorizontalAlignment="Stretch"
-                                HorizontalContentAlignment="Left"
-                                    Background="Transparent"
-                                Padding="16 0"
-                                    >
-                            <TextBlock Text="マイリスト"
+                    <Button Command="{Binding PageManager.OpenPageCommand}"
+                                CommandParameter="UserMylist"
+                                HorizontalAlignment="Stretch"
+                            HorizontalContentAlignment="Left"
+                                Background="Transparent"
+                            Padding="16 0"
+                                >
+                        <TextBlock Text="マイリスト"
                                    toolkit:DockPanel.Dock="Left"
                                    VerticalAlignment="Center"
                                        Style="{StaticResource SubtitleTextBlockStyle}"
                                    />
-                        </Button>
+                    </Button>
 
-                    </toolkit:DockPanel>
-
-                    <ItemsControl ItemsSource="{Binding Mylists}"
-                                ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
+                    <ListView ItemsSource="{Binding Mylists}"
+                                ItemTemplate="{StaticResource MenuItemTemplate}"
+                              uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
+                                IsItemClickEnabled="True"
+                                SelectionMode="None"
+                                IsTabStop="False"
                                 Background="Transparent"
-                                  IsTabStop="False"
+                                ScrollViewer.VerticalScrollMode="Disabled"
                                 />
 
+                   
                     <Border BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}" Opacity="0.3"
                                 BorderThickness="0 1 0 0"
                                 VerticalAlignment="Center"
@@ -223,13 +343,16 @@
                             Visibility="{Binding LocalMylists, Converter={StaticResource CollectionVisibilityConverter}}"
                                 />
 
-                    <ItemsControl ItemsSource="{Binding LocalMylists}"
-                                ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
+                    <ListView ItemsSource="{Binding LocalMylists}"
+                                ItemTemplate="{StaticResource MenuItemTemplate}"
+                              uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
+                                IsItemClickEnabled="True"
+                                SelectionMode="None"
+                                IsTabStop="False"
                                 Background="Transparent"
-                                  IsTabStop="False"
+                                ScrollViewer.VerticalScrollMode="Disabled"
                                 />
-
-                    
+                                        
 
                 </StackPanel>
             </DataTemplate>
@@ -267,11 +390,14 @@
             
             <DataTemplate x:Name="LiveSubMenuContentTemplate">
                 <StackPanel>
-                    <ItemsControl ItemsSource="{Binding MenuItems}"
-                                ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
+                    <ListView ItemsSource="{Binding MenuItems}"
+                                ItemTemplate="{StaticResource MenuItemTemplate}"
+                              uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
+                                IsItemClickEnabled="True"
+                                SelectionMode="None"
+                                IsTabStop="False"
                                 Background="Transparent"
                                 ScrollViewer.VerticalScrollMode="Disabled"
-                                  IsTabStop="False"
                                 />
 
                     <Border BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}" Opacity="0.3"
@@ -291,7 +417,7 @@
                             <SymbolIcon Symbol="Refresh" />
                         </Button>
 
-                        <Button Command="{StaticResource OpenHohoemaPageCommand}"
+                        <Button Command="{Binding PageManager.OpenPageCommand}"
                                     CommandParameter="{x:Null}"
                                     HorizontalAlignment="Stretch"
                                 HorizontalContentAlignment="Left"
@@ -314,7 +440,7 @@
                                Margin="32 8 16 16"
                                />
 
-                    <ListView uwpui:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                    <ListView uwpui:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
                               ItemsSource="{Binding OnAirStreams}"
                               IsItemClickEnabled="True"
                               SelectionMode="None"
@@ -351,7 +477,7 @@
                                Margin="32 8 16 16"
                                />
 
-                    <ListView uwpui:ListViewBase.Command="{StaticResource OpenContentCommand}"
+                    <ListView uwpui:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
                               ItemsSource="{Binding ReservedStreams}"
                               IsItemClickEnabled="True"
                               SelectionMode="None"
@@ -399,6 +525,7 @@
                 <Setter Property="CornerRadius" Value="999" />
             </Style>
 
+
         </ResourceDictionary>
 
     </ContentControl.Resources>
@@ -408,366 +535,18 @@
         <ControlTemplate>
 
             <Grid x:Name="RootLayout" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-                <VisualStateManager.VisualStateGroups>
-                    <VisualStateGroup x:Name="TopBarStateGroup">
 
-
-                        <!-- トップメニュー非表示 -->
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding IsVisibleMenu.Value, Converter={StaticResource BooleanInverted}}" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
-                                <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
-
-                                <Setter Target="TopMenuLayout.Visibility" Value="Collapsed" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <!-- TV Mode ON -->
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding IsTVModeEnable.Value}" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-
-                                <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
-                                <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
-                                <Setter Target="PaneLayout.Margin" Value="48 27 0 27" />
-                                <Setter Target="ContentSplitView.OpenPaneLength" Value="{StaticResource SideMenuPaneLength_TVMode}" />
-
-                                <Setter Target="TopMenu.Margin" Value="48 27 0 0" />
-                                <Setter Target="MenuTitleText.Margin" Value="16 5 16 8" />
-
-                                <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
-
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <!-- マウス操作時、または画面が大きい時 -->
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="ContentSplitView.DisplayMode" Value="CompactInline" />
-                                <Setter Target="ContentSplitView.IsPaneOpen" Value="True" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <!-- 狭い -->
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="0" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
-                                <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
-
-                                <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
-                                <Setter Target="MenuTitleText.Style" Value="{StaticResource BodyTextBlockStyle}" />
-                                <Setter Target="MenuTitleText.Margin" Value="16 0 16 0" />
-
-                                <Setter Target="TopMenu.Background" Value="{StaticResource MenuBackgroundBrush}" />
-
-                                <Setter Target="Mobile_ShowSearchButton.Visibility" Value="Visible" />
-
-                                <Setter Target="SearchTextBox.Visibility" Value="Collapsed" />
-                            </VisualState.Setters>
-                        </VisualState>
-                    </VisualStateGroup>
-
-                    <VisualStateGroup>
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding IsNeedFullScreenToggleHelp}" />
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="ToggleFullScreenButton_Wide.Visibility" Value="Visible" />
-                            </VisualState.Setters>
-                        </VisualState>
-                    </VisualStateGroup>
-
-                    <!-- アプリのサービス状態 -->
-                    <VisualStateGroup>
-                        <VisualState x:Name="OfflineState">
-                            <VisualState.StateTriggers>
-                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="Offline" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
-                                <Setter Target="SearchTextBox.Visibility" Value="Collapsed" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <VisualState x:Name="ServiceUnavailableState">
-                            <VisualState.StateTriggers>
-                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="OnlineButServiceUnavailable" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-
-                        <VisualState x:Name="WithoutLoggedInState">
-                            <VisualState.StateTriggers>
-                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="OnlineWithoutLoggedIn" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-
-                                <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <VisualState x:Name="LoggedInState">
-                            <VisualState.StateTriggers>
-                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="LoggedIn" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="ServiceStateText.Visibility" Value="Collapsed" />
-                                
-                                <Setter Target="AccountInfoLayout.Visibility" Value="Visible" />
-
-                                <Setter Target="MenuFlyoutItem_OpenAccountInfo.Visibility" Value="Visible" />
-                                <Setter Target="MenuFlyoutItem_Logout.Visibility" Value="Visible" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <VisualState x:Name="LoggedInWithPremiumState">
-                            <VisualState.StateTriggers>
-                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="LoggedInWithPremium" />
-                            </VisualState.StateTriggers>
-                            <VisualState.Setters>
-                                <Setter Target="ServiceStateText.Visibility" Value="Collapsed" />
-
-                                <Setter Target="AccountInfoLayout.Visibility" Value="Visible" />
-
-                                <Setter Target="MenuFlyoutItem_OpenAccountInfo.Visibility" Value="Visible" />
-                                <Setter Target="MenuFlyoutItem_Logout.Visibility" Value="Visible" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-
-                    </VisualStateGroup>
-
-
-                    <!-- ペインの開閉状態 -->
-                    <VisualStateGroup>
-                        
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding ElementName=ContentSplitView, Path=IsPaneOpen}" />
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                            </VisualState.Setters>
-                        </VisualState>
-
-                    </VisualStateGroup>
-
-                    <!-- ペインの開閉状態 -->
-                    <VisualStateGroup>
-
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <mytrigger:FocusTrigger Target="{Binding ElementName=SearchTextBox}" />
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="SearchSubmitWithEnterKeyTrigger.IsEnabled" Value="True" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                    </VisualStateGroup>
-
-
-                    <!-- モバイルの検索ボックスをフォーカス -->
-                    <VisualStateGroup>
-
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <mytrigger:FocusTrigger Target="{Binding ElementName=Mobile_SearchTextBox}" />
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="Mobile_BlindSearchTextBoxBorder.Visibility" Value="Visible" />
-                                <Setter Target="Mobile_BarrierSearchTextBoxBorder.Visibility" Value="Visible" />
-
-                                <Setter Target="Mobile_SearchSubmitWithEnterKeyTrigger.IsEnabled" Value="True" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                    </VisualStateGroup>
-
-                    <!-- モバイルデバイスでの表示調整 -->
-                    <VisualStateGroup>
-
-
-                        <!-- フルスクリーン時はステータスバーが非表示になる -->
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <uiTrigger:FullScreenTrigger />
-                            </VisualState.StateTriggers>
-                        </VisualState>
-
-
-                        <!-- モバイルかつ横持ち状態 -->
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <logicalTrigger:MultiTrigger ConditionModifier="{StaticResource AndModifier}">
-                                    <logicalTrigger:MultiTrigger.Triggers>
-                                        <hardwareTrigger:DeviceFamilyTrigger Condition="Mobile" />
-                                        <uiTrigger:OrientationTrigger Condition="Landscape" />
-                                    </logicalTrigger:MultiTrigger.Triggers>
-                                </logicalTrigger:MultiTrigger>
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="PaneLayout.Margin" Value="40 0 0 0" />
-                                <Setter Target="TopMenuLayout.Margin" Value="40 0 0 0" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <!-- モバイルかつ縦持ち状態 -->
-                        <VisualState>
-                            <VisualState.StateTriggers>
-                                <logicalTrigger:MultiTrigger ConditionModifier="{StaticResource AndModifier}">
-                                    <logicalTrigger:MultiTrigger.Triggers>
-                                        <hardwareTrigger:DeviceFamilyTrigger Condition="Mobile" />
-                                        <uiTrigger:OrientationTrigger Condition="Portrait" />
-                                    </logicalTrigger:MultiTrigger.Triggers>
-                                </logicalTrigger:MultiTrigger>
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="PaneLayout.Margin" Value="0 24 0 0" />
-                                <Setter Target="TopMenuLayout.Margin" Value="0 24 0 0" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                    </VisualStateGroup>
-                    
-                    <!-- プレイヤーの表示状態 -->
-                    <VisualStateGroup>
-
-                        <VisualState x:Name="HiddenPlayer">
-                            <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding IsShowPlayer.Value, Converter={StaticResource BooleanInverted}}" />
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <VisualState x:Name="FillWindowPlayer">
-                            <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding IsShowPlayerInFill.Value}" />
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="PlayerLayoutGrid.Visibility" Value="Visible" />
-
-                                <Setter Target="ContentSplitView.Visibility" Value="Collapsed" />
-
-                                <Setter Target="MenuToggleTrigger.IsEnabled" Value="False" />
-                                <Setter Target="PlayerDisplayIntoSmallWindowTrigger.IsEnabled" Value="True" />
-
-                                <Setter Target="TitleBarTextBlock.Visibility" Value="Collapsed" />
-                                <Setter Target="BackButtonLayout.Visibility" Value="Collapsed" />
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <VisualState x:Name="DisplayIntoSide">
-                            <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding IsTVModeEnable.Value}" />
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="PlayerLayoutGrid.Visibility" Value="Visible" />
-                                <Setter Target="TogglePlayerFloatButton.Visibility" Value="Visible" />
-
-                                <Setter Target="FloatPlayerLayout.(Grid.Row)" Value="2" />
-                                <Setter Target="FloatPlayerLayout.(Grid.Column)" Value="0" />
-                                <Setter Target="FloatPlayerLayout.(Grid.RowSpan)" Value="1" />
-                                <Setter Target="FloatPlayerLayout.(Grid.ColumnSpan)" Value="1" />
-
-                                <Setter Target="FloatPlayerLayout.Height" Value="{StaticResource DesktopFloatPlayerHeight}" />
-                                <Setter Target="FloatPlayerLayout.Width" Value="{StaticResource SideMenuPaneLength}" />
-
-                                <Setter Target="TVModeFloatPlayerRewindSizeButton.Visibility" Value="Visible" />
-
-                                <Setter Target="FloatPlayerLayout.HorizontalAlignment" Value="Right" />
-                                <Setter Target="FloatPlayerLayout.VerticalAlignment" Value="Bottom" />
-
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <VisualState x:Name="DisplayIntoDesktopMenu">
-                            <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="PlayerLayoutGrid.Visibility" Value="Visible" />
-                                <Setter Target="TogglePlayerFloatButton.Visibility" Value="Visible" />
-
-                                <Setter Target="FloatPlayerLayout.(Grid.Row)" Value="2" />
-                                <Setter Target="FloatPlayerLayout.(Grid.Column)" Value="0" />
-                                <Setter Target="FloatPlayerLayout.(Grid.RowSpan)" Value="1" />
-                                <Setter Target="FloatPlayerLayout.(Grid.ColumnSpan)" Value="1" />
-
-                                <Setter Target="SideMenuFooterBottomMargin.Visibility" Value="Visible" />
-
-                                <Setter Target="FloatPlayerLayout.Height" Value="{StaticResource DesktopFloatPlayerHeight}" />
-                                <Setter Target="FloatPlayerLayout.Width" Value="{StaticResource SideMenuPaneLength}" />
-
-                                <Setter Target="FloatPlayerLayout.HorizontalAlignment" Value="Left" />
-                                <Setter Target="FloatPlayerLayout.VerticalAlignment" Value="Bottom" />
-
-                                
-                            </VisualState.Setters>
-                        </VisualState>
-
-                        <VisualState x:Name="DisplayIntoMobileTopSide">
-                            <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="0" />
-                            </VisualState.StateTriggers>
-
-                            <VisualState.Setters>
-                                <Setter Target="PlayerLayoutGrid.Visibility" Value="Visible" />
-                                <Setter Target="TogglePlayerFloatButton.Visibility" Value="Visible" />
-
-                                <Setter Target="FloatPlayerLayout.(Grid.Row)" Value="0" />
-                                <Setter Target="FloatPlayerLayout.(Grid.Column)" Value="0" />
-                                <Setter Target="FloatPlayerLayout.(Grid.RowSpan)" Value="1" />
-                                <Setter Target="FloatPlayerLayout.(Grid.ColumnSpan)" Value="2" />
-
-                                <Setter Target="MobileHeaderMargin.Visibility" Value="Visible" />
-
-                                <Setter Target="FloatPlayerLayout.Height" Value="{StaticResource MobileFloatPlayerHeight}" />
-                                <Setter Target="FloatPlayerLayout.VerticalAlignment" Value="Top" />
-
-                                <Setter Target="TitleBarTextBlock.Visibility" Value="Collapsed" />
-                                
-                            </VisualState.Setters>
-                        </VisualState>
-
-                    </VisualStateGroup>
-
-                </VisualStateManager.VisualStateGroups>
-
+                <i:Interaction.Behaviors>
+                    <mybehavior:UINavigationTrigger Kind="View" 
+                                                        x:Name="MenuToggleTrigger"
+                                                    >
+                        <core:InvokeCommandAction Command="{Binding TogglePaneOpenCommand}" />
+                    </mybehavior:UINavigationTrigger>
+
+                </i:Interaction.Behaviors>
+                
                 <toolkit:DockPanel>
 
-                    <Border x:Name="MobileHeaderMargin"
-                            Height="{StaticResource MobileFloatPlayerHeight}"
-                            Visibility="Collapsed"
-                            toolkit:DockPanel.Dock="Top"
-                            >
-                        
-                    </Border>
 
 
 
@@ -856,13 +635,8 @@
                                 <toolkit:DockPanel HorizontalAlignment="Stretch"
                                             toolkit:DockPanel.Dock="Bottom"
                                             >
-                                    <Border x:Name="SideMenuFooterBottomMargin" 
-                                            Height="{StaticResource DesktopFloatPlayerHeight}"
-                                            Visibility="Collapsed"
-                                            toolkit:DockPanel.Dock="Bottom"
-                                            />
 
-                                    <Button Command="{StaticResource OpenHohoemaPageCommand}"
+                                    <Button Command="{Binding PageManager.OpenPageCommand}"
                                             CommandParameter="Settings"
                                             toolkit:DockPanel.Dock="Right"
                                             Background="Transparent"
@@ -891,13 +665,19 @@
 
                                                     <MenuFlyoutItem x:Name="MenuFlyoutItem_Logout"
                                                                     Text="ログアウト" 
-                                                                    Command="{StaticResource LogoutFromNiconicoCommand}"
+                                                                    Command="{Binding LogoutFromNiconicoCommand}"
                                                                     Visibility="Collapsed"
                                                                     />
 
                                                     <MenuFlyoutItem x:Name="MenuFlyoutItem_Login"
                                                                     Text="ログイン" 
-                                                                    Command="{StaticResource LoginToNiconicoCommand}"
+                                                                    Command="{Binding NiconicoLoginService.LoginCommand}"
+                                                                    Visibility="Collapsed"
+                                                                    />
+
+                                                    <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenDebugPage"
+                                                                    Text="デバッグページを開く" 
+                                                                    Command="{Binding OpenDebugPageCommand}"
                                                                     Visibility="Collapsed"
                                                                     />
                                                 </MenuFlyout>
@@ -1008,7 +788,7 @@
 
                                             <ListView ItemsSource="{Binding PinItems}"
                                                         ItemTemplate="{StaticResource PinMenuItemTemplate}"
-                                                        uwpui:ListViewBase.Command="{StaticResource OpenHohoemaPageCommand}"
+                                                        uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
                                                         IsItemClickEnabled="True"
                                                         SelectionMode="None"
                                                       TabIndex="1"
@@ -1020,17 +800,7 @@
 
                                                 <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
                                                     <DataTemplate>
-                                                        <MenuFlyout>
-
-                                                            <MenuFlyoutItem Text="ピンのタイトル変更" 
-                                                                        Command="{Binding ChangeOverrideLabelCommand}"
-                                                                        />
-
-                                                            <MenuFlyoutItem Text="ピン留め解除" 
-                                                                        Command="{StaticResource RemovePinCommand}"
-                                                                        CommandParameter="{Binding}"
-                                                                        />
-                                                        </MenuFlyout>
+                                                        <local:MenuPinItemFlyout />
                                                     </DataTemplate>
                                                 </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
 
@@ -1054,15 +824,19 @@
                                                 </Style>
                                             </Pivot.ItemContainerStyle>
 
+                                            
                                             <PivotItem Header="動画"
-                                                               Content="{Binding VideoMenu}"
-                                                               ContentTemplate="{StaticResource VideoSubMenuContentTemplate}"
-                                                               />
+                                                        Content="{Binding VideoMenu}"
+                                                        ContentTemplate="{StaticResource VideoSubMenuContentTemplate}"
+                                                        />
+                                            
 
+                                            
                                             <PivotItem Header="生放送"
                                                                Content="{Binding LiveMenu}"
                                                                ContentTemplate="{StaticResource LiveSubMenuContentTemplate}"
                                                                />
+                                            
 
 
                                         </Pivot>
@@ -1074,7 +848,7 @@
                         </SplitView.Pane>
                         <SplitView.Content>
                             <Grid x:Name="SplitViewContentLayout">
-
+                                
                                 <toolkit:DockPanel 
                                           >
                                     <Border x:Name="TopMenu" toolkit:DockPanel.Dock="Top">
@@ -1193,7 +967,7 @@
 
                                     <!-- ページ毎のコンテンツ -->
                                     <Grid>
-                                        <ContentPresenter x:Name="ContentLayout"
+                                        <ContentPresenter x:Name="ContentLayout"         
                                             >
                                             <myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
                                                 <templateSelector:HohoemaFlyoutTemplateSelector>
@@ -1202,16 +976,6 @@
                                                             <controls:LiveListItemFlyout />
                                                         </DataTemplate>
                                                     </templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
-                                                    <templateSelector:HohoemaFlyoutTemplateSelector.FeedGroupFlyoutTemplate>
-                                                        <DataTemplate>
-                                                            <controls:FeedGroupListItemFlyout />
-                                                        </DataTemplate>
-                                                    </templateSelector:HohoemaFlyoutTemplateSelector.FeedGroupFlyoutTemplate>
-                                                    <templateSelector:HohoemaFlyoutTemplateSelector.FeedSourceFlyoutTemplate>
-                                                        <DataTemplate>
-                                                            <controls:FeedSourceFlyout />
-                                                        </DataTemplate>
-                                                    </templateSelector:HohoemaFlyoutTemplateSelector.FeedSourceFlyoutTemplate>
                                                     <templateSelector:HohoemaFlyoutTemplateSelector.SearchHistoryFlyoutTemplate>
                                                         <DataTemplate>
                                                             <local:SearchHistoryListItemFlyout />
@@ -1233,68 +997,21 @@
 
 
                                 </toolkit:DockPanel>
-                                
+
+                                <Grid x:Name="MenuBackgroundGrid"
+                                        Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                                      Opacity="0.5"
+                                      Visibility="Collapsed"
+                                      IsTapEnabled="True"
+                                      IsHitTestVisible="True"
+                                      >
+                                    <UserControl IsTabStop="True" />
+                                </Grid>
                             </Grid>
 
                         </SplitView.Content>
                     </SplitView>
                 </toolkit:DockPanel>
-
-                
-
-                <Grid x:Name="PlayerLayoutGrid"
-                    Visibility="Collapsed"
-                      >
-
-                    <i:Interaction.Behaviors>
-                        <mybehavior:UINavigationTrigger Kind="View" 
-                                                        x:Name="MenuToggleTrigger"
-                                                    >
-                            <core:InvokeCommandAction Command="{Binding TogglePaneOpenCommand}" />
-                        </mybehavior:UINavigationTrigger>
-
-                        <mybehavior:UINavigationTrigger Kind="View" 
-                                                        x:Name="PlayerDisplayIntoSmallWindowTrigger"
-                                                        IsEnabled="False"
-                                                    >
-                            <core:InvokeCommandAction Command="{Binding TogglePlayerFloatDisplayCommand}" />
-                        </mybehavior:UINavigationTrigger>
-                    </i:Interaction.Behaviors>
-
-                    <Grid x:Name="FloatPlayerLayout"
-                          >
-                        <Frame x:Name="PlayerFrame" 
-                           
-                           
-                          
-                                            >
-                            <Frame.ContentTransitions>
-                                <TransitionCollection>
-                                    <NavigationThemeTransition>
-                                        <NavigationThemeTransition.DefaultNavigationTransitionInfo>
-                                            <DrillInNavigationTransitionInfo />
-                                        </NavigationThemeTransition.DefaultNavigationTransitionInfo>
-                                    </NavigationThemeTransition>
-                                </TransitionCollection>
-                            </Frame.ContentTransitions>
-                        </Frame>
-                        <Button x:Name="TogglePlayerFloatButton"
-                            Background="Transparent"
-                            Command="{Binding TogglePlayerFloatDisplayCommand}"
-                            Visibility="Collapsed"
-                            HorizontalAlignment="Stretch"
-                                VerticalAlignment="Stretch"
-                            >
-                            <Button.ContextFlyout>
-                                <MenuFlyout>
-                                    <MenuFlyoutItem Text="閉じる" Command="{Binding ClosePlayerCommand}"/>
-                                </MenuFlyout>
-                            </Button.ContextFlyout>
-                        </Button>
-                    </Grid>
-
-                    
-                </Grid>
 
                 
                 <Grid Visibility="{Binding NowWorking, Converter={StaticResource BooleanToVisibility}}">
@@ -1335,9 +1052,9 @@
                         VerticalAlignment="Top"
                                         >
 
-                    <Border x:Name="BackButtonLayout">
+                    <Border x:Name="BackButtonLayout" toolkit:DockPanel.Dock="Left">
                         <Border Visibility="{Binding CanGoBackNavigation.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
-                        toolkit:DockPanel.Dock="Left"
+                        
                         >
                             <Button 
                                 MinHeight="{StaticResource TitleBarDummyHeight}"
@@ -1364,9 +1081,270 @@
                         </TextBlock>
                     </Border>
 
-                        
-                    
+
+
                 </toolkit:DockPanel>
+
+
+                <VisualStateManager.VisualStateGroups>
+                    <VisualStateGroup x:Name="TopBarStateGroup">
+
+
+                        <!-- トップメニュー非表示 -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding IsVisibleMenu.Value, Converter={StaticResource BoolNegation}}" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
+                                <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
+
+                                <Setter Target="TopMenuLayout.Visibility" Value="Collapsed" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <!-- TV Mode ON -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding IsTVModeEnable.Value}" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+
+                                <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
+                                <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
+                                <Setter Target="PaneLayout.Margin" Value="48 27 0 27" />
+                                <Setter Target="ContentSplitView.OpenPaneLength" Value="{StaticResource SideMenuPaneLength_TVMode}" />
+
+                                <Setter Target="TopMenu.Margin" Value="48 27 0 0" />
+                                <Setter Target="MenuTitleText.Margin" Value="16 5 16 8" />
+
+                                <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
+
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <!-- マウス操作時、または画面が大きい時 -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="ContentSplitView.DisplayMode" Value="CompactInline" />
+                                <Setter Target="ContentSplitView.IsPaneOpen" Value="True" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <!-- 狭い -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <AdaptiveTrigger MinWindowWidth="0" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
+                                <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
+
+                                <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
+                                <Setter Target="MenuTitleText.Style" Value="{StaticResource BodyTextBlockStyle}" />
+                                <Setter Target="MenuTitleText.Margin" Value="16 0 16 0" />
+
+                                <Setter Target="TopMenu.Background" Value="{StaticResource MenuBackgroundBrush}" />
+
+                                <Setter Target="Mobile_ShowSearchButton.Visibility" Value="Visible" />
+
+                                <Setter Target="SearchTextBox.Visibility" Value="Collapsed" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+
+                    <VisualStateGroup>
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding IsNeedFullScreenToggleHelp}" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="ToggleFullScreenButton_Wide.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+
+
+
+                    <!-- アプリのサービス状態 -->
+                    <VisualStateGroup>
+                        <VisualState x:Name="OfflineState">
+                            <VisualState.StateTriggers>
+                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="Offline" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
+                                <Setter Target="SearchTextBox.Visibility" Value="Collapsed" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <VisualState x:Name="ServiceUnavailableState">
+                            <VisualState.StateTriggers>
+                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="ServiceUnavailable" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+
+                        <VisualState x:Name="WithoutLoggedInState">
+                            <VisualState.StateTriggers>
+                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="WithoutLoggedIn" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <VisualState x:Name="LoggedInState">
+                            <VisualState.StateTriggers>
+                                <mytrigger:EqualConditionStateTrigger Value="{Binding ServiceLevel.Value}" Condition="LoggedIn" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                                <Setter Target="ServiceStateText.Visibility" Value="Collapsed" />
+
+                                <Setter Target="AccountInfoLayout.Visibility" Value="Visible" />
+
+                                <Setter Target="MenuFlyoutItem_OpenAccountInfo.Visibility" Value="Visible" />
+                                <Setter Target="MenuFlyoutItem_Logout.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                    </VisualStateGroup>
+
+
+                    <!-- ペインの開閉状態 -->
+                    <VisualStateGroup>
+
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <mytrigger:EqualConditionStateTrigger Condition="{Binding ElementName=ContentSplitView, Path=DisplayMode, Mode=OneWay}" Value="CompactInline" />
+                                <mytrigger:EqualConditionStateTrigger Condition="{Binding ElementName=ContentSplitView, Path=DisplayMode, Mode=OneWay}" Value="Inline" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding ElementName=ContentSplitView, Path=IsPaneOpen,Mode=OneWay}" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="MenuBackgroundGrid.Visibility" Value="Visible" />
+                                <Setter Target="ContentLayout.IsHitTestVisible" Value="False" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                    </VisualStateGroup>
+
+                    <!-- 検索ボックス -->
+                    <VisualStateGroup>
+
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <mytrigger:FocusTrigger Target="{Binding ElementName=SearchTextBox}" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="SearchSubmitWithEnterKeyTrigger.IsEnabled" Value="True" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                    </VisualStateGroup>
+
+
+                    <!-- モバイルの検索ボックスをフォーカス -->
+                    <VisualStateGroup>
+
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <mytrigger:FocusTrigger Target="{Binding ElementName=Mobile_SearchTextBox}" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="Mobile_BlindSearchTextBoxBorder.Visibility" Value="Visible" />
+                                <Setter Target="Mobile_BarrierSearchTextBoxBorder.Visibility" Value="Visible" />
+
+                                <Setter Target="Mobile_SearchSubmitWithEnterKeyTrigger.IsEnabled" Value="True" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                    </VisualStateGroup>
+
+                    <!-- モバイルデバイスでの表示調整 -->
+                    <VisualStateGroup>
+
+
+                        <!-- フルスクリーン時はステータスバーが非表示になる -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <uiTrigger:FullScreenTrigger />
+                            </VisualState.StateTriggers>
+                        </VisualState>
+
+
+                        <!-- モバイルかつ横持ち状態 -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <logicalTrigger:MultiTrigger ConditionModifier="{StaticResource AndModifier}">
+                                    <logicalTrigger:MultiTrigger.Triggers>
+                                        <hardwareTrigger:DeviceFamilyTrigger Condition="Mobile" />
+                                        <uiTrigger:OrientationTrigger Condition="Landscape" />
+                                    </logicalTrigger:MultiTrigger.Triggers>
+                                </logicalTrigger:MultiTrigger>
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="PaneLayout.Margin" Value="40 0 0 0" />
+                                <Setter Target="TopMenuLayout.Margin" Value="40 0 0 0" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                        <!-- モバイルかつ縦持ち状態 -->
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <logicalTrigger:MultiTrigger ConditionModifier="{StaticResource AndModifier}">
+                                    <logicalTrigger:MultiTrigger.Triggers>
+                                        <hardwareTrigger:DeviceFamilyTrigger Condition="Mobile" />
+                                        <uiTrigger:OrientationTrigger Condition="Portrait" />
+                                    </logicalTrigger:MultiTrigger.Triggers>
+                                </logicalTrigger:MultiTrigger>
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="PaneLayout.Margin" Value="0 24 0 0" />
+                                <Setter Target="TopMenuLayout.Margin" Value="0 24 0 0" />
+                            </VisualState.Setters>
+                        </VisualState>
+
+                    </VisualStateGroup>
+
+
+
+
+
+                    <!-- Debug -->
+                    <VisualStateGroup>
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding IsDebug}" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="MenuFlyoutItem_OpenDebugPage.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+
+                </VisualStateManager.VisualStateGroups>
+
 
 
             </Grid>

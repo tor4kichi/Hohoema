@@ -27,7 +27,7 @@ namespace NicoPlayerHohoema.Views.Controls
             Unloaded += TransientContainer_Unloaded;
         }
 
-        Helpers.AsyncLock _AnimLock = new Helpers.AsyncLock();
+        Models.Helpers.AsyncLock _AnimLock = new Models.Helpers.AsyncLock();
         AnimationSet _PrevFadeAnimation;
 
         CompositeDisposable _CompositeDisposable;

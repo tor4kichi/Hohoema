@@ -1,0 +1,188 @@
+﻿<Page
+    x:Name="PageRoot"
+    x:Class="NicoPlayerHohoema.Views.WatchHistoryPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:view="using:NicoPlayerHohoema.Views"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
+    xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d"
+    >
+
+
+    <Grid>
+
+        <VisualStateManager.VisualStateGroups>
+            <!-- トップバー表示時のタイトル位置ずらし -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ItemsList.Padding" Value="48 0 48 27" />
+                        <Setter Target="ScrollHeader.Mode" Value="None" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ScrollHeader.Mode" Value="QuickReturn" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+        </VisualStateManager.VisualStateGroups>
+
+
+        <ListView
+            x:Name="ItemsList"
+            ItemsSource="{Binding Histories, Mode=OneWay}"
+            uwpExtension:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
+            IsItemClickEnabled="True"
+            UseSystemFocusVisuals="True"
+            SelectionMode="None"
+            HorizontalContentAlignment="Stretch"
+            ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+            uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
+            
+            xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
+            myExtensions:ListViewBase.DeferInitialize="True"
+            >
+            <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
+                <DataTemplate>
+                    <flyouts:VideoHistoryItemFlyout />
+                </DataTemplate>
+            </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
+            
+            <i:Interaction.Behaviors>
+
+                <mybehavior:KeyboardTrigger Key="F5">
+                    <mybehavior:KeyboardTrigger.Actions>
+                        <core:InvokeCommandAction Command="{Binding RefreshCommand}" />
+                    </mybehavior:KeyboardTrigger.Actions>
+                </mybehavior:KeyboardTrigger>
+
+            </i:Interaction.Behaviors>
+            
+            <ListView.Header>
+
+                <uwpcontrols:ScrollHeader
+                    x:Name="ScrollHeader"
+                    Mode="Sticky" >
+                    <StackPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+                        <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
+
+                            <CommandBar.PrimaryCommands>
+
+                                <AppBarButton x:Name="ScrollToTopButton"
+                                              Label="トップへ戻る"
+                                              Icon="Up"
+                                            >
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Click">
+                                            <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </AppBarButton>
+
+                                <AppBarButton 
+                                        Command="{Binding RefreshCommand}"
+                                        Label="更新"
+                                              Icon="Refresh"
+                                        />
+                                
+                            </CommandBar.PrimaryCommands>
+
+                            <CommandBar.SecondaryCommands>
+                                
+
+                                <AppBarButton 
+                                    IsEnabled="{Binding HasItem.Value}"
+                                    Label="全ての履歴を削除"
+                                    Icon="Delete"
+                                    AllowFocusOnInteraction="True"
+                                    >
+
+                                    <AppBarButton.Flyout>
+                                        <Flyout>
+                                            <StackPanel Margin="8" Width="240">
+                                                <TextBlock Margin="0 0 0 16"
+                                                   LineHeight="20"
+                                                   TextWrapping="Wrap"
+                                                   >
+                                                    <Run>視聴履歴を全て削除します</Run>
+                                                    <LineBreak />
+                                                    <Run>本当に削除してもいいですか？</Run>
+                                                </TextBlock>
+
+                                                <Button Content="本当に削除" 
+                                                    Command="{Binding RemoveAllHistoryCommand}"
+                                                    HorizontalAlignment="Stretch"
+                                                    />
+                                            </StackPanel>
+                                        </Flyout>
+                                    </AppBarButton.Flyout>
+                                </AppBarButton>
+
+
+                            </CommandBar.SecondaryCommands>
+
+                        </CommandBar>
+                    </StackPanel>
+                </uwpcontrols:ScrollHeader>
+
+            </ListView.Header>
+
+
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <local:VideoInfoControl />
+
+
+                        <TextBlock HorizontalAlignment="Right"
+                                        VerticalAlignment="Top"
+                                        Foreground="#55777777"
+                                        >
+                                <Run Text="{Binding LastWatchedAt}" />
+                        </TextBlock>
+                        <TextBlock 
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Bottom"
+                                    FontSize="32"
+                                    Foreground="#55777777"
+                                    >
+                                <Run Text="{Binding UserViewCount, Mode=OneTime}" />
+                                <Run Text="回" />
+                        </TextBlock>
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+
+        </ListView>
+    </Grid>
+</Page>

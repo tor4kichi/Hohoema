@@ -1,33 +1,43 @@
 ﻿using System;
 using System.Collections.Async;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using Mntone.Nico2;
-using Mntone.Nico2.Live.ReservationsInDetail;
 using NicoPlayerHohoema.Database;
-using NicoPlayerHohoema.Helpers;
-using NicoPlayerHohoema.Interfaces;
+using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models;
 using Prism.Commands;
 using Prism.Windows.Navigation;
-using Windows.Foundation;
 using Microsoft.Practices.Unity;
+using NicoPlayerHohoema.Services.Helpers;
+using NicoPlayerHohoema.Models.Provider;
+using Reactive.Bindings.Extensions;
+using System.Reactive.Linq;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public sealed class TimeshiftPageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>
     {
-        public TimeshiftPageViewModel(HohoemaApp app, PageManager pageManager) 
-            : base(app, pageManager, useDefaultPageTitle: true)
+        public TimeshiftPageViewModel(
+            LoginUserLiveReservationProvider loginUserLiveReservationProvider,
+            NicoLiveProvider nicoLiveProvider,
+            Services.HohoemaPlaylist hohoemaPlaylist,
+            Services.PageManager pageManager, 
+            Services.DialogService dialogService
+            ) 
+            : base(pageManager, useDefaultPageTitle: true)
         {
-            
+            LoginUserLiveReservationProvider = loginUserLiveReservationProvider;
+            NicoLiveProvider = nicoLiveProvider;
+            HohoemaPlaylist = hohoemaPlaylist;
+            DialogService = dialogService;
         }
 
+        public LoginUserLiveReservationProvider LoginUserLiveReservationProvider { get; }
+        public NicoLiveProvider NicoLiveProvider { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.DialogService DialogService { get; }
 
         private DelegateCommand _DeleteOutdatedReservations;
         public DelegateCommand DeleteOutdatedReservations 
@@ -37,16 +47,14 @@ namespace NicoPlayerHohoema.ViewModels
                 return _DeleteOutdatedReservations
                     ?? (_DeleteOutdatedReservations = new DelegateCommand(async () => 
                     {
-                        var reservations = await HohoemaApp.ContentProvider.Context.Live.GetReservationsInDetailAsync();
+                        var reservations = await LoginUserLiveReservationProvider.GetReservtionsAsync();
 
                         var dateOutReservations = reservations.ReservedProgram.Where(x => x.IsOutDated).ToList();
 
                         if (dateOutReservations.Count == 0) { return; }
 
-                        var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
-
                         var reservationTitlesText = string.Join("\r", dateOutReservations.Select(x => x.Title));
-                        var acceptDeletion = await dialogService.ShowMessageDialog(
+                        var acceptDeletion = await DialogService.ShowMessageDialog(
                             "DeleteReservationConfirmText".ToCulturelizeString() + "\r\r" + reservationTitlesText,
                             "DeleteOutdatedReservationConfirm_Title".ToCulturelizeString(),
                             "DeleteReservationConfirm_Agree".ToCulturelizeString(),
@@ -61,11 +69,11 @@ namespace NicoPlayerHohoema.ViewModels
                             () => AsyncInfo.Run<uint>(async (cancelToken, progress) =>
                             {
                                 uint cnt = 0;
-                                var token = await HohoemaApp.NiconicoContext.Live.GetReservationTokenAsync();
+                                var token = await LoginUserLiveReservationProvider.GetReservationTokenAsync();
 
                                 foreach (var reservation in dateOutReservations)
                                 {
-                                    await HohoemaApp.NiconicoContext.Live.DeleteReservationAsync(reservation.Id, token);
+                                    await LoginUserLiveReservationProvider.DeleteReservationAsync(reservation.Id, token);
 
                                     await Task.Delay(TimeSpan.FromSeconds(1));
 
@@ -80,61 +88,6 @@ namespace NicoPlayerHohoema.ViewModels
                     }));
             }
         }
-
-        private DelegateCommand _DeleteSelectedReservations;
-        public DelegateCommand DeleteSelectedReservations
-        {
-            get
-            {
-                return _DeleteSelectedReservations
-                    ?? (_DeleteSelectedReservations = new DelegateCommand(async () =>
-                    {
-                        var reservations = await HohoemaApp.ContentProvider.Context.Live.GetReservationsInDetailAsync();
-
-                        var selectedReservations = SelectedItems.ToList();
-
-                        if (selectedReservations.Count == 0) { return; }
-
-                        var dialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
-
-                        var reservationTitlesText = string.Join("\r", selectedReservations.Select(x => x.Label));
-                        var acceptDeletion = await dialogService.ShowMessageDialog(
-                            "DeleteReservationConfirmText".ToCulturelizeString() + "\r\r" + reservationTitlesText,
-                            "DeleteSelectedReservationConfirm_Title".ToCulturelizeString(),
-                            "DeleteReservationConfirm_Agree".ToCulturelizeString(),
-                            "Cancel".ToCulturelizeString()
-                            );
-
-                        if (!acceptDeletion) { return; }
-
-                        await PageManager.StartNoUIWork(
-                            "DeletingReservations".ToCulturelizeString()
-                            , selectedReservations.Count,
-                            () => AsyncInfo.Run<uint>(async (cancelToken, progress) =>
-                            {
-                                uint cnt = 0;
-                                var token = await HohoemaApp.NiconicoContext.Live.GetReservationTokenAsync();
-
-                                foreach (var reservation in selectedReservations)
-                                {
-                                    await HohoemaApp.NiconicoContext.Live.DeleteReservationAsync(reservation.Id, token);
-
-                                    await Task.Delay(TimeSpan.FromSeconds(1));
-
-                                    cnt++;
-
-                                    progress.Report(cnt);
-                                }
-
-                                await ResetList();
-                            })
-                            );
-                    }));
-            }
-        }
-
-
-
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
@@ -159,12 +112,19 @@ namespace NicoPlayerHohoema.ViewModels
                 new Microsoft.Toolkit.Uwp.UI.SortDescription("ExpiredAt", Microsoft.Toolkit.Uwp.UI.SortDirection.Ascending)
                 );
 
+            IncrementalLoadingItems.ObserveElementPropertyChanged()
+                .Where(x => x.EventArgs.PropertyName == nameof(x.Sender.Reservation) && x.Sender.Reservation == null)
+                .Subscribe(x =>
+                {
+                    ItemsView.Remove(x.Sender);
+                });
+
             base.PostResetList();
         }
 
         protected override IIncrementalSource<LiveInfoListItemViewModel> GenerateIncrementalSource()
         {
-            return new TimeshiftIncrementalCollectionSource(HohoemaApp.ContentProvider);
+            return new TimeshiftIncrementalCollectionSource(LoginUserLiveReservationProvider, NicoLiveProvider);
         }
     }
 
@@ -172,27 +132,28 @@ namespace NicoPlayerHohoema.ViewModels
 
     public class TimeshiftIncrementalCollectionSource : HohoemaIncrementalSourceBase<LiveInfoListItemViewModel>
     {
-        NiconicoContentProvider _ContentProvider;
-
-        IReadOnlyList<Mntone.Nico2.Live.ReservationsInDetail.Program> _Reservations;
-
+        public TimeshiftIncrementalCollectionSource(LoginUserLiveReservationProvider liveReservationProvider, NicoLiveProvider nicoLiveProvider)
+        {
+            LiveReservationProvider = liveReservationProvider;
+            NicoLiveProvider = nicoLiveProvider;
+        }
 
         public override uint OneTimeLoadCount => 30;
 
-        Mntone.Nico2.Live.Reservation.MyTimeshiftListData _TimeshiftList;
+        public NiconicoSession NiconicoSession { get; }
+        public LoginUserLiveReservationProvider LiveReservationProvider { get; }
+        public NicoLiveProvider NicoLiveProvider { get; }
 
-        public TimeshiftIncrementalCollectionSource(NiconicoContentProvider contentProvider)
-        {
-            _ContentProvider = contentProvider;
-        }
+        IReadOnlyList<Mntone.Nico2.Live.ReservationsInDetail.Program> _Reservations;
+        Mntone.Nico2.Live.Reservation.MyTimeshiftListData _TimeshiftList;
 
         protected override async Task<int> ResetSourceImpl()
         {
-            var reservations = await _ContentProvider.Context.Live.GetReservationsInDetailAsync();
+            var reservations = await LiveReservationProvider.GetReservtionsAsync();
 
             _Reservations = reservations.ReservedProgram;
 
-            _TimeshiftList = await _ContentProvider.Context.Live.GetMyTimeshiftListAsync();
+            _TimeshiftList = await LiveReservationProvider.GetTimeshiftListAsync();
 
             return reservations.ReservedProgram.Count;
         }
@@ -207,7 +168,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 if (NicoLiveDb.Get(item.Id) == null)
                 {
-                    var res = await _ContentProvider.GetLiveInfoAsync(item.Id);
+                    var res = await NicoLiveProvider.GetLiveInfoAsync(item.Id);
 
                     // チャンネル放送などで期限切れになると生放送情報が取れなくなるので
                     // 別APIで取得チャレンジ
@@ -215,7 +176,7 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         if (NicoLiveDb.Get(item.Id) == null)
                         {
-                            await _ContentProvider.GetLiveProgramInfoAsync(item.Id);
+                            await NicoLiveProvider.GetLiveProgramInfoAsync(item.Id);
                         }
                     }
                 }
@@ -228,10 +189,13 @@ namespace NicoPlayerHohoema.ViewModels
                     var liveData = NicoLiveDb.Get(x.Id);
                     var tsItem = _TimeshiftList?.Items.FirstOrDefault(y => y.Id == x.Id);
 
-                    return new LiveInfoListItemViewModel(liveData, x)
-                    {
-                        ExpiredAt = tsItem?.WatchTimeLimit ?? x.ExpiredAt,
-                    };
+                    var liveInfoVM = new LiveInfoListItemViewModel(x.Id);
+                    liveInfoVM.ExpiredAt = tsItem?.WatchTimeLimit ?? x.ExpiredAt;
+                    liveInfoVM.Setup(liveData);
+
+                    liveInfoVM.SetReservation(x);
+
+                    return liveInfoVM;
                 }
                 )
                 .ToAsyncEnumerable();

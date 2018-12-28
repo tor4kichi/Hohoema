@@ -16,27 +16,19 @@ namespace NicoPlayerHohoema.Models
 {
     public class OtherOwneredMylistManager
     {
+        public OtherOwneredMylistManager(
+            Models.Provider.MylistProvider mylistProvider,
+            Provider.UserProvider userProvider
+            )
+        {
+            MylistProvider = mylistProvider;
+            UserProvider = userProvider;
+        }
+
         public readonly Dictionary<string, OtherOwneredMylist> CachedMylist = new Dictionary<string, OtherOwneredMylist>();
 
-
-        NiconicoContentProvider NiconicoContentFinder { get; }
-
-        public OtherOwneredMylistManager(NiconicoContentProvider contentFinder)
-        {
-            NiconicoContentFinder = contentFinder;
-
-        }
-
-
-        public OtherOwneredMylist MakeAndRegistrationCache(MylistGroupData data, int sortIndex)
-        {
-            return new OtherOwneredMylist(data, sortIndex);
-        }
-
-        private OtherOwneredMylist MakeAndRegistrationCache(Mylistgroup mylistGroup)
-        {
-            return new OtherOwneredMylist(mylistGroup);
-        }
+        public Provider.MylistProvider MylistProvider { get; }
+        public Provider.UserProvider UserProvider { get; }
 
         public async Task<OtherOwneredMylist> GetMylist(string mylistGroupId)
         {
@@ -46,11 +38,19 @@ namespace NicoPlayerHohoema.Models
             }
             else
             {
-                var res = await NiconicoContentFinder.GetMylistGroupDetail(mylistGroupId);
+                var res = await MylistProvider.GetMylistGroupDetail(mylistGroupId);
                 if (res.IsOK)
                 {
                     var detail = res.MylistGroup;
-                    var mylist = MakeAndRegistrationCache(res.MylistGroup);
+                    var mylist = new OtherOwneredMylist()
+                    {
+                        Id = detail.Id,
+                        SortIndex = 0,
+                        Label = detail.Name,
+                        UserId = detail.UserId,
+                        Description = detail.Description,
+                        ItemCount = (int)detail.Count,
+                    };
                     CachedMylist.Add(mylistGroupId, mylist);
                     return mylist;
                 }
@@ -61,14 +61,37 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-        
+        public OtherOwneredMylist GetMylistIfCached(string mylistGroupId)
+        {
+            if (CachedMylist.ContainsKey(mylistGroupId))
+            {
+                return CachedMylist[mylistGroupId];
+            }
+            else
+            {
+                return null;
+            }
+        }
+
 
         public async Task<List<OtherOwneredMylist>> GetByUserId(string userId)
         {
-            var groups = await NiconicoContentFinder.GetUserMylistGroups(userId);
+            var groups = await UserProvider.GetUserMylistGroups(userId);
             if (groups == null ) { return null; }
 
-            var list = groups.Select((x, i) => MakeAndRegistrationCache(x, i)).ToList();
+            var list = groups.Select((x, i) => 
+            {
+                return new OtherOwneredMylist()
+                {
+                    Id = x.Id,
+                    SortIndex = i,
+                    Label = x.Name,
+                    UserId = x.UserId,
+                    Description = x.Description,
+                    ItemCount = x.Count,
+                };
+            }
+            ).ToList();
 
             foreach (var item in list)
             {
@@ -84,135 +107,21 @@ namespace NicoPlayerHohoema.Models
 
 
 
-    public sealed class OtherOwneredMylist : IPlayableList
+    public sealed class OtherOwneredMylist : Collection<string>, Interfaces.IOtherOwnedMylist
     {
-        public PlaylistOrigin Origin => PlaylistOrigin.OtherUser;
+        public OtherOwneredMylist() { }
 
-        public string Id { get; }
-        public int SortIndex { get; }
-        public string Label { get; }
-        public int Count { get; }
-        public string Description { get; }
-        public string OwnerUserId { get; }
-
-        private ObservableCollection<PlaylistItem> _PlaylistItems;
-        public ReadOnlyObservableCollection<PlaylistItem> PlaylistItems { get; }
+        public OtherOwneredMylist(IList<string> list) : base(list) { }
 
 
-
-        AsyncLock _FillVideoLock = new AsyncLock();
-
-        public OtherOwneredMylist()
-        {
-            _PlaylistItems = new ObservableCollection<PlaylistItem>();
-            PlaylistItems = new ReadOnlyObservableCollection<PlaylistItem>(_PlaylistItems);
-        }
-
-        private string _ThumnailUrl;
-        public string ThumnailUrl
-        {
-            get
-            {
-                if (_ThumnailUrl != null) { return _ThumnailUrl; }
-
-                var firstItem = _PlaylistItems.FirstOrDefault(x => x.Type == PlaylistItemType.Video)?.ContentId;
-                if (firstItem == null) { return null; }
-
-                var video = Database.NicoVideoDb.Get(firstItem);
-                return _ThumnailUrl = video.ThumbnailUrl;
-            }
-        }
+        public int ItemCount { get; internal set; }
+        public string Id { get; internal set; }
+        public int SortIndex { get; internal set; }
+        public string Label { get; internal set; }
+        public string Description { get; internal set; }
+        public string UserId { get; internal set; }
 
 
-        public ICommand AddItemCommand => new DelegateCommand(() => { }, () => false);
-
-
-        public OtherOwneredMylist(Mylistgroup details)
-            : this()
-        {
-            Id = details.Id;
-            Label = details.Name;
-            SortIndex = (int)details.GetSortOrder();
-            Count = (int)details.Count;
-            Description = details.Description;
-            OwnerUserId = details.UserId;
-
-            _ThumnailUrl = details.SampleVideoInfoItems?.FirstOrDefault()?.Video.ThumbnailUrl.OriginalString;
-        }
-
-        public OtherOwneredMylist(MylistGroupData data, int sortIndex = 0)
-            : this()
-        {
-            Id = data.Id;
-            Label = data.Name;
-            Count = (int)data.Count;
-            Description = data.Description;
-            SortIndex = sortIndex;
-            OwnerUserId = data.UserId;
-
-            _ThumnailUrl = data.ThumbnailUrls.FirstOrDefault()?.OriginalString;
-        }
-
-        public OtherOwneredMylist(MylistGroup data, int sortIndex = 0)
-            : this()
-        {
-            Id = data.Id;
-            Label = data.Name;
-            Count = (int)data.ItemCount;
-            Description = data.Description;
-            SortIndex = sortIndex;
-            OwnerUserId = data.VideoInfoItems?.FirstOrDefault()?.Video.UserId;
-
-            _ThumnailUrl = data.VideoInfoItems?.FirstOrDefault()?.Video.ThumbnailUrl.OriginalString;
-        }
-
-
-        public async Task<bool> FillAllVideosAsync()
-        {
-            using (var releaser = await _FillVideoLock.LockAsync())
-            {
-                if (_PlaylistItems.Count == Count)
-                {
-                    return true;
-                }
-
-                var contentManager = App.Current.Container.Resolve<NiconicoContentProvider>();
-                var tryCount = (Count / 150) + 1;
-                foreach (var index in Enumerable.Range(0, tryCount))
-                {
-                    var result = await contentManager.GetMylistGroupVideo(Id, (uint)index * 150, 150);
-
-                    if (!result.IsOK) { break; }
-
-                    foreach (var item in result.MylistVideoInfoItems)
-                    {
-                        var nicoVideo = Database.NicoVideoDb.Get(item.Video.Id);
-                        nicoVideo.Title = item.Video.Title;
-                        nicoVideo.ThumbnailUrl = item.Video.ThumbnailUrl.OriginalString;
-                        nicoVideo.PostedAt = item.Video.FirstRetrieve;
-                        nicoVideo.Length = item.Video.Length;
-                        nicoVideo.IsDeleted = item.Video.IsDeleted;
-                        nicoVideo.DescriptionWithHtml = item.Video.Description;
-                        nicoVideo.MylistCount = (int)item.Video.MylistCount;
-                        nicoVideo.CommentCount = (int)item.Thread.GetCommentCount();
-                        nicoVideo.ViewCount = (int)item.Video.ViewCount;
-
-                        Database.NicoVideoDb.AddOrUpdate(nicoVideo);
-
-                        _PlaylistItems.Add(new PlaylistItem()
-                        {
-                            Owner = this,
-                            Title = item.Video.Title,
-                            ContentId = item.Video.Id,
-                            Type = PlaylistItemType.Video,
-                        });
-                    }
-
-                    await Task.Delay(500);
-                }
-            }
-
-            return _PlaylistItems.Count == Count;
-        }
+        public bool IsFilled => ItemCount == this.Count;
     }
 }
