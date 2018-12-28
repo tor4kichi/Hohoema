@@ -400,7 +400,7 @@
                                            Width="36"
                                            />
 
-                                            <TextBlock Text="{Binding OwnerName}" 
+                                            <TextBlock Text="{Binding ProviderName}" 
                                            VerticalAlignment="Center"
                                            Margin="8 0 0 0"
                                            />
@@ -409,7 +409,7 @@
                                         <Button.Flyout>
                                             <MenuFlyout>
                                                 <MenuFlyoutItem Text="投稿者の詳細"
-                                                                Command="{Binding PageManager.OpenPageCommand}"
+                                                                Command="{Binding PageManager.OpenContentOwnerPageCommand}"
                                                                 CommandParameter="{Binding}"
                                                                 />
 
