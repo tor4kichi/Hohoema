@@ -17,15 +17,12 @@ namespace NicoPlayerHohoema.ViewModels
 {
     public class LiveInfoListItemViewModel : HohoemaListingPageItemBase, Interfaces.ILiveContent, Views.Extensions.ListViewBase.IDeferInitialize
     {
-        public LiveInfoListItemViewModel(
-            Services.HohoemaPlaylist hohoemaPlaylist,
-            PageManager pageManager,
-            ExternalAccessService externalAccessService
-            )         
+        public LiveInfoListItemViewModel(string liveId)
         {
-            HohoemaPlaylist = hohoemaPlaylist;
-            PageManager = pageManager;
-            ExternalAccessService = externalAccessService;
+            LiveId = liveId;
+            HohoemaPlaylist = App.Current.Container.Resolve<Services.HohoemaPlaylist>();
+            PageManager = App.Current.Container.Resolve<Services.PageManager>();
+            ExternalAccessService = App.Current.Container.Resolve<Services.ExternalAccessService>();
         }
 
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
@@ -34,16 +31,16 @@ namespace NicoPlayerHohoema.ViewModels
         public Mntone.Nico2.Live.ReservationsInDetail.Program Reservation { get; private set; }
 
 
-        public string LiveId { get; private set; }
+        public string LiveId { get; }
 
-		public string CommunityName { get; private set; }
-		public string CommunityThumbnail { get; private set; }
-		public string CommunityGlobalId { get; private set; }
-		public Mntone.Nico2.Live.CommunityType CommunityType { get; private set; }
+		public string CommunityName { get; protected set; }
+		public string CommunityThumbnail { get; protected set; }
+		public string CommunityGlobalId { get; protected set; }
+		public Mntone.Nico2.Live.CommunityType CommunityType { get; protected set; }
 
-		public string LiveTitle { get; private set; }
-		public int ViewCounter { get; private set; }
-		public int CommentCount { get; private set; }
+		public string LiveTitle { get; protected set; }
+		public int ViewCounter { get; protected set; }
+		public int CommentCount { get; protected set; }
 		public DateTimeOffset OpenTime { get; private set; }
 		public DateTimeOffset StartTime { get; private set; }
 		public bool HasEndTime { get; private set; }
@@ -98,8 +95,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         public void Setup(Mntone.Nico2.Live.Recommend.LiveRecommendData liveVideoInfo)
         {
-            LiveId = "lv" + liveVideoInfo.ProgramId;
-
             CommunityThumbnail = liveVideoInfo.ThumbnailUrl;
 
             CommunityGlobalId = liveVideoInfo.DefaultCommunity;
@@ -141,7 +136,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         public void Setup(VideoInfo liveVideoInfo)
         {
-            LiveId = liveVideoInfo.Video.Id;
             CommunityName = liveVideoInfo.Community?.Name;
             if (liveVideoInfo.Community?.Thumbnail != null)
             {
@@ -205,7 +199,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         public void Setup(NicoLive liveData)
         {
-            LiveId = liveData.LiveId;
             CommunityName = liveData.BroadcasterName;
             if (liveData.ThumbnailUrl != null)
             {

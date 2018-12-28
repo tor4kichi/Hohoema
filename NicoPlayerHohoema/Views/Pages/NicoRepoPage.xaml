@@ -182,6 +182,14 @@
             <ListView.ItemTemplate>
                 <DataTemplate>
                     <Grid>
+
+                        <TextBlock Text="{Binding ItemTopic}"
+                                   Opacity="0.7"
+                                   FontSize="12"
+                                   HorizontalAlignment="Right"
+                                   VerticalAlignment="Bottom"
+                                   />
+
                         <listitem:HohoemaListItemVideo  />
                     </Grid>
                 </DataTemplate>

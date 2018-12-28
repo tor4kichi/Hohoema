@@ -21,7 +21,7 @@ using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class NicoRepoPageViewModel : HohoemaListingPageViewModelBase<NicoRepoTimelineVM>
+    public class NicoRepoPageViewModel : HohoemaListingPageViewModelBase<HohoemaListingPageItemBase>
     {
         public NicoRepoPageViewModel(
             
@@ -89,7 +89,7 @@ namespace NicoPlayerHohoema.ViewModels
             base.OnNavigatingFrom(e, viewModelState, suspending);
         }
 
-        protected override IIncrementalSource<NicoRepoTimelineVM> GenerateIncrementalSource()
+        protected override IIncrementalSource<HohoemaListingPageItemBase> GenerateIncrementalSource()
         {
             if (DisplayNicoRepoItemTopics.Count == 0)
             {
@@ -100,58 +100,13 @@ namespace NicoPlayerHohoema.ViewModels
     }
 
 
-    public class NicoRepoLiveTimeline : NicoRepoTimelineVM, Interfaces.ILiveContent
+    public class NicoRepoLiveTimeline : LiveInfoListItemViewModel, Interfaces.ILiveContent
     {
-        public NicoRepoLiveTimeline(NicoRepoTimelineItem timelineItem, NicoRepoItemTopic itemType) 
-            : base(timelineItem, itemType)
-        {
-            if (timelineItem.SenderChannel != null)
-            {
-                this._ProviderType = CommunityType.Channel;
-            }
-            else if (timelineItem.Community != null)
-            {
-                this._ProviderType = CommunityType.Community;
-            }
-            else
-            {
-                this._ProviderType = CommunityType.Official;
-            }
-        }
-
-        public string BroadcasterId => ProviderId.ToString();
-
-        CommunityType _ProviderType;
-        CommunityType ILiveContent.ProviderType => _ProviderType;
-    }
-
-    public class NicoRepoVideoTimeline : NicoRepoTimelineVM, Interfaces.IVideoContent
-    {
-        public Models.Subscription.SubscriptionManager SubscriptionManager { get; }
-
-        public NicoRepoVideoTimeline(NicoRepoTimelineItem timelineItem, NicoRepoItemTopic itemType, Models.Subscription.SubscriptionManager subscriptionManager) 
-            : base(timelineItem, itemType)
-        {
-            SubscriptionManager = subscriptionManager;
-        }
-
-        Interfaces.IMylist IVideoContent.OnwerPlaylist => null;
-    }
-
-
-    public class NicoRepoTimelineVM : HohoemaListingPageItemBase
-    {
-        public NicoRepoTimelineItem TimelineItem { get; private set; }
-
-        public HohoemaPlaylist HohoemaPlaylist { get; private set; }
-
-        public NicoRepoItemTopic ItemTopic { get; private set; }
-
-        public NicoRepoTimelineVM(NicoRepoTimelineItem timelineItem, NicoRepoItemTopic itemType)
+        public NicoRepoLiveTimeline(NicoRepoTimelineItem timelineItem, NicoRepoItemTopic itemTopic) 
+            : base(timelineItem.Program.Id)
         {
             TimelineItem = timelineItem;
-            ItemTopic = itemType;
-
+            ItemTopic = itemTopic;
             if (TimelineItem.Program != null)
             {
                 this.Label = TimelineItem.Program.Title;
@@ -160,17 +115,49 @@ namespace NicoPlayerHohoema.ViewModels
 
                 if (TimelineItem.Community != null)
                 {
-                    _OwnerUserId = TimelineItem.Community.Id;
-                    ProviderName = TimelineItem.Community.Name;
+                    CommunityGlobalId = TimelineItem.Community.Id;
+                    CommunityName = TimelineItem.Community.Name;
                 }
                 else
                 {
-                    _OwnerUserId = TimelineItem.SenderChannel.Id.ToString();
-                    ProviderName = TimelineItem.SenderChannel.Name;
-                    ProviderType = UserType.User;
+                    CommunityGlobalId = TimelineItem.SenderChannel.Id.ToString();
+                    CommunityName = TimelineItem.SenderChannel.Name;
                 }
             }
-            else if (TimelineItem.Video != null)
+
+            if (timelineItem.SenderChannel != null)
+            {
+                this.CommunityType = CommunityType.Channel;
+            }
+            else if (timelineItem.Community != null)
+            {
+                this.CommunityType = CommunityType.Community;
+            }
+            else
+            {
+                this.CommunityType = CommunityType.Official;
+            }
+
+            Description = NicoRepoTimelineVM.ItemTopictypeToDescription(ItemTopic, TimelineItem);
+        }
+
+
+        public NicoRepoTimelineItem TimelineItem { get; private set; }
+
+        public NicoRepoItemTopic ItemTopic { get; private set; }
+
+        public string BroadcasterId => CommunityGlobalId.ToString();
+    }
+
+    public class NicoRepoVideoTimeline : VideoInfoControlViewModel
+    {
+        public NicoRepoVideoTimeline(NicoRepoTimelineItem timelineItem, NicoRepoItemTopic itemType) 
+            : base(timelineItem.Video.Id)
+        {
+            TimelineItem = timelineItem;
+            ItemTopic = itemType;
+
+            if (TimelineItem.Video != null)
             {
                 this.Label = TimelineItem.Video.Title;
                 if (TimelineItem.Video.ThumbnailUrl.Small != null)
@@ -184,14 +171,16 @@ namespace NicoPlayerHohoema.ViewModels
                 this.OptionText = $"{TimelineItem.CreatedAt.ToString()}";
             }
 
+            Description = NicoRepoTimelineVM.ItemTopictypeToDescription(ItemTopic, TimelineItem);
+            /*
 
             if (TimelineItem.SenderNiconicoUser != null)
             {
-                _OwnerUserId = TimelineItem.SenderNiconicoUser.Id.ToString();
+                ProviderId = TimelineItem.SenderNiconicoUser.Id.ToString();
                 ProviderName = TimelineItem.SenderNiconicoUser.Nickname;
                 ProviderType = UserType.User;
             }
-            
+
 
             if (TimelineItem.SenderNiconicoUser != null)
             {
@@ -200,58 +189,76 @@ namespace NicoPlayerHohoema.ViewModels
             else if (TimelineItem.SenderChannel != null)
             {
                 this.Description = this.TimelineItem.SenderChannel.Name;
+                _OwnerUserId = TimelineItem.SenderChannel.Id.ToString();
                 ProviderType = UserType.Channel;
             }
+            */
 
-            switch (ItemTopic)
+        }
+
+
+        public NicoRepoTimelineItem TimelineItem { get; private set; }
+
+        public NicoRepoItemTopic ItemTopic { get; private set; }
+    }
+
+
+    public static class NicoRepoTimelineVM 
+    {
+      
+        public static string ItemTopictypeToDescription(NicoRepoItemTopic topicType, NicoRepoTimelineItem timelineItem)
+        {
+            switch (topicType)
             {
                 case NicoRepoItemTopic.Unknown:
-                    Description = $"（対応していないニコレポアイテム）";
-                    break;
+                    return $"（対応していないニコレポアイテム）";
+                    
                 case NicoRepoItemTopic.NicoVideo_User_Video_Kiriban_Play:
-                    Description = $"動画再生数がキリ番に到達しました";
-                    break;
+                    return $"動画再生数がキリ番に到達しました";
+                    
                 case NicoRepoItemTopic.NicoVideo_User_Video_Upload:
-                    Description = $"{this.TimelineItem.SenderNiconicoUser.Nickname} さんが動画を投稿";
-                    break;
+                    return $"{timelineItem.SenderNiconicoUser.Nickname} さんが動画を投稿";
+                    
                 case NicoRepoItemTopic.NicoVideo_Community_Level_Raise:
-                    Description = $"コミュニティレベル";
-                    break;
+                    return $"コミュニティレベル";
+                    
                 case NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video:
-                    Description = $"{this.TimelineItem.SenderNiconicoUser.Nickname} さんがマイリストに動画を追加";
-                    break;
+                    return $"{timelineItem.SenderNiconicoUser.Nickname} さんがマイリストに動画を追加";
+                    
                 case NicoRepoItemTopic.NicoVideo_User_Community_Video_Add:
-                    Description = $"コミュニティ動画に動画が追加されました";
-                    break;
+                    return $"コミュニティ動画に動画が追加されました";
+                    
                 case NicoRepoItemTopic.NicoVideo_User_Video_UpdateHighestRankings:
-                    Description = $"動画がランキングにランクイン";
-                    break;
+                    return $"動画がランキングにランクイン";
+                    
                 case NicoRepoItemTopic.NicoVideo_User_Video_Advertise:
-                    Description = $"動画が広告されました";
-                    break;
+                    return $"動画が広告されました";
+                    
                 case NicoRepoItemTopic.NicoVideo_Channel_Blomaga_Upload:
-                    Description = $"ブロマガが投稿されました";
-                    break;
+                    return $"ブロマガが投稿されました";
+                    
                 case NicoRepoItemTopic.NicoVideo_Channel_Video_Upload:
-                    Description = $"{this.TimelineItem.SenderChannel.Name} が動画を投稿";
-                    break;
+                    return $"{timelineItem.SenderChannel.Name} が動画を投稿";
+                    
                 case NicoRepoItemTopic.Live_User_Program_OnAirs:
-                    Description = $"{this.TimelineItem.SenderNiconicoUser.Nickname} さんが生放送を開始";
-                    break;
+                    return $"{timelineItem.SenderNiconicoUser.Nickname} さんが生放送を開始";
+                    
                 case NicoRepoItemTopic.Live_User_Program_Reserve:
-                    Description = $"{this.TimelineItem.SenderNiconicoUser.Nickname} さんが生放送を予約";
-                    break;
+                    return $"{timelineItem.SenderNiconicoUser.Nickname} さんが生放送を予約";
+                    
                 case NicoRepoItemTopic.Live_Channel_Program_Onairs:
-                    Description = $"{this.TimelineItem.SenderChannel.Name} が生放送を開始";
-                    break;
+                    return $"{timelineItem.SenderChannel.Name} が生放送を開始";
+                    
                 case NicoRepoItemTopic.Live_Channel_Program_Reserve:
-                    Description = $"{this.TimelineItem.SenderChannel.Name} が生放送を予約";
-                    break;
+                    return $"{timelineItem.SenderChannel.Name} が生放送を予約";
+                    
                 default:
-                    break;
+                    return string.Empty;
             }
         }
 
+
+        /*
         private string _OwnerUserId;
         public string ProviderId => _OwnerUserId;
 
@@ -260,10 +267,11 @@ namespace NicoPlayerHohoema.ViewModels
         public UserType ProviderType { get; private set; }
 
         public string Id => TimelineItem.Video?.Id ?? TimelineItem.Program.Id;        
+        */
     }
 
 
-    public class LoginUserNicoRepoTimelineSource : HohoemaIncrementalSourceBase<NicoRepoTimelineVM>
+    public class LoginUserNicoRepoTimelineSource : HohoemaIncrementalSourceBase<HohoemaListingPageItemBase>
     {
         public List<NicoRepoItemTopic> AllowedNicoRepoItemType { get; }
 
@@ -352,7 +360,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         DateTime NiconamaDisplayTime = DateTime.Now - TimeSpan.FromHours(6);
 
-        protected override async Task<IAsyncEnumerable<NicoRepoTimelineVM>> GetPagedItemsImpl(int head, int count)
+        protected override async Task<IAsyncEnumerable<HohoemaListingPageItemBase>> GetPagedItemsImpl(int head, int count)
         {
             var tail = head + count;
             var prevCount = TimelineItems.Count;
@@ -384,10 +392,10 @@ namespace NicoPlayerHohoema.ViewModels
                 }
             }
 
-            var list = new List<NicoRepoTimelineVM>();
+            var list = new List<HohoemaListingPageItemBase>();
 
             return TimelineItems.Skip(head).Take(count).ToArray()
-                .Select<NicoRepoTimelineItem, NicoRepoTimelineVM>(item => 
+                .Select<NicoRepoTimelineItem, HohoemaListingPageItemBase>(item => 
                 {
                     var topicType = NicoRepoItemTopicExtension.ToNicoRepoTopicType(item.Topic);
                     if (topicType == NicoRepoItemTopic.Live_User_Program_OnAirs
@@ -401,7 +409,7 @@ namespace NicoPlayerHohoema.ViewModels
                             topicType == NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video || 
                             topicType == NicoRepoItemTopic.NicoVideo_Channel_Video_Upload)
                     {
-                        return new NicoRepoVideoTimeline(item, topicType, SubscriptionManager);
+                        return new NicoRepoVideoTimeline(item, topicType);
                     }
                     else
                     {
