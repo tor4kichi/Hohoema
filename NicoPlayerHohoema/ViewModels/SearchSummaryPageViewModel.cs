@@ -99,7 +99,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .SelectMany(x => x)
                 .Select(x =>
                 {
-                    var liveInfoVM = App.Current.Container.Resolve<LiveInfoListItemViewModel>();
+                    var liveInfoVM = new LiveInfoListItemViewModel(x.Video.Id);
                     liveInfoVM.Setup(x);
                     return liveInfoVM;
                 })

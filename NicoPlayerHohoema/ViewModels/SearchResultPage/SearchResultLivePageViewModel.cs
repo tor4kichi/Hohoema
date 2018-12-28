@@ -433,7 +433,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             return Info.Skip(head).Take(count).Select(x =>
 			{
-                var liveInfoVM = App.Current.Container.Resolve<LiveInfoListItemViewModel>();
+                var liveInfoVM = new LiveInfoListItemViewModel(x.Video.Id);
                 liveInfoVM.Setup(x);
 
                 var reserve = _Reservations?.ReservedProgram.FirstOrDefault(reservation => x.Video.Id == reservation.Id);

@@ -12,16 +12,30 @@ namespace NicoPlayerHohoema.Services
     public sealed class ExternalAccessService : BindableBase
     {
 
-        static private Uri ConvertToUrl(Interfaces.INiconicoContent content)
+        static private Uri ConvertToUrl(Interfaces.INiconicoObject content)
         {
             Uri uri = null;
             switch (content)
             {
                 case Interfaces.IUser user:
+                    uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.MakeUserPageUrl(user.Id)));
                     break;
                 case Interfaces.IVideoContent videoContent:
                     uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.VideoWatchPageUrl, videoContent.Id));
                     break;
+                case Interfaces.IMylistItem mylist:
+                    uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.MakeMylistPageUrl(mylist.Id)));
+                    break;
+                case Interfaces.ILiveContent live:
+                    uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.LiveWatchPageUrl, live.Id));
+                    break;
+                case Interfaces.IChannel channel:
+                    uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.ChannelUrlBase, channel.Id));
+                    break;
+                case Interfaces.ICommunity community:
+                    uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.CommynitySammaryPageUrl, community.Id));
+                    break;
+
                 default:
                     break;
             }
@@ -38,7 +52,7 @@ namespace NicoPlayerHohoema.Services
         public DelegateCommand<object> CopyToClipboardCommand => _CopyToClipboardCommand
             ?? (_CopyToClipboardCommand = new DelegateCommand<object>(content =>
             {
-                if (content is Interfaces.INiconicoContent niconicoContent)
+                if (content is Interfaces.INiconicoObject niconicoContent)
                 {
                     var uri = ConvertToUrl(niconicoContent);
                     Helpers.ClipboardHelper.CopyToClipboard(uri.OriginalString);
@@ -82,7 +96,7 @@ namespace NicoPlayerHohoema.Services
             ?? (_OpenLinkCommand = new DelegateCommand<object>(content =>
             {
                 Uri uri = null;
-                if (content is Interfaces.INiconicoContent niconicoContent)
+                if (content is Interfaces.INiconicoObject niconicoContent)
                 {
                     uri = ConvertToUrl(niconicoContent);
 
@@ -104,7 +118,7 @@ namespace NicoPlayerHohoema.Services
             }
             , content =>
             {
-                if (content is Interfaces.INiconicoContent) { return true; }
+                if (content is Interfaces.INiconicoObject) { return true; }
                 else if (content is Uri) { return true; }
                 else if (content is string) { return Uri.TryCreate(content as string, UriKind.Absolute, out var uri); }
                 else { return false; }

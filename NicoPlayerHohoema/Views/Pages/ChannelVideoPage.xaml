@@ -177,7 +177,7 @@
                                                 />
 
                                 <AppBarButton Label="ブラウザで開く"
-                                            Command="{Binding ExternalAccessService.OpenLinkCommnad}"
+                                            Command="{Binding ExternalAccessService.OpenLinkCommand}"
                                               CommandParameter="{Binding}"
                                             VerticalAlignment="Center"
                                             UseSystemFocusVisuals="True"

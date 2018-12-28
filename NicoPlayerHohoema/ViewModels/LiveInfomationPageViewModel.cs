@@ -100,7 +100,7 @@ namespace NicoPlayerHohoema.ViewModels
             ReccomendItems = _ReccomendItems.ToReadOnlyReactiveCollection(x =>
             {
                 var liveId = "lv" + x.ProgramId;
-                var liveInfoVM = App.Current.Container.Resolve<LiveInfoListItemViewModel>();
+                var liveInfoVM = new LiveInfoListItemViewModel(liveId);
                 liveInfoVM.Setup(x);
 
                 var reserve = _Reservations?.ReservedProgram.FirstOrDefault(reservation => liveId == reservation.Id);

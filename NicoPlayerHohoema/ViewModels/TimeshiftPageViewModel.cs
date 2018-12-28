@@ -189,7 +189,7 @@ namespace NicoPlayerHohoema.ViewModels
                     var liveData = NicoLiveDb.Get(x.Id);
                     var tsItem = _TimeshiftList?.Items.FirstOrDefault(y => y.Id == x.Id);
 
-                    var liveInfoVM = App.Current.Container.Resolve<LiveInfoListItemViewModel>();
+                    var liveInfoVM = new LiveInfoListItemViewModel(x.Id);
                     liveInfoVM.ExpiredAt = tsItem?.WatchTimeLimit ?? x.ExpiredAt;
                     liveInfoVM.Setup(liveData);
 
