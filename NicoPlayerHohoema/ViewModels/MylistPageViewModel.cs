@@ -236,7 +236,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<PlaylistOrigin> MylistOrigin { get; }
 
         
-        public ReadOnlyObservableCollection<MylistVideItemViewModel> MylistItems { get; private set; }
+        public ICollection<MylistVideItemViewModel> MylistItems { get; private set; }
 
         public int MaxItemsCount { get; private set; }
 
@@ -530,6 +530,18 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
+        private DelegateCommand _RefreshCommand;
+        public DelegateCommand RefreshCommand
+        {
+            get
+            {
+                return _RefreshCommand
+                    ?? (_RefreshCommand = new DelegateCommand(() =>
+                    {
+                        _ = Reset();
+                    }));
+            }
+        }
 
         #endregion
 
@@ -659,7 +671,8 @@ namespace NicoPlayerHohoema.ViewModels
 
                 case PlaylistOrigin.OtherUser:
                     var otherOwnedMylist = Mylist.Value as OtherOwneredMylist;
-                    MylistItems = new ReadOnlyObservableCollection<MylistVideItemViewModel>(new ObservableCollection<MylistVideItemViewModel>(otherOwnedMylist.Select(x => new MylistVideItemViewModel(x, otherOwnedMylist))));
+
+                    MylistItems = new IncrementalLoadingCollection<OtherOwnedMylistIncrementalSource, MylistVideItemViewModel>(new OtherOwnedMylistIncrementalSource(otherOwnedMylist, MylistProvider, NgSettings));
 
                     var response = await MylistProvider.GetMylistGroupDetail(Mylist.Value.Id);
                     var mylistGroupDetail = response.MylistGroup;
@@ -683,11 +696,6 @@ namespace NicoPlayerHohoema.ViewModels
                     }
 
                     CanEditMylist = false;
-
-                    if (!otherOwnedMylist.IsFilled)
-                    {
-                        await MylistProvider.FillMylistGroupVideo(otherOwnedMylist);
-                    }
 
                     break;
 
@@ -729,13 +737,18 @@ namespace NicoPlayerHohoema.ViewModels
 
     }
     
-	public class MylistIncrementalSource : HohoemaIncrementalSourceBase<MylistVideItemViewModel>
+	public class OtherOwnedMylistIncrementalSource : HohoemaIncrementalSourceBase<MylistVideItemViewModel>
 	{
-        public MylistIncrementalSource(Interfaces.IMylist list, NGSettings ngSettings = null)
+        public OtherOwnedMylistIncrementalSource(
+            OtherOwneredMylist list
+            , MylistProvider mylistProvider
+            , NGSettings ngSettings = null
+            )
             : base()
         {
             MylistGroupId = list.Id;
-            PlayableList = list;
+            Mylist = list;
+            MylistProvider = mylistProvider;
             NgSettings = ngSettings;
         }
 
@@ -744,7 +757,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         public string MylistGroupId { get; private set; }
 
-        Interfaces.IMylist PlayableList { get; }
+        OtherOwneredMylist Mylist { get; }
+        public MylistProvider MylistProvider { get; }
         public NGSettings NgSettings { get; }
 
         
@@ -754,22 +768,16 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override async Task<IAsyncEnumerable<MylistVideItemViewModel>> GetPagedItemsImpl(int head, int count)
         {
-            // MylistのFillAllVideosAsync で内容が読み込まれるのを待つ
-            if (head == 0 && PlayableList.Count > 0)
+            var tail = head + count;
+            if (Mylist.Count < tail && Mylist.Count != Mylist.ItemCount)
             {
-                using (var cancelToken = new CancellationTokenSource(TimeSpan.FromSeconds(5)))
-                {
-                    while (PlayableList.Count == 0 && !cancelToken.Token.IsCancellationRequested)
-                    {
-                        await Task.Delay(100);
-                    }
-
-                }
+                // さらに読み込みが必要な場合は取得する
+                var added = await MylistProvider.GetMylistGroupVideo(Mylist, (uint)count);
             }
 
-            return PlayableList.Skip(head).Take(count).Select(x =>
+            return Mylist.Skip(head).Take(count).Select(x =>
                 {
-                    var vm = new MylistVideItemViewModel(x, PlayableList);
+                    var vm = new MylistVideItemViewModel(x, Mylist);
                     return vm;
                 })
                 .ToAsyncEnumerable();
@@ -778,7 +786,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override Task<int> ResetSourceImpl()
         {
-            return Task.FromResult(PlayableList.Count);
+            return Task.FromResult(Mylist.ItemCount);
         }
 
 

@@ -102,6 +102,8 @@
                     <VisualState.Setters>
                         <Setter Target="ToggleMylistFavoriteButton.Visibility" Value="Visible" />
 
+                        <Setter Target="ItemsList.IncrementalLoadingTrigger" Value="Edge" />
+                        <Setter Target="ItemsList.PullThreshold" Value="85" />
                     </VisualState.Setters>
                 </VisualState>
 
@@ -125,9 +127,10 @@
 
 
 
-        <ListView
+        <uwpcontrols:PullToRefreshListView 
             x:Name="ItemsList"
             ItemsSource="{Binding MylistItems, Mode=OneWay}"
+            RefreshCommand="{Binding RefreshCommand}"
             IsItemClickEnabled="True"
             UseSystemFocusVisuals="True"
             SelectionMode="None"
@@ -144,7 +147,18 @@
                     <flyouts:MylistVideoItemFlyout />
                 </DataTemplate>
             </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
-                        
+
+            <i:Interaction.Behaviors>
+
+                <mybehavior:KeyboardTrigger Key="F5">
+                    <mybehavior:KeyboardTrigger.Actions>
+                        <core:InvokeCommandAction Command="{Binding RefreshCommand}" />
+                    </mybehavior:KeyboardTrigger.Actions>
+                </mybehavior:KeyboardTrigger>
+
+            </i:Interaction.Behaviors>
+
+            
             <ListView.Header>
 
 
@@ -270,10 +284,15 @@
 
                                 <CommandBar.SecondaryCommands>
 
-                                    
+
+                                    <AppBarButton Command="{Binding RefreshCommand}"
+                                        Background="Transparent"
+                                        Icon="Refresh"
+                                        Label="更新"
+                                    >
+                                    </AppBarButton>
 
 
-                                    
                                     <AppBarButton Command="{Binding OpenMylistOwnerCommand}"
                                         Background="Transparent"
                                         x:Name="OpenUserPageButton"
@@ -327,7 +346,7 @@
                 </DataTemplate>
             </ListView.ItemTemplate>
 
-        </ListView>
+        </uwpcontrols:PullToRefreshListView>
 
     </Grid>
 </Page>

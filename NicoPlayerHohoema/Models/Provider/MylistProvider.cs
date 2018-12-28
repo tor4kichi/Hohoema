@@ -20,19 +20,49 @@ namespace NicoPlayerHohoema.Models.Provider
             return await Context.Mylist.GetMylistGroupDetailAsync(mylistGroupid);
         }
 
-        public async Task<OtherOwneredMylist> GetMylistGroupVideo(string mylistGroupid, uint from = 0, uint limit = 50)
+
+        public async Task<int> GetMylistGroupVideo(OtherOwneredMylist mylist, uint limit = 50)
         {
-            var detail = await GetMylistGroupDetail(mylistGroupid);
+            var mylistGroupId = mylist.Id;
+            var res = await NiconicoSession.Context.Mylist.GetMylistGroupVideoAsync(mylistGroupId, (uint)mylist.Count, limit);
+            if (!res.IsOK) { return 0; }
+
+            var videos = res.MylistVideoInfoItems;
+
+            foreach (var item in videos)
+            {
+                var nicoVideo = Database.NicoVideoDb.Get(item.Video.Id);
+                nicoVideo.Title = item.Video.Title;
+                nicoVideo.ThumbnailUrl = item.Video.ThumbnailUrl.OriginalString;
+                nicoVideo.PostedAt = item.Video.FirstRetrieve;
+                nicoVideo.Length = item.Video.Length;
+                nicoVideo.IsDeleted = item.Video.IsDeleted;
+                nicoVideo.DescriptionWithHtml = item.Video.Description;
+                nicoVideo.MylistCount = (int)item.Video.MylistCount;
+                nicoVideo.CommentCount = (int)item.Thread.GetCommentCount();
+                nicoVideo.ViewCount = (int)item.Video.ViewCount;
+
+                Database.NicoVideoDb.AddOrUpdate(nicoVideo);
+
+                mylist.Add(item.Video.Id);
+            }
+
+            return videos.Count;
+        }
+
+        public async Task<OtherOwneredMylist> GetMylistGroupVideo(string mylistGroupId, uint from = 0, uint limit = 50)
+        {
+            var detail = await GetMylistGroupDetail(mylistGroupId);
             if (!detail.IsOK) { return null; }
 
-            var res = await NiconicoSession.Context.Mylist.GetMylistGroupVideoAsync(mylistGroupid, from, limit);
+            var res = await NiconicoSession.Context.Mylist.GetMylistGroupVideoAsync(mylistGroupId, from, limit);
             if (!res.IsOK) { return null; }
 
             var mylistInfo = detail.MylistGroup;
             var videos = res.MylistVideoInfoItems;
             var mylist = new OtherOwneredMylist()
             {
-                Id = mylistGroupid,
+                Id = mylistGroupId,
                 Label = mylistInfo.Name,
                 Description = mylistInfo.Description,
                 UserId = mylistInfo.UserId,
@@ -60,15 +90,15 @@ namespace NicoPlayerHohoema.Models.Provider
             return mylist;
         }
 
-        public async Task<OtherOwneredMylist> GetMylistGroupVideo(string mylistGroupid)
+        public async Task<OtherOwneredMylist> GetMylistGroupVideo(string mylistGroupId)
         {
-            var detail = await GetMylistGroupDetail(mylistGroupid);
+            var detail = await GetMylistGroupDetail(mylistGroupId);
             if (!detail.IsOK) { return null; }
 
             var mylistInfo = detail.MylistGroup;
             var mylist = new OtherOwneredMylist()
             {
-                Id = mylistGroupid,
+                Id = mylistGroupId,
                 Label = mylistInfo.Name,
                 Description = mylistInfo.Description,
                 UserId = mylistInfo.UserId,
@@ -85,7 +115,7 @@ namespace NicoPlayerHohoema.Models.Provider
                     await Task.Delay(500);
                 }
 
-                var result = await NiconicoSession.Context.Mylist.GetMylistGroupVideoAsync(mylistGroupid, (uint)index * 150, 150);
+                var result = await NiconicoSession.Context.Mylist.GetMylistGroupVideoAsync(mylistGroupId, (uint)index * 150, 150);
 
                 if (!result.IsOK) { break; }
 
