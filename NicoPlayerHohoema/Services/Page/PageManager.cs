@@ -341,15 +341,13 @@ namespace NicoPlayerHohoema.Services
                             OpenPage(HohoemaPageType.Community, liveContent.ProviderId);
                         }
                         break;
-                    case Interfaces.IMylist mylistContent:
-                        OpenPage(HohoemaPageType.UserInfo, mylistContent);
-
-                        break;
                     case Interfaces.IMylistItem mylistItemContent:
                         OpenPage(HohoemaPageType.Mylist, new MylistPagePayload(mylistItemContent.Id).ToParameterString());
                         break;
                 }
-            }));
+            }
+            , parameter => parameter is Interfaces.INiconicoContent
+            ));
 
         public bool OpenPage(Uri uri)
 		{
