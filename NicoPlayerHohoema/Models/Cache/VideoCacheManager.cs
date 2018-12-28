@@ -955,15 +955,15 @@ namespace NicoPlayerHohoema.Models.Cache
         }
 
 
-        public async Task<IEnumerable<NicoVideoCacheInfo>> EnumerateCacheVideosAsync()
+        public async Task<List<NicoVideoCacheInfo>> EnumerateCacheVideosAsync()
         {
             using (var releaser = await _CacheRequestProcessingLock.LockAsync())
             {
-                return _CacheVideos.SelectMany(x => x.Value).ToArray();
+                return _CacheVideos.SelectMany(x => x.Value).ToList();
             }
         }
 
-        public async Task<IEnumerable<NicoVideoCacheRequest>> EnumerateCacheRequestedVideosAsync()
+        public async Task<List<NicoVideoCacheRequest>> EnumerateCacheRequestedVideosAsync()
         {
             List<NicoVideoCacheRequest> list = new List<NicoVideoCacheRequest>();
 
@@ -979,7 +979,7 @@ namespace NicoPlayerHohoema.Models.Cache
             return list;
         }
 
-        public async Task<IEnumerable<NicoVideoCacheRequest>> GetCacheRequest(string videoId)
+        public async Task<List<NicoVideoCacheRequest>> GetCacheRequest(string videoId)
         {
             using (var releaser = await _CacheRequestProcessingLock.LockAsync())
             {
@@ -996,7 +996,7 @@ namespace NicoPlayerHohoema.Models.Cache
             }
         }
 
-        public async Task<IEnumerable<NicoVideoCacheProgress>> GetDownloadProgressVideosAsync()
+        public async Task<List<NicoVideoCacheProgress>> GetDownloadProgressVideosAsync()
         {
             using (var releaser2 = await _CacheRequestProcessingLock.LockAsync())
             {
@@ -1547,9 +1547,6 @@ namespace NicoPlayerHohoema.Models.Cache
             }
         }
 
-
-
-
         private void TriggerCacheStateChangedEventOnUIThread(NicoVideoCacheRequest req, NicoVideoCacheState cacheState)
         {
             Scheduler.Schedule(() => 
@@ -1571,28 +1568,6 @@ namespace NicoPlayerHohoema.Models.Cache
         SuspendDownload,
     }
 
-
-
-    public class NicoVideoCacheProgress : NicoVideoCacheRequest
-    {
-        public DownloadOperation DownloadOperation { get; set; }
-        public IVideoStreamingSession Session { get;  }
-
-        public NicoVideoCacheProgress()
-        {
-
-        }
-
-        public NicoVideoCacheProgress(NicoVideoCacheRequest req, DownloadOperation op, IVideoStreamingSession session)
-        {
-            RawVideoId = req.RawVideoId;
-            Quality = session.Quality;
-            IsRequireForceUpdate = req.IsRequireForceUpdate;
-            RequestAt = req.RequestAt;
-            DownloadOperation = op;
-            Session = session;
-        }
-    }
 
 
 

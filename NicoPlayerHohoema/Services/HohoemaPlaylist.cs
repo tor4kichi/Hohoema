@@ -24,6 +24,8 @@ using Prism.Commands;
 using NicoPlayerHohoema.Models;
 using NiconicoSession = NicoPlayerHohoema.Models.NiconicoSession;
 using NicoPlayerHohoema.Models.LocalMylist;
+using System.Reactive.Concurrency;
+using AsyncLock = NicoPlayerHohoema.Models.Helpers.AsyncLock;
 
 namespace NicoPlayerHohoema.Services
 {
@@ -44,12 +46,14 @@ namespace NicoPlayerHohoema.Services
         // TODO: 「あとで見る」プレイリストをローミングフォルダへ書き出す
 
         public HohoemaPlaylist(
+            IScheduler scheduler,
             NiconicoSession niconicoSession,
             VideoCacheManager videoCacheManager,
             PlaylistSettings playlistSettings,
             PlayerViewManager viewMan
             )
         {
+            Scheduler = scheduler;
             NiconicoSession = niconicoSession;
             VideoCacheManager = videoCacheManager;
             PlaylistSettings = playlistSettings;
@@ -72,12 +76,37 @@ namespace NicoPlayerHohoema.Services
                         await PlayerViewManager.PlayWithCurrentPlayerView(Player.Current);
                     }
                 });
+
+            // 一般会員は再生とキャッシュDLを１ラインしか許容していないため
+            // 再生終了時にキャッシュダウンロードの再開を行う必要がある
+            // PlayerViewManager.NowPlaying はSecondaryViewでの再生時にFalseを示してしまうため
+            // IsPlayerShowWithSecondaryViewを使ってセカンダリビューでの再生中を検出している
+            _resumingObserver = new[]
+            {
+                // PlayerViewManager.ObserveProperty(x => x.NowPlaying).Select(x => !x),
+                PlayerViewManager.ObserveProperty(x => x.IsPlayerShowWithPrimaryView).Select(x => !x),
+                PlayerViewManager.ObserveProperty(x => x.IsPlayerShowWithSecondaryView).Select(x => !x),
+                NiconicoSession.ObserveProperty(x => x.IsPremiumAccount).Select(x => !x)
+            }
+            .CombineLatestValuesAreAllTrue()
+            .Throttle(TimeSpan.FromSeconds(1))
+            .Subscribe(nowResumingCacheDL =>
+            {
+                Scheduler.Schedule(() => 
+                {
+                    if (nowResumingCacheDL)
+                    {
+                        _ = VideoCacheManager.ResumeCacheDownload();
+
+                        // TODO: キャッシュDL再開した場合の通知
+                    }
+                });
+            });
         }
 
         public const string WatchAfterPlaylistId = "@view";
 
-        public event OpenPlaylistItemEventHandler OpenPlaylistItem;
-
+        public IScheduler Scheduler { get; }
         public NiconicoSession NiconicoSession { get; }
         public VideoCacheManager VideoCacheManager { get; }
         public PlaylistSettings PlaylistSettings { get; private set; }
@@ -87,12 +116,8 @@ namespace NicoPlayerHohoema.Services
         public LocalMylistGroup DefaultPlaylist { get; private set; }
 
 
-        private Interfaces.IMylist _CurrentPlaylist;
         public Interfaces.IMylist CurrentPlaylist => Player.Playlist;
        
-
-
-        IDisposable _PlaylistItemsChangedObserver;
 
         
 
@@ -110,7 +135,7 @@ namespace NicoPlayerHohoema.Services
 
         public void Dispose()
         {
-            _PlaylistItemsChangedObserver?.Dispose();
+            _resumingObserver?.Dispose();
         }
 
 
@@ -392,7 +417,7 @@ namespace NicoPlayerHohoema.Services
             }
         }
 
-
+        public IDisposable _resumingObserver { get; }
     }
 
     public enum PlayerViewMode

@@ -211,7 +211,7 @@ namespace NicoPlayerHohoema.Services
         public bool IsPlayerShowWithSecondaryView => PlayerViewMode == PlayerViewMode.SecondaryView;
 
         public bool IsPlayingWithPrimaryView => NowPlaying && PlayerViewMode == PlayerViewMode.PrimaryView;
-        public bool IsPlayingWithSecondaryView => NowPlaying && PlayerViewMode == PlayerViewMode.SecondaryView;
+        public bool IsPlayingWithSecondaryView => (NowPlaying && PlayerViewMode == PlayerViewMode.SecondaryView) || SecondaryCoreAppView != null;
 
         private bool _IsPlayerSmallWindowModeEnabled;
         public bool IsPlayerSmallWindowModeEnabled

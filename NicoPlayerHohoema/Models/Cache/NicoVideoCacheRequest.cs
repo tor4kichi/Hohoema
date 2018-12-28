@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
 
 namespace NicoPlayerHohoema.Models.Cache
@@ -36,6 +37,30 @@ namespace NicoPlayerHohoema.Models.Cache
 			return this.RawVideoId == other.RawVideoId && this.Quality == other.Quality;
 		}
 	}
+
+
+    public class NicoVideoCacheProgress : NicoVideoCacheRequest
+    {
+        public DownloadOperation DownloadOperation { get; set; }
+        public IVideoStreamingSession Session { get; }
+
+        public NicoVideoCacheProgress()
+        {
+
+        }
+
+        public NicoVideoCacheProgress(NicoVideoCacheRequest req, DownloadOperation op, IVideoStreamingSession session)
+        {
+            RawVideoId = req.RawVideoId;
+            Quality = session.Quality;
+            IsRequireForceUpdate = req.IsRequireForceUpdate;
+            RequestAt = req.RequestAt;
+            DownloadOperation = op;
+            Session = session;
+        }
+    }
+
+
 
     public class NicoVideoCacheInfo : NicoVideoCacheRequest, IEquatable<NicoVideoCacheInfo>
     {
