@@ -3,6 +3,7 @@ using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
@@ -16,8 +17,20 @@ namespace NicoPlayerHohoema.Models.LocalMylist
         Tail,
     }
 
-    public sealed class LocalMylistGroup : ObservableCollection<string>, Interfaces.ILocalMylist, INotifyPropertyChanged
+    public sealed class LocalMylistGroup : ReadOnlyObservableCollection<string>, Interfaces.ILocalMylist, INotifyPropertyChanged, INotifyCollectionChanged
     {
+        
+        public LocalMylistGroup(string id, string label, ObservableCollection<string> initialItems = null)
+            : base(initialItems ?? (initialItems = new ObservableCollection<string>()))
+        {
+            OriginalItems = initialItems;
+            Id = id;
+            Label = label;
+        }
+
+
+        private ObservableCollection<string> OriginalItems;
+
         public string Id { get; internal set; }
 
         public int SortIndex { get; internal set; }
@@ -38,19 +51,12 @@ namespace NicoPlayerHohoema.Models.LocalMylist
 
         public int ItemCount => Count;
 
-        public LocalMylistGroup(string id, string label, IEnumerable<string> initialItems = null)
-            : base(initialItems ?? Enumerable.Empty<string>())
-        {
-            Id = id;
-            Label = label;
-        }
-
         public Task<bool> AddMylistItem(string videoId)
         {
             if (!Items.Any(x => x == videoId))
             {
                 var video = Database.NicoVideoDb.Get(videoId);
-                Add(videoId);
+                OriginalItems.Add(videoId);
                 return Task.FromResult(true);
             }
             else
@@ -66,11 +72,11 @@ namespace NicoPlayerHohoema.Models.LocalMylist
                 var video = Database.NicoVideoDb.Get(videoId);
                 if (insertPosition == ContentInsertPosition.Head)
                 {
-                    Insert(0, videoId);
+                    OriginalItems.Insert(0, videoId);
                 }
                 else
                 {
-                    Add(videoId);
+                    OriginalItems.Add(videoId);
                 }
                 return Task.FromResult(true);
             }
@@ -85,7 +91,7 @@ namespace NicoPlayerHohoema.Models.LocalMylist
             var target = Items.SingleOrDefault(x => x == videoId);
             if (target != null)
             {
-                Remove(target);
+                OriginalItems.Remove(target);
                 return Task.FromResult(true);
             }
             else
@@ -99,7 +105,7 @@ namespace NicoPlayerHohoema.Models.LocalMylist
         public DelegateCommand<string> AddItemCommand => _AddItemCommand
             ?? (_AddItemCommand = new DelegateCommand<string>((videoId) =>
             {
-                Add(videoId);
+                AddMylistItem(videoId);
             }
             , (videoId) => videoId != null && !Contains(videoId)
             ));
@@ -109,7 +115,7 @@ namespace NicoPlayerHohoema.Models.LocalMylist
         public DelegateCommand<string> RemoveItemCommand => _RemoveItemCommand
             ?? (_RemoveItemCommand = new DelegateCommand<string>(videoId =>
             {
-                Remove(videoId);
+                RemoveMylistItem(videoId);
             }
             , (videoId) => videoId != null && Contains(videoId)
             ));

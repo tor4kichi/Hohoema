@@ -340,7 +340,7 @@ namespace NicoPlayerHohoema.Services
             // アイテムを削除する
             if (CurrentPlaylist == DefaultPlaylist)
             {
-                DefaultPlaylist.Remove(item.ContentId);
+                DefaultPlaylist.RemoveMylistItem(item.ContentId);
             }
         }
 

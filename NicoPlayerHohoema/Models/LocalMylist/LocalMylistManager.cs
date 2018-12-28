@@ -112,7 +112,7 @@ namespace NicoPlayerHohoema.Models.LocalMylist
         {
             var groups = LocalMylistDb.GetLocalMylistGroups();
             return groups
-                .Select(x => new LocalMylistGroup(x.Id, x.Label, x.Items))
+                .Select(x => new LocalMylistGroup(x.Id, x.Label, new ObservableCollection<string>(x.Items)))
                 .ToList()
                 ;
         }

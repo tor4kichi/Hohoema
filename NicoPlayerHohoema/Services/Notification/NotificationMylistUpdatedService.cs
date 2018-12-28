@@ -51,7 +51,7 @@ namespace NicoPlayerHohoema.Services.Notification
             //
 
 
-            // 非同期操作で変更があってもいいように別配列に入れて処理する
+            // ローカルマイリストの
             foreach (var localMylist in LocalMylistManager.Mylists.ToArray())
             {
                 AddHandleMylistItemsChanged(localMylist);
@@ -107,11 +107,16 @@ namespace NicoPlayerHohoema.Services.Notification
                         case System.Collections.Specialized.NotifyCollectionChangedAction.Reset:
                             // ログアウト時にインメモリのマイリスト情報を消した場合
                             {
-                                foreach (var item in mylistItemsSubscriberMap.Values.ToArray())
+                                // ログインユーザのマイリストに対する変更検出オブザーバを破棄
+                                var remoteUserMylists = mylistItemsSubscriberMap
+                                .Where(x => x.Key is Interfaces.IUserOwnedRemoteMylist)
+                                .ToArray()
+                                ;
+                                foreach (var item in remoteUserMylists)
                                 {
-                                    item.Dispose();
+                                    item.Value.Dispose();
+                                    mylistItemsSubscriberMap.Remove(item.Key);
                                 }
-                                mylistItemsSubscriberMap.Clear();
                             }
                             break;
                         default:
@@ -185,7 +190,7 @@ namespace NicoPlayerHohoema.Services.Notification
                         var video = Database.NicoVideoDb.Get(item);
                         if (video != null)
                         {
-                            var text = $"マイリスト「{ownedMylist.Label}」に\n「{video.Title ?? video.RawVideoId}」を追加しました";
+                            var text = $"「{ownedMylist.Label}」に\n「{video.Title ?? video.RawVideoId}」を追加しました";
                             NotificationService.ShowInAppNotification(new InAppNotificationPayload()
                             {
                                 Content = text,
@@ -199,7 +204,7 @@ namespace NicoPlayerHohoema.Services.Notification
                         var video = Database.NicoVideoDb.Get(item);
                         if (video != null)
                         {
-                            var text = $"マイリスト「{ownedMylist.Label}」から\n「{video.Title ?? video.RawVideoId}」を削除しました";
+                            var text = $"「{ownedMylist.Label}」から\n「{video.Title ?? video.RawVideoId}」を削除しました";
                             NotificationService.ShowInAppNotification(new InAppNotificationPayload()
                             {
                                 Content = text,
