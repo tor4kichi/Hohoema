@@ -20,7 +20,11 @@ namespace NicoPlayerHohoema.Models.Provider
             string communityId
             )
         {
-            return await Context.Community.GetCommunifyInfoAsync(communityId);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.Community.GetCommunifyInfoAsync(communityId);
+            });
+            
         }
 
 
@@ -28,9 +32,10 @@ namespace NicoPlayerHohoema.Models.Provider
             string communityId
             )
         {
-            await WaitNicoPageAccess();
-
-            return await Context.Community.GetCommunityDetailAsync(communityId);
+            return await ContextActionWithPageAccessWaitAsync(async context =>
+            {
+                return await context.Community.GetCommunityDetailAsync(communityId);
+            });
         }
 
 
@@ -39,7 +44,10 @@ namespace NicoPlayerHohoema.Models.Provider
             uint page
             )
         {
-            return await Context.Community.GetCommunityVideoAsync(communityId, page);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.Community.GetCommunityVideoAsync(communityId, page);
+            });
         }
 
 

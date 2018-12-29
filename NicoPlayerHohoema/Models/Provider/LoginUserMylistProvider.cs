@@ -26,7 +26,11 @@ namespace NicoPlayerHohoema.Models.Provider
         {
             if (!NiconicoSession.IsLoggedIn) { throw new System.Exception("");  }
 
-            var defMylist = await Context.User.GetMylistItemListAsync(UserOwnedMylist.DefailtMylistId);
+            var defMylist = await ContextActionAsync(async context =>
+            {
+                return await context.User.GetMylistItemListAsync(UserOwnedMylist.DefailtMylistId);
+            });
+           
 
             List<Database.NicoVideo> videoItems = new List<Database.NicoVideo>();
             foreach (var item in defMylist)
@@ -70,8 +74,6 @@ namespace NicoPlayerHohoema.Models.Provider
                 return null;
             }
 
-            await WaitNicoPageAccess();
-
             List<UserOwnedMylist> mylistGroups = new List<UserOwnedMylist>();
 
             {
@@ -80,13 +82,18 @@ namespace NicoPlayerHohoema.Models.Provider
                 mylistGroups.Add(defaultMylist);
             }
 
-            var res = await Context.User.GetMylistGroupListAsync();
+            var res = await ContextActionAsync(async context =>
+            {
+                return await context.User.GetMylistGroupListAsync();
+            });            
 
             foreach (var mylistGroup in res ?? Enumerable.Empty<MylistGroupData>())
             {
-                await WaitNicoPageAccess();
-
-                var mylistItems = await Context.User.GetMylistItemListAsync(mylistGroup.Id);
+                var mylistItems = await ContextActionWithPageAccessWaitAsync(async context =>
+                {
+                    return await context.User.GetMylistItemListAsync(mylistGroup.Id);
+                });
+                
 
                 var videos = mylistItems.Select(x => MylistDataToNicoVideoData(x).RawVideoId);
                 var mylist = new UserOwnedMylist(mylistGroup.Id, this, new System.Collections.ObjectModel.ObservableCollection<string>(videos))
@@ -137,13 +144,19 @@ namespace NicoPlayerHohoema.Models.Provider
 
         public async Task<ContentManageResult> AddMylist(string name, string description, bool is_public, MylistDefaultSort default_sort, IconType iconType)
         {
-            return await Context.User.CreateMylistGroupAsync(name, description, is_public, default_sort, iconType);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.User.CreateMylistGroupAsync(name, description, is_public, default_sort, iconType);
+            });
         }
 
 
         public async Task<ContentManageResult> RemoveMylist(string group_id)
         {
-            return await Context.User.RemoveMylistGroupAsync(group_id);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.User.RemoveMylistGroupAsync(group_id);
+            });
         }
 
 
@@ -151,12 +164,15 @@ namespace NicoPlayerHohoema.Models.Provider
 
         public async Task<ContentManageResult> AddMylistItem(string mylistGroupId, string videoId, string mylistComment = "")
         {
-            return await Context.User.AddMylistItemAsync(
-                mylistGroupId
-                , Mntone.Nico2.NiconicoItemType.Video
-                , videoId
-                , mylistComment
-                );
+            return await ContextActionAsync(async context =>
+            {
+                return await context.User.AddMylistItemAsync(
+                    mylistGroupId
+                    , Mntone.Nico2.NiconicoItemType.Video
+                    , videoId
+                    , mylistComment
+                    );
+            });
         }
 
 
@@ -164,20 +180,29 @@ namespace NicoPlayerHohoema.Models.Provider
         {
             var itemIdContainer = Database.Temporary.MylistDb.GetItemId(mylistGroupid, videoId);
             if (itemIdContainer == null) { return ContentManageResult.Failed; }
-            return await Context.User.RemoveMylistItemAsync(mylistGroupid, NiconicoItemType.Video, itemIdContainer.ItemId);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.User.RemoveMylistItemAsync(mylistGroupid, NiconicoItemType.Video, itemIdContainer.ItemId);
+            });
         }
 
         public async Task<ContentManageResult> CopyMylistTo(string sourceMylistGroupId, UserOwnedMylist targetGroupInfo, params string[] videoIdList)
         {
             var items = Database.Temporary.MylistDb.GetItemIdList(sourceMylistGroupId, videoIdList);
-            return await Context.User.CopyMylistItemAsync(sourceMylistGroupId, targetGroupInfo.GroupId, NiconicoItemType.Video, items.Select(x => x.ItemId).ToArray());
+            return await ContextActionAsync(async context =>
+            {
+                return await context.User.CopyMylistItemAsync(sourceMylistGroupId, targetGroupInfo.GroupId, NiconicoItemType.Video, items.Select(x => x.ItemId).ToArray());
+            });
         }
 
 
         public async Task<ContentManageResult> MoveMylistTo(string sourceMylistGroupId, UserOwnedMylist targetGroupInfo, params string[] videoIdList)
         {
             var items = Database.Temporary.MylistDb.GetItemIdList(sourceMylistGroupId, videoIdList);
-            return await Context.User.MoveMylistItemAsync(sourceMylistGroupId, targetGroupInfo.GroupId, NiconicoItemType.Video, items.Select(x => x.ItemId).ToArray());
+            return await ContextActionAsync(async context =>
+            {
+                return await context.User.MoveMylistItemAsync(sourceMylistGroupId, targetGroupInfo.GroupId, NiconicoItemType.Video, items.Select(x => x.ItemId).ToArray());
+            });
         }
 
 
@@ -188,14 +213,17 @@ namespace NicoPlayerHohoema.Models.Provider
                 throw new Exception();
             }
 
-            return await Context.User.UpdateMylistGroupAsync(
-                mylist.GroupId, 
-                mylist.Label,
-                mylist.Description,
-                mylist.IsPublic,
-                mylist.Sort, 
-                mylist.IconType
-                );
+            return await ContextActionAsync(async context =>
+            {
+                return await context.User.UpdateMylistGroupAsync(
+                    mylist.GroupId,
+                    mylist.Label,
+                    mylist.Description,
+                    mylist.IsPublic,
+                    mylist.Sort,
+                    mylist.IconType
+                    );
+            });
         }
     }
 

@@ -21,9 +21,10 @@ namespace NicoPlayerHohoema.Models.Provider
 
         public async Task<NicoVideoOwner> GetUser(string userId)
         {
-            await WaitNicoPageAccess();
-
-            var userRes = await Context.User.GetUserAsync(userId);
+            var userRes = await ContextActionWithPageAccessWaitAsync(async context =>
+            {
+                return await context.User.GetUserAsync(userId);
+            }); 
 
             var owner = NicoVideoOwnerDb.Get(userId);
             if (userRes.Status == "ok")
@@ -49,9 +50,10 @@ namespace NicoPlayerHohoema.Models.Provider
 
         public async Task<UserDetail> GetUserDetail(string userId)
         {
-            await WaitNicoPageAccess();
-
-            var detail = await Context.User.GetUserDetail(userId);
+            var detail = await ContextActionWithPageAccessWaitAsync(async context =>
+            {
+                return await context.User.GetUserDetail(userId);
+            });
 
             var owner = NicoVideoOwnerDb.Get(userId);
             if (detail != null)
@@ -77,18 +79,20 @@ namespace NicoPlayerHohoema.Models.Provider
 
         public async Task<UserVideoResponse> GetUserVideos(uint userId, uint page, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
         {
-            await WaitNicoPageAccess();
-
-            return await Context.User.GetUserVideos(userId, page, sort, order);
+            return await ContextActionWithPageAccessWaitAsync(async context =>
+            {
+                return await context.User.GetUserVideos(userId, page, sort, order);
+            });
         }
 
 
 
         public async Task<List<MylistGroupData>> GetUserMylistGroups(string userId)
         {
-            await WaitNicoPageAccess();
-
-            return await Context.Mylist.GetUserMylistGroupAsync(userId);
+            return await ContextActionWithPageAccessWaitAsync(async context =>
+            {
+                return await context.Mylist.GetUserMylistGroupAsync(userId);
+            });
         }
     }
 }

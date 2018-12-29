@@ -88,7 +88,10 @@ namespace NicoPlayerHohoema.Models.Provider
 
                 try
                 {
-                    var res = await NiconicoSession.Context.Search.GetVideoInfoAsync(rawVideoId);
+                    var res = await ContextActionAsync(async context =>
+                    {
+                        return await context.Search.GetVideoInfoAsync(rawVideoId);
+                    });
 
                     if (res.Status == "ok")
                     {
@@ -174,8 +177,6 @@ namespace NicoPlayerHohoema.Models.Provider
                 return null;
             }
 
-            await WaitNicoPageAccess();
-
             // TODO: 有害動画に指定されたページにアクセスした場合の対応
             // 有害動画ページにアクセスしたら一度だけ確認ページをダイアログ表示する
             // （ユーザーのアクションによらず）再度ページを読み込んで、もう一度HurmfulContentが返ってきた場合はnullを返す
@@ -185,12 +186,16 @@ namespace NicoPlayerHohoema.Models.Provider
             {
                 try
                 {
-                    var data = await Helpers.ConnectionRetryUtil.TaskWithRetry(() =>
+                    var data = await Helpers.ConnectionRetryUtil.TaskWithRetry(async () =>
                     {
-                        return Context.Video.GetDmcWatchResponseAsync(
+                        return await ContextActionWithPageAccessWaitAsync(async context =>
+                        {
+                            return await context.Video.GetDmcWatchResponseAsync(
                             rawVideoId
                             , harmfulReactType: harmfulContentReactionType
                             );
+                        });
+                        
                     });
 
                     var res = data?.DmcWatchResponse;
@@ -305,10 +310,6 @@ namespace NicoPlayerHohoema.Models.Provider
                 return null;
             }
 
-
-            await WaitNicoPageAccess();
-
-
             // TODO: 有害動画に指定されたページにアクセスした場合の対応
             HarmfulContentReactionType harmfulContentReactionType = HarmfulContentReactionType.None;
 
@@ -316,13 +317,16 @@ namespace NicoPlayerHohoema.Models.Provider
             {
                 try
                 {
-                    var res = await Helpers.ConnectionRetryUtil.TaskWithRetry(() =>
+                    var res = await Helpers.ConnectionRetryUtil.TaskWithRetry(async () =>
                     {
-                        return Context.Video.GetWatchApiAsync(
+                        return await ContextActionWithPageAccessWaitAsync(async context =>
+                        {
+                            return await context.Video.GetWatchApiAsync(
                             rawVideoId
                             , forceLowQuality: forceLowQuality
                             , harmfulReactType: harmfulContentReactionType
                             );
+                        });
                     });
 
                     var info = NicoVideoDb.Get(rawVideoId);
@@ -399,26 +403,31 @@ namespace NicoPlayerHohoema.Models.Provider
 
         public async Task<NicoVideoResponse> GetRelatedVideos(string videoId, uint from, uint limit, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
         {
-            if (Context == null)
+            return await ContextActionAsync(async context =>
             {
-                return null;
-            }
-
-            return await Context.Video.GetRelatedVideoAsync(videoId, from, limit, sort, order);
+                return await context.Video.GetRelatedVideoAsync(videoId, from, limit, sort, order);
+            });
         }
 
 
-        public Task<RecommendResponse> GetRecommendFirstAsync()
+        public async Task<RecommendResponse> GetRecommendFirstAsync()
         {
-            return Context.Video.GetRecommendFirstAsync();
+            return await ContextActionAsync(async context =>
+            {
+                return await context.Video.GetRecommendFirstAsync();
+            });
         }
 
-        public Task<RecommendContent> GetRecommendAsync(RecommendResponse res, RecommendContent prevInfo = null)
+        public async Task<RecommendContent> GetRecommendAsync(RecommendResponse res, RecommendContent prevInfo = null)
         {
             var user_tags = res.UserTagParam;
             var seed = res.Seed;
             var page = prevInfo?.RecommendInfo.Page ?? res.Page;
-            return Context.Video.GetRecommendAsync(user_tags, seed, page);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.Video.GetRecommendAsync(user_tags, seed, page);
+            });
+            
         }
 
 

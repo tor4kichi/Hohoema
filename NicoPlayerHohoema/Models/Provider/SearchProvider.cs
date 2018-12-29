@@ -23,12 +23,20 @@ namespace NicoPlayerHohoema.Models.Provider
 
         public async Task<VideoListingResponse> GetKeywordSearch(string keyword, uint from, uint limit, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
         {
-            return await Context.Search.VideoSearchWithKeywordAsync(keyword, from, limit, sort, order);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.Search.VideoSearchWithKeywordAsync(keyword, from, limit, sort, order);
+            });
+            
         }
 
         public async Task<VideoListingResponse> GetTagSearch(string tag, uint from, uint limit, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
         {
-            return await Context.Search.VideoSearchWithTagAsync(tag, from, limit, sort, order);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.Search.VideoSearchWithTagAsync(tag, from, limit, sort, order);
+            });
+            
         }
 
         public async Task<Mntone.Nico2.Searches.Live.NicoliveVideoResponse> LiveSearchAsync(
@@ -42,9 +50,9 @@ namespace NicoPlayerHohoema.Models.Provider
             Mntone.Nico2.Searches.Live.NicoliveSearchMode? mode = null
             )
         {
-            await WaitNicoPageAccess();
-
-            return await Context.Search.LiveSearchAsync(
+            return await ContextActionWithPageAccessWaitAsync(async context =>
+            {
+                return await context.Search.LiveSearchAsync(
                 word,
                 isTagSearch,
                 provider,
@@ -54,12 +62,19 @@ namespace NicoPlayerHohoema.Models.Provider
                 sort,
                 mode
                 );
+
+            });
+            
         }
 
 
-        public Task<Mntone.Nico2.Searches.Suggestion.SuggestionResponse> GetSearchSuggestKeyword(string keyword)
+        public async Task<Mntone.Nico2.Searches.Suggestion.SuggestionResponse> GetSearchSuggestKeyword(string keyword)
         {
-            return Context.Search.GetSuggestionAsync(keyword);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.Search.GetSuggestionAsync(keyword);
+            });
+            
         }
 
 
@@ -76,12 +91,20 @@ namespace NicoPlayerHohoema.Models.Provider
             , CommunitySearchMode mode = CommunitySearchMode.Keyword
             )
         {
-            return await Context.Search.CommunitySearchAsync(keyword, page, sort, order, mode);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.Search.CommunitySearchAsync(keyword, page, sort, order, mode);
+            });
+            
         }
 
         public async Task<MylistSearchResponse> MylistSearchAsync(string keyword, uint head, uint count, Sort? sort, Order? order)
         {
-            return await Context.Search.MylistSearchAsync(keyword, head, count, sort, order);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.Search.MylistSearchAsync(keyword, head, count, sort, order);
+            });
+                
         }
     }
 }

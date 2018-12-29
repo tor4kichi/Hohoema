@@ -25,9 +25,10 @@ namespace NicoPlayerHohoema.Models.Provider
                 return null;
             }
 
-            await WaitNicoPageAccess();
-
-            var res = await Context.Video.GetHistoriesFromMyPageAsync();
+            var res = await ContextActionWithPageAccessWaitAsync(async context =>
+            {
+                return await context.Video.GetHistoriesFromMyPageAsync();
+            });
 
             foreach (var history in res?.Histories ?? Enumerable.Empty<History>())
             {
@@ -40,12 +41,19 @@ namespace NicoPlayerHohoema.Models.Provider
 
         public async Task RemoveAllHistoriesAsync(string token)
         {
-            await Context.Video.RemoveAllHistoriesAsync(token);
+            await ContextActionAsync(async context =>
+            {
+                await context.Video.RemoveAllHistoriesAsync(token);
+            });
+            
         }
 
         public async Task RemoveHistoryAsync(string token, string videoId)
         {
-            await Context.Video.RemoveHistoryAsync(token, videoId);
+            await ContextActionAsync(async context =>
+            {
+                await context.Video.RemoveHistoryAsync(token, videoId);
+            });
         }
     }
 
@@ -69,9 +77,10 @@ namespace NicoPlayerHohoema.Models.Provider
                 return new List<FollowData>();
             }
 
-            await WaitNicoPageAccess();
-
-            return await NiconicoSession.Context.User.GetFollowUsersAsync();
+            return await ContextActionWithPageAccessWaitAsync(async context =>
+            {
+                return await context.User.GetFollowUsersAsync();
+            });
         }
 
         public async Task<ContentManageResult> AddFollowAsync(string id)
@@ -81,7 +90,10 @@ namespace NicoPlayerHohoema.Models.Provider
                 return ContentManageResult.Failed;
             }
 
-            return await NiconicoSession.Context.User.AddUserFollowAsync(NiconicoItemType.User, id);
+            return await ContextActionAsync(async context => 
+            {
+                return await context.User.AddUserFollowAsync(NiconicoItemType.User, id);
+            });
         }
 
         public async Task<ContentManageResult> RemoveFollowAsync(string id)
@@ -91,7 +103,11 @@ namespace NicoPlayerHohoema.Models.Provider
                 return ContentManageResult.Failed;
             }
 
-            return await NiconicoSession.Context.User.RemoveUserFollowAsync(NiconicoItemType.User, id);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.User.RemoveUserFollowAsync(NiconicoItemType.User, id);
+            });
+            
         }
     }
 
@@ -110,9 +126,11 @@ namespace NicoPlayerHohoema.Models.Provider
                 return new List<string>();
             }
 
-            await WaitNicoPageAccess();
-
-            return await NiconicoSession.Context.User.GetFollowTagsAsync();
+            return await ContextActionWithPageAccessWaitAsync(async context =>
+            {
+                return await context.User.GetFollowTagsAsync();
+            });
+            
         }
 
         public async Task<ContentManageResult> AddFollowAsync(string id)
@@ -122,7 +140,11 @@ namespace NicoPlayerHohoema.Models.Provider
                 return ContentManageResult.Failed;
             }
 
-            return await NiconicoSession.Context.User.AddFollowTagAsync(id);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.User.AddFollowTagAsync(id);
+            });
+            
         }
 
         public async Task<ContentManageResult> RemoveFollowAsync(string id)
@@ -132,7 +154,11 @@ namespace NicoPlayerHohoema.Models.Provider
                 return ContentManageResult.Failed;
             }
 
-            return await NiconicoSession.Context.User.RemoveFollowTagAsync(id);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.User.RemoveFollowTagAsync(id);
+            });
+            
         }
     }
 
@@ -151,9 +177,11 @@ namespace NicoPlayerHohoema.Models.Provider
                 return new List<FollowData>();
             }
 
-            await WaitNicoPageAccess();
 
-            return await NiconicoSession.Context.User.GetFollowMylistsAsync();
+            return await ContextActionWithPageAccessWaitAsync(async context =>
+            {
+                return await context.User.GetFollowMylistsAsync();
+            });
         }
 
         public async Task<ContentManageResult> AddFollowAsync(string id)
@@ -163,7 +191,10 @@ namespace NicoPlayerHohoema.Models.Provider
                 return ContentManageResult.Failed;
             }
 
-            return await NiconicoSession.Context.User.AddUserFollowAsync(NiconicoItemType.Mylist, id);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.User.AddUserFollowAsync(NiconicoItemType.Mylist, id);
+            });
         }
 
         public async Task<ContentManageResult> RemoveFollowAsync(string id)
@@ -173,7 +204,10 @@ namespace NicoPlayerHohoema.Models.Provider
                 return ContentManageResult.Failed;
             }
 
-            return await NiconicoSession.Context.User.RemoveUserFollowAsync(NiconicoItemType.Mylist, id);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.User.RemoveUserFollowAsync(NiconicoItemType.Mylist, id);
+            });
         }
     }
 
@@ -191,9 +225,11 @@ namespace NicoPlayerHohoema.Models.Provider
                 return new List<ChannelFollowData>();
             }
 
-            await WaitNicoPageAccess();
 
-            return await NiconicoSession.Context.User.GetFollowChannelAsync();
+            return await ContextActionWithPageAccessWaitAsync(async context =>
+            {
+                return await context.User.GetFollowChannelAsync();
+            });            
         }
 
         public async Task<ContentManageResult> AddFollowAsync(string id)
@@ -203,7 +239,11 @@ namespace NicoPlayerHohoema.Models.Provider
                 return ContentManageResult.Failed;
             }
 
-            var result = await NiconicoSession.Context.User.AddFollowChannelAsync(id);
+            var result = await ContextActionAsync(async context =>
+            {
+                return await context.User.AddFollowChannelAsync(id);
+            });
+
             return result.IsSucceed ? ContentManageResult.Success : ContentManageResult.Failed;
         }
 
@@ -214,7 +254,11 @@ namespace NicoPlayerHohoema.Models.Provider
                 return ContentManageResult.Failed;
             }
 
-            var result = await NiconicoSession.Context.User.DeleteFollowChannelAsync(id);
+            var result = await ContextActionAsync(async context =>
+            {
+                return await context.User.DeleteFollowChannelAsync(id);
+            });
+
             return result.IsSucceed ? ContentManageResult.Success : ContentManageResult.Failed;
         }
     }
@@ -237,8 +281,6 @@ namespace NicoPlayerHohoema.Models.Provider
                 return new List<FollowCommunityInfo>();
             }
 
-            await WaitNicoPageAccess();
-
             var items = new List<FollowCommunityInfo>();
             bool needMore = true;
             int page = 0;
@@ -247,7 +289,11 @@ namespace NicoPlayerHohoema.Models.Provider
             {
                 try
                 {
-                    var res = await NiconicoSession.Context.User.GetFollowCommunityAsync(page);
+                    var res = await ContextActionWithPageAccessWaitAsync(async context =>
+                    {
+                        return await context.User.GetFollowCommunityAsync(page);
+                    });
+
                     items.AddRange(res.Items);
 
                     // フォローコミュニティページの一画面での最大表示数10個と同数の場合は追加で取得
@@ -274,7 +320,10 @@ namespace NicoPlayerHohoema.Models.Provider
             var comment = CommunituFollowAdditionalInfo.Comment;
             var notify = CommunituFollowAdditionalInfo.Notify;
 
-            var result = await NiconicoSession.Context.User.AddFollowCommunityAsync(id, title, comment, notify);
+            var result = await ContextActionAsync(async context =>
+            {
+                return await context.User.AddFollowCommunityAsync(id, title, comment, notify);
+            });
 
             return result ? ContentManageResult.Success : ContentManageResult.Failed;
         }
@@ -286,8 +335,11 @@ namespace NicoPlayerHohoema.Models.Provider
                 return ContentManageResult.Failed;
             }
 
-            var leaveToken = await NiconicoSession.Context.User.GetFollowCommunityLeaveTokenAsync(id);
-            var result = await NiconicoSession.Context.User.RemoveFollowCommunityAsync(leaveToken);
+            var result = await ContextActionAsync(async context =>
+            {
+                var leaveToken = await context.User.GetFollowCommunityLeaveTokenAsync(id);
+                return await context.User.RemoveFollowCommunityAsync(leaveToken);
+            });
 
             return result ? ContentManageResult.Success : ContentManageResult.Failed;
         }

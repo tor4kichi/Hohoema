@@ -16,7 +16,10 @@ namespace NicoPlayerHohoema.Models.Provider
 
         public async Task<NicoRepoResponse> GetLoginUserNicoRepo(NicoRepoTimelineType type, string lastItemId = null)
         {
-            return await Context.NicoRepo.GetLoginUserNicoRepo(type, lastItemId);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.NicoRepo.GetLoginUserNicoRepo(type, lastItemId);
+            });
         }
     }
 }

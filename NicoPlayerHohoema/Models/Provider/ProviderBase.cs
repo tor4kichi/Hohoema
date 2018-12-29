@@ -17,15 +17,47 @@ namespace NicoPlayerHohoema.Models.Provider
 
         public NiconicoSession NiconicoSession { get; }
 
-        protected NiconicoContext Context => NiconicoSession.Context;
+        protected static AsyncLock ContextLock { get; } = new AsyncLock();
+        private NiconicoContext Context => NiconicoSession.Context;
+
+        protected async Task<T> ContextActionAsync<T>(Func<NiconicoContext, Task<T>> taskFactory)
+        {
+            using (await ContextLock.LockAsync())
+            {
+                return await taskFactory.Invoke(Context);
+            }
+        }
+
+        protected async Task ContextActionAsync(Func<NiconicoContext, Task> taskFactory)
+        {
+            using (await ContextLock.LockAsync())
+            {
+                await taskFactory.Invoke(Context);
+            }
+        }
+
+        protected async Task<T> ContextActionWithPageAccessWaitAsync<T>(Func<NiconicoContext, Task<T>> taskFactory)
+        {
+            await WaitNicoPageAccess();
+
+            return await ContextActionAsync(taskFactory);
+        }
+
+        protected async Task ContextActionWithPageAccessWaitAsync(Func<NiconicoContext, Task> taskFactory)
+        {
+            await WaitNicoPageAccess();
+
+            await ContextActionAsync(taskFactory);
+        }
 
 
 
-        static AsyncLock _NicoPageAccessLock = new AsyncLock();
+        static AsyncLock _NicoPageAccessLock { get; } = new AsyncLock();
         static DateTime LastPageApiAccessTime = DateTime.MinValue;
         static readonly TimeSpan PageAccessMinimumInterval = TimeSpan.FromSeconds(0.5);
 
-        static protected async Task WaitNicoPageAccess()
+
+        static private async Task WaitNicoPageAccess()
         {
             using (await _NicoPageAccessLock.LockAsync())
             {

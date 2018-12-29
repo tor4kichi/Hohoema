@@ -14,28 +14,42 @@ namespace NicoPlayerHohoema.Models.Provider
 
         public async Task<ReservationsInDetailResponse> GetReservtionsAsync()
         {
-
-            return await Context.Live.GetReservationsInDetailAsync();
+            return await ContextActionAsync(async context =>
+            {
+                return await context.Live.GetReservationsInDetailAsync();
+            });
         }
 
         public async Task<MyTimeshiftListData> GetTimeshiftListAsync()
         {
-            return await Context.Live.GetMyTimeshiftListAsync();
+            return await ContextActionAsync(async context =>
+            {
+                return await context.Live.GetMyTimeshiftListAsync();
+            });
         }
 
         public async Task<ReservationToken> GetReservationTokenAsync()
         {
-            return await NiconicoSession.Context.Live.GetReservationTokenAsync();
+            return await ContextActionAsync(async context =>
+            {
+                return await context.Live.GetReservationTokenAsync();
+            });
         }
 
         public async Task DeleteReservationAsync(string reservationId, ReservationToken token)
         {
-            await Context.Live.DeleteReservationAsync(reservationId, token);
+            await ContextActionAsync(async context =>
+            {
+                await context.Live.DeleteReservationAsync(reservationId, token);
+            });
         }
 
         public async Task UseReservationAsync(string liveId, ReservationToken token)
         {
-            await Context.Live.UseReservationAsync(liveId, token);
+            await ContextActionAsync(async context =>
+            {
+                await context.Live.UseReservationAsync(liveId, token);
+            });
         }
     }
 }

@@ -17,14 +17,21 @@ namespace NicoPlayerHohoema.Models.Provider
 
         public async Task<MylistGroupDetailResponse> GetMylistGroupDetail(string mylistGroupid)
         {
-            return await Context.Mylist.GetMylistGroupDetailAsync(mylistGroupid);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.Mylist.GetMylistGroupDetailAsync(mylistGroupid);
+            });
         }
 
 
         public async Task<int> GetMylistGroupVideo(OtherOwneredMylist mylist, uint limit = 50)
         {
             var mylistGroupId = mylist.Id;
-            var res = await NiconicoSession.Context.Mylist.GetMylistGroupVideoAsync(mylistGroupId, (uint)mylist.Count, limit);
+            var res = await ContextActionAsync(async context =>
+            {
+                return await context.Mylist.GetMylistGroupVideoAsync(mylistGroupId, (uint)mylist.Count, limit);
+            });
+            
             if (!res.IsOK) { return 0; }
 
             var videos = res.MylistVideoInfoItems;
@@ -53,9 +60,13 @@ namespace NicoPlayerHohoema.Models.Provider
         public async Task<OtherOwneredMylist> GetMylistGroupVideo(string mylistGroupId, uint from = 0, uint limit = 50)
         {
             var detail = await GetMylistGroupDetail(mylistGroupId);
+
             if (!detail.IsOK) { return null; }
 
-            var res = await NiconicoSession.Context.Mylist.GetMylistGroupVideoAsync(mylistGroupId, from, limit);
+            var res = await ContextActionAsync(async context =>
+            {
+                return await context.Mylist.GetMylistGroupVideoAsync(mylistGroupId, from, limit);
+            });
             if (!res.IsOK) { return null; }
 
             var mylistInfo = detail.MylistGroup;
@@ -93,6 +104,7 @@ namespace NicoPlayerHohoema.Models.Provider
         public async Task<OtherOwneredMylist> GetMylistGroupVideo(string mylistGroupId)
         {
             var detail = await GetMylistGroupDetail(mylistGroupId);
+             
             if (!detail.IsOK) { return null; }
 
             var mylistInfo = detail.MylistGroup;
@@ -115,7 +127,10 @@ namespace NicoPlayerHohoema.Models.Provider
                     await Task.Delay(500);
                 }
 
-                var result = await NiconicoSession.Context.Mylist.GetMylistGroupVideoAsync(mylistGroupId, (uint)index * 150, 150);
+                var result = await ContextActionAsync(async context =>
+                {
+                    return await context.Mylist.GetMylistGroupVideoAsync(mylistGroupId, (uint)index * 150, 150);
+                });                
 
                 if (!result.IsOK) { break; }
 
@@ -161,12 +176,14 @@ namespace NicoPlayerHohoema.Models.Provider
                     await Task.Delay(500);
                 }
 
-                var result = await NiconicoSession.Context.Mylist.GetMylistGroupVideoAsync(
-                    group_id: mylist.Id, 
-                    from: (uint)(index * 150 + increaseCount), 
-                    limit: 150
-                    );
-
+                var result = await ContextActionAsync(async context =>
+                {
+                    return await context.Mylist.GetMylistGroupVideoAsync(
+                        group_id: mylist.Id,
+                        from: (uint)(index * 150 + increaseCount),
+                        limit: 150
+                        );
+                });
                 if (!result.IsOK) { break; }
 
                 foreach (var item in result.MylistVideoInfoItems)

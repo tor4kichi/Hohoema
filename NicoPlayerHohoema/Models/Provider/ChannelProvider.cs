@@ -18,14 +18,18 @@ namespace NicoPlayerHohoema.Models.Provider
 
         public async Task<ChannelVideoResponse> GetChannelVideo(string channelId, int page)
         {
-            await WaitNicoPageAccess();
-
-            return await Context.Channel.GetChannelVideosAsync(channelId, page);
+            return await ContextActionWithPageAccessWaitAsync(async context =>
+            {
+                return await context.Channel.GetChannelVideosAsync(channelId, page);
+            });            
         }
 
         public async Task<Mntone.Nico2.Channels.Info.ChannelInfo> GetChannelInfo(string channelId)
         {
-            return await Context.Channel.GetChannelInfo(channelId);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.Channel.GetChannelInfo(channelId);
+            });
         }
 
 

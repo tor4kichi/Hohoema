@@ -19,10 +19,11 @@ namespace NicoPlayerHohoema.Models.Provider
 
         public async Task<Mntone.Nico2.Live.Video.NicoliveVideoInfoResponse> GetLiveInfoAsync(string liveId)
         {
-            await WaitNicoPageAccess();
-
-            var response = await Context.Live.GetLiveVideoInfoAsync(liveId);
-
+            var response = await ContextActionWithPageAccessWaitAsync(async context =>
+            {
+                return await context.Live.GetLiveVideoInfoAsync(liveId);
+            });
+            
             if (response.IsOK)
             {
                 var liveData = NicoLiveDb.Get(liveId) ?? new NicoLive() { LiveId = liveId };
@@ -87,9 +88,10 @@ namespace NicoPlayerHohoema.Models.Provider
 
         public async Task<Mntone.Nico2.Live.Watch.ProgramInfo> GetLiveProgramInfoAsync(string liveId)
         {
-            await WaitNicoPageAccess();
-
-            var programInfo = await Context.Live.GetProgramInfoAsync(liveId);
+            var programInfo = await ContextActionAsync(async context =>
+            {
+                return await context.Live.GetProgramInfoAsync(liveId);
+            });
 
             if (programInfo?.IsOK ?? false)
             {
@@ -123,34 +125,52 @@ namespace NicoPlayerHohoema.Models.Provider
 
         public async Task<Mntone.Nico2.Live.PlayerStatus.PlayerStatusResponse> GetPlayerStatusAsync(string liveId)
         {
-            return await Context.Live.GetPlayerStatusAsync(liveId);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.Live.GetPlayerStatusAsync(liveId);
+            });
         }
 
         public async Task<Mntone.Nico2.Live.Watch.Crescendo.CrescendoLeoProps> GetLeoPlayerPropsAsync(string liveId)
         {
-            return await Context.Live.GetCrescendoLeoPlayerPropsAsync(liveId);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.Live.GetCrescendoLeoPlayerPropsAsync(liveId);
+            });
         }
 
         public async Task LeaveAsync(string liveId)
         {
-            await Context.Live.LeaveAsync(liveId);
+            await ContextActionAsync(async context =>
+            {
+                await context.Live.LeaveAsync(liveId);
+            });
         }
 
 
         public async Task<string> GetWaybackKeyAsync(string threadId)
         {
-            return await Context.Live.GetWaybackKeyAsync(threadId);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.Live.GetWaybackKeyAsync(threadId);
+            });
         }
 
 
         public async Task<string> GetPostKeyAsync(uint threadId, uint commentCount)
         {
-            return await Context.Live.GetPostKeyAsync(threadId, commentCount / 100);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.Live.GetPostKeyAsync(threadId, commentCount / 100);
+            });
         }
 
         public async Task<Mntone.Nico2.Live.Heartbeat.HeartbeatResponse> HeartbeatAsync(string liveId)
         {
-            return await Context.Live.HeartbeatAsync(liveId);
+            return await ContextActionAsync(async context =>
+            {
+                return await context.Live.HeartbeatAsync(liveId);
+            });
         }
     }
 }
