@@ -1,5 +1,5 @@
 ﻿using Windows.UI.Xaml.Controls;
-using Microsoft.Practices.Unity;
+using Unity;
 using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.Views.Flyouts

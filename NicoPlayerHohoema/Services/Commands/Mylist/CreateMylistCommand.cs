@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Practices.Unity;
+using Unity;
 using System.Diagnostics;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Services;

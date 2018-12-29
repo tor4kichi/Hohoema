@@ -9,7 +9,7 @@ using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models;
 using Prism.Commands;
 using Prism.Windows.Navigation;
-using Microsoft.Practices.Unity;
+using Unity;
 using NicoPlayerHohoema.Services.Helpers;
 using NicoPlayerHohoema.Models.Provider;
 using Reactive.Bindings.Extensions;

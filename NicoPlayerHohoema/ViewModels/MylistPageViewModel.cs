@@ -10,7 +10,7 @@ using Reactive.Bindings;
 using System.Reactive.Linq;
 using NicoPlayerHohoema.Models.Helpers;
 using System.Threading;
-using Microsoft.Practices.Unity;
+using Unity;
 using Windows.UI;
 using Windows.UI.Popups;
 using NicoPlayerHohoema.Dialogs;

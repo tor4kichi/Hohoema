@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 using Windows.Media;
 using Windows.Storage;
 using Windows.UI.ViewManagement;
-using Microsoft.Practices.Unity;
+using Unity;
 using NicoPlayerHohoema.Models.Cache;
 using Windows.Media.Playback;
 using Windows.Media.Core;

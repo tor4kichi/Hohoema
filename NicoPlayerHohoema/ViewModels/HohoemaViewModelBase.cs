@@ -16,7 +16,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using WinRTXamlToolkit.Async;
 using Windows.UI.Xaml.Navigation;
 using System.Diagnostics;
-using Microsoft.Practices.Unity;
+using Unity;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;

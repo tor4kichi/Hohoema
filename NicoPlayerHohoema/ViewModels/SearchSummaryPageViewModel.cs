@@ -14,7 +14,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Models.Provider;
-using Microsoft.Practices.Unity;
+using Unity;
 
 namespace NicoPlayerHohoema.ViewModels
 {

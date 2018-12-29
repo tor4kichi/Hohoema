@@ -15,7 +15,7 @@ using System.Collections.Async;
 using Windows.UI.Xaml.Navigation;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Models.Provider;
-using Microsoft.Practices.Unity;
+using Unity;
 using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.UI.Xaml.Controls;
-using Microsoft.Practices.Unity;
+using Unity;
 
 namespace NicoPlayerHohoema.Services
 {

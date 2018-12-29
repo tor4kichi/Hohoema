@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Prism.Windows.Navigation;
 using NicoPlayerHohoema.Models;
-using Microsoft.Practices.Unity;
+using Unity;
 using Prism.Events;
 using System.Diagnostics;
 using NicoPlayerHohoema.Models.Live;

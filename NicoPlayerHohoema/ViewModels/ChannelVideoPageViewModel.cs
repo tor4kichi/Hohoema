@@ -12,7 +12,7 @@ using Prism.Commands;
 using Prism.Windows.Navigation;
 using Windows.UI;
 using NicoPlayerHohoema.Models.Provider;
-using Microsoft.Practices.Unity;
+using Unity;
 using NicoPlayerHohoema.Interfaces;
 
 namespace NicoPlayerHohoema.ViewModels

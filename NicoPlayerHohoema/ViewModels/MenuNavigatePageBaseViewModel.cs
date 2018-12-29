@@ -24,8 +24,9 @@ using NicoPlayerHohoema.Models.LocalMylist;
 using NicoPlayerHohoema.Models.Cache;
 using System.Windows.Input;
 using NicoPlayerHohoema.Services.Helpers;
-using Microsoft.Practices.Unity;
+using Unity;
 using Mntone.Nico2.Live;
+using Unity.Resolution;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -39,8 +40,7 @@ namespace NicoPlayerHohoema.ViewModels
             NiconicoSession niconicoSession,
             LocalMylistManager localMylistManager,
             UserMylistManager userMylistManager,
-            VideoCacheManager videoCacheManager, 
-            NicoLiveSubscriber nicoLiveSubscriber,
+            VideoCacheManager videoCacheManager,
             PageManager pageManager,
             Services.NiconicoLoginService niconicoLoginService,
             Commands.LogoutFromNiconicoCommand logoutFromNiconicoCommand
@@ -57,7 +57,6 @@ namespace NicoPlayerHohoema.ViewModels
             LocalMylistManager = localMylistManager;
             UserMylistManager = userMylistManager;
             VideoCacheManager = videoCacheManager;
-            NicoLiveSubscriber = nicoLiveSubscriber;
 
             NiconicoSession.LogIn += (sender, e) => ResetMenuItems();
             NiconicoSession.LogOut += (sender, e) => ResetMenuItems();
@@ -255,7 +254,7 @@ namespace NicoPlayerHohoema.ViewModels
         public PageManager PageManager { get; private set; }
         public NiconicoLoginService NiconicoLoginService { get; }
         public Commands.LogoutFromNiconicoCommand LogoutFromNiconicoCommand { get; }
-        public Microsoft.Practices.Unity.IUnityContainer Container { get; }
+        public IUnityContainer Container { get; }
         public IScheduler Scheduler { get; }
         public AppearanceSettings AppearanceSettings { get; }
         public PinSettings PinSettings { get; }
@@ -265,7 +264,6 @@ namespace NicoPlayerHohoema.ViewModels
         public VideoCacheManager VideoCacheManager { get; }
         public PlayerViewManager PlayerViewManager { get; }
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
-        public Services.NicoLiveSubscriber NicoLiveSubscriber { get; private set; }
 
         public ReactiveProperty<bool> IsTVModeEnable { get; private set; }
         public bool IsNeedFullScreenToggleHelp { get; private set; }
@@ -887,48 +885,14 @@ namespace NicoPlayerHohoema.ViewModels
         
         public LiveMenuSubPageContent(
             NiconicoSession niconicoSession, 
-            NicoLiveSubscriber nicoLiveSubscriber,
             Services.HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager
             )
         {
             NiconicoSession = niconicoSession;
-            LiveSubscriber = nicoLiveSubscriber;
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
-            UpdateOnAirStreamsCommand = new AsyncReactiveCommand();
-            
-            UpdateOnAirStreamsCommand.Subscribe(async _ => 
-            {
-                await LiveSubscriber.UpdateOnAirStreams();
-            });
-
-            OnAirStreams = LiveSubscriber.OnAirStreams.ToReadOnlyReactiveCollection(x => 
-            new OnAirStream()
-            {
-                BroadcasterId = x.Video.UserId.ToString(),
-                Id = x.Video.Id,
-                Label = x.Video.Title,
-                Thumbnail = x.Community?.ThumbnailSmall,
-                CommunityName  = x.Community.Name,
-                StartAt = x.Video.StartTime.Value
-            }
-            );
-
-            ReservedStreams = LiveSubscriber.ReservedStreams.ToReadOnlyReactiveCollection(x =>
-            new OnAirStream()
-            {
-                BroadcasterId = x.Video.UserId.ToString(),
-                Id = x.Video.Id,
-                Label = x.Video.Title,
-                Thumbnail = x.Community?.ThumbnailSmall,
-                CommunityName = x.Community.Name,
-                StartAt = x.Video.StartTime.Value,
-            }
-            );
-
             MenuItems = new ObservableCollection<HohoemaListingPageItemBase>();
-            //            MenuItems.Add(new MenuItemViewModel("予約", HohoemaPageType.NicoRepo));
 
             NiconicoSession.LogIn += (_, __) => ResetItems();
             NiconicoSession.LogOut += (_, __) => ResetItems();
@@ -955,16 +919,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public NiconicoSession NiconicoSession { get; }
-        public NicoLiveSubscriber LiveSubscriber { get; }
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
 
-        public AsyncReactiveCommand UpdateOnAirStreamsCommand { get; }
-
         public ObservableCollection<HohoemaListingPageItemBase> MenuItems { get; private set; }
-
-        public ReadOnlyReactiveCollection<OnAirStream> OnAirStreams { get; }
-        public ReadOnlyReactiveCollection<OnAirStream> ReservedStreams { get; }
 
     }
 

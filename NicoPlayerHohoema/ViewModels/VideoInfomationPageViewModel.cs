@@ -8,7 +8,7 @@ using Reactive.Bindings;
 using Prism.Commands;
 using NicoPlayerHohoema.Models.Helpers;
 using Windows.ApplicationModel.DataTransfer;
-using Microsoft.Practices.Unity;
+using Unity;
 using Prism.Windows.Navigation;
 using System.Threading;
 using System.Diagnostics;

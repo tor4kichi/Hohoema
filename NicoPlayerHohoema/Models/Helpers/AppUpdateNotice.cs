@@ -113,7 +113,7 @@ namespace NicoPlayerHohoema.Models.Helpers
                 var noticeableVersions = await GetUpdateNoticeAvairableVersionsAsync();
 
                 var noticeVersions = noticeableVersions
-                    .Where(x => x > LastCheckedVersion)
+                    .Where(x => x >= LastCheckedVersion)
                     .ToList();
 
 

@@ -18,7 +18,7 @@ using Mntone.Nico2.Searches.Live;
 using System.Collections.Async;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Models.Provider;
-using Microsoft.Practices.Unity;
+using Unity;
 using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels

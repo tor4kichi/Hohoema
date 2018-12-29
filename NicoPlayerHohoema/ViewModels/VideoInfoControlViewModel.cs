@@ -12,7 +12,7 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using Microsoft.Practices.Unity;
+using Unity;
 using System.Diagnostics;
 using Windows.UI.Core;
 using NicoPlayerHohoema.Services.Helpers;

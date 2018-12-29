@@ -27,9 +27,10 @@ using Windows.UI.Core;
 using System.Collections.Concurrent;
 using Windows.UI.Xaml;
 using NicoPlayerHohoema.Models.Provider;
-using Microsoft.Practices.Unity;
+using Unity;
 using Mntone.Nico2.Live;
 using NicoPlayerHohoema.Interfaces;
+using Unity.Resolution;
 
 namespace NicoPlayerHohoema.ViewModels
 {

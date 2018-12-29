@@ -9,7 +9,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Practices.Unity;
+using Unity;
 using Prism.Windows.Mvvm;
 using Windows.UI.Xaml.Navigation;
 using Prism.Commands;

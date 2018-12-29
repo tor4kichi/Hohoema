@@ -10,7 +10,7 @@ using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Services;
 using Prism.Commands;
-using Microsoft.Practices.Unity;
+using Unity;
 using NicoPlayerHohoema.Services.Helpers;
 
 namespace NicoPlayerHohoema.ViewModels

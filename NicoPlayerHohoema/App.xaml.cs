@@ -13,8 +13,8 @@ using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Input;
-using Microsoft.Practices.Unity;
-using Microsoft.Practices.Unity.StaticFactory;
+using Prism.Unity.Windows;
+using Unity;
 using NicoPlayerHohoema.Models;
 using Windows.UI.ViewManagement;
 using Windows.ApplicationModel.Core;
@@ -31,6 +31,8 @@ using NicoPlayerHohoema.Services.Page;
 using Prism.Windows.Navigation;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
+using Unity.Lifetime;
+using Unity.Injection;
 
 namespace NicoPlayerHohoema
 {
@@ -111,8 +113,7 @@ namespace NicoPlayerHohoema
             Container.RegisterType<Services.HohoemaPlaylist>(lifetimeManager: new ContainerControlledLifetimeManager());
             Container.RegisterType<Models.Cache.VideoCacheManager>(lifetimeManager: new ContainerControlledLifetimeManager());
             Container.RegisterType<Models.Subscription.SubscriptionManager>(lifetimeManager: new ContainerControlledLifetimeManager());
-            Container.RegisterType<Services.NicoLiveSubscriber>(lifetimeManager: new ContainerControlledLifetimeManager());
-
+            
             // Commands 
             Container.RegisterType<Commands.Mylist.CreateMylistCommand>(lifetimeManager: new ContainerControlledLifetimeManager());
             Container.RegisterType<Commands.Mylist.CreateLocalMylistCommand>(lifetimeManager: new ContainerControlledLifetimeManager());
@@ -122,7 +123,6 @@ namespace NicoPlayerHohoema
             Container.RegisterType<Commands.Cache.DeleteCacheRequestCommand>(lifetimeManager: new ContainerControlledLifetimeManager());
 
             // Note: インスタンス化が別途必要
-            Container.RegisterInstance(Container.Resolve<Services.HohoemaAlertClient>());
             Container.RegisterInstance(Container.Resolve<Services.WatchItLater>());
             Container.RegisterInstance(Container.Resolve<Services.Notification.NotificationCacheVideoDeletedService>());
             Container.RegisterInstance(Container.Resolve<Services.Notification.NotificationMylistUpdatedService>());
@@ -133,18 +133,7 @@ namespace NicoPlayerHohoema
             // ViewModels
             Container.RegisterType<ViewModels.RankingCategoryListPageViewModel>(new ContainerControlledLifetimeManager());
 
-            {
-                Resources.Add("IsXbox", Services.Helpers.DeviceTypeHelper.IsXbox);
-                Resources.Add("IsMobile", Services.Helpers.DeviceTypeHelper.IsMobile);
-
-
-                var cacheSettings = Container.Resolve<CacheSettings>();
-                Resources.Add("IsCacheEnabled", cacheSettings.IsEnableCache);
-
-                var appearanceSettings = Container.Resolve<AppearanceSettings>();
-                Resources.Add("IsTVModeEnabled", Services.Helpers.DeviceTypeHelper.IsXbox || appearanceSettings.IsForceTVModeEnable);
-            }
-
+           
 
 #if DEBUG
             //			BackgroundUpdater.MaxTaskSlotCount = 1;
@@ -158,6 +147,7 @@ namespace NicoPlayerHohoema
 
         public bool IsTitleBarCustomized { get; } = Services.Helpers.DeviceTypeHelper.IsDesktop && Services.Helpers.InputCapabilityHelper.IsMouseCapable;
 
+      
 
         /// <summary>
         /// アプリ動作に必要な機能を初期化する
@@ -167,6 +157,36 @@ namespace NicoPlayerHohoema
         protected override async Task OnInitializeAsync(IActivatedEventArgs args)
         {
             await RegisterTypes();
+
+
+            {
+                if (Resources.ContainsKey("IsXbox"))
+                {
+                    Resources.Remove("IsXbox");
+                }
+                Resources.Add("IsXbox", Services.Helpers.DeviceTypeHelper.IsXbox);
+
+                if (Resources.ContainsKey("IsMobile"))
+                {
+                    Resources.Remove("IsMobile");
+                }
+                Resources.Add("IsMobile", Services.Helpers.DeviceTypeHelper.IsMobile);
+
+
+                var cacheSettings = Container.Resolve<CacheSettings>();
+                if (Resources.ContainsKey("IsCacheEnabled"))
+                {
+                    Resources.Remove("IsCacheEnabled");
+                }
+                Resources.Add("IsCacheEnabled", cacheSettings.IsEnableCache);
+
+                var appearanceSettings = Container.Resolve<AppearanceSettings>();
+                if (Resources.ContainsKey("IsTVModeEnabled"))
+                {
+                    Resources.Remove("IsTVModeEnabled");
+                }
+                Resources.Add("IsTVModeEnabled", Services.Helpers.DeviceTypeHelper.IsXbox || appearanceSettings.IsForceTVModeEnable);
+            }
 
 
             // ログイン

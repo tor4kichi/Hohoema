@@ -2,7 +2,7 @@
 using Prism.Mvvm;
 using System.Diagnostics;
 using System.Windows.Input;
-using Microsoft.Practices.Unity;
+using Unity;
 using NicoPlayerHohoema.Services.Helpers;
 
 namespace NicoPlayerHohoema.Services.Page

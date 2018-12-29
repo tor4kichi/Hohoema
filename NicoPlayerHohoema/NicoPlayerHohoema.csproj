@@ -196,6 +196,7 @@
     <Compile Include="ViewModels\Flyouts\FollowItemFlyoutViewModel.cs" />
     <Compile Include="ViewModels\Flyouts\SubscriptionItemFlyoutViewModel.cs" />
     <Compile Include="Services\NiconicoFollowToggleButtonService.cs" />
+    <Compile Include="ViewModels\LiveVideoInfoContent\LiveInfoContentViewModelBase.cs" />
     <Compile Include="ViewModels\SubscriptionControlViewModel.cs" />
     <Compile Include="Views\Converters\StringToUriConverter.cs" />
     <Compile Include="Views\Dialogs\NiconicoLoginDialog.xaml.cs">
@@ -225,14 +226,12 @@
     <Compile Include="Models\Helpers\AccountManager.cs" />
     <Compile Include="Models\Helpers\AppUpdateNotice.cs" />
     <Compile Include="Models\Niconico\Follow\ChannelFollowInfoGroup.cs" />
-    <Compile Include="Services\HohoemaAlertClient.cs" />
     <Compile Include="Models\Niconico\Live\Event\CommentPostedEventArgs.cs" />
     <Compile Include="Models\Niconico\Live\Event\CommentRecievedEventArgs.cs" />
     <Compile Include="Models\Niconico\Live\Event\CommentServerConnectedEventArgs.cs" />
     <Compile Include="Models\Niconico\Live\Event\CommentServerDisconnectedEventArgs.cs" />
     <Compile Include="Models\Niconico\Live\INicoLiveCommentClient.cs" />
     <Compile Include="Models\Niconico\Live\LiveChatData.cs" />
-    <Compile Include="Services\NicoLiveSubscriber.cs" />
     <Compile Include="Models\Niconico\Live\NiwavidedNicoLiveCommentClient.cs" />
     <Compile Include="Models\Niconico\Live\NiwavidedNicoTimeshiftCommentClient.cs" />
     <Compile Include="Models\Niconico\Video\Comment\CommentCommandPermissionType.cs" />
@@ -382,10 +381,8 @@
     <Compile Include="ViewModels\HohoemaViewModelBase.cs" />
     <Compile Include="Interfaces\ISearchHistory.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\CommentLiveInfoContentViewModel.cs" />
-    <Compile Include="ViewModels\LiveVideoInfoContent\LiveInfoContentViewModelBase.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\SettingsLiveInfoContentViewModel.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\ShereLiveInfoContentViewModel.cs" />
-    <Compile Include="ViewModels\LiveVideoInfoContent\SummaryLiveInfoContentViewModel.cs" />
     <Compile Include="ViewModels\LivePlayerPageViewModel.cs" />
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
     <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
@@ -746,6 +743,8 @@
     <Content Include="Assets\UpdateNotices\0.15.1.md" />
     <Content Include="Assets\UpdateNotices\0.15.3.md" />
     <Content Include="Assets\UpdateNotices\0.16.0.md" />
+    <Content Include="Assets\UpdateNotices\0.16.1.md" />
+    <Content Include="Assets\UpdateNotices\0.17.0.md" />
     <None Include="Models\Provider\README.md" />
     <None Include="Models\Subscription\README.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
@@ -1201,10 +1200,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\NicoAlert\NicoAlert.csproj">
-      <Project>{973a1e65-a9f3-4144-a521-647ddfe06f2a}</Project>
-      <Name>NicoAlert</Name>
-    </ProjectReference>
     <ProjectReference Include="..\OpenNiconico2\Mntone.Nico2.UWP\Mntone.Nico2.UWP.csproj">
       <Project>{bbf8857d-550a-4228-b9fc-52c38d5346f1}</Project>
       <Name>Mntone.Nico2.UWP</Name>
@@ -1247,13 +1242,7 @@
     <PackageReference Include="Newtonsoft.Json">
       <Version>11.0.1</Version>
     </PackageReference>
-    <PackageReference Include="Prism.Core">
-      <Version>7.0.0.396</Version>
-    </PackageReference>
-    <PackageReference Include="Prism.Unity">
-      <Version>6.3.0</Version>
-    </PackageReference>
-    <PackageReference Include="Prism.Windows">
+    <PackageReference Include="Prism.Unity.Windows">
       <Version>7.0.0.336-pre</Version>
     </PackageReference>
     <PackageReference Include="ReactiveProperty">

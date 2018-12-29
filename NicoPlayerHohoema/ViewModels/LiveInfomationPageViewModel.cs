@@ -17,7 +17,7 @@ using Prism.Commands;
 using Prism.Windows.Navigation;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-using Microsoft.Practices.Unity;
+using Unity;
 using System.Text.RegularExpressions;
 using Windows.System;
 using NicoPlayerHohoema.Services.Page;

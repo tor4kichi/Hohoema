@@ -17,7 +17,7 @@ using NicoPlayerHohoema.Services;
 using Windows.System;
 using NicoPlayerHohoema.Models.Subscription;
 using NicoPlayerHohoema.Models.Provider;
-using Microsoft.Practices.Unity;
+using Unity;
 
 namespace NicoPlayerHohoema.ViewModels
 {

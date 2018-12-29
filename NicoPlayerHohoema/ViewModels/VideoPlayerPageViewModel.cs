@@ -33,7 +33,7 @@ using Windows.ApplicationModel.DataTransfer;
 using Windows.Media;
 using Windows.UI.Popups;
 using Windows.Foundation.Metadata;
-using Microsoft.Practices.Unity;
+using Unity;
 using Mntone.Nico2.Videos.Dmc;
 using NicoPlayerHohoema.Services.Helpers;
 using NicoPlayerHohoema.Services.Page;

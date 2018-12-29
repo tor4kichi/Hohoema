@@ -10,7 +10,7 @@ using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Services;
-using Microsoft.Practices.Unity;
+using Unity;
 
 namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 {

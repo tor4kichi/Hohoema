@@ -1,6 +1,6 @@
 ﻿using NicoPlayerHohoema.Models;
 using Prism.Commands;
-using Microsoft.Practices.Unity;
+using Unity;
 
 namespace NicoPlayerHohoema.Commands
 {
