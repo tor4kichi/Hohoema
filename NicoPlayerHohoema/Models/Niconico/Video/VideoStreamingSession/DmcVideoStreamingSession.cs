@@ -216,11 +216,14 @@ namespace NicoPlayerHohoema.Models
                 Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビートを終了しました");
             }
 
-            if (_DmcSessionResponse != null)
+            try
             {
-                await _Context.Video.DmcSessionLeaveAsync(DmcWatchResponse, _DmcSessionResponse);
+                if (_DmcSessionResponse != null)
+                {
+                    await _Context.Video.DmcSessionLeaveAsync(DmcWatchResponse, _DmcSessionResponse);
+                }
             }
-
+            catch { }
         }
     }
 }
