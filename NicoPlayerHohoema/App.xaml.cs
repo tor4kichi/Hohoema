@@ -676,9 +676,9 @@ namespace NicoPlayerHohoema
                 .Subscribe(frame =>
                 {
                     var frameFacade = new FrameFacadeAdapter(playerWithPageContainer.Frame, EventAggregator);
-
+                    
                     var sessionStateService = new SessionStateService();
-
+                    sessionStateService.RegisterFrame(frameFacade, "primary_view_player");
                     var ns = new FrameNavigationService(frameFacade
                         , (pageToken) =>
                         {
@@ -695,7 +695,7 @@ namespace NicoPlayerHohoema
                                 return typeof(Views.BlankPage);
                             }
                         }, sessionStateService);
-
+                    
                     var name = nameof(PlayerViewManager.PrimaryViewPlayerNavigationService);
                     Container.RegisterInstance(name, ns as INavigationService);
                 });

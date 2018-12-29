@@ -346,7 +346,7 @@ namespace NicoPlayerHohoema.Services
                     var frameFacade = new FrameFacadeAdapter(content.Frame, EventAggregator);
 
                     var sessionStateService = new SessionStateService();
-
+                    sessionStateService.RegisterFrame(frameFacade, "secondary_view_player");
                     ns = new FrameNavigationService(frameFacade
                         , (pageToken) =>
                         {
