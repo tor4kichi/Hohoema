@@ -20,11 +20,11 @@ namespace NicoPlayerHohoema.Views.Converters
             {
                 if (time == DateTime.MaxValue)
                 {
-                    return Helpers.CulturelizeHelper.ToCulturelizeString("Expired_Unlimited") ?? "Expired_Unlimited";
+                    return Services.Helpers.CulturelizeHelper.ToCulturelizeString("Expired_Unlimited") ?? "Expired_Unlimited";
                 }
                 else if (time.Hour == 23 && time.Minute == 59 && time.Second == 59)
                 {
-                    var allDayText = Helpers.CulturelizeHelper.ToCulturelizeString("Expired_AllDayLong") ?? time.ToString("hh:mm");
+                    var allDayText = Services.Helpers.CulturelizeHelper.ToCulturelizeString("Expired_AllDayLong") ?? time.ToString("hh:mm");
                     return $"{time.ToString("D")} {allDayText}";
                 }
                 else

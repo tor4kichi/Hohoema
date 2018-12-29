@@ -16,13 +16,34 @@ using System.Reactive.Linq;
 using Mntone.Nico2;
 using Windows.System;
 using Windows.UI.Popups;
+using NicoPlayerHohoema.Models.Provider;
+using NiconicoSession = NicoPlayerHohoema.Models.NiconicoSession;
+using Mntone.Nico2.Videos.Thumbnail;
+using NicoPlayerHohoema.Interfaces;
+using Mntone.Nico2.Live;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class CommunityPageViewModel : HohoemaViewModelBase
+	public class CommunityPageViewModel : HohoemaViewModelBase, ICommunity
 	{
+        public CommunityPageViewModel(Services.PageManager pageManager,
+            NiconicoSession niconicoSession,
+            CommunityFollowProvider followProvider,
+            CommunityProvider communityProvider,
+            FollowManager followManager,
+            NiconicoFollowToggleButtonService followToggleButtonService
+            )
+            : base(pageManager)
+        {
+            NiconicoSession = niconicoSession;
+            FollowProvider = followProvider;
+            CommunityProvider = communityProvider;
+            FollowToggleButtonService = followToggleButtonService;
+        }
 
-		public string CommunityId { get; private set; }
+
+        public string CommunityId { get; private set; }
 
 		public CommunityInfo CommunityInfo { get; private set; }
 
@@ -116,120 +137,7 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _IsFailed, value); }
 		}
 
-
-
-		public ReactiveProperty<bool> IsFollowCommunity { get; private set; }
-		public ReactiveProperty<bool> CanChangeFollowCommunityState { get; private set; }
-
-		bool _NowProcessCommunity;
-
-		public CommunityPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
-			: base(hohoemaApp, pageManager)
-		{
-			IsFollowCommunity = new ReactiveProperty<bool>(mode: ReactivePropertyMode.DistinctUntilChanged)
-				.AddTo(_CompositeDisposable);
-			CanChangeFollowCommunityState = new ReactiveProperty<bool>()
-				.AddTo(_CompositeDisposable);
-
-			IsFollowCommunity
-				.Where(x => CommunityId != null)
-				.Subscribe(async x =>
-				{
-					if (_NowProcessCommunity) { return; }
-
-					_NowProcessCommunity = true;
-
-					CanChangeFollowCommunityState.Value = false;
-					if (x)
-					{
-						if (await FollowCommunity())
-						{
-							Debug.WriteLine(CommunityName + "のコミュニティをお気に入り登録しました.");
-						}
-						else
-						{
-							// お気に入り登録に失敗した場合は状態を差し戻し
-							Debug.WriteLine(CommunityName + "のコミュニティをお気に入り登録に失敗");
-							IsFollowCommunity.Value = false;
-						}
-					}
-					else
-					{
-						if (await UnfollowCommunity())
-						{
-							Debug.WriteLine(CommunityName + "のコミュニティをお気に入り解除しました.");
-						}
-						else
-						{
-							// お気に入り解除に失敗した場合は状態を差し戻し
-							Debug.WriteLine(CommunityName + "のコミュニティをお気に入り解除に失敗");
-							IsFollowCommunity.Value = true;
-						}
-					}
-
-					var isAutoJoinAccept = CommunityInfo.IsPublic;
-					var isJoinRequireUserInfo = CommunityInfo.option_flag_details.CommunityPrivUserAuth == "1";
-					CanChangeFollowCommunityState.Value =
-						IsFollowCommunity.Value == true
-						|| (HohoemaApp.FollowManager.CanMoreAddFollow(FollowItemType.Community) && isAutoJoinAccept && !isJoinRequireUserInfo);
-
-					_NowProcessCommunity = false;
-
-					UpdateCanNotFollowReason();
-				})
-				.AddTo(_CompositeDisposable);
-		}
-
-
-		private async Task<bool> FollowCommunity()
-		{
-			if (CommunityId == null) { return false; }
-
-			var favManager = HohoemaApp.FollowManager;
-			var result = await favManager.AddFollow(FollowItemType.Community, CommunityId, CommunityName);
-
-			return result == ContentManageResult.Success || result == ContentManageResult.Exist;
-		}
-
-		private async Task<bool> UnfollowCommunity()
-		{
-            const string CANCEL_BUTTON_ID = "cancel";
-
-			if (CommunityId == null) { return false; }
-
-			var favManager = HohoemaApp.FollowManager;
-
-            var dialog = new MessageDialog(
-                $"『{CommunityInfo.Name}』へのフォローを解除してもいいですか？ ",
-                "コミュニティフォローの解除確認"
-                );
-
-            dialog.Commands.Add(new UICommand("フォロー解除") { Id = CANCEL_BUTTON_ID });
-            dialog.Commands.Add(new UICommand("キャンセル"));
-
-            dialog.DefaultCommandIndex = 1;
-            dialog.CancelCommandIndex = 1;
-            dialog.Options = MessageDialogOptions.AcceptUserInputAfterDelay;
-
-            var dialogResult = await dialog.ShowAsync();
-            if (dialogResult.Id as string == CANCEL_BUTTON_ID)
-            {
-                try
-                {
-                    var result = await favManager.RemoveFollow(FollowItemType.Community, CommunityId);
-
-                    return result == ContentManageResult.Success;
-                }
-                catch
-                {
-                    return false;
-                }
-            }
-            else
-            {
-                return false;
-            }
-        }
+		
 
 		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
@@ -248,7 +156,7 @@ namespace NicoPlayerHohoema.ViewModels
 				// コミュニティ情報の取得
 				if (!string.IsNullOrEmpty(CommunityId))
 				{
-					var res = await HohoemaApp.ContentProvider.GetCommunityInfo(CommunityId);
+					var res = await CommunityProvider.GetCommunityInfo(CommunityId);
 
 					if (res == null || !res.IsStatusOK) { return; }
 
@@ -267,29 +175,29 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-					var detail = await HohoemaApp.ContentProvider.GetCommunityDetail(CommunityId);
+					var detail = await CommunityProvider.GetCommunityDetail(CommunityId);
 
 					if (detail == null && !detail.IsStatusOK) { return; }
 
 					CommunityDetail = detail.CommunitySammary.CommunityDetail;
 
 					var profileHtmlId = $"{CommunityId}_profile";
-					ProfileHtmlFileUri = await Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(profileHtmlId, CommunityDetail.ProfielHtml);
+					ProfileHtmlFileUri = await Models.Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(profileHtmlId, CommunityDetail.ProfielHtml);
 
 					OwnerUserInfo = new UserInfoViewModel(
 						CommunityDetail.OwnerUserName,
 						CommunityDetail.OwnerUserId
 						);
 
-                    IsOwnedCommunity = HohoemaApp.LoginUserId.ToString() == OwnerUserInfo.Id;
+                    IsOwnedCommunity = NiconicoSession.UserId.ToString() == OwnerUserInfo.Id;
 
-                    Tags = CommunityDetail.Tags.Select(x => new TagViewModel(x, PageManager))
+                    Tags = CommunityDetail.Tags.Select(x => new TagViewModel(x))
 						.ToList();
 
-					FutureLiveList = CommunityDetail.FutureLiveList.Select(x => new CommunityLiveInfoViewModel(x, PageManager))
+					FutureLiveList = CommunityDetail.FutureLiveList.Select(x => new CommunityLiveInfoViewModel(x))
 						.ToList();
 
-					RecentLiveList = CommunityDetail.RecentLiveList.Select(x => new CommunityLiveInfoViewModel(x, PageManager))
+					RecentLiveList = CommunityDetail.RecentLiveList.Select(x => new CommunityLiveInfoViewModel(x))
 						.ToList();
 
 					NewsList = new List<CommunityNewsViewModel>();
@@ -304,7 +212,7 @@ namespace NicoPlayerHohoema.ViewModels
 					HasNews = NewsList.Count > 0;
 
 
-					CurrentLiveInfoList = CommunityDetail.CurrentLiveList.Select(x => new CurrentLiveInfoViewModel(x, HohoemaApp.Playlist))
+					CurrentLiveInfoList = CommunityDetail.CurrentLiveList.Select(x => new CurrentLiveInfoViewModel(x, CommunityDetail))
 						.ToList();
 
 					HasCurrentLiveInfo = CurrentLiveInfoList.Count > 0;
@@ -312,7 +220,7 @@ namespace NicoPlayerHohoema.ViewModels
 					CommunityVideoSamples = new List<CommunityVideoInfoViewModel>();
 					foreach (var sampleVideo in CommunityDetail.VideoList)
 					{
-						var videoInfoVM = new CommunityVideoInfoViewModel(sampleVideo, HohoemaApp.Playlist);
+						var videoInfoVM = new CommunityVideoInfoViewModel(sampleVideo);
 
 						CommunityVideoSamples.Add(videoInfoVM);
 					}
@@ -337,23 +245,21 @@ namespace NicoPlayerHohoema.ViewModels
 					RaisePropertyChanged(nameof(HasCurrentLiveInfo));
 					RaisePropertyChanged(nameof(CommunityVideoSamples));
 
+                    
+                    // フォロー表示・操作の準備
 
-					// お気に入り状態の取得
-					_NowProcessCommunity = true;
+                    // Note: オーナーコミュニティのフォローを解除＝コミュニティの解散操作となるため注意が必要
+                    // 安全管理上、アプリ上でコミュニティの解散は不可の方向に倒して対応したい
+                    if (!IsOwnedCommunity)
+                    {
+                        FollowToggleButtonService.SetFollowTarget(this);
+                    }
+                    else
+                    {
+                        FollowToggleButtonService.SetFollowTarget(null);
+                    }
 
-					var favManager = HohoemaApp.FollowManager;
-					IsFollowCommunity.Value = favManager.IsFollowItem(FollowItemType.Community, CommunityId);
-
-					// 
-					var isAutoJoinAccept = CommunityInfo.IsPublic;
-					var isJoinRequireUserInfo = CommunityInfo.option_flag_details.CommunityPrivUserAuth == "1";
-					CanChangeFollowCommunityState.Value =
-						IsFollowCommunity.Value == true
-						|| (favManager.CanMoreAddFollow(FollowItemType.Community) && isAutoJoinAccept && !isJoinRequireUserInfo);
-
-					_NowProcessCommunity = false;
-
-					UpdateCanNotFollowReason();
+                    UpdateCanNotFollowReason();
 				}
 			}
 			catch (Exception ex)
@@ -408,23 +314,18 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-        private DelegateCommand<CommunityVideoInfoViewModel> _PlayUserVideoCommand;
-        public DelegateCommand<CommunityVideoInfoViewModel> PlayUserVideoCommand
-        {
-            get
-            {
-                return _PlayUserVideoCommand
-                    ?? (_PlayUserVideoCommand = new DelegateCommand<CommunityVideoInfoViewModel>((videoVM) =>
-                    {
-                        HohoemaApp.Playlist.PlayVideo(videoVM.VideoInfo.VideoId, videoVM.VideoInfo.Title);
-                    }));
-            }
-        }
+        public NiconicoSession NiconicoSession { get; }
+        public Models.Provider.CommunityFollowProvider FollowProvider { get; }
+        public CommunityProvider CommunityProvider { get; }
+        public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
 
+        string INiconicoObject.Id => CommunityId;
+
+        string INiconicoObject.Label => CommunityName;
 
         private void UpdateCanNotFollowReason()
 		{
-			if (HohoemaApp.FollowManager.IsFollowItem(FollowItemType.Community, CommunityId))
+			if (FollowToggleButtonService.IsFollowTarget.Value)
 			{
 				CanNotFollowReason = null;
 			}
@@ -449,78 +350,74 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	public class CurrentLiveInfoViewModel
-	{
-		public HohoemaPlaylist HohoemaPlaylist { get; private set; }
-
+	public class CurrentLiveInfoViewModel : Interfaces.ILiveContent
+    {
 		public string LiveTitle { get; private set; }
 		public string LiveId { get; private set; }
 
-		public CurrentLiveInfoViewModel(CommunityLiveInfo liveInfo, HohoemaPlaylist playlist)
-		{
-            HohoemaPlaylist = playlist;
-
+		public CurrentLiveInfoViewModel(CommunityLiveInfo liveInfo, CommunityDetail community)
+        {
 			LiveTitle = liveInfo.LiveTitle;
 			LiveId = liveInfo.LiveId;
+
+            ProviderId = community.Id;
+            ProviderName = community.Name;
 		}
 
-		private DelegateCommand _OpenLivePageCommand;
-		public DelegateCommand OpenLivePageCommand
-		{
-			get
-			{
-				return _OpenLivePageCommand
-					?? (_OpenLivePageCommand = new DelegateCommand(() =>
-					{
-                        // TODO: 生放送ページを開く lv0000000
-                        HohoemaPlaylist.PlayLiveVideo(LiveId, LiveTitle);
-					}));
-			}
-		}
-	}
+        public string Id => LiveId;
+
+        public string Label => LiveTitle;
+
+        public string ProviderId { get; }
+
+        public string ProviderName { get; }
+
+        public CommunityType ProviderType => CommunityType.Community;
+    }
 
 
 	public class CommunityNewsViewModel
 	{
-		public static async Task<CommunityNewsViewModel> Create(
+        static public async Task<CommunityNewsViewModel> Create(
 			string communityId,
 			string title, 
 			string authorName, 
 			DateTime postAt, 
 			string contentHtml,
-			PageManager pageManager
+            Services.PageManager pageManager
 			)
 		{
 			var id = $"{communityId}_{postAt.ToString("yy-MM-dd-H-mm")}";
-			var uri = await Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(id, contentHtml);
+			var uri = await Models.Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(id, contentHtml);
 			return new CommunityNewsViewModel(communityId, title, authorName, postAt, uri, pageManager);
 		}
 
+        private CommunityNewsViewModel(
+            string communityId,
+            string title,
+            string authorName,
+            DateTime postAt,
+            Uri htmlUri,
+            Services.PageManager pageManager
+            )
+        {
+            CommunityId = communityId;
+            Title = title;
+            AuthorName = authorName;
+            PostAt = postAt;
+            ContentHtmlFileUri = htmlUri;
+            PageManager = pageManager;
+        }
 
-		public string CommunityId { get; private set; }
+        public string CommunityId { get; private set; }
 		public string Title { get; private set; }
 		public string AuthorName { get; private set; }
 		public DateTime PostAt { get; private set; }
 		public Uri ContentHtmlFileUri { get; private set; }
 
-		public PageManager PageManager { get; private set; }
+		public Services.PageManager PageManager { get; private set; }
 
-		private CommunityNewsViewModel(
-			string communityId,
-			string title,
-			string authorName,
-			DateTime postAt,
-			Uri htmlUri,
-			PageManager pageManager
-			)
-		{
-			CommunityId = communityId;
-			Title = title;
-			AuthorName = authorName;
-			PostAt = postAt;
-			ContentHtmlFileUri = htmlUri;
-			PageManager = pageManager;
-		}
+		
 
 
 		private DelegateCommand<Uri> _ScriptNotifyCommand;
@@ -541,26 +438,41 @@ namespace NicoPlayerHohoema.ViewModels
 	}
 
 
-	public class UserInfoViewModel
+	public class UserInfoViewModel : Interfaces.IUser
 	{
-		public string Name { get; private set; }
+        public UserInfoViewModel(string name, string id, string iconUrl = null)
+        {
+            Name = name;
+            Id = id;
+            IconUrl = iconUrl;
+            HasIconUrl = IconUrl != null;
+        }
+
+        public string Name { get; private set; }
 		public string Id { get; private set; }
 		public string IconUrl { get; private set; }
 		public bool HasIconUrl { get; private set; }
 
-		public UserInfoViewModel(string name, string id, string iconUrl = null)
-		{
-			Name = name;
-			Id = id;
-			IconUrl = iconUrl;
-			HasIconUrl = IconUrl != null;
-		}
-	}
+        string INiconicoObject.Id => Id;
 
-	public class CommunityLiveInfoViewModel
+        string INiconicoObject.Label => Name;
+    }
+
+	public class CommunityLiveInfoViewModel : Interfaces.ILiveContent
 	{
-		public LiveInfo LiveInfo { get; private set; }
-		public PageManager PageManager { get; private set; }
+        public CommunityLiveInfoViewModel(LiveInfo info)
+        {
+            LiveInfo = info;
+
+            LiveId = LiveInfo.LiveId;
+            LiveTitle = LiveInfo.LiveId;
+            StartTime = LiveInfo.StartTime;
+            StreamerName = LiveInfo.StreamerName;
+        }
+
+
+
+        public LiveInfo LiveInfo { get; private set; }
 
 
 		public string LiveId { get; private set; }
@@ -568,50 +480,38 @@ namespace NicoPlayerHohoema.ViewModels
 		public string StreamerName { get; private set; }
 		public DateTime StartTime { get; private set; }
 
+        public string BroadcasterId => null;
 
-		public CommunityLiveInfoViewModel(LiveInfo info, PageManager pageManager)
-		{
-			LiveInfo = info;
-			PageManager = pageManager;
+        public string Id => LiveId;
 
-			LiveId = LiveInfo.LiveId;
-			LiveTitle = LiveInfo.LiveId;
-			StartTime = LiveInfo.StartTime;
-			StreamerName = LiveInfo.StreamerName;
-		}
+        public string Label => LiveTitle;
 
+        public string ProviderId => null;
 
+        public string ProviderName => StreamerName;
 
-		private DelegateCommand _OpenLivePageCommand;
-		public DelegateCommand OpenLivePageCommand
-		{
-			get
-			{
-				return _OpenLivePageCommand
-					?? (_OpenLivePageCommand = new DelegateCommand(() => 
-					{
-						// TODO: 生放送ページを開く lv0000000
+        public CommunityType ProviderType => CommunityType.Official;
+    }
 
-					}));
-			}
-		}
-	}
-
-	public class CommunityVideoInfoViewModel : HohoemaListingPageItemBase
-	{
+	public class CommunityVideoInfoViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContent
+    {
 		public CommunityVideo VideoInfo { get; private set; }
-		public HohoemaPlaylist HohoemaPlaylist { get; private set; }
 
+        public string Title => VideoInfo.Title;
 
-		public string Title { get; private set; }
+        public string ProviderId => null;
 
+        public string ProviderName => null;
 
-		public CommunityVideoInfoViewModel(CommunityVideo info, HohoemaPlaylist playlist)
+        public Mntone.Nico2.Videos.Thumbnail.UserType ProviderType => Mntone.Nico2.Videos.Thumbnail.UserType.User;
+
+        public string Id => VideoInfo.VideoId;
+
+        Interfaces.IMylist IVideoContent.OnwerPlaylist => null;
+
+        public CommunityVideoInfoViewModel(CommunityVideo info)
 		{
 			VideoInfo = info;
-            HohoemaPlaylist = playlist;
-
-			Title = VideoInfo.Title;
 
             Label = VideoInfo.Title;
             if (info.ThumbnailUrl != null)
@@ -621,18 +521,5 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-
-		private DelegateCommand _OpenVideoPageCommand;
-		public DelegateCommand OpenVideoPageCommand
-		{
-			get
-			{
-				return _OpenVideoPageCommand
-					?? (_OpenVideoPageCommand = new DelegateCommand(() =>
-					{
-                        HohoemaPlaylist.PlayVideo(VideoInfo.VideoId, VideoInfo.Title);
-					}));
-			}
-		}
 	}
 }

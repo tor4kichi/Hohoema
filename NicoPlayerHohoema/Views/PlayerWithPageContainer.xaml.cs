@@ -13,7 +13,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Microsoft.Practices.Unity;
+using Unity;
 using Prism.Windows.Navigation;
 using Prism.Windows.AppModel;
 
@@ -23,42 +23,40 @@ namespace NicoPlayerHohoema.Views
 {
     public sealed partial class PlayerWithPageContainer : ContentControl
     {
+        public Frame Frame
+        {
+            get { return (Frame)GetValue(FrameProperty); }
+            set { SetValue(FrameProperty, value); }
+        }
 
-        public Frame Frame { get; private set; }
+        // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty FrameProperty =
+            DependencyProperty.Register(nameof(Frame), typeof(Frame), typeof(PlayerWithPageContainer), new PropertyMetadata(default(Frame)));
+
 
         public PlayerWithPageContainer()
         {
             this.InitializeComponent();
+
+            Loaded += PlayerWithPageContainer_Loaded;
+        }
+
+        private void PlayerWithPageContainer_Loaded(object sender, RoutedEventArgs e)
+        {
+            // タイトルバーのハンドルできる範囲を自前で指定する
+            // バックボタンのカスタマイズ対応のため
+            // もしかしてモバイルやXboxOneで例外が出てクラッシュするのが怖いので
+            // 例外を握りつぶしておく
+            try
+            {
+                Window.Current.SetTitleBar(GetTemplateChild("DraggableContent") as UIElement);
+            }
+            catch { }
         }
 
         protected override void OnApplyTemplate()
         {
             Frame = GetTemplateChild("PlayerFrame") as Frame;
-
-            {
-                var frameFacade = new FrameFacadeAdapter(Frame);
-
-                var sessionStateService = new SessionStateService();
-
-                var ns = new FrameNavigationService(frameFacade
-                    , (pageToken) =>
-                    {
-                        if (pageToken == nameof(Views.VideoPlayerPage))
-                        {
-                            return typeof(Views.VideoPlayerPage);
-                        }
-                        else if (pageToken == nameof(Views.LivePlayerPage))
-                        {
-                            return typeof(Views.LivePlayerPage);
-                        }
-                        else
-                        {
-                            return typeof(Views.BlankPage);
-                        }
-                    }, sessionStateService);
-
-                (DataContext as ViewModels.PlayerWithPageContainerViewModel).SetNavigationService(ns);
-            }
 
             base.OnApplyTemplate();
         }

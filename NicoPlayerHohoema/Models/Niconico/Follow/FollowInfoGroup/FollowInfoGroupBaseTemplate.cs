@@ -1,5 +1,5 @@
 ﻿using Mntone.Nico2;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,8 +11,7 @@ namespace NicoPlayerHohoema.Models
 {
 	public abstract class FollowInfoGroupBaseTemplate<FOLLOW_SOURCE> : FollowInfoGroupBase
 	{
-		public FollowInfoGroupBaseTemplate(HohoemaApp hohoemaApp) 
-			: base(hohoemaApp)
+		public FollowInfoGroupBaseTemplate() 
 		{
 
 		}

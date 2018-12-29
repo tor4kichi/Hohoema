@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Reactive.Bindings;
 using System.Runtime.Serialization;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.Models
 {

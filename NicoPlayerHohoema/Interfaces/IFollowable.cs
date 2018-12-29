@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Interfaces
 {
-    public interface IFollowable
+    public interface IFollowable : INiconicoObject
     {
     }
 }

@@ -10,19 +10,22 @@ namespace NicoPlayerHohoema.Models
 {
 	public class CommunityFollowInfoGroup : FollowInfoGroupBaseTemplate<FollowCommunityInfo>
 	{
-		public CommunityFollowInfoGroup(HohoemaApp hohoemaApp) 
-			: base(hohoemaApp)
+		public CommunityFollowInfoGroup(
+            NiconicoSession niconicoSession, Provider.CommunityFollowProvider communityFollowProvider) 
 		{
-
-		}
+            NiconicoSession = niconicoSession;
+            CommunityFollowProvider = communityFollowProvider;
+        }
 
 		public override FollowItemType FollowItemType => FollowItemType.Community;
 
 		public override uint MaxFollowItemCount =>
-			HohoemaApp.IsPremiumUser ? FollowManager.PREMIUM_FOLLOW_COMMUNITY_MAX_COUNT : FollowManager.FOLLOW_COMMUNITY_MAX_COUNT;
+            NiconicoSession.IsPremiumAccount ? FollowManager.PREMIUM_FOLLOW_COMMUNITY_MAX_COUNT : FollowManager.FOLLOW_COMMUNITY_MAX_COUNT;
 
+        public NiconicoSession NiconicoSession { get; }
+        public Provider.CommunityFollowProvider CommunityFollowProvider { get; }
 
-		protected override FollowItemInfo ConvertToFollowInfo(FollowCommunityInfo source)
+        protected override FollowItemInfo ConvertToFollowInfo(FollowCommunityInfo source)
 		{
 			return new FollowItemInfo()
 			{
@@ -39,56 +42,21 @@ namespace NicoPlayerHohoema.Models
 
 		protected override async Task<List<FollowCommunityInfo>> GetFollowSource()
 		{
-            var items = new List<FollowCommunityInfo>();
-            bool needMore = true;
-            int page = 0;
-
-            while (needMore)
-            {
-                try
-                {
-                    var res = await HohoemaApp.ContentProvider.GetFavCommunities(page);
-                    items.AddRange(res.Items);
-
-                    // フォローコミュニティページの一画面での最大表示数10個と同数の場合は追加で取得
-                    needMore = res.Items.Count == 10;
-                }
-                catch
-                {
-                    needMore = false;
-                }
-
-                page++;
-            }
-
-            return items;
-		}
+            return await CommunityFollowProvider.GetAllAsync();
+        }
 
 		protected override async Task<ContentManageResult> AddFollow_Internal(string id, object token)
 		{
-			var title = "";
-			var comment = "";
-			var notify = false;
+            Provider.CommunityFollowProvider.CommunituFollowAdditionalInfo =
+                token as CommunituFollowAdditionalInfo;
 
-			if (token is CommunituFollowAdditionalInfo)
-			{
-				var additionalInfo = token as CommunituFollowAdditionalInfo;
-				title = additionalInfo.Title;
-				comment = additionalInfo.Comment;
-				notify = additionalInfo.Notify;
-			}
+            return await CommunityFollowProvider.AddFollowAsync(id);
 
-			var result = await HohoemaApp.NiconicoContext.User.AddFollowCommunityAsync(id, title, comment, notify);
-
-			return result ? ContentManageResult.Success : ContentManageResult.Failed;
-		}
+        }
 
 		protected override async Task<ContentManageResult> RemoveFollow_Internal(string id)
 		{
-			var leaveToken = await HohoemaApp.NiconicoContext.User.GetFollowCommunityLeaveTokenAsync(id);
-			var result = await HohoemaApp.NiconicoContext.User.RemoveFollowCommunityAsync(leaveToken);
-
-			return result ? ContentManageResult.Success : ContentManageResult.Failed;
-		}
+            return await CommunityFollowProvider.RemoveFollowAsync(id);
+        }
 	}
 }

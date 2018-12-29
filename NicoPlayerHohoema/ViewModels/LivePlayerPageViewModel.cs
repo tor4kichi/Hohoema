@@ -1,17 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using NicoPlayerHohoema.Models;
 using Prism.Windows.Navigation;
-using FFmpegInterop;
-using Windows.Media.Core;
 using System.Threading;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using System.Diagnostics;
-using Windows.Foundation.Collections;
-using Mntone.Nico2.Live.PlayerStatus;
 using NicoPlayerHohoema.Models.Live;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -20,10 +15,8 @@ using Prism.Commands;
 using System.Reactive.Concurrency;
 using Windows.UI.ViewManagement;
 using System.Reactive.Linq;
-using NicoPlayerHohoema.ViewModels.LiveVideoInfoContent;
-using NicoPlayerHohoema.Views.Service;
+using NicoPlayerHohoema.Services;
 using Windows.UI.Xaml.Media;
-using Windows.ApplicationModel.DataTransfer;
 using Windows.Media.Playback;
 using System.Collections.ObjectModel;
 using Windows.System;
@@ -31,10 +24,13 @@ using Windows.ApplicationModel.Core;
 using Windows.Foundation.Metadata;
 using NicoPlayerHohoema.ViewModels.PlayerSidePaneContent;
 using Windows.UI.Core;
-using NicoPlayerHohoema.Services;
 using System.Collections.Concurrent;
 using Windows.UI.Xaml;
-using System.Text.RegularExpressions;
+using NicoPlayerHohoema.Models.Provider;
+using Unity;
+using Mntone.Nico2.Live;
+using NicoPlayerHohoema.Interfaces;
+using Unity.Resolution;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -60,10 +56,439 @@ namespace NicoPlayerHohoema.ViewModels
     }
 
 
-	public class LivePlayerPageViewModel : HohoemaViewModelBase, IDisposable
+	public class LivePlayerPageViewModel : HohoemaViewModelBase, IDisposable, Interfaces.ILiveContent
 	{
-		
-		private SynchronizationContextScheduler _PlayerWindowUIDispatcherScheduler;
+
+        public LivePlayerPageViewModel(
+            IScheduler scheduler,
+            NGSettings ngSettings,
+            PlayerSettings playerSettings,
+            PlaylistSettings playlistSettings,
+            NicoLiveProvider nicoLiveProvider,
+            AppearanceSettings appearanceSettings,
+            LoginUserLiveReservationProvider loginUserLiveReservationProvider,
+            NiconicoSession niconicoSession,
+            UserProvider userProvider,
+            CommunityProvider communityProvider,
+            Services.HohoemaPlaylist hohoemaPlaylist,
+            PlayerViewManager playerViewManager,
+            Services.DialogService dialogService,
+            PageManager pageManager,
+            NotificationService notificationService,
+            ExternalAccessService externalAccessService
+            )
+            : base(pageManager)
+        {
+            Scheduler = scheduler;
+            NGSettings = ngSettings;
+            PlayerSettings = playerSettings;
+            PlaylistSettings = playlistSettings;
+            NicoLiveProvider = nicoLiveProvider;
+            AppearanceSettings = appearanceSettings;
+            LoginUserLiveReservationProvider = loginUserLiveReservationProvider;
+            NiconicoSession = niconicoSession;
+            UserProvider = userProvider;
+            CommunityProvider = communityProvider;
+            HohoemaPlaylist = hohoemaPlaylist;
+            PlayerViewManager = playerViewManager;
+
+            _HohoemaDialogService = dialogService;
+            _NotificationService = notificationService;
+            ExternalAccessService = externalAccessService;
+            MediaPlayer = PlayerViewManager.GetCurrentWindowMediaPlayer();
+
+            LiveComments = new ReadOnlyObservableCollection<Views.Comment>(_LiveComments);
+            FilterdComments.Source = LiveComments;
+
+            // play
+            WatchStartLiveElapsedTime = new ReactiveProperty<TimeSpan>(raiseEventScheduler: CurrentWindowContextScheduler, initialValue: TimeSpan.Zero);
+            CurrentState = new ReactiveProperty<MediaElementState>(MediaElementState.Closed);
+            NowPlaying = CurrentState.Select(x => x == MediaElementState.Playing)
+                .ToReactiveProperty(CurrentWindowContextScheduler);
+
+            NowConnecting = Observable.CombineLatest(
+                CurrentState.Select(x => x == MediaElementState.Opening || x == MediaElementState.Buffering)
+                )
+                .Select(x => x.Any(y => y))
+                .ToReadOnlyReactiveProperty(eventScheduler: CurrentWindowContextScheduler)
+                .AddTo(_NavigatingCompositeDisposable);
+
+            LivePlayerType = new ReactiveProperty<Models.Live.LivePlayerType?>(CurrentWindowContextScheduler);
+            LiveStatusType = new ReactiveProperty<Models.Live.LiveStatusType?>(CurrentWindowContextScheduler);
+
+            CanChangeQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
+            RequestQuality = new ReactiveProperty<string>(CurrentWindowContextScheduler);
+            CurrentQuality = new ReactiveProperty<string>(CurrentWindowContextScheduler);
+
+            IsLowLatency = PlayerSettings.ObserveProperty(x => x.LiveWatchWithLowLatency)
+                .ToReadOnlyReactiveProperty(eventScheduler: CurrentWindowContextScheduler);
+
+            IsAvailableSuperLowQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
+            IsAvailableLowQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
+            IsAvailableNormalQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
+            IsAvailableHighQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
+
+            ChangeQualityCommand = new DelegateCommand<string>(
+                (quality) =>
+                {
+                    //                    NicoLiveVideo.ChangeQualityRequest(quality, PlayerSettings.LiveWatchWithLowLatency).ConfigureAwait(false);
+                    PlayerSettings.DefaultLiveQuality = quality;
+                },
+                (quality) => NicoLiveVideo.Qualities.Any(x => x == quality)
+            );
+
+            IsCommentDisplayEnable = PlayerSettings
+                .ToReactivePropertyAsSynchronized(x => x.IsCommentDisplay_Live, PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+
+            CommentCanvasHeight = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.0).AddTo(_CompositeDisposable);
+            CommentDefaultColor = new ReactiveProperty<Color>(PlayerWindowUIDispatcherScheduler, Colors.White).AddTo(_CompositeDisposable);
+
+            CommentOpacity = PlayerSettings.ObserveProperty(x => x.CommentOpacity)
+                .Select(x => x.ToOpacity())
+                .ToReadOnlyReactiveProperty(eventScheduler: PlayerWindowUIDispatcherScheduler);
+
+            FilterdComments.SortDescriptions.Add(new Microsoft.Toolkit.Uwp.UI.SortDescription(nameof(Views.Comment.VideoPosition), Microsoft.Toolkit.Uwp.UI.SortDirection.Ascending));
+            FilterdComments.Filter = (x) => !(NGSettings.IsLiveNGComment((x as Views.Comment)?.UserId));
+            NGSettings.NGLiveCommentUserIds.CollectionChangedAsObservable()
+                .Subscribe(x =>
+                {
+                    FilterdComments.RefreshFilter();
+                })
+                .AddTo(_CompositeDisposable);
+
+
+            IsWatchWithTimeshift = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
+                .AddTo(_CompositeDisposable);
+
+            SeekVideoCommand = IsWatchWithTimeshift.ToReactiveCommand<TimeSpan?>(scheduler: CurrentWindowContextScheduler)
+                    .AddTo(_CompositeDisposable);
+            SeekVideoCommand.Subscribe(async time =>
+            {
+                if (!time.HasValue) { return; }
+                var session = MediaPlayer.PlaybackSession;
+
+                NicoLiveVideo.TimeshiftPosition = (NicoLiveVideo.TimeshiftPosition ?? TimeSpan.Zero) + session.Position + time;
+                await NicoLiveVideo.Refresh();
+            })
+            .AddTo(_CompositeDisposable);
+
+            SeekBarTimeshiftPosition = new ReactiveProperty<double>(CurrentWindowContextScheduler, 0.0, mode: ReactivePropertyMode.DistinctUntilChanged)
+                .AddTo(_CompositeDisposable);
+            _MaxSeekablePosition = new ReactiveProperty<double>(CurrentWindowContextScheduler, 0.0)
+                .AddTo(_CompositeDisposable);
+
+            SeekBarTimeshiftPosition
+                .Where(_ => !_NowSeekBarPositionChanging)
+                .Throttle(TimeSpan.FromSeconds(0.25))
+                .Subscribe(async x =>
+                {
+                    var time = TimeSpan.FromSeconds(x);
+
+                    var session = MediaPlayer.PlaybackSession;
+                    NicoLiveVideo.TimeshiftPosition = time;
+                    WatchStartLiveElapsedTime.Value = time;
+                    await NicoLiveVideo.Refresh();
+                })
+                .AddTo(_CompositeDisposable);
+
+            // post comment
+            WritingComment = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
+            NowCommentWriting = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler).AddTo(_CompositeDisposable);
+            NowSubmittingComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler).AddTo(_CompositeDisposable);
+
+            CommandString = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
+            CommandEditerVM = new CommentCommandEditerViewModel();
+            CommandEditerVM.OnCommandChanged += CommandEditerVM_OnCommandChanged;
+            CommandEditerVM.ChangeEnableAnonymity(true);
+            CommandEditerVM.IsAnonymousDefault = PlayerSettings.IsDefaultCommentWithAnonymous;
+            CommandEditerVM.IsAnonymousComment.Value = PlayerSettings.IsDefaultCommentWithAnonymous;
+
+            CommandEditerVM_OnCommandChanged();
+
+
+            CommentSubmitCommand = Observable.CombineLatest(
+                WritingComment.Select(x => !string.IsNullOrEmpty(x)),
+                NowSubmittingComment.Select(x => !x)
+                )
+                .Select(x => x.All(y => y))
+                .ToReactiveCommand(PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+
+            CommentSubmitCommand.Subscribe(async x =>
+            {
+                if (NicoLiveVideo != null)
+                {
+                    NowSubmittingComment.Value = true;
+                    await NicoLiveVideo.PostComment(WritingComment.Value, CommandString.Value, LiveElapsedTime);
+                }
+            })
+            .AddTo(_CompositeDisposable);
+
+
+            // operation command
+            BroadcasterLiveOperationCommand = new ReactiveProperty<LiveOperationCommand>(PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+
+            OperaterLiveOperationCommand = new ReactiveProperty<LiveOperationCommand>(PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+
+            PressLiveOperationCommand = new ReactiveProperty<LiveOperationCommand>(PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+
+
+            // sound
+            if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
+            {
+                // プレイヤーを閉じた際のコンパクトオーバーレイの解除はPlayerWithPageContainerViewModel側で行う
+                IsCompactOverlay = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler,
+                    ApplicationView.GetForCurrentView().ViewMode == ApplicationViewMode.CompactOverlay
+                    );
+                IsCompactOverlay
+                    .Subscribe(async isCompactOverlay =>
+                    {
+                        var appView = ApplicationView.GetForCurrentView();
+                        if (appView.IsViewModeSupported(ApplicationViewMode.CompactOverlay))
+                        {
+                            if (isCompactOverlay)
+                            {
+                                ViewModePreferences compactOptions = ViewModePreferences.CreateDefault(ApplicationViewMode.CompactOverlay);
+                                compactOptions.CustomSize = new Windows.Foundation.Size(500, 280);
+
+                                var result = await appView.TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, compactOptions);
+                                if (result)
+                                {
+                                    appView.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                                    appView.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+                                    IsDisplayControlUI.Value = false;
+                                }
+                            }
+                            else
+                            {
+                                var result = await appView.TryEnterViewModeAsync(ApplicationViewMode.Default);
+                            }
+                        }
+                    })
+                    .AddTo(_CompositeDisposable);
+            }
+            else
+            {
+                IsCompactOverlay = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+            }
+
+            IsFullScreen = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false).AddTo(_CompositeDisposable);
+            IsFullScreen
+                .Subscribe(isFullScreen =>
+                {
+                    var appView = ApplicationView.GetForCurrentView();
+
+                    IsCompactOverlay.Value = false;
+
+                    if (isFullScreen)
+                    {
+                        if (!appView.TryEnterFullScreenMode())
+                        {
+                            IsFullScreen.Value = false;
+                        }
+                    }
+                    else
+                    {
+                        appView.ExitFullScreenMode();
+                    }
+                })
+            .AddTo(_CompositeDisposable);
+
+
+            IsSmallWindowModeEnable = PlayerViewManager
+                .ObserveProperty(x => x.IsPlayerSmallWindowModeEnabled)
+                .ToReadOnlyReactiveProperty(eventScheduler: PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+
+
+            Suggestion = new ReactiveProperty<LiveSuggestion>(PlayerWindowUIDispatcherScheduler);
+            HasSuggestion = Suggestion.Select(x => x != null)
+                .ToReactiveProperty(PlayerWindowUIDispatcherScheduler);
+
+            IsDisplayControlUI = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, true);
+
+            if (Services.Helpers.InputCapabilityHelper.IsMouseCapable && !AppearanceSettings.IsForceTVModeEnable)
+            {
+                IsAutoHideEnable = Observable.CombineLatest(
+                    NowPlaying,
+                    NowCommentWriting.Select(x => !x)
+                    )
+                .Select(x => x.All(y => y))
+                .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+
+                IsMouseCursolAutoHideEnable = Observable.CombineLatest(
+                    IsDisplayControlUI.Select(x => !x),
+                    IsSmallWindowModeEnable.Select(x => !x)
+                    )
+                    .Select(x => x.All(y => y))
+                    .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+                    .AddTo(_CompositeDisposable);
+            }
+            else
+            {
+                IsAutoHideEnable = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+                IsMouseCursolAutoHideEnable = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
+            }
+
+            AutoHideDelayTime = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.FromSeconds(3));
+
+
+
+            IsMuted = PlayerSettings
+                .ToReactivePropertyAsSynchronized(x => x.IsMute, PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+
+
+            SoundVolume = PlayerSettings
+                .ToReactivePropertyAsSynchronized(x => x.SoundVolume, PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+
+
+            CommentUpdateInterval = PlayerSettings.ObserveProperty(x => x.CommentRenderingFPS)
+                .Select(x => TimeSpan.FromSeconds(1.0 / x))
+                .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+
+            RequestCommentDisplayDuration = PlayerSettings
+                .ObserveProperty(x => x.CommentDisplayDuration)
+                .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+
+            CommentFontScale = PlayerSettings
+                .ObserveProperty(x => x.DefaultCommentFontScale)
+                .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+
+
+            IsForceLandscape = PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsForceLandscape, PlayerWindowUIDispatcherScheduler);
+
+
+
+            // Side Pane
+
+            CurrentSidePaneContentType = new ReactiveProperty<PlayerSidePaneContentType?>(PlayerWindowUIDispatcherScheduler, _PrevPrevSidePaneContentType)
+                .AddTo(_CompositeDisposable);
+            CurrentSidePaneContent = CurrentSidePaneContentType
+                .Select(GetSidePaneContent)
+                .ToReadOnlyReactiveProperty(eventScheduler: PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+
+
+            CurrentSidePaneContent.Subscribe(async content =>
+            {
+                if (_PrevSidePaneContent != null)
+                {
+                    _PrevSidePaneContent.OnLeave();
+                }
+
+                if (content != null)
+                {
+                    await content.OnEnter();
+                    _PrevSidePaneContent = content;
+                }
+            });
+
+            Observable.Merge(
+                PlayerSettings.ObserveProperty(x => x.LiveWatchWithLowLatency).ToUnit(),
+                PlayerSettings.ObserveProperty(x => x.DefaultLiveQuality).ToUnit()
+                )
+                .Subscribe(async x =>
+                {
+                    if (NicoLiveVideo != null)
+                    {
+                        await NicoLiveVideo.ChangeQualityRequest(
+                            PlayerSettings.DefaultLiveQuality,
+                            PlayerSettings.LiveWatchWithLowLatency
+                            );
+                    }
+                })
+                .AddTo(_CompositeDisposable);
+
+            // Noneの時
+            // OnAirかCommingSoonの時
+
+            CanRefresh = Observable.CombineLatest(
+                this.CurrentState.Select(x => x == MediaElementState.Closed || x == MediaElementState.Paused),
+                this.LiveStatusType.Select(x => x == Models.Live.LiveStatusType.OnAir || x == Models.Live.LiveStatusType.ComingSoon)
+                )
+                .Select(x => x.All(y => y))
+                .ToReadOnlyReactiveProperty(eventScheduler: PlayerWindowUIDispatcherScheduler);
+
+            RefreshCommand = CanRefresh
+                .ToReactiveCommand(scheduler: PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+
+            RefreshCommand.Subscribe(async _ =>
+            {
+                if (IsWatchWithTimeshift.Value)
+                {
+                    MediaPlayer.Play();
+                }
+                else
+                {
+                    if (await TryUpdateLiveStatus())
+                    {
+                        await NicoLiveVideo.Refresh();
+
+                        // MediaPlayer.PositionはSourceを再設定するたびに0にリセットされる
+                        // ソース更新後のコメント表示再生位置のズレを補正する
+                        if (!IsWatchWithTimeshift.Value)
+                        {
+                            WatchStartLiveElapsedTime.Value = (DateTimeOffset.Now.ToOffset(NicoLiveVideo.JapanTimeZoneOffset) - _OpenAt);
+                        }
+                    }
+                }
+            })
+            .AddTo(_CompositeDisposable);
+
+            TogglePlayPauseCommand = new ReactiveCommand(PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+
+            TogglePlayPauseCommand.Subscribe(_ =>
+            {
+                if (IsWatchWithTimeshift.Value)
+                {
+                    if (MediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Playing)
+                    {
+                        MediaPlayer.Pause();
+                    }
+                    else
+                    {
+                        MediaPlayer.Play();
+                    }
+                }
+                else
+                {
+                    MediaPlayer.Source = null;
+                }
+            })
+            .AddTo(_CompositeDisposable);
+
+
+            CurrentState.Where(x => x == MediaElementState.Playing)
+                .SubscribeOnUIDispatcher()
+                .Subscribe(_ =>
+                {
+                    IsDisplayControlUI.Value = false;
+                })
+                .AddTo(_CompositeDisposable);
+
+
+            CanSeek = Observable.CombineLatest(IsWatchWithTimeshift, CurrentState.Select(x => x == MediaElementState.Paused || x == MediaElementState.Playing || x == MediaElementState.Stopped))
+                .Select(x => x.All(y => y))
+                .ToReadOnlyReactiveProperty(eventScheduler: PlayerWindowUIDispatcherScheduler)
+                .AddTo(_CompositeDisposable);
+        }
+
+
+
+
+        private SynchronizationContextScheduler _PlayerWindowUIDispatcherScheduler;
 		public SynchronizationContextScheduler PlayerWindowUIDispatcherScheduler
 		{
 			get
@@ -73,15 +498,23 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+        public IScheduler Scheduler { get; }
 
-        private CoreDispatcher _CurrentWindowDispatcher;
+        public NGSettings NGSettings { get; }
+        public PlayerSettings PlayerSettings { get; }
+        public PlaylistSettings PlaylistSettings { get; }
+        public NicoLiveProvider NicoLiveProvider { get; }
+        public AppearanceSettings AppearanceSettings { get; }
+        public LoginUserLiveReservationProvider LoginUserLiveReservationProvider { get; }
+        public NiconicoSession NiconicoSession { get; }
+        public UserProvider UserProvider { get; }
+        public CommunityProvider CommunityProvider { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public DialogService _HohoemaDialogService { get; }
+        public ExternalAccessService ExternalAccessService { get; }
 
-
-
-
-
-		public HohoemaDialogService _HohoemaDialogService { get; private set; }
-        private ToastNotificationService _ToastNotificationService;
+        private NotificationService _NotificationService;
+        public PlayerViewManager PlayerViewManager { get; }
 
 
         public MediaPlayer MediaPlayer { get; private set; }
@@ -135,9 +568,6 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<LiveOperationCommand> BroadcasterLiveOperationCommand { get; }
         public ReactiveProperty<LiveOperationCommand> OperaterLiveOperationCommand { get; }
         public ReactiveProperty<LiveOperationCommand> PressLiveOperationCommand { get; }
-
-
-        public bool IsDisplayInSecondaryView => HohoemaApp.Playlist.PlayerDisplayType == PlayerDisplayType.SecondaryView;
 
         private TimeSpan _LiveElapsedTime;
 		public TimeSpan LiveElapsedTime
@@ -234,423 +664,14 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> IsForceLandscape { get; private set; }
         public ReadOnlyReactiveProperty<bool> IsSmallWindowModeEnable { get; private set; }
 
+        public bool IsTVModeEnabled => AppearanceSettings.IsForceTVModeEnable || Services.Helpers.DeviceTypeHelper.IsXbox;
 
-		// suggestion
-		public ReactiveProperty<LiveSuggestion> Suggestion { get; private set; }
+        // suggestion
+        public ReactiveProperty<LiveSuggestion> Suggestion { get; private set; }
 		public ReactiveProperty<bool> HasSuggestion { get; private set; }
 
 
         // Side Pane Content
-        
-
-        private HohoemaViewManager _HohoemaViewManager;
-
-        public LivePlayerPageViewModel(
-            HohoemaApp hohoemaApp, 
-            PageManager pageManager, 
-            HohoemaViewManager viewManager,
-            Services.HohoemaDialogService dialogService,
-            ToastNotificationService toast
-            )
-            : base(hohoemaApp, pageManager)
-		{
-            _HohoemaViewManager = viewManager;
-
-            _HohoemaDialogService = dialogService;
-            _ToastNotificationService = toast;
-
-            _CurrentWindowDispatcher = CoreApplication.GetCurrentView().Dispatcher;
-
-            MediaPlayer = _HohoemaViewManager.GetCurrentWindowMediaPlayer();
-
-            LiveComments = new ReadOnlyObservableCollection<Views.Comment>(_LiveComments);
-            FilterdComments.Source = LiveComments;
-
-            // play
-            WatchStartLiveElapsedTime = new ReactiveProperty<TimeSpan>(raiseEventScheduler:CurrentWindowContextScheduler, initialValue: TimeSpan.Zero);
-            CurrentState = new ReactiveProperty<MediaElementState>(MediaElementState.Closed);
-            NowPlaying = CurrentState.Select(x => x == MediaElementState.Playing)
-                .ToReactiveProperty(CurrentWindowContextScheduler);
-
-            NowConnecting = Observable.CombineLatest(
-                CurrentState.Select(x => x == MediaElementState.Opening || x == MediaElementState.Buffering)
-                )
-                .Select(x => x.Any(y => y))
-                .ToReadOnlyReactiveProperty(eventScheduler:CurrentWindowContextScheduler)
-                .AddTo(_NavigatingCompositeDisposable);
-
-            LivePlayerType = new ReactiveProperty<Models.Live.LivePlayerType?>(CurrentWindowContextScheduler);
-            LiveStatusType = new ReactiveProperty<Models.Live.LiveStatusType?>(CurrentWindowContextScheduler);
-
-            CanChangeQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
-            RequestQuality = new ReactiveProperty<string>(CurrentWindowContextScheduler);
-            CurrentQuality = new ReactiveProperty<string>(CurrentWindowContextScheduler);
-
-            IsLowLatency = HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.LiveWatchWithLowLatency)
-                .ToReadOnlyReactiveProperty(eventScheduler:CurrentWindowContextScheduler);
-
-            IsAvailableSuperLowQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
-            IsAvailableLowQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
-            IsAvailableNormalQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
-            IsAvailableHighQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
-
-            ChangeQualityCommand = new DelegateCommand<string>(
-                (quality) => 
-                {
-                    //                    NicoLiveVideo.ChangeQualityRequest(quality, HohoemaApp.UserSettings.PlayerSettings.LiveWatchWithLowLatency).ConfigureAwait(false);
-                    HohoemaApp.UserSettings.PlayerSettings.DefaultLiveQuality = quality;
-                }, 
-                (quality) => NicoLiveVideo.Qualities.Any(x => x == quality)
-            );
-
-            IsCommentDisplayEnable = HohoemaApp.UserSettings.PlayerSettings
-                .ToReactivePropertyAsSynchronized(x => x.IsCommentDisplay_Live, PlayerWindowUIDispatcherScheduler)
-                .AddTo(_CompositeDisposable);
-
-            CommentCanvasHeight = new ReactiveProperty<double>(PlayerWindowUIDispatcherScheduler, 0.0).AddTo(_CompositeDisposable);
-			CommentDefaultColor = new ReactiveProperty<Color>(PlayerWindowUIDispatcherScheduler, Colors.White).AddTo(_CompositeDisposable);
-
-            CommentOpacity = HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.CommentOpacity)
-                .Select(x => x.ToOpacity())
-                .ToReadOnlyReactiveProperty(eventScheduler: PlayerWindowUIDispatcherScheduler);
-
-            FilterdComments.SortDescriptions.Add(new Microsoft.Toolkit.Uwp.UI.SortDescription(nameof(Views.Comment.VideoPosition), Microsoft.Toolkit.Uwp.UI.SortDirection.Ascending));
-            FilterdComments.Filter = (x) => !(HohoemaApp.UserSettings.NGSettings.IsLiveNGComment((x as Views.Comment)?.UserId));
-            HohoemaApp.UserSettings.NGSettings.NGLiveCommentUserIds.CollectionChangedAsObservable()
-                .Subscribe(x => 
-                {
-                    FilterdComments.RefreshFilter();
-                })
-                .AddTo(_CompositeDisposable);
-
-
-            IsWatchWithTimeshift = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
-                .AddTo(_CompositeDisposable);
-
-            SeekVideoCommand = IsWatchWithTimeshift.ToReactiveCommand<TimeSpan?>(scheduler: CurrentWindowContextScheduler)
-                    .AddTo(_CompositeDisposable);
-            SeekVideoCommand.Subscribe(async time =>
-            {
-                if (!time.HasValue) { return; }
-                var session = MediaPlayer.PlaybackSession;
-
-                NicoLiveVideo.TimeshiftPosition = (NicoLiveVideo.TimeshiftPosition ?? TimeSpan.Zero) + session.Position + time;
-                await NicoLiveVideo.Refresh();
-            })
-            .AddTo(_CompositeDisposable);
-
-            SeekBarTimeshiftPosition = new ReactiveProperty<double>(CurrentWindowContextScheduler, 0.0, mode: ReactivePropertyMode.DistinctUntilChanged)
-                .AddTo(_CompositeDisposable);
-            _MaxSeekablePosition = new ReactiveProperty<double>(CurrentWindowContextScheduler, 0.0)
-                .AddTo(_CompositeDisposable);
-
-            SeekBarTimeshiftPosition
-                .Where(_ => !_NowSeekBarPositionChanging)
-                .Throttle(TimeSpan.FromSeconds(0.25))
-                .Subscribe(async x =>
-                {
-                    var time = TimeSpan.FromSeconds(x);
-
-                    var session = MediaPlayer.PlaybackSession;
-                    NicoLiveVideo.TimeshiftPosition = time;
-                    WatchStartLiveElapsedTime.Value = time;
-                    await NicoLiveVideo.Refresh();
-                })
-                .AddTo(_CompositeDisposable);
-
-            // post comment
-            WritingComment = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
-			NowCommentWriting = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler).AddTo(_CompositeDisposable);
-			NowSubmittingComment = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler).AddTo(_CompositeDisposable);
-
-			CommandString = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
-			CommandEditerVM = new CommentCommandEditerViewModel();
-			CommandEditerVM.OnCommandChanged += CommandEditerVM_OnCommandChanged;
-			CommandEditerVM.ChangeEnableAnonymity(true);
-            CommandEditerVM.IsAnonymousDefault = HohoemaApp.UserSettings.PlayerSettings.IsDefaultCommentWithAnonymous;
-            CommandEditerVM.IsAnonymousComment.Value = HohoemaApp.UserSettings.PlayerSettings.IsDefaultCommentWithAnonymous;
-
-			CommandEditerVM_OnCommandChanged();
-
-
-			CommentSubmitCommand = Observable.CombineLatest(
-				WritingComment.Select(x => !string.IsNullOrEmpty(x)),
-				NowSubmittingComment.Select(x => !x)
-				)
-				.Select(x => x.All(y => y))
-				.ToReactiveCommand(PlayerWindowUIDispatcherScheduler)
-				.AddTo(_CompositeDisposable);
-
-			CommentSubmitCommand.Subscribe(async x =>
-			{
-				if (NicoLiveVideo != null)
-				{
-                    NowSubmittingComment.Value = true;
-                    await NicoLiveVideo.PostComment(WritingComment.Value, CommandString.Value, LiveElapsedTime);
-                }
-			})
-            .AddTo(_CompositeDisposable);
-
-
-            // operation command
-            BroadcasterLiveOperationCommand = new ReactiveProperty<LiveOperationCommand>(PlayerWindowUIDispatcherScheduler)
-                .AddTo(_CompositeDisposable);
-
-            OperaterLiveOperationCommand = new ReactiveProperty<LiveOperationCommand>(PlayerWindowUIDispatcherScheduler)
-                .AddTo(_CompositeDisposable);
-
-            PressLiveOperationCommand = new ReactiveProperty<LiveOperationCommand>(PlayerWindowUIDispatcherScheduler)
-                .AddTo(_CompositeDisposable);
-
-
-            // sound
-            if (ApiInformation.IsApiContractPresent("Windows.Foundation.UniversalApiContract", 4))
-            {
-                // プレイヤーを閉じた際のコンパクトオーバーレイの解除はPlayerWithPageContainerViewModel側で行う
-                IsCompactOverlay = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler,
-                    ApplicationView.GetForCurrentView().ViewMode == ApplicationViewMode.CompactOverlay
-                    );
-                IsCompactOverlay
-                    .Subscribe(async isCompactOverlay =>
-                    {
-                        var appView = ApplicationView.GetForCurrentView();
-                        if (appView.IsViewModeSupported(ApplicationViewMode.CompactOverlay))
-                        {
-                            if (isCompactOverlay)
-                            {
-                                ViewModePreferences compactOptions = ViewModePreferences.CreateDefault(ApplicationViewMode.CompactOverlay);
-                                compactOptions.CustomSize = new Windows.Foundation.Size(500, 280);
-
-                                var result = await appView.TryEnterViewModeAsync(ApplicationViewMode.CompactOverlay, compactOptions);
-                                if (result)
-                                {
-                                    appView.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-                                    appView.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-                                    IsDisplayControlUI.Value = false;
-                                }
-                            }
-                            else
-                            {
-                                var result = await appView.TryEnterViewModeAsync(ApplicationViewMode.Default);
-                            }
-                        }
-                    })
-                    .AddTo(_CompositeDisposable);
-            }
-            else
-            {
-                IsCompactOverlay = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
-            }
-
-            IsFullScreen = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false).AddTo(_CompositeDisposable);
-            IsFullScreen
-                .Subscribe(isFullScreen =>
-                {
-                    var appView = ApplicationView.GetForCurrentView();
-
-                    IsCompactOverlay.Value = false;
-
-                    if (isFullScreen)
-                    {
-                        if (!appView.TryEnterFullScreenMode())
-                        {
-                            IsFullScreen.Value = false;
-                        }
-                    }
-                    else
-                    {
-                        appView.ExitFullScreenMode();
-                    }
-                })
-            .AddTo(_CompositeDisposable);
-
-
-            IsSmallWindowModeEnable = HohoemaApp.Playlist
-                .ObserveProperty(x => x.IsPlayerFloatingModeEnable)
-                .ToReadOnlyReactiveProperty(eventScheduler: PlayerWindowUIDispatcherScheduler)
-                .AddTo(_CompositeDisposable);
-
-            
-            Suggestion = new ReactiveProperty<LiveSuggestion>(PlayerWindowUIDispatcherScheduler);
-			HasSuggestion = Suggestion.Select(x => x != null)
-				.ToReactiveProperty(PlayerWindowUIDispatcherScheduler);
-
-            IsDisplayControlUI = HohoemaApp.Playlist.ToReactivePropertyAsSynchronized(x => x.IsDisplayPlayerControlUI, PlayerWindowUIDispatcherScheduler);
-
-            if (Helpers.InputCapabilityHelper.IsMouseCapable && !IsForceTVModeEnable.Value)
-            {
-                IsAutoHideEnable = Observable.CombineLatest(
-                    NowPlaying,
-                    NowCommentWriting.Select(x => !x)
-                    )
-                .Select(x => x.All(y => y))
-                .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
-                .AddTo(_CompositeDisposable);
-
-                IsMouseCursolAutoHideEnable = Observable.CombineLatest(
-                    IsDisplayControlUI.Select(x => !x),
-                    IsSmallWindowModeEnable.Select(x => !x)
-                    )
-                    .Select(x => x.All(y => y))
-                    .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
-                    .AddTo(_CompositeDisposable);
-            }
-            else
-            {
-                IsAutoHideEnable = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
-                IsMouseCursolAutoHideEnable = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false);
-            }
-
-            AutoHideDelayTime = new ReactiveProperty<TimeSpan>(PlayerWindowUIDispatcherScheduler, TimeSpan.FromSeconds(3));
-
-
-
-            IsMuted = HohoemaApp.UserSettings.PlayerSettings
-                .ToReactivePropertyAsSynchronized(x => x.IsMute, PlayerWindowUIDispatcherScheduler)
-                .AddTo(_CompositeDisposable);
-            
-
-            SoundVolume = HohoemaApp.UserSettings.PlayerSettings
-                .ToReactivePropertyAsSynchronized(x => x.SoundVolume, PlayerWindowUIDispatcherScheduler)
-                .AddTo(_CompositeDisposable);
-            
-
-            CommentUpdateInterval = HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.CommentRenderingFPS)
-                .Select(x => TimeSpan.FromSeconds(1.0 / x))
-                .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
-                .AddTo(_CompositeDisposable);
-
-            RequestCommentDisplayDuration = HohoemaApp.UserSettings.PlayerSettings
-                .ObserveProperty(x => x.CommentDisplayDuration)
-                .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
-                .AddTo(_CompositeDisposable);
-
-            CommentFontScale = HohoemaApp.UserSettings.PlayerSettings
-                .ObserveProperty(x => x.DefaultCommentFontScale)
-                .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
-                .AddTo(_CompositeDisposable);
-
-
-            IsForceLandscape = HohoemaApp.UserSettings.PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsForceLandscape, PlayerWindowUIDispatcherScheduler);
-
-
-
-            // Side Pane
-
-            CurrentSidePaneContentType = new ReactiveProperty<PlayerSidePaneContentType?>(PlayerWindowUIDispatcherScheduler, _PrevPrevSidePaneContentType)
-                .AddTo(_CompositeDisposable);
-            CurrentSidePaneContent = CurrentSidePaneContentType
-                .Select(GetSidePaneContent)
-                .ToReadOnlyReactiveProperty(eventScheduler: PlayerWindowUIDispatcherScheduler)
-                .AddTo(_CompositeDisposable);
-
-
-            CurrentSidePaneContent.Subscribe(async content =>
-            {
-                if (_PrevSidePaneContent != null)
-                {
-                    _PrevSidePaneContent.OnLeave();
-                }
-
-                if (content != null)
-                {
-                    await content.OnEnter();
-                    _PrevSidePaneContent = content;
-                }
-            });
-
-            Observable.Merge(
-                HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.LiveWatchWithLowLatency).ToUnit(),
-                HohoemaApp.UserSettings.PlayerSettings.ObserveProperty(x => x.DefaultLiveQuality).ToUnit()
-                )
-                .Subscribe(async x => 
-                {
-                    if (NicoLiveVideo != null)
-                    {
-                        await NicoLiveVideo.ChangeQualityRequest(
-                            HohoemaApp.UserSettings.PlayerSettings.DefaultLiveQuality,
-                            HohoemaApp.UserSettings.PlayerSettings.LiveWatchWithLowLatency
-                            );
-                    }
-                })
-                .AddTo(_CompositeDisposable);
-
-            // Noneの時
-            // OnAirかCommingSoonの時
-
-            CanRefresh = Observable.CombineLatest(
-                this.CurrentState.Select(x => x == MediaElementState.Closed || x == MediaElementState.Paused),
-                this.LiveStatusType.Select(x => x == Models.Live.LiveStatusType.OnAir || x == Models.Live.LiveStatusType.ComingSoon)
-                )
-                .Select(x => x.All(y => y))
-                .ToReadOnlyReactiveProperty(eventScheduler: PlayerWindowUIDispatcherScheduler);
-
-            RefreshCommand = CanRefresh
-                .ToReactiveCommand(scheduler: PlayerWindowUIDispatcherScheduler)
-                .AddTo(_CompositeDisposable);
-
-            RefreshCommand.Subscribe(async _ => 
-            {
-                if (IsWatchWithTimeshift.Value)
-                {
-                    MediaPlayer.Play();
-                }
-                else
-                {
-                    if (await TryUpdateLiveStatus())
-                    {
-                        await NicoLiveVideo.Refresh();
-
-                        // MediaPlayer.PositionはSourceを再設定するたびに0にリセットされる
-                        // ソース更新後のコメント表示再生位置のズレを補正する
-                        if (!IsWatchWithTimeshift.Value)
-                        {
-                            WatchStartLiveElapsedTime.Value = (DateTimeOffset.Now.ToOffset(NicoLiveVideo.JapanTimeZoneOffset) - _OpenAt);
-                        }
-                    }
-                }
-            })
-            .AddTo(_CompositeDisposable);
-
-            TogglePlayPauseCommand = new ReactiveCommand(PlayerWindowUIDispatcherScheduler)
-                .AddTo(_CompositeDisposable);
-
-            TogglePlayPauseCommand.Subscribe(_ => 
-            {
-                if (IsWatchWithTimeshift.Value)
-                {
-                    if (MediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Playing)
-                    {
-                        MediaPlayer.Pause();
-                    }
-                    else
-                    {
-                        MediaPlayer.Play();
-                    }
-                }
-                else
-                {
-                    MediaPlayer.Source = null;
-                }
-            })
-            .AddTo(_CompositeDisposable);
-
-
-            CurrentState.Where(x => x == MediaElementState.Playing)
-                .SubscribeOnUIDispatcher()
-                .Subscribe(_ =>
-                {
-                    IsDisplayControlUI.Value = false;
-                })
-                .AddTo(_CompositeDisposable);
-
-
-            CanSeek = Observable.CombineLatest(IsWatchWithTimeshift, CurrentState.Select(x => x == MediaElementState.Paused || x == MediaElementState.Playing || x == MediaElementState.Stopped))
-                .Select(x => x.All(y => y))
-                .ToReadOnlyReactiveProperty(eventScheduler: PlayerWindowUIDispatcherScheduler)
-                .AddTo(_CompositeDisposable);
-        }
-
 
 
 
@@ -664,7 +685,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ClosePlayerCommand
                     ?? (_ClosePlayerCommand = new DelegateCommand(() =>
                     {
-                        HohoemaApp.Playlist.IsDisplayMainViewPlayer = false;
+                        PlayerViewManager.ClosePlayer();
                     }
                     ));
             }
@@ -700,7 +721,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _VolumeUpCommand
 					?? (_VolumeUpCommand = new DelegateCommand(() =>
 					{
-						var amount = HohoemaApp.UserSettings.PlayerSettings.SoundVolumeChangeFrequency;
+						var amount = PlayerSettings.SoundVolumeChangeFrequency;
 						SoundVolume.Value = Math.Min(1.0, SoundVolume.Value + amount);
 					}));
 			}
@@ -714,7 +735,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _VolumeDownCommand
 					?? (_VolumeDownCommand = new DelegateCommand(() =>
 					{
-						var amount = HohoemaApp.UserSettings.PlayerSettings.SoundVolumeChangeFrequency;
+						var amount = PlayerSettings.SoundVolumeChangeFrequency;
 						SoundVolume.Value = Math.Max(0.0, SoundVolume.Value - amount);
 					}));
 			}
@@ -774,7 +795,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayerSmallWindowDisplayCommand
                     ?? (_PlayerSmallWindowDisplayCommand = new DelegateCommand(() =>
                     {
-                        HohoemaApp.Playlist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
+                        PlayerViewManager.IsPlayerSmallWindowModeEnabled = true;
                     }
                     ));
             }
@@ -788,7 +809,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayerDisplayWithMainViewCommand
                     ?? (_PlayerDisplayWithMainViewCommand = new DelegateCommand(() =>
                     {
-                        HohoemaApp.Playlist.PlayerDisplayType = PlayerDisplayType.PrimaryView;
+                        _ = PlayerViewManager.ChangePlayerViewModeAsync(PlayerViewMode.PrimaryView);
                     }
                     ));
             }
@@ -802,7 +823,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayerDisplayWithSecondaryViewCommand
                     ?? (_PlayerDisplayWithSecondaryViewCommand = new DelegateCommand(() =>
                     {
-                        HohoemaApp.Playlist.PlayerDisplayType = PlayerDisplayType.SecondaryView;
+                        _ = PlayerViewManager.ChangePlayerViewModeAsync(PlayerViewMode.SecondaryView);
                     }
                     ));
             }
@@ -817,7 +838,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ShareCommand
                     ?? (_ShareCommand = new DelegateCommand(() =>
                     {
-                        ShareHelper.Share(NicoLiveVideo);
+                        Services.Helpers.ShareHelper.Share(NicoLiveVideo);
                     }
                     ));
             }
@@ -831,7 +852,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ShereWithTwitterCommand
                     ?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
                     {
-                        await ShareHelper.ShareToTwitter(NicoLiveVideo);
+                        await Services.Helpers.ShareHelper.ShareToTwitter(NicoLiveVideo);
                     }
                     ));
             }
@@ -845,7 +866,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ShareWithClipboardCommand
                     ?? (_ShareWithClipboardCommand = new DelegateCommand(() =>
                     {
-                        ShareHelper.CopyToClipboard(NicoLiveVideo);
+                        Services.Helpers.ClipboardHelper.CopyToClipboard(NicoLiveVideo);
                     }
                     ));
             }
@@ -861,7 +882,6 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenBroadcastCommunityCommand
                     ?? (_OpenBroadcastCommunityCommand = new DelegateCommand(() =>
                     {
-                        HohoemaApp.Playlist.PlayerDisplayType = PlayerDisplayType.PrimaryWithSmall;
                         PageManager.OpenPage(HohoemaPageType.Community, CommunityId);
                     }
                     ));
@@ -901,12 +921,21 @@ namespace NicoPlayerHohoema.ViewModels
                 })
                 .AddTo(_NavigatingCompositeDisposable);
 
-                NicoLiveVideo = new NicoLiveVideo(LiveId, MediaPlayer, HohoemaApp, this.CurrentWindowContextScheduler);
+                NicoLiveVideo = new NicoLiveVideo(
+                    LiveId, 
+                    MediaPlayer,
+                    NiconicoSession,
+                    NicoLiveProvider,
+                    LoginUserLiveReservationProvider,
+                    PlayerSettings,
+                    Scheduler,
+                    CommunityId
+                    );
                 
                 NicoLiveVideo.LiveComments.ObserveAddChanged()
                     .Subscribe(x =>
 				{
-					var comment = new Views.LiveComment(HohoemaApp.UserSettings.NGSettings);
+					var comment = new Views.LiveComment(NGSettings);
 
                     comment.VideoPosition = x.Vpos;
 
@@ -939,7 +968,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                     try
 					{
-						comment.IsLoginUserComment = !comment.IsAnonimity ? uint.Parse(x.UserId) == HohoemaApp.LoginUserId : false;
+						comment.IsLoginUserComment = !comment.IsAnonimity ? NiconicoSession.IsLoginUserId(x.UserId) : false;
 					}
 					catch { }
                     
@@ -1005,7 +1034,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             try
             {
-                var liveInfo = await HohoemaApp.NiconicoContext.Live.GetLiveVideoInfoAsync(LiveId);
+                var liveInfo = await NiconicoSession.Context.Live.GetLiveVideoInfoAsync(LiveId);
                 if (liveInfo != null && liveInfo.IsOK)
                 {
                     LiveTitle = liveInfo.VideoInfo.Video.Title;
@@ -1021,15 +1050,6 @@ namespace NicoPlayerHohoema.ViewModels
                 Debug.WriteLine(ex.ToString());
             }
 
-
-            ChangeRequireServiceLevel(HohoemaAppServiceLevel.OnlineWithoutLoggedIn);
-			
-			await base.NavigatedToAsync(cancelToken, e, viewModelState);
-		}
-
-
-        protected override async Task OnOnlineWithoutSignIn(ICollection<IDisposable> userSessionDisposer, CancellationToken cancelToken)
-        {
             try
             {
                 using (var defer = FilterdComments.DeferRefresh())
@@ -1049,8 +1069,9 @@ namespace NicoPlayerHohoema.ViewModels
                 throw;
             }
 
-            await base.OnOnlineWithoutSignIn(userSessionDisposer, cancelToken);
-        }
+            await base.NavigatedToAsync(cancelToken, e, viewModelState);
+		}
+
 
 
 		protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
@@ -1214,7 +1235,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				LiveSuggestion suggestion = null;
 
-				suggestion = liveStatus.Value.Make(NicoLiveVideo, PageManager);
+				suggestion = liveStatus.Value.Make(NicoLiveVideo, PageManager, NiconicoSession);
 
 				if (suggestion == null)
 				{
@@ -1489,7 +1510,7 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     try
                     {
-                        var communityDetail = await HohoemaApp.ContentProvider.GetCommunityInfo(CommunityId);
+                        var communityDetail = await CommunityProvider.GetCommunityInfo(CommunityId);
                         if (communityDetail.IsStatusOK)
                         {
                             CommunityName = communityDetail.Community.Name;
@@ -1542,7 +1563,7 @@ namespace NicoPlayerHohoema.ViewModels
                         });
 
                     // コメントのユーザー名解決
-                    CommentUserInfoResolvingAsync().ConfigureAwait(false);
+                    _ = CommentUserInfoResolvingAsync().ConfigureAwait(false);
                 }
                 else
                 {
@@ -1611,7 +1632,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
             else if (!maybeType.HasValue)
             {
-                return new PlayerSidePaneContent.EmptySidePaneContentViewModel();
+                return EmptySidePaneContentViewModel.Default;
             }
             else
             {
@@ -1619,13 +1640,13 @@ namespace NicoPlayerHohoema.ViewModels
                 switch (maybeType.Value)
                 {
                     case PlayerSidePaneContentType.Playlist:
-                        sidePaneContent = new PlayerSidePaneContent.PlaylistSidePaneContentViewModel(MediaPlayer, HohoemaApp.Playlist, HohoemaApp.UserSettings.PlaylistSettings, PageManager);
+                        sidePaneContent = App.Current.Container.Resolve<PlaylistSidePaneContentViewModel>();
                         break;
-                    case PlayerSidePaneContentType.Comment:
-                        sidePaneContent = new PlayerSidePaneContent.LiveCommentSidePaneContentViewModel(HohoemaApp.UserSettings, FilterdComments);
+                    case PlayerSidePaneContentType.Comment:                        
+                        sidePaneContent = App.Current.Container.Resolve<LiveCommentSidePaneContentViewModel>(new ParameterOverride("comments", FilterdComments));
                         break;
                     case PlayerSidePaneContentType.Setting:
-                        sidePaneContent = new PlayerSidePaneContent.SettingsSidePaneContentViewModel(HohoemaApp.UserSettings);
+                        sidePaneContent = App.Current.Container.Resolve<SettingsSidePaneContentViewModel>();
                         if (NicoLiveVideo != null)
                         {
                             if (LivePlayerType.Value == Models.Live.LivePlayerType.Leo)
@@ -1638,7 +1659,7 @@ namespace NicoPlayerHohoema.ViewModels
                         }
                         break;
                     default:
-                        sidePaneContent = new PlayerSidePaneContent.EmptySidePaneContentViewModel();
+                        sidePaneContent = EmptySidePaneContentViewModel.Default;
                         break;
                 }
 
@@ -1708,7 +1729,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                     if (UnresolvedUserId.TryPop(out var id))
                     {
-                        var owner = await HohoemaApp.ContentProvider.GetUser(id);
+                        var owner = await UserProvider.GetUser(id);
                         if (owner != null)
                         {
                             UpdateCommentUserName(owner);
@@ -1745,6 +1766,19 @@ namespace NicoPlayerHohoema.ViewModels
                     }));
             }
         }
+
+
+
+
+        string ILiveContent.ProviderId => this.NicoLiveVideo.BroadcasterCommunityId;
+
+        string ILiveContent.ProviderName => this.NicoLiveVideo.BroadcasterName;
+
+        CommunityType ILiveContent.ProviderType => NicoLiveVideo.BroadcasterCommunityType.Value;
+
+        string INiconicoObject.Id => NicoLiveVideo.LiveId;
+
+        string INiconicoObject.Label => NicoLiveVideo.LiveTitle;
 
 
         #endregion

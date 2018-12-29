@@ -11,11 +11,63 @@ using Prism.Windows.Navigation;
 using System.Threading;
 using System.Diagnostics;
 using Prism.Commands;
+using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.Models.Helpers;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public class LoginPageViewModel : HohoemaViewModelBase
     {
+        // TODO: ログインエラー時のテキスト表示
+
+        public LoginPageViewModel(
+            PageManager pageManager,
+            NiconicoSession niconicoSession
+            )
+            : base(pageManager)
+        {
+            NiconicoSession = niconicoSession;
+
+            var version = Windows.ApplicationModel.Package.Current.Id.Version;
+            VersionText = $"{version.Major}.{version.Minor}.{version.Build}";
+
+            Mail = new ReactiveProperty<string>("", mode: ReactivePropertyMode.DistinctUntilChanged);
+            Password = new ReactiveProperty<string>("", mode: ReactivePropertyMode.DistinctUntilChanged);
+
+            IsRememberPassword = new ReactiveProperty<bool>(!string.IsNullOrEmpty(Password.Value));
+
+            IsValidAccount = new ReactiveProperty<bool>(NiconicoSession.IsLoggedIn);
+            NowProcessLoggedIn = new ReactiveProperty<bool>(false);
+            IsAuthoricationFailed = new ReactiveProperty<bool>(false);
+            IsServiceUnavailable = new ReactiveProperty<bool>(false);
+
+            // メールかパスワードが変更されたらログイン検証されていないアカウントとしてマーク
+            TryLoginCommand = Observable.CombineLatest(
+                Mail.Select(x => !string.IsNullOrWhiteSpace(x)),
+                Password.Select(x => !string.IsNullOrWhiteSpace(x)),
+                NowProcessLoggedIn.Select(x => !x)
+                )
+                .Select(x => x.All(y => y))
+                .ToReactiveCommand();
+
+            TryLoginCommand.Subscribe(async _ =>
+            {
+                NowProcessLoggedIn.Value = true;
+
+                try
+                {
+                    await TryLogin();
+                }
+                finally
+                {
+                    NowProcessLoggedIn.Value = false;
+                }
+            });
+            
+        }
+
+
         public string VersionText { get; private set; }
 
         public ReactiveProperty<string> Mail { get; private set; }
@@ -31,54 +83,11 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveCommand TryLoginCommand { get; private set; }
 
         public ReactiveProperty<string> LoginErrorText { get; private set; }
+        public NiconicoSession NiconicoSession { get; }
 
-
-        
         private LoginRedirectPayload _RedirectInfo;
 
-        public LoginPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager) 
-            : base(hohoemaApp, pageManager)
-        {
-            var version = Windows.ApplicationModel.Package.Current.Id.Version;
-            VersionText = $"{version.Major}.{version.Minor}.{version.Build}";
-
-            Mail = new ReactiveProperty<string>("", mode: ReactivePropertyMode.DistinctUntilChanged);
-            Password = new ReactiveProperty<string>("", mode: ReactivePropertyMode.DistinctUntilChanged);
-
-            IsRememberPassword = new ReactiveProperty<bool>( !string.IsNullOrEmpty(Password.Value));
-
-            IsValidAccount = new ReactiveProperty<bool>(hohoemaApp.IsLoggedIn);
-            NowProcessLoggedIn = new ReactiveProperty<bool>(false);
-            IsAuthoricationFailed = new ReactiveProperty<bool>(false);
-            IsServiceUnavailable = new ReactiveProperty<bool>(false);
-
-            LoginErrorText = HohoemaApp.ObserveProperty(x => x.LoginErrorText)
-                .ToReactiveProperty();
-
-            // メールかパスワードが変更されたらログイン検証されていないアカウントとしてマーク
-            TryLoginCommand = Observable.CombineLatest(
-                Mail.Select(x => !string.IsNullOrWhiteSpace(x)),
-                Password.Select(x => !string.IsNullOrWhiteSpace(x)),
-                NowProcessLoggedIn.Select(x => !x)
-                )
-                .Select(x => x.All(y => y))
-                .ToReactiveCommand();
-                
-            TryLoginCommand.Subscribe(async _ =>
-            {
-                NowProcessLoggedIn.Value = true;
-
-                try
-                {
-                    await TryLogin();
-                }
-                finally
-                {
-                    NowProcessLoggedIn.Value = false;
-                }
-            });
-        }
-
+        
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
@@ -119,7 +128,7 @@ namespace NicoPlayerHohoema.ViewModels
             IsAuthoricationFailed.Value = false;
             IsServiceUnavailable.Value = false;
 
-            var result = await HohoemaApp.SignIn(Mail.Value, Password.Value, withClearAuthenticationCache:true);
+            var result = await NiconicoSession.SignIn(Mail.Value, Password.Value, withClearAuthenticationCache:true);
             IsValidAccount.Value = result == Mntone.Nico2.NiconicoSignInStatus.Success;
             IsAuthoricationFailed.Value = result == Mntone.Nico2.NiconicoSignInStatus.Failed;
             IsServiceUnavailable.Value = result == Mntone.Nico2.NiconicoSignInStatus.ServiceUnavailable;

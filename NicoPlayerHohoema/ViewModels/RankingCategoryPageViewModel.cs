@@ -1,27 +1,46 @@
 ﻿using Mntone.Nico2.Videos.Ranking;
-using Prism.Windows.Mvvm;
 using Reactive.Bindings;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Prism.Windows.Navigation;
-using Prism.Commands;
 using NicoPlayerHohoema.Models;
 using System.Reactive.Linq;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using System.Text.RegularExpressions;
 using Prism.Mvvm;
 using NicoPlayerHohoema.Services;
 using Reactive.Bindings.Extensions;
 using System.Collections.Async;
+using NicoPlayerHohoema.Models.Provider;
+using Unity;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class RankingCategoryPageViewModel : HohoemaVideoListingPageViewModelBase<RankedVideoInfoControlViewModel>
+    public class RankingCategoryPageViewModel : HohoemaListingPageViewModelBase<RankedVideoInfoControlViewModel>
     {
+        public RankingCategoryPageViewModel(
+            PageManager pageManager,
+            Services.HohoemaPlaylist hohoemaPlaylist,
+            NicoVideoProvider nicoVideoProvider,
+            NGSettings ngSettings
+            )
+            : base(pageManager, useDefaultPageTitle: false)
+        {
+
+            SelectedRankingTarget = new ReactiveProperty<RankingTargetListItem>(RankingTargetItems.First());
+            SelectedRankingTimeSpan = new ReactiveProperty<RankingTimeSpanListItem>(RankingTimeSpanItems.First());
+
+            IsFailedRefreshRanking = new ReactiveProperty<bool>(false)
+                .AddTo(_CompositeDisposable);
+            CanChangeRankingParameter = new ReactiveProperty<bool>(false)
+                .AddTo(_CompositeDisposable);
+            HohoemaPlaylist = hohoemaPlaylist;
+            NicoVideoProvider = nicoVideoProvider;
+            NgSettings = ngSettings;
+        }
+
         private static readonly List<List<RankingCategory>> RankingCategories;
         public static IReadOnlyList<RankingTargetListItem> RankingTargetItems { get; }
         public static IReadOnlyList<RankingTimeSpanListItem> RankingTimeSpanItems { get; }
@@ -120,24 +139,13 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<bool> IsFailedRefreshRanking { get; private set; }
         public ReactiveProperty<bool> CanChangeRankingParameter { get; private set; }
-
-
-        public RankingCategoryPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
-            : base(hohoemaApp, pageManager, useDefaultPageTitle:false)
-        {
-
-            SelectedRankingTarget = new ReactiveProperty<RankingTargetListItem>(RankingTargetItems.First());
-            SelectedRankingTimeSpan = new ReactiveProperty<RankingTimeSpanListItem>(RankingTimeSpanItems.First());
-
-            IsFailedRefreshRanking = new ReactiveProperty<bool>(false)
-                .AddTo(_CompositeDisposable);
-            CanChangeRankingParameter = new ReactiveProperty<bool>(false)
-                .AddTo(_CompositeDisposable);
-        }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public NicoVideoProvider NicoVideoProvider { get; }
+        public NGSettings NgSettings { get; }
 
         protected override string ResolvePageName()
         {
-            return Helpers.CulturelizeHelper.ToCulturelizeString(RankingCategory);
+            return Services.Helpers.CulturelizeHelper.ToCulturelizeString(RankingCategory);
         }
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
@@ -175,7 +183,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 var target = SelectedRankingTarget.Value.TargetType;
                 var timeSpan = SelectedRankingTimeSpan.Value.TimeSpan;
-                source = new CategoryRankingLoadingSource(HohoemaApp, PageManager, categoryInfo, target, timeSpan);
+                source = new CategoryRankingLoadingSource(categoryInfo, target, timeSpan, NicoVideoProvider, NgSettings);
 
                 CanChangeRankingParameter.Value = true;
             }
@@ -197,24 +205,29 @@ namespace NicoPlayerHohoema.ViewModels
 
     public class CategoryRankingLoadingSource : HohoemaIncrementalSourceBase<RankedVideoInfoControlViewModel>
     {
-        NiconicoVideoRss RankingRss;
-        HohoemaApp _HohoemaApp;
-        PageManager _PageManager;
-        public RankingCategory Category { get; }
-        public RankingTarget Target { get; }
-        public RankingTimeSpan TimeSpan { get; }
-
-
-        public CategoryRankingLoadingSource(HohoemaApp app, PageManager pageManager, RankingCategory category, RankingTarget target, RankingTimeSpan timeSpan)
+        public CategoryRankingLoadingSource(
+            RankingCategory category, 
+            RankingTarget target, 
+            RankingTimeSpan timeSpan, 
+            NicoVideoProvider nicoVideoProvider, 
+            NGSettings ngSettings
+            )
             : base()
         {
-            _HohoemaApp = app;
-            _PageManager = pageManager;
             Category = category;
             Target = target;
             TimeSpan = timeSpan;
+            NicoVideoProvider = nicoVideoProvider;
+            NgSettings = ngSettings;
         }
 
+        public RankingCategory Category { get; }
+        public RankingTarget Target { get; }
+        public RankingTimeSpan TimeSpan { get; }
+        public NicoVideoProvider NicoVideoProvider { get; }
+        public NGSettings NgSettings { get; }
+
+        NiconicoVideoRss RankingRss;
 
         readonly Regex RankingRankPrefixPatternRegex = new Regex("(^第\\d*位：)");
 
@@ -227,10 +240,9 @@ namespace NicoPlayerHohoema.ViewModels
             return Task.FromResult(RankingRss.Channel.Items.Skip(head).Take(count)
                 .Select((x, index) =>
                 {
-                    var vm = new RankedVideoInfoControlViewModel(
-                        (uint)(head + index + 1)
-                        , x.GetVideoId()
-                    );
+                    var vm = new RankedVideoInfoControlViewModel(NicoVideoIdHelper.UrlToVideoId(x.VideoUrl));
+                    vm.Rank = (uint)(head + index + 1);
+
                     vm.SetTitle(RankingRankPrefixPatternRegex.Replace(x.Title, ""));
                     return vm;
                 })
@@ -266,15 +278,25 @@ namespace NicoPlayerHohoema.ViewModels
 
     public class RankedVideoInfoControlViewModel : VideoInfoControlViewModel
     {
-        public RankedVideoInfoControlViewModel(uint rank, string videoId)
-            : base(videoId)
+        public RankedVideoInfoControlViewModel(
+            string rawVideoId,
+            Interfaces.IMylist ownerPlaylist = null
+            )
+            : base(rawVideoId, ownerPlaylist)
         {
-            Rank = rank;
+
         }
 
+        public RankedVideoInfoControlViewModel(
+            Database.NicoVideo data,
+            Interfaces.IMylist ownerPlaylist = null
+            )
+            : base(data, ownerPlaylist)
+        {
 
+        }
 
-        public uint Rank { get; private set; }
+        public uint Rank { get; internal set; }
     }
 
 
@@ -283,7 +305,7 @@ namespace NicoPlayerHohoema.ViewModels
         public RankingTargetListItem(RankingTarget target)
         {
             TargetType = target;
-            Label = target.ToCultulizedText();
+            Label = target.ToString(); // TODO: RankingTarget のローカライズ
         }
 
         public string Label { get; private set; }
@@ -297,7 +319,7 @@ namespace NicoPlayerHohoema.ViewModels
         public RankingTimeSpanListItem(RankingTimeSpan rankingTimeSpan)
         {
             TimeSpan = rankingTimeSpan;
-            Label = rankingTimeSpan.ToCultulizedText();
+            Label = rankingTimeSpan.ToString(); //TODO: RankingTimeSpanのローカライズ
         }
 
         public string Label { get; private set; }

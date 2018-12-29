@@ -1,7 +1,7 @@
 ﻿using FFmpegInterop;
 using Mntone.Nico2;
 using Mntone.Nico2.Videos.Thumbnail;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using System;
 using System.Threading.Tasks;
 using Windows.Media.Core;

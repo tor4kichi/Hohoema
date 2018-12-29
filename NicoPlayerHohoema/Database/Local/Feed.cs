@@ -8,7 +8,7 @@ using NicoPlayerHohoema.Interfaces;
 namespace NicoPlayerHohoema.Database
 {
 
-    public class Feed : Interfaces.IFeedGroup
+    public class Feed 
     {
         /// <summary>
         /// データベース向けのID（自動採番、変更不可）
@@ -45,12 +45,6 @@ namespace NicoPlayerHohoema.Database
 
         [LiteDB.BsonIgnore]
         string _Id;
-
-        [LiteDB.BsonIgnore]
-        string INiconicoContent.Id => _Id ?? (_Id = Id.ToString());
-
-        [LiteDB.BsonIgnore]
-        string INiconicoContent.Label => Label;
 
         #endregion
 

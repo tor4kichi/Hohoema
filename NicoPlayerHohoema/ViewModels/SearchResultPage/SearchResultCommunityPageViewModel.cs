@@ -5,8 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Views.Service;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.Models.Helpers;
 using System.Windows.Input;
 using Mntone.Nico2.Searches.Community;
 using Mntone.Nico2;
@@ -17,6 +17,8 @@ using System.Collections.Async;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
+using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.Models.Provider;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -26,7 +28,26 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class SearchResultCommunityPageViewModel : HohoemaListingPageViewModelBase<CommunityInfoControlViewModel>
 	{
-		public CommunitySearchPagePayloadContent SearchOption { get; private set; }
+        public SearchResultCommunityPageViewModel(
+            PageManager pageManager, 
+            SearchProvider searchProvider,
+            Services.NiconicoLoginService niconicoLoginService
+            )
+            : base(pageManager, useDefaultPageTitle: false)
+        {
+            SearchProvider = searchProvider;
+            NiconicoLoginService = niconicoLoginService;
+            SelectedSearchSort = new ReactivePropertySlim<CommunitySearchSortOptionListItem>();
+            SelectedSearchMode = new ReactivePropertySlim<CommynitySearchModeOptionListItem>();
+
+            SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
+        }
+
+
+        public SearchProvider SearchProvider { get; }
+        public NiconicoLoginService NiconicoLoginService { get; }
+
+        public CommunitySearchPagePayloadContent SearchOption { get; private set; }
 
         private string _SearchOptionText;
         public string SearchOptionText
@@ -104,7 +125,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             foreach (var item in CommunitySearchSortOptionListItems)
             {
-                item.Label = Helpers.SortHelper.ToCulturizedText(item.Sort, item.Order);
+                item.Label = Services.Helpers.SortHelper.ToCulturizedText(item.Sort, item.Order);
             }
 
 
@@ -127,18 +148,6 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactivePropertySlim<CommynitySearchModeOptionListItem> SelectedSearchMode { get; private set; }
 
 
-        public SearchResultCommunityPageViewModel(HohoemaApp app, PageManager pageManager)
-            : base(app, pageManager, useDefaultPageTitle:false)
-        {
-            ChangeRequireServiceLevel(HohoemaAppServiceLevel.OnlineWithoutLoggedIn);
-
-            SelectedSearchSort = new ReactivePropertySlim<CommunitySearchSortOptionListItem>();
-            SelectedSearchMode = new ReactivePropertySlim<CommynitySearchModeOptionListItem>();
-
-            SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
-
-        }
-		
 
 
 		#region Commands
@@ -214,15 +223,15 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override IIncrementalSource<CommunityInfoControlViewModel> GenerateIncrementalSource()
 		{
-			return new CommunitySearchSource(new CommunitySearchPagePayloadContent()
-            {
-                Keyword = SearchOption.Keyword,
-                Mode = SearchOption.Mode,
-                Order = SearchOption.Order,
-                Sort = SearchOption.Sort
-            } 
-            , HohoemaApp
-            , PageManager
+			return new CommunitySearchSource(
+                new CommunitySearchPagePayloadContent()
+                {
+                    Keyword = SearchOption.Keyword,
+                    Mode = SearchOption.Mode,
+                    Order = SearchOption.Order,
+                    Sort = SearchOption.Sort
+                },
+                SearchProvider
             );
 		}
 
@@ -235,7 +244,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         private void RefreshSearchOptionText()
         {
-            var optionText = Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+            var optionText = Services.Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
             var mode = SearchOption.Mode == CommunitySearchMode.Keyword ? "キーワード" : "タグ";
 
             SearchOptionText = $"{optionText}({mode})";
@@ -244,10 +253,19 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class CommunitySearchSource : IIncrementalSource<CommunityInfoControlViewModel>
 	{
-		public uint OneTimeLoadCount => 10;
+        public CommunitySearchSource(
+            CommunitySearchPagePayloadContent searchOption,
+            SearchProvider searchProvider
+            )
+        {
+            SearchKeyword = searchOption.Keyword;
+            Mode = searchOption.Mode;
+            Sort = searchOption.Sort;
+            Order = searchOption.Order;
+            SearchProvider = searchProvider;
+        }
 
-		public HohoemaApp HohoemaApp { get; private set; }
-		public PageManager PageManager { get; private set; }
+        public uint OneTimeLoadCount => 10;
 
 		public uint TotalCount { get; private set; }
 		public CommunitySearchResponse FirstResponse { get; private set; }
@@ -256,26 +274,13 @@ namespace NicoPlayerHohoema.ViewModels
 		public CommunitySearchMode Mode { get; private set; }
 		public CommunitySearchSort Sort { get; private set; }
 		public Order Order { get; private set; }
+        public SearchProvider SearchProvider { get; }
 
-		public CommunitySearchSource(
-			CommunitySearchPagePayloadContent searchOption
-			, HohoemaApp app
-			, PageManager pageManager
-			)
-		{
-			HohoemaApp = app;
-			PageManager = pageManager;
-			SearchKeyword = searchOption.Keyword;
-			Mode = searchOption.Mode;
-			Sort = searchOption.Sort;
-			Order = searchOption.Order;
-		}
-
-		public async Task<int> ResetSource()
+        public async Task<int> ResetSource()
 		{
 			try
 			{
-				FirstResponse = await HohoemaApp.ContentProvider.SearchCommunity(
+				FirstResponse = await SearchProvider.SearchCommunity(
 					SearchKeyword
 					, 1
 					, Sort
@@ -301,7 +306,7 @@ namespace NicoPlayerHohoema.ViewModels
 			if (res == null)
 			{
 				var page = (uint)((head + count) / OneTimeLoadCount);
-				res = await HohoemaApp.ContentProvider.SearchCommunity(
+				res = await SearchProvider.SearchCommunity(
 					SearchKeyword
 					, page
 					, Sort
@@ -320,7 +325,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return AsyncEnumerable.Empty<CommunityInfoControlViewModel>();
 			}
 
-            return res.Communities.Select(x => new CommunityInfoControlViewModel(x, PageManager)).ToAsyncEnumerable();
+            return res.Communities.Select(x => new CommunityInfoControlViewModel(x)).ToAsyncEnumerable();
 		}
 
 	}
@@ -337,13 +342,10 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public string CommunityId { get; private set; }
 
-		public PageManager PageManager { get; private set; }
-
         public string Id => CommunityId;
 
-        public CommunityInfoControlViewModel(Mntone.Nico2.Searches.Community.NicoCommynity commu, PageManager pageManager)
+        public CommunityInfoControlViewModel(Mntone.Nico2.Searches.Community.NicoCommynity commu)
 		{
-			PageManager = pageManager;
 			CommunityId = commu.Id;
             Name = commu.Name;
             ShortDescription = commu.ShortDescription;

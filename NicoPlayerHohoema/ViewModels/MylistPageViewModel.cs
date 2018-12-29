@@ -1,43 +1,244 @@
 ﻿using NicoPlayerHohoema.Models;
-using Prism.Windows.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Prism.Windows.Navigation;
-using Prism.Mvvm;
 using Prism.Commands;
 using Mntone.Nico2.Mylist;
-using System.Collections.ObjectModel;
-using Mntone.Nico2;
 using Reactive.Bindings;
 using System.Reactive.Linq;
-using System.Diagnostics;
-using NicoPlayerHohoema.Helpers;
-using Windows.UI.Xaml;
-using Reactive.Bindings.Extensions;
+using NicoPlayerHohoema.Models.Helpers;
 using System.Threading;
-using NicoPlayerHohoema.Views.Service;
-using Microsoft.Practices.Unity;
+using Unity;
 using Windows.UI;
-using Mntone.Nico2.Live.PlayerStatus;
-using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.UI.Popups;
 using NicoPlayerHohoema.Dialogs;
 using System.Collections.Async;
+using NicoPlayerHohoema.Models.Provider;
+using NicoPlayerHohoema.Models.LocalMylist;
+using NicoPlayerHohoema.Models.Subscription;
+using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.Database;
+using NicoPlayerHohoema.Interfaces;
+using Reactive.Bindings.Extensions;
+using System.Collections.ObjectModel;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class MylistPageViewModel : HohoemaVideoListingPageViewModelBase<VideoInfoControlViewModel>
+    public class MylistPageViewModel : HohoemaViewModelBase
 	{
-        public Models.Subscription.SubscriptionManager SubscriptionManager => Models.Subscription.SubscriptionManager.Instance;
 
-        public ReactiveProperty<IPlayableList> PlayableList { get; private set; }
+        public MylistPageViewModel(
+            Services.PageManager pageManager,
+            NiconicoSession niconicoSession,
+            MylistProvider mylistProvider,
+            UserProvider userProvider,
+            FollowManager followManager,
+            LoginUserMylistProvider loginUserMylistProvider,
+            NGSettings ngSettings,
+            UserMylistManager userMylistManager,
+            LocalMylistManager localMylistManager,
+            Services.HohoemaPlaylist hohoemaPlaylist,
+            SubscriptionManager subscriptionManager,
+            Services.DialogService dialogService,
+            NiconicoFollowToggleButtonService followToggleButtonService,
+            Services.Helpers.MylistHelper mylistHelper,
+            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
+            )
+            : base(pageManager)
+        {
+            NiconicoSession = niconicoSession;
+            MylistProvider = mylistProvider;
+            UserProvider = userProvider;
+            FollowManager = followManager;
+            LoginUserMylistProvider = loginUserMylistProvider;
+            NgSettings = ngSettings;
+            UserMylistManager = userMylistManager;
+            LocalMylistManager = localMylistManager;
+            HohoemaPlaylist = hohoemaPlaylist;
+            SubscriptionManager = subscriptionManager;
+            DialogService = dialogService;
+            FollowToggleButtonService = followToggleButtonService;
+            MylistHelper = mylistHelper;
+            CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
+            Mylist = new ReactiveProperty<Interfaces.IMylist>();
+            MylistOrigin = new ReactiveProperty<Services.PlaylistOrigin>();
+
+            /*
+            IsFavoriteMylist = new ReactiveProperty<bool>(mode: ReactivePropertyMode.DistinctUntilChanged)
+                .AddTo(_CompositeDisposable);
+            CanChangeFavoriteMylistState = new ReactiveProperty<bool>()
+                .AddTo(_CompositeDisposable);
+
+
+            IsFavoriteMylist
+                .Where(x => PlayableList.Value.Id != null)
+                .Subscribe(async x =>
+                {
+                    if (PlayableList.Value.Origin != PlaylistOrigin.OtherUser) { return; }
+
+                    if (_NowProcessFavorite) { return; }
+
+                    _NowProcessFavorite = true;
+
+                    CanChangeFavoriteMylistState.Value = false;
+                    if (x)
+                    {
+                        if (await FavoriteMylist())
+                        {
+                            Debug.WriteLine(_MylistTitle + "のマイリストをお気に入り登録しました.");
+                        }
+                        else
+                        {
+                            // お気に入り登録に失敗した場合は状態を差し戻し
+                            Debug.WriteLine(_MylistTitle + "のマイリストをお気に入り登録に失敗");
+                            IsFavoriteMylist.Value = false;
+                        }
+                    }
+                    else
+                    {
+                        if (await UnfavoriteMylist())
+                        {
+                            Debug.WriteLine(_MylistTitle + "のマイリストをお気に入り解除しました.");
+                        }
+                        else
+                        {
+                            // お気に入り解除に失敗した場合は状態を差し戻し
+                            Debug.WriteLine(_MylistTitle + "のマイリストをお気に入り解除に失敗");
+                            IsFavoriteMylist.Value = true;
+                        }
+                    }
+
+                    CanChangeFavoriteMylistState.Value =
+                        IsFavoriteMylist.Value == true
+                        || FollowManager.CanMoreAddFollow(FollowItemType.Mylist);
+
+
+                    _NowProcessFavorite = false;
+                })
+                .AddTo(_CompositeDisposable);
+
+
+            UnregistrationMylistCommand = SelectedItems.ObserveProperty(x => x.Count)
+                .Where(_ => IsUserOwnerdMylist)
+                .Select(x => x > 0)
+                .ToReactiveCommand(false);
+
+            UnregistrationMylistCommand.Subscribe(async _ =>
+            {
+                if (PlayableList.Value.Origin == PlaylistOrigin.Local)
+                {
+                    var localMylist = PlayableList.Value as LegacyLocalMylist;
+                    var items = SelectedItems.ToArray();
+
+                    foreach (var item in items)
+                    {
+                        localMylist.Remove(item.PlaylistItem);
+                        IncrementalLoadingItems.Remove(item);
+                    }
+                }
+                else if (PlayableList.Value.Origin == PlaylistOrigin.LoginUser)
+                {
+                    var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup(PlayableList.Value.Id);
+
+                    var items = SelectedItems.ToArray();
+
+
+                    var action = AsyncInfo.Run<uint>(async (cancelToken, progress) =>
+                    {
+                        uint progressCount = 0;
+                        int successCount = 0;
+                        int failedCount = 0;
+
+                        Debug.WriteLine($"マイリストに追加解除を開始...");
+                        foreach (var video in items)
+                        {
+                            var unregistrationResult = await mylistGroup.Unregistration(
+                                video.RawVideoId
+                                , withRefresh: false );
+
+                            if (unregistrationResult == ContentManageResult.Success)
+                            {
+                                successCount++;
+                            }
+                            else
+                            {
+                                failedCount++;
+                            }
+
+                            progressCount++;
+                            progress.Report(progressCount);
+
+                            Debug.WriteLine($"{video.Label}[{video.RawVideoId}]:{unregistrationResult.ToString()}");
+                        }
+
+                        // 登録解除結果を得るためリフレッシュ
+                        await mylistGroup.Refresh();
+
+
+                        // ユーザーに結果を通知
+                        var titleText = $"「{mylistGroup.Label}」から {successCount}件 の動画が登録解除されました";
+                        var toastService = App.Current.Container.Resolve<NotificationService>();
+                        var resultText = $"";
+                        if (failedCount > 0)
+                        {
+                            resultText += $"\n登録解除に失敗した {failedCount}件 は選択されたままです";
+                        }
+                        toastService.ShowToast(titleText, resultText);
+
+                        // 登録解除に失敗したアイテムだけを残すように
+                        // マイリストから除外された動画を選択アイテムリストから削除
+                        foreach (var item in SelectedItems.ToArray())
+                        {
+                            if (false == mylistGroup.CheckRegistratedVideoId(item.RawVideoId))
+                            {
+                                SelectedItems.Remove(item);
+                                IncrementalLoadingItems.Remove(item);
+                            }
+                        }
+
+                        Debug.WriteLine($"マイリストに追加解除完了---------------");
+                    });
+
+                    await PageManager.StartNoUIWork("マイリストに追加解除", items.Length, () => action);
+
+                }
+
+
+            });
+
+
+            */
+        }
+
+
+
+        public NiconicoSession NiconicoSession { get; }
+        public MylistProvider MylistProvider { get; }
+        public UserProvider UserProvider { get; }
+        public FollowManager FollowManager { get; }
+        public LoginUserMylistProvider LoginUserMylistProvider { get; }
+        public NGSettings NgSettings { get; }
+        public UserMylistManager UserMylistManager { get; }
+        public LocalMylistManager LocalMylistManager { get; }
+        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public Models.Subscription.SubscriptionManager SubscriptionManager { get; }
+        public Services.DialogService DialogService { get; }
+        public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
+        public Services.Helpers.MylistHelper MylistHelper { get; }
+        public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
+
+       
+        public ReactiveProperty<Interfaces.IMylist> Mylist { get; private set; }
 
         public ReactiveProperty<PlaylistOrigin> MylistOrigin { get; }
 
-        private bool _NowProcessFavorite;
+        
+        public ICollection<MylistVideItemViewModel> MylistItems { get; private set; }
+
+        public int MaxItemsCount { get; private set; }
 
         private string _MylistState;
         public string MylistState
@@ -141,6 +342,19 @@ namespace NicoPlayerHohoema.ViewModels
         #region Commands
 
 
+        private DelegateCommand _OpenMylistOwnerCommand;
+        public DelegateCommand OpenMylistOwnerCommand
+        {
+            get
+            {
+                return _OpenMylistOwnerCommand
+                    ?? (_OpenMylistOwnerCommand = new DelegateCommand(() =>
+                    {
+                        PageManager.OpenPage(HohoemaPageType.UserInfo, OwnerUserId);
+                    }));
+            }
+        }
+
 
         public ReactiveCommand UnregistrationMylistCommand { get; private set; }
         public ReactiveCommand CopyMylistCommand { get; private set; }
@@ -150,19 +364,17 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-        private DelegateCommand _EditMylistGroupCommand;
-        public DelegateCommand EditMylistGroupCommand
+        private DelegateCommand<Interfaces.IMylist> _EditMylistGroupCommand;
+        public DelegateCommand<Interfaces.IMylist> EditMylistGroupCommand
         {
             get
             {
                 return _EditMylistGroupCommand
-                    ?? (_EditMylistGroupCommand = new DelegateCommand(async () =>
+                    ?? (_EditMylistGroupCommand = new DelegateCommand<Interfaces.IMylist>(async mylist =>
                     {
-                        if (PlayableList.Value.Origin == PlaylistOrigin.Local)
+                        if (mylist is Interfaces.ILocalMylist localMylist)
                         {
-                            var textInputDialogService = App.Current.Container.Resolve<Services.HohoemaDialogService>();
-                            var localMylist = PlayableList.Value as LocalMylist;
-                            var resultText = await textInputDialogService.GetTextAsync("プレイリスト名を変更",
+                            var resultText = await DialogService.GetTextAsync("プレイリスト名を変更",
                                 localMylist.Label,
                                 localMylist.Label,
                                 (tempName) => !string.IsNullOrWhiteSpace(tempName)
@@ -176,32 +388,29 @@ namespace NicoPlayerHohoema.ViewModels
                             }
                         }
 
-                        if (PlayableList.Value.Origin == PlaylistOrigin.LoginUser)
+                        if (mylist is Models.UserOwnedMylist loginUserMylist)
                         {
-                            var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup(PlayableList.Value.Id);
                             MylistGroupEditData data = new MylistGroupEditData()
                             {
-                                Name = mylistGroup.Label,
-                                Description = mylistGroup.Description,
-                                IsPublic = mylistGroup.IsPublic,
-                                MylistDefaultSort = mylistGroup.Sort,
-                                IconType = mylistGroup.IconType,
+                                Name = loginUserMylist.Label,
+                                Description = loginUserMylist.Description,
+                                IsPublic = loginUserMylist.IsPublic,
+                                MylistDefaultSort = loginUserMylist.Sort,
+                                IconType = loginUserMylist.IconType,
                             };
-
-                            var editDialog = App.Current.Container.Resolve<Services.HohoemaDialogService>();
 
                             // 成功するかキャンセルが押されるまで繰り返す
                             while (true)
                             {
-                                if (true == await editDialog.ShowEditMylistGroupDialogAsync(data))
+                                if (true == await DialogService.ShowEditMylistGroupDialogAsync(data))
                                 {
-                                    var result = await mylistGroup.UpdateMylist(
-                                        data.Name,
-                                        data.Description,
-                                        data.IsPublic,
-                                        data.MylistDefaultSort,
-                                        data.IconType
-                                    );
+                                    loginUserMylist.Label = data.Name;
+                                    loginUserMylist.Description = data.Description;
+                                    loginUserMylist.IsPublic = data.IsPublic;
+                                    loginUserMylist.Sort = data.MylistDefaultSort;
+                                    loginUserMylist.IconType = data.IconType;
+
+                                    var result = await LoginUserMylistProvider.UpdateMylist(loginUserMylist);
 
                                     if (result == Mntone.Nico2.ContentManageResult.Success)
                                     {
@@ -210,7 +419,6 @@ namespace NicoPlayerHohoema.ViewModels
 
                                         MylistDescription = data.Description;
 
-                                        await ResetList();
                                         // TODO: IsPublicなどの情報を表示
 
                                         break;
@@ -224,48 +432,36 @@ namespace NicoPlayerHohoema.ViewModels
                         }
                         
                     }
-                    , () => CanEditMylist && !IsLoginUserDeflist && !IsWatchAfterLocalMylist
+                    , mylist => CanEditMylist && !IsLoginUserDeflist && !IsWatchAfterLocalMylist
                     ));
             }
         }
 
 
-        private DelegateCommand _OpenUserPageCommand;
-        public DelegateCommand OpenUserPageCommand
-        {
-            get
-            {
-                return _OpenUserPageCommand
-                    ?? (_OpenUserPageCommand = new DelegateCommand(() =>
-                    {
-                        PageManager.OpenPage(HohoemaPageType.UserInfo, OwnerUserId);
-                    }));
-            }
-        }
 
-        private DelegateCommand _DeleteMylistCommand;
-        public DelegateCommand DeleteMylistCommand
+        private DelegateCommand<Interfaces.IMylist> _DeleteMylistCommand;
+        public DelegateCommand<Interfaces.IMylist> DeleteMylistCommand
         {
             get
             {
                 return _DeleteMylistCommand
-                    ?? (_DeleteMylistCommand = new DelegateCommand(async () =>
+                    ?? (_DeleteMylistCommand = new DelegateCommand<Interfaces.IMylist>(async mylist =>
                     {
                         // 確認ダイアログ
-                        var item = PlayableList.Value;
-                        var originText = item.Origin == PlaylistOrigin.Local ? "ローカルマイリスト" : "マイリスト";
-                        var contentMessage = $"{item.Label} を削除してもよろしいですか？（変更は元に戻せません）";
+                        var mylistOrigin = mylist.ToMylistOrigin();
+                        var originText = mylistOrigin == PlaylistOrigin.Local ? "ローカルマイリスト" : "マイリスト";
+                        var contentMessage = $"{mylist.Label} を削除してもよろしいですか？（変更は元に戻せません）";
 
                         var dialog = new MessageDialog(contentMessage, $"{originText}削除の確認");
                         dialog.Commands.Add(new UICommand("削除", async (i) =>
                         {
-                            if (item.Origin == PlaylistOrigin.Local)
+                            if (mylistOrigin == PlaylistOrigin.Local)
                             {
-                                await HohoemaApp.Playlist.RemovePlaylist(item as LocalMylist);
+                                LocalMylistManager.RemoveCommand.Execute(mylist as LocalMylistGroup);
                             }
-                            else if (item.Origin == PlaylistOrigin.LoginUser)
+                            else if (mylistOrigin == PlaylistOrigin.LoginUser)
                             {
-                                await HohoemaApp.UserMylistManager.RemoveMylist(item.Id);
+                                await UserMylistManager.RemoveMylist(mylist.Id);
                             }
 
                             PageManager.OpenPage(HohoemaPageType.UserMylist, OwnerUserId);
@@ -276,7 +472,22 @@ namespace NicoPlayerHohoema.ViewModels
                         dialog.DefaultCommandIndex = 1;
 
                         await dialog.ShowAsync();
-                    }, () => CanEditMylist
+                    }
+                    , mylist =>
+                    {
+                        if (mylist is Interfaces.ILocalMylist)
+                        {
+                            return mylist.Id != HohoemaPlaylist.WatchAfterPlaylistId;
+                        }
+                        else if (mylist is Interfaces.IUserOwnedRemoteMylist remoteOwnedMylist)
+                        {
+                            return !remoteOwnedMylist.IsDefaultMylist;
+                        }
+                        else
+                        {
+                            return false;
+                        }
+                    }
                     ));
             }
         }
@@ -290,11 +501,11 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayAllVideosFromHeadCommand
                     ?? (_PlayAllVideosFromHeadCommand = new DelegateCommand(() =>
                     {
-                        var headItem = IncrementalLoadingItems.FirstOrDefault();
+                        var headItem = MylistItems?.FirstOrDefault();
                         if (headItem != null)
                         {
-                            HohoemaApp.Playlist.PlaylistSettings.IsReverseModeEnable = false;
-                            HohoemaApp.Playlist.PlayVideoWithPlaylist(headItem);
+                            HohoemaPlaylist.PlaylistSettings.IsReverseModeEnable = false;
+                            HohoemaPlaylist.PlayVideo(headItem);
                         }
                     }));
             }
@@ -308,178 +519,36 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayAllVideosFromTailCommand
                     ?? (_PlayAllVideosFromTailCommand = new DelegateCommand(() =>
                     {
-                        var tailItem = IncrementalLoadingItems.LastOrDefault();
+                        var tailItem = MylistItems?.LastOrDefault();
                         if (tailItem != null)
                         {
-                            HohoemaApp.Playlist.PlaylistSettings.IsReverseModeEnable = true;
-                            HohoemaApp.Playlist.PlayVideoWithPlaylist(tailItem);
+                            HohoemaPlaylist.PlaylistSettings.IsReverseModeEnable = true;
+                            HohoemaPlaylist.PlayVideo(tailItem);
                         }
                     }));
             }
         }
 
 
+        private DelegateCommand _RefreshCommand;
+        public DelegateCommand RefreshCommand
+        {
+            get
+            {
+                return _RefreshCommand
+                    ?? (_RefreshCommand = new DelegateCommand(() =>
+                    {
+                        _ = Reset();
+                    }));
+            }
+        }
 
         #endregion
 
 
+        /*
 
-        public MylistPageViewModel(
-            HohoemaApp hohoemaApp
-            , PageManager pageManager
-            )
-            : base(hohoemaApp, pageManager, isRequireSignIn: true)
-        {
-            PlayableList = new ReactiveProperty<IPlayableList>();
-            MylistOrigin = new ReactiveProperty<Models.PlaylistOrigin>();
-
-            IsFavoriteMylist = new ReactiveProperty<bool>(mode: ReactivePropertyMode.DistinctUntilChanged)
-                .AddTo(_CompositeDisposable);
-            CanChangeFavoriteMylistState = new ReactiveProperty<bool>()
-                .AddTo(_CompositeDisposable);
-
-
-            IsFavoriteMylist
-                .Where(x => PlayableList.Value.Id != null)
-                .Subscribe(async x =>
-                {
-                    if (PlayableList.Value.Origin != PlaylistOrigin.OtherUser) { return; }
-
-                    if (_NowProcessFavorite) { return; }
-
-                    _NowProcessFavorite = true;
-
-                    CanChangeFavoriteMylistState.Value = false;
-                    if (x)
-                    {
-                        if (await FavoriteMylist())
-                        {
-                            Debug.WriteLine(_MylistTitle + "のマイリストをお気に入り登録しました.");
-                        }
-                        else
-                        {
-                            // お気に入り登録に失敗した場合は状態を差し戻し
-                            Debug.WriteLine(_MylistTitle + "のマイリストをお気に入り登録に失敗");
-                            IsFavoriteMylist.Value = false;
-                        }
-                    }
-                    else
-                    {
-                        if (await UnfavoriteMylist())
-                        {
-                            Debug.WriteLine(_MylistTitle + "のマイリストをお気に入り解除しました.");
-                        }
-                        else
-                        {
-                            // お気に入り解除に失敗した場合は状態を差し戻し
-                            Debug.WriteLine(_MylistTitle + "のマイリストをお気に入り解除に失敗");
-                            IsFavoriteMylist.Value = true;
-                        }
-                    }
-
-                    CanChangeFavoriteMylistState.Value =
-                        IsFavoriteMylist.Value == true
-                        || HohoemaApp.FollowManager.CanMoreAddFollow(FollowItemType.Mylist);
-
-
-                    _NowProcessFavorite = false;
-                })
-                .AddTo(_CompositeDisposable);
-
-
-            UnregistrationMylistCommand = SelectedItems.ObserveProperty(x => x.Count)
-                .Where(_ => IsUserOwnerdMylist)
-                .Select(x => x > 0)
-                .ToReactiveCommand(false);
-
-            UnregistrationMylistCommand.Subscribe(async _ =>
-            {
-                if (PlayableList.Value.Origin == PlaylistOrigin.Local)
-                {
-                    var localMylist = PlayableList.Value as LocalMylist;
-                    var items = SelectedItems.ToArray();
-
-                    foreach (var item in items)
-                    {
-                        localMylist.Remove(item.PlaylistItem);
-                        IncrementalLoadingItems.Remove(item);
-                    }
-                }
-                else if (PlayableList.Value.Origin == PlaylistOrigin.LoginUser)
-                {
-                    var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup(PlayableList.Value.Id);
-
-                    var items = SelectedItems.ToArray();
-
-
-                    var action = AsyncInfo.Run<uint>(async (cancelToken, progress) =>
-                    {
-                        uint progressCount = 0;
-                        int successCount = 0;
-                        int failedCount = 0;
-
-                        Debug.WriteLine($"マイリストに追加解除を開始...");
-                        foreach (var video in items)
-                        {
-                            var unregistrationResult = await mylistGroup.Unregistration(
-                                video.RawVideoId
-                                , withRefresh: false /* あとでまとめてリフレッシュするのでここでは OFF */);
-
-                            if (unregistrationResult == ContentManageResult.Success)
-                            {
-                                successCount++;
-                            }
-                            else
-                            {
-                                failedCount++;
-                            }
-
-                            progressCount++;
-                            progress.Report(progressCount);
-
-                            Debug.WriteLine($"{video.Label}[{video.RawVideoId}]:{unregistrationResult.ToString()}");
-                        }
-
-                        // 登録解除結果を得るためリフレッシュ
-                        await mylistGroup.Refresh();
-
-
-                        // ユーザーに結果を通知
-                        var titleText = $"「{mylistGroup.Label}」から {successCount}件 の動画が登録解除されました";
-                        var toastService = App.Current.Container.Resolve<ToastNotificationService>();
-                        var resultText = $"";
-                        if (failedCount > 0)
-                        {
-                            resultText += $"\n登録解除に失敗した {failedCount}件 は選択されたままです";
-                        }
-                        toastService.ShowText(titleText, resultText);
-
-                        // 登録解除に失敗したアイテムだけを残すように
-                        // マイリストから除外された動画を選択アイテムリストから削除
-                        foreach (var item in SelectedItems.ToArray())
-                        {
-                            if (false == mylistGroup.CheckRegistratedVideoId(item.RawVideoId))
-                            {
-                                SelectedItems.Remove(item);
-                                IncrementalLoadingItems.Remove(item);
-                            }
-                        }
-
-                        Debug.WriteLine($"マイリストに追加解除完了---------------");
-                    });
-
-                    await PageManager.StartNoUIWork("マイリストに追加解除", items.Length, () => action);
-
-                }
-
-
-            });
-
-        }
-
-
-
-		private async Task<bool> FavoriteMylist()
+        private async Task<bool> FavoriteMylist()
 		{
 			if (PlayableList.Value == null) { return false; }
             if (PlayableList.Value.Origin != PlaylistOrigin.OtherUser) { return false; }
@@ -502,7 +571,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		}
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+    */
+
+        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
             IsPageNameResolveOnPostNavigatedToAsync = true;
 
@@ -514,107 +585,96 @@ namespace NicoPlayerHohoema.ViewModels
             if (e.Parameter is string)
             {
                 var payload = MylistPagePayload.FromParameterString<MylistPagePayload>(e.Parameter as string);
-                var playableList = await HohoemaApp.GetPlayableList(payload.Id, payload.Origin);
+                var playableList = await MylistHelper.FindMylist(payload.Id, payload.Origin);
 
-                PlayableList.Value = playableList;
-                MylistOrigin.Value = playableList.Origin;
+                Mylist.Value = playableList;
+                MylistOrigin.Value = playableList.ToMylistOrigin().Value;
             }
 
-            if (MylistOrigin.Value == PlaylistOrigin.OtherUser && PlayableList.Value?.Id != null)
+            if (Mylist.Value != null)
             {
-                MylistBookmark = Database.BookmarkDb.Get(Database.BookmarkType.Mylist, PlayableList.Value.Id)
+                MylistBookmark = Database.BookmarkDb.Get(Database.BookmarkType.Mylist, Mylist.Value.Id)
                     ?? new Database.Bookmark()
                     {
-                        Label = PlayableList.Value.Label,
-                        Content = PlayableList.Value.Id,
+                        Label = Mylist.Value.Label,
+                        Content = Mylist.Value.Id,
                         BookmarkType = Database.BookmarkType.Mylist,
                     };
+
+                FollowToggleButtonService.SetFollowTarget(Mylist.Value as Interfaces.IFollowable);
 
                 RaisePropertyChanged(nameof(MylistBookmark));
             }
 
+            await Reset();
+
             await base.NavigatedToAsync(cancelToken, e, viewModelState);
 		}
 
-        protected override string ResolvePageName()
+
+        private async Task Reset()
         {
-            return MylistTitle;
-        }
-
-        protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			if (PlayableList.Value == null)
-			{
-				return;
-			}
-
-			CanEditMylist = false;
-
-
-			// お気に入り状態の取得
-			_NowProcessFavorite = true;
-
-            if (HohoemaApp.IsLoggedIn)
+            if (Mylist.Value == null)
             {
-                var favManager = HohoemaApp.FollowManager;
-                IsFavoriteMylist.Value = favManager.IsFollowItem(FollowItemType.Mylist, PlayableList.Value.Id);
-
-                CanChangeFavoriteMylistState.Value =
-                    IsFavoriteMylist.Value == true
-                    || favManager.CanMoreAddFollow(FollowItemType.Mylist);
+                return;
             }
 
-            _NowProcessFavorite = false;
+            CanEditMylist = false;
 
-
-            
+            var mylistOrigin = Mylist.Value?.ToMylistOrigin();
             IsLoginUserDeflist = false;
-            IsWatchAfterLocalMylist = PlayableList.Value.Origin == PlaylistOrigin.Local &&
-                PlayableList.Value.Id == HohoemaPlaylist.WatchAfterPlaylistId;
-            IsUserOwnerdMylist = HohoemaApp.UserMylistManager.HasMylistGroup(PlayableList.Value.Id) || IsWatchAfterLocalMylist;
-            IsLocalMylist = PlayableList.Value.Origin == PlaylistOrigin.Local;
+            IsWatchAfterLocalMylist = Mylist.Value is Interfaces.ILocalMylist &&
+                Mylist.Value?.Id == HohoemaPlaylist.WatchAfterPlaylistId;
+            IsUserOwnerdMylist = Mylist.Value is Interfaces.IUserOwnedMylist;
+            IsLocalMylist = Mylist.Value is Interfaces.ILocalMylist;
 
             IsLoginUserMylistWithoutDeflist = false;
 
+            MaxItemsCount = Mylist.Value.ItemCount;
+            RaisePropertyChanged(nameof(MaxItemsCount));
 
-            switch (PlayableList.Value.Origin)
+            switch (mylistOrigin)
             {
                 case PlaylistOrigin.LoginUser:
-
-                    var mylistGroup = HohoemaApp.UserMylistManager.GetMylistGroup(PlayableList.Value.Id);
-                    MylistTitle = mylistGroup.Label;
-                    MylistDescription = mylistGroup.Description;
-                    ThemeColor = mylistGroup.IconType.ToColor();
-                    IsPublic = mylistGroup.IsPublic;
-                    IsLoginUserDeflist = mylistGroup.IsDeflist;
-
-                    OwnerUserId = mylistGroup.UserId;
-                    UserName = HohoemaApp.LoginUserName;
-
-                    CanEditMylist = !IsLoginUserDeflist;
-
-                    if (IsLoginUserDeflist)
                     {
-                        MylistState = "とりあえずマイリスト";
-                        DeflistRegistrationCapacity = HohoemaApp.UserMylistManager.DeflistRegistrationCapacity;
-                        DeflistRegistrationCount = HohoemaApp.UserMylistManager.DeflistRegistrationCount;
-                    }
-                    else
-                    {
-                        IsLoginUserMylistWithoutDeflist = true;
-                        MylistState = IsPublic ? "公開マイリスト" : "非公開マイリスト";
-                        MylistRegistrationCapacity = HohoemaApp.UserMylistManager.MylistRegistrationCapacity;
-                        MylistRegistrationCount = HohoemaApp.UserMylistManager.MylistRegistrationCount;
+                        var mylistGroup = UserMylistManager.GetMylistGroup(Mylist.Value.Id);
+                        MylistItems = mylistGroup.ToReadOnlyReactiveCollection(x => new MylistVideItemViewModel(x, mylistGroup))
+                            .AddTo(_NavigatingCompositeDisposable);
+
+                        MylistTitle = mylistGroup.Label;
+                        MylistDescription = mylistGroup.Description;
+                        ThemeColor = mylistGroup.IconType.ToColor();
+                        IsPublic = mylistGroup.IsPublic;
+                        IsLoginUserDeflist = mylistGroup.IsDeflist;
+
+                        OwnerUserId = mylistGroup.UserId;
+                        UserName = NiconicoSession.UserName;
+
+                        CanEditMylist = !IsLoginUserDeflist;
+
+                        if (IsLoginUserDeflist)
+                        {
+                            MylistState = "とりあえずマイリスト";
+                            DeflistRegistrationCapacity = UserMylistManager.DeflistRegistrationCapacity;
+                            DeflistRegistrationCount = UserMylistManager.DeflistRegistrationCount;
+                        }
+                        else
+                        {
+                            IsLoginUserMylistWithoutDeflist = true;
+                            MylistState = IsPublic ? "公開マイリスト" : "非公開マイリスト";
+                            MylistRegistrationCapacity = UserMylistManager.MylistRegistrationCapacity;
+                            MylistRegistrationCount = UserMylistManager.MylistRegistrationCount;
+                        }
                     }
                     break;
 
 
                 case PlaylistOrigin.OtherUser:
-                    var otherOwnedMylist = PlayableList.Value as OtherOwneredMylist;
+                    var otherOwnedMylist = Mylist.Value as OtherOwneredMylist;
 
-                    var task = otherOwnedMylist.FillAllVideosAsync().ConfigureAwait(false);
+                    MylistItems = new IncrementalLoadingCollection<OtherOwnedMylistIncrementalSource, MylistVideItemViewModel>(new OtherOwnedMylistIncrementalSource(otherOwnedMylist, MylistProvider, NgSettings));
 
-                    var response = await HohoemaApp.ContentProvider.GetMylistGroupDetail(PlayableList.Value.Id);
+                    var response = await MylistProvider.GetMylistGroupDetail(Mylist.Value.Id);
                     var mylistGroupDetail = response.MylistGroup;
                     MylistTitle = otherOwnedMylist.Label;
                     MylistDescription = otherOwnedMylist.Description;
@@ -631,7 +691,7 @@ namespace NicoPlayerHohoema.ViewModels
                     }
                     else
                     {
-                        var userDetail = await HohoemaApp.ContentProvider.GetUser(OwnerUserId);
+                        var userDetail = await UserProvider.GetUser(OwnerUserId);
                         UserName = userDetail.ScreenName;
                     }
 
@@ -642,115 +702,82 @@ namespace NicoPlayerHohoema.ViewModels
 
 
                 case PlaylistOrigin.Local:
+                    {
+                        var localMylist = Mylist.Value as LocalMylistGroup;
+                        MylistItems = localMylist.ToReadOnlyReactiveCollection(x => new MylistVideItemViewModel(x, localMylist))
+                        .AddTo(_NavigatingCompositeDisposable);
 
-                    MylistTitle = PlayableList.Value.Label;
-                    OwnerUserId = HohoemaApp.LoginUserId.ToString();
-                    UserName = HohoemaApp.LoginUserName;
+                        MylistTitle = Mylist.Value.Label;
+                        OwnerUserId = NiconicoSession.UserId.ToString();
+                        UserName = NiconicoSession.UserName;
 
-                    MylistState = "ローカル";
+                        MylistState = "ローカル";
 
-                    CanEditMylist = !IsWatchAfterLocalMylist;
+                        CanEditMylist = !IsWatchAfterLocalMylist;
+
+                    }
 
                     break;
                 default:
                     break;
             }
 
-			EditMylistGroupCommand.RaiseCanExecuteChanged();
+            RaisePropertyChanged(nameof(MylistItems));
+
+            EditMylistGroupCommand.RaiseCanExecuteChanged();
             DeleteMylistCommand.RaiseCanExecuteChanged();
 
         }
 
 
-
-        protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
-		{
-            return new MylistIncrementalSource(PlayableList.Value, HohoemaApp, PageManager);
+        protected override string ResolvePageName()
+        {
+            return MylistTitle;
         }
-
-
 
     }
-
-
-	public class DeflistMylistIncrementalSource : HohoemaIncrementalSourceBase<VideoInfoControlViewModel>
+    
+	public class OtherOwnedMylistIncrementalSource : HohoemaIncrementalSourceBase<MylistVideItemViewModel>
 	{
-        HohoemaApp _HohoemaApp;
-		PageManager _PageManager;
-		MylistGroupInfo _MylistGroupInfo;
-		public DeflistMylistIncrementalSource(HohoemaApp hohoemaApp, PageManager pageManager)
-			: base()
-		{
-            _HohoemaApp = hohoemaApp;
-            _PageManager = pageManager;
-			_MylistGroupInfo = _HohoemaApp.UserMylistManager.GetMylistGroup("0");
-
-		}
-
-        protected override Task<IAsyncEnumerable<VideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
+        public OtherOwnedMylistIncrementalSource(
+            OtherOwneredMylist list
+            , MylistProvider mylistProvider
+            , NGSettings ngSettings = null
+            )
+            : base()
         {
-            return Task.FromResult(_MylistGroupInfo.PlaylistItems.Skip(head).Take(count)
-                .Select(x => 
-                {
-                    var vm = new VideoInfoControlViewModel(x.ContentId, isNgEnabled: false, playlistItem: x);
-                    vm.SetTitle(x.Title);
-                    return vm;
-                })
-                .ToAsyncEnumerable()
-                );
+            MylistGroupId = list.Id;
+            Mylist = list;
+            MylistProvider = mylistProvider;
+            NgSettings = ngSettings;
         }
 
-        protected override async Task<int> ResetSourceImpl()
-        {
-            await _MylistGroupInfo.Refresh();
-            return await Task.FromResult(_MylistGroupInfo.ItemCount);
-        }
-    }
-
-	public class MylistIncrementalSource : HohoemaIncrementalSourceBase<VideoInfoControlViewModel>
-	{
-		public string MylistGroupId { get; private set; }
-
-        HohoemaApp _HohoemaApp;
-        PageManager _PageManager;
-
-        IPlayableList PlayableList { get; }
-
-        public MylistIncrementalSource(IPlayableList list, HohoemaApp hohoemaApp, PageManager pageManager)
-			: base()
-		{
-			MylistGroupId = list.Id;
-            PlayableList = list;
-
-            _HohoemaApp = hohoemaApp;
-            _PageManager = pageManager;
-		}
 
 
 
+        public string MylistGroupId { get; private set; }
+
+        OtherOwneredMylist Mylist { get; }
+        public MylistProvider MylistProvider { get; }
+        public NGSettings NgSettings { get; }
+
+        
 
 		#region Implements HohoemaPreloadingIncrementalSourceBase		
 	
 
-        protected override async Task<IAsyncEnumerable<VideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
+        protected override async Task<IAsyncEnumerable<MylistVideItemViewModel>> GetPagedItemsImpl(int head, int count)
         {
-            // MylistのFillAllVideosAsync で内容が読み込まれるのを待つ
-            if (head == 0 && PlayableList.Count > 0)
+            var tail = head + count;
+            if (Mylist.Count < tail && Mylist.Count != Mylist.ItemCount)
             {
-                using (var cancelToken = new CancellationTokenSource(TimeSpan.FromSeconds(5)))
-                {
-                    while (PlayableList.PlaylistItems.Count == 0 && !cancelToken.Token.IsCancellationRequested)
-                    {
-                        await Task.Delay(100);
-                    }
-
-                }
+                // さらに読み込みが必要な場合は取得する
+                var added = await MylistProvider.GetMylistGroupVideo(Mylist, (uint)count);
             }
 
-            return PlayableList.PlaylistItems.Skip(head).Take(count).Select(x =>
+            return Mylist.Skip(head).Take(count).Select(x =>
                 {
-                    var vm = new VideoInfoControlViewModel(x.ContentId, isNgEnabled: false, playlistItem: x);
-                    vm.SetTitle(x.Title);
+                    var vm = new MylistVideItemViewModel(x, Mylist);
                     return vm;
                 })
                 .ToAsyncEnumerable();
@@ -759,7 +786,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override Task<int> ResetSourceImpl()
         {
-            return Task.FromResult(PlayableList.Count);
+            return Task.FromResult(Mylist.ItemCount);
         }
 
 
@@ -767,38 +794,28 @@ namespace NicoPlayerHohoema.ViewModels
 
     }
 
-    public class LocalMylistIncrementalSource : HohoemaIncrementalSourceBase<VideoInfoControlViewModel>
+
+
+    public sealed class MylistVideItemViewModel : VideoInfoControlViewModel
     {
-        LocalMylist LocalMylist { get; }
-        HohoemaApp _HohoemaApp;
-        PageManager _PageManager;
-
-        public LocalMylistIncrementalSource(LocalMylist localMylist , HohoemaApp hohoemaApp, PageManager pageManager)
-            : base()
+        public MylistVideItemViewModel(string rawVideoId, IMylist ownerPlaylist) 
+            : base(rawVideoId, ownerPlaylist)
         {
-            LocalMylist = localMylist;
-            _HohoemaApp = hohoemaApp;
-            _PageManager = pageManager;
         }
 
-        protected override Task<IAsyncEnumerable<VideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
-        {
-            return Task.FromResult(
-                LocalMylist.PlaylistItems.Skip(head).Take(count)
-                .Select(x =>
+        public bool IsOwnedMylistItem => OnwerPlaylist is Interfaces.IUserOwnedMylist;
+
+
+        DelegateCommand _RemoveMylistItemCommand;
+        public DelegateCommand RemoveMylistItemCommand => _RemoveMylistItemCommand
+            ?? (_RemoveMylistItemCommand = new DelegateCommand(() => 
+            {
+                if (OnwerPlaylist is Interfaces.IUserOwnedMylist ownedMylist)
                 {
-                    var vm = new VideoInfoControlViewModel(x.ContentId, isNgEnabled: false, playlistItem: x);
-                    vm.SetTitle(x.Title);
-                    return vm;
-                })
-                .ToAsyncEnumerable()
-                );
-        }
+                    _ = ownedMylist.RemoveMylistItem(this.RawVideoId);
+                }
 
-        protected override Task<int> ResetSourceImpl()
-        {
-            return Task.FromResult(LocalMylist.PlaylistItems.Count);
-        }
+            }));
     }
 
 

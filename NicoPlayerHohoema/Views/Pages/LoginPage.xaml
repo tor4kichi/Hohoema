@@ -1,0 +1,265 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.LoginPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d">
+
+    <Grid>
+
+        <VisualStateManager.VisualStateGroups>
+
+            <!-- TVモードの仮対応 -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ContentLayout.Margin" Value="48 27" />
+                        <Setter Target="SubLayout.Margin" Value="48 27" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        
+        
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <toolkit:DockPanel HorizontalAlignment="Center"
+                           VerticalAlignment="Center"
+                               Margin="0 8 0 0"
+                               x:Name="ContentLayout"
+                           >
+
+                <Border Height="{StaticResource TitleBarDummyHeight}"
+                        toolkit:DockPanel.Dock="Top"
+                        />
+                
+                <StackPanel toolkit:DockPanel.Dock="Top">
+                    <TextBlock>
+                    <Run Text="Nico Video Player" />
+                    </TextBlock>
+
+                    <TextBlock Text="Hohoema" 
+                           FontSize="50"
+                           />
+                </StackPanel>
+
+                <Border Margin="0 0 0 16" toolkit:DockPanel.Dock="Top"/>
+
+                <StackPanel Height="48" Margin="8 16 8 8" toolkit:DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Center">
+
+                    <ProgressRing IsActive="{Binding NowProcessLoggedIn.Value}"
+                              Visibility="{Binding NowProcessLoggedIn.Value}"
+                              Width="48"
+                              Height="48"
+                              Margin="16 0"
+                              />
+
+                    <TextBlock Text="ログイン中"
+                           VerticalAlignment="Center"
+                           Visibility="{Binding NowProcessLoggedIn.Value}"
+                           />
+
+                </StackPanel>
+
+                <StackPanel Margin="8 16" toolkit:DockPanel.Dock="Bottom">
+
+                    <StackPanel Visibility="{Binding IsAuthoricationFailed.Value, Converter={StaticResource BooleanToVisibility}}">
+                        <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
+                        <Run Text="ログインに失敗" />
+                        </TextBlock>
+
+                        <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8"
+                               Opacity="0.8"
+                               TextWrapping="Wrap"
+                               >
+                        <Run Text="追加情報：" />
+                        <Run Text="{Binding LoginErrorText.Value}" />
+                        </TextBlock>
+
+                    </StackPanel>
+
+                    <StackPanel Visibility="{Binding IsServiceUnavailable.Value, Converter={StaticResource BooleanToVisibility}}">
+                        <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
+                        <Run Text="ニコニコ動画のサービスが利用できない状況です。" />
+                        </TextBlock>
+                        <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
+                        <Run Text="時間を置いてからアクセスしてみてください。" />
+
+                        </TextBlock>
+                        <TextBlock HorizontalAlignment="Center" Margin="0 0 0 8" >
+                        <Hyperlink NavigateUri="http://www.nicovideo.jp/">
+                            <Run Text="ブラウザでニコニコ動画をチェックする"/>
+                        </Hyperlink>
+                        </TextBlock>
+                    </StackPanel>
+
+                </StackPanel>
+
+
+                <StackPanel>
+                    <StackPanel HorizontalAlignment="Center">
+                        <StackPanel>
+                            <toolkit:DockPanel Margin="0 0 0 8" >
+                                <Border toolkit:DockPanel.Dock="Right" MinWidth="200">
+                                    <TextBox Text="{Binding Mail.Value, Mode=TwoWay}"
+                                 IsEnabled="{Binding NowProcessLoggedIn.Value, Converter={StaticResource BoolNegation}}"
+                                 InputScope="EmailSmtpAddress"
+                                             XYFocusDown="{x:Bind Password}"
+                                             x:Name="Mail"
+                                 >
+
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Loaded">
+                                                <mybehavior:SetFocus TargetObject="{Binding ElementName=Mail}" />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+                                    </TextBox>
+                                </Border>
+                                <TextBlock Text="メールアドレス" 
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Right"
+                               Margin="16 0"
+                               
+                               />
+                            </toolkit:DockPanel>
+
+                            <toolkit:DockPanel Margin="0 0 0 8">
+                                <Border toolkit:DockPanel.Dock="Right" MinWidth="200">
+                                    <PasswordBox Password="{Binding Password.Value, Mode=TwoWay}"
+                                     IsEnabled="{Binding NowProcessLoggedIn.Value, Converter={StaticResource BoolNegation}}"
+                                                 x:Name="Password"
+                                                 XYFocusUp="{x:Bind Mail}"
+                                                 XYFocusDown="{x:Bind IsRememberPassword}"
+                                     >
+
+                                    </PasswordBox>
+                                </Border>
+                                <TextBlock Text="パスワード" 
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Right"
+                               Margin="16 0"
+                               />
+                            </toolkit:DockPanel>
+
+                            <Border Height="16" />
+                        </StackPanel>
+
+                        
+
+                        <toolkit:DockPanel Margin="0 0 0 8" HorizontalAlignment="Left">
+                            <Border toolkit:DockPanel.Dock="Right" MinWidth="200">
+                                <TextBlock Text="パスワードを保存する" 
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Left"
+                                       />
+                            </Border>
+                            <ToggleButton 
+                                IsChecked="{Binding IsRememberPassword.Value, Mode=TwoWay}"
+                                IsEnabled="{Binding NowProcessLoggedIn.Value, Converter={StaticResource BoolNegation}}"
+                                Height="32" 
+                                Width="32"
+                                Margin="8 0"
+                            HorizontalAlignment="Right"
+                                x:Name="IsRememberPassword"
+                                XYFocusUp="{x:Bind Password}"
+                                XYFocusDown="{x:Bind LoginButton}"
+                            />
+                        </toolkit:DockPanel>
+
+                    </StackPanel>
+
+
+                    
+
+                    <Button Content="ログイン"
+                            Width="150"
+                            Height="48"
+                            Margin="0 8"
+                            HorizontalAlignment="Center"
+                            Command="{Binding TryLoginCommand}"
+                            x:Name="LoginButton"
+                            XYFocusUp="{x:Bind IsRememberPassword}"
+                            XYFocusDown="{x:Bind NewAccountLink}"
+                            />
+
+
+                    <StackPanel Margin="0 24 0 0" HorizontalAlignment="Center">
+
+                        <Border 
+                                >
+                            <HyperlinkButton Content="アカウントを新しく作成する場合はこちら" 
+                                    NavigateUri="https://account.nicovideo.jp/register"
+                                    IsEnabled="{Binding NowProcessLoggedIn.Value, Converter={StaticResource BoolNegation}}"
+                                             x:Name="NewAccountLink"
+                                             XYFocusUp="{x:Bind LoginButton}"
+                                             XYFocusDown="{x:Bind ForgetPasswordLink}"
+                                    />
+                        </Border>
+
+                        <Border 
+                                >
+                            <HyperlinkButton Content="パスワードを忘れた方は再発行の手続きへ" 
+                                     NavigateUri="https://account.nicovideo.jp/password/reset"
+                                     IsEnabled="{Binding NowProcessLoggedIn.Value, Converter={StaticResource BoolNegation}}"
+                                             x:Name="ForgetPasswordLink"
+                                             XYFocusUp="{x:Bind NewAccountLink}"
+                                     />
+                        </Border>
+
+                    </StackPanel>
+
+
+                </StackPanel>
+                
+                
+                
+                
+
+
+            </toolkit:DockPanel>
+        </ScrollViewer>
+
+
+        <Grid x:Name="SubLayout">
+
+            <StackPanel HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                    Margin="16 0"
+                    >
+                <Border 
+                Margin="0 8"
+                HorizontalAlignment="Right"
+                >
+                    <TextBlock Foreground="DimGray"
+                       >
+                <Run Text="ver " />
+                <Run Text="{Binding VersionText}" />
+                    </TextBlock>
+                </Border>
+
+                <Border 
+                Margin="0 8"
+                >
+                    <HyperlinkButton Foreground="DimGray"
+                             Content="Hohoemaのプライバシーポリシー"
+                             NavigateUri="https://github.com/tor4kichi/Hohoema/wiki/Privacy-policy"
+                       >
+                    </HyperlinkButton>
+                </Border>
+
+            </StackPanel>
+        </Grid>
+        
+    </Grid>
+</Page>

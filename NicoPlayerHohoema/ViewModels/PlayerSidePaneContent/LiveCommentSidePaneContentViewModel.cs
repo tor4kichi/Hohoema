@@ -14,16 +14,24 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 {
 	public class LiveCommentSidePaneContentViewModel : SidePaneContentViewModelBase
 	{
-
-		public LiveCommentSidePaneContentViewModel(HohoemaUserSettings settings, Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView comments)
+		public LiveCommentSidePaneContentViewModel(
+            NGSettings settings, 
+            Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView comments,
+            Services.ExternalAccessService externalAccessService,
+            Commands.NicoLiveUserIdAddToNGCommand nicoLiveUserIdAddToNGCommand,
+            Commands.NicoLiveUserIdRemoveFromNGCommand nicoLiveUserIdRemoveFromNGCommand
+            )
 		{
-			UserSettings = settings;
+            NGSettings = settings;
 			Comments = comments;
-			IsCommentListScrollWithVideo = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false)
+            ExternalAccessService = externalAccessService;
+            NicoLiveUserIdAddToNGCommand = nicoLiveUserIdAddToNGCommand;
+            NicoLiveUserIdRemoveFromNGCommand = nicoLiveUserIdRemoveFromNGCommand;
+            IsCommentListScrollWithVideo = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false)
 				.AddTo(_CompositeDisposable);
 
-            NGUsers = new ReadOnlyObservableCollection<NGUserIdInfo>(UserSettings.NGSettings.NGLiveCommentUserIds);
-            IsNGCommentUserIdEnabled = UserSettings.NGSettings.ToReactivePropertyAsSynchronized(x => x.IsNGLiveCommentUserEnable, CurrentWindowContextScheduler)
+            NGUsers = new ReadOnlyObservableCollection<NGUserIdInfo>(NGSettings.NGLiveCommentUserIds);
+            IsNGCommentUserIdEnabled = NGSettings.ToReactivePropertyAsSynchronized(x => x.IsNGLiveCommentUserEnable, CurrentWindowContextScheduler)
                 .AddTo(_CompositeDisposable);
         }
 
@@ -38,7 +46,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
 		public ReactiveProperty<bool> IsCommentListScrollWithVideo { get; private set; }
 
-		public HohoemaUserSettings UserSettings { get; private set; }
+		public NGSettings NGSettings { get; private set; }
         public ReactiveProperty<bool> IsNGCommentUserIdEnabled { get; private set; }
 
 
@@ -62,5 +70,9 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             get { return _Comments; }
             set { SetProperty(ref _Comments, value); }
         }
+
+        public Services.ExternalAccessService ExternalAccessService { get; }
+        public Commands.NicoLiveUserIdAddToNGCommand NicoLiveUserIdAddToNGCommand { get; }
+        public Commands.NicoLiveUserIdRemoveFromNGCommand NicoLiveUserIdRemoveFromNGCommand { get; }
     }
 }

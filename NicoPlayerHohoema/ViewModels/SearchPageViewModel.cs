@@ -1,34 +1,141 @@
-﻿using Prism.Windows.Mvvm;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using Prism.Windows.Navigation;
 using NicoPlayerHohoema.Models;
 using System.Collections.ObjectModel;
-using NicoPlayerHohoema.Helpers;
 using Reactive.Bindings;
 using Prism.Commands;
 using Prism.Mvvm;
 using System.Reactive.Linq;
 using System.Diagnostics;
 using Reactive.Bindings.Extensions;
-using Windows.UI.Xaml.Navigation;
-using System.Threading;
-using Windows.UI.Xaml;
 using Mntone.Nico2;
 using Mntone.Nico2.Searches.Video;
 using Mntone.Nico2.Searches.Community;
-using System.Runtime.Serialization;
 using Mntone.Nico2.Searches.Live;
 using System.Collections.Async;
+using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.Models.Provider;
+using Unity;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class SearchPageViewModel : HohoemaViewModelBase
+    public class SearchPageViewModel : HohoemaViewModelBase
     {
-		public ISearchPagePayloadContent RequireSearchOption { get; private set; }
+        public SearchPageViewModel(
+            Models.NiconicoSession niconicoSession,
+            SearchProvider searchProvider,
+            Services.PageManager pageManager
+            )
+            : base(pageManager)
+        {
+            NiconicoSession = niconicoSession;
+            SearchProvider = searchProvider;
+
+            HashSet<string> HistoryKeyword = new HashSet<string>();
+            foreach (var item in Database.SearchHistoryDb.GetAll().OrderByDescending(x => x.LastUpdated))
+            {
+                if (HistoryKeyword.Contains(item.Keyword))
+                {
+                    continue;
+                }
+
+                SearchHistoryItems.Add(new SearchHistoryListItem(item, this));
+                HistoryKeyword.Add(item.Keyword);
+            }
+
+            SearchText = new ReactiveProperty<string>(_LastKeyword)
+                .AddTo(_CompositeDisposable);
+
+            TargetListItems = new List<SearchTarget>()
+            {
+                SearchTarget.Keyword,
+                SearchTarget.Tag,
+                SearchTarget.Niconama,
+                SearchTarget.Mylist,
+                SearchTarget.Community,
+            };
+
+            SelectedTarget = new ReactiveProperty<SearchTarget>(_LastSelectedTarget)
+                .AddTo(_CompositeDisposable);
+
+            SearchOptionVM = new ReactiveProperty<SearchOptionViewModelBase>();
+            SearchOptionVMDict = new Dictionary<SearchTarget, SearchOptionViewModelBase>();
+
+            SelectedTarget.Subscribe(x =>
+            {
+                RaiseSearchTargetFlags();
+
+                var keyword = SearchOptionVM.Value?.Keyword ?? "";
+                SearchOptionViewModelBase searchOptionVM = null;
+                if (SearchOptionVMDict.ContainsKey(x))
+                {
+                    searchOptionVM = SearchOptionVMDict[x];
+                }
+                else
+                {
+                    searchOptionVM = SearchOptioniViewModelHelper.CreateFromTarget(x);
+                    SearchOptionVMDict.Add(x, searchOptionVM);
+                }
+
+                searchOptionVM.Keyword = keyword;
+
+                SearchOptionVM.Value = searchOptionVM;
+
+            });
+
+
+
+            DoSearchCommand =
+                SearchText.Select(x => !String.IsNullOrEmpty(x))
+                .ToReactiveCommand()
+                .AddTo(_CompositeDisposable);
+
+            SearchText.Subscribe(x =>
+            {
+                Debug.WriteLine($"検索：{x}");
+            });
+
+
+            DoSearchCommand.CanExecuteChangedAsObservable()
+                .Subscribe(x =>
+                {
+                    Debug.WriteLine(DoSearchCommand.CanExecute());
+                });
+            DoSearchCommand.Subscribe(_ =>
+            {
+                if (SearchText.Value.Length == 0) { return; }
+
+                // Note: Keywordの管理はSearchPage側で行うべき？
+                SearchOptionVM.Value.Keyword = SearchText.Value;
+
+                var searchOption = SearchOptionVM.Value.MakePayload();
+
+                // 検索結果を表示
+                PageManager.Search(searchOption);
+
+                var searched = Database.SearchHistoryDb.Searched(SearchText.Value, SelectedTarget.Value);
+
+                var oldSearchHistory = SearchHistoryItems.FirstOrDefault(x => x.Keyword == SearchText.Value);
+                if (oldSearchHistory != null)
+                {
+                    SearchHistoryItems.Remove(oldSearchHistory);
+                }
+                SearchHistoryItems.Insert(0, new SearchHistoryListItem(searched, this));
+
+            })
+            .AddTo(_CompositeDisposable);
+        }
+
+
+        public Models.NiconicoSession NiconicoSession { get; }
+        public SearchProvider SearchProvider { get; }
+
+
+        public ISearchPagePayloadContent RequireSearchOption { get; private set; }
 
 
 		public ReactiveCommand DoSearchCommand { get; private set; }
@@ -65,104 +172,7 @@ namespace NicoPlayerHohoema.ViewModels
 			RaisePropertyChanged(nameof(IsSearchNiconama));
 		}
 
-		public SearchPageViewModel(HohoemaApp hohoemaApp, PageManager pageManager)
-			: base(hohoemaApp, pageManager)
-		{
-            HashSet<string> HistoryKeyword = new HashSet<string>();
-            foreach (var item in Database.SearchHistoryDb.GetAll().OrderByDescending(x => x.LastUpdated))
-            {
-                if (HistoryKeyword.Contains(item.Keyword))
-                {
-                    continue;
-                }
-
-                SearchHistoryItems.Add(new SearchHistoryListItem(item, this));
-                HistoryKeyword.Add(item.Keyword);
-            }
-            
-			SearchText = new ReactiveProperty<string>(_LastKeyword)
-				.AddTo(_CompositeDisposable);
-
-			TargetListItems = new List<SearchTarget>()
-			{
-				SearchTarget.Keyword,
-				SearchTarget.Tag,
-                SearchTarget.Niconama,
-                SearchTarget.Mylist,
-				SearchTarget.Community,
-			};
-
-			SelectedTarget = new ReactiveProperty<SearchTarget>(_LastSelectedTarget)
-				.AddTo(_CompositeDisposable);
-
-			SearchOptionVM = new ReactiveProperty<SearchOptionViewModelBase>();
-			SearchOptionVMDict = new Dictionary<SearchTarget, SearchOptionViewModelBase>();
-
-			SelectedTarget.Subscribe(x => 
-			{
-				RaiseSearchTargetFlags();
-
-				var keyword = SearchOptionVM.Value?.Keyword ?? "";
-				SearchOptionViewModelBase searchOptionVM = null;
-				if (SearchOptionVMDict.ContainsKey(x))
-				{
-					searchOptionVM = SearchOptionVMDict[x];
-				}
-				else
-				{
-					searchOptionVM = SearchOptioniViewModelHelper.CreateFromTarget(x);
-					SearchOptionVMDict.Add(x, searchOptionVM);
-				}
-
-				searchOptionVM.Keyword = keyword;
-
-				SearchOptionVM.Value = searchOptionVM;
-
-            });
-
-
-
-			DoSearchCommand =
-				SearchText.Select(x => !String.IsNullOrEmpty(x))
-				.ToReactiveCommand()
-				.AddTo(_CompositeDisposable);
-
-            SearchText.Subscribe(x =>
-            {
-                Debug.WriteLine($"検索：{x}");
-            });
-
-
-            DoSearchCommand.CanExecuteChangedAsObservable()
-                .Subscribe(x => 
-                {
-                    Debug.WriteLine(DoSearchCommand.CanExecute());
-                });
-            DoSearchCommand.Subscribe(_ =>
-			{
-				if (SearchText.Value.Length == 0) { return; }
-
-				// Note: Keywordの管理はSearchPage側で行うべき？
-				SearchOptionVM.Value.Keyword = SearchText.Value;
-
-				var searchOption = SearchOptionVM.Value.MakePayload();
-                
-                // 検索結果を表示
-                PageManager.Search(searchOption);
-
-                var searched = Database.SearchHistoryDb.Searched(SearchText.Value, SelectedTarget.Value);
-
-                var oldSearchHistory = SearchHistoryItems.FirstOrDefault(x => x.Keyword == SearchText.Value);
-                if (oldSearchHistory != null)
-                {
-                    SearchHistoryItems.Remove(oldSearchHistory);
-                }
-                SearchHistoryItems.Insert(0, new SearchHistoryListItem(searched, this));
-
-            })
-			.AddTo(_CompositeDisposable);
-		}
-
+		
         private DelegateCommand _ShowSearchHistoryCommand;
 		public DelegateCommand ShowSearchHistoryCommand
 		{
@@ -229,18 +239,9 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-			// コミュニティ検索はログインが必要
-            if (HohoemaApp.IsLoggedIn)
-            {
-                ChangeRequireServiceLevel(HohoemaAppServiceLevel.LoggedIn);
-            }
-            else
-            {
-                ChangeRequireServiceLevel(HohoemaAppServiceLevel.OnlineWithoutLoggedIn);
-            }
+			// コミュニティ検索はログインが必要            
 
 			// ContentVM側のページタイトルが後で呼び出されるように、SearchPage側を先に呼び出す
 			base.OnNavigatedTo(e, viewModelState);
@@ -564,7 +565,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			foreach (var item in CommunitySearchSortOptionListItems)
 			{
-				item.Label = Helpers.SortHelper.ToCulturizedText(item.Sort, item.Order);
+				item.Label = Services.Helpers.SortHelper.ToCulturizedText(item.Sort, item.Order);
 			}
 
 
@@ -659,7 +660,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 			foreach (var item in LiveSearchSortOptionListItems)
 			{
-				item.Label = Helpers.SortHelper.ToCulturizedText(item.Sort, item.Order);
+				item.Label = Services.Helpers.SortHelper.ToCulturizedText(item.Sort, item.Order);
 			}
 
 
@@ -749,32 +750,30 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class VideoSearchSource : HohoemaIncrementalSourceBase<VideoInfoControlViewModel>
 	{
-		public int MaxPageCount { get; private set; }
+        public VideoSearchSource(VideoSearchOption searchOption, SearchProvider searchProvider, NGSettings ngSettings)
+        {
+            SearchOption = searchOption;
+            SearchProvider = searchProvider;
+            NgSettings = ngSettings;
+        }
 
-		HohoemaApp _HohoemaApp;
-		PageManager _PageManager;
-		public VideoSearchOption SearchOption { get; private set; }
+        public SearchProvider SearchProvider { get; }
+        public NGSettings NgSettings { get; }
+		public VideoSearchOption SearchOption { get; }
 
-		public VideoSearchSource(VideoSearchOption searchOption, HohoemaApp hohoemaApp, PageManager pageManager)
-		{
-			_HohoemaApp = hohoemaApp;
-			_PageManager = pageManager;
-			SearchOption = searchOption;
-		}
-
-		VideoListingResponse res;
 
 		
 
         protected override async Task<IAsyncEnumerable<VideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
         {
+            VideoListingResponse res = null;
             if (SearchOption.SearchTarget == SearchTarget.Keyword)
             {
-                res = await _HohoemaApp.ContentProvider.GetKeywordSearch(SearchOption.Keyword, (uint)head, (uint)count, SearchOption.Sort, SearchOption.Order);
+                res = await SearchProvider.GetKeywordSearch(SearchOption.Keyword, (uint)head, (uint)count, SearchOption.Sort, SearchOption.Order);
             }
             else if (SearchOption.SearchTarget == SearchTarget.Tag)
             {
-                res = await _HohoemaApp.ContentProvider.GetTagSearch(SearchOption.Keyword, (uint)head, (uint)count, SearchOption.Sort, SearchOption.Order);
+                res = await SearchProvider.GetTagSearch(SearchOption.Keyword, (uint)head, (uint)count, SearchOption.Sort, SearchOption.Order);
             }
 
 
@@ -787,6 +786,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return res.VideoInfoItems.Where(x => x != null).Select(item =>
                 {
                     var vm = new VideoInfoControlViewModel(item.Video.Id);
+
                     vm.SetupDisplay(item);
                     return vm;
                 })
@@ -799,13 +799,13 @@ namespace NicoPlayerHohoema.ViewModels
             int totalCount = 0;
             if (SearchOption.SearchTarget == SearchTarget.Keyword)
             {
-                var res = await _HohoemaApp.ContentProvider.GetKeywordSearch(SearchOption.Keyword, 0, 2, SearchOption.Sort, SearchOption.Order);
+                var res = await SearchProvider.GetKeywordSearch(SearchOption.Keyword, 0, 2, SearchOption.Sort, SearchOption.Order);
                 totalCount = (int)res.GetTotalCount();
 
             }
             else if (SearchOption.SearchTarget == SearchTarget.Tag)
             {
-                var res = await _HohoemaApp.ContentProvider.GetTagSearch(SearchOption.Keyword, 0, 2, SearchOption.Sort, SearchOption.Order);
+                var res = await SearchProvider.GetTagSearch(SearchOption.Keyword, 0, 2, SearchOption.Sort, SearchOption.Order);
                 totalCount = (int)res.GetTotalCount();
             }
 

@@ -1,7 +1,7 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Videos.Comment;
 using Mntone.Nico2.Videos.Dmc;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;

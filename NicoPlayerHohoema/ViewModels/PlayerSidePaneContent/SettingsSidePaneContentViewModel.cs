@@ -16,158 +16,13 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 {
     public class SettingsSidePaneContentViewModel : SidePaneContentViewModelBase
     {
-
-        public event EventHandler<NicoVideoQuality> VideoQualityChanged;
-
-        // Video Settings
-        public static List<ValueWithAvairability<NicoVideoQuality>> VideoPlayingQualityList { get; } = new []
+        public SettingsSidePaneContentViewModel(NGSettings ngSettings, PlayerSettings playerSettings, PlaylistSettings playlistSettings)
         {
-            new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Dmc_SuperHigh),
-            new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Dmc_High),
-            new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Dmc_Midium),
-            new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Dmc_Low),
-            new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Dmc_Mobile),
-        }.ToList();
+            _NGSettings = ngSettings;
+            _PlayerSettings = playerSettings;
+            _PlaylistSettings = playlistSettings;
 
-        public ReactiveProperty<ValueWithAvairability<NicoVideoQuality>> VideoPlayingQuality { get; private set; }
-        public ReactiveProperty<bool> IsLowLatency { get; private set; }
-
-        public ReactiveProperty<double> VideoPlaybackRate { get; private set; }
-        public ReactiveCommand<double?> SetPlaybackRateCommand { get; private set; }
-
-        public static List<double> VideoPlaybackRateList { get; }
-
-        // Live Settings
-        public static List<ValueWithAvairability<string>> LivePlayingQualityList { get; } = new[]
-        {
-            new ValueWithAvairability<string>("super_high"),
-            new ValueWithAvairability<string>("high"),
-            new ValueWithAvairability<string>("normal"),
-            new ValueWithAvairability<string>("low"),
-            new ValueWithAvairability<string>("super_low"),
-        }.ToList();
-        public ReactiveProperty<ValueWithAvairability<string>> LiveVideoPlayingQuality { get; private set; }
-        private bool _IsLeoPlayerLive;
-        public bool IsLeoPlayerLive
-        {
-            get { return _IsLeoPlayerLive; }
-            set { SetProperty(ref _IsLeoPlayerLive, value); }
-        }
-
-        // Player Settings
-        public ReactiveProperty<bool> IsForceLandscapeDefault { get; private set; }
-
-        public ReactiveProperty<bool> IsKeepDisplayInPlayback { get; private set; }
-        public ReactiveProperty<double> ScrollVolumeFrequency { get; private set; }
-
-        public ReactiveProperty<double> AutoHideDelayTime { get; private set; }
-
-        public DelegateCommand ResetDefaultPlaybackRateCommand { get; private set; }
-
-
-
-
-        public ReactiveProperty<bool> IsDefaultCommentWithAnonymous { get; private set; }
-        public ReactiveProperty<uint> CommentRenderingFPS { get; private set; }
-        public ReactiveProperty<double> CommentDisplayDuration { get; private set; }
-        public ReactiveProperty<double> CommentFontScale { get; private set; }
-        public ReactiveProperty<Color> CommentColor { get; private set; }
-        public ReactiveProperty<bool> IsPauseWithCommentWriting { get; private set; }
-
-        public static List<CommentOpacityKind> CommentOpacityList { get; private set; }
-        public ReactiveProperty<CommentOpacityKind> CommentOpacity { get; private set; }
-
-
-        public static List<Color> CommentColorList { get; private set; }
-        public static List<uint> CommentRenderringFPSList { get; private set; }
-
-
-        public ReactiveProperty<bool> IsEnableOwnerCommentCommand { get; private set; }
-        public ReactiveProperty<bool> IsEnableUserCommentCommand { get; private set; }
-        public ReactiveProperty<bool> IsEnableAnonymousCommentCommand { get; private set; }
-
-        public ReactiveProperty<bool> NicoScript_Default_Enabled { get; private set; }
-        public ReactiveProperty<bool> NicoScript_DisallowSeek_Enabled { get; private set; }
-        public ReactiveProperty<bool> NicoScript_DisallowComment_Enabled { get; private set; }
-        public ReactiveProperty<bool> NicoScript_Jump_Enabled { get; private set; }
-        public ReactiveProperty<bool> NicoScript_Replace_Enabled { get; private set; }
-
-        public static List<PlaylistEndAction> PlaylistEndActionList { get; private set; }
-        public ReactiveProperty<PlaylistEndAction> PlaylistEndAction { get; private set; }
-
-        public ReactiveProperty<bool> AutoMoveNextVideoOnPlaylistEmpty { get; private set; }
-
-        // NG Comments
-
-        public ReactiveProperty<bool> NGCommentUserIdEnable { get; private set; }
-        public ReadOnlyReactiveCollection<RemovableListItem<string>> NGCommentUserIds { get; private set; }
-
-        public ReactiveProperty<bool> NGCommentKeywordEnable { get; private set; }
-        public ReactiveProperty<string> NGCommentKeywords { get; private set; }
-        public ReadOnlyReactiveProperty<string> NGCommentKeywordError { get; private set; }
-
-        public List<NGCommentScore> NGCommentScoreTypes { get; private set; }
-        public ReactiveProperty<NGCommentScore> SelectedNGCommentScore { get; private set; }
-
-
-        public ReactiveProperty<bool> CommentGlassMowerEnable { get; private set; }
-
-
-
-        private NGSettings _NGSettings;
-
-        private PlayerSettings _PlayerSettings;
-        private PlaylistSettings _PlaylistSettings;
-
-        static SettingsSidePaneContentViewModel()
-        {
-            CommentRenderringFPSList = new List<uint>()
-            {
-                5, 10, 15, 24, 30, 45, 60, 75, 90, 120
-            };
-
-            CommentColorList = new List<Color>()
-            {
-                Colors.WhiteSmoke,
-                Colors.Black,
-            };
-
-            PlaylistEndActionList = new List<Models.PlaylistEndAction>()
-            {
-                Models.PlaylistEndAction.NothingDo,
-                Models.PlaylistEndAction.ChangeIntoSplit,
-                Models.PlaylistEndAction.CloseIfPlayWithCurrentWindow
-            };
-
-            CommentOpacityList = new List<CommentOpacityKind>()
-            {
-                CommentOpacityKind.NoSukesuke,
-                CommentOpacityKind.BitSukesuke,
-                CommentOpacityKind.MoreSukesuke
-            };
-
-
-            VideoPlaybackRateList = new List<double>()
-            {
-                2.0,
-                1.75,
-                1.5,
-                1.25,
-                1.0,
-                .75,
-                .5,
-                .25,
-                .05
-            };
-        }
-
-        public SettingsSidePaneContentViewModel(HohoemaUserSettings settings)
-        {
-            _NGSettings = settings.NGSettings;
-            _PlayerSettings = settings.PlayerSettings;
-            _PlaylistSettings = settings.PlaylistSettings;
-
-            VideoPlayingQuality = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultQuality, 
+            VideoPlayingQuality = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultQuality,
                 convert: x => VideoPlayingQualityList.First(y => y.Value == x),
                 convertBack: x => x.Value,
                 raiseEventScheduler: CurrentWindowContextScheduler,
@@ -331,6 +186,152 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
         }
 
+
+        public event EventHandler<NicoVideoQuality> VideoQualityChanged;
+
+        // Video Settings
+        public static List<ValueWithAvairability<NicoVideoQuality>> VideoPlayingQualityList { get; } = new []
+        {
+            new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Dmc_SuperHigh),
+            new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Dmc_High),
+            new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Dmc_Midium),
+            new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Dmc_Low),
+            new ValueWithAvairability<NicoVideoQuality>(NicoVideoQuality.Dmc_Mobile),
+        }.ToList();
+
+        public ReactiveProperty<ValueWithAvairability<NicoVideoQuality>> VideoPlayingQuality { get; private set; }
+        public ReactiveProperty<bool> IsLowLatency { get; private set; }
+
+        public ReactiveProperty<double> VideoPlaybackRate { get; private set; }
+        public ReactiveCommand<double?> SetPlaybackRateCommand { get; private set; }
+
+        public static List<double> VideoPlaybackRateList { get; }
+
+        // Live Settings
+        public static List<ValueWithAvairability<string>> LivePlayingQualityList { get; } = new[]
+        {
+            new ValueWithAvairability<string>("super_high"),
+            new ValueWithAvairability<string>("high"),
+            new ValueWithAvairability<string>("normal"),
+            new ValueWithAvairability<string>("low"),
+            new ValueWithAvairability<string>("super_low"),
+        }.ToList();
+        public ReactiveProperty<ValueWithAvairability<string>> LiveVideoPlayingQuality { get; private set; }
+        private bool _IsLeoPlayerLive;
+        public bool IsLeoPlayerLive
+        {
+            get { return _IsLeoPlayerLive; }
+            set { SetProperty(ref _IsLeoPlayerLive, value); }
+        }
+
+        // Player Settings
+        public ReactiveProperty<bool> IsForceLandscapeDefault { get; private set; }
+
+        public ReactiveProperty<bool> IsKeepDisplayInPlayback { get; private set; }
+        public ReactiveProperty<double> ScrollVolumeFrequency { get; private set; }
+
+        public ReactiveProperty<double> AutoHideDelayTime { get; private set; }
+
+        public DelegateCommand ResetDefaultPlaybackRateCommand { get; private set; }
+
+
+
+
+        public ReactiveProperty<bool> IsDefaultCommentWithAnonymous { get; private set; }
+        public ReactiveProperty<uint> CommentRenderingFPS { get; private set; }
+        public ReactiveProperty<double> CommentDisplayDuration { get; private set; }
+        public ReactiveProperty<double> CommentFontScale { get; private set; }
+        public ReactiveProperty<Color> CommentColor { get; private set; }
+        public ReactiveProperty<bool> IsPauseWithCommentWriting { get; private set; }
+
+        public static List<CommentOpacityKind> CommentOpacityList { get; private set; }
+        public ReactiveProperty<CommentOpacityKind> CommentOpacity { get; private set; }
+
+
+        public static List<Color> CommentColorList { get; private set; }
+        public static List<uint> CommentRenderringFPSList { get; private set; }
+
+
+        public ReactiveProperty<bool> IsEnableOwnerCommentCommand { get; private set; }
+        public ReactiveProperty<bool> IsEnableUserCommentCommand { get; private set; }
+        public ReactiveProperty<bool> IsEnableAnonymousCommentCommand { get; private set; }
+
+        public ReactiveProperty<bool> NicoScript_Default_Enabled { get; private set; }
+        public ReactiveProperty<bool> NicoScript_DisallowSeek_Enabled { get; private set; }
+        public ReactiveProperty<bool> NicoScript_DisallowComment_Enabled { get; private set; }
+        public ReactiveProperty<bool> NicoScript_Jump_Enabled { get; private set; }
+        public ReactiveProperty<bool> NicoScript_Replace_Enabled { get; private set; }
+
+        public static List<PlaylistEndAction> PlaylistEndActionList { get; private set; }
+        public ReactiveProperty<PlaylistEndAction> PlaylistEndAction { get; private set; }
+
+        public ReactiveProperty<bool> AutoMoveNextVideoOnPlaylistEmpty { get; private set; }
+
+        // NG Comments
+
+        public ReactiveProperty<bool> NGCommentUserIdEnable { get; private set; }
+        public ReadOnlyReactiveCollection<RemovableListItem<string>> NGCommentUserIds { get; private set; }
+
+        public ReactiveProperty<bool> NGCommentKeywordEnable { get; private set; }
+        public ReactiveProperty<string> NGCommentKeywords { get; private set; }
+        public ReadOnlyReactiveProperty<string> NGCommentKeywordError { get; private set; }
+
+        public List<NGCommentScore> NGCommentScoreTypes { get; private set; }
+        public ReactiveProperty<NGCommentScore> SelectedNGCommentScore { get; private set; }
+
+
+        public ReactiveProperty<bool> CommentGlassMowerEnable { get; private set; }
+
+
+
+        private NGSettings _NGSettings;
+
+        private PlayerSettings _PlayerSettings;
+        private PlaylistSettings _PlaylistSettings;
+
+        static SettingsSidePaneContentViewModel()
+        {
+            CommentRenderringFPSList = new List<uint>()
+            {
+                5, 10, 15, 24, 30, 45, 60, 75, 90, 120
+            };
+
+            CommentColorList = new List<Color>()
+            {
+                Colors.WhiteSmoke,
+                Colors.Black,
+            };
+
+            PlaylistEndActionList = new List<Models.PlaylistEndAction>()
+            {
+                Models.PlaylistEndAction.NothingDo,
+                Models.PlaylistEndAction.ChangeIntoSplit,
+                Models.PlaylistEndAction.CloseIfPlayWithCurrentWindow
+            };
+
+            CommentOpacityList = new List<CommentOpacityKind>()
+            {
+                CommentOpacityKind.NoSukesuke,
+                CommentOpacityKind.BitSukesuke,
+                CommentOpacityKind.MoreSukesuke
+            };
+
+
+            VideoPlaybackRateList = new List<double>()
+            {
+                2.0,
+                1.75,
+                1.5,
+                1.25,
+                1.0,
+                .75,
+                .5,
+                .25,
+                .05
+            };
+        }
+
+        
         
         public void SetupAvairableLiveQualities(IList<string> qualities)
         {

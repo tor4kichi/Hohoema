@@ -1,0 +1,310 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.SearchResultCommunityPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:hohoemalistItem="using:NicoPlayerHohoema.Views.HohoemaListItem"
+    xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+    <Page.Transitions>
+        <TransitionCollection>
+            <NavigationThemeTransition>
+                <SuppressNavigationTransitionInfo />
+            </NavigationThemeTransition>
+        </TransitionCollection>
+    </Page.Transitions>
+    
+    <Grid>
+
+        <VisualStateManager.VisualStateGroups>
+
+            <!-- ログインしている場合に有効になるサービスを表示する -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsLoggedIn, Converter={StaticResource BoolNegation}}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="RequireLoginNoticePanel.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            
+            
+            <!-- トップバー表示時のタイトル位置ずらし -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ItemsList.Padding" Value="48 0 48 27" />
+                        <Setter Target="ScrollHeader.Mode" Value="None" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ScrollHeader.Mode" Value="QuickReturn" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        
+        
+        <uwpcontrols:PullToRefreshListView
+            x:Name="ItemsList"
+            ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
+            IsItemClickEnabled="True"
+            IncrementalLoadingTrigger="Edge"
+            PullThreshold="85"
+            UseSystemFocusVisuals="True"
+            SelectionMode="None"
+            HorizontalContentAlignment="Stretch"
+            uwpExtension:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
+            ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+            uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 96 0 0"
+            >
+            <uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
+                <TransitionCollection>
+
+                </TransitionCollection>
+            </uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
+            
+            <i:Interaction.Behaviors>
+
+                <mybehavior:KeyboardTrigger Key="F5">
+                    <mybehavior:KeyboardTrigger.Actions>
+                        <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
+                    </mybehavior:KeyboardTrigger.Actions>
+                </mybehavior:KeyboardTrigger>
+
+                <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ScrollPosition.Value, Mode=TwoWay}" />
+
+                <core:DataTriggerBehavior Binding="{Binding IncrementalLoadingItems, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}"  >
+                    <actions:ScrollViewerVerticalPositionSettingsAction Target="{x:Bind ItemsList}" 
+                                                                    VerticalOffset="{Binding ScrollPosition.Value}" 
+                                                                    WithAnimation="False" 
+                                                                        Delay="0:0:0.001"
+                                                                    />
+                </core:DataTriggerBehavior>
+            </i:Interaction.Behaviors>
+
+            <ListView.Header>
+
+                <uwpcontrols:ScrollHeader
+                    x:Name="ScrollHeader"
+                    Mode="Sticky" >
+                    <StackPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+                        <ListView xmlns:ee="using:NicoPlayerHohoema.Models"
+                                      SelectionMode="Single"
+                                      IsItemClickEnabled="True"
+                                      uwpExtension:ListViewBase.Command="{Binding ChangeSearchTargetCommand}"
+                                      ItemsSource="{Binding SearchTargets}"
+                                      SelectedItem="{Binding SelectedSearchTarget.Value, Mode=TwoWay}"
+                                      Style="{StaticResource BandListViewStyle}"
+                                      ItemContainerStyle="{StaticResource SimpleListViewItemStyle}"
+                                  SingleSelectionFollowsFocus="False"
+                                      >
+                            <ListView.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
+                                </DataTemplate>
+                            </ListView.ItemTemplate>
+
+                            <ListView.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <ItemsWrapGrid Orientation="Horizontal" />
+                                </ItemsPanelTemplate>
+                            </ListView.ItemsPanel>
+                        </ListView>
+
+
+                        <CommandBar>
+
+                            <CommandBar.PrimaryCommands>
+                                <AppBarButton x:Name="ScrollToTopButton"
+                                              Label="トップへ戻る"
+                                              Icon="Up"
+                                            >
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Click">
+                                            <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
+                                </AppBarButton>
+                                
+                                <AppBarButton Background="Transparent" 
+                                        Command="{Binding RefreshCommand}"
+                                        ToolTipService.ToolTip="更新"
+                                              Icon="Refresh"
+                                        />
+
+                            </CommandBar.PrimaryCommands>
+
+                            <CommandBar.Content>
+                                <toolkit:DockPanel 
+                                Margin="16 0 0 0" x:Name="TitleLayout"
+                                >
+
+                                    <HyperlinkButton Command="{Binding PageManager.OpenPageCommand}"
+                                             CommandParameter="Search"
+                                             Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+                                             Margin="0 0 16 0"
+                                                 toolkit:DockPanel.Dock="Left"
+                                                 VerticalAlignment="Stretch"
+                                             >
+                                        <SymbolIcon Symbol="Find"
+                                            />
+                                    </HyperlinkButton>
+
+
+                                    <HyperlinkButton 
+                                           toolkit:DockPanel.Dock="Left"
+                                        Margin="8 0"
+                                    >
+                                        <i:Interaction.Behaviors>
+                                            <core:EventTriggerBehavior EventName="Click" >
+                                                <mybehavior:OpenFlyout />
+                                            </core:EventTriggerBehavior>
+                                        </i:Interaction.Behaviors>
+
+                                        <TextBlock Text="{Binding SearchOptionText}" 
+                                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                                       >
+                                        </TextBlock>
+
+                                        <FlyoutBase.AttachedFlyout>
+                                            <Flyout>
+                                                <StackPanel MaxWidth="300">
+
+                                                    <ListView ItemsSource="{Binding CommunitySearchSortOptionListItems}"
+                                                        DisplayMemberPath="Label"
+                                                        SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}"
+                                                        Margin="0"
+                                                        HorizontalAlignment="Stretch"
+                                                        VerticalAlignment="Center"
+                                                        SelectionMode="Single"
+                                                        SingleSelectionFollowsFocus="False"
+                                                    >
+                                                        <ListView.ItemContainerStyle>
+                                                            <Style TargetType="ListViewItem">
+                                                                <Setter Property="Width" Value="140" />
+                                                            </Style>
+                                                        </ListView.ItemContainerStyle>
+                                                        <ListView.ItemsPanel>
+                                                            <ItemsPanelTemplate>
+                                                                <ItemsWrapGrid Orientation="Horizontal" />
+                                                            </ItemsPanelTemplate>
+                                                        </ListView.ItemsPanel>
+
+                                                    </ListView>
+
+                                                    <ListView ItemsSource="{Binding CommunitySearchModeOptionListItems}"
+                                                        DisplayMemberPath="Label"
+                                                        SelectedItem="{Binding SelectedSearchMode.Value, Mode=TwoWay}"
+                                                        Margin="0 16 0 0"
+                                                        HorizontalAlignment="Stretch"
+                                                        VerticalAlignment="Center"
+                                                        SelectionMode="Single"
+                                                        SingleSelectionFollowsFocus="False"
+                                                    >
+                                                        <ListView.ItemContainerStyle>
+                                                            <Style TargetType="ListViewItem">
+                                                                <Setter Property="Width" Value="140" />
+                                                            </Style>
+                                                        </ListView.ItemContainerStyle>
+                                                        <ListView.ItemsPanel>
+                                                            <ItemsPanelTemplate>
+                                                                <ItemsWrapGrid Orientation="Horizontal" />
+                                                            </ItemsPanelTemplate>
+                                                        </ListView.ItemsPanel>
+
+                                                    </ListView>
+
+                                                </StackPanel>
+
+
+                                            </Flyout>
+                                        </FlyoutBase.AttachedFlyout>
+
+
+
+                                    </HyperlinkButton>
+
+
+
+                                    <Border />
+
+                                </toolkit:DockPanel>
+
+                            </CommandBar.Content>
+
+
+                        </CommandBar>
+                    </StackPanel>
+                </uwpcontrols:ScrollHeader>
+            </ListView.Header>
+
+
+            <ListView.ItemTemplate>
+                <DataTemplate>
+                    <Grid>
+                        <controls:CommunityInfoControl />
+                    </Grid>
+                </DataTemplate>
+            </ListView.ItemTemplate>
+
+            <uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
+                <StackPanel  Margin="0 32 0 0" >
+                    <Border Margin="0 16 0 0" BorderThickness="0 0 0 1" BorderBrush="Gray" />
+                    <SymbolIcon Symbol="Refresh" VerticalAlignment="Bottom" Height="48" Width="48" Margin="0 24 0 8"
+                            />
+                </StackPanel>
+            </uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
+
+        </uwpcontrols:PullToRefreshListView>
+       
+        
+        
+        <!-- ログインしていない場合はコミュニティ検索ができません 
+        -->
+        <StackPanel HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    x:Name="RequireLoginNoticePanel"
+                    Visibility="Collapsed"
+                    >
+            <TextBlock Text="コミュニティを検索するには「ログイン」が必要です"
+                       Margin="16 0 16 16"
+                       />
+
+            <Button Content="ログイン" Command="{Binding NiconicoLoginService.LoginCommand}" />
+            
+        </StackPanel>
+    </Grid>
+</Page>

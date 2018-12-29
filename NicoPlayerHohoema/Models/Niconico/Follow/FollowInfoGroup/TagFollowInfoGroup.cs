@@ -9,17 +9,24 @@ namespace NicoPlayerHohoema.Models
 {
 	public class TagFollowInfoGroup : FollowInfoGroupBaseTemplate<string>
 	{
-		public TagFollowInfoGroup(HohoemaApp hohoemaApp)
-			: base(hohoemaApp)
-		{
-		}
+		public TagFollowInfoGroup(
+            NiconicoSession niconicoSession, 
+            Provider.TagFollowProvider tagFollowProvider
+            )
+        {
+            NiconicoSession = niconicoSession;
+            TagFollowProvider = tagFollowProvider;
+        }
 
 		public override FollowItemType FollowItemType => FollowItemType.Tag;
 
 		public override uint MaxFollowItemCount =>
-			HohoemaApp.IsPremiumUser ? FollowManager.PREMIUM_FOLLOW_TAG_MAX_COUNT : FollowManager.FOLLOW_TAG_MAX_COUNT;
+            NiconicoSession.IsPremiumAccount ? FollowManager.PREMIUM_FOLLOW_TAG_MAX_COUNT : FollowManager.FOLLOW_TAG_MAX_COUNT;
 
-		protected override FollowItemInfo ConvertToFollowInfo(string source)
+        public NiconicoSession NiconicoSession { get; }
+        public Provider.TagFollowProvider TagFollowProvider { get; }
+
+        protected override FollowItemInfo ConvertToFollowInfo(string source)
 		{
 			return new FollowItemInfo()
 			{
@@ -34,21 +41,20 @@ namespace NicoPlayerHohoema.Models
 			return source;
 		}
 
-		protected override Task<List<string>> GetFollowSource()
+		protected override async Task<List<string>> GetFollowSource()
 		{
-			return HohoemaApp.ContentProvider.GetFavTags();
-		}
+            return await TagFollowProvider.GetAllAsync();
+        }
 
-
-
-		protected override Task<ContentManageResult> AddFollow_Internal(string id, object token)
+		protected override async Task<ContentManageResult> AddFollow_Internal(string id, object token)
 		{
-			return HohoemaApp.NiconicoContext.User.AddFollowTagAsync(id);
-		}
-		protected override Task<ContentManageResult> RemoveFollow_Internal(string id)
+            return await TagFollowProvider.AddFollowAsync(id);
+        }
+
+        protected override async Task<ContentManageResult> RemoveFollow_Internal(string id)
 		{
-			return HohoemaApp.NiconicoContext.User.RemoveFollowTagAsync(id);
-		}
+            return await TagFollowProvider.RemoveFollowAsync(id);
+        }
 
 
 	}

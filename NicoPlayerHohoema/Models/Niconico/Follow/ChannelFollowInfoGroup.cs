@@ -7,19 +7,22 @@ namespace NicoPlayerHohoema.Models
 {
     internal class ChannelFollowInfoGroup : FollowInfoGroupBaseTemplate<Mntone.Nico2.Users.Follow.ChannelFollowData>
     {
-        private HohoemaApp _HohoemaApp;
-
-        public ChannelFollowInfoGroup(HohoemaApp hohoemaApp)
-            : base(hohoemaApp)
+        public ChannelFollowInfoGroup(
+            NiconicoSession niconicoSession, 
+            Provider.ChannelFollowProvider channelFollowProvider
+            )
         {
-            _HohoemaApp = hohoemaApp;
+            NiconicoSession = niconicoSession;
+            ChannelFollowProvider = channelFollowProvider;
         }
 
         public override FollowItemType FollowItemType => FollowItemType.Channel;
 
         public override uint MaxFollowItemCount 
-            => HohoemaApp.IsPremiumUser ? FollowManager.PREMIUM_FOLLOW_CHANNEL_MAX_COUNT : FollowManager.FOLLOW_CHANNEL_MAX_COUNT;
+            => NiconicoSession.IsPremiumAccount ? FollowManager.PREMIUM_FOLLOW_CHANNEL_MAX_COUNT : FollowManager.FOLLOW_CHANNEL_MAX_COUNT;
 
+        public NiconicoSession NiconicoSession { get; }
+        public Provider.ChannelFollowProvider ChannelFollowProvider { get; }
 
         protected override FollowItemInfo ConvertToFollowInfo(ChannelFollowData source)
         {
@@ -39,19 +42,17 @@ namespace NicoPlayerHohoema.Models
 
         protected override Task<List<ChannelFollowData>> GetFollowSource()
         {
-            return HohoemaApp.ContentProvider.GetFavChannels();
+            return ChannelFollowProvider.GetAllAsync();
         }
 
         protected override async Task<ContentManageResult> AddFollow_Internal(string id, object token = null)
         {
-            var result = await HohoemaApp.NiconicoContext.User.AddFollowChannelAsync(id);
-            return result.IsSucceed ? ContentManageResult.Success : ContentManageResult.Failed;
+            return await ChannelFollowProvider.AddFollowAsync(id);
         }
 
         protected override async Task<ContentManageResult> RemoveFollow_Internal(string id)
         {
-            var result = await HohoemaApp.NiconicoContext.User.DeleteFollowChannelAsync(id);
-            return result.IsSucceed ? ContentManageResult.Success : ContentManageResult.Failed;
+            return await ChannelFollowProvider.RemoveFollowAsync(id);
         }
     }
 }

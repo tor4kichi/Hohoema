@@ -1,6 +1,6 @@
 ﻿namespace NicoPlayerHohoema.Interfaces
 {
-    public interface IUser : INiconicoContent, IFollowable
+    public interface IUser : INiconicoObject, IFollowable
     {
 
     }

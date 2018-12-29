@@ -5,18 +5,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public sealed class EpilogueIntroductionPageViewModel : ViewModelBase
     {
+        public EpilogueIntroductionPageViewModel(Commands.GoNextIntroductionPageCommand goNext)
+        {
+            GoNext = goNext;
+        }
+
+        public ICommand GoNext { get; }
+
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
-            var goNextCommand = new Commands.GoNextIntroductionPageCommand() as System.Windows.Input.ICommand;
-            if (goNextCommand != null)
-            {
-                goNextCommand.Execute(null);
-            }
+            GoNext.Execute(null);
 
             base.OnNavigatedTo(e, viewModelState);
         }

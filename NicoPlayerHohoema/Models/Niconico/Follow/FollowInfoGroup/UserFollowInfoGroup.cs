@@ -10,29 +10,38 @@ namespace NicoPlayerHohoema.Models
 {
 	public class UserFollowInfoGroup : FollowInfoGroupWithFollowData
 	{
-		public UserFollowInfoGroup(HohoemaApp hohoemaApp)
-			: base(hohoemaApp)
-		{
-
-		}
+		public UserFollowInfoGroup(
+            NiconicoSession niconicoSession, 
+            Provider.UserFollowProvider userFollowProvider
+            )
+        {
+            NiconicoSession = niconicoSession;
+            UserFollowProvider = userFollowProvider;
+        }
+    
 
 		public override FollowItemType FollowItemType => FollowItemType.User;
 
 		public override uint MaxFollowItemCount =>
-			HohoemaApp.IsPremiumUser ? FollowManager.PREMIUM_FOLLOW_USER_MAX_COUNT : FollowManager.FOLLOW_USER_MAX_COUNT;
+            NiconicoSession.IsPremiumAccount ? FollowManager.PREMIUM_FOLLOW_USER_MAX_COUNT : FollowManager.FOLLOW_USER_MAX_COUNT;
 
-		protected override Task<List<FollowData>> GetFollowSource()
-		{
-			return HohoemaApp.ContentProvider.GetFollowUsers();
-		}
+        public NiconicoSession NiconicoSession { get; }
+        public Provider.UserFollowProvider UserFollowProvider { get; }
 
-		protected override Task<ContentManageResult> AddFollow_Internal(string id, object token)
+
+        protected override async Task<List<FollowData>> GetFollowSource()
 		{
-			return HohoemaApp.NiconicoContext.User.AddUserFollowAsync(NiconicoItemType.User, id);
-		}
-		protected override Task<ContentManageResult> RemoveFollow_Internal(string id)
+            return await UserFollowProvider.GetAllAsync();
+
+        }
+
+		protected override async Task<ContentManageResult> AddFollow_Internal(string id, object token)
 		{
-			return HohoemaApp.NiconicoContext.User.RemoveUserFollowAsync(NiconicoItemType.User, id);
+            return await UserFollowProvider.AddFollowAsync(id);
 		}
+		protected override async Task<ContentManageResult> RemoveFollow_Internal(string id)
+		{
+            return await UserFollowProvider.RemoveFollowAsync(id);
+        }
 	}
 }

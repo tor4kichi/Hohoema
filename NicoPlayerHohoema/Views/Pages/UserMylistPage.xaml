@@ -1,0 +1,198 @@
+﻿<Page
+    x:Name="PageRoot"
+    x:Class="NicoPlayerHohoema.Views.UserMylistPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:view="using:NicoPlayerHohoema.Views"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:mycontrols="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:hohoemaListitem="using:NicoPlayerHohoema.Views.HohoemaListItem"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+    xmlns:myTrigger="using:NicoPlayerHohoema.Views.StateTrigger"
+    xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts"
+    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    mc:Ignorable="d"
+    >
+    <Grid>
+
+        <VisualStateManager.VisualStateGroups>
+
+            <!-- トップバー表示時のタイトル位置ずらし -->
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ContentItemsView.Padding" Value="48 0 48 27" />
+                        <Setter Target="ScrollHeader.Mode" Value="None" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <AdaptiveTrigger MinWindowWidth="0" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="ScrollHeader.Mode" Value="QuickReturn" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+            
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsLoginUserMylist.Value}" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="LoginUserMylistActions.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+
+        </VisualStateManager.VisualStateGroups>
+        
+        
+        
+        <Grid x:Name="ContentLayout">
+
+
+            <GridView ItemsSource="{Binding IncrementalLoadingItems}" 
+                      uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
+                      IsItemClickEnabled="True"
+                      SelectionMode="None"
+                      x:Name="ContentItemsView"
+                      Padding="8 0 8 24"
+                      IncrementalLoadingTrigger="Edge"
+                      IncrementalLoadingThreshold="80"
+
+                      xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
+                >
+
+                <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
+                    <DataTemplate>
+                        <flyouts:MylistItemFlyout />
+                    </DataTemplate>
+                </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
+                
+
+                <GridView.Header>
+                    <uwptoolkit:ScrollHeader 
+                        x:Name="ScrollHeader"
+                        Mode="Sticky">
+
+                        <Grid x:Name="HeaderLayout"
+                          VerticalAlignment="Top"
+                              Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
+                          >
+                            <StackPanel>
+                                <toolkit:DockPanel >
+                                    <CommandBar toolkit:DockPanel.Dock="Right" 
+                                            Background="Transparent"
+                                        >
+
+                                        <AppBarButton Background="Transparent" 
+                                                      Label="並べ替え"
+                                                      Icon="Sort"
+                                                      Visibility="Collapsed"
+                                            >
+                                            <AppBarButton.Flyout>
+                                                <MenuFlyout>
+                                                    <MenuFlyoutItem Text="並び替えをリセット"
+                                                            Command="{Binding ResetSortCommand}"
+                                                        />
+                                                    
+                                                    <!--
+                                                    <MenuFlyoutItem Text="作成日（新）"
+                                                            Command="{Binding SortAscendingCommand}"
+                                                                    CommandParameter=""
+                                                        />
+                                                    <MenuFlyoutItem Text="作成日（古）"
+                                                            Command="{Binding SortDescendingCommand}"
+                                                        />
+                                                    -->
+
+                                                    <MenuFlyoutItem Text="タイトル（順）"
+                                                            Command="{Binding SortAscendingCommand}"
+                                                                    CommandParameter="Label"
+                                                        />
+                                                    <MenuFlyoutItem Text="タイトル（逆）"
+                                                            Command="{Binding SortDescendingCommand}"
+                                                                    CommandParameter="Label"
+                                                        />
+                                                    <MenuFlyoutItem Text="アイテム数（大）"
+                                                            Command="{Binding SortAscendingCommand}"
+                                                                    CommandParameter="Count"
+                                                        />
+                                                    <MenuFlyoutItem Text="アイテム数（小）"
+                                                            Command="{Binding SortDescendingCommand}"
+                                                                    CommandParameter="Count"
+                                                        />
+                                                </MenuFlyout>
+                                            </AppBarButton.Flyout>
+
+
+                                            <SymbolIcon Symbol="Sort" />
+
+
+                                        </AppBarButton>
+
+                                        <AppBarButton Background="Transparent" 
+                                                      Label="追加"
+                                                      Icon="Add"
+                                                    Visibility="Collapsed"
+                                                    x:Name="LoginUserMylistActions"
+                                            >
+                                            <AppBarButton.Flyout>
+                                                <MenuFlyout>
+                                                    <MenuFlyoutItem Text="ローカルマイリストを作成"
+                                                    Command="{Binding AddLocalMylistCommand}"
+                                                    />
+                                                    <MenuFlyoutItem Text="マイリストを作成"
+                                                    Command="{Binding AddMylistGroupCommand}"
+                                                    />
+                                                </MenuFlyout>
+                                            </AppBarButton.Flyout>
+                                        </AppBarButton>
+                                    </CommandBar>
+
+                                    <Border Background="Transparent" IsHitTestVisible="True"
+                                        Margin="16 0 0 0"
+                                    >
+                                    </Border>
+                                </toolkit:DockPanel>
+                            </StackPanel>
+                        </Grid>
+                    </uwptoolkit:ScrollHeader>
+
+                </GridView.Header>
+
+                <GridView.ItemTemplate>
+                    <DataTemplate>
+                        <local:MylistListItem />
+
+                    </DataTemplate>
+                </GridView.ItemTemplate>
+
+            </GridView>
+        </Grid>
+    </Grid>
+    
+</Page>

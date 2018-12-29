@@ -15,24 +15,192 @@ using System.Reactive.Disposables;
 using Mntone.Nico2;
 using System.Collections.ObjectModel;
 using Mntone.Nico2.Videos.Ranking;
-using NicoPlayerHohoema.Views.Service;
 using System.Threading;
 using System.Windows.Input;
 using System.Text.RegularExpressions;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using Windows.ApplicationModel.Store;
 using Windows.Storage;
 using System.Diagnostics;
 using Microsoft.Services.Store.Engagement;
 using Windows.System;
 using Windows.UI.StartScreen;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class SettingsPageViewModel : HohoemaViewModelBase
 	{
+        
+        public SettingsPageViewModel(
+            PageManager pageManager,
+            NotificationService toastService,
+            Services.DialogService dialogService,
+            NGSettings ngSettings,
+            RankingSettings rankingSettings,
+            ActivityFeedSettings activityFeedSettings,
+            AppearanceSettings appearanceSettings,
+            CacheSettings cacheSettings
+            )
+            : base(pageManager)
+        {
+            ToastNotificationService = toastService;
+            NgSettings = ngSettings;
+            RankingSettings = rankingSettings;
+            _HohoemaDialogService = dialogService;
+            NgSettings = ngSettings;
+            RankingSettings = rankingSettings;
+            ActivityFeedSettings = activityFeedSettings;
+            AppearanceSettings = appearanceSettings;
+            CacheSettings = cacheSettings;
+            
+
+            IsLiveAlertEnabled = ActivityFeedSettings.ToReactivePropertyAsSynchronized(x => x.IsLiveAlertEnabled)
+                .AddTo(_CompositeDisposable);
+
+            // NG Video Owner User Id
+            NGVideoOwnerUserIdEnable = NgSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoOwnerUserIdEnable);
+            NGVideoOwnerUserIds = NgSettings.NGVideoOwnerUserIds
+                .ToReadOnlyReactiveCollection();
+
+            OpenUserPageCommand = new DelegateCommand<UserIdInfo>(userIdInfo =>
+            {
+                pageManager.OpenPage(HohoemaPageType.UserInfo, userIdInfo.UserId);
+            });
+
+            // NG Keyword on Video Title
+            NGVideoTitleKeywordEnable = NgSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoTitleKeywordEnable);
+            NGVideoTitleKeywords = new ReactiveProperty<string>();
+            NGVideoTitleKeywordError = NGVideoTitleKeywords
+                .Select(x =>
+                {
+                    if (x == null) { return null; }
+
+                    var keywords = x.Split('\r');
+                    var invalidRegex = keywords.FirstOrDefault(keyword =>
+                    {
+                        Regex regex = null;
+                        try
+                        {
+                            regex = new Regex(keyword);
+                        }
+                        catch { }
+                        return regex == null;
+                    });
+
+                    if (invalidRegex == null)
+                    {
+                        return null;
+                    }
+                    else
+                    {
+                        return $"Error in \"{invalidRegex}\"";
+                    }
+                })
+                .ToReadOnlyReactiveProperty();
+
+            // アピアランス
+
+            var currentTheme = App.GetTheme();
+            SelectedApplicationTheme = new ReactiveProperty<string>(currentTheme.ToString(), mode: ReactivePropertyMode.DistinctUntilChanged);
+
+            SelectedApplicationTheme.Subscribe(x =>
+            {
+                var type = (ApplicationTheme)Enum.Parse(typeof(ApplicationTheme), x);
+                App.SetTheme(type);
+
+                // 一度だけトースト通知
+                if (!ThemeChanged)
+                {
+                    toastService.ShowToast("Hohoemaを再起動するとテーマが適用されます。", "");
+                }
+
+                ThemeChanged = true;
+                RaisePropertyChanged(nameof(ThemeChanged));
+            });
+
+            IsTVModeEnable = AppearanceSettings
+                .ToReactivePropertyAsSynchronized(x => x.IsForceTVModeEnable);
+            IsXbox = Services.Helpers.DeviceTypeHelper.IsXbox;
+
+            IsForceMobileModeEnable = AppearanceSettings
+                .ToReactivePropertyAsSynchronized(x => x.IsForceMobileModeEnable);
+
+
+
+            IsDefaultFullScreen = new ReactiveProperty<bool>(ApplicationView.PreferredLaunchWindowingMode == ApplicationViewWindowingMode.FullScreen);
+            IsDefaultFullScreen.Subscribe(x =>
+            {
+                if (x)
+                {
+                    ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.FullScreen;
+                }
+                else
+                {
+                    ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.Auto;
+                }
+            });
+
+            StartupPageType = AppearanceSettings
+                .ToReactivePropertyAsSynchronized(x => x.StartupPageType);
+
+
+            // キャッシュ
+            DefaultCacheQuality = CacheSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCacheQuality);
+            IsAllowDownloadOnMeteredNetwork = CacheSettings.ToReactivePropertyAsSynchronized(x => x.IsAllowDownloadOnMeteredNetwork);
+            DefaultCacheQualityOnMeteredNetwork = CacheSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCacheQualityOnMeteredNetwork);
+
+            // シェア
+            IsLoginTwitter = new ReactiveProperty<bool>(/*TwitterHelper.IsLoggedIn*/ false);
+            TwitterAccountScreenName = new ReactiveProperty<string>(/*TwitterHelper.TwitterUser?.ScreenName ?? ""*/);
+
+
+            // アバウト
+            var version = Windows.ApplicationModel.Package.Current.Id.Version;
+#if DEBUG
+            VersionText = $"{version.Major}.{version.Minor}.{version.Build} DEBUG";
+#else
+            VersionText = $"{version.Major}.{version.Minor}.{version.Build}";
+#endif
+
+
+            var dispatcher = Window.Current.CoreWindow.Dispatcher;
+            LisenceSummary.Load()
+                .ContinueWith(async prevResult =>
+                {
+                    await dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                    {
+                        var lisenceSummary = prevResult.Result;
+
+                        LisenceItems = lisenceSummary.Items
+                            .OrderBy(x => x.Name)
+                            .Select(x => new LisenceItemViewModel(x))
+                            .ToList();
+                        RaisePropertyChanged(nameof(LisenceItems));
+                    });
+                });
+
+
+            IsDebugModeEnabled = new ReactiveProperty<bool>((App.Current as App).IsDebugModeEnabled, mode: ReactivePropertyMode.DistinctUntilChanged);
+            IsDebugModeEnabled.Subscribe(isEnabled =>
+            {
+                (App.Current as App).IsDebugModeEnabled = isEnabled;
+            })
+            .AddTo(_CompositeDisposable);
+        }
+
+        Services.DialogService _HohoemaDialogService;
+
+        public NotificationService ToastNotificationService { get; private set; }
+        public NGSettings NgSettings { get; }
+        public RankingSettings RankingSettings { get; }
+        public ActivityFeedSettings ActivityFeedSettings { get; }
+        public AppearanceSettings AppearanceSettings { get; }
+        public CacheSettings CacheSettings { get; }
+
+
         public ReactiveProperty<bool> IsLiveAlertEnabled { get; private set; }
 
 
@@ -151,6 +319,8 @@ namespace NicoPlayerHohoema.ViewModels
                             TwitterAccountScreenName.Value = TwitterHelper.TwitterUser?.ScreenName ?? "";
                         }
                         */
+
+                        await Task.CompletedTask;
                     }
                     ));
             }
@@ -293,11 +463,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ShowErrorFilesFolderCommand
                     ?? (_ShowErrorFilesFolderCommand = new DelegateCommand(async () =>
                     {
-                        var folder = await ApplicationData.Current.LocalFolder.GetFolderAsync("error");
-                        if (folder != null)
-                        {
-                            await Launcher.LaunchFolderAsync(folder);
-                        }
+                        await (App.Current as App).ShowErrorLogFolder();
                     }));
             }
         }
@@ -311,7 +477,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _CopyVersionTextToClipboardCommand
                     ?? (_CopyVersionTextToClipboardCommand = new DelegateCommand(() =>
                     {
-                        Helpers.ShareHelper.CopyToClipboard(CurrentVersion.ToString());
+                        Services.Helpers.ClipboardHelper.CopyToClipboard(CurrentVersion.ToString());
                     }));
             }
         }
@@ -357,160 +523,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        NGSettings _NGSettings;
-        RankingSettings _RankingSettings;
-        Services.HohoemaDialogService _HohoemaDialogService;
-
-        public ToastNotificationService ToastNotificationService { get; private set; }
-
-
-        public SettingsPageViewModel(
-			HohoemaApp hohoemaApp
-			, PageManager pageManager
-			, ToastNotificationService toastService
-            , Services.HohoemaDialogService dialogService
-			)
-			: base(hohoemaApp, pageManager)
-		{
-			ToastNotificationService = toastService;
-            _NGSettings = HohoemaApp.UserSettings.NGSettings;
-            _RankingSettings = HohoemaApp.UserSettings.RankingSettings;
-            _HohoemaDialogService = dialogService;
-
-            IsLiveAlertEnabled = HohoemaApp.UserSettings.ActivityFeedSettings.ToReactivePropertyAsSynchronized(x => x.IsLiveAlertEnabled)
-                .AddTo(_CompositeDisposable);
-
-            // NG Video Owner User Id
-            NGVideoOwnerUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoOwnerUserIdEnable);
-            NGVideoOwnerUserIds = _NGSettings.NGVideoOwnerUserIds
-                .ToReadOnlyReactiveCollection();
-
-            OpenUserPageCommand = new DelegateCommand<UserIdInfo>(userIdInfo =>
-            {
-                pageManager.OpenPage(HohoemaPageType.UserInfo, userIdInfo.UserId);
-            });
-
-            // NG Keyword on Video Title
-            NGVideoTitleKeywordEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoTitleKeywordEnable);
-            NGVideoTitleKeywords = new ReactiveProperty<string>();
-            NGVideoTitleKeywordError = NGVideoTitleKeywords
-                .Select(x =>
-                {
-                    if (x == null) { return null; }
-
-                    var keywords = x.Split('\r');
-                    var invalidRegex = keywords.FirstOrDefault(keyword =>
-                    {
-                        Regex regex = null;
-                        try
-                        {
-                            regex = new Regex(keyword);
-                        }
-                        catch { }
-                        return regex == null;
-                    });
-
-                    if (invalidRegex == null)
-                    {
-                        return null;
-                    }
-                    else
-                    {
-                        return $"Error in \"{invalidRegex}\"";
-                    }
-                })
-                .ToReadOnlyReactiveProperty();
-
-            // アピアランス
-
-            var currentTheme = App.GetTheme();
-            SelectedApplicationTheme = new ReactiveProperty<string>(currentTheme.ToString(), mode: ReactivePropertyMode.DistinctUntilChanged);
-
-            SelectedApplicationTheme.Subscribe(x =>
-            {
-                var type = (ApplicationTheme)Enum.Parse(typeof(ApplicationTheme), x);
-                App.SetTheme(type);
-
-                // 一度だけトースト通知
-                if (!ThemeChanged)
-                {
-                    toastService.ShowText("Hohoemaを再起動するとテーマが適用されます。", "");
-                }
-
-                ThemeChanged = true;
-                RaisePropertyChanged(nameof(ThemeChanged));
-            });
-
-            IsTVModeEnable = HohoemaApp.UserSettings.AppearanceSettings
-                .ToReactivePropertyAsSynchronized(x => x.IsForceTVModeEnable);
-            IsXbox = Helpers.DeviceTypeHelper.IsXbox;
-
-            IsForceMobileModeEnable = HohoemaApp.UserSettings.AppearanceSettings
-                .ToReactivePropertyAsSynchronized(x => x.IsForceMobileModeEnable);
-
-
-
-            IsDefaultFullScreen = new ReactiveProperty<bool>(ApplicationView.PreferredLaunchWindowingMode == ApplicationViewWindowingMode.FullScreen);
-            IsDefaultFullScreen.Subscribe(x =>
-            {
-                if (x)
-                {
-                    ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.FullScreen;
-                }
-                else
-                {
-                    ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.Auto;
-                }
-            });
-
-            StartupPageType = HohoemaApp.UserSettings.AppearanceSettings
-                .ToReactivePropertyAsSynchronized(x => x.StartupPageType);
-
-
-            // キャッシュ
-            DefaultCacheQuality = HohoemaApp.UserSettings.CacheSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCacheQuality);
-            IsAllowDownloadOnMeteredNetwork = HohoemaApp.UserSettings.CacheSettings.ToReactivePropertyAsSynchronized(x => x.IsAllowDownloadOnMeteredNetwork);
-            DefaultCacheQualityOnMeteredNetwork = HohoemaApp.UserSettings.CacheSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCacheQualityOnMeteredNetwork);
-
-            // シェア
-            IsLoginTwitter = new ReactiveProperty<bool>(/*TwitterHelper.IsLoggedIn*/ false);
-            TwitterAccountScreenName = new ReactiveProperty<string>(/*TwitterHelper.TwitterUser?.ScreenName ?? ""*/);
-
-
-            // アバウト
-            var version = Windows.ApplicationModel.Package.Current.Id.Version;
-#if DEBUG
-            VersionText = $"{version.Major}.{version.Minor}.{version.Build} DEBUG";
-#else
-            VersionText = $"{version.Major}.{version.Minor}.{version.Build}";
-#endif
-
-
-            var dispatcher = Window.Current.CoreWindow.Dispatcher;
-            LisenceSummary.Load()
-                .ContinueWith(async prevResult =>
-                {
-                    await dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
-                    {
-                        var lisenceSummary = prevResult.Result;
-
-                        LisenceItems = lisenceSummary.Items
-                            .OrderBy(x => x.Name)
-                            .Select(x => new LisenceItemViewModel(x))
-                            .ToList();
-                        RaisePropertyChanged(nameof(LisenceItems));
-                    });
-                });
-
-
-            IsDebugModeEnabled = new ReactiveProperty<bool>((App.Current as App).IsDebugModeEnabled, mode:ReactivePropertyMode.DistinctUntilChanged);
-            IsDebugModeEnabled.Subscribe(isEnabled => 
-            {
-                (App.Current as App).IsDebugModeEnabled = isEnabled;
-            })
-            .AddTo(_CompositeDisposable);
-        }
-
+        
 
 
 
@@ -518,7 +531,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
-            NGVideoTitleKeywords.Value = string.Join("\r", _NGSettings.NGVideoTitleKeywords.Select(x => x.Keyword)) + "\r";
+            NGVideoTitleKeywords.Value = string.Join("\r", NgSettings.NGVideoTitleKeywords.Select(x => x.Keyword)) + "\r";
 
             try
             {
@@ -550,31 +563,32 @@ namespace NicoPlayerHohoema.ViewModels
 
             // フィルタ
             // NG VideoTitleを複数行NG動画タイトル文字列から再構成
-            _NGSettings.NGVideoTitleKeywords.Clear();
+            NgSettings.NGVideoTitleKeywords.Clear();
             foreach (var ngKeyword in NGVideoTitleKeywords.Value.Split('\r'))
             {
                 if (!string.IsNullOrWhiteSpace(ngKeyword))
                 {
-                    _NGSettings.NGVideoTitleKeywords.Add(new NGKeyword() { Keyword = ngKeyword });
+                    NgSettings.NGVideoTitleKeywords.Add(new NGKeyword() { Keyword = ngKeyword });
                 }
             }
 
-            _NGSettings.Save().ConfigureAwait(false);
+            NgSettings.Save().ConfigureAwait(false);
 
 
             // TVMode有効フラグをXaml側に反映されるようリソースに書き込み
             // 汚いやり方かもしれない
-            App.Current.Resources["IsTVModeEnabled"] = Helpers.DeviceTypeHelper.IsXbox || HohoemaApp.UserSettings.AppearanceSettings.IsForceTVModeEnable;
+            App.Current.Resources["IsTVModeEnabled"] = Services.Helpers.DeviceTypeHelper.IsXbox || AppearanceSettings.IsForceTVModeEnable;
 
-
-            _RankingSettings.GetFile().ContinueWith(async prevTask =>
+            /*
+            RankingSettings.GetFile().ContinueWith(async prevTask =>
             {
                 await HohoemaApp.PushToRoamingData(prevTask.Result);
             });
-            _NGSettings.GetFile().ContinueWith(async prevTask =>
+            NgSettings.GetFile().ContinueWith(async prevTask =>
             {
                 await HohoemaApp.PushToRoamingData(prevTask.Result);
             });
+            */
 
             base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 		}
@@ -582,8 +596,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         private void OnRemoveNGCommentUserIdFromList(string userId)
         {
-            var removeTarget = _NGSettings.NGCommentUserIds.First(x => x.UserId == userId);
-            _NGSettings.NGCommentUserIds.Remove(removeTarget);
+            var removeTarget = NgSettings.NGCommentUserIds.First(x => x.UserId == userId);
+            NgSettings.NGCommentUserIds.Remove(removeTarget);
         }
     }
 
@@ -783,19 +797,19 @@ namespace NicoPlayerHohoema.ViewModels
         {
             switch (type)
             {
-                case Helpers.LisenceType.MIT:
+                case Models.LisenceType.MIT:
                     return "MIT";
-                case Helpers.LisenceType.MS_PL:
+                case Models.LisenceType.MS_PL:
                     return "Microsoft Public Lisence";
-                case Helpers.LisenceType.Apache_v2:
+                case Models.LisenceType.Apache_v2:
                     return "Apache Lisence version 2.0";
-                case Helpers.LisenceType.GPL_v3:
+                case Models.LisenceType.GPL_v3:
                     return "GNU General Public License Version 3";
-                case Helpers.LisenceType.Simplified_BSD:
+                case Models.LisenceType.Simplified_BSD:
                     return "二条項BSDライセンス";
-                case Helpers.LisenceType.CC_BY_40:
+                case Models.LisenceType.CC_BY_40:
                     return "クリエイティブ・コモンズ 表示 4.0 国際";
-                case Helpers.LisenceType.SIL_OFL_v1_1:
+                case Models.LisenceType.SIL_OFL_v1_1:
                     return "SIL OPEN FONT LICENSE Version 1.1";
                 default:
                     throw new NotSupportedException(type.ToString());

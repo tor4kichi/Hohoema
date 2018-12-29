@@ -1,6 +1,6 @@
 ﻿using Mntone.Nico2.Live.Watch;
 using Newtonsoft.Json.Linq;
-using NicoPlayerHohoema.Helpers;
+using NicoPlayerHohoema.Models.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
