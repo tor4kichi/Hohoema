@@ -48,6 +48,13 @@ namespace NicoPlayerHohoema.Models.Cache
     }
 
 
+    public struct CacheSaveFolderChangedEventArgs
+    {
+        public StorageFolder OldFolder { get; set; }
+        public StorageFolder NewFolder { get; set; }
+    }
+
+
     public class CacheSaveFolder
     {
         public CacheSaveFolder(CacheSettings cacheSettings)
@@ -95,6 +102,9 @@ namespace NicoPlayerHohoema.Models.Cache
 
         public string PrevCacheFolderAccessToken { get; private set; }
         public CacheSettings CacheSettings { get; }
+
+
+        public event EventHandler<CacheSaveFolderChangedEventArgs> SaveFolderChanged;
 
         static private async Task<StorageFolder> GetEnsureVideoFolder()
         {
@@ -184,6 +194,7 @@ namespace NicoPlayerHohoema.Models.Cache
 
         public async Task<bool> ChangeUserDataFolder()
         {
+            var oldSaveFolder = _DownloadFolder;
             try
             {
                 var folderPicker = new Windows.Storage.Pickers.FolderPicker();
@@ -218,7 +229,14 @@ namespace NicoPlayerHohoema.Models.Cache
             }
             finally
             {
+                
             }
+
+            SaveFolderChanged?.Invoke(this, new CacheSaveFolderChangedEventArgs()
+            {
+                OldFolder = oldSaveFolder,
+                NewFolder = _DownloadFolder
+            });
 
             return true;
         }
@@ -266,6 +284,12 @@ namespace NicoPlayerHohoema.Models.Cache
                     TryNextCacheRequestedVideoDownload().ConfigureAwait(false);
                 });
 
+            CacheSaveFolder.SaveFolderChanged += CacheSaveFolder_SaveFolderChanged;
+        }
+
+        private void CacheSaveFolder_SaveFolderChanged(object sender, CacheSaveFolderChangedEventArgs e)
+        {
+            _ = OnCacheFolderChanged();
         }
 
         public IScheduler Scheduler { get; }
@@ -457,30 +481,23 @@ namespace NicoPlayerHohoema.Models.Cache
             RemoveProgressToast();
         }
 
-        protected override Task OnInitializeAsync(CancellationToken token)
+        protected override async Task OnInitializeAsync(CancellationToken token)
         {
             Debug.Write($"キャッシュ情報のリストアを開始");
 
-            Scheduler.ScheduleAsync(async (shceduler, cancelToken) =>
+            using (var releaser = await _CacheRequestProcessingLock.LockAsync())
             {
-                await Task.Delay(3000);
+                // ダウンロード中のアイテムをリストア
+                await RestoreBackgroundDownloadTask();
 
-                using (var releaser = await _CacheRequestProcessingLock.LockAsync())
-                {
-                    // ダウンロード中のアイテムをリストア
-                    await RestoreBackgroundDownloadTask();
+                // キャッシュ完了したアイテムをキャッシュフォルダから検索
+                await RetrieveCacheCompletedVideos();
+            }
 
-                    // キャッシュ完了したアイテムをキャッシュフォルダから検索
-                    await RetrieveCacheCompletedVideos();
-                }
+            // ダウンロード待機中のアイテムを復元
+            await RestoreCacheRequestedItems();
 
-                // ダウンロード待機中のアイテムを復元
-                await RestoreCacheRequestedItems();
-
-                State = CacheManagerState.Running;
-            });
-
-            return Task.CompletedTask;
+            State = CacheManagerState.Running;
         }
 
 
