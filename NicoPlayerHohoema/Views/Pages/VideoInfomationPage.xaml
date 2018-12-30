@@ -298,7 +298,7 @@
 
                     <AppBarButton Icon="Download" 
                                   Label="キャッシュ取得"
-                                  Command="{Binding VideoCacheManager.CacheRequestCommand}"
+                                  Command="{Binding VideoCacheManager.AddCacheRequestCommand}"
                                   CommandParameter="{Binding}"
                                   Visibility="{Binding CanDownload, Converter={StaticResource BooleanToVisibility}}"
                                   />

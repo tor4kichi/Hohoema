@@ -290,7 +290,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         string INiconicoObject.Label => _VideoInfo.Title;
 
-        IMylist IVideoContent.OnwerPlaylist => throw new NotImplementedException();
+        IMylist IVideoContent.OnwerPlaylist => null;
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
