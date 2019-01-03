@@ -21,6 +21,7 @@ using Windows.Media.Streaming.Adaptive;
 using Unity;
 using System.Reactive.Concurrency;
 using NicoPlayerHohoema.Models.Provider;
+using NicoPlayerHohoema.Models.Niconico;
 
 namespace NicoPlayerHohoema.Models.Live
 {

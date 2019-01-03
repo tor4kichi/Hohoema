@@ -20,6 +20,7 @@
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     d:DesignHeight="300"
@@ -109,32 +110,32 @@
 
         </MenuFlyout>
 
-        <local:PlayerSidePaneContentTemplateSelecter x:Key="PlayerSidePaneContentTemplateSelecter">
-            
-            <local:PlayerSidePaneContentTemplateSelecter.Empty>
+        <templateselector:PlayerSidePaneContentTemplateSelecter x:Key="PlayerSidePaneContentTemplateSelecter">
+
+            <templateselector:PlayerSidePaneContentTemplateSelecter.Empty>
                 <DataTemplate>
                     <!-- empty -->
                 </DataTemplate>
-            </local:PlayerSidePaneContentTemplateSelecter.Empty>
-            
-            <local:PlayerSidePaneContentTemplateSelecter.Playlist>
+            </templateselector:PlayerSidePaneContentTemplateSelecter.Empty>
+
+            <templateselector:PlayerSidePaneContentTemplateSelecter.Playlist>
                 <DataTemplate>
                     <local:PlaylistSidePaneContent />
                 </DataTemplate>
-            </local:PlayerSidePaneContentTemplateSelecter.Playlist>
+            </templateselector:PlayerSidePaneContentTemplateSelecter.Playlist>
 
-            <local:PlayerSidePaneContentTemplateSelecter.Comments>
+            <templateselector:PlayerSidePaneContentTemplateSelecter.Comments>
                 <DataTemplate>
                     <local:LiveCommentsSidePaneContent />
                 </DataTemplate>
-            </local:PlayerSidePaneContentTemplateSelecter.Comments>
+            </templateselector:PlayerSidePaneContentTemplateSelecter.Comments>
 
-            <local:PlayerSidePaneContentTemplateSelecter.Settings>
+            <templateselector:PlayerSidePaneContentTemplateSelecter.Settings>
                 <DataTemplate>
                     <local:LiveSettingsSidePaneContent />
                 </DataTemplate>
-            </local:PlayerSidePaneContentTemplateSelecter.Settings>
-        </local:PlayerSidePaneContentTemplateSelecter>
+            </templateselector:PlayerSidePaneContentTemplateSelecter.Settings>
+        </templateselector:PlayerSidePaneContentTemplateSelecter>
 
         
         

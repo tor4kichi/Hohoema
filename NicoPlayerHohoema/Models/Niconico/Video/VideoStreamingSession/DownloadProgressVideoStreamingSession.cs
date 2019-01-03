@@ -7,7 +7,7 @@ using Windows.Storage.Streams;
 
 namespace NicoPlayerHohoema.Models
 {
-    public class DownloadProgressVideoStreamingSession : IVideoStreamingSession, IDisposable
+    public class DownloadProgressVideoStreamingSession : IStreamingSession, IDisposable
     {
         // Note: 再生中のハートビート管理を含めた管理
         // MediaSourceをMediaPlayerに設定する役割

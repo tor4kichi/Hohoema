@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Prism.Commands;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
@@ -59,6 +60,49 @@ namespace NicoPlayerHohoema.Models
         {
             get { return _AutoMoveNextVideoOnPlaylistEmpty; }
             set { SetProperty(ref _AutoMoveNextVideoOnPlaylistEmpty, value); }
+        }
+
+        
+
+        private DelegateCommand _ToggleRepeatModeCommand;
+        public DelegateCommand ToggleRepeatModeCommand
+        {
+            get
+            {
+                return _ToggleRepeatModeCommand
+                    ?? (_ToggleRepeatModeCommand = new DelegateCommand(() =>
+                    {
+                        switch (RepeatMode)
+                        {
+                            case MediaPlaybackAutoRepeatMode.None:
+                                RepeatMode = MediaPlaybackAutoRepeatMode.Track;
+                                break;
+                            case MediaPlaybackAutoRepeatMode.Track:
+                                RepeatMode = MediaPlaybackAutoRepeatMode.List;
+                                break;
+                            case MediaPlaybackAutoRepeatMode.List:
+                                RepeatMode = MediaPlaybackAutoRepeatMode.None;
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    ));
+            }
+        }
+
+        private DelegateCommand _ToggleShuffleCommand;
+        public DelegateCommand ToggleShuffleCommand
+        {
+            get
+            {
+                return _ToggleShuffleCommand
+                    ?? (_ToggleShuffleCommand = new DelegateCommand(() =>
+                    {
+                        IsShuffleEnable = !IsShuffleEnable;
+                    }
+                    ));
+            }
         }
 
     }

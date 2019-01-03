@@ -1,4 +1,5 @@
 ﻿using NicoPlayerHohoema.Models.Live;
+using NicoPlayerHohoema.Models.Niconico;
 using NicoPlayerHohoema.Views;
 using Reactive.Bindings;
 using System;

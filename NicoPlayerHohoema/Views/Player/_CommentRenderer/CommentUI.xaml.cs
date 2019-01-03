@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NicoPlayerHohoema.Models.Niconico;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -8,6 +9,7 @@ using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.Graphics.Imaging;
 using Windows.Storage.Streams;
+using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -23,8 +25,6 @@ namespace NicoPlayerHohoema.Views
 {
 	public sealed partial class CommentUI : UserControl
 	{
-		public Comment CommentData { get; set; }
-
         public bool IsVerticalPositionCulcurated { get; set; }
 
         private float _TextHeight;
@@ -33,11 +33,28 @@ namespace NicoPlayerHohoema.Views
         public float TextWidth => _TextWidth;
 
 
+        public long VideoPosition { get; set; }
+        public long EndPosition { get; set; }
+
+        public string CommentText { get; set; }
+
+        public Color BackTextColor { get; set; } 
+        public Color TextColor { get; set; }
+
+        public double CommentFontSize { get; set; }
+
+        public bool IsVisible { get; set; }
+
+        public double TextBGOffsetX { get; set; }
+        public double TextBGOffsetY { get; set; }
+
+        public CommentDisplayMode DisplayMode { get; set; }
+
+
         public CommentUI()
 		{
 			this.InitializeComponent();
 
-            DataContextChanged += CommentUI_DataContextChanged;
             SizeChanged += CommentUI_SizeChanged;
 		}
 
@@ -48,11 +65,6 @@ namespace NicoPlayerHohoema.Views
             _MoveCommentWidthTimeInVPos = null;
         }
 
-        private void CommentUI_DataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
-        {
-            CommentData = DataContext as Comment;
-        }
-
 
         public bool IsInsideScreen { get; private set; }
 		public int HorizontalPosition { get; private set; }
@@ -60,7 +72,7 @@ namespace NicoPlayerHohoema.Views
 
 		public bool IsEndDisplay(uint currentVpos)
 		{
-			return CommentData == null || CommentData.EndPosition <= currentVpos;
+			return EndPosition <= currentVpos;
 		}
 
 		public void Update(int screenWidth, uint currentVpos)
@@ -87,12 +99,11 @@ namespace NicoPlayerHohoema.Views
                 HorizontalPosition = 0;
                 return;
             }
-			var comment = CommentData;
 			var width = _TextWidth;
 
 			var distance = screenWidth + width;
-			var displayTime = (comment.EndPosition - comment.VideoPosition);
-			var localVpos = displayTime - (comment.EndPosition - currentVpos);
+			var displayTime = (EndPosition - VideoPosition);
+			var localVpos = displayTime - (EndPosition - currentVpos);
 			var lerp = localVpos / (float)displayTime;
 
 			// 理論的にlocalVposはdisplayTimeを越えることはない
@@ -105,7 +116,8 @@ namespace NicoPlayerHohoema.Views
 		}
 
 
-        public long CommentDisplayDuration => CommentData.EndPosition - CommentData.VideoPosition;
+        public long CommentDisplayDuration => EndPosition - VideoPosition;
+
 
         private long? _MoveCommentWidthTimeInVPos = null;
         private long CalcMoveCommentWidthTimeInVPos(int canvasWidth)
@@ -114,8 +126,6 @@ namespace NicoPlayerHohoema.Views
             {
                 return _MoveCommentWidthTimeInVPos.Value;
             }
-
-            var secondComment = CommentData;
 
             var speed = MoveSpeedPer1VPos(canvasWidth);
 
@@ -135,25 +145,22 @@ namespace NicoPlayerHohoema.Views
 
         public double? GetPosition(int canvasWidth, long currentVPos)
         {
-            if (CommentData == null) { return null; }
-
-            var c = CommentData;
-            if (c.VideoPosition > currentVPos) { return null; }
-            if (c.EndPosition < currentVPos) { return null; }
+            if (VideoPosition > currentVPos) { return null; }
+            if (EndPosition < currentVPos) { return null; }
 
             var speed = MoveSpeedPer1VPos(canvasWidth);
-            var delta = currentVPos - c.VideoPosition;
+            var delta = currentVPos - VideoPosition;
             return canvasWidth - (double)(speed * delta);
         }
 
         public long CalcTextShowRightEdgeTime(int canvasWidth)
         {
-            return CommentData.VideoPosition + CalcMoveCommentWidthTimeInVPos(canvasWidth);
+            return VideoPosition + CalcMoveCommentWidthTimeInVPos(canvasWidth);
         }
 
         public long CalcReachLeftEdge(int canvasWidth)
         {
-            return CommentData.EndPosition - CalcMoveCommentWidthTimeInVPos(canvasWidth);
+            return EndPosition - CalcMoveCommentWidthTimeInVPos(canvasWidth);
         }
 	}
 }

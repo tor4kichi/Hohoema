@@ -28,43 +28,23 @@ namespace NicoPlayerHohoema.Views
 
 
 
+
+        public double MediaPlayerHeight
+        {
+            get { return (double)GetValue(MediaPlayerHeightProperty); }
+            set { SetValue(MediaPlayerHeightProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for MediaPlayerHeight.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty MediaPlayerHeightProperty =
+            DependencyProperty.Register("MediaPlayerHeight", typeof(double), typeof(VideoPlayerPage), new PropertyMetadata(0));
+
+
+
+
         public VideoPlayerPage()
         {
             this.InitializeComponent();
-        }
-    }
-
-
-    public class PlayerSidePaneContentTemplateSelecter : DataTemplateSelector
-    {
-        public DataTemplate Empty { get; set; }
-        public DataTemplate Playlist { get; set; }
-        public DataTemplate Settings { get; set; }
-        public DataTemplate Comments { get; set; }
-        public DataTemplate RelatedVideos { get; set; }
-
-        protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
-        {
-            if (item is ViewModels.PlayerSidePaneContent.PlaylistSidePaneContentViewModel)
-            {
-                return Playlist;
-            }
-            else if (item is ViewModels.PlayerSidePaneContent.LiveCommentSidePaneContentViewModel)
-            {
-                return Comments;
-            }
-            else if (item is ViewModels.PlayerSidePaneContent.SettingsSidePaneContentViewModel)
-            {
-                return Settings;
-            }
-            else if (item is ViewModels.PlayerSidePaneContent.RelatedVideosSidePaneContentViewModel)
-            {
-                return RelatedVideos;
-            }
-            else
-            {
-                return Empty;
-            }
         }
     }
 }

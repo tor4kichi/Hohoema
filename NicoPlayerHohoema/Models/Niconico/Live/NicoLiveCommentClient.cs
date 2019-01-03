@@ -445,7 +445,7 @@ namespace NicoPlayerHohoema.Models.Live
                                     IsAnonymity = chat.GetAnonymity(),
                                     Content = chat.Text,
                                     Mail = chat.Mail,
-                                    UserId = chat.User_id,
+                                    UserId = chat.UserId,
                                     Vpos = (int)chat.GetVpos(),
                                     Date = int.Parse(chat.Date),
                                 };

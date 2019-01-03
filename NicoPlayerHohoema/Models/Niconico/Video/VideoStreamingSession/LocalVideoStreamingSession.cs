@@ -16,8 +16,8 @@ namespace NicoPlayerHohoema.Models
 
         public StorageFile File { get; }
 
-        public LocalVideoStreamingSession(StorageFile file, NicoVideoQuality requestQuality, NiconicoContext context)
-            : base(context)
+        public LocalVideoStreamingSession(StorageFile file, NicoVideoQuality requestQuality, NiconicoSession niconicoSession)
+            : base(niconicoSession)
         {
             File = file;
             Quality = requestQuality;

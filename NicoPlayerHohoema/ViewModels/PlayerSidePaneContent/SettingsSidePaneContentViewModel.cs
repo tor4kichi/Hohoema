@@ -244,8 +244,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
         public ReactiveProperty<Color> CommentColor { get; private set; }
         public ReactiveProperty<bool> IsPauseWithCommentWriting { get; private set; }
 
-        public static List<CommentOpacityKind> CommentOpacityList { get; private set; }
-        public ReactiveProperty<CommentOpacityKind> CommentOpacity { get; private set; }
+        public ReactiveProperty<double> CommentOpacity { get; private set; }
 
 
         public static List<Color> CommentColorList { get; private set; }
@@ -308,14 +307,6 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 Models.PlaylistEndAction.ChangeIntoSplit,
                 Models.PlaylistEndAction.CloseIfPlayWithCurrentWindow
             };
-
-            CommentOpacityList = new List<CommentOpacityKind>()
-            {
-                CommentOpacityKind.NoSukesuke,
-                CommentOpacityKind.BitSukesuke,
-                CommentOpacityKind.MoreSukesuke
-            };
-
 
             VideoPlaybackRateList = new List<double>()
             {

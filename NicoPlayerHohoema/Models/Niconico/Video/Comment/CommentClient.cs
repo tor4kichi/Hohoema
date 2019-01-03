@@ -2,23 +2,34 @@
 using Mntone.Nico2.Videos.Comment;
 using Mntone.Nico2.Videos.Dmc;
 using NicoPlayerHohoema.Models.Helpers;
+using NicoPlayerHohoema.Models.Niconico;
+using NicoPlayerHohoema.Models.Niconico.Video;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models
 {
-    public class CommentClient
+    public class CommentClient : Provider.ProviderBase
     {
+        // コメントの取得、とアプリケーションドメインなコメントモデルへの変換
+        // コメントの投稿可否判断と投稿処理
+
+        public CommentClient(NiconicoSession niconicoSession, string rawVideoid)
+            : base(niconicoSession)
+        {
+            RawVideoId = rawVideoid;
+        }
+
         public string RawVideoId { get; }
-        public NiconicoContext Context { get; }
-        public CommentServerInfo CommentServerInfo { get; private set; }
+        public CommentServerInfo CommentServerInfo { get; set; }
 
         private CommentResponse CachedCommentResponse { get; set; }
 
-        internal DmcWatchResponse LastAccessDmcWatchResponse { get; set; }
+        internal DmcWatchResponse DmcWatch { get; set; }
 
         private CommentSubmitInfo DefaultThreadSubmitInfo { get; set; }
         private CommentSubmitInfo CommunityThreadSubmitInfo { get; set; }
@@ -29,32 +40,20 @@ namespace NicoPlayerHohoema.Models
         {
             get
             {
-                return _CommentSessionContext ?? (_CommentSessionContext = LastAccessDmcWatchResponse != null ? Context.Video.GetCommentSessionContext(LastAccessDmcWatchResponse) : null);
+                return _CommentSessionContext ?? (_CommentSessionContext = DmcWatch != null ? NiconicoSession.Context.Video.GetCommentSessionContext(DmcWatch) : null);
             }
         }
 
 
-        public CommentClient(NiconicoContext context, string rawVideoid)
-        {
-            RawVideoId = rawVideoid;
-            Context = context;
-        }
 
-        public CommentClient(NiconicoContext context, CommentServerInfo serverInfo)
-        {
-            RawVideoId = serverInfo.VideoId;
-            Context = context;
-            CommentServerInfo = serverInfo;
-        }
-
-        public List<Chat> GetCommentsFromLocal()
+        private List<Chat> GetCommentsFromLocal()
         {
             var j = Database.VideoCommentDb.Get(RawVideoId);
         // コメントのキャッシュまたはオンラインからの取得と更新
             return j?.ChatItems;
         }
 
-        public async Task<List<Chat>> GetComments()
+        private async Task<List<Chat>> GetComments()
         {
             if (CommentServerInfo == null) { return new List<Chat>(); }
 
@@ -64,13 +63,17 @@ namespace NicoPlayerHohoema.Models
                 
                 commentRes = await ConnectionRetryUtil.TaskWithRetry(async () =>
                 {
-                    return await this.Context.Video
-                        .GetCommentAsync(
-                            (int)CommentServerInfo.ViewerUserId,
-                            CommentServerInfo.ServerUrl,
-                            CommentServerInfo.DefaultThreadId,
-                            CommentServerInfo.ThreadKeyRequired
-                        );
+                    return await ContextActionAsync(async context => 
+                    {
+                        return await context.Video
+                            .GetCommentAsync(
+                                (int)CommentServerInfo.ViewerUserId,
+                                CommentServerInfo.ServerUrl,
+                                CommentServerInfo.DefaultThreadId,
+                                CommentServerInfo.ThreadKeyRequired
+                            );
+                    });
+                    
                 });
 
             }
@@ -88,13 +91,16 @@ namespace NicoPlayerHohoema.Models
                     {
                         commentRes = await ConnectionRetryUtil.TaskWithRetry(async () =>
                         {
-                            return await Context.Video
+                            return await ContextActionAsync(async context =>
+                            {
+                                return await context.Video
                                 .GetCommentAsync(
                                     (int)CommentServerInfo.ViewerUserId,
                                     CommentServerInfo.ServerUrl,
                                     CommentServerInfo.CommunityThreadId.Value,
                                     CommentServerInfo.ThreadKeyRequired
                                 );
+                            });
                         });
                     }
                 }
@@ -121,7 +127,7 @@ namespace NicoPlayerHohoema.Models
         }
 
 
-        public bool CanGetCommentsFromNMSG 
+        private bool CanGetCommentsFromNMSG 
         {
             get
             {
@@ -129,7 +135,7 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-        public async Task<NMSG_Response> GetCommentsFromNMSG()
+        private async Task<NMSG_Response> GetCommentsFromNMSG()
         {
             if (CommentSessionContext == null) { return null; }
 
@@ -145,11 +151,11 @@ namespace NicoPlayerHohoema.Models
         {
             get
             {
-                if (LastAccessDmcWatchResponse == null) { return false; }
+                if (DmcWatch == null) { return false; }
 
-                if (LastAccessDmcWatchResponse.Channel != null) { return false; }
+                if (DmcWatch.Channel != null) { return false; }
 
-                if (LastAccessDmcWatchResponse.Community != null) { return false; }
+                if (DmcWatch.Community != null) { return false; }
 
                 return true;
             }
@@ -167,6 +173,98 @@ namespace NicoPlayerHohoema.Models
                 return true;
             }
         }
-        
+
+
+        public async Task<List<Comment>> GetCommentsAsync()
+        {
+            List<Comment> comments = null;
+
+            if (CanGetCommentsFromNMSG)
+            {
+                try
+                {
+                    var res = await GetCommentsFromNMSG();
+
+                    var rawComments = res.ParseComments();
+
+                    comments = rawComments.Select(x => ChatToComment(x)).ToList();
+                }
+                catch
+                {
+                }
+            }
+
+            // 新コメサーバーがダメだったら旧サーバーから取得
+            if (comments == null)
+            {
+                List<Chat> oldFormatComments = null;
+                try
+                {
+                    oldFormatComments = await GetComments();
+                    if (oldFormatComments == null || oldFormatComments.Count == 0)
+                    {
+                        oldFormatComments = GetCommentsFromLocal();
+                    }
+                }
+                catch
+                {
+                    oldFormatComments = GetCommentsFromLocal();
+                }
+
+                comments = oldFormatComments?.Select(x => ChatToComment(x)).ToList();
+            }
+
+
+
+
+            return comments ?? new List<Comment>();
+        }
+
+        public string VideoOwnerId { get; set; }
+
+        private Comment ChatToComment(Chat rawComment)
+        {
+            var comment = new Comment()
+            {
+                CommentText = rawComment.Text,
+                CommentId = rawComment.GetCommentNo(),
+                VideoPosition = Math.Max(rawComment.GetVpos(), 0),
+                UserId = rawComment.UserId,
+                Mail = rawComment.Mail,
+                NGScore = 0,
+                IsAnonimity = rawComment.GetAnonymity(),
+                IsLoginUserComment = NiconicoSession.IsLoggedIn && rawComment.UserId == NiconicoSession.UserIdString,
+                IsOwnerComment = rawComment.UserId != null && rawComment.UserId == VideoOwnerId,
+            };
+
+            return comment;
+        }
+
+        private Comment ChatToComment(NMSG_Chat rawComment)
+        {
+            var comment = new Comment()
+            {
+                CommentText = rawComment.Content,
+                CommentId = (uint)rawComment.No,
+                VideoPosition = Math.Max(rawComment.Vpos, 0),
+                UserId = rawComment.UserId,
+                Mail = rawComment.Mail,
+                NGScore = rawComment.Score ?? 0,
+                IsAnonimity = rawComment.Anonymity != 0,
+                IsLoginUserComment = NiconicoSession.IsLoggedIn && rawComment.UserId == NiconicoSession.UserIdString,
+                IsOwnerComment = rawComment.UserId != null && rawComment.UserId == VideoOwnerId,
+                DeletedFlag = rawComment.Deleted ?? 0
+            };
+
+            return comment;
+        }
+
+
+
+
+
+
+
+
     }
 }

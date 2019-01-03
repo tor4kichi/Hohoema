@@ -132,6 +132,8 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Models\Niconico\INiconicoStreamingSessionProvider.cs" />
+    <Compile Include="Models\Niconico\Video\Comment\NicoScript.cs" />
     <Compile Include="Services\Commands\AddMylistCommand.cs" />
     <Compile Include="Services\Commands\AddToHiddenUserCommand.cs" />
     <Compile Include="Services\Commands\Cache\AddCacheRequestCommand.cs" />
@@ -191,6 +193,7 @@
     <Compile Include="Services\Notification\NotificationFollowUpdatedService.cs" />
     <Compile Include="Services\Notification\NotificationMylistUpdatedService.cs" />
     <Compile Include="Services\Page\PreventBackNavigationOnShowPlayerService.cs" />
+    <Compile Include="Models\Niconico\ICommentService.cs" />
     <Compile Include="ViewModels\Flyouts\LiveItemFlyoutViewModel.cs" />
     <Compile Include="ViewModels\Flyouts\MylistItemFlyoutViewModel.cs" />
     <Compile Include="ViewModels\Flyouts\FollowItemFlyoutViewModel.cs" />
@@ -235,7 +238,6 @@
     <Compile Include="Models\Niconico\Live\NiwavidedNicoLiveCommentClient.cs" />
     <Compile Include="Models\Niconico\Live\NiwavidedNicoTimeshiftCommentClient.cs" />
     <Compile Include="Models\Niconico\Video\Comment\CommentCommandPermissionType.cs" />
-    <Compile Include="Models\Niconico\CommentOpacityKind.cs" />
     <Compile Include="Models\Feed\FeedGroup.cs" />
     <Compile Include="Models\Feed\FeedItem.cs" />
     <Compile Include="Models\Feed\FeedItemComparer.cs" />
@@ -311,7 +313,7 @@
     <Compile Include="Services\Helpers\ShareHelper.cs" />
     <Compile Include="Models\Niconico\Video\MediaProtocolType.cs" />
     <Compile Include="Models\Helpers\AsyncLock.cs" />
-    <Compile Include="Models\Niconico\Video\NicoVideo.cs" />
+    <Compile Include="Models\Niconico\Video\NicoVideoStreamingSessionProvider.cs" />
     <Compile Include="Models\Cache\NicoVideoCacheRequest.cs" />
     <Compile Include="Models\Cache\NicoVideoCacheState.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideoCanNotDownloadReason.cs" />
@@ -504,6 +506,7 @@
     </Compile>
     <Compile Include="Views\TemplateSelector\MenuSubPageTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\NullableTemplateSelector.cs" />
+    <Compile Include="Views\TemplateSelector\PlayerSidePaneContentTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\SearchTargetContentTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\ValueDataTemplateSelector.cs" />
     <Compile Include="Views\Pages\TimeshiftPage.xaml.cs">
@@ -511,9 +514,6 @@
     </Compile>
     <Compile Include="Views\Player\_CommentRenderer\CommentRendererCompositionUI.xaml.cs">
       <DependentUpon>CommentRendererCompositionUI.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Player\_CommentRenderer\CommentRendererEx.xaml.cs">
-      <DependentUpon>CommentRendererEx.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Player\_CommentRenderer\CommentRendererHelper.cs" />
     <Compile Include="Views\Controls\ListingWithHeader.xaml.cs">
@@ -535,7 +535,6 @@
     <Compile Include="Views\Pages\NicoRepoPage.xaml.cs">
       <DependentUpon>NicoRepoPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Player\_CommentRenderer\LiveComment.cs" />
     <Compile Include="Views\Pages\_IntroductionPages\EpilogueIntroductionPage.xaml.cs">
       <DependentUpon>EpilogueIntroductionPage.xaml</DependentUpon>
     </Compile>
@@ -664,7 +663,7 @@
     <Compile Include="Views\Interaction\Behaviors\VisiblityFadeChanger.cs" />
     <Compile Include="Views\Extensions\WebView\WebViewAutoResizeToContent.cs" />
     <Compile Include="Views\Extensions\WebView\WebViewNotifyUriClicked.cs" />
-    <Compile Include="Views\Player\_CommentRenderer\Comment.cs" />
+    <Compile Include="Models\Niconico\Video\Comment\Comment.cs" />
     <Compile Include="Views\Player\_CommentRenderer\CommentUI.xaml.cs">
       <DependentUpon>CommentUI.xaml</DependentUpon>
     </Compile>
@@ -940,10 +939,6 @@
     <Page Include="Views\Player\_CommentRenderer\CommentRendererCompositionUI.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Views\Player\_CommentRenderer\CommentRendererEx.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Pages\CommunityPage.xaml">
       <SubType>Designer</SubType>
@@ -1261,6 +1256,7 @@
     </SDKReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Services\Player\" />
     <Folder Include="ViewModels\Follow\" />
     <Folder Include="ViewModels\ListItem\" />
   </ItemGroup>

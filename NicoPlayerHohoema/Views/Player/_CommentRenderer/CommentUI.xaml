@@ -10,29 +10,29 @@
     d:DesignWidth="400"
     >
 
-    <Grid Visibility="{Binding IsVisible, Converter={StaticResource BooleanToVisibility}}">
+    <Grid Visibility="{x:Bind IsVisible, Converter={StaticResource BooleanToVisibility}}">
         
         <TextBlock 
-                Text="{Binding CommentText}"
-                Foreground="{Binding BackColor, Converter={StaticResource ColorToBrush}}"
+                Text="{x:Bind CommentText}"
+                Foreground="{x:Bind BackTextColor, Converter={StaticResource ColorToBrush}}"
                 Opacity="0.75"
-                FontSize="{Binding FontSize}"
-                TextWrapping="{Binding TextWrapping}"
+                FontSize="{x:Bind CommentFontSize}"
                 FontWeight="Medium"
                 TextLineBounds="Tight"
+            x:Name="BackgroundText"
             >
             <TextBlock.RenderTransform>
-                <TranslateTransform X="{Binding TextBGOffset}" Y="{Binding TextBGOffset}" />
+                <TranslateTransform X="{x:Bind TextBGOffsetX}" Y="{x:Bind TextBGOffsetY}" />
             </TextBlock.RenderTransform>
         </TextBlock>
         
         <TextBlock 
-                Text="{Binding CommentText}"
-                Foreground="{Binding RealColor, Converter={StaticResource ColorToBrush}}"
-                FontSize="{Binding FontSize}"
-                TextWrapping="{Binding TextWrapping}"
+                Text="{x:Bind CommentText}"
+                Foreground="{x:Bind TextColor, Converter={StaticResource ColorToBrush}}"
+                FontSize="{x:Bind CommentFontSize}"
                 FontWeight="Medium"
                 TextLineBounds="Tight"
+            x:Name="ForegroundText"
             />
   
     </Grid>

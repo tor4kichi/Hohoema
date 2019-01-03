@@ -17,7 +17,8 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
     public sealed class RelatedVideosSidePaneContentViewModel : SidePaneContentViewModelBase
     {
         public RelatedVideosSidePaneContentViewModel(
-           NicoVideo video,
+           string rawVideoId,
+           NicoVideoStreamingSessionProvider nicoVideo,
            string jumpVideoId,
            NicoVideoProvider nicoVideoProvider,
            ChannelProvider channelProvider,
@@ -26,15 +27,15 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
            PageManager pageManager
            )
         {
-            Video = video;
+            Video = nicoVideo;
             _JumpVideoId = jumpVideoId;
             NicoVideoProvider = nicoVideoProvider;
             ChannelProvider = channelProvider;
             MylistProvider = mylistProvider;
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
-            CurrentVideoId = video.RawVideoId;
-            _VideoViewerHelpInfo = video.GetVideoRelatedInfomationWithVideoDescription(); ;
+            CurrentVideoId = rawVideoId;
+            _VideoViewerHelpInfo = NicoVideoStreamingSessionProvider.GetVideoRelatedInfomationWithVideoDescription(rawVideoId);
 
             HasVideoDescription = _VideoViewerHelpInfo != null;
 
@@ -49,7 +50,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
         Models.VideoRelatedInfomation _VideoViewerHelpInfo;
 
-        public NicoVideo Video { get; }
+        public NicoVideoStreamingSessionProvider Video { get; }
 
         private string _JumpVideoId { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
@@ -220,7 +221,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
                 RaisePropertyChanged(nameof(Mylists));
 
-                var videos = await Video.GetRelatedVideos();
+                var videos = await Video.GetRelatedVideos(CurrentVideoId);
                 Videos = videos.Select(x =>
                 {
                     var vm = new VideoInfoControlViewModel(x);

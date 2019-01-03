@@ -31,6 +31,7 @@ using Unity;
 using Mntone.Nico2.Live;
 using NicoPlayerHohoema.Interfaces;
 using Unity.Resolution;
+using NicoPlayerHohoema.Models.Niconico;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -97,7 +98,7 @@ namespace NicoPlayerHohoema.ViewModels
             ExternalAccessService = externalAccessService;
             MediaPlayer = PlayerViewManager.GetCurrentWindowMediaPlayer();
 
-            LiveComments = new ReadOnlyObservableCollection<Views.Comment>(_LiveComments);
+            LiveComments = new ReadOnlyObservableCollection<Comment>(_LiveComments);
             FilterdComments.Source = LiveComments;
 
             // play
@@ -145,11 +146,10 @@ namespace NicoPlayerHohoema.ViewModels
             CommentDefaultColor = new ReactiveProperty<Color>(PlayerWindowUIDispatcherScheduler, Colors.White).AddTo(_CompositeDisposable);
 
             CommentOpacity = PlayerSettings.ObserveProperty(x => x.CommentOpacity)
-                .Select(x => x.ToOpacity())
                 .ToReadOnlyReactiveProperty(eventScheduler: PlayerWindowUIDispatcherScheduler);
 
-            FilterdComments.SortDescriptions.Add(new Microsoft.Toolkit.Uwp.UI.SortDescription(nameof(Views.Comment.VideoPosition), Microsoft.Toolkit.Uwp.UI.SortDirection.Ascending));
-            FilterdComments.Filter = (x) => !(NGSettings.IsLiveNGComment((x as Views.Comment)?.UserId));
+            FilterdComments.SortDescriptions.Add(new Microsoft.Toolkit.Uwp.UI.SortDescription(nameof(Comment.VideoPosition), Microsoft.Toolkit.Uwp.UI.SortDirection.Ascending));
+            FilterdComments.Filter = (x) => !(NGSettings.IsLiveNGComment((x as Comment)?.UserId));
             NGSettings.NGLiveCommentUserIds.CollectionChangedAsObservable()
                 .Subscribe(x =>
                 {
@@ -561,8 +561,8 @@ namespace NicoPlayerHohoema.ViewModels
 		public NicoLiveVideo NicoLiveVideo { get; private set; }
 
 
-        private ObservableCollection<Views.Comment> _LiveComments { get; } = new ObservableCollection<Views.Comment>();
-        public ReadOnlyObservableCollection<Views.Comment> LiveComments { get; private set; } 
+        private ObservableCollection<Comment> _LiveComments { get; } = new ObservableCollection<Comment>();
+        public ReadOnlyObservableCollection<Comment> LiveComments { get; private set; } 
 
         public ObservableCollection<LiveOperationCommand> LiveOperationCommands { get; private set; } = new ObservableCollection<LiveOperationCommand>();
         public ReactiveProperty<LiveOperationCommand> BroadcasterLiveOperationCommand { get; }
@@ -935,12 +935,9 @@ namespace NicoPlayerHohoema.ViewModels
                 NicoLiveVideo.LiveComments.ObserveAddChanged()
                     .Subscribe(x =>
 				{
-					var comment = new Views.LiveComment(NGSettings);
+					var comment = new Comment();
 
                     comment.VideoPosition = x.Vpos;
-
-                    // EndPositionはコメントレンダラが再計算するが、仮置きしないと表示対象として処理されない
-                    comment.EndPosition = comment.VideoPosition + 500;
 
                     comment.CommentText = x.Content;
 					comment.CommentId = (uint)x.No;
@@ -957,7 +954,7 @@ namespace NicoPlayerHohoema.ViewModels
                     else
                     {
                         UserIdToComments.AddOrUpdate(comment.UserId
-                            , (key) => new List<Views.LiveComment>() { comment }
+                            , (key) => new List<Comment>() { comment }
                             , (key, list) =>
                             {
                                 list.Add(comment);
@@ -972,14 +969,9 @@ namespace NicoPlayerHohoema.ViewModels
 					}
 					catch { }
                     
-                    if (!string.IsNullOrEmpty(x.Mail))
-                    {
-                        comment.ApplyCommands(x.Mail.Split(' '));
-                    }
-
                     CurrentWindowContextScheduler.Schedule(() => 
                     {
-                        _LiveComments.Add(comment as Views.Comment);
+                        _LiveComments.Add(comment);
                     });
 				}
                 )
@@ -1677,7 +1669,7 @@ namespace NicoPlayerHohoema.ViewModels
         #region CommentUserId Resolve
 
         private ConcurrentStack<string> UnresolvedUserId = new ConcurrentStack<string>();
-        private ConcurrentDictionary<string, List<Views.LiveComment>> UserIdToComments = new ConcurrentDictionary<string, List<Views.LiveComment>>();
+        private ConcurrentDictionary<string, List<Comment>> UserIdToComments = new ConcurrentDictionary<string, List<Comment>>();
 
         private bool TryResolveUserId(string userId, out Database.NicoVideoOwner userInfo)
         {

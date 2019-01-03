@@ -13,10 +13,59 @@
     xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:myconverter="using:NicoPlayerHohoema.Views.Converters"
     xmlns:uwpconverter="using:Microsoft.Toolkit.Uwp.UI.Converters"
+    xmlns:templateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
+    xmlns:models="using:NicoPlayerHohoema.Models"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
+    <UserControl.Resources>
+        <templateSelector:ValueDataTemplateSelector x:Key="NGCommentScoreTypeTemplateSelector">
+            <templateSelector:ValueDataTemplate Value="{x:Bind models:NGCommentScore.None}">
+                <DataTemplate>
+                    <TextBlock Text="なし" />
+                </DataTemplate>
+            </templateSelector:ValueDataTemplate>
+
+            <templateSelector:ValueDataTemplate Value="{x:Bind models:NGCommentScore.Low}">
+                <DataTemplate>
+                    <TextBlock Text="弱" />
+                </DataTemplate>
+            </templateSelector:ValueDataTemplate>
+
+            <templateSelector:ValueDataTemplate Value="{x:Bind models:NGCommentScore.Middle}">
+                <DataTemplate>
+                    <TextBlock Text="中" />
+                </DataTemplate>
+            </templateSelector:ValueDataTemplate>
+
+            <templateSelector:ValueDataTemplate Value="{x:Bind models:NGCommentScore.High}">
+                <DataTemplate>
+                    <TextBlock Text="強" />
+                </DataTemplate>
+            </templateSelector:ValueDataTemplate>
+
+            <templateSelector:ValueDataTemplate Value="{x:Bind models:NGCommentScore.VeryHigh}">
+                <DataTemplate>
+                    <TextBlock Text="さらに強" />
+                </DataTemplate>
+            </templateSelector:ValueDataTemplate>
+
+            <templateSelector:ValueDataTemplate Value="{x:Bind models:NGCommentScore.SuperVeryHigh}">
+                <DataTemplate>
+                    <TextBlock Text="極めて強" />
+                </DataTemplate>
+            </templateSelector:ValueDataTemplate>
+
+            <templateSelector:ValueDataTemplate Value="{x:Bind models:NGCommentScore.UltraSuperVeryHigh}">
+                <DataTemplate>
+                    <TextBlock Text="最大" />
+                </DataTemplate>
+            </templateSelector:ValueDataTemplate>
+
+        </templateSelector:ValueDataTemplateSelector>
+
+    </UserControl.Resources>
 
     <ScrollViewer>
 
@@ -262,17 +311,20 @@
                            VerticalAlignment="Center"
                            />
 
-                    <ComboBox ItemsSource="{Binding CommentOpacityList}"
-                          SelectedItem="{Binding CommentOpacity.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    <Slider Value="{Binding CommentOpacity.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               Margin="0 4"
-                              Width="200"
+                              Width="280"
+                            Maximum="1.0"
+                            Minimum="0.0"
+                            TickFrequency="0.01"
+                            StepFrequency="0.01"
+                            SmallChange="0.05"
+                            LargeChange="0.2"
+                            Header="{Binding CommentOpacity.Value}"
+                            HorizontalAlignment="Left"
+                            HorizontalContentAlignment="Left"
                           >
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
+                    </Slider>
 
 
                 </StackPanel>

@@ -1,4 +1,5 @@
 ﻿using NicoPlayerHohoema.Services;
+using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -73,6 +74,8 @@ namespace NicoPlayerHohoema.Models
         }
 
 
+        #region Sound
+
         private bool _IsMute;
 
 		[DataMember]
@@ -82,14 +85,20 @@ namespace NicoPlayerHohoema.Models
 			set { SetProperty(ref _IsMute, value); }
 		}
 
-		private double _SoundVolume;
+
+        private double _SoundVolume;
 
 		[DataMember]
 		public double SoundVolume
 		{
 			get { return _SoundVolume; }
-			set { SetProperty(ref _SoundVolume, value); }
+			set { SetProperty(ref _SoundVolume, Math.Min(1.0, Math.Max(0.0, value))); }
 		}
+
+
+
+
+
 
 		private double _ScrollVolumeFrequency;
 
@@ -97,11 +106,59 @@ namespace NicoPlayerHohoema.Models
 		public double SoundVolumeChangeFrequency
 		{
 			get { return _ScrollVolumeFrequency; }
-			set { SetProperty(ref _ScrollVolumeFrequency, value); }
+			set { SetProperty(ref _ScrollVolumeFrequency, Math.Max(0.001f, value)); }
 		}
 
 
-		private PlayerDisplayMode _DisplayMode;
+
+        
+
+        private DelegateCommand _ToggleMuteCommand;
+        public DelegateCommand ToggleMuteCommand
+        {
+            get
+            {
+                return _ToggleMuteCommand
+                    ?? (_ToggleMuteCommand = new DelegateCommand(() =>
+                    {
+                        IsMute = !IsMute;
+                    }));
+            }
+        }
+
+
+        private DelegateCommand _VolumeUpCommand;
+        public DelegateCommand VolumeUpCommand
+        {
+            get
+            {
+                return _VolumeUpCommand
+                    ?? (_VolumeUpCommand = new DelegateCommand(() =>
+                    {
+                        SoundVolume = SoundVolume + SoundVolumeChangeFrequency;
+                    }));
+            }
+        }
+
+        private DelegateCommand _VolumeDownCommand;
+        public DelegateCommand VolumeDownCommand
+        {
+            get
+            {
+                return _VolumeDownCommand
+                    ?? (_VolumeDownCommand = new DelegateCommand(() =>
+                    {
+                        SoundVolume = SoundVolume - SoundVolumeChangeFrequency;
+                    }));
+            }
+        }
+
+
+
+
+        #endregion
+
+        private PlayerDisplayMode _DisplayMode;
 
 		[DataMember]
 		public PlayerDisplayMode DisplayMode
@@ -115,7 +172,7 @@ namespace NicoPlayerHohoema.Models
 		private bool _IsCommentDisplay_Video = true;
 
 		[DataMember]
-		public bool CommentDisplay_Video
+		public bool IsCommentDisplay_Video
         {
 			get { return _IsCommentDisplay_Video; }
 			set { SetProperty(ref _IsCommentDisplay_Video, value); }
@@ -187,13 +244,16 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-        private CommentOpacityKind _CommentOpacityKind = CommentOpacityKind.NoSukesuke;
+        private double _CommentOpacity = 1.0;
 
         [DataMember]
-        public CommentOpacityKind CommentOpacity
+        public double CommentOpacity
         {
-            get { return _CommentOpacityKind; }
-            set { SetProperty(ref _CommentOpacityKind, value); }
+            get { return _CommentOpacity; }
+            set
+            {
+                SetProperty(ref _CommentOpacity, Math.Min(1.0, Math.Max(0.0, value)));
+            }
         }
 
 
@@ -306,7 +366,18 @@ namespace NicoPlayerHohoema.Models
         }
 
 
-
+        private DelegateCommand<double?> _SetPlaybackRateCommand;
+        public DelegateCommand<double?> SetPlaybackRateCommand
+        {
+            get
+            {
+                return _SetPlaybackRateCommand
+                    ?? (_SetPlaybackRateCommand = new DelegateCommand<double?>(
+                        (rate) => PlaybackRate = rate.HasValue ? rate.Value : 1.0
+                        , (rate) => rate.HasValue ? rate.Value != PlaybackRate : true)
+                        );
+            }
+        }
 
         public bool _NicoScript_DisallowSeek_Enabled = true;
 
