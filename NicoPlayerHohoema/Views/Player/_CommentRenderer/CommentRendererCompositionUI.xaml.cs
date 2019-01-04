@@ -115,7 +115,7 @@ namespace NicoPlayerHohoema.Views
 
         private void CommentRendererCompositionUI_Loaded(object sender, RoutedEventArgs e)
         {
-            ResetUpdateTimer();
+            _ = ResetUpdateTimer();
 
             Application.Current.EnteredBackground += Current_EnteredBackground;
             Application.Current.LeavingBackground += Current_LeavingBackground;
@@ -150,14 +150,19 @@ namespace NicoPlayerHohoema.Views
         }
 
 
-        private void Current_LeavingBackground(object sender, Windows.ApplicationModel.LeavingBackgroundEventArgs e)
+        private async void Current_LeavingBackground(object sender, Windows.ApplicationModel.LeavingBackgroundEventArgs e)
         {
-            ResetUpdateTimer();
+            var defferal = e.GetDeferral();
+            await ResetUpdateTimer();
+            defferal.Complete();
+
         }
 
-        private void Current_EnteredBackground(object sender, Windows.ApplicationModel.EnteredBackgroundEventArgs e)
+        private async void Current_EnteredBackground(object sender, Windows.ApplicationModel.EnteredBackgroundEventArgs e)
         {
-            StopUpdateTimer();
+            var defferal = e.GetDeferral();
+            await StopUpdateTimer();
+            defferal.Complete();
         }
 
         private void CommentRendererCompositionUI_Unloaded(object sender, RoutedEventArgs e)
@@ -167,7 +172,7 @@ namespace NicoPlayerHohoema.Views
             Application.Current.EnteredBackground -= Current_EnteredBackground;
             Application.Current.LeavingBackground -= Current_LeavingBackground;
 
-            StopUpdateTimer();
+            _ = StopUpdateTimer();
 
             foreach (var renderComment in RenderComments)
             {
@@ -883,7 +888,7 @@ namespace NicoPlayerHohoema.Views
         AsyncLock _TimerGenerateLock = new AsyncLock();
         Timer _UpdateTimer;
 
-        private async void ResetUpdateTimer()
+        private async Task ResetUpdateTimer()
         {
             using (var releaser = await _TimerGenerateLock.LockAsync())
             {
@@ -1035,7 +1040,7 @@ namespace NicoPlayerHohoema.Views
         }
 
 
-        private async void StopUpdateTimer()
+        private async Task StopUpdateTimer()
         {
             using (var releaser = await _TimerGenerateLock.LockAsync())
             {

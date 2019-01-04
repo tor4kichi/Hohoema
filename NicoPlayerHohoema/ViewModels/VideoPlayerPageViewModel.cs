@@ -141,34 +141,9 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(_CompositeDisposable);
             CurrentState = new ReactiveProperty<MediaPlaybackState>(CurrentWindowContextScheduler)
                 .AddTo(_CompositeDisposable);
-            LegacyCurrentState = CurrentState.Select(x =>
-            {
-                switch (x)
-                {
-                    case MediaPlaybackState.None:
-                        return MediaElementState.Closed;
-                    case MediaPlaybackState.Opening:
-                        return MediaElementState.Opening;
-                    case MediaPlaybackState.Buffering:
-                        return MediaElementState.Buffering;
-                    case MediaPlaybackState.Playing:
-                        return MediaElementState.Playing;
-                    case MediaPlaybackState.Paused:
-                        if (NicoVideo != null
-                        && MediaPlayer.Source != null
-                        && MediaPlayer.PlaybackSession.Position >= (_VideoInfo.Length - TimeSpan.FromSeconds(1)))
-                        {
-                            return MediaElementState.Stopped;
-                        }
-                        else
-                        {
-                            return MediaElementState.Paused;
-                        }
-                    default:
-                        throw new Exception();
-                }
-            })
-            .ToReactiveProperty();
+            NowBuffering = CurrentState.Select(x => x == MediaPlaybackState.Buffering || x == MediaPlaybackState.Opening)
+                .ToReadOnlyReactiveProperty(eventScheduler: CurrentWindowContextScheduler)
+                .AddTo(_CompositeDisposable);
 
 
             IsSeekDisabledFromNicoScript = new ReactiveProperty<bool>(false);
@@ -396,7 +371,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                             this._PreviosPlayingVideoPosition = TimeSpan.FromSeconds(PreviousVideoPosition);
 
-                            await this.PlayingQualityChangeAction();
+                            //await this.PlayingQualityChangeAction();
                         }
                     }
 
@@ -664,48 +639,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 		private double PreviousVideoPosition;
 
-		private CompositeDisposable _BufferingMonitorDisposable;
-
-
-		private void InitializeBufferingMonitor()
-		{
-			_BufferingMonitorDisposable?.Dispose();
-			_BufferingMonitorDisposable = new CompositeDisposable();
-
-			NowBuffering = 
-				Observable.Merge(
-                    CurrentState.ToUnit()
-                    )
-					.Select(x =>
-					{
-						if (CurrentState.Value == MediaPlaybackState.Paused
-                        || CurrentState.Value == MediaPlaybackState.None)
-						{
-							return false;
-						}
-
-						if (CurrentState.Value == MediaPlaybackState.Buffering 
-						|| CurrentState.Value == MediaPlaybackState.Opening)
-						{
-							return true;
-						}
-
-                        return false;
-					}
-				)
-				.ObserveOnUIDispatcher()
-				.ToReactiveProperty(CurrentWindowContextScheduler)
-				.AddTo(_BufferingMonitorDisposable);
-
-			RaisePropertyChanged(nameof(NowBuffering));
-#if DEBUG
-			NowBuffering
-				.Subscribe(x => Debug.WriteLine(x ? "Buffering..." : "Playing..."))
-				.AddTo(_BufferingMonitorDisposable);
-#endif
-			
-		}
-
 
 		private void UpdadeProgress(float videoSize, float progressSize)
 		{
@@ -884,8 +817,10 @@ namespace NicoPlayerHohoema.ViewModels
                     }
                 }
 
-
-                IsDisplayControlUI.Value = false;
+                if (MediaPlayer.AutoPlay)
+                {
+                    IsDisplayControlUI.Value = false;
+                }
             }
         }
 
@@ -946,6 +881,7 @@ namespace NicoPlayerHohoema.ViewModels
             MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
             MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
 
+            MediaPlayer.AutoPlay = true;
             await this.PlayingQualityChangeAction(PlayerSettings.DefaultQuality);
 
             
@@ -1013,10 +949,6 @@ namespace NicoPlayerHohoema.ViewModels
 
                 cancelToken.ThrowIfCancellationRequested();
 
-                // バッファリング状態のモニターが使うタイマーだけはページ稼働中のみ動くようにする
-                InitializeBufferingMonitor();
-
-
                 // キャッシュ可能か
                 var isAcceptedCache = CacheSettings?.IsUserAcceptedCache ?? false;
                 var isEnabledCache = (CacheSettings?.IsEnableCache ?? false) || IsSaveRequestedCurrentQualityCache.Value;
@@ -1054,9 +986,6 @@ namespace NicoPlayerHohoema.ViewModels
                     .AddTo(_NavigatingCompositeDisposable);
 
                 cancelToken.ThrowIfCancellationRequested();
-
-                App.Current.LeavingBackground += Current_LeavingBackground;
-                App.Current.EnteredBackground += Current_EnteredBackground;
             }
 
 
@@ -1072,6 +1001,7 @@ namespace NicoPlayerHohoema.ViewModels
             
             Debug.WriteLine("VideoPlayer OnNavigatedToAsync done.");
 
+            App.Current.Resuming += Current_Resuming; ;
             App.Current.Suspending += Current_Suspending;
 
             UpdateCache();
@@ -1080,7 +1010,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             RaisePropertyChanged(nameof(VideoOwnerId));
         }
-
 
         private async Task CheckDeleted(Database.NicoVideo videoInfo)
         {
@@ -1180,9 +1109,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             ExitKeepDisplay();
 
-            _BufferingMonitorDisposable?.Dispose();
-            _BufferingMonitorDisposable = new CompositeDisposable();
-
             // サイドペインの片付け
             // 関連動画を選択した場合に表示エラーが起きないように回避
             if (CurrentSidePaneContentType.Value != PlayerSidePaneContentType.RelatedVideos)
@@ -1216,30 +1142,12 @@ namespace NicoPlayerHohoema.ViewModels
 
             base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
 
-            App.Current.LeavingBackground -= Current_LeavingBackground;
-            App.Current.EnteredBackground -= Current_EnteredBackground;
-
             Debug.WriteLine("VideoPlayer OnNavigatingFromAsync done.");
         }
 
-
-        private void Current_EnteredBackground(object sender, Windows.ApplicationModel.EnteredBackgroundEventArgs e)
+        private async void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
         {
-        }
-
-        private void Current_LeavingBackground(object sender, Windows.ApplicationModel.LeavingBackgroundEventArgs e)
-        {
-            CurrentWindowContextScheduler.Schedule(() =>
-            {
-                if (IsDisposed) { return; }
-                RequestUpdateInterval.ForceNotify();
-            });
-
-            InitializeBufferingMonitor();
-        }
-
-        private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
-        {
+            var defferal = e.SuspendingOperation.GetDeferral();
             //            PreviousVideoPosition = ReadVideoPosition.Value.TotalSeconds;
 
             _PreviosPlayingVideoPosition = TimeSpan.FromSeconds(SliderVideoPosition.Value);
@@ -1249,14 +1157,16 @@ namespace NicoPlayerHohoema.ViewModels
 
             IsFullScreen.Value = false;
 
-            ExitKeepDisplay();
-
             MediaPlayer.Pause();
-            MediaPlayer.Source = null;
 
+            _CurrentPlayingVideoSession?.Dispose();
+            _CurrentPlayingVideoSession = null;
+            
+            defferal.Complete();
+        }
 
-            _BufferingMonitorDisposable?.Dispose();
-            _BufferingMonitorDisposable = new CompositeDisposable();
+        private void Current_Resuming(object sender, object e)
+        {
         }
 
         TimeSpan _PrevPlaybackPosition;
@@ -1522,8 +1432,6 @@ namespace NicoPlayerHohoema.ViewModels
         protected override void OnDispose()
 		{
             _CurrentPlayingVideoSession?.Dispose();
-
-            _BufferingMonitorDisposable?.Dispose();
 
             var sidePaneContents = _SidePaneContentCache.Values.ToArray();
             _SidePaneContentCache.Clear();
@@ -2024,7 +1932,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                                 _PreviosPlayingVideoPosition = ReadVideoPosition.Value;
 
-                                await PlayingQualityChangeAction();
+                                await PlayingQualityChangeAction(RequestVideoQuality.Value);
                             }
                         }
                     }
@@ -2527,8 +2435,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<double> SliderVideoPosition { get; private set; }
 		public ReactiveProperty<double> VideoLength { get; private set; }
 		public ReactiveProperty<MediaPlaybackState> CurrentState { get; private set; }
-        public ReactiveProperty<MediaElementState> LegacyCurrentState { get; private set; }
-        public ReactiveProperty<bool> NowBuffering { get; private set; }
+        public IReadOnlyReactiveProperty<bool> NowBuffering { get; private set; }
 		public ReactiveProperty<bool> NowPlaying { get; private set; }
 		public ReactiveProperty<bool> NowQualityChanging { get; private set; }
 		public ReactiveProperty<bool> IsEnableRepeat { get; private set; }
@@ -2753,7 +2660,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             RequestVideoQuality.Value = e;
 
-            await PlayingQualityChangeAction();
+            await PlayingQualityChangeAction(e);
         }
 
         public static EmptySidePaneContentViewModel EmptySidePaneContent { get; } = EmptySidePaneContentViewModel.Default;

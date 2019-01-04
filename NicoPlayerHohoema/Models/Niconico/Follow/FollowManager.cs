@@ -123,7 +123,7 @@ namespace NicoPlayerHohoema.Models
         private async void NiconicoSession_LogIn(object sender, NiconicoSessionLoginEventArgs e)
         {
             IsLoginUserFollowsReady = false;
-            using (var cancelTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+            using (var cancelTokenSource = new CancellationTokenSource())
             {
                 await SyncAll(cancelTokenSource.Token);
 
@@ -135,7 +135,7 @@ namespace NicoPlayerHohoema.Models
         {
             IsLoginUserFollowsReady = false;
 
-            using (var cancelTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+            using (var cancelTokenSource = new CancellationTokenSource())
             {
                 await SyncAll(cancelTokenSource.Token);
             }
