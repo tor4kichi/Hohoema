@@ -169,8 +169,8 @@
                                 <Setter Target="FloatPlayerLayout.Visibility" Value="Visible" />
 
 
-                                <Setter Target="PlayerLayout.Width" Value="240" />
-                                <Setter Target="PlayerLayout.Height" Value="156" />
+                                <Setter Target="PlayerLayout.Width" Value="256" />
+                                <Setter Target="PlayerLayout.Height" Value="144" />
                                 <Setter Target="PlayerLayout.Margin" Value="0 0 8 8" />
                                 <Setter Target="PlayerLayout.VerticalAlignment" Value="Bottom" />
                                 <Setter Target="PlayerLayout.HorizontalAlignment" Value="Right" />
