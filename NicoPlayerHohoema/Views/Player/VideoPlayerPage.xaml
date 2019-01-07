@@ -34,6 +34,12 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
+    <i:Interaction.Behaviors>
+        <core:EventTriggerBehavior EventName="Unloaded">
+            <core:CallMethodAction TargetObject="{Binding}" MethodName="Dispose" />
+        </core:EventTriggerBehavior>
+    </i:Interaction.Behaviors>
+
     <UserControl.Resources>
 
         <MenuFlyout x:Key="VideoOptionsFlyout">

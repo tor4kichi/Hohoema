@@ -80,7 +80,6 @@ namespace NicoPlayerHohoema
 
         }
 
-
         private async Task RegisterTypes()
         {
             Container.RegisterType<IScheduler>(new InjectionFactory(c => SynchronizationContext.Current != null ? new SynchronizationContextScheduler(SynchronizationContext.Current) : null));
@@ -146,12 +145,6 @@ namespace NicoPlayerHohoema
         }
 
         public bool IsTitleBarCustomized { get; } = Services.Helpers.DeviceTypeHelper.IsDesktop && Services.Helpers.InputCapabilityHelper.IsMouseCapable;
-
-        protected override async Task OnSuspendingApplicationAsync()
-        {
-            // Note: 1809バージョンのサスペンド時にアプリがハングアップ、クラッシュする問題に対応する
-            await Task.Delay(2000);
-        }
 
         /// <summary>
         /// アプリ動作に必要な機能を初期化する
@@ -399,6 +392,8 @@ namespace NicoPlayerHohoema
 
         protected override async Task OnActivateApplicationAsync(IActivatedEventArgs args)
 		{
+            await HohoemaInitializeAsync(args);
+
             var niconicoSession = Container.Resolve<NiconicoSession>();
 
             // 外部から起動した場合にサインイン動作と排他的動作にさせたい
@@ -675,12 +670,11 @@ namespace NicoPlayerHohoema
             playerWithPageContainer.ObserveDependencyProperty(Views.PlayerWithPageContainer.FrameProperty)
                 .Where(x => x != null)
                 .Take(1)
-                .Subscribe(frame =>
+                .Subscribe(async frame =>
                 {
                     var frameFacade = new FrameFacadeAdapter(playerWithPageContainer.Frame, EventAggregator);
                     
                     var sessionStateService = new SessionStateService();
-                    sessionStateService.RegisterFrame(frameFacade, "primary_view_player");
                     var ns = new FrameNavigationService(frameFacade
                         , (pageToken) =>
                         {
@@ -697,7 +691,9 @@ namespace NicoPlayerHohoema
                                 return typeof(Views.BlankPage);
                             }
                         }, sessionStateService);
-                    
+
+                    await sessionStateService.SaveAsync();
+
                     var name = nameof(PlayerViewManager.PrimaryViewPlayerNavigationService);
                     Container.RegisterInstance(name, ns as INavigationService);
                 });

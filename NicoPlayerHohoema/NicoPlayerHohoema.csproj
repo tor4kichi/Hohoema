@@ -344,7 +344,6 @@
     <Compile Include="Models\Helpers\NicoVideoIdHelper.cs" />
     <Compile Include="Services\Helpers\SortMethodHelper.cs" />
     <Compile Include="Models\Helpers\StorageFolderExtention.cs" />
-    <Compile Include="Models\Helpers\TaskExtention.cs" />
     <Compile Include="Models\Subscription\Subscription.cs" />
     <Compile Include="Models\Subscription\SubscriptionDestination.cs" />
     <Compile Include="Models\Subscription\SubscriptionDestinationTarget.cs" />

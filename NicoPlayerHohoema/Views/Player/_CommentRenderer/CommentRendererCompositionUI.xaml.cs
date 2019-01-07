@@ -1012,7 +1012,7 @@ namespace NicoPlayerHohoema.Views
                             }
                         }
 
-                        StopUpdateTimer();
+                        _ = StopUpdateTimer();
                     }
                     else
                     {
@@ -1033,7 +1033,7 @@ namespace NicoPlayerHohoema.Views
                             
                         }
 
-                        ResetUpdateTimer();
+                        _ = ResetUpdateTimer();
                     }
                 });
             }

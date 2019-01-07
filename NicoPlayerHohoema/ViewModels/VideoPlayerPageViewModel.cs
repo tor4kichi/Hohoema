@@ -146,8 +146,8 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(_CompositeDisposable);
 
 
-            IsSeekDisabledFromNicoScript = new ReactiveProperty<bool>(false);
-            IsCommentDisabledFromNicoScript = new ReactiveProperty<bool>(false);
+            IsSeekDisabledFromNicoScript = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
+            IsCommentDisabledFromNicoScript = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
 
             IsPlayWithCache = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false)
                 .AddTo(_CompositeDisposable);
@@ -287,7 +287,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             IsSaveRequestedCurrentQualityCache
                 .Where(x => !IsDisposed)
-                .SubscribeOnUIDispatcher()
                 .Subscribe(async saveRequested =>
                 {
                     if (saveRequested)
@@ -351,7 +350,6 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(_CompositeDisposable);
 
             CurrentState
-                .SubscribeOnUIDispatcher()
                 .Subscribe(async x =>
                 {
                     if (x == MediaPlaybackState.Opening)
@@ -592,7 +590,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-            IsForceLandscape = PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsForceLandscape);
+            IsForceLandscape = PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsForceLandscape, CurrentWindowContextScheduler);
             RaisePropertyChanged(nameof(IsForceLandscape));
 
         }
@@ -1001,8 +999,10 @@ namespace NicoPlayerHohoema.ViewModels
             
             Debug.WriteLine("VideoPlayer OnNavigatedToAsync done.");
 
-            App.Current.Resuming += Current_Resuming; ;
+            App.Current.Resuming += Current_Resuming;
             App.Current.Suspending += Current_Suspending;
+
+
 
             UpdateCache();
 
@@ -1133,6 +1133,9 @@ namespace NicoPlayerHohoema.ViewModels
                 (_SidePaneContentCache[PlayerSidePaneContentType.Setting] as SettingsSidePaneContentViewModel).VideoQualityChanged -= VideoPlayerPageViewModel_VideoQualityChanged;   
             }
 
+            App.Current.Resuming -= Current_Resuming;
+            App.Current.Suspending -= Current_Suspending;
+
             var sidePaneContents = _SidePaneContentCache.Values.ToArray();
             _SidePaneContentCache.Clear();
             foreach (var sidePaneContent in sidePaneContents)
@@ -1157,11 +1160,19 @@ namespace NicoPlayerHohoema.ViewModels
 
             IsFullScreen.Value = false;
 
-            MediaPlayer.Pause();
-
             _CurrentPlayingVideoSession?.Dispose();
             _CurrentPlayingVideoSession = null;
-            
+
+            if (MediaPlayer.Source != null)
+            {
+                MediaPlayer.Pause();
+                // サスペンド時にメモリ使用可能量が変更された場合に対応する
+                MediaPlayer.Source = null;
+            }
+
+
+            await Task.Delay(2000);
+
             defferal.Complete();
         }
 
@@ -2400,7 +2411,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<string> ThumbnailUri { get; private set; }
 
 
-        
+
 
         // Note: 新しいReactivePropertyを追加したときの注意点
         // ReactivePorpertyの初期化にPlayerWindowUIDispatcherSchedulerを使うこと
