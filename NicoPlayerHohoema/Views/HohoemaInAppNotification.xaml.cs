@@ -1,18 +1,6 @@
 ﻿using Prism.Events;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
-using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
-using Windows.UI.Xaml.Navigation;
 using Unity;
 using System.Collections.Concurrent;
 
@@ -43,6 +31,9 @@ namespace NicoPlayerHohoema.Views
 
         }
 
+
+        static readonly TimeSpan DefaultShowDuration = TimeSpan.FromSeconds(7);
+
         private Services.InAppNotificationPayload _CurrentNotication;
 
         private ConcurrentQueue<Services.InAppNotificationPayload> NoticationRequestQueue = new ConcurrentQueue<Services.InAppNotificationPayload>();
@@ -69,7 +60,7 @@ namespace NicoPlayerHohoema.Views
                 _CurrentNotication = payload;
                 LiteNotification.DataContext = payload;
                 LiteNotification.ShowDismissButton = payload.IsShowDismissButton;
-                LiteNotification.Show((int)(payload.ShowDuration?.TotalMilliseconds ?? 0));
+                LiteNotification.Show((int)(payload.ShowDuration ?? DefaultShowDuration).TotalMilliseconds);
             }
         }
 
