@@ -692,8 +692,6 @@ namespace NicoPlayerHohoema
                             }
                         }, sessionStateService);
 
-                    await sessionStateService.SaveAsync();
-
                     var name = nameof(PlayerViewManager.PrimaryViewPlayerNavigationService);
                     Container.RegisterInstance(name, ns as INavigationService);
                 });

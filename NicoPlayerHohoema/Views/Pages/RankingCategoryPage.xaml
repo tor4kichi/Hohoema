@@ -172,6 +172,50 @@
                                                 >
                                 </AppBarButton>
 
+                                <AppBarButton Label="{Binding SelectedRankingTarget.Value, Mode=OneWay, Converter={StaticResource ToLocalText}}" 
+                                                    IsEnabled="{Binding CanChangeSort.Value}"
+                                                    x:Name="RankingTargetButton"
+                                                    VerticalAlignment="Center"
+                                                >
+                                    <AppBarButton.Flyout>
+                                        <Flyout>
+                                            <ListView ItemsSource="{Binding RankingTargetItems}"
+                                                      SelectionMode="Single"
+                                                      SelectedItem="{Binding SelectedRankingTarget.Value, Mode=TwoWay}"
+                                                      >
+                                                <ListView.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
+                                                    </DataTemplate>
+                                                </ListView.ItemTemplate>
+                                            </ListView>
+                                        </Flyout>
+                                    </AppBarButton.Flyout>
+                                </AppBarButton>
+                                
+
+                                <AppBarButton Label="{Binding SelectedRankingTimeSpan.Value, Mode=OneWay, Converter={StaticResource ToLocalText}}" 
+                                                    IsEnabled="{Binding CanChangeSort.Value}"
+                                                    x:Name="RankingTimeSpanButton"
+                                                    VerticalAlignment="Center"
+                                                >
+                                    <AppBarButton.Flyout>
+                                        <Flyout>
+                                            <ListView ItemsSource="{Binding RankingTimeSpanItems}"
+                                                      SelectionMode="Single"
+                                                      SelectedItem="{Binding SelectedRankingTimeSpan.Value, Mode=TwoWay}"
+                                                      >
+                                                <ListView.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
+                                                    </DataTemplate>
+                                                </ListView.ItemTemplate>
+                                            </ListView>
+                                        </Flyout>
+                                    </AppBarButton.Flyout>
+                                </AppBarButton>
+
+
                             </CommandBar.PrimaryCommands>
 
                         </CommandBar>

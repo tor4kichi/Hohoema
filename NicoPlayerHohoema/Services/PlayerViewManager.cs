@@ -138,6 +138,20 @@ namespace NicoPlayerHohoema.Services
                 },
                 ThreadOption.BackgroundThread
                 );
+
+            App.Current.Suspending += Current_Suspending;
+        }
+
+        private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
+        {
+            if (IsMainView)
+            {
+                PrimaryViewPlayerNavigationService.RemoveAllPages();
+            }
+            else
+            {
+                SecondaryViewPlayerNavigationService.RemoveAllPages();
+            }
         }
 
         public bool IsMainView => MainViewId == CurrentView.Id;
