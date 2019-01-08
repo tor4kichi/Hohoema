@@ -389,17 +389,20 @@
                            VerticalAlignment="Center"
                            />
 
-                    <ComboBox ItemsSource="{Binding CommentOpacityList}"
-                          SelectedItem="{Binding CommentOpacity.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    <Slider Value="{Binding CommentOpacity.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               Margin="0 4"
-                              Width="200"
+                              Width="280"
+                            Maximum="1.0"
+                            Minimum="0.0"
+                            TickFrequency="0.01"
+                            StepFrequency="0.01"
+                            SmallChange="0.05"
+                            LargeChange="0.2"
+                            Header="{Binding CommentOpacity.Value}"
+                            HorizontalAlignment="Left"
+                            HorizontalContentAlignment="Left"
                           >
-                        <ComboBox.ItemTemplate>
-                            <DataTemplate>
-                                <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
-                            </DataTemplate>
-                        </ComboBox.ItemTemplate>
-                    </ComboBox>
+                    </Slider>
 
 
                 </StackPanel>

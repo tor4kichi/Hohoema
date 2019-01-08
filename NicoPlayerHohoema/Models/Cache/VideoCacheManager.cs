@@ -28,6 +28,7 @@ using System.Reactive.Linq;
 using Microsoft.Toolkit.Uwp.Helpers;
 using System.Reactive.Concurrency;
 using Prism.Commands;
+using NicoPlayerHohoema.Models.Niconico;
 
 namespace NicoPlayerHohoema.Models.Cache
 {
@@ -45,6 +46,13 @@ namespace NicoPlayerHohoema.Models.Cache
             var localObjectStorageHelper = new LocalObjectStorageHelper();
             localObjectStorageHelper.Save(VideoCacheRequestItemsKey, requests.ToList());
         }
+    }
+
+
+    public struct CacheSaveFolderChangedEventArgs
+    {
+        public StorageFolder OldFolder { get; set; }
+        public StorageFolder NewFolder { get; set; }
     }
 
 
@@ -95,6 +103,9 @@ namespace NicoPlayerHohoema.Models.Cache
 
         public string PrevCacheFolderAccessToken { get; private set; }
         public CacheSettings CacheSettings { get; }
+
+
+        public event EventHandler<CacheSaveFolderChangedEventArgs> SaveFolderChanged;
 
         static private async Task<StorageFolder> GetEnsureVideoFolder()
         {
@@ -184,6 +195,7 @@ namespace NicoPlayerHohoema.Models.Cache
 
         public async Task<bool> ChangeUserDataFolder()
         {
+            var oldSaveFolder = _DownloadFolder;
             try
             {
                 var folderPicker = new Windows.Storage.Pickers.FolderPicker();
@@ -218,7 +230,14 @@ namespace NicoPlayerHohoema.Models.Cache
             }
             finally
             {
+                
             }
+
+            SaveFolderChanged?.Invoke(this, new CacheSaveFolderChangedEventArgs()
+            {
+                OldFolder = oldSaveFolder,
+                NewFolder = _DownloadFolder
+            });
 
             return true;
         }
@@ -235,8 +254,8 @@ namespace NicoPlayerHohoema.Models.Cache
     /// ニコニコ動画の動画やサムネイル画像、
     /// 動画情報など動画に関わるメディアを管理します
     /// </summary>
-    public class VideoCacheManager : AsyncInitialize, IDisposable
-	{
+    public class VideoCacheManager : AsyncInitialize, IDisposable, INiconicoStreamingSessionProvider
+    {
         public VideoCacheManager(
             IScheduler scheduler,
             NiconicoSession niconicoSession,
@@ -266,6 +285,12 @@ namespace NicoPlayerHohoema.Models.Cache
                     TryNextCacheRequestedVideoDownload().ConfigureAwait(false);
                 });
 
+            CacheSaveFolder.SaveFolderChanged += CacheSaveFolder_SaveFolderChanged;
+        }
+
+        private void CacheSaveFolder_SaveFolderChanged(object sender, CacheSaveFolderChangedEventArgs e)
+        {
+            _ = OnCacheFolderChanged();
         }
 
         public IScheduler Scheduler { get; }
@@ -274,7 +299,6 @@ namespace NicoPlayerHohoema.Models.Cache
         public Provider.NicoVideoProvider NicoVideoProvider { get; }
         public CacheSaveFolder CacheSaveFolder { get; }
         public CacheSettings CacheSettings { get; }
-
 
         static readonly Regex NicoVideoIdRegex = new Regex("\\[((?:sm|so|lv)\\d+)\\]");
 
@@ -457,30 +481,23 @@ namespace NicoPlayerHohoema.Models.Cache
             RemoveProgressToast();
         }
 
-        protected override Task OnInitializeAsync(CancellationToken token)
+        protected override async Task OnInitializeAsync(CancellationToken token)
         {
             Debug.Write($"キャッシュ情報のリストアを開始");
 
-            Scheduler.ScheduleAsync(async (shceduler, cancelToken) =>
+            using (var releaser = await _CacheRequestProcessingLock.LockAsync())
             {
-                await Task.Delay(3000);
+                // ダウンロード中のアイテムをリストア
+                await RestoreBackgroundDownloadTask();
 
-                using (var releaser = await _CacheRequestProcessingLock.LockAsync())
-                {
-                    // ダウンロード中のアイテムをリストア
-                    await RestoreBackgroundDownloadTask();
+                // キャッシュ完了したアイテムをキャッシュフォルダから検索
+                await RetrieveCacheCompletedVideos();
+            }
 
-                    // キャッシュ完了したアイテムをキャッシュフォルダから検索
-                    await RetrieveCacheCompletedVideos();
-                }
+            // ダウンロード待機中のアイテムを復元
+            await RestoreCacheRequestedItems();
 
-                // ダウンロード待機中のアイテムを復元
-                await RestoreCacheRequestedItems();
-
-                State = CacheManagerState.Running;
-            });
-
-            return Task.CompletedTask;
+            State = CacheManagerState.Running;
         }
 
 
@@ -612,14 +629,8 @@ namespace NicoPlayerHohoema.Models.Cache
                 {
                     var _info = VideoCacheManager.CacheRequestInfoFromFileName(task.ResultFile);
 
-                    var nicoVideo = new NicoVideo(NicoVideoProvider, NiconicoSession, this);
-                    nicoVideo.RawVideoId = _info.RawVideoId;
-
-                    var session = await nicoVideo.CreateVideoStreamingSession(_info.Quality, forceDownload: true);
-                    if (session?.Quality == _info.Quality)
-                    {
-                        continue;
-                    }
+                    var videoSessionProvider = new NicoVideoStreamingSessionProvider();
+                    var session = (Models.IVideoStreamingDownloadSession)await videoSessionProvider.CreateStreamingSessionAsync(_info.RawVideoId, _info.Quality);
 
                     info = new NicoVideoCacheProgress(_info, task, session);
 
@@ -688,13 +699,14 @@ namespace NicoPlayerHohoema.Models.Cache
                     Debug.WriteLine($"キャッシュ準備を開始: {nextDownloadItem.RawVideoId} {nextDownloadItem.Quality}");
 
                     // 動画ダウンロードURLを取得                    
-                    var nicoVideo = new NicoVideo(NicoVideoProvider, NiconicoSession, this);
-                    nicoVideo.RawVideoId = nextDownloadItem.RawVideoId;
                     var videoInfo = await NicoVideoProvider.GetNicoVideoInfo(nextDownloadItem.RawVideoId);
 
+                    var videoSessionProvider = new NicoVideoStreamingSessionProvider();
+                    
                     // DownloadSessionを保持して、再生完了時にDisposeさせる必要がある
-                    var downloadSession = await nicoVideo.CreateVideoStreamingSession(nextDownloadItem.Quality, forceDownload: true);
+                    var downloadSession = (Models.IVideoStreamingDownloadSession)await videoSessionProvider.CreateStreamingSessionAsync(nextDownloadItem.RawVideoId, nextDownloadItem.Quality);
 
+                    
                     var uri = await downloadSession.GetDownloadUrlAndSetupDonwloadSession();
 
                     var downloader = new BackgroundDownloader()
@@ -1557,6 +1569,61 @@ namespace NicoPlayerHohoema.Models.Cache
                     CacheState = cacheState
                 });
             });
+        }
+
+
+
+        public async Task<IStreamingSession> CreateStreamingSessionAsync(string rawVideoId, NicoVideoQuality quality = NicoVideoQuality.Unknown)
+        {
+            // キャッシュ済みアイテムを問い合わせ
+            var cacheRequests = await GetCacheRequest(rawVideoId);
+
+            NicoVideoCacheRequest playCandidateRequest = null;
+            var req = cacheRequests.FirstOrDefault(x => x.Quality == quality);
+
+            if (req is NicoVideoCacheInfo || req is NicoVideoCacheProgress)
+            {
+                playCandidateRequest = req;
+            }
+
+            if (req == null)
+            {
+                var playableReq = cacheRequests.Where(x => x is NicoVideoCacheInfo || x is NicoVideoCacheProgress);
+                if (playableReq.Any())
+                {
+                    // 画質指定がない、または指定画質のキャッシュがない場合には
+                    // キャッシュが存在する画質（高画質優先）を取り出す
+                    playCandidateRequest = playableReq.OrderBy(x => x.Quality).FirstOrDefault();
+                }
+            }
+
+            if (playCandidateRequest is NicoVideoCacheInfo)
+            {
+                var playCandidateCache = playCandidateRequest as NicoVideoCacheInfo;
+                try
+                {
+                    var file = await StorageFile.GetFileFromPathAsync(playCandidateCache.FilePath);
+                    return new LocalVideoStreamingSession(file, playCandidateCache.Quality, NiconicoSession);
+                }
+                catch
+                {
+                    Debug.WriteLine("動画視聴時にキャッシュが見つかったが、キャッシュファイルを利用した再生セッションの作成に失敗。");
+                }
+            }
+            else if (playCandidateRequest is NicoVideoCacheProgress)
+            {
+                /*
+                if (Helpers.ApiContractHelper.IsFallCreatorsUpdateAvailable)
+                {
+                    var playCandidateCacheProgress = playCandidateRequest as NicoVideoCacheProgress;
+                    var op = playCandidateCacheProgress.DownloadOperation;
+                    var refStream = op.GetResultRandomAccessStreamReference();
+                    return new DownloadProgressVideoStreamingSession(refStream, playCandidateCacheProgress.Quality);
+                }
+                */
+            }
+
+            return null;
         }
     }
 

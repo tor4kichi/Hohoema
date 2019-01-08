@@ -10,7 +10,7 @@ using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.Models
 {
-    public class DmcVideoStreamingSession : VideoStreamingSession
+    public class DmcVideoStreamingSession : VideoStreamingSession, IVideoStreamingDownloadSession
     {
         // Note: 再生中のハートビート管理を含めた管理
         // MediaSourceをMediaPlayerに設定する役割
@@ -93,8 +93,8 @@ namespace NicoPlayerHohoema.Models
         DmcWatchData _DmcWatchData;
         static DmcSessionResponse _DmcSessionResponse;
 
-        public DmcVideoStreamingSession(DmcWatchData res, NicoVideoQuality requestQuality, NiconicoContext context)
-            : base(context)
+        public DmcVideoStreamingSession(DmcWatchData res, NicoVideoQuality requestQuality, NiconicoSession niconicoSession)
+            : base(niconicoSession)
         {
             RequestedQuality = requestQuality;
             _DmcWatchData = res;
@@ -148,22 +148,38 @@ namespace NicoPlayerHohoema.Models
                     {
                         clearPreviousSession = _DmcSessionResponse;
                         _DmcSessionResponse = null;
-                        DmcWatchResponse = await _Context.Video.GetDmcWatchJsonAsync(DmcWatchResponse.Video.Id, _DmcWatchData.DmcWatchEnvironment.PlaylistToken);
+                        DmcWatchResponse = await NiconicoSession.Context.Video.GetDmcWatchJsonAsync(DmcWatchResponse.Video.Id, _DmcWatchData.DmcWatchEnvironment.PlaylistToken);
                     }
                 }
 
-                _DmcSessionResponse = await _Context.Video.GetDmcSessionResponse(DmcWatchResponse, VideoContent);
+                _DmcSessionResponse = await NiconicoSession.Context.Video.GetDmcSessionResponse(DmcWatchResponse, VideoContent);
 
                 if (_DmcSessionResponse == null) { return null; }
 
                 if (clearPreviousSession != null)
                 {
-                    await _Context.Video.DmcSessionExitHeartbeatAsync(DmcWatchResponse, clearPreviousSession);
+                    await NiconicoSession.Context.Video.DmcSessionExitHeartbeatAsync(DmcWatchResponse, clearPreviousSession);
                 }
 
                 return new Uri(_DmcSessionResponse.Data.Session.ContentUri);
             }
             catch
+            {
+                return null;
+            }
+        }
+
+        public async Task<Uri> GetDownloadUrlAndSetupDonwloadSession()
+        {
+            var videoUri = await GetVideoContentUri();
+
+            if (videoUri != null)
+            {
+                OnStartStreaming();
+
+                return videoUri;
+            }
+            else
             {
                 return null;
             }
@@ -186,7 +202,7 @@ namespace NicoPlayerHohoema.Models
 
                 if (IsFirstHeartbeat)
                 {
-                    await _Context.Video.DmcSessionFirstHeartbeatAsync(DmcWatchResponse, _DmcSessionResponse);
+                    await NiconicoSession.Context.Video.DmcSessionFirstHeartbeatAsync(DmcWatchResponse, _DmcSessionResponse);
                     Debug.WriteLine($"{DmcWatchResponse.Video.Title} の初回ハートビート実行");
                     await Task.Delay(2);
                 }
@@ -194,7 +210,7 @@ namespace NicoPlayerHohoema.Models
                 {
                     try
                     {
-                        await _Context.Video.DmcSessionHeartbeatAsync(DmcWatchResponse, _DmcSessionResponse);
+                        await NiconicoSession.Context.Video.DmcSessionHeartbeatAsync(DmcWatchResponse, _DmcSessionResponse);
                         Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビート実行");
                     }
                     catch
@@ -216,11 +232,14 @@ namespace NicoPlayerHohoema.Models
                 Debug.WriteLine($"{DmcWatchResponse.Video.Title} のハートビートを終了しました");
             }
 
-            if (_DmcSessionResponse != null)
+            try
             {
-                await _Context.Video.DmcSessionLeaveAsync(DmcWatchResponse, _DmcSessionResponse);
+                if (_DmcSessionResponse != null)
+                {
+                    await NiconicoSession.Context.Video.DmcSessionLeaveAsync(DmcWatchResponse, _DmcSessionResponse);
+                }
             }
-
+            catch { }
         }
     }
 }

@@ -47,9 +47,6 @@ namespace NicoPlayerHohoema.Views.Behaviors
             base.OnAttached();
 
             this.AssociatedObject.Loaded += AssociatedObject_Loaded;
-            this.AssociatedObject.Unloaded += AssociatedObject_Unloaded;
-
-            
         }
 
         protected override void OnDetaching()
@@ -58,32 +55,13 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
             base.OnDetaching();
         }
-        private void Current_LeavingBackground(object sender, Windows.ApplicationModel.LeavingBackgroundEventArgs e)
-        {
-//            this.AssociatedObject.SetMediaPlayer(this.MediaPlayer);
-        }
-
-        private void Current_EnteredBackground(object sender, Windows.ApplicationModel.EnteredBackgroundEventArgs e)
-        {
-//           this.AssociatedObject.SetMediaPlayer(null);
-//            GC.Collect();
-        }
 
         private void AssociatedObject_Loaded(object sender, Windows.UI.Xaml.RoutedEventArgs e)
         {
-            App.Current.EnteredBackground += Current_EnteredBackground;
-            App.Current.LeavingBackground += Current_LeavingBackground;
-
             if (MediaPlayer != null)
             {
                 AssociatedObject.SetMediaPlayer(MediaPlayer);
             }
-        }
-
-        private void AssociatedObject_Unloaded(object sender, RoutedEventArgs e)
-        {
-            App.Current.EnteredBackground -= Current_EnteredBackground;
-            App.Current.LeavingBackground -= Current_LeavingBackground;
         }
     }
 }

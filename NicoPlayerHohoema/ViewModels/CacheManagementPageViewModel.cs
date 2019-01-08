@@ -170,6 +170,8 @@ namespace NicoPlayerHohoema.ViewModels
 
                 if (await CacheSaveFolder.ChangeUserDataFolder())
                 {
+                    await Task.Delay(1000);
+
                     await RefreshCacheSaveFolderStatus();
                     await ResetList();
 

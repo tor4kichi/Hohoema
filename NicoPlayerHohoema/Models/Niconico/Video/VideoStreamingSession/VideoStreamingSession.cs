@@ -19,8 +19,8 @@ namespace NicoPlayerHohoema.Models
 
 
         public abstract NicoVideoQuality Quality { get; }
+        public NiconicoSession NiconicoSession { get; }
 
-        protected NiconicoContext _Context;
         FFmpegInteropMSS _VideoMSS;
         MediaSource _MediaSource;
 
@@ -28,9 +28,9 @@ namespace NicoPlayerHohoema.Models
 
 
 
-        public VideoStreamingSession(NiconicoContext context)
+        public VideoStreamingSession(NiconicoSession niconicoSession)
         {
-            _Context = context;
+            NiconicoSession = niconicoSession;
         }
 
         public async Task StartPlayback(MediaPlayer player)
@@ -48,9 +48,9 @@ namespace NicoPlayerHohoema.Models
             {
                 // オンラインからの再生
 
-
+                
                 var tempStream = await HttpSequencialAccessStream.CreateAsync(
-                    _Context.HttpClient
+                    NiconicoSession.Context.HttpClient
                     , videoUri
                     );
                 if (tempStream is IRandomAccessStreamWithContentType)
@@ -130,21 +130,6 @@ namespace NicoPlayerHohoema.Models
         }
 
 
-        public async Task<Uri> GetDownloadUrlAndSetupDonwloadSession()
-        {
-            var videoUri = await GetVideoContentUri();
-
-            if (videoUri != null)
-            {
-                OnStartStreaming();
-
-                return videoUri;
-            }
-            else
-            {
-                return null;
-            }
-        }
 
         protected abstract Task<Uri> GetVideoContentUri();
 

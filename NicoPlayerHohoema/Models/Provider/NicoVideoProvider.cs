@@ -24,7 +24,7 @@ namespace NicoPlayerHohoema.Models.Provider
     public sealed class NicoVideoProvider : ProviderBase
     {
         public NicoVideoProvider(
-            EventAggregator eventAggregator,
+            IEventAggregator eventAggregator,
             NiconicoSession niconicoSession
             )
             : base(niconicoSession)
@@ -37,7 +37,7 @@ namespace NicoPlayerHohoema.Models.Provider
 
 
         static TimeSpan ThumbnailExpirationSpan { get; set; } = TimeSpan.FromMinutes(5);
-        public EventAggregator EventAggregator { get;  }
+        public IEventAggregator EventAggregator { get;  }
 
         AsyncLock _ThumbnailAccessLock = new AsyncLock();
 
@@ -139,10 +139,10 @@ namespace NicoPlayerHohoema.Models.Provider
                             catch { }
                         }
                     }
-                    //else
-                    //{
-                    //    info.IsDeleted = true;
-                    //}
+                    else
+                    { 
+                        info.IsDeleted = true;
+                    }
                 }
 
                 catch (Exception ex) when (ex.Message.Contains("DELETE") || ex.Message.Contains("NOT_FOUND"))

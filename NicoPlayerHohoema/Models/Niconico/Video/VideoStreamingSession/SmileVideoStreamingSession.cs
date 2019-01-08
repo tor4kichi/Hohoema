@@ -4,7 +4,7 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models
 {
-    public class SmileVideoStreamingSession : VideoStreamingSession
+    public class SmileVideoStreamingSession : VideoStreamingSession, IVideoStreamingDownloadSession
     {
         // Note: 再生中のハートビート管理を含めた管理
         // MediaSourceをMediaPlayerに設定する役割
@@ -13,8 +13,8 @@ namespace NicoPlayerHohoema.Models
 
         public Uri VideoUrl { get; }
 
-        public SmileVideoStreamingSession(Uri videoUrl, NiconicoContext context)
-            : base(context)
+        public SmileVideoStreamingSession(Uri videoUrl, NiconicoSession niconicoSession)
+            : base(niconicoSession)
         {
             VideoUrl = videoUrl;
             if (VideoUrl.OriginalString.EndsWith("low"))
@@ -32,5 +32,21 @@ namespace NicoPlayerHohoema.Models
             return Task.FromResult(VideoUrl);
         }
 
+
+        public async Task<Uri> GetDownloadUrlAndSetupDonwloadSession()
+        {
+            var videoUri = await GetVideoContentUri();
+
+            if (videoUri != null)
+            {
+                OnStartStreaming();
+
+                return videoUri;
+            }
+            else
+            {
+                return null;
+            }
+        }
     }
 }

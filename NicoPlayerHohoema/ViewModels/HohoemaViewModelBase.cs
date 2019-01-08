@@ -62,7 +62,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-        static Models.Helpers.AsyncLock _NavigationLock = new Models.Helpers.AsyncLock();
+        public readonly static Models.Helpers.AsyncLock _NavigationLock = new Models.Helpers.AsyncLock();
         CancellationTokenSource _NavigatedToTaskCancelToken;
         Task _NavigatedToTask;
 
@@ -223,7 +223,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                 _NavigatedToTaskCancelToken?.Cancel();
 
-                await _NavigatedToTask.WaitToCompelation();
+                await _NavigatedToTask;
 
                 _NavigatedToTaskCancelToken?.Dispose();
                 _NavigatedToTaskCancelToken = null;

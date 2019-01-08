@@ -37,7 +37,7 @@ namespace NicoPlayerHohoema.ViewModels
             NicoVideoProvider nicoVideoProvider,
             LoginUserMylistProvider loginUserMylistProvider,
             VideoCacheManager videoCacheManager,
-            Models.NicoVideo nicoVideo,
+            Models.NicoVideoStreamingSessionProvider nicoVideo,
             Services.Helpers.MylistHelper mylistHelper,
             Services.PageManager pageManager,
             Services.NotificationService notificationService,
@@ -68,7 +68,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         Database.NicoVideo _VideoInfo;
 
-        public NicoVideo NicoVideo { get; private set; }
+        public NicoVideoStreamingSessionProvider NicoVideo { get; private set; }
 
         public Uri DescriptionHtmlFileUri { get; private set; }
 
@@ -290,7 +290,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         string INiconicoObject.Label => _VideoInfo.Title;
 
-        IMylist IVideoContent.OnwerPlaylist => throw new NotImplementedException();
+        IMylist IVideoContent.OnwerPlaylist => null;
 
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
         {
@@ -307,9 +307,6 @@ namespace NicoPlayerHohoema.ViewModels
                 IsLoadFailed.Value = true;
                 throw new Exception();
             }
-
-
-            NicoVideo.RawVideoId = VideoId;
 
             base.OnNavigatedTo(e, viewModelState);
         }
@@ -397,7 +394,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                 try
                 {
-                    var res = await NicoVideo.VisitWatchPage(NicoVideoQuality.Dmc_High);
+                    var res = await NicoVideo.VisitWatchPage(VideoId);
 
                     if (res is WatchApiResponse)
                     {

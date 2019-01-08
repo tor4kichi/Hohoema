@@ -672,4 +672,32 @@
   <data name="SubscriptionGroup_Create" xml:space="preserve">
     <value>購読グループを作成</value>
   </data>
+  <data name="fav" xml:space="preserve">
+    <value>総合</value>
+    <comment>RankingTarget</comment>
+  </data>
+  <data name="hourly" xml:space="preserve">
+    <value>毎時</value>
+    <comment>RankingTimeSpan</comment>
+  </data>
+  <data name="monthly" xml:space="preserve">
+    <value>月ごと</value>
+    <comment>RankingTimeSpan</comment>
+  </data>
+  <data name="res" xml:space="preserve">
+    <value>コメント</value>
+    <comment>RankingTarget</comment>
+  </data>
+  <data name="total" xml:space="preserve">
+    <value>合算</value>
+    <comment>RankingTimeSpan</comment>
+  </data>
+  <data name="view" xml:space="preserve">
+    <value>再生</value>
+    <comment>RankingTarget</comment>
+  </data>
+  <data name="weekly" xml:space="preserve">
+    <value>週ごと</value>
+    <comment>RankingTimeSpan</comment>
+  </data>
 </root>

@@ -64,18 +64,7 @@ namespace NicoPlayerHohoema.Services
             MakeDefaultPlaylist();
 
             Player.PlayRequested += Player_PlayRequested;
-
-
-            PlayerViewManager.ObserveProperty(x => x.PlayerViewMode)
-                .Subscribe(async newPlayerViewMode => 
-                {
-                    await Task.Delay(100);
-
-                    if (Player.Current != null)
-                    {
-                        await PlayerViewManager.PlayWithCurrentPlayerView(Player.Current);
-                    }
-                });
+           
 
             // 一般会員は再生とキャッシュDLを１ラインしか許容していないため
             // 再生終了時にキャッシュダウンロードの再開を行う必要がある

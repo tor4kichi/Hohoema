@@ -4,11 +4,19 @@ using Windows.Media.Playback;
 
 namespace NicoPlayerHohoema.Models
 {
-    public interface IVideoStreamingSession : IDisposable
+    public interface IStreamingSession : IDisposable
     {
-        NicoVideoQuality Quality { get; }
-
-        Task<Uri> GetDownloadUrlAndSetupDonwloadSession();
         Task StartPlayback(MediaPlayer player);
     }
+    
+    public interface IVideoStreamingSession : IStreamingSession
+    {
+        NicoVideoQuality Quality { get; }
+    }
+
+    public interface IVideoStreamingDownloadSession : IVideoStreamingSession
+    {
+        Task<Uri> GetDownloadUrlAndSetupDonwloadSession();
+    }
+
 }

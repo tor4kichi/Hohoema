@@ -78,10 +78,21 @@ namespace NicoPlayerHohoema.Services
                     }
                 })
                 .AddTo(_disposables);
+
+            App.Current.Suspending += Current_Suspending;
+            App.Current.Resuming += Current_Resuming;
         }
 
+        private void Current_Resuming(object sender, object e)
+        {
+            StartOrResetAutoUpdate();
+        }
 
-
+        private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
+        {
+            _autoUpdateDisposer?.Dispose();
+            _autoUpdateDisposer = null;
+        }
 
         public static readonly TimeSpan DefaultAutoUpdateInterval = TimeSpan.FromMinutes(15);
 

@@ -28,10 +28,17 @@
     xmlns:mvvm="using:Prism.Windows.Mvvm"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:system1="using:System"
+    xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector"
     mvvm:ViewModelLocator.AutoWireViewModel="True"
     x:Name="RootLayout"
     d:DesignHeight="300"
     d:DesignWidth="400">
+
+    <i:Interaction.Behaviors>
+        <core:EventTriggerBehavior EventName="Unloaded">
+            <core:CallMethodAction TargetObject="{Binding}" MethodName="Dispose" />
+        </core:EventTriggerBehavior>
+    </i:Interaction.Behaviors>
 
     <UserControl.Resources>
 
@@ -158,39 +165,39 @@
 
 
 
-        <local:PlayerSidePaneContentTemplateSelecter x:Key="PlayerSidePaneContentTemplateSelecter">
+        <templateselector:PlayerSidePaneContentTemplateSelecter x:Key="PlayerSidePaneContentTemplateSelecter">
 
-            <local:PlayerSidePaneContentTemplateSelecter.Empty>
+            <templateselector:PlayerSidePaneContentTemplateSelecter.Empty>
                 <DataTemplate>
                     <!-- empty -->
                 </DataTemplate>
-            </local:PlayerSidePaneContentTemplateSelecter.Empty>
+            </templateselector:PlayerSidePaneContentTemplateSelecter.Empty>
 
-            <local:PlayerSidePaneContentTemplateSelecter.Playlist>
+            <templateselector:PlayerSidePaneContentTemplateSelecter.Playlist>
                 <DataTemplate>
                     <local:PlaylistSidePaneContent />
                 </DataTemplate>
-            </local:PlayerSidePaneContentTemplateSelecter.Playlist>
+            </templateselector:PlayerSidePaneContentTemplateSelecter.Playlist>
 
-            <local:PlayerSidePaneContentTemplateSelecter.Comments>
+            <templateselector:PlayerSidePaneContentTemplateSelecter.Comments>
                 <DataTemplate>
                     <local:LiveCommentsSidePaneContent />
                 </DataTemplate>
-            </local:PlayerSidePaneContentTemplateSelecter.Comments>
+            </templateselector:PlayerSidePaneContentTemplateSelecter.Comments>
 
-            <local:PlayerSidePaneContentTemplateSelecter.Settings>
+            <templateselector:PlayerSidePaneContentTemplateSelecter.Settings>
                 <DataTemplate>
                     <local:VideoSettingsSidePaneContent />
                 </DataTemplate>
-            </local:PlayerSidePaneContentTemplateSelecter.Settings>
+            </templateselector:PlayerSidePaneContentTemplateSelecter.Settings>
 
-            <local:PlayerSidePaneContentTemplateSelecter.RelatedVideos>
+            <templateselector:PlayerSidePaneContentTemplateSelecter.RelatedVideos>
                 <DataTemplate>
                     <local:RelatedVideosSidePaneContent />
                 </DataTemplate>
-            </local:PlayerSidePaneContentTemplateSelecter.RelatedVideos>
+            </templateselector:PlayerSidePaneContentTemplateSelecter.RelatedVideos>
 
-        </local:PlayerSidePaneContentTemplateSelecter>
+        </templateselector:PlayerSidePaneContentTemplateSelecter>
                 
     </UserControl.Resources>
     
