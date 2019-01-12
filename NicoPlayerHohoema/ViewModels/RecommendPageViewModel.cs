@@ -7,16 +7,16 @@ using Mntone.Nico2.Videos.Recommend;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models;
 using Prism.Commands;
-using Prism.Windows.Navigation;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Models.Provider;
 using Unity;
 using Reactive.Bindings.Extensions;
 using Reactive.Bindings;
+using Prism.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class RecommendPageViewModel : HohoemaListingPageViewModelBase<RecommendVideoListItem>
+    public class RecommendPageViewModel : HohoemaListingPageViewModelBase<RecommendVideoListItem>, INavigatedAwareAsync
     {
         public RecommendPageViewModel(
             NGSettings ngSettings,
@@ -24,41 +24,33 @@ namespace NicoPlayerHohoema.ViewModels
             Services.HohoemaPlaylist hohoemaPlaylist,
             Services.PageManager pageManager
             )
-            : base(pageManager)
         {
             NgSettings = ngSettings;
             LoginUserRecommendProvider = loginUserRecommendProvider;
             HohoemaPlaylist = hohoemaPlaylist;
+            PageManager = pageManager;
         }
 
         public NGSettings NgSettings { get; }
         public LoginUserRecommendProvider LoginUserRecommendProvider { get; }
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.PageManager PageManager { get; }
         public ReadOnlyObservableCollection<TagViewModel> RecommendSourceTags { get; private set; }
-
-        protected override void PostResetList()
-        {
-            var source = this.IncrementalLoadingItems.Source as RecommendVideoIncrementalLoadingSource;
-            RecommendSourceTags = source.RecommendSourceTags
-                .ToReadOnlyReactiveCollection(x => new TagViewModel(x));
-            RaisePropertyChanged(nameof(RecommendSourceTags));
-
-            base.PostResetList();
-        }
-
-        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
-        {
-            RecommendSourceTags = null;
-            RaisePropertyChanged(nameof(RecommendSourceTags));
-
-            base.OnNavigatingFrom(e, viewModelState, suspending);
-        }
+        
         protected override IIncrementalSource<RecommendVideoListItem> GenerateIncrementalSource()
         {
-            return new RecommendVideoIncrementalLoadingSource(LoginUserRecommendProvider, NgSettings);
+            var source = new RecommendVideoIncrementalLoadingSource(LoginUserRecommendProvider, NgSettings);
+            RecommendSourceTags = source.RecommendSourceTags
+               .ToReadOnlyReactiveCollection(x => new TagViewModel(x));
+            RaisePropertyChanged(nameof(RecommendSourceTags));
+            return source;
         }
 
-
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
+        {
+            pin = null;
+            return false;
+        }
 
         private DelegateCommand<string> _OpenTagCommand;
         public DelegateCommand<string> OpenTagCommand
@@ -68,7 +60,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenTagCommand
                     ?? (_OpenTagCommand = new DelegateCommand<string>((tag) =>
                     {
-                        PageManager.SearchTag(tag, Mntone.Nico2.Order.Descending, Mntone.Nico2.Sort.FirstRetrieve);
+                        PageManager.Search(SearchTarget.Tag, tag);
                     }));
             }
         }

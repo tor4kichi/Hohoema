@@ -206,7 +206,7 @@ namespace NicoPlayerHohoema.Models.Helpers
         }
 
 
-        public static Task<Tuple<string, string>> GetPrimaryAccount()
+        public static async Task<Tuple<string, string>> GetPrimaryAccount()
         {
             if (HasPrimaryAccount())
             {
@@ -216,16 +216,16 @@ namespace NicoPlayerHohoema.Models.Helpers
                 if (!IsDebugXboxMode && !Services.Helpers.DeviceTypeHelper.IsXbox)
 #endif
                 {
-                    return Task.FromResult(_GetPrimaryAccount());
+                    return _GetPrimaryAccount();
                 }
                 else
                 {
-                    return _GetPrimaryAccount_Xbox();
+                    return await _GetPrimaryAccount_Xbox();
                 }
             }
             else
             {
-                return Task.FromResult<Tuple<string, string>>(null);
+                return null;
             }
         }
 

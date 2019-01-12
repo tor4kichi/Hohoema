@@ -8,7 +8,7 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
-    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mvvm="using:Prism.Mvvm"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
@@ -21,7 +21,7 @@
     xmlns:templateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
     xmlns:listitem="using:NicoPlayerHohoema.Views.HohoemaListItem"
     xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts"
-    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    DataContext="{x:Null}"
     mc:Ignorable="d"
     >
 
@@ -74,7 +74,7 @@
 
         <uwpcontrols:PullToRefreshListView 
             x:Name="ItemsList"
-            ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
+            ItemsSource="{Binding ItemsView, Mode=OneWay}"
             RefreshCommand="{Binding RefreshCommand}"
             IsItemClickEnabled="True"
             IncrementalLoadingTrigger="Edge"

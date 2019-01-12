@@ -60,7 +60,7 @@ namespace NicoPlayerHohoema.Models.Live
 					title = "この放送はコミュニティメンバー限定です";
 					actions.Add(new SuggestAction("コミュニティページを開く", () => 
 					{
-						pageManager.OpenPage(HohoemaPageType.Community, liveVideo.BroadcasterCommunityId);
+						pageManager.OpenPageWithId(HohoemaPageType.Community, liveVideo.BroadcasterCommunityId);
 					}));
 					break;
 				case LiveStatusType.Full:

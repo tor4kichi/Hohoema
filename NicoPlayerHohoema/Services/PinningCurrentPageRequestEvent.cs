@@ -1,13 +1,14 @@
-﻿using Prism.Mvvm;
+﻿using Prism.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NicoPlayerHohoema.ViewModels.Flyouts
+namespace NicoPlayerHohoema.Services
 {
-    public class SubscriptionItemFlyoutViewModel : BindableBase
+    public sealed class PinningCurrentPageRequestEvent : PubSubEvent
     {
+
     }
 }

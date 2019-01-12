@@ -1,6 +1,4 @@
 ﻿using NicoPlayerHohoema.ViewModels;
-using Prism.Windows.AppModel;
-using Prism.Windows.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -27,6 +25,10 @@ using System.Reactive;
 using System.Threading;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
+using Prism.Navigation;
+using Prism.Unity;
+using Windows.UI.Xaml.Media.Animation;
+using Prism.Services;
 
 namespace NicoPlayerHohoema.Services
 {
@@ -109,28 +111,27 @@ namespace NicoPlayerHohoema.Services
             if (!IsMainView)
             {
                 SecondaryViewPlayerNavigationService = ResolveSecondaryViewPlayerNavigationService();
-                SecondaryViewScheduler = App.Current.Container.Resolve<IScheduler>();
+                SecondaryViewScheduler = App.Current.Container.GetContainer().Resolve<IScheduler>();
                 SecondaryCoreAppView = CoreApplication.GetCurrentView();
                 SecondaryAppView = CurrentView;
             }
-
-            EventAggregator.GetEvent<Prism.Windows.Navigation.NavigationStateChangedEvent>()
+            /*
+            EventAggregator.GetEvent<NavigationStateChangedEvent>()
                 .Subscribe(args => 
                 {
                     if (args.Sender.Content is Views.VideoPlayerPage || args.Sender.Content is Views.LivePlayerPage)
                     {
-                        NowPlaying = true;
                     }
                     else if (args.Sender.Content is Views.BlankPage)
                     {
                         NowPlaying = false;
+                        ToggleFullScreenWhenApplicationViewShowWithStandalone();
                     }
 
                     Debug.WriteLine($"IsMain:{IsMainView}, NowPlaying:{NowPlaying}, PlayerViewMode:{PlayerViewMode}");
 
-                    ToggleFullScreenWhenApplicationViewShowWithStandalone();
                 });
-
+                */
             EventAggregator.GetEvent<PlayerViewModeChangeEvent>()
                 .Subscribe(args => 
                 {
@@ -138,20 +139,11 @@ namespace NicoPlayerHohoema.Services
                 },
                 ThreadOption.BackgroundThread
                 );
-
-            App.Current.Suspending += Current_Suspending;
         }
 
-        private void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
+        private void Gesturebarrier_Event(object sender, EventArgs e)
         {
-            if (IsMainView)
-            {
-                PrimaryViewPlayerNavigationService.RemoveAllPages();
-            }
-            else
-            {
-                SecondaryViewPlayerNavigationService.RemoveAllPages();
-            }
+            IsPlayerSmallWindowModeEnabled = false;
         }
 
         public bool IsMainView => MainViewId == CurrentView.Id;
@@ -197,7 +189,7 @@ namespace NicoPlayerHohoema.Services
             get
             {
                 return _PrimaryViewPlayerNavigationService
-                    ?? (_PrimaryViewPlayerNavigationService = App.Current.Container.Resolve<INavigationService>(nameof(PrimaryViewPlayerNavigationService)));
+                    ?? (_PrimaryViewPlayerNavigationService = App.Current.Container.GetContainer().Resolve<INavigationService>(nameof(PrimaryViewPlayerNavigationService)));
             }
         }
 
@@ -205,7 +197,7 @@ namespace NicoPlayerHohoema.Services
 
         public INavigationService ResolveSecondaryViewPlayerNavigationService()
         {
-            return App.Current.Container.Resolve<INavigationService>(SECONDARY_VIEW_PLAYER_NAVIGATION_SERVICE);
+            return App.Current.Container.GetContainer().Resolve<INavigationService>(SECONDARY_VIEW_PLAYER_NAVIGATION_SERVICE);
         }
 
         public IEventAggregator EventAggregator { get; }
@@ -270,12 +262,24 @@ namespace NicoPlayerHohoema.Services
         }
 
 
-
+        GestureBarrier _backGestureBarrier = null;
         private void ToggleFullScreenWhenApplicationViewShowWithStandalone()
         {
             CurrentViewScheduler.Schedule(() =>
             {
-            
+                if (_backGestureBarrier != null)
+                {
+                    _backGestureBarrier.Complete();
+                    _backGestureBarrier = null;
+                }
+
+                if (IsPlayingWithPrimaryView && !IsPlayerSmallWindowModeEnabled)
+                {
+                    var gestureService = GestureService.GetForCurrentView();
+                    _backGestureBarrier = gestureService.CreateBarrier(Gesture.Back);
+                    _backGestureBarrier.Event += Gesturebarrier_Event;
+                }
+
                 ApplicationView currentView = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView();
 
                 if (Services.Helpers.DeviceTypeHelper.IsMobile || Services.Helpers.DeviceTypeHelper.IsDesktop)
@@ -389,28 +393,7 @@ namespace NicoPlayerHohoema.Services
                     playerView.TitleBar.ExtendViewIntoTitleBar = true;
 
                     var content = new Views.HohoemaSecondaryViewFrame();
-
-                    var frameFacade = new FrameFacadeAdapter(content.Frame, EventAggregator);
-
-                    var sessionStateService = new SessionStateService();
-
-                    //sessionStateService.RegisterFrame(frameFacade, "secondary_view_player");
-                    ns = new FrameNavigationService(frameFacade
-                        , (pageToken) =>
-                        {
-                            if (pageToken == nameof(Views.VideoPlayerPage))
-                            {
-                                return typeof(Views.VideoPlayerPage);
-                            }
-                            else if (pageToken == nameof(Views.LivePlayerPage))
-                            {
-                                return typeof(Views.LivePlayerPage);
-                            }
-                            else
-                            {
-                                return typeof(Views.BlankPage);
-                            }
-                        }, sessionStateService);
+                    ns = NavigationService.Create(content.Frame, playerView.CoreWindow);
 
                     vm = content.DataContext as HohoemaSecondaryViewFrameViewModel;
 
@@ -447,7 +430,7 @@ namespace NicoPlayerHohoema.Services
                 SecondaryCoreAppView = playerView;
                 SecondaryViewPlayerNavigationService = ns;
 
-                App.Current.Container.RegisterInstance(SECONDARY_VIEW_PLAYER_NAVIGATION_SERVICE, SecondaryViewPlayerNavigationService);
+                App.Current.Container.GetContainer().RegisterInstance(SECONDARY_VIEW_PLAYER_NAVIGATION_SERVICE, SecondaryViewPlayerNavigationService);
             }
 
             return this;
@@ -479,7 +462,7 @@ namespace NicoPlayerHohoema.Services
 
         private async void SecondaryAppView_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
         {
-             SecondaryViewPlayerNavigationService.Navigate(nameof(Views.BlankPage), null);
+             await SecondaryViewPlayerNavigationService.NavigateAsync(nameof(Views.BlankPage), new SuppressNavigationTransitionInfo());
 
             // Note: 1803時点での話
             // VisibleBoundsChanged がアプリ終了前に呼ばれるが
@@ -502,23 +485,16 @@ namespace NicoPlayerHohoema.Services
             using (await NowPlayingLock.LockAsync())
             {
                 var pageType = item.Type == PlaylistItemType.Video ? nameof(Views.VideoPlayerPage) : nameof(Views.LivePlayerPage);
-                string parameter = null;
+                NavigationParameters parameter = new NavigationParameters();
                 switch (item.Type)
                 {
                     case PlaylistItemType.Video:
-                        parameter = new VideoPlayPayload()
-                        {
-                            VideoId = item.ContentId
-                        }
-                        .ToParameterString();
+                        parameter.Add("id", item.ContentId);
 
                         break;
                     case PlaylistItemType.Live:
-                        parameter = new Models.Live.LiveVideoPagePayload(item.ContentId)
-                        {
-                            LiveTitle = item.Title
-                        }
-                        .ToParameterString();
+                        parameter.Add("id", item.ContentId);
+                        parameter.Add("title", item.Title);
 
                         break;
                 }
@@ -529,10 +505,19 @@ namespace NicoPlayerHohoema.Services
                 {
                     Debug.WriteLine("Play with Primary : " + parameter);
 
-                    PrimaryViewScheduler.Schedule(() =>
+                    PrimaryViewScheduler.Schedule(async () =>
                     {
-                        PrimaryViewPlayerNavigationService.Navigate(pageType, parameter);
-                    //                    _ = ApplicationViewSwitcher.TryShowAsStandaloneAsync(MainViewId);
+                        NowPlaying = true;
+                        ToggleFullScreenWhenApplicationViewShowWithStandalone();
+
+                        var result = await PrimaryViewPlayerNavigationService.NavigateAsync(pageType, parameter, new DrillInNavigationTransitionInfo());
+                        if (!result.Success)
+                        {
+                            NowPlaying = false;
+                            ToggleFullScreenWhenApplicationViewShowWithStandalone();
+                        }
+
+                        //                    _ = ApplicationViewSwitcher.TryShowAsStandaloneAsync(MainViewId);
                     });
                 }
 
@@ -543,14 +528,21 @@ namespace NicoPlayerHohoema.Services
                     // サブウィンドウをアクティベートして、サブウィンドウにPlayerページナビゲーションを飛ばす
                     await GetEnsureSecondaryView();
 
-                    SecondaryViewScheduler.Schedule(() =>
+                    SecondaryViewScheduler.Schedule(async () =>
                     {
-                        if (SecondaryViewPlayerNavigationService.Navigate(pageType, parameter))
+                        NowPlaying = true;
+                        ToggleFullScreenWhenApplicationViewShowWithStandalone();
+
+                        var result = await SecondaryViewPlayerNavigationService.NavigateAsync(pageType, parameter, new DrillInNavigationTransitionInfo());
+                        if (result.Success)
                         {
-                            SecondaryAppView.Title = !string.IsNullOrEmpty(item?.Title) ? item.Title : "Hohoema";
+                            SecondaryAppView.Title = !string.IsNullOrEmpty(item?.Title) ? item.Title : "Hohoema";                            
                         }
                         else
                         {
+                            NowPlaying = false;
+                            ToggleFullScreenWhenApplicationViewShowWithStandalone();
+
                             SecondaryAppView.Title = "Hohoema!";
                         }
                     });
@@ -574,14 +566,20 @@ namespace NicoPlayerHohoema.Services
                 {
                     PrimaryViewScheduler.Schedule(() =>
                     {
-                        PrimaryViewPlayerNavigationService.Navigate(nameof(Views.BlankPage), null);
+                        PrimaryViewPlayerNavigationService.NavigateAsync(nameof(Views.BlankPage), new SuppressNavigationTransitionInfo());
+
+                        NowPlaying = false;
+                        ToggleFullScreenWhenApplicationViewShowWithStandalone();
                     });
                 }
                 else
                 {
                     SecondaryViewScheduler.Schedule(async () =>
                     {
-                        SecondaryViewPlayerNavigationService.Navigate(nameof(Views.BlankPage), null);
+                        await SecondaryViewPlayerNavigationService.NavigateAsync(nameof(Views.BlankPage), new SuppressNavigationTransitionInfo());
+
+                        NowPlaying = false;
+                        ToggleFullScreenWhenApplicationViewShowWithStandalone();
 
                         await ShowMainView();
 

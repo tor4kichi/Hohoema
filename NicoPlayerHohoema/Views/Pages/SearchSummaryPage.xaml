@@ -5,7 +5,7 @@
     xmlns:local="using:NicoPlayerHohoema.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mvvm="using:Prism.Mvvm"
     xmlns:models="using:NicoPlayerHohoema.Models"
     xmlns:view="using:NicoPlayerHohoema.Views"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
@@ -17,7 +17,7 @@
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    DataContext="{x:Null}"
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">

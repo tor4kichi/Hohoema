@@ -1,31 +1,25 @@
 ﻿using Mntone.Nico2;
 using NicoPlayerHohoema.Interfaces;
+using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Models.Cache;
 using NicoPlayerHohoema.Models.Helpers;
+using NicoPlayerHohoema.Models.LocalMylist;
+using Prism.Commands;
 using Prism.Mvvm;
+using Prism.Unity;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.Diagnostics;
-using System.IO;
+using System.Collections.Specialized;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
-using Windows.Media;
-using Windows.Storage;
-using Windows.UI.ViewManagement;
 using Unity;
-using NicoPlayerHohoema.Models.Cache;
-using Windows.Media.Playback;
-using Windows.Media.Core;
-using System.Collections.Specialized;
-using Prism.Commands;
-using NicoPlayerHohoema.Models;
-using NiconicoSession = NicoPlayerHohoema.Models.NiconicoSession;
-using NicoPlayerHohoema.Models.LocalMylist;
-using System.Reactive.Concurrency;
+using Windows.Media;
 using AsyncLock = NicoPlayerHohoema.Models.Helpers.AsyncLock;
+using NiconicoSession = NicoPlayerHohoema.Models.NiconicoSession;
 
 namespace NicoPlayerHohoema.Services
 {

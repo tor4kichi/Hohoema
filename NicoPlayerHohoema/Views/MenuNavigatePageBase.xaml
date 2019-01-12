@@ -874,7 +874,7 @@
 
                                     <!-- ページ毎のコンテンツ -->
                                     <Grid>
-                                        <ContentPresenter x:Name="ContentLayout"         
+                                        <ContentPresenter x:Name="ContentLayout"      
                                             >
                                             <myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
                                                 <templateSelector:HohoemaFlyoutTemplateSelector>

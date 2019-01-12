@@ -12,6 +12,7 @@ using NicoPlayerHohoema.Services;
 using Prism.Commands;
 using Unity;
 using NicoPlayerHohoema.Services.Helpers;
+using Prism.Unity;
 
 namespace NicoPlayerHohoema.ViewModels
 {

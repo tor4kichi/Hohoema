@@ -194,6 +194,7 @@
     <Compile Include="Services\Notification\NotificationMylistUpdatedService.cs" />
     <Compile Include="Services\Page\PreventBackNavigationOnShowPlayerService.cs" />
     <Compile Include="Models\Niconico\ICommentService.cs" />
+    <Compile Include="Services\PinningCurrentPageRequestEvent.cs" />
     <Compile Include="ViewModels\Flyouts\LiveItemFlyoutViewModel.cs" />
     <Compile Include="ViewModels\Flyouts\MylistItemFlyoutViewModel.cs" />
     <Compile Include="ViewModels\Flyouts\FollowItemFlyoutViewModel.cs" />
@@ -1235,7 +1236,7 @@
       <Version>12.0.1</Version>
     </PackageReference>
     <PackageReference Include="Prism.Unity.Windows">
-      <Version>7.0.0.336-pre</Version>
+      <Version>7.2.0.780-ci</Version>
     </PackageReference>
     <PackageReference Include="ReactiveProperty">
       <Version>4.2.1</Version>

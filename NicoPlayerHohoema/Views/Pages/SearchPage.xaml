@@ -5,7 +5,7 @@
     xmlns:local="using:NicoPlayerHohoema.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mvvm="using:Prism.Mvvm"
     xmlns:view="using:NicoPlayerHohoema.Views"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
@@ -15,10 +15,10 @@
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
-    mvvm:ViewModelLocator.AutoWireViewModel="True"
     xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:uwpextensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:templateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
+    DataContext="{x:Null}"
     mc:Ignorable="d">
 
     <Page.Resources>

@@ -15,6 +15,7 @@ using Mntone.Nico2.Videos.Comment;
 using NicoPlayerHohoema.Models.Niconico;
 using Unity;
 using NicoPlayerHohoema.Models.Provider;
+using Prism.Unity;
 
 namespace NicoPlayerHohoema.Models
 {

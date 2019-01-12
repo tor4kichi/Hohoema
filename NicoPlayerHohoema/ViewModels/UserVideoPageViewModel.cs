@@ -4,7 +4,6 @@ using System.Threading.Tasks;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Helpers;
 using Mntone.Nico2.Users.Video;
-using Prism.Windows.Navigation;
 using Mntone.Nico2.Users.User;
 using System.Threading;
 using Prism.Commands;
@@ -14,11 +13,13 @@ using NicoPlayerHohoema.Models.Cache;
 using NicoPlayerHohoema.Models.Provider;
 using Unity;
 using NicoPlayerHohoema.Services;
+using Prism.Navigation;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>
-	{
+    public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, INavigatedAwareAsync
+    {
         public UserVideoPageViewModel(
             UserProvider userProvider,
             Models.Subscription.SubscriptionManager subscriptionManager,
@@ -26,11 +27,11 @@ namespace NicoPlayerHohoema.ViewModels
             Services.PageManager pageManager,
             Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
-            : base(pageManager)
         {
             SubscriptionManager = subscriptionManager;
             UserProvider = userProvider;
             HohoemaPlaylist = hohoemaPlaylist;
+            PageManager = pageManager;
             CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
         }
 
@@ -38,64 +39,30 @@ namespace NicoPlayerHohoema.ViewModels
         public Models.Subscription.SubscriptionManager SubscriptionManager { get; }
         public UserProvider UserProvider { get; }
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public PageManager PageManager { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
 
         public Models.Subscription.SubscriptionSource? SubscriptionSource => new Models.Subscription.SubscriptionSource(UserName, Models.Subscription.SubscriptionSourceType.User, UserId);
 
-
-        protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
+        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            return base.CheckNeedUpdateOnNavigateTo(mode);
-        }
-
-        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-            if (User != null)
-            {
-                IsOwnerVideoPrivate = User.IsOwnerVideoPrivate;
-                UserName = User.Nickname;
-
-                PageManager.PageTitle = UserName;
-            }
-            else
-            {
-//                UpdateTitle("投稿動画一覧");
-            }
-
-            base.OnNavigatedTo(e, viewModelState);
-		}
-
-        protected override string ResolvePageName()
-        {
-            return UserName ?? base.ResolvePageName();
-        }
-
-        protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-            if (e.Parameter is string)
-            {
-                UserId = e.Parameter as string;
-            }
+            var userId = parameters.GetValue<string>("id");
+            UserId = userId;
 
             User = await UserProvider.GetUserDetail(UserId);
 
             if (User != null)
-			{
+            {
                 IsOwnerVideoPrivate = User.IsOwnerVideoPrivate;
                 UserName = User.Nickname;
-
-                PageManager.PageTitle = UserName;
             }
             else
-			{
-//				UpdateTitle("投稿動画一覧");
-			}
-        }
+            {
+                //				UpdateTitle("投稿動画一覧");
+            }
 
-		protected override void PostResetList()
-		{
-			base.PostResetList();
-		}
+            await base.OnNavigatedToAsync(parameters);
+        }
 
 
 
@@ -108,8 +75,19 @@ namespace NicoPlayerHohoema.ViewModels
                 );
 		}
 
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
+        {
+            pin = new HohoemaPin()
+            {
+                Label = UserName,
+                PageType = HohoemaPageType.UserVideo,
+                Parameter = $"id={UserId}"
+            };
 
-		private DelegateCommand _OpenVideoOwnerUserPageCommand;
+            return true;
+        }
+
+        private DelegateCommand _OpenVideoOwnerUserPageCommand;
 		public DelegateCommand OpenVideoOwnerUserPageCommand
 		{
 			get
@@ -117,7 +95,7 @@ namespace NicoPlayerHohoema.ViewModels
 				return _OpenVideoOwnerUserPageCommand
 					?? (_OpenVideoOwnerUserPageCommand = new DelegateCommand(() => 
 					{
-						PageManager.OpenPage(HohoemaPageType.UserInfo, UserId);
+						PageManager.OpenPageWithId(HohoemaPageType.UserInfo, UserId);
 					}));
 			}
 		}

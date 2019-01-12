@@ -1,11 +1,9 @@
 ﻿using NicoPlayerHohoema.Models;
-using Prism.Windows.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Prism.Windows.Navigation;
 using Prism.Mvvm;
 using Prism.Commands;
 using System.Collections.ObjectModel;
@@ -17,6 +15,8 @@ using System.Diagnostics;
 using NicoPlayerHohoema.Services;
 using Unity;
 using Unity.Resolution;
+using Prism.Unity;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -27,8 +27,8 @@ namespace NicoPlayerHohoema.ViewModels
             NiconicoSession niconicoSession,
             FollowManager followManager
             )
-			: base(pageManager)
 		{
+            PageManager = pageManager;
             NiconicoSession = niconicoSession;
             FollowManager = followManager;
 
@@ -69,8 +69,15 @@ namespace NicoPlayerHohoema.ViewModels
         public ObservableCollection<FavoriteListViewModel> Lists { get; private set; }
 
         public DelegateCommand<FavoriteListViewModel> UpdateFavListCommand { get; }
+        public PageManager PageManager { get; }
         public NiconicoSession NiconicoSession { get; }
         public FollowManager FollowManager { get; }
+
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
+        {
+            pin = null;
+            return false;
+        }
     }
 
     public class FavoriteListViewModel : BindableBase
@@ -103,22 +110,23 @@ namespace NicoPlayerHohoema.ViewModels
         static Func<FollowItemInfo, FavoriteItemViewModel> MakeFavItemVMFactory(FollowItemType type)
         {
             Func<FollowItemInfo, FavoriteItemViewModel> fac = null;
+            var unityContainer = App.Current.Container.GetContainer();
             switch (type)
             {
                 case FollowItemType.Tag:
-                    fac = item => App.Current.Container.Resolve<TagFavItemVM>(new ParameterOverride("follow", item));
+                    fac = item => unityContainer.Resolve<TagFavItemVM>(new ParameterOverride("follow", item));
                     break;
                 case FollowItemType.Mylist:
-                    fac = item => App.Current.Container.Resolve<MylistFavItemVM>(new ParameterOverride("follow", item));
+                    fac = item => unityContainer.Resolve<MylistFavItemVM>(new ParameterOverride("follow", item));
                     break;
                 case FollowItemType.User:
-                    fac = item => App.Current.Container.Resolve<UserFavItemVM>(new ParameterOverride("follow", item));
+                    fac = item => unityContainer.Resolve<UserFavItemVM>(new ParameterOverride("follow", item));
                     break;
                 case FollowItemType.Community:
-                    fac = item => App.Current.Container.Resolve<CommunityFavItemVM>(new ParameterOverride("follow", item));
+                    fac = item => unityContainer.Resolve<CommunityFavItemVM>(new ParameterOverride("follow", item));
                     break;
                 case FollowItemType.Channel:
-                    fac = item => App.Current.Container.Resolve<ChannelFavItemVM>(new ParameterOverride("follow", item));
+                    fac = item => unityContainer.Resolve<ChannelFavItemVM>(new ParameterOverride("follow", item));
                     break;
                 default:
                     throw new NotSupportedException();

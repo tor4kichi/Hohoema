@@ -1,27 +1,24 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Live;
-using Mntone.Nico2.Live.PlayerStatus;
 using Mntone.Nico2.Live.Video;
 using Mntone.Nico2.Videos.Comment;
+using NicoPlayerHohoema.Models.Provider;
 using Prism.Mvvm;
+using Prism.Unity;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Linq;
+using Unity;
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Media.Streaming.Adaptive;
-using Unity;
-using System.Reactive.Concurrency;
-using NicoPlayerHohoema.Models.Provider;
-using NicoPlayerHohoema.Models.Niconico;
 
 namespace NicoPlayerHohoema.Models.Live
 {

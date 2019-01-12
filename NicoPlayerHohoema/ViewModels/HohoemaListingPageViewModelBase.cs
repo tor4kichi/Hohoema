@@ -10,11 +10,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using Prism.Windows.Navigation;
-using Windows.UI.Xaml.Navigation;
 using System.Threading;
 using Microsoft.Toolkit.Uwp.UI;
 using Windows.UI.Xaml.Data;
+using Prism.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -22,11 +21,7 @@ namespace NicoPlayerHohoema.ViewModels
 
     public abstract class HohoemaListingPageViewModelBase<ITEM_VM> : HohoemaViewModelBase
 	{
-        public HohoemaListingPageViewModelBase(
-            Services.PageManager pageManager,
-            bool useDefaultPageTitle = true
-            )
-            : base(pageManager)
+        public HohoemaListingPageViewModelBase()
         {
             NowLoading = new ReactiveProperty<bool>(true)
                 .AddTo(_CompositeDisposable);
@@ -37,14 +32,13 @@ namespace NicoPlayerHohoema.ViewModels
 
             MaxItemsCount = new ReactiveProperty<int>(0)
                 .AddTo(_CompositeDisposable);
+
             LoadedItemsCount = new ReactiveProperty<int>(0)
                 .AddTo(_CompositeDisposable);
 
             NowRefreshable = new ReactiveProperty<bool>(false);
 
-            ScrollPosition = new ReactiveProperty<double>();
-
-            // 読み込み厨または選択中はソートを変更できない
+            // 読み込み中または選択中はソートを変更できない
             CanChangeSort = Observable.CombineLatest(
                 NowLoading
                 )
@@ -55,203 +49,44 @@ namespace NicoPlayerHohoema.ViewModels
 
         }
 
-
-        public class HohoemaListingCache
-        {
-            public ISupportIncrementalLoading List;
-            public double ScrollPosition;
-        }
-
-        static Dictionary<int, HohoemaListingCache> _ListingCache = new Dictionary<int, HohoemaListingCache>();
-
-        protected static int MaxListingCache = 5;
-
-        protected static bool TryGetListingCache(string navigationId, out HohoemaListingCache outCache)
-        {
-            if (_ListingCache.TryGetValue(navigationId.GetHashCode(), out var cached))
-            {
-                outCache = cached;
-            }
-            else outCache = null;
-
-            return outCache != null;
-        }
-
-        protected static void AddOrUpdateListingCache(string navigationId, ISupportIncrementalLoading list, double scrollPosition)
-        {
-            var hash = navigationId.GetHashCode();
-            if (_ListingCache.TryGetValue(hash, out var cached))
-            {
-                // 登録済みの場合は一旦削除して再登録することで辞書位置を更新する
-                _ListingCache.Remove(hash);
-                cached.ScrollPosition = scrollPosition;
-                _ListingCache.Add(hash, cached);
-            }
-            else
-            {
-                // キャッシュ上限以上の場合は古いアイテムを削除
-                if (_ListingCache.Count > MaxListingCache)
-                {
-                    // Dictionary の Last() は辞書へより先に追加されたアイテムが取得できる
-                    // https://stackoverflow.com/questions/436954/whos-on-dictionary-first
-                    _ListingCache.Remove(_ListingCache.Last().Key);
-                }
-
-                _ListingCache.Add(hash, new HohoemaListingCache() { List = list, ScrollPosition = scrollPosition });
-            }
-        }
-
-        string _NavigationId;
-        private string NavigationId
-        {
-            get { return _NavigationId; }
-        }
-
-
         private AsyncLock _ItemsUpdateLock = new AsyncLock();
 
 		
         public DateTime LatestUpdateTime = DateTime.Now;
 
-        protected override void OnDispose()
-		{
-            if (IncrementalLoadingItems != null)
+        public override void Destroy()
+        {
+            base.Destroy();
+
+            if (ItemsView.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
             {
-                IncrementalLoadingItems.BeginLoading -= BeginLoadingItems;
-                IncrementalLoadingItems.DoneLoading -= CompleteLoadingItems;
-                if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
+                if (oldItems.Source is HohoemaIncrementalSourceBase<ITEM_VM> hohoemaIncrementalSource)
                 {
-                    (IncrementalLoadingItems.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error -= HohoemaIncrementalSource_Error;
+                    hohoemaIncrementalSource.Error -= HohoemaIncrementalSource_Error;
                 }
-                IncrementalLoadingItems.Dispose();
-                IncrementalLoadingItems = null;
+                oldItems.BeginLoading -= BeginLoadingItems;
+                oldItems.DoneLoading -= CompleteLoadingItems;
             }
         }
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-            HasItem.Value = true;
 
-            _NavigationId = ResolveNavigationId(e);
-
-            if (CheckNeedUpdateOnNavigateTo(e.NavigationMode))
-			{
-//				IncrementalLoadingItems = null;
-			}
-			else
-			{
-				ChangeCanIncmentalLoading(true);
-			}
-
-			base.OnNavigatedTo(e, viewModelState);
-		}
-
-
-		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			await ListPageNavigatedToAsync(cancelToken, e, viewModelState);
-
-            if (e.NavigationMode == NavigationMode.Back || e.NavigationMode == NavigationMode.Forward)
+        public virtual async Task OnNavigatedToAsync(INavigationParameters parameters)
+        {
+            var navigationMode = parameters.GetNavigationMode();
+            if (navigationMode == NavigationMode.Back || navigationMode == NavigationMode.Forward)
             {
-                if (TryGetListingCache(NavigationId, out var cached))
-                {
-                    var cachedList = cached.List as IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>;
-                    
-                    if (!ReferenceEquals(IncrementalLoadingItems, cachedList))
-                    {
-                        // DataTriggerBehaviorがBackナビゲーション時に反応しない問題の対策
-                        await Task.Delay(100);
-
-                        ScrollPosition.Value = cached.ScrollPosition;
-                        IncrementalLoadingItems = cachedList;
-                        RaisePropertyChanged(nameof(IncrementalLoadingItems));
-                        IncrementalLoadingItems.BeginLoading += BeginLoadingItems;
-                        IncrementalLoadingItems.DoneLoading += CompleteLoadingItems;
-
-                        if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
-                        {
-                            (IncrementalLoadingItems.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error += HohoemaIncrementalSource_Error;
-                        }
-
-                        ItemsView.Source = IncrementalLoadingItems;
-                        RaisePropertyChanged(nameof(ItemsView));
-
-                        PostResetList();
-
-                        Debug.WriteLine($"restored {NavigationId} : {ScrollPosition.Value}");
-                    }
-
-                    ChangeCanIncmentalLoading(true);
-                }
-                else
-                {
-                    ScrollPosition.Value = 0.0;
-                    await ResetList();
-                }
+                await ResetList();
             }
             else
             {
-                if (IncrementalLoadingItems == null
-                    || CheckNeedUpdateOnNavigateTo(e.NavigationMode))
+                if (ItemsView == null
+                    || CheckNeedUpdateOnNavigateTo(navigationMode))
                 {
-                    ScrollPosition.Value = 0.0;
                     await ResetList();
                 }
             }
         }
 
-		protected override Task OnResumed()
-		{
-            ChangeCanIncmentalLoading(true);
 
-            return base.OnResumed();
-		}
-
-		protected virtual Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			return Task.CompletedTask;
-		}
-
-
-		protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
-		{
-			base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
-
-            if (!suspending)
-			{
-				ChangeCanIncmentalLoading(false);
-
-                if (IncrementalLoadingItems != null)
-                {
-                    AddOrUpdateListingCache(NavigationId, IncrementalLoadingItems, ScrollPosition.Value);
-
-                    Debug.WriteLine($"saved {NavigationId} : {ScrollPosition.Value}");
-                }
-            }
-        }
-
-
-		private void ChangeCanIncmentalLoading(bool enableLoading)
-		{
-			if (IncrementalLoadingItems != null)
-			{
-				IncrementalLoadingItems.IsPuaseLoading = !enableLoading;
-			}
-		}
-
-		protected async Task UpdateList()
-		{
-			// TODO: 表示中のアイテムすべての状態を更新
-			// 主にキャッシュ状態の更新が目的
-
-			var source = IncrementalLoadingItems?.Source;
-
-			if (source != null)
-			{
-				MaxItemsCount.Value = await source.ResetSource();
-			}
-
-
-		}
 
 		protected async Task ResetList()
 		{
@@ -260,17 +95,14 @@ namespace NicoPlayerHohoema.ViewModels
                 HasItem.Value = true;
                 LoadedItemsCount.Value = 0;
 
-                if (IncrementalLoadingItems != null)
+                if (ItemsView.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
                 {
-                    if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
+                    if (oldItems.Source is HohoemaIncrementalSourceBase<ITEM_VM> hohoemaIncrementalSource)
                     {
-                        (IncrementalLoadingItems.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error -= HohoemaIncrementalSource_Error;
+                        hohoemaIncrementalSource.Error -= HohoemaIncrementalSource_Error;
                     }
-                    IncrementalLoadingItems.BeginLoading -= BeginLoadingItems;
-                    IncrementalLoadingItems.DoneLoading -= CompleteLoadingItems;
-//                    IncrementalLoadingItems.Dispose();
-                    IncrementalLoadingItems = null;
-                    RaisePropertyChanged(nameof(IncrementalLoadingItems));
+                    oldItems.BeginLoading -= BeginLoadingItems;
+                    oldItems.DoneLoading -= CompleteLoadingItems;
                 }
 
                 try
@@ -285,19 +117,18 @@ namespace NicoPlayerHohoema.ViewModels
 
                     MaxItemsCount.Value = await source.ResetSource();
 
-                    IncrementalLoadingItems = new IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>(source);
-                    RaisePropertyChanged(nameof(IncrementalLoadingItems));
+                    var items = new IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>(source);
 
-                    IncrementalLoadingItems.BeginLoading += BeginLoadingItems;
-                    IncrementalLoadingItems.DoneLoading += CompleteLoadingItems;
+                    items.BeginLoading += BeginLoadingItems;
+                    items.DoneLoading += CompleteLoadingItems;
 
-                    if (IncrementalLoadingItems.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
+                    if (items.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
                     {
-                        (IncrementalLoadingItems.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error += HohoemaIncrementalSource_Error;
+                        (items.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error += HohoemaIncrementalSource_Error;
                     }
 
 
-                    ItemsView = new AdvancedCollectionView(IncrementalLoadingItems);
+                    ItemsView = new AdvancedCollectionView(items);
                     
                     RaisePropertyChanged(nameof(ItemsView));
 
@@ -306,30 +137,12 @@ namespace NicoPlayerHohoema.ViewModels
                 }
                 catch
                 {
-                    IncrementalLoadingItems = null;
                     NowLoading.Value = false;
                     HasError.Value = true;
                     Debug.WriteLine("failed GenerateIncrementalSource.");
                 }
             }
 		}
-
-        protected virtual string ResolveNavigationId(NavigatedToEventArgs e)
-        {
-            if (e.SourcePageType == null)
-            {
-                return "empty";
-            }
-
-            if (e.Parameter is string strParam)
-            {
-                return $"{e.SourcePageType.Name}_{strParam}";
-            }
-            else
-            {
-                return e.SourcePageType.Name;
-            }
-        }
 
 		private void HohoemaIncrementalSource_Error()
 		{
@@ -346,7 +159,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			NowLoading.Value = false;
 
-			LoadedItemsCount.Value = IncrementalLoadingItems?.Count ?? 0;
+			LoadedItemsCount.Value = ItemsView?.Count ?? 0;
 			HasItem.Value = LoadedItemsCount.Value > 0;
         }
 
@@ -359,6 +172,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected virtual bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
         {
+            return true;
+
+            /*
             if (mode == NavigationMode.New)
             {
                 return true;
@@ -371,6 +187,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
             return false;
+            */
         }
 
         private DelegateCommand _ResetSortCommand;
@@ -447,9 +264,8 @@ namespace NicoPlayerHohoema.ViewModels
             ItemsView.RefreshFilter();
         }
 
-
-
-		private DelegateCommand _RefreshCommand;
+        
+        private DelegateCommand _RefreshCommand;
 		public DelegateCommand RefreshCommand
 		{
 			get
@@ -465,11 +281,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<int> MaxItemsCount { get; private set; }
 		public ReactiveProperty<int> LoadedItemsCount { get; private set; }
 
-		public IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> IncrementalLoadingItems { get; private set; }
-
         public AdvancedCollectionView ItemsView { get; private set; } = new AdvancedCollectionView();
-
-        public ReactiveProperty<double> ScrollPosition { get; }
 
         public ReactiveProperty<bool> NowLoading { get; private set; }
         public ReactiveProperty<bool> CanChangeSort { get; private set; }

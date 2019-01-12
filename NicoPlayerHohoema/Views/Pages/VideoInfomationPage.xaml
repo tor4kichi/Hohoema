@@ -11,18 +11,12 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
-    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mvvm="using:Prism.Mvvm"
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
-    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    DataContext="{x:Null}"
     mc:Ignorable="d">
-
-    <i:Interaction.Behaviors>
-        <core:EventTriggerBehavior EventName="Unloaded">
-            <core:CallMethodAction TargetObject="{Binding}" MethodName="Dispose" />
-        </core:EventTriggerBehavior>
-    </i:Interaction.Behaviors>
 
     <Grid >
 

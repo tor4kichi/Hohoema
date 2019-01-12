@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models;
 using Prism.Commands;
-using Prism.Windows.Navigation;
+using Prism.Navigation;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using NicoPlayerHohoema.Services.Page;
@@ -18,14 +18,13 @@ using Unity;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class SearchSummaryPageViewModel : HohoemaViewModelBase
+    public class SearchSummaryPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync
     {
 
         public SearchSummaryPageViewModel(
             SearchProvider searchProvider,
             Services.PageManager pageManager
             )
-            : base(pageManager)
         {
             RelatedVideoTags = new ObservableCollection<string>();
 
@@ -110,6 +109,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .ToReadOnlyReactiveProperty()
                 .AddTo(_CompositeDisposable);
             SearchProvider = searchProvider;
+            PageManager = pageManager;
         }
 
 
@@ -152,30 +152,20 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-        protected override string ResolvePageName()
+        public Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            return $"\"{Keyword}\"を検索";
+            Keyword = parameters.GetValue<string>("keyword");
+
+            SearchWithTargetCommand.RaiseCanExecuteChanged();
+
+            return Task.CompletedTask;
         }
 
-        protected override Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
         {
-            if (e.Parameter is string)
-            {
-                Keyword = e.Parameter as string;
-
-                SearchWithTargetCommand.RaiseCanExecuteChanged();
-            }
-
-            return base.NavigatedToAsync(cancelToken, e, viewModelState);
+            pin = null;
+            return false;
         }
-
-        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
-        {
-            Keyword = null;
-
-            base.OnNavigatingFrom(e, viewModelState, suspending);
-        }
-
 
         private DelegateCommand<SearchTarget?> _SearchWithTargetCommand;
         public DelegateCommand<SearchTarget?> SearchWithTargetCommand
@@ -187,9 +177,7 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         if (target.HasValue)
                         {
-                            ISearchPagePayloadContent searchContent =
-                                SearchPagePayloadContentHelper.CreateDefault(target.Value, Keyword);
-                            PageManager.Search(searchContent);
+                            PageManager.Search(target.Value, Keyword);
                         }
                     }
                     ));
@@ -205,9 +193,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _SearchVideoTagCommand
                     ?? (_SearchVideoTagCommand = new DelegateCommand<string>((tag) =>
                     {
-                        ISearchPagePayloadContent searchContent =
-                            SearchPagePayloadContentHelper.CreateDefault(SearchTarget.Tag, tag);
-                        PageManager.Search(searchContent);
+                        PageManager.Search(SearchTarget.Tag, tag);
                     },
                     (tag) => !string.IsNullOrWhiteSpace(tag)
                     ));
@@ -221,10 +207,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _SearchLiveTagCommand
                     ?? (_SearchLiveTagCommand = new DelegateCommand<string>((tag) =>
                     {
-                        ISearchPagePayloadContent searchContent =
-                            SearchPagePayloadContentHelper.CreateDefault(SearchTarget.Niconama, tag);
-                        (searchContent as LiveSearchPagePayloadContent).IsTagSearch = true;
-                        PageManager.Search(searchContent);
+                        PageManager.Search(SearchTarget.Niconama, tag);
                     },
                     (tag) => !string.IsNullOrWhiteSpace(tag)
                     ));
@@ -232,5 +215,6 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public SearchProvider SearchProvider { get; }
+        public Services.PageManager PageManager { get; }
     }
 }

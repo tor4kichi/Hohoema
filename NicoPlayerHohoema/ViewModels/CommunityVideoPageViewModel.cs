@@ -5,7 +5,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Prism.Windows.Navigation;
 using System.Threading;
 using Mntone.Nico2;
 using Mntone.Nico2.Communities.Detail;
@@ -18,6 +17,8 @@ using System.Collections.Async;
 using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Services;
+using Prism.Navigation;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -28,17 +29,14 @@ namespace NicoPlayerHohoema.ViewModels
             Services.PageManager pageManager,
             Services.HohoemaPlaylist hohoemaPlaylist
             )
-            : base(pageManager)
         {
             CommunityProvider = communityProvider;
+            PageManager = pageManager;
             HohoemaPlaylist = hohoemaPlaylist;
         }
 
 
         public string CommunityId { get; private set; }
-
-
-		public bool IsValidCommunity { get; private set; }
 
 		public CommunityDetail CommunityDetail { get; private set; }
 
@@ -58,67 +56,48 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-		
+        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
+        {
+            CommunityId = parameters.GetValue<string>("id");
 
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			IsValidCommunity = false;
+            if (CommunityId != null)
+            {
+                try
+                {
+                    var res = await CommunityProvider.GetCommunityDetail(CommunityId);
+                    CommunityDetail = res.CommunitySammary.CommunityDetail;
 
-			if (e.Parameter is string)
-			{
-				var id = e.Parameter as string;
+                    CommunityName = CommunityDetail.Name;
+                }
+                catch
+                {
+                    Debug.WriteLine("コミュ情報取得に失敗");
+                }
+            }
 
-				if (NiconicoRegex.IsCommunityId(id))
-				{
-					CommunityId = id;
-					IsValidCommunity = true;
-				}
-			}
-
-            base.OnNavigatedTo(e, viewModelState);
-		}
-
-
-
-		protected override async Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			if (IsValidCommunity)
-			{
-				try
-				{
-					var res = await CommunityProvider.GetCommunityDetail(CommunityId);
-					CommunityDetail = res.CommunitySammary.CommunityDetail;
-
-					CommunityName = CommunityDetail.Name;
-				}
-				catch
-				{
-					Debug.WriteLine("コミュ情報取得に失敗");
-					IsValidCommunity = false;
-				}
-			}
-			else
-			{
-				Debug.WriteLine("CommunityID は無効: " + CommunityId);
-			}
+            await base.OnNavigatedToAsync(parameters);
+        }
 
 
-
-			await base.ListPageNavigatedToAsync(cancelToken, e, viewModelState);
-		}
 
 		protected override IIncrementalSource<CommunityVideoInfoControlViewModel> GenerateIncrementalSource()
 		{
-			if (false == IsValidCommunity)
-			{
-				throw new Exception();
-			}
-
 			return new CommunityVideoIncrementalSource(CommunityId, (int)CommunityDetail.VideoCount, CommunityProvider);
 		}
 
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
+        {
+            pin = new HohoemaPin()
+            {
+                Label = CommunityName,
+                PageType = HohoemaPageType.CommunityVideo,
+                Parameter = $"id={CommunityId}"
+            };
 
-		private DelegateCommand _OpenCommunityPageCommand;
+            return true;
+        }
+
+        private DelegateCommand _OpenCommunityPageCommand;
 		public DelegateCommand OpenCommunityPageCommand
 		{
 			get
@@ -126,12 +105,13 @@ namespace NicoPlayerHohoema.ViewModels
 				return _OpenCommunityPageCommand
 					?? (_OpenCommunityPageCommand = new DelegateCommand(() => 
 					{
-						PageManager.OpenPage(HohoemaPageType.Community, CommunityId);
+						PageManager.OpenPageWithId(HohoemaPageType.Community, CommunityId);
 					}));
 			}
 		}
 
         public CommunityProvider CommunityProvider { get; }
+        public PageManager PageManager { get; }
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
     }
 

@@ -6,7 +6,7 @@
     xmlns:local="using:NicoPlayerHohoema.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mvvm="using:Prism.Mvvm"
     xmlns:view="using:NicoPlayerHohoema.Views"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
@@ -16,7 +16,8 @@
     xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:deviceTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
-    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    NavigationCacheMode="Enabled"
+    DataContext="{x:Null}"
     mc:Ignorable="d"
     >
 

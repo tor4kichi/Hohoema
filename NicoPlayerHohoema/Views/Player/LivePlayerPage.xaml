@@ -18,10 +18,10 @@
     xmlns:media="using:Microsoft.Xaml.Interactions.Media"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
-    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mvvm="using:Prism.Mvvm"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector"
-    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    DataContext="{x:Null}"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
@@ -140,13 +140,6 @@
         
         
     </Page.Resources>
-
-    <i:Interaction.Behaviors>
-        <core:EventTriggerBehavior EventName="Unloaded">
-            <core:CallMethodAction TargetObject="{Binding}" MethodName="Dispose" />
-        </core:EventTriggerBehavior>
-    </i:Interaction.Behaviors>
-
 
     <Border x:Name="LayoutRoot">
         <VisualStateManager.VisualStateGroups>

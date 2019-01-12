@@ -5,6 +5,7 @@ using NicoPlayerHohoema.Services.Helpers;
 using NicoPlayerHohoema.Services.Page;
 using Prism.Commands;
 using Prism.Events;
+using Prism.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -125,7 +126,7 @@ namespace NicoPlayerHohoema.Services
                             Label = "動画情報を開く",
                             Command = new DelegateCommand(() =>
                             {
-                                PageManager.OpenPage(HohoemaPageType.VideoInfomation, videoId);
+                                PageManager.OpenPageWithId(HohoemaPageType.VideoInfomation, videoId);
 
                                 NotificationService.DismissInAppNotification();
                             })
@@ -164,7 +165,7 @@ namespace NicoPlayerHohoema.Services
                             Label = "放送情報を確認",
                             Command = new DelegateCommand(() =>
                             {
-                                PageManager.OpenPage(HohoemaPageType.LiveInfomation, liveId);
+                                PageManager.OpenPageWithId(HohoemaPageType.LiveInfomation, liveId);
 
                                 NotificationService.DismissInAppNotification();
                             })
@@ -180,7 +181,7 @@ namespace NicoPlayerHohoema.Services
                     Label = "コミュニティを開く",
                     Command = new DelegateCommand(() =>
                     {
-                        PageManager.OpenPage(HohoemaPageType.Community, liveDesc.VideoInfo.Community.GlobalId);
+                        PageManager.OpenPageWithId(HohoemaPageType.Community, liveDesc.VideoInfo.Community.GlobalId);
 
                         NotificationService.DismissInAppNotification();
                     })
@@ -214,7 +215,7 @@ namespace NicoPlayerHohoema.Services
                             Label = "マイリストを開く",
                             Command = new DelegateCommand(() =>
                             {
-                                PageManager.OpenPage(HohoemaPageType.Mylist, new MylistPagePayload(mylistId).ToParameterString());
+                                PageManager.OpenPageWithId(HohoemaPageType.Mylist, mylistId);
 
                                 NotificationService.DismissInAppNotification();
                             })
@@ -247,7 +248,7 @@ namespace NicoPlayerHohoema.Services
                             Label = "コミュニティを開く",
                             Command = new DelegateCommand(() =>
                             {
-                                PageManager.OpenPage(HohoemaPageType.Community, communityId);
+                                PageManager.OpenPageWithId(HohoemaPageType.Community, communityId);
 
                                 NotificationService.DismissInAppNotification();
                             })
@@ -274,7 +275,7 @@ namespace NicoPlayerHohoema.Services
                             Label = "ユーザー情報を開く",
                             Command = new DelegateCommand(() =>
                             {
-                                PageManager.OpenPage(HohoemaPageType.UserInfo, userId);
+                                PageManager.OpenPageWithId(HohoemaPageType.UserInfo, userId);
 
                                 NotificationService.DismissInAppNotification();
                             })
@@ -284,7 +285,7 @@ namespace NicoPlayerHohoema.Services
                             Label = "動画一覧を開く",
                             Command = new DelegateCommand(() =>
                             {
-                                PageManager.OpenPage(HohoemaPageType.UserVideo, userId);
+                                PageManager.OpenPageWithId(HohoemaPageType.UserVideo, userId);
 
                                 NotificationService.DismissInAppNotification();
                             })

@@ -1,6 +1,6 @@
 ﻿using NicoPlayerHohoema.Models;
-using Prism.Windows.Mvvm;
-using Prism.Windows.Navigation;
+using Prism.Mvvm;
+using Prism.Navigation;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -14,7 +14,7 @@ using System.Windows.Input;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public sealed class NicoAccountIntroductionPageViewModel : ViewModelBase
+    public sealed class NicoAccountIntroductionPageViewModel : BindableBase, Prism.Navigation.INavigationAware
     {
         public NicoAccountIntroductionPageViewModel(
             NiconicoSession niconicoSession,
@@ -33,9 +33,14 @@ namespace NicoPlayerHohoema.ViewModels
 
         CompositeDisposable disposables;
 
-        
 
-        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        public void OnNavigatedFrom(INavigationParameters parameters)
+        {
+            disposables?.Dispose();
+            disposables = null;
+        }
+
+        public void OnNavigatedTo(INavigationParameters parameters)
         {
             disposables?.Dispose();
             disposables = new CompositeDisposable();
@@ -43,7 +48,7 @@ namespace NicoPlayerHohoema.ViewModels
             IsLoggedIn.Where(x => x)
                 .Take(1)
                 .Delay(TimeSpan.FromSeconds(2.5)) /* ここでログイン確認後の遷移前タメ時間を調整 */
-                .Subscribe(_ => 
+                .Subscribe(_ =>
                 {
                     GoNextIntroduction.Execute(null);
                 });
@@ -54,15 +59,11 @@ namespace NicoPlayerHohoema.ViewModels
             }
             catch { }
 
-            base.OnNavigatedTo(e, viewModelState);
         }
 
-        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+        public void OnNavigatingTo(INavigationParameters parameters)
         {
-            disposables?.Dispose();
-            disposables = null;
-
-            base.OnNavigatingFrom(e, viewModelState, suspending);
+            
         }
     }
 }

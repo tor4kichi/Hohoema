@@ -4,13 +4,14 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
-using Prism.Windows.Navigation;
 using Prism.Commands;
 using NicoPlayerHohoema.Models;
 using System.Reactive.Linq;
 using Microsoft.Toolkit.Uwp.UI;
 using NicoPlayerHohoema.Services.Helpers;
 using NicoPlayerHohoema.Services;
+using Prism.Navigation;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -21,8 +22,8 @@ namespace NicoPlayerHohoema.ViewModels
             Services.DialogService dialogService,
             RankingSettings rankingSettings
             )
-            : base(pageManager)
         {
+            PageManager = pageManager;
             HohoemaDialogService = dialogService;
             RankingSettings = rankingSettings;
 
@@ -208,6 +209,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         }
 
+        public PageManager PageManager { get; }
 
         public Services.DialogService HohoemaDialogService { get; }
         public RankingSettings RankingSettings { get; }
@@ -221,15 +223,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         public DelegateCommand AddFavRankingCategory { get; private set; }
         public DelegateCommand AddDislikeRankingCategory { get; private set; }
-
-
-
-
-
-        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-        {
-            base.OnNavigatedTo(e, viewModelState);
-        }
 
 
         void ResetRankingCategoryItems()
@@ -266,7 +259,11 @@ namespace NicoPlayerHohoema.ViewModels
 
         internal void OnRankingCategorySelected(RankingCategory info)
         {
-            PageManager.OpenPage(HohoemaPageType.RankingCategory, info.ToString());
+            var p = new NavigationParameters
+            {
+                { "category", info }
+            };
+            PageManager.OpenPage(HohoemaPageType.RankingCategory, p);
         }
 
 
@@ -276,6 +273,12 @@ namespace NicoPlayerHohoema.ViewModels
             var categoryInfo = RankingCategoryInfo.CreateFromRankingCategory(category);
             var isFavoriteCategory = RankingSettings.HighPriorityCategory.Contains(categoryInfo);
             return new RankingCategoryListPageListItem(category, isFavoriteCategory, OnRankingCategorySelected);
+        }
+
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
+        {
+            pin = null;
+            return false;
         }
     }
 

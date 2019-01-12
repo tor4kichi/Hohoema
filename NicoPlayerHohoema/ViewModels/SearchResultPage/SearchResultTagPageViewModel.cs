@@ -7,7 +7,7 @@ using NicoPlayerHohoema.Models.Subscription;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
 using Prism.Commands;
-using Prism.Windows.Navigation;
+using Prism.Navigation;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -17,12 +17,12 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Windows.UI.Xaml.Navigation;
 
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, Interfaces.ISearchWithtag
+    
+	public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, Interfaces.ISearchWithtag, INavigatedAwareAsync
     {
         public SearchResultTagPageViewModel(
            NGSettings ngSettings,
@@ -35,11 +35,11 @@ namespace NicoPlayerHohoema.ViewModels
            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand,
            NiconicoFollowToggleButtonService followButtonService
            )
-           : base(pageManager, useDefaultPageTitle: false)
         {
             SearchProvider = searchProvider;
             SubscriptionManager = subscriptionManager;
             HohoemaPlaylist = hohoemaPlaylist;
+            PageManager = pageManager;
             NgSettings = ngSettings;
             NiconicoSession = niconicoSession;
             HohoemaDialogService = dialogService;
@@ -85,6 +85,7 @@ namespace NicoPlayerHohoema.ViewModels
         public SearchProvider SearchProvider { get; }
         public SubscriptionManager SubscriptionManager { get; }
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public PageManager PageManager { get; }
         public Services.DialogService HohoemaDialogService { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
         public NiconicoFollowToggleButtonService FollowButtonService { get; }
@@ -196,7 +197,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public ReactiveProperty<bool> FailLoading { get; private set; }
 
-		public TagSearchPagePayloadContent SearchOption { get; private set; }
+        static public TagSearchPagePayloadContent SearchOption { get; private set; }
 		public ReactiveProperty<int> LoadedPage { get; private set; }
 
 
@@ -217,8 +218,7 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         if (target.HasValue && target.Value != SearchOption.SearchTarget)
                         {
-                            var payload = SearchPagePayloadContentHelper.CreateDefault(target.Value, SearchOption.Keyword);
-                            PageManager.Search(payload);
+                            PageManager.Search(target.Value, SearchOption.Keyword);
                         }
                     }));
             }
@@ -252,19 +252,18 @@ namespace NicoPlayerHohoema.ViewModels
 
         #endregion
 
-        protected override string ResolvePageName()
+        public override Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            return $"\"{SearchOption.Keyword}\"";
-        }
-
-        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-            if (e.Parameter is string && e.NavigationMode == NavigationMode.New)
+            var mode = parameters.GetNavigationMode();
+            if (mode == NavigationMode.New)
             {
-                SearchOption = PagePayloadBase.FromParameterString<TagSearchPagePayloadContent>(e.Parameter as string);                
+                SearchOption = new TagSearchPagePayloadContent()
+                {
+                    Keyword = parameters.GetValue<string>("keyword")
+                };
             }
 
-            SelectedSearchTarget.Value = SearchOption?.SearchTarget ?? SearchTarget.Tag;
+            SelectedSearchTarget.Value = SearchTarget.Tag;
 
             SelectedSearchSort.Value = VideoSearchOptionListItems.First(x => x.Sort == SearchOption.Sort && x.Order == SearchOption.Order);
 
@@ -283,26 +282,9 @@ namespace NicoPlayerHohoema.ViewModels
 
             RaisePropertyChanged(nameof(TagSearchBookmark));
 
-            
 
-            base.OnNavigatedTo(e, viewModelState);
-		}
-
-
-        protected override Task ListPageNavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			if (SearchOption == null) { return Task.CompletedTask; }
-
-			return base.ListPageNavigatedToAsync(cancelToken, e, viewModelState);
-		}
-
-        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
-        {
-            viewModelState[nameof(SearchOption)] = SearchOption.ToParameterString();
-
-            base.OnNavigatingFrom(e, viewModelState, suspending);
+            return base.OnNavigatedToAsync(parameters);
         }
-
 
 
         protected override void PostResetList()
@@ -322,21 +304,25 @@ namespace NicoPlayerHohoema.ViewModels
 		
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
 		{
-			var source = IncrementalLoadingItems?.Source as VideoSearchSource;
-			if (source == null) { return true; }
+			if (ItemsView.Source == null) { return true; }
 
-			if (SearchOption != null)
-			{
-				return !SearchOption.Equals(source.SearchOption);
-			}
-			else
-			{
-				return base.CheckNeedUpdateOnNavigateTo(mode);
-			}
-		}
+            return base.CheckNeedUpdateOnNavigateTo(mode);
+        }
 
-		#endregion
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
+        {
+            pin = new HohoemaPin()
+            {
+                Label = SearchOption.Keyword,
+                PageType = HohoemaPageType.SearchResultTag,
+                Parameter = $"keyword={SearchOption.Keyword}&target={SearchOption.SearchTarget}"
+            };
+
+            return true;
+        }
+
+        #endregion
 
 
-	}
+    }
 }

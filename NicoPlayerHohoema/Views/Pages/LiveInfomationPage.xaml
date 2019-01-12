@@ -12,7 +12,7 @@
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
-    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mvvm="using:Prism.Mvvm"
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector"
@@ -22,7 +22,7 @@
     xmlns:recommend="using:Mntone.Nico2.Live.Recommend"
     xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:live="using:Mntone.Nico2.Live"
-    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    DataContext="{x:Null}"
     >
 
     <Grid>

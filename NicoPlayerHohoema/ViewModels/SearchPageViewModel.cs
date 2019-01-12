@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Prism.Windows.Navigation;
 using NicoPlayerHohoema.Models;
 using System.Collections.ObjectModel;
 using Reactive.Bindings;
@@ -30,11 +29,10 @@ namespace NicoPlayerHohoema.ViewModels
             SearchProvider searchProvider,
             Services.PageManager pageManager
             )
-            : base(pageManager)
         {
             NiconicoSession = niconicoSession;
             SearchProvider = searchProvider;
-
+            PageManager = pageManager;
             HashSet<string> HistoryKeyword = new HashSet<string>();
             foreach (var item in Database.SearchHistoryDb.GetAll().OrderByDescending(x => x.LastUpdated))
             {
@@ -115,7 +113,7 @@ namespace NicoPlayerHohoema.ViewModels
                 var searchOption = SearchOptionVM.Value.MakePayload();
 
                 // 検索結果を表示
-                PageManager.Search(searchOption);
+                //PageManager.Search(SearchOptionVM.Value.);
 
                 var searched = Database.SearchHistoryDb.Searched(SearchText.Value, SelectedTarget.Value);
 
@@ -133,7 +131,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public Models.NiconicoSession NiconicoSession { get; }
         public SearchProvider SearchProvider { get; }
-
+        public PageManager PageManager { get; }
 
         public ISearchPagePayloadContent RequireSearchOption { get; private set; }
 
@@ -172,7 +170,12 @@ namespace NicoPlayerHohoema.ViewModels
 			RaisePropertyChanged(nameof(IsSearchNiconama));
 		}
 
-		
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
+        {
+            pin = null;
+            return false;
+        }
+
         private DelegateCommand _ShowSearchHistoryCommand;
 		public DelegateCommand ShowSearchHistoryCommand
 		{
@@ -238,7 +241,7 @@ namespace NicoPlayerHohoema.ViewModels
                     ));
             }
         }
-
+        /*
         public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
 		{
 			// コミュニティ検索はログインが必要            
@@ -253,6 +256,7 @@ namespace NicoPlayerHohoema.ViewModels
             _LastKeyword = SearchText.Value;
             base.OnNavigatingFrom(e, viewModelState, suspending);
         }
+        */
     }
 
 

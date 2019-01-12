@@ -10,7 +10,7 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:HohoemaCommand="using:NicoPlayerHohoema.Commands"
-    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mvvm="using:Prism.Mvvm"
     x:Name="FlyoutRoot"    
     mc:Ignorable="d">
 

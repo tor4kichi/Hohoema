@@ -24,6 +24,7 @@ namespace NicoPlayerHohoema.Commands
 
         protected override async void Execute(object parameter)
         {
+            /*
             var localStorge = new Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper();
 
             switch (PageManager.CurrentPageType)
@@ -51,6 +52,7 @@ namespace NicoPlayerHohoema.Commands
 
                     break;
             }
+            */
         }
     }
 }

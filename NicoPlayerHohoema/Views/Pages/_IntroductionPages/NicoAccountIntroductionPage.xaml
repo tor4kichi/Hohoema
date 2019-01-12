@@ -8,9 +8,8 @@
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mvvm="using:Prism.Mvvm"
     xmlns:controls="using:WinRTXamlToolkit.Controls"
-    mvvm:ViewModelLocator.AutoWireViewModel="True"
     mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
 

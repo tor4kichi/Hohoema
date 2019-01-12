@@ -25,20 +25,15 @@
     xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:model="using:NicoPlayerHohoema.Models"
-    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mvvm="using:Prism.Mvvm"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:system1="using:System"
     xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector"
-    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    DataContext="{x:Null}"
     x:Name="RootLayout"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <i:Interaction.Behaviors>
-        <core:EventTriggerBehavior EventName="Unloaded">
-            <core:CallMethodAction TargetObject="{Binding}" MethodName="Dispose" />
-        </core:EventTriggerBehavior>
-    </i:Interaction.Behaviors>
 
     <UserControl.Resources>
 
@@ -814,12 +809,6 @@
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-
-        <i:Interaction.Behaviors>
-            <core:EventTriggerBehavior EventName="Unloaded">
-                <core:CallMethodAction TargetObject="{Binding}" MethodName="Dispose" />
-            </core:EventTriggerBehavior>
-        </i:Interaction.Behaviors>
 
         <toolkit:LayoutTransformControl
                 x:Name="LayoutTransform"
