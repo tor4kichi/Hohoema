@@ -154,7 +154,10 @@ namespace NicoPlayerHohoema.ViewModels
 
         public Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            Keyword = parameters.GetValue<string>("keyword");
+            if (parameters.TryGetValue("keyword", out string keyword))
+            {
+                Keyword = keyword;
+            }
 
             SearchWithTargetCommand.RaiseCanExecuteChanged();
 

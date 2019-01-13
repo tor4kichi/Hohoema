@@ -23,6 +23,7 @@
     xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:live="using:Mntone.Nico2.Live"
     DataContext="{x:Null}"
+    NavigationCacheMode="Enabled"
     >
 
     <Grid>

@@ -133,17 +133,18 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
-        {// ナビゲーションパラメータからコミュニティIDを取得
+        {
+            
+            // ナビゲーションパラメータからコミュニティIDを取得
             IsFailed = false;
             try
             {
                 NowLoading = true;
 
-                CommunityId = parameters.GetValue<string>("id");
-
-                // コミュニティ情報の取得
-                if (!string.IsNullOrEmpty(CommunityId))
+                if (parameters.TryGetValue("id", out string id))
                 {
+                    CommunityId = id;
+
                     var res = await CommunityProvider.GetCommunityInfo(CommunityId);
 
                     if (res == null || !res.IsStatusOK) { return; }
@@ -259,6 +260,8 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 NowLoading = false;
             }
+
+            PageManager.PageTitle = CommunityName;
         }
 
 

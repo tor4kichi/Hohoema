@@ -19,6 +19,7 @@
     xmlns:viewmodels="using:NicoPlayerHohoema.ViewModels"
     xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector"
     DataContext="{x:Null}"
+    NavigationCacheMode="Enabled"
     xmlns:liveDetail="using:Mntone.Nico2.Live.ReservationsInDetail"
     mc:Ignorable="d"
     >

@@ -22,6 +22,7 @@
     xmlns:myTrigger="using:NicoPlayerHohoema.Views.StateTrigger"
     xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts"
     DataContext="{x:Null}"
+    NavigationCacheMode="Enabled"
     mc:Ignorable="d"
     >
     <Grid>

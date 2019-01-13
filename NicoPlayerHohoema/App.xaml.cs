@@ -94,7 +94,23 @@ namespace NicoPlayerHohoema
                 _ = OutputErrorFile(e.Exception, e.SourcePageType?.AssemblyQualifiedName);
             };
 
+            
+            rootFrame.Navigating += (_, e) => 
+            {
+                var pageManager = Container.Resolve<PageManager>();
+                pageManager.RefrectNavigating(e);
+            };
 
+            rootFrame.Navigated += (_, e) =>
+            {
+                var pageManager = Container.Resolve<PageManager>();
+                pageManager.RefrectNavigationState(e);
+            };
+            rootFrame.NavigationFailed += (_, e) =>
+            {
+                var pageManager = Container.Resolve<PageManager>();
+                pageManager.RefrectNavigateFailed(e);
+            };
             // Grid
             //   |- HohoemaInAppNotification
             //   |- PlayerWithPageContainerViewModel
@@ -216,7 +232,7 @@ namespace NicoPlayerHohoema
 
 
             var layout = CreateShell(out var frame);
-            var ns = Prism.Navigation.NavigationService.Create(frame, Window.Current.CoreWindow, Gesture.Back, Gesture.Forward, Gesture.Refresh);
+            var ns = Prism.Navigation.NavigationService.Create(frame, Window.Current.CoreWindow, /*Gesture.Back, */ Gesture.Forward, Gesture.Refresh);
 
             Container.GetContainer().RegisterInstance(ns);
 
@@ -253,27 +269,9 @@ namespace NicoPlayerHohoema
             // サンプルではこちらを使っているが、Hohoemaの場合は自前でコンテンツセットからアクティベートまでやっている
             // NavigationService.SetAsWindowContent(Window.Current, true);
 
-
-
-
-            // Workaround: Gesture.Back is not Handled, that not correctly behavior.
-            SystemNavigationManager.GetForCurrentView().BackRequested += PageManager_BackRequested;
-
-
-
             base.OnInitialized();
         }
 
-        // Workaround: Prism.Services.GestureService not handled SystemNavigationManager.BackRequested
-
-        private void PageManager_BackRequested(object sender, BackRequestedEventArgs e)
-        {
-            var ns = Container.Resolve<INavigationService>();
-            if (ns.CanGoBack())
-            {
-                e.Handled = true;
-            }
-        }
 
         public override async Task OnStartAsync(StartArgs args)
         {

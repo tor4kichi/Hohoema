@@ -16,6 +16,7 @@
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
     xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     DataContext="{x:Null}"
+    NavigationCacheMode="Enabled"
     mc:Ignorable="d">
 
     <Grid >

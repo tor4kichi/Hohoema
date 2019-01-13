@@ -24,7 +24,7 @@ namespace NicoPlayerHohoema.Services
 {
     public struct PageNavigationEventArgs
     {
-        public string Quary { get; set; }
+        public HohoemaPageType PageType { get; set; }
         public INavigationParameters Paramter { get; set; }
         public bool IsMainViewTarget { get; set; }
         public NavigationStackBehavior Behavior { get; set; }
@@ -77,12 +77,33 @@ namespace NicoPlayerHohoema.Services
                     }
                 }
                 , ThreadOption.UIThread);
+
+            SystemNavigationManager.GetForCurrentView().BackRequested += PageManager_BackRequested;
         }
 
+        private void PageManager_BackRequested(object sender, BackRequestedEventArgs e)
+        {
+            if (PlayerViewManager.IsMainView)
+            {
+                // ウィンドウ全体で再生している場合 → バックキーで小窓表示へ移行
+                // それ以外の場合 → ページのバック処理
+                if (PlayerViewManager.IsPlayingWithPrimaryView 
+                    && !PlayerViewManager.IsPlayerSmallWindowModeEnabled)
+                {
+                    PlayerViewManager.IsPlayerSmallWindowModeEnabled = true;
+                    e.Handled = true;
+                }
+                else if (NavigationService.CanGoBack())
+                {
+                    _ = NavigationService.GoBackAsync();
+                    e.Handled = true;
+                }
+            }
+        }
 
         void Navigation(PageNavigationEventArgs args)
         {
-            var pageType = args.Quary;
+            var pageType = args.PageType;
             var parameter = args.Paramter;
             var behavior = args.Behavior;
 
@@ -103,9 +124,11 @@ namespace NicoPlayerHohoema.Services
                     try
                     {
                         var prefix = behavior == NavigationStackBehavior.Root ? "/" : String.Empty;
-                        var result = await NavigationService.NavigateAsync(prefix + pageType.ToString(), parameter);
+                        var result = await NavigationService.NavigateAsync($"{prefix}{pageType.ToString()}Page", parameter);
                         if (result.Success)
                         {
+                            PageTitle = PageTitle ?? PageTypeToTitle(pageType);
+
                             if (behavior == NavigationStackBehavior.NotRemember /*|| IsIgnoreRecordPageType(oldPageType)*/)
                             {
                                 ForgetLastPage();
@@ -123,6 +146,35 @@ namespace NicoPlayerHohoema.Services
                 }
             });
         }
+
+        string _previousPageTitle;
+        public void RefrectNavigating(Windows.UI.Xaml.Navigation.NavigatingCancelEventArgs e)
+        {
+            _previousPageTitle = PageTitle;
+            PageTitle = null;
+        }
+
+        public void RefrectNavigationState(Windows.UI.Xaml.Navigation.NavigationEventArgs e)
+        {
+            if (e.NavigationMode == Windows.UI.Xaml.Navigation.NavigationMode.Back
+                    || e.NavigationMode == Windows.UI.Xaml.Navigation.NavigationMode.Forward)
+            {
+                var pageNameRaw = e.SourcePageType.FullName.Split('.').LastOrDefault();
+                var pageName = pageNameRaw.Split('_').FirstOrDefault();
+                if (Enum.TryParse(pageName.Substring(0, pageName.Length - 4), out HohoemaPageType pageType))
+                {
+                    CurrentPageType = pageType;
+                    PageTitle = PageTitle ?? PageTypeToTitle(CurrentPageType);
+                }
+            }
+        }
+        public void RefrectNavigateFailed(Windows.UI.Xaml.Navigation.NavigationFailedEventArgs e)
+        {
+            PageTitle = _previousPageTitle;
+        }
+
+
+
 
         public static int MainViewId = ApplicationView.GetApplicationViewIdForWindow(CoreApplication.MainView.CoreWindow);
 
@@ -417,7 +469,7 @@ namespace NicoPlayerHohoema.Services
             EventAggregator.GetEvent<PageNavigationEvenet>()
                 .Publish(new PageNavigationEventArgs()
                 {
-                    Quary = $"{pageType}Page",
+                    PageType = pageType,
                     Paramter = parameter,
                     IsMainViewTarget = true,
                     Behavior = stackBehavior,
@@ -430,7 +482,7 @@ namespace NicoPlayerHohoema.Services
             EventAggregator.GetEvent<PageNavigationEvenet>()
                 .Publish(new PageNavigationEventArgs()
                 {
-                    Quary = $"{pageType}Page",
+                    PageType = pageType,
                     Paramter = parameter,
                     IsMainViewTarget = true,
                     Behavior = stackBehavior,
@@ -443,7 +495,7 @@ namespace NicoPlayerHohoema.Services
             EventAggregator.GetEvent<PageNavigationEvenet>()
                 .Publish(new PageNavigationEventArgs()
                 {
-                    Quary = $"{pageType}Page",
+                    PageType = pageType,
                     Paramter = parameter,
                     IsMainViewTarget = true,
                     Behavior = stackBehavior,
@@ -542,7 +594,7 @@ namespace NicoPlayerHohoema.Services
 
 		public string CurrentDefaultPageTitle()
 		{
-            return "仮実装";
+            return CurrentPageType.ToCulturelizeString();
 		}
 
 
@@ -659,26 +711,6 @@ namespace NicoPlayerHohoema.Services
 
 
 
-	public class PageInfo
-	{
-		public PageInfo(HohoemaPageType pageType, object parameter = null, string pageTitle = null)
-		{
-			PageType = pageType;
-			Parameter = parameter;
-			PageTitle = String.IsNullOrEmpty(pageTitle) ? PageManager.PageTypeToTitle(pageType) : pageTitle;
-		}
-
-
-		/// <summary>
-		/// 実際にページナビゲーションが行われた場合はIsVirtualがfalse
-		/// ページナビゲーションが行われていない場合はtrue（この場合、ぱんくずリストに表示することが目的）
-		/// </summary>
-		public bool IsVirtual { get; internal set; }
-
-
-		public string PageTitle { get; set; }
-		public HohoemaPageType PageType { get; set; }
-		public object Parameter { get; set; }
-	}
+	
 	
 }

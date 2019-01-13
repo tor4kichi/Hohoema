@@ -169,14 +169,13 @@ namespace NicoPlayerHohoema.ViewModels
                 });
                 */
 
-            /*
+            
             PageManager.ObserveProperty(x => x.PageTitle)
                 .Subscribe(x =>
                 {
                     TitleText = x;
-                    AddPinToCurrentPageCommand.RaiseCanExecuteChanged();
                 });
-                */
+            
             /*
             PageManager.ObserveProperty(x => x.CurrentPageType)
                 .Subscribe(_ => UpdateCanGoBackNavigation());

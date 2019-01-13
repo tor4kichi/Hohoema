@@ -300,23 +300,25 @@ namespace NicoPlayerHohoema.ViewModels
 
             try
             {
-                VideoId = parameters.GetValue<string>("id");
-
-                if (VideoId == null)
+                if (parameters.TryGetValue("id", out string videoId))
                 {
-                    IsLoadFailed.Value = true;
-                    throw new Exception();
-                }
+                    VideoId = videoId;
 
+                    if (VideoId == null)
+                    {
+                        IsLoadFailed.Value = true;
+                        throw new Exception();
+                    }
 
-                _VideoInfo = await NicoVideoProvider.GetNicoVideoInfo(VideoId);
+                    _VideoInfo = await NicoVideoProvider.GetNicoVideoInfo(VideoId);
 
-                await UpdateVideoDescription();
+                    await UpdateVideoDescription();
 
-                UpdateSelfZoning();
+                    UpdateSelfZoning();
 
-                OpenOwnerUserPageCommand.RaiseCanExecuteChanged();
-                OpenOwnerUserVideoPageCommand.RaiseCanExecuteChanged();
+                    OpenOwnerUserPageCommand.RaiseCanExecuteChanged();
+                    OpenOwnerUserVideoPageCommand.RaiseCanExecuteChanged();
+                }                
             }
             catch (Exception ex)
             {

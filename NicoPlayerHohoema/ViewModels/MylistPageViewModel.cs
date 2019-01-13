@@ -624,6 +624,9 @@ namespace NicoPlayerHohoema.ViewModels
                 RaisePropertyChanged(nameof(MylistBookmark));
             }
 
+
+            PageManager.PageTitle = playableList.Label;
+
             await Reset();
         }
        

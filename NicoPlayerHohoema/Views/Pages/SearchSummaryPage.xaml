@@ -18,6 +18,7 @@
     xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     DataContext="{x:Null}"
+    NavigationCacheMode="Enabled"
     mc:Ignorable="d">
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">

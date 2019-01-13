@@ -17,6 +17,7 @@
     xmlns:mycontrols="using:NicoPlayerHohoema.Views.Controls"
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     DataContext="{x:Null}"
+    NavigationCacheMode="Enabled"
     mc:Ignorable="d"
     >
 

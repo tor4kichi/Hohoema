@@ -85,26 +85,27 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            RawChannelId = parameters.GetValue<string>("id");
-
-            if (RawChannelId == null) { return; }
-
-            try
+            if (parameters.TryGetValue("id", out string id))
             {
-                var channelInfo = await ChannelProvider.GetChannelInfo(RawChannelId);
+                RawChannelId = id;
 
-                ChannelId = channelInfo.ChannelId;
-                ChannelName = channelInfo.Name;
-                ChannelScreenName = channelInfo.ScreenName;
-                ChannelOpenTime = channelInfo.ParseOpenTime();
-                ChannelUpdateTime = channelInfo.ParseUpdateTime();
-            }
-            catch
-            {
-                ChannelName = RawChannelId;
-            }
+                try
+                {
+                    var channelInfo = await ChannelProvider.GetChannelInfo(RawChannelId);
 
-            FollowToggleButtonService.SetFollowTarget(this);
+                    ChannelId = channelInfo.ChannelId;
+                    ChannelName = channelInfo.Name;
+                    ChannelScreenName = channelInfo.ScreenName;
+                    ChannelOpenTime = channelInfo.ParseOpenTime();
+                    ChannelUpdateTime = channelInfo.ParseUpdateTime();
+                }
+                catch
+                {
+                    ChannelName = RawChannelId;
+                }
+
+                FollowToggleButtonService.SetFollowTarget(this);
+            }
 
             PageManager.PageTitle = ChannelName;
 

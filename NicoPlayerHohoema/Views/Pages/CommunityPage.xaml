@@ -18,6 +18,7 @@
     xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:listitem="using:NicoPlayerHohoema.Views.HohoemaListItem"
     DataContext="{x:Null}"
+    NavigationCacheMode="Enabled"
     mc:Ignorable="d"
     >
 

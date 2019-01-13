@@ -78,7 +78,6 @@ namespace NicoPlayerHohoema.ViewModels
             _NavigatingCompositeDisposable = null;
         }
 
-
         protected abstract bool TryGetHohoemaPin(out HohoemaPin pin);
     }
 }

@@ -343,8 +343,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             FollowToggleButtonService.SetFollowTarget(this);
-
-
         }
 
         protected override bool TryGetHohoemaPin(out HohoemaPin pin)

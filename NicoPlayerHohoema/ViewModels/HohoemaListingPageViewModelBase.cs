@@ -69,33 +69,43 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        public override void OnNavigatingTo(INavigationParameters parameters)
+        {
+            var navigationMode = parameters.GetNavigationMode();
+            if (navigationMode == NavigationMode.New || navigationMode == NavigationMode.Refresh)
+            {
+                ItemsView = null;
+                RaisePropertyChanged(nameof(ItemsView));
+            }
+
+            base.OnNavigatingTo(parameters);
+        }
+
         public virtual async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             var navigationMode = parameters.GetNavigationMode();
-            if (navigationMode == NavigationMode.Back || navigationMode == NavigationMode.Forward)
+            if (ItemsView == null
+                || CheckNeedUpdateOnNavigateTo(navigationMode))
             {
                 await ResetList();
             }
-            else
-            {
-                if (ItemsView == null
-                    || CheckNeedUpdateOnNavigateTo(navigationMode))
-                {
-                    await ResetList();
-                }
-            }
+        }
+
+        public override void OnNavigatedFrom(INavigationParameters parameters)
+        {
+            base.OnNavigatedFrom(parameters);
         }
 
 
 
-		protected async Task ResetList()
+        protected async Task ResetList()
 		{
             using (var releaser = await _ItemsUpdateLock.LockAsync())
             {
                 HasItem.Value = true;
                 LoadedItemsCount.Value = 0;
 
-                if (ItemsView.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
+                if (ItemsView?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
                 {
                     if (oldItems.Source is HohoemaIncrementalSourceBase<ITEM_VM> hohoemaIncrementalSource)
                     {
@@ -172,13 +182,17 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected virtual bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
         {
-            return true;
-
-            /*
-            if (mode == NavigationMode.New)
+            if (mode == NavigationMode.New || mode == NavigationMode.Refresh)
             {
                 return true;
             }
+            else
+            {
+                return false;
+            }
+
+            /*
+            
 
             var elpasedTime = DateTime.Now - LatestUpdateTime;
             if (elpasedTime > TimeSpan.FromMinutes(30))

@@ -68,9 +68,10 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override void OnNavigatedTo(INavigationParameters parameters)
         {
-            Guid restoreId = parameters.GetValue<Guid>("id");
-
-            SelectedSubscription.Value = SubscriptionManager.Subscriptions.FirstOrDefault(x => x.Id == restoreId);
+            if (parameters.TryGetValue<Guid>("id", out Guid id))
+            {
+                SelectedSubscription.Value = SubscriptionManager.Subscriptions.FirstOrDefault(x => x.Id == id);
+            }
 
             base.OnNavigatedTo(parameters);
         }

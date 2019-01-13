@@ -46,20 +46,24 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            var userId = parameters.GetValue<string>("id");
-            UserId = userId;
-
-            User = await UserProvider.GetUserDetail(UserId);
-
-            if (User != null)
+            if (parameters.TryGetValue<string>("id", out string userId))
             {
-                IsOwnerVideoPrivate = User.IsOwnerVideoPrivate;
-                UserName = User.Nickname;
+                UserId = userId;
+
+                User = await UserProvider.GetUserDetail(UserId);
+
+                if (User != null)
+                {
+                    IsOwnerVideoPrivate = User.IsOwnerVideoPrivate;
+                    UserName = User.Nickname;
+                }
+                else
+                {
+                    //				UpdateTitle("投稿動画一覧");
+                }
             }
-            else
-            {
-                //				UpdateTitle("投稿動画一覧");
-            }
+
+            PageManager.PageTitle = UserName;
 
             await base.OnNavigatedToAsync(parameters);
         }

@@ -58,10 +58,10 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            CommunityId = parameters.GetValue<string>("id");
-
-            if (CommunityId != null)
+            if (parameters.TryGetValue("id", out string id))
             {
+                CommunityId = id;
+
                 try
                 {
                     var res = await CommunityProvider.GetCommunityDetail(CommunityId);
@@ -74,6 +74,8 @@ namespace NicoPlayerHohoema.ViewModels
                     Debug.WriteLine("コミュ情報取得に失敗");
                 }
             }
+
+            PageManager.PageTitle = CommunityName;
 
             await base.OnNavigatedToAsync(parameters);
         }

@@ -274,9 +274,10 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            var userId = parameters.GetValue<string>("id");
-
-            UserId = userId;
+            if (parameters.TryGetValue<string>("id", out string userId))
+            {
+                UserId = userId;
+            }
 
             if ((UserId == null && NiconicoSession.IsLoggedIn) || NiconicoSession.IsLoginUserId(UserId))
             {
@@ -301,6 +302,8 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 throw new Exception("UserMylistPage が不明なパラメータと共に開かれました : " + parameters.ToString());
             }
+
+            PageManager.PageTitle = UserName;
 
             AddMylistGroupCommand.RaiseCanExecuteChanged();
 

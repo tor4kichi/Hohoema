@@ -17,6 +17,7 @@
     xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
     DataContext="{x:Null}"
+    NavigationCacheMode="Enabled"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400"

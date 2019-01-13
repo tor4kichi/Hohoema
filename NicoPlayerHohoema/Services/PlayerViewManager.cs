@@ -141,11 +141,7 @@ namespace NicoPlayerHohoema.Services
                 );
         }
 
-        private void Gesturebarrier_Event(object sender, EventArgs e)
-        {
-            IsPlayerSmallWindowModeEnabled = false;
-        }
-
+       
         public bool IsMainView => MainViewId == CurrentView.Id;
 
 
@@ -277,7 +273,7 @@ namespace NicoPlayerHohoema.Services
                 {
                     var gestureService = GestureService.GetForCurrentView();
                     _backGestureBarrier = gestureService.CreateBarrier(Gesture.Back);
-                    _backGestureBarrier.Event += Gesturebarrier_Event;
+                    _backGestureBarrier.Event += (_, e) => IsPlayerSmallWindowModeEnabled = false;
                 }
 
                 ApplicationView currentView = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView();
@@ -324,6 +320,8 @@ namespace NicoPlayerHohoema.Services
                 }
             });
         }
+
+        
 
 
         private Window _CurrentMediaPlayerWindow;

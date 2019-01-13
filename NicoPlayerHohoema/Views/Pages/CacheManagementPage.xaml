@@ -19,6 +19,7 @@
     xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
     xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
     DataContext="{x:Null}"
+    NavigationCacheMode="Enabled"
     mc:Ignorable="d"
     >
 
