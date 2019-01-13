@@ -195,6 +195,7 @@
     <Compile Include="Services\Page\PreventBackNavigationOnShowPlayerService.cs" />
     <Compile Include="Models\Niconico\ICommentService.cs" />
     <Compile Include="Services\PinningCurrentPageRequestEvent.cs" />
+    <Compile Include="ViewModels\BlankPageViewModel.cs" />
     <Compile Include="ViewModels\Flyouts\LiveItemFlyoutViewModel.cs" />
     <Compile Include="ViewModels\Flyouts\MylistItemFlyoutViewModel.cs" />
     <Compile Include="ViewModels\Flyouts\FollowItemFlyoutViewModel.cs" />
