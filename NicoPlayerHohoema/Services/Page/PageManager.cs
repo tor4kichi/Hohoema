@@ -90,7 +90,7 @@ namespace NicoPlayerHohoema.Services
                 if (PlayerViewManager.IsPlayingWithPrimaryView 
                     && !PlayerViewManager.IsPlayerSmallWindowModeEnabled)
                 {
-                    PlayerViewManager.IsPlayerSmallWindowModeEnabled = true;
+                    //PlayerViewManager.IsPlayerSmallWindowModeEnabled = true;
                     e.Handled = true;
                 }
                 else if (NavigationService.CanGoBack())

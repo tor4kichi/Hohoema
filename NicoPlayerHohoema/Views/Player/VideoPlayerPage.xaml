@@ -153,7 +153,64 @@
 
             </MenuFlyoutSubItem>
 
-            
+
+            <MenuFlyoutSeparator />
+
+            <MenuFlyoutItem x:Name="FullscreenButton_Menu"  
+                                                            Command="{Binding ToggleFullScreenCommand}"
+                                                            Background="Transparent"
+                                                            Visibility="Collapsed"
+                                                            MinWidth="64"
+                                                                  Text="全画面"
+                                                                  Icon="FullScreen"
+                                                                        >
+            </MenuFlyoutItem>
+
+
+
+            <MenuFlyoutItem x:Name="CompactOverlayButton_Menu"
+                                                            Command="{Binding ToggleCompactOverlayCommand}"
+                                                            Background="Transparent"
+                                                            Visibility="Collapsed"
+                                                            MinWidth="64"
+                                                                  Text="小さく最前面"
+                                                            >
+
+            </MenuFlyoutItem>
+
+
+
+            <MenuFlyoutItem x:Name="SmallWindowButton_Menu"  
+                                                            Command="{Binding PlayerSmallWindowDisplayCommand}"
+                                                            Background="Transparent"
+                                                            Visibility="Collapsed"
+                                                            MinWidth="64"
+                                                                  Text="小窓"
+                                                                        >
+
+            </MenuFlyoutItem>
+
+
+            <MenuFlyoutItem x:Name="DisplayWithSecondaryViewButton_Menu"
+                                                            Command="{Binding PlayerDisplayWithSecondaryViewCommand}"
+                                                            Background="Transparent"
+                                                            Visibility="Collapsed"
+                                                            MinWidth="64"
+                                                                  Text="別ウィンドウ"
+                                                            >
+
+            </MenuFlyoutItem>
+
+            <ToggleMenuFlyoutItem x:Name="ForceRotateToggleButton_Menu" 
+                                                                  IsChecked="{Binding IsForceLandscape.Value, Mode=TwoWay}"
+                                                                  Background="Transparent"
+                                                                  Visibility="Collapsed"
+                                                              MinWidth="64"
+                                                                        Text="横持ち固定"
+                                                                        Icon="Orientation"
+                                                        >
+            </ToggleMenuFlyoutItem>
+
 
 
         </MenuFlyout>
@@ -341,6 +398,8 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="CompactOverlayButton.Visibility" Value="Visible" />
+                        <Setter Target="CompactOverlayButton_Menu.Visibility" Value="Visible" />
+                        
                     </VisualState.Setters>
                 </VisualState>
                 
@@ -395,6 +454,8 @@
                     <VisualState.Setters>
                         <Setter Target="SmallWindowButton.Visibility" Value="Visible" />
                         <Setter Target="FullscreenButton.Visibility" Value="Visible" />
+                        <Setter Target="SmallWindowButton_Menu.Visibility" Value="Visible" />
+                        <Setter Target="FullscreenButton_Menu.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -403,6 +464,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="SmallWindowButton.Visibility" Value="Visible" />
+                        <Setter Target="SmallWindowButton_Menu.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -412,6 +474,8 @@
                     <VisualState.Setters>
                         <Setter Target="SmallWindowButton.Visibility" Value="Visible" />
                         <Setter Target="FullscreenButton.Visibility" Value="Visible" />
+                        <Setter Target="SmallWindowButton_Menu.Visibility" Value="Visible" />
+                        <Setter Target="FullscreenButton_Menu.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -542,6 +606,7 @@
                     <VisualState.Setters>
                         <Setter Target="DisplayWithMainViewButton.Visibility" Value="Visible" />
                         <Setter Target="SmallWindowButton.Visibility" Value="Collapsed" />
+                        <Setter Target="SmallWindowButton_Menu.Visibility" Value="Collapsed" />
 
                         <Setter Target="CloseButton.Visibility" Value="Collapsed" />
                         <Setter Target="CO_CloseButton.Visibility" Value="Collapsed" />
@@ -553,6 +618,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="DisplayWithSecondaryViewButton.Visibility" Value="Visible" />
+                        <Setter Target="DisplayWithSecondaryViewButton_Menu.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -974,6 +1040,7 @@
                     
 
 
+                            
 
                             <mybehavior:UINavigationTrigger Kind="Cancel" Hold="True" 
                                                         IsEnabled="{Binding PlayerViewManager.IsPlayerSmallWindowModeEnabled, Converter={StaticResource BoolNegation}}"
