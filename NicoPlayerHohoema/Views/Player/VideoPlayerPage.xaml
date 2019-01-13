@@ -787,6 +787,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="ForceRotateToggleButton.Visibility" Value="Visible" />
+                        <Setter Target="ForceRotateToggleButton_Menu.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -1296,8 +1297,30 @@
                                                                   Command="{Binding ShareCommand}"
                                                                   Visibility="Collapsed"
                                                                   >
-                                                        
                                                     </AppBarButton>
+                                                    <AppBarButton Label="コピー"
+                                                            Visibility="{Binding IsXbox, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                               >
+                                                        <AppBarButton.Flyout>
+                                                            <MenuFlyout>
+                                                                <MenuFlyoutItem Text="動画IDをコピー"
+                                                                    Command="{Binding ExternalAccessService.CopyToClipboardCommand}"
+                                                                    CommandParameter="{Binding VideoId}"
+                                                                    />
+
+                                                                <MenuFlyoutItem Text="リンクをコピー"
+                                                                    Command="{Binding ExternalAccessService.CopyToClipboardCommand}"
+                                                                    CommandParameter="{Binding}"
+                                                                    />
+
+                                                                <MenuFlyoutItem Text="共有用文章をコピー"
+                                                                    Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}"
+                                                                    CommandParameter="{Binding}"
+                                                                    />
+                                                            </MenuFlyout>
+                                                        </AppBarButton.Flyout>
+                                                    </AppBarButton>
+                                                    
                                                     <AppBarButton x:Name="AddContentButton"
                                                                   Label="追加"
                                                                   Icon="Add"
