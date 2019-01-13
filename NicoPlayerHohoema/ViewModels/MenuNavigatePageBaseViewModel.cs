@@ -175,11 +175,13 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     TitleText = x;
                 });
-            
-            /*
-            PageManager.ObserveProperty(x => x.CurrentPageType)
-                .Subscribe(_ => UpdateCanGoBackNavigation());
-                */
+
+            CanGoBackNavigation = new ReactiveProperty<bool>();
+
+            (NavigationService as IPlatformNavigationService).CanGoBackChanged += (_, e) => 
+            {
+                CanGoBackNavigation.Value = NavigationService.CanGoBack();
+            };
 
             /*
             IsVisibleMenu = PageManager.ObserveProperty(x => x.CurrentPageType)
@@ -420,6 +422,19 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        private DelegateCommand _GoBackNavigationCommand;
+        public DelegateCommand GoBackNavigationCommand
+        {
+            get
+            {
+                return _GoBackNavigationCommand
+                    ?? (_GoBackNavigationCommand = new DelegateCommand(() =>
+                    {
+                        _ = NavigationService.GoBackAsync();
+                    }
+                    ));
+            }
+        }
 
 
         private DelegateCommand _ToggleFullScreenCommand;
@@ -457,6 +472,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<bool> IsForceXboxDisplayMode { get; private set; }
 
+        public ReactiveProperty<bool> CanGoBackNavigation { get; }
 
         public VideoMenuSubPageContent VideoMenu { get; private set; }
         public LiveMenuSubPageContent LiveMenu { get; private set; }

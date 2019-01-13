@@ -78,28 +78,28 @@ namespace NicoPlayerHohoema.Services
                 }
                 , ThreadOption.UIThread);
 
-            SystemNavigationManager.GetForCurrentView().BackRequested += PageManager_BackRequested;
+            
+            SystemNavigationManager.GetForCurrentView().BackRequested += (_, e) => 
+            {
+                if (PlayerViewManager.IsMainView)
+                {
+                    // ウィンドウ全体で再生している場合 → バックキーで小窓表示へ移行
+                    // それ以外の場合 → ページのバック処理
+                    if (PlayerViewManager.IsPlayingWithPrimaryView
+                        && !PlayerViewManager.IsPlayerSmallWindowModeEnabled)
+                    {
+                        //PlayerViewManager.IsPlayerSmallWindowModeEnabled = true;
+                        e.Handled = true;
+                    }
+                    else if (NavigationService.CanGoBack())
+                    {
+                        _ = NavigationService.GoBackAsync();
+                        e.Handled = true;
+                    }
+                }
+            };
         }
 
-        private void PageManager_BackRequested(object sender, BackRequestedEventArgs e)
-        {
-            if (PlayerViewManager.IsMainView)
-            {
-                // ウィンドウ全体で再生している場合 → バックキーで小窓表示へ移行
-                // それ以外の場合 → ページのバック処理
-                if (PlayerViewManager.IsPlayingWithPrimaryView 
-                    && !PlayerViewManager.IsPlayerSmallWindowModeEnabled)
-                {
-                    //PlayerViewManager.IsPlayerSmallWindowModeEnabled = true;
-                    e.Handled = true;
-                }
-                else if (NavigationService.CanGoBack())
-                {
-                    _ = NavigationService.GoBackAsync();
-                    e.Handled = true;
-                }
-            }
-        }
 
         void Navigation(PageNavigationEventArgs args)
         {

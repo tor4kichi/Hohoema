@@ -967,7 +967,7 @@
                                 MinHeight="{StaticResource TitleBarDummyHeight}"
                                 Background="Transparent"
                                 VerticalContentAlignment="Center"
-                            Command="{Binding GoBackNavigationCommand}"
+                                Command="{Binding GoBackNavigationCommand}"
                                     >
                                 <SymbolIcon Symbol="Back" Height="10" Width="10" />
                             </Button>

@@ -72,7 +72,7 @@ namespace NicoPlayerHohoema
             RequestedTheme = GetTheme();
             
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.CacheDuration = TimeSpan.FromDays(7);
-            Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.MaxMemoryCacheCount = 200;
+            Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.MaxMemoryCacheCount = 1000;
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.RetryCount = 3;
 
             this.InitializeComponent();
