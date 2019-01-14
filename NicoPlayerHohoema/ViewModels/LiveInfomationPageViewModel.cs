@@ -1,28 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Mntone.Nico2;
+using Mntone.Nico2.Embed.Ichiba;
+using Mntone.Nico2.Live;
+using Mntone.Nico2.Live.Recommend;
+using Mntone.Nico2.Live.Video;
+using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Models.Helpers;
+using NicoPlayerHohoema.Models.Provider;
+using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.Services.Page;
+using Prism.Commands;
+using Prism.Navigation;
+using Prism.Unity;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
+using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Mntone.Nico2;
-using Mntone.Nico2.Embed.Ichiba;
-using Mntone.Nico2.Live.Recommend;
-using Mntone.Nico2.Live.Video;
-using NicoPlayerHohoema.Models.Helpers;
-using NicoPlayerHohoema.Models;
-using NicoPlayerHohoema.Services;
-using Prism.Commands;
-using Prism.Windows.Navigation;
-using Reactive.Bindings;
-using Reactive.Bindings.Extensions;
-using Unity;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using Unity;
 using Windows.System;
-using NicoPlayerHohoema.Services.Page;
-using NicoPlayerHohoema.Models.Provider;
-using Mntone.Nico2.Live;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -33,7 +32,7 @@ namespace NicoPlayerHohoema.ViewModels
         public string Label { get; set; }
     }
 
-    public sealed class LiveInfomationPageViewModel : HohoemaViewModelBase, Interfaces.ILiveContent
+    public sealed class LiveInfomationPageViewModel : HohoemaViewModelBase, Interfaces.ILiveContent, INavigatedAwareAsync
     {
         // TODO: 視聴開始（会場後のみ、チャンネル会員限定やチケット必要な場合あり）
         // TODO: タイムシフト予約（tsがある場合のみ、会場前のみ、プレミアムの場合は会場後でも可）
@@ -59,8 +58,8 @@ namespace NicoPlayerHohoema.ViewModels
             Services.HohoemaPlaylist hohoemaPlaylist,
             ExternalAccessService externalAccessService
             )
-            : base(pageManager)
         {
+            PageManager = pageManager;
             NiconicoSession = niconicoSession;
             NicoLiveProvider = nicoLiveProvider;
             HohoemaDialogService = dialogService;
@@ -365,7 +364,7 @@ namespace NicoPlayerHohoema.ViewModels
                 else
                 {
                     // まだ存在するゾイ
-                    var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
+                    var notificationService = App.Current.Container.Resolve<Services.NotificationService>();
                     notificationService.ShowInAppNotification(new InAppNotificationPayload()
                     {
                         Content = $"【失敗】タイムシフト予約を削除できませんでした。",
@@ -444,24 +443,16 @@ namespace NicoPlayerHohoema.ViewModels
         public ObservableCollection<HyperlinkItem> DescriptionHyperlinkItems { get; } = new ObservableCollection<HyperlinkItem>();
 
 
-        protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            LiveId = null;
-
-            if (e.Parameter is string maybeLiveId)
-            {
-                if (NiconicoRegex.IsLiveId(maybeLiveId))
-                {
-                    LiveId = maybeLiveId;
-                }
-            }
+            LiveId = parameters.GetValue<string>("id");
 
             await RefreshLiveInfoAsync();
 
             string htmlDescription = null;
             try
             {
-                 htmlDescription = await NiconicoSession.Context.Live.GetDescriptionAsync(LiveId);
+                htmlDescription = await NiconicoSession.Context.Live.GetDescriptionAsync(LiveId);
             }
             catch
             {
@@ -497,7 +488,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                     foreach (var anchor in anchorNodes)
                     {
-                        var url =  new Uri(anchor.Attributes["href"].Value);
+                        var url = new Uri(anchor.Attributes["href"].Value);
                         string label = null;
                         var text = anchor.InnerText;
                         if (string.IsNullOrWhiteSpace(text) || text.Contains('\n') || text.Contains('\r'))
@@ -507,11 +498,11 @@ namespace NicoPlayerHohoema.ViewModels
                         else
                         {
                             label = new string(anchor.InnerText.TrimStart(' ', '\n', '\r').TakeWhile(c => c != ' ' || c != '　').ToArray());
-                        }                            
+                        }
 
                         DescriptionHyperlinkItems.Add(new HyperlinkItem()
                         {
-                            Label =  label,
+                            Label = label,
                             Url = url
                         });
 
@@ -542,10 +533,10 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     Debug.WriteLine("動画説明からリンクを抜き出す処理に失敗");
                 }
-            }
 
-            await base.NavigatedToAsync(cancelToken, e, viewModelState);
+            }
         }
+
 
         public ReactiveProperty<bool> IsLiveInfoLoaded { get; } = new ReactiveProperty<bool>(false);
         private async Task RefreshLiveInfoAsync()
@@ -664,6 +655,7 @@ namespace NicoPlayerHohoema.ViewModels
         AsyncLock _LiveRecommendLock = new AsyncLock();
         public bool IsLiveRecommendInitialized { get; private set; } = false;
         public bool IsEmptyLiveRecommendItems { get; private set; } = false;
+        public PageManager PageManager { get; }
         public Models.NiconicoSession NiconicoSession { get; }
         public NicoLiveProvider NicoLiveProvider { get; }
 
@@ -717,6 +709,18 @@ namespace NicoPlayerHohoema.ViewModels
                 }
             }
         }
+
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
+        {
+            pin = new HohoemaPin()
+            {
+                Label = LiveInfo.Video.Title,
+                PageType = HohoemaPageType.LiveInfomation,
+                Parameter = $"id={LiveId}"
+            };
+
+            return true;
+        }
     }
 
     public enum LiveTagType
@@ -740,7 +744,7 @@ namespace NicoPlayerHohoema.ViewModels
                     ?? (_SearchLiveTagCommand = new DelegateCommand<LiveTagViewModel>((tagVM) => 
                     {
                         var pageManager = App.Current.Container.Resolve<PageManager>();
-                        pageManager.SearchLive(tagVM.Tag, true, null, Order.Ascending, Mntone.Nico2.Searches.Live.NicoliveSearchSort.Recent, Mntone.Nico2.Searches.Live.NicoliveSearchMode.OnAir);
+                        pageManager.Search(SearchTarget.Niconama, tagVM.Tag);
                     }));
             }
         }

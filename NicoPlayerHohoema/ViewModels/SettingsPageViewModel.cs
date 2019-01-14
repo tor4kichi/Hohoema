@@ -1,37 +1,32 @@
-﻿using Prism.Windows.Mvvm;
+﻿using Microsoft.Services.Store.Engagement;
+using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.Services.Page;
+using Prism.Commands;
+using Prism.Mvvm;
+using Prism.Navigation;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Prism.Windows.Navigation;
-using Prism.Mvvm;
-using Reactive.Bindings;
-using NicoPlayerHohoema.Models;
-using Reactive.Bindings.Extensions;
-using Prism.Commands;
 using System.Reactive.Linq;
-using System.Reactive.Disposables;
-using Mntone.Nico2;
-using System.Collections.ObjectModel;
-using Mntone.Nico2.Videos.Ranking;
-using System.Threading;
-using System.Windows.Input;
 using System.Text.RegularExpressions;
-using Windows.UI.ViewManagement;
-using Windows.UI.Xaml;
-using NicoPlayerHohoema.Models.Helpers;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Windows.Input;
 using Windows.ApplicationModel.Store;
 using Windows.Storage;
-using System.Diagnostics;
-using Microsoft.Services.Store.Engagement;
 using Windows.System;
 using Windows.UI.StartScreen;
-using NicoPlayerHohoema.Services;
+using Windows.UI.ViewManagement;
+using Windows.UI.Xaml;
+
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class SettingsPageViewModel : HohoemaViewModelBase
+    public class SettingsPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync
 	{
         
         public SettingsPageViewModel(
@@ -44,7 +39,6 @@ namespace NicoPlayerHohoema.ViewModels
             AppearanceSettings appearanceSettings,
             CacheSettings cacheSettings
             )
-            : base(pageManager)
         {
             ToastNotificationService = toastService;
             NgSettings = ngSettings;
@@ -67,7 +61,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             OpenUserPageCommand = new DelegateCommand<UserIdInfo>(userIdInfo =>
             {
-                pageManager.OpenPage(HohoemaPageType.UserInfo, userIdInfo.UserId);
+                pageManager.OpenPageWithId(HohoemaPageType.UserInfo, userIdInfo.UserId);
             });
 
             // NG Keyword on Video Title
@@ -523,14 +517,9 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        
 
-
-
-
-
-        protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
+        public async Task OnNavigatedToAsync(INavigationParameters parameters)
+        {
             NGVideoTitleKeywords.Value = string.Join("\r", NgSettings.NGVideoTitleKeywords.Select(x => x.Keyword)) + "\r";
 
             try
@@ -543,24 +532,10 @@ namespace NicoPlayerHohoema.ViewModels
 
             IsExistErrorFilesFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("error") != null;
 
-            // return Task.CompletedTask;
         }
 
-		protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
-		{
-            if (suspending)
-			{
-                //				viewModelState[nameof(CurrentSettingsKind)] = CurrentSettingsKind.Value.Kind.ToString();
-                
-            }
-            else
-            {
-                // Note: ページアンロード中にPivotのSelectedItemが操作されると
-                // Xaml側で例外がスローされてしまうようなので
-                // サスペンド処理時はCurrentSettingsContentを変更しない
-                //CurrentSettingsContent.Value = null;                
-            }
-
+        public override void OnNavigatedFrom(INavigationParameters parameters)
+        {
             // フィルタ
             // NG VideoTitleを複数行NG動画タイトル文字列から再構成
             NgSettings.NGVideoTitleKeywords.Clear();
@@ -590,14 +565,19 @@ namespace NicoPlayerHohoema.ViewModels
             });
             */
 
-            base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
-		}
-
+            base.OnNavigatedFrom(parameters);
+        }
 
         private void OnRemoveNGCommentUserIdFromList(string userId)
         {
             var removeTarget = NgSettings.NGCommentUserIds.First(x => x.UserId == userId);
             NgSettings.NGCommentUserIds.Remove(removeTarget);
+        }
+
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
+        {
+            pin = null;
+            return false;
         }
     }
 

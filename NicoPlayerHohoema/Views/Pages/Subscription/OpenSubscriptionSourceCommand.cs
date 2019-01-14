@@ -1,6 +1,7 @@
 ﻿using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
 using Prism.Commands;
+using Prism.Navigation;
 
 namespace NicoPlayerHohoema.Views.Subscriptions
 {
@@ -25,23 +26,24 @@ namespace NicoPlayerHohoema.Views.Subscriptions
                 switch (source.SourceType)
                 {
                     case Models.Subscription.SubscriptionSourceType.User:
-                        PageManager.OpenPage(HohoemaPageType.UserVideo, source.Parameter);
+                        PageManager.OpenPageWithId(HohoemaPageType.UserVideo, source.Parameter);
                         break;
                     case Models.Subscription.SubscriptionSourceType.Channel:
-                        PageManager.OpenPage(HohoemaPageType.ChannelVideo, source.Parameter);
+                        PageManager.OpenPageWithId(HohoemaPageType.ChannelVideo, source.Parameter);
                         break;
                     case Models.Subscription.SubscriptionSourceType.Mylist:
-                        var mylistPagePayload = new MylistPagePayload(source.Parameter)
+                        var p = new NavigationParameters
                         {
-                            Origin = Services.PlaylistOrigin.OtherUser
+                            { "id", source.Parameter },
+                            { "origin", Services.PlaylistOrigin.OtherUser }
                         };
-                        PageManager.OpenPage(HohoemaPageType.Mylist, mylistPagePayload.ToParameterString());
+                        PageManager.OpenPage(HohoemaPageType.Mylist, p);
                         break;
                     case Models.Subscription.SubscriptionSourceType.TagSearch:
-                        PageManager.SearchTag(source.Parameter, Mntone.Nico2.Order.Descending, Mntone.Nico2.Sort.FirstRetrieve);
+                        PageManager.Search(Models.SearchTarget.Tag, source.Parameter);
                         break;
                     case Models.Subscription.SubscriptionSourceType.KeywordSearch:
-                        PageManager.SearchKeyword(source.Parameter, Mntone.Nico2.Order.Descending, Mntone.Nico2.Sort.FirstRetrieve);
+                        PageManager.Search(Models.SearchTarget.Keyword, source.Parameter);
                         break;
                     default:
                         break;

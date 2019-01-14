@@ -10,7 +10,6 @@ using NicoPlayerHohoema.Models.Helpers;
 using Prism.Commands;
 using Reactive.Bindings;
 using System.Collections.ObjectModel;
-using Prism.Windows.Navigation;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using System.Collections.Async;
@@ -18,10 +17,12 @@ using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Live;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Services;
+using Prism.Navigation;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class NicoRepoPageViewModel : HohoemaListingPageViewModelBase<HohoemaListingPageItemBase>
+    public class NicoRepoPageViewModel : HohoemaListingPageViewModelBase<HohoemaListingPageItemBase>, INavigatedAwareAsync
     {
         public NicoRepoPageViewModel(
             
@@ -31,7 +32,6 @@ namespace NicoPlayerHohoema.ViewModels
             Models.Provider.LoginUserNicoRepoProvider loginUserNicoRepoProvider,
             Models.Subscription.SubscriptionManager subscriptionManager
             )
-            : base(pageManager, useDefaultPageTitle: true)
         {
             HohoemaPlaylist = hohoemaPlaylist;
             ActivityFeedSettings = activityFeedSettings;
@@ -69,13 +69,9 @@ namespace NicoPlayerHohoema.ViewModels
         public Models.Provider.LoginUserNicoRepoProvider LoginUserNicoRepoProvider { get; }
         public Models.Subscription.SubscriptionManager SubscriptionManager { get; }
 
-       
-        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-        {
-            base.OnNavigatedTo(e, viewModelState);
-        }
 
-        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+
+        public override void OnNavigatedFrom(INavigationParameters parameters)
         {
             // ニレコポ表示設定をニコレポの設定に書き戻し
             var saveTopics = DisplayNicoRepoItemTopics.Distinct().ToList();
@@ -86,7 +82,7 @@ namespace NicoPlayerHohoema.ViewModels
             ActivityFeedSettings.DisplayNicoRepoItemTopics = DisplayNicoRepoItemTopics.Distinct().ToList();
             ActivityFeedSettings.Save().ConfigureAwait(false);
 
-            base.OnNavigatingFrom(e, viewModelState, suspending);
+            base.OnNavigatedFrom(parameters);
         }
 
         protected override IIncrementalSource<HohoemaListingPageItemBase> GenerateIncrementalSource()
@@ -96,6 +92,12 @@ namespace NicoPlayerHohoema.ViewModels
                 DisplayNicoRepoItemTopics.Add(NicoRepoItemTopic.NicoVideo_User_Video_Upload);
             }
             return new LoginUserNicoRepoTimelineSource(LoginUserNicoRepoProvider, SubscriptionManager, DisplayNicoRepoItemTopics);
+        }
+
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
+        {
+            pin = null;
+            return false;
         }
     }
 

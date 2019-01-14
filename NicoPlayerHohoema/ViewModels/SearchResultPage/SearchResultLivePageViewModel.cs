@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Prism.Windows.Navigation;
 using NicoPlayerHohoema.Models.Helpers;
 using Mntone.Nico2.Searches.Live;
 using Prism.Commands;
@@ -12,23 +11,22 @@ using Reactive.Bindings;
 using System.Reactive.Linq;
 using Reactive.Bindings.Extensions;
 using System.Collections.Async;
-using Windows.UI.Xaml.Navigation;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Models.Provider;
 using Unity;
 using NicoPlayerHohoema.Services;
+using Prism.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class SearchResultLivePageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>
-	{
+    public class SearchResultLivePageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>, INavigatedAwareAsync
+    {
         public SearchResultLivePageViewModel(
             Models.NiconicoSession niconicoSession,
             SearchProvider searchProvider,
             Services.PageManager pageManager,
             HohoemaPlaylist hohoemaPlaylist
             )
-            : base(pageManager, useDefaultPageTitle: false)
         {
             SelectedSearchSort = new ReactiveProperty<LiveSearchSortOptionListItem>(LiveSearchSortOptionListItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);
             SelectedSearchMode = new ReactiveProperty<LiveSearchModeOptionListItem>(LiveSearchModeOptionListItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);
@@ -65,6 +63,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(_CompositeDisposable);
             NiconicoSession = niconicoSession;
             SearchProvider = searchProvider;
+            PageManager = pageManager;
             HohoemaPlaylist = hohoemaPlaylist;
         }
 
@@ -182,7 +181,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<LiveSearchProviderOptionListItem> SelectedProvider { get; private set; }
 
 
-        public LiveSearchPagePayloadContent SearchOption { get; private set; }
+        static public LiveSearchPagePayloadContent SearchOption { get; private set; }
 
 
 
@@ -208,8 +207,7 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         if (target.HasValue && target.Value != SearchOption.SearchTarget)
                         {
-                            var payload = SearchPagePayloadContentHelper.CreateDefault(target.Value, SearchOption.Keyword);
-                            PageManager.Search(payload);
+                            PageManager.Search(target.Value, SearchOption.Keyword);
                         }
                     }));
             }
@@ -233,36 +231,23 @@ namespace NicoPlayerHohoema.ViewModels
 
         public Models.NiconicoSession NiconicoSession { get; }
         public SearchProvider SearchProvider { get; }
+        public PageManager PageManager { get; }
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
 
         #endregion
 
-        protected override string ResolvePageName()
+        public override Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            return $"\"{SearchOption.Keyword}\"";
-        }
-
-        bool _NowNavigatingTo = false;
-
-		public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-        {
-            if (e.Parameter is string && e.NavigationMode == NavigationMode.New)
+            var mode = parameters.GetNavigationMode();
+            if (mode == NavigationMode.New)
             {
-                SearchOption = PagePayloadBase.FromParameterString<LiveSearchPagePayloadContent>(e.Parameter as string);
-            }
-
-            SelectedSearchTarget.Value = SearchOption?.SearchTarget ?? SearchTarget.Niconama;
-
-            if (SearchOption == null)
-            {
-                var oldOption = viewModelState[nameof(SearchOption)] as string;
-                SearchOption = PagePayloadBase.FromParameterString<LiveSearchPagePayloadContent>(oldOption);
-
-                if (SearchOption == null)
+                SearchOption = new LiveSearchPagePayloadContent()
                 {
-                    throw new Exception();
-                }
+                    Keyword = parameters.GetValue<string>("keyword")
+                };
             }
+
+            SelectedSearchTarget.Value = SearchTarget.Niconama;
 
             _NowNavigatingTo = true;
             SelectedSearchSort.Value = LiveSearchSortOptionListItems.FirstOrDefault(x => x.Sort == SearchOption.Sort && x.Order == SearchOption.Order);
@@ -274,16 +259,12 @@ namespace NicoPlayerHohoema.ViewModels
             Database.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
 
 
-            base.OnNavigatedTo(e, viewModelState);
+            return base.OnNavigatedToAsync(parameters);
         }
 
-        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
-        {
-            viewModelState[nameof(SearchOption)] = SearchOption.ToParameterString();
+        bool _NowNavigatingTo = false;
 
-            base.OnNavigatingFrom(e, viewModelState, suspending);
-        }
-
+		
         private void ResetSearchOptionText()
         {
             var optionText = Services.Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
@@ -326,7 +307,19 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			return new LiveSearchSource(SearchOption, SearchProvider, NiconicoSession);
 		}
-	}
+
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
+        {
+            pin = new HohoemaPin()
+            {
+                Label = SearchOption.Keyword,
+                PageType = HohoemaPageType.SearchResultLive,
+                Parameter = $"keyword={SearchOption.Keyword}&target={SearchOption.SearchTarget}"
+            };
+
+            return true;
+        }
+    }
 
 
 

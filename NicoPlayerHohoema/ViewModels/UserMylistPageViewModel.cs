@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Prism.Windows.Navigation;
 using Prism.Commands;
 using Mntone.Nico2.Mylist.MylistGroup;
 using Reactive.Bindings;
@@ -19,13 +18,14 @@ using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Models.LocalMylist;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
+using Prism.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public class UserMylistPageViewModel : HohoemaListingPageViewModelBase<Interfaces.IMylist>
 	{
         public UserMylistPageViewModel(
-            Services.PageManager pageMaanger,
+            Services.PageManager pageManager,
             Services.DialogService dialogService,
             NiconicoSession niconicoSession,
             UserProvider userProvider,
@@ -35,8 +35,8 @@ namespace NicoPlayerHohoema.ViewModels
             LocalMylistManager localMylistManager,
             HohoemaPlaylist hohoemaPlaylist
             )
-            : base(pageMaanger, useDefaultPageTitle: false)
         {
+            PageManager = pageManager;
             DialogService = dialogService;
             NiconicoSession = niconicoSession;
             UserProvider = userProvider;
@@ -51,10 +51,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             OpenMylistCommand.Subscribe(listItem =>
             {
-                PageManager.OpenPage(HohoemaPageType.Mylist,
-                    new MylistPagePayload() { Id = listItem .Id, Origin = listItem.ToMylistOrigin() }
-                    .ToParameterString()
-                    );
+                PageManager.OpenPage(HohoemaPageType.Mylist, $"id={listItem.Id}&origin={listItem.ToMylistOrigin().ToString()}");
             });
 
             AddMylistGroupCommand = new DelegateCommand(async () =>
@@ -246,6 +243,7 @@ namespace NicoPlayerHohoema.ViewModels
         public LocalMylistManager LocalMylistManager { get; }
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public OtherOwneredMylistManager OtherOwneredMylistManager { get; }
+        public PageManager PageManager { get; }
         public Services.DialogService DialogService { get; }
         public NiconicoSession NiconicoSession { get; }
         public UserProvider UserProvider { get; }
@@ -273,24 +271,15 @@ namespace NicoPlayerHohoema.ViewModels
 
         public DelegateCommand AddLocalMylistCommand { get; private set; }
 
-        protected override string ResolvePageName()
+
+        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            return UserName ?? base.ResolvePageName();
-        }
+            if (parameters.TryGetValue<string>("id", out string userId))
+            {
+                UserId = userId;
+            }
 
-        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			base.OnNavigatedTo(e, viewModelState);
-		}
-
-		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			if (e.Parameter is string)
-			{
-				UserId = e.Parameter as string;				
-			}
-
-            if (e.Parameter == null || NiconicoSession.IsLoginUserId(UserId))
+            if ((UserId == null && NiconicoSession.IsLoggedIn) || NiconicoSession.IsLoginUserId(UserId))
             {
                 IsLoginUserMylist.Value = true;
 
@@ -298,37 +287,29 @@ namespace NicoPlayerHohoema.ViewModels
                 UserName = NiconicoSession.UserName;
             }
             else if (UserId != null)
-			{
+            {
                 try
-				{
-					var userInfo = await UserProvider.GetUser(UserId);
-					UserName = userInfo.ScreenName;
-				}
-				catch (Exception ex)
-				{
-					System.Diagnostics.Debug.WriteLine(ex.Message);
-				}
+                {
+                    var userInfo = await UserProvider.GetUser(UserId);
+                    UserName = userInfo.ScreenName;
+                }
+                catch (Exception ex)
+                {
+                    System.Diagnostics.Debug.WriteLine(ex.Message);
+                }
             }
             else
             {
-                throw new Exception("UserMylistPage が不明なパラメータと共に開かれました : " + e.Parameter);
+                throw new Exception("UserMylistPage が不明なパラメータと共に開かれました : " + parameters.ToString());
             }
 
             PageManager.PageTitle = UserName;
 
             AddMylistGroupCommand.RaiseCanExecuteChanged();
 
-            await base.NavigatedToAsync(cancelToken, e, viewModelState);
-		}
-
-        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
-        {
-            UserId = null;
-            IsLoginUserMylist.Value = false;
-            UserName = "";
-
-            base.OnNavigatingFrom(e, viewModelState, suspending);
+            await base.OnNavigatedToAsync(parameters);
         }
+
 
         protected override IIncrementalSource<Interfaces.IMylist> GenerateIncrementalSource()
         {
@@ -354,6 +335,18 @@ namespace NicoPlayerHohoema.ViewModels
 
                 }
             }
+        }
+
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
+        {
+            pin = new HohoemaPin()
+            {
+                Label = UserName,
+                PageType = HohoemaPageType.UserMylist,
+                Parameter = $"id={UserId}"
+            };
+
+            return true;
         }
     }
 

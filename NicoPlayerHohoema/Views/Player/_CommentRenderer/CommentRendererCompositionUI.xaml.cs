@@ -25,6 +25,7 @@ using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Unity;
 using NicoPlayerHohoema.Models;
+using Prism.Unity;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -161,8 +162,14 @@ namespace NicoPlayerHohoema.Views
         private async void Current_EnteredBackground(object sender, Windows.ApplicationModel.EnteredBackgroundEventArgs e)
         {
             var defferal = e.GetDeferral();
-            await StopUpdateTimer();
-            defferal.Complete();
+            try
+            {
+                await StopUpdateTimer();
+            }
+            finally
+            {
+                defferal.Complete();
+            }
         }
 
         private void CommentRendererCompositionUI_Unloaded(object sender, RoutedEventArgs e)

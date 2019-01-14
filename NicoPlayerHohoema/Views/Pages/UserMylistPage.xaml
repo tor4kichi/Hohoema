@@ -6,7 +6,7 @@
     xmlns:local="using:NicoPlayerHohoema.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mvvm="using:Prism.Mvvm"
     xmlns:view="using:NicoPlayerHohoema.Views"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
@@ -21,7 +21,8 @@
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:myTrigger="using:NicoPlayerHohoema.Views.StateTrigger"
     xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts"
-    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    DataContext="{x:Null}"
+    NavigationCacheMode="Enabled"
     mc:Ignorable="d"
     >
     <Grid>
@@ -74,7 +75,7 @@
         <Grid x:Name="ContentLayout">
 
 
-            <GridView ItemsSource="{Binding IncrementalLoadingItems}" 
+            <GridView ItemsSource="{Binding ItemsView}" 
                       uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
                       IsItemClickEnabled="True"
                       SelectionMode="None"

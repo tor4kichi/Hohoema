@@ -28,6 +28,7 @@ using NicoPlayerHohoema.Commands.Subscriptions;
 using NicoPlayerHohoema.Commands;
 using NicoPlayerHohoema.Commands.Cache;
 using Prism.Commands;
+using Prism.Unity;
 
 namespace NicoPlayerHohoema.ViewModels
 {

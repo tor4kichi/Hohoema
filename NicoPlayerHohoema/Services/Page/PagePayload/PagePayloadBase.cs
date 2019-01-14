@@ -6,7 +6,7 @@ namespace NicoPlayerHohoema.Services.Page
 	{
 		public string ToParameterString()
 		{
-			return Newtonsoft.Json.JsonConvert.SerializeObject(this, new Newtonsoft.Json.JsonSerializerSettings()
+            return Newtonsoft.Json.JsonConvert.SerializeObject(this, new Newtonsoft.Json.JsonSerializerSettings()
 			{
 				TypeNameHandling = Newtonsoft.Json.TypeNameHandling.Objects
 			});
@@ -14,7 +14,14 @@ namespace NicoPlayerHohoema.Services.Page
 
 		public static T FromParameterString<T>(string json)
 		{
-			return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
-		}
+            try
+            {
+                return Newtonsoft.Json.JsonConvert.DeserializeObject<T>(json);
+            }
+            catch (Newtonsoft.Json.JsonReaderException)
+            {
+                return default(T);
+            }
+        }
 	}
 }

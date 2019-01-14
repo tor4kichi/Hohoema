@@ -1,11 +1,9 @@
 ﻿using NicoPlayerHohoema.Models;
-using Prism.Windows.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Prism.Windows.Navigation;
 using System.Collections.ObjectModel;
 using NicoPlayerHohoema.Models.Helpers;
 using Mntone.Nico2.Videos.Histories;
@@ -18,6 +16,9 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Collections.Async;
 using NicoPlayerHohoema.Models.Provider;
 using Unity;
+using Prism.Navigation;
+using Prism.Unity;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -28,11 +29,10 @@ namespace NicoPlayerHohoema.ViewModels
             Services.HohoemaPlaylist hohoemaPlaylist,
             Services.PageManager pageManager
             )
-            : base(pageManager)
 		{
             LoginUserHistoryProvider = loginUserHistoryProvider;
             HohoemaPlaylist = hohoemaPlaylist;
-
+            PageManager = pageManager;
             Histories = new ObservableCollection<HistoryVideoInfoControlViewModel>();
 
             Histories.ObserveElementPropertyChanged()
@@ -45,18 +45,26 @@ namespace NicoPlayerHohoema.ViewModels
 
         public LoginUserHistoryProvider LoginUserHistoryProvider { get; }
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
-
+        public Services.PageManager PageManager { get; }
         public ObservableCollection<HistoryVideoInfoControlViewModel> Histories { get; }
 
         HistoriesResponse _HistoriesResponse;
-        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+
+
+        public override void OnNavigatedTo(INavigationParameters parameters)
         {
             if (RefreshCommand.CanExecute())
             {
                 RefreshCommand.Execute();
             }
 
-            base.OnNavigatedTo(e, viewModelState);
+            base.OnNavigatedTo(parameters);
+        }
+
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
+        {
+            pin = null;
+            return false;
         }
 
         private DelegateCommand _RefreshCommand;

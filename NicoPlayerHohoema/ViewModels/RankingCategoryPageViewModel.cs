@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Prism.Windows.Navigation;
 using NicoPlayerHohoema.Models;
 using System.Reactive.Linq;
 using NicoPlayerHohoema.Models.Helpers;
@@ -15,10 +14,13 @@ using Reactive.Bindings.Extensions;
 using System.Collections.Async;
 using NicoPlayerHohoema.Models.Provider;
 using Unity;
+using Prism.Navigation;
+using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.Services.Helpers;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class RankingCategoryPageViewModel : HohoemaListingPageViewModelBase<RankedVideoInfoControlViewModel>
+    public class RankingCategoryPageViewModel : HohoemaListingPageViewModelBase<RankedVideoInfoControlViewModel>, INavigatedAwareAsync
     {
         public RankingCategoryPageViewModel(
             PageManager pageManager,
@@ -27,9 +29,8 @@ namespace NicoPlayerHohoema.ViewModels
             RankingSettings rankingSettings,
             NGSettings ngSettings
             )
-            : base(pageManager, useDefaultPageTitle: false)
         {
-
+            PageManager = pageManager;
             HohoemaPlaylist = hohoemaPlaylist;
             NicoVideoProvider = nicoVideoProvider;
             RankingSettings = rankingSettings;
@@ -145,7 +146,17 @@ namespace NicoPlayerHohoema.ViewModels
             };
         }
 
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
+        {
+            pin = new HohoemaPin()
+            {
+                Label = RankingCategory.ToCulturelizeString(),
+                PageType = HohoemaPageType.RankingCategory,
+                Parameter = $"category={RankingCategory}"
+            };
 
+            return true;
+        }
 
         public RankingCategory RankingCategory { get; private set; }
 
@@ -155,37 +166,51 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<bool> IsFailedRefreshRanking { get; private set; }
         public ReactiveProperty<bool> CanChangeRankingParameter { get; private set; }
+        public PageManager PageManager { get; }
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public RankingSettings RankingSettings { get; }
         public NGSettings NgSettings { get; }
 
-        protected override string ResolvePageName()
-        {
-            return Services.Helpers.CulturelizeHelper.ToCulturelizeString(RankingCategory);
-        }
 
-        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        private static RankingCategory? _previousRankingCategory;
+
+        public override Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            if (e.Parameter is string)
+            var mode = parameters.GetNavigationMode();
+            if (mode == NavigationMode.New)
             {
-                var parameter = e.Parameter as string;
-                if (Enum.TryParse<RankingCategory>(parameter, out var category))
+                if (parameters.TryGetValue("category", out RankingCategory category))
                 {
                     RankingCategory = category;
+                }
+                else if (parameters.TryGetValue("category", out string categoryString))
+                {
+                    if (Enum.TryParse(categoryString, out category))
+                    {
+                        RankingCategory = category;
+                    }
                 }
                 else
                 {
                     throw new Exception("ランキングページの表示に失敗");
                 }
             }
+            else
+            {
+                RankingCategory = _previousRankingCategory.Value;
+            }
 
-            base.OnNavigatedTo(e, viewModelState);
+            PageManager.PageTitle = RankingCategory.ToCulturelizeString();
+
+            return base.OnNavigatedToAsync(parameters);
         }
 
-        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+        public override void OnNavigatedFrom(INavigationParameters parameters)
         {
-            base.OnNavigatingFrom(e, viewModelState, suspending);
+            _previousRankingCategory = RankingCategory;
+
+            base.OnNavigatedFrom(parameters);
         }
 
 

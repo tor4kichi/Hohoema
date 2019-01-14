@@ -1,7 +1,6 @@
 ﻿using NicoPlayerHohoema.Models;
 using Prism.Commands;
 using Prism.Mvvm;
-using Prism.Windows.Navigation;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -13,7 +12,6 @@ using Windows.UI.ViewManagement;
 using Windows.Foundation.Metadata;
 using NicoPlayerHohoema.Models.Live;
 using Windows.UI.Core;
-using Prism.Windows.Mvvm;
 using System.Collections.ObjectModel;
 using System.Reactive.Disposables;
 using NicoPlayerHohoema.Services.Page;
@@ -27,6 +25,9 @@ using NicoPlayerHohoema.Services.Helpers;
 using Unity;
 using Mntone.Nico2.Live;
 using Unity.Resolution;
+using Prism.Unity;
+using Prism.Navigation;
+using Prism.Events;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -35,6 +36,7 @@ namespace NicoPlayerHohoema.ViewModels
         public MenuNavigatePageBaseViewModel(
             IUnityContainer container,
             IScheduler scheduler,
+            INavigationService navigationService,
             AppearanceSettings appearanceSettings,
             PinSettings pinSettings,
             NiconicoSession niconicoSession,
@@ -42,15 +44,18 @@ namespace NicoPlayerHohoema.ViewModels
             UserMylistManager userMylistManager,
             VideoCacheManager videoCacheManager,
             PageManager pageManager,
+            PlayerViewManager playerViewManager,
             Services.NiconicoLoginService niconicoLoginService,
             Commands.LogoutFromNiconicoCommand logoutFromNiconicoCommand
             )
         {
             PageManager = pageManager;
+            PlayerViewManager = playerViewManager;
             NiconicoLoginService = niconicoLoginService;
             LogoutFromNiconicoCommand = logoutFromNiconicoCommand;
             Container = container;
             Scheduler = scheduler;
+            NavigationService = navigationService;
             AppearanceSettings = appearanceSettings;
             PinSettings = pinSettings;
             NiconicoSession = niconicoSession;
@@ -61,19 +66,9 @@ namespace NicoPlayerHohoema.ViewModels
             NiconicoSession.LogIn += (sender, e) => ResetMenuItems();
             NiconicoSession.LogOut += (sender, e) => ResetMenuItems();
 
-            CurrentMenuType = new ReactiveProperty<ViewModelBase>();
+            CurrentMenuType = new ReactiveProperty<MenuItemBase>();
             VideoMenu = App.Current.Container.Resolve<VideoMenuSubPageContent>();
             LiveMenu = App.Current.Container.Resolve<LiveMenuSubPageContent>();
-
-            // Back Navigation
-            CanGoBackNavigation = new ReactivePropertySlim<bool>();
-            GoBackNavigationCommand = CanGoBackNavigation
-                .ToReactiveCommand();
-
-            GoBackNavigationCommand.Subscribe(_ =>
-            {
-                PageManager.NavigationService.GoBack();
-            });
 
             // TV Mode
             if (Services.Helpers.DeviceTypeHelper.IsXbox)
@@ -110,6 +105,7 @@ namespace NicoPlayerHohoema.ViewModels
                         {
                             PinItems.Add(Container.Resolve<PinItemViewModel>(new ParameterOverride("pin", item as HohoemaPin)));
                         }
+                        RaisePropertyChanged(nameof(PinItems));
                     }
                     else if (args.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
                     {
@@ -122,6 +118,7 @@ namespace NicoPlayerHohoema.ViewModels
                                 PinItems.Remove(pinVM);
                             }
                         }
+                        RaisePropertyChanged(nameof(PinItems));
                     }
                 });
 
@@ -142,6 +139,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .Where(x => x != null)
                 .Subscribe(x => x.SelectedAction(x.Source));
             */
+            /*
             PageManager.ObserveProperty(x => x.CurrentPageType)
                 .Subscribe(pageType =>
                 {
@@ -171,26 +169,30 @@ namespace NicoPlayerHohoema.ViewModels
                         IsOpenPane.Value = false;
                     }
                 });
+                */
 
-
+            
             PageManager.ObserveProperty(x => x.PageTitle)
                 .Subscribe(x =>
                 {
                     TitleText = x;
-                    AddPinToCurrentPageCommand.RaiseCanExecuteChanged();
                 });
 
-            PageManager.ObserveProperty(x => x.CurrentPageType)
-                .Subscribe(_ => UpdateCanGoBackNavigation());
+            CanGoBackNavigation = new ReactiveProperty<bool>();
 
+            (NavigationService as IPlatformNavigationService).CanGoBackChanged += (_, e) => 
+            {
+                CanGoBackNavigation.Value = NavigationService.CanGoBack();
+            };
 
-
+            /*
             IsVisibleMenu = PageManager.ObserveProperty(x => x.CurrentPageType)
                 .Select(x =>
                 {
                     return !PageManager.IsHiddenMenuPage(x);
                 })
                 .ToReactiveProperty(false);
+                */
 
             NowNavigating = PageManager.ObserveProperty(x => x.PageNavigating)
                 .ToReactiveProperty();
@@ -234,7 +236,7 @@ namespace NicoPlayerHohoema.ViewModels
                         searchType = searched;
                     }
 
-                    PageManager.Search(SearchPagePayloadContentHelper.CreateDefault(searchType.Value, keyword));
+                    PageManager.Search(searchType.Value, keyword);
 
                     ResetSearchHistoryItems();
                 });
@@ -256,6 +258,7 @@ namespace NicoPlayerHohoema.ViewModels
         public Commands.LogoutFromNiconicoCommand LogoutFromNiconicoCommand { get; }
         public IUnityContainer Container { get; }
         public IScheduler Scheduler { get; }
+        public INavigationService NavigationService { get; }
         public AppearanceSettings AppearanceSettings { get; }
         public PinSettings PinSettings { get; }
         public NiconicoSession NiconicoSession { get; }
@@ -287,11 +290,6 @@ namespace NicoPlayerHohoema.ViewModels
         
 
         private Dictionary<string, object> viewModelState = new Dictionary<string, object>();
-
-
-        public ReactivePropertySlim<bool> CanGoBackNavigation { get; private set; }
-        public ReactiveCommand GoBackNavigationCommand { get; private set; }
-
 
 
         /// <summary>
@@ -331,121 +329,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-       
-        private async void UpdateCanGoBackNavigation()
-        {
-            await Task.Delay(50);
-            CanGoBackNavigation.Value = PageManager.NavigationService.CanGoBack();
-        }
-
-
-        //private void HohoemaPlaylist_OpenPlaylistItem(Interfaces.IMylist playlist, PlaylistItem item)
-        //{
-        //    Scheduler.Schedule(() =>
-        //    {
-        //        ShowPlayer(item);
-        //    });
-        //}
-
-        //private bool ShowPlayer(PlaylistItem item)
-        //{
-        //    string pageType = null;
-        //    string parameter = null;
-        //    switch (item.Type)
-        //    {
-        //        case PlaylistItemType.Video:
-        //            pageType = nameof(Views.VideoPlayerPage);
-        //            parameter = new VideoPlayPayload()
-        //            {
-        //                VideoId = item.ContentId
-        //            }
-        //            .ToParameterString();
-        //            break;
-        //        case PlaylistItemType.Live:
-        //            pageType = nameof(Views.LivePlayerPage);
-        //            parameter = new LiveVideoPagePayload(item.ContentId)
-        //            {
-        //                LiveTitle = item.Title,
-        //            }
-        //            .ToParameterString();
-        //            break;
-        //        default:
-        //            break;
-        //    }
-
-        //    if (NavigationService.Navigate(pageType, parameter))
-        //    {
-        //        ApplicationView currentView = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView();
-        //        if (Services.Helpers.DeviceTypeHelper.IsMobile)
-        //        {
-        //            currentView.TryEnterFullScreenMode();
-        //        }
-        //        else if (Services.Helpers.DeviceTypeHelper.IsDesktop && !HohoemaPlaylist.IsPlayerFloatingModeEnable)
-        //        {
-        //            // 
-        //            if (currentView.AdjacentToLeftDisplayEdge && currentView.AdjacentToRightDisplayEdge)
-        //            {
-        //                currentView.TryEnterFullScreenMode();
-        //            }
-        //        }
-
-        //        return true;
-        //    }
-        //    else { return false; }
-        //}
-
-        //private async void ClosePlayer()
-        //{
-        //    NavigationService.Navigate("Blank", null);
-
-        //    if (ApplicationView.PreferredLaunchWindowingMode != ApplicationViewWindowingMode.FullScreen)
-        //    {
-        //        ApplicationView currentView = Windows.UI.ViewManagement.ApplicationView.GetForCurrentView();
-        //        currentView.ExitFullScreenMode();
-        //    }
-
-        //    await VideoCacheManager.ResumeCacheDownload();
-        //}
-
-        //private DelegateCommand _PlayerFillDisplayCommand;
-        //public DelegateCommand TogglePlayerFloatDisplayCommand
-        //{
-        //    get
-        //    {
-        //        return _PlayerFillDisplayCommand
-        //            ?? (_PlayerFillDisplayCommand = new DelegateCommand(() =>
-        //            {
-        //                // プレイヤー表示中だけ切り替えを受け付け
-        //                if (!HohoemaPlaylist.IsDisplayMainViewPlayer) { return; }
-
-        //                // メインウィンドウでの表示状態を「ウィンドウ全体」⇔「小窓表示」と切り替える
-        //                if (HohoemaPlaylist.PlayerDisplayType == PlayerViewMode.PrimaryView)
-        //                {
-        //                    HohoemaPlaylist.PlayerDisplayType = PlayerViewMode.PrimaryWithSmall;
-        //                }
-        //                else if (HohoemaPlaylist.PlayerDisplayType == PlayerViewMode.PrimaryWithSmall)
-        //                {
-        //                    HohoemaPlaylist.PlayerDisplayType = PlayerViewMode.PrimaryView;
-        //                }
-        //            }));
-        //    }
-        //}
-
-
-        //private DelegateCommand _ClosePlayerCommand;
-        //public DelegateCommand ClosePlayerCommand
-        //{
-        //    get
-        //    {
-        //        return _ClosePlayerCommand
-        //            ?? (_ClosePlayerCommand = new DelegateCommand(() =>
-        //            {
-        //                HohoemaPlaylist.IsDisplayMainViewPlayer = false;
-        //            }));
-        //    }
-        //}
-
-
+        
         private DelegateCommand _AddPinToCurrentPageCommand;
         public DelegateCommand AddPinToCurrentPageCommand
         {
@@ -454,36 +338,13 @@ namespace NicoPlayerHohoema.ViewModels
                 return _AddPinToCurrentPageCommand
                     ?? (_AddPinToCurrentPageCommand = new DelegateCommand(() =>
                     {
-                        string pageParameter = PageManager.PageNavigationParameter as string;
-                        if (pageParameter == null)
-                        {
-                            System.Diagnostics.Debug.WriteLine("can not Pin this page : " + PageManager.PageTitle);
-                            return;
-                        }
-
-                        if (PinSettings.Pins.Any(x => x.PageType == PageManager.CurrentPageType && x.Parameter == pageParameter))
-                        {
-                            System.Diagnostics.Debug.WriteLine("Pin already exist : " + PageManager.PageTitle);
-                            return;
-                        }
-
-                        PinSettings.Pins.Insert(0, new HohoemaPin()
-                        {
-                            Label = PageManager.PageTitle,
-                            PageType = PageManager.CurrentPageType,
-                            Parameter = pageParameter
-                        });
-
-                        PinSettings.Save().ConfigureAwait(false);
-
-                        System.Diagnostics.Debug.WriteLine("Pin Added : " + PageManager.PageTitle);
-                    }, 
-                    () => 
-                    {
-                        return PageManager.PageNavigationParameter is string;
+                        var ea = App.Current.Container.Resolve<IEventAggregator>();
+                        var pinEvent = ea.GetEvent<PinningCurrentPageRequestEvent>();
+                        pinEvent.Publish();
                     }));
             }
         }
+        
 
         private void PageManager_StartWork(string title, uint totalCount)
 		{
@@ -513,21 +374,12 @@ namespace NicoPlayerHohoema.ViewModels
 
 		internal void OnMenuItemSelected(HohoemaPageType pageType)
 		{
-			if (pageType != PageManager.CurrentPageType)
-			{
-				PageManager.OpenPage(pageType);
-			}
-		}
+            PageManager.OpenPage(pageType);
+        }
 
         internal void OnWatchAfterMenuItemSelected(HohoemaPageType pageType)
         {
-            PageManager.OpenPage(HohoemaPageType.Mylist,
-                new MylistPagePayload()
-                {
-                    Id = HohoemaPlaylist.WatchAfterPlaylistId,
-                    Origin = PlaylistOrigin.Local
-                }.ToParameterString()
-            );
+            PageManager.OpenPage(HohoemaPageType.Mylist, $"id={HohoemaPlaylist.WatchAfterPlaylistId}&origin={PlaylistOrigin.Local}");
         }
 
         private DelegateCommand _TogglePaneOpenCommand;
@@ -555,7 +407,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                         if (NiconicoSession.IsLoggedIn)
                         {
-                            PageManager.OpenPage(HohoemaPageType.UserInfo, NiconicoSession.UserIdString);
+                            PageManager.OpenPageWithId(HohoemaPageType.UserInfo, NiconicoSession.UserIdString);
                         }
                     }));
             }
@@ -572,6 +424,19 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        private DelegateCommand _GoBackNavigationCommand;
+        public DelegateCommand GoBackNavigationCommand
+        {
+            get
+            {
+                return _GoBackNavigationCommand
+                    ?? (_GoBackNavigationCommand = new DelegateCommand(() =>
+                    {
+                        _ = NavigationService.GoBackAsync();
+                    }
+                    ));
+            }
+        }
 
 
         private DelegateCommand _ToggleFullScreenCommand;
@@ -609,10 +474,11 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<bool> IsForceXboxDisplayMode { get; private set; }
 
+        public ReactiveProperty<bool> CanGoBackNavigation { get; }
 
-        public ViewModelBase VideoMenu { get; private set; }
-        public ViewModelBase LiveMenu { get; private set; }
-        public ReactiveProperty<ViewModelBase> CurrentMenuType { get; }
+        public VideoMenuSubPageContent VideoMenu { get; private set; }
+        public LiveMenuSubPageContent LiveMenu { get; private set; }
+        public ReactiveProperty<MenuItemBase> CurrentMenuType { get; }
 
         private string _TitleText;
 		public string TitleText
@@ -765,7 +631,7 @@ namespace NicoPlayerHohoema.ViewModels
 
     public class MenuItemViewModel : HohoemaListingPageItemBase
     {
-		public MenuItemViewModel(string label, HohoemaPageType pageType, string paramaeter = null)
+		public MenuItemViewModel(string label, HohoemaPageType pageType, INavigationParameters paramaeter = null)
 		{
 			Label = label;
             PageType = pageType;
@@ -775,10 +641,16 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
         public HohoemaPageType PageType { get; set; }
-        public string Parameter { get; set; }
+        public INavigationParameters Parameter { get; set; }
     }
 
-    public class EmptyContentViewModel : ViewModelBase
+
+    public abstract class MenuItemBase : BindableBase
+    {
+
+    }
+
+    public class EmptyContentViewModel : MenuItemBase
     {
 
     }
@@ -786,7 +658,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-    public class VideoMenuSubPageContent : ViewModelBase, IDisposable
+    public class VideoMenuSubPageContent : MenuItemBase, IDisposable
     {
         public VideoMenuSubPageContent(
             NiconicoSession niconicoSession,  
@@ -805,12 +677,12 @@ namespace NicoPlayerHohoema.ViewModels
 
             LocalMylists = LocalMylistManager.Mylists
                .ToReadOnlyReactiveCollection(x =>
-               new MenuItemViewModel(x.Label, HohoemaPageType.Mylist, new MylistPagePayload(x.Id) { Origin = x.ToMylistOrigin()}.ToParameterString()) as HohoemaListingPageItemBase
+               new MenuItemViewModel(x.Label, HohoemaPageType.Mylist, new NavigationParameters { { "id", x.Id }, { "origin", x.ToMylistOrigin() } }) as HohoemaListingPageItemBase
                )
                .AddTo(_CompositeDisposable);
             Mylists = MylistManager.Mylists
                 .ToReadOnlyReactiveCollection(x =>
-                new MenuItemViewModel(x.Label, HohoemaPageType.Mylist, new MylistPagePayload(x.Id) { Origin = x.ToMylistOrigin() }.ToParameterString()) as HohoemaListingPageItemBase
+                new MenuItemViewModel(x.Label, HohoemaPageType.Mylist, new NavigationParameters { { "id", x.Id }, { "origin", x.ToMylistOrigin() } }) as HohoemaListingPageItemBase
                 )
                 .AddTo(_CompositeDisposable);
 
@@ -841,7 +713,7 @@ namespace NicoPlayerHohoema.ViewModels
                 MenuItems.Add(new MenuItemViewModel("視聴履歴", HohoemaPageType.WatchHistory));
                 MenuItems.Add(new MenuItemViewModel("キャッシュ", HohoemaPageType.CacheManagement));
                 MenuItems.Add(new MenuItemViewModel("オススメ", HohoemaPageType.Recommend));
-                MenuItems.Add(new MenuItemViewModel("あとで見る", HohoemaPageType.Mylist, new MylistPagePayload(HohoemaPlaylist.WatchAfterPlaylistId).ToParameterString()));
+                MenuItems.Add(new MenuItemViewModel("あとで見る", HohoemaPageType.Mylist, new NavigationParameters { { "id", HohoemaPlaylist.WatchAfterPlaylistId }}));
             }
             else
             {
@@ -849,7 +721,7 @@ namespace NicoPlayerHohoema.ViewModels
                 MenuItems.Add(new MenuItemViewModel("新着", HohoemaPageType.Subscription));
                 //                MenuItems.Add(new MenuItemViewModel("視聴履歴", HohoemaPageType.WatchHistory));
                 MenuItems.Add(new MenuItemViewModel("キャッシュ", HohoemaPageType.CacheManagement));
-                MenuItems.Add(new MenuItemViewModel("あとで見る", HohoemaPageType.Mylist, new MylistPagePayload(HohoemaPlaylist.WatchAfterPlaylistId).ToParameterString()));
+                MenuItems.Add(new MenuItemViewModel("あとで見る", HohoemaPageType.Mylist, new NavigationParameters { { "id", HohoemaPlaylist.WatchAfterPlaylistId } }));
             }
 
             RaisePropertyChanged(nameof(MenuItems));
@@ -880,7 +752,7 @@ namespace NicoPlayerHohoema.ViewModels
 
     }
 
-    public class LiveMenuSubPageContent : ViewModelBase
+    public class LiveMenuSubPageContent : MenuItemBase
     {
         
         public LiveMenuSubPageContent(

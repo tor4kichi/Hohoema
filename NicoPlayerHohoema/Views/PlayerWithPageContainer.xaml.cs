@@ -14,8 +14,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Unity;
-using Prism.Windows.Navigation;
-using Prism.Windows.AppModel;
+using Prism.Unity;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -39,6 +38,12 @@ namespace NicoPlayerHohoema.Views
             this.InitializeComponent();
 
             Loaded += PlayerWithPageContainer_Loaded;
+            Loading += PlayerWithPageContainer_Loading;
+        }
+
+        private void PlayerWithPageContainer_Loading(FrameworkElement sender, object args)
+        {
+            DataContext = App.Current.Container.Resolve<ViewModels.PlayerWithPageContainerViewModel>();
         }
 
         private void PlayerWithPageContainer_Loaded(object sender, RoutedEventArgs e)
@@ -52,6 +57,8 @@ namespace NicoPlayerHohoema.Views
                 Window.Current.SetTitleBar(GetTemplateChild("DraggableContent") as UIElement);
             }
             catch { }
+
+            
         }
 
         protected override void OnApplyTemplate()

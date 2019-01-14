@@ -10,15 +10,14 @@ using NicoPlayerHohoema.Models.Helpers;
 using System.Windows.Input;
 using Mntone.Nico2.Searches.Community;
 using Mntone.Nico2;
-using Prism.Windows.Navigation;
 using Prism.Commands;
-using Windows.UI.Xaml.Navigation;
 using System.Collections.Async;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Models.Provider;
+using Prism.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -26,15 +25,15 @@ namespace NicoPlayerHohoema.ViewModels
 	// Note: Communityの検索はページベースで行います。
 	// また、ログインが必要です。
 
-	public class SearchResultCommunityPageViewModel : HohoemaListingPageViewModelBase<CommunityInfoControlViewModel>
-	{
+	public class SearchResultCommunityPageViewModel : HohoemaListingPageViewModelBase<CommunityInfoControlViewModel>, INavigatedAwareAsync
+    {
         public SearchResultCommunityPageViewModel(
             PageManager pageManager, 
             SearchProvider searchProvider,
             Services.NiconicoLoginService niconicoLoginService
             )
-            : base(pageManager, useDefaultPageTitle: false)
         {
+            PageManager = pageManager;
             SearchProvider = searchProvider;
             NiconicoLoginService = niconicoLoginService;
             SelectedSearchSort = new ReactivePropertySlim<CommunitySearchSortOptionListItem>();
@@ -43,11 +42,12 @@ namespace NicoPlayerHohoema.ViewModels
             SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
         }
 
+        public PageManager PageManager { get; }
 
         public SearchProvider SearchProvider { get; }
         public NiconicoLoginService NiconicoLoginService { get; }
 
-        public CommunitySearchPagePayloadContent SearchOption { get; private set; }
+        static public CommunitySearchPagePayloadContent SearchOption { get; private set; }
 
         private string _SearchOptionText;
         public string SearchOptionText
@@ -70,8 +70,7 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         if (target.HasValue && target.Value != SearchOption.SearchTarget)
                         {
-                            var payload = SearchPagePayloadContentHelper.CreateDefault(target.Value, SearchOption.Keyword);
-                            PageManager.Search(payload);
+                            PageManager.Search(target.Value, SearchOption.Keyword);
                         }
                     }));
             }
@@ -168,17 +167,15 @@ namespace NicoPlayerHohoema.ViewModels
 
         #endregion
 
-
-        protected override string ResolvePageName()
+        public override Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            return $"\"{SearchOption.Keyword}\"";
-        }
-
-        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-            if (e.Parameter is string && e.NavigationMode == NavigationMode.New)
+            var mode = parameters.GetNavigationMode();
+            if (mode == NavigationMode.New)
             {
-                SearchOption = PagePayloadBase.FromParameterString<CommunitySearchPagePayloadContent>(e.Parameter as string);
+                SearchOption = new CommunitySearchPagePayloadContent()
+                {
+                    Keyword = parameters.GetValue<string>("keyword")
+                };
             }
 
             SelectedSearchTarget.Value = SearchOption?.SearchTarget ?? SearchTarget.Community;
@@ -210,16 +207,8 @@ namespace NicoPlayerHohoema.ViewModels
             Database.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
 
 
-            base.OnNavigatedTo(e, viewModelState);
-		}
-
-        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
-        {
-            viewModelState[nameof(SearchOption)] = SearchOption.ToParameterString();
-
-            base.OnNavigatingFrom(e, viewModelState, suspending);
+            return base.OnNavigatedToAsync(parameters);
         }
-
 
         protected override IIncrementalSource<CommunityInfoControlViewModel> GenerateIncrementalSource()
 		{
@@ -249,7 +238,19 @@ namespace NicoPlayerHohoema.ViewModels
 
             SearchOptionText = $"{optionText}({mode})";
         }
-	}
+
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
+        {
+            pin = new HohoemaPin()
+            {
+                Label = SearchOption.Keyword,
+                PageType = HohoemaPageType.SearchResultCommunity,
+                Parameter = $"keyword={SearchOption.Keyword}&target={SearchOption.SearchTarget}"
+            };
+
+            return true;
+        }
+    }
 
 	public class CommunitySearchSource : IIncrementalSource<CommunityInfoControlViewModel>
 	{

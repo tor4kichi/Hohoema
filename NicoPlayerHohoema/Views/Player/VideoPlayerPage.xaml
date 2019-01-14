@@ -25,20 +25,15 @@
     xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:model="using:NicoPlayerHohoema.Models"
-    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mvvm="using:Prism.Mvvm"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:system1="using:System"
     xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector"
-    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    DataContext="{x:Null}"
     x:Name="RootLayout"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <i:Interaction.Behaviors>
-        <core:EventTriggerBehavior EventName="Unloaded">
-            <core:CallMethodAction TargetObject="{Binding}" MethodName="Dispose" />
-        </core:EventTriggerBehavior>
-    </i:Interaction.Behaviors>
 
     <UserControl.Resources>
 
@@ -158,7 +153,64 @@
 
             </MenuFlyoutSubItem>
 
-            
+
+            <MenuFlyoutSeparator />
+
+            <MenuFlyoutItem x:Name="FullscreenButton_Menu"  
+                                                            Command="{Binding ToggleFullScreenCommand}"
+                                                            Background="Transparent"
+                                                            Visibility="Collapsed"
+                                                            MinWidth="64"
+                                                                  Text="全画面"
+                                                                  Icon="FullScreen"
+                                                                        >
+            </MenuFlyoutItem>
+
+
+
+            <MenuFlyoutItem x:Name="CompactOverlayButton_Menu"
+                                                            Command="{Binding ToggleCompactOverlayCommand}"
+                                                            Background="Transparent"
+                                                            Visibility="Collapsed"
+                                                            MinWidth="64"
+                                                                  Text="小さく最前面"
+                                                            >
+
+            </MenuFlyoutItem>
+
+
+
+            <MenuFlyoutItem x:Name="SmallWindowButton_Menu"  
+                                                            Command="{Binding PlayerSmallWindowDisplayCommand}"
+                                                            Background="Transparent"
+                                                            Visibility="Collapsed"
+                                                            MinWidth="64"
+                                                                  Text="小窓"
+                                                                        >
+
+            </MenuFlyoutItem>
+
+
+            <MenuFlyoutItem x:Name="DisplayWithSecondaryViewButton_Menu"
+                                                            Command="{Binding PlayerDisplayWithSecondaryViewCommand}"
+                                                            Background="Transparent"
+                                                            Visibility="Collapsed"
+                                                            MinWidth="64"
+                                                                  Text="別ウィンドウ"
+                                                            >
+
+            </MenuFlyoutItem>
+
+            <ToggleMenuFlyoutItem x:Name="ForceRotateToggleButton_Menu" 
+                                                                  IsChecked="{Binding IsForceLandscape.Value, Mode=TwoWay}"
+                                                                  Background="Transparent"
+                                                                  Visibility="Collapsed"
+                                                              MinWidth="64"
+                                                                        Text="横持ち固定"
+                                                                        Icon="Orientation"
+                                                        >
+            </ToggleMenuFlyoutItem>
+
 
 
         </MenuFlyout>
@@ -346,6 +398,8 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="CompactOverlayButton.Visibility" Value="Visible" />
+                        <Setter Target="CompactOverlayButton_Menu.Visibility" Value="Visible" />
+                        
                     </VisualState.Setters>
                 </VisualState>
                 
@@ -400,6 +454,8 @@
                     <VisualState.Setters>
                         <Setter Target="SmallWindowButton.Visibility" Value="Visible" />
                         <Setter Target="FullscreenButton.Visibility" Value="Visible" />
+                        <Setter Target="SmallWindowButton_Menu.Visibility" Value="Visible" />
+                        <Setter Target="FullscreenButton_Menu.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -408,6 +464,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="SmallWindowButton.Visibility" Value="Visible" />
+                        <Setter Target="SmallWindowButton_Menu.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -417,6 +474,8 @@
                     <VisualState.Setters>
                         <Setter Target="SmallWindowButton.Visibility" Value="Visible" />
                         <Setter Target="FullscreenButton.Visibility" Value="Visible" />
+                        <Setter Target="SmallWindowButton_Menu.Visibility" Value="Visible" />
+                        <Setter Target="FullscreenButton_Menu.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -547,6 +606,7 @@
                     <VisualState.Setters>
                         <Setter Target="DisplayWithMainViewButton.Visibility" Value="Visible" />
                         <Setter Target="SmallWindowButton.Visibility" Value="Collapsed" />
+                        <Setter Target="SmallWindowButton_Menu.Visibility" Value="Collapsed" />
 
                         <Setter Target="CloseButton.Visibility" Value="Collapsed" />
                         <Setter Target="CO_CloseButton.Visibility" Value="Collapsed" />
@@ -558,6 +618,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="DisplayWithSecondaryViewButton.Visibility" Value="Visible" />
+                        <Setter Target="DisplayWithSecondaryViewButton_Menu.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -726,6 +787,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="ForceRotateToggleButton.Visibility" Value="Visible" />
+                        <Setter Target="ForceRotateToggleButton_Menu.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -814,12 +876,6 @@
                 </VisualState>
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
-
-        <i:Interaction.Behaviors>
-            <core:EventTriggerBehavior EventName="Unloaded">
-                <core:CallMethodAction TargetObject="{Binding}" MethodName="Dispose" />
-            </core:EventTriggerBehavior>
-        </i:Interaction.Behaviors>
 
         <toolkit:LayoutTransformControl
                 x:Name="LayoutTransform"
@@ -985,6 +1041,7 @@
                     
 
 
+                            
 
                             <mybehavior:UINavigationTrigger Kind="Cancel" Hold="True" 
                                                         IsEnabled="{Binding PlayerViewManager.IsPlayerSmallWindowModeEnabled, Converter={StaticResource BoolNegation}}"
@@ -1240,8 +1297,30 @@
                                                                   Command="{Binding ShareCommand}"
                                                                   Visibility="Collapsed"
                                                                   >
-                                                        
                                                     </AppBarButton>
+                                                    <AppBarButton Label="コピー"
+                                                            Visibility="{Binding IsXbox, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                               >
+                                                        <AppBarButton.Flyout>
+                                                            <MenuFlyout>
+                                                                <MenuFlyoutItem Text="動画IDをコピー"
+                                                                    Command="{Binding ExternalAccessService.CopyToClipboardCommand}"
+                                                                    CommandParameter="{Binding VideoId}"
+                                                                    />
+
+                                                                <MenuFlyoutItem Text="リンクをコピー"
+                                                                    Command="{Binding ExternalAccessService.CopyToClipboardCommand}"
+                                                                    CommandParameter="{Binding}"
+                                                                    />
+
+                                                                <MenuFlyoutItem Text="共有用文章をコピー"
+                                                                    Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}"
+                                                                    CommandParameter="{Binding}"
+                                                                    />
+                                                            </MenuFlyout>
+                                                        </AppBarButton.Flyout>
+                                                    </AppBarButton>
+                                                    
                                                     <AppBarButton x:Name="AddContentButton"
                                                                   Label="追加"
                                                                   Icon="Add"

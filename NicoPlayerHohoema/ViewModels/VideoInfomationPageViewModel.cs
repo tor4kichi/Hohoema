@@ -8,8 +8,6 @@ using Reactive.Bindings;
 using Prism.Commands;
 using NicoPlayerHohoema.Models.Helpers;
 using Windows.ApplicationModel.DataTransfer;
-using Unity;
-using Prism.Windows.Navigation;
 using System.Threading;
 using System.Diagnostics;
 using Mntone.Nico2;
@@ -24,10 +22,12 @@ using NicoPlayerHohoema.Models.LocalMylist;
 using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Services;
+using Prism.Navigation;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class VideoInfomationPageViewModel : HohoemaViewModelBase, Interfaces.IVideoContent
+    public class VideoInfomationPageViewModel : HohoemaViewModelBase, Interfaces.IVideoContent, INavigatedAwareAsync
     {
         public VideoInfomationPageViewModel(
             NGSettings ngSettings,
@@ -46,7 +46,6 @@ namespace NicoPlayerHohoema.ViewModels
             Commands.AddMylistCommand addMylistCommand,
             Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
-           : base(pageManager)
         {
             NgSettings = ngSettings;
             NiconicoSession = niconicoSession;
@@ -57,6 +56,7 @@ namespace NicoPlayerHohoema.ViewModels
             VideoCacheManager = videoCacheManager;
             NicoVideo = nicoVideo;
             MylistHelper = mylistHelper;
+            PageManager = pageManager;
             NotificationService = notificationService;
             DialogService = dialogService;
             ExternalAccessService = externalAccessService;
@@ -127,7 +127,7 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         if (_VideoInfo.Owner.UserType == Mntone.Nico2.Videos.Thumbnail.UserType.User)
                         {
-                            PageManager.OpenPage(HohoemaPageType.UserInfo, _VideoInfo.Owner.OwnerId);
+                            PageManager.OpenPageWithId(HohoemaPageType.UserInfo, _VideoInfo.Owner.OwnerId);
                         }
                     }
                     , () => _VideoInfo?.Owner.UserType == Mntone.Nico2.Videos.Thumbnail.UserType.User
@@ -146,11 +146,11 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         if (_VideoInfo.Owner.UserType == Mntone.Nico2.Videos.Thumbnail.UserType.User)
                         {
-                            PageManager.OpenPage(HohoemaPageType.UserVideo, _VideoInfo.Owner.OwnerId);
+                            PageManager.OpenPageWithId(HohoemaPageType.UserVideo, _VideoInfo.Owner.OwnerId);
                         }
                         else if (IsChannelOwnedVideo)
                         {
-                            PageManager.OpenPage(HohoemaPageType.ChannelVideo, _VideoInfo.Owner.OwnerId);
+                            PageManager.OpenPageWithId(HohoemaPageType.ChannelVideo, _VideoInfo.Owner.OwnerId);
                         }
                     }
                     ));
@@ -166,7 +166,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayVideoCommand
                     ?? (_PlayVideoCommand = new DelegateCommand(() =>
                     {
-                        HohoemaPlaylist.PlayVideo(VideoId, Title);
+                        HohoemaPlaylist.PlayVideo(VideoId);
                     }
                     ));
             }
@@ -275,6 +275,7 @@ namespace NicoPlayerHohoema.ViewModels
         public LoginUserMylistProvider LoginUserMylistProvider { get; }
         public VideoCacheManager VideoCacheManager { get; }
         public Services.Helpers.MylistHelper MylistHelper { get; }
+        public PageManager PageManager { get; }
         public Services.DialogService DialogService { get; }
         public Services.ExternalAccessService ExternalAccessService { get; }
         public Commands.AddMylistCommand AddMylistCommand { get; }
@@ -292,37 +293,32 @@ namespace NicoPlayerHohoema.ViewModels
 
         IMylist IVideoContent.OnwerPlaylist => null;
 
-        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             NowLoading.Value = true;
             IsLoadFailed.Value = false;
 
-            if (e.Parameter is string)
-            {
-                VideoId = e.Parameter as string;
-            }
-
-            if (VideoId == null)
-            {
-                IsLoadFailed.Value = true;
-                throw new Exception();
-            }
-
-            base.OnNavigatedTo(e, viewModelState);
-        }
-
-        protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-        {
             try
             {
-                _VideoInfo = await NicoVideoProvider.GetNicoVideoInfo(VideoId);
+                if (parameters.TryGetValue("id", out string videoId))
+                {
+                    VideoId = videoId;
 
-                await UpdateVideoDescription();
+                    if (VideoId == null)
+                    {
+                        IsLoadFailed.Value = true;
+                        throw new Exception();
+                    }
 
-                UpdateSelfZoning();
+                    _VideoInfo = await NicoVideoProvider.GetNicoVideoInfo(VideoId);
 
-                OpenOwnerUserPageCommand.RaiseCanExecuteChanged();
-                OpenOwnerUserVideoPageCommand.RaiseCanExecuteChanged();
+                    await UpdateVideoDescription();
+
+                    UpdateSelfZoning();
+
+                    OpenOwnerUserPageCommand.RaiseCanExecuteChanged();
+                    OpenOwnerUserVideoPageCommand.RaiseCanExecuteChanged();
+                }                
             }
             catch (Exception ex)
             {
@@ -532,7 +528,18 @@ namespace NicoPlayerHohoema.ViewModels
                 return;
             }
         }
-        
+
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
+        {
+            pin = new HohoemaPin()
+            {
+                Label = VideoTitle,
+                PageType = HohoemaPageType.VideoInfomation,
+                Parameter = $"id={VideoId}"
+            };
+
+            return true;
+        }
     }
 
 

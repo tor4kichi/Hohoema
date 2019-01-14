@@ -1,23 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using NicoPlayerHohoema.Models;
-using Reactive.Bindings;
-using System.Reactive.Linq;
-using Reactive.Bindings.Extensions;
-using Prism.Windows.Navigation;
-using System.Threading;
-using System.Diagnostics;
-using Prism.Commands;
-using NicoPlayerHohoema.Services;
+﻿using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Helpers;
+using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
+using Prism.Navigation;
+using Reactive.Bindings;
+using System;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class LoginPageViewModel : HohoemaViewModelBase
+    public class LoginPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync
     {
         // TODO: ログインエラー時のテキスト表示
 
@@ -25,8 +19,8 @@ namespace NicoPlayerHohoema.ViewModels
             PageManager pageManager,
             NiconicoSession niconicoSession
             )
-            : base(pageManager)
         {
+            PageManager = pageManager;
             NiconicoSession = niconicoSession;
 
             var version = Windows.ApplicationModel.Package.Current.Id.Version;
@@ -83,25 +77,22 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveCommand TryLoginCommand { get; private set; }
 
         public ReactiveProperty<string> LoginErrorText { get; private set; }
+        public PageManager PageManager { get; }
         public NiconicoSession NiconicoSession { get; }
 
         private LoginRedirectPayload _RedirectInfo;
 
-        
-
-        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             PageManager.ClearNavigateHistory();
 
-            base.OnNavigatedTo(e, viewModelState);
-        }
-        protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-        {
-
+            /*
             if (e.Parameter is string)
             {
                 _RedirectInfo = LoginRedirectPayload.FromParameterString<LoginRedirectPayload>(e.Parameter as string);
             }
+            */
+
 
             var accountInfo = await AccountManager.GetPrimaryAccount();
             if (accountInfo != null)
@@ -116,6 +107,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             IsRememberPassword.Value = !string.IsNullOrWhiteSpace(Password.Value);
         }
+
 
         private async Task TryLogin()
         {
@@ -167,5 +159,10 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
+        {
+            pin = null;
+            return false;
+        }
     }
 }

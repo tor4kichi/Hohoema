@@ -19,6 +19,7 @@ using NicoPlayerHohoema.Models.Subscription;
 using NicoPlayerHohoema.Models;
 using System.Reactive.Concurrency;
 using NicoPlayerHohoema.Services.Page;
+using Prism.Unity;
 
 namespace NicoPlayerHohoema.Services
 {
@@ -260,7 +261,7 @@ namespace NicoPlayerHohoema.Services
 
         private void ShowNewVideosToastNotification(Subscription subscription, SubscriptionSource source, IEnumerable<Database.NicoVideo> newItems)
         {
-            var mylistMan = (App.Current as App).Container.Resolve<UserMylistManager>();
+            var mylistMan = App.Current.Container.Resolve<UserMylistManager>();
 
             // TODO: プレイリスト毎にまとめたほうがいい？
 

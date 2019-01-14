@@ -6,10 +6,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
-using Prism.Windows.Navigation;
 using System.Threading;
 using NicoPlayerHohoema.Models.Helpers;
-using Windows.UI.Xaml.Navigation;
 using Prism.Commands;
 using NicoPlayerHohoema.Services;
 using Windows.System;
@@ -17,10 +15,12 @@ using System.Collections.Async;
 using NicoPlayerHohoema.Models.Cache;
 using NicoPlayerHohoema.Models.Provider;
 using Unity;
+using Prism.Navigation;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class CacheManagementPageViewModel : HohoemaListingPageViewModelBase<CacheVideoViewModel>
+    public class CacheManagementPageViewModel : HohoemaListingPageViewModelBase<CacheVideoViewModel>, INavigatedAwareAsync
 	{
         public CacheManagementPageViewModel(
             CacheSettings cacheSettings,
@@ -32,7 +32,6 @@ namespace NicoPlayerHohoema.ViewModels
             NotificationService notificationService,
             HohoemaPlaylist hohoemaPlaylist
             )
-            : base(pageManager)
         {
             CacheSettings = cacheSettings;
             VideoCacheManager = videoCacheManager;
@@ -153,11 +152,11 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        
+
 
         #region Implement HohoemaVideListViewModelBase
 
-        protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             await RefreshCacheSaveFolderStatus();
 
@@ -179,30 +178,21 @@ namespace NicoPlayerHohoema.ViewModels
                         InAppNotificationPayload.CreateReadOnlyNotification("キャッシュの利用準備が出来ました")
                         );
                 }
-
-
             }
 
-            await base.NavigatedToAsync(cancelToken, e, viewModelState);
+            await base.OnNavigatedToAsync(parameters);
         }
 
-
-
-
-        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        public override void OnNavigatedTo(INavigationParameters parameters)
         {
             Windows.UI.Xaml.Window.Current.Activated += Current_Activated;
-            base.OnNavigatedTo(e, viewModelState);
+            base.OnNavigatedTo(parameters);
         }
 
-        public override void OnNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
+        public override void OnNavigatedFrom(INavigationParameters parameters)
         {
-            if (!suspending)
-            {
-                Windows.UI.Xaml.Window.Current.Activated -= Current_Activated;
-            }
-
-            base.OnNavigatingFrom(e, viewModelState, suspending);
+            Windows.UI.Xaml.Window.Current.Activated -= Current_Activated;
+            base.OnNavigatedFrom(parameters);
         }
 
         // ウィンドウがアクティブになったタイミングで
@@ -279,6 +269,11 @@ namespace NicoPlayerHohoema.ViewModels
                 ;
         }
 
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
+        {
+            pin = null;
+            return false;
+        }
     }
 
 

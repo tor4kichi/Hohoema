@@ -6,7 +6,7 @@
     
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mvvm="using:Prism.Mvvm"
     xmlns:view="using:NicoPlayerHohoema.Views"
     xmlns:toolkit="using:WinRTXamlToolkit.Controls"
     xmlns:i="using:Microsoft.Xaml.Interactivity"
@@ -18,7 +18,8 @@
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
     xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
-    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    DataContext="{x:Null}"
+    NavigationCacheMode="Enabled"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400"
@@ -92,7 +93,7 @@
         
         <uwpcontrols:PullToRefreshListView 
             x:Name="ItemsList"
-            ItemsSource="{Binding IncrementalLoadingItems, Mode=OneWay}"
+            ItemsSource="{Binding ItemsView, Mode=OneWay}"
             RefreshCommand="{Binding RefreshCommand}"
             IsItemClickEnabled="True"
             IncrementalLoadingTrigger="Edge"
@@ -125,7 +126,7 @@
 
                 <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ScrollPosition.Value, Mode=TwoWay}" />
 
-                <core:DataTriggerBehavior Binding="{Binding IncrementalLoadingItems, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}"  >
+                <core:DataTriggerBehavior Binding="{Binding ItemsView, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}"  >
                     <actions:ScrollViewerVerticalPositionSettingsAction Target="{x:Bind ItemsList}" 
                                                                     VerticalOffset="{Binding ScrollPosition.Value}" 
                                                                     WithAnimation="False" 

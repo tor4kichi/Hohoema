@@ -1,5 +1,5 @@
-﻿using Prism.Windows.Mvvm;
-using Prism.Windows.Navigation;
+﻿using Prism.Mvvm;
+using Prism.Navigation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +9,7 @@ using System.Windows.Input;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public sealed class EpilogueIntroductionPageViewModel : ViewModelBase
+    public sealed class EpilogueIntroductionPageViewModel : BindableBase, Prism.Navigation.INavigatedAware
     {
         public EpilogueIntroductionPageViewModel(Commands.GoNextIntroductionPageCommand goNext)
         {
@@ -18,11 +18,14 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ICommand GoNext { get; }
 
-        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+
+        public void OnNavigatedTo(INavigationParameters parameters)
         {
             GoNext.Execute(null);
+        }
 
-            base.OnNavigatedTo(e, viewModelState);
+        public void OnNavigatedFrom(INavigationParameters parameters)
+        {
         }
     }
 }

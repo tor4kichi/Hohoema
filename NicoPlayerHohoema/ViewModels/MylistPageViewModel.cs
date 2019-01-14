@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Prism.Windows.Navigation;
 using Prism.Commands;
 using Mntone.Nico2.Mylist;
 using Reactive.Bindings;
@@ -24,10 +23,11 @@ using NicoPlayerHohoema.Database;
 using NicoPlayerHohoema.Interfaces;
 using Reactive.Bindings.Extensions;
 using System.Collections.ObjectModel;
+using Prism.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class MylistPageViewModel : HohoemaViewModelBase
+    public class MylistPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync
 	{
 
         public MylistPageViewModel(
@@ -47,8 +47,8 @@ namespace NicoPlayerHohoema.ViewModels
             Services.Helpers.MylistHelper mylistHelper,
             Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
-            : base(pageManager)
         {
+            PageManager = pageManager;
             NiconicoSession = niconicoSession;
             MylistProvider = mylistProvider;
             UserProvider = userProvider;
@@ -213,6 +213,7 @@ namespace NicoPlayerHohoema.ViewModels
             */
         }
 
+        public PageManager PageManager { get; }
 
 
         public NiconicoSession NiconicoSession { get; }
@@ -350,7 +351,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenMylistOwnerCommand
                     ?? (_OpenMylistOwnerCommand = new DelegateCommand(() =>
                     {
-                        PageManager.OpenPage(HohoemaPageType.UserInfo, OwnerUserId);
+                        PageManager.OpenPageWithId(HohoemaPageType.UserInfo, OwnerUserId);
                     }));
             }
         }
@@ -464,6 +465,7 @@ namespace NicoPlayerHohoema.ViewModels
                                 await UserMylistManager.RemoveMylist(mylist.Id);
                             }
 
+
                             PageManager.OpenPage(HohoemaPageType.UserMylist, OwnerUserId);
                         }));
 
@@ -573,23 +575,39 @@ namespace NicoPlayerHohoema.ViewModels
 
     */
 
-        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-            IsPageNameResolveOnPostNavigatedToAsync = true;
+        public async Task OnNavigatedToAsync(INavigationParameters parameters)
+        {
+            string mylistId = null;
+            PlaylistOrigin? origin = null;
 
-            base.OnNavigatedTo(e, viewModelState);
-		}
-
-		protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-            if (e.Parameter is string)
+            if (parameters.TryGetValue<string>("id", out var idString))
             {
-                var payload = MylistPagePayload.FromParameterString<MylistPagePayload>(e.Parameter as string);
-                var playableList = await MylistHelper.FindMylist(payload.Id, payload.Origin);
-
-                Mylist.Value = playableList;
-                MylistOrigin.Value = playableList.ToMylistOrigin().Value;
+                mylistId = idString;
             }
+            else if (parameters.TryGetValue<int>("id", out var idInt))
+            {
+                mylistId = idInt.ToString();
+            }
+
+            if (parameters.TryGetValue<PlaylistOrigin>("origin", out var mylistOrigin))
+            {
+                origin = mylistOrigin;
+            }
+            else if (parameters.TryGetValue("origin", out string mylistOriginString))
+            {
+                if (Enum.TryParse(mylistOriginString, out mylistOrigin))
+                {
+                    origin = mylistOrigin;
+                }
+            }
+
+            var playableList = await MylistHelper.FindMylist(mylistId, origin);
+
+            if (playableList == null) { return; }
+
+
+            Mylist.Value = playableList;
+            MylistOrigin.Value = playableList.ToMylistOrigin().Value;
 
             if (Mylist.Value != null)
             {
@@ -606,11 +624,12 @@ namespace NicoPlayerHohoema.ViewModels
                 RaisePropertyChanged(nameof(MylistBookmark));
             }
 
+
+            PageManager.PageTitle = playableList.Label;
+
             await Reset();
-
-            await base.NavigatedToAsync(cancelToken, e, viewModelState);
-		}
-
+        }
+       
 
         private async Task Reset()
         {
@@ -729,12 +748,17 @@ namespace NicoPlayerHohoema.ViewModels
 
         }
 
-
-        protected override string ResolvePageName()
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
         {
-            return MylistTitle;
-        }
+            pin = new HohoemaPin()
+            {
+                Label = MylistTitle,
+                PageType = HohoemaPageType.Mylist,
+                Parameter = $"id={Mylist.Value.Id}&origin={Mylist.Value.ToMylistOrigin()}"
+            };
 
+            return true;
+        }
     }
     
 	public class OtherOwnedMylistIncrementalSource : HohoemaIncrementalSourceBase<MylistVideItemViewModel>

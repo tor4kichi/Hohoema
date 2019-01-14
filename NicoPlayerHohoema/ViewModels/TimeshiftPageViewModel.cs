@@ -8,12 +8,15 @@ using NicoPlayerHohoema.Database;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models;
 using Prism.Commands;
-using Prism.Windows.Navigation;
 using Unity;
 using NicoPlayerHohoema.Services.Helpers;
 using NicoPlayerHohoema.Models.Provider;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
+using System.Collections.Specialized;
+using System.ComponentModel;
+using System.Collections.ObjectModel;
+using NicoPlayerHohoema.Services.Page;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -26,17 +29,18 @@ namespace NicoPlayerHohoema.ViewModels
             Services.PageManager pageManager, 
             Services.DialogService dialogService
             ) 
-            : base(pageManager, useDefaultPageTitle: true)
         {
             LoginUserLiveReservationProvider = loginUserLiveReservationProvider;
             NicoLiveProvider = nicoLiveProvider;
             HohoemaPlaylist = hohoemaPlaylist;
+            PageManager = pageManager;
             DialogService = dialogService;
         }
 
         public LoginUserLiveReservationProvider LoginUserLiveReservationProvider { get; }
         public NicoLiveProvider NicoLiveProvider { get; }
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public Services.PageManager PageManager { get; }
         public Services.DialogService DialogService { get; }
 
         private DelegateCommand _DeleteOutdatedReservations;
@@ -89,11 +93,6 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-        {
-            base.OnNavigatedTo(e, viewModelState);
-        }
-
         protected override void PostResetList()
         {
             AddSortDescription(
@@ -112,7 +111,7 @@ namespace NicoPlayerHohoema.ViewModels
                 new Microsoft.Toolkit.Uwp.UI.SortDescription("ExpiredAt", Microsoft.Toolkit.Uwp.UI.SortDirection.Ascending)
                 );
 
-            IncrementalLoadingItems.ObserveElementPropertyChanged()
+            (ItemsView.Source as ObservableCollection<LiveInfoListItemViewModel>).ObserveElementPropertyChanged()
                 .Where(x => x.EventArgs.PropertyName == nameof(x.Sender.Reservation) && x.Sender.Reservation == null)
                 .Subscribe(x =>
                 {
@@ -125,6 +124,12 @@ namespace NicoPlayerHohoema.ViewModels
         protected override IIncrementalSource<LiveInfoListItemViewModel> GenerateIncrementalSource()
         {
             return new TimeshiftIncrementalCollectionSource(LoginUserLiveReservationProvider, NicoLiveProvider);
+        }
+
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
+        {
+            pin = null;
+            return false;
         }
     }
 

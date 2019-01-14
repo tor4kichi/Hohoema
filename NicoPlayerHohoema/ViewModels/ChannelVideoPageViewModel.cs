@@ -9,15 +9,17 @@ using Mntone.Nico2.Channels.Video;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models;
 using Prism.Commands;
-using Prism.Windows.Navigation;
 using Windows.UI;
 using NicoPlayerHohoema.Models.Provider;
 using Unity;
 using NicoPlayerHohoema.Interfaces;
+using Prism.Navigation;
+using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public sealed class ChannelVideoPageViewModel : HohoemaListingPageViewModelBase<ChannelVideoListItemViewModel>, Interfaces.IChannel
+    public sealed class ChannelVideoPageViewModel : HohoemaListingPageViewModelBase<ChannelVideoListItemViewModel>, Interfaces.IChannel, INavigatedAwareAsync
     {
         public ChannelVideoPageViewModel(
             NiconicoSession niconicoSession,
@@ -27,10 +29,10 @@ namespace NicoPlayerHohoema.ViewModels
             Services.ExternalAccessService externalAccessService,
             Services.NiconicoFollowToggleButtonService followToggleButtonService
             )
-            : base(pageManager, useDefaultPageTitle:true)
         {
             NiconicoSession = niconicoSession;
             ChannelProvider = channelProvider;
+            PageManager = pageManager;
             HohoemaPlaylist = hohoemaPlaylist;
             ExternalAccessService = externalAccessService;
             FollowToggleButtonService = followToggleButtonService;
@@ -81,47 +83,52 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            if (e.Parameter is string)
+            if (parameters.TryGetValue("id", out string id))
             {
-                RawChannelId = e.Parameter as string;
+                RawChannelId = id;
+
+                try
+                {
+                    var channelInfo = await ChannelProvider.GetChannelInfo(RawChannelId);
+
+                    ChannelId = channelInfo.ChannelId;
+                    ChannelName = channelInfo.Name;
+                    ChannelScreenName = channelInfo.ScreenName;
+                    ChannelOpenTime = channelInfo.ParseOpenTime();
+                    ChannelUpdateTime = channelInfo.ParseUpdateTime();
+                }
+                catch
+                {
+                    ChannelName = RawChannelId;
+                }
+
+                FollowToggleButtonService.SetFollowTarget(this);
             }
-
-            if (RawChannelId == null) { return; }
-
-            try
-            {
-                var channelInfo = await ChannelProvider.GetChannelInfo(RawChannelId);
-
-                ChannelId = channelInfo.ChannelId;
-                ChannelName = channelInfo.Name;
-                ChannelScreenName = channelInfo.ScreenName;
-                ChannelOpenTime = channelInfo.ParseOpenTime();
-                ChannelUpdateTime = channelInfo.ParseUpdateTime();
-            }
-            catch
-            {
-                ChannelName = RawChannelId;
-            }
-
-            FollowToggleButtonService.SetFollowTarget(this);
 
             PageManager.PageTitle = ChannelName;
 
-            await base.NavigatedToAsync(cancelToken, e, viewModelState);
+            await base.OnNavigatedToAsync(parameters);
         }
+
 
         protected override IIncrementalSource<ChannelVideoListItemViewModel> GenerateIncrementalSource()
         {
             return new ChannelVideoLoadingSource(ChannelId?.ToString() ?? RawChannelId, ChannelProvider);
         }
 
-        protected override string ResolvePageName()
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
         {
-            return ChannelName ?? base.ResolvePageName();
-        }
+            pin = new HohoemaPin()
+            {
+                Label = ChannelName,
+                PageType = HohoemaPageType.ChannelVideo,
+                Parameter = $"id={ChannelId}"
+            };
 
+            return true;
+        }
 
         private DelegateCommand _ShowWithBrowserCommand;
         public DelegateCommand ShowWithBrowserCommand
@@ -138,6 +145,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public NiconicoSession NiconicoSession { get; }
         public Models.Provider.ChannelProvider ChannelProvider { get; }
+        public Services.PageManager PageManager { get; }
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public Services.ExternalAccessService ExternalAccessService { get; }
         public Services.NiconicoFollowToggleButtonService FollowToggleButtonService { get; }

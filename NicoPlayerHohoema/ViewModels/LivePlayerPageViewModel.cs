@@ -1,37 +1,36 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Mntone.Nico2.Live;
+using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
-using Prism.Windows.Navigation;
-using System.Threading;
-using NicoPlayerHohoema.Models.Helpers;
-using System.Diagnostics;
 using NicoPlayerHohoema.Models.Live;
+using NicoPlayerHohoema.Models.Niconico;
+using NicoPlayerHohoema.Models.Provider;
+using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.ViewModels.PlayerSidePaneContent;
+using Prism.Commands;
+using Prism.Navigation;
+using Prism.Unity;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-using Windows.UI;
-using Prism.Commands;
-using System.Reactive.Concurrency;
-using Windows.UI.ViewManagement;
-using System.Reactive.Linq;
-using NicoPlayerHohoema.Services;
-using Windows.UI.Xaml.Media;
-using Windows.Media.Playback;
-using System.Collections.ObjectModel;
-using Windows.System;
-using Windows.ApplicationModel.Core;
-using Windows.Foundation.Metadata;
-using NicoPlayerHohoema.ViewModels.PlayerSidePaneContent;
-using Windows.UI.Core;
+using System;
 using System.Collections.Concurrent;
-using Windows.UI.Xaml;
-using NicoPlayerHohoema.Models.Provider;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Linq;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Unity;
-using Mntone.Nico2.Live;
-using NicoPlayerHohoema.Interfaces;
 using Unity.Resolution;
-using NicoPlayerHohoema.Models.Niconico;
+using Windows.Foundation.Metadata;
+using Windows.Media.Playback;
+using Windows.System;
+using Windows.UI;
+using Windows.UI.ViewManagement;
+using Windows.UI.Xaml;
+using Windows.UI.Xaml.Media;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -57,7 +56,7 @@ namespace NicoPlayerHohoema.ViewModels
     }
 
 
-	public class LivePlayerPageViewModel : HohoemaViewModelBase, IDisposable, Interfaces.ILiveContent
+	public class LivePlayerPageViewModel : HohoemaViewModelBase, Interfaces.ILiveContent, INavigatedAwareAsync
 	{
 
         public LivePlayerPageViewModel(
@@ -78,7 +77,6 @@ namespace NicoPlayerHohoema.ViewModels
             NotificationService notificationService,
             ExternalAccessService externalAccessService
             )
-            : base(pageManager)
         {
             Scheduler = scheduler;
             NGSettings = ngSettings;
@@ -94,6 +92,7 @@ namespace NicoPlayerHohoema.ViewModels
             PlayerViewManager = playerViewManager;
 
             _HohoemaDialogService = dialogService;
+            PageManager = pageManager;
             _NotificationService = notificationService;
             ExternalAccessService = externalAccessService;
             MediaPlayer = PlayerViewManager.GetCurrentWindowMediaPlayer();
@@ -102,32 +101,32 @@ namespace NicoPlayerHohoema.ViewModels
             FilterdComments.Source = LiveComments;
 
             // play
-            WatchStartLiveElapsedTime = new ReactiveProperty<TimeSpan>(raiseEventScheduler: CurrentWindowContextScheduler, initialValue: TimeSpan.Zero);
+            WatchStartLiveElapsedTime = new ReactiveProperty<TimeSpan>(raiseEventScheduler: Scheduler, initialValue: TimeSpan.Zero);
             CurrentState = new ReactiveProperty<MediaElementState>(MediaElementState.Closed);
             NowPlaying = CurrentState.Select(x => x == MediaElementState.Playing)
-                .ToReactiveProperty(CurrentWindowContextScheduler);
+                .ToReactiveProperty(Scheduler);
 
             NowConnecting = Observable.CombineLatest(
                 CurrentState.Select(x => x == MediaElementState.Opening || x == MediaElementState.Buffering)
                 )
                 .Select(x => x.Any(y => y))
-                .ToReadOnlyReactiveProperty(eventScheduler: CurrentWindowContextScheduler)
+                .ToReadOnlyReactiveProperty(eventScheduler: Scheduler)
                 .AddTo(_NavigatingCompositeDisposable);
 
-            LivePlayerType = new ReactiveProperty<Models.Live.LivePlayerType?>(CurrentWindowContextScheduler);
-            LiveStatusType = new ReactiveProperty<Models.Live.LiveStatusType?>(CurrentWindowContextScheduler);
+            LivePlayerType = new ReactiveProperty<Models.Live.LivePlayerType?>(Scheduler);
+            LiveStatusType = new ReactiveProperty<StatusType?>(Scheduler);
 
-            CanChangeQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
-            RequestQuality = new ReactiveProperty<string>(CurrentWindowContextScheduler);
-            CurrentQuality = new ReactiveProperty<string>(CurrentWindowContextScheduler);
+            CanChangeQuality = new ReactiveProperty<bool>(Scheduler, false);
+            RequestQuality = new ReactiveProperty<string>(Scheduler);
+            CurrentQuality = new ReactiveProperty<string>(Scheduler);
 
             IsLowLatency = PlayerSettings.ObserveProperty(x => x.LiveWatchWithLowLatency)
-                .ToReadOnlyReactiveProperty(eventScheduler: CurrentWindowContextScheduler);
+                .ToReadOnlyReactiveProperty(eventScheduler: Scheduler);
 
-            IsAvailableSuperLowQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
-            IsAvailableLowQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
-            IsAvailableNormalQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
-            IsAvailableHighQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
+            IsAvailableSuperLowQuality = new ReactiveProperty<bool>(Scheduler, false);
+            IsAvailableLowQuality = new ReactiveProperty<bool>(Scheduler, false);
+            IsAvailableNormalQuality = new ReactiveProperty<bool>(Scheduler, false);
+            IsAvailableHighQuality = new ReactiveProperty<bool>(Scheduler, false);
 
             ChangeQualityCommand = new DelegateCommand<string>(
                 (quality) =>
@@ -161,7 +160,7 @@ namespace NicoPlayerHohoema.ViewModels
             IsWatchWithTimeshift = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
                 .AddTo(_CompositeDisposable);
 
-            SeekVideoCommand = IsWatchWithTimeshift.ToReactiveCommand<TimeSpan?>(scheduler: CurrentWindowContextScheduler)
+            SeekVideoCommand = IsWatchWithTimeshift.ToReactiveCommand<TimeSpan?>(scheduler: Scheduler)
                     .AddTo(_CompositeDisposable);
             SeekVideoCommand.Subscribe(async time =>
             {
@@ -173,9 +172,9 @@ namespace NicoPlayerHohoema.ViewModels
             })
             .AddTo(_CompositeDisposable);
 
-            SeekBarTimeshiftPosition = new ReactiveProperty<double>(CurrentWindowContextScheduler, 0.0, mode: ReactivePropertyMode.DistinctUntilChanged)
+            SeekBarTimeshiftPosition = new ReactiveProperty<double>(Scheduler, 0.0, mode: ReactivePropertyMode.DistinctUntilChanged)
                 .AddTo(_CompositeDisposable);
-            _MaxSeekablePosition = new ReactiveProperty<double>(CurrentWindowContextScheduler, 0.0)
+            _MaxSeekablePosition = new ReactiveProperty<double>(Scheduler, 0.0)
                 .AddTo(_CompositeDisposable);
 
             SeekBarTimeshiftPosition
@@ -413,8 +412,8 @@ namespace NicoPlayerHohoema.ViewModels
             // OnAirかCommingSoonの時
 
             CanRefresh = Observable.CombineLatest(
-                this.CurrentState.Select(x => x == MediaElementState.Closed || x == MediaElementState.Paused),
-                this.LiveStatusType.Select(x => x == Models.Live.LiveStatusType.OnAir || x == Models.Live.LiveStatusType.ComingSoon)
+                this.CurrentState.Select(x => x == MediaElementState.Closed || x == MediaElementState.Paused || x == MediaElementState.Stopped),
+                this.LiveStatusType.Select(x => x == StatusType.OnAir || x == StatusType.ComingSoon)
                 )
                 .Select(x => x.All(y => y))
                 .ToReadOnlyReactiveProperty(eventScheduler: PlayerWindowUIDispatcherScheduler);
@@ -511,6 +510,7 @@ namespace NicoPlayerHohoema.ViewModels
         public CommunityProvider CommunityProvider { get; }
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public DialogService _HohoemaDialogService { get; }
+        public PageManager PageManager { get; }
         public ExternalAccessService ExternalAccessService { get; }
 
         private NotificationService _NotificationService;
@@ -519,10 +519,14 @@ namespace NicoPlayerHohoema.ViewModels
 
         public MediaPlayer MediaPlayer { get; private set; }
 
-        public string LiveId { get; private set; }
+        private string _LiveId;
+        public string LiveId
+        {
+            get { return _LiveId; }
+            set { SetProperty(ref _LiveId, value); }
+        }
 
-
-		private string _LiveTitle;
+        private string _LiveTitle;
 		public string LiveTitle
 		{
 			get { return _LiveTitle; }
@@ -594,7 +598,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<uint> WatchCount { get; private set; }
 
         public ReactiveProperty<LivePlayerType?> LivePlayerType { get; private set; }
-        public ReactiveProperty<LiveStatusType?> LiveStatusType { get; private set; }
+        public ReactiveProperty<StatusType?> LiveStatusType { get; private set; }
 
         public ReadOnlyReactiveProperty<bool> CanRefresh { get; private set; }
 
@@ -663,6 +667,8 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> IsCompactOverlay { get; private set; }
         public ReactiveProperty<bool> IsForceLandscape { get; private set; }
         public ReadOnlyReactiveProperty<bool> IsSmallWindowModeEnable { get; private set; }
+
+        public bool IsXbox => Services.Helpers.DeviceTypeHelper.IsXbox;
 
         public bool IsTVModeEnabled => AppearanceSettings.IsForceTVModeEnable || Services.Helpers.DeviceTypeHelper.IsXbox;
 
@@ -882,7 +888,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenBroadcastCommunityCommand
                     ?? (_OpenBroadcastCommunityCommand = new DelegateCommand(() =>
                     {
-                        PageManager.OpenPage(HohoemaPageType.Community, CommunityId);
+                        PageManager.OpenPageWithId(HohoemaPageType.Community, CommunityId);
                     }
                     ));
             }
@@ -891,25 +897,19 @@ namespace NicoPlayerHohoema.ViewModels
 
         #endregion
 
-        
 
 
+        public async Task OnNavigatedToAsync(INavigationParameters parameters)
+        {
+            LiveId = parameters.GetValue<string>("id");
 
-        public override void OnNavigatedTo(NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
-			if (e.Parameter is string)
-			{
-				var json = e.Parameter as string;
-				var payload = LiveVideoPagePayload.FromParameterString(json);
+            if (parameters.TryGetValue<string>("title", out var title))
+            {
+                LiveTitle = title;
+            }
 
-				LiveId = payload.LiveId;
-				LiveTitle = payload.LiveTitle;
-				CommunityId = payload.CommunityId;
-				CommunityName = payload.CommunityName;
-			}
-
-			if (LiveId != null)
-			{
+            if (LiveId != null)
+            {
                 SoundVolume.Subscribe(volume =>
                 {
                     MediaPlayer.Volume = volume;
@@ -922,7 +922,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(_NavigatingCompositeDisposable);
 
                 NicoLiveVideo = new NicoLiveVideo(
-                    LiveId, 
+                    LiveId,
                     MediaPlayer,
                     NiconicoSession,
                     NicoLiveProvider,
@@ -931,69 +931,70 @@ namespace NicoPlayerHohoema.ViewModels
                     Scheduler,
                     CommunityId
                     );
-                
+
                 NicoLiveVideo.LiveComments.ObserveAddChanged()
                     .Subscribe(x =>
-				{
-					var comment = new Comment();
-
-                    comment.VideoPosition = x.Vpos;
-
-                    comment.CommentText = x.Content;
-					comment.CommentId = (uint)x.No;
-                    comment.IsAnonimity = x.IsAnonymity;
-					comment.UserId = x.UserId;
-					comment.IsOwnerComment = x.UserId == NicoLiveVideo?.BroadcasterId;
-                    comment.IsOperationCommand = x.IsOperater && x.HasOperatorCommand;
-
-                    if (!comment.IsAnonimity && TryResolveUserId(comment.UserId, out var owner))
                     {
-                        comment.UserName = owner.ScreenName;
-                        comment.IconUrl = owner.IconUrl;
+                        var comment = new Comment();
+
+                        comment.VideoPosition = x.Vpos;
+
+                        comment.CommentText = x.Content;
+                        comment.CommentId = (uint)x.No;
+                        comment.IsAnonimity = x.IsAnonymity;
+                        comment.UserId = x.UserId;
+                        comment.IsOwnerComment = x.UserId == NicoLiveVideo?.BroadcasterId;
+                        comment.IsOperationCommand = x.IsOperater && x.HasOperatorCommand;
+
+                        if (!comment.IsAnonimity && TryResolveUserId(comment.UserId, out var owner))
+                        {
+                            comment.UserName = owner.ScreenName;
+                            comment.IconUrl = owner.IconUrl;
+                        }
+                        else
+                        {
+                            UserIdToComments.AddOrUpdate(comment.UserId
+                                , (key) => new List<Comment>() { comment }
+                                , (key, list) =>
+                                {
+                                    list.Add(comment);
+                                    return list;
+                                }
+                            );
+                        }
+
+                        try
+                        {
+                            comment.IsLoginUserComment = !comment.IsAnonimity ? NiconicoSession.IsLoginUserId(x.UserId) : false;
+                        }
+                        catch { }
+
+                        Scheduler.Schedule(() =>
+                        {
+                            _LiveComments.Add(comment);
+                        });
                     }
-                    else
-                    {
-                        UserIdToComments.AddOrUpdate(comment.UserId
-                            , (key) => new List<Comment>() { comment }
-                            , (key, list) =>
-                            {
-                                list.Add(comment);
-                                return list;
-                            }
-                        );
-                    }
-
-                    try
-					{
-						comment.IsLoginUserComment = !comment.IsAnonimity ? NiconicoSession.IsLoginUserId(x.UserId) : false;
-					}
-					catch { }
-                    
-                    CurrentWindowContextScheduler.Schedule(() => 
-                    {
-                        _LiveComments.Add(comment);
-                    });
-				}
                 )
                 .AddTo(_NavigatingCompositeDisposable);
 
                 FilterdComments.Source = LiveComments;
 
-				CommentCount = NicoLiveVideo.ObserveProperty(x => x.CommentCount)
-					.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
-					.AddTo(_NavigatingCompositeDisposable);
-				RaisePropertyChanged(nameof(CommentCount));
+                CommentCount = NicoLiveVideo.ObserveProperty(x => x.CommentCount)
+                    .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+                    .AddTo(_NavigatingCompositeDisposable);
+                RaisePropertyChanged(nameof(CommentCount));
 
-				WatchCount = NicoLiveVideo.ObserveProperty(x => x.WatchCount)
-					.ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
-					.AddTo(_NavigatingCompositeDisposable);
-				RaisePropertyChanged(nameof(WatchCount));
+                WatchCount = NicoLiveVideo.ObserveProperty(x => x.WatchCount)
+                    .ToReactiveProperty(PlayerWindowUIDispatcherScheduler)
+                    .AddTo(_NavigatingCompositeDisposable);
+                RaisePropertyChanged(nameof(WatchCount));
 
-				CommunityId = NicoLiveVideo.BroadcasterCommunityId;                
+                CommunityId = NicoLiveVideo.BroadcasterCommunityId;
 
                 // post comment 
                 NicoLiveVideo.PostCommentResult += NicoLiveVideo_PostCommentResult;
 
+                LiveStatusType.Value = NicoLiveVideo.LiveStatus;
 
                 NicoLiveVideo.OpenLive += NicoLiveVideo_OpenLive;
                 NicoLiveVideo.CloseLive += NicoLiveVideo_CloseLive;
@@ -1002,26 +1003,11 @@ namespace NicoPlayerHohoema.ViewModels
                 NicoLiveVideo.LiveElapsed += NicoLiveVideo_LiveElapsed;
             }
 
-			base.OnNavigatedTo(e, viewModelState);
-		}
 
-        private void NicoLiveVideo_LiveElapsed(object sender, TimeSpan e)
-        {
-            PlayerWindowUIDispatcherScheduler.Schedule(() => 
-            {
-                LiveElapsedTime = e;
 
-                if (NicoLiveVideo?.IsWatchWithTimeshift == true)
-                {
-                    _NowSeekBarPositionChanging = true;
-                    SeekBarTimeshiftPosition.Value = (NicoLiveVideo.LiveElapsedTimeFromOpen).TotalSeconds;
-                    _NowSeekBarPositionChanging = false;
-                }
-            });
-        }
+            // NavigatedToAsync
 
-        protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
-		{
+
             IsDisplayControlUI.Value = true;
 
             try
@@ -1030,7 +1016,6 @@ namespace NicoPlayerHohoema.ViewModels
                 if (liveInfo != null && liveInfo.IsOK)
                 {
                     LiveTitle = liveInfo.VideoInfo.Video.Title;
-                    Title = LiveTitle;
 
                     _OpenAt = liveInfo.VideoInfo.Video.OpenTime.Value;
                     _StartAt = liveInfo.VideoInfo.Video.StartTime.Value;
@@ -1050,8 +1035,6 @@ namespace NicoPlayerHohoema.ViewModels
                 }
 
                 RoomName = NicoLiveVideo.RoomName;
-
-                cancelToken.ThrowIfCancellationRequested();
             }
             catch
             {
@@ -1061,45 +1044,52 @@ namespace NicoPlayerHohoema.ViewModels
                 throw;
             }
 
-            await base.NavigatedToAsync(cancelToken, e, viewModelState);
-		}
+        }
 
 
+        private void NicoLiveVideo_LiveElapsed(object sender, TimeSpan e)
+        {
+            PlayerWindowUIDispatcherScheduler.Schedule(() => 
+            {
+                LiveElapsedTime = e;
 
-		protected override void OnHohoemaNavigatingFrom(NavigatingFromEventArgs e, Dictionary<string, object> viewModelState, bool suspending)
-		{
-			if (!suspending)
-			{
-                if (NicoLiveVideo != null)
+                if (NicoLiveVideo?.IsWatchWithTimeshift == true)
                 {
-                    NicoLiveVideo.OpenLive -= NicoLiveVideo_OpenLive;
-                    NicoLiveVideo.CloseLive -= NicoLiveVideo_CloseLive;
-                    NicoLiveVideo.FailedOpenLive -= NicoLiveVideo_FailedOpenLive1;
-                    NicoLiveVideo.OperationCommandRecieved -= NicoLiveVideo_OperationCommandRecieved;
-                    
-                    NicoLiveVideo.Dispose();
-                    NicoLiveVideo = null;
+                    _NowSeekBarPositionChanging = true;
+                    SeekBarTimeshiftPosition.Value = (NicoLiveVideo.LiveElapsedTimeFromOpen).TotalSeconds;
+                    _NowSeekBarPositionChanging = false;
                 }
+            });
+        }
+
+
+        public override void OnNavigatedFrom(INavigationParameters parameters)
+        {
+            if (NicoLiveVideo != null)
+            {
+                NicoLiveVideo.OpenLive -= NicoLiveVideo_OpenLive;
+                NicoLiveVideo.CloseLive -= NicoLiveVideo_CloseLive;
+                NicoLiveVideo.FailedOpenLive -= NicoLiveVideo_FailedOpenLive1;
+                NicoLiveVideo.OperationCommandRecieved -= NicoLiveVideo_OperationCommandRecieved;
+
+                NicoLiveVideo.Dispose();
+                NicoLiveVideo = null;
             }
 
             CancelUserInfoResolvingTask();
 
             MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
 
-			IsFullScreen.Value = false;
+            IsFullScreen.Value = false;
 
             _PrevPrevSidePaneContentType = CurrentSidePaneContentType.Value;
             CurrentSidePaneContentType.Value = null;
 
-            base.OnHohoemaNavigatingFrom(e, viewModelState, suspending);
-		}
 
-		protected override async Task OnResumed()
-		{
-			await TryStartViewing();
+            base.OnNavigatedFrom(parameters);
+        }
 
-//			return base.OnResumed();
-		}
+        
 
 		/// <summary>
 		/// 生放送情報を取得してライブストリームの受信を開始します。<br />
@@ -1197,6 +1187,8 @@ namespace NicoPlayerHohoema.ViewModels
 				else
 				{
 				}
+
+                LiveStatusType.Value = NicoLiveVideo.LiveStatus;
 			}
 			catch (Exception ex)
 			{
@@ -1452,7 +1444,8 @@ namespace NicoPlayerHohoema.ViewModels
                         TogglePlayPauseCommand.Execute();
                     }
 
-                    ResetSuggestion(LiveStatusType.Value = Models.Live.LiveStatusType.Closed);
+                    LiveStatusType.Value = StatusType.Closed;
+                    ResetSuggestion(Models.Live.LiveStatusType.Closed);
                     break;
                 case "clear":
                 case "cls":
@@ -1482,6 +1475,8 @@ namespace NicoPlayerHohoema.ViewModels
         {
             Debug.WriteLine("NicoLiveVideo_OpenLive");
 
+            LiveStatusType.Value = NicoLiveVideo.LiveStatus;
+
             if (NicoLiveVideo.LiveStatus == Mntone.Nico2.Live.StatusType.OnAir ||
                     NicoLiveVideo.LiveStatus == Mntone.Nico2.Live.StatusType.ComingSoon ||
                     NicoLiveVideo.IsWatchWithTimeshift
@@ -1490,7 +1485,7 @@ namespace NicoPlayerHohoema.ViewModels
                 CurrentState.Value = MediaElementState.Opening;
 
                 LivePlayerType.Value = NicoLiveVideo.LivePlayerType;
-
+                
                 RaisePropertyChanged(nameof(MediaPlayer));
 
                 CommunityId = NicoLiveVideo.BroadcasterCommunityId;
@@ -1635,7 +1630,7 @@ namespace NicoPlayerHohoema.ViewModels
                         sidePaneContent = App.Current.Container.Resolve<PlaylistSidePaneContentViewModel>();
                         break;
                     case PlayerSidePaneContentType.Comment:                        
-                        sidePaneContent = App.Current.Container.Resolve<LiveCommentSidePaneContentViewModel>(new ParameterOverride("comments", FilterdComments));
+                        sidePaneContent = App.Current.Container.GetContainer().Resolve<LiveCommentSidePaneContentViewModel>(new ParameterOverride("comments", FilterdComments));
                         break;
                     case PlayerSidePaneContentType.Setting:
                         sidePaneContent = App.Current.Container.Resolve<SettingsSidePaneContentViewModel>();
@@ -1696,7 +1691,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 if (UserIdToComments.TryGetValue(user.OwnerId, out var comments))
                 {
-                    CurrentWindowContextScheduler.Schedule(() =>
+                    Scheduler.Schedule(() =>
                     {
                         foreach (var comment in comments)
                         {
@@ -1733,6 +1728,12 @@ namespace NicoPlayerHohoema.ViewModels
                     }
                 }
             }, (_UserInfoResolvingTaskCancellationToken = new CancellationTokenSource()).Token);
+        }
+
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
+        {
+            pin = null;
+            return false;
         }
 
         private DelegateCommand _ToggleCommentListSidePaneContentCommand;

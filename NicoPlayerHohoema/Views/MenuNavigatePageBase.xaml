@@ -446,6 +446,7 @@
                 <i:Interaction.Behaviors>
                     <mybehavior:UINavigationTrigger Kind="View" 
                                                         x:Name="MenuToggleTrigger"
+                                                    IsEnabled="False"
                                                     >
                         <core:InvokeCommandAction Command="{Binding TogglePaneOpenCommand}" />
                     </mybehavior:UINavigationTrigger>
@@ -518,11 +519,15 @@
                                         Visibility="Collapsed"
                                         toolkit:DockPanel.Dock="Top"
                                         Background="Transparent"
-                                        Command="{Binding TogglePlayerFloatDisplayCommand}"
                                         TabIndex="102"
                                         HorizontalAlignment="Stretch"
                                         Margin="8 0 0 0"
                                         >
+                                    <i:Interaction.Behaviors>
+                                        <core:EventTriggerBehavior EventName="Click">
+                                            <core:ChangePropertyAction TargetObject="{Binding PlayerViewManager}" PropertyName="IsPlayerSmallWindowModeEnabled" Value="False" />
+                                        </core:EventTriggerBehavior>
+                                    </i:Interaction.Behaviors>
                                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
                                         <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE743;"
                                                                                 FontSize="24"
@@ -874,7 +879,7 @@
 
                                     <!-- ページ毎のコンテンツ -->
                                     <Grid>
-                                        <ContentPresenter x:Name="ContentLayout"         
+                                        <ContentPresenter x:Name="ContentLayout"      
                                             >
                                             <myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
                                                 <templateSelector:HohoemaFlyoutTemplateSelector>
@@ -967,7 +972,7 @@
                                 MinHeight="{StaticResource TitleBarDummyHeight}"
                                 Background="Transparent"
                                 VerticalContentAlignment="Center"
-                            Command="{Binding GoBackNavigationCommand}"
+                                Command="{Binding GoBackNavigationCommand}"
                                     >
                                 <SymbolIcon Symbol="Back" Height="10" Width="10" />
                             </Button>
@@ -1062,6 +1067,32 @@
                             </VisualState.Setters>
                         </VisualState>
                     </VisualStateGroup>
+
+                    <VisualStateGroup>
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding PlayerViewManager.NowPlaying}" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="TVModeFloatPlayerRewindSizeButton.Visibility" Value="Visible" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+
+                    <VisualStateGroup>
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding PlayerViewManager.NowPlaying, Converter={StaticResource BoolNegation}}" />
+                                <StateTrigger IsActive="{Binding PlayerViewManager.IsPlayerSmallWindowModeEnabled}" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="MenuToggleTrigger.IsEnabled" Value="True" />
+                            </VisualState.Setters>
+                        </VisualState>
+                    </VisualStateGroup>
+
 
                     <VisualStateGroup>
                         <VisualState>

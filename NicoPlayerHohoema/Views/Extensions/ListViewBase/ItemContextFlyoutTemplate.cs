@@ -107,11 +107,15 @@ namespace NicoPlayerHohoema.Views.Extensions
                     {
                         if (args.ItemContainer is FrameworkElement fe)
                         {
+                            // Note: コントローラー操作含めたContextFlyoutを仕掛ける
+                            // fe = ListViewItem(GridViewItem)に対してContextFlyoutを仕掛けるだけでは
+                            // DataContextにViewModelが渡らないため不十分。
+                            // contentPresenterのContextFlyoutを利用した場合は、
+                            // コントローラー操作（カーソル操作）時のフライアウトメニュー表示が反応しないため要件を満たさない
                             var contentPresenter = fe.FindFirstChild<FrameworkElement>();
-
                             var flyout = template.LoadContent() as Windows.UI.Xaml.Controls.Primitives.FlyoutBase;
-                            contentPresenter.ContextFlyout = flyout;
-
+                            fe.ContextFlyout = flyout;
+                            fe.DataContext = contentPresenter.DataContext;
                             var customContext = GetItemContextFlyoutCustomObjectToTag(target);
                             if (customContext != null)
                             {
@@ -141,8 +145,8 @@ namespace NicoPlayerHohoema.Views.Extensions
                             var dataTemplate = templateSelector.SelectTemplate(dataContext, args.ItemContainer);
                             var flyout = dataTemplate.LoadContent() as Windows.UI.Xaml.Controls.Primitives.FlyoutBase;
                             var contentPresenter = fe.FindFirstChild<FrameworkElement>();
-                            contentPresenter.ContextFlyout = flyout;
-
+                            fe.ContextFlyout = flyout;
+                            fe.DataContext = contentPresenter.DataContext;
                             var customContext = GetItemContextFlyoutCustomObjectToTag(target);
                             if (customContext != null)
                             {

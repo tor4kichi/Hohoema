@@ -1,27 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Mntone.Nico2;
 using NicoPlayerHohoema.Models;
-using Prism.Windows.Navigation;
-using System.Collections.ObjectModel;
-using Mntone.Nico2;
-using Reactive.Bindings;
-using System.Reactive.Linq;
-using Reactive.Bindings.Extensions;
-using System.Diagnostics;
-using System.Threading;
-using Prism.Commands;
-using NicoPlayerHohoema.Services;
-using Windows.System;
-using NicoPlayerHohoema.Models.Subscription;
 using NicoPlayerHohoema.Models.Provider;
-using Unity;
+using NicoPlayerHohoema.Models.Subscription;
+using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.Services.Page;
+using Prism.Commands;
+using Prism.Navigation;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Linq;
+using System.Reactive.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class UserInfoPageViewModel : HohoemaViewModelBase, Interfaces.IUser
+    public class UserInfoPageViewModel : HohoemaViewModelBase, Interfaces.IUser, INavigatedAwareAsync
 	{
         public UserInfoPageViewModel(
             UserProvider userProvider,
@@ -35,7 +33,6 @@ namespace NicoPlayerHohoema.ViewModels
             NiconicoFollowToggleButtonService followToggleButtonService,
             Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
-            : base(pageManager)
         {
             HasOwnerVideo = true;
 
@@ -50,7 +47,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             OpenUserVideoPageCommand.Subscribe(x =>
             {
-                PageManager.OpenPage(HohoemaPageType.UserVideo, UserId);
+                PageManager.OpenPageWithId(HohoemaPageType.UserVideo, UserId);
             })
             .AddTo(_CompositeDisposable);
 
@@ -75,6 +72,7 @@ namespace NicoPlayerHohoema.ViewModels
             NiconicoSession = niconicoSession;
             SubscriptionManager = subscriptionManager;
             UserMylistManager = userMylistManager;
+            PageManager = pageManager;
             ExternalAccessService = externalAccessService;
             FollowToggleButtonService = followToggleButtonService;
             CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
@@ -86,6 +84,7 @@ namespace NicoPlayerHohoema.ViewModels
         public Models.NiconicoSession NiconicoSession { get; }
         public SubscriptionManager SubscriptionManager { get; }
         public UserMylistManager UserMylistManager { get; }
+        public PageManager PageManager { get; }
         public ExternalAccessService ExternalAccessService { get; }
         public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
@@ -102,7 +101,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenUserMylistPageCommand
                     ?? (_OpenUserMylistPageCommand = new DelegateCommand(() =>
                     {
-                        PageManager.OpenPage(HohoemaPageType.UserMylist, UserId);
+                        PageManager.OpenPageWithId(HohoemaPageType.UserMylist, UserId);
                     }));
             }
         }
@@ -207,14 +206,6 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _HasOwnerVideo, value); }
 		}
 
-
-		private bool _NowLoading;
-		public bool NowLoading
-		{
-			get { return _NowLoading; }
-			set { SetProperty(ref _NowLoading, value); }
-		}
-
 		public ReactiveProperty<bool> IsNGVideoOwner { get; private set; }
 
 
@@ -226,27 +217,21 @@ namespace NicoPlayerHohoema.ViewModels
 
         string Interfaces.INiconicoObject.Label => UserName;
 
-        protected override async Task NavigatedToAsync(CancellationToken cancelToken, NavigatedToEventArgs e, Dictionary<string, object> viewModelState)
+        public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            NowLoading = true;
-
             string userId = null;
-            if (e.Parameter is string)
+
+            if (parameters.TryGetValue<string>("id", out var id))
             {
-                userId = e.Parameter as string;
-            }
-            else if (e.Parameter is uint)
-            {
-                userId = ((uint)e.Parameter).ToString();
+                userId = id;
             }
             else
             {
-                userId = NiconicoSession.UserId.ToString();
+                userId = userId = NiconicoSession.UserId.ToString();
             }
 
             if (userId == UserId)
             {
-                NowLoading = false;
                 return;
             }
 
@@ -268,7 +253,7 @@ namespace NicoPlayerHohoema.ViewModels
                 var user = userInfo;
                 UserName = user.Nickname;
                 UserIconUri = user.ThumbnailUri;
-                
+
                 FollowerCount = user.FollowerCount;
                 StampCount = user.StampCount;
                 VideoCount = user.TotalVideoCount;
@@ -277,7 +262,6 @@ namespace NicoPlayerHohoema.ViewModels
             catch
             {
                 IsLoadFailed = true;
-                NowLoading = false;
             }
 
 
@@ -313,7 +297,6 @@ namespace NicoPlayerHohoema.ViewModels
             catch (Exception ex)
             {
                 IsLoadFailed = true;
-                NowLoading = false;
                 Debug.WriteLine(ex.Message);
             }
 
@@ -360,12 +343,18 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             FollowToggleButtonService.SetFollowTarget(this);
-
-
-            NowLoading = false;
         }
 
+        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
+        {
+            pin = new HohoemaPin()
+            {
+                Label = UserName,
+                PageType = HohoemaPageType.UserInfo,
+                Parameter = $"id={UserId}"
+            };
 
-
+            return true;
+        }
     }
 }

@@ -2,7 +2,7 @@
 using NicoPlayerHohoema.Models.Cache;
 using NicoPlayerHohoema.Services;
 using Prism.Commands;
-using Prism.Windows.Mvvm;
+using Prism.Mvvm;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -16,7 +16,7 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public sealed class VideoCacheIntroductionPageViewModel : ViewModelBase
+    public sealed class VideoCacheIntroductionPageViewModel : BindableBase
     {
         public VideoCacheIntroductionPageViewModel(
             CacheSettings cacheSettings,

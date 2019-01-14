@@ -1,8 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.UI.Animations;
 using NicoPlayerHohoema.Models.Helpers;
 using Prism.Events;
-using Prism.Windows.AppModel;
-using Prism.Windows.Navigation;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -14,6 +12,7 @@ using System.Threading.Tasks;
 using Windows.UI.Core;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
+using Prism.Unity;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -27,6 +26,12 @@ namespace NicoPlayerHohoema.Views
 			this.InitializeComponent();
 
             this.Loaded += MenuNavigatePageBase_Loaded;
+            this.Loading += MenuNavigatePageBase_Loading;
+        }
+
+        private void MenuNavigatePageBase_Loading(FrameworkElement sender, object args)
+        {
+            DataContext = App.Current.Container.Resolve<ViewModels.MenuNavigatePageBaseViewModel>();
         }
 
         private void MenuNavigatePageBase_Loaded(object sender, RoutedEventArgs e)

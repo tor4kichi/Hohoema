@@ -18,10 +18,10 @@
     xmlns:media="using:Microsoft.Xaml.Interactions.Media"
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors"
     xmlns:iconPack="using:MahApps.Metro.IconPacks"
-    xmlns:mvvm="using:Prism.Windows.Mvvm"
+    xmlns:mvvm="using:Prism.Mvvm"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector"
-    mvvm:ViewModelLocator.AutoWireViewModel="True"
+    DataContext="{x:Null}"
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
@@ -29,7 +29,11 @@
     <Page.Resources>
 
         <MenuFlyout x:Name="LivePlayerFlyout">
-
+            
+            <MenuFlyoutItem Text="再生/一時停止"
+                            Command="{Binding TogglePlayPauseCommand}"
+                            />
+            
             <ToggleMenuFlyoutItem IsChecked="{Binding IsMuted.Value, Mode=TwoWay}"
                                   Text="ミュート"
                                   />
@@ -69,43 +73,63 @@
             -->
 
            
-            <MenuFlyoutSubItem Text="共有" x:Name="MenuSubItem_Share">
-                <MenuFlyoutItem Text="アプリを選択" Command="{Binding ShareCommand}"/>
-                <MenuFlyoutItem Text="Twitterで共有" Command="{Binding ShereWithTwitterCommand}" />
-                <MenuFlyoutItem Text="コピー" Command="{Binding ShareWithClipboardCommand}" />
-            </MenuFlyoutSubItem>
 
-            <MenuFlyoutItem Text="共有" x:Name="MenuSubItem_Share_TV" Visibility="Collapsed" Command="{Binding ShareCommand}"/>
-
-            <MenuFlyoutSeparator  />
-
-            <MenuFlyoutItem Text="放送情報" 
-                    Command="{Binding PageManager.OpenPageCommand}"
-                    CommandParameter="{Binding}"
-                    />
-
-            <MenuFlyoutItem Text="配信者情報"
-                            Command="{Binding PageManager.OpenContentOwnerPageCommand}"
-                            CommandParameter="{Binding}"
-                            />
-
-            
-            <!--
-            <MenuFlyoutItem Text="小さく表示" Command="{Binding PlayerSmallWindowDisplayCommand}">
-                <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Tapped">
-                        <core:ChangePropertyAction TargetObject="{Binding IsDisplayControlUI, Mode=TwoWay}" PropertyName="Value" Value="False" />
-                    </core:EventTriggerBehavior>
-                </i:Interaction.Behaviors>
+            <MenuFlyoutItem x:Name="FullscreenButton_Menu"  
+                        Command="{Binding ToggleFullScreenCommand}"
+                        Background="Transparent"
+                        Visibility="Collapsed"
+                        MinWidth="64"
+                                Text="全画面"
+                                Icon="FullScreen"
+                                    >
             </MenuFlyoutItem>
 
-            <ToggleMenuFlyoutItem Text="横持ち固定" 
-                                                              x:Name="ForceRotateToggleButton" 
-                                                              Visibility="Collapsed"
-                                                              IsChecked="{Binding IsForceLandscape.Value, Mode=TwoWay}"
-                                                              />
 
-            -->
+
+            <MenuFlyoutItem x:Name="CompactOverlayButton_Menu"
+                            Command="{Binding ToggleCompactOverlayCommand}"
+                            Background="Transparent"
+                            Visibility="Collapsed"
+                            MinWidth="64"
+                                    Text="小さく最前面"
+                            >
+
+            </MenuFlyoutItem>
+
+
+
+            <MenuFlyoutItem x:Name="SmallWindowButton_Menu"  
+                            Command="{Binding PlayerSmallWindowDisplayCommand}"
+                            Background="Transparent"
+                            Visibility="Collapsed"
+                            MinWidth="64"
+                                    Text="小窓"
+                                        >
+
+            </MenuFlyoutItem>
+
+
+            <MenuFlyoutItem x:Name="DisplayWithSecondaryViewButton_Menu"
+                            Command="{Binding PlayerDisplayWithSecondaryViewCommand}"
+                            Background="Transparent"
+                            Visibility="Collapsed"
+                            MinWidth="64"
+                                    Text="別ウィンドウ"
+                            >
+
+            </MenuFlyoutItem>
+
+            <ToggleMenuFlyoutItem x:Name="ForceRotateToggleButton_Menu" 
+                                IsChecked="{Binding IsForceLandscape.Value, Mode=TwoWay}"
+                                Background="Transparent"
+                                Visibility="Collapsed"
+                            MinWidth="64"
+                                    Text="横持ち固定"
+                                    Icon="Orientation"
+                    >
+            </ToggleMenuFlyoutItem>
+
+
 
 
         </MenuFlyout>
@@ -140,13 +164,6 @@
         
         
     </Page.Resources>
-
-    <i:Interaction.Behaviors>
-        <core:EventTriggerBehavior EventName="Unloaded">
-            <core:CallMethodAction TargetObject="{Binding}" MethodName="Dispose" />
-        </core:EventTriggerBehavior>
-    </i:Interaction.Behaviors>
-
 
     <Border x:Name="LayoutRoot">
         <VisualStateManager.VisualStateGroups>
@@ -359,22 +376,12 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="ForceRotateToggleButton.Visibility" Value="Visible" />
+                        <Setter Target="ForceRotateToggleButton_Menu.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
 
 
-            <!-- Landscape固定ボタンの表示管理 -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <intractionTrigger:InteractionModeTrigger Condition="Touch" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="ForceRotateToggleButton.Visibility" Value="Visible" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
 
             <!-- モバイルの縦持ち時のLandscape固定処理 -->
             <VisualStateGroup>
@@ -424,6 +431,7 @@
                     <VisualState.Setters>
                         <Setter Target="DisplayWithMainViewButton.Visibility" Value="Visible" />
                         <Setter Target="SmallWindowButton.Visibility" Value="Collapsed" />
+                        <Setter Target="SmallWindowButton_Menu.Visibility" Value="Collapsed" />
 
                         <Setter Target="CloseButton.Visibility" Value="Collapsed" />
                         <Setter Target="CO_CloseButton.Visibility" Value="Collapsed" />
@@ -476,6 +484,7 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="CompactOverlayButton.Visibility" Value="Visible" />
+                        <Setter Target="CompactOverlayButton_Menu.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
 
@@ -544,6 +553,8 @@
                     <VisualState.Setters>
                         <Setter Target="SmallWindowButton.Visibility" Value="Visible" />
                         <Setter Target="FullscreenButton.Visibility" Value="Visible" />
+                        <Setter Target="SmallWindowButton_Menu.Visibility" Value="Visible" />
+                        <Setter Target="FullscreenButton_Menu.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
                 <VisualState>
@@ -552,8 +563,10 @@
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="SmallWindowButton.Visibility" Value="Visible" />
+                        <Setter Target="SmallWindowButton_Menu.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
+
                 <VisualState>
                     <VisualState.StateTriggers>
                         <hardTrigger:DeviceFamilyTrigger Condition="Desktop" />
@@ -561,6 +574,20 @@
                     <VisualState.Setters>
                         <Setter Target="SmallWindowButton.Visibility" Value="Visible" />
                         <Setter Target="FullscreenButton.Visibility" Value="Visible" />
+                        <Setter Target="SmallWindowButton_Menu.Visibility" Value="Visible" />
+                        <Setter Target="FullscreenButton_Menu.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+                
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <hardTrigger:DeviceFamilyTrigger Condition="Desktop" />
+                    </VisualState.StateTriggers>
+                    <VisualState.Setters>
+                        <Setter Target="SmallWindowButton.Visibility" Value="Visible" />
+                        <Setter Target="FullscreenButton.Visibility" Value="Visible" />
+                        <Setter Target="SmallWindowButton_Menu.Visibility" Value="Visible" />
+                        <Setter Target="FullscreenButton_Menu.Visibility" Value="Visible" />
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -1189,144 +1216,111 @@
 
                                         </StackPanel>
 
-                                        <StackPanel Orientation="Horizontal"
-                                                        HorizontalAlignment="Right"
+                                        <CommandBar HorizontalAlignment="Right"
                                                         >
 
+                                            <AppBarButton Label="放送情報" 
+                                                Command="{Binding PageManager.OpenPageCommand}"
+                                                CommandParameter="{Binding}"
+                                                />
 
+                                            <AppBarButton Label="配信者情報"
+                                                Command="{Binding PageManager.OpenContentOwnerPageCommand}"
+                                                CommandParameter="{Binding}"
+                                                />
 
-                                            <Button x:Name="SmallWindowButton"  
-                                                            Command="{Binding PlayerSmallWindowDisplayCommand}"
-                                                            Background="Transparent"
-                                                            Visibility="Collapsed"
-                                                            Margin="8 0 0 0"
-                                                            MinWidth="64"
-                                                                        >
-                                                <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE743;"
-                                                                                   FontSize="24"
-                                                                                   VerticalAlignment="Center"
-                                                                                   Height="24"
-                                                                                   Width="24"
-                                                                                   HorizontalAlignment="Center"
-                                                                                   Margin="0 0 0 8"
-                                                                               />
+                                            
+                                            <AppBarButton Label="共有" 
+                                                          Icon="Link"
+                                                Command="{Binding ExternalAccessService.OpenShareUICommand}"
+                                                CommandParameter="{Binding}"
+                                                />
 
-                                                    <TextBlock Text="小窓" 
-                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                                                                   VerticalAlignment="Center" />
+                                            <AppBarButton Label="コピー"
+                                                          Icon="Copy"
+                                                Visibility="{Binding IsXbox, Converter={StaticResource BooleanToVisibilityInverted}}"
+                                                               >
+                                                <AppBarButton.Flyout>
+                                                    <MenuFlyout>
+                                                        <MenuFlyoutItem Text="生放送IDをコピー"
+                                                            Command="{Binding ExternalAccessService.CopyToClipboardCommand}"
+                                                            CommandParameter="{Binding LiveId}"
+                                                            />
 
-                                                </StackPanel>
-                                            </Button>
+                                                        <MenuFlyoutItem Text="リンクをコピー"
+                                                            Command="{Binding ExternalAccessService.CopyToClipboardCommand}"
+                                                            CommandParameter="{Binding}"
+                                                            />
 
-
-
-
-
-
-                                            <Button x:Name="CompactOverlayButton"
-                                                            Command="{Binding ToggleCompactOverlayCommand}"
-                                                            Background="Transparent"
-                                                            Visibility="Collapsed"
-                                                            Margin="8 0 0 0"
-                                                            MinWidth="64"
-                                                            >
-                                                <StackPanel Orientation="Vertical">
-
-                                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8A7;"
-                                                                                   FontSize="24"
-                                                                                   VerticalAlignment="Center"
-                                                                                   Height="24"
-                                                                                   Width="24"
-                                                                                   HorizontalAlignment="Center"
-                                                                                   Margin="0 0 0 8"
-                                                                               />
-                                                    <TextBlock Text="小さく最前面" 
-                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                                                                   VerticalAlignment="Center" />
-                                                </StackPanel>
-                                            </Button>
+                                                        <MenuFlyoutItem Text="共有用文章をコピー"
+                                                            Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}"
+                                                            CommandParameter="{Binding}"
+                                                            />
+                                                    </MenuFlyout>
+                                                </AppBarButton.Flyout>
+                                            </AppBarButton>
 
 
 
-                                            <Button x:Name="FullscreenButton"  
+                                            <CommandBar.SecondaryCommands>
+                                                <AppBarButton x:Name="FullscreenButton"  
                                                             Command="{Binding ToggleFullScreenCommand}"
                                                             Background="Transparent"
                                                             Visibility="Collapsed"
-                                                            Margin="8 0 0 0"
                                                             MinWidth="64"
+                                                                  Label="全画面"
+                                                                  Icon="FullScreen"
                                                                         >
-                                                <StackPanel Orientation="Vertical" VerticalAlignment="Center">
-                                                    <toolkit:LayoutTransformControl Margin="0 0 0 8">
-                                                        <iconPack:PackIconMaterial x:Name="FullscreenButtonIcon"  
-                                                                                Kind="Fullscreen"                                                                                                        
-                                                                                Width="24"
-                                                                                Height="24"
-                                                                                HorizontalAlignment="Center"
-                                                                            >
-
-                                                        </iconPack:PackIconMaterial>
-                                                    </toolkit:LayoutTransformControl>
-
-
-                                                    <TextBlock Text="全画面" 
-                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                                                                   VerticalAlignment="Center" />
-
-                                                </StackPanel>
-                                            </Button>
+                                                </AppBarButton>
 
 
 
+                                                <AppBarButton x:Name="CompactOverlayButton"
+                                                            Command="{Binding ToggleCompactOverlayCommand}"
+                                                            Background="Transparent"
+                                                            Visibility="Collapsed"
+                                                            MinWidth="64"
+                                                                  Label="小さく最前面"
+                                                            >
 
-                                            <Button x:Name="DisplayWithSecondaryViewButton"
+                                                </AppBarButton>
+
+
+
+                                                <AppBarButton x:Name="SmallWindowButton"  
+                                                            Command="{Binding PlayerSmallWindowDisplayCommand}"
+                                                            Background="Transparent"
+                                                            Visibility="Collapsed"
+                                                            MinWidth="64"
+                                                                  Label="小窓"
+                                                                        >
+
+                                                </AppBarButton>
+
+
+                                                <AppBarButton x:Name="DisplayWithSecondaryViewButton"
                                                             Command="{Binding PlayerDisplayWithSecondaryViewCommand}"
                                                             Background="Transparent"
                                                             Visibility="Collapsed"
-                                                            Margin="8 0 0 0"
                                                             MinWidth="64"
+                                                                  Label="別ウィンドウ"
                                                             >
-                                                <StackPanel Orientation="Vertical">
-                                                    <iconPack:PackIconMaterial Kind="CheckboxMultipleBlankOutline"
-                                                                                                   Margin="0 0 0 8"
-                                                                                                   Height="24"
-                                                                                                   Width="24"
-                                                                                                   HorizontalAlignment="Center"
-                                                                                                   />
 
-                                                    <TextBlock Text="別ウィンドウ" 
-                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                                                                   VerticalAlignment="Center" />
-                                                </StackPanel>
-                                            </Button>
+                                                </AppBarButton>
 
-                                            <ToggleButton x:Name="ForceRotateToggleButton" 
+                                                <AppBarToggleButton x:Name="ForceRotateToggleButton" 
                                                                   IsChecked="{Binding IsForceLandscape.Value, Mode=TwoWay}"
                                                                   Background="Transparent"
                                                                   Visibility="Collapsed"
-                                                        Margin="8 0 0 0"
                                                               MinWidth="64"
+                                                                        Label="横持ち固定"
+                                                                        Icon="Orientation"
                                                         >
-                                                <StackPanel>
-                                                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE8B4;"
-                                                                                   FontSize="24"
-                                                                                   VerticalAlignment="Center"
-                                                                                   Height="24"
-                                                                                   Width="24"
-                                                                                   HorizontalAlignment="Center"
-                                                                                   Margin="0 0 0 8"
-                                                                               />
+                                                </AppBarToggleButton>
+                                            </CommandBar.SecondaryCommands>
+                                            
 
-                                                    <TextBlock Text="横持ち固定"
-                                                                                   Style="{StaticResource CaptionTextBlockStyle}"
-                                                                                   VerticalAlignment="Center"
-                                                                                   />
-                                                </StackPanel>
-                                            </ToggleButton>
-
-
-
-                                        </StackPanel>
+                                        </CommandBar>
 
 
 
@@ -1757,13 +1751,6 @@
                                                 <SymbolIcon Symbol="Setting" />
                                             </Button>
 
-                                            <Button UseSystemFocusVisuals="True"
-                                                Background="Transparent"
-                                                Flyout="{StaticResource LivePlayerFlyout}"
-                                                >
-                                                <SymbolIcon Symbol="More" />
-
-                                            </Button>
                                         </StackPanel>
 
                                     </Grid>

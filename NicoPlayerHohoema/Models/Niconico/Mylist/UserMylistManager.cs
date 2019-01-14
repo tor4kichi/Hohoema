@@ -116,17 +116,27 @@ namespace NicoPlayerHohoema.Models
             {
                 _Mylists.Clear();
 
-                await Task.Delay(TimeSpan.FromSeconds(3));
+                await Task.Delay(TimeSpan.FromSeconds(1));
 
-                var groups = await LoginUserMylistProvider.GetLoginUserMylistGroups();
-                foreach (var mylistGroup in groups ?? Enumerable.Empty<UserOwnedMylist>())
+                if (NiconicoSession.IsLoggedIn)
                 {
-                    if (mylistGroup.Id == "0")
+                    try
                     {
-                        Deflist = mylistGroup;
-                    }
+                        var groups = await LoginUserMylistProvider.GetLoginUserMylistGroups();
+                        foreach (var mylistGroup in groups ?? Enumerable.Empty<UserOwnedMylist>())
+                        {
+                            if (mylistGroup.Id == "0")
+                            {
+                                Deflist = mylistGroup;
+                            }
 
-                    _Mylists.Add(mylistGroup);
+                            _Mylists.Add(mylistGroup);
+                        }
+                    }
+                    catch
+                    {
+                        _Mylists.Clear();
+                    }
                 }
             }
 		}
