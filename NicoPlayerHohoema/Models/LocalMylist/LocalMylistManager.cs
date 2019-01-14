@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Database.Local.LocalMylist;
+﻿using Microsoft.Toolkit.Uwp.Helpers;
+using NicoPlayerHohoema.Database.Local.LocalMylist;
 using NicoPlayerHohoema.Models.Helpers;
 using Prism.Commands;
 using Reactive.Bindings.Extensions;
@@ -121,38 +122,80 @@ namespace NicoPlayerHohoema.Models.LocalMylist
 
         #region Migrate 0.15.x
 
+        public static async Task<int> RestoreLegacyLocalMylistGroups(LocalMylistManager manager)
+        {
+            var localStorage = new LocalObjectStorageHelper();
+            var isMigrateLocalMylist = localStorage.Read("is_migrate_local_mylist_0_17_0", false);
+            if (!isMigrateLocalMylist)
+            {
+                var items = await LoadLegacyLocalMylistGroups();
+                foreach (var regacyItem in items)
+                {
+                    manager.Mylists.Add(new LocalMylistGroup(regacyItem.Id, regacyItem.Label, new ObservableCollection<string>(regacyItem.PlaylistItems.Select(x => x.ContentId))));
+                }
+                localStorage.Save("is_migrate_local_mylist_0_17_0", true);
 
-        public const string PlaylistSaveFolderName = "Playlists";
+                return items.Count;
+            }
+            else
+            {
+                return 0;
+            }
+        }
 
 
-        public static async Task<StorageFolder> GetPlaylistsSaveFolder()
+        public static bool IsMigrated_0_17_0
+        {
+            get
+            {
+                var localStorage = new LocalObjectStorageHelper();
+                return localStorage.Read("is_migrate_local_mylist_0_17_0", false);
+            }
+        }
+
+        public static void SkipMigrate_0_17_0()
+        {
+            var localStorage = new LocalObjectStorageHelper();
+            localStorage.Save("is_migrate_local_mylist_0_17_0", true);
+        }
+
+        private const string PlaylistSaveFolderName = "Playlists";
+
+        private static async Task<StorageFolder> GetPlaylistsSaveFolder()
         {
             return await ApplicationData.Current.LocalFolder.GetFolderAsync(PlaylistSaveFolderName);
         }
 
-        public static async Task<List<LegacyLocalMylist>> LoadLegacyLocalMylistGroups()
+        private static async Task<List<LegacyLocalMylist>> LoadLegacyLocalMylistGroups()
         {
-            var folder = await GetPlaylistsSaveFolder();
-            if (folder == null) { return new List<LegacyLocalMylist>(); }
-
-            var files = await folder.GetFilesAsync();
-
-            // 読み込み
-            List<LegacyLocalMylist> loadedItem = new List<LegacyLocalMylist>();
-            foreach (var file in files)
+            try
             {
-                var playlistFileAccessor = new FolderBasedFileAccessor<LegacyLocalMylist>(folder, file.Name);
-                var playlist = await playlistFileAccessor.Load();
+                var folder = await GetPlaylistsSaveFolder();
+                if (folder == null) { return new List<LegacyLocalMylist>(); }
 
-                if (playlist != null)
+                var files = await folder.GetFilesAsync();
+
+                // 読み込み
+                List<LegacyLocalMylist> loadedItem = new List<LegacyLocalMylist>();
+                foreach (var file in files)
                 {
-                    loadedItem.Add(playlist);
+                    var playlistFileAccessor = new FolderBasedFileAccessor<LegacyLocalMylist>(folder, file.Name);
+                    var playlist = await playlistFileAccessor.Load();
+
+                    if (playlist != null)
+                    {
+                        loadedItem.Add(playlist);
+                    }
                 }
+
+                loadedItem.Sort((x, y) => x.SortIndex - y.SortIndex);
+
+                return loadedItem;
             }
-
-            loadedItem.Sort((x, y) => x.SortIndex - y.SortIndex);
-
-            return loadedItem;
+            catch
+            {
+                return new List<LegacyLocalMylist>();
+            }
         }
 
         #endregion

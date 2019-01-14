@@ -35,6 +35,7 @@ using Prism.Ioc;
 using Prism;
 using Prism.Navigation;
 using Prism.Services;
+using NicoPlayerHohoema.Models.LocalMylist;
 
 namespace NicoPlayerHohoema
 {
@@ -213,7 +214,6 @@ namespace NicoPlayerHohoema
 
             if (IsTitleBarCustomized)
             {
-
                 var coreApp = CoreApplication.GetCurrentView();
                 coreApp.TitleBar.ExtendViewIntoTitleBar = true;
 
@@ -229,42 +229,21 @@ namespace NicoPlayerHohoema
                     appView.TitleBar.ButtonHoverForegroundColor = Colors.Black;
                 }
             }
-
-
-            var layout = CreateShell(out var frame);
-            var ns = Prism.Navigation.NavigationService.Create(frame, Window.Current.CoreWindow, /*Gesture.Back, */ Gesture.Forward, Gesture.Refresh);
-
-            Container.GetContainer().RegisterInstance(ns);
-
+           
             var scheduler = Container.Resolve<IScheduler>();
             scheduler.Schedule(async () => 
             {
                 // Menu でPinSettingsを使いたい
+                await EnsureInitializeAsync();
 
-                using (await InitializeLock.LockAsync())
-                {
-                    var settings = await Models.HohoemaUserSettings.LoadSettings(ApplicationData.Current.LocalFolder);
+                var layout = CreateShell(out var frame);
+                var ns = Prism.Navigation.NavigationService.Create(frame, Window.Current.CoreWindow, /*Gesture.Back, */ Gesture.Forward, Gesture.Refresh);
 
-                    var unityContainer = Container.GetContainer();
-                    unityContainer.RegisterInstance(settings.ActivityFeedSettings);
-                    unityContainer.RegisterInstance(settings.AppearanceSettings);
-                    unityContainer.RegisterInstance(settings.CacheSettings);
-                    unityContainer.RegisterInstance(settings.NGSettings);
-                    unityContainer.RegisterInstance(settings.PinSettings);
-                    unityContainer.RegisterInstance(settings.PlayerSettings);
-                    unityContainer.RegisterInstance(settings.PlaylistSettings);
-                    unityContainer.RegisterInstance(settings.RankingSettings);
+                Container.GetContainer().RegisterInstance(ns);
 
-                    // ログイン前にログインセッションによって状態が変化するフォローとマイリストの初期化
-                    var followManager = Container.Resolve<FollowManager>();
-                    var mylitManager = Container.Resolve<UserMylistManager>();
-
-                    Window.Current.Content = layout;
-                    Window.Current.Activate();
-
-                }
+                Window.Current.Content = layout;
+                Window.Current.Activate();
             });
-            
 
             // サンプルではこちらを使っているが、Hohoemaの場合は自前でコンテンツセットからアクティベートまでやっている
             // NavigationService.SetAsWindowContent(Window.Current, true);
@@ -288,16 +267,31 @@ namespace NicoPlayerHohoema
 
             if (args.StartKind == StartKinds.Launch)
             {
-                var pageManager = Container.Resolve<PageManager>();
-                pageManager.OpenStartupPage();
+                var scheduler = Container.Resolve<IScheduler>();
+                scheduler.Schedule(async () =>
+                {
+                    await Task.Delay(1000);
+                    var pageManager = Container.Resolve<PageManager>();
+                    pageManager.OpenStartupPage();
+                });
             }
             else if (args.StartKind == StartKinds.Activate)
             {
-                _ = OnActivateApplicationAsync(args.Arguments as IActivatedEventArgs);
+                var scheduler = Container.Resolve<IScheduler>();
+                scheduler.Schedule(async () =>
+                {
+                    await Task.Delay(1000);
+                    _ = OnActivateApplicationAsync(args.Arguments as IActivatedEventArgs);
+                });
             }
             else if (args.StartKind == StartKinds.Background)
             {
-                BackgroundActivated(args.Arguments as BackgroundActivatedEventArgs);
+                var scheduler = Container.Resolve<IScheduler>();
+                scheduler.Schedule(async () =>
+                {
+                    await Task.Delay(1000);
+                    BackgroundActivated(args.Arguments as BackgroundActivatedEventArgs);
+                });                
             }
 
 
@@ -407,7 +401,6 @@ namespace NicoPlayerHohoema
                 if (isInitialized) { return; }
                 isInitialized = true;
 
-
                 var settings = await Models.HohoemaUserSettings.LoadSettings(ApplicationData.Current.LocalFolder);
 
                 var unityContainer = Container.GetContainer();
@@ -424,7 +417,8 @@ namespace NicoPlayerHohoema
                 var followManager = Container.Resolve<FollowManager>();
                 var mylitManager = Container.Resolve<UserMylistManager>();
 
-
+                var localMylistManager = Container.Resolve<LocalMylistManager>();
+                await LocalMylistManager.RestoreLegacyLocalMylistGroups(localMylistManager);
 
                 // ログイン
                 try
