@@ -172,11 +172,7 @@ namespace NicoPlayerHohoema
 
             Resources["IsXbox"] = Services.Helpers.DeviceTypeHelper.IsXbox;
             Resources["IsMobile"] = Services.Helpers.DeviceTypeHelper.IsMobile;
-            var cacheSettings = Container.Resolve<CacheSettings>();
-            Resources["IsCacheEnabled"] = cacheSettings.IsEnableCache;
-            var appearanceSettings = Container.Resolve<AppearanceSettings>();
-            Resources["IsTVModeEnabled"] = Services.Helpers.DeviceTypeHelper.IsXbox || appearanceSettings.IsForceTVModeEnable;
-
+           
 
             try
             {
@@ -235,6 +231,11 @@ namespace NicoPlayerHohoema
             {
                 // Menu でPinSettingsを使いたい
                 await EnsureInitializeAsync();
+
+                var cacheSettings = Container.Resolve<CacheSettings>();
+                Resources["IsCacheEnabled"] = cacheSettings.IsEnableCache;
+                var appearanceSettings = Container.Resolve<AppearanceSettings>();
+                Resources["IsTVModeEnabled"] = Services.Helpers.DeviceTypeHelper.IsXbox || appearanceSettings.IsForceTVModeEnable;
 
                 var layout = CreateShell(out var frame);
                 var ns = Prism.Navigation.NavigationService.Create(frame, Window.Current.CoreWindow, /*Gesture.Back, */ Gesture.Forward, Gesture.Refresh);

@@ -44,11 +44,13 @@ namespace NicoPlayerHohoema.ViewModels
             UserMylistManager userMylistManager,
             VideoCacheManager videoCacheManager,
             PageManager pageManager,
+            PlayerViewManager playerViewManager,
             Services.NiconicoLoginService niconicoLoginService,
             Commands.LogoutFromNiconicoCommand logoutFromNiconicoCommand
             )
         {
             PageManager = pageManager;
+            PlayerViewManager = playerViewManager;
             NiconicoLoginService = niconicoLoginService;
             LogoutFromNiconicoCommand = logoutFromNiconicoCommand;
             Container = container;

@@ -27,7 +27,7 @@
                 <i:Interaction.Behaviors>
                     
                     <!-- フィル表示中に小窓モードへ -->
-                    <mybehavior:UINavigationTrigger Kind="Context1" 
+                    <mybehavior:UINavigationTrigger Kind="View" 
                                                         x:Name="PlayerDisplayModeSmallToFillTrigger"
                                                         IsEnabled="False"
                                                     >
