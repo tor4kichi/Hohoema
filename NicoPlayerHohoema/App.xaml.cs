@@ -975,7 +975,7 @@ namespace NicoPlayerHohoema
             try
             {
                 var v = Package.Current.Id.Version;
-                var versionText = $"{v.Major}.{v.Minor}.{v.Revision}.{v.Build}";
+                var versionText = $"{v.Major}.{v.Minor}.{v.Build}.{v.Revision}";
                 var folder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("error", CreationCollisionOption.OpenIfExists);
                 var errorFile = await folder.CreateFileAsync($"Hohoema-{versionText.Replace('.', '_')}-{Path.GetFileNameWithoutExtension(Path.GetRandomFileName())}.txt", CreationCollisionOption.OpenIfExists);
 
