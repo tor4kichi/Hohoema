@@ -65,16 +65,7 @@ namespace NicoPlayerHohoema.Services
             EventAggregator.GetEvent<PageNavigationEvenet>()
                 .Subscribe(args =>
                 {
-                    var isMainView = ApplicationView.GetForCurrentView().Id == MainViewId;
-                    if (args.IsMainViewTarget && isMainView)
-                    {
-                        Navigation(args);
-                    }
-
-                    if (!args.IsMainViewTarget && !isMainView)
-                    {
-                        Navigation(args);
-                    }
+                    Navigation(args);
                 }
                 , ThreadOption.UIThread);
 
@@ -103,12 +94,19 @@ namespace NicoPlayerHohoema.Services
 
         void Navigation(PageNavigationEventArgs args)
         {
+            
             var pageType = args.PageType;
             var parameter = args.Paramter;
             var behavior = args.Behavior;
 
             Scheduler.Schedule(async () =>
             {
+                var isMainView = CoreApplication.GetCurrentView().IsMain;
+                if (!args.IsMainViewTarget || !isMainView)
+                {
+                    return;
+                }
+
                 using (var releaser = await _NavigationLock.LockAsync())
                 {
                     // メインウィンドウでウィンドウ全体で再生している場合は
@@ -174,7 +172,7 @@ namespace NicoPlayerHohoema.Services
         }
 
 
-
+        public bool IsMainView = CoreApplication.GetCurrentView().IsMain;
 
         public static int MainViewId = ApplicationView.GetApplicationViewIdForWindow(CoreApplication.MainView.CoreWindow);
 
