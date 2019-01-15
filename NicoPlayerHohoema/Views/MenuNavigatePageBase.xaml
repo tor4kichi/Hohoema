@@ -1068,10 +1068,26 @@
                         </VisualState>
                     </VisualStateGroup>
 
+                    <!-- TVMode時の小窓から通常サイズへ戻すボタンの表示状態 -->
                     <VisualStateGroup>
+
+                        <!-- メインウィンドウでプレイヤーを表示していて再生中の場合のみ通常サイズへ戻すボタンを表示 -->
                         <VisualState>
                             <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding PlayerViewManager.NowPlaying}" />
+                                <StateTrigger IsActive="{Binding PlayerViewManager.NowPlaying, Converter={StaticResource BoolNegation}}" />
+                            </VisualState.StateTriggers>
+                        </VisualState>
+
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding PlayerViewManager.IsPlayerShowWithSecondaryView}" />
+                            </VisualState.StateTriggers>
+                        </VisualState>
+                        
+                        
+                        <VisualState>
+                            <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding IsTVModeEnable.Value}" />
                             </VisualState.StateTriggers>
 
                             <VisualState.Setters>
