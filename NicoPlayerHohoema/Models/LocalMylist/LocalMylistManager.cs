@@ -124,20 +124,27 @@ namespace NicoPlayerHohoema.Models.LocalMylist
 
         public static async Task<int> RestoreLegacyLocalMylistGroups(LocalMylistManager manager)
         {
-            var localStorage = new LocalObjectStorageHelper();
-            var isMigrateLocalMylist = localStorage.Read("is_migrate_local_mylist_0_17_0", false);
-            if (!isMigrateLocalMylist)
+            try
             {
-                var items = await LoadLegacyLocalMylistGroups();
-                foreach (var regacyItem in items)
+                var localStorage = new LocalObjectStorageHelper();
+                var isMigrateLocalMylist = localStorage.Read("is_migrate_local_mylist_0_17_0", false);
+                if (!isMigrateLocalMylist)
                 {
-                    manager.Mylists.Add(new LocalMylistGroup(regacyItem.Id, regacyItem.Label, new ObservableCollection<string>(regacyItem.PlaylistItems.Select(x => x.ContentId))));
-                }
-                localStorage.Save("is_migrate_local_mylist_0_17_0", true);
+                    var items = await LoadLegacyLocalMylistGroups();
+                    foreach (var regacyItem in items)
+                    {
+                        manager.Mylists.Add(new LocalMylistGroup(regacyItem.Id, regacyItem.Label, new ObservableCollection<string>(regacyItem.PlaylistItems.Select(x => x.ContentId))));
+                    }
+                    localStorage.Save("is_migrate_local_mylist_0_17_0", true);
 
-                return items.Count;
+                    return items.Count;
+                }
+                else
+                {
+                    return 0;
+                }
             }
-            else
+            catch
             {
                 return 0;
             }
