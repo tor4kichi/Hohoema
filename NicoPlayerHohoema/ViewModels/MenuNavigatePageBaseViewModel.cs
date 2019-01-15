@@ -83,7 +83,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             ServiceLevel = NiconicoSession.ObserveProperty(x => x.ServiceStatus)
-                .ToReadOnlyReactiveProperty();
+                .ToReadOnlyReactiveProperty(eventScheduler: Scheduler);
 
             IsNeedFullScreenToggleHelp
                 = ApplicationView.PreferredLaunchWindowingMode == ApplicationViewWindowingMode.FullScreen;
@@ -203,18 +203,11 @@ namespace NicoPlayerHohoema.ViewModels
             PageManager.CompleteWork += PageManager_CompleteWork;
             PageManager.CancelWork += PageManager_CancelWork;
 
-            NiconicoSession.ObserveProperty(x => x.IsLoggedIn)
-                .Subscribe(x => IsLoggedIn = x);
+            UserName = NiconicoSession.ObserveProperty(x => x.UserName)
+                .ToReadOnlyReactiveProperty(eventScheduler: Scheduler);
 
-            NiconicoSession.ObserveProperty(x => x.UserName)
-                .Subscribe(x =>
-                {
-                    UserName = x;
-                });
-
-            NiconicoSession.ObserveProperty(x => x.UserIconUrl)
-                .Subscribe(x => UserIconUrl = x);
-
+            UserIconUrl = NiconicoSession.ObserveProperty(x => x.UserIconUrl)
+                .ToReadOnlyReactiveProperty(eventScheduler: Scheduler);
 
 
             // 検索
@@ -298,19 +291,22 @@ namespace NicoPlayerHohoema.ViewModels
         /// </summary>
         private void ResetMenuItems()
         {
-            MainSelectedItem.Value = null;
+            Scheduler.Schedule(() => 
+            {
+                MainSelectedItem.Value = null;
 
-            MenuItems.Clear();
-            if (NiconicoSession.IsLoggedIn)
-            {
-                MenuItems.Add(new MenuItemViewModel("ニコレポ", HohoemaPageType.NicoRepo));
-                MenuItems.Add(new MenuItemViewModel("フォロー", HohoemaPageType.FollowManage));
-                MenuItems.Add(new MenuItemViewModel("マイリスト", HohoemaPageType.UserMylist));
-            }
-            else
-            {
-                MenuItems.Add(new MenuItemViewModel("マイリスト", HohoemaPageType.UserMylist));
-            }
+                MenuItems.Clear();
+                if (NiconicoSession.IsLoggedIn)
+                {
+                    MenuItems.Add(new MenuItemViewModel("ニコレポ", HohoemaPageType.NicoRepo));
+                    MenuItems.Add(new MenuItemViewModel("フォロー", HohoemaPageType.FollowManage));
+                    MenuItems.Add(new MenuItemViewModel("マイリスト", HohoemaPageType.UserMylist));
+                }
+                else
+                {
+                    MenuItems.Add(new MenuItemViewModel("マイリスト", HohoemaPageType.UserMylist));
+                }
+            });
         }
 
 
@@ -487,19 +483,8 @@ namespace NicoPlayerHohoema.ViewModels
 			set { SetProperty(ref _TitleText, value); }
 		}
 
-        private string _UserIconUrl;
-        public string UserIconUrl
-        {
-            get { return _UserIconUrl; }
-            set { SetProperty(ref _UserIconUrl, value); }
-        }
-
-        private string _UserName;
-        public string UserName
-        {
-            get { return _UserName; }
-            set { SetProperty(ref _UserName, value); }
-        }
+        public ReadOnlyReactiveProperty<string> UserIconUrl { get; }
+        public ReadOnlyReactiveProperty<string> UserName { get; }
 
         private bool _IsLoggedIn;
         public bool IsLoggedIn
