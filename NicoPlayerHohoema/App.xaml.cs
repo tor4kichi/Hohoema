@@ -231,14 +231,6 @@ namespace NicoPlayerHohoema
             // ViewModels
             unityContainer.RegisterSingleton<ViewModels.RankingCategoryListPageViewModel>();
 
-            // Note: インスタンス化が別途必要
-            unityContainer.RegisterSingleton<Services.WatchItLater>();
-            unityContainer.RegisterSingleton<Services.Notification.NotificationCacheVideoDeletedService>();
-            unityContainer.RegisterSingleton<Services.Notification.NotificationMylistUpdatedService>(); 
-            unityContainer.RegisterSingleton<Services.Page.PreventBackNavigationOnShowPlayerService>();
-            unityContainer.RegisterSingleton<Services.Notification.CheckingClipboardAndNotificationService>();
-            unityContainer.RegisterSingleton<Services.Notification.NotificationFollowUpdatedService>();
-
 #if DEBUG
             //			BackgroundUpdater.MaxTaskSlotCount = 1;
 #endif
@@ -387,9 +379,6 @@ namespace NicoPlayerHohoema
 
                 Window.Current.Content = layout;
 
-
-
-
                 // ログイン
                 try
                 {
@@ -454,6 +443,15 @@ namespace NicoPlayerHohoema
                     }
                 }
                 catch { }
+
+
+                // アプリのユースケース系サービスを配置
+                unityContainer.RegisterInstance(unityContainer.Resolve<Services.WatchItLater>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationCacheVideoDeletedService>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationMylistUpdatedService>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<Services.Page.PreventBackNavigationOnShowPlayerService>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.CheckingClipboardAndNotificationService>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationFollowUpdatedService>());
 
                 // 購読機能を初期化
                 try
