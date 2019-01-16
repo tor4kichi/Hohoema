@@ -744,6 +744,7 @@
     <Content Include="Assets\UpdateNotices\0.17.0.md" />
     <Content Include="Assets\UpdateNotices\0.17.1.md" />
     <Content Include="Assets\UpdateNotices\0.17.2.md" />
+    <Content Include="Assets\UpdateNotices\0.17.4.md" />
     <None Include="Models\Provider\README.md" />
     <None Include="Models\Subscription\README.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
@@ -1238,7 +1239,7 @@
       <Version>12.0.1</Version>
     </PackageReference>
     <PackageReference Include="Prism.Unity.Windows">
-      <Version>7.2.0.780-ci</Version>
+      <Version>7.2.0.804-ci</Version>
     </PackageReference>
     <PackageReference Include="ReactiveProperty">
       <Version>4.2.1</Version>
