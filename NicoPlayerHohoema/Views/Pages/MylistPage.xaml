@@ -214,17 +214,8 @@
                                     <AppBarButton x:Name="PlayAllButton"
                                         Label="全て再生"
                                         Icon="Play"
+                                                  Command="{Binding PlayAllVideosFromHeadCommand}"
                                     >
-                                        <AppBarButton.Flyout>
-                                            <MenuFlyout>
-                                                <MenuFlyoutItem Text="先頭から再生"
-                                                        Command="{Binding PlayAllVideosFromHeadCommand}"
-                                                        />
-                                                <MenuFlyoutItem Text="最後尾から再生"
-                                                        Command="{Binding PlayAllVideosFromTailCommand}"
-                                                        />
-                                            </MenuFlyout>
-                                        </AppBarButton.Flyout>
                                     </AppBarButton>
 
                                     <AppBarButton x:Name="ScrollToTopButton"

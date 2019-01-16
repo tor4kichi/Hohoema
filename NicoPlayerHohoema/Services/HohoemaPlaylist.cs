@@ -254,7 +254,7 @@ namespace NicoPlayerHohoema.Services
             Play(new QualityVideoPlaylistItem()
             {
                 ContentId = video.Id,
-                Owner = video.OnwerPlaylist ?? DefaultPlaylist,
+                Owner = DefaultPlaylist,
                 Title = video.Label,
                 Type = PlaylistItemType.Video,
             });
