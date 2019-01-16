@@ -48,11 +48,8 @@ namespace NicoPlayerHohoema.ViewModels
             _CompositeDisposable?.Dispose();
         }
 
-        
-        public virtual void OnNavigatingTo(INavigationParameters parameters)
-        {
-            _NavigatingCompositeDisposable = new CompositeDisposable();
-        }
+
+        public virtual void OnNavigatingTo(INavigationParameters parameters) { }
 
         public virtual void OnNavigatedTo(INavigationParameters parameters)
         {
@@ -75,7 +72,7 @@ namespace NicoPlayerHohoema.ViewModels
         public virtual void OnNavigatedFrom(INavigationParameters parameters)
         {
             _NavigatingCompositeDisposable.Dispose();
-            _NavigatingCompositeDisposable = null;
+            _NavigatingCompositeDisposable = new CompositeDisposable();
         }
 
         protected abstract bool TryGetHohoemaPin(out HohoemaPin pin);
