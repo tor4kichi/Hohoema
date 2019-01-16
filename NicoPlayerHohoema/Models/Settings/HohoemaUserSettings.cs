@@ -72,7 +72,11 @@ namespace NicoPlayerHohoema.Models
                 PinSettings = pin,
             };
 
-            PinSettings.MigratePinParameter_Prism6_to_Prism7(pin);            
+            try
+            {
+                PinSettings.MigratePinParameter_Prism6_to_Prism7(pin);
+            }
+            catch { }
 
             settings.SetupSaveWithPropertyChanged();
 

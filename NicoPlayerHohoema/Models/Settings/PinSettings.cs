@@ -36,18 +36,22 @@ namespace NicoPlayerHohoema.Models
                     case Services.HohoemaPageType.UserMylist:
                         break;
                     case Services.HohoemaPageType.Mylist:
-                        var mylistPayload = MylistPagePayload.FromParameterString<MylistPagePayload>(pin.Parameter);
-                        if (mylistPayload != null)
+                        try
                         {
-                            if (mylistPayload.Origin.HasValue)
+                            var mylistPayload = MylistPagePayload.FromParameterString<MylistPagePayload>(pin.Parameter);
+                            if (mylistPayload != null)
                             {
-                                pin.Parameter = $"id={mylistPayload.Id}&origin={mylistPayload.Origin}";
-                            }
-                            else
-                            {
-                                pin.Parameter = $"id={mylistPayload.Id}";
+                                if (mylistPayload.Origin.HasValue)
+                                {
+                                    pin.Parameter = $"id={mylistPayload.Id}&origin={mylistPayload.Origin}";
+                                }
+                                else
+                                {
+                                    pin.Parameter = $"id={mylistPayload.Id}";
+                                }
                             }
                         }
+                        catch { }
 
                         break;
                     case Services.HohoemaPageType.FollowManage:
@@ -59,18 +63,59 @@ namespace NicoPlayerHohoema.Models
                     case Services.HohoemaPageType.SearchSummary:
                         break;
                     case Services.HohoemaPageType.SearchResultCommunity:
-                    case Services.HohoemaPageType.SearchResultTag:
-                    case Services.HohoemaPageType.SearchResultKeyword:
-                    case Services.HohoemaPageType.SearchResultMylist:
-                    case Services.HohoemaPageType.SearchResultLive:
-                        // Search
-                        var searchPayload = SearchPagePayload.FromParameterString<SearchPagePayload>(pin.Parameter);
-                        if (searchPayload != null)
+                        try
                         {
-                            var content = searchPayload.GetContentImpl();
-                            pin.Parameter = $"keyword={content.Keyword}&target={content.SearchTarget}";
+                            var content = SearchPagePayload.FromParameterString<CommunitySearchPagePayloadContent>(pin.Parameter);
+                            if (content != null)
+                            {
+                                pin.Parameter = $"keyword={System.Net.WebUtility.UrlEncode(content.Keyword)}&target={content.SearchTarget}";
+                            }
                         }
-
+                        catch { }
+                        break;
+                    case Services.HohoemaPageType.SearchResultTag:
+                        try
+                        {
+                            var content = SearchPagePayload.FromParameterString<TagSearchPagePayloadContent>(pin.Parameter);
+                            if (content != null)
+                            {
+                                pin.Parameter = $"keyword={System.Net.WebUtility.UrlEncode(content.Keyword)}&target={content.SearchTarget}";
+                            }
+                        }
+                        catch { }
+                        break;
+                    case Services.HohoemaPageType.SearchResultKeyword:
+                        try
+                        {
+                            var content = SearchPagePayload.FromParameterString<KeywordSearchPagePayloadContent>(pin.Parameter);
+                            if (content != null)
+                            {
+                                pin.Parameter = $"keyword={System.Net.WebUtility.UrlEncode(content.Keyword)}&target={content.SearchTarget}";
+                            }
+                        }
+                        catch { }
+                        break;
+                    case Services.HohoemaPageType.SearchResultMylist:
+                        try
+                        {
+                            var content = SearchPagePayload.FromParameterString<MylistSearchPagePayloadContent>(pin.Parameter);
+                            if (content != null)
+                            {
+                                pin.Parameter = $"keyword={System.Net.WebUtility.UrlEncode(content.Keyword)}&target={content.SearchTarget}";
+                            }
+                        }
+                        catch { }
+                        break;
+                    case Services.HohoemaPageType.SearchResultLive:
+                        try
+                        {
+                            var content = SearchPagePayload.FromParameterString<LiveSearchPagePayloadContent>(pin.Parameter);
+                            if (content != null)
+                            {
+                                pin.Parameter = $"keyword={System.Net.WebUtility.UrlEncode(content.Keyword)}&target={content.SearchTarget}";
+                            }
+                        }
+                        catch { }
                         break;
                     case Services.HohoemaPageType.FeedGroupManage:
                         break;

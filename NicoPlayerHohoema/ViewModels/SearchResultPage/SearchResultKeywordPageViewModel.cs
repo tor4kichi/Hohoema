@@ -237,7 +237,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 SearchOption = new KeywordSearchPagePayloadContent()
                 {
-                    Keyword = parameters.GetValue<string>("keyword")
+                    Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"))
                 };
             }
 
@@ -287,7 +287,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 Label = SearchOption.Keyword,
                 PageType = HohoemaPageType.SearchResultKeyword,
-                Parameter = $"keyword={SearchOption.Keyword}&target={SearchOption.SearchTarget}"
+                Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
             };
 
             return true;
