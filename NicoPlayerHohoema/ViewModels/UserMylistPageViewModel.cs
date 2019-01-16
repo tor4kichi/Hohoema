@@ -22,7 +22,7 @@ using Prism.Navigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class UserMylistPageViewModel : HohoemaListingPageViewModelBase<Interfaces.IMylist>
+    public class UserMylistPageViewModel : HohoemaListingPageViewModelBase<Interfaces.IMylist>, INavigatedAwareAsync
 	{
         public UserMylistPageViewModel(
             Services.PageManager pageManager,
