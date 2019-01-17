@@ -115,7 +115,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(_NavigatingCompositeDisposable);
 
             LivePlayerType = new ReactiveProperty<Models.Live.LivePlayerType?>(CurrentWindowContextScheduler);
-            LiveStatusType = new ReactiveProperty<Models.Live.LiveStatusType?>(CurrentWindowContextScheduler);
+            LiveStatusType = new ReactiveProperty<StatusType?>(CurrentWindowContextScheduler);
 
             CanChangeQuality = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false);
             RequestQuality = new ReactiveProperty<string>(CurrentWindowContextScheduler);
@@ -414,7 +414,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             CanRefresh = Observable.CombineLatest(
                 this.CurrentState.Select(x => x == MediaElementState.Closed || x == MediaElementState.Paused),
-                this.LiveStatusType.Select(x => x == Models.Live.LiveStatusType.OnAir || x == Models.Live.LiveStatusType.ComingSoon)
+                this.LiveStatusType.Select(x => x == StatusType.OnAir || x == StatusType.ComingSoon)
                 )
                 .Select(x => x.All(y => y))
                 .ToReadOnlyReactiveProperty(eventScheduler: PlayerWindowUIDispatcherScheduler);
@@ -519,10 +519,14 @@ namespace NicoPlayerHohoema.ViewModels
 
         public MediaPlayer MediaPlayer { get; private set; }
 
-        public string LiveId { get; private set; }
+        private string _LiveId;
+        public string LiveId
+        {
+            get { return _LiveId; }
+            set { SetProperty(ref _LiveId, value); }
+        }
 
-
-		private string _LiveTitle;
+        private string _LiveTitle;
 		public string LiveTitle
 		{
 			get { return _LiveTitle; }
@@ -594,7 +598,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<uint> WatchCount { get; private set; }
 
         public ReactiveProperty<LivePlayerType?> LivePlayerType { get; private set; }
-        public ReactiveProperty<LiveStatusType?> LiveStatusType { get; private set; }
+        public ReactiveProperty<StatusType?> LiveStatusType { get; private set; }
 
         public ReadOnlyReactiveProperty<bool> CanRefresh { get; private set; }
 
@@ -663,6 +667,8 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> IsCompactOverlay { get; private set; }
         public ReactiveProperty<bool> IsForceLandscape { get; private set; }
         public ReadOnlyReactiveProperty<bool> IsSmallWindowModeEnable { get; private set; }
+
+        public bool IsXbox => Services.Helpers.DeviceTypeHelper.IsXbox;
 
         public bool IsTVModeEnabled => AppearanceSettings.IsForceTVModeEnable || Services.Helpers.DeviceTypeHelper.IsXbox;
 
@@ -994,6 +1000,7 @@ namespace NicoPlayerHohoema.ViewModels
                 // post comment 
                 NicoLiveVideo.PostCommentResult += NicoLiveVideo_PostCommentResult;
 
+                LiveStatusType.Value = NicoLiveVideo.LiveStatus;
 
                 NicoLiveVideo.OpenLive += NicoLiveVideo_OpenLive;
                 NicoLiveVideo.CloseLive += NicoLiveVideo_CloseLive;
@@ -1197,7 +1204,9 @@ namespace NicoPlayerHohoema.ViewModels
 				else
 				{
 				}
-			}
+
+                LiveStatusType.Value = NicoLiveVideo.LiveStatus;
+            }
 			catch (Exception ex)
 			{
 				Debug.WriteLine(ex.ToString());
@@ -1452,7 +1461,8 @@ namespace NicoPlayerHohoema.ViewModels
                         TogglePlayPauseCommand.Execute();
                     }
 
-                    ResetSuggestion(LiveStatusType.Value = Models.Live.LiveStatusType.Closed);
+                    LiveStatusType.Value = StatusType.Closed;
+                    ResetSuggestion(Models.Live.LiveStatusType.Closed);
                     break;
                 case "clear":
                 case "cls":
@@ -1481,6 +1491,8 @@ namespace NicoPlayerHohoema.ViewModels
         private async void NicoLiveVideo_OpenLive(NicoLiveVideo sender)
         {
             Debug.WriteLine("NicoLiveVideo_OpenLive");
+
+            LiveStatusType.Value = NicoLiveVideo.LiveStatus;
 
             if (NicoLiveVideo.LiveStatus == Mntone.Nico2.Live.StatusType.OnAir ||
                     NicoLiveVideo.LiveStatus == Mntone.Nico2.Live.StatusType.ComingSoon ||

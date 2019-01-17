@@ -74,6 +74,7 @@ namespace NicoPlayerHohoema.ViewModels
             PlayerViewManager playerViewManager,
             NotificationService notificationService,
             DialogService dialogService,
+            ExternalAccessService externalAccessService,
             Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand,
             Commands.Mylist.CreateLocalMylistCommand createLocalMylistCommand,
             Commands.Mylist.CreateMylistCommand createMylistCommand
@@ -99,6 +100,7 @@ namespace NicoPlayerHohoema.ViewModels
             PlayerViewManager = playerViewManager;
             _NotificationService = notificationService;
             _HohoemaDialogService = dialogService;
+            ExternalAccessService = externalAccessService;
             CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
             CreateLocalMylistCommand = createLocalMylistCommand;
             CreateMylistCommand = createMylistCommand;
@@ -2690,6 +2692,7 @@ namespace NicoPlayerHohoema.ViewModels
         public AppearanceSettings AppearanceSettings { get; }
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public PlayerViewManager PlayerViewManager { get; }
+        public ExternalAccessService ExternalAccessService { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
         public Commands.Mylist.CreateLocalMylistCommand CreateLocalMylistCommand { get; }
         public Commands.Mylist.CreateMylistCommand CreateMylistCommand { get; }
