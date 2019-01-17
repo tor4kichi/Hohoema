@@ -136,7 +136,7 @@ namespace NicoPlayerHohoema.Views
                 RenderComments.Clear();
                 CommentCanvas.Children.Clear();
 
-                var comments = new List<Comment>(Comments.Cast<Comment>());
+                var comments = new List<Comment>(Comments?.Cast<Comment>() ?? Enumerable.Empty<Comment>());
                 comments.Sort((x, y) => (int)(x.VideoPosition - y.VideoPosition));
                 RenderPendingComments.AddRange(comments);
 
