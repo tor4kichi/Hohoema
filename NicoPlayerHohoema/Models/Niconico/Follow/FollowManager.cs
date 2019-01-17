@@ -123,11 +123,18 @@ namespace NicoPlayerHohoema.Models
         private async void NiconicoSession_LogIn(object sender, NiconicoSessionLoginEventArgs e)
         {
             IsLoginUserFollowsReady = false;
-            using (var cancelTokenSource = new CancellationTokenSource())
+            try
             {
-                await SyncAll(cancelTokenSource.Token);
+                using (var cancelTokenSource = new CancellationTokenSource())
+                {
+                    await SyncAll(cancelTokenSource.Token);
 
-                IsLoginUserFollowsReady = true;
+                    IsLoginUserFollowsReady = true;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+
             }
         }
 
@@ -135,9 +142,16 @@ namespace NicoPlayerHohoema.Models
         {
             IsLoginUserFollowsReady = false;
 
-            using (var cancelTokenSource = new CancellationTokenSource())
+            try
             {
-                await SyncAll(cancelTokenSource.Token);
+                using (var cancelTokenSource = new CancellationTokenSource())
+                {
+                    await SyncAll(cancelTokenSource.Token);
+                }
+            }
+            catch (OperationCanceledException)
+            {
+
             }
         }
 
