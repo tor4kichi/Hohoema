@@ -737,10 +737,6 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-    <Content Include="Assets\UpdateNotices\0.16.0.md" />
-    <Content Include="Assets\UpdateNotices\0.16.1.md" />
-    <Content Include="Assets\UpdateNotices\0.17.0.md" />
-    <Content Include="Assets\UpdateNotices\0.17.1.md" />
     <None Include="Models\Provider\README.md" />
     <None Include="Models\Subscription\README.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
@@ -1253,6 +1249,7 @@
     </SDKReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Assets\UpdateNotices\" />
     <Folder Include="Services\Player\" />
     <Folder Include="ViewModels\Follow\" />
     <Folder Include="ViewModels\ListItem\" />
