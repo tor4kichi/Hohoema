@@ -48,7 +48,7 @@ namespace NicoPlayerHohoema.Models
 
     public sealed class NiconicoSession : BindableBase
     {
-        public NiconicoSession( 
+        public NiconicoSession(
             IScheduler scheduler
             )
         {
@@ -56,7 +56,7 @@ namespace NicoPlayerHohoema.Models
 
             NetworkInformation.NetworkStatusChanged += (args) =>
             {
-                Scheduler.Schedule(async () => 
+                Scheduler.Schedule(async () =>
                 {
                     await CheckSignedInStatus();
                 });
@@ -78,7 +78,7 @@ namespace NicoPlayerHohoema.Models
         public event EventHandler<NiconicoSessionLoginRequireTwoFactorAuthEventArgs> RequireTwoFactorAuth;
         public event EventHandler LogOut;
         public event EventHandler<NiconicoSessionLoginErrorEventArgs> LogInFailed;
-        
+
 
         // ServiceStatusとIsLoggedInは別々に管理する
         // ServiceStatus == LoggedIn を取ればIsLoggedInを構成できるが
@@ -303,127 +303,119 @@ namespace NicoPlayerHohoema.Models
                 UserName = UserName,
                 UserIconUrl = UserIconUrl,
             });
-            
 
-            
+
+
 
             Debug.WriteLine("Login Done! " + ServiceStatus);
         }
 
-        public IAsyncOperation<NiconicoSignInStatus> SignIn(string mailOrTelephone, string password, bool withClearAuthenticationCache = false)
+        public async Task<NiconicoSignInStatus> SignIn(string mailOrTelephone, string password, bool withClearAuthenticationCache = false)
         {
-            return AsyncInfo.Run<NiconicoSignInStatus>(async (cancelToken) =>
+            using (var releaser = await SigninLock.LockAsync())
             {
-                using (var releaser = await SigninLock.LockAsync())
+                if (!Helpers.InternetConnection.IsInternet())
                 {
-                    if (!Helpers.InternetConnection.IsInternet())
-                    {
-                        Context?.Dispose();
-                        Context = new NiconicoContext();
-                        return NiconicoSignInStatus.Failed;
-                    }
-
-                    if (Context != null
-                        && Context.AuthenticationToken?.MailOrTelephone == mailOrTelephone
-                        && Context.AuthenticationToken?.Password == password)
-                    {
-                        return NiconicoSignInStatus.Success;
-                    }
+                    Context?.Dispose();
+                    Context = new NiconicoContext();
+                    return NiconicoSignInStatus.Failed;
                 }
 
-                cancelToken.ThrowIfCancellationRequested();
-
-                if (IsLoggedIn)
+                if (Context != null
+                    && Context.AuthenticationToken?.MailOrTelephone == mailOrTelephone
+                    && Context.AuthenticationToken?.Password == password)
                 {
-                    await SignOut();
+                    return NiconicoSignInStatus.Success;
+                }
+            }
+
+            if (IsLoggedIn)
+            {
+                await SignOut();
+            }
+
+            using (_ = await SigninLock.LockAsync())
+            {
+                Debug.WriteLine("try login");
+
+                var context = new NiconicoContext(new NiconicoAuthenticationToken(mailOrTelephone, password));
+
+                context.AdditionalUserAgent = HohoemaUserAgent;
+
+                if (withClearAuthenticationCache)
+                {
+                    context.ClearAuthenticationCache();
                 }
 
-                cancelToken.ThrowIfCancellationRequested();
 
-
-                using (_ = await SigninLock.LockAsync())
+                NiconicoSignInStatus result = NiconicoSignInStatus.Failed;
+                //if ((result = await context.GetIsSignedInAsync()) == NiconicoSignInStatus.ServiceUnavailable)
+                //{
+                //    return result;
+                //}
+                try
                 {
-                    Debug.WriteLine("try login");
+                    result = await context.SignInAsync();
 
-                    var context = new NiconicoContext(new NiconicoAuthenticationToken(mailOrTelephone, password));
+                    UpdateServiceStatus(result);
 
-                    context.AdditionalUserAgent = HohoemaUserAgent;
-
-                    if (withClearAuthenticationCache)
+                    if (result == NiconicoSignInStatus.TwoFactorAuthRequired)
                     {
-                        context.ClearAuthenticationCache();
-                    }
-
-
-                    NiconicoSignInStatus result = NiconicoSignInStatus.Failed;
-                    //if ((result = await context.GetIsSignedInAsync()) == NiconicoSignInStatus.ServiceUnavailable)
-                    //{
-                    //    return result;
-                    //}
-                    try
-                    {
-                        result = await context.SignInAsync();
-
-                        UpdateServiceStatus(result);
-
-                        if (result == NiconicoSignInStatus.TwoFactorAuthRequired)
+                        var deferral = new Deferral(async () =>
                         {
-                            var deferral = new Deferral(async () =>
+                            using (_ = await SigninLock.LockAsync())
                             {
-                                using (_ = await SigninLock.LockAsync())
+                                try
                                 {
-                                    try
+                                    result = await context.GetIsSignedInAsync();
+
+                                    UpdateServiceStatus(result);
+
+                                    if (context != null)
                                     {
-                                        result = await context.GetIsSignedInAsync();
+                                        IsLoggedIn = true;
 
-                                        UpdateServiceStatus(result);
-
-                                        if (context != null)
-                                        {
-                                            IsLoggedIn = true;
-
-                                            await LoginAfterResolveUserDetailAction(context);
-                                        }
-                                    }
-                                    catch (Exception e)
-                                    {
-                                        HandleLoginError(e);
+                                        await LoginAfterResolveUserDetailAction(context);
                                     }
                                 }
-                            });
+                                catch (Exception e)
+                                {
+                                    HandleLoginError(e);
+                                }
+                            }
+                        });
 
-                            RequireTwoFactorAuth.Invoke(this, new NiconicoSessionLoginRequireTwoFactorAuthEventArgs()
-                            {
-                                Deferral = deferral,
-                                TwoFactorAuthPageUri = context.LastRedirectHttpRequestMessage.RequestUri
-                            });
-
-                            
-                        }
-                        else if (result == NiconicoSignInStatus.Success)
+                        RequireTwoFactorAuth.Invoke(this, new NiconicoSessionLoginRequireTwoFactorAuthEventArgs()
                         {
-                            IsLoggedIn = true;
+                            Deferral = deferral,
+                            TwoFactorAuthPageUri = context.LastRedirectHttpRequestMessage.RequestUri
+                        });
 
-                            await LoginAfterResolveUserDetailAction(context);
-                        }
-                        else 
-                        {
-                            LogInFailed?.Invoke(this, new NiconicoSessionLoginErrorEventArgs()
-                            {
-                                LoginFailedReason = LoginFailedReason.InvalidMailOrPassword
-                            });
-                        }
 
-                        
                     }
-                    catch (Exception e)
+                    else if (result == NiconicoSignInStatus.Success)
                     {
-                        HandleLoginError(e);
+                        IsLoggedIn = true;
+
+                        await LoginAfterResolveUserDetailAction(context);
+                    }
+                    else
+                    {
+                        LogInFailed?.Invoke(this, new NiconicoSessionLoginErrorEventArgs()
+                        {
+                            LoginFailedReason = LoginFailedReason.InvalidMailOrPassword
+                        });
                     }
 
-                    return result;
+
                 }
-            });
+                catch (Exception e)
+                {
+                    HandleLoginError(e);
+                }
+
+                return result;
+            }
         }
 
 
