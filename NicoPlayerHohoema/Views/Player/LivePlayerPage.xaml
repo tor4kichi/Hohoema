@@ -80,7 +80,6 @@
                         Visibility="Collapsed"
                         MinWidth="64"
                                 Text="全画面"
-                                Icon="FullScreen"
                                     >
             </MenuFlyoutItem>
 
@@ -125,7 +124,6 @@
                                 Visibility="Collapsed"
                             MinWidth="64"
                                     Text="横持ち固定"
-                                    Icon="Orientation"
                     >
             </ToggleMenuFlyoutItem>
 
