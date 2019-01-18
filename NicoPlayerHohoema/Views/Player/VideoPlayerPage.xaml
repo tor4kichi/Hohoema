@@ -437,7 +437,6 @@
                         <StateTrigger IsActive="{Binding IsFullScreen.Value, Mode=OneWay}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="FullscreenButtonIcon.Kind" Value="FullScreenExit" />
                         <Setter Target="AutoHideCursor.IsAutoHideEnabled" Value="True" />
                     </VisualState.Setters>
                 </VisualState>
@@ -1075,6 +1074,7 @@
 
                         <MediaPlayerElement x:Name="MediaPlayerElement" 
                                             AutoPlay="True"
+                                            
                                     >
                             <i:Interaction.Behaviors>
 
@@ -2236,7 +2236,7 @@
                                             Height="32"
                                             Background="{StaticResource HohoemaPlayerBackgroundBrush}"
                                             >
-                                        <TextBlock Text="{Binding Title}" 
+                                        <TextBlock Text="{Binding VideoTitle}" 
                                                    Style="{StaticResource CaptionTextBlockStyle}"
                                                    VerticalAlignment="Center"
                                                    Margin="14 0 8 0"

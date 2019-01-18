@@ -53,7 +53,7 @@
                       Visibility="Collapsed"
                       >
                     <Frame x:Name="PlayerFrame"
-                           VerticalContentAlignment="Top"
+                           VerticalContentAlignment="Stretch"
                                             >
                         <Frame.ContentTransitions>
                             <TransitionCollection>
@@ -178,11 +178,10 @@
                             </VisualState.Setters>
                         </VisualState>
 
-                        
                         <!-- モバイルサイズで小窓表示中 -->
                         <VisualState x:Name="DisplayIntoMobileTopSide">
                             <VisualState.StateTriggers>
-                                <AdaptiveTrigger MinWindowWidth="0" />
+                                <AdaptiveTrigger MinWindowWidth="321" />
                             </VisualState.StateTriggers>
 
                             <VisualState.Setters>
@@ -192,6 +191,24 @@
 
                                 <Setter Target="MobilePlayerTopMargin.Visibility" Value="Visible" />
                                 <Setter Target="MobilePlayerTopMargin.Height" Value="240" />
+
+                                <Setter Target="PlayerLayout.VerticalAlignment" Value="Top" />
+                            </VisualState.Setters>
+                        </VisualState>
+                        
+                        <!-- モバイルサイズで小窓表示中 -->
+                        <VisualState x:Name="DisplayIntoMobileTopSide_MoreSmall">
+                            <VisualState.StateTriggers>
+                                <AdaptiveTrigger MinWindowWidth="0" />
+                            </VisualState.StateTriggers>
+
+                            <VisualState.Setters>
+                                <Setter Target="PlayerLayout.Visibility" Value="Visible" />
+                                <Setter Target="PlayerLayout.Height" Value="180" />
+                                <Setter Target="FloatPlayerLayout.Visibility" Value="Visible" />
+
+                                <Setter Target="MobilePlayerTopMargin.Visibility" Value="Visible" />
+                                <Setter Target="MobilePlayerTopMargin.Height" Value="180" />
 
                                 <Setter Target="PlayerLayout.VerticalAlignment" Value="Top" />
                             </VisualState.Setters>
