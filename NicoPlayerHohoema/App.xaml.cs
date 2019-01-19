@@ -960,11 +960,10 @@ namespace NicoPlayerHohoema
 
         public async Task OutputErrorFile(Exception e, string pageName = null)
         {
-            var pageManager = Container.Resolve<Services.PageManager>();
             if (pageName == null)
             {
-                // TODO: 
-                pageName = "";//pageManager.CurrentPageType.ToString();
+                var pageManager = Container.Resolve<Services.PageManager>();
+                pageName = pageManager.CurrentPageType.ToString();
             }
 
             var niconicoSession = Container.Resolve<NiconicoSession>();

@@ -96,9 +96,14 @@ namespace NicoPlayerHohoema.ViewModels
             PinItems = new ObservableCollection<PinItemViewModel>(
                 PinSettings.Pins.Select(x => Container.Resolve<PinItemViewModel>(new ParameterOverride("pin", x)))
                 );
+
+
+            bool isPinItemsChanging = false;
             PinSettings.Pins.CollectionChangedAsObservable()
                 .Subscribe(args => 
                 {
+                    if (isPinItemsChanging) { return; }
+
                     if (args.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
                     {
                         foreach (var item in args.NewItems)
@@ -126,9 +131,21 @@ namespace NicoPlayerHohoema.ViewModels
 
             // TODO; PinSettings側で自動保存するようにしたい
             PinItems.CollectionChangedAsObservable()
-                .Subscribe(async _ =>
+                .Subscribe(_ =>
                 {
-                    await PinSettings.Save();
+                    try
+                    {
+                        isPinItemsChanging = true;
+                        PinSettings.Pins.Clear();
+                        foreach (var pin in PinItems)
+                        {
+                            PinSettings.Pins.Add(pin.Pin);
+                        }
+                    }
+                    finally
+                    {
+                        isPinItemsChanging = false;
+                    }
                 });
 
             /*
