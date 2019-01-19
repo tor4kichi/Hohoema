@@ -16,6 +16,7 @@ using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.ViewModels;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using System.Reactive.Linq;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -77,18 +78,6 @@ namespace NicoPlayerHohoema.Models
             return settings;
 		}
 
-		public async Task Save()
-		{
-			await RankingSettings.Save();
-			await PlayerSettings.Save();
-			await NGSettings.Save();
-			await CacheSettings.Save();
-            await PlaylistSettings.Save();
-            await AppearanceSettings.Save();
-            await ActivityFeedSettings.Save();
-            await PinSettings.Save();
-        }
-
 		public RankingSettings RankingSettings { get; private set; }
 		public PlayerSettings PlayerSettings { get; private set; }
 		public NGSettings NGSettings { get; private set; }
@@ -103,38 +92,44 @@ namespace NicoPlayerHohoema.Models
             
         }
 
-        ~HohoemaUserSettings()
-        {
-            if (RankingSettings != null)
-            {
-                RankingSettings.PropertyChanged -= Settings_PropertyChanged;
-                PlayerSettings.PropertyChanged -= Settings_PropertyChanged;
-                NGSettings.PropertyChanged -= Settings_PropertyChanged;
-                CacheSettings.PropertyChanged -= Settings_PropertyChanged;
-                PlaylistSettings.PropertyChanged -= Settings_PropertyChanged;
-                AppearanceSettings.PropertyChanged -= Settings_PropertyChanged;
-                ActivityFeedSettings.PropertyChanged -= Settings_PropertyChanged;
-            }
-        }
-
         private void SetupSaveWithPropertyChanged()
         {
-            RankingSettings.PropertyChanged += Settings_PropertyChanged;
-            PlayerSettings.PropertyChanged += Settings_PropertyChanged;
-            NGSettings.PropertyChanged += Settings_PropertyChanged;
-            CacheSettings.PropertyChanged += Settings_PropertyChanged;
-            PlaylistSettings.PropertyChanged += Settings_PropertyChanged;
-            AppearanceSettings.PropertyChanged += Settings_PropertyChanged;
-            ActivityFeedSettings.PropertyChanged += Settings_PropertyChanged;
+            RankingSettings.PropertyChangedAsObservable()
+                .Throttle(TimeSpan.FromSeconds(1))
+                .Subscribe(e => _ = RankingSettings.Save());
 
-            PinSettings.Pins.ObserveElementPropertyChanged()
-                .Subscribe(pair => Settings_PropertyChanged(PinSettings, pair.EventArgs));
-        }
+            PlayerSettings.PropertyChangedAsObservable()
+                .Throttle(TimeSpan.FromSeconds(1))
+                .Subscribe(e => _ = PlayerSettings.Save());
 
-        private static void Settings_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
-        {
-            (sender as SettingsBase).Save().ConfigureAwait(false);
-            System.Diagnostics.Debug.WriteLine("Settings Saved");
+            NGSettings.PropertyChangedAsObservable()
+                .Throttle(TimeSpan.FromSeconds(1))
+                .Subscribe(e => _ = NGSettings.Save());
+
+            CacheSettings.PropertyChangedAsObservable()
+                .Throttle(TimeSpan.FromSeconds(1))
+                .Subscribe(e => _ = CacheSettings.Save());
+
+            PlaylistSettings.PropertyChangedAsObservable()
+                .Throttle(TimeSpan.FromSeconds(1))
+                .Subscribe(e => _ = PlaylistSettings.Save());
+
+            AppearanceSettings.PropertyChangedAsObservable()
+                .Throttle(TimeSpan.FromSeconds(1))
+                .Subscribe(e => _ = AppearanceSettings.Save());
+
+            ActivityFeedSettings.PropertyChangedAsObservable()
+                .Throttle(TimeSpan.FromSeconds(1))
+                .Subscribe(e => _ = ActivityFeedSettings.Save());
+
+            new[] {
+                PinSettings.PropertyChangedAsObservable().ToUnit(),
+                PinSettings.Pins.CollectionChangedAsObservable().ToUnit(),
+                PinSettings.Pins.ObserveElementPropertyChanged().ToUnit()
+            }
+            .Merge()
+            .Throttle(TimeSpan.FromSeconds(1))
+            .Subscribe(pair => _ = PinSettings.Save());
         }
     }
 
