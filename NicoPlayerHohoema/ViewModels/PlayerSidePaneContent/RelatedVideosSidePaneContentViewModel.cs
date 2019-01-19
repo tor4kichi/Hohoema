@@ -39,7 +39,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
             HasVideoDescription = _VideoViewerHelpInfo != null;
 
-            var _ = InitializeRelatedVideos();
+            _ = InitializeRelatedVideos();
         }
 
 
