@@ -122,11 +122,14 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 if (orderedSeriesVideos.Count - 1 > currentVideoIndex)
                 {
                     var nextVideo = orderedSeriesVideos.Last();
-                    NextVideo = new VideoInfoControlViewModel(nextVideo);
+                    if (nextVideo.RawVideoId != CurrentVideoId)
+                    {
+                        NextVideo = new VideoInfoControlViewModel(nextVideo);
 
-                    orderedSeriesVideos.Remove(nextVideo);
+                        orderedSeriesVideos.Remove(nextVideo);
 
-                    RaisePropertyChanged(nameof(NextVideo));
+                        RaisePropertyChanged(nameof(NextVideo));
+                    }
                 }
 
                 // 次動画を除いてシリーズ動画っぽいアイテムを投稿者が提示したい動画として優先表示されるようにする

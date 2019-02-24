@@ -225,10 +225,6 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 userId = id;
             }
-            else
-            {
-                userId = userId = NiconicoSession.UserId.ToString();
-            }
 
             if (userId == UserId)
             {

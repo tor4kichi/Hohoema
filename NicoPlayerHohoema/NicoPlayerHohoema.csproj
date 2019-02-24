@@ -21,7 +21,7 @@
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
     <AppxBundle>Always</AppxBundle>
-    <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
+    <AppxBundlePlatforms>x86|x64</AppxBundlePlatforms>
     <PackageCertificateThumbprint>A968876E2F8F3DA9CDACE108F7CB17A1F4F8EA47</PackageCertificateThumbprint>
     <AppxPackageDir>D:\tor4kichi\Hohoema\packages\</AppxPackageDir>
     <RuntimeIdentifiers>win10-arm;win10-arm-aot;win10-x86;win10-x86-aot;win10-x64;win10-x64-aot</RuntimeIdentifiers>
@@ -1196,12 +1196,6 @@
     </Page>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OpenNiconico2\Mntone.Nico2.UWP\Mntone.Nico2.UWP.csproj">
-      <Project>{bbf8857d-550a-4228-b9fc-52c38d5346f1}</Project>
-      <Name>Mntone.Nico2.UWP</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="ActionMessageFormat.UWP">
       <Version>1.0.0</Version>
     </PackageReference>
@@ -1260,6 +1254,12 @@
     <Folder Include="Services\Player\" />
     <Folder Include="ViewModels\Follow\" />
     <Folder Include="ViewModels\ListItem\" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\OpenNiconico2\Mntone.Nico2.UWP\Mntone.Nico2.UWP.csproj">
+      <Project>{bbf8857d-550a-4228-b9fc-52c38d5346f1}</Project>
+      <Name>Mntone.Nico2.UWP</Name>
+    </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">
     <VisualStudioVersion>14.0</VisualStudioVersion>
