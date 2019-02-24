@@ -237,6 +237,15 @@ namespace NicoPlayerHohoema.Models
                 IsOwnerComment = rawComment.UserId != null && rawComment.UserId == VideoOwnerId,
             };
 
+            if (!string.IsNullOrEmpty(comment.Mail))
+            {
+                var commandActions = DefaultCommandNicoScript.MakeCommandActions(comment.Mail.Split(' '));
+                foreach (var action in commandActions)
+                {
+                    action(comment);
+                }
+            }
+
             return comment;
         }
 
@@ -255,6 +264,15 @@ namespace NicoPlayerHohoema.Models
                 IsOwnerComment = rawComment.UserId != null && rawComment.UserId == VideoOwnerId,
                 DeletedFlag = rawComment.Deleted ?? 0
             };
+
+            if (!string.IsNullOrEmpty(comment.Mail))
+            {
+                var commandActions = DefaultCommandNicoScript.MakeCommandActions(comment.Mail.Split(' '));
+                foreach (var action in commandActions)
+                {
+                    action(comment);
+                }
+            }
 
             return comment;
         }
