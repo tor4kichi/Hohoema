@@ -98,12 +98,14 @@ namespace NicoPlayerHohoema.Models.Helpers
 
 			_Size = response.Content.Headers.ContentLength.Value;
 
+            /*
 			if (!response.Headers.ContainsKey("Accept-Ranges"))
 			{
 				throw new Exception(String.Format(
 					"HTTP server does not support range requests: {0}",
 					"http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html#sec14.5"));
 			}
+            */
 
 			if (String.IsNullOrEmpty(_EtagHeader) && response.Headers.ContainsKey("ETag"))
 			{

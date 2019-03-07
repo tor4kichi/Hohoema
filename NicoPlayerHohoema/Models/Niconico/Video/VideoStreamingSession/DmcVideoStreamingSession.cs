@@ -6,6 +6,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Media.Core;
+using Windows.Media.Streaming.Adaptive;
 using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.Models
@@ -31,6 +33,8 @@ namespace NicoPlayerHohoema.Models
         public NicoVideoQuality RequestedQuality { get; }
 
         public VideoContent VideoContent { get; private set; }
+
+        private byte[] _EncryptionKey;
 
         private VideoContent ResetActualQuality()
         {
@@ -127,7 +131,7 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-        protected override async Task<Uri> GetVideoContentUri()
+        private async Task<DmcSessionResponse> GetDmcSessionAsync()
         {
             if (DmcWatchResponse == null) { return null; }
 
@@ -160,18 +164,55 @@ namespace NicoPlayerHohoema.Models
                 {
                     await NiconicoSession.Context.Video.DmcSessionExitHeartbeatAsync(DmcWatchResponse, clearPreviousSession);
                 }
-
-                return new Uri(_DmcSessionResponse.Data.Session.ContentUri);
             }
             catch
             {
                 return null;
             }
+
+            return _DmcSessionResponse;
         }
+
+        protected override async Task<MediaSource> GetPlyaingVideoMediaSource()
+        {
+            var session = await GetDmcSessionAsync();
+
+            if (session == null) { throw new Exception(); }
+
+            var uri = session != null ? new Uri(session.Data.Session.ContentUri) : null;
+
+            if (session.Data.Session.Protocol.Parameters.HttpParameters.Parameters.HttpOutputDownloadParameters != null)
+            {
+                return MediaSource.CreateFromUri(uri);
+            }
+            else if (session.Data.Session.Protocol.Parameters.HttpParameters.Parameters.HlsParameters != null)
+            {
+                var hlsParameters = session.Data.Session.Protocol.Parameters.HttpParameters.Parameters.HlsParameters;
+
+                if (!NiconicoSession.Context.HttpClient.DefaultRequestHeaders.ContainsKey("Origin"))
+                {
+                    NiconicoSession.Context.HttpClient.DefaultRequestHeaders["Origin"] = "https://www.nicovideo.jp";
+                }
+                
+                NiconicoSession.Context.HttpClient.DefaultRequestHeaders.Referer = new Uri($"https://www.nicovideo.jp/watch/{DmcWatchResponse.Video.Id}");
+
+                var amsResult = await AdaptiveMediaSource.CreateFromUriAsync(uri, NiconicoSession.Context.HttpClient);
+                if (amsResult.Status == AdaptiveMediaSourceCreationStatus.Success)
+                {
+                    await NiconicoSession.Context.Video.SendOfficialHlsWatchAsync(DmcWatchResponse.Video.Id, DmcWatchResponse.Video.DmcInfo.TrackingId);
+
+                    return MediaSource.CreateFromAdaptiveMediaSource(amsResult.MediaSource);
+                }
+            }
+
+            throw new NotSupportedException("");
+        }
+
 
         public async Task<Uri> GetDownloadUrlAndSetupDonwloadSession()
         {
-            var videoUri = await GetVideoContentUri();
+            var session = await GetDmcSessionAsync();
+            var videoUri = session != null ? new Uri(session.Data.Session.ContentUri) : null;
 
             if (videoUri != null)
             {
