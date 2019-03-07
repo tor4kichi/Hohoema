@@ -452,6 +452,8 @@ namespace NicoPlayerHohoema
                 unityContainer.RegisterInstance(unityContainer.Resolve<Services.Page.PreventBackNavigationOnShowPlayerService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.CheckingClipboardAndNotificationService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationFollowUpdatedService>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationCacheRequestRejectedService>());
+                
 
                 // 購読機能を初期化
                 try
