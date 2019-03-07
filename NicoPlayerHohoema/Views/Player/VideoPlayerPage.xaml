@@ -835,7 +835,6 @@
                         <logicalTrigger:MultiTrigger>
                             <logicalTrigger:MultiTrigger.Triggers>
                                 <hardTrigger:DeviceFamilyTrigger Condition="Desktop" />
-                                <intractionTrigger:InteractionModeTrigger Condition="Mouse" />
                             </logicalTrigger:MultiTrigger.Triggers>
                         </logicalTrigger:MultiTrigger>
                     </VisualState.StateTriggers>
