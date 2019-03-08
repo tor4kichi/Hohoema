@@ -175,9 +175,27 @@ namespace NicoPlayerHohoema.Models
 
         protected override async Task<MediaSource> GetPlyaingVideoMediaSource()
         {
+            if (!NiconicoSession.Context.HttpClient.DefaultRequestHeaders.ContainsKey("Origin"))
+            {
+                NiconicoSession.Context.HttpClient.DefaultRequestHeaders["Origin"] = "https://www.nicovideo.jp";
+            }
+
+            NiconicoSession.Context.HttpClient.DefaultRequestHeaders.Referer = new Uri($"https://www.nicovideo.jp/watch/{DmcWatchResponse.Video.Id}");
+
+
             var session = await GetDmcSessionAsync();
 
-            if (session == null) { throw new Exception(); }
+            if (session == null)
+            {
+                if (DmcWatchResponse.Video.SmileInfo != null)
+                {
+                    return MediaSource.CreateFromUri(new Uri(DmcWatchResponse.Video.SmileInfo.Url));
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
 
             var uri = session != null ? new Uri(session.Data.Session.ContentUri) : null;
 
@@ -188,14 +206,6 @@ namespace NicoPlayerHohoema.Models
             else if (session.Data.Session.Protocol.Parameters.HttpParameters.Parameters.HlsParameters != null)
             {
                 var hlsParameters = session.Data.Session.Protocol.Parameters.HttpParameters.Parameters.HlsParameters;
-
-                if (!NiconicoSession.Context.HttpClient.DefaultRequestHeaders.ContainsKey("Origin"))
-                {
-                    NiconicoSession.Context.HttpClient.DefaultRequestHeaders["Origin"] = "https://www.nicovideo.jp";
-                }
-                
-                NiconicoSession.Context.HttpClient.DefaultRequestHeaders.Referer = new Uri($"https://www.nicovideo.jp/watch/{DmcWatchResponse.Video.Id}");
-
                 var amsResult = await AdaptiveMediaSource.CreateFromUriAsync(uri, NiconicoSession.Context.HttpClient);
                 if (amsResult.Status == AdaptiveMediaSourceCreationStatus.Success)
                 {
