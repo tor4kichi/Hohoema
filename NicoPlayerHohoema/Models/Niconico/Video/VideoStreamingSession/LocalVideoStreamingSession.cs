@@ -31,48 +31,22 @@ namespace NicoPlayerHohoema.Models
 
         protected override async Task<MediaSource> GetPlyaingVideoMediaSource()
         {
-            var videoUri = new Uri(File.Path);
+            var file = await StorageFile.GetFileFromPathAsync(File.Path);
+            var stream = await file.OpenReadAsync();
+            var contentType = stream.ContentType;
 
-            MovieType videoContentType = MovieType.Mp4;
-            var tempStream = await HttpSequencialAccessStream.CreateAsync(
-                NiconicoSession.Context.HttpClient
-                , videoUri
-                );
-            if (tempStream is IRandomAccessStreamWithContentType)
+            if (contentType == null) { throw new NotSupportedException("can not play video file. " + File.Path); }
+
+            if (contentType == "video/mp4")
             {
-                var contentType = (tempStream as IRandomAccessStreamWithContentType).ContentType;
-
-                if (contentType.EndsWith("mp4"))
-                {
-                    videoContentType = MovieType.Mp4;
-                }
-                else if (contentType.EndsWith("flv"))
-                {
-                    videoContentType = MovieType.Flv;
-                }
-                else if (contentType.EndsWith("swf"))
-                {
-                    videoContentType = MovieType.Swf;
-                }
-                else
-                {
-                    throw new NotSupportedException($"{contentType} is not supported video format.");
-                }
-            }
-
-            if (videoContentType != MovieType.Mp4)
-            {
-                _VideoMSS = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(tempStream, false, false);
-                var mss = _VideoMSS.GetMediaStreamSource();
-                mss.SetBufferedRange(TimeSpan.Zero, TimeSpan.Zero);
-                return MediaSource.CreateFromMediaStreamSource(mss);
+                return MediaSource.CreateFromStream(stream, contentType);
             }
             else
             {
-                tempStream.Dispose();
-                tempStream = null;
-
-                return MediaSource.CreateFromUri(videoUri);
+                _VideoMSS = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(stream, false, false);
+                var mss = _VideoMSS.GetMediaStreamSource();
+                mss.SetBufferedRange(TimeSpan.Zero, TimeSpan.Zero);
+                return MediaSource.CreateFromMediaStreamSource(mss);
             }
         }
 
