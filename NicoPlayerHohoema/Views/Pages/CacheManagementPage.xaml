@@ -61,7 +61,7 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="ScrollHeader.Mode" Value="QuickReturn" />
+                        
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
