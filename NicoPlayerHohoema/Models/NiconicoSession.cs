@@ -342,10 +342,12 @@ namespace NicoPlayerHohoema.Models
 
                 context.AdditionalUserAgent = HohoemaUserAgent;
 
+                /*
                 if (withClearAuthenticationCache)
                 {
                     context.ClearAuthenticationCache();
                 }
+                */
 
 
                 NiconicoSignInStatus result = NiconicoSignInStatus.Failed;

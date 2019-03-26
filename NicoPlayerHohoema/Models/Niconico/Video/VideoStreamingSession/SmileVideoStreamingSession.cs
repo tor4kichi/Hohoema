@@ -74,10 +74,7 @@ namespace NicoPlayerHohoema.Models
             }
             else
             {
-                tempStream.Dispose();
-                tempStream = null;
-
-                return MediaSource.CreateFromUri(videoUri);
+                return MediaSource.CreateFromStream(tempStream, (tempStream as IRandomAccessStreamWithContentType).ContentType);
             }
         }
 
