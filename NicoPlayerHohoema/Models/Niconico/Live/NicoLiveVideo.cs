@@ -140,6 +140,7 @@ namespace NicoPlayerHohoema.Models.Live
 
         public NicoliveVideoInfoResponse LiveInfo { get; private set; }
 
+        private Windows.Web.Http.HttpClient _HttpClient = new Windows.Web.Http.HttpClient();
 
 
         Mntone.Nico2.Live.ReservationsInDetail.Program _TimeshiftProgram;
@@ -638,15 +639,8 @@ namespace NicoPlayerHohoema.Models.Live
                 // Display表示の維持リクエスト
                 Services.Helpers.DisplayRequestHelper.RequestKeepDisplay();
 
-
-                // TODO: タイムシフトか生放送かによる処理の差は NiwavidedNicoTimeshiftCommentClient 等の実装側に持たせるべき
-
                 // 経過時間の更新とバッファしたコメントを送るタイマーを開始
-                // タイムシフトでのみ有効にする
-                if (IsWatchWithTimeshift)
-                {
-                    await StartLiveElapsedTimer();
-                }
+                await StartLiveElapsedTimer();
             }
         }
 
@@ -802,7 +796,14 @@ namespace NicoPlayerHohoema.Models.Live
 #endif
                     }
 
-                    var amsCreateResult = await AdaptiveMediaSource.CreateFromUriAsync(new Uri(hlsUri), NiconicoSession.Context.HttpClient);
+                    _HttpClient = new Windows.Web.Http.HttpClient();
+                    _HttpClient.DefaultRequestHeaders.UserAgent.ParseAdd(string.Join(" ", NiconicoSession.Context.HttpClient.DefaultRequestHeaders.GetValues("user-agent")));
+
+                    var cookie = NiconicoSession.Context.GetCurrentNicoVideoCookieHeader();
+                    _HttpClient.DefaultRequestHeaders.Remove("Cookie");
+                    _HttpClient.DefaultRequestHeaders.Add("Cookie", cookie);
+
+                    var amsCreateResult = await AdaptiveMediaSource.CreateFromUriAsync(new Uri(hlsUri), _HttpClient);
                     if (amsCreateResult.Status == AdaptiveMediaSourceCreationStatus.Success)
                     {
                         var ams = amsCreateResult.MediaSource;
@@ -901,7 +902,7 @@ namespace NicoPlayerHohoema.Models.Live
                         e.MessageServerUrl,
                         e.ThreadId,
                         NiconicoSession.UserIdString,
-                        NiconicoSession.Context.HttpClient
+                        _HttpClient
                         );
                 }
 
