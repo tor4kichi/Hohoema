@@ -25,23 +25,7 @@ namespace NicoPlayerHohoema.Models.Helpers
 
         private static readonly AsyncLock _LoadLock = new AsyncLock();
 
-        
-        
-        public static async Task<string> GetUpdateNotices(List<Version> versions, string joinString = "\r\n\r\n\r\n*****\r\n\r\n\r\n")
-        {
-            var versionMarkdownTextList = new List<string>();
-
-            foreach (var version in (versions as IEnumerable<Version>).Reverse())
-            {
-                var updateNoticeText = await GetUpdateNoticeAsync(version);
-                versionMarkdownTextList.Add(updateNoticeText);
-            }
-
-            var unreadUpdateNoticeVersionsText = string.Join(joinString, versionMarkdownTextList);
-
-            return unreadUpdateNoticeVersionsText;
-        }
-
+       
 
         public static bool HasNotCheckedUptedeNoticeVersion
         {
@@ -91,86 +75,21 @@ namespace NicoPlayerHohoema.Models.Helpers
             LastCheckedVersion = currentAppVersion;
         }
 
-        public static async Task<List<Version>> GetNotCheckedUptedeNoticeVersions()
-        {
-            var currentPackegeVersion = Windows.ApplicationModel.Package.Current.Id.Version;
-            var currentAppVersion = new Version(currentPackegeVersion.Major, currentPackegeVersion.Minor, currentPackegeVersion.Build);
 
 
-
-            // 未読の更新情報テキストを新しいものを先頭に全て表示する
-            // 実際のView側での表示処理は
-#if DEBUG
-            if (__ForceNoticeUpdate)
-            {
-                var noticeableVersions = await GetUpdateNoticeAvairableVersionsAsync();
-                return noticeableVersions.Take(5).ToList();
-            }
-#endif
-
-            if (currentAppVersion > LastCheckedVersion)
-            {
-                var noticeableVersions = await GetUpdateNoticeAvairableVersionsAsync();
-
-                var noticeVersions = noticeableVersions
-                    .Where(x => x >= LastCheckedVersion)
-                    .ToList();
-
-
-                return noticeVersions;
-            }
-            else
-            {
-                return new List<Version>();
-            }
-        }
-
-
-        private static async Task<StorageFolder> GetUpdateNoticesFolderAsync()
+        private static async Task<StorageFile> GetUpdateNoticesFileAsync()
         {
             StorageFolder InstallationFolder = Windows.ApplicationModel.Package.Current.InstalledLocation;
             var assetsFolder = await InstallationFolder.GetFolderAsync(@"Assets").AsTask();
-            return await assetsFolder.GetFolderAsync(@"UpdateNotices");
-        }
-
-        public static async Task<IReadOnlyList<Version>> GetUpdateNoticeAvairableVersionsAsync()
-        {
-            using (var releaser = await _LoadLock.LockAsync())
-            {
-                if (_UpdateNoticeAvairableVersions == null)
-                {
-                    var list = new List<Version>();
-                    var folder = await GetUpdateNoticesFolderAsync();
-                    var files = await folder.GetFilesAsync();
-                    foreach (var file in files)
-                    {
-                        var file_version = Path.GetFileNameWithoutExtension(file.Name);
-                        if (Version.TryParse(file_version, out var result))
-                        {
-                            list.Add(result);
-                        }
-                    }
-
-                    _UpdateNoticeAvairableVersions = list.OrderByDescending(x => x).ToList();
-                }
-
-                return _UpdateNoticeAvairableVersions;
-            }
+            return await assetsFolder.GetFileAsync(@"_UpdateNotice.md");
         }
 
 
-        public static async Task<string> GetUpdateNoticeAsync(Version version)
+
+        public static async Task<string> GetUpdateNoticeAsync()
         {
-            var folder = await GetUpdateNoticesFolderAsync();
-            try
-            {
-                var file = await folder.GetFileAsync($"{version.Major}.{version.Minor}.{version.Build}.md");
-                return await FileIO.ReadTextAsync(file);
-            }
-            catch
-            {
-                return null;
-            }
+            var file = await GetUpdateNoticesFileAsync();
+            return await FileIO.ReadTextAsync(file);
         }
 
 

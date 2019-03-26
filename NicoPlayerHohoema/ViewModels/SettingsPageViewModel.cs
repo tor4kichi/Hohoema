@@ -56,10 +56,6 @@ namespace NicoPlayerHohoema.ViewModels
             AppearanceSettings = appearanceSettings;
             CacheSettings = cacheSettings;
             
-
-            IsLiveAlertEnabled = ActivityFeedSettings.ToReactivePropertyAsSynchronized(x => x.IsLiveAlertEnabled)
-                .AddTo(_CompositeDisposable);
-
             // NG Video Owner User Id
             NGVideoOwnerUserIdEnable = NgSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoOwnerUserIdEnable);
             NGVideoOwnerUserIds = NgSettings.NGVideoOwnerUserIds
@@ -199,9 +195,6 @@ namespace NicoPlayerHohoema.ViewModels
         public ActivityFeedSettings ActivityFeedSettings { get; }
         public AppearanceSettings AppearanceSettings { get; }
         public CacheSettings CacheSettings { get; }
-
-
-        public ReactiveProperty<bool> IsLiveAlertEnabled { get; private set; }
 
 
         // フィルタ
@@ -362,20 +355,15 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        public static List<Version> UpdateNoticeList { get; } = new List<Version>()
-        {
-            new Version(0, 10),
-            new Version(0, 9),
-        };
-        private DelegateCommand<Version> _ShowUpdateNoticeCommand;
-        public DelegateCommand<Version> ShowUpdateNoticeCommand
+        private DelegateCommand _ShowUpdateNoticeCommand;
+        public DelegateCommand ShowUpdateNoticeCommand
         {
             get
             {
                 return _ShowUpdateNoticeCommand
-                    ?? (_ShowUpdateNoticeCommand = new DelegateCommand<Version>(async (version) =>
+                    ?? (_ShowUpdateNoticeCommand = new DelegateCommand(async () =>
                     {
-                        await _HohoemaDialogService.ShowUpdateNoticeAsync(version);
+                        await _HohoemaDialogService.ShowLatestUpdateNotice();
                     }));
             }
         }

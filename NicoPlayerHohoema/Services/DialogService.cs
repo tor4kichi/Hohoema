@@ -60,25 +60,9 @@ namespace NicoPlayerHohoema.Services
 
         #region Update Notice Dialog
 
-        public async Task ShowUpdateNoticeAsync(Version version)
-        {
-            var allVersions = await Models.Helpers.AppUpdateNotice.GetUpdateNoticeAvairableVersionsAsync();
-            var versions = allVersions.Where(x => x.Major == version.Major && x.Minor == version.Minor).ToList();
-            var text = await Models.Helpers.AppUpdateNotice.GetUpdateNotices(versions);
-            var dialog = new Dialogs.MarkdownTextDialog($"v{version.Major}.{version.Minor} 更新情報 一覧");
-            dialog.Text = text;
-            dialog.PrimaryButtonText = "OK";
-            await dialog.ShowAsync();
-
-        }
-
         public async Task ShowLatestUpdateNotice()
         {
-            var versions = await Models.Helpers.AppUpdateNotice.GetNotCheckedUptedeNoticeVersions();
-
-            if (versions.Count == 0) { return; }
-
-            var text = await Models.Helpers.AppUpdateNotice.GetUpdateNotices(versions);
+            var text = await Models.Helpers.AppUpdateNotice.GetUpdateNoticeAsync();
             var dialog = new Dialogs.MarkdownTextDialog("更新情報");
             dialog.Text = text;
             dialog.PrimaryButtonText = "OK";
