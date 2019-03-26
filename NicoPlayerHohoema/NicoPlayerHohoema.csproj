@@ -740,12 +740,7 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
-    <Content Include="Assets\UpdateNotices\0.16.0.md" />
-    <Content Include="Assets\UpdateNotices\0.16.1.md" />
-    <Content Include="Assets\UpdateNotices\0.17.0.md" />
-    <Content Include="Assets\UpdateNotices\0.17.1.md" />
-    <Content Include="Assets\UpdateNotices\0.17.2.md" />
-    <Content Include="Assets\UpdateNotices\0.17.4.md" />
+    <Content Include="Assets\_UpdateNotice.md" />
     <None Include="Models\Provider\README.md" />
     <None Include="Models\Subscription\README.md" />
     <None Include="NicoPlayerHohoema_StoreKey.pfx" />
