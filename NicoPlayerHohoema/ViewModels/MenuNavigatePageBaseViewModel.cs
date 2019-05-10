@@ -131,8 +131,10 @@ namespace NicoPlayerHohoema.ViewModels
 
             // TODO; PinSettings側で自動保存するようにしたい
             PinItems.CollectionChangedAsObservable()
-                .Subscribe(_ =>
+                .Subscribe(async _ =>
                 {
+                    await Task.Delay(50);
+
                     try
                     {
                         isPinItemsChanging = true;
