@@ -46,12 +46,7 @@ namespace NicoPlayerHohoema.Models
 		public NicoVideoQuality DefaultQuality
 		{
 			get { return _DefaultQuality; }
-			set
-            {
-                if (value == NicoVideoQuality.Dmc_SuperHigh) { return; }
-
-                SetProperty(ref _DefaultQuality, value);
-            }
+			set { SetProperty(ref _DefaultQuality, value); }
 		}
 
 

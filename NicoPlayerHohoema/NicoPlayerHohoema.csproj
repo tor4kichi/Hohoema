@@ -594,7 +594,6 @@
     </Compile>
     <Compile Include="Views\Converters\CacheStateToColorBrushConverter.cs" />
     <Compile Include="Views\Converters\InvertVisibilityConverter.cs" />
-    <Compile Include="Views\Converters\NicoVideoQualityToCultualizedTextConverter.cs" />
     <Compile Include="Views\Converters\TransparentColorConverter.cs" />
     <Compile Include="Views\Pages\ListItem\LiveVideoListItem.xaml.cs">
       <DependentUpon>LiveVideoListItem.xaml</DependentUpon>

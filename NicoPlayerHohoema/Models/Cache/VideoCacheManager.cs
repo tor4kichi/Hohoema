@@ -374,6 +374,8 @@ namespace NicoPlayerHohoema.Models.Cache
                         return NicoVideoQuality.Smile_Low;
                     case "dmc_high":
                         return NicoVideoQuality.Dmc_High;
+                    case "dmc_superhigh":
+                        return NicoVideoQuality.Dmc_SuperHigh;
                     case "dmc_midium":
                         return NicoVideoQuality.Dmc_Midium;
                     case "dmc_low":
@@ -402,6 +404,9 @@ namespace NicoPlayerHohoema.Models.Cache
                     break;
                 case NicoVideoQuality.Dmc_High:
                     toQualityNameExtention = Path.ChangeExtension(filename, $".dmc_high.{videoType.ToString().ToLower()}");
+                    break;
+                case NicoVideoQuality.Dmc_SuperHigh:
+                    toQualityNameExtention = Path.ChangeExtension(filename, $".dmc_superhigh.{videoType.ToString().ToLower()}");
                     break;
                 case NicoVideoQuality.Dmc_Midium:
                     toQualityNameExtention = Path.ChangeExtension(filename, $".dmc_midium.{videoType.ToString().ToLower()}");
