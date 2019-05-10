@@ -927,7 +927,7 @@ namespace NicoPlayerHohoema
             }
         }
 
-        private async void PrismUnityApplication_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        private async void PrismUnityApplication_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
         {
             e.Handled = true;
 
