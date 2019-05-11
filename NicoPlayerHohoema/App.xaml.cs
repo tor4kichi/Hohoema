@@ -80,6 +80,36 @@ namespace NicoPlayerHohoema
         }
 
 
+        public override async Task OnStartAsync(StartArgs args)
+        {
+            if (args.Arguments is LaunchActivatedEventArgs launchArgs)
+            {
+                SplashScreen = launchArgs.SplashScreen;
+#if DEBUG
+                DebugSettings.IsBindingTracingEnabled = true;
+#endif
+                _IsPreLaunch = launchArgs.PrelaunchActivated;
+            }
+
+            await EnsureInitializeAsync();
+
+            if (args.StartKind == StartKinds.Launch)
+            {
+                var pageManager = Container.Resolve<PageManager>();
+                pageManager.OpenStartupPage();
+            }
+            else if (args.StartKind == StartKinds.Activate)
+            {
+                _ = OnActivateApplicationAsync(args.Arguments as IActivatedEventArgs);
+            }
+            else if (args.StartKind == StartKinds.Background)
+            {
+                BackgroundActivated(args.Arguments as BackgroundActivatedEventArgs);
+            }
+
+
+            base.OnStart(args);
+        }
 
         UIElement CreateShell(out Frame rootFrame)
         {
@@ -95,8 +125,8 @@ namespace NicoPlayerHohoema
                 _ = OutputErrorFile(e.Exception, e.SourcePageType?.AssemblyQualifiedName);
             };
 
-            
-            rootFrame.Navigating += (_, e) => 
+
+            rootFrame.Navigating += (_, e) =>
             {
                 var pageManager = Container.Resolve<PageManager>();
                 pageManager.RefrectNavigating(e);
@@ -166,139 +196,6 @@ namespace NicoPlayerHohoema
             return grid;
         }
 
-
-        public override void OnInitialized()
-        {
-
-            Resources["IsXbox"] = Services.Helpers.DeviceTypeHelper.IsXbox;
-            Resources["IsMobile"] = Services.Helpers.DeviceTypeHelper.IsMobile;
-           
-
-            try
-            {
-#if DEBUG
-                if (_DEBUG_XBOX_RESOURCE)
-#else
-                if (Services.Helpers.DeviceTypeHelper.IsXbox)
-#endif
-                {
-                    this.Resources.MergedDictionaries.Add(new ResourceDictionary()
-                    {
-                        Source = new Uri("ms-appx:///Styles/TVSafeColor.xaml")
-                    });
-                    this.Resources.MergedDictionaries.Add(new ResourceDictionary()
-                    {
-                        Source = new Uri("ms-appx:///Styles/TVStyle.xaml")
-                    });
-                }
-            }
-            catch
-            {
-
-            }
-
-
-
-#if DEBUG
-            Resources["IsDebug"] = true;
-#else
-            Resources["IsDebug"] = false;
-#endif
-            Resources["TitleBarCustomized"] = IsTitleBarCustomized;
-            Resources["TitleBarDummyHeight"] = IsTitleBarCustomized ? 32.0 : 0.0;
-
-
-            if (IsTitleBarCustomized)
-            {
-                var coreApp = CoreApplication.GetCurrentView();
-                coreApp.TitleBar.ExtendViewIntoTitleBar = true;
-
-                var appView = ApplicationView.GetForCurrentView();
-                appView.TitleBar.ButtonBackgroundColor = Colors.Transparent;
-                appView.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-                appView.TitleBar.ButtonInactiveForegroundColor = Colors.Transparent;
-
-                if (RequestedTheme == ApplicationTheme.Light)
-                {
-                    appView.TitleBar.ButtonForegroundColor = Colors.Black;
-                    appView.TitleBar.ButtonHoverBackgroundColor = Colors.DarkGray;
-                    appView.TitleBar.ButtonHoverForegroundColor = Colors.Black;
-                }
-            }
-           
-            var scheduler = Container.Resolve<IScheduler>();
-            scheduler.Schedule(async () => 
-            {
-                // Menu でPinSettingsを使いたい
-                await EnsureInitializeAsync();
-
-                var cacheSettings = Container.Resolve<CacheSettings>();
-                Resources["IsCacheEnabled"] = cacheSettings.IsEnableCache;
-                var appearanceSettings = Container.Resolve<AppearanceSettings>();
-                Resources["IsTVModeEnabled"] = Services.Helpers.DeviceTypeHelper.IsXbox || appearanceSettings.IsForceTVModeEnable;
-
-                var layout = CreateShell(out var frame);
-                var ns = Prism.Navigation.NavigationService.Create(frame, Window.Current.CoreWindow, /*Gesture.Back, */ Gesture.Forward, Gesture.Refresh);
-
-                Container.GetContainer().RegisterInstance(ns);
-
-                Window.Current.Content = layout;
-                Window.Current.Activate();
-            });
-
-            // サンプルではこちらを使っているが、Hohoemaの場合は自前でコンテンツセットからアクティベートまでやっている
-            // NavigationService.SetAsWindowContent(Window.Current, true);
-
-            base.OnInitialized();
-        }
-
-
-        public override async Task OnStartAsync(StartArgs args)
-        {
-            if (args.Arguments is LaunchActivatedEventArgs launchArgs)
-            {
-                SplashScreen = launchArgs.SplashScreen;
-#if DEBUG
-                DebugSettings.IsBindingTracingEnabled = true;
-#endif
-                _IsPreLaunch = launchArgs.PrelaunchActivated;
-            }
-
-            await EnsureInitializeAsync();
-
-            if (args.StartKind == StartKinds.Launch)
-            {
-                var scheduler = Container.Resolve<IScheduler>();
-                scheduler.Schedule(async () =>
-                {
-                    await Task.Delay(1000);
-                    var pageManager = Container.Resolve<PageManager>();
-                    pageManager.OpenStartupPage();
-                });
-            }
-            else if (args.StartKind == StartKinds.Activate)
-            {
-                var scheduler = Container.Resolve<IScheduler>();
-                scheduler.Schedule(async () =>
-                {
-                    await Task.Delay(1000);
-                    _ = OnActivateApplicationAsync(args.Arguments as IActivatedEventArgs);
-                });
-            }
-            else if (args.StartKind == StartKinds.Background)
-            {
-                var scheduler = Container.Resolve<IScheduler>();
-                scheduler.Schedule(async () =>
-                {
-                    await Task.Delay(1000);
-                    BackgroundActivated(args.Arguments as BackgroundActivatedEventArgs);
-                });                
-            }
-
-
-            base.OnStart(args);
-        }
-
         public override void RegisterTypes(IContainerRegistry container)
         {
             var unityContainer = container.GetContainer();
@@ -333,14 +230,6 @@ namespace NicoPlayerHohoema
 
             // ViewModels
             unityContainer.RegisterSingleton<ViewModels.RankingCategoryListPageViewModel>();
-
-            // Note: インスタンス化が別途必要
-            unityContainer.RegisterSingleton<Services.WatchItLater>();
-            unityContainer.RegisterSingleton<Services.Notification.NotificationCacheVideoDeletedService>();
-            unityContainer.RegisterSingleton<Services.Notification.NotificationMylistUpdatedService>(); 
-            unityContainer.RegisterSingleton<Services.Page.PreventBackNavigationOnShowPlayerService>();
-            unityContainer.RegisterSingleton<Services.Notification.CheckingClipboardAndNotificationService>();
-            unityContainer.RegisterSingleton<Services.Notification.NotificationFollowUpdatedService>();
 
 #if DEBUG
             //			BackgroundUpdater.MaxTaskSlotCount = 1;
@@ -421,6 +310,75 @@ namespace NicoPlayerHohoema
                 var localMylistManager = Container.Resolve<LocalMylistManager>();
                 await LocalMylistManager.RestoreLegacyLocalMylistGroups(localMylistManager);
 
+                Resources["IsXbox"] = Services.Helpers.DeviceTypeHelper.IsXbox;
+                Resources["IsMobile"] = Services.Helpers.DeviceTypeHelper.IsMobile;
+
+
+                try
+                {
+#if DEBUG
+                    if (_DEBUG_XBOX_RESOURCE)
+#else
+                if (Services.Helpers.DeviceTypeHelper.IsXbox)
+#endif
+                    {
+                        this.Resources.MergedDictionaries.Add(new ResourceDictionary()
+                        {
+                            Source = new Uri("ms-appx:///Styles/TVSafeColor.xaml")
+                        });
+                        this.Resources.MergedDictionaries.Add(new ResourceDictionary()
+                        {
+                            Source = new Uri("ms-appx:///Styles/TVStyle.xaml")
+                        });
+                    }
+                }
+                catch
+                {
+
+                }
+
+
+
+#if DEBUG
+                Resources["IsDebug"] = true;
+#else
+            Resources["IsDebug"] = false;
+#endif
+                Resources["TitleBarCustomized"] = IsTitleBarCustomized;
+                Resources["TitleBarDummyHeight"] = IsTitleBarCustomized ? 32.0 : 0.0;
+
+
+                if (IsTitleBarCustomized)
+                {
+                    var coreApp = CoreApplication.GetCurrentView();
+                    coreApp.TitleBar.ExtendViewIntoTitleBar = true;
+
+                    var appView = ApplicationView.GetForCurrentView();
+                    appView.TitleBar.ButtonBackgroundColor = Colors.Transparent;
+                    appView.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
+                    appView.TitleBar.ButtonInactiveForegroundColor = Colors.Transparent;
+
+                    if (RequestedTheme == ApplicationTheme.Light)
+                    {
+                        appView.TitleBar.ButtonForegroundColor = Colors.Black;
+                        appView.TitleBar.ButtonHoverBackgroundColor = Colors.DarkGray;
+                        appView.TitleBar.ButtonHoverForegroundColor = Colors.Black;
+                    }
+                }
+
+                // 
+                var cacheSettings = Container.Resolve<CacheSettings>();
+                Resources["IsCacheEnabled"] = cacheSettings.IsEnableCache;
+                var appearanceSettings = Container.Resolve<AppearanceSettings>();
+                Resources["IsTVModeEnabled"] = Services.Helpers.DeviceTypeHelper.IsXbox || appearanceSettings.IsForceTVModeEnable;
+
+                var layout = CreateShell(out var frame);
+                var ns = Prism.Navigation.NavigationService.Create(frame, Window.Current.CoreWindow, /*Gesture.Back, */ Gesture.Forward, Gesture.Refresh);
+
+                Container.GetContainer().RegisterInstance(ns);
+
+                Window.Current.Content = layout;
+
                 // ログイン
                 try
                 {
@@ -469,6 +427,7 @@ namespace NicoPlayerHohoema
 
 
 
+                
 
 
 
@@ -484,6 +443,17 @@ namespace NicoPlayerHohoema
                     }
                 }
                 catch { }
+
+
+                // アプリのユースケース系サービスを配置
+                unityContainer.RegisterInstance(unityContainer.Resolve<Services.WatchItLater>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationCacheVideoDeletedService>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationMylistUpdatedService>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<Services.Page.PreventBackNavigationOnShowPlayerService>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.CheckingClipboardAndNotificationService>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationFollowUpdatedService>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationCacheRequestRejectedService>());
+                
 
                 // 購読機能を初期化
                 try
@@ -670,6 +640,12 @@ namespace NicoPlayerHohoema
 		}
 
 
+        public override void OnInitialized()
+        {
+            Window.Current.Activate();
+
+            base.OnInitialized();
+        }
 
 
 
@@ -951,7 +927,7 @@ namespace NicoPlayerHohoema
             }
         }
 
-        private async void PrismUnityApplication_UnhandledException(object sender, UnhandledExceptionEventArgs e)
+        private async void PrismUnityApplication_UnhandledException(object sender, Windows.UI.Xaml.UnhandledExceptionEventArgs e)
         {
             e.Handled = true;
 
@@ -986,11 +962,10 @@ namespace NicoPlayerHohoema
 
         public async Task OutputErrorFile(Exception e, string pageName = null)
         {
-            var pageManager = Container.Resolve<Services.PageManager>();
             if (pageName == null)
             {
-                // TODO: 
-                pageName = "";//pageManager.CurrentPageType.ToString();
+                var pageManager = Container.Resolve<Services.PageManager>();
+                pageName = pageManager.CurrentPageType.ToString();
             }
 
             var niconicoSession = Container.Resolve<NiconicoSession>();
@@ -999,7 +974,7 @@ namespace NicoPlayerHohoema
             try
             {
                 var v = Package.Current.Id.Version;
-                var versionText = $"{v.Major}.{v.Minor}.{v.Revision}.{v.Build}";
+                var versionText = $"{v.Major}.{v.Minor}.{v.Build}.{v.Revision}";
                 var folder = await ApplicationData.Current.LocalFolder.CreateFolderAsync("error", CreationCollisionOption.OpenIfExists);
                 var errorFile = await folder.CreateFileAsync($"Hohoema-{versionText.Replace('.', '_')}-{Path.GetFileNameWithoutExtension(Path.GetRandomFileName())}.txt", CreationCollisionOption.OpenIfExists);
 

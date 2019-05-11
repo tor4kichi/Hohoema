@@ -174,7 +174,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 SearchOption = new CommunitySearchPagePayloadContent()
                 {
-                    Keyword = parameters.GetValue<string>("keyword")
+                    Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"))
                 };
             }
 
@@ -206,6 +206,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             Database.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
 
+            PageManager.PageTitle = $"\"{SearchOption.Keyword}\"";
 
             return base.OnNavigatedToAsync(parameters);
         }
@@ -245,7 +246,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 Label = SearchOption.Keyword,
                 PageType = HohoemaPageType.SearchResultCommunity,
-                Parameter = $"keyword={SearchOption.Keyword}&target={SearchOption.SearchTarget}"
+                Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
             };
 
             return true;

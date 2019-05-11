@@ -17,6 +17,7 @@
     xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
     DataContext="{x:Null}"
+    NavigationCacheMode="Enabled"
     mc:Ignorable="d"
     >
 
@@ -47,7 +48,7 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="ScrollHeader.Mode" Value="QuickReturn" />
+                        
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -72,6 +73,8 @@
             uwpextensions:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
             ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
             uwpextensions:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
+            xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
+            myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
                             >
             <i:Interaction.Behaviors>
 
@@ -86,7 +89,7 @@
             <ListView.Header>
                 <uwpcontrol:ScrollHeader
                     x:Name="ScrollHeader"
-                    Mode="Sticky" >
+                    Mode="QuickReturn" >
 
 
                     <StackPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">

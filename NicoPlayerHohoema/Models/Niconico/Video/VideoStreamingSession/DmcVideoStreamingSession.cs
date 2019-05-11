@@ -6,6 +6,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Windows.Media.Core;
+using Windows.Media.Streaming.Adaptive;
 using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.Models
@@ -31,6 +33,11 @@ namespace NicoPlayerHohoema.Models
         public NicoVideoQuality RequestedQuality { get; }
 
         public VideoContent VideoContent { get; private set; }
+
+        private byte[] _EncryptionKey;
+
+
+        private Windows.Web.Http.HttpClient _HttpClient;
 
         private VideoContent ResetActualQuality()
         {
@@ -127,7 +134,7 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-        protected override async Task<Uri> GetVideoContentUri()
+        private async Task<DmcSessionResponse> GetDmcSessionAsync()
         {
             if (DmcWatchResponse == null) { return null; }
 
@@ -160,18 +167,73 @@ namespace NicoPlayerHohoema.Models
                 {
                     await NiconicoSession.Context.Video.DmcSessionExitHeartbeatAsync(DmcWatchResponse, clearPreviousSession);
                 }
-
-                return new Uri(_DmcSessionResponse.Data.Session.ContentUri);
             }
             catch
             {
                 return null;
             }
+
+            return _DmcSessionResponse;
         }
+
+        protected override async Task<MediaSource> GetPlyaingVideoMediaSource()
+        {
+            if (!NiconicoSession.Context.HttpClient.DefaultRequestHeaders.Contains("Origin"))
+            {
+                NiconicoSession.Context.HttpClient.DefaultRequestHeaders.Add("Origin", "https://www.nicovideo.jp");
+            }
+
+            NiconicoSession.Context.HttpClient.DefaultRequestHeaders.Referrer = new Uri($"https://www.nicovideo.jp/watch/{DmcWatchResponse.Video.Id}");
+
+
+            var session = await GetDmcSessionAsync();
+
+            if (session == null)
+            {
+                if (DmcWatchResponse.Video.SmileInfo != null)
+                {
+                    return MediaSource.CreateFromUri(new Uri(DmcWatchResponse.Video.SmileInfo.Url));
+                }
+                else
+                {
+                    throw new Exception();
+                }
+            }
+
+            var uri = session != null ? new Uri(session.Data.Session.ContentUri) : null;
+
+            if (session.Data.Session.Protocol.Parameters.HttpParameters.Parameters.HttpOutputDownloadParameters != null)
+            {
+                return MediaSource.CreateFromUri(uri);
+            }
+            else if (session.Data.Session.Protocol.Parameters.HttpParameters.Parameters.HlsParameters != null)
+            {
+                _HttpClient = new Windows.Web.Http.HttpClient();
+
+                _HttpClient.DefaultRequestHeaders.UserAgent.ParseAdd(string.Join(" ", NiconicoSession.Context.HttpClient.DefaultRequestHeaders.GetValues("user-agent")));
+
+                var cookie = NiconicoSession.Context.GetCurrentNicoVideoCookieHeader();
+                _HttpClient.DefaultRequestHeaders.Remove("Cookie");
+                _HttpClient.DefaultRequestHeaders.Add("Cookie", cookie);
+
+                var hlsParameters = session.Data.Session.Protocol.Parameters.HttpParameters.Parameters.HlsParameters;
+                var amsResult = await AdaptiveMediaSource.CreateFromUriAsync(uri, _HttpClient);
+                if (amsResult.Status == AdaptiveMediaSourceCreationStatus.Success)
+                {
+                    await NiconicoSession.Context.Video.SendOfficialHlsWatchAsync(DmcWatchResponse.Video.Id, DmcWatchResponse.Video.DmcInfo.TrackingId);
+
+                    return MediaSource.CreateFromAdaptiveMediaSource(amsResult.MediaSource);
+                }
+            }
+
+            throw new NotSupportedException("");
+        }
+
 
         public async Task<Uri> GetDownloadUrlAndSetupDonwloadSession()
         {
-            var videoUri = await GetVideoContentUri();
+            var session = await GetDmcSessionAsync();
+            var videoUri = session != null ? new Uri(session.Data.Session.ContentUri) : null;
 
             if (videoUri != null)
             {

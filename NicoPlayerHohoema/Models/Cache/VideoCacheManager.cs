@@ -55,6 +55,12 @@ namespace NicoPlayerHohoema.Models.Cache
         public StorageFolder NewFolder { get; set; }
     }
 
+    public struct CacheRequestRejectedEventArgs
+    {
+        public string Reason { get; set; }
+        public NicoVideoCacheRequest Request { get; set; }
+    }
+
 
     public class CacheSaveFolder
     {
@@ -314,6 +320,7 @@ namespace NicoPlayerHohoema.Models.Cache
 
         public event EventHandler<NicoVideoCacheRequest> Requested;
         public event EventHandler<NicoVideoCacheRequest> RequestCanceled;
+        public event EventHandler<CacheRequestRejectedEventArgs> Rejected;
 
         public event EventHandler<VideoCacheStateChangedEventArgs> VideoCacheStateChanged;
 
@@ -367,6 +374,8 @@ namespace NicoPlayerHohoema.Models.Cache
                         return NicoVideoQuality.Smile_Low;
                     case "dmc_high":
                         return NicoVideoQuality.Dmc_High;
+                    case "dmc_superhigh":
+                        return NicoVideoQuality.Dmc_SuperHigh;
                     case "dmc_midium":
                         return NicoVideoQuality.Dmc_Midium;
                     case "dmc_low":
@@ -395,6 +404,9 @@ namespace NicoPlayerHohoema.Models.Cache
                     break;
                 case NicoVideoQuality.Dmc_High:
                     toQualityNameExtention = Path.ChangeExtension(filename, $".dmc_high.{videoType.ToString().ToLower()}");
+                    break;
+                case NicoVideoQuality.Dmc_SuperHigh:
+                    toQualityNameExtention = Path.ChangeExtension(filename, $".dmc_superhigh.{videoType.ToString().ToLower()}");
                     break;
                 case NicoVideoQuality.Dmc_Midium:
                     toQualityNameExtention = Path.ChangeExtension(filename, $".dmc_midium.{videoType.ToString().ToLower()}");
@@ -700,6 +712,32 @@ namespace NicoPlayerHohoema.Models.Cache
 
                     // 動画ダウンロードURLを取得                    
                     var videoInfo = await NicoVideoProvider.GetNicoVideoInfo(nextDownloadItem.RawVideoId);
+
+                    if (videoInfo.RawVideoId.StartsWith("so"))
+                    {
+                        Debug.WriteLine($"キャッシュ チャンネル動画は不可 : {nextDownloadItem.RawVideoId} {nextDownloadItem.Quality}");
+
+                        _CacheDownloadPendingVideos.Remove(nextDownloadItem);
+                        await SaveDownloadRequestItems();
+
+                        Scheduler.Schedule(() => 
+                        {
+                            VideoCacheStateChanged?.Invoke(this, new VideoCacheStateChangedEventArgs()
+                            {
+                                CacheState = NicoVideoCacheState.NotCacheRequested,
+                                Request = nextDownloadItem
+                            });
+
+                            Rejected?.Invoke(this, new CacheRequestRejectedEventArgs()
+                            {
+                                Request = nextDownloadItem,
+                                Reason = "Protected Content",
+                            });
+                        });
+
+                        return;
+                    }
+
 
                     var videoSessionProvider = new NicoVideoStreamingSessionProvider();
                     

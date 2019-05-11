@@ -52,7 +52,7 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="ScrollHeader.Mode" Value="QuickReturn" />
+                        
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -124,7 +124,7 @@
 
                 <uwpcontrols:ScrollHeader
                     x:Name="ScrollHeader"
-                    Mode="Sticky" >
+                    Mode="QuickReturn" >
                     <StackPanel >
                         <CommandBar 
                             x:Name="TopCommandBar"

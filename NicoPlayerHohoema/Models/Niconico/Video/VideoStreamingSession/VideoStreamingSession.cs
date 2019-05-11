@@ -3,9 +3,11 @@ using Mntone.Nico2;
 using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Models.Helpers;
 using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Windows.Media.Core;
 using Windows.Media.Playback;
+using Windows.Media.Streaming.Adaptive;
 using Windows.Storage;
 using Windows.Storage.Streams;
 
@@ -21,12 +23,9 @@ namespace NicoPlayerHohoema.Models
         public abstract NicoVideoQuality Quality { get; }
         public NiconicoSession NiconicoSession { get; }
 
-        FFmpegInteropMSS _VideoMSS;
         MediaSource _MediaSource;
 
         MediaPlayer _PlayingMediaPlayer;
-
-
 
         public VideoStreamingSession(NiconicoSession niconicoSession)
         {
@@ -35,19 +34,16 @@ namespace NicoPlayerHohoema.Models
 
         public async Task StartPlayback(MediaPlayer player)
         {
-            var videoUri = await GetVideoContentUri();
-
             // Note: HTML5プレイヤー移行中のFLV動画に対するフォールバック処理
             // サムネではContentType=FLV,SWFとなっていても、
             // 実際に渡される動画ストリームのContentTypeがMP4となっている場合がある
 
-            var videoContentType = MovieType.Mp4;
-            MediaSource mediaSource = null;
-            
+            var mediaSource = await GetPlyaingVideoMediaSource();
+
+            /*
             if (!videoUri.IsFile)
             {
                 // オンラインからの再生
-
                 
                 var tempStream = await HttpSequencialAccessStream.CreateAsync(
                     NiconicoSession.Context.HttpClient
@@ -69,25 +65,41 @@ namespace NicoPlayerHohoema.Models
                     {
                         videoContentType = MovieType.Swf;
                     }
+                    else if (AdaptiveMediaSource.IsContentTypeSupported(contentType))
+                    {
+                        var amsResult = await AdaptiveMediaSource.CreateFromUriAsync(videoUri, NiconicoSession.Context.HttpClient);
+                        if (amsResult.Status == AdaptiveMediaSourceCreationStatus.Success)
+                        {
+                            amsResult.MediaSource.DownloadRequested += MediaSource_DownloadRequested;
+                            mediaSource = MediaSource.CreateFromAdaptiveMediaSource(amsResult.MediaSource);
+                            
+
+                        }
+                    }
                     else
                     {
-                        throw new NotSupportedException($"{contentType} is not supported video format.");
+                        videoContentType = MovieType.Mp4;
+
+                        //throw new NotSupportedException($"{contentType} is not supported video format.");
                     }
                 }
 
-                if (videoContentType != MovieType.Mp4)
+                if (mediaSource == null)
                 {
-                    _VideoMSS = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(tempStream, false, false);
-                    var mss = _VideoMSS.GetMediaStreamSource();
-                    mss.SetBufferedRange(TimeSpan.Zero, TimeSpan.Zero);
-                    mediaSource = MediaSource.CreateFromMediaStreamSource(mss);
-                }
-                else
-                {
-                    tempStream.Dispose();
-                    tempStream = null;
+                    if (videoContentType != MovieType.Mp4)
+                    {
+                        _VideoMSS = FFmpegInteropMSS.CreateFFmpegInteropMSSFromStream(tempStream, false, false);
+                        var mss = _VideoMSS.GetMediaStreamSource();
+                        mss.SetBufferedRange(TimeSpan.Zero, TimeSpan.Zero);
+                        mediaSource = MediaSource.CreateFromMediaStreamSource(mss);
+                    }
+                    else
+                    {
+                        tempStream.Dispose();
+                        tempStream = null;
 
-                    mediaSource = MediaSource.CreateFromUri(videoUri);
+                        mediaSource = MediaSource.CreateFromUri(videoUri);
+                    }
                 }
             }
             else
@@ -113,7 +125,7 @@ namespace NicoPlayerHohoema.Models
                     mediaSource = MediaSource.CreateFromMediaStreamSource(mss);
                 }
             }
-
+            */
             
             if (mediaSource != null)
             {
@@ -125,13 +137,11 @@ namespace NicoPlayerHohoema.Models
             }
             else
             {
-                throw new NotSupportedException("can not play video. Video URI: " + videoUri);
+                throw new NotSupportedException("can not play video");
             }
         }
 
-
-
-        protected abstract Task<Uri> GetVideoContentUri();
+        protected abstract Task<MediaSource> GetPlyaingVideoMediaSource();
 
         protected virtual void OnStartStreaming() { }
         protected virtual void OnStopStreaming() { }
@@ -146,7 +156,6 @@ namespace NicoPlayerHohoema.Models
                 _PlayingMediaPlayer.Source = null;
                 _PlayingMediaPlayer = null;
 
-                _VideoMSS?.Dispose();
                 _MediaSource?.Dispose();
             }
         }

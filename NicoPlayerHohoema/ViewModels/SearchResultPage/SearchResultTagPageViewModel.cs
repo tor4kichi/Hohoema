@@ -259,7 +259,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 SearchOption = new TagSearchPagePayloadContent()
                 {
-                    Keyword = parameters.GetValue<string>("keyword")
+                    Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"))
                 };
             }
 
@@ -282,6 +282,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             RaisePropertyChanged(nameof(TagSearchBookmark));
 
+            PageManager.PageTitle = $"\"{SearchOption.Keyword}\"";
 
             return base.OnNavigatedToAsync(parameters);
         }
@@ -315,7 +316,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 Label = SearchOption.Keyword,
                 PageType = HohoemaPageType.SearchResultTag,
-                Parameter = $"keyword={SearchOption.Keyword}&target={SearchOption.SearchTarget}"
+                Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
             };
 
             return true;

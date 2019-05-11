@@ -45,7 +45,10 @@ namespace NicoPlayerHohoema.Models.Niconico
         public uint CommentId { get; set; }
 
         public string CommentText { get; set; }
-        public string Mail { get; set; }
+
+        
+        public string Mail { get; set; } 
+
 		public string UserId { get; set; }
         public bool IsAnonimity { get; set; }
 

@@ -113,7 +113,7 @@ namespace NicoPlayerHohoema.ViewModels
                 var searchOption = SearchOptionVM.Value.MakePayload();
 
                 // 検索結果を表示
-                //PageManager.Search(SearchOptionVM.Value.);
+                PageManager.Search(searchOption.SearchTarget, searchOption.Keyword);
 
                 var searched = Database.SearchHistoryDb.Searched(SearchText.Value, SelectedTarget.Value);
 

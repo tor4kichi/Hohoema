@@ -503,34 +503,10 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayAllVideosFromHeadCommand
                     ?? (_PlayAllVideosFromHeadCommand = new DelegateCommand(() =>
                     {
-                        var headItem = MylistItems?.FirstOrDefault();
-                        if (headItem != null)
-                        {
-                            HohoemaPlaylist.PlaylistSettings.IsReverseModeEnable = false;
-                            HohoemaPlaylist.PlayVideo(headItem);
-                        }
+                        HohoemaPlaylist.Play(Mylist.Value);
                     }));
             }
         }
-
-        private DelegateCommand _PlayAllVideosFromTailCommand;
-        public DelegateCommand PlayAllVideosFromTailCommand
-        {
-            get
-            {
-                return _PlayAllVideosFromTailCommand
-                    ?? (_PlayAllVideosFromTailCommand = new DelegateCommand(() =>
-                    {
-                        var tailItem = MylistItems?.LastOrDefault();
-                        if (tailItem != null)
-                        {
-                            HohoemaPlaylist.PlaylistSettings.IsReverseModeEnable = true;
-                            HohoemaPlaylist.PlayVideo(tailItem);
-                        }
-                    }));
-            }
-        }
-
 
         private DelegateCommand _RefreshCommand;
         public DelegateCommand RefreshCommand

@@ -50,7 +50,7 @@
                         <AdaptiveTrigger MinWindowWidth="0" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
-                        <Setter Target="ScrollHeader.Mode" Value="QuickReturn" />
+                        
                     </VisualState.Setters>
                 </VisualState>
             </VisualStateGroup>
@@ -167,7 +167,7 @@
 
                     <uwpcontrols:ScrollHeader
                         x:Name="ScrollHeader"
-                        Mode="Sticky" >
+                        Mode="QuickReturn" >
 
                         <StackPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
                             <CommandBar x:Name="VideoListCommandBar" Background="Transparent" >
@@ -215,17 +215,8 @@
                                     <AppBarButton x:Name="PlayAllButton"
                                         Label="全て再生"
                                         Icon="Play"
+                                                  Command="{Binding PlayAllVideosFromHeadCommand}"
                                     >
-                                        <AppBarButton.Flyout>
-                                            <MenuFlyout>
-                                                <MenuFlyoutItem Text="先頭から再生"
-                                                        Command="{Binding PlayAllVideosFromHeadCommand}"
-                                                        />
-                                                <MenuFlyoutItem Text="最後尾から再生"
-                                                        Command="{Binding PlayAllVideosFromTailCommand}"
-                                                        />
-                                            </MenuFlyout>
-                                        </AppBarButton.Flyout>
                                     </AppBarButton>
 
                                     <AppBarButton x:Name="ScrollToTopButton"

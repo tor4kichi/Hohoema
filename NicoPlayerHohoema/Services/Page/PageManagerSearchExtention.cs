@@ -39,7 +39,7 @@ namespace NicoPlayerHohoema.Services.Page
 
             var p = new NavigationParameters
             {
-                { "keyword", keyword },
+                { "keyword", System.Net.WebUtility.UrlEncode(keyword) },
                 { "target", resultPageType }
             };
 

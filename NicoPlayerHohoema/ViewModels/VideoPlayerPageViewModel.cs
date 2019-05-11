@@ -1299,7 +1299,11 @@ namespace NicoPlayerHohoema.ViewModels
 
                             // 自動で次動画へ移動する機能
                             var sidePaneContent = GetSidePaneContent(PlayerSidePaneContentType.RelatedVideos) as RelatedVideosSidePaneContentViewModel;
-                            await sidePaneContent.InitializeRelatedVideos();
+                            try
+                            {
+                                await sidePaneContent.InitializeRelatedVideos();
+                            }
+                            catch { }
 
                             if (sidePaneContent.NextVideo != null && PlaylistSettings.AutoMoveNextVideoOnPlaylistEmpty)
                             {
