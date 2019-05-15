@@ -356,13 +356,20 @@ namespace NicoPlayerHohoema
                     var appView = ApplicationView.GetForCurrentView();
                     appView.TitleBar.ButtonBackgroundColor = Colors.Transparent;
                     appView.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-                    appView.TitleBar.ButtonInactiveForegroundColor = Colors.Transparent;
 
                     if (RequestedTheme == ApplicationTheme.Light)
                     {
                         appView.TitleBar.ButtonForegroundColor = Colors.Black;
                         appView.TitleBar.ButtonHoverBackgroundColor = Colors.DarkGray;
                         appView.TitleBar.ButtonHoverForegroundColor = Colors.Black;
+                        appView.TitleBar.ButtonInactiveForegroundColor = Colors.Gray;
+                    }
+                    else
+                    {
+                        appView.TitleBar.ButtonForegroundColor = Colors.White;
+                        appView.TitleBar.ButtonHoverBackgroundColor = Colors.DimGray;
+                        appView.TitleBar.ButtonHoverForegroundColor = Colors.White;
+                        appView.TitleBar.ButtonInactiveForegroundColor = Colors.DarkGray;
                     }
                 }
 
