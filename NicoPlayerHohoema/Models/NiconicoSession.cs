@@ -95,15 +95,15 @@ namespace NicoPlayerHohoema.Models
         /// <summary>
         /// ユーザーID
         /// </summary>
-        private uint? _UserId;
-        public uint? UserId
+        private uint _UserId;
+        public uint UserId
         {
             get { return _UserId; }
             private set
             {
                 if (SetProperty(ref _UserId, value))
                 {
-                    UserIdString = _UserId?.ToString();
+                    UserIdString = _UserId.ToString();
                     RaisePropertyChanged(nameof(UserIdString));
                 }
             }
@@ -271,6 +271,7 @@ namespace NicoPlayerHohoema.Models
             {
                 IsLoggedIn = false;
                 HandleLoginError(e);
+                return;
             }
 
             IsLoggedIn = true;
@@ -294,11 +295,12 @@ namespace NicoPlayerHohoema.Models
                     Debugger.Break();
                 }
 #endif
+                return;
             }
 
             LogIn?.Invoke(this, new NiconicoSessionLoginEventArgs()
             {
-                UserId = UserId.Value,
+                UserId = UserId,
                 IsPremium = userInfo.IsPremium,
                 UserName = UserName,
                 UserIconUrl = UserIconUrl,
@@ -427,8 +429,8 @@ namespace NicoPlayerHohoema.Models
 
             using (var releaser = await SigninLock.LockAsync())
             {
-                UserId = null;
                 UserName = null;
+                UserId = default(uint);
                 UserIconUrl = null;
 
                 IsLoggedIn = false;
@@ -456,8 +458,6 @@ namespace NicoPlayerHohoema.Models
                 finally
                 {
                     Context = new NiconicoContext();
-
-                    _UserId = null;
 
                 }
             }
