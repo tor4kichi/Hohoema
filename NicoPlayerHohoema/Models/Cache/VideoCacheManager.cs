@@ -485,6 +485,8 @@ namespace NicoPlayerHohoema.Models.Cache
             {
                 await ResumeCacheDownload();
             }
+
+            return;
         }
 
 
