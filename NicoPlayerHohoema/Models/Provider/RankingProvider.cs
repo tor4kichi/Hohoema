@@ -15,14 +15,5 @@ namespace NicoPlayerHohoema.Models.Provider
         {
         }
 
-        public async Task<NiconicoVideoRss> GetCategoryRanking(RankingCategory category, RankingTarget target, RankingTimeSpan timeSpan)
-        {
-            return await ContextActionAsync(async context => 
-            {
-                return await NiconicoRanking.GetRankingData(target, timeSpan, category);
-            });
-        }
-
-
     }
 }

@@ -430,6 +430,7 @@
     </Compile>
     <Compile Include="Views\Interaction\Actions\ScrollViewerVerticalPositionSettingsAction.cs" />
     <Compile Include="Views\Interaction\Behaviors\FocusGetter.cs" />
+    <Compile Include="Views\Interaction\Behaviors\ListViewItemTappedCommandBehavior.cs" />
     <Compile Include="Views\Interaction\Behaviors\MultiSelection.cs" />
     <Compile Include="Views\Interaction\Input\AutoHideCursor.cs" />
     <Compile Include="Views\Interaction\Flyout\MenuFlyoutItemsSetter.cs" />

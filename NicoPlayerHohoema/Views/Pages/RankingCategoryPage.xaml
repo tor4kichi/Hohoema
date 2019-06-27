@@ -172,6 +172,7 @@
                                                 >
                                 </AppBarButton>
 
+                              <!--
                                 <AppBarButton Label="{Binding SelectedRankingTarget.Value, Mode=OneWay, Converter={StaticResource ToLocalText}}" 
                                                     IsEnabled="{Binding CanChangeSort.Value}"
                                                     x:Name="RankingTargetButton"
@@ -214,7 +215,7 @@
                                         </Flyout>
                                     </AppBarButton.Flyout>
                                 </AppBarButton>
-
+-->
 
                             </CommandBar.PrimaryCommands>
 

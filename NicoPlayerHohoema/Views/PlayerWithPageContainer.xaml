@@ -54,6 +54,7 @@
                       >
                     <Frame x:Name="PlayerFrame"
                            VerticalContentAlignment="Stretch"
+                           DataContext="{x:Null}"
                                             >
                         <Frame.ContentTransitions>
                             <TransitionCollection>
