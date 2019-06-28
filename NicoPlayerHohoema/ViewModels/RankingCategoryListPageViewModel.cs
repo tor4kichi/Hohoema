@@ -38,14 +38,14 @@ namespace NicoPlayerHohoema.ViewModels
             _RankingGenreItemsSource = new List<RankingGenreItem>();
 
             FavoriteItems = new ObservableCollection<RankingItem>(GetFavoriteRankingItems());
-            /*
+            
             _RankingGenreItemsSource.Add(new FavoriteRankingGenreGroupItem()
             {
-                Label = "FavoriteRanking".ToCulturelizeString(),
+                Label = "お気に入りタグ",
                 IsDisplay = true,
                 Items = new AdvancedCollectionView(FavoriteItems),
             });
-            */
+            
 
             var sourceGenreItems = Enum.GetValues(typeof(RankingGenre)).Cast<RankingGenre>()
                 .Where(x => x != RankingGenre.R18)
@@ -101,7 +101,7 @@ namespace NicoPlayerHohoema.ViewModels
                     if (string.IsNullOrEmpty(args.Tag))
                     {
                         genreItem.IsDisplay = true;
-                        RankingSettings.HiddenGenres.Remove(args.RankingGenre);
+                        RankingSettings.RemoveHiddenGenre(args.RankingGenre);
                         _ = RankingSettings.Save();
 
                         _RankingGenreItems.Clear();
@@ -125,7 +125,7 @@ namespace NicoPlayerHohoema.ViewModels
                         if (sameTagItem != null)
                         {
                             sameTagItem.IsDisplay = true;
-                            RankingSettings.HiddenTags.Remove(args.Tag);
+                            RankingSettings.RemoveHiddenTag(args.RankingGenre, args.Tag);
                             _ = RankingSettings.Save();
 
                             System.Diagnostics.Debug.WriteLine($"Tag Show: {args.Tag}");
@@ -142,7 +142,7 @@ namespace NicoPlayerHohoema.ViewModels
                     if (string.IsNullOrEmpty(args.Tag))
                     {
                         genreItem.IsDisplay = false;
-                        RankingSettings.HiddenGenres.Add(args.RankingGenre);
+                        RankingSettings.AddHiddenGenre(args.RankingGenre);
                         _ = RankingSettings.Save();
 
                         _RankingGenreItems.Clear();
@@ -166,7 +166,7 @@ namespace NicoPlayerHohoema.ViewModels
                         if (sameTagItem != null)
                         {
                             sameTagItem.IsDisplay = false;
-                            RankingSettings.HiddenTags.Add(args.Tag);
+                            RankingSettings.AddHiddenTag(sameTagItem.Genre.Value, sameTagItem.Tag, sameTagItem.Label);
                             _ = RankingSettings.Save();
                             System.Diagnostics.Debug.WriteLine($"Tag Hidden: {args.Tag}");
                         }
@@ -179,16 +179,18 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     if (false == FavoriteItems.Any(x => x.Genre == args.RankingGenre && x.Tag == args.Tag))
                     {
-                        FavoriteItems.Add(new RankingItem()
+                        var addedItem = new RankingItem()
                         {
                             Genre = args.RankingGenre,
                             IsDisplay = true,
                             IsFavorite = true,
                             Label = args.Label,
                             Tag = args.Tag
-                        });
+                        };
 
-                        SetFavoriteRankingItems(FavoriteItems);
+                        FavoriteItems.Add(addedItem);
+                        RankingSettings.AddFavoriteTag(addedItem.Genre.Value, addedItem.Tag, addedItem.Label);
+                        _ = RankingSettings.Save();
                         System.Diagnostics.Debug.WriteLine($"Favorite added: {args.Label}");
                     }
                 })
@@ -201,7 +203,8 @@ namespace NicoPlayerHohoema.ViewModels
                     if (unFavoriteItem != null)
                     {
                         FavoriteItems.Remove(unFavoriteItem);
-                        SetFavoriteRankingItems(FavoriteItems);
+                        RankingSettings.RemoveFavoriteTag(unFavoriteItem.Genre.Value, unFavoriteItem.Tag);
+                        _ = RankingSettings.Save();
                         System.Diagnostics.Debug.WriteLine($"Favorite removed: {args.RankingGenre} {args.Tag}");
                     }
                 })
@@ -219,33 +222,26 @@ namespace NicoPlayerHohoema.ViewModels
                 .Select(y => new RankingItem()
                 {
                     Genre = genre,
-                    IsDisplay = !rankingSettings.IsHiddenTag(y.Tag),
+                    IsDisplay = !rankingSettings.IsHiddenTag(genre, y.Tag),
                     Label = y.DisplayName,
                     Tag = y.Tag
                 }
             );
         }
 
-        static IEnumerable<RankingItem> GetFavoriteRankingItems()
+        IEnumerable<RankingItem> GetFavoriteRankingItems()
         {
-            return Database.Local.RankingGenreTagsDb.GetFavoriteItems()
+            return RankingSettings.FavoriteTags
                  .Select(y => new RankingItem()
                  {
+                     Genre = y.Genre,
                      IsDisplay = true,
-                     Label = y.DisplayName,
+                     Label = y.Label,
                      Tag = y.Tag,
                      IsFavorite = true
                  });
         }
 
-        static void SetFavoriteRankingItems(IEnumerable<RankingItem> items)
-        {
-            Database.Local.RankingGenreTagsDb.SetFavoriteItems(items.Select(x => new Database.Local.RankingGenreTag()
-            {
-                DisplayName = x.Label,
-                Tag = x.Tag
-            }));
-        }
 
         static RankingCategoryListPageViewModel()
         {

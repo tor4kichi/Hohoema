@@ -49,7 +49,7 @@ namespace NicoPlayerHohoema.ViewModels
             CanChangeRankingParameter = new ReactiveProperty<bool>(false)
                 .AddTo(_CompositeDisposable);
 
-            SelectedRankingTag = new ReactiveProperty<RankingGenreTag>(mode:ReactivePropertyMode.DistinctUntilChanged);
+            SelectedRankingTag = new ReactiveProperty<Database.Local.RankingGenreTag>(mode:ReactivePropertyMode.DistinctUntilChanged);
             SelectedRankingTerm = new ReactiveProperty<RankingTerm?>(RankingTerm.Hour, mode: ReactivePropertyMode.DistinctUntilChanged);
 
             new[] {
@@ -137,12 +137,12 @@ namespace NicoPlayerHohoema.ViewModels
             set => SetProperty(ref _RankingGenre, value);
         }
 
-        public ReactiveProperty<RankingGenreTag> SelectedRankingTag { get; private set; }
+        public ReactiveProperty<Database.Local.RankingGenreTag> SelectedRankingTag { get; private set; }
         public ReactiveProperty<RankingTerm?> SelectedRankingTerm { get; private set; }
 
         public IReadOnlyReactiveProperty<RankingTerm[]> CurrentSelectableRankingTerms { get; }
 
-        public ObservableCollection<RankingGenreTag> PickedTags { get; } = new ObservableCollection<RankingGenreTag>();
+        public ObservableCollection<Database.Local.RankingGenreTag> PickedTags { get; } = new ObservableCollection<Database.Local.RankingGenreTag>();
 
 
         public ReactiveProperty<bool> IsFailedRefreshRanking { get; private set; }

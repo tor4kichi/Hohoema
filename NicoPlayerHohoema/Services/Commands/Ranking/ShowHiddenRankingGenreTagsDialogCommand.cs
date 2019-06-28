@@ -45,7 +45,7 @@ namespace NicoPlayerHohoema.Services.Commands.Ranking
             // 「人気のタグ」から外れたであろうタグを非表示対象から除去する
             foreach (var tag in rankingSettings.HiddenTags.ToArray())
             {
-                if (!tagToDisplayNameMap.ContainsKey(tag))
+                if (!tagToDisplayNameMap.ContainsKey(tag.Tag))
                 {
                     rankingSettings.HiddenTags.Remove(tag);
 
@@ -56,7 +56,7 @@ namespace NicoPlayerHohoema.Services.Commands.Ranking
 
             var items = Enumerable.Concat(
                 rankingSettings.HiddenGenres.Select(x => new HiddenGenreItem() { Label = x.ToCulturelizeString(), Genre = x }),
-                rankingSettings.HiddenTags.Select(x => new HiddenGenreItem() { Label = $"{tagToDisplayNameMap[x].Item2} - {tagToDisplayNameMap[x].Item1.ToCulturelizeString()}" , Tag = x, Genre = tagToDisplayNameMap[x].Item1 })
+                rankingSettings.HiddenTags.Select(x => new HiddenGenreItem() { Label = $"{x.Label} - {x.Genre.ToCulturelizeString()}" , Tag = x.Tag, Genre = x.Genre })
                 )
                 .ToArray();
 

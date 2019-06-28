@@ -132,7 +132,8 @@
 
         <GridView.ItemTemplate>
           <DataTemplate>
-            <TextBlock Text="{Binding Label}" />
+            <TextBlock Text="{Binding Label}"
+                       />
           </DataTemplate>
         </GridView.ItemTemplate>
       </GridView>

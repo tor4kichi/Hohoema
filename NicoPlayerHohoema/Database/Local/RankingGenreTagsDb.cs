@@ -49,26 +49,7 @@ namespace NicoPlayerHohoema.Database.Local
         {
             var db = HohoemaLiteDb.GetLocalLiteRepository();
             var genreCode = genre.ToString();
-            return db.Delete< RankingGenreTagsInfo>(x => x.GenreCode == genreCode) > 0;
-        }
-
-
-
-        const string FavoriteId = "__Faovrite__";
-        public static List<RankingGenreTag> GetFavoriteItems()
-        {
-            var db = HohoemaLiteDb.GetLocalLiteRepository();
-            return db.SingleOrDefault<RankingGenreTagsInfo>(x => x.GenreCode == FavoriteId)?.Tags ?? new List<RankingGenreTag>();
-        }
-
-        public static void SetFavoriteItems(IEnumerable<RankingGenreTag> tags)
-        {
-            var db = HohoemaLiteDb.GetLocalLiteRepository();
-            db.Upsert<RankingGenreTagsInfo>(new RankingGenreTagsInfo()
-            {
-                GenreCode = FavoriteId,
-                Tags = tags.ToList()
-            } );
+            return db.Delete<RankingGenreTagsInfo>(x => x.GenreCode == genreCode) > 0;
         }
     }
 }

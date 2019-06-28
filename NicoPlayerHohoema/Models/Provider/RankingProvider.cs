@@ -16,7 +16,7 @@ namespace NicoPlayerHohoema.Models.Provider
         {
         }
 
-        public async Task<List<RankingGenreTag>> GetRankingGenreTagsAsync(RankingGenre genre, bool isForceUpdate = false)
+        public async Task<List<Database.Local.RankingGenreTag>> GetRankingGenreTagsAsync(RankingGenre genre, bool isForceUpdate = false)
         {
             if (isForceUpdate)
             {
@@ -29,7 +29,7 @@ namespace NicoPlayerHohoema.Models.Provider
             }
 
             var tagsRaw = await NiconicoRanking.GetGenrePickedTagAsync(genre);
-            var tags = tagsRaw.Select(x => new RankingGenreTag() { DisplayName = x.DisplayName, Tag = x.Tag }).ToList();
+            var tags = tagsRaw.Select(x => new Database.Local.RankingGenreTag() { DisplayName = x.DisplayName, Tag = x.Tag }).ToList();
             Database.Local.RankingGenreTagsDb.Upsert(genre, tags);
             return tags;
         }
