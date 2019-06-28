@@ -1,4 +1,5 @@
 ﻿using Mntone.Nico2.Videos.Ranking;
+using NicoPlayerHohoema.Database.Local;
 using NicoPlayerHohoema.Models.Helpers;
 using System;
 using System.Collections.Generic;
@@ -15,14 +16,27 @@ namespace NicoPlayerHohoema.Models.Provider
         {
         }
 
-        public async Task<Mntone.Nico2.RssVideoResponse> GetCategoryRanking(RankingGenre genre, RankingTerm? term = null, string tag = null, int page = 1)
+        public async Task<List<RankingGenreTag>> GetRankingGenreTagsAsync(RankingGenre genre, bool isForceUpdate = false)
         {
-            return await ContextActionAsync(async context => 
+            if (isForceUpdate)
             {
-                return await NiconicoRanking.GetRankingRssAsync(genre, term, tag, page);
-            });
+                Database.Local.RankingGenreTagsDb.Delete(genre);
+            }
+            else
+            {
+                var cachedTags = Database.Local.RankingGenreTagsDb.Get(genre);
+                if (cachedTags.Any()) { return cachedTags; }
+            }
+
+            var tagsRaw = await NiconicoRanking.GetGenrePickedTagAsync(genre);
+            var tags = tagsRaw.Select(x => new RankingGenreTag() { DisplayName = x.DisplayName, Tag = x.Tag }).ToList();
+            Database.Local.RankingGenreTagsDb.Upsert(genre, tags);
+            return tags;
         }
 
-
+        public async Task<Mntone.Nico2.RssVideoResponse> GetRankingGenreWithTagAsync(RankingGenre genre, string tag, RankingTerm term, int page = 1)
+        {
+            return await NiconicoRanking.GetRankingRssAsync(genre, tag, term, page);
+        }
     }
 }

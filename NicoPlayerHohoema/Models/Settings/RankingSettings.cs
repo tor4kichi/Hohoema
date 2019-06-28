@@ -20,8 +20,26 @@ namespace NicoPlayerHohoema.Models
 		{
 		}
 
+        [DataMember]
+        public HashSet<string> HiddenTags { get; set; } = new HashSet<string>();
 
-		public void ResetCategoryPriority()
+        [DataMember]
+        public HashSet<RankingGenre> HiddenGenres { get; set; } = new HashSet<RankingGenre>();
+        
+
+        public bool IsHiddenTag(string tag)
+        {
+            return HiddenTags.Contains(tag);
+        }
+
+        public bool IsHiddenGenre(RankingGenre genre)
+        {
+            return HiddenGenres.Contains(genre);
+        }
+
+
+
+        public void ResetCategoryPriority()
 		{
             Save().ConfigureAwait(false);
 		}

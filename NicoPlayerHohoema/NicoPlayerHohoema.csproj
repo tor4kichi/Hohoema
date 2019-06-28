@@ -132,6 +132,8 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Database\Local\RankingGenreTagsDb.cs" />
+    <Compile Include="Events\RankingGenreCustomizeEvent.cs" />
     <Compile Include="Models\Niconico\INiconicoStreamingSessionProvider.cs" />
     <Compile Include="Models\Niconico\Video\Comment\NicoScript.cs" />
     <Compile Include="Services\Commands\AddMylistCommand.cs" />
@@ -145,6 +147,10 @@
     <Compile Include="Services\Commands\NicoLiveUserIdAddToNGCommand.cs" />
     <Compile Include="Services\Commands\NicoLiveUserIdRemoveFromNGCommand.cs" />
     <Compile Include="Services\Commands\OpenBroadcasterInfoCommand.cs" />
+    <Compile Include="Services\Commands\Ranking\FavoriteRankingGenreItemCommand.cs" />
+    <Compile Include="Services\Commands\Ranking\HiddenRankingGenreItemCommand.cs" />
+    <Compile Include="Services\Commands\Ranking\ShowHiddenRankingGenreTagsDialogCommand.cs" />
+    <Compile Include="Services\Commands\Ranking\UnFavoriteRankingGenreItemCommand.cs" />
     <Compile Include="Services\Commands\RemoveSearchHistoryCommand.cs" />
     <Compile Include="Services\Commands\Subscriptions\CreateSubscriptionGroupCommand.cs" />
     <Compile Include="Database\Local\Bookmark.cs" />
@@ -414,6 +420,12 @@
     <Compile Include="Views\Extensions\ListViewBase\ListViewItemDeferInitialize.cs" />
     <Compile Include="Views\Flyouts\MylistVideoItemFlyout.xaml.cs">
       <DependentUpon>MylistVideoItemFlyout.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Flyouts\RankingGenreItemFlyout.xaml.cs">
+      <DependentUpon>RankingGenreItemFlyout.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Flyouts\RankingGenreItemGroupFlyout.xaml.cs">
+      <DependentUpon>RankingGenreItemGroupFlyout.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Flyouts\SubscriptionItemFlyout.xaml.cs">
       <DependentUpon>SubscriptionItemFlyout.xaml</DependentUpon>
@@ -853,6 +865,14 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Page>
     <Page Include="Views\Flyouts\MylistVideoItemFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Flyouts\RankingGenreItemFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Flyouts\RankingGenreItemGroupFlyout.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

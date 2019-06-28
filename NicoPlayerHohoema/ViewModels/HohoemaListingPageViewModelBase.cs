@@ -14,6 +14,8 @@ using System.Threading;
 using Microsoft.Toolkit.Uwp.UI;
 using Windows.UI.Xaml.Data;
 using Prism.Navigation;
+using System.Reactive.Concurrency;
+using Prism.Ioc;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -46,12 +48,14 @@ namespace NicoPlayerHohoema.ViewModels
                 .ToReactiveProperty()
                 .AddTo(_CompositeDisposable);
 
-
+            _scheduler = App.Current.Container.Resolve<IScheduler>();
         }
 
-        private AsyncLock _ItemsUpdateLock = new AsyncLock();
+        private Models.Helpers.AsyncLock _ItemsUpdateLock = new Models.Helpers.AsyncLock();
 
-		
+
+        IScheduler _scheduler;
+
         public DateTime LatestUpdateTime = DateTime.Now;
 
         public override void Destroy()
@@ -127,23 +131,23 @@ namespace NicoPlayerHohoema.ViewModels
 
                     MaxItemsCount.Value = await source.ResetSource();
 
-                    var items = new IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>(source);
-
-                    items.BeginLoading += BeginLoadingItems;
-                    items.DoneLoading += CompleteLoadingItems;
-
-                    if (items.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
+                    _scheduler.Schedule(() =>
                     {
-                        (items.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error += HohoemaIncrementalSource_Error;
-                    }
+                        var items = new IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>(source);
 
+                        items.BeginLoading += BeginLoadingItems;
+                        items.DoneLoading += CompleteLoadingItems;
 
-                    ItemsView = new AdvancedCollectionView(items);
-                    
-                    RaisePropertyChanged(nameof(ItemsView));
+                        if (items.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
+                        {
+                            (items.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error += HohoemaIncrementalSource_Error;
+                        }
 
+                        ItemsView = new AdvancedCollectionView(items);
+                        RaisePropertyChanged(nameof(ItemsView));
 
-                    PostResetList();
+                        PostResetList();
+                    });
                 }
                 catch
                 {

@@ -12,24 +12,34 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+  xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:deviceTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
-    NavigationCacheMode="Enabled"
+  xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts"
+  xmlns:mycommands="using:NicoPlayerHohoema.Services.Commands.Ranking"
+  NavigationCacheMode="Enabled"
     DataContext="{x:Null}"
     mc:Ignorable="d"
     >
 
 
-    <Page.Transitions>
-        <TransitionCollection>
-            <NavigationThemeTransition>
-                <DrillInNavigationTransitionInfo />
-            </NavigationThemeTransition>
-        </TransitionCollection>
-    </Page.Transitions>
+  <Page.Transitions>
+    <TransitionCollection>
+      <NavigationThemeTransition>
+        <DrillInNavigationTransitionInfo />
+      </NavigationThemeTransition>
+    </TransitionCollection>
+  </Page.Transitions>
+  
+  <Page.Resources>
+    <flyouts:RankingGenreItemGroupFlyout x:Key="RankingGenreItemGroupFlyout" />
 
+    <DataTemplate x:Key="RankingGenreItemFlyoutTemplate">
+      <flyouts:RankingGenreItemFlyout />
+    </DataTemplate>
+  </Page.Resources>
 
   <Grid x:Name="ContentLayoutRoot">
 
@@ -67,9 +77,16 @@
                     x:Name="HeaderLayout"
                     >
         <StackPanel >
-          <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
+          <CommandBar Background="Transparent">
 
             <CommandBar.PrimaryCommands>
+              <AppBarButton Label="設定"
+                            Icon="Setting"
+                            >
+                <AppBarButton.Command>
+                  <mycommands:ShowHiddenRankingGenreTagsDialogCommand />
+                </AppBarButton.Command>
+              </AppBarButton>
             </CommandBar.PrimaryCommands>
 
           </CommandBar>
@@ -77,19 +94,48 @@
 
       </Border>
 
-      <ListView ItemsSource="{Binding RankingGenreItems}"
-                x:Name="GenreItems"
+      <GridView x:Name="GenreItems"
+                ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                ScrollViewer.HorizontalScrollMode="Auto"
+                ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                ScrollViewer.VerticalScrollMode="Disabled"
+                ItemsSource="{Binding RankingGenreItems.View}"
+                myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource RankingGenreItemFlyoutTemplate}"
                 >
+
+        <GridView.ItemsPanel>
+          <ItemsPanelTemplate>
+            <ItemsWrapGrid Orientation="Vertical" />
+          </ItemsPanelTemplate>
+        </GridView.ItemsPanel>
 
         <i:Interaction.Behaviors>
           <mybehavior:ListViewItemTappedCommandBehavior Command="{Binding OpenRankingPageCommand}" />
         </i:Interaction.Behaviors>
-        <ListView.ItemTemplate>
+
+        <GridView.GroupStyle>
+          <GroupStyle>
+            <GroupStyle.HeaderTemplate>
+              <DataTemplate>
+                <HyperlinkButton FontSize="18" Foreground="{StaticResource ApplicationHeaderForegroundThemeBrush}"
+                                 Command="{Binding ElementName=ContentLayout, Path=DataContext.OpenRankingPageCommand}"
+                                 CommandParameter="{Binding}"
+                                 ContextFlyout="{StaticResource RankingGenreItemGroupFlyout}"
+                                 >
+                  <TextBlock Text="{Binding Label}" />
+                </HyperlinkButton>
+
+              </DataTemplate>
+            </GroupStyle.HeaderTemplate>
+          </GroupStyle>
+        </GridView.GroupStyle>
+
+        <GridView.ItemTemplate>
           <DataTemplate>
-            <TextBlock Text="{Binding Genre, Converter={StaticResource ToLocalText}}" />
+            <TextBlock Text="{Binding Label}" />
           </DataTemplate>
-        </ListView.ItemTemplate>
-      </ListView>
+        </GridView.ItemTemplate>
+      </GridView>
 
     </toolkit:DockPanel>
 

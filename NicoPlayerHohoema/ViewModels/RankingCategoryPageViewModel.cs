@@ -18,6 +18,10 @@ using Prism.Navigation;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Services.Helpers;
 using Prism.Commands;
+using System.Collections.ObjectModel;
+using NicoPlayerHohoema.Database.Local;
+using System.Diagnostics;
+using System.Reactive.Concurrency;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -27,54 +31,118 @@ namespace NicoPlayerHohoema.ViewModels
             PageManager pageManager,
             Services.HohoemaPlaylist hohoemaPlaylist,
             NicoVideoProvider nicoVideoProvider,
+            RankingProvider rankingProvider,
             RankingSettings rankingSettings,
-            NGSettings ngSettings
+            NGSettings ngSettings,
+            IScheduler scheduler
             )
         {
             PageManager = pageManager;
             HohoemaPlaylist = hohoemaPlaylist;
             NicoVideoProvider = nicoVideoProvider;
+            RankingProvider = rankingProvider;
             RankingSettings = rankingSettings;
             NgSettings = ngSettings;
-
+            _scheduler = scheduler;
             IsFailedRefreshRanking = new ReactiveProperty<bool>(false)
                 .AddTo(_CompositeDisposable);
             CanChangeRankingParameter = new ReactiveProperty<bool>(false)
                 .AddTo(_CompositeDisposable);
 
-            SelectedRankingTag = new ReactiveProperty<string>();
-            SelectedRankingTerm = new ReactiveProperty<RankingTerm>(RankingTerm.Hour);
+            SelectedRankingTag = new ReactiveProperty<RankingGenreTag>(mode:ReactivePropertyMode.DistinctUntilChanged);
+            SelectedRankingTerm = new ReactiveProperty<RankingTerm?>(RankingTerm.Hour, mode: ReactivePropertyMode.DistinctUntilChanged);
 
-            /*
             new[] {
-                SelectedRankingTarget.ToUnit(),
-                SelectedRankingTimeSpan.ToUnit()
+                this.ObserveProperty(x => RankingGenre, isPushCurrentValueAtFirst:false).ToUnit(),
+                SelectedRankingTag.ToUnit(),
+                SelectedRankingTerm.ToUnit()
             }
             .Merge()
+            .Where(_ => _IsNavigateCompleted)
+            .Throttle(TimeSpan.FromMilliseconds(250))
             .Subscribe(__ =>
             {
                 _ = ResetList();
             })
             .AddTo(_CompositeDisposable);
-            */
+
+
+            CurrentSelectableRankingTerms = new[]
+            {
+                this.ObserveProperty(x => RankingGenre).ToUnit(),
+                SelectedRankingTag.ToUnit()
+            }
+            .Merge()
+            .Select(x =>
+            {
+                if (RankingGenre != RankingGenre.HotTopic)
+                {
+                    if (string.IsNullOrEmpty(SelectedRankingTag.Value?.Tag))
+                    {
+                        return NiconicoRanking.Constants.AllRankingTerms;
+                    }
+                    else
+                    {
+                        return NiconicoRanking.Constants.GenreWithTagAccepteRankingTerms;
+                    }
+                }
+                else
+                {
+                    return NiconicoRanking.Constants.HotTopicAccepteRankingTerms;
+                }
+            })
+            .ToReadOnlyReactivePropertySlim()
+                .AddTo(_CompositeDisposable);
+
+            CurrentSelectableRankingTerms
+                .Delay(TimeSpan.FromMilliseconds(50))
+                .Subscribe(x =>
+            {
+                SelectedRankingTerm.Value = x[0];
+            })
+                .AddTo(_CompositeDisposable);
+
+
         }
 
         protected override bool TryGetHohoemaPin(out HohoemaPin pin)
         {
+            var genreName = RankingGenre.ToCulturelizeString();
+            var tag = SelectedRankingTag.Value?.Tag;
+            var pickedTag = PickedTags.FirstOrDefault(x => x.Tag == tag);
+            string parameter = null;
+            if (string.IsNullOrEmpty(pickedTag?.Tag) || pickedTag.Tag == "all")
+            {
+                pickedTag = null;
+                parameter = $"genre={RankingGenre}";
+            }
+            else
+            {
+                parameter = $"genre={RankingGenre}&tag={Uri.EscapeDataString(SelectedRankingTag.Value.Tag)}";
+            }
             pin = new HohoemaPin()
             {
-                Label = RankingGenre.ToCulturelizeString(),
+                Label = pickedTag != null ? $"{pickedTag.DisplayName} - {genreName}" : $"{genreName}",
                 PageType = HohoemaPageType.RankingCategory,
-                Parameter = $"genre={RankingGenre}&tag={SelectedRankingTag.Value}"
+                Parameter = parameter
             };
 
             return true;
         }
 
-        public RankingGenre RankingGenre { get; private set; }
+        private RankingGenre _RankingGenre;
+        public RankingGenre RankingGenre
+        {
+            get => _RankingGenre;
+            set => SetProperty(ref _RankingGenre, value);
+        }
 
-        public ReactiveProperty<string> SelectedRankingTag { get; private set; }
-        public ReactiveProperty<RankingTerm> SelectedRankingTerm { get; private set; }
+        public ReactiveProperty<RankingGenreTag> SelectedRankingTag { get; private set; }
+        public ReactiveProperty<RankingTerm?> SelectedRankingTerm { get; private set; }
+
+        public IReadOnlyReactiveProperty<RankingTerm[]> CurrentSelectableRankingTerms { get; }
+
+        public ObservableCollection<RankingGenreTag> PickedTags { get; } = new ObservableCollection<RankingGenreTag>();
 
 
         public ReactiveProperty<bool> IsFailedRefreshRanking { get; private set; }
@@ -83,12 +151,15 @@ namespace NicoPlayerHohoema.ViewModels
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public RankingSettings RankingSettings { get; }
+        public RankingProvider RankingProvider { get; }
         public NGSettings NgSettings { get; }
 
-
         private static RankingGenre? _previousRankingGenre;
+        private readonly IScheduler _scheduler;
 
-        public override Task OnNavigatedToAsync(INavigationParameters parameters)
+        bool _IsNavigateCompleted = false;
+
+        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             var mode = parameters.GetNavigationMode();
             if (mode == NavigationMode.New)
@@ -109,16 +180,41 @@ namespace NicoPlayerHohoema.ViewModels
                     throw new Exception("ランキングページの表示に失敗");
                 }
 
-                if (parameters.TryGetValue("tag", out string tag))
+                // TODO: 人気のタグ、いつ再更新を掛ける
+                try
                 {
-                    if (!string.IsNullOrEmpty(tag))
+                    PickedTags.Clear();
+                    var tags = await RankingProvider.GetRankingGenreTagsAsync(RankingGenre);
+                    foreach (var tag in tags)
                     {
-                        SelectedRankingTag.Value = tag;
+                        PickedTags.Add(tag);
                     }
-                    else
+                }
+                catch { }
+
+
+                if (parameters.TryGetValue("tag", out string queryTag))
+                {
+                    if (!string.IsNullOrEmpty(queryTag))
                     {
-                        SelectedRankingTag.Value = null;
+                        var unescapedTagString = Uri.UnescapeDataString(queryTag);
+
+                        var tag = PickedTags.FirstOrDefault(x => x.Tag == unescapedTagString);
+                        if (tag != null)
+                        {
+                            SelectedRankingTag.Value = tag;
+                        }
+                        else
+                        {
+                            Debug.WriteLine("無効なタグです: " + unescapedTagString);
+                            SelectedRankingTag.Value = PickedTags.FirstOrDefault();
+                        }                            
                     }
+                }
+
+                if (SelectedRankingTag.Value == null)
+                {
+                    SelectedRankingTag.Value = PickedTags.FirstOrDefault();
                 }
             }
             else
@@ -126,13 +222,16 @@ namespace NicoPlayerHohoema.ViewModels
                 RankingGenre = _previousRankingGenre.Value;
             }
 
+            _IsNavigateCompleted = true;
+
             PageManager.PageTitle = RankingGenre.ToCulturelizeString();
 
-            return base.OnNavigatedToAsync(parameters);
+            await base.OnNavigatedToAsync(parameters);
         }
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
+            _IsNavigateCompleted = false;
             _previousRankingGenre = RankingGenre;
 
             base.OnNavigatedFrom(parameters);
@@ -148,7 +247,7 @@ namespace NicoPlayerHohoema.ViewModels
             IIncrementalSource<RankedVideoInfoControlViewModel> source = null;
             try
             {
-                source = new CategoryRankingLoadingSource(RankingGenre, SelectedRankingTerm.Value, SelectedRankingTag.Value, NgSettings);
+                source = new CategoryRankingLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, NgSettings);
 
                 CanChangeRankingParameter.Value = true;
             }
@@ -171,9 +270,9 @@ namespace NicoPlayerHohoema.ViewModels
     public class CategoryRankingLoadingSource : HohoemaIncrementalSourceBase<RankedVideoInfoControlViewModel>
     {
         public CategoryRankingLoadingSource(
-            RankingGenre genre, 
-            RankingTerm? term, 
-            string tag, 
+            RankingGenre genre,
+            string tag,
+            RankingTerm term, 
             NGSettings ngSettings
             )
             : base()
@@ -185,17 +284,15 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public RankingGenre Genre { get; }
-        public RankingTerm? Term { get; }
+        public RankingTerm Term { get; }
         public string Tag { get; }
         public NGSettings NgSettings { get; }
 
         Mntone.Nico2.RssVideoResponse RankingRss;
 
-        readonly Regex RankingRankPrefixPatternRegex = new Regex("(^第\\d*位：)");
-
         #region Implements HohoemaPreloadingIncrementalSourceBase		
 
-        public override uint OneTimeLoadCount => 100;
+        public override uint OneTimeLoadCount => 20;
 
         protected override Task<IAsyncEnumerable<RankedVideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
         {
@@ -220,7 +317,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override async Task<int> ResetSourceImpl()
         {
-            RankingRss = await NiconicoRanking.GetRankingRssAsync(Genre, Term, Tag);
+            RankingRss = await NiconicoRanking.GetRankingRssAsync(Genre, Tag, Term);
 
             return RankingRss.Items.Count;
 

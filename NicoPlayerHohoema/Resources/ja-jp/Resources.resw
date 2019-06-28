@@ -580,4 +580,28 @@
     <value>乗り物</value>
     <comment>RankingGenre</comment>
   </data>
+  <data name="Day" xml:space="preserve">
+    <value>24h</value>
+    <comment>RankingTerm</comment>
+  </data>
+  <data name="HotTopic" xml:space="preserve">
+    <value>話題</value>
+    <comment>RankingGenre</comment>
+  </data>
+  <data name="Hour" xml:space="preserve">
+    <value>毎時</value>
+    <comment>RankingTerm</comment>
+  </data>
+  <data name="Month" xml:space="preserve">
+    <value>毎月</value>
+    <comment>RankingTerm</comment>
+  </data>
+  <data name="Total" xml:space="preserve">
+    <value>全期間</value>
+    <comment>RankingTerm</comment>
+  </data>
+  <data name="Week" xml:space="preserve">
+    <value>毎週</value>
+    <comment>RankingTerm</comment>
+  </data>
 </root>
