@@ -59,6 +59,7 @@
             <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
+            <Setter Target="GenreItems.Margin" Value="8 8 0 0" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -66,6 +67,7 @@
             <AdaptiveTrigger MinWindowWidth="0" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
+            <Setter Target="GenreItems.Margin" Value="8 8 0 0" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -77,15 +79,22 @@
                     x:Name="HeaderLayout"
                     >
         <StackPanel >
-          <CommandBar Background="Transparent">
+          <CommandBar Background="Transparent" Margin="0 0 8 0">
 
             <CommandBar.PrimaryCommands>
               <AppBarButton Label="設定"
                             Icon="Setting"
                             >
-                <AppBarButton.Command>
-                  <mycommands:ShowHiddenRankingGenreTagsDialogCommand />
-                </AppBarButton.Command>
+                <AppBarButton.Flyout>
+                  <MenuFlyout Placement="Bottom">
+                    <MenuFlyoutItem Text="隠したジャンルやタグを再表示">
+                      <MenuFlyoutItem.Command>
+                        <mycommands:ShowHiddenRankingGenreTagsDialogCommand />
+                      </MenuFlyoutItem.Command>
+                    </MenuFlyoutItem>
+                  </MenuFlyout>
+                </AppBarButton.Flyout>
+                
               </AppBarButton>
             </CommandBar.PrimaryCommands>
 
@@ -101,8 +110,15 @@
                 ScrollViewer.VerticalScrollMode="Disabled"
                 ItemsSource="{Binding RankingGenreItems.View}"
                 myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource RankingGenreItemFlyoutTemplate}"
+                SelectionMode="None"
+                SingleSelectionFollowsFocus="False"
                 >
-
+        <myExtensions:ListViewBase.GroupHeaderContextFlyoutTemplate>
+          <DataTemplate>
+            <flyouts:RankingGenreItemGroupFlyout />
+          </DataTemplate>
+        </myExtensions:ListViewBase.GroupHeaderContextFlyoutTemplate>
+        
         <GridView.ItemsPanel>
           <ItemsPanelTemplate>
             <ItemsWrapGrid Orientation="Vertical" />
@@ -111,31 +127,58 @@
 
         <i:Interaction.Behaviors>
           <mybehavior:ListViewItemTappedCommandBehavior Command="{Binding OpenRankingPageCommand}" />
+          
         </i:Interaction.Behaviors>
 
         <GridView.GroupStyle>
           <GroupStyle>
+            
             <GroupStyle.HeaderTemplate>
               <DataTemplate>
-                <HyperlinkButton FontSize="18" Foreground="{StaticResource ApplicationHeaderForegroundThemeBrush}"
+                <Border>
+                  <HyperlinkButton FontSize="18"
+                                 Foreground="{StaticResource ApplicationHeaderForegroundThemeBrush}"
                                  Command="{Binding ElementName=ContentLayout, Path=DataContext.OpenRankingPageCommand}"
                                  CommandParameter="{Binding}"
-                                 ContextFlyout="{StaticResource RankingGenreItemGroupFlyout}"
+                                 Width="128"
+                                 IsEnabled="{Binding Genre, Converter={StaticResource NotNullToBoolean}}"
                                  >
-                  <TextBlock Text="{Binding Label}" />
-                </HyperlinkButton>
+                    <TextBlock Text="{Binding Label}" />
+                  </HyperlinkButton>
+                </Border>
+                
 
               </DataTemplate>
             </GroupStyle.HeaderTemplate>
+
+            <GroupStyle.HeaderContainerStyle>
+              <Style TargetType="GridViewHeaderItem">
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="IsTabStop" Value="False" />
+              </Style>
+            </GroupStyle.HeaderContainerStyle>
           </GroupStyle>
         </GridView.GroupStyle>
 
         <GridView.ItemTemplate>
           <DataTemplate>
             <TextBlock Text="{Binding Label}"
+                       TextWrapping="Wrap"
+                       
                        />
           </DataTemplate>
         </GridView.ItemTemplate>
+
+        <GridView.ItemContainerStyle>
+          <Style TargetType="GridViewItem">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0 0 8 8" />
+            <Setter Property="MinWidth" Value="140" />
+            <Setter Property="BorderBrush" Value="{StaticResource SystemBaseLowColor}" />
+            <Setter Property="BorderThickness" Value="1" />
+            
+          </Style>
+        </GridView.ItemContainerStyle>
       </GridView>
 
     </toolkit:DockPanel>

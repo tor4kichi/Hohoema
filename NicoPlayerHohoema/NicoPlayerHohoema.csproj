@@ -417,6 +417,7 @@
     <Compile Include="ViewModels\PlayerSidePaneContent\LiveCommentSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\SidePaneContentViewModelBase.cs" />
     <Compile Include="Views\Extensions\Flyout\FlyoutCustomContext.cs" />
+    <Compile Include="Views\Extensions\ListViewBase\GroupHeaderContextFlyoutTemplate.cs" />
     <Compile Include="Views\Extensions\ListViewBase\ListViewItemDeferInitialize.cs" />
     <Compile Include="Views\Flyouts\MylistVideoItemFlyout.xaml.cs">
       <DependentUpon>MylistVideoItemFlyout.xaml</DependentUpon>

@@ -26,10 +26,11 @@
     </MenuFlyoutItem.Command>
   </MenuFlyoutItem>
 
-  <MenuFlyoutSeparator />
+  <MenuFlyoutSeparator Visibility="{Binding IsFavorite, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}" />
 
   <MenuFlyoutItem Text="このタグを隠す"
                   CommandParameter="{Binding}"
+                  Visibility="{Binding IsFavorite, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}"
                   >
     <MenuFlyoutItem.Command>
       <myCommands:HiddenRankingGenreItemCommand />
