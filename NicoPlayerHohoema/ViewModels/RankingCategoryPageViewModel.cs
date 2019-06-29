@@ -22,6 +22,7 @@ using System.Collections.ObjectModel;
 using NicoPlayerHohoema.Database.Local;
 using System.Diagnostics;
 using System.Reactive.Concurrency;
+using Prism.Events;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -35,7 +36,8 @@ namespace NicoPlayerHohoema.ViewModels
             RankingProvider rankingProvider,
             RankingSettings rankingSettings,
             NGSettings ngSettings,
-            IScheduler scheduler
+            IScheduler scheduler,
+            IEventAggregator eventAggregator
             )
         {
             PageManager = pageManager;
@@ -45,6 +47,7 @@ namespace NicoPlayerHohoema.ViewModels
             RankingSettings = rankingSettings;
             NgSettings = ngSettings;
             _scheduler = scheduler;
+            _eventAggregator = eventAggregator;
             IsFailedRefreshRanking = new ReactiveProperty<bool>(false)
                 .AddTo(_CompositeDisposable);
             CanChangeRankingParameter = new ReactiveProperty<bool>(false)
@@ -172,7 +175,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         private static RankingGenre? _previousRankingGenre;
         private readonly IScheduler _scheduler;
-
+        private readonly IEventAggregator _eventAggregator;
         bool _IsNavigateCompleted = false;
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
@@ -208,7 +211,6 @@ namespace NicoPlayerHohoema.ViewModels
                 }
                 catch { }
 
-
                 if (parameters.TryGetValue("tag", out string queryTag))
                 {
                     if (!string.IsNullOrEmpty(queryTag))
@@ -242,7 +244,51 @@ namespace NicoPlayerHohoema.ViewModels
 
             PageManager.PageTitle = RankingGenre.ToCulturelizeString();
 
-            
+
+            HasError.Subscribe(async _ =>
+            {
+                try
+                {
+                    PickedTags.Clear();
+                    var tags = await RankingProvider.GetRankingGenreTagsAsync(RankingGenre, isForceUpdate: true);
+                    foreach (var tag in tags)
+                    {
+                        PickedTags.Add(tag);
+                    }
+
+                    var sameGenreFavTags = RankingSettings.FavoriteTags.Where(x => x.Genre == RankingGenre).ToArray();
+                    foreach (var oldFavTag in sameGenreFavTags)
+                    {
+                        if (false == PickedTags.Any(x => x.Tag == oldFavTag.Tag))
+                        {
+                            RankingSettings.RemoveFavoriteTag(RankingGenre, oldFavTag.Tag);
+                        }
+                    }
+
+                    var __ = RankingSettings.Save();
+
+                    var selectedTag = SelectedRankingTag.Value;
+                    if (selectedTag.Tag != null)
+                    {
+                        if (false == PickedTags.Any(x => x.Tag == selectedTag.Tag))
+                        {
+                            SelectedRankingTag.Value = PickedTags.ElementAtOrDefault(0);
+
+                            _eventAggregator.GetEvent<InAppNotificationEvent>().Publish(new InAppNotificationPayload()
+                            {
+                                Content = $"「{selectedTag.DisplayName}」は人気のタグの一覧から外れたようです",
+                                ShowDuration = TimeSpan.FromSeconds(5),
+                                SymbolIcon = Windows.UI.Xaml.Controls.Symbol.Important
+                            });
+                        }
+                    }
+                }
+                catch
+                {
+
+                }
+            })
+                .AddTo(_NavigatingCompositeDisposable);
 
             await base.OnNavigatedToAsync(parameters);
         }
@@ -272,8 +318,7 @@ namespace NicoPlayerHohoema.ViewModels
             catch
             {
                 IsFailedRefreshRanking.Value = true;
-            }
-
+            }            
 
             return source;
         }
