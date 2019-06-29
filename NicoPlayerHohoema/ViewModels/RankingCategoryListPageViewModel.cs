@@ -121,7 +121,7 @@ namespace NicoPlayerHohoema.ViewModels
                     }
                     else
                     {
-                        var sameTagItem = genreItem.Items.FirstOrDefault(x => (x as RankingItem).Tag == args.Tag) as RankingItem;
+                        var sameTagItem = genreItem.Items.SourceCollection.Cast<RankingItem>().FirstOrDefault(x => x.Tag == args.Tag);
                         if (sameTagItem != null)
                         {
                             sameTagItem.IsDisplay = true;
@@ -162,7 +162,7 @@ namespace NicoPlayerHohoema.ViewModels
                     }
                     else
                     {
-                        var sameTagItem = genreItem.Items.FirstOrDefault(x => (x as RankingItem).Tag == args.Tag) as RankingItem;
+                        var sameTagItem = genreItem.Items.SourceCollection.Cast<RankingItem>().FirstOrDefault(x => x.Tag == args.Tag);
                         if (sameTagItem != null)
                         {
                             sameTagItem.IsDisplay = false;
