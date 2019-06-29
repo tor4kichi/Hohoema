@@ -114,7 +114,7 @@ namespace NicoPlayerHohoema.ViewModels
              .AddTo(_CompositeDisposable);
 
             CurrentSelectableRankingTerms
-               .Delay(TimeSpan.FromMilliseconds(5))
+               .Delay(TimeSpan.FromMilliseconds(50))
                .Subscribe(x =>
                {
                    SelectedRankingTerm.Value = x[0];
@@ -183,6 +183,7 @@ namespace NicoPlayerHohoema.ViewModels
             var mode = parameters.GetNavigationMode();
             if (mode == NavigationMode.New)
             {
+                SelectedRankingTag.Value = null;
                 if (parameters.TryGetValue("genre", out RankingGenre genre))
                 {
                     RankingGenre = genre;
@@ -245,16 +246,27 @@ namespace NicoPlayerHohoema.ViewModels
             PageManager.PageTitle = RankingGenre.ToCulturelizeString();
 
 
-            HasError.Subscribe(async _ =>
+            HasError
+                .Where(x => x)
+                .Subscribe(async _ =>
             {
                 try
                 {
-                    PickedTags.Clear();
-                    var tags = await RankingProvider.GetRankingGenreTagsAsync(RankingGenre, isForceUpdate: true);
-                    foreach (var tag in tags)
+                    try
                     {
-                        PickedTags.Add(tag);
+                        var tags = await RankingProvider.GetRankingGenreTagsAsync(RankingGenre, isForceUpdate: true);
+                        PickedTags.Clear();
+                        foreach (var tag in tags)
+                        {
+                            PickedTags.Add(tag);
+                        }
                     }
+                    catch
+                    {
+                        return;
+                    }
+
+                    
 
                     var sameGenreFavTags = RankingSettings.FavoriteTags.Where(x => x.Genre == RankingGenre).ToArray();
                     foreach (var oldFavTag in sameGenreFavTags)
