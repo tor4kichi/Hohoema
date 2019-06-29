@@ -27,6 +27,7 @@ namespace NicoPlayerHohoema.ViewModels
 {
     public class RankingCategoryPageViewModel : HohoemaListingPageViewModelBase<RankedVideoInfoControlViewModel>, INavigatedAwareAsync
     {
+        static Models.Helpers.AsyncLock _updateLock = new Models.Helpers.AsyncLock();
         public RankingCategoryPageViewModel(
             PageManager pageManager,
             Services.HohoemaPlaylist hohoemaPlaylist,
@@ -49,23 +50,8 @@ namespace NicoPlayerHohoema.ViewModels
             CanChangeRankingParameter = new ReactiveProperty<bool>(false)
                 .AddTo(_CompositeDisposable);
 
-            SelectedRankingTag = new ReactiveProperty<Database.Local.RankingGenreTag>(mode:ReactivePropertyMode.DistinctUntilChanged);
-            SelectedRankingTerm = new ReactiveProperty<RankingTerm?>(RankingTerm.Hour, mode: ReactivePropertyMode.DistinctUntilChanged);
-
-            new[] {
-                this.ObserveProperty(x => RankingGenre, isPushCurrentValueAtFirst:false).ToUnit(),
-                SelectedRankingTag.ToUnit(),
-                SelectedRankingTerm.ToUnit()
-            }
-            .Merge()
-            .Where(_ => _IsNavigateCompleted)
-            .Throttle(TimeSpan.FromMilliseconds(250))
-            .Subscribe(__ =>
-            {
-                _ = ResetList();
-            })
-            .AddTo(_CompositeDisposable);
-
+            SelectedRankingTag = new ReactiveProperty<Database.Local.RankingGenreTag>();
+            SelectedRankingTerm = new ReactiveProperty<RankingTerm?>(RankingTerm.Hour);
 
             CurrentSelectableRankingTerms = new[]
             {
@@ -94,13 +80,43 @@ namespace NicoPlayerHohoema.ViewModels
             .ToReadOnlyReactivePropertySlim()
                 .AddTo(_CompositeDisposable);
 
+            new[] {
+                this.ObserveProperty(x => RankingGenre, isPushCurrentValueAtFirst:true).ToUnit(),
+                SelectedRankingTag.ToUnit(),
+                SelectedRankingTerm.ToUnit()
+            }
+             .CombineLatest()
+             .Where(_ => _IsNavigateCompleted)
+             .Throttle(TimeSpan.FromMilliseconds(100))
+             .Subscribe(async __ =>
+             {
+                 using (await _updateLock.LockAsync())
+                 {
+                     var rankingSource = ItemsView?.Source as CategoryRankingLoadingSource;
+                     if (rankingSource != null)
+                     {
+                         if (rankingSource.Genre == this.RankingGenre
+                         && rankingSource.Term == SelectedRankingTerm.Value
+                         && rankingSource.Tag == SelectedRankingTag.Value?.Tag
+                         )
+                         {
+                             Debug.WriteLine("ランキング更新をスキップ");
+                             return;
+                         }
+                     }
+
+                     _ = ResetList();
+                 }
+             })
+             .AddTo(_CompositeDisposable);
+
             CurrentSelectableRankingTerms
-                .Delay(TimeSpan.FromMilliseconds(50))
-                .Subscribe(x =>
-            {
-                SelectedRankingTerm.Value = x[0];
-            })
-                .AddTo(_CompositeDisposable);
+               .Delay(TimeSpan.FromMilliseconds(5))
+               .Subscribe(x =>
+               {
+                   SelectedRankingTerm.Value = x[0];
+               })
+               .AddTo(_CompositeDisposable);
 
 
         }
@@ -225,6 +241,8 @@ namespace NicoPlayerHohoema.ViewModels
             _IsNavigateCompleted = true;
 
             PageManager.PageTitle = RankingGenre.ToCulturelizeString();
+
+            
 
             await base.OnNavigatedToAsync(parameters);
         }
