@@ -30,6 +30,11 @@ namespace NicoPlayerHohoema.Views.Behaviors
             AssociatedObject.ItemClick += AssociatedObject_ItemClick;
         }
 
+        protected override void OnDetaching()
+        {
+            AssociatedObject.ItemClick -= AssociatedObject_ItemClick;
+        }
+
         private void AssociatedObject_ItemClick(object sender, Windows.UI.Xaml.Controls.ItemClickEventArgs e)
         {
             var command = Command;

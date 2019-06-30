@@ -16,6 +16,7 @@ using Windows.UI.Xaml.Data;
 using Prism.Mvvm;
 using Prism.Events;
 using Reactive.Bindings.Extensions;
+using System.Diagnostics;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -264,6 +265,8 @@ namespace NicoPlayerHohoema.ViewModels
         
         internal void OnRankingCategorySelected(RankingItem info)
         {
+            Debug.WriteLine("OnRankingCategorySelected" + info.Genre);
+
             var p = new NavigationParameters
             {
                 { "genre", info.Genre.ToString() },

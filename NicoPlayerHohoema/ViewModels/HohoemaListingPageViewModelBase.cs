@@ -104,6 +104,9 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected async Task ResetList()
 		{
+            await Task.CompletedTask;
+
+            
             using (var releaser = await _ItemsUpdateLock.LockAsync())
             {
                 HasItem.Value = true;
@@ -156,6 +159,7 @@ namespace NicoPlayerHohoema.ViewModels
                     Debug.WriteLine("failed GenerateIncrementalSource.");
                 }
             }
+            
 		}
 
 		private void HohoemaIncrementalSource_Error()
