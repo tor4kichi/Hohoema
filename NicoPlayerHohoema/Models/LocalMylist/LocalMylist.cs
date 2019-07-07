@@ -1,5 +1,4 @@
-﻿using Mntone.Nico2.Videos.Thumbnail;
-using Prism.Commands;
+﻿using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -124,6 +123,6 @@ namespace NicoPlayerHohoema.Models.LocalMylist
 
         public string ProviderName => string.Empty;
 
-        public UserType ProviderType => UserType.User;
+        public Database.NicoVideoUserType ProviderType => Database.NicoVideoUserType.User;
     }
 }

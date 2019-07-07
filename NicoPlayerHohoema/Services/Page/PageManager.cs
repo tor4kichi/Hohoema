@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Models;
+﻿using NicoPlayerHohoema.Database;
+using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Helpers;
@@ -312,11 +313,11 @@ namespace NicoPlayerHohoema.Services
                         }
 
                     case Interfaces.IVideoContent videoContent:
-                        if (videoContent.ProviderType == Mntone.Nico2.Videos.Thumbnail.UserType.User)
+                        if (videoContent.ProviderType == NicoVideoUserType.User)
                         {
                             OpenPageWithId(HohoemaPageType.UserVideo, videoContent.ProviderId);
                         }
-                        else if (videoContent.ProviderType == Mntone.Nico2.Videos.Thumbnail.UserType.Channel)
+                        else if (videoContent.ProviderType == NicoVideoUserType.Channel)
                         {
                             OpenPageWithId(HohoemaPageType.ChannelVideo, videoContent.ProviderId);
                         }
@@ -357,13 +358,13 @@ namespace NicoPlayerHohoema.Services
             switch (parameter)
             {
                 case Interfaces.IVideoContent videoContent:
-                    if (videoContent.ProviderType == Mntone.Nico2.Videos.Thumbnail.UserType.User)
+                    if (videoContent.ProviderType == NicoVideoUserType.User)
                     {
                         var p = new NavigationParameters();
                         p.Add("id", videoContent.ProviderId);
                         OpenPage(HohoemaPageType.UserInfo, p);
                     }
-                    else if (videoContent.ProviderType == Mntone.Nico2.Videos.Thumbnail.UserType.Channel)
+                    else if (videoContent.ProviderType == NicoVideoUserType.Channel)
                     {
                         var p = new NavigationParameters();
                         p.Add("id", videoContent.ProviderId);

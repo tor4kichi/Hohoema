@@ -1,5 +1,4 @@
-﻿using Mntone.Nico2.Videos.Thumbnail;
-using Mntone.Nico2.Videos.WatchAPI;
+﻿using Mntone.Nico2.Videos.WatchAPI;
 using NicoPlayerHohoema.Models.Helpers;
 using Prism.Mvvm;
 using System;
@@ -388,7 +387,7 @@ namespace NicoPlayerHohoema.Models.Cache
             }
         }
 
-        static public string MakeCacheVideoFileName(string title, string videoId, MovieType videoType, NicoVideoQuality quality)
+        static public string MakeCacheVideoFileName(string title, string videoId, Database.MovieType videoType, NicoVideoQuality quality)
         {
             string toQualityNameExtention;
             // Note: 後尾に.mp4はダミー拡張子

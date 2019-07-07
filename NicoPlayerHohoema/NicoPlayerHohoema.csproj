@@ -217,6 +217,9 @@
     <Compile Include="Views\Dialogs\NiconicoTwoFactorAuthDialog.xaml.cs">
       <DependentUpon>NiconicoTwoFactorAuthDialog.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Dialogs\TwoFactorAuthDialog.xaml.cs">
+      <DependentUpon>TwoFactorAuthDialog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Dialogs\_ContentSelectDialog\ChoiceFromListSelectableContainer.cs" />
     <Compile Include="Views\Dialogs\_ContentSelectDialog\ContentSelectDialogDefaultSet.cs" />
     <Compile Include="Views\Dialogs\_ContentSelectDialog\ISelectableContainer.cs" />
@@ -290,7 +293,6 @@
     <Compile Include="Models\Niconico\Live\LiveStatusType.cs" />
     <Compile Include="Models\Niconico\Live\LiveSuggestion.cs" />
     <Compile Include="Models\Niconico\Live\LiveVidePagePayload.cs" />
-    <Compile Include="Models\Niconico\Live\NicoLiveCommentClient.cs" />
     <Compile Include="Models\Niconico\Live\NicoLiveInfoType.cs" />
     <Compile Include="Models\Niconico\Live\NicoLiveVideo.cs" />
     <Compile Include="Services\Page\PagePayload\LoginRedirectPayload.cs" />
@@ -865,6 +867,10 @@
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Page>
+    <Page Include="Views\Dialogs\TwoFactorAuthDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Flyouts\MylistVideoItemFlyout.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1225,8 +1231,8 @@
     <PackageReference Include="FFmpegInterop.UWP">
       <Version>1.0.4</Version>
     </PackageReference>
-    <PackageReference Include="HtmlAgilityPack.NetCore">
-      <Version>1.5.0.1</Version>
+    <PackageReference Include="HtmlAgilityPack">
+      <Version>1.11.8</Version>
     </PackageReference>
     <PackageReference Include="LiteDB">
       <Version>4.1.2</Version>
@@ -1235,7 +1241,7 @@
       <Version>1.9.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.1.9</Version>
+      <Version>6.1.12</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp">
       <Version>2.2.0</Version>
@@ -1247,7 +1253,7 @@
       <Version>2.2.0</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
-      <Version>12.0.1</Version>
+      <Version>12.0.2</Version>
     </PackageReference>
     <PackageReference Include="Prism.Unity.Windows">
       <Version>7.2.0</Version>
@@ -1273,9 +1279,9 @@
     <Folder Include="ViewModels\ListItem\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OpenNiconico2\Mntone.Nico2.UWP\Mntone.Nico2.UWP.csproj">
-      <Project>{bbf8857d-550a-4228-b9fc-52c38d5346f1}</Project>
-      <Name>Mntone.Nico2.UWP</Name>
+    <ProjectReference Include="..\OpenNiconico2\Mntone.Nico2.UWP_Latest\Mntone.Nico2.UWP_Latest.csproj">
+      <Project>{cc63ef1d-ecd6-478d-8852-5c45fbbf697a}</Project>
+      <Name>Mntone.Nico2.UWP_Latest</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

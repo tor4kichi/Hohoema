@@ -1,7 +1,6 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Videos.Comment;
 using Mntone.Nico2.Videos.Dmc;
-using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Cache;
@@ -571,7 +570,12 @@ namespace NicoPlayerHohoema.ViewModels
         Database.NicoVideo _VideoInfo;
 
 
-        public Models.Subscription.SubscriptionSource? SubscriptionSource => this._VideoInfo?.Owner != null ? (new Models.Subscription.SubscriptionSource(_VideoInfo.Owner.ScreenName, _VideoInfo.Owner.UserType == Mntone.Nico2.Videos.Thumbnail.UserType.User ? Models.Subscription.SubscriptionSourceType.User : Models.Subscription.SubscriptionSourceType.Channel, _VideoInfo.Owner.OwnerId)) : default(Models.Subscription.SubscriptionSource);
+        public Models.Subscription.SubscriptionSource? SubscriptionSource => this._VideoInfo?.Owner != null 
+            ? new Models.Subscription.SubscriptionSource(_VideoInfo.Owner.ScreenName, _VideoInfo.Owner.UserType == Database.NicoVideoUserType.User 
+                ? Models.Subscription.SubscriptionSourceType.User 
+                : Models.Subscription.SubscriptionSourceType.Channel, _VideoInfo.Owner.OwnerId)
+            : default(Models.Subscription.SubscriptionSource)
+            ;
         
 
 
@@ -2645,7 +2649,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         string IVideoContent.ProviderName => _VideoInfo.Owner?.ScreenName;
 
-        UserType IVideoContent.ProviderType => _VideoInfo.Owner.UserType;
+        Database.NicoVideoUserType IVideoContent.ProviderType => _VideoInfo.Owner.UserType;
 
         string INiconicoObject.Id => _VideoInfo.RawVideoId;
 

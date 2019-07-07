@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
@@ -14,7 +15,6 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Windows.Web.Http;
 
 // コンテンツ ダイアログの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
@@ -28,20 +28,25 @@ namespace NicoPlayerHohoema.Dialogs
                 nameof(WebViewContent),
                 typeof(object),
                 typeof(NiconicoTwoFactorAuthDialog),
-                new PropertyMetadata(null, (x, y) => 
+                new PropertyMetadata(null, async (x, y) => 
                 {
                     var @this = x as NiconicoTwoFactorAuthDialog;
-                    if (@this.WebViewContent is HttpRequestMessage)
+                    if (@this.WebViewContent is HttpResponseMessage res)
                     {
-                        @this.WebView.NavigateWithHttpRequestMessage(@this.WebViewContent as HttpRequestMessage);
-                    }
-                    else if (@this.WebViewContent is Uri)
-                    {
-                        @this.WebView.Navigate(@this.WebViewContent as Uri);
-                    }
-                    else if (@this.WebViewContent is string)
-                    {
-                        @this.WebView.NavigateToString(@this.WebViewContent as string);
+                        var m = new Windows.Web.Http.HttpRequestMessage(Windows.Web.Http.HttpMethod.Get, res.Headers.Location);
+                        foreach (var h in res.RequestMessage.Headers)
+                        {
+                            m.Headers.Add(h.Key, string.Join(' ', h.Value));
+                        }
+
+                        var cookies = res.Headers.GetValues("Set-Cookie");
+                        m.Headers.Add("Cookies", cookies.ElementAt(0));
+
+                        m.Headers.Host = new Windows.Networking.HostName("account.nicovideo.jp");
+                        m.Headers.Add("Upgrade-Insecure-Requests", "1");
+                        m.Headers.Referer = new Uri("https://account.nicovideo.jp/login?site=niconico");
+
+                        @this.WebView.NavigateWithHttpRequestMessage(m);
                     }
                 })
                 );
@@ -80,7 +85,7 @@ namespace NicoPlayerHohoema.Dialogs
 
             if (args.Uri != null && !args.Uri.OriginalString.StartsWith(TwoFactorAuthSite))
             {
-                isCompleted = true;
+//                isCompleted = true;
             }
 
             Debug.WriteLine(args.Uri);

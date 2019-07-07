@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Models;
+﻿using NicoPlayerHohoema.Database;
+using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Provider;
 using Prism.Commands;
 using System;
@@ -46,7 +47,7 @@ namespace NicoPlayerHohoema.Commands
                 var ownerName = content.ProviderName;
                 if (string.IsNullOrEmpty(ownerName))
                 {
-                    if (content.ProviderType == Mntone.Nico2.Videos.Thumbnail.UserType.User)
+                    if (content.ProviderType == NicoVideoUserType.User)
                     {
                         try
                         {
@@ -59,7 +60,7 @@ namespace NicoPlayerHohoema.Commands
                             return;
                         }
                     }
-                    else if (content.ProviderType == Mntone.Nico2.Videos.Thumbnail.UserType.Channel)
+                    else if (content.ProviderType == NicoVideoUserType.Channel)
                     {
                         var channelInfo = await ChannelProvider.GetChannelInfo(content.ProviderId);
                         ownerName = channelInfo.Name;
@@ -68,7 +69,7 @@ namespace NicoPlayerHohoema.Commands
                             ?? new Database.NicoVideoOwner()
                             {
                                 OwnerId = channelInfo.ChannelId.ToString(),
-                                UserType = Mntone.Nico2.Videos.Thumbnail.UserType.Channel,
+                                UserType = NicoVideoUserType.Channel,
                             };                        
                         channel.ScreenName = channelInfo.ScreenName ?? channel.ScreenName;
                         Database.NicoVideoOwnerDb.AddOrUpdate(channel);

@@ -28,37 +28,49 @@ namespace NicoPlayerHohoema.Views.Behaviors
 
         private async void AssociatedObject_NavigationCompleted(WebView sender, WebViewNavigationCompletedEventArgs args)
         {
-            var heightString = await this.AssociatedObject.InvokeScriptAsync("eval", new[] { "document.body.scrollHeight.toString()" });
-            int height;
-            if (int.TryParse(heightString, out height))
+            try
             {
-                this.AssociatedObject.Height = height;
+                var heightString = await this.AssociatedObject.InvokeScriptAsync("eval", new[] { "document.body.scrollHeight.toString()" });
+                if (int.TryParse(heightString, out var height))
+                {
+                    this.AssociatedObject.Height = height;
+                }
             }
+            catch { }
 
-            var widthString = await this.AssociatedObject.InvokeScriptAsync("eval", new[] { "document.body.scrollWidth.toString()" });
-            int width;
-            if (int.TryParse(widthString, out width))
+            try
             {
-                this.AssociatedObject.Width = width;
+                var widthString = await this.AssociatedObject.InvokeScriptAsync("eval", new[] { "document.body.scrollWidth.toString()" });
+                if (int.TryParse(widthString, out var width))
+                {
+                    this.AssociatedObject.Width = width;
+                }
             }
+            catch { }
         }
 
         private async void AssociatedObject_LoadCompleted(object sender, Windows.UI.Xaml.Navigation.NavigationEventArgs e)
 		{
-			var heightString = await this.AssociatedObject.InvokeScriptAsync("eval", new[] { "document.body.scrollHeight.toString()" });
-			int height;
-			if (int.TryParse(heightString, out height))
-			{
-				this.AssociatedObject.Height = height;
-			}
+            try
+            {
+                var heightString = await this.AssociatedObject.InvokeScriptAsync("eval", new[] { "document.body.scrollHeight.toString()" });
+                if (int.TryParse(heightString, out var height))
+                {
+                    this.AssociatedObject.Height = height;
+                }
+            }
+            catch { }
 
-			var widthString = await this.AssociatedObject.InvokeScriptAsync("eval", new[] { "document.body.scrollWidth.toString()" });
-			int width;
-			if (int.TryParse(widthString, out width))
-			{
-				this.AssociatedObject.Width = width;
-			}
-		}
+            try
+            {
+                var widthString = await this.AssociatedObject.InvokeScriptAsync("eval", new[] { "document.body.scrollWidth.toString()" });
+                if (int.TryParse(widthString, out var width))
+                {
+                    this.AssociatedObject.Width = width;
+                }
+            }
+            catch { }
+        }
 
 		protected override void OnDetaching()
 		{

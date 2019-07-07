@@ -1,12 +1,18 @@
-﻿using NicoPlayerHohoema.Models;
+﻿using Mntone.Nico2;
+using NicoPlayerHohoema.Dialogs;
+using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Helpers;
+using NicoPlayerHohoema.Views.Dialogs;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.ApplicationModel.Core;
+using Windows.Foundation;
 using Windows.UI.ViewManagement;
 
 namespace NicoPlayerHohoema.Services
@@ -156,13 +162,13 @@ namespace NicoPlayerHohoema.Services
             var currentView = CoreApplication.GetCurrentView();
             if (currentView.IsMain)
             {
-                await PageManager.StartNoUIWork("二要素認証を処理中...",
-                        () => DialogService.ShowNiconicoTwoFactorLoginDialog(e.TwoFactorAuthPageUri).AsAsyncAction()
+                await PageManager.StartNoUIWork("２段階認証を処理しています...",
+                        () => ShowTwoFactorNumberInputDialogAsync(e.HttpRequestMessage.RequestUri, e.Context).AsAsyncAction()
                         );
             }
             else
             {
-                await DialogService.ShowNiconicoTwoFactorLoginDialog(e.TwoFactorAuthPageUri);
+                await ShowTwoFactorNumberInputDialogAsync(e.HttpRequestMessage.RequestUri, e.Context);
             }
 
             deferral.Complete();
@@ -175,6 +181,28 @@ namespace NicoPlayerHohoema.Services
             {
                 LoginCommand.Execute();
             }
+        }
+
+        async Task ShowTwoFactorNumberInputDialogAsync(Uri uri, NiconicoContext context)
+        {
+            var dialog = new TwoFactorAuthDialog()
+            {
+                IsTrustedDevice = true,
+                DeviceName = "Hohoema_UWP"
+            };
+
+            var result = await dialog.ShowAsync();
+
+            if (result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary)
+            {
+                var codeText = dialog.CodeText;
+                var isTrustedDevice = dialog.IsTrustedDevice;
+                var deviceName = dialog.DeviceName;
+                var mfaResult = await NiconicoSession.TryTwoFactorAuthAsync(uri, context, codeText, isTrustedDevice, deviceName);
+
+                Debug.WriteLine(mfaResult);
+            }
+            
         }
 
         public void Dispose()

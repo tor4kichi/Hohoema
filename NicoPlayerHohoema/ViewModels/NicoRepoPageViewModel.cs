@@ -13,7 +13,6 @@ using System.Collections.ObjectModel;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using System.Collections.Async;
-using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Live;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Services;

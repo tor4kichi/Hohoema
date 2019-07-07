@@ -14,7 +14,6 @@ using Prism.Commands;
 using System.Windows.Input;
 using NicoPlayerHohoema.Interfaces;
 using System.Collections.Async;
-using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Services;
 using Prism.Navigation;
@@ -202,7 +201,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public string ProviderName => string.Empty;
 
-        public UserType ProviderType => UserType.User;
+        public Database.NicoVideoUserType ProviderType => Database.NicoVideoUserType.User;
 
         public string Id => VideoId;
 
