@@ -25,7 +25,10 @@ namespace NicoPlayerHohoema.Models.Provider
             else
             {
                 var cachedTags = Database.Local.RankingGenreTagsDb.Get(genre);
-                if (cachedTags.Any()) { return cachedTags; }
+                if (cachedTags != null && (DateTime.Now - cachedTags.UpdateAt) < TimeSpan.FromHours(6) )
+                {
+                    return cachedTags.Tags;
+                }
             }
 
             var tagsRaw = await NiconicoRanking.GetGenrePickedTagAsync(genre);

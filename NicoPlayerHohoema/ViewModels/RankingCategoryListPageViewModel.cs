@@ -218,7 +218,11 @@ namespace NicoPlayerHohoema.ViewModels
         {
             // アプリ上の要請としてジャンルトップの「すべて」or「話題」を除外して表示したい
             // （GroupItemと表示錠の役割が重複してしまうような、ユーザーを混乱させてしまう可能性を除去したい）
-            return Database.Local.RankingGenreTagsDb.Get(genre)
+            var info = Database.Local.RankingGenreTagsDb.Get(genre);
+
+            if (info == null) { return Enumerable.Empty<RankingItem>(); }
+
+            return info.Tags
                 .Where(x => !string.IsNullOrEmpty(x.Tag) && x.Tag != "all")
                 .Select(y => new RankingItem()
                 {

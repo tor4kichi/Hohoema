@@ -30,7 +30,7 @@ namespace NicoPlayerHohoema.Services.Commands.Ranking
             foreach (var genre in Enum.GetValues(typeof(RankingGenre)).Cast<RankingGenre>().Skip(1))
             {
                 var genreTags = Database.Local.RankingGenreTagsDb.Get(genre);
-                foreach (var genreTag in genreTags)
+                foreach (var genreTag in genreTags?.Tags ?? Enumerable.Empty<Database.Local.RankingGenreTag>())
                 {
                     if (string.IsNullOrEmpty(genreTag.Tag)) { continue; }
 

@@ -20,18 +20,24 @@ namespace NicoPlayerHohoema.Database.Local
         public string GenreCode { get; set; }
 
         [BsonField]
+        public DateTime UpdateAt { get; set; }
+
+        [BsonField]
         public List<RankingGenreTag> Tags { get; set; }
     }
 
+
+    
+
     public class RankingGenreTagsDb
     {
-        public static List<RankingGenreTag> Get(RankingGenre genre)
+        public static RankingGenreTagsInfo Get(RankingGenre genre)
         {
-            if (genre == RankingGenre.All) { return new List<RankingGenreTag>(); }
+            if (genre == RankingGenre.All) { return null; }
 
             var db = HohoemaLiteDb.GetLocalLiteRepository();
             var genreCode = genre.ToString();
-            return db.SingleOrDefault<RankingGenreTagsInfo>(x => x.GenreCode == genreCode)?.Tags ?? new List<RankingGenreTag>();
+            return db.SingleOrDefault<RankingGenreTagsInfo>(x => x.GenreCode == genreCode);
         }
 
         public static bool Upsert(RankingGenre genre, IEnumerable<RankingGenreTag> tags)
@@ -40,7 +46,8 @@ namespace NicoPlayerHohoema.Database.Local
             db.Upsert(new RankingGenreTagsInfo()
             {
                 GenreCode = genre.ToString(),
-                Tags = tags.ToList()
+                Tags = tags.ToList(),
+                UpdateAt = DateTime.Now
             });
             return true;
         }
