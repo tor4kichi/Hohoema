@@ -208,16 +208,8 @@ namespace NicoPlayerHohoema.Models
             }
             else if (session.Data.Session.Protocol.Parameters.HttpParameters.Parameters.HlsParameters != null)
             {
-                _HttpClient = new Windows.Web.Http.HttpClient();
-
-                _HttpClient.DefaultRequestHeaders.UserAgent.ParseAdd(NiconicoSession.Context.HttpClient.DefaultRequestHeaders["User-Agent"]);
-
-                var cookie = NiconicoSession.Context.GetCurrentNicoVideoCookieHeader();
-                _HttpClient.DefaultRequestHeaders.Remove("Cookie");
-                _HttpClient.DefaultRequestHeaders.Add("Cookie", cookie);
-
                 var hlsParameters = session.Data.Session.Protocol.Parameters.HttpParameters.Parameters.HlsParameters;
-                var amsResult = await AdaptiveMediaSource.CreateFromUriAsync(uri, _HttpClient);
+                var amsResult = await AdaptiveMediaSource.CreateFromUriAsync(uri, this.NiconicoSession.Context.HttpClient);
                 if (amsResult.Status == AdaptiveMediaSourceCreationStatus.Success)
                 {
                     await NiconicoSession.Context.Video.SendOfficialHlsWatchAsync(DmcWatchResponse.Video.Id, DmcWatchResponse.Video.DmcInfo.TrackingId);
