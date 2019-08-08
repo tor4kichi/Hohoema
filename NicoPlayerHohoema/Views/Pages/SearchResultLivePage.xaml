@@ -102,7 +102,7 @@
             </i:Interaction.Behaviors>
             
             <ListView.Header>
-                <uwpcontrols:ScrollHeader
+                <controls:ScrollHeader
                     Mode="Sticky"
                     x:Name="ScrollHeader"
                     >
@@ -288,7 +288,7 @@
 
 
                     </StackPanel>
-                </uwpcontrols:ScrollHeader>
+                </controls:ScrollHeader>
                 
             </ListView.Header>
 

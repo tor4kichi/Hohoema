@@ -138,7 +138,7 @@
             
 
             <ListView.Header>
-                <uwpcontrols:ScrollHeader
+                <controls:ScrollHeader
                     x:Name="ScrollHeader"
                     Mode="QuickReturn" >
 
@@ -309,7 +309,7 @@
                     </Grid>
                     
                     
-                </uwpcontrols:ScrollHeader>
+                </controls:ScrollHeader>
             </ListView.Header>
 
             <ListView.ItemTemplate>

@@ -122,7 +122,7 @@
             </i:Interaction.Behaviors>
             <ListView.Header>
 
-                <uwpcontrols:ScrollHeader
+                <controls:ScrollHeader
                     x:Name="ScrollHeader"
                     Mode="QuickReturn" >
                     <StackPanel >
@@ -175,7 +175,7 @@
 
                         </CommandBar>
                     </StackPanel>
-                </uwpcontrols:ScrollHeader>
+                </controls:ScrollHeader>
             </ListView.Header>
 
 

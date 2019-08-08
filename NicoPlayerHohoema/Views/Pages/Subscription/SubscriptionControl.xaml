@@ -20,7 +20,8 @@
     xmlns:subscriptionCommands="using:NicoPlayerHohoema.Views.Subscriptions"
     xmlns:uwpUiExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts"
-    mc:Ignorable="d"
+  xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+  mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
@@ -106,7 +107,7 @@
             </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
 
             <ListView.Header>
-                <uwpcontrols:ScrollHeader Mode="Sticky">
+                <controls:ScrollHeader Mode="Sticky">
                     <Grid>
 
                         <Border x:Name="HiddenVideoTitleRegexFlyoutOwner">
@@ -304,7 +305,7 @@
                         </Border>
                     </Grid>
 
-                </uwpcontrols:ScrollHeader>
+                </controls:ScrollHeader>
             </ListView.Header>
 
 

@@ -87,7 +87,7 @@
                 <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
             </i:Interaction.Behaviors>
             <ListView.Header>
-                <uwpcontrol:ScrollHeader
+                <controls:ScrollHeader
                     x:Name="ScrollHeader"
                     Mode="QuickReturn" >
 
@@ -170,7 +170,7 @@
                     </StackPanel>
 
 
-                </uwpcontrol:ScrollHeader>
+                </controls:ScrollHeader>
             </ListView.Header>
 
 

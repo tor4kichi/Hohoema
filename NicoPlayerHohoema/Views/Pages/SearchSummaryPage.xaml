@@ -17,7 +17,8 @@
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
-    DataContext="{x:Null}"
+  xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
+  DataContext="{x:Null}"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d">
 
@@ -95,12 +96,12 @@
         
         <ScrollViewer>
             <ScrollViewer.TopHeader>
-                <uwpControls:ScrollHeader Mode="QuickReturn">
+                <controls:ScrollHeader Mode="QuickReturn">
                     <Grid x:Name="HeaderLayout"
                           toolkit:DockPanel.Dock="Top"
                           >
                     </Grid>
-                </uwpControls:ScrollHeader>
+                </controls:ScrollHeader>
             </ScrollViewer.TopHeader>
 
             <StackPanel>

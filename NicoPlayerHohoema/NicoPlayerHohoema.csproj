@@ -210,6 +210,11 @@
     <Compile Include="Services\NiconicoFollowToggleButtonService.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\LiveInfoContentViewModelBase.cs" />
     <Compile Include="ViewModels\SubscriptionControlViewModel.cs" />
+    <Compile Include="Views\Controls\ScrollHeaderCustom\QuickReturnHeaderBehavior.cs" />
+    <Compile Include="Views\Controls\ScrollHeaderCustom\ScrollHeader.xaml.cs">
+      <DependentUpon>ScrollHeader.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\ScrollHeaderCustom\StickyHeaderBehavior.cs" />
     <Compile Include="Views\Converters\StringToUriConverter.cs" />
     <Compile Include="Views\Dialogs\NiconicoLoginDialog.xaml.cs">
       <DependentUpon>NiconicoLoginDialog.xaml</DependentUpon>
@@ -825,6 +830,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Views\Controls\ScrollHeaderCustom\ScrollHeader.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Dialogs\NiconicoLoginDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

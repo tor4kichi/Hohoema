@@ -125,7 +125,7 @@
 
             
             <ListView.Header>
-                <uwpcontrols:ScrollHeader 
+                <controls:ScrollHeader 
                     x:Name="ScrollHeader"
                     Mode="Sticky"
                     
@@ -192,7 +192,7 @@
 
 
                     </toolkit:DockPanel>
-                </uwpcontrols:ScrollHeader>
+                </controls:ScrollHeader>
                 
             </ListView.Header>
             
