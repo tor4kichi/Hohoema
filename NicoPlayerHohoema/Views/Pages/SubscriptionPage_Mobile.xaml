@@ -44,7 +44,7 @@
                   >
 
                 <ListView.Header>
-                    <uwpcontrols:ScrollHeader Mode="Sticky">
+                    <controls:ScrollHeader Mode="Sticky">
                         <CommandBar>
                             <AppBarButton Label="購読グループを追加" Icon="Add" AllowFocusOnInteraction="True">
                                 <AppBarButton.Flyout>
@@ -99,7 +99,7 @@
                                           
 
                         </CommandBar>
-                    </uwpcontrols:ScrollHeader>
+                    </controls:ScrollHeader>
                 </ListView.Header>
 
                 <ListView.ItemContainerStyle>

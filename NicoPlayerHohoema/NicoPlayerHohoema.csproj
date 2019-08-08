@@ -28,6 +28,8 @@
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
     <AppInstallerUpdateFrequency>1</AppInstallerUpdateFrequency>
     <AppInstallerCheckForUpdateFrequency>OnApplicationRun</AppInstallerCheckForUpdateFrequency>
+    <GenerateTestArtifacts>True</GenerateTestArtifacts>
+    <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -132,6 +134,8 @@
     <Compile Include="App.xaml.cs">
       <DependentUpon>App.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Database\Local\RankingGenreTagsDb.cs" />
+    <Compile Include="Events\RankingGenreCustomizeEvent.cs" />
     <Compile Include="Models\Niconico\INiconicoStreamingSessionProvider.cs" />
     <Compile Include="Models\Niconico\Video\Comment\NicoScript.cs" />
     <Compile Include="Services\Commands\AddMylistCommand.cs" />
@@ -145,6 +149,10 @@
     <Compile Include="Services\Commands\NicoLiveUserIdAddToNGCommand.cs" />
     <Compile Include="Services\Commands\NicoLiveUserIdRemoveFromNGCommand.cs" />
     <Compile Include="Services\Commands\OpenBroadcasterInfoCommand.cs" />
+    <Compile Include="Services\Commands\Ranking\FavoriteRankingGenreItemCommand.cs" />
+    <Compile Include="Services\Commands\Ranking\HiddenRankingGenreItemCommand.cs" />
+    <Compile Include="Services\Commands\Ranking\ShowHiddenRankingGenreTagsDialogCommand.cs" />
+    <Compile Include="Services\Commands\Ranking\UnFavoriteRankingGenreItemCommand.cs" />
     <Compile Include="Services\Commands\RemoveSearchHistoryCommand.cs" />
     <Compile Include="Services\Commands\Subscriptions\CreateSubscriptionGroupCommand.cs" />
     <Compile Include="Database\Local\Bookmark.cs" />
@@ -204,12 +212,20 @@
     <Compile Include="Services\NiconicoFollowToggleButtonService.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\LiveInfoContentViewModelBase.cs" />
     <Compile Include="ViewModels\SubscriptionControlViewModel.cs" />
+    <Compile Include="Views\Controls\ScrollHeaderCustom\QuickReturnHeaderBehavior.cs" />
+    <Compile Include="Views\Controls\ScrollHeaderCustom\ScrollHeader.xaml.cs">
+      <DependentUpon>ScrollHeader.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Controls\ScrollHeaderCustom\StickyHeaderBehavior.cs" />
     <Compile Include="Views\Converters\StringToUriConverter.cs" />
     <Compile Include="Views\Dialogs\NiconicoLoginDialog.xaml.cs">
       <DependentUpon>NiconicoLoginDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Dialogs\NiconicoTwoFactorAuthDialog.xaml.cs">
       <DependentUpon>NiconicoTwoFactorAuthDialog.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Dialogs\TwoFactorAuthDialog.xaml.cs">
+      <DependentUpon>TwoFactorAuthDialog.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Dialogs\_ContentSelectDialog\ChoiceFromListSelectableContainer.cs" />
     <Compile Include="Views\Dialogs\_ContentSelectDialog\ContentSelectDialogDefaultSet.cs" />
@@ -284,7 +300,6 @@
     <Compile Include="Models\Niconico\Live\LiveStatusType.cs" />
     <Compile Include="Models\Niconico\Live\LiveSuggestion.cs" />
     <Compile Include="Models\Niconico\Live\LiveVidePagePayload.cs" />
-    <Compile Include="Models\Niconico\Live\NicoLiveCommentClient.cs" />
     <Compile Include="Models\Niconico\Live\NicoLiveInfoType.cs" />
     <Compile Include="Models\Niconico\Live\NicoLiveVideo.cs" />
     <Compile Include="Services\Page\PagePayload\LoginRedirectPayload.cs" />
@@ -411,9 +426,16 @@
     <Compile Include="ViewModels\PlayerSidePaneContent\LiveCommentSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\SidePaneContentViewModelBase.cs" />
     <Compile Include="Views\Extensions\Flyout\FlyoutCustomContext.cs" />
+    <Compile Include="Views\Extensions\ListViewBase\GroupHeaderContextFlyoutTemplate.cs" />
     <Compile Include="Views\Extensions\ListViewBase\ListViewItemDeferInitialize.cs" />
     <Compile Include="Views\Flyouts\MylistVideoItemFlyout.xaml.cs">
       <DependentUpon>MylistVideoItemFlyout.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Flyouts\RankingGenreItemFlyout.xaml.cs">
+      <DependentUpon>RankingGenreItemFlyout.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Flyouts\RankingGenreItemGroupFlyout.xaml.cs">
+      <DependentUpon>RankingGenreItemGroupFlyout.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Flyouts\SubscriptionItemFlyout.xaml.cs">
       <DependentUpon>SubscriptionItemFlyout.xaml</DependentUpon>
@@ -432,6 +454,7 @@
     </Compile>
     <Compile Include="Views\Interaction\Actions\ScrollViewerVerticalPositionSettingsAction.cs" />
     <Compile Include="Views\Interaction\Behaviors\FocusGetter.cs" />
+    <Compile Include="Views\Interaction\Behaviors\ListViewItemTappedCommand.cs" />
     <Compile Include="Views\Interaction\Behaviors\MultiSelection.cs" />
     <Compile Include="Views\Interaction\Input\AutoHideCursor.cs" />
     <Compile Include="Views\Interaction\Flyout\MenuFlyoutItemsSetter.cs" />
@@ -809,6 +832,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Views\Controls\ScrollHeaderCustom\ScrollHeader.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Dialogs\NiconicoLoginDialog.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -851,7 +878,19 @@
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Page>
+    <Page Include="Views\Dialogs\TwoFactorAuthDialog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Flyouts\MylistVideoItemFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Flyouts\RankingGenreItemFlyout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Flyouts\RankingGenreItemGroupFlyout.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1203,8 +1242,8 @@
     <PackageReference Include="FFmpegInterop.UWP">
       <Version>1.0.4</Version>
     </PackageReference>
-    <PackageReference Include="HtmlAgilityPack.NetCore">
-      <Version>1.5.0.1</Version>
+    <PackageReference Include="HtmlAgilityPack">
+      <Version>1.11.8</Version>
     </PackageReference>
     <PackageReference Include="LiteDB">
       <Version>4.1.2</Version>
@@ -1213,7 +1252,7 @@
       <Version>1.9.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.1.9</Version>
+      <Version>6.1.12</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp">
       <Version>2.2.0</Version>
@@ -1225,7 +1264,7 @@
       <Version>2.2.0</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
-      <Version>12.0.1</Version>
+      <Version>12.0.2</Version>
     </PackageReference>
     <PackageReference Include="Prism.Unity.Windows">
       <Version>7.2.0</Version>
@@ -1251,9 +1290,9 @@
     <Folder Include="ViewModels\ListItem\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\OpenNiconico2\Mntone.Nico2.UWP\Mntone.Nico2.UWP.csproj">
-      <Project>{bbf8857d-550a-4228-b9fc-52c38d5346f1}</Project>
-      <Name>Mntone.Nico2.UWP</Name>
+    <ProjectReference Include="..\OpenNiconico2\Mntone.Nico2.UWP_Latest\Mntone.Nico2.UWP_Latest.csproj">
+      <Project>{cc63ef1d-ecd6-478d-8852-5c45fbbf697a}</Project>
+      <Name>Mntone.Nico2.UWP_Latest</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup Condition=" '$(VisualStudioVersion)' == '' or '$(VisualStudioVersion)' &lt; '14.0' ">

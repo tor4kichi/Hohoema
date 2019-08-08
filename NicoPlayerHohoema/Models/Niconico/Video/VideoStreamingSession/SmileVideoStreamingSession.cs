@@ -1,6 +1,6 @@
 ﻿using FFmpegInterop;
 using Mntone.Nico2;
-using Mntone.Nico2.Videos.Thumbnail;
+using NicoPlayerHohoema.Database;
 using NicoPlayerHohoema.Models.Helpers;
 using System;
 using System.Threading.Tasks;

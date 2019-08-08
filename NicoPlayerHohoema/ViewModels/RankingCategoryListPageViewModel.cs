@@ -12,201 +12,245 @@ using NicoPlayerHohoema.Services.Helpers;
 using NicoPlayerHohoema.Services;
 using Prism.Navigation;
 using NicoPlayerHohoema.Services.Page;
+using Windows.UI.Xaml.Data;
+using Prism.Mvvm;
+using Prism.Events;
+using Reactive.Bindings.Extensions;
+using System.Diagnostics;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public class RankingCategoryListPageViewModel : HohoemaViewModelBase
     {
         public RankingCategoryListPageViewModel(
-            Services.PageManager pageManager, 
+            Services.PageManager pageManager,
             Services.DialogService dialogService,
-            RankingSettings rankingSettings
+            RankingSettings rankingSettings,
+            IEventAggregator eventAggregator
             )
         {
             PageManager = pageManager;
             HohoemaDialogService = dialogService;
             RankingSettings = rankingSettings;
+            _eventAggregator = eventAggregator;
 
 
-            Func<RankingCategory, bool> checkFavorite = (RankingCategory cat) =>
+            // TODO: ログインユーザーが成年であればR18ジャンルを表示するように
+            _RankingGenreItemsSource = new List<RankingGenreItem>();
+
+            FavoriteItems = new ObservableCollection<RankingItem>(GetFavoriteRankingItems());
+            
+            _RankingGenreItemsSource.Add(new FavoriteRankingGenreGroupItem()
             {
-                return RankingSettings.HighPriorityCategory.Any(x => x.Category == cat);
-            };
-
-
-            RankingCategoryItems = new ObservableCollection<RankingCategoryHostListItem>();
-            FavoriteRankingCategoryItems = new ObservableCollection<RankingCategoryListPageListItem>();
-
-            SelectedRankingCategory = new ReactiveProperty<RankingCategoryListPageListItem>();
-
-            AddFavRankingCategory = new DelegateCommand(async () =>
-            {
-                var items = new AdvancedCollectionView();
-                items.SortDescriptions.Add(new SortDescription("IsFavorit", SortDirection.Descending));
-                items.SortDescriptions.Add(new SortDescription("Category", SortDirection.Ascending));
-
-                var highPriCat = RankingSettings.HighPriorityCategory;
-                var lowPriCat = RankingSettings.LowPriorityCategory;
-                foreach (var i in RankingSettings.HighPriorityCategory)
-                {
-                    items.Add(new CategoryWithFav() { Category = i.Category, IsFavorit = true });
-                }
-
-                var middleRankingCategories = Enum.GetValues(typeof(RankingCategory)).Cast<RankingCategory>()
-                    .Where(x => !highPriCat.Any(h => x == h.Category))
-                    .Where(x => !lowPriCat.Any(l => x == l.Category))
-                    ;
-                foreach (var category in middleRankingCategories)
-                {
-                    items.Add(new CategoryWithFav() { Category = category });
-                }
-                items.Refresh();
-
-                var choiceItems = await HohoemaDialogService.ShowMultiChoiceDialogAsync(
-                    "優先表示にするカテゴリを選択",
-                    items.Cast<CategoryWithFav>().Select(x => new RankingCategoryInfo(x.Category)),
-                    RankingSettings.HighPriorityCategory.ToArray(),
-                    x => x.DisplayLabel
-                    );
-
-                if (choiceItems == null) { return; }
-
-                // choiceItemsに含まれるカテゴリをMiddleとLowから削除
-                RankingSettings.ResetFavoriteCategory();
-
-                // HighにchoiceItemsを追加（重複しないよう注意）
-                foreach (var cat in choiceItems)
-                {
-                    RankingSettings.AddFavoritCategory(cat.Category);
-                }
-
-                await RankingSettings.Save();
-
-                ResetRankingCategoryItems();
+                Label = "お気に入りタグ",
+                IsDisplay = true,
+                Items = new AdvancedCollectionView(FavoriteItems),
             });
+            
 
+            var sourceGenreItems = Enum.GetValues(typeof(RankingGenre)).Cast<RankingGenre>()
+                .Where(x => x != RankingGenre.R18)
+                .Select(x =>
+                {
+                    var acv = new AdvancedCollectionView(new ObservableCollection<RankingItem>(GetGenreTagRankingItems(x, RankingSettings)), isLiveShaping: true)
+                    {
+                        Filter = (item) => (item as RankingItem).IsDisplay,
+                    };
+                    acv.ObserveFilterProperty(nameof(RankingItem.IsDisplay));
+                    return new RankingGenreItem()
+                    {
+                        Genre = x,
+                        Label = x.ToCulturelizeString(),
+                        IsDisplay = !RankingSettings.IsHiddenGenre(x),
+                        Items = acv
+                    };
+                });
 
-
-            AddDislikeRankingCategory = new DelegateCommand(async () =>
+            foreach (var genreItem in sourceGenreItems)
             {
-                var items = new AdvancedCollectionView();
-                items.SortDescriptions.Add(new SortDescription("IsFavorit", SortDirection.Descending));
-                items.SortDescriptions.Add(new SortDescription("Category", SortDirection.Ascending));
+                _RankingGenreItemsSource.Add(genreItem);
+            }
 
-                var highPriCat = RankingSettings.HighPriorityCategory;
-                var lowPriCat = RankingSettings.LowPriorityCategory;
-                foreach (var i in lowPriCat)
+
+            foreach (var item in _RankingGenreItemsSource)
+            {
+                if (item.Genre == null)
                 {
-                    items.Add(new CategoryWithFav() { Category = i.Category, IsFavorit = true });
+                    _RankingGenreItems.Add(item);
                 }
-                var middleRankingCategories = Enum.GetValues(typeof(RankingCategory)).Cast<RankingCategory>()
-                    .Where(x => !highPriCat.Any(h => x == h.Category))
-                    .Where(x => !lowPriCat.Any(l => x == l.Category))
-                    ;
-                foreach (var category in middleRankingCategories)
+                else if (!RankingSettings.IsHiddenGenre(item.Genre.Value))
                 {
-                    items.Add(new CategoryWithFav() { Category = category });
+                    _RankingGenreItems.Add(item);
                 }
-                items.Refresh();
+            }
+            
 
-                var choiceItems = await HohoemaDialogService.ShowMultiChoiceDialogAsync(
-                    "非表示にするカテゴリを選択",
-                    items.Cast<CategoryWithFav>().Select(x => new RankingCategoryInfo(x.Category)),
-                    RankingSettings.LowPriorityCategory,
-                    x => x.DisplayLabel
-                    );
-
-                if (choiceItems == null) { return; }
-
-                // choiceItemsに含まれるカテゴリをMiddleとLowから削除
-                RankingSettings.ResetDislikeCategory();
-
-                // HighにchoiceItemsを追加（重複しないよう注意）
-                foreach (var cat in choiceItems)
+            {
+                RankingGenreItems = new CollectionViewSource()
                 {
-                    RankingSettings.AddDislikeCategory(cat.Category);
-                }
+                    Source = _RankingGenreItems,
+                    ItemsPath = new Windows.UI.Xaml.PropertyPath(nameof(RankingGenreItem.Items)),
+                    IsSourceGrouped = true,
+                };
+            }
 
-                await RankingSettings.Save();
+            _eventAggregator.GetEvent<Events.RankingGenreShowRequestedEvent>()
+                .Subscribe((args) =>
+                {
+                    // Tagの指定が無い場合はジャンル自体の非表示として扱う
+                    var genreItem = _RankingGenreItemsSource.First(x => x.Genre == args.RankingGenre);
+                    if (string.IsNullOrEmpty(args.Tag))
+                    {
+                        genreItem.IsDisplay = true;
+                        RankingSettings.RemoveHiddenGenre(args.RankingGenre);
+                        _ = RankingSettings.Save();
 
-                ResetRankingCategoryItems();
-            });
+                        _RankingGenreItems.Clear();
+                        foreach (var item in _RankingGenreItemsSource)
+                        {
+                            if (item.Genre == null)
+                            {
+                                _RankingGenreItems.Add(item);
+                            }
+                            else if (!RankingSettings.IsHiddenGenre(item.Genre.Value))
+                            {
+                                _RankingGenreItems.Add(item);
+                            }
+                        }
 
-            ResetRankingCategoryItems();
+                        System.Diagnostics.Debug.WriteLine($"Genre Show: {args.RankingGenre}");
+                    }
+                    else
+                    {
+                        var sameTagItem = genreItem.Items.SourceCollection.Cast<RankingItem>().FirstOrDefault(x => x.Tag == args.Tag);
+                        if (sameTagItem != null)
+                        {
+                            sameTagItem.IsDisplay = true;
+                            RankingSettings.RemoveHiddenTag(args.RankingGenre, args.Tag);
+                            _ = RankingSettings.Save();
+
+                            System.Diagnostics.Debug.WriteLine($"Tag Show: {args.Tag}");
+                        }
+                    }
+                })
+                .AddTo(_CompositeDisposable);
+
+            _eventAggregator.GetEvent<Events.RankingGenreHiddenRequestedEvent>()
+                .Subscribe((args) => 
+                {
+                    // Tagの指定が無い場合はジャンル自体の非表示として扱う
+                    var genreItem = _RankingGenreItemsSource.First(x => x.Genre == args.RankingGenre);
+                    if (string.IsNullOrEmpty(args.Tag))
+                    {
+                        genreItem.IsDisplay = false;
+                        RankingSettings.AddHiddenGenre(args.RankingGenre);
+                        _ = RankingSettings.Save();
+
+                        _RankingGenreItems.Clear();
+                        foreach (var item in _RankingGenreItemsSource)
+                        {
+                            if (item.Genre == null)
+                            {
+                                _RankingGenreItems.Add(item);
+                            }
+                            else if (!RankingSettings.IsHiddenGenre(item.Genre.Value))
+                            {
+                                _RankingGenreItems.Add(item);
+                            }
+                        }
+
+                        System.Diagnostics.Debug.WriteLine($"Genre Hidden: {args.RankingGenre}");
+                    }
+                    else
+                    {
+                        var sameTagItem = genreItem.Items.SourceCollection.Cast<RankingItem>().FirstOrDefault(x => x.Tag == args.Tag);
+                        if (sameTagItem != null)
+                        {
+                            sameTagItem.IsDisplay = false;
+                            RankingSettings.AddHiddenTag(sameTagItem.Genre.Value, sameTagItem.Tag, sameTagItem.Label);
+                            _ = RankingSettings.Save();
+                            System.Diagnostics.Debug.WriteLine($"Tag Hidden: {args.Tag}");
+                        }
+                    }                    
+                })
+                .AddTo(_CompositeDisposable);
+
+            _eventAggregator.GetEvent<Events.RankingGenreFavoriteRequestedEvent>()
+                .Subscribe((args) =>
+                {
+                    if (false == FavoriteItems.Any(x => x.Genre == args.RankingGenre && x.Tag == args.Tag))
+                    {
+                        var addedItem = new RankingItem()
+                        {
+                            Genre = args.RankingGenre,
+                            IsDisplay = true,
+                            IsFavorite = true,
+                            Label = args.Label,
+                            Tag = args.Tag
+                        };
+
+                        FavoriteItems.Add(addedItem);
+                        RankingSettings.AddFavoriteTag(addedItem.Genre.Value, addedItem.Tag, addedItem.Label);
+                        _ = RankingSettings.Save();
+                        System.Diagnostics.Debug.WriteLine($"Favorite added: {args.Label}");
+                    }
+                })
+                .AddTo(_CompositeDisposable);
+
+            _eventAggregator.GetEvent<Events.RankingGenreUnFavoriteRequestedEvent>()
+                .Subscribe((args) =>
+                {
+                    var unFavoriteItem = FavoriteItems.FirstOrDefault(x => x.Genre == args.RankingGenre && x.Tag == args.Tag);
+                    if (unFavoriteItem != null)
+                    {
+                        FavoriteItems.Remove(unFavoriteItem);
+                        RankingSettings.RemoveFavoriteTag(unFavoriteItem.Genre.Value, unFavoriteItem.Tag);
+                        _ = RankingSettings.Save();
+                        System.Diagnostics.Debug.WriteLine($"Favorite removed: {args.RankingGenre} {args.Tag}");
+                    }
+                })
+                .AddTo(_CompositeDisposable);
         }
 
-        static private readonly List<List<RankingCategory>> RankingCategories;
+        public ObservableCollection<RankingItem> FavoriteItems { get; set; }
+
+        static IEnumerable<RankingItem> GetGenreTagRankingItems(RankingGenre genre, RankingSettings rankingSettings)
+        {
+            // アプリ上の要請としてジャンルトップの「すべて」or「話題」を除外して表示したい
+            // （GroupItemと表示錠の役割が重複してしまうような、ユーザーを混乱させてしまう可能性を除去したい）
+            var info = Database.Local.RankingGenreTagsDb.Get(genre);
+
+            if (info == null) { return Enumerable.Empty<RankingItem>(); }
+
+            return info.Tags
+                .Where(x => !string.IsNullOrEmpty(x.Tag) && x.Tag != "all")
+                .Select(y => new RankingItem()
+                {
+                    Genre = genre,
+                    IsDisplay = !rankingSettings.IsHiddenTag(genre, y.Tag),
+                    Label = y.DisplayName,
+                    Tag = y.Tag
+                }
+            );
+        }
+
+        IEnumerable<RankingItem> GetFavoriteRankingItems()
+        {
+            return RankingSettings.FavoriteTags
+                 .Select(y => new RankingItem()
+                 {
+                     Genre = y.Genre,
+                     IsDisplay = true,
+                     Label = y.Label,
+                     Tag = y.Tag,
+                     IsFavorite = true
+                 });
+        }
+
 
         static RankingCategoryListPageViewModel()
         {
-            RankingCategories = new List<List<RankingCategory>>()
-            {
-                new List<RankingCategory>()
-                {
-                    RankingCategory.all
-                },
-                new List<RankingCategory>()
-                {
-                    RankingCategory.g_ent2,
-                    RankingCategory.ent,
-                    RankingCategory.music,
-                    RankingCategory.sing,
-                    RankingCategory.dance,
-                    RankingCategory.play,
-                    RankingCategory.vocaloid,
-                    RankingCategory.nicoindies,
-                    RankingCategory.asmr,
-                    RankingCategory.mmd,
-                    RankingCategory.Virtual,
-                },
-                new List<RankingCategory>()
-                {
-                    RankingCategory.g_life2,
-                    RankingCategory.animal,
-                    RankingCategory.cooking,
-                    RankingCategory.nature,
-                    RankingCategory.travel,
-                    RankingCategory.sport,
-                    RankingCategory.lecture,
-                    RankingCategory.drive,
-                    RankingCategory.history,
-                    RankingCategory.train,
-                },
-                new List<RankingCategory>()
-                {
-                    RankingCategory.g_politics
-                },
-                new List<RankingCategory>()
-                {
-                    RankingCategory.g_tech,
-                    RankingCategory.science,
-                    RankingCategory.tech,
-                    RankingCategory.handcraft,
-                    RankingCategory.make,
-                },
-                new List<RankingCategory>()
-                {
-                    RankingCategory.g_culture2,
-                    RankingCategory.anime,
-                    RankingCategory.game,
-                    RankingCategory.jikkyo,
-                    RankingCategory.toho,
-                    RankingCategory.imas,
-                    RankingCategory.radio,
-                    RankingCategory.draw,
-                    RankingCategory.trpg,
-                },
-                new List<RankingCategory>()
-                {
-                    RankingCategory.g_other,
-                    RankingCategory.are,
-                    RankingCategory.diary,
-                    RankingCategory.other,
-
-                }
-
-            };
-
+           
         }
 
         public PageManager PageManager { get; }
@@ -215,65 +259,50 @@ namespace NicoPlayerHohoema.ViewModels
         public RankingSettings RankingSettings { get; }
 
 
-        public ReactiveProperty<RankingCategoryListPageListItem> SelectedRankingCategory { get; }
+        public CollectionViewSource RankingGenreItems { get; }
+        ObservableCollection<RankingGenreItem> _RankingGenreItems = new ObservableCollection<RankingGenreItem>();
+        List<RankingGenreItem> _RankingGenreItemsSource = new List<RankingGenreItem>();
 
-        public ObservableCollection<RankingCategoryListPageListItem> FavoriteRankingCategoryItems { get; private set; }
-        public ObservableCollection<RankingCategoryHostListItem> RankingCategoryItems { get; private set; }
-
-
-        public DelegateCommand AddFavRankingCategory { get; private set; }
-        public DelegateCommand AddDislikeRankingCategory { get; private set; }
-
-
-        void ResetRankingCategoryItems()
+        private DelegateCommand<RankingItem> _OpenRankingPageCommand;
+        public DelegateCommand<RankingItem> OpenRankingPageCommand => _OpenRankingPageCommand
+            ?? (_OpenRankingPageCommand = new DelegateCommand<RankingItem>(OnRankingCategorySelected));
+        
+        internal void OnRankingCategorySelected(RankingItem info)
         {
-            RankingCategoryItems.Clear();
+            Debug.WriteLine("OnRankingCategorySelected" + info.Genre);
 
-            RankingCategoryItems.Add(
-                new RankingCategoryHostListItem("好きなランキング")
-                {
-                    ChildItems = RankingSettings.HighPriorityCategory
-                        .Select(x => new RankingCategoryListPageListItem(x.Category, true, OnRankingCategorySelected))
-                        .ToList()
-                }
-                );
-            foreach (var categoryList in RankingCategories)
-            {
-                // 非表示ランキングを除外したカテゴリリストを作成
-                var label = categoryList.First().ToCulturelizeString();
-
-                var list = categoryList
-                    .Where(x => !RankingSettings.IsDislikeRankingCategory(x))
-                    .Select(x => CreateRankingCategryListItem(x))
-                    .ToList();
-
-                // 表示対象があればリストに追加
-                if (list.Count > 0)
-                {
-                    RankingCategoryItems.Add(new RankingCategoryHostListItem(label) { ChildItems = list });
-                }
-            }
-
-            RaisePropertyChanged(nameof(RankingCategoryItems));
-        }
-
-        internal void OnRankingCategorySelected(RankingCategory info)
-        {
             var p = new NavigationParameters
             {
-                { "category", info }
+                { "genre", info.Genre.ToString() },
+                { "tag", info.Tag }
             };
+            _prevSelectedGenre = info.Genre;
+
             PageManager.OpenPage(HohoemaPageType.RankingCategory, p);
         }
 
+        private RankingGenre? _prevSelectedGenre;
+        private readonly IEventAggregator _eventAggregator;
 
-
-        RankingCategoryListPageListItem CreateRankingCategryListItem(RankingCategory category)
+        public override void OnNavigatedTo(INavigationParameters parameters)
         {
-            var categoryInfo = RankingCategoryInfo.CreateFromRankingCategory(category);
-            var isFavoriteCategory = RankingSettings.HighPriorityCategory.Contains(categoryInfo);
-            return new RankingCategoryListPageListItem(category, isFavoriteCategory, OnRankingCategorySelected);
+            if (_prevSelectedGenre != null)
+            {
+                var updateTargetGenre = _RankingGenreItems.FirstOrDefault(x => x.Genre == _prevSelectedGenre);
+                if (updateTargetGenre != null)
+                {
+                    updateTargetGenre.Items.Clear();
+                    var items = GetGenreTagRankingItems(updateTargetGenre.Genre.Value, RankingSettings);
+                    foreach (var a in items)
+                    {
+                        updateTargetGenre.Items.Add(a);
+                    }
+                }
+            }
+
+            base.OnNavigatedTo(parameters);
         }
+
 
         protected override bool TryGetHohoemaPin(out HohoemaPin pin)
         {
@@ -283,39 +312,36 @@ namespace NicoPlayerHohoema.ViewModels
     }
 
 
-
-    public class RankingCategoryHostListItem
+    public class RankingItem : BindableBase
     {
-        public string Label { get; }
-        public RankingCategoryHostListItem(string label)
-        {
-            Label = label;
-            ChildItems = new List<RankingCategoryListPageListItem>();
-            SelectedCommand = new DelegateCommand<RankingCategoryListPageListItem>((item) =>
-            {
-                item.PrimaryCommand.Execute(null);
-            });
+        public string Label { get; set; }
 
+        public RankingGenre? Genre { get; set; }
+        public string Tag { get; set; }
+
+        private bool _IsDisplay;
+        public bool IsDisplay
+        {
+            get => _IsDisplay;
+            set => SetProperty(ref _IsDisplay, value);
         }
 
-        public bool HasItem => ChildItems.Count > 0;
+        private bool _IsFavorite;
+        public bool IsFavorite
+        {
+            get => _IsFavorite;
+            set => SetProperty(ref _IsFavorite, value);
+        }
 
-
-        public List<RankingCategoryListPageListItem> ChildItems { get; set; }
-
-
-        public DelegateCommand<RankingCategoryListPageListItem> SelectedCommand { get; }
     }
 
-
-    public class RankingCategoryListPageListItem : SelectableItem<RankingCategory>
+    public class RankingGenreItem : RankingItem
     {
-        public bool IsFavorite { get; private set; }
+        public AdvancedCollectionView Items { get; set; }
+    }
 
-        public RankingCategoryListPageListItem(RankingCategory category, bool isFavoriteCategory, Action<RankingCategory> selected)
-            : base(category, selected)
-        {
-            IsFavorite = isFavoriteCategory;
-        }
+    public class FavoriteRankingGenreGroupItem : RankingGenreItem
+    {
+        
     }
 }

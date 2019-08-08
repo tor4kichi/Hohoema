@@ -139,14 +139,6 @@ namespace NicoPlayerHohoema.Models.Provider
             });
         }
 
-        public async Task LeaveAsync(string liveId)
-        {
-            await ContextActionAsync(async context =>
-            {
-                await context.Live.LeaveAsync(liveId);
-            });
-        }
-
 
         public async Task<string> GetWaybackKeyAsync(string threadId)
         {
@@ -162,14 +154,6 @@ namespace NicoPlayerHohoema.Models.Provider
             return await ContextActionAsync(async context =>
             {
                 return await context.Live.GetPostKeyAsync(threadId, commentCount / 100);
-            });
-        }
-
-        public async Task<Mntone.Nico2.Live.Heartbeat.HeartbeatResponse> HeartbeatAsync(string liveId)
-        {
-            return await ContextActionAsync(async context =>
-            {
-                return await context.Live.HeartbeatAsync(liveId);
             });
         }
     }

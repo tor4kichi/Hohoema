@@ -2,7 +2,6 @@
 using Mntone.Nico2.Mylist;
 using Mntone.Nico2.Videos.Dmc;
 using Mntone.Nico2.Videos.Recommend;
-using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
 using NicoPlayerHohoema.Database;
 using NicoPlayerHohoema.Models.Helpers;
@@ -117,7 +116,7 @@ namespace NicoPlayerHohoema.Models.Provider
                             info.Owner = new NicoVideoOwner()
                             {
                                 OwnerId = res.Video.CommunityId,
-                                UserType = UserType.Channel
+                                UserType = Database.NicoVideoUserType.Channel
                             };
                         }
                         else
@@ -125,7 +124,7 @@ namespace NicoPlayerHohoema.Models.Provider
                             info.Owner = new NicoVideoOwner()
                             {
                                 OwnerId = res.Video.UserId,
-                                UserType = res.Video.ProviderType == "regular" ? UserType.User : UserType.Channel
+                                UserType = res.Video.ProviderType == "regular" ? NicoVideoUserType.User : NicoVideoUserType.Channel
                             };
                         }
 
@@ -250,7 +249,7 @@ namespace NicoPlayerHohoema.Models.Provider
                                 ScreenName = res.Owner.Nickname,
                                 IconUrl = res.Owner.IconURL,
                                 OwnerId = res.Owner.Id,
-                                UserType = UserType.User
+                                UserType = NicoVideoUserType.User
                             };
 
                             NicoVideoOwnerDb.AddOrUpdate(info.Owner);
@@ -262,7 +261,7 @@ namespace NicoPlayerHohoema.Models.Provider
                                 ScreenName = res.Channel.Name,
                                 IconUrl = res.Channel.IconURL,
                                 OwnerId = res.Channel.GlobalId,
-                                UserType = UserType.Channel
+                                UserType = NicoVideoUserType.Channel
                             };
                         }
 
@@ -373,7 +372,7 @@ namespace NicoPlayerHohoema.Models.Provider
                         ScreenName = res.UploaderInfo?.nickname ?? res.channelInfo?.name,
                         IconUrl = res.UploaderInfo?.icon_url ?? res.channelInfo?.icon_url,
                         OwnerId = res.UploaderInfo?.id ?? res.channelInfo?.id,
-                        UserType = res.channelInfo != null ? UserType.Channel : UserType.User
+                        UserType = res.channelInfo != null ? NicoVideoUserType.Channel : NicoVideoUserType.User
                     };
 
                     info.IsDeleted = res.IsDeleted;

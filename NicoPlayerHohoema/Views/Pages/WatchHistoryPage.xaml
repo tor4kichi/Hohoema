@@ -90,7 +90,7 @@
             
             <ListView.Header>
 
-                <uwpcontrols:ScrollHeader
+                <controls:ScrollHeader
                     x:Name="ScrollHeader"
                     Mode="QuickReturn" >
                     <StackPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
@@ -154,7 +154,7 @@
 
                         </CommandBar>
                     </StackPanel>
-                </uwpcontrols:ScrollHeader>
+                </controls:ScrollHeader>
 
             </ListView.Header>
 

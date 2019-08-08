@@ -14,7 +14,6 @@ using Prism.Commands;
 using System.Windows.Input;
 using NicoPlayerHohoema.Interfaces;
 using System.Collections.Async;
-using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Services;
 using Prism.Navigation;
@@ -125,7 +124,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public string CommunityId { get; private set; }
 		public int VideoCount { get; private set; }
 
-		public List<NiconicoVideoRssItem> Items { get; private set; } = new List<NiconicoVideoRssItem>();
+		public List<RssVideoData> Items { get; private set; } = new List<RssVideoData>();
 
 		public CommunityVideoIncrementalSource(string communityId, int videoCount, CommunityProvider communityProvider)
 			: base()
@@ -144,7 +143,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		protected override Task<int> ResetSourceImpl()
 		{
-			Items = new List<NiconicoVideoRssItem>();
+			Items = new List<RssVideoData>();
 			return Task.FromResult(VideoCount);
 		}
 
@@ -164,7 +163,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 					Debug.WriteLine("communitu video : page " + pageCount);
 					var videoRss = await CommunityProvider.GetCommunityVideo(CommunityId, pageCount);
-					var items = videoRss.Channel.Items;
+					var items = videoRss.Items;
 
 					Items.AddRange(items);
 				}
@@ -185,24 +184,24 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class CommunityVideoInfoControlViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContent
     {
-		public NiconicoVideoRssItem RssItem { get; private set; }
+		public RssVideoData RssItem { get; private set; }
 
 
-		public string VideoId => NicoVideoIdHelper.UrlToVideoId(RssItem.VideoUrl);
+		public string VideoId => RssItem.GetVideoId();
 
-		public CommunityVideoInfoControlViewModel(NiconicoVideoRssItem rssItem)
+		public CommunityVideoInfoControlViewModel(RssVideoData rssItem)
 			: base()
 		{
 			RssItem = rssItem;
 
-            Label = RssItem.Title;
+            Label = RssItem.RawTitle;
 		}
 
         public string ProviderId => string.Empty;
 
         public string ProviderName => string.Empty;
 
-        public UserType ProviderType => UserType.User;
+        public Database.NicoVideoUserType ProviderType => Database.NicoVideoUserType.User;
 
         public string Id => VideoId;
 

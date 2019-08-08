@@ -1,5 +1,4 @@
 ﻿using LiteDB;
-using Mntone.Nico2.Videos.Thumbnail;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +8,12 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Database
 {
+    public enum NicoVideoUserType
+    {
+        User,
+        Channel,
+    }
+
     public class NicoVideoOwner
     {
         [BsonId]
@@ -16,7 +21,7 @@ namespace NicoPlayerHohoema.Database
 
         public string IconUrl { get; set; }
 
-        public UserType UserType { get; set; }
+        public NicoVideoUserType UserType { get; set; }
 
         public string ScreenName { get; set; }
     }

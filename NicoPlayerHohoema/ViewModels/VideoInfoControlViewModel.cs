@@ -1,7 +1,6 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Mylist;
 using Mntone.Nico2.Searches.Video;
-using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Models;
 using Prism.Mvvm;
 using Reactive.Bindings;
@@ -113,7 +112,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public string ProviderId { get; private set; }
         public string ProviderName { get; private set; }
-        public UserType ProviderType { get; private set; }
+        public Database.NicoVideoUserType ProviderType { get; private set; }
 
         public Interfaces.IMylist OnwerPlaylist { get; }
 

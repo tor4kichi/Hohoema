@@ -117,22 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="all" xml:space="preserve">
-    <value>カテゴリ合算</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="animal" xml:space="preserve">
-    <value>動物</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="anime" xml:space="preserve">
-    <value>アニメ</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="are" xml:space="preserve">
-    <value>例のアレ</value>
-    <comment>RankingCategory</comment>
-  </data>
   <data name="BitSukesuke" xml:space="preserve">
     <value>少し透過</value>
     <comment>CommentOpacityKind</comment>
@@ -161,30 +145,6 @@
     <value>有害指定動画の視聴確認</value>
     <comment>HohoemaPageType</comment>
   </data>
-  <data name="cooking" xml:space="preserve">
-    <value>料理</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="dance" xml:space="preserve">
-    <value>踊ってみた</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="diary" xml:space="preserve">
-    <value>日記</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="draw" xml:space="preserve">
-    <value>描いてみた</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="drive" xml:space="preserve">
-    <value>車載動画</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="ent" xml:space="preserve">
-    <value>エンターテイメント</value>
-    <comment>RankingCategory</comment>
-  </data>
   <data name="FeedGroup" xml:space="preserve">
     <value>フィードグループ</value>
     <comment>HohoemaPageType</comment>
@@ -201,61 +161,13 @@
     <value>フォロー</value>
     <comment>HohoemaPageType</comment>
   </data>
-  <data name="game" xml:space="preserve">
-    <value>ゲーム</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="g_culture2" xml:space="preserve">
-    <value>アニメ・ゲーム・絵</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="g_ent2" xml:space="preserve">
-    <value>エンタメ・音楽</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="g_life2" xml:space="preserve">
-    <value>生活・一般・スポ</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="g_other" xml:space="preserve">
-    <value>その他（合算）</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="g_politics" xml:space="preserve">
-    <value>政治</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="g_tech" xml:space="preserve">
-    <value>科学・技術</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="handcraft" xml:space="preserve">
-    <value>ニコニコ手芸部</value>
-    <comment>RankingCategory</comment>
-  </data>
   <data name="high" xml:space="preserve">
     <value>高画質</value>
     <comment>Niconico Live Quality</comment>
   </data>
-  <data name="history" xml:space="preserve">
-    <value>歴史</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="imas" xml:space="preserve">
-    <value>アイドルマスター</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="jikkyo" xml:space="preserve">
-    <value>実況プレイ動画</value>
-    <comment>RankingCategory</comment>
-  </data>
   <data name="Keyword" xml:space="preserve">
     <value>キーワード</value>
     <comment>SearchTarget</comment>
-  </data>
-  <data name="lecture" xml:space="preserve">
-    <value>ニコニコ動画講座</value>
-    <comment>RankingCategory</comment>
   </data>
   <data name="LoggedIn" xml:space="preserve">
     <value>ログイン</value>
@@ -265,29 +177,13 @@
     <value>低画質</value>
     <comment>Niconico Live Quality</comment>
   </data>
-  <data name="make" xml:space="preserve">
-    <value>作ってみた</value>
-    <comment>RankingCategory</comment>
-  </data>
   <data name="MoreSukesuke" xml:space="preserve">
     <value>かなり透過</value>
     <comment>CommentOpacityKind</comment>
   </data>
-  <data name="music" xml:space="preserve">
-    <value>音楽</value>
-    <comment>RankingCategory</comment>
-  </data>
   <data name="Mylist" xml:space="preserve">
     <value>マイリスト</value>
     <comment>SearchTarget</comment>
-  </data>
-  <data name="nature" xml:space="preserve">
-    <value>自然</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="nicoindies" xml:space="preserve">
-    <value>ニコニコインディーズ</value>
-    <comment>RankingCategory</comment>
   </data>
   <data name="Niconama" xml:space="preserve">
     <value>生放送</value>
@@ -321,18 +217,6 @@
     <value>ログイン無し</value>
     <comment>HohoemaAppServiceLevel</comment>
   </data>
-  <data name="other" xml:space="preserve">
-    <value>その他</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="play" xml:space="preserve">
-    <value>演奏してみた</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="radio" xml:space="preserve">
-    <value>ラジオ</value>
-    <comment>RankingCategory</comment>
-  </data>
   <data name="RankingCategory" xml:space="preserve">
     <value>カテゴリランキング</value>
     <comment>HohoemaPageType</comment>
@@ -340,10 +224,6 @@
   <data name="RankingCategoryList" xml:space="preserve">
     <value>ランキング一覧</value>
     <comment>HohoemaPageType</comment>
-  </data>
-  <data name="science" xml:space="preserve">
-    <value>科学</value>
-    <comment>RankingCategory</comment>
   </data>
   <data name="Search" xml:space="preserve">
     <value>検索</value>
@@ -373,17 +253,9 @@
     <value>設定</value>
     <comment>HohoemaPageType</comment>
   </data>
-  <data name="sing" xml:space="preserve">
-    <value>歌ってみた</value>
-    <comment>RankingCategory</comment>
-  </data>
   <data name="Splash" xml:space="preserve">
     <value>起動画面</value>
     <comment>HohoemaPageType</comment>
-  </data>
-  <data name="sport" xml:space="preserve">
-    <value>スポーツ</value>
-    <comment>RankingCategory</comment>
   </data>
   <data name="super_low" xml:space="preserve">
     <value>モバイル画質</value>
@@ -392,18 +264,6 @@
   <data name="Tag" xml:space="preserve">
     <value>タグ</value>
     <comment>SearchTarget</comment>
-  </data>
-  <data name="tech" xml:space="preserve">
-    <value>ニコニコ技術部</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="toho" xml:space="preserve">
-    <value>東方</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="travel" xml:space="preserve">
-    <value>旅行</value>
-    <comment>RankingCategory</comment>
   </data>
   <data name="UserInfo" xml:space="preserve">
     <value>ユーザー情報</value>
@@ -420,10 +280,6 @@
   <data name="VideoInfomation" xml:space="preserve">
     <value>動画情報</value>
     <comment>HohoemaPageType</comment>
-  </data>
-  <data name="vocaloid" xml:space="preserve">
-    <value>VOCALOID</value>
-    <comment>RankingCategory</comment>
   </data>
   <data name="Dmc_High" xml:space="preserve">
     <value>高画質</value>
@@ -638,26 +494,6 @@
   <data name="DeletingReservations" xml:space="preserve">
     <value>タイムシフトを削除しています</value>
   </data>
-  <data name="asmr" xml:space="preserve">
-    <value>ASMR</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="mmd" xml:space="preserve">
-    <value>MMD</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="train" xml:space="preserve">
-    <value>鉄道</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="trpg" xml:space="preserve">
-    <value>TRPG</value>
-    <comment>RankingCategory</comment>
-  </data>
-  <data name="Virtual" xml:space="preserve">
-    <value>バーチャル</value>
-    <comment>RankingCategory</comment>
-  </data>
   <data name="LIMIT_DATE_OUT" xml:space="preserve">
     <value>視聴権の使用期限切れ</value>
     <comment>ReservationStatus</comment>
@@ -672,32 +508,100 @@
   <data name="SubscriptionGroup_Create" xml:space="preserve">
     <value>購読グループを作成</value>
   </data>
-  <data name="fav" xml:space="preserve">
-    <value>総合</value>
-    <comment>RankingTarget</comment>
+  <data name="All" xml:space="preserve">
+    <value>全ジャンル</value>
+    <comment>RankingGenre</comment>
   </data>
-  <data name="hourly" xml:space="preserve">
+  <data name="Animal" xml:space="preserve">
+    <value>動物</value>
+    <comment>RankingGenre</comment>
+  </data>
+  <data name="Anime" xml:space="preserve">
+    <value>アニメ</value>
+    <comment>RankingGenre</comment>
+  </data>
+  <data name="Commentary_Lecture" xml:space="preserve">
+    <value>解説・講座</value>
+    <comment>RankingGenre</comment>
+  </data>
+  <data name="Cooking" xml:space="preserve">
+    <value>料理</value>
+    <comment>RankingGenre</comment>
+  </data>
+  <data name="Dance" xml:space="preserve">
+    <value>ダンス</value>
+    <comment>RankingGenre</comment>
+  </data>
+  <data name="Entertainment" xml:space="preserve">
+    <value>エンターテイメント</value>
+    <comment>RankingGenre</comment>
+  </data>
+  <data name="Game" xml:space="preserve">
+    <value>ゲーム</value>
+    <comment>RankingGenre</comment>
+  </data>
+  <data name="Music_Sound" xml:space="preserve">
+    <value>音楽・サウンド</value>
+    <comment>RankingGenre</comment>
+  </data>
+  <data name="Nature" xml:space="preserve">
+    <value>自然</value>
+    <comment>RankingGenre</comment>
+  </data>
+  <data name="Other" xml:space="preserve">
+    <value>その他</value>
+    <comment>RankingGenre</comment>
+  </data>
+  <data name="R18" xml:space="preserve">
+    <value>R-18（アダルトコンテンツ）</value>
+    <comment>RankingGenre</comment>
+  </data>
+  <data name="Radio" xml:space="preserve">
+    <value>ラジオ</value>
+    <comment>RankingGenre</comment>
+  </data>
+  <data name="Society_Politics_News" xml:space="preserve">
+    <value>社会・政治・時事</value>
+    <comment>RankingGenre</comment>
+  </data>
+  <data name="Sports" xml:space="preserve">
+    <value>スポーツ</value>
+    <comment>RankingGenre</comment>
+  </data>
+  <data name="Technology_Craft" xml:space="preserve">
+    <value>技術・工作</value>
+    <comment>RankingGenre</comment>
+  </data>
+  <data name="Traveling_Outdoor" xml:space="preserve">
+    <value>旅行・アウトドア</value>
+    <comment>RankingGenre</comment>
+  </data>
+  <data name="Vehicle" xml:space="preserve">
+    <value>乗り物</value>
+    <comment>RankingGenre</comment>
+  </data>
+  <data name="Day" xml:space="preserve">
+    <value>24h</value>
+    <comment>RankingTerm</comment>
+  </data>
+  <data name="HotTopic" xml:space="preserve">
+    <value>話題</value>
+    <comment>RankingGenre</comment>
+  </data>
+  <data name="Hour" xml:space="preserve">
     <value>毎時</value>
-    <comment>RankingTimeSpan</comment>
+    <comment>RankingTerm</comment>
   </data>
-  <data name="monthly" xml:space="preserve">
-    <value>月ごと</value>
-    <comment>RankingTimeSpan</comment>
+  <data name="Month" xml:space="preserve">
+    <value>毎月</value>
+    <comment>RankingTerm</comment>
   </data>
-  <data name="res" xml:space="preserve">
-    <value>コメント</value>
-    <comment>RankingTarget</comment>
+  <data name="Total" xml:space="preserve">
+    <value>全期間</value>
+    <comment>RankingTerm</comment>
   </data>
-  <data name="total" xml:space="preserve">
-    <value>合算</value>
-    <comment>RankingTimeSpan</comment>
-  </data>
-  <data name="view" xml:space="preserve">
-    <value>再生</value>
-    <comment>RankingTarget</comment>
-  </data>
-  <data name="weekly" xml:space="preserve">
-    <value>週ごと</value>
-    <comment>RankingTimeSpan</comment>
+  <data name="Week" xml:space="preserve">
+    <value>毎週</value>
+    <comment>RankingTerm</comment>
   </data>
 </root>

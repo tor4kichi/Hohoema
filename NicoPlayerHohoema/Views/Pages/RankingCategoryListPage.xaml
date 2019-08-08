@@ -12,186 +12,180 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+  xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
     xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
     xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
     xmlns:deviceTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
-    NavigationCacheMode="Enabled"
+  xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts"
+  xmlns:mycommands="using:NicoPlayerHohoema.Services.Commands.Ranking"
+  NavigationCacheMode="Enabled"
     DataContext="{x:Null}"
     mc:Ignorable="d"
     >
 
 
-    <Page.Transitions>
-        <TransitionCollection>
-            <NavigationThemeTransition>
-                <DrillInNavigationTransitionInfo />
-            </NavigationThemeTransition>
-        </TransitionCollection>
-    </Page.Transitions>
+  <Page.Transitions>
+    <TransitionCollection>
+      <NavigationThemeTransition>
+        <DrillInNavigationTransitionInfo />
+      </NavigationThemeTransition>
+    </TransitionCollection>
+  </Page.Transitions>
+  
+  <Page.Resources>
+    <flyouts:RankingGenreItemGroupFlyout x:Key="RankingGenreItemGroupFlyout" />
 
+    <DataTemplate x:Key="RankingGenreItemFlyoutTemplate">
+      <flyouts:RankingGenreItemFlyout />
+    </DataTemplate>
+  </Page.Resources>
 
-    <Grid x:Name="ContentLayoutRoot">
+  <Grid x:Name="ContentLayoutRoot">
 
-        <VisualStateManager.VisualStateGroups>
-            <!-- トップバー表示時のタイトル位置ずらし -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="CategoryItems.Margin" Value="48 0 32 27" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="0" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
-        
-        <toolkit:DockPanel x:Name="ContentLayout">
+    <VisualStateManager.VisualStateGroups>
+      <!-- トップバー表示時のタイトル位置ずらし -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="GenreItems.Margin" Value="48 0 32 27" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="GenreItems.Margin" Value="16 8 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="GenreItems.Margin" Value="16 8 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
 
-            <Border toolkit:DockPanel.Dock="Top" 
+    <toolkit:DockPanel x:Name="ContentLayout">
+
+      <Border toolkit:DockPanel.Dock="Top" 
                     x:Name="HeaderLayout"
                     >
-                <StackPanel >
-                    <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
+        <StackPanel >
+          <CommandBar Background="Transparent" Margin="0 0 8 0">
 
-                        <CommandBar.PrimaryCommands>
-                            <AppBarButton Background="Transparent"
-                                          Icon="Setting"
-                                    >
+            <CommandBar.PrimaryCommands>
+              <AppBarButton Label="設定"
+                            Icon="Setting"
+                            >
+                <AppBarButton.Flyout>
+                  <MenuFlyout Placement="Bottom">
+                    <MenuFlyoutItem Text="隠したジャンルやタグを再表示">
+                      <MenuFlyoutItem.Command>
+                        <mycommands:ShowHiddenRankingGenreTagsDialogCommand />
+                      </MenuFlyoutItem.Command>
+                    </MenuFlyoutItem>
+                  </MenuFlyout>
+                </AppBarButton.Flyout>
+                
+              </AppBarButton>
+            </CommandBar.PrimaryCommands>
 
-                                <Button.Flyout>
-                                    <MenuFlyout>
-                                        <MenuFlyoutItem Text="好きなカテゴリを編集"
-                                                        Command="{Binding AddFavRankingCategory}"
-                                                        />
-                                        <MenuFlyoutItem Text="非表示カテゴリを編集"
-                                                        Command="{Binding AddDislikeRankingCategory}"
-                                                        />
-                                    </MenuFlyout>
-                                </Button.Flyout>
-                            </AppBarButton>
+          </CommandBar>
+        </StackPanel>
 
-                        </CommandBar.PrimaryCommands>
+      </Border>
 
-                    </CommandBar>
-                </StackPanel>
+      <GridView x:Name="GenreItems"
+                ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                ScrollViewer.HorizontalScrollMode="Auto"
+                ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                ScrollViewer.VerticalScrollMode="Disabled"
+                ItemsSource="{Binding RankingGenreItems.View}"
+                myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource RankingGenreItemFlyoutTemplate}"
+                SelectionMode="None"
+                SingleSelectionFollowsFocus="False"
+                >
+        <myExtensions:ListViewBase.GroupHeaderContextFlyoutTemplate>
+          <DataTemplate>
+            <flyouts:RankingGenreItemGroupFlyout />
+          </DataTemplate>
+        </myExtensions:ListViewBase.GroupHeaderContextFlyoutTemplate>
+        
+        <GridView.ItemsPanel>
+          <ItemsPanelTemplate>
+            <ItemsWrapGrid Orientation="Vertical" />
+          </ItemsPanelTemplate>
+        </GridView.ItemsPanel>
 
-            </Border>
-            <ScrollViewer VerticalScrollMode="Disabled" 
-                          VerticalScrollBarVisibility="Hidden"
-                          HorizontalScrollMode="Enabled" 
-                          HorizontalScrollBarVisibility="Auto"
-                          HorizontalContentAlignment="Stretch"
-                          Margin="0 8 0 0"
-                          IsTabStop="False"
-                          x:Name="ScrollViewer"
-                          >
+        <i:Interaction.Behaviors>
+          <mybehavior:ListViewItemTappedCommandBehavior Command="{Binding OpenRankingPageCommand}" />
+          
+        </i:Interaction.Behaviors>
 
-
-                <Border x:Name="CategoryItems"
-                        Margin="16 0 16 8"
-                        >
-                    <ItemsControl ItemsSource="{Binding RankingCategoryItems}"
-                              Height="{Binding ElementName=ScrollViewer, Path=ActualHeight, Mode=OneWay}"
-                              IsTabStop="False"
-
-                          >
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal"
-                                        VerticalAlignment="Stretch"
-                                                           x:Name="CategoryItemsPanel"
-                                        />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-
-                                <toolkit:DockPanel Margin="0 0 8 0">
-
-                                    <ListView ItemsSource="{Binding ChildItems}"
-                                                    IsTabStop="False"   
-                                              uwpui:ListViewBaseExtensions.Command="{Binding SelectedCommand}"
-                                          IsItemClickEnabled="True"
-                                          SelectionMode="None"
-                                          >
-                                        <ListView.ItemContainerStyle>
-                                            <Style TargetType="ListViewItem">
-                                                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
-                                                <Setter Property="VerticalContentAlignment" Value="Stretch" />
-                                                <Setter Property="MinWidth" Value="180" />
-                                                <Setter Property="Padding" Value="0" />
-                                                <Setter Property="Margin" Value="0 0 8 8" />
-                                                <Setter Property="BorderBrush" Value="{ThemeResource ButtonBorderBrushPointerOver}" />
-                                                <Setter Property="BorderThickness" Value="1" />
-                                            </Style>
-                                        </ListView.ItemContainerStyle>
-
-                                        <ListView.ItemsPanel>
-                                            <ItemsPanelTemplate>
-                                                <ItemsWrapGrid x:Name="CategoryItemsPanel"
-                                                            Orientation="Vertical"
-                                                           VerticalAlignment="Stretch"
-                                                           ItemHeight="64"    
-                                                               />
-                                            </ItemsPanelTemplate>
-                                        </ListView.ItemsPanel>
-
-                                        <ListView.ItemTemplate>
-                                            <DataTemplate>
-
-                                                <Grid HorizontalAlignment="Center"
-                                                    VerticalAlignment="Center"
-                                                    >
-                                                    <TextBlock Text="{Binding Source, Converter={StaticResource ToLocalText}}"
-                                                               Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibilityInverted}}"
-                                                               />
-
-                                                    <TextBlock Text="{Binding Source, Converter={StaticResource ToLocalText}}"
-                                                               Visibility="{Binding IsFavorite, Converter={StaticResource BooleanToVisibility}}"
-                                                               FontWeight="Bold"
-                                                               />
-                                                </Grid>
-
-                                            </DataTemplate>
-                                        </ListView.ItemTemplate>
-                                    </ListView>
-
-
-                                </toolkit:DockPanel>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-
-                    </ItemsControl>
-
+        <GridView.GroupStyle>
+          <GroupStyle>
+            
+            <GroupStyle.HeaderTemplate>
+              <DataTemplate>
+                <Border>
+                  <HyperlinkButton FontSize="18"
+                                 Foreground="{StaticResource ApplicationHeaderForegroundThemeBrush}"
+                                 Command="{Binding ElementName=ContentLayout, Path=DataContext.OpenRankingPageCommand}"
+                                 CommandParameter="{Binding}"
+                                 Width="128"
+                                 IsEnabled="{Binding Genre, Converter={StaticResource NotNullToBoolean}}"
+                                 >
+                    <TextBlock Text="{Binding Label}" />
+                  </HyperlinkButton>
                 </Border>
                 
 
+              </DataTemplate>
+            </GroupStyle.HeaderTemplate>
+
+            <GroupStyle.HeaderContainerStyle>
+              <Style TargetType="GridViewHeaderItem">
+                <Setter Property="Padding" Value="0" />
+                <Setter Property="IsTabStop" Value="False" />
+              </Style>
+            </GroupStyle.HeaderContainerStyle>
+          </GroupStyle>
+        </GridView.GroupStyle>
+
+        <GridView.ItemTemplate>
+          <DataTemplate>
+            <TextBlock Text="{Binding Label}"
+                       TextWrapping="Wrap"
+                       
+                       />
+          </DataTemplate>
+        </GridView.ItemTemplate>
+
+        <GridView.ItemContainerStyle>
+          <Style TargetType="GridViewItem">
+            <Setter Property="Padding" Value="0" />
+            <Setter Property="Margin" Value="0 0 8 8" />
+            <Setter Property="MinWidth" Value="140" />
+            <Setter Property="BorderBrush" Value="{StaticResource SystemBaseLowColor}" />
+            <Setter Property="BorderThickness" Value="1" />
+            
+          </Style>
+        </GridView.ItemContainerStyle>
+      </GridView>
+
+    </toolkit:DockPanel>
 
 
 
-            </ScrollViewer>
-
-        </toolkit:DockPanel>
 
 
-
-
-
-    </Grid>
+  </Grid>
 </Page>

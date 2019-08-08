@@ -214,13 +214,13 @@ namespace NicoPlayerHohoema.Views
             PrevRenderCommentEachLine_Stream.Clear();
             PrevRenderCommentEachLine_Top.Clear();
             PrevRenderCommentEachLine_Bottom.Clear();
-            
+
 
             if (Comments == null) { return; }
 
             // 現在時間-コメント表示時間から始まるコメントを描画待機コメントとして再配置
             var currentVideoPos = frame.CurrentVpos;
-            
+
             var comments = new List<Comment>(Comments.Cast<Comment>());
             comments.Sort((x, y) => (int)(x.VideoPosition - y.VideoPosition));
 
@@ -259,7 +259,7 @@ namespace NicoPlayerHohoema.Views
                         return;
                     }
 
-                    if (PlaybackState == MediaPlaybackState.Paused)
+                    if (PlaybackState != MediaPlaybackState.Playing)
                     {
                         return;
                     }
@@ -959,14 +959,15 @@ namespace NicoPlayerHohoema.Views
         {
             Debug.WriteLine("seeked");
 
-            using (var releaser = await _UpdateLock.LockAsync())
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
             {
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                using (var releaser = await _UpdateLock.LockAsync())
                 {
                     var frame = GetRenderFrameData();
                     ResetComments(ref frame);
-                });
-            }
+                }
+            });
+
         }
 
         bool _PlayerCanSeek = false;

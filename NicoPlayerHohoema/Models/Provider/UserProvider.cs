@@ -2,7 +2,6 @@
 using Mntone.Nico2.Mylist;
 using Mntone.Nico2.Users.User;
 using Mntone.Nico2.Users.Video;
-using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Database;
 using System;
 using System.Collections.Generic;
@@ -35,7 +34,7 @@ namespace NicoPlayerHohoema.Models.Provider
                     owner = new NicoVideoOwner()
                     {
                         OwnerId = userId,
-                        UserType = UserType.User
+                        UserType = NicoVideoUserType.User
                     };
                 }
                 owner.ScreenName = user.Nickname;
@@ -63,7 +62,7 @@ namespace NicoPlayerHohoema.Models.Provider
                     owner = new NicoVideoOwner()
                     {
                         OwnerId = userId,
-                        UserType = UserType.User
+                        UserType = NicoVideoUserType.User
                     };
                 }
                 owner.ScreenName = detail.Nickname;

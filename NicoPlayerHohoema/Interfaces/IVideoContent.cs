@@ -1,5 +1,4 @@
-﻿using Mntone.Nico2.Videos.Thumbnail;
-using NicoPlayerHohoema.Services;
+﻿using NicoPlayerHohoema.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +11,7 @@ namespace NicoPlayerHohoema.Interfaces
     {
         string ProviderId { get; }
         string ProviderName { get; }
-        Mntone.Nico2.Videos.Thumbnail.UserType ProviderType { get; }
+        Database.NicoVideoUserType ProviderType { get; }
 
         Interfaces.IMylist OnwerPlaylist { get; }
     }

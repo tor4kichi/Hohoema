@@ -1,6 +1,5 @@
 ﻿using LiteDB;
 using Mntone.Nico2;
-using Mntone.Nico2.Videos.Thumbnail;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,6 +9,13 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Database
 {
+    public enum MovieType
+    {
+        Flv,
+        Mp4,
+        Swf,
+    }
+
     public class NicoVideo
     {
         [BsonId]

@@ -137,9 +137,6 @@ namespace NicoPlayerHohoema.Models.Live
 
         public NicoliveVideoInfoResponse LiveInfo { get; private set; }
 
-        private Windows.Web.Http.HttpClient _HttpClient = new Windows.Web.Http.HttpClient();
-
-
         Mntone.Nico2.Live.ReservationsInDetail.Program _TimeshiftProgram;
 
         public bool IsWatchWithTimeshift
@@ -656,9 +653,6 @@ namespace NicoPlayerHohoema.Models.Live
                 // HeartbeatAPIへのアクセスを停止
                 EndCommentClientConnection();
 
-                // 放送からの離脱APIを叩く
-                await NicoLiveProvider.LeaveAsync(LiveId);
-
                 await StopLiveElapsedTimer();
             }
         }
@@ -793,14 +787,7 @@ namespace NicoPlayerHohoema.Models.Live
 #endif
                     }
 
-                    _HttpClient = new Windows.Web.Http.HttpClient();
-                    _HttpClient.DefaultRequestHeaders.UserAgent.ParseAdd(string.Join(" ", NiconicoSession.Context.HttpClient.DefaultRequestHeaders.GetValues("user-agent")));
-
-                    var cookie = NiconicoSession.Context.GetCurrentNicoVideoCookieHeader();
-                    _HttpClient.DefaultRequestHeaders.Remove("Cookie");
-                    _HttpClient.DefaultRequestHeaders.Add("Cookie", cookie);
-
-                    var amsCreateResult = await AdaptiveMediaSource.CreateFromUriAsync(new Uri(hlsUri), _HttpClient);
+                    var amsCreateResult = await AdaptiveMediaSource.CreateFromUriAsync(new Uri(hlsUri), NiconicoSession.Context.HttpClient);
                     if (amsCreateResult.Status == AdaptiveMediaSourceCreationStatus.Success)
                     {
                         var ams = amsCreateResult.MediaSource;
@@ -899,7 +886,7 @@ namespace NicoPlayerHohoema.Models.Live
                         e.MessageServerUrl,
                         e.ThreadId,
                         NiconicoSession.UserIdString,
-                        _HttpClient
+                        NiconicoSession.Context.HttpClient
                         );
                 }
 

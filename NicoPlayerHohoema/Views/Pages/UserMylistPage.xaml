@@ -95,7 +95,7 @@
                 
 
                 <GridView.Header>
-                    <uwptoolkit:ScrollHeader 
+                    <mycontrols:ScrollHeader 
                         x:Name="ScrollHeader"
                         Mode="Sticky">
 
@@ -181,7 +181,7 @@
                                 </toolkit:DockPanel>
                             </StackPanel>
                         </Grid>
-                    </uwptoolkit:ScrollHeader>
+                    </mycontrols:ScrollHeader>
 
                 </GridView.Header>
 

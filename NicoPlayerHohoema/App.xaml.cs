@@ -356,13 +356,20 @@ namespace NicoPlayerHohoema
                     var appView = ApplicationView.GetForCurrentView();
                     appView.TitleBar.ButtonBackgroundColor = Colors.Transparent;
                     appView.TitleBar.ButtonInactiveBackgroundColor = Colors.Transparent;
-                    appView.TitleBar.ButtonInactiveForegroundColor = Colors.Transparent;
 
                     if (RequestedTheme == ApplicationTheme.Light)
                     {
                         appView.TitleBar.ButtonForegroundColor = Colors.Black;
                         appView.TitleBar.ButtonHoverBackgroundColor = Colors.DarkGray;
                         appView.TitleBar.ButtonHoverForegroundColor = Colors.Black;
+                        appView.TitleBar.ButtonInactiveForegroundColor = Colors.Gray;
+                    }
+                    else
+                    {
+                        appView.TitleBar.ButtonForegroundColor = Colors.White;
+                        appView.TitleBar.ButtonHoverBackgroundColor = Colors.DimGray;
+                        appView.TitleBar.ButtonHoverForegroundColor = Colors.White;
+                        appView.TitleBar.ButtonInactiveForegroundColor = Colors.DarkGray;
                     }
                 }
 
@@ -378,22 +385,6 @@ namespace NicoPlayerHohoema
                 Container.GetContainer().RegisterInstance(ns);
 
                 Window.Current.Content = layout;
-
-                // ログイン
-                try
-                {
-                    var niconicoSession = Container.Resolve<NiconicoSession>();
-                    if (Models.Helpers.AccountManager.HasPrimaryAccount())
-                    {
-                        // サインイン処理の待ちを初期化内でしないことで初期画面表示を早める
-                        _ = niconicoSession.SignInWithPrimaryAccount();
-                    }
-                }
-                catch
-                {
-                    Debug.WriteLine("ログイン処理に失敗");
-                }
-
 
                 // ウィンドウサイズの保存と復元
                 if (Services.Helpers.DeviceTypeHelper.IsDesktop)
@@ -427,7 +418,10 @@ namespace NicoPlayerHohoema
 
 
 
-                
+
+                // 2段階認証を処理するログインサービスをインスタンス化
+                var loginService = Container.Resolve<NiconicoLoginService>();
+
 
 
 
@@ -643,6 +637,21 @@ namespace NicoPlayerHohoema
         public override void OnInitialized()
         {
             Window.Current.Activate();
+
+            // ログイン
+            try
+            {
+                var niconicoSession = Container.Resolve<NiconicoSession>();
+                if (Models.Helpers.AccountManager.HasPrimaryAccount())
+                {
+                    // サインイン処理の待ちを初期化内でしないことで初期画面表示を早める
+                    _ = niconicoSession.SignInWithPrimaryAccount();
+                }
+            }
+            catch
+            {
+                Debug.WriteLine("ログイン処理に失敗");
+            }
 
             base.OnInitialized();
         }

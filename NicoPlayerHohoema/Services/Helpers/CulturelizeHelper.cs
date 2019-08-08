@@ -13,12 +13,13 @@ namespace NicoPlayerHohoema.Services.Helpers
 
         public static string ToCulturelizeString(this string resourceName)
         {
-            return _resourceLoader.GetString(resourceName);
+            return _resourceLoader.GetString(resourceName) ?? resourceName;
         }
 
         public static string ToCulturelizeString(this Enum resourceName)
         {
-            return _resourceLoader.GetString(resourceName.ToString());
+            var name = resourceName.ToString();
+            return _resourceLoader.GetString(name) ?? name;
         }
     }
 }

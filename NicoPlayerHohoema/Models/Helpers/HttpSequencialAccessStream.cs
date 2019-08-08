@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading;
@@ -12,6 +10,9 @@ using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Storage.Streams;
 
+//using System.Net;
+//using System.Net.Http;
+using Windows.Web.Http;
 
 namespace NicoPlayerHohoema.Models.Helpers
 {
@@ -73,10 +74,11 @@ namespace NicoPlayerHohoema.Models.Helpers
 						request.Headers.Add("If-Unmodified-Since", _LastModifiedHeader);
 					}
 
-					return await _Client.SendAsync(
+					return await _Client.SendRequestAsync(
 						request,
 						HttpCompletionOption.ResponseHeadersRead
 						)
+                        .AsTask()
 						.ConfigureAwait(false);
 				}
 				catch (System.Exception e) when (e.Message.StartsWith("Http server does not support range requests"))
@@ -109,23 +111,21 @@ namespace NicoPlayerHohoema.Models.Helpers
 			}
             */
 
-			if (String.IsNullOrEmpty(_EtagHeader) && response.Headers.Contains("ETag"))
+			if (String.IsNullOrEmpty(_EtagHeader) && response.Headers.ContainsKey("ETag"))
 			{
-				_EtagHeader = response.Headers.GetValues("ETag").First();
+				_EtagHeader = response.Headers["ETag"];
 			}
 
-			if (String.IsNullOrEmpty(_LastModifiedHeader) && response.Content.Headers.Contains("Last-Modified"))
+			if (String.IsNullOrEmpty(_LastModifiedHeader) && response.Content.Headers.ContainsKey("Last-Modified"))
 			{
-				_LastModifiedHeader = response.Content.Headers.GetValues("Last-Modified").First();
+				_LastModifiedHeader = response.Content.Headers["Last-Modified"];
 			}
-			if (response.Content.Headers.Contains("Content-Type"))
+			if (response.Content.Headers.ContainsKey("Content-Type"))
 			{
-				contentType = response.Content.Headers.GetValues("Content-Type").First();
+				contentType = response.Content.Headers["Content-Type"];
 			}
 
-			var stream = await response.Content.ReadAsStreamAsync();
-
-            return stream.AsInputStream();
+			return await response.Content.ReadAsInputStreamAsync();
 		}
 
 		private string contentType = string.Empty;

@@ -508,7 +508,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public string ProviderName => null;
 
-        public Mntone.Nico2.Videos.Thumbnail.UserType ProviderType => Mntone.Nico2.Videos.Thumbnail.UserType.User;
+        public Database.NicoVideoUserType ProviderType => Database.NicoVideoUserType.User;
 
         public string Id => VideoInfo.VideoId;
 

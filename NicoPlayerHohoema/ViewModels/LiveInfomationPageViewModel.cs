@@ -450,19 +450,8 @@ namespace NicoPlayerHohoema.ViewModels
             await RefreshLiveInfoAsync();
 
             string htmlDescription = null;
-            try
-            {
-                htmlDescription = await NiconicoSession.Context.Live.GetDescriptionAsync(LiveId);
-            }
-            catch
-            {
-                Debug.WriteLine("gateページによるHtml Descriptionの取得に失敗。programInfoによる取得に切り替えて試行");
-            }
-
             if (htmlDescription == null)
             {
-                await Task.Delay(1000);
-
                 var programInfo = await NiconicoSession.Context.Live.GetProgramInfoAsync(LiveId);
                 if (programInfo.IsOK)
                 {

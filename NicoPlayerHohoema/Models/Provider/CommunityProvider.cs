@@ -1,4 +1,5 @@
-﻿using Mntone.Nico2.Communities.Detail;
+﻿using Mntone.Nico2;
+using Mntone.Nico2.Communities.Detail;
 using Mntone.Nico2.Communities.Info;
 using Mntone.Nico2.Videos.Ranking;
 using System;
@@ -39,7 +40,7 @@ namespace NicoPlayerHohoema.Models.Provider
         }
 
 
-        public async Task<NiconicoVideoRss> GetCommunityVideo(
+        public async Task<RssVideoResponse> GetCommunityVideo(
             string communityId,
             uint page
             )

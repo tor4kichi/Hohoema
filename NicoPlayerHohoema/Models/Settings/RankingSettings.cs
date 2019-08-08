@@ -18,24 +18,96 @@ namespace NicoPlayerHohoema.Models
 		public RankingSettings()
 			: base()
 		{
-			HighPriorityCategory = new ObservableCollection<RankingCategoryInfo>();
-			MiddlePriorityCategory = new ObservableCollection<RankingCategoryInfo>();
-			LowPriorityCategory = new ObservableCollection<RankingCategoryInfo>();
 		}
 
+        [DataMember]
+        public List<RankingGenreTag> HiddenTags { get; set; } = new List<RankingGenreTag>();
 
-		public void ResetCategoryPriority()
+        [DataMember]
+        public HashSet<RankingGenre> HiddenGenres { get; set; } = new HashSet<RankingGenre>();
+
+
+        [DataMember]
+        public List<RankingGenreTag> FavoriteTags { get; set; } = new List<RankingGenreTag>();
+
+
+        public bool IsHiddenTag(RankingGenre genre, string tag)
+        {
+            return HiddenTags.Any(x => x.Genre == genre && x.Tag == tag);
+        }
+
+        public void RemoveHiddenTag(RankingGenre genre, string tag)
+        {
+            var target = HiddenTags.FirstOrDefault(x => x.Genre == genre && x.Tag == tag);
+            if (target != null)
+            {
+                HiddenTags.Remove(target);
+            }
+        }
+
+        public void AddHiddenTag(RankingGenre genre, string tag, string label)
+        {
+            if (false == HiddenTags.Any(x => x.Genre == genre && x.Tag == tag))
+            {
+                HiddenTags.Add(new RankingGenreTag()
+                {
+                    Tag = tag,
+                    Label = label,
+                    Genre = genre
+                });
+            }
+        }
+
+
+        public bool IsHiddenGenre(RankingGenre genre)
+        {
+            return HiddenGenres.Contains(genre);
+        }
+
+        public void RemoveHiddenGenre(RankingGenre genre)
+        {
+            HiddenGenres.Remove(genre);
+        }
+
+        public void AddHiddenGenre(RankingGenre genre)
+        {
+            if (false == HiddenGenres.Contains(genre))
+            {
+                HiddenGenres.Add(genre);
+            }
+        }
+
+
+        public bool IsFavoriteTag(RankingGenre genre, string tag)
+        {
+            return FavoriteTags.Any(x => x.Genre == genre && x.Tag == tag);
+        }
+
+        public void RemoveFavoriteTag(RankingGenre genre, string tag)
+        {
+            var target = FavoriteTags.FirstOrDefault(x => x.Genre == genre && x.Tag == tag);
+            if (target != null)
+            {
+                FavoriteTags.Remove(target);
+            }
+        }
+
+        public void AddFavoriteTag(RankingGenre genre, string tag, string label)
+        {
+            if (false == FavoriteTags.Any(x => x.Genre == genre && x.Tag == tag))
+            {
+                FavoriteTags.Add(new RankingGenreTag()
+                {
+                    Tag = tag,
+                    Label = label,
+                    Genre = genre
+                });
+            }
+        }
+
+
+        public void ResetCategoryPriority()
 		{
-			HighPriorityCategory.Clear();
-			MiddlePriorityCategory.Clear();
-			LowPriorityCategory.Clear();
-
-			var types = (IEnumerable<RankingCategory>)Enum.GetValues(typeof(RankingCategory));
-			foreach (var type in types)
-			{
-				MiddlePriorityCategory.Add(RankingCategoryInfo.CreateFromRankingCategory(type));
-			}
-
             Save().ConfigureAwait(false);
 		}
 
@@ -49,189 +121,14 @@ namespace NicoPlayerHohoema.Models
 		{
 
 		}
-
-
-
-
-
-		private RankingTarget _Target;
-
-		[DataMember]
-		public RankingTarget Target
-		{
-			get
-			{
-				return _Target;
-			}
-			set
-			{
-				SetProperty(ref _Target, value);
-			}
-		}
-
-
-		private RankingTimeSpan _TimeSpan;
-
-		[DataMember]
-		public RankingTimeSpan TimeSpan
-		{
-			get
-			{
-				return _TimeSpan;
-			}
-			set
-			{
-				SetProperty(ref _TimeSpan, value);
-			}
-		}
-
-
-
-
-		private RankingCategory _Category;
-
-		[DataMember]
-		public RankingCategory Category
-		{
-			get
-			{
-				return _Category;
-			}
-			set
-			{
-				SetProperty(ref _Category, value);
-			}
-		}
-
-		[DataMember]
-		public ObservableCollection<RankingCategoryInfo> HighPriorityCategory { get; private set; }
-
-		[DataMember]
-		public ObservableCollection<RankingCategoryInfo> MiddlePriorityCategory { get; private set; }
-
-		[DataMember]
-		public ObservableCollection<RankingCategoryInfo> LowPriorityCategory { get; private set; }
-
-
-
-
-        public void AddFavoritCategory(RankingCategory category)
-        {
-            var allPrio = new[] { HighPriorityCategory, MiddlePriorityCategory, LowPriorityCategory };
-            foreach (var prio in allPrio)
-            {
-                var target = prio.FirstOrDefault(x => x.Category == category);
-                if (target != null)
-                {
-                    prio.Remove(target);
-                }
-            }
-
-            HighPriorityCategory.Add(new RankingCategoryInfo(category));
-        }
-
-        public void AddDislikeCategory(RankingCategory category)
-        {
-            var allPrio = new[] { HighPriorityCategory, MiddlePriorityCategory, LowPriorityCategory };
-            foreach (var prio in allPrio)
-            {
-                var target = prio.FirstOrDefault(x => x.Category == category);
-                if (target != null)
-                {
-                    prio.Remove(target);
-                }
-            }
-
-            LowPriorityCategory.Add(new RankingCategoryInfo(category));
-        }
-
-        public void ResetFavoriteCategory()
-        {
-            var items = HighPriorityCategory.ToArray();
-            HighPriorityCategory.Clear();
-            foreach (var item in items)
-            {
-                MiddlePriorityCategory.Add(item);
-            }
-
-            Save().ConfigureAwait(false);
-        }
-
-        public void ResetDislikeCategory()
-        {
-            var items = LowPriorityCategory.ToArray();
-            LowPriorityCategory.Clear();
-            foreach (var item in items)
-            {
-                MiddlePriorityCategory.Add(item);
-            }
-
-            Save().ConfigureAwait(false);
-        }
-
-
-        public bool IsDislikeRankingCategory(RankingCategory category)
-		{
-			var categoryString = category.ToString();
-			return LowPriorityCategory.Any(x => x.Parameter == categoryString);
-		}
-
 	}
 
-	public class RankingCategoryInfo : BindableBase, IEquatable<RankingCategoryInfo>
-	{
+    public class RankingGenreTag
+    {
+        public string Label { get; set; }
+        public RankingGenre Genre { get; set; }
+        public string Tag { get; set; }
+    }
 
-		public static RankingCategoryInfo CreateFromRankingCategory(RankingCategory cat)
-		{
-            return new RankingCategoryInfo(cat);
-        }
 
-
-		public RankingCategoryInfo(RankingCategory category)
-		{
-            Category = category;
-            Parameter = category.ToString();
-            DisplayLabel = category.ToCulturelizeString();
-        }
-
-        public string ToParameterString()
-		{
-			return Newtonsoft.Json.JsonConvert.SerializeObject(this);
-		}
-
-		public static RankingCategoryInfo FromParameterString(string json)
-		{
-			return Newtonsoft.Json.JsonConvert.DeserializeObject<RankingCategoryInfo>(json);
-		}
-
-        public RankingCategory Category { get; private set; }
-
-		private string _Parameter;
-		public string Parameter
-		{
-			get { return _Parameter; }
-			set
-            {
-                if (SetProperty(ref _Parameter, value))
-                {
-                    Category = (RankingCategory)Enum.Parse(typeof(RankingCategory), _Parameter);
-                }
-            }
-
-		}
-
-		private string _DisplayLabel;
-		public string DisplayLabel
-		{
-			get { return _DisplayLabel; }
-			set { SetProperty(ref _DisplayLabel, value); }
-		}
-
-		public bool Equals(RankingCategoryInfo other)
-		{
-			if (other == null) { return false; }
-
-			return this.Parameter == other.Parameter;
-		}
-	}
 }

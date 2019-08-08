@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Networking.Connectivity;
 using Windows.UI.Core;
+using Windows.Web.Http;
 using AsyncLock = NicoPlayerHohoema.Models.Helpers.AsyncLock;
 
 namespace NicoPlayerHohoema.Models
@@ -38,6 +39,10 @@ namespace NicoPlayerHohoema.Models
         public Deferral Deferral { get; set; }
 
         public Uri TwoFactorAuthPageUri { get; set; }
+
+        public HttpRequestMessage HttpRequestMessage { get; set; }
+
+        public NiconicoContext Context { get; set; }
     }
 
     public struct NiconicoSessionLoginErrorEventArgs
@@ -95,15 +100,15 @@ namespace NicoPlayerHohoema.Models
         /// <summary>
         /// ユーザーID
         /// </summary>
-        private uint? _UserId;
-        public uint? UserId
+        private uint _UserId;
+        public uint UserId
         {
             get { return _UserId; }
             private set
             {
                 if (SetProperty(ref _UserId, value))
                 {
-                    UserIdString = _UserId?.ToString();
+                    UserIdString = _UserId.ToString();
                     RaisePropertyChanged(nameof(UserIdString));
                 }
             }
@@ -241,13 +246,6 @@ namespace NicoPlayerHohoema.Models
                 ,
                 Exception = e,
             });
-
-#if DEBUG
-            if (Debugger.IsAttached)
-            {
-                Debugger.Break();
-            }
-#endif
         }
 
         async Task LoginAfterResolveUserDetailAction(NiconicoContext context)
@@ -271,6 +269,7 @@ namespace NicoPlayerHohoema.Models
             {
                 IsLoggedIn = false;
                 HandleLoginError(e);
+                return;
             }
 
             IsLoggedIn = true;
@@ -294,11 +293,12 @@ namespace NicoPlayerHohoema.Models
                     Debugger.Break();
                 }
 #endif
+                return;
             }
 
             LogIn?.Invoke(this, new NiconicoSessionLoginEventArgs()
             {
-                UserId = UserId.Value,
+                UserId = UserId,
                 IsPremium = userInfo.IsPremium,
                 UserName = UserName,
                 UserIconUrl = UserIconUrl,
@@ -365,32 +365,15 @@ namespace NicoPlayerHohoema.Models
                     {
                         var deferral = new Deferral(async () =>
                         {
-                            using (_ = await SigninLock.LockAsync())
-                            {
-                                try
-                                {
-                                    result = await context.GetIsSignedInAsync();
-
-                                    UpdateServiceStatus(result);
-
-                                    if (context != null)
-                                    {
-                                        IsLoggedIn = true;
-
-                                        await LoginAfterResolveUserDetailAction(context);
-                                    }
-                                }
-                                catch (Exception e)
-                                {
-                                    HandleLoginError(e);
-                                }
-                            }
+                            
                         });
 
                         RequireTwoFactorAuth.Invoke(this, new NiconicoSessionLoginRequireTwoFactorAuthEventArgs()
                         {
                             Deferral = deferral,
-                            TwoFactorAuthPageUri = context.LastRedirectHttpRequestMessage.RequestUri
+                            TwoFactorAuthPageUri = context.LastRedirectHttpRequestMessage.RequestUri,
+                            HttpRequestMessage = context.LastRedirectHttpRequestMessage,
+                            Context = context
                         });
 
                             
@@ -420,6 +403,28 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
+        public async Task<NiconicoSignInStatus> TryTwoFactorAuthAsync(Uri uri, NiconicoContext context, string code, bool isTrustedDevice, string deviceName)
+        {
+            using (_ = await SigninLock.LockAsync())
+            {
+                var result = await context.MfaAsync(uri, code, isTrustedDevice, deviceName);
+                if (result == NiconicoSignInStatus.Success)
+                {
+                    Context = context;
+
+                    IsLoggedIn = true;
+
+                    await Task.Delay(1000);
+
+                    await LoginAfterResolveUserDetailAction(context);
+                }
+
+                UpdateServiceStatus(result);
+
+                return result;
+            }
+        }
+
 
         public async Task<NiconicoSignInStatus> SignOut()
         {
@@ -427,8 +432,8 @@ namespace NicoPlayerHohoema.Models
 
             using (var releaser = await SigninLock.LockAsync())
             {
-                UserId = null;
                 UserName = null;
+                UserId = default(uint);
                 UserIconUrl = null;
 
                 IsLoggedIn = false;
@@ -456,8 +461,6 @@ namespace NicoPlayerHohoema.Models
                 finally
                 {
                     Context = new NiconicoContext();
-
-                    _UserId = null;
 
                 }
             }

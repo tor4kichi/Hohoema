@@ -102,7 +102,7 @@
             </i:Interaction.Behaviors>
             
             <GridView.Header>
-                <uwpcontrols:ScrollHeader 
+                <controls:ScrollHeader 
                     x:Name="ScrollHeader"
                     Mode="Sticky"
                     
@@ -239,7 +239,7 @@
 
                         </CommandBar>
                     </StackPanel>
-                </uwpcontrols:ScrollHeader>
+                </controls:ScrollHeader>
 
             </GridView.Header>
 

@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Models;
+﻿using NicoPlayerHohoema.Dialogs;
+using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Helpers;
 using Prism.Commands;
@@ -31,19 +32,19 @@ namespace NicoPlayerHohoema.Views.Subscriptions
                 // フォローしているアイテムから選択できるように
                 // （コミュニティを除く）
                 var selectableContents = FollowManager.GetAllFollowInfoGroups()
-                            .Select(x => new Dialogs.ChoiceFromListSelectableContainer(x.FollowItemType.ToCulturelizeString(),
-                                x.FollowInfoItems.Where(y => y.FollowItemType != Models.FollowItemType.Community).Select(y => new Dialogs.SelectDialogPayload()
+                            .Select(x => new ChoiceFromListSelectableContainer(x.FollowItemType.ToCulturelizeString(),
+                                x.FollowInfoItems.Where(y => y.FollowItemType != Models.FollowItemType.Community).Select(y => new SelectDialogPayload()
                                 {
                                     Label = y.Name,
                                     Id = y.Id,
                                     Context = y
                                 })));
 
-                var keywordInput = new Dialogs.TextInputSelectableContainer("キーワード検索", null);
+                var keywordInput = new TextInputSelectableContainer("キーワード検索", null);
 
                 var result = await DialogService.ShowContentSelectDialogAsync(
                     $"『{subscription.Label}』へ購読を追加", 
-                    Enumerable.Concat<Dialogs.ISelectableContainer>(new[] { keywordInput }, selectableContents)
+                    Enumerable.Concat<ISelectableContainer>(new[] { keywordInput }, selectableContents)
                     );
 
                 if (result != null)

@@ -116,7 +116,7 @@
             </i:Interaction.Behaviors>
             <ListView.Header>
 
-                <uwpcontrols:ScrollHeader
+                <controls:ScrollHeader
                     x:Name="ScrollHeader"
                     Mode="QuickReturn" >
 
@@ -187,7 +187,7 @@
                             </CommandBar.PrimaryCommands>
                         </CommandBar>
                     </StackPanel>
-                </uwpcontrols:ScrollHeader>
+                </controls:ScrollHeader>
             </ListView.Header>
 
 

@@ -12,7 +12,6 @@ using Windows.Storage;
 using Newtonsoft.Json;
 using System.IO;
 using NicoPlayerHohoema.Models.Helpers;
-using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.ViewModels;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;

@@ -19,7 +19,6 @@ using Windows.System;
 using NicoPlayerHohoema.Models.Cache;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Models.LocalMylist;
-using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Services;
 using Prism.Navigation;
@@ -125,12 +124,12 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenOwnerUserPageCommand
                     ?? (_OpenOwnerUserPageCommand = new DelegateCommand(() =>
                     {
-                        if (_VideoInfo.Owner.UserType == Mntone.Nico2.Videos.Thumbnail.UserType.User)
+                        if (_VideoInfo.Owner.UserType == Database.NicoVideoUserType.User)
                         {
                             PageManager.OpenPageWithId(HohoemaPageType.UserInfo, _VideoInfo.Owner.OwnerId);
                         }
                     }
-                    , () => _VideoInfo?.Owner.UserType == Mntone.Nico2.Videos.Thumbnail.UserType.User
+                    , () => _VideoInfo?.Owner.UserType == Database.NicoVideoUserType.User
                     ));
             }
         }
@@ -144,7 +143,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenOwnerUserVideoPageCommand
                     ?? (_OpenOwnerUserVideoPageCommand = new DelegateCommand(() =>
                     {
-                        if (_VideoInfo.Owner.UserType == Mntone.Nico2.Videos.Thumbnail.UserType.User)
+                        if (_VideoInfo.Owner.UserType == Database.NicoVideoUserType.User)
                         {
                             PageManager.OpenPageWithId(HohoemaPageType.UserVideo, _VideoInfo.Owner.OwnerId);
                         }
@@ -285,7 +284,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         string IVideoContent.ProviderName => _VideoInfo.Owner?.ScreenName;
 
-        Mntone.Nico2.Videos.Thumbnail.UserType IVideoContent.ProviderType => _VideoInfo.Owner.UserType;
+        Database.NicoVideoUserType IVideoContent.ProviderType => _VideoInfo.Owner.UserType;
 
         string INiconicoObject.Id => _VideoInfo.RawVideoId;
 

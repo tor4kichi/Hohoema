@@ -17,151 +17,140 @@ using Unity;
 using Prism.Navigation;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Services.Helpers;
+using Prism.Commands;
+using System.Collections.ObjectModel;
+using NicoPlayerHohoema.Database.Local;
+using System.Diagnostics;
+using System.Reactive.Concurrency;
+using Prism.Events;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public class RankingCategoryPageViewModel : HohoemaListingPageViewModelBase<RankedVideoInfoControlViewModel>, INavigatedAwareAsync
     {
+        static Models.Helpers.AsyncLock _updateLock = new Models.Helpers.AsyncLock();
         public RankingCategoryPageViewModel(
             PageManager pageManager,
             Services.HohoemaPlaylist hohoemaPlaylist,
             NicoVideoProvider nicoVideoProvider,
+            RankingProvider rankingProvider,
             RankingSettings rankingSettings,
-            NGSettings ngSettings
+            NGSettings ngSettings,
+            IScheduler scheduler,
+            IEventAggregator eventAggregator
             )
         {
             PageManager = pageManager;
             HohoemaPlaylist = hohoemaPlaylist;
             NicoVideoProvider = nicoVideoProvider;
+            RankingProvider = rankingProvider;
             RankingSettings = rankingSettings;
             NgSettings = ngSettings;
-
-            SelectedRankingTarget = RankingSettings.ToReactivePropertyAsSynchronized(x => x.Target, mode: ReactivePropertyMode.DistinctUntilChanged)
-                .AddTo(_CompositeDisposable);
-            SelectedRankingTimeSpan = RankingSettings.ToReactivePropertyAsSynchronized(x => x.TimeSpan, mode: ReactivePropertyMode.DistinctUntilChanged)
-                .AddTo(_CompositeDisposable);
-
+            _scheduler = scheduler;
+            _eventAggregator = eventAggregator;
             IsFailedRefreshRanking = new ReactiveProperty<bool>(false)
                 .AddTo(_CompositeDisposable);
             CanChangeRankingParameter = new ReactiveProperty<bool>(false)
                 .AddTo(_CompositeDisposable);
 
-            new[] {
-                SelectedRankingTarget.ToUnit(),
-                SelectedRankingTimeSpan.ToUnit()
+            SelectedRankingTag = new ReactiveProperty<Database.Local.RankingGenreTag>();
+            SelectedRankingTerm = new ReactiveProperty<RankingTerm?>(RankingTerm.Hour);
+
+            CurrentSelectableRankingTerms = new[]
+            {
+                this.ObserveProperty(x => RankingGenre).ToUnit(),
+                SelectedRankingTag.ToUnit()
             }
-            .Merge()
-            .Subscribe(__ =>
+            .CombineLatest()
+            .Select(x =>
             {
-                _ = ResetList();
-            })
-            .AddTo(_CompositeDisposable);
-        }
-
-        private static readonly List<List<RankingCategory>> RankingCategories;
-        public static IReadOnlyList<RankingTarget> RankingTargetItems { get; }
-        public static IReadOnlyList<RankingTimeSpan> RankingTimeSpanItems { get; }
-
-        static RankingCategoryPageViewModel()
-        {
-            RankingCategories = new List<List<RankingCategory>>()
-            {
-                new List<RankingCategory>()
+                if (RankingGenre != RankingGenre.HotTopic)
                 {
-                    RankingCategory.all
-                },
-                new List<RankingCategory>()
-                {
-                    RankingCategory.g_ent2,
-                    RankingCategory.ent,
-                    RankingCategory.music,
-                    RankingCategory.sing,
-                    RankingCategory.dance,
-                    RankingCategory.play,
-                    RankingCategory.vocaloid,
-                    RankingCategory.nicoindies
-                },
-                new List<RankingCategory>()
-                {
-                    RankingCategory.g_life2,
-                    RankingCategory.animal,
-                    RankingCategory.cooking,
-                    RankingCategory.nature,
-                    RankingCategory.travel,
-                    RankingCategory.sport,
-                    RankingCategory.lecture,
-                    RankingCategory.drive,
-                    RankingCategory.history,
-                },
-                new List<RankingCategory>()
-                {
-                    RankingCategory.g_politics
-                },
-                new List<RankingCategory>()
-                {
-                    RankingCategory.g_tech,
-                    RankingCategory.science,
-                    RankingCategory.tech,
-                    RankingCategory.handcraft,
-                    RankingCategory.make,
-                },
-                new List<RankingCategory>()
-                {
-                    RankingCategory.g_culture2,
-                    RankingCategory.anime,
-                    RankingCategory.game,
-                    RankingCategory.jikkyo,
-                    RankingCategory.toho,
-                    RankingCategory.imas,
-                    RankingCategory.radio,
-                    RankingCategory.draw,
-                },
-                new List<RankingCategory>()
-                {
-                    RankingCategory.g_other,
-                    RankingCategory.are,
-                    RankingCategory.diary,
-                    RankingCategory.other,
-
+                    if (string.IsNullOrEmpty(SelectedRankingTag.Value?.Tag))
+                    {
+                        return NiconicoRanking.Constants.AllRankingTerms;
+                    }
+                    else
+                    {
+                        return NiconicoRanking.Constants.GenreWithTagAccepteRankingTerms;
+                    }
                 }
+                else
+                {
+                    return NiconicoRanking.Constants.HotTopicAccepteRankingTerms;
+                }
+            })
+            .ToReadOnlyReactivePropertySlim()
+                .AddTo(_CompositeDisposable);
 
-            };
+            new[] {
+                this.ObserveProperty(x => RankingGenre).ToUnit(),
+                SelectedRankingTag.ToUnit(),
+                SelectedRankingTerm.Where(x => !_nowInitializeRankingTerm).ToUnit()
+            }
+                .CombineLatest()
+                .Where(_ => _IsNavigateCompleted)
+                .Throttle(TimeSpan.FromMilliseconds(250))
+                .Subscribe(__ =>
+                {
+                    _ = ResetList();
+                })
+                .AddTo(_CompositeDisposable);
+
+            CurrentSelectableRankingTerms
+                .Delay(TimeSpan.FromMilliseconds(50))
+                .Subscribe(x =>
+                {
+                    _nowInitializeRankingTerm = true;
+                    SelectedRankingTerm.Value = x[0];
+                    _nowInitializeRankingTerm = false;
+                })
+                .AddTo(_CompositeDisposable);
 
 
-            RankingTargetItems = new List<RankingTarget>()
-            {
-                RankingTarget.fav,
-                RankingTarget.view,
-                RankingTarget.res,
-                RankingTarget.mylist,
-            };
 
-            RankingTimeSpanItems = new List<RankingTimeSpan>()
-            {
-                RankingTimeSpan.hourly,
-                RankingTimeSpan.daily,
-                RankingTimeSpan.weekly,
-                RankingTimeSpan.monthly,
-                RankingTimeSpan.total,
-            };
         }
+
+        bool _nowInitializeRankingTerm = false;
 
         protected override bool TryGetHohoemaPin(out HohoemaPin pin)
         {
+            var genreName = RankingGenre.ToCulturelizeString();
+            var tag = SelectedRankingTag.Value?.Tag;
+            var pickedTag = PickedTags.FirstOrDefault(x => x.Tag == tag);
+            string parameter = null;
+            if (string.IsNullOrEmpty(pickedTag?.Tag) || pickedTag.Tag == "all")
+            {
+                pickedTag = null;
+                parameter = $"genre={RankingGenre}";
+            }
+            else
+            {
+                parameter = $"genre={RankingGenre}&tag={Uri.EscapeDataString(SelectedRankingTag.Value.Tag)}";
+            }
             pin = new HohoemaPin()
             {
-                Label = RankingCategory.ToCulturelizeString(),
+                Label = pickedTag != null ? $"{pickedTag.DisplayName} - {genreName}" : $"{genreName}",
                 PageType = HohoemaPageType.RankingCategory,
-                Parameter = $"category={RankingCategory}"
+                Parameter = parameter
             };
 
             return true;
         }
 
-        public RankingCategory RankingCategory { get; private set; }
+        private RankingGenre _RankingGenre;
+        public RankingGenre RankingGenre
+        {
+            get => _RankingGenre;
+            set => SetProperty(ref _RankingGenre, value);
+        }
 
-        public ReactiveProperty<RankingTarget> SelectedRankingTarget { get; private set; }
-        public ReactiveProperty<RankingTimeSpan> SelectedRankingTimeSpan { get; private set; }
+        public ReactiveProperty<Database.Local.RankingGenreTag> SelectedRankingTag { get; private set; }
+        public ReactiveProperty<RankingTerm?> SelectedRankingTerm { get; private set; }
+
+        public IReadOnlyReactiveProperty<RankingTerm[]> CurrentSelectableRankingTerms { get; }
+
+        public ObservableCollection<Database.Local.RankingGenreTag> PickedTags { get; } = new ObservableCollection<Database.Local.RankingGenreTag>();
 
 
         public ReactiveProperty<bool> IsFailedRefreshRanking { get; private set; }
@@ -170,45 +159,150 @@ namespace NicoPlayerHohoema.ViewModels
         public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public RankingSettings RankingSettings { get; }
+        public RankingProvider RankingProvider { get; }
         public NGSettings NgSettings { get; }
 
+        private static RankingGenre? _previousRankingGenre;
+        private readonly IScheduler _scheduler;
+        private readonly IEventAggregator _eventAggregator;
+        bool _IsNavigateCompleted = false;
 
-        private static RankingCategory? _previousRankingCategory;
-
-        public override Task OnNavigatedToAsync(INavigationParameters parameters)
+        public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            var mode = parameters.GetNavigationMode();
-            if (mode == NavigationMode.New)
+            using (await _updateLock.LockAsync())
             {
-                if (parameters.TryGetValue("category", out RankingCategory category))
+                _IsNavigateCompleted = false;
+
+                var mode = parameters.GetNavigationMode();
+                if (mode == NavigationMode.New)
                 {
-                    RankingCategory = category;
-                }
-                else if (parameters.TryGetValue("category", out string categoryString))
-                {
-                    if (Enum.TryParse(categoryString, out category))
+                    SelectedRankingTag.Value = null;
+                    if (parameters.TryGetValue("genre", out RankingGenre genre))
                     {
-                        RankingCategory = category;
+                        RankingGenre = genre;
+                    }
+                    else if (parameters.TryGetValue("genre", out string genreString))
+                    {
+                        if (Enum.TryParse(genreString, out genre))
+                        {
+                            RankingGenre = genre;
+                        }
+                    }
+                    else
+                    {
+                        throw new Exception("ランキングページの表示に失敗");
+                    }
+
+                    // TODO: 人気のタグ、いつ再更新を掛ける
+                    try
+                    {
+                        PickedTags.Clear();
+                        var tags = await RankingProvider.GetRankingGenreTagsAsync(RankingGenre);
+                        foreach (var tag in tags)
+                        {
+                            PickedTags.Add(tag);
+                        }
+                    }
+                    catch { }
+
+                    if (parameters.TryGetValue("tag", out string queryTag))
+                    {
+                        if (!string.IsNullOrEmpty(queryTag))
+                        {
+                            var unescapedTagString = Uri.UnescapeDataString(queryTag);
+
+                            var tag = PickedTags.FirstOrDefault(x => x.Tag == unescapedTagString);
+                            if (tag != null)
+                            {
+                                SelectedRankingTag.Value = tag;
+                            }
+                            else
+                            {
+                                Debug.WriteLine("無効なタグです: " + unescapedTagString);
+                                SelectedRankingTag.Value = PickedTags.FirstOrDefault();
+                            }
+                        }
+                    }
+
+                    if (SelectedRankingTag.Value == null)
+                    {
+                        SelectedRankingTag.Value = PickedTags.FirstOrDefault();
                     }
                 }
                 else
                 {
-                    throw new Exception("ランキングページの表示に失敗");
+                    RankingGenre = _previousRankingGenre.Value;
                 }
-            }
-            else
-            {
-                RankingCategory = _previousRankingCategory.Value;
-            }
 
-            PageManager.PageTitle = RankingCategory.ToCulturelizeString();
+                _IsNavigateCompleted = true;
 
-            return base.OnNavigatedToAsync(parameters);
+                PageManager.PageTitle = RankingGenre.ToCulturelizeString();
+
+
+                HasError
+                    .Where(x => x)
+                    .Subscribe(async _ =>
+                {
+                    try
+                    {
+                        try
+                        {
+                            var tags = await RankingProvider.GetRankingGenreTagsAsync(RankingGenre, isForceUpdate: true);
+                            PickedTags.Clear();
+                            foreach (var tag in tags)
+                            {
+                                PickedTags.Add(tag);
+                            }
+                        }
+                        catch
+                        {
+                            return;
+                        }
+
+
+
+                        var sameGenreFavTags = RankingSettings.FavoriteTags.Where(x => x.Genre == RankingGenre).ToArray();
+                        foreach (var oldFavTag in sameGenreFavTags)
+                        {
+                            if (false == PickedTags.Any(x => x.Tag == oldFavTag.Tag))
+                            {
+                                RankingSettings.RemoveFavoriteTag(RankingGenre, oldFavTag.Tag);
+                            }
+                        }
+
+                        var __ = RankingSettings.Save();
+
+                        var selectedTag = SelectedRankingTag.Value;
+                        if (selectedTag.Tag != null)
+                        {
+                            if (false == PickedTags.Any(x => x.Tag == selectedTag.Tag))
+                            {
+                                SelectedRankingTag.Value = PickedTags.ElementAtOrDefault(0);
+
+                                _eventAggregator.GetEvent<InAppNotificationEvent>().Publish(new InAppNotificationPayload()
+                                {
+                                    Content = $"「{selectedTag.DisplayName}」は人気のタグの一覧から外れたようです",
+                                    ShowDuration = TimeSpan.FromSeconds(5),
+                                    SymbolIcon = Windows.UI.Xaml.Controls.Symbol.Important
+                                });
+                            }
+                        }
+                    }
+                    catch
+                    {
+
+                    }
+                })
+                    .AddTo(_NavigatingCompositeDisposable);
+
+                await base.OnNavigatedToAsync(parameters);
+            }
         }
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
-            _previousRankingCategory = RankingCategory;
+            _IsNavigateCompleted = false;
+            _previousRankingGenre = RankingGenre;
 
             base.OnNavigatedFrom(parameters);
         }
@@ -218,28 +312,27 @@ namespace NicoPlayerHohoema.ViewModels
         {
             IsFailedRefreshRanking.Value = false;
 
-            var categoryInfo = RankingCategory;
+            var categoryInfo = RankingGenre;
 
             IIncrementalSource<RankedVideoInfoControlViewModel> source = null;
             try
             {
-                var target = SelectedRankingTarget.Value;
-                var timeSpan = SelectedRankingTimeSpan.Value;
-                source = new CategoryRankingLoadingSource(categoryInfo, target, timeSpan, NicoVideoProvider, NgSettings);
+                source = new CategoryRankingLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, NgSettings);
 
                 CanChangeRankingParameter.Value = true;
             }
             catch
             {
                 IsFailedRefreshRanking.Value = true;
-            }
-
+            }            
 
             return source;
         }
 
         protected override void PostResetList()
         {
+            _IsNavigateCompleted = true;
+
             base.PostResetList();
         }
     }
@@ -248,44 +341,45 @@ namespace NicoPlayerHohoema.ViewModels
     public class CategoryRankingLoadingSource : HohoemaIncrementalSourceBase<RankedVideoInfoControlViewModel>
     {
         public CategoryRankingLoadingSource(
-            RankingCategory category, 
-            RankingTarget target, 
-            RankingTimeSpan timeSpan, 
-            NicoVideoProvider nicoVideoProvider, 
+            RankingGenre genre,
+            string tag,
+            RankingTerm term, 
             NGSettings ngSettings
             )
             : base()
         {
-            Category = category;
-            Target = target;
-            TimeSpan = timeSpan;
-            NicoVideoProvider = nicoVideoProvider;
+            Genre = genre;
+            Term = term;
+            Tag = tag;
             NgSettings = ngSettings;
         }
 
-        public RankingCategory Category { get; }
-        public RankingTarget Target { get; }
-        public RankingTimeSpan TimeSpan { get; }
-        public NicoVideoProvider NicoVideoProvider { get; }
+        public RankingGenre Genre { get; }
+        public RankingTerm Term { get; }
+        public string Tag { get; }
         public NGSettings NgSettings { get; }
 
-        NiconicoVideoRss RankingRss;
-
-        readonly Regex RankingRankPrefixPatternRegex = new Regex("(^第\\d*位：)");
+        Mntone.Nico2.RssVideoResponse RankingRss;
 
         #region Implements HohoemaPreloadingIncrementalSourceBase		
 
-        public override uint OneTimeLoadCount => 100;
+        public override uint OneTimeLoadCount => 20;
 
         protected override Task<IAsyncEnumerable<RankedVideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
         {
-            return Task.FromResult(RankingRss.Channel.Items.Skip(head).Take(count)
+            return Task.FromResult(RankingRss.Items.Skip(head).Take(count)
                 .Select((x, index) =>
                 {
-                    var vm = new RankedVideoInfoControlViewModel(NicoVideoIdHelper.UrlToVideoId(x.VideoUrl));
+                    var vm = new RankedVideoInfoControlViewModel(x.GetVideoId());
+                    
                     vm.Rank = (uint)(head + index + 1);
 
-                    vm.SetTitle(RankingRankPrefixPatternRegex.Replace(x.Title, ""));
+                    vm.SetTitle(x.GetRankTrimmingTitle());
+                    var moreData = x.GetMoreData();
+                    vm.SetVideoDuration(moreData.Length);
+                    vm.SetThumbnailImage(moreData.ThumbnailUrl);
+                    vm.SetSubmitDate(x.PubDate.DateTime);
+
                     return vm;
                 })
             .ToAsyncEnumerable()
@@ -294,9 +388,9 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override async Task<int> ResetSourceImpl()
         {
-            RankingRss = await NiconicoRanking.GetRankingData(Target, TimeSpan, Category);
+            RankingRss = await NiconicoRanking.GetRankingRssAsync(Genre, Tag, Term);
 
-            return RankingRss.Channel.Items.Count;
+            return RankingRss.Items.Count;
 
         }
 
@@ -307,15 +401,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
     }
-
-
-
-    public class CategoryWithFav
-    {
-        public RankingCategory Category { get; set; }
-        public bool IsFavorit { get; set; }
-    }
-
 
 
     public class RankedVideoInfoControlViewModel : VideoInfoControlViewModel
@@ -339,33 +424,5 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public uint Rank { get; internal set; }
-    }
-
-
-    public class RankingTargetListItem : BindableBase
-    {
-        public RankingTargetListItem(RankingTarget target)
-        {
-            TargetType = target;
-            Label = target.ToString(); // TODO: RankingTarget のローカライズ
-        }
-
-        public string Label { get; private set; }
-
-        public RankingTarget TargetType { get; private set; }
-    }
-
-
-    public class RankingTimeSpanListItem : BindableBase
-    {
-        public RankingTimeSpanListItem(RankingTimeSpan rankingTimeSpan)
-        {
-            TimeSpan = rankingTimeSpan;
-            Label = rankingTimeSpan.ToString(); //TODO: RankingTimeSpanのローカライズ
-        }
-
-        public string Label { get; private set; }
-
-        public RankingTimeSpan TimeSpan { get; private set; }
     }
 }
