@@ -26,7 +26,7 @@
     <AppxPackageDir>D:\tor4kichi\Hohoema\packages\</AppxPackageDir>
     <RuntimeIdentifiers>win10-arm;win10-arm-aot;win10-x86;win10-x86-aot;win10-x64;win10-x64-aot</RuntimeIdentifiers>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-    <AppInstallerUpdateFrequency>1</AppInstallerUpdateFrequency>
+    <AppInstallerUpdateFrequency>0</AppInstallerUpdateFrequency>
     <AppInstallerCheckForUpdateFrequency>OnApplicationRun</AppInstallerCheckForUpdateFrequency>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
@@ -136,6 +136,7 @@
     </Compile>
     <Compile Include="Database\Local\RankingGenreTagsDb.cs" />
     <Compile Include="Events\RankingGenreCustomizeEvent.cs" />
+    <Compile Include="FixPrism\BindableBaseWithFix.cs" />
     <Compile Include="Models\Niconico\INiconicoStreamingSessionProvider.cs" />
     <Compile Include="Models\Niconico\Video\Comment\NicoScript.cs" />
     <Compile Include="Services\Commands\AddMylistCommand.cs" />

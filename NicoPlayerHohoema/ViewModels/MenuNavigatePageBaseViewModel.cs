@@ -716,7 +716,7 @@ namespace NicoPlayerHohoema.ViewModels
                 MenuItems.Add(new MenuItemViewModel("フォロー", HohoemaPageType.FollowManage));
                 MenuItems.Add(new MenuItemViewModel("視聴履歴", HohoemaPageType.WatchHistory));
                 MenuItems.Add(new MenuItemViewModel("キャッシュ", HohoemaPageType.CacheManagement));
-                MenuItems.Add(new MenuItemViewModel("オススメ", HohoemaPageType.Recommend));
+//                MenuItems.Add(new MenuItemViewModel("オススメ", HohoemaPageType.Recommend));
                 MenuItems.Add(new MenuItemViewModel("あとで見る", HohoemaPageType.Mylist, new NavigationParameters { { "id", HohoemaPlaylist.WatchAfterPlaylistId }}));
             }
             else
