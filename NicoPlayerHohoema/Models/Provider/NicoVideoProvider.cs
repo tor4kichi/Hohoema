@@ -2,10 +2,10 @@
 using Mntone.Nico2.Mylist;
 using Mntone.Nico2.Videos.Dmc;
 using Mntone.Nico2.Videos.Recommend;
-using Mntone.Nico2.Videos.Thumbnail;
 using Mntone.Nico2.Videos.WatchAPI;
 using NicoPlayerHohoema.Database;
 using NicoPlayerHohoema.Models.Helpers;
+using NicoPlayerHohoema.Models.Niconico;
 using Prism.Events;
 using System;
 using System.Collections.Generic;

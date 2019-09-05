@@ -34,10 +34,10 @@ namespace NicoPlayerHohoema.Views.Subscriptions
                     string ownerName = video.ProviderName;
                     switch (video.ProviderType)
                     {
-                        case Mntone.Nico2.Videos.Thumbnail.UserType.User:
+                        case NicoPlayerHohoema.Models.Niconico.UserType.User:
                             souceType = Models.Subscription.SubscriptionSourceType.User;
                             break;
-                        case Mntone.Nico2.Videos.Thumbnail.UserType.Channel:
+                        case NicoPlayerHohoema.Models.Niconico.UserType.Channel:
                             souceType = Models.Subscription.SubscriptionSourceType.Channel;
                             break;
                         default:

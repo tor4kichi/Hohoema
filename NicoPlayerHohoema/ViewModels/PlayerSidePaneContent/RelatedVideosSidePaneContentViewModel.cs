@@ -146,7 +146,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
                 // チャンネル動画で次動画が見つからなかった場合は
                 // チャンネル動画一覧から次動画をサジェストする
-                if (sourceVideo.Owner.UserType == Mntone.Nico2.Videos.Thumbnail.UserType.Channel
+                if (sourceVideo.Owner.UserType == NicoPlayerHohoema.Models.Niconico.UserType.Channel
                     && NextVideo == null
                     )
                 {

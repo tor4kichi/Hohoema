@@ -461,7 +461,8 @@ namespace NicoPlayerHohoema.ViewModels
             string htmlDescription = null;
             try
             {
-                 htmlDescription = await NiconicoSession.Context.Live.GetDescriptionAsync(LiveId);
+                var info  = await NiconicoSession.Context.Live.GetLiveVideoInfoAsync(LiveId);
+                htmlDescription = info.VideoInfo.Video.Description;
             }
             catch
             {

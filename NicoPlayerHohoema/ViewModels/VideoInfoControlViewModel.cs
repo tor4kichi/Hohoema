@@ -1,7 +1,6 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Mylist;
 using Mntone.Nico2.Searches.Video;
-using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Models;
 using Prism.Mvvm;
 using Reactive.Bindings;
@@ -28,6 +27,7 @@ using NicoPlayerHohoema.Commands.Subscriptions;
 using NicoPlayerHohoema.Commands;
 using NicoPlayerHohoema.Commands.Cache;
 using Prism.Commands;
+using NicoPlayerHohoema.Models.Niconico;
 
 namespace NicoPlayerHohoema.ViewModels
 {

@@ -1,5 +1,4 @@
-﻿using Mntone.Nico2.Videos.Thumbnail;
-using Mntone.Nico2.Videos.WatchAPI;
+﻿using Mntone.Nico2.Videos.WatchAPI;
 using NicoPlayerHohoema.Models.Helpers;
 using Prism.Mvvm;
 using System;

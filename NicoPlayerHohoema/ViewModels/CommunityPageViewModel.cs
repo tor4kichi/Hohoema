@@ -18,7 +18,6 @@ using Windows.System;
 using Windows.UI.Popups;
 using NicoPlayerHohoema.Models.Provider;
 using NiconicoSession = NicoPlayerHohoema.Models.NiconicoSession;
-using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Interfaces;
 using Mntone.Nico2.Live;
 using NicoPlayerHohoema.Services;
@@ -503,7 +502,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public string ProviderName => null;
 
-        public Mntone.Nico2.Videos.Thumbnail.UserType ProviderType => Mntone.Nico2.Videos.Thumbnail.UserType.User;
+        public NicoPlayerHohoema.Models.Niconico.UserType ProviderType => NicoPlayerHohoema.Models.Niconico.UserType.User;
 
         public string Id => VideoInfo.VideoId;
 

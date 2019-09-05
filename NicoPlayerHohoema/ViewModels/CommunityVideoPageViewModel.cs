@@ -15,9 +15,9 @@ using Prism.Commands;
 using System.Windows.Input;
 using NicoPlayerHohoema.Interfaces;
 using System.Collections.Async;
-using Mntone.Nico2.Videos.Thumbnail;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.Models.Niconico;
 
 namespace NicoPlayerHohoema.ViewModels
 {

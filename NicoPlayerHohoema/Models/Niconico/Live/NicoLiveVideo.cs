@@ -659,9 +659,6 @@ namespace NicoPlayerHohoema.Models.Live
                 // HeartbeatAPIへのアクセスを停止
                 EndCommentClientConnection();
 
-                // 放送からの離脱APIを叩く
-                await NicoLiveProvider.LeaveAsync(LiveId);
-
                 await StopLiveElapsedTimer();
             }
         }
@@ -797,7 +794,7 @@ namespace NicoPlayerHohoema.Models.Live
                     }
 
                     _HttpClient = new Windows.Web.Http.HttpClient();
-                    _HttpClient.DefaultRequestHeaders.UserAgent.ParseAdd(string.Join(" ", NiconicoSession.Context.HttpClient.DefaultRequestHeaders.GetValues("user-agent")));
+                    _HttpClient.DefaultRequestHeaders.UserAgent.ParseAdd(string.Join(" ", NiconicoSession.Context.HttpClient.DefaultRequestHeaders["user-agent"]));
 
                     var cookie = NiconicoSession.Context.GetCurrentNicoVideoCookieHeader();
                     _HttpClient.DefaultRequestHeaders.Remove("Cookie");

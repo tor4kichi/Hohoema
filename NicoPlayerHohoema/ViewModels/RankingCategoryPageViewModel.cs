@@ -183,7 +183,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override async Task<int> ResetSourceImpl()
         {
-            RankingRss = await NiconicoRanking.GetRankingRssAsync(Genre, Term, Tag);
+            RankingRss = await NiconicoRanking.GetRankingRssAsync(Genre, Tag, Term ?? RankingTerm.Hour);
 
             return RankingRss.Items.Count;
 

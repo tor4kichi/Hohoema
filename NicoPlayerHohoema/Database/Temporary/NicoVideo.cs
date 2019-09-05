@@ -1,6 +1,6 @@
 ﻿using LiteDB;
 using Mntone.Nico2;
-using Mntone.Nico2.Videos.Thumbnail;
+using NicoPlayerHohoema.Models.Niconico;
 using System;
 using System.Collections.Generic;
 using System.Linq;

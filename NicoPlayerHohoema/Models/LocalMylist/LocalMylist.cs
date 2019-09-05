@@ -1,4 +1,4 @@
-﻿using Mntone.Nico2.Videos.Thumbnail;
+﻿using NicoPlayerHohoema.Models.Niconico;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;

@@ -4,14 +4,13 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Storage.Streams;
-
+using Windows.Web.Http;
 
 namespace NicoPlayerHohoema.Models.Helpers
 {
@@ -73,10 +72,11 @@ namespace NicoPlayerHohoema.Models.Helpers
 						request.Headers.Add("If-Unmodified-Since", _LastModifiedHeader);
 					}
 
-					return await _Client.SendAsync(
+					return await _Client.SendRequestAsync(
 						request,
 						HttpCompletionOption.ResponseHeadersRead
 						)
+                        .AsTask()
 						.ConfigureAwait(false);
 				}
 				catch (System.Exception e) when (e.Message.StartsWith("Http server does not support range requests"))
@@ -93,7 +93,7 @@ namespace NicoPlayerHohoema.Models.Helpers
 			Debug.WriteLine(response);
 
 
-			if (response.StatusCode != HttpStatusCode.PartialContent && position != 0)
+			if (response.StatusCode != Windows.Web.Http.HttpStatusCode.PartialContent && position != 0)
 			{
 				throw new Exception("HTTP server did not reply with a '206 Partial Content' status.");
 			}
@@ -109,23 +109,23 @@ namespace NicoPlayerHohoema.Models.Helpers
 			}
             */
 
-			if (String.IsNullOrEmpty(_EtagHeader) && response.Headers.Contains("ETag"))
+			if (String.IsNullOrEmpty(_EtagHeader) && response.Headers.ContainsKey("ETag"))
 			{
-				_EtagHeader = response.Headers.GetValues("ETag").First();
+				response.Headers.TryGetValue("ETag", out _EtagHeader);
 			}
 
-			if (String.IsNullOrEmpty(_LastModifiedHeader) && response.Content.Headers.Contains("Last-Modified"))
+			if (String.IsNullOrEmpty(_LastModifiedHeader) && response.Content.Headers.ContainsKey("Last-Modified"))
 			{
-				_LastModifiedHeader = response.Content.Headers.GetValues("Last-Modified").First();
+				response.Content.Headers.TryGetValue("Last-Modified", out _LastModifiedHeader);
 			}
-			if (response.Content.Headers.Contains("Content-Type"))
+			if (response.Content.Headers.ContainsKey("Content-Type"))
 			{
-				contentType = response.Content.Headers.GetValues("Content-Type").First();
+				response.Content.Headers.TryGetValue("Content-Type", out contentType);
 			}
 
-			var stream = await response.Content.ReadAsStreamAsync();
+			var stream = await response.Content.ReadAsInputStreamAsync();
 
-            return stream.AsInputStream();
+            return stream;
 		}
 
 		private string contentType = string.Empty;

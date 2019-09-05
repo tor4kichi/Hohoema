@@ -178,12 +178,12 @@ namespace NicoPlayerHohoema.Models
 
         protected override async Task<MediaSource> GetPlyaingVideoMediaSource()
         {
-            if (!NiconicoSession.Context.HttpClient.DefaultRequestHeaders.Contains("Origin"))
+            if (!NiconicoSession.Context.HttpClient.DefaultRequestHeaders.ContainsKey("Origin"))
             {
                 NiconicoSession.Context.HttpClient.DefaultRequestHeaders.Add("Origin", "https://www.nicovideo.jp");
             }
 
-            NiconicoSession.Context.HttpClient.DefaultRequestHeaders.Referrer = new Uri($"https://www.nicovideo.jp/watch/{DmcWatchResponse.Video.Id}");
+            NiconicoSession.Context.HttpClient.DefaultRequestHeaders.Referer = new Uri($"https://www.nicovideo.jp/watch/{DmcWatchResponse.Video.Id}");
 
 
             var session = await GetDmcSessionAsync();
@@ -210,7 +210,7 @@ namespace NicoPlayerHohoema.Models
             {
                 _HttpClient = new Windows.Web.Http.HttpClient();
 
-                _HttpClient.DefaultRequestHeaders.UserAgent.ParseAdd(string.Join(" ", NiconicoSession.Context.HttpClient.DefaultRequestHeaders.GetValues("user-agent")));
+                _HttpClient.DefaultRequestHeaders.UserAgent.ParseAdd(string.Join(" ", NiconicoSession.Context.HttpClient.DefaultRequestHeaders["user-agent"]));
 
                 var cookie = NiconicoSession.Context.GetCurrentNicoVideoCookieHeader();
                 _HttpClient.DefaultRequestHeaders.Remove("Cookie");

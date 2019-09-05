@@ -280,11 +280,11 @@ namespace NicoPlayerHohoema.Services
                         }
 
                     case Interfaces.IVideoContent videoContent:
-                        if (videoContent.ProviderType == Mntone.Nico2.Videos.Thumbnail.UserType.User)
+                        if (videoContent.ProviderType == NicoPlayerHohoema.Models.Niconico.UserType.User)
                         {
                             OpenPage(HohoemaPageType.UserVideo, videoContent.ProviderId);
                         }
-                        else if (videoContent.ProviderType == Mntone.Nico2.Videos.Thumbnail.UserType.Channel)
+                        else if (videoContent.ProviderType == NicoPlayerHohoema.Models.Niconico.UserType.Channel)
                         {
                             OpenPage(HohoemaPageType.ChannelVideo, videoContent.ProviderId);
                         }
@@ -325,11 +325,11 @@ namespace NicoPlayerHohoema.Services
                 switch (parameter)
                 {
                     case Interfaces.IVideoContent videoContent:
-                        if (videoContent.ProviderType == Mntone.Nico2.Videos.Thumbnail.UserType.User)
+                        if (videoContent.ProviderType == NicoPlayerHohoema.Models.Niconico.UserType.User)
                         {
                             OpenPage(HohoemaPageType.UserInfo, videoContent.ProviderId);
                         }
-                        else if (videoContent.ProviderType == Mntone.Nico2.Videos.Thumbnail.UserType.Channel)
+                        else if (videoContent.ProviderType == NicoPlayerHohoema.Models.Niconico.UserType.Channel)
                         {
                             OpenPage(HohoemaPageType.ChannelVideo, videoContent.ProviderId);
                         }
