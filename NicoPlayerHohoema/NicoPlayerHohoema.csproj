@@ -1244,7 +1244,7 @@
       <Version>1.0.4</Version>
     </PackageReference>
     <PackageReference Include="HtmlAgilityPack">
-      <Version>1.11.8</Version>
+      <Version>1.11.12</Version>
     </PackageReference>
     <PackageReference Include="LiteDB">
       <Version>4.1.2</Version>
