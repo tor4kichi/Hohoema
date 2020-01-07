@@ -296,6 +296,17 @@ namespace NicoPlayerHohoema
                 if (isInitialized) { return; }
                 isInitialized = true;
 
+                // ローカリゼーション用のライブラリを初期化
+                I18NPortable.I18N.Current
+#if DEBUG
+                    .SetLogger(text => System.Diagnostics.Debug.WriteLine(text))
+                    .SetNotFoundSymbol("🍣")
+#endif
+                    .SetFallbackLocale("en")
+                    .Init(GetType().Assembly);
+
+                Resources["Strings"] = I18NPortable.I18N.Current;
+
                 var settings = await Models.HohoemaUserSettings.LoadSettings(ApplicationData.Current.LocalFolder);
 
                 var unityContainer = Container.GetContainer();

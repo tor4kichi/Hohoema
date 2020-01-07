@@ -15,7 +15,8 @@
     xmlns:compareModifier="using:AdaptiveTriggerLibrary.ConditionModifiers.ComparableModifiers"
     xmlns:system="using:System"
     xmlns:subscriptionConverters="using:NicoPlayerHohoema.Views.Subscriptions"
-    xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts">
+    xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts"
+  xmlns:locales="using:NicoPlayerHohoema.Locales">
 
   <prism:PrismApplication.Resources>
 
@@ -129,6 +130,7 @@
       </uwpconv:BoolToObjectConverter>
 
       <uwpconv:ResourceNameToResourceStringConverter x:Key="ToLocalText" />
+      <locales:LocalizeConverter x:Key="LocalizeConverter" />
 
       <myconv:CacheStateToColorBrushConverter x:Key="CacheStateToColorBrush" />
 

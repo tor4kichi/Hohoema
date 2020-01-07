@@ -80,6 +80,7 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
 
 
 
+
         public object ItemsSource
         {
             get { return (object)GetValue(ItemsSourceProperty); }
@@ -88,6 +89,34 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
 
         public static readonly DependencyProperty ItemsSourceProperty =
             DependencyProperty.Register("ItemsSource", typeof(object), typeof(VideoItemsListView), new PropertyMetadata(null));
+
+
+
+
+        public ICommand RefreshCommand
+        {
+            get { return (ICommand)GetValue(RefreshCommandProperty); }
+            set { SetValue(RefreshCommandProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty RefreshCommandProperty =
+            DependencyProperty.Register("RefreshCommand", typeof(ICommand), typeof(VideoItemsListView), new PropertyMetadata(null));
+
+
+
+
+
+        public double ScrollPosition
+        {
+            get { return (double)GetValue(ScrollPositionProperty); }
+            set { SetValue(ScrollPositionProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for ScrollPosition.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ScrollPositionProperty =
+            DependencyProperty.Register("ScrollPosition", typeof(double), typeof(VideoItemsListView), new PropertyMetadata(0.0));
+
 
 
 
@@ -106,6 +135,14 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
 
         private readonly VideoInfoRepository _videoInfoRepository;
         private readonly VideoItemsSelectionContext _selectionContext;
+
+
+        public void ResetScrollPosition()
+        {
+            var scrollViweer = ItemsList.FindFirstChild<ScrollViewer>();
+            scrollViweer.ChangeView(null, 0, null);
+        }
+
 
         public VideoItemsListView()
         {
@@ -277,7 +314,7 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
         {
             var videoContent = args.Item as Interfaces.IVideoContentWritable;
             //if (videoContent != null && !_updatedItemsId.Contains(videoContent.Id))
-            if (videoContent != null)
+            if (videoContent != null && args.Phase == 0)
             {
                 _updatedItemsId.Add(videoContent.Id);
                 _ = _videoInfoRepository.UpdateAsync(videoContent);

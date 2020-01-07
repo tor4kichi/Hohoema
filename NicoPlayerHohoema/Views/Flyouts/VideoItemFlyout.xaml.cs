@@ -22,6 +22,7 @@ using NicoPlayerHohoema.Repository.Playlist;
 using System.Collections.Generic;
 using System.Linq;
 using NicoPlayerHohoema.Views.Helpers;
+using I18NPortable;
 
 namespace NicoPlayerHohoema.Views.Flyouts
 {
@@ -63,6 +64,9 @@ namespace NicoPlayerHohoema.Views.Flyouts
         public Commands.Mylist.CreateLocalMylistCommand CreateLocalMylistCommand { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
 
+
+
+        readonly private string _localizedText_CreateNew = "CreateNew".Translate();
 
         public VideoItemFlyout()
         {
@@ -192,7 +196,7 @@ namespace NicoPlayerHohoema.Views.Flyouts
             {
                 AddToMylistSubItem.Items.Add(new MenuFlyoutItem()
                 {
-                    Text = "新規作成…",
+                    Text = _localizedText_CreateNew,
                     Command = CreateMylistCommand,
                     CommandParameter = dataContext
                 });
@@ -224,7 +228,7 @@ namespace NicoPlayerHohoema.Views.Flyouts
             LocalMylistSubItem.Items.Clear();
             LocalMylistSubItem.Items.Add(new MenuFlyoutItem()
             {
-                Text = "新規作成…",
+                Text = _localizedText_CreateNew,
                 Command = CreateLocalMylistCommand,
                 CommandParameter = dataContext
             });
@@ -246,7 +250,7 @@ namespace NicoPlayerHohoema.Views.Flyouts
             SusbcriptionSubItem.Items.Clear();
             SusbcriptionSubItem.Items.Add(new MenuFlyoutItem()
             {
-                Text = "新規作成…",
+                Text = _localizedText_CreateNew,
                 Command = CreateSubscriptionGroupCommand,
                 CommandParameter = subscSource
             });

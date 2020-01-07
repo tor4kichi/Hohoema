@@ -14,7 +14,7 @@
     <toolkit:DockPanel Margin="4 0 0 0"
                            x:Name="ContentLayout"
                            >
-      <Grid Margin="0 0 8 0"
+      <Grid Margin="0 0 12 0"
                   toolkit:DockPanel.Dock="Left"
                   Width="114"
                   Height="62"
@@ -48,27 +48,28 @@
         </Border>
       </Grid>
 
-      <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
-
-        <TextBlock Text="{Binding PostedAt, Converter={StaticResource DateTimeToString}, Mode=OneWay}" 
-                           Opacity="0.7"
-                           FontSize="13"
-                           TextLineBounds="Tight"
-                           />
-
-        <Border />
-
-      </toolkit:DockPanel>
+      <StackPanel toolkit:DockPanel.Dock="Top" Orientation="Horizontal">
+        <TextBlock Opacity="0.7" FontSize="13" TextLineBounds="Tight">
+          <Run Text="{Binding PostedAt, Converter={StaticResource DateTimeToString}, Mode=OneWay}" />
+          <Run Text="{x:Bind local:VideoListItemControl.LocalizedText_PostAt_Short}" />
+        </TextBlock>
+      </StackPanel>
 
 
-      <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" >
-
-        <TextBlock Text="{Binding ViewCount, Mode=OneWay}" 
-                           Opacity="0.7"
-                           FontSize="13"
-                           TextLineBounds="Tight"
-                       />
-      </toolkit:DockPanel>
+      <StackPanel toolkit:DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="8">
+        <TextBlock Opacity="0.7" FontSize="13" TextLineBounds="Tight">
+          <Run Text="{x:Bind local:VideoListItemControl.LocalizedText_ViewCount_Short}" />
+          <Run Text="{Binding ViewCount, Mode=OneWay}" />
+        </TextBlock>
+        <TextBlock Opacity="0.7" FontSize="13" TextLineBounds="Tight">
+          <Run Text="{x:Bind local:VideoListItemControl.LocalizedText_CommentCount_Short}" />
+          <Run Text="{Binding CommentCount, Mode=OneWay}" />
+        </TextBlock>
+        <TextBlock Opacity="0.7" FontSize="13" TextLineBounds="Tight">
+          <Run Text="{x:Bind local:VideoListItemControl.LocalizedText_MylistCount_Short}" />
+          <Run Text="{Binding MylistCount, Mode=OneWay}" />
+        </TextBlock>
+      </StackPanel>
 
       <TextBlock Text="{Binding Label, Mode=OneWay}" 
                        FontSize="16"

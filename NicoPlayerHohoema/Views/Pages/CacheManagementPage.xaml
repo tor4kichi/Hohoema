@@ -23,78 +23,78 @@
     mc:Ignorable="d"
     >
 
-    <Grid>
+  <Grid>
 
-        <VisualStateManager.VisualStateGroups>
+    <VisualStateManager.VisualStateGroups>
 
-            <!-- ログインしている場合に有効になるサービスを表示する -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsLoggedIn}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
+      <!-- ログインしている場合に有効になるサービスを表示する -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding IsLoggedIn}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
 
-            <!-- トップバー表示時のタイトル位置ずらし -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="ItemsList.Padding" Value="48 0 48 27" />
-                        <Setter Target="ScrollHeader.Mode" Value="None" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="0" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
+      <!-- トップバー表示時のタイトル位置ずらし -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="ItemsList.Padding" Value="48 0 48 27" />
+            <Setter Target="ScrollHeader.Mode" Value="None" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
 
-
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsRequireUpdateCacheSaveFolder.Value}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="RequireChangeCacheFolderLayout.Visibility" Value="Visible" />
-                        <Setter Target="NotCacheAcceptedLayout.Visibility" Value="Collapsed" />
-                    </VisualState.Setters>
-                </VisualState>
-                
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsCacheUserAccepted.Value}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="TopCommandBar.Visibility" Value="Visible" />
-
-                        <Setter Target="ItemsList.Visibility" Value="Visible" />
-                        <Setter Target="NotCacheAcceptedLayout.Visibility" Value="Collapsed" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-
-        </VisualStateManager.VisualStateGroups>
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
 
 
-        <uwpcontrols:PullToRefreshListView 
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding IsRequireUpdateCacheSaveFolder.Value}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="RequireChangeCacheFolderLayout.Visibility" Value="Visible" />
+            <Setter Target="NotCacheAcceptedLayout.Visibility" Value="Collapsed" />
+          </VisualState.Setters>
+        </VisualState>
+
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding IsCacheUserAccepted.Value}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="TopCommandBar.Visibility" Value="Visible" />
+
+            <Setter Target="ItemsList.Visibility" Value="Visible" />
+            <Setter Target="NotCacheAcceptedLayout.Visibility" Value="Collapsed" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
+    </VisualStateManager.VisualStateGroups>
+
+
+    <uwpcontrols:PullToRefreshListView 
                 x:Name="ItemsList"
                 ItemsSource="{Binding ItemsView, Mode=OneWay}"
                 RefreshCommand="{Binding RefreshCommand}"
@@ -112,69 +112,69 @@
                 myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
                 myExtensions:ListViewBase.DeferInitialize="True"
             >
-            <i:Interaction.Behaviors>
+      <i:Interaction.Behaviors>
 
-                <mybehavior:KeyboardTrigger Key="F5">
-                    <mybehavior:KeyboardTrigger.Actions>
-                        <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
-                    </mybehavior:KeyboardTrigger.Actions>
-                </mybehavior:KeyboardTrigger>
+        <mybehavior:KeyboardTrigger Key="F5">
+          <mybehavior:KeyboardTrigger.Actions>
+            <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
+          </mybehavior:KeyboardTrigger.Actions>
+        </mybehavior:KeyboardTrigger>
 
-                <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
-            </i:Interaction.Behaviors>
+        <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
+      </i:Interaction.Behaviors>
 
-            
-            <ListView.Header>
-                <controls:ScrollHeader 
+
+      <ListView.Header>
+        <controls:ScrollHeader 
                     x:Name="ScrollHeader"
                     Mode="Sticky"
                     
                     >
-                    <toolkit:DockPanel x:Name="HeaderLayout"
+          <toolkit:DockPanel x:Name="HeaderLayout"
                                        Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                                        >
 
-                        <StackPanel >
+            <StackPanel >
 
-                            <CommandBar x:Name="TopCommandBar"
+              <CommandBar x:Name="TopCommandBar"
                                     toolkit:DockPanel.Dock="Right"
                                     VerticalContentAlignment="Bottom"
                                 Visibility="Collapsed"
                                     >
 
-                                <CommandBar.SecondaryCommands>
-                                    <AppBarButton Label="{Binding CacheSaveFolderPath.Value}"
+                <CommandBar.SecondaryCommands>
+                  <AppBarButton Label="{Binding CacheSaveFolderPath.Value}"
                                                                 IsEnabled="False"
                                                                 />
-                                    <AppBarButton Label="保存先を開く"
+                  <AppBarButton Label="保存先を開く"
                                                                 Command="{Binding OpenCurrentCacheFolderCommand}"
                                                                 />
 
-                                    <AppBarSeparator />
+                  <AppBarSeparator />
 
-                                    <AppBarButton Label="保存先を変更"
+                  <AppBarButton Label="保存先を変更"
                                                         Command="{Binding ChangeCacheFolderCommand}"
                                                         >
-                                    </AppBarButton>
-                                    <AppBarButton Label="動画キャッシュ機能利用の確認文を読む" 
+                  </AppBarButton>
+                  <AppBarButton Label="動画キャッシュ機能利用の確認文を読む" 
                                                         Command="{Binding ReadCacheAcceptTextCommand}"
                                                         />
 
-                                </CommandBar.SecondaryCommands>
+                </CommandBar.SecondaryCommands>
 
-                                <CommandBar.PrimaryCommands>
+                <CommandBar.PrimaryCommands>
 
-                                    <AppBarButton x:Name="ScrollToTopButton"
+                  <AppBarButton x:Name="ScrollToTopButton"
                                               Label="トップへ戻る"
                                               Icon="Up"
                                             >
-                                        <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="Click">
-                                                <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
-                                            </core:EventTriggerBehavior>
-                                        </i:Interaction.Behaviors>
-                                    </AppBarButton>
-                                    <AppBarButton 
+                    <i:Interaction.Behaviors>
+                      <core:EventTriggerBehavior EventName="Click">
+                        <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
+                      </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
+                  </AppBarButton>
+                  <AppBarButton 
                                         x:Name="UpdateButton"
                                         Command="{Binding RefreshCommand}"
                                         Background="Transparent" 
@@ -184,100 +184,100 @@
                                         />
 
 
-                                </CommandBar.PrimaryCommands>
+                </CommandBar.PrimaryCommands>
 
-                            </CommandBar>
+              </CommandBar>
 
-                        </StackPanel>
+            </StackPanel>
 
 
-                    </toolkit:DockPanel>
-                </controls:ScrollHeader>
-                
-            </ListView.Header>
-            
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <!-- 状態 -->
-                        <Grid toolkit:DockPanel.Dock="Right" HorizontalAlignment="Right"
+          </toolkit:DockPanel>
+        </controls:ScrollHeader>
+
+      </ListView.Header>
+
+      <ListView.ItemTemplate>
+        <DataTemplate>
+          <Grid>
+            <!-- 状態 -->
+            <Grid toolkit:DockPanel.Dock="Right" HorizontalAlignment="Right"
                                     >
-                            <StackPanel>
-                                <TextBlock Text="{Binding CacheRequestTime}" 
+              <StackPanel>
+                <TextBlock Text="{Binding CacheRequestTime}" 
                                                Opacity="0.7"
                                                Margin="0 0 0 4"
                                                FontSize="12"
                                                />
-                            </StackPanel>
+              </StackPanel>
 
-                        </Grid>
+            </Grid>
 
-                        <!-- 操作 -->
+            <!-- 操作 -->
 
-                        <local:VideoInfoControl />
-                    </Grid>
-                </DataTemplate>
-            </ListView.ItemTemplate>
+            <local:VideoInfoControl />
+          </Grid>
+        </DataTemplate>
+      </ListView.ItemTemplate>
 
-            <uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
-                <StackPanel  Margin="0 32 0 0" >
-                    <Border Margin="0 16 0 0" BorderThickness="0 0 0 1" BorderBrush="Gray" />
-                    <SymbolIcon Symbol="Refresh" VerticalAlignment="Bottom" Height="48" Width="48" Margin="0 24 0 8"
+      <uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
+        <StackPanel  Margin="0 32 0 0" >
+          <Border Margin="0 16 0 0" BorderThickness="0 0 0 1" BorderBrush="Gray" />
+          <SymbolIcon Symbol="Refresh" VerticalAlignment="Bottom" Height="48" Width="48" Margin="0 24 0 8"
                             />
-                </StackPanel>
-            </uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
-            
-        </uwpcontrols:PullToRefreshListView>
+        </StackPanel>
+      </uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
+
+    </uwpcontrols:PullToRefreshListView>
 
 
-        <Grid x:Name="RequireChangeCacheFolderLayout"
+    <Grid x:Name="RequireChangeCacheFolderLayout"
               Visibility="Collapsed"
               >
-            <StackPanel HorizontalAlignment="Center"
+      <StackPanel HorizontalAlignment="Center"
                         VerticalAlignment="Center">
-                <TextBlock Margin="4">キャッシュ機能を有効にするには</TextBlock>
+        <TextBlock Margin="4">キャッシュ機能を有効にするには</TextBlock>
 
 
-                <TextBlock Margin="4">
+        <TextBlock Margin="4">
                         <Run>キャッシュフォルダの指定が必要です</Run>
-                </TextBlock>
+        </TextBlock>
 
-                <Button x:Name="UpdateCacheSaveFolderButton"
+        <Button x:Name="UpdateCacheSaveFolderButton"
                             Background="Transparent" 
                                         Command="{Binding ChangeCacheFolderCommand}"
                         Content="キャッシュ保存フォルダを指定する"
                                         >
-                    
-                </Button>
+
+        </Button>
 
 
 
-            </StackPanel>
+      </StackPanel>
 
 
-        </Grid>
+    </Grid>
 
-        <Grid x:Name="NotCacheAcceptedLayout"
+    <Grid x:Name="NotCacheAcceptedLayout"
               >
-            <StackPanel HorizontalAlignment="Center"
+      <StackPanel HorizontalAlignment="Center"
                         VerticalAlignment="Center">
-                <TextBlock Margin="4">キャッシュ機能を有効にするには</TextBlock>
+        <TextBlock Margin="4">キャッシュ機能を有効にするには</TextBlock>
 
 
-                <TextBlock Margin="4">
+        <TextBlock Margin="4">
                         <Run>「キャッシュ機能の利用に関する確認」への同意が必要です</Run>
-                </TextBlock>
+        </TextBlock>
 
-                <Button Content="「キャッシュ機能の利用に関する確認」を表示する" 
+        <Button Content="「キャッシュ機能の利用に関する確認」を表示する" 
                         Command="{Binding RequireEnablingCacheCommand}" 
                         Margin="8 16 8 8"
                          />
 
-            </StackPanel>
+      </StackPanel>
 
 
-        </Grid>
     </Grid>
-   
-    
+  </Grid>
+
+
 </Page>

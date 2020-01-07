@@ -22,7 +22,7 @@
       ItemsSource="{x:Bind ItemsSource, Mode=OneWay}"
       ItemTemplate="{x:Bind ItemTemplate, Mode=OneWay}"
       Header="{x:Bind Header}"
-            RefreshCommand="{Binding RefreshCommand}"
+            RefreshCommand="{x:Bind RefreshCommand}"
             IncrementalLoadingTrigger="Edge"
             PullThreshold="85"    
             UseSystemFocusVisuals="True"
@@ -39,22 +39,6 @@
         </TransitionCollection>
       </uwpcontrol:PullToRefreshListView.ItemContainerTransitions>
       <i:Interaction.Behaviors>
-
-        <mybehavior:KeyboardTrigger Key="F5">
-          <mybehavior:KeyboardTrigger.Actions>
-            <core:InvokeCommandAction Command="{Binding RefreshCommand}" />
-          </mybehavior:KeyboardTrigger.Actions>
-        </mybehavior:KeyboardTrigger>
-
-        <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ScrollPosition.Value, Mode=TwoWay}" />
-
-        <core:DataTriggerBehavior Binding="{Binding ItemsView, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}"  >
-          <actions:ScrollViewerVerticalPositionSettingsAction Target="{x:Bind ItemsList}" 
-                                                                    VerticalOffset="{Binding ScrollPosition.Value}" 
-                                                                    WithAnimation="False" 
-                                                                        Delay="0:0:0.001"
-                                                                    />
-        </core:DataTriggerBehavior>
 
       </i:Interaction.Behaviors>
 

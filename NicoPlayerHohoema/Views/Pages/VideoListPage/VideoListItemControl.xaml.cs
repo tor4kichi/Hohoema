@@ -1,4 +1,5 @@
-﻿using System;
+﻿using I18NPortable;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -19,6 +20,11 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
 {
     public sealed partial class VideoListItemControl : UserControl
     {
+        static public string LocalizedText_PostAt_Short = "VideoPostAt_Short".Translate();
+        static public string LocalizedText_ViewCount_Short = "ViewCount_Short".Translate();
+        static public string LocalizedText_CommentCount_Short = "CommentCount_Short".Translate();
+        static public string LocalizedText_MylistCount_Short = "MylistCount_Short".Translate();
+
         public VideoListItemControl()
         {
             this.InitializeComponent();
