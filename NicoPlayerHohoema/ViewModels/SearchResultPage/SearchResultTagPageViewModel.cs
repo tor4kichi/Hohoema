@@ -6,6 +6,7 @@ using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Models.Subscription;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase.Playlist;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings;
@@ -29,7 +30,7 @@ namespace NicoPlayerHohoema.ViewModels
            Models.NiconicoSession niconicoSession,
            SearchProvider searchProvider,
            SubscriptionManager subscriptionManager,
-           Services.HohoemaPlaylist hohoemaPlaylist,
+           HohoemaPlaylist hohoemaPlaylist,
            Services.PageManager pageManager,
            Services.DialogService dialogService,
            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand,
@@ -84,7 +85,7 @@ namespace NicoPlayerHohoema.ViewModels
         public Models.NiconicoSession NiconicoSession { get; }
         public SearchProvider SearchProvider { get; }
         public SubscriptionManager SubscriptionManager { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
         public Services.DialogService HohoemaDialogService { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }

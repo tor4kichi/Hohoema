@@ -28,6 +28,8 @@ using Microsoft.Toolkit.Uwp.Helpers;
 using System.Reactive.Concurrency;
 using Prism.Commands;
 using NicoPlayerHohoema.Models.Niconico;
+using System.Collections.Immutable;
+using NicoPlayerHohoema.Models.Niconico.Video;
 
 namespace NicoPlayerHohoema.Models.Cache
 {
@@ -255,18 +257,85 @@ namespace NicoPlayerHohoema.Models.Cache
         public NicoVideoCacheState CacheState { get; set; }
     }
 
+    public class CachedVideoSessionProvider : INiconicoVideoSessionProvider
+    {
+        public string ContentId { get; }
+
+        public ImmutableArray<NicoVideoQualityEntity> AvailableQualities { get; }
+
+        private readonly VideoCacheManager _videoCacheManager;
+        private readonly Dictionary<NicoVideoQuality, NicoVideoCacheInfo> _cachedQualities;
+
+
+
+        public CachedVideoSessionProvider(string contentId, VideoCacheManager videoCacheManager, IEnumerable<NicoVideoCacheInfo> qualities)
+        {
+            ContentId = contentId;
+            _videoCacheManager = videoCacheManager;
+            _cachedQualities = qualities.ToDictionary(x => x.Quality);
+            AvailableQualities = qualities.Select(x => new NicoVideoQualityEntity(true, x.Quality, x.Quality.ToString())).ToImmutableArray();
+        }
+
+        public bool CanPlayQuality(string qualityId)
+        {
+            if (!Enum.TryParse<NicoVideoQuality>(qualityId, out var quality))
+            {
+                return false;
+            }
+
+            return _cachedQualities.ContainsKey(quality);
+        }
+
+        public Task<IStreamingSession> CreateVideoSessionAsync(NicoVideoQuality quality)
+        {
+            if (_cachedQualities.ContainsKey(quality))
+            {
+                return _videoCacheManager.CreateStreamingSessionAsync(_cachedQualities[quality]);
+            }
+            else if (_cachedQualities.Any())
+            {
+                return _videoCacheManager.CreateStreamingSessionAsync(_cachedQualities.Last().Value);
+            }
+            else
+            {
+                throw new Exception();
+            }
+        }
+    }
+
+    public class CreateCachedVideoSessionProviderResult
+    {
+        public CreateCachedVideoSessionProviderResult(CachedVideoSessionProvider provider, IEnumerable<NicoVideoCacheInfo> qualities)
+        {
+            VideoSessionProvider = provider;
+            AvairableCacheQualities = qualities.ToImmutableArray();
+            IsSuccess = AvairableCacheQualities.Any();
+        }
+
+        public bool IsSuccess { get; }
+
+        public CachedVideoSessionProvider VideoSessionProvider { get; }
+
+        public ImmutableArray<NicoVideoCacheInfo> AvairableCacheQualities { get; }
+    }
+
+
+
+
+
     /// <summary>
     /// ニコニコ動画の動画やサムネイル画像、
     /// 動画情報など動画に関わるメディアを管理します
     /// </summary>
-    public class VideoCacheManager : AsyncInitialize, IDisposable, INiconicoStreamingSessionProvider
+    public class VideoCacheManager : AsyncInitialize, IDisposable
     {
         public VideoCacheManager(
             IScheduler scheduler,
             NiconicoSession niconicoSession,
             Provider.NicoVideoProvider nicoVideoProvider,
             CacheSaveFolder cacheSaveFolder,
-            CacheSettings cacheSettings
+            CacheSettings cacheSettings,
+            NicoVideoSessionProvider nicoVideoSessionProvider
             )
         {
             Scheduler = scheduler;
@@ -274,6 +343,7 @@ namespace NicoPlayerHohoema.Models.Cache
             NicoVideoProvider = nicoVideoProvider;
             CacheSaveFolder = cacheSaveFolder;
             CacheSettings = cacheSettings;
+            _nicoVideoSessionProvider = nicoVideoSessionProvider;
             NiconicoSession.LogIn += (sender, e) =>
             {
                 _ = TryNextCacheRequestedVideoDownload();
@@ -295,7 +365,7 @@ namespace NicoPlayerHohoema.Models.Cache
 
         private void CacheSaveFolder_SaveFolderChanged(object sender, CacheSaveFolderChangedEventArgs e)
         {
-            _ = OnCacheFolderChanged();
+            _ = CacheFolderChanged();
         }
 
         public IScheduler Scheduler { get; }
@@ -304,11 +374,11 @@ namespace NicoPlayerHohoema.Models.Cache
         public Provider.NicoVideoProvider NicoVideoProvider { get; }
         public CacheSaveFolder CacheSaveFolder { get; }
         public CacheSettings CacheSettings { get; }
+        private readonly NicoVideoSessionProvider _nicoVideoSessionProvider;
 
         static readonly Regex NicoVideoIdRegex = new Regex("\\[((?:sm|so|lv)\\d+)\\]");
 
         static readonly Regex ExternalCachedNicoVideoIdRegex = new Regex("(?>sm|so|lv)\\d*");
-
         private const string TransferGroupName = @"hohoema_video";
         BackgroundTransferGroup _NicoCacheVideoBGTransferGroup = BackgroundTransferGroup.CreateGroup(TransferGroupName);
 
@@ -469,7 +539,7 @@ namespace NicoPlayerHohoema.Models.Cache
         /// HohoemaAppから呼び出されます
         /// </summary>
         /// <returns></returns>
-        internal async Task OnCacheFolderChanged()
+        internal async Task CacheFolderChanged()
         {
             var prevState = State;
 
@@ -642,8 +712,9 @@ namespace NicoPlayerHohoema.Models.Cache
                 {
                     var _info = VideoCacheManager.CacheRequestInfoFromFileName(task.ResultFile);
 
-                    var videoSessionProvider = new NicoVideoStreamingSessionProvider();
-                    var session = (Models.IVideoStreamingDownloadSession)await videoSessionProvider.CreateStreamingSessionAsync(_info.RawVideoId, _info.Quality);
+                    var prepareResult = await _nicoVideoSessionProvider.PreparePlayVideoAsync(_info.RawVideoId);
+
+                    var session = (Models.IVideoStreamingDownloadSession)prepareResult.CreateVideoSessionAsync(_info.Quality);
 
                     info = new NicoVideoCacheProgress(_info, task, session);
 
@@ -740,10 +811,11 @@ namespace NicoPlayerHohoema.Models.Cache
                     }
 
 
-                    var videoSessionProvider = new NicoVideoStreamingSessionProvider();
-                    
+                    var prepareResult = await _nicoVideoSessionProvider.PreparePlayVideoAsync(videoInfo.RawVideoId);
+
                     // DownloadSessionを保持して、再生完了時にDisposeさせる必要がある
-                    var downloadSession = (Models.IVideoStreamingDownloadSession)await videoSessionProvider.CreateStreamingSessionAsync(nextDownloadItem.RawVideoId, nextDownloadItem.Quality);
+                    var downloadSession = (Models.IVideoStreamingDownloadSession)prepareResult.CreateVideoSessionAsync(nextDownloadItem.Quality);
+
 
                     
                     var uri = await downloadSession.GetDownloadUrlAndSetupDonwloadSession();
@@ -1610,46 +1682,36 @@ namespace NicoPlayerHohoema.Models.Cache
             });
         }
 
-
-
-        public async Task<IStreamingSession> CreateStreamingSessionAsync(string rawVideoId, NicoVideoQuality quality = NicoVideoQuality.Unknown)
+        public async Task<CreateCachedVideoSessionProviderResult> TryCreateCachedVideoSessionProvider(string rawVideoId)
         {
             // キャッシュ済みアイテムを問い合わせ
             var cacheRequests = await GetCacheRequest(rawVideoId);
 
-            NicoVideoCacheRequest playCandidateRequest = null;
-            var req = cacheRequests.FirstOrDefault(x => x.Quality == quality);
+            var playableCacheQualities = cacheRequests
+                .Where(x => x is NicoVideoCacheInfo)
+                .OrderBy(x => x.Quality)
+                .Cast<NicoVideoCacheInfo>()
+                .ToArray();
 
-            if (req is NicoVideoCacheInfo || req is NicoVideoCacheProgress)
-            {
-                playCandidateRequest = req;
-            }
+            return new CreateCachedVideoSessionProviderResult(
+                new CachedVideoSessionProvider(rawVideoId, this, playableCacheQualities), playableCacheQualities);
+        }
 
-            if (req == null)
+        internal async Task<IStreamingSession> CreateStreamingSessionAsync(NicoVideoCacheRequest request)
+        {
+            if (request is NicoVideoCacheInfo cacheInfo)
             {
-                var playableReq = cacheRequests.Where(x => x is NicoVideoCacheInfo || x is NicoVideoCacheProgress);
-                if (playableReq.Any())
-                {
-                    // 画質指定がない、または指定画質のキャッシュがない場合には
-                    // キャッシュが存在する画質（高画質優先）を取り出す
-                    playCandidateRequest = playableReq.OrderBy(x => x.Quality).FirstOrDefault();
-                }
-            }
-
-            if (playCandidateRequest is NicoVideoCacheInfo)
-            {
-                var playCandidateCache = playCandidateRequest as NicoVideoCacheInfo;
                 try
                 {
-                    var file = await StorageFile.GetFileFromPathAsync(playCandidateCache.FilePath);
-                    return new LocalVideoStreamingSession(file, playCandidateCache.Quality, NiconicoSession);
+                    var file = await StorageFile.GetFileFromPathAsync(cacheInfo.FilePath);
+                    return new LocalVideoStreamingSession(file, cacheInfo.Quality, NiconicoSession);
                 }
                 catch
                 {
                     Debug.WriteLine("動画視聴時にキャッシュが見つかったが、キャッシュファイルを利用した再生セッションの作成に失敗。");
                 }
             }
-            else if (playCandidateRequest is NicoVideoCacheProgress)
+            else if (request is NicoVideoCacheProgress progress)
             {
                 /*
                 if (Helpers.ApiContractHelper.IsFallCreatorsUpdateAvailable)

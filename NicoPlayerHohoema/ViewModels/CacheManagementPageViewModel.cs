@@ -17,6 +17,7 @@ using NicoPlayerHohoema.Models.Provider;
 using Unity;
 using Prism.Navigation;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase.Playlist;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -107,7 +108,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                     await RefreshCacheSaveFolderStatus();
 
-                    await VideoCacheManager.OnCacheFolderChanged();
+                    await VideoCacheManager.CacheFolderChanged();
 
                     await ResetList();
                 }
@@ -281,19 +282,17 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 
         public CacheVideoViewModel(
-            string rawVideoId,
-            Interfaces.IMylist ownerPlaylist = null
+            string rawVideoId
             )
-            : base(rawVideoId, ownerPlaylist)
+            : base(rawVideoId)
         {
 
         }
 
         public CacheVideoViewModel(
-            Database.NicoVideo data,
-            Interfaces.IMylist ownerPlaylist = null
+            Database.NicoVideo data
             )
-            : base(data, ownerPlaylist)
+            : base(data)
         {
 
         }

@@ -13,159 +13,137 @@
     xmlns:mvvm="using:Prism.Mvvm"
     x:Name="FlyoutRoot"    
     mc:Ignorable="d">
-    <i:Interaction.Behaviors>
-        
-    </i:Interaction.Behaviors>
-    
-    <MenuFlyoutItem Text="あとで見る"
-                    Command="{Binding HohoemaPlaylist.AddWatchAfterPlaylistCommand}"
+
+  
+  <!-- ローカルプレイリスト -->
+  <MenuFlyoutItem x:Name="RemoveLocalPlaylistItem" 
+                  Text="ローカルマイリストから削除"
+                  Visibility="Collapsed"
+                  />
+
+  <!-- マイリスト -->
+  <MenuFlyoutItem x:Name="RemoveMylistItem" 
+                  Text="マイリストから削除"
+                  Visibility="Collapsed"
+                  />
+
+
+  <!-- キュー -->
+  <MenuFlyoutItem Text="キューに追加"
+                  x:Name="AddQueue"
+                  Visibility="Collapsed"
+                                />
+  
+  <MenuFlyoutItem x:Name="RemoveQueue" 
+                  Text="キューから削除"
+                  Visibility="Collapsed"
+                  />
+
+  <!-- あとで見る -->
+  <MenuFlyoutItem Text="あとで見るに追加"
+                  x:Name="AddWatchAfter"
+                  Visibility="Collapsed"
+                                />
+  <MenuFlyoutItem x:Name="RemoveWatchAfter" 
+                  Text="あとで見るから削除"
+                  Visibility="Collapsed"
+                  />
+
+
+  <MenuFlyoutSeparator x:Name="PlaylistSpecialItemSeparator" />
+
+  
+  <MenuFlyoutItem Text="動画情報"
                     CommandParameter="{Binding}"
+                  x:Name="OpenVideoInfoPage"
                                 />
 
-    <MenuFlyoutItem Text="動画情報"
-                    Command="{Binding PageManager.OpenPageCommand}"
+  <MenuFlyoutItem Text="投稿者の動画一覧"
                     CommandParameter="{Binding}"
-                                />
-    
-    <MenuFlyoutItem Text="投稿者の動画一覧"
-                    Command="{Binding PageManager.OpenVideoListPageCommand}"
-                    CommandParameter="{Binding}"
+                  x:Name="OpenOwnerVideosPage"
                                 />
 
-    <MenuFlyoutSeparator />
-
-    
-    <MenuFlyoutItem Text="共有" 
-                    Command="{Binding ExternalAccessService.OpenShareUICommand}"
+  <MenuFlyoutItem Text="この投稿者をNGに設定する"
                     CommandParameter="{Binding}"
-                    Visibility="{Binding Source={StaticResource IsXbox}, Converter={StaticResource BooleanToVisibility}}"
+                  x:Name="AddNgUser"
+                                />
+
+  <MenuFlyoutSeparator x:Name="VideoInfoItemSeparator" />
+
+
+  <MenuFlyoutItem Text="共有" 
+                    CommandParameter="{Binding}"
+                  x:Name="Share"
                     />
 
-    
-    <MenuFlyoutItem Text="共有" 
-                    Command="{Binding ExternalAccessService.OpenShareUICommand}"
-                    CommandParameter="{Binding}"
-                    Visibility="{Binding Source={StaticResource IsXbox}, Converter={StaticResource BooleanToVisibilityInverted}}"
-                    >
-    </MenuFlyoutItem>
-
-    <MenuFlyoutSubItem Text="コピー"
-        Visibility="{Binding Source={StaticResource IsXbox}, Converter={StaticResource BooleanToVisibilityInverted}}"
+  <MenuFlyoutSubItem Text="コピー"
+                     Visibility="Collapsed"
+                     x:Name="CopySubItem"
                        >
-        <MenuFlyoutItem Text="動画IDをコピー"
-                    Command="{Binding ExternalAccessService.CopyToClipboardCommand}"
+    <MenuFlyoutItem Text="動画IDをコピー"
                     CommandParameter="{Binding Id}"
+                    x:Name="CopyVideoId"
                     />
 
-        <MenuFlyoutItem Text="動画リンクをコピー"
-                    Command="{Binding ExternalAccessService.CopyToClipboardCommand}"
+    <MenuFlyoutItem Text="動画リンクをコピー"
                     CommandParameter="{Binding}"
-                    />
-        
-        <MenuFlyoutItem Text="共有用文章をコピー"
-                    Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}"
-                    CommandParameter="{Binding}"
+                    x:Name="CopyVideoLink"
                     />
 
-    </MenuFlyoutSubItem>
-
-    <MenuFlyoutSubItem Text="マイリストに追加" 
-                    >
-        <i:Interaction.Behaviors>
-            <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding UserMylistManager.Mylists}"
-                                                     CustomObjectToTag="{Binding}"
-                                                     >
-                <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
-                    <DataTemplate>
-                        <MenuFlyoutItem Text="{Binding Label}"
-                                        Command="{Binding AddItemCommand}"
-                                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.Id}"
-                                        />
-                    </DataTemplate>
-                </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
-            </mybehavior:MenuFlyoutSubItemItemsSetter>
-        </i:Interaction.Behaviors>
-
-        <MenuFlyoutItem Text="新規作成…"
-                        Command="{Binding CreateMylistCommand}"
-                        CommandParameter="{Binding}"
-                        />
-    </MenuFlyoutSubItem>
-
-    <MenuFlyoutSubItem Text="ローカルマイリストに追加" 
-                    >
-        <i:Interaction.Behaviors>
-            <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding LocalMylistManager.Mylists}"
-                                                     CustomObjectToTag="{Binding}"
-                                                     >
-                <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
-                    <DataTemplate>
-                        <MenuFlyoutItem Text="{Binding Label}"
-                                        Command="{Binding AddItemCommand}"
-                                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.Id}"
-                                        />
-                    </DataTemplate>
-                </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
-            </mybehavior:MenuFlyoutSubItemItemsSetter>
-        </i:Interaction.Behaviors>
-
-        <MenuFlyoutItem Text="新規作成…"
-                        Command="{Binding CreateLocalMylistCommand}"
-                        CommandParameter="{Binding}"
-                        />
-    </MenuFlyoutSubItem>
-
-
-    <MenuFlyoutSubItem Text="投稿者を購読に追加…" 
-                    >
-
-        <i:Interaction.Behaviors>
-            <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding SubscriptionManager.Subscriptions}"
-                                                     CustomObjectToTag="{Binding}"
-                                                     >
-                <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
-                    <DataTemplate>
-                        <MenuFlyoutItem Text="{Binding Label}"
-                                        Command="{Binding AddSource}"
-                                        CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag, Converter={StaticResource SubscriptionSourceConverter}}"
-                                        />
-                    </DataTemplate>
-                </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
-            </mybehavior:MenuFlyoutSubItemItemsSetter>
-        </i:Interaction.Behaviors>
-
-        <MenuFlyoutItem Text="購読グループを作成"
-                        Command="{Binding CreateSubscriptionGroupCommand}"
-                        CommandParameter="{Binding}"
-                        >
-        </MenuFlyoutItem>
-
-    </MenuFlyoutSubItem>
-
-
-
-    <MenuFlyoutSeparator
-        Visibility="{Binding Source={StaticResource IsCacheEnabled}, Converter={StaticResource BooleanToVisibility}}"
-        />
-
-    <MenuFlyoutItem Text="キャッシュ取得"
-                    Command="{Binding AddCacheRequestCommand}"
+    <MenuFlyoutItem Text="共有用文章をコピー"
                     CommandParameter="{Binding}"
-                    Visibility="{Binding Source={StaticResource IsCacheEnabled}, Converter={StaticResource BooleanToVisibility}}"
+                    x:Name="CopyShareText"
+                    />
+
+  </MenuFlyoutSubItem>
+
+  <MenuFlyoutSubItem Text="マイリストに追加" 
+                     x:Name="AddToMylistSubItem"
+                    >
+    <!-- items add from code behind -->
+  </MenuFlyoutSubItem>
+
+  <MenuFlyoutSubItem Text="ローカルマイリストに追加" 
+                     x:Name="LocalMylistSubItem"
+                    >
+    <!-- items add from code behind -->
+  </MenuFlyoutSubItem>
+
+
+  <MenuFlyoutSubItem Text="投稿者を購読に追加…" 
+                     x:Name="SusbcriptionSubItem"
+                    >
+  </MenuFlyoutSubItem>
+
+
+
+  <MenuFlyoutSeparator />
+
+  <MenuFlyoutItem Text="キャッシュ取得"
+                  x:Name="CacheRequest"
                     />
 
 
-    <MenuFlyoutItem Text="キャッシュ削除"
-                    Command="{Binding DeleteCacheRequestCommand}"
-                    CommandParameter="{Binding}"
-                    Visibility="{Binding Source={StaticResource IsCacheEnabled}, Converter={StaticResource BooleanToVisibility}}"
+  <MenuFlyoutItem Text="キャッシュ削除"
+                  x:Name="DeleteCacheRequest"
                     >
-    </MenuFlyoutItem>
+  </MenuFlyoutItem>
 
-    <MenuFlyoutSeparator  />
+  <MenuFlyoutSeparator x:Name="CacheSeparator"  />
 
-    <MenuFlyoutItem Text="この投稿者をNGに設定する"
-                    Command="{Binding AddToHiddenUserCommand}"
+  
+  <MenuFlyoutItem Text="すべて選択"
                     CommandParameter="{Binding}"
+                  x:Name="SelectionAll"
                                 />
+  
+  <MenuFlyoutItem Text="選択開始"
+                    CommandParameter="{Binding}"
+                  x:Name="SelectionStart"
+                                />
+  
+  <MenuFlyoutItem Text="選択終了"
+                  x:Name="SelectionEnd"
+                                />
+
 </MenuFlyout>

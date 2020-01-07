@@ -23,26 +23,29 @@ using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Services;
 using Prism.Navigation;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.Models.Niconico.Video;
+using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.Repository.Playlist;
+using NicoPlayerHohoema.UseCase.Playlist.Commands;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class VideoInfomationPageViewModel : HohoemaViewModelBase, Interfaces.IVideoContent, INavigatedAwareAsync
+    public class VideoInfomationPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync
     {
         public VideoInfomationPageViewModel(
             NGSettings ngSettings,
             Models.NiconicoSession niconicoSession,
             UserMylistManager userMylistManager,
-            Services.HohoemaPlaylist hohoemaPlaylist,
+            HohoemaPlaylist hohoemaPlaylist,
             NicoVideoProvider nicoVideoProvider,
             LoginUserMylistProvider loginUserMylistProvider,
             VideoCacheManager videoCacheManager,
-            Models.NicoVideoStreamingSessionProvider nicoVideo,
-            Services.Helpers.MylistHelper mylistHelper,
+            Models.NicoVideoSessionProvider nicoVideo,
             Services.PageManager pageManager,
             Services.NotificationService notificationService,
             Services.DialogService dialogService,
             Services.ExternalAccessService externalAccessService,
-            Commands.AddMylistCommand addMylistCommand,
+            AddMylistCommand addMylistCommand,
             Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
         {
@@ -54,7 +57,6 @@ namespace NicoPlayerHohoema.ViewModels
             LoginUserMylistProvider = loginUserMylistProvider;
             VideoCacheManager = videoCacheManager;
             NicoVideo = nicoVideo;
-            MylistHelper = mylistHelper;
             PageManager = pageManager;
             NotificationService = notificationService;
             DialogService = dialogService;
@@ -67,7 +69,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         Database.NicoVideo _VideoInfo;
 
-        public NicoVideoStreamingSessionProvider NicoVideo { get; private set; }
+        public NicoVideoSessionProvider NicoVideo { get; private set; }
 
         public Uri DescriptionHtmlFileUri { get; private set; }
 
@@ -77,7 +79,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public string ThumbnailUrl { get; private set; }
 
-        public IList<TagViewModel> Tags { get; private set; }
+        public IList<NicoVideoTag> Tags { get; private set; }
 
         public bool IsChannelOwnedVideo { get; private set; }
         public string ProviderName { get; private set; }
@@ -88,9 +90,9 @@ namespace NicoPlayerHohoema.ViewModels
         
         public DateTime SubmitDate { get; private set; }
 
-        public uint ViewCount { get; private set; }
-        public uint CommentCount { get; private set; }
-        public uint MylistCount { get; private set; }
+        public int ViewCount { get; private set; }
+        public int CommentCount { get; private set; }
+        public int MylistCount { get; private set; }
 
         public ReactiveProperty<bool> NowLoading { get; private set; }
         public ReactiveProperty<bool> IsLoadFailed { get; private set; }
@@ -165,7 +167,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayVideoCommand
                     ?? (_PlayVideoCommand = new DelegateCommand(() =>
                     {
-                        HohoemaPlaylist.PlayVideo(VideoId);
+                        HohoemaPlaylist.Play(_VideoInfo);
                     }
                     ));
             }
@@ -223,19 +225,21 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        private DelegateCommand<string> _AddPlaylistCommand;
-        public DelegateCommand<string> AddPlaylistCommand
+        private DelegateCommand<IPlaylist> _AddPlaylistCommand;
+        public DelegateCommand<IPlaylist> AddPlaylistCommand
         {
             get
             {
                 return _AddPlaylistCommand
-                    ?? (_AddPlaylistCommand = new DelegateCommand<string>(async (playlistId) =>
+                    ?? (_AddPlaylistCommand = new DelegateCommand<IPlaylist>(async (playlist) =>
                     {
-                        var playlist = await MylistHelper.FindMylist(playlistId);
-
-                        if (playlist is Interfaces.IUserOwnedMylist userOwnedMylist)
+                        if (playlist is LocalPlaylist localPlaylist)
                         {
-                            var result = await userOwnedMylist.AddMylistItem(VideoId);
+                            LocalMylistManager.AddPlaylistItem(localPlaylist, _VideoInfo);
+                        }
+                        else if (playlist is LoginUserMylistPlaylist loginUserMylist)
+                        {
+                            _ = UserMylistManager.AddItem(loginUserMylist.Id, _VideoInfo.RawVideoId);
                         }
                     }));
             }
@@ -269,28 +273,15 @@ namespace NicoPlayerHohoema.ViewModels
         public Models.NiconicoSession NiconicoSession { get; }
         public UserMylistManager UserMylistManager { get; }
         public LocalMylistManager LocalMylistManager { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public LoginUserMylistProvider LoginUserMylistProvider { get; }
         public VideoCacheManager VideoCacheManager { get; }
-        public Services.Helpers.MylistHelper MylistHelper { get; }
         public PageManager PageManager { get; }
         public Services.DialogService DialogService { get; }
         public Services.ExternalAccessService ExternalAccessService { get; }
-        public Commands.AddMylistCommand AddMylistCommand { get; }
+        public AddMylistCommand AddMylistCommand { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
-
-        string IVideoContent.ProviderId => _VideoInfo.Owner?.OwnerId;
-
-        string IVideoContent.ProviderName => _VideoInfo.Owner?.ScreenName;
-
-        Database.NicoVideoUserType IVideoContent.ProviderType => _VideoInfo.Owner.UserType;
-
-        string INiconicoObject.Id => _VideoInfo.RawVideoId;
-
-        string INiconicoObject.Label => _VideoInfo.Title;
-
-        IMylist IVideoContent.OnwerPlaylist => null;
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
@@ -389,47 +380,23 @@ namespace NicoPlayerHohoema.ViewModels
 
                 try
                 {
-                    var res = await NicoVideo.VisitWatchPage(VideoId);
+                    var res = await NicoVideo.PreparePlayVideoAsync(VideoId);
+                    var details = res.GetVideoDetails();
 
-                    if (res is WatchApiResponse)
-                    {
-                        var watchApi = res as WatchApiResponse;
+                    VideoTitle = details.VideoTitle;
+                    Tags = details.Tags.ToList();
+                    ThumbnailUrl = details.ThumbnailUrl;
+                    VideoLength = details.VideoLength;
+                    SubmitDate = details.SubmitDate;
+                    ViewCount = details.ViewCount;
+                    CommentCount = details.CommentCount;
+                    MylistCount = details.MylistCount;
+                    ProviderId = details.ProviderId;
+                    ProviderName = details.ProviderName;
+                    OwnerIconUrl = details.OwnerIconUrl;
+                    IsChannelOwnedVideo = details.IsChannelOwnedVideo;
 
-                        VideoTitle = watchApi.videoDetail.title;
-                        Tags = watchApi.videoDetail.tagList.Select(x => new TagViewModel(x.tag))
-                            .ToList();
-                        ThumbnailUrl = watchApi.videoDetail.thumbnail;
-                        VideoLength = TimeSpan.FromSeconds(watchApi.videoDetail.length.Value);
-                        SubmitDate = DateTime.Parse(watchApi.videoDetail.postedAt);
-                        ViewCount = (uint)watchApi.videoDetail.viewCount.Value;
-                        CommentCount = (uint)watchApi.videoDetail.commentCount.Value;
-                        MylistCount = (uint)watchApi.videoDetail.mylistCount.Value;
-                        ProviderName = watchApi.UserName;
-                        OwnerIconUrl = watchApi.UploaderInfo?.icon_url ?? watchApi.channelInfo?.icon_url;
-                        IsChannelOwnedVideo = watchApi.channelInfo != null;
-
-                        videoDescriptionHtml = watchApi.videoDetail.description;
-                    }
-                    else if (res is DmcWatchData)
-                    {
-                        var dmcWatchApi = (res as DmcWatchData).DmcWatchResponse;
-
-                        VideoTitle = dmcWatchApi.Video.Title;
-                        Tags = dmcWatchApi.Tags.Select(x => new TagViewModel(x.Name))
-                            .ToList();
-                        ThumbnailUrl = dmcWatchApi.Video.ThumbnailURL;
-                        VideoLength = TimeSpan.FromSeconds(dmcWatchApi.Video.Duration);
-                        SubmitDate = DateTime.Parse(dmcWatchApi.Video.PostedDateTime);
-                        ViewCount = (uint)dmcWatchApi.Video.ViewCount;
-                        CommentCount = (uint)dmcWatchApi.Thread.CommentCount;
-                        MylistCount = (uint)dmcWatchApi.Video.MylistCount;
-                        ProviderId = dmcWatchApi.Owner?.Nickname ?? dmcWatchApi.Channel?.Name;
-                        ProviderName = dmcWatchApi.Owner?.Nickname ?? dmcWatchApi.Channel?.Name;
-                        OwnerIconUrl = dmcWatchApi.Owner?.IconURL ?? dmcWatchApi.Channel?.IconURL;
-                        IsChannelOwnedVideo = dmcWatchApi.Channel != null;
-
-                        videoDescriptionHtml = dmcWatchApi.Video.Description;
-                    }
+                    videoDescriptionHtml = details.DescriptionHtml;
                 }
                 catch
                 {

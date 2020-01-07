@@ -22,9 +22,12 @@ namespace NicoPlayerHohoema.Models.Niconico
 
     public interface ICommentSession : IDisposable
     {
+        string ContentId { get; }
+        string UserId { get; }
+
         event EventHandler<Comment> RecieveComment;
 
-        Task<List<Comment>> GetInitialComments();
+        Task<IReadOnlyCollection<Comment>> GetInitialComments();
 
         bool CanPostComment { get; }
 
@@ -35,6 +38,8 @@ namespace NicoPlayerHohoema.Models.Niconico
     {
         CommentClient CommentClient;
 
+        public string ContentId => CommentClient.RawVideoId;
+        public string UserId => CommentClient.NiconicoSession.UserIdString;
 
         public VideoCommentService(CommentClient commentClient)
         {
@@ -49,7 +54,7 @@ namespace NicoPlayerHohoema.Models.Niconico
 
         }
 
-        public async Task<List<Comment>> GetInitialComments()
+        public async Task<IReadOnlyCollection<Comment>> GetInitialComments()
         {
             return await CommentClient.GetCommentsAsync();
         }

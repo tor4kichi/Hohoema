@@ -1,5 +1,6 @@
 ﻿using LiteDB;
 using Mntone.Nico2;
+using NicoPlayerHohoema.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,7 +17,8 @@ namespace NicoPlayerHohoema.Database
         Swf,
     }
 
-    public class NicoVideo
+    [PropertyChanged.AddINotifyPropertyChangedInterface]
+    public class NicoVideo : Interfaces.IVideoContent, IVideoContentWritable
     {
         [BsonId]
         public string RawVideoId { get; set; }
@@ -34,6 +36,8 @@ namespace NicoPlayerHohoema.Database
         public int MylistCount { get; set; }
         public int CommentCount { get; set; }
 
+        public string Description { get; set; }
+
         [BsonRef]
         public NicoVideoOwner Owner { get; set; }
 
@@ -49,6 +53,55 @@ namespace NicoPlayerHohoema.Database
 
         public bool IsDeleted { get; set; }
         public PrivateReasonType PrivateReasonType { get; set; }
+
+        [BsonIgnore]
+        public string Id => VideoId;
+
+        [BsonIgnore]
+        public string Label
+        {
+            get => Title;
+            set => Title = value;
+        }
+
+
+        [BsonIgnore]
+        public string ProviderId
+        {
+            get => Owner?.OwnerId;
+            set 
+            {
+                if (value == null) { return; }
+                if (Owner == null)
+                {
+                    Owner = new NicoVideoOwner()
+                    {
+                        OwnerId = value
+                    };
+                }
+                else
+                {
+                    Owner.OwnerId = value;
+                }
+            }
+        }
+
+        [BsonIgnore]
+        public NicoVideoUserType ProviderType
+        {
+            get => Owner?.UserType ?? NicoVideoUserType.User;
+            set => Owner.UserType = value;
+        }
+
+        public bool Equals(IVideoContent other)
+        {
+            return Id == other.Id;
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
     }
 
 

@@ -3,6 +3,7 @@ using Microsoft.Toolkit.Uwp.Notifications;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Services.Helpers;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase.Playlist;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Navigation;
@@ -20,6 +21,7 @@ namespace NicoPlayerHohoema.Services
     public sealed class HohoemaNotificationService
     {
         private static readonly TimeSpan DefaultNotificationShowDuration = TimeSpan.FromSeconds(20);
+        private readonly PlayerViewManager _playerViewManager;
 
         public PageManager PageManager { get; }
         public HohoemaPlaylist Playlist { get; }
@@ -34,6 +36,7 @@ namespace NicoPlayerHohoema.Services
             PageManager pageManager,
             HohoemaPlaylist playlist,
             NotificationService notificationService,
+            PlayerViewManager playerViewManager,
             Models.Provider.NicoVideoProvider nicoVideoProvider,
             Models.Provider.MylistProvider mylistProvider,
             Models.Provider.NicoLiveProvider nicoLiveProvider,
@@ -44,6 +47,7 @@ namespace NicoPlayerHohoema.Services
             PageManager = pageManager;
             Playlist = playlist;
             NotificationService = notificationService;
+            _playerViewManager = playerViewManager;
             NicoVideoProvider = nicoVideoProvider;
             MylistProvider = mylistProvider;
             NicoLiveProvider = nicoLiveProvider;
@@ -106,7 +110,7 @@ namespace NicoPlayerHohoema.Services
                             Label = "再生",
                             Command = new DelegateCommand(() =>
                             {
-                                Playlist.PlayVideo(nicoVideo.RawVideoId, nicoVideo.Title);
+                                Playlist.Play(nicoVideo);
 
                                 NotificationService.DismissInAppNotification();
                             })
@@ -116,7 +120,7 @@ namespace NicoPlayerHohoema.Services
                             Label = "あとで見る",
                             Command = new DelegateCommand(() =>
                             {
-                                Playlist.DefaultPlaylist.AddMylistItem(nicoVideo.RawVideoId);
+                                Playlist.AddWatchAfterPlaylist(nicoVideo);
 
                                 NotificationService.DismissInAppNotification();
                             })
@@ -155,7 +159,7 @@ namespace NicoPlayerHohoema.Services
                             Label = "視聴する",
                             Command = new DelegateCommand(() =>
                             {
-                                Playlist.PlayLiveVideo(liveId, liveTitle);
+                                _ = _playerViewManager.PlayWithCurrentPlayerView(new LiveVideoPlaylistItem(liveId, liveTitle));
 
                                 NotificationService.DismissInAppNotification();
                             })

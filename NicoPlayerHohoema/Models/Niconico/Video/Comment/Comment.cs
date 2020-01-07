@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Windows.UI;
 using Windows.UI.Xaml;
 using System.Text.RegularExpressions;
+using System.Runtime.Serialization;
 
 namespace NicoPlayerHohoema.Models.Niconico
 {
@@ -30,36 +31,40 @@ namespace NicoPlayerHohoema.Models.Niconico
         Small,
     }
 
+    [DataContract]
 	public class Comment : BindableBase
 	{
         // コメントのデータ構造だけで他のことを知っているべきじゃない
         // このデータを解釈して実際に表示するためのオブジェクトにする部分は処理は
         // View側が持つべき
-        /*
-		public const float default_fontSize = fontSize_mid;
-
-		public const float fontSize_mid = 1.0f;
-		public const float fontSize_small = 0.75f;
-		public const float fontSize_big = 1.25f;
-        */
+        
+        [DataMember]
         public uint CommentId { get; set; }
 
+        [DataMember]
         public string CommentText { get; set; }
 
-        
-        public string Mail { get; set; } 
+        [DataMember]
+        public string Mail { get; set; }
+        [DataMember]
+        public string UserId { get; set; }
 
-		public string UserId { get; set; }
+        [DataMember]
         public bool IsAnonimity { get; set; }
 
+        [DataMember]
         public long VideoPosition { get; set; }
 
+        [DataMember]
         public int NGScore { get; set; }
 
-
+        [IgnoreDataMember]
         public bool IsLoginUserComment { get; set; }
+
+        [IgnoreDataMember]
         public bool IsOwnerComment { get; set; }
 
+        [DataMember]
         public int DeletedFlag { get; set; }
 
         
@@ -78,9 +83,11 @@ namespace NicoPlayerHohoema.Models.Niconico
 
 
         public Color? Color { get; set; }
+    }
 
 
-
+    public class LiveComment : Comment
+    {
         private string _UserName;
         public string UserName
         {
@@ -96,8 +103,6 @@ namespace NicoPlayerHohoema.Models.Niconico
         }
 
         public bool IsOperationCommand { get; internal set; }
-
-        
 
 
         bool? _IsLink;
@@ -142,6 +147,8 @@ namespace NicoPlayerHohoema.Models.Niconico
 
         static Uri ParseLinkFromHtml(string text)
         {
+            if (text == null) { return null; }
+
             var doc = new HtmlAgilityPack.HtmlDocument();
             doc.LoadHtml(text);
 
@@ -157,6 +164,5 @@ namespace NicoPlayerHohoema.Models.Niconico
 
             return null;
         }
-
     }
 }

@@ -21,19 +21,19 @@
     xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
     xmlns:behaviors="using:NicoPlayerHohoema.Views.Interaction.Behaviors"
   xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts"
+  xmlns:videolistPage="using:NicoPlayerHohoema.Views.Pages.VideoListPage"
   DataContext="{x:Null}"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d"
     >
 
-    <Page.Transitions>
-        <TransitionCollection>
-            <NavigationThemeTransition>
-                <DrillInNavigationTransitionInfo />
-            </NavigationThemeTransition>
-        </TransitionCollection>
-    </Page.Transitions>
-  
+  <Page.Transitions>
+    <TransitionCollection>
+      <NavigationThemeTransition>
+        <DrillInNavigationTransitionInfo />
+      </NavigationThemeTransition>
+    </TransitionCollection>
+  </Page.Transitions>
 
   <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                                         >
@@ -72,6 +72,101 @@
 
     </VisualStateManager.VisualStateGroups>
 
+    <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
+                                      ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
+                                      ItemContextFlyout="{StaticResource VideoListItemFlyout}"
+                                      >
+      <videolistPage:VideoItemsListView.Header>
+        <controls:ScrollHeader
+                    x:Name="ScrollHeader"
+                    Mode="QuickReturn" 
+                    >
+
+          <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+            <CommandBar x:Name="VideoListCommandBar" Background="Transparent"
+                                    >
+
+              <CommandBar.Content>
+                <StackPanel Orientation="Horizontal"
+                            Spacing="16"
+                                    >
+                  <HyperlinkButton 
+                                             Command="{Binding PageManager.OpenPageCommand}"
+                                             CommandParameter="RankingCategoryList"
+                                             Foreground="{StaticResource ApplicationForegroundThemeBrush}"
+                                            VerticalAlignment="Center"
+                                            Opacity="0.7"
+                                            Margin="16 0 0 0"
+                                            uwpcontrol:DockPanel.Dock="Left"
+                                             >
+                    <TextBlock Text="ランキング"
+                                           Style="{StaticResource SubtitleTextBlockStyle}"
+                                           
+                                           >
+
+                    </TextBlock>
+
+                  </HyperlinkButton>
+
+
+                  <ComboBox ItemsSource="{Binding PickedTags}"
+                            SelectedItem="{Binding SelectedRankingTag.Value, Mode=TwoWay}"
+                            DisplayMemberPath="DisplayName"
+                            >
+
+                  </ComboBox>
+
+                  <ComboBox ItemsSource="{Binding CurrentSelectableRankingTerms.Value}"
+                            SelectedItem="{Binding SelectedRankingTerm.Value, Mode=TwoWay}"
+                            >
+                    <ComboBox.ItemTemplate>
+                      <DataTemplate>
+                        <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
+                      </DataTemplate>
+                    </ComboBox.ItemTemplate>
+                  </ComboBox>
+
+                </StackPanel>
+              </CommandBar.Content>
+
+              <CommandBar.PrimaryCommands>
+                <AppBarButton x:Name="ScrollToTopButton"
+                                              Label="トップへ戻る"
+                                              Icon="Up"
+                                            >
+                  <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Click">
+                      <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
+                    </core:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
+                </AppBarButton>
+
+                <AppBarButton Label="更新" 
+                                                    Icon="Refresh"
+                                                    Command="{Binding RefreshCommand}"
+                                                    IsEnabled="{Binding CanChangeSort.Value}"
+                                                    x:Name="RefreshButton"
+                                                    VerticalAlignment="Center"
+                                                >
+                </AppBarButton>
+              </CommandBar.PrimaryCommands>
+            </CommandBar>
+          </Grid>
+        </controls:ScrollHeader>
+      </videolistPage:VideoItemsListView.Header>
+
+      <videolistPage:VideoItemsListView.ItemTemplate>
+        <DataTemplate>
+          <Grid>
+            <videolistPage:VideoListItemControl />
+          </Grid>
+        </DataTemplate>
+      </videolistPage:VideoItemsListView.ItemTemplate>
+      
+    </videolistPage:VideoItemsListView>
+
+    <!--
     <uwpcontrol:PullToRefreshListView 
             x:Name="ItemsList"
             ItemsSource="{Binding ItemsView, Mode=OneWay}"
@@ -117,83 +212,7 @@
       </i:Interaction.Behaviors>
 
       <ListView.Header>
-        <controls:ScrollHeader
-                    x:Name="ScrollHeader"
-                    Mode="QuickReturn" 
-                    >
-
-          <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
-            <CommandBar x:Name="VideoListCommandBar" Background="Transparent"
-                                    >
-
-              <CommandBar.Content>
-                <StackPanel Orientation="Horizontal"
-                            Spacing="16"
-                                    >
-                  <HyperlinkButton 
-                                             Command="{Binding PageManager.OpenPageCommand}"
-                                             CommandParameter="RankingCategoryList"
-                                             Foreground="{StaticResource ApplicationForegroundThemeBrush}"
-                                            VerticalAlignment="Center"
-                                            Opacity="0.7"
-                                            Margin="16 0 0 0"
-                                            uwpcontrol:DockPanel.Dock="Left"
-                                             >
-                    <TextBlock Text="ランキング"
-                                           Style="{StaticResource SubtitleTextBlockStyle}"
-                                           
-                                           >
-
-                    </TextBlock>
-
-                  </HyperlinkButton>
-
-
-                  <ComboBox ItemsSource="{Binding PickedTags}"
-                            SelectedItem="{Binding SelectedRankingTag.Value, Mode=TwoWay}"
-                            DisplayMemberPath="DisplayName"
-                            >
-                    
-                  </ComboBox>
-
-                  <ComboBox ItemsSource="{Binding CurrentSelectableRankingTerms.Value}"
-                            SelectedItem="{Binding SelectedRankingTerm.Value, Mode=TwoWay}"
-                            >
-                    <ComboBox.ItemTemplate>
-                      <DataTemplate>
-                        <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
-                      </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                  </ComboBox>
-
-                </StackPanel>
-              </CommandBar.Content>
-
-              <CommandBar.PrimaryCommands>
-                <AppBarButton x:Name="ScrollToTopButton"
-                                              Label="トップへ戻る"
-                                              Icon="Up"
-                                            >
-                  <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Click">
-                      <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
-                    </core:EventTriggerBehavior>
-                  </i:Interaction.Behaviors>
-                </AppBarButton>
-
-                <AppBarButton Label="更新" 
-                                                    Icon="Refresh"
-                                                    Command="{Binding RefreshCommand}"
-                                                    IsEnabled="{Binding CanChangeSort.Value}"
-                                                    x:Name="RefreshButton"
-                                                    VerticalAlignment="Center"
-                                                >
-                </AppBarButton>
-              </CommandBar.PrimaryCommands>
-            </CommandBar>
-          </Grid>
-        </controls:ScrollHeader>
+        
       </ListView.Header>
 
 
@@ -205,5 +224,6 @@
       </ListView.ItemTemplate>
 
     </uwpcontrol:PullToRefreshListView>
+    -->
   </Grid>
 </Page>

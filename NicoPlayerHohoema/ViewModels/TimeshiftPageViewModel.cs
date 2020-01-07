@@ -17,6 +17,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase.Playlist;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -25,7 +26,7 @@ namespace NicoPlayerHohoema.ViewModels
         public TimeshiftPageViewModel(
             LoginUserLiveReservationProvider loginUserLiveReservationProvider,
             NicoLiveProvider nicoLiveProvider,
-            Services.HohoemaPlaylist hohoemaPlaylist,
+            HohoemaPlaylist hohoemaPlaylist,
             Services.PageManager pageManager, 
             Services.DialogService dialogService
             ) 
@@ -39,7 +40,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public LoginUserLiveReservationProvider LoginUserLiveReservationProvider { get; }
         public NicoLiveProvider NicoLiveProvider { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public Services.PageManager PageManager { get; }
         public Services.DialogService DialogService { get; }
 

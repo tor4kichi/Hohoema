@@ -18,20 +18,19 @@ using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Services;
 using Prism.Navigation;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase.Playlist;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class CommunityVideoPageViewModel : HohoemaListingPageViewModelBase<CommunityVideoInfoControlViewModel>
+	public class CommunityVideoPageViewModel : HohoemaListingPageViewModelBase<CommunityVideoInfoViewModel>
 	{
         public CommunityVideoPageViewModel(
             CommunityProvider communityProvider,
-            Services.PageManager pageManager,
-            Services.HohoemaPlaylist hohoemaPlaylist
+            Services.PageManager pageManager
             )
         {
             CommunityProvider = communityProvider;
             PageManager = pageManager;
-            HohoemaPlaylist = hohoemaPlaylist;
         }
 
 
@@ -81,7 +80,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-		protected override IIncrementalSource<CommunityVideoInfoControlViewModel> GenerateIncrementalSource()
+		protected override IIncrementalSource<CommunityVideoInfoViewModel> GenerateIncrementalSource()
 		{
 			return new CommunityVideoIncrementalSource(CommunityId, (int)CommunityDetail.VideoCount, CommunityProvider);
 		}
@@ -113,11 +112,10 @@ namespace NicoPlayerHohoema.ViewModels
 
         public CommunityProvider CommunityProvider { get; }
         public PageManager PageManager { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
     }
 
 
-	public class CommunityVideoIncrementalSource : HohoemaIncrementalSourceBase<CommunityVideoInfoControlViewModel>
+	public class CommunityVideoIncrementalSource : HohoemaIncrementalSourceBase<CommunityVideoInfoViewModel>
 	{
         public CommunityProvider CommunityProvider { get; }
 
@@ -147,7 +145,7 @@ namespace NicoPlayerHohoema.ViewModels
 			return Task.FromResult(VideoCount);
 		}
 
-		protected override async Task<IAsyncEnumerable<CommunityVideoInfoControlViewModel>> GetPagedItemsImpl(int start, int count)
+		protected override async Task<IAsyncEnumerable<CommunityVideoInfoViewModel>> GetPagedItemsImpl(int start, int count)
 		{
 			if (count >= VideoCount)
 			{
@@ -174,39 +172,13 @@ namespace NicoPlayerHohoema.ViewModels
 				}
 			}
 
-            return Items.Skip(start).Take(count).Select(x => new CommunityVideoInfoControlViewModel(x)).ToAsyncEnumerable();
+            return Items.Skip(start).Take(count).Select(x => new CommunityVideoInfoViewModel(x) { }).ToAsyncEnumerable();
 		}
 
 
 		#endregion
 	}
 
-
-	public class CommunityVideoInfoControlViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContent
-    {
-		public RssVideoData RssItem { get; private set; }
-
-
-		public string VideoId => RssItem.GetVideoId();
-
-		public CommunityVideoInfoControlViewModel(RssVideoData rssItem)
-			: base()
-		{
-			RssItem = rssItem;
-
-            Label = RssItem.RawTitle;
-		}
-
-        public string ProviderId => string.Empty;
-
-        public string ProviderName => string.Empty;
-
-        public Database.NicoVideoUserType ProviderType => Database.NicoVideoUserType.User;
-
-        public string Id => VideoId;
-
-        Interfaces.IMylist IVideoContent.OnwerPlaylist => null;
-    }
 
 	
 }

@@ -180,7 +180,7 @@ namespace NicoPlayerHohoema.Models
                 case Interfaces.IChannel _: return FollowItemType.Channel;
                 case Interfaces.ICommunity _: return FollowItemType.Community;
                 case Interfaces.IUser _: return FollowItemType.User;
-                case Interfaces.IMylistItem _: return FollowItemType.Mylist;
+                case Interfaces.IMylist _: return FollowItemType.Mylist;
                 case Interfaces.ITag _: return FollowItemType.Tag;
                 case Interfaces.ISearchWithtag _: return FollowItemType.Tag;
 

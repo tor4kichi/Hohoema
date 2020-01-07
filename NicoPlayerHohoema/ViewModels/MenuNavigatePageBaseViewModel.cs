@@ -28,6 +28,8 @@ using Unity.Resolution;
 using Prism.Unity;
 using Prism.Navigation;
 using Prism.Events;
+using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.Interfaces;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -274,11 +276,11 @@ namespace NicoPlayerHohoema.ViewModels
         public AppearanceSettings AppearanceSettings { get; }
         public PinSettings PinSettings { get; }
         public NiconicoSession NiconicoSession { get; }
-        public Models.LocalMylist.LocalMylistManager LocalMylistManager { get; }
+        public LocalMylistManager LocalMylistManager { get; }
         public UserMylistManager UserMylistManager { get; }
         public VideoCacheManager VideoCacheManager { get; }
         public PlayerViewManager PlayerViewManager { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
 
         public ReactiveProperty<bool> IsTVModeEnable { get; private set; }
         public bool IsNeedFullScreenToggleHelp { get; private set; }
@@ -666,7 +668,7 @@ namespace NicoPlayerHohoema.ViewModels
     {
         public VideoMenuSubPageContent(
             NiconicoSession niconicoSession,  
-            Models.LocalMylist.LocalMylistManager localMylistManager,
+            LocalMylistManager localMylistManager,
             Models.UserMylistManager mylistManager,
             PageManager pageManager
             )
@@ -679,14 +681,14 @@ namespace NicoPlayerHohoema.ViewModels
 
             ResetMenuItems();
 
-            LocalMylists = LocalMylistManager.Mylists
-               .ToReadOnlyReactiveCollection(x =>
-               new MenuItemViewModel(x.Label, HohoemaPageType.Mylist, new NavigationParameters { { "id", x.Id }, { "origin", x.ToMylistOrigin() } }) as HohoemaListingPageItemBase
-               )
-               .AddTo(_CompositeDisposable);
+            LocalMylists = LocalMylistManager.LocalPlaylists
+                .ToReadOnlyReactiveCollection(x =>
+                new MenuItemViewModel(x.Label, HohoemaPageType.Mylist, new NavigationParameters { { "id", x.Id } }) as HohoemaListingPageItemBase
+                )
+                .AddTo(_CompositeDisposable);
             Mylists = MylistManager.Mylists
                 .ToReadOnlyReactiveCollection(x =>
-                new MenuItemViewModel(x.Label, HohoemaPageType.Mylist, new NavigationParameters { { "id", x.Id }, { "origin", x.ToMylistOrigin() } }) as HohoemaListingPageItemBase
+                new MenuItemViewModel(x.Label, HohoemaPageType.Mylist, new NavigationParameters { { "id", x.Id } }) as HohoemaListingPageItemBase
                 )
                 .AddTo(_CompositeDisposable);
 
@@ -696,7 +698,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public Models.UserMylistManager MylistManager { get;  }
         public NiconicoSession NiconicoSession { get; }
-        public Models.LocalMylist.LocalMylistManager LocalMylistManager { get; }
+        public LocalMylistManager LocalMylistManager { get; }
         public PageManager PageManager { get; }
 
         private CompositeDisposable _CompositeDisposable = new CompositeDisposable();
@@ -761,12 +763,10 @@ namespace NicoPlayerHohoema.ViewModels
         
         public LiveMenuSubPageContent(
             NiconicoSession niconicoSession, 
-            Services.HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager
             )
         {
             NiconicoSession = niconicoSession;
-            HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
             MenuItems = new ObservableCollection<HohoemaListingPageItemBase>();
 
@@ -795,7 +795,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public NiconicoSession NiconicoSession { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
 
         public ObservableCollection<HohoemaListingPageItemBase> MenuItems { get; private set; }

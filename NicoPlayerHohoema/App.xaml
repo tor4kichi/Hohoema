@@ -17,141 +17,142 @@
     xmlns:subscriptionConverters="using:NicoPlayerHohoema.Views.Subscriptions"
     xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts">
 
-    <prism:PrismApplication.Resources>
-       
-        <ResourceDictionary>
-            <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Styles/DefaultStyle.xaml"/>
-                <ResourceDictionary Source="Styles/VideoProgressBarStyle.xaml"/>
-                <ResourceDictionary Source="Styles/HohoemaListItemStyle.xaml"/>
-                <ResourceDictionary Source="Styles/UWPUIControlsDefaultStyles.xaml"/>
-                <ResourceDictionary Source="Styles/ListViewItemStyles.xaml"/>
+  <prism:PrismApplication.Resources>
 
-                <ResourceDictionary Source="Views/Controls/FloatContentContainer/FloatContentContainer.xaml"/>
-                <ResourceDictionary Source="Views/Controls/IncrementalLoadingList/IncrementalLoadingList.xaml"/>
-                <ResourceDictionary Source="Views/Controls/MasterDetailsView/MasterDetailsView.xaml"/>
-                <ResourceDictionary Source="Views/Controls/TransientContainer/TransientContainer.xaml"/>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Styles/DefaultStyle.xaml"/>
+        <ResourceDictionary Source="Styles/VideoProgressBarStyle.xaml"/>
+        <ResourceDictionary Source="Styles/HohoemaListItemStyle.xaml"/>
+        <ResourceDictionary Source="Styles/UWPUIControlsDefaultStyles.xaml"/>
+        <ResourceDictionary Source="Styles/ListViewItemStyles.xaml"/>
 
-            </ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="Views/Controls/FloatContentContainer/FloatContentContainer.xaml"/>
+        <ResourceDictionary Source="Views/Controls/IncrementalLoadingList/IncrementalLoadingList.xaml"/>
+        <ResourceDictionary Source="Views/Controls/MasterDetailsView/MasterDetailsView.xaml"/>
+        <ResourceDictionary Source="Views/Controls/TransientContainer/TransientContainer.xaml"/>
 
-            <Color x:Key="HohoemaThemeColor" >#F8B400</Color>
-            <SolidColorBrush x:Key="HohoemaThemeBackgroundBrush"
+      </ResourceDictionary.MergedDictionaries>
+
+      <Color x:Key="HohoemaThemeColor" >#F8B400</Color>
+      <SolidColorBrush x:Key="HohoemaThemeBackgroundBrush"
                              Color="{StaticResource HohoemaThemeColor}"
                              >
-            </SolidColorBrush>
-            <SolidColorBrush x:Key="HohoemaPlayerBackgroundBrush"
+      </SolidColorBrush>
+      <SolidColorBrush x:Key="HohoemaPlayerBackgroundBrush"
                     Color="{ThemeResource SystemAltMediumColor}" 
                          />
 
-            <x:Double x:Key="DesktopWindowWidthBreakPoint">800</x:Double>
+      <x:Double x:Key="DesktopWindowWidthBreakPoint">800</x:Double>
 
-            
-            <uwpconv:BoolNegationConverter x:Key="BoolNegation" />
-            <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
-            <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityInverted" IsInversed="True" />
-            <myconv:InvertVisibilityConverter x:Key="InvertVisibility" />
 
-            <uwpconv:EmptyObjectToObjectConverter x:Key="NotNullToBoolean">
-                <uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
-                    <x:Boolean>True</x:Boolean>
-                </uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
-                <uwpconv:EmptyObjectToObjectConverter.EmptyValue>
-                    <x:Boolean>False</x:Boolean>
-                </uwpconv:EmptyObjectToObjectConverter.EmptyValue>
-            </uwpconv:EmptyObjectToObjectConverter>
+      <uwpconv:BoolNegationConverter x:Key="BoolNegation" />
+      <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
+      <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityInverted" IsInversed="True" />
+      <myconv:InvertVisibilityConverter x:Key="InvertVisibility" />
 
-            <uwpconv:EmptyObjectToObjectConverter x:Key="NullToBoolean">
-                <uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
-                    <x:Boolean>False</x:Boolean>
-                </uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
-                <uwpconv:EmptyObjectToObjectConverter.EmptyValue>
-                    <x:Boolean>True</x:Boolean>
-                </uwpconv:EmptyObjectToObjectConverter.EmptyValue>
-            </uwpconv:EmptyObjectToObjectConverter>
+      <uwpconv:EmptyObjectToObjectConverter x:Key="NotNullToBoolean">
+        <uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
+          <x:Boolean>True</x:Boolean>
+        </uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
+        <uwpconv:EmptyObjectToObjectConverter.EmptyValue>
+          <x:Boolean>False</x:Boolean>
+        </uwpconv:EmptyObjectToObjectConverter.EmptyValue>
+      </uwpconv:EmptyObjectToObjectConverter>
 
-            <uwpconv:EmptyObjectToObjectConverter x:Key="NotNullToVisibility">
-                <uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
-                    <Visibility>Visible</Visibility>
-                </uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
-                <uwpconv:EmptyObjectToObjectConverter.EmptyValue>
-                    <Visibility>Collapsed</Visibility>
-                </uwpconv:EmptyObjectToObjectConverter.EmptyValue>
-            </uwpconv:EmptyObjectToObjectConverter>
-            <uwpconv:EmptyObjectToObjectConverter x:Key="NullToVisibility">
-                <uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
-                    <Visibility>Collapsed</Visibility>
-                </uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
-                <uwpconv:EmptyObjectToObjectConverter.EmptyValue>
-                    <Visibility>Visible</Visibility>
-                </uwpconv:EmptyObjectToObjectConverter.EmptyValue>
-            </uwpconv:EmptyObjectToObjectConverter>
-            <uwpconv:CollectionVisibilityConverter x:Key="CollectionVisibilityConverter" />
-            <uwpconv:EmptyCollectionToObjectConverter x:Key="EmptyCollectionVisibilityConverter">
-                <uwpconv:EmptyCollectionToObjectConverter.EmptyValue>
-                    <Visibility>Visible</Visibility>
-                </uwpconv:EmptyCollectionToObjectConverter.EmptyValue>
-                <uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
-                    <Visibility>Collapsed</Visibility>
-                </uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
-            </uwpconv:EmptyCollectionToObjectConverter>
-            <uwpconv:EmptyCollectionToObjectConverter x:Key="EmptyCollectionToBooleanConverter"
+      <uwpconv:EmptyObjectToObjectConverter x:Key="NullToBoolean">
+        <uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
+          <x:Boolean>False</x:Boolean>
+        </uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
+        <uwpconv:EmptyObjectToObjectConverter.EmptyValue>
+          <x:Boolean>True</x:Boolean>
+        </uwpconv:EmptyObjectToObjectConverter.EmptyValue>
+      </uwpconv:EmptyObjectToObjectConverter>
+
+      <uwpconv:EmptyObjectToObjectConverter x:Key="NotNullToVisibility">
+        <uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
+          <Visibility>Visible</Visibility>
+        </uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
+        <uwpconv:EmptyObjectToObjectConverter.EmptyValue>
+          <Visibility>Collapsed</Visibility>
+        </uwpconv:EmptyObjectToObjectConverter.EmptyValue>
+      </uwpconv:EmptyObjectToObjectConverter>
+      <uwpconv:EmptyObjectToObjectConverter x:Key="NullToVisibility">
+        <uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
+          <Visibility>Collapsed</Visibility>
+        </uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
+        <uwpconv:EmptyObjectToObjectConverter.EmptyValue>
+          <Visibility>Visible</Visibility>
+        </uwpconv:EmptyObjectToObjectConverter.EmptyValue>
+      </uwpconv:EmptyObjectToObjectConverter>
+      <uwpconv:CollectionVisibilityConverter x:Key="CollectionVisibilityConverter" />
+      <uwpconv:EmptyCollectionToObjectConverter x:Key="EmptyCollectionVisibilityConverter">
+        <uwpconv:EmptyCollectionToObjectConverter.EmptyValue>
+          <Visibility>Visible</Visibility>
+        </uwpconv:EmptyCollectionToObjectConverter.EmptyValue>
+        <uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
+          <Visibility>Collapsed</Visibility>
+        </uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
+      </uwpconv:EmptyCollectionToObjectConverter>
+      <uwpconv:EmptyCollectionToObjectConverter x:Key="EmptyCollectionToBooleanConverter"
                                                       
                                                       >
-                <uwpconv:EmptyCollectionToObjectConverter.EmptyValue>
-                    <x:Boolean>True</x:Boolean>
-                </uwpconv:EmptyCollectionToObjectConverter.EmptyValue>
-                <uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
-                    <x:Boolean>False</x:Boolean>
-                </uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
-            </uwpconv:EmptyCollectionToObjectConverter>
-            <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
+        <uwpconv:EmptyCollectionToObjectConverter.EmptyValue>
+          <x:Boolean>True</x:Boolean>
+        </uwpconv:EmptyCollectionToObjectConverter.EmptyValue>
+        <uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
+          <x:Boolean>False</x:Boolean>
+        </uwpconv:EmptyCollectionToObjectConverter.NotEmptyValue>
+      </uwpconv:EmptyCollectionToObjectConverter>
+      <myconv:TimeSpanToMovieLengthStringValueConverter x:Key="TimeToMovieLengthConverter" />
 
-            <conv:ColorToBrushConverter x:Key="ColorToBrush" />
-            
-            <myconv:SoundVolumeConveter x:Key="ToUserFriendlySoubleVolume" />
-            <myconv:VideoPositionToTimeConverter x:Key="VPosToTime" />
-            <myconv:ToUserFriendlyNumber x:Key="ToUserFriendlyNumber" />
-            <myconv:RelationalDateTimeConverter x:Key="ToRelationalTime" />
-            <myconv:TransparentColorConverter x:Key="ToTransparentColor" />
-            <myconv:SwipeSeekValueToTimeSpan x:Key="SwipeSeekValueToTimeSpan" />
+      <conv:ColorToBrushConverter x:Key="ColorToBrush" />
 
-            <myconv:DateTimeToStringConverter x:Key="DateTimeToString" />
-            <myconv:ExpiredDateTimeToStringConverter x:Key="ExpiredDateTimeToString" />
-            <myconv:ToKMGTPEZYConverter x:Key="ToKMGTPEZY" />
+      <myconv:SoundVolumeConveter x:Key="ToUserFriendlySoubleVolume" />
+      <myconv:VideoPositionToTimeConverter x:Key="VPosToTime" />
+      <myconv:ToUserFriendlyNumber x:Key="ToUserFriendlyNumber" />
+      <myconv:RelationalDateTimeConverter x:Key="ToRelationalTime" />
+      <myconv:TransparentColorConverter x:Key="ToTransparentColor" />
+      <myconv:SwipeSeekValueToTimeSpan x:Key="SwipeSeekValueToTimeSpan" />
 
-            <uwpconv:BoolToObjectConverter x:Name="BoolToAvairableOpacityConverter">
-                <uwpconv:BoolToObjectConverter.TrueValue>
-                    <x:Double>1.0</x:Double>
-                </uwpconv:BoolToObjectConverter.TrueValue>
-                <uwpconv:BoolToObjectConverter.FalseValue>
-                    <x:Double>0.7</x:Double>
-                </uwpconv:BoolToObjectConverter.FalseValue>
-            </uwpconv:BoolToObjectConverter>
+      <myconv:DateTimeToStringConverter x:Key="DateTimeToString" />
+      <myconv:ExpiredDateTimeToStringConverter x:Key="ExpiredDateTimeToString" />
+      <myconv:ToKMGTPEZYConverter x:Key="ToKMGTPEZY" />
 
-            <uwpconv:ResourceNameToResourceStringConverter x:Key="ToLocalText" />
-            
-            <myconv:CacheStateToColorBrushConverter x:Key="CacheStateToColorBrush" />
+      <uwpconv:BoolToObjectConverter x:Name="BoolToAvairableOpacityConverter">
+        <uwpconv:BoolToObjectConverter.TrueValue>
+          <x:Double>1.0</x:Double>
+        </uwpconv:BoolToObjectConverter.TrueValue>
+        <uwpconv:BoolToObjectConverter.FalseValue>
+          <x:Double>0.7</x:Double>
+        </uwpconv:BoolToObjectConverter.FalseValue>
+      </uwpconv:BoolToObjectConverter>
+
+      <uwpconv:ResourceNameToResourceStringConverter x:Key="ToLocalText" />
+
+      <myconv:CacheStateToColorBrushConverter x:Key="CacheStateToColorBrush" />
+
+      <myconv:TimeSpanToSecondsConverter x:Key="TimeSpanToDoubleConverter" />
 
 
+      <!-- Logical Modifier-->
+      <logicalModifier:AndModifier x:Key="AndModifier" />
+      <logicalModifier:OrModifier x:Key="OrModifier" />
+      <logicalModifier:XORModifier x:Key="XORModifier" />
 
-            <!-- Logical Modifier-->
-            <logicalModifier:AndModifier x:Key="AndModifier" />
-            <logicalModifier:OrModifier x:Key="OrModifier" />
-            <logicalModifier:XORModifier x:Key="XORModifier" />
+      <compareModifier:EqualToModifier x:Key="EqualToModifier" />
+      <compareModifier:NotEqualToModifier x:Key="NotEqualToModifier" />
+      <compareModifier:GreaterThanEqualToModifier x:Key="GreaterThanEqualToModifier" />
+      <compareModifier:GreaterThanModifier x:Key="GreaterThanModifier" />
+      <compareModifier:LessThanEqualToModifier x:Key="LessThanEqualToModifier" />
+      <compareModifier:LessThanModifier x:Key="LessThanModifier" />
 
-            <compareModifier:EqualToModifier x:Key="EqualToModifier" />
-            <compareModifier:NotEqualToModifier x:Key="NotEqualToModifier" />
-            <compareModifier:GreaterThanEqualToModifier x:Key="GreaterThanEqualToModifier" />
-            <compareModifier:GreaterThanModifier x:Key="GreaterThanModifier" />
-            <compareModifier:LessThanEqualToModifier x:Key="LessThanEqualToModifier" />
-            <compareModifier:LessThanModifier x:Key="LessThanModifier" />
-            
-            
-            <!-- Subscriptions -->
-            <subscriptionConverters:SubscriptionSourceConverter x:Key="SubscriptionSourceConverter" />
 
-            <DataTemplate x:Key="QualityVideoTemplate">
-                <!-- 画質ごとのキャッシュ状態を表示 
+      <!-- Subscriptions -->
+      <subscriptionConverters:SubscriptionSourceConverter x:Key="SubscriptionSourceConverter" />
+
+      <DataTemplate x:Key="QualityVideoTemplate">
+        <!-- 画質ごとのキャッシュ状態を表示 
                             
                     キャッシュリクエストされていない -> 非表示
                     キャッシュ待機中 -> 灰色
@@ -159,25 +160,25 @@
                     キャッシュ済み -> 緑色
                             
                     -->
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="{Binding Quality, Converter={StaticResource ToLocalText}}"
+        <StackPanel Orientation="Horizontal">
+          <TextBlock Text="{Binding Quality, Converter={StaticResource ToLocalText}}"
                            Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"                               
                             Margin="0 0"
                             VerticalAlignment="Center"
                             x:Name="QualityText"
                             >
-                    </TextBlock>
-                    
-                    <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+          </TextBlock>
+
+          <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
                                Visibility="{Binding IsCached.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
                                >
                         (<Run Text="{Binding CacheState.Value}" />)
-                    </TextBlock>
-                </StackPanel>
-            </DataTemplate>
+          </TextBlock>
+        </StackPanel>
+      </DataTemplate>
 
-            <DataTemplate x:Key="QualityVideoTemplate_TV">
-                <!-- 画質ごとのキャッシュ状態を表示 
+      <DataTemplate x:Key="QualityVideoTemplate_TV">
+        <!-- 画質ごとのキャッシュ状態を表示 
                             
                     キャッシュリクエストされていない -> 非表示
                     キャッシュ待機中 -> 灰色
@@ -185,8 +186,8 @@
                     キャッシュ済み -> 緑色
                             
                     -->
-                <Border>
-                    <TextBlock 
+        <Border>
+          <TextBlock 
                            Foreground="{Binding CacheState.Value, Converter={StaticResource CacheStateToColorBrush}}"
                             FontSize="13"
                             Margin="0 0"
@@ -194,57 +195,59 @@
                             x:Name="QualityText"
                             >
                     <Run Text="{Binding Quality, Converter={StaticResource ToLocalText}}" />
-                    </TextBlock>
-                </Border>
-            </DataTemplate>
+          </TextBlock>
+        </Border>
+      </DataTemplate>
 
 
-            <Style TargetType="ListViewItem" x:Key="VideoListViewItemStyle">
-                <Setter Property="HorizontalContentAlignment"
+      <Style TargetType="ListViewItem" x:Key="VideoListViewItemStyle">
+        <Setter Property="HorizontalContentAlignment"
                                 Value="Stretch" 
                                     />
-                <Setter Property="Margin"
+        <Setter Property="Margin"
                                 Value="0 0 0 0" 
                                 />
-                <Setter Property="Padding" Value="0 8 16 8" />
-                <Setter Property="UseSystemFocusVisuals" Value="True" />
-                <Setter Property="BorderThickness" Value="0 0 0 1" />
-                <Setter Property="BorderBrush" Value="#44707070" />
-            </Style>
+        <Setter Property="Padding" Value="0 8 16 8" />
+        <Setter Property="UseSystemFocusVisuals" Value="True" />
+        <Setter Property="BorderThickness" Value="0 0 0 1" />
+        <Setter Property="BorderBrush" Value="#44707070" />
+      </Style>
 
 
-            <DataTemplate x:Key="VideoListItemFlyoutTemplate">
-                <flyouts:VideoItemFlyout />
-            </DataTemplate>
+      <flyouts:VideoItemFlyout x:Key="VideoListItemFlyout" />
+      
+      <DataTemplate x:Key="VideoListItemFlyoutTemplate">
+        <flyouts:VideoItemFlyout />
+      </DataTemplate>
 
-            <ResourceDictionary.ThemeDictionaries>
-                <ResourceDictionary x:Key="Light">
-                    <LinearGradientBrush x:Key="TvHeaderBackgroundBrush"
+      <ResourceDictionary.ThemeDictionaries>
+        <ResourceDictionary x:Key="Light">
+          <LinearGradientBrush x:Key="TvHeaderBackgroundBrush"
                                  StartPoint="0, 0"
                                  EndPoint="0, 1"
                                  >
 
-                        <GradientStop Color="{StaticResource SystemAltMediumHighColor}" Offset="0.0" />
-                        <GradientStop Color="#00FFFFFF" Offset="1.0" />
-                    </LinearGradientBrush>
-                </ResourceDictionary>
-                <ResourceDictionary x:Key="Dark">
-                    <Color x:Key="SystemBaseHighColor">#CEFFFFFF</Color>
-                    <Color x:Key="ApplicationPageBackgroundThemeBrush">#FF191919</Color>
+            <GradientStop Color="{StaticResource SystemAltMediumHighColor}" Offset="0.0" />
+            <GradientStop Color="#00FFFFFF" Offset="1.0" />
+          </LinearGradientBrush>
+        </ResourceDictionary>
+        <ResourceDictionary x:Key="Dark">
+          <Color x:Key="SystemBaseHighColor">#CEFFFFFF</Color>
+          <Color x:Key="ApplicationPageBackgroundThemeBrush">#FF191919</Color>
 
-                    <LinearGradientBrush x:Key="TvHeaderBackgroundBrush"
+          <LinearGradientBrush x:Key="TvHeaderBackgroundBrush"
                                  StartPoint="0, 0"
                                  EndPoint="0, 1"
                                  >
 
-                        <GradientStop Color="{StaticResource SystemAltMediumHighColor}" Offset="0.0" />
-                        <GradientStop Color="#00000000" Offset="1.0" />
-                    </LinearGradientBrush>
-
-                </ResourceDictionary>
-            </ResourceDictionary.ThemeDictionaries>
+            <GradientStop Color="{StaticResource SystemAltMediumHighColor}" Offset="0.0" />
+            <GradientStop Color="#00000000" Offset="1.0" />
+          </LinearGradientBrush>
 
         </ResourceDictionary>
-    </prism:PrismApplication.Resources>
+      </ResourceDictionary.ThemeDictionaries>
+
+    </ResourceDictionary>
+  </prism:PrismApplication.Resources>
 
 </prism:PrismApplication>

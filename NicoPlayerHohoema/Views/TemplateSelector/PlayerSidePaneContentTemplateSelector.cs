@@ -18,26 +18,27 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
 
         protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
-            if (item is ViewModels.PlayerSidePaneContent.PlaylistSidePaneContentViewModel)
-            {
-                return Playlist;
-            }
-            else if (item is ViewModels.PlayerSidePaneContent.LiveCommentSidePaneContentViewModel)
+            if (item is ViewModels.PlayerSidePaneContent.LiveCommentSidePaneContentViewModel)
             {
                 return Comments;
             }
-            else if (item is ViewModels.PlayerSidePaneContent.SettingsSidePaneContentViewModel)
+
+            var sidePaneType = (PlayerSidePaneContentType?)item;
+            switch (sidePaneType)
             {
-                return Settings;
+                case PlayerSidePaneContentType.Playlist:
+                    return Playlist;
+                case PlayerSidePaneContentType.Comment:
+                    return Comments;
+                case PlayerSidePaneContentType.Setting:
+                    return Settings;
+                case PlayerSidePaneContentType.RelatedVideos:
+                    return RelatedVideos;
+                default:
+                    break;
             }
-            else if (item is ViewModels.PlayerSidePaneContent.RelatedVideosSidePaneContentViewModel)
-            {
-                return RelatedVideos;
-            }
-            else
-            {
-                return Empty;
-            }
+
+            return Empty;
         }
     }
 }

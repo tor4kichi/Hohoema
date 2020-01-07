@@ -82,10 +82,6 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 
-		public event Action OnCommandChanged;
-
-
-
         public ReactiveProperty<bool> IsCanNot184 { get; private set; }
         public ReactiveProperty<bool> CanChangeAnonymity { get; private set; }
 		public ReactiveProperty<bool> IsAnonymousComment { get; private set; }
@@ -110,6 +106,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public bool IsAnonymousDefault { get; set; }
 
+		ReactiveProperty<string> _commandString;
 
 		private CompositeDisposable _CompositeDisposable;
 
@@ -135,6 +132,8 @@ namespace NicoPlayerHohoema.ViewModels
 			IsPickedColor = new ReactiveProperty<bool>(PlayerWindowUIDispatcherScheduler, false)
 				.AddTo(_CompositeDisposable);
 
+			_commandString = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, string.Empty);
+
 			ResetAllCommand = new DelegateCommand(() => 
 			{
 				_NowReseting = true;
@@ -152,8 +151,6 @@ namespace NicoPlayerHohoema.ViewModels
 				{
 					_NowReseting = false;
 				}
-
-				OnCommandChanged?.Invoke();
 			});
 
 
@@ -166,7 +163,7 @@ namespace NicoPlayerHohoema.ViewModels
 				IsPickedColor.ToUnit()
 				)
 				.Where(x => !_NowReseting)
-				.Subscribe(_ => OnCommandChanged?.Invoke())
+				.Subscribe(_ => _commandString.Value = MakeCommandsString())
 				.AddTo(_CompositeDisposable);
 		}
 

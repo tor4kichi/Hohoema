@@ -36,6 +36,7 @@ using Prism;
 using Prism.Navigation;
 using Prism.Services;
 using NicoPlayerHohoema.Models.LocalMylist;
+using Windows.Media.Playback;
 
 namespace NicoPlayerHohoema
 {
@@ -200,8 +201,15 @@ namespace NicoPlayerHohoema
         {
             var unityContainer = container.GetContainer();
 
+            MonkeyCache.LiteDB.Barrel.ApplicationId = nameof(NicoPlayerHohoema);
+            unityContainer.RegisterInstance<MonkeyCache.IBarrel>(MonkeyCache.LiteDB.Barrel.Current);
+
+            // 各ウィンドウごとのスケジューラを作るように
             unityContainer.RegisterType<IScheduler>(new PerThreadLifetimeManager(), new InjectionFactory(c => SynchronizationContext.Current != null ? new SynchronizationContextScheduler(SynchronizationContext.Current) : null));
 
+            // MediaPlayerを各ウィンドウごとに一つずつ作るように
+            unityContainer.RegisterType<MediaPlayer>(new PerThreadLifetimeManager(), new InjectionFactory(c => c.Resolve<PlayerViewManager>().GetCurrentWindowMediaPlayer()));
+            
             // Service
             unityContainer.RegisterType<Services.PageManager>(new PerThreadLifetimeManager());
             unityContainer.RegisterType<PlayerViewManager>(new PerThreadLifetimeManager());
@@ -211,22 +219,19 @@ namespace NicoPlayerHohoema
             // Models
             unityContainer.RegisterSingleton<Models.NiconicoSession>();
 
-            unityContainer.RegisterSingleton<Models.LocalMylist.LocalMylistManager>();
-            unityContainer.RegisterSingleton<Models.OtherOwneredMylistManager>();
             unityContainer.RegisterSingleton<Models.UserMylistManager>();
             unityContainer.RegisterSingleton<Models.FollowManager>();
 
-            unityContainer.RegisterSingleton<Services.HohoemaPlaylist>();
             unityContainer.RegisterSingleton<Models.Cache.VideoCacheManager>();
             unityContainer.RegisterSingleton<Models.Subscription.SubscriptionManager>();
 
-            // Commands 
-            unityContainer.RegisterSingleton<Commands.Mylist.CreateMylistCommand>();
-            unityContainer.RegisterSingleton<Commands.Mylist.CreateLocalMylistCommand>();
-            unityContainer.RegisterSingleton<Commands.Subscriptions.CreateSubscriptionGroupCommand>();
-            unityContainer.RegisterSingleton<Commands.AddToHiddenUserCommand>();
-            unityContainer.RegisterSingleton<Commands.Cache.AddCacheRequestCommand>();
-            unityContainer.RegisterSingleton<Commands.Cache.DeleteCacheRequestCommand>();
+            // UseCase
+            unityContainer.RegisterType<UseCase.VideoPlayer>(new PerThreadLifetimeManager());
+            unityContainer.RegisterType<UseCase.CommentPlayer>(new PerThreadLifetimeManager());
+            unityContainer.RegisterSingleton<UseCase.Playlist.HohoemaPlaylist>();
+            unityContainer.RegisterSingleton<UseCase.Playlist.LocalMylistManager>();
+            unityContainer.RegisterSingleton<UseCase.Playlist.VideoItemsSelectionContext>();
+            
 
             // ViewModels
             unityContainer.RegisterSingleton<ViewModels.RankingCategoryListPageViewModel>();
@@ -306,9 +311,6 @@ namespace NicoPlayerHohoema
                 // ログイン前にログインセッションによって状態が変化するフォローとマイリストの初期化
                 var followManager = Container.Resolve<FollowManager>();
                 var mylitManager = Container.Resolve<UserMylistManager>();
-
-                var localMylistManager = Container.Resolve<LocalMylistManager>();
-                await LocalMylistManager.RestoreLegacyLocalMylistGroups(localMylistManager);
 
                 Resources["IsXbox"] = Services.Helpers.DeviceTypeHelper.IsXbox;
                 Resources["IsMobile"] = Services.Helpers.DeviceTypeHelper.IsMobile;
@@ -447,6 +449,9 @@ namespace NicoPlayerHohoema
                 unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.CheckingClipboardAndNotificationService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationFollowUpdatedService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationCacheRequestRejectedService>());
+
+                unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.VideoCacheResumingObserver>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.NicoVideoPlayer.VideoPlayRequestBridgeToPlayer>());
                 
 
                 // 購読機能を初期化
@@ -686,19 +691,22 @@ namespace NicoPlayerHohoema
 
         private void PlayVideoFromExternal(string videoId, string videoTitle = null, NicoVideoQuality? quality = null)
         {
-            var playlist = Container.Resolve<HohoemaPlaylist>();
+            var playlist = Container.Resolve<UseCase.Playlist.HohoemaPlaylist>();
 
             // TODO: ログインが必要な動画かをチェックしてログインダイアログを出す
 
-            playlist.PlayVideo(videoId, videoTitle, quality);
+            // EventAggregator経由で動画IDの再生リクエストを送って
+            // アプリケーションユースケースで動画情報を解決して再生開始するほうが良さそう
+
+            playlist.Play(videoId);
         }
         private void PlayLiveVideoFromExternal(string videoId)
         {
             // TODO: ログインが必要な生放送かをチェックしてログインダイアログを出す
 
-            var playlist = Container.Resolve<HohoemaPlaylist>();
+            var playerViewManager = Container.Resolve<PlayerViewManager>();
 
-            playlist.PlayLiveVideo(videoId);
+            _ = playerViewManager.PlayWithCurrentPlayerView(new UseCase.Playlist.LiveVideoPlaylistItem(videoId, null));
         }
 
 

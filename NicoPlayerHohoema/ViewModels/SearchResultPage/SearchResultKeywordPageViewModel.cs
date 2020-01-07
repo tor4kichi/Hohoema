@@ -14,6 +14,7 @@ using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Services;
 using Prism.Navigation;
 using System.Threading.Tasks;
+using NicoPlayerHohoema.UseCase.Playlist;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -24,7 +25,7 @@ namespace NicoPlayerHohoema.ViewModels
             NGSettings ngSettings,
             SearchProvider searchProvider,
             SubscriptionManager subscriptionManager,
-            Services.HohoemaPlaylist hohoemaPlaylist,
+            HohoemaPlaylist hohoemaPlaylist,
             Services.PageManager pageManager,
             Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
@@ -223,7 +224,7 @@ namespace NicoPlayerHohoema.ViewModels
         public NGSettings NgSettings { get; }
         public SearchProvider SearchProvider { get; }
         public SubscriptionManager SubscriptionManager1 { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
 

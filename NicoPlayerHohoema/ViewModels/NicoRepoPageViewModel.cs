@@ -18,14 +18,14 @@ using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Services;
 using Prism.Navigation;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase.Playlist;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public class NicoRepoPageViewModel : HohoemaListingPageViewModelBase<HohoemaListingPageItemBase>, INavigatedAwareAsync
     {
         public NicoRepoPageViewModel(
-            
-            Services.HohoemaPlaylist hohoemaPlaylist,
+            HohoemaPlaylist hohoemaPlaylist,
             Services.PageManager pageManager,
             ActivityFeedSettings activityFeedSettings,
             Models.Provider.LoginUserNicoRepoProvider loginUserNicoRepoProvider,
@@ -63,7 +63,7 @@ namespace NicoPlayerHohoema.ViewModels
         };
 
         public IList<NicoRepoItemTopic> DisplayNicoRepoItemTopics { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public ActivityFeedSettings ActivityFeedSettings { get; }
         public Models.Provider.LoginUserNicoRepoProvider LoginUserNicoRepoProvider { get; }
         public Models.Subscription.SubscriptionManager SubscriptionManager { get; }

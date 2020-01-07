@@ -16,6 +16,7 @@ using NicoPlayerHohoema.Models.Provider;
 using Unity;
 using NicoPlayerHohoema.Services;
 using Prism.Navigation;
+using NicoPlayerHohoema.UseCase.Playlist;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -232,7 +233,7 @@ namespace NicoPlayerHohoema.ViewModels
         public Models.NiconicoSession NiconicoSession { get; }
         public SearchProvider SearchProvider { get; }
         public PageManager PageManager { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
 
         #endregion
 
@@ -340,7 +341,7 @@ namespace NicoPlayerHohoema.ViewModels
         public LiveSearchPagePayloadContent SearchOption { get; private set; }
         public SearchProvider SearchProvider { get; }
         public Models.NiconicoSession NiconicoSession { get; }
-        public List<Tag> Tags { get; private set; }
+        public List<Mntone.Nico2.Searches.Live.Tag> Tags { get; private set; }
 
 		public uint OneTimeLoadCount => 10;
 

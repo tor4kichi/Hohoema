@@ -29,9 +29,19 @@ using Prism.Navigation;
 using Prism.Unity;
 using Windows.UI.Xaml.Media.Animation;
 using Prism.Services;
+using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.Interfaces;
 
 namespace NicoPlayerHohoema.Services
 {
+    public enum PlayerViewMode
+    {
+        PrimaryView,
+        SecondaryView
+    }
+
+
+
     public sealed class PlayerViewManager : BindableBase
     {
         /* 複数ウィンドウでプレイヤーを一つだけ表示するための管理をしています
@@ -206,7 +216,7 @@ namespace NicoPlayerHohoema.Services
                 if (_PlayerViewMode != null) { return _PlayerViewMode.Value; }
 
                 var localObjectStorageHelper = new LocalObjectStorageHelper();
-                _PlayerViewMode = localObjectStorageHelper.Read(nameof(Services.PlayerViewMode), PlayerViewMode.PrimaryView);
+                _PlayerViewMode = localObjectStorageHelper.Read(nameof(PlayerViewMode), PlayerViewMode.PrimaryView);
                 
                 return _PlayerViewMode.Value;
             }
@@ -217,7 +227,7 @@ namespace NicoPlayerHohoema.Services
                     if (SetProperty(ref _PlayerViewMode, value))
                     {
                         var localObjectStorageHelper = new LocalObjectStorageHelper();
-                        localObjectStorageHelper.Save(nameof(Services.PlayerViewMode), _PlayerViewMode.Value);
+                        localObjectStorageHelper.Save(nameof(PlayerViewMode), _PlayerViewMode.Value);
 
                         RaisePropertyChanged(nameof(IsPlayerShowWithPrimaryView));
                         RaisePropertyChanged(nameof(IsPlayerShowWithSecondaryView));
@@ -478,79 +488,84 @@ namespace NicoPlayerHohoema.Services
             await cacheManager.ResumeCacheDownload();
         }
 
-        public async Task PlayWithCurrentPlayerView(PlaylistItem item)
+
+
+        private async Task PlayWithCurrentPlayerView(string pageType, INavigationParameters parameter, string title = null)
         {
-            using (await NowPlayingLock.LockAsync())
+            if (parameter == null) { throw new ArgumentException("PlayerViewManager failed player frame navigation"); }
+
+            if (PlayerViewMode == PlayerViewMode.PrimaryView)
             {
-                var pageType = item.Type == PlaylistItemType.Video ? nameof(Views.VideoPlayerPage) : nameof(Views.LivePlayerPage);
-                NavigationParameters parameter = new NavigationParameters();
-                switch (item.Type)
+                Debug.WriteLine("Play with Primary : " + parameter);
+
+                PrimaryViewScheduler.Schedule(async () =>
                 {
-                    case PlaylistItemType.Video:
-                        parameter.Add("id", item.ContentId);
+                    NowPlaying = true;
+                    ToggleFullScreenWhenApplicationViewShowWithStandalone();
 
-                        break;
-                    case PlaylistItemType.Live:
-                        parameter.Add("id", item.ContentId);
-                        parameter.Add("title", item.Title);
-
-                        break;
-                }
-
-                if (parameter == null) { throw new ArgumentException("PlayerViewManager failed player frame navigation"); }
-
-                if (PlayerViewMode == PlayerViewMode.PrimaryView)
-                {
-                    Debug.WriteLine("Play with Primary : " + parameter);
-
-                    PrimaryViewScheduler.Schedule(async () =>
+                    var result = await PrimaryViewPlayerNavigationService.NavigateAsync(pageType, parameter, new DrillInNavigationTransitionInfo());
+                    if (!result.Success)
                     {
-                        NowPlaying = true;
+                        NowPlaying = false;
+                        ToggleFullScreenWhenApplicationViewShowWithStandalone();
+                    }
+
+                    //                    _ = ApplicationViewSwitcher.TryShowAsStandaloneAsync(MainViewId);
+                });
+            }
+
+            if (PlayerViewMode == PlayerViewMode.SecondaryView)
+            {
+                Debug.WriteLine("Play with Secondary : " + parameter);
+
+                // サブウィンドウをアクティベートして、サブウィンドウにPlayerページナビゲーションを飛ばす
+                await GetEnsureSecondaryView();
+
+                SecondaryViewScheduler.Schedule(async () =>
+                {
+                    NowPlaying = true;
+                    ToggleFullScreenWhenApplicationViewShowWithStandalone();
+
+                    var result = await SecondaryViewPlayerNavigationService.NavigateAsync(pageType, parameter, new DrillInNavigationTransitionInfo());
+                    if (result.Success)
+                    {
+                        SecondaryAppView.Title = !string.IsNullOrEmpty(title) ? title : "Hohoema";
+                    }
+                    else
+                    {
+                        NowPlaying = false;
                         ToggleFullScreenWhenApplicationViewShowWithStandalone();
 
-                        var result = await PrimaryViewPlayerNavigationService.NavigateAsync(pageType, parameter, new DrillInNavigationTransitionInfo());
-                        if (!result.Success)
-                        {
-                            NowPlaying = false;
-                            ToggleFullScreenWhenApplicationViewShowWithStandalone();
-                        }
-
-                        //                    _ = ApplicationViewSwitcher.TryShowAsStandaloneAsync(MainViewId);
-                    });
-                }
-
-                if (PlayerViewMode == PlayerViewMode.SecondaryView)
-                {
-                    Debug.WriteLine("Play with Secondary : " + parameter);
-
-                    // サブウィンドウをアクティベートして、サブウィンドウにPlayerページナビゲーションを飛ばす
-                    await GetEnsureSecondaryView();
-
-                    SecondaryViewScheduler.Schedule(async () =>
-                    {
-                        NowPlaying = true;
-                        ToggleFullScreenWhenApplicationViewShowWithStandalone();
-
-                        var result = await SecondaryViewPlayerNavigationService.NavigateAsync(pageType, parameter, new DrillInNavigationTransitionInfo());
-                        if (result.Success)
-                        {
-                            SecondaryAppView.Title = !string.IsNullOrEmpty(item?.Title) ? item.Title : "Hohoema";                            
-                        }
-                        else
-                        {
-                            NowPlaying = false;
-                            ToggleFullScreenWhenApplicationViewShowWithStandalone();
-
-                            SecondaryAppView.Title = "Hohoema!";
-                        }
-                    });
-                }
-
-                _CurrentPlayItem = item;
+                        SecondaryAppView.Title = "Hohoema!";
+                    }
+                });
             }
         }
 
-        static PlaylistItem _CurrentPlayItem { get; set; }
+        public async Task PlayWithCurrentPlayerView(Interfaces.IVideoContent item)
+        {
+            using (await NowPlayingLock.LockAsync())
+            {
+                await PlayWithCurrentPlayerView(nameof(Views.VideoPlayerPage), new NavigationParameters(("id", item.Id)), item.Label);
+
+                _CurrentPlayContent = item;
+            }
+        }
+
+        public async Task PlayWithCurrentPlayerView(LiveVideoPlaylistItem item)
+        {
+            using (await NowPlayingLock.LockAsync())
+            {
+                await PlayWithCurrentPlayerView(nameof(Views.LivePlayerPage), new NavigationParameters(("id", item.ContentId), ("title", item.Title)), item.Title);
+
+                _CurrentPlayContent = item;
+            }
+        }
+
+
+
+
+        static Interfaces.INiconicoContent _CurrentPlayContent { get; set; }
 
         /// <summary>
         /// SecondaryViewを閉じます。
@@ -648,7 +663,14 @@ namespace NicoPlayerHohoema.Services
 
                 await Task.Delay(100);
 
-                await PlayWithCurrentPlayerView(_CurrentPlayItem);
+                if (_CurrentPlayContent is IVideoContent videoItem)
+                {
+                    await PlayWithCurrentPlayerView(videoItem);
+                }
+                else if (_CurrentPlayContent is LiveVideoPlaylistItem liveItem)
+                {
+                    await PlayWithCurrentPlayerView(liveItem);
+                }
             }
 
             return true;

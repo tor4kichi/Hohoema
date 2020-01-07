@@ -1,4 +1,5 @@
-﻿using System;
+﻿using NicoPlayerHohoema.ViewModels.PlayerSidePaneContent;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -12,6 +13,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Prism.Ioc;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -19,8 +21,12 @@ namespace NicoPlayerHohoema.Views
 {
     public sealed partial class RelatedVideosSidePaneContent : UserControl
     {
+        private RelatedVideosSidePaneContentViewModel _viewModel { get; }
+
         public RelatedVideosSidePaneContent()
         {
+            DataContext = _viewModel = App.Current.Container.Resolve<RelatedVideosSidePaneContentViewModel>();
+
             this.InitializeComponent();
         }
     }

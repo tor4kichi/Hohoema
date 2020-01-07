@@ -4,6 +4,7 @@ using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Helpers;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase.Playlist;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
@@ -272,10 +273,8 @@ namespace NicoPlayerHohoema.Services
                         OpenPageWithId(HohoemaPageType.Community, communityContent.Id);
                         break;
                     case Interfaces.IMylist mylistContent:
-                        OpenPage(HohoemaPageType.Mylist, $"id={mylistContent.Id}&origin={mylistContent.ToMylistOrigin()}");
+                        OpenPageWithId(HohoemaPageType.Mylist, mylistContent.Id);
                         break;
-                    case Interfaces.IMylistItem mylistItemContent:
-                        OpenPageWithId(HohoemaPageType.Mylist, mylistItemContent.Id);
                         break;
                     case Interfaces.IUser user:
                         OpenPageWithId(HohoemaPageType.UserInfo, user.Id);
@@ -329,10 +328,7 @@ namespace NicoPlayerHohoema.Services
                         OpenPageWithId(HohoemaPageType.CommunityVideo, communityContent.Id);
                         break;
                     case Interfaces.IMylist mylistContent:
-                        //OpenPage(HohoemaPageType.Mylist, new MylistPagePayload(mylistContent.Id) { Origin = mylistContent.ToMylistOrigin() }.ToParameterString());
-                        break;
-                    case Interfaces.IMylistItem mylistItemContent:
-                        //OpenPage(HohoemaPageType.Mylist, new MylistPagePayload(mylistItemContent.Id).ToParameterString());
+                        OpenPageWithId(HohoemaPageType.Mylist, mylistContent.Id);
                         break;
                     case Interfaces.IUser user:
                         OpenPageWithId(HohoemaPageType.UserVideo, user.Id);
@@ -380,11 +376,9 @@ namespace NicoPlayerHohoema.Services
                         OpenPage(HohoemaPageType.Community, p);
                     }
                     break;
-                case Interfaces.IMylistItem mylistItemContent:
+                case Interfaces.IMylist mylist:
                     {
-                        var p = new NavigationParameters();
-                        p.Add("id", mylistItemContent.Id);
-                        OpenPage(HohoemaPageType.Mylist, p);
+                        OpenPageWithId(HohoemaPageType.Mylist, mylist.Id);
                         break;
 
                     }
@@ -416,7 +410,7 @@ namespace NicoPlayerHohoema.Services
 				// is nico video url?
 				var videoId = uri.AbsolutePath.Split('/').Last();
 				System.Diagnostics.Debug.WriteLine($"open Video: {videoId}");
-                HohoemaPlaylist.PlayVideo(videoId);
+                HohoemaPlaylist.Play(videoId);
 
                 return true;
             }

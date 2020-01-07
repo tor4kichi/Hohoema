@@ -11,7 +11,6 @@ namespace NicoPlayerHohoema.Services.Page
     public class MylistPagePayload : PagePayloadBase
     {
         public string Id { get; set; }
-        public PlaylistOrigin? Origin { get; set; }
 
         public MylistPagePayload() { }
 

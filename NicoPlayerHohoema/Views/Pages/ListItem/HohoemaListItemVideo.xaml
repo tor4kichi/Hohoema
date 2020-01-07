@@ -40,74 +40,73 @@
             </VisualStateGroup>
         </VisualStateManager.VisualStateGroups>
 
-        <toolkit:DockPanel Margin="4 0 0 0"
+    <toolkit:DockPanel Margin="4 0 0 0"
                            x:Name="ContentLayout"
                            >
 
-            <Border Width="2"
+      <Border Width="2"
                     Margin="0 0 2 0"
                     toolkit:DockPanel.Dock="Left"
                     Background="{Binding ThemeColor, Converter={StaticResource ColorToBrush}}"
                     />
 
-            <Grid Margin="0 0 8 0"
+      <Grid Margin="0 0 8 0"
                   toolkit:DockPanel.Dock="Left"
                   Width="114"
                   Height="62"
                   >
-                <uwptoolkit:ImageEx Source="{Binding FirstImageUrl, Mode=OneWay}" 
+        <uwptoolkit:ImageEx Source="{Binding ThumbnailUrl, Mode=OneWay}" 
                                    Width="114"
                                    Height="108"
-                                   Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}"
+                                   Visibility="{Binding ThumbnailUrl, Converter={StaticResource NotNullToVisibility}}"
                                    Stretch="Uniform"
                                     VerticalAlignment="Center"
                                     VerticalContentAlignment="Center"
                                     IsCacheEnabled="True"
                                     IsTabStop="False"
                    >
-                </uwptoolkit:ImageEx>
+        </uwptoolkit:ImageEx>
 
-                <Border HorizontalAlignment="Right" 
+        <Border HorizontalAlignment="Right" 
                         VerticalAlignment="Bottom"
-                        Visibility="{Binding HasImageCaption, Converter={StaticResource BooleanToVisibility}}"
                         CornerRadius="4 0 0 0"
                         >
-                    <Border.Background>
-                        <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
-                    </Border.Background>
+          <Border.Background>
+            <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+          </Border.Background>
 
-                    <TextBlock Text="{Binding ImageCaption, Mode=OneWay}" 
+          <TextBlock Text="{Binding Length, Converter={StaticResource TimeToMovieLengthConverter}, Mode=OneWay}" 
                                Padding="4 0 3 3" 
                                TextWrapping="Wrap" VerticalAlignment="Center" 
                                FontSize="13"
                                
                                />
-                </Border>
-            </Grid>
+        </Border>
+      </Grid>
 
-            <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
+      <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
 
-                <TextBlock Text="{Binding OptionText, Mode=OneWay}" 
+        <TextBlock Text="{Binding OptionText, Mode=OneWay}" 
                            Opacity="0.7"
                            FontSize="13"
                            TextLineBounds="Tight"
                            />
 
-                <Border />
+        <Border />
 
-            </toolkit:DockPanel>
+      </toolkit:DockPanel>
 
 
-            <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" >
+      <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" >
 
-                <TextBlock Text="{Binding Description, Mode=OneWay}" 
+        <TextBlock Text="{Binding Description, Mode=OneWay}" 
                            Opacity="0.7"
                            FontSize="13"
                            TextLineBounds="Tight"
                        />
-            </toolkit:DockPanel>
+      </toolkit:DockPanel>
 
-            <TextBlock Text="{Binding Label, Mode=OneWay}" 
+      <TextBlock Text="{Binding Label, Mode=OneWay}" 
                        FontSize="16"
                        TextWrapping="Wrap"
                        VerticalAlignment="Center"
@@ -115,14 +114,6 @@
                        />
 
 
-        </toolkit:DockPanel>
-
-        <Grid x:Name="ContentCollapsed" Visibility="Collapsed">
-            <TextBlock Text="{Binding InvisibleDescription}" TextWrapping="Wrap" Margin="16"
-                       VerticalAlignment="Center"
-                       Opacity="0.3"
-                       />
-        </Grid>
-
-    </Grid>
+    </toolkit:DockPanel>
+  </Grid>
 </UserControl>

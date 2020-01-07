@@ -6,7 +6,9 @@ using NicoPlayerHohoema.Models.Niconico;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.ViewModels.PlayerSidePaneContent;
+using NicoPlayerHohoema.Views;
 using Prism.Commands;
 using Prism.Navigation;
 using Prism.Unity;
@@ -70,7 +72,7 @@ namespace NicoPlayerHohoema.ViewModels
             NiconicoSession niconicoSession,
             UserProvider userProvider,
             CommunityProvider communityProvider,
-            Services.HohoemaPlaylist hohoemaPlaylist,
+            HohoemaPlaylist hohoemaPlaylist,
             PlayerViewManager playerViewManager,
             Services.DialogService dialogService,
             PageManager pageManager,
@@ -198,7 +200,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             CommandString = new ReactiveProperty<string>(PlayerWindowUIDispatcherScheduler, "").AddTo(_CompositeDisposable);
             CommandEditerVM = new CommentCommandEditerViewModel();
-            CommandEditerVM.OnCommandChanged += CommandEditerVM_OnCommandChanged;
+//            CommandEditerVM.OnCommandChanged += CommandEditerVM_OnCommandChanged;
             CommandEditerVM.ChangeEnableAnonymity(true);
             CommandEditerVM.IsAnonymousDefault = PlayerSettings.IsDefaultCommentWithAnonymous;
             CommandEditerVM.IsAnonymousComment.Value = PlayerSettings.IsDefaultCommentWithAnonymous;
@@ -508,7 +510,7 @@ namespace NicoPlayerHohoema.ViewModels
         public NiconicoSession NiconicoSession { get; }
         public UserProvider UserProvider { get; }
         public CommunityProvider CommunityProvider { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public DialogService _HohoemaDialogService { get; }
         public PageManager PageManager { get; }
         public ExternalAccessService ExternalAccessService { get; }
@@ -935,7 +937,7 @@ namespace NicoPlayerHohoema.ViewModels
                 NicoLiveVideo.LiveComments.ObserveAddChanged()
                     .Subscribe(x =>
                     {
-                        var comment = new Comment();
+                        var comment = new LiveComment();
 
                         comment.VideoPosition = x.Vpos;
 
@@ -954,7 +956,7 @@ namespace NicoPlayerHohoema.ViewModels
                         else
                         {
                             UserIdToComments.AddOrUpdate(comment.UserId
-                                , (key) => new List<Comment>() { comment }
+                                , (key) => new List<LiveComment>() { comment }
                                 , (key, list) =>
                                 {
                                     list.Add(comment);
@@ -1664,7 +1666,7 @@ namespace NicoPlayerHohoema.ViewModels
         #region CommentUserId Resolve
 
         private ConcurrentStack<string> UnresolvedUserId = new ConcurrentStack<string>();
-        private ConcurrentDictionary<string, List<Comment>> UserIdToComments = new ConcurrentDictionary<string, List<Comment>>();
+        private ConcurrentDictionary<string, List<LiveComment>> UserIdToComments = new ConcurrentDictionary<string, List<LiveComment>>();
 
         private bool TryResolveUserId(string userId, out Database.NicoVideoOwner userInfo)
         {

@@ -23,6 +23,7 @@ using NicoPlayerHohoema.Database.Local;
 using System.Diagnostics;
 using System.Reactive.Concurrency;
 using Prism.Events;
+using NicoPlayerHohoema.UseCase.Playlist;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -31,7 +32,7 @@ namespace NicoPlayerHohoema.ViewModels
         static Models.Helpers.AsyncLock _updateLock = new Models.Helpers.AsyncLock();
         public RankingCategoryPageViewModel(
             PageManager pageManager,
-            Services.HohoemaPlaylist hohoemaPlaylist,
+            HohoemaPlaylist hohoemaPlaylist,
             NicoVideoProvider nicoVideoProvider,
             RankingProvider rankingProvider,
             RankingSettings rankingSettings,
@@ -156,7 +157,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> IsFailedRefreshRanking { get; private set; }
         public ReactiveProperty<bool> CanChangeRankingParameter { get; private set; }
         public PageManager PageManager { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public RankingSettings RankingSettings { get; }
         public RankingProvider RankingProvider { get; }
@@ -406,19 +407,17 @@ namespace NicoPlayerHohoema.ViewModels
     public class RankedVideoInfoControlViewModel : VideoInfoControlViewModel
     {
         public RankedVideoInfoControlViewModel(
-            string rawVideoId,
-            Interfaces.IMylist ownerPlaylist = null
+            string rawVideoId
             )
-            : base(rawVideoId, ownerPlaylist)
+            : base(rawVideoId)
         {
 
         }
 
         public RankedVideoInfoControlViewModel(
-            Database.NicoVideo data,
-            Interfaces.IMylist ownerPlaylist = null
+            Database.NicoVideo data
             )
-            : base(data, ownerPlaylist)
+            : base(data)
         {
 
         }

@@ -493,7 +493,7 @@ namespace NicoPlayerHohoema.Views
             
             foreach (var comment in _RenderCandidateComments)
             {
-                if (!frame.IsShowOperationComment && comment.IsOperationCommand)
+                if (!frame.IsShowOperationComment && ((comment as LiveComment)?.IsOperationCommand ?? false))
                 {
                     continue;
                 }

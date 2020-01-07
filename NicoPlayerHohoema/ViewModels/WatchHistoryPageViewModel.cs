@@ -19,6 +19,7 @@ using Unity;
 using Prism.Navigation;
 using Prism.Unity;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase.Playlist;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -26,7 +27,7 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 		public WatchHistoryPageViewModel(
             LoginUserHistoryProvider loginUserHistoryProvider,
-            Services.HohoemaPlaylist hohoemaPlaylist,
+            HohoemaPlaylist hohoemaPlaylist,
             Services.PageManager pageManager
             )
 		{
@@ -44,7 +45,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public LoginUserHistoryProvider LoginUserHistoryProvider { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public Services.PageManager PageManager { get; }
         public ObservableCollection<HistoryVideoInfoControlViewModel> Histories { get; }
 
@@ -138,10 +139,9 @@ namespace NicoPlayerHohoema.ViewModels
         public bool IsRemoved { get; private set; }
 
 		public HistoryVideoInfoControlViewModel(
-            string rawVideoId,
-            Interfaces.IMylist ownerPlaylist = null
+            string rawVideoId
             )
-            : base(rawVideoId, ownerPlaylist)
+            : base(rawVideoId)
         {
             
         }

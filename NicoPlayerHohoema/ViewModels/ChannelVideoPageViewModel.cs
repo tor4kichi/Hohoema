@@ -16,6 +16,7 @@ using NicoPlayerHohoema.Interfaces;
 using Prism.Navigation;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.UseCase.Playlist;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -25,7 +26,7 @@ namespace NicoPlayerHohoema.ViewModels
             NiconicoSession niconicoSession,
             Models.Provider.ChannelProvider channelProvider,
             Services.PageManager pageManager,
-            Services.HohoemaPlaylist hohoemaPlaylist,
+            HohoemaPlaylist hohoemaPlaylist,
             Services.ExternalAccessService externalAccessService,
             Services.NiconicoFollowToggleButtonService followToggleButtonService
             )
@@ -146,7 +147,7 @@ namespace NicoPlayerHohoema.ViewModels
         public NiconicoSession NiconicoSession { get; }
         public Models.Provider.ChannelProvider ChannelProvider { get; }
         public Services.PageManager PageManager { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public Services.ExternalAccessService ExternalAccessService { get; }
         public Services.NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
 
@@ -162,7 +163,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ChannelVideoListItemViewModel(
             string rawVideoId
             )
-            : base(rawVideoId, null)
+            : base(rawVideoId)
         {
 
         }
@@ -170,7 +171,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ChannelVideoListItemViewModel(
            Database.NicoVideo data
            )
-           : base(data, null)
+           : base(data)
         {
 
         }

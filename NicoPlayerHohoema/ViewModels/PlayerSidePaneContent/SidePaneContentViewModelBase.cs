@@ -12,16 +12,6 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 {
 	public abstract class SidePaneContentViewModelBase : BindableBase, IDisposable
 	{
-        private SynchronizationContextScheduler _CurrentWindowContextScheduler;
-        public SynchronizationContextScheduler CurrentWindowContextScheduler
-        {
-            get
-            {
-                return _CurrentWindowContextScheduler
-                    ?? (_CurrentWindowContextScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current));
-            }
-        }
-
         protected CompositeDisposable _CompositeDisposable;
 
 		public SidePaneContentViewModelBase()

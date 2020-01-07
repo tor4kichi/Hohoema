@@ -1,0 +1,96 @@
+﻿<UserControl
+    x:Class="NicoPlayerHohoema.Views.Controls.DelayedAutoTriggerButton"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:NicoPlayerHohoema.Views.Controls"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+  xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+  xmlns:myTrigger="using:NicoPlayerHohoema.Views.StateTrigger"
+  mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+  <StackPanel HorizontalAlignment="Center" Background="{x:Bind Background}">
+
+    <Button Command="{x:Bind Command, Mode=OneWay}"
+              Background="Transparent"
+              HorizontalAlignment="Center"
+                  x:Name="CancelAutoNextVideoPlayButton"
+              >
+
+      <Grid Height="80" Width="80" x:Name="RadialProgressBarContainer">
+        <Border x:Name="RadialProgressBarOutline"
+            CornerRadius="37" 
+            Background="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
+            Opacity="0.3"
+            Height="74" Width="74"
+            />
+        <uwpControls:RadialProgressBar x:Name="RadialProgressBar"
+            Maximum="{x:Bind DelayTime, Mode=OneWay, Converter={StaticResource TimeSpanToDoubleConverter}}" Minimum="0.0" 
+            Height="80" Width="80"
+            Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
+            Thickness="3"                             
+            />
+
+        <SymbolIcon Symbol="Next" Height="48" Width="48" x:Name="Icon" />
+
+      </Grid>
+    </Button>
+
+    <ContentControl Content="{x:Bind CenterContent, Mode=OneWay}">
+      
+    </ContentControl>
+
+
+    <Button MinWidth="240"
+            HorizontalAlignment="Center"
+            x:Name="CancelButton"
+            Tapped="{x:Bind Cancel}" 
+            >
+
+      <StackPanel HorizontalAlignment="Center">
+        <TextBlock Text="キャンセル" />
+      </StackPanel>
+
+    </Button>
+
+
+    <VisualStateManager.VisualStateGroups>
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind IsCanceled, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="RadialProgressBar.Visibility" Value="Collapsed" />
+            <Setter Target="CancelButton.Visibility" Value="Collapsed" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <myTrigger:CompactOverlayViewModeTrigger />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="RadialProgressBar.Width" Value="48" />
+            <Setter Target="RadialProgressBar.Height" Value="48" />
+            <Setter Target="RadialProgressBar.Thickness" Value="2" />
+
+            <Setter Target="RadialProgressBarContainer.Width" Value="48" />
+            <Setter Target="RadialProgressBarContainer.Height" Value="48" />
+            
+            <Setter Target="RadialProgressBarOutline.Width" Value="44" />
+            <Setter Target="RadialProgressBarOutline.Height" Value="44" />
+
+            <Setter Target="Icon.Height" Value="32" />
+            <Setter Target="Icon.Width" Value="32" />
+
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+   
+  </StackPanel>
+</UserControl>

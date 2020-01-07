@@ -8,6 +8,7 @@ using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase.Playlist;
 using Prism.Commands;
 using Prism.Navigation;
 using Prism.Unity;
@@ -55,7 +56,6 @@ namespace NicoPlayerHohoema.ViewModels
             Models.NiconicoSession niconicoSession,
             NicoLiveProvider nicoLiveProvider,
             DialogService dialogService,
-            Services.HohoemaPlaylist hohoemaPlaylist,
             ExternalAccessService externalAccessService
             )
         {
@@ -63,7 +63,6 @@ namespace NicoPlayerHohoema.ViewModels
             NiconicoSession = niconicoSession;
             NicoLiveProvider = nicoLiveProvider;
             HohoemaDialogService = dialogService;
-            HohoemaPlaylist = hohoemaPlaylist;
             ExternalAccessService = externalAccessService;
             IsLoadFailed = new ReactiveProperty<bool>(false)
                .AddTo(_CompositeDisposable);
@@ -167,7 +166,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public DialogService HohoemaDialogService { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public ExternalAccessService ExternalAccessService { get; }
 
 

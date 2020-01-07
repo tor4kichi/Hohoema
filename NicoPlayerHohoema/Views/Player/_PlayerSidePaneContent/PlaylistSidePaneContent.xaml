@@ -15,154 +15,154 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <Grid>
+  <Grid>
 
-        <VisualStateManager.VisualStateGroups>
+    <VisualStateManager.VisualStateGroups>
 
-            <!-- Xbox -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <hardwareTrigger:DeviceFamilyTrigger Condition="Xbox" />
-                    </VisualState.StateTriggers>
+      <!-- Xbox -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <hardwareTrigger:DeviceFamilyTrigger Condition="Xbox" />
+          </VisualState.StateTriggers>
 
-                    <VisualState.Setters>
-                        <Setter Target="PlaylistItemsListView.Padding" Value="0 0 48 0" />
-                        <Setter Target="HeaderLayout.Padding" Value="0 0 48 0" />
-                        <Setter Target="FooterLayout.Padding" Value="0 0 48 0" />
-                        
-                        
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-
-            <!-- リピートモード -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsTrackRepeatModeEnable.Value}"  />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-
-                        <Setter Target="RepeatModeToggleButtonIcon.Kind" Value="RepeatOnce" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsListRepeatModeEnable.Value}"  />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="RepeatModeToggleButtonIcon.Kind" Value="Repeat" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="True"  />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="RepeatModeToggleButtonIcon.Kind" Value="RepeatOff" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-
-            <!-- リピートモード -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsReverseEnabled.Value}"  />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-
-                        <Setter Target="ToggleReverseButtonIcon.Kind" Value="ArrowUpBold" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
+          <VisualState.Setters>
+            <Setter Target="PlaylistItemsListView.Padding" Value="0 0 48 0" />
+            <Setter Target="HeaderLayout.Padding" Value="0 0 48 0" />
+            <Setter Target="FooterLayout.Padding" Value="0 0 48 0" />
 
 
-        </VisualStateManager.VisualStateGroups>
-        
-        <toolkit:DockPanel x:Name="RootLayout">
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
+      <!-- リピートモード -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind _viewModel.IsTrackRepeatModeEnable.Value, Mode=OneWay}"  />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+
+            <Setter Target="RepeatModeToggleButtonIcon.Kind" Value="RepeatOnce" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind _viewModel.IsListRepeatModeEnable.Value, Mode=OneWay}"  />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="RepeatModeToggleButtonIcon.Kind" Value="Repeat" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="True"  />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="RepeatModeToggleButtonIcon.Kind" Value="RepeatOff" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
+      <!-- リピートモード -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind _viewModel.IsReverseEnabled.Value, Mode=OneWay}"  />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+
+            <Setter Target="ToggleReverseButtonIcon.Kind" Value="ArrowUpBold" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
 
 
-            <i:Interaction.Behaviors>
-                <core:EventTriggerBehavior EventName="Loaded">
-                    <mybehavior:SetFocus TargetObject="{Binding ElementName=ShuffleSwitchingButton}" />
-                </core:EventTriggerBehavior>
-            </i:Interaction.Behaviors>
-            
-            <StackPanel toolkit:DockPanel.Dock="Top" Margin="0 4 0 8"
+    </VisualStateManager.VisualStateGroups>
+
+    <toolkit:DockPanel x:Name="RootLayout">
+
+
+      <i:Interaction.Behaviors>
+        <core:EventTriggerBehavior EventName="Loaded">
+          <mybehavior:SetFocus TargetObject="{Binding ElementName=ShuffleSwitchingButton}" />
+        </core:EventTriggerBehavior>
+      </i:Interaction.Behaviors>
+
+      <StackPanel toolkit:DockPanel.Dock="Top" Margin="0 4 0 8"
                         x:Name="HeaderLayout"
                         
                         >
-                <toolkit:DockPanel >
-                    <StackPanel Orientation="Horizontal"
+        <toolkit:DockPanel >
+          <StackPanel Orientation="Horizontal"
                                                 toolkit:DockPanel.Dock="Left"
                                             
                                                 >
-                        <ToggleButton IsChecked="{Binding IsShuffleEnabled.Value, Mode=TwoWay}"
+            <ToggleButton IsChecked="{x:Bind _viewModel.IsShuffleEnabled.Value, Mode=TwoWay}"
                                       UseSystemFocusVisuals="True"
                                       Margin="8 0 0 0"
                                       x:Name="ShuffleSwitchingButton"
                                       Background="Transparent"
                                             >
 
-                            <iconPack:PackIconMaterial x:Name="ToggleShuffleButtonIcon"
+              <iconPack:PackIconMaterial x:Name="ToggleShuffleButtonIcon"
                                                        Kind="Shuffle"
                                                                    RenderTransformOrigin="0.5, 0.5"
                                                            >
-                                <iconPack:PackIconMaterial.RenderTransform>
-                                    <CompositeTransform ScaleX="1.1" ScaleY="1.1"/>
-                                </iconPack:PackIconMaterial.RenderTransform>
+                <iconPack:PackIconMaterial.RenderTransform>
+                  <CompositeTransform ScaleX="1.1" ScaleY="1.1"/>
+                </iconPack:PackIconMaterial.RenderTransform>
 
-                            </iconPack:PackIconMaterial>
-                        </ToggleButton>
+              </iconPack:PackIconMaterial>
+            </ToggleButton>
 
 
-                        <Button Command="{Binding ToggleRepeatModeCommand}"
+            <Button Command="{x:Bind _viewModel.ToggleRepeatModeCommand}"
                                                 Background="Transparent"
                                                 UseSystemFocusVisuals="True"
                                             Margin="8 0 0 0"
                                             >
-                            <iconPack:PackIconMaterial x:Name="RepeatModeToggleButtonIcon"
+              <iconPack:PackIconMaterial x:Name="RepeatModeToggleButtonIcon"
                                                             Kind="Repeat" 
                                                            RenderTransformOrigin="0.5, 0.5"
                                                            >
-                                <iconPack:PackIconMaterial.RenderTransform>
-                                    <CompositeTransform ScaleX="1.4" ScaleY="1.4"/>
-                                </iconPack:PackIconMaterial.RenderTransform>
-                            </iconPack:PackIconMaterial>
-                        </Button>
+                <iconPack:PackIconMaterial.RenderTransform>
+                  <CompositeTransform ScaleX="1.4" ScaleY="1.4"/>
+                </iconPack:PackIconMaterial.RenderTransform>
+              </iconPack:PackIconMaterial>
+            </Button>
 
-                        <Button Command="{Binding ToggleReverseModeCommand}"
+            <Button Command="{x:Bind _viewModel.ToggleReverseModeCommand}"
                                       UseSystemFocusVisuals="True"
                                       Margin="8 0 0 0"
                                       x:Name="ReverseSwitchingButton"
                                       Background="Transparent"
                                             >
 
-                            <iconPack:PackIconMaterial x:Name="ToggleReverseButtonIcon"
+              <iconPack:PackIconMaterial x:Name="ToggleReverseButtonIcon"
                                                        Kind="ArrowDownBold"
                                                                    RenderTransformOrigin="0.5, 0.5"
                                                            >
-                                <iconPack:PackIconMaterial.RenderTransform>
-                                    <CompositeTransform ScaleX="1.1" ScaleY="1.1"/>
-                                </iconPack:PackIconMaterial.RenderTransform>
+                <iconPack:PackIconMaterial.RenderTransform>
+                  <CompositeTransform ScaleX="1.1" ScaleY="1.1"/>
+                </iconPack:PackIconMaterial.RenderTransform>
 
-                            </iconPack:PackIconMaterial>
-                        </Button>
-                        
-                        <Border />
-                    </StackPanel>
+              </iconPack:PackIconMaterial>
+            </Button>
 
-                    <Border />
-                </toolkit:DockPanel>
-            </StackPanel>
-            <StackPanel toolkit:DockPanel.Dock="Bottom"
+            <Border />
+          </StackPanel>
+
+          <Border />
+        </toolkit:DockPanel>
+      </StackPanel>
+      <StackPanel toolkit:DockPanel.Dock="Bottom"
                         x:Name="FooterLayout"
                         >
 
-                <!-- 再生中動画情報 -->
-                <!-- 
+        <!-- 再生中動画情報 -->
+        <!-- 
                             <toolkit:DockPanel>
 
                                 
@@ -217,62 +217,62 @@
                             -->
 
 
-                <!-- プレイリスト -->
-                <toolkit:DockPanel Height="60">
+        <!-- プレイリスト -->
+        <toolkit:DockPanel Height="60">
 
-                    <Button HorizontalAlignment="Stretch"
-                        Command="{Binding PageManager.OpenPageCommand}"
+          <Button HorizontalAlignment="Stretch"
+                        Command="{x:Bind _viewModel.PageManager.OpenPageCommand}"
                         CommandParameter="{Binding CurrentPlaylist}"
                         Background="Transparent"
                         toolkit:DockPanel.Dock="Left"
                         >
-                        <SymbolIcon Symbol="OpenLocal" />
-                    </Button>
+            <SymbolIcon Symbol="OpenLocal" />
+          </Button>
 
-                    <TextBlock toolkit:DockPanel.Dock="Top"
+          <TextBlock toolkit:DockPanel.Dock="Top"
                         Text="現在のプレイリスト"
                         Style="{StaticResource CaptionTextBlockStyle}"
                         Margin="8 6 0 0"
                         Opacity="0.7"
                         >
 
-                    </TextBlock>
+          </TextBlock>
 
-                    <TextBlock Text="{Binding CurrentPlaylistName.Value}" 
+          <TextBlock Text="{x:Bind _viewModel.CurrentPlaylistName.Value}" 
                         Style="{StaticResource SubtitleTextBlockStyle}"
                         Margin="8 0 16 0"
                         VerticalAlignment="Top"
                         />
 
-                </toolkit:DockPanel>
+        </toolkit:DockPanel>
 
 
-            </StackPanel>
+      </StackPanel>
 
-            <ListView ItemsSource="{Binding PlaylistItems}"
-                SelectedItem="{Binding CurrentPlayingItem, Mode=TwoWay}"
+      <ListView ItemsSource="{x:Bind _viewModel.HohoemaPlaylist.PlaylistItems, Mode=OneWay}"
+                SelectedItem="{x:Bind _viewModel.HohoemaPlaylist.CurrentItem, Mode=OneWay}"
                 SelectionMode="Single"
                 SingleSelectionFollowsFocus="False"
-                uwpext:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
+                uwpext:ListViewBase.Command="{x:Bind _viewModel.HohoemaPlaylist.PlayCommand}"
                 IsItemClickEnabled="True"
                 x:Name="PlaylistItemsListView"
                 Background="{StaticResource HohoemaPlayerBackgroundBrush}"
                 IsFocusEngagementEnabled="True"
                 >
-                <ListView.ItemContainerStyle>
-                    <Style TargetType="ListViewItem">
-                        <Setter Property="Padding" Value="8 6 8 6" />
-                    </Style>
-                </ListView.ItemContainerStyle>
-                <ListView.ItemTemplate>
-                    <DataTemplate>
-                        <TextBlock Text="{Binding Title}"
+        <ListView.ItemContainerStyle>
+          <Style TargetType="ListViewItem">
+            <Setter Property="Padding" Value="8 6 8 6" />
+          </Style>
+        </ListView.ItemContainerStyle>
+        <ListView.ItemTemplate>
+          <DataTemplate>
+            <TextBlock Text="{Binding Label}"
                             TextWrapping="Wrap"
                             VerticalAlignment="Center"
                             />
-                    </DataTemplate>
-                </ListView.ItemTemplate>
-            </ListView>
-        </toolkit:DockPanel>
-    </Grid>
+          </DataTemplate>
+        </ListView.ItemTemplate>
+      </ListView>
+    </toolkit:DockPanel>
+  </Grid>
 </UserControl>

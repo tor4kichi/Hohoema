@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using NicoPlayerHohoema.Interfaces;
+using System.Collections.Generic;
 
 namespace NicoPlayerHohoema.Models.Subscription
 {
@@ -6,8 +7,8 @@ namespace NicoPlayerHohoema.Models.Subscription
     {
         public Subscription Subscription { get; set; }
         public SubscriptionSource? Source { get; set; }
-        public IEnumerable<Database.NicoVideo> FeedItems { get; set; }
-        public IEnumerable<Database.NicoVideo> NewFeedItems { get; set; }
+        public IEnumerable<IVideoContent> FeedItems { get; set; }
+        public IEnumerable<IVideoContent> NewFeedItems { get; set; }
 
         public bool IsUpdateComplete => FeedItems != null;
 

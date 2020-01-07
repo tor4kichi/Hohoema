@@ -1,5 +1,7 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Mylist;
+using NicoPlayerHohoema.Interfaces;
+using NicoPlayerHohoema.Repository.Playlist;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,106 +24,82 @@ namespace NicoPlayerHohoema.Models.Provider
         }
 
 
-        private async Task<UserOwnedMylist> GetDefaultMylistAsync()
+        private async Task<LoginUserMylistPlaylist> GetDefaultMylistAsync()
         {
             if (!NiconicoSession.IsLoggedIn) { throw new System.Exception("");  }
-
+            
             var defMylist = await ContextActionAsync(async context =>
             {
-                return await context.User.GetMylistItemListAsync(UserOwnedMylist.DefailtMylistId);
-            });
-           
-
-            List<Database.NicoVideo> videoItems = new List<Database.NicoVideo>();
-            foreach (var item in defMylist)
-            {
-                if (item.ItemType == NiconicoItemType.Video)
-                {
-                    var video = MylistDataToNicoVideoData(item);
-
-                    videoItems.Add(video);
-                }
-            }
-
-
-            var mylist = new UserOwnedMylist(UserOwnedMylist.DefailtMylistId, this, new System.Collections.ObjectModel.ObservableCollection<string>(videoItems.Select(x => x.RawVideoId)))
-            {
-                Label = "とりあえずマイリスト",
-                UserId = NiconicoSession.UserId.ToString(),
-                IsPublic = false,
-                Sort = MylistDefaultSort.Latest,
-            };
-
-            _ = Task.Run(() =>
-            {
-                var mylistId = UserOwnedMylist.DefailtMylistId;
-                Database.Temporary.MylistDb.AddItemId(
-                    defMylist.Select(x => new Database.Temporary.MylistItemIdContainer()
-                    {
-                        MylistGroupId = mylistId,
-                        VideoId = x.WatchId,
-                        ItemId = x.ItemId
-                    }));
+                return await context.User.GetMylistItemListAsync(MylistPlaylistExtension.DefailtMylistId);
             });
 
-            return mylist;
+            // TODO: とりあえずマイリストのSortやOrderの取得
+
+            return new LoginUserMylistPlaylist(MylistPlaylistExtension.DefailtMylistId, "とりあえずマイリスト", defMylist.Count) { UserId = NiconicoSession.UserIdString };
         }
 
-        public async Task<List<UserOwnedMylist>> GetLoginUserMylistGroups()
+        public async Task<List<LoginUserMylistPlaylist>> GetLoginUserMylistGroups()
         {
             if (!NiconicoSession.IsLoggedIn)
             {
                 return null;
             }
 
-            List<UserOwnedMylist> mylistGroups = new List<UserOwnedMylist>();
+            List<LoginUserMylistPlaylist> mylistGroups = new List<LoginUserMylistPlaylist>();
 
-            {
-                var defaultMylist = await GetDefaultMylistAsync();
+            var defaultMylist = await GetDefaultMylistAsync();
 
-                mylistGroups.Add(defaultMylist);
-            }
+            mylistGroups.Add(defaultMylist);
 
             var res = await ContextActionAsync(async context =>
             {
                 return await context.User.GetMylistGroupListAsync();
             });            
 
-            foreach (var mylistGroup in res ?? Enumerable.Empty<MylistGroupData>())
+            foreach (var mylistGroup in res ?? Enumerable.Empty<LoginUserMylistGroup>())
             {
-                var mylistItems = await ContextActionWithPageAccessWaitAsync(async context =>
-                {
-                    return await context.User.GetMylistItemListAsync(mylistGroup.Id);
-                });
-                
-
-                var videos = mylistItems.Select(x => MylistDataToNicoVideoData(x).RawVideoId);
-                var mylist = new UserOwnedMylist(mylistGroup.Id, this, new System.Collections.ObjectModel.ObservableCollection<string>(videos))
+                var mylist = new LoginUserMylistPlaylist(mylistGroup.Id, mylistGroup.Name, mylistGroup.Count)
                 {
                     UserId = mylistGroup.UserId,
-                    Label = mylistGroup.Name,
                     Description = mylistGroup.Description,
                     IsPublic = mylistGroup.GetIsPublic(),
                     IconType = mylistGroup.GetIconType(),
-                    ThumnailUrls = mylistGroup.ThumbnailUrls?.ToList() ?? new List<Uri>(),
+                    DefaultSort = mylistGroup.GetDefaultSort(),
+                    SortIndex = res.IndexOf(mylistGroup)
                 };
-
-                _ = Task.Run(() => 
-                {
-                    var mylistId = mylistGroup.Id;
-                    Database.Temporary.MylistDb.AddItemId(
-                        mylistItems.Select(x => new Database.Temporary.MylistItemIdContainer()
-                        {
-                            MylistGroupId = mylistId,
-                            VideoId = x.WatchId,
-                            ItemId = x.ItemId
-                        }));
-                });
 
                 mylistGroups.Add(mylist);
             }
 
             return mylistGroups;
+        }
+
+        public async Task<List<IVideoContent>> GetLoginUserMylistItemsAsync(IMylist mylist)
+        {
+            if (mylist.UserId != NiconicoSession.UserIdString)
+            {
+                throw new ArgumentException();
+            }
+
+            var items = await ContextActionAsync(async context =>
+            {
+                return await context.User.GetMylistItemListAsync(mylist.Id);
+            });
+
+            Database.Temporary.MylistDb.AddItemId(items.Select(x => new Database.Temporary.MylistItemIdContainer()
+            {
+                MylistGroupId = mylist.Id,
+                VideoId = x.WatchId,
+                ItemId = x.ItemId
+            }));
+
+            return items.Select(x => MylistDataToNicoVideoData(x)).Cast<IVideoContent>().ToList();
+        }
+
+
+        static public bool IsDefaultMylist(IMylist mylist)
+        {
+            return mylist?.Id == UserOwnedMylist.DefailtMylistId;
         }
 
 
@@ -130,11 +108,17 @@ namespace NicoPlayerHohoema.Models.Provider
             var video = Database.NicoVideoDb.Get(item.WatchId)
                         ?? new Database.NicoVideo() { RawVideoId = item.WatchId };
 
-            video.VideoId = item.ItemId;
+            video.RawVideoId = item.WatchId;
+            video.VideoId = item.WatchId;
             video.Title = item.Title;
+            video.Description = item.Description;
+            video.IsDeleted = item.IsDeleted;
+            video.Length = item.Length;
 
-
-            // TODO
+            video.ThumbnailUrl = item.ThumbnailUrl.OriginalString;
+            video.ViewCount = (int)item.ViewCount;
+            video.MylistCount = (int)item.MylistCount;
+            video.CommentCount = (int)item.CommentCount;
 
             Database.NicoVideoDb.AddOrUpdate(video);
 
@@ -206,9 +190,9 @@ namespace NicoPlayerHohoema.Models.Provider
         }
 
 
-        public async Task<ContentManageResult> UpdateMylist(UserOwnedMylist mylist)
+        public async Task<ContentManageResult> UpdateMylist(string myylistId, Dialogs.MylistGroupEditData editData)
         {
-            if (mylist.IsDeflist)
+            if (myylistId == "0")
             {
                 throw new Exception();
             }
@@ -216,12 +200,12 @@ namespace NicoPlayerHohoema.Models.Provider
             return await ContextActionAsync(async context =>
             {
                 return await context.User.UpdateMylistGroupAsync(
-                    mylist.GroupId,
-                    mylist.Label,
-                    mylist.Description,
-                    mylist.IsPublic,
-                    mylist.Sort,
-                    mylist.IconType
+                    myylistId,
+                    editData.Name,
+                    editData.Description,
+                    editData.IsPublic,
+                    editData.MylistDefaultSort,
+                    editData.IconType
                     );
             });
         }

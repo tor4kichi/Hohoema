@@ -12,7 +12,7 @@ namespace NicoPlayerHohoema.Models
         // Note: 再生中のハートビート管理を含めた管理
         // MediaSourceをMediaPlayerに設定する役割
 
-
+        public string QualityId { get; }
 
         public NicoVideoQuality Quality { get; }
 
@@ -27,6 +27,7 @@ namespace NicoPlayerHohoema.Models
         {
             StreamRef = streamRef;
             Quality = requestQuality;
+            QualityId = requestQuality.ToString();
         }
 
 
@@ -47,7 +48,7 @@ namespace NicoPlayerHohoema.Models
             throw new NotSupportedException();
         }
 
-        public async Task StartPlayback(MediaPlayer player)
+        public async Task StartPlayback(MediaPlayer player, TimeSpan startPosition)
         {
             string contentType = string.Empty;
 
@@ -70,6 +71,8 @@ namespace NicoPlayerHohoema.Models
                 player.Source = _MediaSource;
                 _Stream = stream;
                 _PlayingMediaPlayer = player;
+
+                _PlayingMediaPlayer.PlaybackSession.Position = startPosition;
             }
             else
             {

@@ -12,52 +12,62 @@ using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Services;
 using Unity;
 using NicoPlayerHohoema.Database;
+using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.Repository.Playlist;
+using System.Reactive.Concurrency;
+using Reactive.Bindings.Extensions;
+using NicoPlayerHohoema.Interfaces;
 
 namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 {
     public sealed class RelatedVideosSidePaneContentViewModel : SidePaneContentViewModelBase
     {
         public RelatedVideosSidePaneContentViewModel(
-           string rawVideoId,
-           NicoVideoStreamingSessionProvider nicoVideo,
-           string jumpVideoId,
            NicoVideoProvider nicoVideoProvider,
            ChannelProvider channelProvider,
-           MylistProvider mylistProvider,
-           Services.HohoemaPlaylist hohoemaPlaylist,
-           PageManager pageManager
+           MylistRepository mylistRepository,
+           HohoemaPlaylist hohoemaPlaylist,
+           PageManager pageManager,
+           IScheduler scheduler
            )
         {
-            Video = nicoVideo;
-            _JumpVideoId = jumpVideoId;
             NicoVideoProvider = nicoVideoProvider;
             ChannelProvider = channelProvider;
-            MylistProvider = mylistProvider;
+            _mylistRepository = mylistRepository;
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
-            CurrentVideoId = rawVideoId;
-            _VideoViewerHelpInfo = NicoVideoStreamingSessionProvider.GetVideoRelatedInfomationWithVideoDescription(rawVideoId);
+            _scheduler = scheduler;
 
             HasVideoDescription = _VideoViewerHelpInfo != null;
 
-            _ = InitializeRelatedVideos();
+            HohoemaPlaylist.ObserveProperty(x => x.CurrentItem)
+                .Subscribe(item =>
+                {
+                    Clear();
+
+                    if (item != null)
+                    {
+                        _ = InitializeRelatedVideos(item);
+                    }
+                })
+                .AddTo(_CompositeDisposable);
         }
 
 
-        string CurrentVideoId { get; }
+        string CurrentVideoId;
         public List<VideoInfoControlViewModel> Videos { get; private set; }
 
         public VideoInfoControlViewModel CurrentVideo { get; private set; }
 
         Models.VideoRelatedInfomation _VideoViewerHelpInfo;
 
-        public NicoVideoStreamingSessionProvider Video { get; }
+        public NicoVideoSessionProvider Video { get; }
 
-        private string _JumpVideoId { get; }
+        public string JumpVideoId { get; set; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public ChannelProvider ChannelProvider { get; }
         public MylistProvider MylistProvider { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
         public bool HasVideoDescription { get; private set; }
         public ObservableCollection<VideoInfoControlViewModel> OtherVideos { get; } = new ObservableCollection<VideoInfoControlViewModel>();
@@ -65,28 +75,45 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
         public VideoInfoControlViewModel JumpVideo { get; private set; }
 
-        public ObservableCollection<MylistGroupListItem> Mylists { get; } = new ObservableCollection<MylistGroupListItem>();
+        public ObservableCollection<MylistPlaylist> Mylists { get; } = new ObservableCollection<MylistPlaylist>();
 
-        public AsyncLock _InitializeLock = new AsyncLock();
+        public Models.Helpers.AsyncLock _InitializeLock = new Models.Helpers.AsyncLock();
 
         private bool _IsInitialized = false;
         const double _SeriesVideosTitleSimilarityValue = 0.7;
+        private readonly MylistRepository _mylistRepository;
+        private readonly IScheduler _scheduler;
 
-        public async Task InitializeRelatedVideos()
+
+        public void Clear()
         {
-            if (!HasVideoDescription) { return; }
+            CurrentVideoId = null;
+            CurrentVideo = null;
+            NextVideo = null;
+            JumpVideo = null;
+            JumpVideoId = null;
+            Videos.Clear();
+            OtherVideos.Clear();
+            Mylists.Clear();
+        }
+
+        public async Task InitializeRelatedVideos(IVideoContent currentVideo)
+        {
+            string videoId = currentVideo.Id;
 
             using (var releaser = await _InitializeLock.LockAsync())
             {
                 if (_IsInitialized) { return; }
 
+                _VideoViewerHelpInfo = NicoVideoSessionProvider.GetVideoRelatedInfomationWithVideoDescription(videoId);
+
                 // ニコスクリプトで指定されたジャンプ先動画
-                if (_JumpVideoId != null)
+                if (JumpVideoId != null)
                 {
-                    var video = await NicoVideoProvider.GetNicoVideoInfo(_JumpVideoId, requireLatest: true);
-                    if (video != null)
+                    var jumpVideo = await NicoVideoProvider.GetNicoVideoInfo(JumpVideoId, requireLatest: true);
+                    if (jumpVideo != null)
                     {
-                        JumpVideo = new VideoInfoControlViewModel(video);
+                        JumpVideo = new VideoInfoControlViewModel(jumpVideo);
                         RaisePropertyChanged(nameof(JumpVideo));
                     }
                 }
@@ -94,7 +121,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 // 再生中アイテムのタイトルと投稿者説明文に含まれる動画IDの動画タイトルを比較して
                 // タイトル文字列が近似する動画をシリーズ動画として取り込む
                 // 違うっぽい動画も投稿者が提示したい動画として確保
-                var sourceVideo = Database.NicoVideoDb.Get(CurrentVideoId);
+                var sourceVideo = Database.NicoVideoDb.Get(videoId);
                 var videoIds = _VideoViewerHelpInfo.GetVideoIds();
                 List<Database.NicoVideo> seriesVideos = new List<Database.NicoVideo>();
                 seriesVideos.Add(sourceVideo);
@@ -123,7 +150,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 if (orderedSeriesVideos.Count - 1 > currentVideoIndex)
                 {
                     var nextVideo = orderedSeriesVideos.Last();
-                    if (nextVideo.RawVideoId != CurrentVideoId)
+                    if (nextVideo.RawVideoId != videoId)
                     {
                         NextVideo = new VideoInfoControlViewModel(nextVideo);
 
@@ -216,24 +243,26 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 var relatedMylistIds = _VideoViewerHelpInfo.GetMylistIds();
                 foreach (var mylistId in relatedMylistIds)
                 {
-                    var mylistDetails = await MylistProvider.GetMylistGroupDetail(mylistId);
-                    if (mylistDetails.IsOK)
+                    var mylistDetails = await _mylistRepository.GetMylist(mylistId);
+                    if (mylistDetails != null)
                     {
-                        Mylists.Add(new MylistGroupListItem(mylistDetails.MylistGroup));
+                        Mylists.Add(mylistDetails);
                     }
                 }
 
                 RaisePropertyChanged(nameof(Mylists));
 
-                var videos = await Video.GetRelatedVideos(CurrentVideoId);
+                /*
+                var videos = await Video.GetRelatedVideos(videoId);
                 Videos = videos.Select(x =>
                 {
                     var vm = new VideoInfoControlViewModel(x);
                     return vm;
                 })
                 .ToList();
+                */
             
-                CurrentVideo = Videos.FirstOrDefault(x => x.RawVideoId == CurrentVideoId);
+                CurrentVideo = Videos.FirstOrDefault(x => x.RawVideoId == videoId);
 
                 RaisePropertyChanged(nameof(Videos));
                 RaisePropertyChanged(nameof(CurrentVideo));

@@ -518,7 +518,11 @@ namespace NicoPlayerHohoema.ViewModels
             }
             catch { }
 
-            IsExistErrorFilesFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("error") != null;
+            try
+            {
+                IsExistErrorFilesFolder = await ApplicationData.Current.LocalFolder.GetFolderAsync("error") != null;
+            }
+            catch { }
 
         }
 

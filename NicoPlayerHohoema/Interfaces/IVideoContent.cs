@@ -7,12 +7,40 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Interfaces
 {
-    public interface IVideoContent : INiconicoContent
+    public interface IVideoContent : INiconicoContent, IEquatable<IVideoContent>
     {
         string ProviderId { get; }
-        string ProviderName { get; }
         Database.NicoVideoUserType ProviderType { get; }
 
-        Interfaces.IMylist OnwerPlaylist { get; }
+        TimeSpan Length { get; }
+        DateTime PostedAt { get; }
+
+        int ViewCount { get; }
+        int MylistCount { get; }
+        int CommentCount { get; }
+
+        string ThumbnailUrl { get; }
+
+        string Description { get; }
+        bool IsDeleted { get; }
+    }
+
+    public interface IVideoContentWritable : IVideoContent
+    {
+        new string ProviderId { get; set; }
+        new Database.NicoVideoUserType ProviderType { get; set; }
+
+        new string Label { get; set; }
+        new TimeSpan Length { get; set; }
+        new DateTime PostedAt { get; set; }
+
+        new int ViewCount { get; set; }
+        new int MylistCount { get; set; }
+        new int CommentCount { get; set; }
+
+        new string ThumbnailUrl { get; set; }
+
+        new string Description { get; set; }
+        new bool IsDeleted { get; set; }
     }
 }

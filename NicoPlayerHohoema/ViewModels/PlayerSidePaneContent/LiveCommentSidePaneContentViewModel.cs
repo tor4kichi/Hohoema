@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Reactive.Concurrency;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -19,7 +20,8 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView comments,
             Services.ExternalAccessService externalAccessService,
             Commands.NicoLiveUserIdAddToNGCommand nicoLiveUserIdAddToNGCommand,
-            Commands.NicoLiveUserIdRemoveFromNGCommand nicoLiveUserIdRemoveFromNGCommand
+            Commands.NicoLiveUserIdRemoveFromNGCommand nicoLiveUserIdRemoveFromNGCommand,
+            IScheduler scheduler
             )
 		{
             NGSettings = settings;
@@ -27,11 +29,12 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             ExternalAccessService = externalAccessService;
             NicoLiveUserIdAddToNGCommand = nicoLiveUserIdAddToNGCommand;
             NicoLiveUserIdRemoveFromNGCommand = nicoLiveUserIdRemoveFromNGCommand;
-            IsCommentListScrollWithVideo = new ReactiveProperty<bool>(CurrentWindowContextScheduler, false)
+            _scheduler = scheduler;
+            IsCommentListScrollWithVideo = new ReactiveProperty<bool>(_scheduler, false)
 				.AddTo(_CompositeDisposable);
 
             NGUsers = new ReadOnlyObservableCollection<NGUserIdInfo>(NGSettings.NGLiveCommentUserIds);
-            IsNGCommentUserIdEnabled = NGSettings.ToReactivePropertyAsSynchronized(x => x.IsNGLiveCommentUserEnable, CurrentWindowContextScheduler)
+            IsNGCommentUserIdEnabled = NGSettings.ToReactivePropertyAsSynchronized(x => x.IsNGLiveCommentUserEnable, _scheduler)
                 .AddTo(_CompositeDisposable);
         }
 
@@ -64,6 +67,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
 
         Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView _Comments;
+        private readonly IScheduler _scheduler;
 
         public Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView Comments
         {
