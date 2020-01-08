@@ -88,12 +88,12 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
         public static bool IsWatchAfterPlaylist(this IPlaylist localPlaylist)
         {
-            return localPlaylist.Id == HohoemaPlaylist.WatchAfterPlaylistId;
+            return localPlaylist?.Id == HohoemaPlaylist.WatchAfterPlaylistId;
         }
 
         public static bool IsQueuePlaylist(this IPlaylist localPlaylist)
         {
-            return localPlaylist.Id == HohoemaPlaylist.QueuePlaylistId;
+            return localPlaylist?.Id == HohoemaPlaylist.QueuePlaylistId;
         }
 
         public static bool IsUniquePlaylist(this IPlaylist playlist)
@@ -410,6 +410,31 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
             var videoContent = await ResolveVideoItemAsync(videoId);
             Play(videoContent);
+        }
+
+        public async void Play(IPlaylist playlist)
+        {            
+            if (playlist != CurrentPlaylist)
+            {
+                if (playlist == QueuePlaylist)
+                {
+                    _player.SetSource(QueuePlaylist);
+                }
+                else if (playlist == WatchAfterPlaylist)
+                {
+                    _player.SetSource(WatchAfterPlaylist);
+                }
+                else
+                {
+                    _player.SetSource(await ResolveItemsAsync(playlist));
+                }
+            }
+
+            CurrentPlaylist = playlist;
+
+            var video = _player.Items.FirstOrDefault();
+
+            _player.SetCurrent(video);
         }
 
         public async void Play(IVideoContent video, IPlaylist playlist = null)

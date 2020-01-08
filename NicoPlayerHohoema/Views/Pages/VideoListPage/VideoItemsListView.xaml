@@ -11,6 +11,7 @@
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
   xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+  xmlns:trigger="using:NicoPlayerHohoema.Views.StateTrigger"
   mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
@@ -38,13 +39,8 @@
 
         </TransitionCollection>
       </uwpcontrol:PullToRefreshListView.ItemContainerTransitions>
-      <i:Interaction.Behaviors>
-
-      </i:Interaction.Behaviors>
 
     </uwpcontrol:PullToRefreshListView>
-
-
 
     <VisualStateManager.VisualStateGroups>
       <VisualStateGroup>
@@ -59,6 +55,8 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
+
+      
     </VisualStateManager.VisualStateGroups>
   </Grid>
 </UserControl>

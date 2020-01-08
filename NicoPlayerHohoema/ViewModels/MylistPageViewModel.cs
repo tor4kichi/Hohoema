@@ -67,8 +67,7 @@ namespace NicoPlayerHohoema.ViewModels
             FollowToggleButtonService = followToggleButtonService;
             _playlistAggregate = playlistAggregate;
             CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
-            Playlist = new ReactiveProperty<Interfaces.IPlaylist>();
-            PlaylistOrigin = new ReactiveProperty<PlaylistOrigin>();
+            Mylist = new ReactiveProperty<MylistPlaylist>();
 
             /*
             IsFavoriteMylist = new ReactiveProperty<bool>(mode: ReactivePropertyMode.DistinctUntilChanged)
@@ -239,10 +238,7 @@ namespace NicoPlayerHohoema.ViewModels
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
 
        
-        public ReactiveProperty<Interfaces.IPlaylist> Playlist { get; private set; }
-
-        public ReactiveProperty<PlaylistOrigin> PlaylistOrigin { get; }
-
+        public ReactiveProperty<MylistPlaylist> Mylist { get; private set; }
 
         private ICollection<IVideoContent> _mylistItems;
         public ICollection<IVideoContent> MylistItems
@@ -462,7 +458,7 @@ namespace NicoPlayerHohoema.ViewModels
                         var firstItem = MylistItems.FirstOrDefault();
                         if (firstItem != null)
                         {
-                            HohoemaPlaylist.Play(firstItem, Playlist.Value);
+                            HohoemaPlaylist.Play(firstItem, Mylist.Value);
                         }
                     }));
             }
@@ -476,7 +472,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _RefreshCommand
                     ?? (_RefreshCommand = new DelegateCommand(async () =>
                     {
-                        MylistItems = await CreateItemsSourceAsync(Playlist.Value);
+                        MylistItems = await CreateItemsSourceAsync(Mylist.Value);
                     }));
             }
         }
@@ -526,78 +522,67 @@ namespace NicoPlayerHohoema.ViewModels
                 mylistId = idInt.ToString();
             }
 
-            var playlist = await _playlistAggregate.FindPlaylistAsync(mylistId);
+            var mylist = await _playlistAggregate.FindPlaylistAsync(mylistId) as MylistPlaylist;
 
-            if (playlist == null) { return; }
+            if (mylist == null) { return; }
 
-            Playlist.Value = playlist;
-            PlaylistOrigin.Value = playlist.GetOrigin();
+            Mylist.Value = mylist;
 
-            if (playlist is LocalPlaylist localPlaylist || playlist is PlaylistObservableCollection)
-            {
-                IsUserOwnerdMylist = true;
-                IsLoginUserDeflist = false;
-                IsWatchAfterLocalMylist = playlist.IsWatchAfterPlaylist();
-                IsLocalMylist = false;
-            }
-            else if (playlist is MylistPlaylist mylist)
-            {
-                IsUserOwnerdMylist = _mylistRepository.IsLoginUserMylistId(mylist.Id);
-                IsLoginUserDeflist = mylist.IsDefaultMylist();
-                IsWatchAfterLocalMylist = false;
-                IsLocalMylist = false;
+            IsUserOwnerdMylist = _mylistRepository.IsLoginUserMylistId(mylist.Id);
+            IsLoginUserDeflist = mylist.IsDefaultMylist();
+            IsWatchAfterLocalMylist = false;
+            IsLocalMylist = false;
 
-                Observable.FromEventPattern<MylistItemAddedEventArgs>(
-                    h => UserMylistManager.MylistItemAdded += h,
-                    h => UserMylistManager.MylistItemAdded -= h
-                    )
-                    .Subscribe(e =>
+            Observable.FromEventPattern<MylistItemAddedEventArgs>(
+                h => UserMylistManager.MylistItemAdded += h,
+                h => UserMylistManager.MylistItemAdded -= h
+                )
+                .Subscribe(e =>
+                {
+                    var args = e.EventArgs;
+                    if (args.MylistId == Mylist.Value.Id)
                     {
-                        var args = e.EventArgs;
-                        if (args.MylistId == Playlist.Value.Id)
-                        {
-                            RefreshCommand.Execute();
-                        }
-                    })
-                    .AddTo(_NavigatingCompositeDisposable);
+                        RefreshCommand.Execute();
+                    }
+                })
+                .AddTo(_NavigatingCompositeDisposable);
 
-                Observable.FromEventPattern<MylistItemRemovedEventArgs>(
-                    h => UserMylistManager.MylistItemRemoved += h,
-                    h => UserMylistManager.MylistItemRemoved -= h
-                    )
-                    .Subscribe(e =>
+            Observable.FromEventPattern<MylistItemRemovedEventArgs>(
+                h => UserMylistManager.MylistItemRemoved += h,
+                h => UserMylistManager.MylistItemRemoved -= h
+                )
+                .Subscribe(e =>
+                {
+                    var args = e.EventArgs;
+                    if (args.MylistId == Mylist.Value.Id)
                     {
-                        var args = e.EventArgs;
-                        if (args.MylistId == Playlist.Value.Id)
+                        foreach (var removed in args.SuccessedItems)
                         {
-                            foreach (var removed in args.SuccessedItems)
+                            var removedItem = MylistItems.FirstOrDefault(x => x.Id == removed);
+                            if (removedItem != null)
                             {
-                                var removedItem = MylistItems.FirstOrDefault(x => x.Id == removed);
-                                if (removedItem != null)
-                                {
-                                    MylistItems.Remove(removedItem);
-                                }
+                                MylistItems.Remove(removedItem);
                             }
                         }
-                    })
-                    .AddTo(_NavigatingCompositeDisposable);
+                    }
+                })
+                .AddTo(_NavigatingCompositeDisposable);
+            
 
-            }
+            MylistItems = await CreateItemsSourceAsync(mylist);
+            MaxItemsCount = Mylist.Value.Count;
 
-            MylistItems = await CreateItemsSourceAsync(playlist);
-            MaxItemsCount = Playlist.Value.Count;
-
-            if (Playlist.Value != null)
+            if (Mylist.Value != null)
             {
-                MylistBookmark = Database.BookmarkDb.Get(Database.BookmarkType.Mylist, Playlist.Value.Id)
+                MylistBookmark = Database.BookmarkDb.Get(Database.BookmarkType.Mylist, Mylist.Value.Id)
                     ?? new Database.Bookmark()
                     {
-                        Label = Playlist.Value.Label,
-                        Content = Playlist.Value.Id,
+                        Label = Mylist.Value.Label,
+                        Content = Mylist.Value.Id,
                         BookmarkType = Database.BookmarkType.Mylist,
                     };
 
-                FollowToggleButtonService.SetFollowTarget(Playlist.Value as Interfaces.IFollowable);
+                FollowToggleButtonService.SetFollowTarget(Mylist.Value as Interfaces.IFollowable);
 
                 RaisePropertyChanged(nameof(MylistBookmark));
             }
@@ -605,35 +590,25 @@ namespace NicoPlayerHohoema.ViewModels
             EditMylistGroupCommand.RaiseCanExecuteChanged();
             DeleteMylistCommand.RaiseCanExecuteChanged();
 
-            PageManager.PageTitle = playlist.Label;
+            PageManager.PageTitle = mylist.Label;
 
         }
        
 
-        private async Task<ICollection<IVideoContent>> CreateItemsSourceAsync(IPlaylist playlist)
+        private async Task<ICollection<IVideoContent>> CreateItemsSourceAsync(MylistPlaylist mylist)
         {
-            switch (playlist)
-            {
-                case PlaylistObservableCollection uniquePlaylist:
-                    return uniquePlaylist;
-                case MylistPlaylist mylist:
-                    var source = new MylistIncrementalSource(mylist, _mylistRepository, NgSettings);
-                    await source.ResetSource();
-                    return new IncrementalLoadingCollection<MylistIncrementalSource, IVideoContent>(source);
-                case LocalPlaylist localPlaylist:
-                    return new ReadOnlyCollection<IVideoContent>(LocalMylistManager.GetPlaylistItems(localPlaylist).ToList());
-                default:
-                    throw new ArgumentException();
-            }
+            var source = new MylistIncrementalSource(mylist, _mylistRepository, NgSettings);
+            await source.ResetSource();
+            return new IncrementalLoadingCollection<MylistIncrementalSource, IVideoContent>(source);
         }
 
         protected override bool TryGetHohoemaPin(out HohoemaPin pin)
         {
             pin = new HohoemaPin()
             {
-                Label = Playlist.Value.Label,
+                Label = Mylist.Value.Label,
                 PageType = HohoemaPageType.Mylist,
-                Parameter = $"id={Playlist.Value.Id}"
+                Parameter = $"id={Mylist.Value.Id}"
             };
 
             return true;

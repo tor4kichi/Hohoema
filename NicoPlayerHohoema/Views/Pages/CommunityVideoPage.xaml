@@ -20,41 +20,41 @@
     NavigationCacheMode="Enabled"
     mc:Ignorable="d"
     >
-    
-    <Grid>
-        <VisualStateManager.VisualStateGroups>
 
-            <!-- トップバー表示時のタイトル位置ずらし -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="ItemsList.Padding" Value="48 0 48 27" />
-                        <Setter Target="ScrollHeader.Mode" Value="None" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="0" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-            
-        </VisualStateManager.VisualStateGroups>
+  <Grid>
+    <VisualStateManager.VisualStateGroups>
 
-        <uwpcontrols:PullToRefreshListView 
+      <!-- トップバー表示時のタイトル位置ずらし -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="ItemsList.Padding" Value="48 0 48 27" />
+            <Setter Target="ScrollHeader.Mode" Value="None" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
+    </VisualStateManager.VisualStateGroups>
+
+    <uwpcontrols:PullToRefreshListView 
             x:Name="ItemsList"
             ItemsSource="{Binding ItemsView, Mode=OneWay}"
             RefreshCommand="{Binding RefreshCommand}"
@@ -71,81 +71,81 @@
             xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
             myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
                             >
-            <uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
-                <TransitionCollection>
+      <uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
+        <TransitionCollection>
 
-                </TransitionCollection>
-            </uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
-            <i:Interaction.Behaviors>
+        </TransitionCollection>
+      </uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
+      <i:Interaction.Behaviors>
 
-                <mybehavior:KeyboardTrigger Key="F5">
-                    <mybehavior:KeyboardTrigger.Actions>
-                        <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
-                    </mybehavior:KeyboardTrigger.Actions>
-                </mybehavior:KeyboardTrigger>
+        <mybehavior:KeyboardTrigger Key="F5">
+          <mybehavior:KeyboardTrigger.Actions>
+            <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
+          </mybehavior:KeyboardTrigger.Actions>
+        </mybehavior:KeyboardTrigger>
 
-                
-                <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ScrollPosition.Value, Mode=TwoWay}" />
 
-                <core:DataTriggerBehavior Binding="{Binding IncrementalLoadingItems, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}"  >
-                    <actions:ScrollViewerVerticalPositionSettingsAction Target="{x:Bind ItemsList}" 
+        <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ScrollPosition.Value, Mode=TwoWay}" />
+
+        <core:DataTriggerBehavior Binding="{Binding IncrementalLoadingItems, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}"  >
+          <actions:ScrollViewerVerticalPositionSettingsAction Target="{x:Bind ItemsList}" 
                                                                     VerticalOffset="{Binding ScrollPosition.Value}" 
                                                                     WithAnimation="False" 
                                                                         Delay="0:0:0.001"
                                                                     />
-                </core:DataTriggerBehavior>
-            </i:Interaction.Behaviors>
-            <ListView.Header>
-                <controls:ScrollHeader x:Name="ScrollHeader"
+        </core:DataTriggerBehavior>
+      </i:Interaction.Behaviors>
+      <ListView.Header>
+        <controls:ScrollHeader x:Name="ScrollHeader"
                                           Mode="Sticky"
                                           >
-                    <toolkit:DockPanel x:Name="HeaderLayout">
+          <toolkit:DockPanel x:Name="HeaderLayout">
 
 
-                        <StackPanel >
+            <StackPanel >
 
-                            <CommandBar 
+              <CommandBar 
                             x:Name="TopCommandBar"
                                 >
 
-                                <CommandBar.PrimaryCommands>
+                <CommandBar.PrimaryCommands>
 
-                                    <AppBarButton x:Name="ScrollToTopButton"
+                  <AppBarButton x:Name="ScrollToTopButton"
                                               Label="トップへ戻る"
                                               Icon="Up"
                                             >
-                                        <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="Click">
-                                                <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
-                                            </core:EventTriggerBehavior>
-                                        </i:Interaction.Behaviors>
-                                    </AppBarButton>
-                                    
-                                    <AppBarButton x:Name="OpenCommunityPageButton"
+                    <i:Interaction.Behaviors>
+                      <core:EventTriggerBehavior EventName="Click">
+                        <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
+                      </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
+                  </AppBarButton>
+
+                  <AppBarButton x:Name="OpenCommunityPageButton"
                                               Command="{Binding OpenCommunityPageCommand}"
                                      >
-                                        <TextBlock>
+                    <TextBlock>
                                         <Run Text="{Binding CommunityName}" />
-                                        </TextBlock>
-                                    </AppBarButton>
+                    </TextBlock>
+                  </AppBarButton>
 
-                                </CommandBar.PrimaryCommands>
+                </CommandBar.PrimaryCommands>
 
-                            </CommandBar>
-                        </StackPanel>
-                    </toolkit:DockPanel>
-                </controls:ScrollHeader>
-                
-            </ListView.Header>
+              </CommandBar>
+            </StackPanel>
+          </toolkit:DockPanel>
+        </controls:ScrollHeader>
+
+      </ListView.Header>
 
 
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <local:VideoInfoControl />
-                    </Grid>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-        </uwpcontrols:PullToRefreshListView>
-    </Grid>
+      <ListView.ItemTemplate>
+        <DataTemplate>
+          <Grid>
+            <local:VideoInfoControl />
+          </Grid>
+        </DataTemplate>
+      </ListView.ItemTemplate>
+    </uwpcontrols:PullToRefreshListView>
+  </Grid>
 </Page>

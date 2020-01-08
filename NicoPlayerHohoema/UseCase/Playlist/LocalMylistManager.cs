@@ -21,6 +21,13 @@ using Windows.Storage;
 
 namespace NicoPlayerHohoema.UseCase.Playlist
 {
+    public sealed class LocalPlaylistItemRemovedEventArgs
+    {
+        public string PlaylistId { get; internal set; }
+        public IReadOnlyCollection<string> RemovedItems { get; internal set; }
+    }
+
+
     public sealed class LocalMylistManager : IDisposable
     {
         static void MigrateLocalMylistToPlaylistRepository(PlaylistRepository playlistRepository)
@@ -50,7 +57,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             }
         }
 
-
+        public event EventHandler<LocalPlaylistItemRemovedEventArgs> ItemRemoved;
 
         public LocalMylistManager(
             PlaylistRepository playlistRepository,
@@ -174,10 +181,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
         public bool RemovePlaylist(LocalPlaylist localPlaylist)
         {
-            if (_playlistIdToEntity.TryGetValue(localPlaylist.Id, out var entity))
-            {
-                var result = _playlistRepository.Delete(entity);
-            }
+            var result = _playlistRepository.Delete(localPlaylist.Id);
 
             return _playlists.Remove(localPlaylist);
         }
@@ -201,12 +205,34 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
         public bool RemovePlaylistItem(IPlaylist playlist, IVideoContent item)
         {
-            return _playlistRepository.DeleteItem(playlist.Id, item.Id);
+            var result =  _playlistRepository.DeleteItem(playlist.Id, item.Id);
+
+            if (result)
+            {
+                ItemRemoved?.Invoke(this, new LocalPlaylistItemRemovedEventArgs()
+                {
+                    PlaylistId = playlist.Id,
+                    RemovedItems = new[] { item.Id }
+                });
+            }
+            return result;
         }
 
         public int RemovePlaylistItems(IPlaylist playlist, IEnumerable<IVideoContent> items)
         {
-            return _playlistRepository.DeleteItems(playlist.Id, items.Select(x => x.Id));
+            var ids = items.Select(x => x.Id).ToList();
+            var result = _playlistRepository.DeleteItems(playlist.Id, ids);
+
+            if (result > 0)
+            {
+                ItemRemoved?.Invoke(this, new LocalPlaylistItemRemovedEventArgs()
+                {
+                    PlaylistId = playlist.Id,
+                    RemovedItems = ids
+                });
+            }
+
+            return result;
         }
 
 

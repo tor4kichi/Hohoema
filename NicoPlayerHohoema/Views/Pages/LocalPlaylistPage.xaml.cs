@@ -20,29 +20,9 @@ namespace NicoPlayerHohoema.Views
     /// <summary>
     /// それ自体で使用できる空白ページまたはフレーム内に移動できる空白ページ。
     /// </summary>
-    public sealed partial class NicoRepoPage : Page
+    public sealed partial class LocalPlaylistPage : Page
     {
-
-        public double ScrollPosition
-        {
-            get { return (double)GetValue(ScrollPositionProperty); }
-            set { SetValue(ScrollPositionProperty, value); }
-        }
-
-        // Using a DependencyProperty as the backing store for ScrollPosition.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ScrollPositionProperty =
-            DependencyProperty.Register("ScrollPosition", typeof(double), typeof(NicoRepoPage), new PropertyMetadata(0.0));
-
-
-        public void ResetScrollPosition()
-        {
-            var scrollViweer = ItemsList.FindFirstChild<ScrollViewer>();
-            scrollViweer.ChangeView(null, 0, null);
-        }
-
-
-
-        public NicoRepoPage()
+        public LocalPlaylistPage()
         {
             this.InitializeComponent();
         }

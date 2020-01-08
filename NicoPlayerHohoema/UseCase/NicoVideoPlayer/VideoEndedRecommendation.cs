@@ -42,6 +42,8 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
             
             IsEnded = new ReactiveProperty<bool>(_scheduler);
             HasRecomend = new ReactiveProperty<bool>(_scheduler);
+            
+            _mediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
 
             _videoPlayer.ObserveProperty(x => x.PlayingVideoId)
                 .Subscribe(x =>

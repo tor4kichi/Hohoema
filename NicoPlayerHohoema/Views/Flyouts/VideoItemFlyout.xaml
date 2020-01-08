@@ -15,6 +15,15 @@
     mc:Ignorable="d">
 
   
+  <!-- 視聴履歴 -->
+  <MenuFlyoutItem x:Name="RemoveWatchHisotryItem" 
+                  Text="{Binding Source=RemoveWatchHisotryItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                  CommandParameter="{Binding}"
+                  Visibility="Collapsed"
+                  />
+
+
+
   <!-- ローカルプレイリスト -->
   <MenuFlyoutItem x:Name="RemoveLocalPlaylistItem" 
                   Text="{Binding Source=LocalMylistRemoveItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"

@@ -5,6 +5,7 @@ CreateNew = 新規作成
 
 Share = 共有
 Copy = コピー
+OpenWithBrowser = ブラウザで開く
 
 Refresh = 更新
 ReturnToPageTop = トップへ戻る
@@ -26,6 +27,9 @@ PrivateReasonType.Private = 非公開設定
 PrivateReasonType.Publishers = 管理人削除
 PrivateReasonType.RightsHolders = 権利者削除
 
+VideoOwner = 投稿者
+Follow = フォロー
+
 #### Nicorepo ####
 NicoRepoItemTopic.Unknown = 不明
 NicoRepoItemTopic.Live_Channel_Program_Onairs = 生放送開始（チャンネル）
@@ -41,6 +45,8 @@ NicoRepoItemTopic.NicoVideo_User_Video_Advertise = ユーザー動画が広告�
 NicoRepoItemTopic.NicoVideo_User_Video_Kiriban_Play = 再生数キリ番
 NicoRepoItemTopic.NicoVideo_User_Video_UpdateHighestRankings = ランキング最高順位更新
 NicoRepoItemTopic.NicoVideo_User_Video_Upload = ユーザーの動画投稿
+
+NicorepoNoItems = 表示可能なニレコポがありません
 
 #### Ranking ####
 Ranking = ランキング
@@ -69,6 +75,8 @@ RankingGenre.Vehicle = 乗り物
 RankingGenre.Game = ゲーム
 RankingGenre.Entertainment = エンターテイメント
 RankingGenre.HotTopic = 話題
+
+RankingNoItems = ランキングアイテムの取得に失敗しました\nしばらく後で再度アクセスをお試しください
 
 #### Video ####
 NicoVideoQuality.Smile_Low = 旧 低画質
@@ -154,6 +162,7 @@ HohoemaPageType.UserMylist = マイリスト一覧
 HohoemaPageType.UserVideo = ユーザー動画一覧
 HohoemaPageType.VideoInfomation = 動画情報
 HohoemaPageType.WatchHistory = 視聴履歴
+HohoemaPageType.LocalPlaylist = プレイリスト
 
 #### Search ####
 SearchTarget.Keyword = キーワード
@@ -162,12 +171,45 @@ SearchTarget.Mylist = マイリスト
 SearchTarget.Community = コミュニティ
 SearchTarget.Niconama = 生放送
 
-#### Mylist/Playlist #### 
+TagSearchNoItems = タグに一致するアイテムはありません
+KeywordSearchNoItems = キーワードに一致するアイテムはありません
+
+#### Watch History ####
+WatchHistoryRemoveAll = 全ての履歴を削除
+WatchHistoryConfirmRemove = 本当に削除
+
+WatchHistoryConfirmRemoveDescription = 視聴履歴を全て削除します\n本当に削除してもいいですか？
+
+WatchCountWithUnit = {0}回
+
+WatchHistoryNoItems = 視聴履歴はありません
+
+
+#### Channel ####
+
+ChannelVideoNoItems = チャンネル動画はありません
+
+#### Playlist ####
+PlayAll = すべて再生
+
+
+#### Mylist #### 
+MylistOwner = オーナー情報
+MylistEditInfo = マイリスト情報を編集
+MylistDelete = マイリストを削除
+
+#### Local Playlist ####
+LocalPlaylistDelete = プレイリストを削除
+LocalPlaylistNoItems = プレイリストは空です
+#### Watch After #### 
 @view = あとで見る
+
+
 
 
 #### Video Items Select Action ####
 
+RemoveWatchHisotryItem = 視聴履歴から削除
 LocalMylistRemoveItem = ローカルマイリストから削除
 MylistRemoveItem = マイリストから削除
 QueueAddItem = キューに追加
@@ -196,6 +238,27 @@ SelectEnd = 選択終了
 #### Subscribe feature ####
 SubscriptionGroup_Create = 購読グループを作成
 SubscriptionsEmptyNotice = 購読は新着動画のチェックを自動化できる機能です。購読グループを作成して、購読グループにユーザーや検索キーワードや登録すると、定期的（15分毎）に自動巡回して新着があれば「あとで見る」などのプレイリストに追加してくれます。
+SubscriptionAddUser = 投稿者を購読に追加
+SubscriptionAddMylist = マイリストを購読に追加
+SubscriptionAddKeyword = キーワードを購読に追加
+SubscriptionAddTag = タグを購読に追加
+SubscriptionAddToNew = 購読を作成して追加
+
+#### User Videos Page ####
+UserVideosNoItems = 投稿動画はありません
+UserVideosIsPrivate = 投稿動画は非公開です
+
+
+
+#### Cache Management Page ####
+OpenCacheFolder = 保存フォルダを開く
+ChangeCacheFolder = 保存フォルダを変更
+OpenHohoemaCacheVideoFairUsePolicyText = 「キャッシュ機能の利用に関する確認」を表示
+
+RequireAcceptToUsingVideoCacheInHohoema = キャッシュ機能を有効にするには\n「キャッシュ機能の利用に関する確認」への同意が必要です
+
+RequirePickFolderToUsingVieoCacheInHohoema = キャッシュ機能を有効にするには\nキャッシュフォルダの指定が必要です
+PickCacheSaveFolder = キャッシュ保存フォルダを選択する
 
 #### Unknonw ####
 BookmarkType.User = ユーザー動画

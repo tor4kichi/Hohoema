@@ -374,25 +374,22 @@ namespace NicoPlayerHohoema.Models
             if (!Helpers.InternetConnection.IsInternet()) { return null; }
 
             object res = null;
-            try
+            var dmcRes = await _nicoVideoProvider.GetDmcWatchResponse(rawVideoId);
+            if (dmcRes?.DmcWatchResponse.Video.IsDeleted ?? false)
             {
-                var dmcRes = await _nicoVideoProvider.GetDmcWatchResponse(rawVideoId);
-                if (dmcRes.DmcWatchResponse.Video.IsDeleted)
-                {
-                    throw new NotSupportedException("動画は削除されています");
-                }
-                if (dmcRes.DmcWatchResponse.Video.DmcInfo != null)
-                {
-                    if (dmcRes.DmcWatchResponse.Video?.DmcInfo?.Quality == null)
-                    {
-                        throw new NotSupportedException("動画の視聴権がありません");
-                    }
-                }
-                return new PreparePlayVideoResult(rawVideoId, _niconicoSession, dmcRes);
+                throw new NotSupportedException("動画は削除されています");
             }
-            catch
+            if (dmcRes?.DmcWatchResponse.Video.DmcInfo != null)
             {
-                await Task.Delay(TimeSpan.FromSeconds(1));
+                if (dmcRes.DmcWatchResponse.Video?.DmcInfo?.Quality == null)
+                {
+                    throw new NotSupportedException("動画の視聴権がありません");
+                }
+            }
+            
+            if (dmcRes != null)
+            {
+                return new PreparePlayVideoResult(rawVideoId, _niconicoSession, dmcRes);
             }
 
             try

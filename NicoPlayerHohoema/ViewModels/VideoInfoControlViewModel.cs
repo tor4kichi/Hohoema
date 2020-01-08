@@ -135,25 +135,31 @@ namespace NicoPlayerHohoema.ViewModels
 
             _ = RefrechCacheState();
 
-            await Task.Run(async () =>
+            var data = await Task.Run(async () =>
             {
                 if (IsDisposed)
                 {
                     Debug.WriteLine("skip thumbnail loading: " + RawVideoId);
-                    return;
+                    return null;
                 }
 
                 if (NicoVideoProvider != null)
                 {
-                    Data = await NicoVideoProvider.GetNicoVideoInfo(RawVideoId);
+                    return await NicoVideoProvider.GetNicoVideoInfo(RawVideoId);
                 }
 
                 // オフライン時はローカルDBの情報を利用する
                 if (Data == null)
                 {
-                    Data = Database.NicoVideoDb.Get(RawVideoId);
+                    return Database.NicoVideoDb.Get(RawVideoId);
                 }
+
+                return null;
             });
+
+            if (data == null) { return; }
+
+            Data = data;
 
             if (IsDisposed)
             {
@@ -284,10 +290,12 @@ namespace NicoPlayerHohoema.ViewModels
         internal void SetSubmitDate(DateTime submitDate)
         {
             OptionText = submitDate.ToString("yyyy/MM/dd HH:mm");
+            PostedAt = submitDate;
         }
 
         internal void SetVideoDuration(TimeSpan duration)
         {
+            Length = duration;
             string timeText;
             if (duration.Hours > 0)
             {
@@ -305,6 +313,7 @@ namespace NicoPlayerHohoema.ViewModels
             if (!string.IsNullOrWhiteSpace(thumbnailImage))
             {
                 AddImageUrl(thumbnailImage);
+                ThumbnailUrl ??= thumbnailImage;
             }
         }
 

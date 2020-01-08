@@ -683,7 +683,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             LocalMylists = LocalMylistManager.LocalPlaylists
                 .ToReadOnlyReactiveCollection(x =>
-                new MenuItemViewModel(x.Label, HohoemaPageType.Mylist, new NavigationParameters { { "id", x.Id } }) as HohoemaListingPageItemBase
+                new MenuItemViewModel(x.Label, HohoemaPageType.LocalPlaylist, new NavigationParameters { { "id", x.Id } }) as HohoemaListingPageItemBase
                 )
                 .AddTo(_CompositeDisposable);
             Mylists = MylistManager.Mylists
@@ -719,7 +719,7 @@ namespace NicoPlayerHohoema.ViewModels
                 MenuItems.Add(new MenuItemViewModel("視聴履歴", HohoemaPageType.WatchHistory));
                 MenuItems.Add(new MenuItemViewModel("キャッシュ", HohoemaPageType.CacheManagement));
 //                MenuItems.Add(new MenuItemViewModel("オススメ", HohoemaPageType.Recommend));
-                MenuItems.Add(new MenuItemViewModel("あとで見る", HohoemaPageType.Mylist, new NavigationParameters { { "id", HohoemaPlaylist.WatchAfterPlaylistId }}));
+                MenuItems.Add(new MenuItemViewModel("あとで見る", HohoemaPageType.LocalPlaylist, new NavigationParameters { { "id", HohoemaPlaylist.WatchAfterPlaylistId }}));
             }
             else
             {
@@ -727,7 +727,7 @@ namespace NicoPlayerHohoema.ViewModels
                 MenuItems.Add(new MenuItemViewModel("新着", HohoemaPageType.Subscription));
                 //                MenuItems.Add(new MenuItemViewModel("視聴履歴", HohoemaPageType.WatchHistory));
                 MenuItems.Add(new MenuItemViewModel("キャッシュ", HohoemaPageType.CacheManagement));
-                MenuItems.Add(new MenuItemViewModel("あとで見る", HohoemaPageType.Mylist, new NavigationParameters { { "id", HohoemaPlaylist.WatchAfterPlaylistId } }));
+                MenuItems.Add(new MenuItemViewModel("あとで見る", HohoemaPageType.LocalPlaylist, new NavigationParameters { { "id", HohoemaPlaylist.WatchAfterPlaylistId } }));
             }
 
             RaisePropertyChanged(nameof(MenuItems));

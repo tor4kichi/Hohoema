@@ -86,7 +86,7 @@ namespace NicoPlayerHohoema.Views.Flyouts
             VideoCacheManager = App.Current.Container.Resolve<VideoCacheManager>();
             VideoItemsSelectionContext = App.Current.Container.Resolve<VideoItemsSelectionContext>();
 
-
+            RemoveWatchHisotryItem.Command = App.Current.Container.Resolve<WatchHistoryRemoveItemCommand>();
             AddWatchAfter.Command = App.Current.Container.Resolve<WatchAfterAddItemCommand>();
             RemoveWatchAfter.Command = App.Current.Container.Resolve<WatchAfterRemoveItemCommand>();
             AddQueue.Command = App.Current.Container.Resolve<QueueAddItemCommand>();
@@ -125,6 +125,10 @@ namespace NicoPlayerHohoema.Views.Flyouts
             bool isMultipleSelection = VideoItems?.Count >= 2;
 
             var playlist = Playlist;
+
+
+            // 視聴履歴
+            RemoveWatchHisotryItem.Visibility = (content is IWatchHistory).ToVisibility();
 
             // ローカルプレイリスト
             if (playlist is LocalPlaylist localPlaylist)
@@ -288,6 +292,5 @@ namespace NicoPlayerHohoema.Views.Flyouts
                 SelectionAll.Visibility = Visibility.Visible;
             }
         }
-
     }
 }

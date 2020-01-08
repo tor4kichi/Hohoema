@@ -505,7 +505,7 @@ namespace NicoPlayerHohoema.Services
 		public void ForgetLastPage()
 		{
             // TODO: ナビゲーション履歴の削除
-			//NavigationService.RemoveLastPage();
+			
 		}
 
 

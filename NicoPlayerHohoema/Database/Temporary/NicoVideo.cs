@@ -1,6 +1,7 @@
 ﻿using LiteDB;
 using Mntone.Nico2;
 using NicoPlayerHohoema.Interfaces;
+using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace NicoPlayerHohoema.Database
     }
 
     [PropertyChanged.AddINotifyPropertyChangedInterface]
-    public class NicoVideo : Interfaces.IVideoContent, IVideoContentWritable
+    public class NicoVideo : BindableBase, Interfaces.IVideoContent, IVideoContentWritable
     {
         [BsonId]
         public string RawVideoId { get; set; }
@@ -124,16 +125,14 @@ namespace NicoPlayerHohoema.Database
 
         public static IEnumerable<NicoVideo> Get(IEnumerable<string> videoIds)
         {
+            var hashset = videoIds.ToHashSet();
             var db = HohoemaLiteDb.GetTempLiteRepository();
             {
-                var q = db
-                    .Query<NicoVideo>()
-                    .Include(x => x.Owner);
-
                 return videoIds
-                    .Select(x => q.Where(y => y.RawVideoId == x)
-                        .SingleOrDefault()
-                        ?? new NicoVideo() { RawVideoId = x })
+                    .Select(x => db
+                        .Query<NicoVideo>()
+                        .Include(x => x.Owner)
+                        .Where(y => y.RawVideoId == x).SingleOrDefault() ?? new NicoVideo() { RawVideoId = x })
                     ;
             }
         }

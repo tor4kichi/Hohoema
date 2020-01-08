@@ -138,6 +138,7 @@
     <Compile Include="Events\RankingGenreCustomizeEvent.cs" />
     <Compile Include="FixPrism\BindableBaseWithFix.cs" />
     <Compile Include="Interfaces\IPlaylistItem.cs" />
+    <Compile Include="Interfaces\IWatchHistory.cs" />
     <Compile Include="Locales\LocalizeConverter.cs" />
     <Compile Include="Models\Niconico\INiconicoVideoSessionProvider.cs" />
     <Compile Include="Models\Niconico\Video\Comment\NicoScript.cs" />
@@ -185,8 +186,10 @@
     <Compile Include="Models\Cache\CachefolderAccessState.cs" />
     <Compile Include="Models\LocalMylist\LocalMylist.cs" />
     <Compile Include="UseCase\NicoVideoInfoUpdater.cs" />
+    <Compile Include="UseCase\Playlist\Commands\LocalPlaylistDeleteCommand.cs" />
     <Compile Include="UseCase\Playlist\Commands\LocalPlaylistRemoveItemCommand.cs" />
     <Compile Include="UseCase\Playlist\Commands\MylistRemoveItemCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\PlaylistPlayAllCommand.cs" />
     <Compile Include="UseCase\Playlist\Commands\QueueAddItemCommand.cs" />
     <Compile Include="UseCase\Playlist\Commands\QueueRemoveItemCommand.cs" />
     <Compile Include="UseCase\Playlist\Commands\SelectionAllSelectCommand.cs" />
@@ -198,6 +201,8 @@
     <Compile Include="UseCase\Playlist\Commands\PlayWithPlaylistCommand.cs" />
     <Compile Include="UseCase\Playlist\Commands\WatchAfterRemoveItemCommand.cs" />
     <Compile Include="UseCase\Playlist\Commands\VideoContentSelectionCommandBase.cs" />
+    <Compile Include="UseCase\Playlist\Commands\WatchHistoryRemoveAllCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\WatchHistoryRemoveItemCommand.cs" />
     <Compile Include="UseCase\Playlist\LocalMylistManager.cs" />
     <Compile Include="Database\Local\LocalMylist\LocalMylistDb.cs" />
     <Compile Include="Models\NiconicoSession.cs" />
@@ -232,6 +237,7 @@
     <Compile Include="UseCase\Playlist\PlaylistAggregateGetter.cs" />
     <Compile Include="UseCase\Playlist\PlaylistSelectDialogService.cs" />
     <Compile Include="UseCase\Playlist\VideoItemsSelectionContext.cs" />
+    <Compile Include="UseCase\Playlist\WatchHistoryManager.cs" />
     <Compile Include="UseCase\VideoCacheResumingObserver.cs" />
     <Compile Include="UseCase\WindowService.cs" />
     <Compile Include="UseCase\CommentPlayer.cs" />
@@ -250,6 +256,7 @@
     <Compile Include="ViewModels\Flyouts\SubscriptionItemFlyoutViewModel.cs" />
     <Compile Include="Services\NiconicoFollowToggleButtonService.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\LiveInfoContentViewModelBase.cs" />
+    <Compile Include="ViewModels\LocalPlaylistPageViewModel.cs" />
     <Compile Include="ViewModels\SubscriptionControlViewModel.cs" />
     <Compile Include="Views\Controls\DelayedAutoTriggerButton.xaml.cs">
       <DependentUpon>DelayedAutoTriggerButton.xaml</DependentUpon>
@@ -546,6 +553,9 @@
     </Compile>
     <Compile Include="Views\Pages\ListItem\MylistListItem.xaml.cs">
       <DependentUpon>MylistListItem.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\LocalPlaylistPage.xaml.cs">
+      <DependentUpon>LocalPlaylistPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Pages\RecommendPage.xaml.cs">
       <DependentUpon>RecommendPage.xaml</DependentUpon>
@@ -1000,6 +1010,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Pages\LocalPlaylistPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Pages\RecommendPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1339,6 +1353,9 @@
     </PackageReference>
     <PackageReference Include="ReactiveProperty">
       <Version>4.2.1</Version>
+    </PackageReference>
+    <PackageReference Include="Uno.WindowsStateTriggers">
+      <Version>1.1.1-uno.119</Version>
     </PackageReference>
     <PackageReference Include="WinRTXamlToolkit.UWP">
       <Version>2.3.0</Version>

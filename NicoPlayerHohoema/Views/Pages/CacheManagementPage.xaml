@@ -18,25 +18,99 @@
     xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
     xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
-    DataContext="{x:Null}"
+  xmlns:videolistPage="using:NicoPlayerHohoema.Views.Pages.VideoListPage"
+  DataContext="{x:Null}"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d"
     >
 
   <Grid>
 
-    <VisualStateManager.VisualStateGroups>
+    <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
+                                      ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
+                                      ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
+                                      RefreshCommand="{Binding RefreshCommand}"
+                                      x:Name="VideoItemsListView"
+                                      >
+      <videolistPage:VideoItemsListView.Header>
 
-      <!-- ログインしている場合に有効になるサービスを表示する -->
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding IsLoggedIn}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
+        <controls:ScrollHeader x:Name="ScrollHeader"
+                               Mode="QuickReturn"
+                               >
+          <CommandBar>
+            <CommandBar.PrimaryCommands>
+              <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
+                <i:Interaction.Behaviors>
+                  <core:EventTriggerBehavior EventName="Click">
+                    <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
+                  </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+              </AppBarButton>
+            </CommandBar.PrimaryCommands>
+            <CommandBar.SecondaryCommands>
+              <AppBarButton Label="{Binding CacheSaveFolderPath.Value}" IsEnabled="False" />
+              <AppBarButton Label="{Binding Source=OpenCacheFolder, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding OpenCurrentCacheFolderCommand}"/>
+              <AppBarSeparator />
+              <AppBarButton Label="{Binding Source=ChangeCacheFolder, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"  Command="{Binding ChangeCacheFolderCommand}" />
+              <AppBarButton Label="{Binding Source=OpenHohoemaCacheVideoFairUsePolicyText, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding ReadCacheAcceptTextCommand}" />
+            </CommandBar.SecondaryCommands>
+          </CommandBar>
+        </controls:ScrollHeader>
+      </videolistPage:VideoItemsListView.Header>
+
+      <videolistPage:VideoItemsListView.ItemTemplate>
+        <DataTemplate>
+          <Grid>
+            <videolistPage:VideoListItemControl />
+
+            <Grid toolkit:DockPanel.Dock="Right" HorizontalAlignment="Right"
+                                    >
+              <StackPanel>
+                <TextBlock Text="{Binding CacheRequestTime}" 
+                                               Opacity="0.7"
+                                               Margin="0 0 0 4"
+                                               FontSize="12"
+                                               />
+              </StackPanel>
+
+            </Grid>
+          </Grid>
+        </DataTemplate>
+      </videolistPage:VideoItemsListView.ItemTemplate>
+
+    </videolistPage:VideoItemsListView>
+
+    <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <TextBlock Text="{Binding Source=CacheVideoNoItems, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                     Style="{StaticResource SubtitleTextBlockStyle}"
+                     Opacity="0.8"
+                     />
+    </Grid>
+
+    
+    <Grid x:Name="RequireChangeCacheFolderLayout" Visibility="Collapsed">
+      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+        <TextBlock Text="{Binding Source=RequirePickFolderToUsingVieoCacheInHohoema, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" />
+
+        <Button x:Name="UpdateCacheSaveFolderButton" 
+                Command="{Binding ChangeCacheFolderCommand}"
+                Content="{Binding Source=PickCacheSaveFolder, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                />
+      </StackPanel>
+    </Grid>
+
+    <Grid x:Name="NotCacheAcceptedLayout">
+      <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
+        <TextBlock Text="{Binding Source=RequireAcceptToUsingVideoCacheInHohoema, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" />
+
+        <Button Content="{Binding Source=OpenHohoemaCacheVideoFairUsePolicyText, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" 
+                Command="{Binding RequireEnablingCacheCommand}" 
+                Margin="8 16 8 8"
+                />
+      </StackPanel>
+    </Grid>
+
+    <VisualStateManager.VisualStateGroups>
 
       <!-- トップバー表示時のタイトル位置ずらし -->
       <VisualStateGroup>
@@ -83,9 +157,7 @@
             <StateTrigger IsActive="{Binding IsCacheUserAccepted.Value}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="TopCommandBar.Visibility" Value="Visible" />
-
-            <Setter Target="ItemsList.Visibility" Value="Visible" />
+            <Setter Target="VideoItemsListView.Visibility" Value="Visible" />
             <Setter Target="NotCacheAcceptedLayout.Visibility" Value="Collapsed" />
           </VisualState.Setters>
         </VisualState>
@@ -93,190 +165,6 @@
 
     </VisualStateManager.VisualStateGroups>
 
-
-    <uwpcontrols:PullToRefreshListView 
-                x:Name="ItemsList"
-                ItemsSource="{Binding ItemsView, Mode=OneWay}"
-                RefreshCommand="{Binding RefreshCommand}"
-                uwpExtensions:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
-                Visibility="Collapsed"
-                IsItemClickEnabled="True"
-                IncrementalLoadingTrigger="Edge"
-                PullThreshold="85"    
-                UseSystemFocusVisuals="True"
-                SelectionMode="None"
-                HorizontalContentAlignment="Stretch"
-                ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
-                uwpExtensions:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
-                ScrollViewer.BringIntoViewOnFocusChange="False"
-                myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
-                myExtensions:ListViewBase.DeferInitialize="True"
-            >
-      <i:Interaction.Behaviors>
-
-        <mybehavior:KeyboardTrigger Key="F5">
-          <mybehavior:KeyboardTrigger.Actions>
-            <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
-          </mybehavior:KeyboardTrigger.Actions>
-        </mybehavior:KeyboardTrigger>
-
-        <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
-      </i:Interaction.Behaviors>
-
-
-      <ListView.Header>
-        <controls:ScrollHeader 
-                    x:Name="ScrollHeader"
-                    Mode="Sticky"
-                    
-                    >
-          <toolkit:DockPanel x:Name="HeaderLayout"
-                                       Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-                                       >
-
-            <StackPanel >
-
-              <CommandBar x:Name="TopCommandBar"
-                                    toolkit:DockPanel.Dock="Right"
-                                    VerticalContentAlignment="Bottom"
-                                Visibility="Collapsed"
-                                    >
-
-                <CommandBar.SecondaryCommands>
-                  <AppBarButton Label="{Binding CacheSaveFolderPath.Value}"
-                                                                IsEnabled="False"
-                                                                />
-                  <AppBarButton Label="保存先を開く"
-                                                                Command="{Binding OpenCurrentCacheFolderCommand}"
-                                                                />
-
-                  <AppBarSeparator />
-
-                  <AppBarButton Label="保存先を変更"
-                                                        Command="{Binding ChangeCacheFolderCommand}"
-                                                        >
-                  </AppBarButton>
-                  <AppBarButton Label="動画キャッシュ機能利用の確認文を読む" 
-                                                        Command="{Binding ReadCacheAcceptTextCommand}"
-                                                        />
-
-                </CommandBar.SecondaryCommands>
-
-                <CommandBar.PrimaryCommands>
-
-                  <AppBarButton x:Name="ScrollToTopButton"
-                                              Label="トップへ戻る"
-                                              Icon="Up"
-                                            >
-                    <i:Interaction.Behaviors>
-                      <core:EventTriggerBehavior EventName="Click">
-                        <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
-                      </core:EventTriggerBehavior>
-                    </i:Interaction.Behaviors>
-                  </AppBarButton>
-                  <AppBarButton 
-                                        x:Name="UpdateButton"
-                                        Command="{Binding RefreshCommand}"
-                                        Background="Transparent" 
-                                        Icon="Refresh"
-                                        Label="更新"
-                                              
-                                        />
-
-
-                </CommandBar.PrimaryCommands>
-
-              </CommandBar>
-
-            </StackPanel>
-
-
-          </toolkit:DockPanel>
-        </controls:ScrollHeader>
-
-      </ListView.Header>
-
-      <ListView.ItemTemplate>
-        <DataTemplate>
-          <Grid>
-            <!-- 状態 -->
-            <Grid toolkit:DockPanel.Dock="Right" HorizontalAlignment="Right"
-                                    >
-              <StackPanel>
-                <TextBlock Text="{Binding CacheRequestTime}" 
-                                               Opacity="0.7"
-                                               Margin="0 0 0 4"
-                                               FontSize="12"
-                                               />
-              </StackPanel>
-
-            </Grid>
-
-            <!-- 操作 -->
-
-            <local:VideoInfoControl />
-          </Grid>
-        </DataTemplate>
-      </ListView.ItemTemplate>
-
-      <uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
-        <StackPanel  Margin="0 32 0 0" >
-          <Border Margin="0 16 0 0" BorderThickness="0 0 0 1" BorderBrush="Gray" />
-          <SymbolIcon Symbol="Refresh" VerticalAlignment="Bottom" Height="48" Width="48" Margin="0 24 0 8"
-                            />
-        </StackPanel>
-      </uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
-
-    </uwpcontrols:PullToRefreshListView>
-
-
-    <Grid x:Name="RequireChangeCacheFolderLayout"
-              Visibility="Collapsed"
-              >
-      <StackPanel HorizontalAlignment="Center"
-                        VerticalAlignment="Center">
-        <TextBlock Margin="4">キャッシュ機能を有効にするには</TextBlock>
-
-
-        <TextBlock Margin="4">
-                        <Run>キャッシュフォルダの指定が必要です</Run>
-        </TextBlock>
-
-        <Button x:Name="UpdateCacheSaveFolderButton"
-                            Background="Transparent" 
-                                        Command="{Binding ChangeCacheFolderCommand}"
-                        Content="キャッシュ保存フォルダを指定する"
-                                        >
-
-        </Button>
-
-
-
-      </StackPanel>
-
-
-    </Grid>
-
-    <Grid x:Name="NotCacheAcceptedLayout"
-              >
-      <StackPanel HorizontalAlignment="Center"
-                        VerticalAlignment="Center">
-        <TextBlock Margin="4">キャッシュ機能を有効にするには</TextBlock>
-
-
-        <TextBlock Margin="4">
-                        <Run>「キャッシュ機能の利用に関する確認」への同意が必要です</Run>
-        </TextBlock>
-
-        <Button Content="「キャッシュ機能の利用に関する確認」を表示する" 
-                        Command="{Binding RequireEnablingCacheCommand}" 
-                        Margin="8 16 8 8"
-                         />
-
-      </StackPanel>
-
-
-    </Grid>
   </Grid>
 
 

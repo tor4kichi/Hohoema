@@ -53,15 +53,15 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
             DependencyProperty.Register("ItemTemplate", typeof(DataTemplate), typeof(VideoItemsListView), new PropertyMetadata(null));
 
 
-        public FlyoutBase ItemContextFlyout
+        public DataTemplate ItemContextFlyoutTemplate
         {
-            get { return (FlyoutBase)GetValue(ItemContextFlyoutProperty); }
-            set { SetValue(ItemContextFlyoutProperty, value); }
+            get { return (DataTemplate)GetValue(ItemContextFlyoutTemplateProperty); }
+            set { SetValue(ItemContextFlyoutTemplateProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for ItemTemplate.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty ItemContextFlyoutProperty =
-            DependencyProperty.Register("ItemContextFlyout", typeof(FlyoutBase), typeof(VideoItemsListView), new PropertyMetadata(null));
+        public static readonly DependencyProperty ItemContextFlyoutTemplateProperty =
+            DependencyProperty.Register("ItemContextFlyoutTemplate", typeof(DataTemplate), typeof(VideoItemsListView), new PropertyMetadata(null));
 
 
 
@@ -105,8 +105,6 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
 
 
 
-
-
         public double ScrollPosition
         {
             get { return (double)GetValue(ScrollPositionProperty); }
@@ -118,7 +116,24 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
             DependencyProperty.Register("ScrollPosition", typeof(double), typeof(VideoItemsListView), new PropertyMetadata(0.0));
 
 
+        public IPlaylist PlaylistPassToFlyout
+        {
+            get { return (IPlaylist)GetValue(PlaylistPassToFlyoutProperty); }
+            set { SetValue(PlaylistPassToFlyoutProperty, value); }
+        }
 
+        // Using a DependencyProperty as the backing store for ScrollPosition.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty PlaylistPassToFlyoutProperty =
+            DependencyProperty.Register("PlaylistPassToFlyout", typeof(IPlaylist), typeof(VideoItemsListView), new PropertyMetadata(null));
+
+
+
+
+        public void ResetScrollPosition()
+        {
+            var scrollViweer = ItemsList.FindFirstChild<ScrollViewer>();
+            scrollViweer.ChangeView(null, 0, null);
+        }
 
 
 
@@ -137,11 +152,6 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
         private readonly VideoItemsSelectionContext _selectionContext;
 
 
-        public void ResetScrollPosition()
-        {
-            var scrollViweer = ItemsList.FindFirstChild<ScrollViewer>();
-            scrollViweer.ChangeView(null, 0, null);
-        }
 
 
         public VideoItemsListView()
@@ -172,7 +182,10 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
             ItemsList.ContextRequested += ItemsList_ContextRequested;
             
             // Update Video Item
-            ItemsList.ContainerContentChanging += ItemsList_ContainerContentChanging;
+            if (IsUpdateSourceVideoItem)
+            {
+                ItemsList.ContainerContentChanging += ItemsList_ContainerContentChanging;
+            }
         }
 
         private void ItemsList_ItemClick(object sender, ItemClickEventArgs e)
@@ -272,17 +285,19 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
         {
             var list = sender as ListViewBase;
 
-            var itemFlyout = ItemContextFlyout;
+            var itemFlyout = ItemContextFlyoutTemplate?.LoadContent() as FlyoutBase;
             if (itemFlyout == null) { return; }
 
             if (itemFlyout is VideoItemFlyout videoItemFlyout)
             {
                 if (list.SelectedItems.Count > 0)
                 {
+                    videoItemFlyout.Playlist = PlaylistPassToFlyout;
                     videoItemFlyout.VideoItems = list.SelectedItems.Cast<IVideoContent>().ToList();
                 }
                 else
                 {
+                    videoItemFlyout.Playlist = PlaylistPassToFlyout;
                     videoItemFlyout.VideoItems = null;
                 }
             }

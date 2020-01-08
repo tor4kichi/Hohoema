@@ -393,8 +393,6 @@ namespace NicoPlayerHohoema.ViewModels
                 }
             }
 
-            var list = new List<HohoemaListingPageItemBase>();
-
             return TimelineItems.Skip(head).Take(count).ToArray()
                 .Select<NicoRepoTimelineItem, HohoemaListingPageItemBase>(item => 
                 {

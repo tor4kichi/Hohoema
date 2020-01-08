@@ -37,6 +37,7 @@ using Prism.Navigation;
 using Prism.Services;
 using NicoPlayerHohoema.Models.LocalMylist;
 using Windows.Media.Playback;
+using Windows.UI.Xaml.Data;
 
 namespace NicoPlayerHohoema
 {
@@ -114,7 +115,7 @@ namespace NicoPlayerHohoema
 
         UIElement CreateShell(out Frame rootFrame)
         {
-            rootFrame = new Frame();
+            rootFrame = new Frame();            
             rootFrame.CacheSize = 5;
 
             rootFrame.NavigationFailed += (_, e) =>
@@ -231,6 +232,7 @@ namespace NicoPlayerHohoema
             unityContainer.RegisterSingleton<UseCase.Playlist.HohoemaPlaylist>();
             unityContainer.RegisterSingleton<UseCase.Playlist.LocalMylistManager>();
             unityContainer.RegisterSingleton<UseCase.Playlist.VideoItemsSelectionContext>();
+            unityContainer.RegisterSingleton<UseCase.Playlist.WatchHistoryManager>();
             
 
             // ViewModels
@@ -259,6 +261,7 @@ namespace NicoPlayerHohoema
             containerRegistry.RegisterForNavigation<Views.LiveInfomationPage>();
             containerRegistry.RegisterForNavigation<Views.LoginPage>();
             containerRegistry.RegisterForNavigation<Views.MylistPage>();
+            containerRegistry.RegisterForNavigation<Views.LocalPlaylistPage>();
             containerRegistry.RegisterForNavigation<Views.NicoRepoPage>();
             containerRegistry.RegisterForNavigation<Views.RankingCategoryListPage>();
             containerRegistry.RegisterForNavigation<Views.RankingCategoryPage>();

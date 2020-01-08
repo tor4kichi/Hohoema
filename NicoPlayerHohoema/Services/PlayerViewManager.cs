@@ -503,6 +503,8 @@ namespace NicoPlayerHohoema.Services
                     NowPlaying = true;
                     ToggleFullScreenWhenApplicationViewShowWithStandalone();
 
+                    await Task.Delay(250);
+
                     var result = await PrimaryViewPlayerNavigationService.NavigateAsync(pageType, parameter, new DrillInNavigationTransitionInfo());
                     if (!result.Success)
                     {

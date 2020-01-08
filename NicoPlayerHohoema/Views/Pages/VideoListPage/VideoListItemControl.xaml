@@ -59,15 +59,15 @@
       <StackPanel toolkit:DockPanel.Dock="Bottom" Orientation="Horizontal" Spacing="8">
         <TextBlock Opacity="0.7" FontSize="13" TextLineBounds="Tight">
           <Run Text="{x:Bind local:VideoListItemControl.LocalizedText_ViewCount_Short}" />
-          <Run Text="{Binding ViewCount, Mode=OneWay}" />
+          <Run Text="{Binding ViewCount, Mode=OneWay, Converter={StaticResource ToUserFriendlyNumber}}" />
         </TextBlock>
         <TextBlock Opacity="0.7" FontSize="13" TextLineBounds="Tight">
           <Run Text="{x:Bind local:VideoListItemControl.LocalizedText_CommentCount_Short}" />
-          <Run Text="{Binding CommentCount, Mode=OneWay}" />
+          <Run Text="{Binding CommentCount, Mode=OneWay, Converter={StaticResource ToUserFriendlyNumber}}" />
         </TextBlock>
         <TextBlock Opacity="0.7" FontSize="13" TextLineBounds="Tight">
           <Run Text="{x:Bind local:VideoListItemControl.LocalizedText_MylistCount_Short}" />
-          <Run Text="{Binding MylistCount, Mode=OneWay}" />
+          <Run Text="{Binding MylistCount, Mode=OneWay, Converter={StaticResource ToUserFriendlyNumber}}" />
         </TextBlock>
       </StackPanel>
 

@@ -190,7 +190,8 @@ namespace NicoPlayerHohoema.UseCase
                     ?? (_TogglePlayPauseCommand = new DelegateCommand(async () =>
                     {
                         var session = _mediaPlayer.PlaybackSession;
-                        if (session.PlaybackState == MediaPlaybackState.None)
+                        if (_mediaPlayer.Source == null 
+                        || session.PlaybackState == MediaPlaybackState.None)
                         {
                             await PlayAsync(startPosition: session.Position);
                         }

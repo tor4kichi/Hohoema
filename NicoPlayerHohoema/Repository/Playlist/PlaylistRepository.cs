@@ -117,9 +117,9 @@ namespace NicoPlayerHohoema.Repository.Playlist
             _playlistDbService.UpdateItem(playlist);
         }
 
-        public bool Delete(PlaylistEntity playlist)
+        public bool Delete(string playlistId)
         {
-            return _playlistDbService.DeleteItem(playlist);
+            return _playlistDbService.DeleteItem(playlistId);
         }
 
 
