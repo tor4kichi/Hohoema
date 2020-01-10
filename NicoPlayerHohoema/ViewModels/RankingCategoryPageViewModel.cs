@@ -27,7 +27,7 @@ using NicoPlayerHohoema.UseCase.Playlist;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class RankingCategoryPageViewModel : HohoemaListingPageViewModelBase<RankedVideoInfoControlViewModel>, INavigatedAwareAsync
+    public class RankingCategoryPageViewModel : HohoemaListingPageViewModelBase<RankedVideoInfoControlViewModel>, INavigatedAwareAsync, IPinablePage
     {
         static Models.Helpers.AsyncLock _updateLock = new Models.Helpers.AsyncLock();
         public RankingCategoryPageViewModel(
@@ -237,9 +237,6 @@ namespace NicoPlayerHohoema.ViewModels
 
                 _IsNavigateCompleted = true;
 
-                PageManager.PageTitle = RankingGenre.ToCulturelizeString();
-
-
                 HasError
                     .Where(x => x)
                     .Subscribe(async _ =>
@@ -335,6 +332,29 @@ namespace NicoPlayerHohoema.ViewModels
             _IsNavigateCompleted = true;
 
             base.PostResetList();
+        }
+
+        public HohoemaPin GetPin()
+        {
+            var genreName = RankingGenre.ToCulturelizeString();
+            var tag = SelectedRankingTag.Value?.Tag;
+            var pickedTag = PickedTags.FirstOrDefault(x => x.Tag == tag);
+            string parameter = null;
+            if (string.IsNullOrEmpty(pickedTag?.Tag) || pickedTag.Tag == "all")
+            {
+                pickedTag = null;
+                parameter = $"genre={RankingGenre}";
+            }
+            else
+            {
+                parameter = $"genre={RankingGenre}&tag={Uri.EscapeDataString(SelectedRankingTag.Value.Tag)}";
+            }
+            return new HohoemaPin()
+            {
+                Label = pickedTag != null ? $"{pickedTag.DisplayName} - {genreName}" : $"{genreName}",
+                PageType = HohoemaPageType.RankingCategory,
+                Parameter = parameter
+            };
         }
     }
 

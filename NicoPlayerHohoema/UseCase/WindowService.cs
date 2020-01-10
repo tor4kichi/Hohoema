@@ -17,14 +17,12 @@ namespace NicoPlayerHohoema.Services
 {
     public sealed class WindowService : BindableBase, IDisposable
     {
-        private readonly PlayerViewManager _playerViewManager;
         private readonly IScheduler _scheduler;
         private readonly ApplicationView _applicationView;
         CompositeDisposable _disposables = new CompositeDisposable();
 
-        public WindowService(PlayerViewManager playerViewManager, IScheduler scheduler)
+        public WindowService(IScheduler scheduler)
         {
-            _playerViewManager = playerViewManager;
             _scheduler = scheduler;
 
             _applicationView = ApplicationView.GetForCurrentView();
@@ -87,25 +85,12 @@ namespace NicoPlayerHohoema.Services
             {
                 IsCompactOverlay = new ReactiveProperty<bool>(_scheduler, false);
             }
-
-
-
-            IsSmallWindowModeEnable = _playerViewManager
-                .ObserveProperty(x => x.IsPlayerSmallWindowModeEnabled)
-                .ToReadOnlyReactiveProperty(eventScheduler: _scheduler)
-                .AddTo(_disposables);
-
-
         }
 
 
         // Settings
         public ReactiveProperty<bool> IsFullScreen { get; private set; }
         public ReactiveProperty<bool> IsCompactOverlay { get; private set; }
-        public ReadOnlyReactiveProperty<bool> IsSmallWindowModeEnable { get; private set; }
-
-
-
 
         // TODO
         // CompactOverlay
@@ -139,57 +124,6 @@ namespace NicoPlayerHohoema.Services
                     ));
             }
         }
-
-        private DelegateCommand _PlayerSmallWindowDisplayCommand;
-        public DelegateCommand PlayerSmallWindowDisplayCommand
-        {
-            get
-            {
-                return _PlayerSmallWindowDisplayCommand
-                    ?? (_PlayerSmallWindowDisplayCommand = new DelegateCommand(() =>
-                    {
-                        _playerViewManager.IsPlayerSmallWindowModeEnabled = true;
-                    }
-                    ));
-            }
-        }
-
-        private DelegateCommand _PlayerDisplayWithMainViewCommand;
-        public DelegateCommand PlayerDisplayWithMainViewCommand
-        {
-            get
-            {
-                return _PlayerDisplayWithMainViewCommand
-                    ?? (_PlayerDisplayWithMainViewCommand = new DelegateCommand(() =>
-                    {
-                        _ = _playerViewManager.ChangePlayerViewModeAsync(PlayerViewMode.PrimaryView);
-                    }
-                    ));
-            }
-        }
-
-        private DelegateCommand _PlayerDisplayWithSecondaryViewCommand;
-        public DelegateCommand PlayerDisplayWithSecondaryViewCommand
-        {
-            get
-            {
-                return _PlayerDisplayWithSecondaryViewCommand
-                    ?? (_PlayerDisplayWithSecondaryViewCommand = new DelegateCommand(() =>
-                    {
-                        _ = _playerViewManager.ChangePlayerViewModeAsync(PlayerViewMode.SecondaryView);
-                    }
-                    ));
-            }
-        }
-
-
-        private DelegateCommand _ClosePlayerCommand;
-        public DelegateCommand ClosePlayerCommand => _ClosePlayerCommand
-            ?? (_ClosePlayerCommand = new DelegateCommand(() =>
-            {
-                _playerViewManager.ClosePlayer();
-            }));
-
 
 
         public void Dispose()

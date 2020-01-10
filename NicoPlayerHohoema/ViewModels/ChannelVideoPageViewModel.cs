@@ -108,8 +108,6 @@ namespace NicoPlayerHohoema.ViewModels
                 FollowToggleButtonService.SetFollowTarget(this);
             }
 
-            PageManager.PageTitle = ChannelName;
-
             await base.OnNavigatedToAsync(parameters);
         }
 

@@ -73,8 +73,6 @@ namespace NicoPlayerHohoema.ViewModels
                 }
             }
 
-            PageManager.PageTitle = CommunityName;
-
             await base.OnNavigatedToAsync(parameters);
         }
 

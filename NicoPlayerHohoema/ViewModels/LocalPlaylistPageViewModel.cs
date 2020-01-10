@@ -73,8 +73,6 @@ namespace NicoPlayerHohoema.ViewModels
             Playlist = playlist;
 
             RefreshItems();
-
-            _pageManager.PageTitle = playlist.Label;
         }
 
         protected override bool TryGetHohoemaPin(out HohoemaPin pin)

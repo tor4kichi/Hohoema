@@ -70,7 +70,7 @@ namespace NicoPlayerHohoema.Models.Live
         ServiceTemporarilyUnavailable,
     }
 
-    public class NicoLiveVideo : FixPrism.BindableBaseWithFix, IDisposable
+    public class NicoLiveVideo : FixPrism.BindableBase, IDisposable
     {
         public NicoLiveVideo(
             string liveId,

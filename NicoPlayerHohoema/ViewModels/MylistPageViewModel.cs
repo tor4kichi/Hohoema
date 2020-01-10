@@ -341,7 +341,6 @@ namespace NicoPlayerHohoema.ViewModels
                             if (!string.IsNullOrWhiteSpace(resultText))
                             {
                                 localMylist.Label = resultText;
-                                PageManager.PageTitle = resultText;
                             }
                         }
 
@@ -369,8 +368,6 @@ namespace NicoPlayerHohoema.ViewModels
                                         mylist.DefaultSort = data.MylistDefaultSort;
                                         mylist.IconType = data.IconType;
                                         mylist.Description = data.Description;
-
-                                        PageManager.PageTitle = data.Name;
 
                                         // TODO: IsPublicなどの情報を表示
 
@@ -589,9 +586,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             EditMylistGroupCommand.RaiseCanExecuteChanged();
             DeleteMylistCommand.RaiseCanExecuteChanged();
-
-            PageManager.PageTitle = mylist.Label;
-
         }
        
 

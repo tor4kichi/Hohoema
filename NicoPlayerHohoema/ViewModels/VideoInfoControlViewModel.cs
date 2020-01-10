@@ -313,7 +313,6 @@ namespace NicoPlayerHohoema.ViewModels
             if (!string.IsNullOrWhiteSpace(thumbnailImage))
             {
                 AddImageUrl(thumbnailImage);
-                ThumbnailUrl ??= thumbnailImage;
             }
         }
 

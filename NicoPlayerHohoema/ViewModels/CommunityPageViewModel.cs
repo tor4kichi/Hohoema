@@ -261,8 +261,6 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 NowLoading = false;
             }
-
-            PageManager.PageTitle = CommunityName;
         }
 
 

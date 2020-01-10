@@ -35,14 +35,12 @@ namespace NicoPlayerHohoema.UseCase
         public VideoPlayer(
             MediaPlayer mediaPlayer,
             IScheduler scheduler,
-            HohoemaPlaylist hohoemaPlaylist,
-            PlayerViewManager playerViewManager
+            HohoemaPlaylist hohoemaPlaylist
             )
         {
             _mediaPlayer = mediaPlayer;
             _scheduler = scheduler;
             _hohoemaPlaylist = hohoemaPlaylist;
-            _playerViewManager = playerViewManager;
 
             // Playing Video
             IsPlayWithCache = new ReactiveProperty<bool>(_scheduler, false)
@@ -250,7 +248,6 @@ namespace NicoPlayerHohoema.UseCase
 
 
         private readonly HohoemaPlaylist _hohoemaPlaylist;
-        private readonly PlayerViewManager _playerViewManager;
 
         public ReactiveCommand PlayNextCommand { get; }
         public ReactiveCommand PlayPreviousCommand { get; }

@@ -42,6 +42,7 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Prism.Ioc;
 using NicoPlayerHohoema.Repository.Playlist;
+using NicoPlayerHohoema.Services.Player;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -69,7 +70,7 @@ namespace NicoPlayerHohoema.ViewModels
             AppearanceSettings appearanceSettings,
             HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
-            PlayerViewManager playerViewManager,
+            MediaPlayer mediaPlayer,
             NotificationService notificationService,
             DialogService dialogService,
             ExternalAccessService externalAccessService,
@@ -82,7 +83,9 @@ namespace NicoPlayerHohoema.ViewModels
             KeepActiveDisplayWhenPlaying keepActiveDisplayWhenPlaying,
             ObservableMediaPlayer observableMediaPlayer,
             WindowService windowService,
-            VideoEndedRecommendation videoEndedRecommendation
+            VideoEndedRecommendation videoEndedRecommendation,
+            PrimaryViewPlayerManager primaryViewPlayerManager,
+            TogglePlayerDisplayViewCommand togglePlayerDisplayViewCommand
             )
         {
             _scheduler = scheduler;
@@ -98,7 +101,6 @@ namespace NicoPlayerHohoema.ViewModels
             AppearanceSettings = appearanceSettings;
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
-            PlayerViewManager = playerViewManager;
             _NotificationService = notificationService;
             _HohoemaDialogService = dialogService;
             ExternalAccessService = externalAccessService;
@@ -108,6 +110,8 @@ namespace NicoPlayerHohoema.ViewModels
             _videoStreamingOriginOrchestrator = videoStreamingOriginOrchestrator;
             VideoPlayer = videoPlayer;
             CommentPlayer = commentPlayer;
+            PrimaryViewPlayerManager = primaryViewPlayerManager;
+            TogglePlayerDisplayViewCommand = togglePlayerDisplayViewCommand;
             ObservableMediaPlayer = observableMediaPlayer
                 .AddTo(_CompositeDisposable);
             WindowService = windowService
@@ -116,9 +120,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(_CompositeDisposable);
             _keepActiveDisplayWhenPlaying = keepActiveDisplayWhenPlaying
                 .AddTo(_CompositeDisposable);
-            MediaPlayer = playerViewManager.GetCurrentWindowMediaPlayer();
-
-
+            MediaPlayer = mediaPlayer;
         }
 
 
@@ -135,7 +137,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
-        public PlayerViewManager PlayerViewManager { get; }
+        public ScondaryViewPlayerManager PlayerViewManager { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
         public Commands.Mylist.CreateLocalMylistCommand CreateLocalMylistCommand { get; }
         public Commands.Mylist.CreateMylistCommand CreateMylistCommand { get; }
@@ -146,6 +148,8 @@ namespace NicoPlayerHohoema.ViewModels
         public Models.NiconicoSession NiconicoSession { get; }
         public VideoPlayer VideoPlayer { get; }
         public CommentPlayer CommentPlayer { get; }
+        public PrimaryViewPlayerManager PrimaryViewPlayerManager { get; }
+        public TogglePlayerDisplayViewCommand TogglePlayerDisplayViewCommand { get; }
         public ObservableMediaPlayer ObservableMediaPlayer { get; }
         public WindowService WindowService { get; }
         public VideoEndedRecommendation VideoEndedRecommendation { get; }

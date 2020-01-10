@@ -1,4 +1,5 @@
 ﻿using NicoPlayerHohoema.Database;
+using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Services;
@@ -26,7 +27,7 @@ namespace NicoPlayerHohoema.Services
 {
     public struct PageNavigationEventArgs
     {
-        public HohoemaPageType PageType { get; set; }
+        public string PageName { get; set; }
         public INavigationParameters Paramter { get; set; }
         public bool IsMainViewTarget { get; set; }
         public NavigationStackBehavior Behavior { get; set; }
@@ -39,144 +40,32 @@ namespace NicoPlayerHohoema.Services
         NotRemember,
     }
 
-    public class PageNavigationEvenet : PubSubEvent<PageNavigationEventArgs> { }
+    public class PageNavigationEvent : PubSubEvent<PageNavigationEventArgs> { }
 
 
     public class PageManager : BindableBase
     {
         public PageManager(
-            INavigationService ns,
             IScheduler scheduler,
             IEventAggregator eventAggregator,
             AppearanceSettings appearanceSettings,
             CacheSettings cacheSettings,
-            HohoemaPlaylist playlist,
-            PlayerViewManager playerViewManager,
-            DialogService dialogService
+            HohoemaPlaylist playlist
             )
         {
-            NavigationService = ns;
             Scheduler = scheduler;
             EventAggregator = eventAggregator;
             AppearanceSettings = appearanceSettings;
             CacheSettings = cacheSettings;
             HohoemaPlaylist = playlist;
-            PlayerViewManager = playerViewManager;
-            HohoemaDialogService = dialogService;
-
-            EventAggregator.GetEvent<PageNavigationEvenet>()
-                .Subscribe(args =>
-                {
-                    Navigation(args);
-                }
-                , ThreadOption.UIThread);
-
-            
-            SystemNavigationManager.GetForCurrentView().BackRequested += (_, e) => 
-            {
-                if (PlayerViewManager.IsMainView)
-                {
-                    // ウィンドウ全体で再生している場合 → バックキーで小窓表示へ移行
-                    // それ以外の場合 → ページのバック処理
-                    if (PlayerViewManager.IsPlayingWithPrimaryView
-                        && !PlayerViewManager.IsPlayerSmallWindowModeEnabled)
-                    {
-                        //PlayerViewManager.IsPlayerSmallWindowModeEnabled = true;
-                        e.Handled = true;
-                    }
-                    else if (NavigationService.CanGoBack())
-                    {
-                        _ = NavigationService.GoBackAsync();
-                        e.Handled = true;
-                    }
-                }
-            };
         }
 
 
-        void Navigation(PageNavigationEventArgs args)
-        {
-            
-            var pageType = args.PageType;
-            var parameter = args.Paramter;
-            var behavior = args.Behavior;
-
-            Scheduler.Schedule(async () =>
-            {
-                var isMainView = CoreApplication.GetCurrentView().IsMain;
-                if (!args.IsMainViewTarget || !isMainView)
-                {
-                    return;
-                }
-
-                using (var releaser = await _NavigationLock.LockAsync())
-                {
-                    // メインウィンドウでウィンドウ全体で再生している場合は
-                    // 強制的に小窓モードに切り替えてページを表示する
-                    if (!PlayerViewManager.IsPlayerSmallWindowModeEnabled
-                       && PlayerViewManager.IsPlayingWithPrimaryView)
-                    {
-                        PlayerViewManager.IsPlayerSmallWindowModeEnabled = true;
-                    }
-
-                    PageNavigating = true;
-
-                    try
-                    {
-                        var prefix = behavior == NavigationStackBehavior.Root ? "/" : String.Empty;
-                        var result = await NavigationService.NavigateAsync($"{prefix}{pageType.ToString()}Page", parameter);
-                        if (result.Success)
-                        {
-                            PageTitle = PageTitle ?? PageTypeToTitle(pageType);
-
-                            if (behavior == NavigationStackBehavior.NotRemember /*|| IsIgnoreRecordPageType(oldPageType)*/)
-                            {
-                                ForgetLastPage();
-                            }
-                        }
-
-                        Debug.WriteLineIf(!result.Success, result.Exception?.ToString());
-                    }
-                    finally
-                    {
-                        PageNavigating = false;
-                    }
-
-                    _ = PlayerViewManager.ShowMainView();
-                }
-            });
-        }
-
-        string _previousPageTitle;
-        public void RefrectNavigating(Windows.UI.Xaml.Navigation.NavigatingCancelEventArgs e)
-        {
-            _previousPageTitle = PageTitle;
-            PageTitle = null;
-        }
-
-        public void RefrectNavigationState(Windows.UI.Xaml.Navigation.NavigationEventArgs e)
-        {
-            if (e.NavigationMode == Windows.UI.Xaml.Navigation.NavigationMode.Back
-                    || e.NavigationMode == Windows.UI.Xaml.Navigation.NavigationMode.Forward)
-            {
-                var pageNameRaw = e.SourcePageType.FullName.Split('.').LastOrDefault();
-                var pageName = pageNameRaw.Split('_').FirstOrDefault();
-                if (Enum.TryParse(pageName.Substring(0, pageName.Length - 4), out HohoemaPageType pageType))
-                {
-                    CurrentPageType = pageType;
-                    PageTitle = PageTitle ?? PageTypeToTitle(CurrentPageType);
-                }
-            }
-        }
-        public void RefrectNavigateFailed(Windows.UI.Xaml.Navigation.NavigationFailedEventArgs e)
-        {
-            PageTitle = _previousPageTitle;
-        }
-
-
-        public bool IsMainView = CoreApplication.GetCurrentView().IsMain;
-
-        public static int MainViewId = ApplicationView.GetApplicationViewIdForWindow(CoreApplication.MainView.CoreWindow);
+        public HohoemaPlaylist HohoemaPlaylist { get; private set; }
+        public AppearanceSettings AppearanceSettings { get; }
+        public CacheSettings CacheSettings { get; }
+        public IScheduler Scheduler { get; }
+        public IEventAggregator EventAggregator { get; }
 
         public static readonly HashSet<HohoemaPageType> IgnoreRecordNavigationStack = new HashSet<HohoemaPageType>
         {
@@ -199,33 +88,6 @@ namespace NicoPlayerHohoema.Services
         {
             return DontNeedMenuPageTypes.Contains(pageType);
         }
-
-        public INavigationService NavigationService { get; private set; }
-
-        private string _PageTitle;
-        public string PageTitle
-        {
-            get { return _PageTitle; }
-            set { SetProperty(ref _PageTitle, value); }
-        }
-
-        private bool _PageNavigating;
-        public bool PageNavigating
-        {
-            get { return _PageNavigating; }
-            set { SetProperty(ref _PageNavigating, value); }
-        }
-
-        public HohoemaPlaylist HohoemaPlaylist { get; private set; }
-        public AppearanceSettings AppearanceSettings { get; }
-        public CacheSettings CacheSettings { get; }
-        public PlayerViewManager PlayerViewManager { get; }
-        public IScheduler Scheduler { get; }
-        public IEventAggregator EventAggregator { get; }
-        public DialogService HohoemaDialogService { get; }
-
-
-        private Models.Helpers.AsyncLock _NavigationLock = new Models.Helpers.AsyncLock();
 
 
         /// <summary>
@@ -250,7 +112,7 @@ namespace NicoPlayerHohoema.Services
                             break;
                         }
 
-                    case ViewModels.MenuItemViewModel item:
+                    case IPageNavigatable item:
                         if (item.Parameter != null)
                         {
                             OpenPage(item.PageType, item.Parameter);
@@ -260,7 +122,7 @@ namespace NicoPlayerHohoema.Services
                             OpenPage(item.PageType, default(string));
                         }
                         break;
-                    case ViewModels.PinItemViewModel pin:
+                    case HohoemaPin pin:
                         OpenPage(pin.PageType, pin.Parameter);
                         break;
                     case Interfaces.IVideoContent videoContent:
@@ -454,15 +316,21 @@ namespace NicoPlayerHohoema.Services
 
         public void OpenDebugPage()
         {
-            NavigationService.NavigateAsync(nameof(Views.DebugPage));
+            EventAggregator.GetEvent<PageNavigationEvent>()
+                .Publish(new PageNavigationEventArgs()
+                {
+                    PageName = nameof(Views.DebugPage),
+                    IsMainViewTarget = true,
+                    Behavior = NavigationStackBehavior.NotRemember,
+                });
         }
 
 		public void OpenPage(HohoemaPageType pageType, INavigationParameters parameter = null, NavigationStackBehavior stackBehavior = NavigationStackBehavior.Push)
 		{
-            EventAggregator.GetEvent<PageNavigationEvenet>()
+            EventAggregator.GetEvent<PageNavigationEvent>()
                 .Publish(new PageNavigationEventArgs()
                 {
-                    PageType = pageType,
+                    PageName = _pageTypeToName[pageType],
                     Paramter = parameter,
                     IsMainViewTarget = true,
                     Behavior = stackBehavior,
@@ -472,10 +340,10 @@ namespace NicoPlayerHohoema.Services
         public void OpenPage(HohoemaPageType pageType, string parameterString, NavigationStackBehavior stackBehavior = NavigationStackBehavior.Push)
         {
             INavigationParameters parameter = new NavigationParameters(parameterString);
-            EventAggregator.GetEvent<PageNavigationEvenet>()
+            EventAggregator.GetEvent<PageNavigationEvent>()
                 .Publish(new PageNavigationEventArgs()
                 {
-                    PageType = pageType,
+                    PageName = _pageTypeToName[pageType],
                     Paramter = parameter,
                     IsMainViewTarget = true,
                     Behavior = stackBehavior,
@@ -485,16 +353,19 @@ namespace NicoPlayerHohoema.Services
         public void OpenPageWithId(HohoemaPageType pageType, string id, NavigationStackBehavior stackBehavior = NavigationStackBehavior.Push)
         {
             INavigationParameters parameter = new NavigationParameters($"id={id}");
-            EventAggregator.GetEvent<PageNavigationEvenet>()
+            EventAggregator.GetEvent<PageNavigationEvent>()
                 .Publish(new PageNavigationEventArgs()
                 {
-                    PageType = pageType,
+                    PageName = _pageTypeToName[pageType],
                     Paramter = parameter,
                     IsMainViewTarget = true,
                     Behavior = stackBehavior,
                 });
         }
 
+
+        static readonly Dictionary<HohoemaPageType, string> _pageTypeToName = Enum.GetValues(typeof(HohoemaPageType))
+            .Cast<HohoemaPageType>().Select(x => (x, x + "Page")).ToDictionary(x => x.x, x => x.Item2);
 
 
         public bool IsIgnoreRecordPageType(HohoemaPageType pageType)
@@ -631,79 +502,5 @@ namespace NicoPlayerHohoema.Services
 		{
             return pageType.ToCulturelizeString();
 		}
-
-
-        #region Working Popup (with bloking UI)
-
-
-        public async Task StartNoUIWork(string title, Func<IAsyncAction> actionFactory)
-        {
-            StartWork?.Invoke(title, 1);
-
-            using (var cancelSource = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
-            {
-                await actionFactory().AsTask(cancelSource.Token);
-
-                ProgressWork?.Invoke(1);
-
-                await Task.Delay(1000);
-
-                if (cancelSource.IsCancellationRequested)
-                {
-                    CancelWork?.Invoke();
-                }
-                else
-                {
-                    CompleteWork?.Invoke();
-                }
-            }
-        }
-        public async Task StartNoUIWork(string title, int totalCount, Func<IAsyncActionWithProgress<uint>> actionFactory)
-        {
-            StartWork?.Invoke(title, (uint)totalCount);
-
-            var progressHandler = new Progress<uint>((x) => ProgressWork?.Invoke(x));
-
-            using (var cancelSource = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
-            {
-                await actionFactory().AsTask(cancelSource.Token, progressHandler);
-
-                await Task.Delay(500);
-
-                if (cancelSource.IsCancellationRequested)
-                {
-                    CancelWork?.Invoke();
-                }
-                else
-                {
-                    CompleteWork?.Invoke();
-                }
-            }
-        }
-
-        public event StartExcludeUserInputWorkHandler StartWork;
-        public event ProgressExcludeUserInputWorkHandler ProgressWork;
-        public event CompleteExcludeUserInputWorkHandler CompleteWork;
-        public event CancelExcludeUserInputWorkHandler CancelWork;
-
-
-
-        #endregion
-
-
-
-
     }
-
-
-    public delegate void StartExcludeUserInputWorkHandler(string title, uint totalCount);
-	public delegate void ProgressExcludeUserInputWorkHandler(uint count);
-	public delegate void CompleteExcludeUserInputWorkHandler();
-	public delegate void CancelExcludeUserInputWorkHandler();
-
-
-
-
-	
-	
 }

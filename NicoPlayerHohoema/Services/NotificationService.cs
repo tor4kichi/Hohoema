@@ -21,7 +21,7 @@ namespace NicoPlayerHohoema.Services
     public sealed class HohoemaNotificationService
     {
         private static readonly TimeSpan DefaultNotificationShowDuration = TimeSpan.FromSeconds(20);
-        private readonly PlayerViewManager _playerViewManager;
+        private readonly IEventAggregator _eventAggregator;
 
         public PageManager PageManager { get; }
         public HohoemaPlaylist Playlist { get; }
@@ -33,10 +33,10 @@ namespace NicoPlayerHohoema.Services
         public Models.Provider.UserProvider UserProvider { get; }
 
         public HohoemaNotificationService(
+            IEventAggregator eventAggregator,
             PageManager pageManager,
             HohoemaPlaylist playlist,
             NotificationService notificationService,
-            PlayerViewManager playerViewManager,
             Models.Provider.NicoVideoProvider nicoVideoProvider,
             Models.Provider.MylistProvider mylistProvider,
             Models.Provider.NicoLiveProvider nicoLiveProvider,
@@ -44,10 +44,10 @@ namespace NicoPlayerHohoema.Services
             Models.Provider.UserProvider userProvider
             )
         {
+            _eventAggregator = eventAggregator;
             PageManager = pageManager;
             Playlist = playlist;
             NotificationService = notificationService;
-            _playerViewManager = playerViewManager;
             NicoVideoProvider = nicoVideoProvider;
             MylistProvider = mylistProvider;
             NicoLiveProvider = nicoLiveProvider;
@@ -159,7 +159,8 @@ namespace NicoPlayerHohoema.Services
                             Label = "視聴する",
                             Command = new DelegateCommand(() =>
                             {
-                                _ = _playerViewManager.PlayWithCurrentPlayerView(new LiveVideoPlaylistItem(liveId, liveTitle));
+                                _eventAggregator.GetEvent<Services.Player.PlayerPlayLiveRequest>()
+                                    .Publish(new Services.Player.PlayerPlayLiveRequestEventArgs() { LiveId = liveId });
 
                                 NotificationService.DismissInAppNotification();
                             })

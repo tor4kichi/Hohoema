@@ -259,8 +259,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             Database.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
 
-            PageManager.PageTitle = $"\"{SearchOption.Keyword}\"";
-
             return base.OnNavigatedToAsync(parameters);
         }
 

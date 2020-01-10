@@ -282,8 +282,6 @@ namespace NicoPlayerHohoema.ViewModels
                 throw new Exception("UserMylistPage が不明なパラメータと共に開かれました : " + parameters.ToString());
             }
 
-            PageManager.PageTitle = UserName;
-
             AddMylistGroupCommand.RaiseCanExecuteChanged();
 
             await base.OnNavigatedToAsync(parameters);

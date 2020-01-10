@@ -283,8 +283,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             RaisePropertyChanged(nameof(TagSearchBookmark));
 
-            PageManager.PageTitle = $"\"{SearchOption.Keyword}\"";
-
             return base.OnNavigatedToAsync(parameters);
         }
 

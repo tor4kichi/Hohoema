@@ -73,11 +73,11 @@ namespace NicoPlayerHohoema.ViewModels
             UserProvider userProvider,
             CommunityProvider communityProvider,
             HohoemaPlaylist hohoemaPlaylist,
-            PlayerViewManager playerViewManager,
             Services.DialogService dialogService,
             PageManager pageManager,
             NotificationService notificationService,
-            ExternalAccessService externalAccessService
+            ExternalAccessService externalAccessService,
+            MediaPlayer mediaPlayer
             )
         {
             Scheduler = scheduler;
@@ -91,13 +91,12 @@ namespace NicoPlayerHohoema.ViewModels
             UserProvider = userProvider;
             CommunityProvider = communityProvider;
             HohoemaPlaylist = hohoemaPlaylist;
-            PlayerViewManager = playerViewManager;
 
             _HohoemaDialogService = dialogService;
             PageManager = pageManager;
             _NotificationService = notificationService;
             ExternalAccessService = externalAccessService;
-            MediaPlayer = PlayerViewManager.GetCurrentWindowMediaPlayer();
+            MediaPlayer = mediaPlayer;
 
             LiveComments = new ReadOnlyObservableCollection<Comment>(_LiveComments);
             FilterdComments.Source = LiveComments;
@@ -298,13 +297,6 @@ namespace NicoPlayerHohoema.ViewModels
                     }
                 })
             .AddTo(_CompositeDisposable);
-
-
-            IsSmallWindowModeEnable = PlayerViewManager
-                .ObserveProperty(x => x.IsPlayerSmallWindowModeEnabled)
-                .ToReadOnlyReactiveProperty(eventScheduler: PlayerWindowUIDispatcherScheduler)
-                .AddTo(_CompositeDisposable);
-
 
             Suggestion = new ReactiveProperty<LiveSuggestion>(PlayerWindowUIDispatcherScheduler);
             HasSuggestion = Suggestion.Select(x => x != null)
@@ -516,7 +508,6 @@ namespace NicoPlayerHohoema.ViewModels
         public ExternalAccessService ExternalAccessService { get; }
 
         private NotificationService _NotificationService;
-        public PlayerViewManager PlayerViewManager { get; }
 
 
         public MediaPlayer MediaPlayer { get; private set; }
@@ -682,25 +673,6 @@ namespace NicoPlayerHohoema.ViewModels
         // Side Pane Content
 
 
-
-        #region Command
-
-        private DelegateCommand _ClosePlayerCommand;
-        public DelegateCommand ClosePlayerCommand
-        {
-            get
-            {
-                return _ClosePlayerCommand
-                    ?? (_ClosePlayerCommand = new DelegateCommand(() =>
-                    {
-                        PlayerViewManager.ClosePlayer();
-                    }
-                    ));
-            }
-        }
-
-
-
         public ReactiveCommand RefreshCommand { get; private set; }
 
         public ReactiveCommand TogglePlayPauseCommand { get; private set; }
@@ -795,48 +767,6 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        private DelegateCommand _PlayerSmallWindowDisplayCommand;
-        public DelegateCommand PlayerSmallWindowDisplayCommand
-        {
-            get
-            {
-                return _PlayerSmallWindowDisplayCommand
-                    ?? (_PlayerSmallWindowDisplayCommand = new DelegateCommand(() =>
-                    {
-                        PlayerViewManager.IsPlayerSmallWindowModeEnabled = true;
-                    }
-                    ));
-            }
-        }
-
-        private DelegateCommand _PlayerDisplayWithMainViewCommand;
-        public DelegateCommand PlayerDisplayWithMainViewCommand
-        {
-            get
-            {
-                return _PlayerDisplayWithMainViewCommand
-                    ?? (_PlayerDisplayWithMainViewCommand = new DelegateCommand(() =>
-                    {
-                        _ = PlayerViewManager.ChangePlayerViewModeAsync(PlayerViewMode.PrimaryView);
-                    }
-                    ));
-            }
-        }
-
-        private DelegateCommand _PlayerDisplayWithSecondaryViewCommand;
-        public DelegateCommand PlayerDisplayWithSecondaryViewCommand
-        {
-            get
-            {
-                return _PlayerDisplayWithSecondaryViewCommand
-                    ?? (_PlayerDisplayWithSecondaryViewCommand = new DelegateCommand(() =>
-                    {
-                        _ = PlayerViewManager.ChangePlayerViewModeAsync(PlayerViewMode.SecondaryView);
-                    }
-                    ));
-            }
-        }
-
 
         private DelegateCommand _ShareCommand;
         public DelegateCommand ShareCommand
@@ -897,7 +827,6 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        #endregion
 
 
 

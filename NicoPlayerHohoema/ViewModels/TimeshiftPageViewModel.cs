@@ -18,6 +18,7 @@ using System.ComponentModel;
 using System.Collections.ObjectModel;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.Services;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -27,24 +28,25 @@ namespace NicoPlayerHohoema.ViewModels
             LoginUserLiveReservationProvider loginUserLiveReservationProvider,
             NicoLiveProvider nicoLiveProvider,
             HohoemaPlaylist hohoemaPlaylist,
-            Services.PageManager pageManager, 
+            NoUIProcessScreenContext noUIProcessScreenContext, 
             Services.DialogService dialogService
             ) 
         {
             LoginUserLiveReservationProvider = loginUserLiveReservationProvider;
             NicoLiveProvider = nicoLiveProvider;
             HohoemaPlaylist = hohoemaPlaylist;
-            PageManager = pageManager;
+            _noUIProcessScreenContext = noUIProcessScreenContext;
             DialogService = dialogService;
         }
 
         public LoginUserLiveReservationProvider LoginUserLiveReservationProvider { get; }
         public NicoLiveProvider NicoLiveProvider { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
-        public Services.PageManager PageManager { get; }
         public Services.DialogService DialogService { get; }
 
         private DelegateCommand _DeleteOutdatedReservations;
+        private readonly NoUIProcessScreenContext _noUIProcessScreenContext;
+
         public DelegateCommand DeleteOutdatedReservations 
         {
             get
@@ -68,12 +70,12 @@ namespace NicoPlayerHohoema.ViewModels
 
                         if (!acceptDeletion) { return; }
 
-                        await PageManager.StartNoUIWork(
+                        await _noUIProcessScreenContext.StartNoUIWork(
                             "DeletingReservations".ToCulturelizeString()
                             , dateOutReservations.Count,
-                            () => AsyncInfo.Run<uint>(async (cancelToken, progress) =>
+                            () => AsyncInfo.Run<int>(async (cancelToken, progress) =>
                             {
-                                uint cnt = 0;
+                                int cnt = 0;
                                 var token = await LoginUserLiveReservationProvider.GetReservationTokenAsync();
 
                                 foreach (var reservation in dateOutReservations)

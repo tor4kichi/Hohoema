@@ -29,7 +29,7 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
             PlaylistSettings playlistSettings,
             RelatedVideoContentsAggregator relatedVideoContentsAggregator,
             HohoemaPlaylist hohoemaPlaylist,
-            PlayerViewManager playerViewManager
+            ScondaryViewPlayerManager playerViewManager
             )
         {
             _mediaPlayer = mediaPlayer;
@@ -105,6 +105,9 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
 
         bool TryPlaylistEndActionPlayerClosed()
         {
+            return false;
+            // TODO: PrimaryViewPlayerManagerを通して実装する？
+            /*
             if (_playerViewManager.IsPlayerShowWithPrimaryView)
             {
                 switch (_playlistSettings.PlaylistEndAction)
@@ -113,7 +116,7 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
                         _playerViewManager.IsPlayerSmallWindowModeEnabled = true;
                         return true;
                     case PlaylistEndAction.CloseIfPlayWithCurrentWindow:
-                        _playerViewManager.ClosePlayer();
+                        _playerViewManager.ClosePlayerAsync();
                         return true;
                 }
 
@@ -123,6 +126,7 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
             {
                 return false;
             }
+            */
         }
 
 
@@ -134,7 +138,7 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
         private readonly PlaylistSettings _playlistSettings;
         private readonly RelatedVideoContentsAggregator _relatedVideoContentsAggregator;
         private readonly HohoemaPlaylist _hohoemaPlaylist;
-        private readonly PlayerViewManager _playerViewManager;
+        private readonly ScondaryViewPlayerManager _playerViewManager;
 
         public ReactiveProperty<bool> IsEnded { get; }
 

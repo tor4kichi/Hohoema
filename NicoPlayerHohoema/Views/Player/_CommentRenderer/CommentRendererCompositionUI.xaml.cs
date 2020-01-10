@@ -40,7 +40,6 @@ namespace NicoPlayerHohoema.Views
             Loaded += CommentRendererCompositionUI_Loaded;
             Unloaded += CommentRendererCompositionUI_Unloaded;
 
-
             NGSettings = App.Current.Container.Resolve<NGSettings>();
         }
 
@@ -172,7 +171,7 @@ namespace NicoPlayerHohoema.Views
             }
         }
 
-        private void CommentRendererCompositionUI_Unloaded(object sender, RoutedEventArgs e)
+        private async void CommentRendererCompositionUI_Unloaded(object sender, RoutedEventArgs e)
         {
             this.SizeChanged -= CommentRendererCompositionUI_SizeChanged;
 
@@ -181,12 +180,15 @@ namespace NicoPlayerHohoema.Views
 
             _ = StopUpdateTimer();
 
-            foreach (var renderComment in RenderComments)
+            using (await _UpdateLock.LockAsync())
             {
-                renderComment.Offset(0).Fade(0).SetDurationForAll(0).Start();
-            }
+                foreach (var renderComment in RenderComments)
+                {
+                    renderComment.Offset(0).Fade(0).SetDurationForAll(0).Start();
+                }
 
-            RenderComments.Clear();
+                RenderComments.Clear();
+            }
 
             var mediaPlayer = MediaPlayer;
             if (mediaPlayer != null)
@@ -255,7 +257,7 @@ namespace NicoPlayerHohoema.Views
 
                     if (MediaPlayer == null)
                     {
-                        StopUpdateTimer();
+                        _ = StopUpdateTimer();
                         return;
                     }
 
@@ -888,7 +890,7 @@ namespace NicoPlayerHohoema.Views
         {
             var me = sender as CommentRendererCompositionUI;
 
-            me.ResetUpdateTimer();
+            _ = me.ResetUpdateTimer();
         }
 
 
@@ -945,7 +947,7 @@ namespace NicoPlayerHohoema.Views
                     oldMediaPlayer.PlaybackSession.SeekCompleted -= me.PlaybackSession_SeekCompleted;
                     oldMediaPlayer.SourceChanged -= me.MediaPlayer_SourceChanged;
                 }
-                me.StopUpdateTimer();
+                _ = me.StopUpdateTimer();
             }
             else
             {
@@ -991,9 +993,9 @@ namespace NicoPlayerHohoema.Views
         private MediaPlaybackState? PlaybackState = null;
         private async void PlaybackSession_PlaybackStateChanged(MediaPlaybackSession sender, object args)
         {
-            using (var releaser = await _UpdateLock.LockAsync())
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
             {
-                await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () =>
+                using (var releaser = await _UpdateLock.LockAsync())
                 {
                     if (MediaPlayer == null || MediaPlayer.Source == null)
                     {
@@ -1038,13 +1040,13 @@ namespace NicoPlayerHohoema.Views
 
                             }
 
-                            
+
                         }
 
                         _ = ResetUpdateTimer();
                     }
-                });
-            }
+                }
+            });
         }
 
 

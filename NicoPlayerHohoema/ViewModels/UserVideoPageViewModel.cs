@@ -64,8 +64,6 @@ namespace NicoPlayerHohoema.ViewModels
                 }
             }
 
-            PageManager.PageTitle = UserName;
-
             await base.OnNavigatedToAsync(parameters);
         }
 

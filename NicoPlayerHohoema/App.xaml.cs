@@ -38,6 +38,8 @@ using Prism.Services;
 using NicoPlayerHohoema.Models.LocalMylist;
 using Windows.Media.Playback;
 using Windows.UI.Xaml.Data;
+using Prism.Events;
+using NicoPlayerHohoema.Services.Player;
 
 namespace NicoPlayerHohoema
 {
@@ -113,68 +115,16 @@ namespace NicoPlayerHohoema
             base.OnStart(args);
         }
 
-        UIElement CreateShell(out Frame rootFrame)
+        UIElement CreateShell()
         {
-            rootFrame = new Frame();            
-            rootFrame.CacheSize = 5;
-
-            rootFrame.NavigationFailed += (_, e) =>
-            {
-                Debug.WriteLine("Page navigation failed!!");
-                Debug.WriteLine(e.SourcePageType.AssemblyQualifiedName);
-                Debug.WriteLine(e.Exception.ToString());
-
-                _ = OutputErrorFile(e.Exception, e.SourcePageType?.AssemblyQualifiedName);
-            };
-
-
-            rootFrame.Navigating += (_, e) =>
-            {
-                var pageManager = Container.Resolve<PageManager>();
-                pageManager.RefrectNavigating(e);
-            };
-
-            rootFrame.Navigated += (_, e) =>
-            {
-                var pageManager = Container.Resolve<PageManager>();
-                pageManager.RefrectNavigationState(e);
-            };
-            rootFrame.NavigationFailed += (_, e) =>
-            {
-                var pageManager = Container.Resolve<PageManager>();
-                pageManager.RefrectNavigateFailed(e);
-            };
+            
             // Grid
             //   |- HohoemaInAppNotification
             //   |- PlayerWithPageContainerViewModel
             //   |    |- MenuNavigatePageBaseViewModel
             //   |         |- rootFrame 
 
-            var menuPageBase = new Views.MenuNavigatePageBase()
-            {
-                Content = rootFrame,
-            };
-
-
-            Views.PlayerWithPageContainer playerWithPageContainer = new Views.PlayerWithPageContainer()
-            {
-                Content = menuPageBase,
-            };
-
-            playerWithPageContainer.ObserveDependencyProperty(Views.PlayerWithPageContainer.FrameProperty)
-                .Where(x => x != null)
-                .Take(1)
-                .Subscribe(async frame =>
-                {
-                    var ns = Prism.Navigation.NavigationService.Create(playerWithPageContainer.Frame);
-
-                    var name = nameof(PlayerViewManager.PrimaryViewPlayerNavigationService);
-                    Container.GetContainer().RegisterInstance(name, ns as INavigationService);
-                });
-
-
-
-
+            var primaryWindowCoreLayout = Container.Resolve<Views.PrimaryWindowCoreLayout>();
             var hohoemaInAppNotification = new Views.HohoemaInAppNotification()
             {
                 VerticalAlignment = VerticalAlignment.Bottom
@@ -184,15 +134,22 @@ namespace NicoPlayerHohoema
             {
                 Children =
                 {
-                    playerWithPageContainer,
+                    primaryWindowCoreLayout,
                     hohoemaInAppNotification,
                 }
             };
 
+            var primaryWindowContentNavigationService = primaryWindowCoreLayout.CreateNavigationService();
+            Container.GetContainer().RegisterInstance(primaryWindowContentNavigationService);
+
+            var primaryViewPlayerNavigationService = primaryWindowCoreLayout.CreatePlayerNavigationService();
+            var name = "PrimaryPlayerNavigationService";
+            Container.GetContainer().RegisterInstance(name, primaryViewPlayerNavigationService);
+
+
 
 #if DEBUG
-            menuPageBase.FocusEngaged += (__, args) => Debug.WriteLine("focus engagad: " + args.OriginalSource.ToString());
-
+            primaryWindowCoreLayout.FocusEngaged += (__, args) => Debug.WriteLine("focus engagad: " + args.OriginalSource.ToString());
 #endif
 
             return grid;
@@ -208,14 +165,18 @@ namespace NicoPlayerHohoema
             // 各ウィンドウごとのスケジューラを作るように
             unityContainer.RegisterType<IScheduler>(new PerThreadLifetimeManager(), new InjectionFactory(c => SynchronizationContext.Current != null ? new SynchronizationContextScheduler(SynchronizationContext.Current) : null));
 
+            unityContainer.RegisterInstance("MainWindowScheduler", unityContainer.Resolve<IScheduler>());
+
             // MediaPlayerを各ウィンドウごとに一つずつ作るように
-            unityContainer.RegisterType<MediaPlayer>(new PerThreadLifetimeManager(), new InjectionFactory(c => c.Resolve<PlayerViewManager>().GetCurrentWindowMediaPlayer()));
+            unityContainer.RegisterType<MediaPlayer>(new PerThreadLifetimeManager());
             
             // Service
             unityContainer.RegisterType<Services.PageManager>(new PerThreadLifetimeManager());
-            unityContainer.RegisterType<PlayerViewManager>(new PerThreadLifetimeManager());
+            unityContainer.RegisterSingleton<PrimaryViewPlayerManager>();
+            unityContainer.RegisterSingleton<ScondaryViewPlayerManager>();
             unityContainer.RegisterSingleton<Services.NiconicoLoginService>();
             unityContainer.RegisterSingleton<Services.DialogService>();
+            unityContainer.RegisterSingleton<NoUIProcessScreenContext>();
 
             // Models
             unityContainer.RegisterSingleton<Models.NiconicoSession>();
@@ -234,6 +195,7 @@ namespace NicoPlayerHohoema
             unityContainer.RegisterSingleton<UseCase.Playlist.VideoItemsSelectionContext>();
             unityContainer.RegisterSingleton<UseCase.Playlist.WatchHistoryManager>();
             
+
 
             // ViewModels
             unityContainer.RegisterSingleton<ViewModels.RankingCategoryListPageViewModel>();
@@ -321,7 +283,7 @@ namespace NicoPlayerHohoema
                 unityContainer.RegisterInstance(settings.PlayerSettings);
                 unityContainer.RegisterInstance(settings.PlaylistSettings);
                 unityContainer.RegisterInstance(settings.RankingSettings);
-
+                
                 // ログイン前にログインセッションによって状態が変化するフォローとマイリストの初期化
                 var followManager = Container.Resolve<FollowManager>();
                 var mylitManager = Container.Resolve<UserMylistManager>();
@@ -395,22 +357,19 @@ namespace NicoPlayerHohoema
                 var appearanceSettings = Container.Resolve<AppearanceSettings>();
                 Resources["IsTVModeEnabled"] = Services.Helpers.DeviceTypeHelper.IsXbox || appearanceSettings.IsForceTVModeEnable;
 
-                var layout = CreateShell(out var frame);
-                var ns = Prism.Navigation.NavigationService.Create(frame, Window.Current.CoreWindow, /*Gesture.Back, */ Gesture.Forward, Gesture.Refresh);
 
-                Container.GetContainer().RegisterInstance(ns);
-
-                Window.Current.Content = layout;
+                // ウィンドウコンテンツを作成
+                Window.Current.Content = CreateShell();
 
                 // ウィンドウサイズの保存と復元
                 if (Services.Helpers.DeviceTypeHelper.IsDesktop)
                 {
                     var localObjectStorageHelper = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
-                    if (localObjectStorageHelper.KeyExists(PlayerViewManager.primary_view_size))
+                    if (localObjectStorageHelper.KeyExists(ScondaryViewPlayerManager.primary_view_size))
                     {
                         var view = ApplicationView.GetForCurrentView();
                         MainViewId = view.Id;
-                        _PrevWindowSize = localObjectStorageHelper.Read<Size>(PlayerViewManager.primary_view_size);
+                        _PrevWindowSize = localObjectStorageHelper.Read<Size>(ScondaryViewPlayerManager.primary_view_size);
                         view.TryResizeView(_PrevWindowSize);
                         ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.Auto;
                     }
@@ -459,7 +418,6 @@ namespace NicoPlayerHohoema
                 unityContainer.RegisterInstance(unityContainer.Resolve<Services.WatchItLater>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationCacheVideoDeletedService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationMylistUpdatedService>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<Services.Page.PreventBackNavigationOnShowPlayerService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.CheckingClipboardAndNotificationService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationFollowUpdatedService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationCacheRequestRejectedService>());
@@ -717,10 +675,10 @@ namespace NicoPlayerHohoema
         private void PlayLiveVideoFromExternal(string videoId)
         {
             // TODO: ログインが必要な生放送かをチェックしてログインダイアログを出す
-
-            var playerViewManager = Container.Resolve<PlayerViewManager>();
-
-            _ = playerViewManager.PlayWithCurrentPlayerView(new UseCase.Playlist.LiveVideoPlaylistItem(videoId, null));
+            
+            var ea = Container.Resolve<IEventAggregator>();
+            ea.GetEvent<Services.Player.PlayerPlayLiveRequest>()
+                .Publish(new Services.Player.PlayerPlayLiveRequestEventArgs() { LiveId = videoId });
         }
 
 
@@ -827,8 +785,8 @@ namespace NicoPlayerHohoema
                 if (MainViewId == sender.Id)
                 {
                     var localObjectStorageHelper = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
-                    _PrevWindowSize = localObjectStorageHelper.Read<Size>(PlayerViewManager.primary_view_size);
-                    localObjectStorageHelper.Save(PlayerViewManager.primary_view_size, new Size(sender.VisibleBounds.Width, sender.VisibleBounds.Height));
+                    _PrevWindowSize = localObjectStorageHelper.Read<Size>(ScondaryViewPlayerManager.primary_view_size);
+                    localObjectStorageHelper.Save(ScondaryViewPlayerManager.primary_view_size, new Size(sender.VisibleBounds.Width, sender.VisibleBounds.Height));
 
                     Debug.WriteLine("MainView VisibleBoundsChanged : " + sender.VisibleBounds.ToString());
                 }
@@ -840,7 +798,7 @@ namespace NicoPlayerHohoema
                     var localObjectStorageHelper = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
                     if (_PrevWindowSize != default(Size))
                     {
-                        localObjectStorageHelper.Save(PlayerViewManager.primary_view_size, _PrevWindowSize);
+                        localObjectStorageHelper.Save(ScondaryViewPlayerManager.primary_view_size, _PrevWindowSize);
                     }
                     MainViewId = -1;
                 }

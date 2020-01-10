@@ -9,7 +9,9 @@ using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Repository;
 using NicoPlayerHohoema.Repository.Playlist;
 using NicoPlayerHohoema.Services.Helpers;
+using NicoPlayerHohoema.Services.Player;
 using Prism.Commands;
+using Prism.Events;
 using Prism.Mvvm;
 using Prism.Unity;
 using Reactive.Bindings.Extensions;
@@ -165,6 +167,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
         public HohoemaPlaylist(
             IScheduler scheduler,
+            IEventAggregator eventAggregator,
             PlaylistSettings playlistSettings,
             PlaylistRepository playlistRepository,
             Models.Provider.NicoVideoProvider nicoVideoProvider,
@@ -172,6 +175,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             )
         {
             _scheduler = scheduler;
+            _eventAggregator = eventAggregator;
             _player = new PlaylistPlayer(this, playlistSettings);
             _player.PlayRequested += OnPlayRequested;
 
@@ -293,6 +297,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
 
         private readonly IScheduler _scheduler;
+        private readonly IEventAggregator _eventAggregator;
         private readonly PlaylistPlayer _player;
         private readonly PlaylistSettings _playlistSettings;
         private readonly PlaylistRepository _playlistRepository;
@@ -358,9 +363,11 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         }
 
 
-        public event EventHandler<PlayVideoRequestedEventArgs> PlayRequested;
-
-        void OnPlayRequested(object sender, IVideoContent e) => PlayRequested?.Invoke(this, new PlayVideoRequestedEventArgs(e));
+        void OnPlayRequested(object sender, IVideoContent e)
+        {
+            _eventAggregator.GetEvent<PlayerPlayVideoRequest>()
+                .Publish(new PlayerPlayVideoRequestEventArgs() {VideoId = e.Id });
+        }
 
 
 
