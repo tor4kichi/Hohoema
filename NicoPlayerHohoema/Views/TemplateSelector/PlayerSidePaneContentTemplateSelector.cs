@@ -22,8 +22,18 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
             {
                 return Comments;
             }
+            else if (item is ViewModels.PlayerSidePaneContent.EmptySidePaneContentViewModel)
+            {
+                return Empty;
+            }
+            else if (item is ViewModels.PlayerSidePaneContent.SettingsSidePaneContentViewModel)
+            {
+                return Settings;
+            }
 
             var sidePaneType = (PlayerSidePaneContentType?)item;
+            if (sidePaneType == null) { return Empty; }
+
             switch (sidePaneType)
             {
                 case PlayerSidePaneContentType.Playlist:

@@ -45,12 +45,6 @@ namespace NicoPlayerHohoema.UseCase
             // Playing Video
             IsPlayWithCache = new ReactiveProperty<bool>(_scheduler, false)
                 .AddTo(_disposables);
-            SeekCommand = new NicoVideoPlayer.Commands.MediaPlayerSeekCommand(_mediaPlayer);
-            SetPlaybackRateCommand = new MediaPlayerSetPlaybackRateCommand(_mediaPlayer);
-            ToggleMuteCommand = new MediaPlayerToggleMuteCommand(_mediaPlayer);
-            VolumeUpCommand = new MediaPlayerVolumeUpCommand(_mediaPlayer);
-            VolumeDownCommand = new MediaPlayerVolumeDownCommand(_mediaPlayer);
-
 
 
             // Playlist
@@ -224,12 +218,6 @@ namespace NicoPlayerHohoema.UseCase
 
 
 
-        public MediaPlayerSeekCommand SeekCommand { get; }
-        public MediaPlayerSetPlaybackRateCommand SetPlaybackRateCommand { get; }
-        public MediaPlayerToggleMuteCommand ToggleMuteCommand { get; }
-        public MediaPlayerVolumeUpCommand VolumeUpCommand { get; }
-        public MediaPlayerVolumeDownCommand VolumeDownCommand { get; }
-        
         #endregion
 
 

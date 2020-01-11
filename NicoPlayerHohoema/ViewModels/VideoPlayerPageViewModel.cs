@@ -43,6 +43,7 @@ using Windows.UI.Xaml;
 using Prism.Ioc;
 using NicoPlayerHohoema.Repository.Playlist;
 using NicoPlayerHohoema.Services.Player;
+using NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -119,6 +120,12 @@ namespace NicoPlayerHohoema.ViewModels
             _keepActiveDisplayWhenPlaying = keepActiveDisplayWhenPlaying
                 .AddTo(_CompositeDisposable);
             MediaPlayer = mediaPlayer;
+
+            SeekCommand = new MediaPlayerSeekCommand(MediaPlayer);
+            SetPlaybackRateCommand = new MediaPlayerSetPlaybackRateCommand(MediaPlayer);
+            ToggleMuteCommand = new MediaPlayerToggleMuteCommand(MediaPlayer);
+            VolumeUpCommand = new MediaPlayerVolumeUpCommand(MediaPlayer);
+            VolumeDownCommand = new MediaPlayerVolumeDownCommand(MediaPlayer);
         }
 
 
@@ -154,6 +161,12 @@ namespace NicoPlayerHohoema.ViewModels
         public PlayerSettings PlayerSettings { get; }
         public ExternalAccessService ExternalAccessService { get; }
 
+
+        public MediaPlayerSeekCommand SeekCommand { get; }
+        public MediaPlayerSetPlaybackRateCommand SetPlaybackRateCommand { get; }
+        public MediaPlayerToggleMuteCommand ToggleMuteCommand { get; }
+        public MediaPlayerVolumeUpCommand VolumeUpCommand { get; }
+        public MediaPlayerVolumeDownCommand VolumeDownCommand { get; }
 
 
 

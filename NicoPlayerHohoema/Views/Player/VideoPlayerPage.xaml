@@ -16,44 +16,44 @@
         </i:Interaction.Behaviors>
       </MenuFlyoutSubItem>
       <MenuFlyoutSubItem Text="再生速度">
-        <MenuFlyoutItem Text="等倍速に戻す" Command="{Binding VideoPlayer.SetPlaybackRateCommand}">
+        <MenuFlyoutItem Text="等倍速に戻す" Command="{Binding SetPlaybackRateCommand}">
           <MenuFlyoutItem.CommandParameter>
             <x:Double>1.0</x:Double>
           </MenuFlyoutItem.CommandParameter>
         </MenuFlyoutItem>
         <MenuFlyoutSeparator />
-        <MenuFlyoutItem Text="200%" Command="{Binding VideoPlayer.SetPlaybackRateCommand}">
+        <MenuFlyoutItem Text="200%" Command="{Binding SetPlaybackRateCommand}">
           <MenuFlyoutItem.CommandParameter>
             <x:Double>2.0</x:Double>
           </MenuFlyoutItem.CommandParameter>
         </MenuFlyoutItem>
-        <MenuFlyoutItem Text="175%" Command="{Binding VideoPlayer.SetPlaybackRateCommand}">
+        <MenuFlyoutItem Text="175%" Command="{Binding SetPlaybackRateCommand}">
           <MenuFlyoutItem.CommandParameter>
             <x:Double>1.75</x:Double>
           </MenuFlyoutItem.CommandParameter>
         </MenuFlyoutItem>
-        <MenuFlyoutItem Text="150%" Command="{Binding VideoPlayer.SetPlaybackRateCommand}">
+        <MenuFlyoutItem Text="150%" Command="{Binding SetPlaybackRateCommand}">
           <MenuFlyoutItem.CommandParameter>
             <x:Double>1.5</x:Double>
           </MenuFlyoutItem.CommandParameter>
         </MenuFlyoutItem>
-        <MenuFlyoutItem Text="125%" Command="{Binding VideoPlayer.SetPlaybackRateCommand}">
+        <MenuFlyoutItem Text="125%" Command="{Binding SetPlaybackRateCommand}">
           <MenuFlyoutItem.CommandParameter>
             <x:Double>1.25</x:Double>
           </MenuFlyoutItem.CommandParameter>
         </MenuFlyoutItem>
         <MenuFlyoutSeparator />
-        <MenuFlyoutItem Text="75%" Command="{Binding VideoPlayer.SetPlaybackRateCommand}">
+        <MenuFlyoutItem Text="75%" Command="{Binding SetPlaybackRateCommand}">
           <MenuFlyoutItem.CommandParameter>
             <x:Double>0.75</x:Double>
           </MenuFlyoutItem.CommandParameter>
         </MenuFlyoutItem>
-        <MenuFlyoutItem Text="50%" Command="{Binding VideoPlayer.SetPlaybackRateCommand}">
+        <MenuFlyoutItem Text="50%" Command="{Binding SetPlaybackRateCommand}">
           <MenuFlyoutItem.CommandParameter>
             <x:Double>0.5</x:Double>
           </MenuFlyoutItem.CommandParameter>
         </MenuFlyoutItem>
-        <MenuFlyoutItem Text="25%" Command="{Binding VideoPlayer.SetPlaybackRateCommand}">
+        <MenuFlyoutItem Text="25%" Command="{Binding SetPlaybackRateCommand}">
           <MenuFlyoutItem.CommandParameter>
             <x:Double>0.25</x:Double>
           </MenuFlyoutItem.CommandParameter>
@@ -131,7 +131,7 @@
                 <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="False" />
               </core:DataTriggerBehavior>
               <!-- 左右スワイプでシーク -->
-              <mybehavior:Swipe x:Name="SeekSwipe" SwipeCommand="{Binding VideoPlayer.SeekCommand}" SwipeAmountConverter="{StaticResource SwipeSeekValueToTimeSpan}" SwipeAmountScale="0.15" SwipeEdgeOfPlay="48" />
+              <mybehavior:Swipe x:Name="SeekSwipe" SwipeCommand="{Binding SeekCommand}" SwipeAmountConverter="{StaticResource SwipeSeekValueToTimeSpan}" SwipeAmountScale="0.15" SwipeEdgeOfPlay="48" />
               <!-- マウスの非表示 -->
               <mybehavior:AutoHideCursor x:Name="AutoHideCursor" IsAutoHideEnabled="False" AutoHideDelay="0:0:4" />
               <core:EventTriggerBehavior EventName="Loaded">
@@ -156,12 +156,12 @@
               </mybehavior:KeyboardTrigger>
               <mybehavior:KeyboardTrigger Key="Right" x:Name="VideoForwardKeyboardTrigger">
                 <mybehavior:KeyboardTrigger.Actions>
-                  <core:InvokeCommandAction Command="{Binding VideoPlayer.SeekCommand}" CommandParameter="{x:Bind ForwardSeekTime}" />
+                  <core:InvokeCommandAction Command="{Binding SeekCommand}" CommandParameter="{x:Bind ForwardSeekTime}" />
                 </mybehavior:KeyboardTrigger.Actions>
               </mybehavior:KeyboardTrigger>
               <mybehavior:KeyboardTrigger Key="Left" x:Name="VideoPreviewKeyboardTrigger">
                 <mybehavior:KeyboardTrigger.Actions>
-                  <core:InvokeCommandAction Command="{Binding VideoPlayer.SeekCommand}" CommandParameter="{x:Bind PreviewSeekTime}" />
+                  <core:InvokeCommandAction Command="{Binding SeekCommand}" CommandParameter="{x:Bind PreviewSeekTime}" />
                 </mybehavior:KeyboardTrigger.Actions>
               </mybehavior:KeyboardTrigger>
               <mybehavior:KeyboardTrigger x:Name="CommentWriteBeginKeyboardTrigger">
@@ -176,10 +176,10 @@
               </mybehavior:KeyboardTrigger>
               <mybehavior:MouseWheelTrigger>
                 <mybehavior:MouseWheelTrigger.UpActions>
-                  <core:InvokeCommandAction Command="{Binding VideoPlayer.VolumeUpCommand}" CommandParameter="{Binding PlayerSettings.SoundVolumeChangeFrequency}" />
+                  <core:InvokeCommandAction Command="{Binding VolumeUpCommand}" CommandParameter="{Binding PlayerSettings.SoundVolumeChangeFrequency}" />
                 </mybehavior:MouseWheelTrigger.UpActions>
                 <mybehavior:MouseWheelTrigger.DownActions>
-                  <core:InvokeCommandAction Command="{Binding VideoPlayer.VolumeDownCommand}" CommandParameter="{Binding PlayerSettings.SoundVolumeChangeFrequency}" />
+                  <core:InvokeCommandAction Command="{Binding VolumeDownCommand}" CommandParameter="{Binding PlayerSettings.SoundVolumeChangeFrequency}" />
                 </mybehavior:MouseWheelTrigger.DownActions>
               </mybehavior:MouseWheelTrigger>
               <mybehavior:UINavigationTrigger Kind="Cancel" x:Name="ControllerToggleDisplayUITrigger" IsEnabled="True">
@@ -189,10 +189,10 @@
                 <core:InvokeCommandAction Command="{Binding PrimaryViewPlayerManager.CloseCommand}" />
               </mybehavior:UINavigationTrigger>
               <mybehavior:UINavigationTrigger x:Name="ControllerSeekPreviewTrigger" Kind="PageLeft" IsEnabled="True">
-                <core:InvokeCommandAction Command="{Binding VideoPlayer.SeekCommand}" CommandParameter="{x:Bind PreviewSeekTime}" />
+                <core:InvokeCommandAction Command="{Binding SeekCommand}" CommandParameter="{x:Bind PreviewSeekTime}" />
               </mybehavior:UINavigationTrigger>
               <mybehavior:UINavigationTrigger x:Name="ControllerSeekForwardTrigger" Kind="PageRight" IsEnabled="True">
-                <core:InvokeCommandAction Command="{Binding VideoPlayer.SeekCommand}" CommandParameter="{x:Bind ForwardSeekTime}" />
+                <core:InvokeCommandAction Command="{Binding SeekCommand}" CommandParameter="{x:Bind ForwardSeekTime}" />
               </mybehavior:UINavigationTrigger>
               <mybehavior:UINavigationTrigger x:Name="ControllerTogglePlayPauseTrigger" Kind="Context1" IsEnabled="True">
                 <core:InvokeCommandAction Command="{Binding VideoPlayer.TogglePlayPauseCommand}" />
@@ -420,7 +420,7 @@
                             </i:Interaction.Behaviors>
                             <FlyoutBase.AttachedFlyout>
                               <Flyout>
-                                <ListView ItemsSource="{x:Bind PlaybackRateList}" SelectedItem="{Binding ObservableMediaPlayer.PlaybackRate.Value, Mode=OneWay}" SelectionMode="Single" IsItemClickEnabled="True" uwpui:ListViewBase.Command="{Binding VideoPlayer.SetPlaybackRateCommand}">
+                                <ListView ItemsSource="{x:Bind PlaybackRateList}" SelectedItem="{Binding ObservableMediaPlayer.PlaybackRate.Value, Mode=OneWay}" SelectionMode="Single" IsItemClickEnabled="True" uwpui:ListViewBase.Command="{Binding SetPlaybackRateCommand}">
                                   <ListView.ItemTemplate>
                                     <DataTemplate>
                                       <TextBlock>
@@ -451,7 +451,7 @@
                             <Flyout>
                               <toolkit:DockPanel toolkit:DockPanel.Dock="Right" Margin="0 0 16 0" Height="66">
                                 <StackPanel toolkit:DockPanel.Dock="Left">
-                                  <AppBarButton Icon="Volume" Label="ミュート" VerticalAlignment="Stretch" x:Name="MuteToggleButton" Command="{Binding VideoPlayer.ToggleMuteCommand}"></AppBarButton>
+                                  <AppBarButton Icon="Volume" Label="ミュート" VerticalAlignment="Stretch" x:Name="MuteToggleButton" Command="{Binding ToggleMuteCommand}"></AppBarButton>
                                 </StackPanel>
                                 <StackPanel Margin="8 0" Orientation="Vertical">
                                   <Slider x:Name="VolumeSlider" Orientation="Horizontal" VerticalAlignment="Top" Margin="8 4" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}" Maximum="1.0" Minimum="0.0" StepFrequency="0.01" SmallChange="0.01" LargeChange="0.1" Height="32" Width="160" ValueChanged="VolumeSlider_ValueChanged"></Slider>
@@ -477,7 +477,7 @@
                       </StackPanel>
                       <!-- 再生 -->
                       <StackPanel Orientation="Horizontal" x:Name="MiddleUIControlLayout" Grid.Column="1">
-                        <Button Background="Transparent" Command="{Binding VideoPlayer.SeekCommand}" CommandParameter="{x:Bind PreviewSeekTime}" x:Name="PreviewVideoPositionButon" Margin="0 0 24 0">
+                        <Button Background="Transparent" Command="{Binding SeekCommand}" CommandParameter="{x:Bind PreviewSeekTime}" x:Name="PreviewVideoPositionButon" Margin="0 0 24 0">
                           <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" FontSize="24" />
                         </Button>
                         <Button Command="{Binding VideoPlayer.TogglePlayPauseCommand}" Background="Transparent" Margin="0 0 0 0" x:Name="PlayPauseButton">
@@ -487,7 +487,7 @@
                             </iconPack:PackIconMaterial.RenderTransform>
                           </iconPack:PackIconMaterial>
                         </Button>
-                        <Button x:Name="ForwardVideoPositionButon" Background="Transparent" Command="{Binding VideoPlayer.SeekCommand}" CommandParameter="{x:Bind ForwardSeekTime}" Margin="24 0 0 0">
+                        <Button x:Name="ForwardVideoPositionButon" Background="Transparent" Command="{Binding SeekCommand}" CommandParameter="{x:Bind ForwardSeekTime}" Margin="24 0 0 0">
                           <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;" FontSize="24" />
                         </Button>
                       </StackPanel>
@@ -643,7 +643,7 @@
                       </StackPanel>
                       <!-- 再生 -->
                       <StackPanel Orientation="Horizontal" Grid.Column="1">
-                        <Button Background="Transparent" Command="{Binding VideoPlayer.SeekCommand}" CommandParameter="{x:Bind PreviewSeekTime}" Margin="0 0 8 0" x:Name="CO_PreviewVideoPositionButton">
+                        <Button Background="Transparent" Command="{Binding SeekCommand}" CommandParameter="{x:Bind PreviewSeekTime}" Margin="0 0 8 0" x:Name="CO_PreviewVideoPositionButton">
                           <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" FontSize="20" />
                         </Button>
                         <Button Command="{Binding VideoPlayer.TogglePlayPauseCommand}" Background="Transparent" Margin="0 0 0 0" x:Name="CO_PlayPauseButton">
@@ -653,7 +653,7 @@
                             </iconPack:PackIconMaterial.RenderTransform>
                           </iconPack:PackIconMaterial>
                         </Button>
-                        <Button Background="Transparent" Command="{Binding VideoPlayer.SeekCommand}" CommandParameter="{x:Bind ForwardSeekTime}" x:Name="CO_ForwardVideoPositionButton" Margin="8 0 0 0">
+                        <Button Background="Transparent" Command="{Binding SeekCommand}" CommandParameter="{x:Bind ForwardSeekTime}" x:Name="CO_ForwardVideoPositionButton" Margin="8 0 0 0">
                           <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;" FontSize="20" />
                         </Button>
                       </StackPanel>
