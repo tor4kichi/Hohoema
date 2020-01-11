@@ -35,11 +35,10 @@ namespace NicoPlayerHohoema.Models
         public static async Task<HohoemaUserSettings> LoadSettings(StorageFolder userFolder)
 		{
 			var ranking = await SettingsBase.Load<RankingSettings>(RankingSettingsFileName, userFolder);
-            var playlist = await SettingsBase.Load<PlaylistSettings>(PlaylistSettingsFileName, userFolder);
             var ng = await SettingsBase.Load<NGSettings>(NGSettingsFileName, userFolder);
 
-            var player = await SettingsBase.Load<PlayerSettings>(PlayerSettingsFileName, userFolder);
-			var cache = await SettingsBase.Load<CacheSettings>(CacheSettingsFileName, userFolder);
+            var player = await SettingsBase.Load<PlayerSettings>(CacheSettingsFileName, userFolder);
+            var cache = await SettingsBase.Load<CacheSettings>(CacheSettingsFileName, userFolder);
             var appearance = await SettingsBase.Load<AppearanceSettings>(AppearanceSettingsFileName, userFolder);
             var nicorepoAndFeed = await SettingsBase.Load<ActivityFeedSettings>(NicoRepoAndFeedSettingsFileName, userFolder);
 
@@ -62,10 +61,8 @@ namespace NicoPlayerHohoema.Models
             var settings = new HohoemaUserSettings()
 			{
 				RankingSettings = ranking,
-                PlaylistSettings = playlist,
-				NGSettings = ng,
-
                 PlayerSettings = player,
+                NGSettings = ng,
                 CacheSettings = cache,
                 AppearanceSettings = appearance,
                 ActivityFeedSettings = nicorepoAndFeed,
@@ -77,14 +74,13 @@ namespace NicoPlayerHohoema.Models
             return settings;
 		}
 
-		public RankingSettings RankingSettings { get; private set; }
-		public PlayerSettings PlayerSettings { get; private set; }
-		public NGSettings NGSettings { get; private set; }
+        public RankingSettings RankingSettings { get; private set; }
 		public CacheSettings CacheSettings { get; private set; }
-        public PlaylistSettings PlaylistSettings { get; private set; }
         public AppearanceSettings AppearanceSettings { get; private set; }
         public ActivityFeedSettings ActivityFeedSettings { get; private set; }
         public PinSettings PinSettings { get; private set; }
+        public NGSettings NGSettings { get; private set; }
+        public PlayerSettings PlayerSettings { get; private set; }
 
         public HohoemaUserSettings()
 		{
@@ -93,25 +89,17 @@ namespace NicoPlayerHohoema.Models
 
         private void SetupSaveWithPropertyChanged()
         {
+            NGSettings.PropertyChangedAsObservable()
+                .Throttle(TimeSpan.FromSeconds(1))
+                .Subscribe(e => _ = RankingSettings.Save());
+
             RankingSettings.PropertyChangedAsObservable()
                 .Throttle(TimeSpan.FromSeconds(1))
                 .Subscribe(e => _ = RankingSettings.Save());
 
-            PlayerSettings.PropertyChangedAsObservable()
-                .Throttle(TimeSpan.FromSeconds(1))
-                .Subscribe(e => _ = PlayerSettings.Save());
-
-            NGSettings.PropertyChangedAsObservable()
-                .Throttle(TimeSpan.FromSeconds(1))
-                .Subscribe(e => _ = NGSettings.Save());
-
             CacheSettings.PropertyChangedAsObservable()
                 .Throttle(TimeSpan.FromSeconds(1))
                 .Subscribe(e => _ = CacheSettings.Save());
-
-            PlaylistSettings.PropertyChangedAsObservable()
-                .Throttle(TimeSpan.FromSeconds(1))
-                .Subscribe(e => _ = PlaylistSettings.Save());
 
             AppearanceSettings.PropertyChangedAsObservable()
                 .Throttle(TimeSpan.FromSeconds(1))
@@ -120,6 +108,10 @@ namespace NicoPlayerHohoema.Models
             ActivityFeedSettings.PropertyChangedAsObservable()
                 .Throttle(TimeSpan.FromSeconds(1))
                 .Subscribe(e => _ = ActivityFeedSettings.Save());
+
+            PlayerSettings.PropertyChangedAsObservable()
+                .Throttle(TimeSpan.FromSeconds(1))
+                .Subscribe(e => _ = PlayerSettings.Save());
 
             new[] {
                 PinSettings.PropertyChangedAsObservable().ToUnit(),
@@ -133,8 +125,8 @@ namespace NicoPlayerHohoema.Models
     }
 
 	[DataContract]
-	public abstract class SettingsBase : BindableBase
-	{
+	public abstract class SettingsBase : FixPrism.BindableBase
+    {
 		public SettingsBase()
 		{
 			_FileLock = new SemaphoreSlim(1, 1);

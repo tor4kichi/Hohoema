@@ -1,4 +1,5 @@
 ﻿using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.UseCase.NicoVideoPlayer;
 using Prism.Events;
 using System;
 using System.Collections.Generic;
@@ -8,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Services.Player
 {
-    public sealed class ChangePlayerDisplayViewRequestEvent : PubSubEvent<PlayerDisplayMode>
+    public sealed class ChangePlayerDisplayViewRequestEvent : PubSubEvent
     {
     }
 }

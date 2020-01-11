@@ -157,6 +157,7 @@
     <Compile Include="Services\Page\IPinablePage.cs" />
     <Compile Include="Services\Player\PrimaryViewPlayerManager.cs" />
     <Compile Include="Services\Player\TogglePlayerDisplayViewCommand.cs" />
+    <Compile Include="UseCase\NicoVideoPlayer\Commands\OpenLiveContentCommand.cs" />
     <Compile Include="UseCase\Page\Commands\SearchCommand.cs" />
     <Compile Include="UseCase\Pin\PinChangeOverrideLabelCommand.cs" />
     <Compile Include="UseCase\Pin\PinRemoveCommand.cs" />
@@ -384,7 +385,6 @@
     <Compile Include="Models\Settings\ActivityFeedSettings.cs" />
     <Compile Include="Services\Page\HohoemaPin.cs" />
     <Compile Include="Models\Settings\PinSettings.cs" />
-    <Compile Include="Models\Settings\PlaylistSettings.cs" />
     <Compile Include="UseCase\Playlist\UserMylistManager.cs" />
     <Compile Include="Services\Helpers\ShareHelper.cs" />
     <Compile Include="Models\Niconico\Video\MediaProtocolType.cs" />

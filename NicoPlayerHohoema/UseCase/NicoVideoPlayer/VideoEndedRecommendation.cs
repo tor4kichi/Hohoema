@@ -26,7 +26,6 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
             MediaPlayer mediaPlayer,
             VideoPlayer videoPlayer,
             IScheduler scheduler,
-            PlaylistSettings playlistSettings,
             RelatedVideoContentsAggregator relatedVideoContentsAggregator,
             HohoemaPlaylist hohoemaPlaylist,
             ScondaryViewPlayerManager playerViewManager
@@ -35,7 +34,6 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
             _mediaPlayer = mediaPlayer;
             _videoPlayer = videoPlayer;
             _scheduler = scheduler;
-            _playlistSettings = playlistSettings;
             _relatedVideoContentsAggregator = relatedVideoContentsAggregator;
             _hohoemaPlaylist = hohoemaPlaylist;
             _playerViewManager = playerViewManager;
@@ -135,7 +133,6 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
         private readonly MediaPlayer _mediaPlayer;
         private readonly VideoPlayer _videoPlayer;
         private readonly IScheduler _scheduler;
-        private readonly PlaylistSettings _playlistSettings;
         private readonly RelatedVideoContentsAggregator _relatedVideoContentsAggregator;
         private readonly HohoemaPlaylist _hohoemaPlaylist;
         private readonly ScondaryViewPlayerManager _playerViewManager;

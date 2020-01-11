@@ -243,5 +243,25 @@ namespace NicoPlayerHohoema.Views
                 appView.ExitFullScreenMode();
             }
         }
+
+
+
+
+
+        public string SearchInputText
+        {
+            get { return (string)GetValue(SearchInputTextProperty); }
+            set { SetValue(SearchInputTextProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for SearchInputText.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty SearchInputTextProperty =
+            DependencyProperty.Register("SearchInputText", typeof(string), typeof(PrimaryWindowCoreLayout), new PropertyMetadata(string.Empty));
+
+
+
     }
+
+
+
 }

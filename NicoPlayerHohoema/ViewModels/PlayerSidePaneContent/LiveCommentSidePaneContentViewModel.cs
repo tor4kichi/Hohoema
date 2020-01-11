@@ -16,25 +16,23 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 	public class LiveCommentSidePaneContentViewModel : SidePaneContentViewModelBase
 	{
 		public LiveCommentSidePaneContentViewModel(
-            NGSettings settings, 
+            PlayerSettings playerSettings, 
             Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView comments,
             Services.ExternalAccessService externalAccessService,
-            Commands.NicoLiveUserIdAddToNGCommand nicoLiveUserIdAddToNGCommand,
-            Commands.NicoLiveUserIdRemoveFromNGCommand nicoLiveUserIdRemoveFromNGCommand,
             IScheduler scheduler
             )
 		{
-            NGSettings = settings;
-			Comments = comments;
+            _playerSettings = playerSettings;
+            Comments = comments;
             ExternalAccessService = externalAccessService;
-            NicoLiveUserIdAddToNGCommand = nicoLiveUserIdAddToNGCommand;
-            NicoLiveUserIdRemoveFromNGCommand = nicoLiveUserIdRemoveFromNGCommand;
+            NicoLiveUserIdAddToNGCommand = new Commands.NicoLiveUserIdAddToNGCommand(_playerSettings);
+            NicoLiveUserIdRemoveFromNGCommand = new Commands.NicoLiveUserIdRemoveFromNGCommand(_playerSettings);
             _scheduler = scheduler;
             IsCommentListScrollWithVideo = new ReactiveProperty<bool>(_scheduler, false)
 				.AddTo(_CompositeDisposable);
 
-            NGUsers = new ReadOnlyObservableCollection<NGUserIdInfo>(NGSettings.NGLiveCommentUserIds);
-            IsNGCommentUserIdEnabled = NGSettings.ToReactivePropertyAsSynchronized(x => x.IsNGLiveCommentUserEnable, _scheduler)
+            NGUsers = new ReadOnlyObservableCollection<LiveNGUserInfo>(_playerSettings.NGLiveCommentUserIds);
+            IsNGCommentUserIdEnabled = _playerSettings.ToReactivePropertyAsSynchronized(x => x.IsNGLiveCommentUserEnable, _scheduler)
                 .AddTo(_CompositeDisposable);
         }
 
@@ -53,7 +51,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
         public ReactiveProperty<bool> IsNGCommentUserIdEnabled { get; private set; }
 
 
-        public ReadOnlyObservableCollection<Models.NGUserIdInfo> NGUsers { get; }
+        public ReadOnlyObservableCollection<Models.LiveNGUserInfo> NGUsers { get; }
 
         /*
         ReadOnlyObservableCollection<Comment> _Comments;
@@ -67,6 +65,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
 
         Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView _Comments;
+        private readonly PlayerSettings _playerSettings;
         private readonly IScheduler _scheduler;
 
         public Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView Comments

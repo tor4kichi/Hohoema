@@ -138,7 +138,7 @@ namespace NicoPlayerHohoema.Services
             {
                 if (SecondaryCoreAppView != null)
                 {
-                    await SecondaryCoreAppView.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+                    await SecondaryCoreAppView.ExecuteOnUIThreadAsync(async () =>
                     {
                         if (SecondaryAppView != null)
                         {
@@ -210,6 +210,9 @@ namespace NicoPlayerHohoema.Services
             SecondaryAppView = result.view;
             SecondaryCoreAppView = secondaryView;
             SecondaryViewPlayerNavigationService = result.ns;
+
+            var primaryView = ApplicationView.GetForCurrentView();
+            primaryView.Consolidated += MainView_Consolidated;
         }
 
         // アプリ終了時に正しいウィンドウサイズを保存するための一時的な箱

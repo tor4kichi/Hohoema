@@ -168,15 +168,15 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         public HohoemaPlaylist(
             IScheduler scheduler,
             IEventAggregator eventAggregator,
-            PlaylistSettings playlistSettings,
             PlaylistRepository playlistRepository,
             Models.Provider.NicoVideoProvider nicoVideoProvider,
-            MylistRepository mylistRepository
+            MylistRepository mylistRepository,
+            PlayerSettings playerSettings
             )
         {
             _scheduler = scheduler;
             _eventAggregator = eventAggregator;
-            _player = new PlaylistPlayer(this, playlistSettings);
+            _player = new PlaylistPlayer(this, playerSettings);
             _player.PlayRequested += OnPlayRequested;
 
             _player.ObserveProperty(x => x.CanGoNext).Subscribe(_ => _scheduler.Schedule(() => RaisePropertyChanged(nameof(CanGoNext)))).AddTo(_disposable);
@@ -186,6 +186,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             _playlistRepository = playlistRepository;
             _nicoVideoProvider = nicoVideoProvider;
             _mylistRepository = mylistRepository;
+            _playerSettings = playerSettings;
             QueuePlaylist = new PlaylistObservableCollection(QueuePlaylistId, QueuePlaylistId.ToCulturelizeString());
 
             /*
@@ -221,10 +222,9 @@ namespace NicoPlayerHohoema.UseCase.Playlist
                         .AddTo(_disposable);
                 });
 
-            _playlistSettings = playlistSettings;
-            _isShuffleEnabled = _playlistSettings.IsShuffleEnable;
-            _isReverseEnabled = _playlistSettings.IsReverseModeEnable;
-            _repeatMode = _playlistSettings.RepeatMode;
+            _isShuffleEnabled = playerSettings.IsShuffleEnable;
+            _isReverseEnabled = playerSettings.IsReverseModeEnable;
+            _repeatMode = playerSettings.RepeatMode;
 
             /*
             if (newOwner is INotifyCollectionChanged playlistNotifyCollectionChanged)
@@ -299,10 +299,10 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         private readonly IScheduler _scheduler;
         private readonly IEventAggregator _eventAggregator;
         private readonly PlaylistPlayer _player;
-        private readonly PlaylistSettings _playlistSettings;
         private readonly PlaylistRepository _playlistRepository;
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly MylistRepository _mylistRepository;
+        private readonly PlayerSettings _playerSettings;
 
         public PlaylistObservableCollection QueuePlaylist { get; }
         public PlaylistObservableCollection WatchAfterPlaylist { get; }
@@ -330,7 +330,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             {
                 if (SetProperty(ref _isShuffleEnabled, value))
                 {
-                    _playlistSettings.IsShuffleEnable = value;
+                    _playerSettings.IsShuffleEnable = value;
                 }
             }
         }
@@ -343,7 +343,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             {
                 if (SetProperty(ref _repeatMode, value))
                 {
-                    _playlistSettings.RepeatMode = value;
+                    _playerSettings.RepeatMode = value;
                 }
             }
         }
@@ -357,7 +357,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             {
                 if (SetProperty(ref _isReverseEnabled, value))
                 {
-                    _playlistSettings.IsReverseModeEnable = value;
+                    _playerSettings.IsReverseModeEnable = value;
                 }
             }
         }
@@ -668,7 +668,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         private AsyncLock _PlaylistUpdateLock = new AsyncLock();
 
         public HohoemaPlaylist HohoemaPlaylist { get; }
-        public PlaylistSettings PlaylistSettings { get; private set; }
+        public PlayerSettings PlayerSettings { get; private set; }
 
         private IVideoContent _Current;
         public IVideoContent Current
@@ -702,7 +702,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
                 if (_RepeatMode != value)
                 {
                     _RepeatMode = value;
-                    PlaylistSettings.RepeatMode = _RepeatMode;
+                    PlayerSettings.RepeatMode = _RepeatMode;
                 }
             }
         }
@@ -710,16 +710,16 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
 
 
-        public PlaylistPlayer(HohoemaPlaylist hohoemaPlaylist, PlaylistSettings playlistSettings)
+        public PlaylistPlayer(HohoemaPlaylist hohoemaPlaylist, PlayerSettings playerSettings)
         {
             HohoemaPlaylist = hohoemaPlaylist;
-            PlaylistSettings = playlistSettings;
+            PlayerSettings = playerSettings;
 
             Items = new ReadOnlyObservableCollection<IVideoContent>(_items);
 
             CompositeDisposable disposables = new CompositeDisposable();
 
-            PlaylistSettings.ObserveProperty(x => x.RepeatMode)
+            PlayerSettings.ObserveProperty(x => x.RepeatMode)
                 .Subscribe(async repeatMode =>
                 {
                     _RepeatMode = repeatMode;
@@ -730,7 +730,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
                 })
                 .AddTo(disposables);
 
-            PlaylistSettings.ObserveProperty(x => x.IsReverseModeEnable)
+            PlayerSettings.ObserveProperty(x => x.IsReverseModeEnable)
                 .Subscribe(async x => 
                 {
                     using (var releaser = await _PlaylistUpdateLock.LockAsync())
@@ -742,7 +742,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
 
 
-            PlaylistSettings.ObserveProperty(x => x.IsShuffleEnable)
+            PlayerSettings.ObserveProperty(x => x.IsShuffleEnable)
                 .Subscribe(async _ =>
                 {
                     using (var releaser = await _PlaylistUpdateLock.LockAsync())
@@ -786,12 +786,12 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         void ResetItems()
         {
             IEnumerable<IVideoContent> currentSource = _sourceItems;
-            if (PlaylistSettings.IsShuffleEnable)
+            if (PlayerSettings.IsShuffleEnable)
             {
                 currentSource = currentSource.Shuffle(_shuffleRandom);
             }
 
-            if (PlaylistSettings.IsReverseModeEnable)
+            if (PlayerSettings.IsReverseModeEnable)
             {
                 currentSource = currentSource.Reverse();
             }

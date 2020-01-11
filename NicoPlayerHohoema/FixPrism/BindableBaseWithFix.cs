@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using Prism.Mvvm;
 
 namespace NicoPlayerHohoema.FixPrism
 {
@@ -12,18 +11,55 @@ namespace NicoPlayerHohoema.FixPrism
     /// </summary>
     public abstract class BindableBase : INotifyPropertyChanged
     {
-        private readonly SynchronizationContext _context;
-
         protected BindableBase()
         {
-            _context = SynchronizationContext.Current;
         }
 
+        ReaderWriterLockSlim lockSlim = new ReaderWriterLockSlim();
+        Dictionary<SynchronizationContext, IList<PropertyChangedEventHandler>> _handlersByThread = new Dictionary<SynchronizationContext, IList<PropertyChangedEventHandler>>();
 
         /// <summary>
         /// Occurs when a property value changes.
         /// </summary>
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler PropertyChanged
+        {
+            add 
+            {
+                lockSlim.EnterWriteLock();
+                try
+                {
+                    var currentContext = SynchronizationContext.Current;
+                    if (_handlersByThread.TryGetValue(currentContext, out var list))
+                    {
+                        list.Add(value);
+                    }
+                    else
+                    {
+                        _handlersByThread.Add(currentContext, new List<PropertyChangedEventHandler>() { value });
+                    }
+                }
+                finally
+                {
+                    lockSlim.ExitWriteLock();
+                }
+            }
+            remove
+            {
+                lockSlim.EnterWriteLock();
+                try
+                {
+                    var currentContext = SynchronizationContext.Current;
+                    if (_handlersByThread.TryGetValue(currentContext, out var list))
+                    {
+                        list.Remove(value);
+                    }
+                }
+                finally
+                {
+                    lockSlim.ExitWriteLock();
+                }
+            }
+        }
 
         /// <summary>
         /// Checks if a property already matches a desired value. Sets the property and
@@ -89,17 +125,38 @@ namespace NicoPlayerHohoema.FixPrism
         /// that support <see cref="CallerMemberNameAttribute"/>.</param>
         protected void RaisePropertyChanged([CallerMemberName]string propertyName = null)
         {
-            PropertyChangedEventHandler eventHandler = this.PropertyChanged;
-            if (eventHandler != null)
+            lockSlim.EnterReadLock();
+            try
             {
-                if (SynchronizationContext.Current == null && _context != null)
+                foreach (var pair in _handlersByThread)
                 {
-                    _context.Post(_ => { OnPropertyChanged(eventHandler, new PropertyChangedEventArgs(propertyName)); }, null);
+                    var context = pair.Key;
+                    var handlers = pair.Value;
+                    if (SynchronizationContext.Current != context)
+                    {
+                        context.Post(_ =>
+                        {
+                            var eventArgs = new PropertyChangedEventArgs(propertyName);
+                            foreach (var eventHandler in handlers)
+                            {
+                                OnPropertyChanged(eventHandler, eventArgs);
+                            }
+                        },
+                        null );
+                    }
+                    else
+                    {
+                        var eventArgs = new PropertyChangedEventArgs(propertyName);
+                        foreach (var eventHandler in handlers)
+                        {
+                            OnPropertyChanged(eventHandler, eventArgs);
+                        }
+                    }
                 }
-                else
-                {
-                    OnPropertyChanged(eventHandler, new PropertyChangedEventArgs(propertyName));
-                }
+            }
+            finally
+            {
+                lockSlim.ExitReadLock();
             }
         }
 

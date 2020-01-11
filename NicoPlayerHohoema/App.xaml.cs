@@ -165,13 +165,11 @@ namespace NicoPlayerHohoema
             // 各ウィンドウごとのスケジューラを作るように
             unityContainer.RegisterType<IScheduler>(new PerThreadLifetimeManager(), new InjectionFactory(c => SynchronizationContext.Current != null ? new SynchronizationContextScheduler(SynchronizationContext.Current) : null));
 
-            unityContainer.RegisterInstance("MainWindowScheduler", unityContainer.Resolve<IScheduler>());
-
             // MediaPlayerを各ウィンドウごとに一つずつ作るように
             unityContainer.RegisterType<MediaPlayer>(new PerThreadLifetimeManager());
             
             // Service
-            unityContainer.RegisterType<Services.PageManager>(new PerThreadLifetimeManager());
+            unityContainer.RegisterSingleton<Services.PageManager>();
             unityContainer.RegisterSingleton<PrimaryViewPlayerManager>();
             unityContainer.RegisterSingleton<ScondaryViewPlayerManager>();
             unityContainer.RegisterSingleton<Services.NiconicoLoginService>();
@@ -278,12 +276,11 @@ namespace NicoPlayerHohoema
                 unityContainer.RegisterInstance(settings.ActivityFeedSettings);
                 unityContainer.RegisterInstance(settings.AppearanceSettings);
                 unityContainer.RegisterInstance(settings.CacheSettings);
-                unityContainer.RegisterInstance(settings.NGSettings);
                 unityContainer.RegisterInstance(settings.PinSettings);
-                unityContainer.RegisterInstance(settings.PlayerSettings);
-                unityContainer.RegisterInstance(settings.PlaylistSettings);
                 unityContainer.RegisterInstance(settings.RankingSettings);
-                
+                unityContainer.RegisterInstance(settings.NGSettings);
+                unityContainer.RegisterInstance(settings.PlayerSettings);
+
                 // ログイン前にログインセッションによって状態が変化するフォローとマイリストの初期化
                 var followManager = Container.Resolve<FollowManager>();
                 var mylitManager = Container.Resolve<UserMylistManager>();
@@ -297,7 +294,7 @@ namespace NicoPlayerHohoema
 #if DEBUG
                     if (_DEBUG_XBOX_RESOURCE)
 #else
-                if (Services.Helpers.DeviceTypeHelper.IsXbox)
+                    if (Services.Helpers.DeviceTypeHelper.IsXbox)
 #endif
                     {
                         this.Resources.MergedDictionaries.Add(new ResourceDictionary()

@@ -39,11 +39,7 @@ namespace NicoPlayerHohoema.Views
 
             Loaded += CommentRendererCompositionUI_Loaded;
             Unloaded += CommentRendererCompositionUI_Unloaded;
-
-            NGSettings = App.Current.Container.Resolve<NGSettings>();
         }
-
-        NGSettings NGSettings { get; }
 
         struct CommentRenderFrameData
         {
@@ -520,7 +516,7 @@ namespace NicoPlayerHohoema.Views
                 }
                 
                 // TODO: NGCommentの判定
-                if (NGSettings.IsNGComment(comment.CommentText) != null)
+                if (PlayerSettings.IsNGComment(comment.CommentText) != null)
                 {
                     Debug.WriteLine("NG: " + comment.CommentText);
                     continue;
@@ -1262,6 +1258,20 @@ namespace NicoPlayerHohoema.Views
             get { return (bool)GetValue(IsShowNicoLiveOperationCommentProperty); }
             set { SetValue(IsShowNicoLiveOperationCommentProperty, value); }
         }
+
+
+
+
+        public PlayerSettings PlayerSettings
+        {
+            get { return (PlayerSettings)GetValue(PlayerSettingsProperty); }
+            set { SetValue(PlayerSettingsProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for PlayerSettings.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty PlayerSettingsProperty =
+            DependencyProperty.Register("PlayerSettings", typeof(PlayerSettings), typeof(CommentRendererCompositionUI), new PropertyMetadata(null));
+
 
 
 

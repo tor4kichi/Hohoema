@@ -239,10 +239,10 @@
           <uwpToolkitControls:DockPanel x:Name="PaneLayout">
             <Border Height="{StaticResource TitleBarDummyHeight}" uwpToolkitControls:DockPanel.Dock="Top" />
             <Border uwpToolkitControls:DockPanel.Dock="Top" Margin="8 0 8 8">
-              <TextBox PlaceholderText="検索" UseSystemFocusVisuals="True" TabIndex="103" x:Name="SearchTextBox" Padding="0" Margin="0 16 0 0">
+              <TextBox x:Name="SearchTextBox" Text="{x:Bind SearchInputText, Mode=TwoWay}" PlaceholderText="検索" UseSystemFocusVisuals="True" TabIndex="103"  Padding="0" Margin="0 16 0 0">
                 <i:Interaction.Behaviors>
                   <mybehavior:KeyboardTrigger Key="Enter" x:Name="SearchSubmitWithEnterKeyTrigger" IsEnabled="False">
-                    <core:InvokeCommandAction Command="{Binding SearchCommand}" />
+                    <core:InvokeCommandAction Command="{Binding SearchCommand}" CommandParameter="{x:Bind SearchInputText, Mode=OneWay}" />
                     <core:ChangePropertyAction PropertyName="IsEnabled" Value="False" />
                     <core:ChangePropertyAction PropertyName="IsEnabled" Value="True" />
                   </mybehavior:KeyboardTrigger>
@@ -345,13 +345,13 @@
                       </StackPanel>
                     </Button>
                     <Border Background="{StaticResource MenuBackgroundBrush}" x:Name="Mobile_BlindSearchTextBoxBorder" Visibility="Collapsed" />
-                    <TextBox x:Name="Mobile_SearchTextBox" PlaceholderText="検索" UseSystemFocusVisuals="True" TabIndex="103" Padding="0" Visibility="Collapsed" VerticalAlignment="Center">
+                    <TextBox x:Name="Mobile_SearchTextBox" Text="{x:Bind SearchInputText, Mode=TwoWay}" PlaceholderText="検索" UseSystemFocusVisuals="True" TabIndex="103" Padding="0" Visibility="Collapsed" VerticalAlignment="Center">
                       <i:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="LostFocus">
                           <core:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
                         </core:EventTriggerBehavior>
                         <mybehavior:KeyboardTrigger Key="Enter" x:Name="Mobile_SearchSubmitWithEnterKeyTrigger" IsEnabled="False">
-                          <core:InvokeCommandAction Command="{Binding SearchCommand}" />
+                          <core:InvokeCommandAction Command="{Binding SearchCommand}" CommandParameter="{x:Bind SearchInputText, Mode=OneWay}" />
                           <core:ChangePropertyAction PropertyName="IsEnabled" Value="False" />
                           <core:ChangePropertyAction PropertyName="IsEnabled" Value="True" />
                         </mybehavior:KeyboardTrigger>

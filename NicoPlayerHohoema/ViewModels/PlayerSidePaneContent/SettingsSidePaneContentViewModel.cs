@@ -19,16 +19,13 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
     {
         public SettingsSidePaneContentViewModel(
             NGSettings ngSettings, 
-            PlayerSettings playerSettings, 
-            PlaylistSettings playlistSettings,
+            PlayerSettings playerSettings,
             IScheduler scheduler
             )
         {
-            _NGSettings = ngSettings;
-            _PlayerSettings = playerSettings;
-            _PlaylistSettings = playlistSettings;
+            _playerSettings = playerSettings;
             _scheduler = scheduler;
-            VideoPlayingQuality = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultQuality,
+            VideoPlayingQuality = _playerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultQuality,
                 convert: x => VideoPlayingQualityList.First(y => y.Value == x),
                 convertBack: x => x.Value,
                 raiseEventScheduler: _scheduler,
@@ -42,7 +39,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             .AddTo(_CompositeDisposable);
 
 
-            VideoPlaybackRate = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.PlaybackRate);
+            VideoPlaybackRate = _playerSettings.ToReactivePropertyAsSynchronized(x => x.PlaybackRate);
             SetPlaybackRateCommand = VideoPlaybackRate.Select(
                 rate => rate != 1.0
                 )
@@ -56,7 +53,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
 
 
-            LiveVideoPlayingQuality = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultLiveQuality,
+            LiveVideoPlayingQuality = _playerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultLiveQuality,
                 convert: x => LivePlayingQualityList.FirstOrDefault(y => y.Value == x),
                 convertBack: x => x.Value,
                 raiseEventScheduler: _scheduler,
@@ -64,17 +61,17 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 )
             .AddTo(_CompositeDisposable);
 
-            IsLowLatency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.LiveWatchWithLowLatency, _scheduler, mode: ReactivePropertyMode.DistinctUntilChanged)
+            IsLowLatency = _playerSettings.ToReactivePropertyAsSynchronized(x => x.LiveWatchWithLowLatency, _scheduler, mode: ReactivePropertyMode.DistinctUntilChanged)
             .AddTo(_CompositeDisposable);
 
-            IsKeepDisplayInPlayback = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsKeepDisplayInPlayback, _scheduler)
+            IsKeepDisplayInPlayback = _playerSettings.ToReactivePropertyAsSynchronized(x => x.IsKeepDisplayInPlayback, _scheduler)
             .AddTo(_CompositeDisposable);
-            ScrollVolumeFrequency = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.SoundVolumeChangeFrequency, _scheduler)
+            ScrollVolumeFrequency = _playerSettings.ToReactivePropertyAsSynchronized(x => x.SoundVolumeChangeFrequency, _scheduler)
             .AddTo(_CompositeDisposable);
-            IsForceLandscapeDefault = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsForceLandscape, _scheduler)
+            IsForceLandscapeDefault = _playerSettings.ToReactivePropertyAsSynchronized(x => x.IsForceLandscape, _scheduler)
             .AddTo(_CompositeDisposable);
 
-            AutoHideDelayTime = _PlayerSettings.ToReactivePropertyAsSynchronized(x =>
+            AutoHideDelayTime = _playerSettings.ToReactivePropertyAsSynchronized(x =>
                 x.AutoHidePlayerControlUIPreventTime
                 , x => x.TotalSeconds
                 , x => TimeSpan.FromSeconds(x)
@@ -82,10 +79,10 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 )
             .AddTo(_CompositeDisposable);
 
-            PlaylistEndAction = _PlaylistSettings.ToReactivePropertyAsSynchronized(x => x.PlaylistEndAction, _scheduler)
+            PlaylistEndAction = _playerSettings.ToReactivePropertyAsSynchronized(x => x.PlaylistEndAction, _scheduler)
             .AddTo(_CompositeDisposable);
 
-            AutoMoveNextVideoOnPlaylistEmpty = _PlaylistSettings.ToReactivePropertyAsSynchronized(x => x.AutoMoveNextVideoOnPlaylistEmpty, _scheduler)
+            AutoMoveNextVideoOnPlaylistEmpty = _playerSettings.ToReactivePropertyAsSynchronized(x => x.AutoMoveNextVideoOnPlaylistEmpty, _scheduler)
             .AddTo(_CompositeDisposable);
 
 
@@ -94,26 +91,26 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
 
             // Comment Display 
-            CommentColor = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentColor, _scheduler)
+            CommentColor = _playerSettings.ToReactivePropertyAsSynchronized(x => x.CommentColor, _scheduler)
             .AddTo(_CompositeDisposable);
-            IsPauseWithCommentWriting = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting, _scheduler)
+            IsPauseWithCommentWriting = _playerSettings.ToReactivePropertyAsSynchronized(x => x.PauseWithCommentWriting, _scheduler)
             .AddTo(_CompositeDisposable);
-            CommentRenderingFPS = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentRenderingFPS, _scheduler)
+            CommentRenderingFPS = _playerSettings.ToReactivePropertyAsSynchronized(x => x.CommentRenderingFPS, _scheduler)
             .AddTo(_CompositeDisposable);
-            CommentDisplayDuration = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentDisplayDuration, x => x.TotalSeconds, x => TimeSpan.FromSeconds(x), _scheduler)
+            CommentDisplayDuration = _playerSettings.ToReactivePropertyAsSynchronized(x => x.CommentDisplayDuration, x => x.TotalSeconds, x => TimeSpan.FromSeconds(x), _scheduler)
             .AddTo(_CompositeDisposable);
-            CommentFontScale = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentFontScale, _scheduler)
+            CommentFontScale = _playerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCommentFontScale, _scheduler)
             .AddTo(_CompositeDisposable);
-            IsDefaultCommentWithAnonymous = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.IsDefaultCommentWithAnonymous, _scheduler)
+            IsDefaultCommentWithAnonymous = _playerSettings.ToReactivePropertyAsSynchronized(x => x.IsDefaultCommentWithAnonymous, _scheduler)
             .AddTo(_CompositeDisposable);
-            CommentOpacity = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.CommentOpacity, _scheduler)
+            CommentOpacity = _playerSettings.ToReactivePropertyAsSynchronized(x => x.CommentOpacity, _scheduler)
             .AddTo(_CompositeDisposable);
 
-            IsEnableOwnerCommentCommand = new ReactiveProperty<bool>(_scheduler, _PlayerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.Owner))
+            IsEnableOwnerCommentCommand = new ReactiveProperty<bool>(_scheduler, _playerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.Owner))
             .AddTo(_CompositeDisposable);
-            IsEnableUserCommentCommand = new ReactiveProperty<bool>(_scheduler, _PlayerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.User))
+            IsEnableUserCommentCommand = new ReactiveProperty<bool>(_scheduler, _playerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.User))
             .AddTo(_CompositeDisposable);
-            IsEnableAnonymousCommentCommand = new ReactiveProperty<bool>(_scheduler, _PlayerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.Anonymous))
+            IsEnableAnonymousCommentCommand = new ReactiveProperty<bool>(_scheduler, _playerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.Anonymous))
             .AddTo(_CompositeDisposable);
 
             IsEnableOwnerCommentCommand.Subscribe(x => SetCommentCommandPermission(x, CommentCommandPermissionType.Owner))
@@ -123,30 +120,30 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             IsEnableAnonymousCommentCommand.Subscribe(x => SetCommentCommandPermission(x, CommentCommandPermissionType.Anonymous))
             .AddTo(_CompositeDisposable);
 
-            NicoScript_Default_Enabled = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.NicoScript_Default_Enabled, raiseEventScheduler: _scheduler)
+            NicoScript_Default_Enabled = _playerSettings.ToReactivePropertyAsSynchronized(x => x.NicoScript_Default_Enabled, raiseEventScheduler: _scheduler)
                 .AddTo(_CompositeDisposable);
-            NicoScript_DisallowSeek_Enabled = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.NicoScript_DisallowSeek_Enabled, raiseEventScheduler: _scheduler)
+            NicoScript_DisallowSeek_Enabled = _playerSettings.ToReactivePropertyAsSynchronized(x => x.NicoScript_DisallowSeek_Enabled, raiseEventScheduler: _scheduler)
                 .AddTo(_CompositeDisposable);
-            NicoScript_DisallowComment_Enabled = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.NicoScript_DisallowComment_Enabled, raiseEventScheduler: _scheduler)
+            NicoScript_DisallowComment_Enabled = _playerSettings.ToReactivePropertyAsSynchronized(x => x.NicoScript_DisallowComment_Enabled, raiseEventScheduler: _scheduler)
                 .AddTo(_CompositeDisposable);
-            NicoScript_Jump_Enabled = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.NicoScript_Jump_Enabled, raiseEventScheduler: _scheduler)
+            NicoScript_Jump_Enabled = _playerSettings.ToReactivePropertyAsSynchronized(x => x.NicoScript_Jump_Enabled, raiseEventScheduler: _scheduler)
                 .AddTo(_CompositeDisposable);
-            NicoScript_Replace_Enabled = _PlayerSettings.ToReactivePropertyAsSynchronized(x => x.NicoScript_Replace_Enabled, raiseEventScheduler: _scheduler)
+            NicoScript_Replace_Enabled = _playerSettings.ToReactivePropertyAsSynchronized(x => x.NicoScript_Replace_Enabled, raiseEventScheduler: _scheduler)
                 .AddTo(_CompositeDisposable);
 
 
             // NG Comment
 
-            NGCommentUserIdEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentUserIdEnable, _scheduler)
+            NGCommentUserIdEnable = _playerSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentUserIdEnable, _scheduler)
             .AddTo(_CompositeDisposable);
-            NGCommentUserIds = _NGSettings.NGCommentUserIds
+            NGCommentUserIds = _playerSettings.NGCommentUserIds
                 .ToReadOnlyReactiveCollection(x =>
                     RemovableSettingsListItemHelper.UserIdInfoToRemovableListItemVM(x, OnRemoveNGCommentUserIdFromList),
                     _scheduler
                     )
             .AddTo(_CompositeDisposable);
 
-            NGCommentKeywordEnable = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentKeywordEnable, _scheduler)
+            NGCommentKeywordEnable = _playerSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentKeywordEnable, _scheduler)
             .AddTo(_CompositeDisposable);
             NGCommentKeywords = new ReactiveProperty<string>(_scheduler, string.Empty)
             .AddTo(_CompositeDisposable);
@@ -178,14 +175,12 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 .ToReadOnlyReactiveProperty(eventScheduler: _scheduler)
             .AddTo(_CompositeDisposable);
 
-            NGCommentScoreTypes = ((IEnumerable<NGCommentScore>)Enum.GetValues(typeof(NGCommentScore))).ToList();
-
-            SelectedNGCommentScore = _NGSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentScoreType, _scheduler)
+            SelectedNGCommentScore = _playerSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentScore, _scheduler)
             .AddTo(_CompositeDisposable);
 
 
 
-            CommentGlassMowerEnable = _PlayerSettings
+            CommentGlassMowerEnable = _playerSettings
                 .ToReactivePropertyAsSynchronized(x => x.CommentGlassMowerEnable, _scheduler)
             .AddTo(_CompositeDisposable);
 
@@ -193,19 +188,18 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
 
 
-            NGCommentKeywords.Value = string.Join("\r", _NGSettings.NGCommentKeywords.Select(x => x.Keyword)) + "\r";
+            NGCommentKeywords.Value = string.Join("\r", _playerSettings.NGCommentKeywords.Select(x => x.Keyword)) + "\r";
             NGCommentKeywords.Throttle(TimeSpan.FromSeconds(3))
                 .Subscribe(_ =>
                 {
-                    _NGSettings.NGCommentKeywords.Clear();
+                    _playerSettings.NGCommentKeywords.Clear();
                     foreach (var ngKeyword in NGCommentKeywords.Value.Split('\r'))
                     {
                         if (!string.IsNullOrWhiteSpace(ngKeyword))
                         {
-                            _NGSettings.NGCommentKeywords.Add(new NGKeyword() { Keyword = ngKeyword });
+                            _playerSettings.NGCommentKeywords.Add(new NGKeyword() { Keyword = ngKeyword });
                         }
                     }
-                    _NGSettings.Save().ConfigureAwait(false);
                 })
                 .AddTo(_CompositeDisposable);
         }
@@ -299,18 +293,14 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
         public ReactiveProperty<string> NGCommentKeywords { get; private set; }
         public ReadOnlyReactiveProperty<string> NGCommentKeywordError { get; private set; }
 
-        public List<NGCommentScore> NGCommentScoreTypes { get; private set; }
-        public ReactiveProperty<NGCommentScore> SelectedNGCommentScore { get; private set; }
+        public ReactiveProperty<int> SelectedNGCommentScore { get; private set; }
 
 
         public ReactiveProperty<bool> CommentGlassMowerEnable { get; private set; }
 
 
 
-        private NGSettings _NGSettings;
-
-        private PlayerSettings _PlayerSettings;
-        private PlaylistSettings _PlaylistSettings;
+        private PlayerSettings _playerSettings;
         private readonly IScheduler _scheduler;
 
         static SettingsSidePaneContentViewModel()
@@ -365,11 +355,11 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
         {
             if (isEnable)
             {
-                _PlayerSettings.CommentCommandPermission |= type;
+                _playerSettings.CommentCommandPermission |= type;
             }
             else
             {
-                _PlayerSettings.CommentCommandPermission = _PlayerSettings.CommentCommandPermission & ~type;
+                _playerSettings.CommentCommandPermission = _playerSettings.CommentCommandPermission & ~type;
             }
         }
 
@@ -380,8 +370,8 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
         private void OnRemoveNGCommentUserIdFromList(string userId)
         {
-            var removeTarget = _NGSettings.NGCommentUserIds.First(x => x.UserId == userId);
-            _NGSettings.NGCommentUserIds.Remove(removeTarget);
+            var removeTarget = _playerSettings.NGCommentUserIds.First(x => x.UserId == userId);
+            _playerSettings.NGCommentUserIds.Remove(removeTarget);
         }
 
     }

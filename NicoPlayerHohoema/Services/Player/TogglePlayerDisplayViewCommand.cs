@@ -38,7 +38,7 @@ namespace NicoPlayerHohoema.Services.Player
         protected override void Execute(object parameter)
         {
             _eventAggregator.GetEvent<ChangePlayerDisplayViewRequestEvent>()
-                .Publish(_playerSettings.DisplayMode == PlayerDisplayMode.MainWindow ? PlayerDisplayMode.Standalone : PlayerDisplayMode.MainWindow);
+                .Publish();
         }
     }
 }

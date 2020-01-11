@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Models;
+﻿using Microsoft.Toolkit.Uwp.Helpers;
+using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Player;
 using NicoPlayerHohoema.UseCase.Playlist;
@@ -16,29 +17,32 @@ using Windows.UI.Core;
 
 namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
 {
+    public enum PlayerDisplayView
+    {
+        PrimaryView,
+        SecondaryView,
+    }
+
     public sealed class VideoPlayRequestBridgeToPlayer : IDisposable
     {
         private readonly ScondaryViewPlayerManager _secondaryPlayerManager;
         private readonly PrimaryViewPlayerManager _primaryViewPlayerManager;
         private readonly IEventAggregator _eventAggregator;
-        private readonly PlayerSettings _playerSettings;
         private readonly IScheduler _scheduler;
 
         public VideoPlayRequestBridgeToPlayer(
             ScondaryViewPlayerManager playerViewManager,
             PrimaryViewPlayerManager primaryViewPlayerManager,
             IEventAggregator eventAggregator,
-            PlayerSettings playerSettings,
             IScheduler scheduler
             )
         {
             _secondaryPlayerManager = playerViewManager;
             _primaryViewPlayerManager = primaryViewPlayerManager;
             _eventAggregator = eventAggregator;
-            _playerSettings = playerSettings;
             _scheduler = scheduler;
 
-            _displayMode = _playerSettings.DisplayMode;
+            _displayMode = ReadDisplayMode();
 
             _eventAggregator.GetEvent<Services.Player.PlayerPlayVideoRequest>()
                 .Subscribe(async e => 
@@ -60,15 +64,16 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
 
 
             _eventAggregator.GetEvent<ChangePlayerDisplayViewRequestEvent>()
-                .Subscribe(async mode => 
+                .Subscribe(async () => 
                 {
-                    mode = _displayMode == PlayerDisplayMode.MainWindow ? PlayerDisplayMode.Standalone : PlayerDisplayMode.MainWindow;
+                    var mode = _displayMode == PlayerDisplayView.PrimaryView ? PlayerDisplayView.SecondaryView : PlayerDisplayView.PrimaryView;
                     if (_lastNavigatedPageName != null && _lastNavigatedParameters != null)
                     {
                         await PlayWithCurrentView(mode, _lastNavigatedPageName, _lastNavigatedParameters);
                     }
 
                     _displayMode = mode;
+                    SaveDisplayMode();
                 }
                 , ThreadOption.UIThread, true);
 
@@ -76,9 +81,9 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
         }
 
 
-        async Task PlayWithCurrentView(Models.PlayerDisplayMode displayMode, string pageName, INavigationParameters parameters)
+        async Task PlayWithCurrentView(PlayerDisplayView displayMode, string pageName, INavigationParameters parameters)
         {
-            if (displayMode == Models.PlayerDisplayMode.MainWindow)
+            if (displayMode == PlayerDisplayView.PrimaryView)
             {
                 await _secondaryPlayerManager.CloseAsync().ConfigureAwait(false);
 
@@ -99,14 +104,26 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
             _lastNavigatedParameters = parameters;
         }
 
-        Models.PlayerDisplayMode _displayMode;
+        PlayerDisplayView _displayMode;
         string _lastNavigatedPageName;
         INavigationParameters _lastNavigatedParameters;
         private CoreDispatcher _dispatcher;
 
         public void Dispose()
         {
-            _playerSettings.DisplayMode = _displayMode;
+            SaveDisplayMode();
+        }
+
+
+        LocalObjectStorageHelper _localObjectStorage = new LocalObjectStorageHelper();
+        void SaveDisplayMode()
+        {
+            _localObjectStorage.Save(nameof(PlayerDisplayView), _displayMode);
+        }
+
+        PlayerDisplayView ReadDisplayMode()
+        {
+            return _localObjectStorage.Read<PlayerDisplayView>(nameof(PlayerDisplayView));
         }
     }
 }

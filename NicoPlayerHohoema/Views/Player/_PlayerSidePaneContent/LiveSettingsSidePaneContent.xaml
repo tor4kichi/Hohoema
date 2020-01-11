@@ -19,54 +19,6 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <UserControl.Resources>
-        <templateSelector:ValueDataTemplateSelector x:Key="NGCommentScoreTypeTemplateSelector">
-            <templateSelector:ValueDataTemplate Value="{x:Bind models:NGCommentScore.None}">
-                <DataTemplate>
-                    <TextBlock Text="なし" />
-                </DataTemplate>
-            </templateSelector:ValueDataTemplate>
-
-            <templateSelector:ValueDataTemplate Value="{x:Bind models:NGCommentScore.Low}">
-                <DataTemplate>
-                    <TextBlock Text="弱" />
-                </DataTemplate>
-            </templateSelector:ValueDataTemplate>
-
-            <templateSelector:ValueDataTemplate Value="{x:Bind models:NGCommentScore.Middle}">
-                <DataTemplate>
-                    <TextBlock Text="中" />
-                </DataTemplate>
-            </templateSelector:ValueDataTemplate>
-
-            <templateSelector:ValueDataTemplate Value="{x:Bind models:NGCommentScore.High}">
-                <DataTemplate>
-                    <TextBlock Text="強" />
-                </DataTemplate>
-            </templateSelector:ValueDataTemplate>
-
-            <templateSelector:ValueDataTemplate Value="{x:Bind models:NGCommentScore.VeryHigh}">
-                <DataTemplate>
-                    <TextBlock Text="さらに強" />
-                </DataTemplate>
-            </templateSelector:ValueDataTemplate>
-
-            <templateSelector:ValueDataTemplate Value="{x:Bind models:NGCommentScore.SuperVeryHigh}">
-                <DataTemplate>
-                    <TextBlock Text="極めて強" />
-                </DataTemplate>
-            </templateSelector:ValueDataTemplate>
-
-            <templateSelector:ValueDataTemplate Value="{x:Bind models:NGCommentScore.UltraSuperVeryHigh}">
-                <DataTemplate>
-                    <TextBlock Text="最大" />
-                </DataTemplate>
-            </templateSelector:ValueDataTemplate>
-
-        </templateSelector:ValueDataTemplateSelector>
-
-    </UserControl.Resources>
-
     <ScrollViewer>
 
         <i:Interaction.Behaviors>
@@ -380,22 +332,11 @@
             <StackPanel Margin="0 0 0 0">
 
                 <!-- NG共有スコア -->
-                <StackPanel Margin="0 8">
+                <StackPanel Margin="0 8" Visibility="Collapsed">
 
                     <TextBlock Text="共有NGスコア設定" 
                                        VerticalAlignment="Center"
                                />
-
-
-                    <!-- TODO: スライダーに変更する？ -->
-
-                    <ComboBox Margin="0 8" MinWidth="100"
-                                      ItemsSource="{Binding NGCommentScoreTypes}"
-                                      SelectedItem="{Binding SelectedNGCommentScore.Value, Mode=TwoWay}"
-                                      ItemTemplateSelector="{StaticResource NGCommentScoreTypeTemplateSelector}"                                      
-                                      >
-                    </ComboBox>
-
                     <Border />
 
                 </StackPanel>

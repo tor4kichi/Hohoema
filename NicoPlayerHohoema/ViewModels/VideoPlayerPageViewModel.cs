@@ -64,7 +64,6 @@ namespace NicoPlayerHohoema.ViewModels
             ChannelProvider channelProvider,
             MylistProvider mylistProvider,
             PlayerSettings playerSettings,
-            PlaylistSettings playlistSettings,
             CacheSettings cacheSettings,
             NGSettings ngSettings,
             AppearanceSettings appearanceSettings,
@@ -95,7 +94,6 @@ namespace NicoPlayerHohoema.ViewModels
             ChannelProvider = channelProvider;
             MylistProvider = mylistProvider;
             PlayerSettings = playerSettings;
-            PlaylistSettings = playlistSettings;
             CacheSettings = cacheSettings;
             NgSettings = ngSettings;
             AppearanceSettings = appearanceSettings;
@@ -130,7 +128,6 @@ namespace NicoPlayerHohoema.ViewModels
         public ChannelProvider ChannelProvider { get; }
         public MylistProvider MylistProvider { get; }
 
-        public PlaylistSettings PlaylistSettings { get; }
         public CacheSettings CacheSettings { get; }
         public NGSettings NgSettings { get; }
         public AppearanceSettings AppearanceSettings { get; }
@@ -511,7 +508,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 			catch { }
 
-		    NgSettings.NGCommentUserIds.Add(new UserIdInfo()
+		    PlayerSettings.NGCommentUserIds.Add(new UserIdInfo()
 			{
 				UserId = commentViewModel.UserId,
 				Description = userName

@@ -21,14 +21,14 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
         public PlaylistSidePaneContentViewModel(
             MediaPlayer mediaPlayer,
             HohoemaPlaylist playerModel,
-            PlaylistSettings playlistSettings,
+            PlayerSettings playerSettings,
             PageManager pageManager,
             IScheduler scheduler
             )
         {
             MediaPlayer = mediaPlayer;
             HohoemaPlaylist = playerModel;
-            PlaylistSettings = playlistSettings;
+            _playerSettings = playerSettings;
             PageManager = pageManager;
             _scheduler = scheduler;
 
@@ -36,19 +36,19 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             
             CurrentPlaylistName = new ReactiveProperty<string>(_scheduler, HohoemaPlaylist.CurrentPlaylist?.Label)
                 .AddTo(_CompositeDisposable);
-            IsShuffleEnabled = PlaylistSettings.ToReactivePropertyAsSynchronized(x => x.IsShuffleEnable, _scheduler)
+            IsShuffleEnabled = _playerSettings.ToReactivePropertyAsSynchronized(x => x.IsShuffleEnable, _scheduler)
                 .AddTo(_CompositeDisposable);
 
-            IsTrackRepeatModeEnable = PlaylistSettings.ObserveProperty(x => x.RepeatMode)
+            IsTrackRepeatModeEnable = _playerSettings.ObserveProperty(x => x.RepeatMode)
                 .Select(x => x == MediaPlaybackAutoRepeatMode.Track)
                 .ToReactiveProperty(_scheduler)
                 .AddTo(_CompositeDisposable);
-            IsListRepeatModeEnable = PlaylistSettings.ObserveProperty(x => x.RepeatMode)
+            IsListRepeatModeEnable = _playerSettings.ObserveProperty(x => x.RepeatMode)
                 .Select(x => x == MediaPlaybackAutoRepeatMode.List)
                 .ToReactiveProperty(_scheduler)
                 .AddTo(_CompositeDisposable);
 
-            IsReverseEnabled = PlaylistSettings.ToReactivePropertyAsSynchronized(x => x.IsReverseModeEnable, _scheduler)
+            IsReverseEnabled = _playerSettings.ToReactivePropertyAsSynchronized(x => x.IsReverseModeEnable, _scheduler)
                 .AddTo(_CompositeDisposable);
 
             PlaylistCanGoBack = HohoemaPlaylist.ObserveProperty(x => x.CanGoBack)
@@ -60,7 +60,6 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
         }
 
         public HohoemaPlaylist HohoemaPlaylist { get; }
-        public PlaylistSettings PlaylistSettings { get; }
         public MediaPlayer MediaPlayer { get; }
         public PageManager PageManager { get; }
 
@@ -73,7 +72,10 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
         public ReactiveProperty<bool> IsReverseEnabled { get; private set; }
         public ReactiveProperty<bool> PlaylistCanGoBack { get; private set; }
         public ReactiveProperty<bool> PlaylistCanGoNext { get; private set; }
-        
+
+        private readonly PlayerSettings _playerSettings;
+        private readonly IScheduler _scheduler;
+
 
         private DelegateCommand _ToggleRepeatModeCommand;
         public DelegateCommand ToggleRepeatModeCommand
@@ -83,17 +85,16 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 return _ToggleRepeatModeCommand
                     ?? (_ToggleRepeatModeCommand = new DelegateCommand(() =>
                     {
-                        var playlistSettings = PlaylistSettings;
-                        switch (playlistSettings.RepeatMode)
+                        switch (_playerSettings.RepeatMode)
                         {
                             case MediaPlaybackAutoRepeatMode.List:
-                                playlistSettings.RepeatMode = MediaPlaybackAutoRepeatMode.Track;
+                                _playerSettings.RepeatMode = MediaPlaybackAutoRepeatMode.Track;
                                 break;
                             case MediaPlaybackAutoRepeatMode.Track:
-                                playlistSettings.RepeatMode = MediaPlaybackAutoRepeatMode.None;
+                                _playerSettings.RepeatMode = MediaPlaybackAutoRepeatMode.None;
                                 break;
                             case MediaPlaybackAutoRepeatMode.None:
-                                playlistSettings.RepeatMode = MediaPlaybackAutoRepeatMode.List;
+                                _playerSettings.RepeatMode = MediaPlaybackAutoRepeatMode.List;
                                 break;
                             default:
                                 break;
@@ -111,15 +112,13 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 return _ToggleShuffleCommand
                     ?? (_ToggleShuffleCommand = new DelegateCommand(() =>
                     {
-                        PlaylistSettings.IsShuffleEnable = !PlaylistSettings.IsShuffleEnable;
+                        _playerSettings.IsShuffleEnable = !_playerSettings.IsShuffleEnable;
                     }
                     ));
             }
         }
 
         private DelegateCommand _ToggleReverseModeCommand;
-        private readonly IScheduler _scheduler;
-
         public DelegateCommand ToggleReverseModeCommand
         {
             get
@@ -127,7 +126,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 return _ToggleReverseModeCommand
                     ?? (_ToggleReverseModeCommand = new DelegateCommand(() =>
                     {
-                        PlaylistSettings.IsReverseModeEnable = !PlaylistSettings.IsReverseModeEnable;
+                        _playerSettings.IsReverseModeEnable = !_playerSettings.IsReverseModeEnable;
                     }
                     ));
             }

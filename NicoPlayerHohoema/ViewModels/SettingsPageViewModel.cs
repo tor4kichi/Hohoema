@@ -33,6 +33,7 @@ namespace NicoPlayerHohoema.ViewModels
             PageManager pageManager,
             NotificationService toastService,
             Services.DialogService dialogService,
+            PlayerSettings playerSettings,
             NGSettings ngSettings,
             RankingSettings rankingSettings,
             ActivityFeedSettings activityFeedSettings,
@@ -44,6 +45,7 @@ namespace NicoPlayerHohoema.ViewModels
             NgSettings = ngSettings;
             RankingSettings = rankingSettings;
             _HohoemaDialogService = dialogService;
+            PlayerSettings = playerSettings;
             NgSettings = ngSettings;
             RankingSettings = rankingSettings;
             ActivityFeedSettings = activityFeedSettings;
@@ -184,6 +186,7 @@ namespace NicoPlayerHohoema.ViewModels
         Services.DialogService _HohoemaDialogService;
 
         public NotificationService ToastNotificationService { get; private set; }
+        public PlayerSettings PlayerSettings { get; }
         public NGSettings NgSettings { get; }
         public RankingSettings RankingSettings { get; }
         public ActivityFeedSettings ActivityFeedSettings { get; }
@@ -562,8 +565,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         private void OnRemoveNGCommentUserIdFromList(string userId)
         {
-            var removeTarget = NgSettings.NGCommentUserIds.First(x => x.UserId == userId);
-            NgSettings.NGCommentUserIds.Remove(removeTarget);
+            var removeTarget = PlayerSettings.NGCommentUserIds.First(x => x.UserId == userId);
+            PlayerSettings.NGCommentUserIds.Remove(removeTarget);
         }
 
         protected override bool TryGetHohoemaPin(out HohoemaPin pin)

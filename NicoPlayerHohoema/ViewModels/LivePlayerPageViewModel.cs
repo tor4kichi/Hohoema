@@ -63,9 +63,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public LivePlayerPageViewModel(
             IScheduler scheduler,
-            NGSettings ngSettings,
             PlayerSettings playerSettings,
-            PlaylistSettings playlistSettings,
             NicoLiveProvider nicoLiveProvider,
             AppearanceSettings appearanceSettings,
             LoginUserLiveReservationProvider loginUserLiveReservationProvider,
@@ -81,9 +79,7 @@ namespace NicoPlayerHohoema.ViewModels
             )
         {
             Scheduler = scheduler;
-            NGSettings = ngSettings;
             PlayerSettings = playerSettings;
-            PlaylistSettings = playlistSettings;
             NicoLiveProvider = nicoLiveProvider;
             AppearanceSettings = appearanceSettings;
             LoginUserLiveReservationProvider = loginUserLiveReservationProvider;
@@ -149,8 +145,8 @@ namespace NicoPlayerHohoema.ViewModels
                 .ToReadOnlyReactiveProperty(eventScheduler: PlayerWindowUIDispatcherScheduler);
 
             FilterdComments.SortDescriptions.Add(new Microsoft.Toolkit.Uwp.UI.SortDescription(nameof(Comment.VideoPosition), Microsoft.Toolkit.Uwp.UI.SortDirection.Ascending));
-            FilterdComments.Filter = (x) => !(NGSettings.IsLiveNGComment((x as Comment)?.UserId));
-            NGSettings.NGLiveCommentUserIds.CollectionChangedAsObservable()
+            FilterdComments.Filter = (x) => !(PlayerSettings.IsLiveNGComment((x as Comment)?.UserId));
+            PlayerSettings.NGLiveCommentUserIds.CollectionChangedAsObservable()
                 .Subscribe(x =>
                 {
                     FilterdComments.RefreshFilter();
@@ -493,9 +489,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public IScheduler Scheduler { get; }
 
-        public NGSettings NGSettings { get; }
         public PlayerSettings PlayerSettings { get; }
-        public PlaylistSettings PlaylistSettings { get; }
         public NicoLiveProvider NicoLiveProvider { get; }
         public AppearanceSettings AppearanceSettings { get; }
         public LoginUserLiveReservationProvider LoginUserLiveReservationProvider { get; }

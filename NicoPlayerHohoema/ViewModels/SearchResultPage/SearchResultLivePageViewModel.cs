@@ -17,6 +17,7 @@ using Unity;
 using NicoPlayerHohoema.Services;
 using Prism.Navigation;
 using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -26,7 +27,8 @@ namespace NicoPlayerHohoema.ViewModels
             Models.NiconicoSession niconicoSession,
             SearchProvider searchProvider,
             Services.PageManager pageManager,
-            HohoemaPlaylist hohoemaPlaylist
+            HohoemaPlaylist hohoemaPlaylist,
+            OpenLiveContentCommand openLiveContentCommand
             )
         {
             SelectedSearchSort = new ReactiveProperty<LiveSearchSortOptionListItem>(LiveSearchSortOptionListItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);
@@ -66,6 +68,7 @@ namespace NicoPlayerHohoema.ViewModels
             SearchProvider = searchProvider;
             PageManager = pageManager;
             HohoemaPlaylist = hohoemaPlaylist;
+            OpenLiveContentCommand = openLiveContentCommand;
         }
 
 
@@ -234,6 +237,7 @@ namespace NicoPlayerHohoema.ViewModels
         public SearchProvider SearchProvider { get; }
         public PageManager PageManager { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
+        public OpenLiveContentCommand OpenLiveContentCommand { get; }
 
         #endregion
 
