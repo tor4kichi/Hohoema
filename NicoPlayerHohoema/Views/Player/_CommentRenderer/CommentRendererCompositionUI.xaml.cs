@@ -116,6 +116,16 @@ namespace NicoPlayerHohoema.Views
             Application.Current.EnteredBackground += Current_EnteredBackground;
             Application.Current.LeavingBackground += Current_LeavingBackground;
 
+            if (MediaPlayer != null)
+            {
+                MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
+                MediaPlayer.PlaybackSession.SeekCompleted -= PlaybackSession_SeekCompleted;
+                MediaPlayer.SourceChanged -= MediaPlayer_SourceChanged;
+                MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
+                MediaPlayer.PlaybackSession.SeekCompleted += PlaybackSession_SeekCompleted;
+                MediaPlayer.SourceChanged += MediaPlayer_SourceChanged;
+            }
+
             this.SizeChanged += CommentRendererCompositionUI_SizeChanged;
         }
 
@@ -189,9 +199,9 @@ namespace NicoPlayerHohoema.Views
             var mediaPlayer = MediaPlayer;
             if (mediaPlayer != null)
             {
-                mediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
-                mediaPlayer.PlaybackSession.SeekCompleted -= PlaybackSession_SeekCompleted;
-                mediaPlayer.SourceChanged -= MediaPlayer_SourceChanged;
+                mediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
+                mediaPlayer.PlaybackSession.SeekCompleted += PlaybackSession_SeekCompleted;
+                mediaPlayer.SourceChanged += MediaPlayer_SourceChanged;
             }
         }
 

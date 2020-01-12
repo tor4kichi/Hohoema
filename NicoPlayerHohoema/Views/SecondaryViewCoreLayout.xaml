@@ -17,7 +17,7 @@
     
     <Grid>
         <Frame x:Name="ContentFrame"
-               CacheSize="0"
+               CacheSize="1"
                >
             <Frame.ContentTransitions>
                 <TransitionCollection>

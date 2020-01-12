@@ -30,6 +30,7 @@
       xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector"
       DataContext="{x:Null}"
       x:Name="RootLayout"
+      NavigationCacheMode="Required"
       d:DesignHeight="300"
       d:DesignWidth="400">
   <UserControl.Resources>

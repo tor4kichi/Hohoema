@@ -397,7 +397,7 @@
         </uwpToolkitControls:DockPanel>
       </Grid>
       <Grid x:Name="PlayerLayout" Visibility="Collapsed">
-        <Frame x:Name="PlayerFrame" DataContext="{x:Null}" CacheSize="0" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
+        <Frame x:Name="PlayerFrame" DataContext="{x:Null}" CacheSize="1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
           <Frame.ContentTransitions>
             <TransitionCollection>
               <NavigationThemeTransition>

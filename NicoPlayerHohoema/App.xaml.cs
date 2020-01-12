@@ -198,6 +198,9 @@ namespace NicoPlayerHohoema
             // ViewModels
             unityContainer.RegisterSingleton<ViewModels.RankingCategoryListPageViewModel>();
 
+            unityContainer.RegisterType<ViewModels.VideoPlayerPageViewModel>(new PerThreadLifetimeManager());
+            unityContainer.RegisterType<ViewModels.LivePlayerPageViewModel>(new PerThreadLifetimeManager());
+
 #if DEBUG
             //			BackgroundUpdater.MaxTaskSlotCount = 1;
 #endif

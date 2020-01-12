@@ -30,6 +30,9 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
         private readonly IEventAggregator _eventAggregator;
         private readonly IScheduler _scheduler;
 
+
+        Models.Helpers.AsyncLock _asyncLock = new Models.Helpers.AsyncLock();
+
         public VideoPlayRequestBridgeToPlayer(
             ScondaryViewPlayerManager playerViewManager,
             PrimaryViewPlayerManager primaryViewPlayerManager,
@@ -64,8 +67,8 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
 
 
             _eventAggregator.GetEvent<ChangePlayerDisplayViewRequestEvent>()
-                .Subscribe(async () => 
-                {
+                .Subscribe(async () =>
+                {                     
                     var mode = _displayMode == PlayerDisplayView.PrimaryView ? PlayerDisplayView.SecondaryView : PlayerDisplayView.PrimaryView;
                     if (_lastNavigatedPageName != null && _lastNavigatedParameters != null)
                     {
@@ -83,25 +86,37 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
 
         async Task PlayWithCurrentView(PlayerDisplayView displayMode, string pageName, INavigationParameters parameters)
         {
-            if (displayMode == PlayerDisplayView.PrimaryView)
+            using (await _asyncLock.LockAsync())
             {
-                await _secondaryPlayerManager.CloseAsync().ConfigureAwait(false);
+                if (string.IsNullOrEmpty(pageName)) { throw new ArgumentException(nameof(pageName)); }
 
-                await Task.Delay(10);
+                if (_lastNavigatedPageName == pageName
+                    && (_lastNavigatedParameters?.SequenceEqual(parameters) ?? false))
+                {
+                    System.Diagnostics.Debug.WriteLine("Navigation skiped. (same page name and parameter)");
+                    return;
+                }
 
-                _ = _primaryViewPlayerManager.NavigationAsync(pageName, parameters);
+                if (displayMode == PlayerDisplayView.PrimaryView)
+                {
+                    await _secondaryPlayerManager.CloseAsync().ConfigureAwait(false);
+
+                    await Task.Delay(10);
+
+                    _ = _primaryViewPlayerManager.NavigationAsync(pageName, parameters);
+                }
+                else
+                {
+                    _primaryViewPlayerManager.Close();
+
+                    await Task.Delay(10);
+
+                    _ = _secondaryPlayerManager.NavigationAsync(pageName, parameters).ConfigureAwait(false);
+                }
+
+                _lastNavigatedPageName = pageName;
+                _lastNavigatedParameters = parameters;
             }
-            else
-            {
-                _primaryViewPlayerManager.Close();
-
-                await Task.Delay(10);
-
-                _ = _secondaryPlayerManager.NavigationAsync(pageName, parameters).ConfigureAwait(false);
-            }
-
-            _lastNavigatedPageName = pageName;
-            _lastNavigatedParameters = parameters;
         }
 
         PlayerDisplayView _displayMode;

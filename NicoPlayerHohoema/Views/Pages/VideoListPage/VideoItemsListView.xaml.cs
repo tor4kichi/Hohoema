@@ -205,6 +205,9 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
 
         private void VideoItemsListView_Unloaded(object sender, RoutedEventArgs e)
         {
+            // Item Play
+            ItemsList.ItemClick -= ItemsList_ItemClick;
+
             // Selection
             _selectionContext.RequestSelectAll -= _selectionContext_RequestSelectAll;
             _selectionContext.SelectionStarted -= _selectionContext_SelectionStarted;
