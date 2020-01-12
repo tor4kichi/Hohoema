@@ -26,7 +26,6 @@ namespace NicoPlayerHohoema.Services.Player
 
     public sealed class PrimaryViewPlayerManager : BindableBase
     {
-
         INavigationService _navigationService;
 
         private ApplicationView _view;

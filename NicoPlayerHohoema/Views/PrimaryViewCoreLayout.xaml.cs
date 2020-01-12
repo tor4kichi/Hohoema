@@ -65,31 +65,36 @@ namespace NicoPlayerHohoema.Views
                 }
             };
 
+            ContentFrame.Navigating += ContentFrame_Navigating;
+
             _viewModel.EventAggregator.GetEvent<PageNavigationEvent>()
                 .Subscribe(args =>
                 {
                     _ = Navigation(args);
                 });
 
-            SystemNavigationManager.GetForCurrentView().BackRequested += (_, e) =>
-            {
-                // ウィンドウ全体で再生している場合 → バックキーで小窓表示へ移行
-                // それ以外の場合 → ページのバック処理
-                //if (PlayerViewManager.IsPlayingWithPrimaryView
-                //    && !PlayerViewManager.IsPlayerSmallWindowModeEnabled)
-                //{
-                //    //PlayerViewManager.IsPlayerSmallWindowModeEnabled = true;
-                //    e.Handled = true;
-                //}
-                //else if (NavigationService.CanGoBack())
-                //{
-                //    _ = NavigationService.GoBackAsync();
-                //    e.Handled = true;
-                //}
-            };
 
+            SystemNavigationManager.GetForCurrentView().BackRequested += App_BackRequested;
+            Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
+            Window.Current.CoreWindow.PointerPressed += CoreWindow_PointerPressed;
+
+
+            if (Services.Helpers.DeviceTypeHelper.IsDesktop)
+            {
+                Window.Current.SetTitleBar(DraggableContent as UIElement);
+            }
 
             PlayerFrame.Navigated += PlayerFrame_Navigated;
+        }
+
+        // 狭い画面の時にメニュー項目を選択したらペインを閉じるようにする
+        private void ContentFrame_Navigating(object sender, NavigatingCancelEventArgs e)
+        {
+            if (ContentSplitView.DisplayMode == SplitViewDisplayMode.CompactOverlay ||
+                ContentSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
+            {
+                ContentSplitView.IsPaneOpen = false;
+            }
         }
 
         private void PlayerFrame_Navigated(object sender, NavigationEventArgs e)
@@ -129,7 +134,7 @@ namespace NicoPlayerHohoema.Views
                     //}
 
                     var prefix = behavior == NavigationStackBehavior.Root ? "/" : String.Empty;
-                    var result = await _navigationService.NavigateAsync($"{prefix}{pageType.ToString()}", parameter);
+                    var result = await _contentFrameNavigationService.NavigateAsync($"{prefix}{pageType.ToString()}", parameter);
                     if (result.Success)
                     {
                         PageTitle = pageType.Translate();
@@ -151,19 +156,87 @@ namespace NicoPlayerHohoema.Views
 
         
 
-        INavigationService _navigationService;
+        INavigationService _contentFrameNavigationService;
 
         public INavigationService CreateNavigationService()
         {
-            return _navigationService ?? (_navigationService = NavigationService.Create(ContentFrame, new Prism.Services.Gesture[] { }));
+            return _contentFrameNavigationService ?? (_contentFrameNavigationService = NavigationService.Create(ContentFrame, new Prism.Services.Gesture[] { Prism.Services.Gesture.Refresh }));
         }
-
 
         INavigationService _playerNavigationService;
         public INavigationService CreatePlayerNavigationService()
         {
             return _playerNavigationService ?? (_playerNavigationService = NavigationService.Create(PlayerFrame, new Prism.Services.Gesture[] { }));
         }
+
+
+
+        #region Back Navigation
+
+        private void CoreWindow_PointerPressed(CoreWindow sender, PointerEventArgs args)
+        {
+            if (args.KeyModifiers == Windows.System.VirtualKeyModifiers.None
+                && args.CurrentPoint.Properties.IsXButton1Pressed
+                )
+            {
+                if (HandleBackRequest())
+                {
+                    args.Handled = true;
+                    Debug.WriteLine("back navigated with VirtualKey.Back pressed");
+                }
+            }
+        }
+
+        private void CoreWindow_KeyDown(CoreWindow sender, KeyEventArgs args)
+        {
+            if (args.VirtualKey == Windows.System.VirtualKey.GoBack)
+            {
+                if (HandleBackRequest())
+                {
+                    args.Handled = true;
+                    Debug.WriteLine("back navigated with VirtualKey.Back pressed");
+                }
+            }
+        }
+
+        private void App_BackRequested(object sender, BackRequestedEventArgs e)
+        {
+            if (HandleBackRequest())
+            {
+                e.Handled = true;
+                Debug.WriteLine("back navigated with SystemNavigationManager.BackRequested");
+            }
+        }
+
+        bool HandleBackRequest()
+        {
+            var displayMode = _viewModel.PrimaryViewPlayerManager.DisplayMode.Value;
+            if (displayMode == Services.Player.PrimaryPlayerDisplayMode.Fill
+                || displayMode == Services.Player.PrimaryPlayerDisplayMode.FullScreen
+                || displayMode == Services.Player.PrimaryPlayerDisplayMode.CompactOverlay
+                )
+            {
+                Debug.WriteLine("BackNavigation canceled. due to priority player UI.");
+                return false;
+            }
+            else
+            {
+                if (_contentFrameNavigationService.CanGoBack())
+                {
+                    _ = _contentFrameNavigationService.GoBackAsync();
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+
+
+
+        #endregion
+
+
 
 
         public string PageTitle
@@ -211,16 +284,16 @@ namespace NicoPlayerHohoema.Views
 
         private bool CanExecuteGoBackCommand()
         {
-            return _navigationService.CanGoBack();
+            return _contentFrameNavigationService.CanGoBack();
         }
 
         async void ExecuteGoBackCommand()
         {
-            if (_navigationService.CanGoBack())
+            if (_contentFrameNavigationService.CanGoBack())
             {
                 using (await _navigationLock.LockAsync())
                 {
-                    var result = await _navigationService.GoBackAsync();
+                    var result = await _contentFrameNavigationService.GoBackAsync();
                 }
             }
         }

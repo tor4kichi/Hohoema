@@ -24,8 +24,8 @@
     https://msdn.microsoft.com/ja-jp/library/windows/apps/mt299109.aspx
     -->
     <Style TargetType="Button">
-        <Setter Property="MinHeight" Value="48" />
-        <Setter Property="MinWidth" Value="48" />
+        <Setter Property="MinHeight" Value="32" />
+        <Setter Property="MinWidth" Value="40" />
         <Setter Property="Background" Value="{ThemeResource SystemControlBackgroundBaseLowBrush}" />
         <Setter Property="Foreground" Value="{ThemeResource SystemControlForegroundBaseHighBrush}" />
         <Setter Property="BorderBrush" Value="Transparent" />

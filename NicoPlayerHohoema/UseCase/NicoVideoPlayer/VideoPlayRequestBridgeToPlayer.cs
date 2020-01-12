@@ -90,7 +90,8 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
             {
                 if (string.IsNullOrEmpty(pageName)) { throw new ArgumentException(nameof(pageName)); }
 
-                if (_lastNavigatedPageName == pageName
+                if (_displayMode == displayMode
+                    && _lastNavigatedPageName == pageName
                     && (_lastNavigatedParameters?.SequenceEqual(parameters) ?? false))
                 {
                     System.Diagnostics.Debug.WriteLine("Navigation skiped. (same page name and parameter)");

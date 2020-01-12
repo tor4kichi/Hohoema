@@ -233,18 +233,42 @@
     </Style>
   </UserControl.Resources>
   <Grid x:Name="RootLayout" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    <!-- Player -->
     <uwpToolkitControls:DockPanel>
-      <SplitView x:Name="ContentSplitView" CompactPaneLength="48" OpenPaneLength="{StaticResource SideMenuPaneLength}" DisplayMode="Inline" IsPaneOpen="True" IsTabStop="False" PaneBackground="{StaticResource MenuBackgroundBrush}">
+      <Border uwpToolkitControls:DockPanel.Dock="Top"
+              x:Name="MobilePlayerTopMargin"
+              Height="{Binding ElementName=PlayerFrame, Path=ActualHeight, Mode=OneWay}"
+              Visibility="Collapsed" />
+      <SplitView x:Name="ContentSplitView"
+                 CompactPaneLength="48"
+                 OpenPaneLength="{StaticResource SideMenuPaneLength}"
+                 DisplayMode="Inline"
+                 IsPaneOpen="True"
+                 IsTabStop="False"
+                 PaneBackground="{StaticResource MenuBackgroundBrush}">
         <SplitView.Pane>
           <uwpToolkitControls:DockPanel x:Name="PaneLayout">
-            <Border Height="{StaticResource TitleBarDummyHeight}" uwpToolkitControls:DockPanel.Dock="Top" />
-            <Border uwpToolkitControls:DockPanel.Dock="Top" Margin="8 0 8 8">
-              <TextBox x:Name="SearchTextBox" Text="{x:Bind SearchInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="検索" UseSystemFocusVisuals="True" TabIndex="103"  Padding="0" Margin="0 16 0 0">
+            <Border Height="{StaticResource TitleBarDummyHeight}"
+                    uwpToolkitControls:DockPanel.Dock="Top" />
+            <Border uwpToolkitControls:DockPanel.Dock="Top"
+                    Margin="8 0 8 8">
+              <TextBox x:Name="SearchTextBox"
+                       Text="{x:Bind SearchInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                       PlaceholderText="検索"
+                       UseSystemFocusVisuals="True"
+                       TabIndex="103"
+                       Padding="0"
+                       Margin="0 16 0 0">
                 <i:Interaction.Behaviors>
-                  <mybehavior:KeyboardTrigger Key="Enter" x:Name="SearchSubmitWithEnterKeyTrigger" IsEnabled="False">
-                    <core:InvokeCommandAction Command="{Binding SearchCommand}" CommandParameter="{x:Bind SearchInputText, Mode=OneWay}" />
-                    <core:ChangePropertyAction PropertyName="IsEnabled" Value="False" />
-                    <core:ChangePropertyAction PropertyName="IsEnabled" Value="True" />
+                  <mybehavior:KeyboardTrigger Key="Enter"
+                                              x:Name="SearchSubmitWithEnterKeyTrigger"
+                                              IsEnabled="False">
+                    <core:InvokeCommandAction Command="{Binding SearchCommand}"
+                                              CommandParameter="{x:Bind SearchInputText, Mode=OneWay}" />
+                    <core:ChangePropertyAction PropertyName="IsEnabled"
+                                               Value="False" />
+                    <core:ChangePropertyAction PropertyName="IsEnabled"
+                                               Value="True" />
                   </mybehavior:KeyboardTrigger>
                   <mybehavior:UINavigationTrigger Kind="Cancel">
                     <mybehavior:SetFocus TargetObject="{Binding ElementName=SubMenuPageTypesListView}" />
@@ -252,24 +276,54 @@
                 </i:Interaction.Behaviors>
               </TextBox>
             </Border>
-            <uwpToolkitControls:DockPanel uwpToolkitControls:DockPanel.Dock="Bottom" HorizontalAlignment="Stretch">
-              <Button Command="{Binding PageManager.OpenPageCommand}" CommandParameter="Settings" uwpToolkitControls:DockPanel.Dock="Right" Background="Transparent" TabIndex="101">
+            <uwpToolkitControls:DockPanel uwpToolkitControls:DockPanel.Dock="Bottom"
+                                          HorizontalAlignment="Stretch">
+              <Button Command="{Binding PageManager.OpenPageCommand}"
+                      CommandParameter="Settings"
+                      uwpToolkitControls:DockPanel.Dock="Right"
+                      Background="Transparent"
+                      TabIndex="101">
                 <SymbolIcon Symbol="Setting" />
               </Button>
               <Grid>
-                <Button x:Name="OpenAccountButton" Padding="16 0 0 0" Background="Transparent" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" VerticalContentAlignment="Center" TabIndex="100">
+                <Button x:Name="OpenAccountButton"
+                        Padding="16 0 0 0"
+                        Background="Transparent"
+                        HorizontalAlignment="Stretch"
+                        HorizontalContentAlignment="Left"
+                        VerticalContentAlignment="Center"
+                        TabIndex="100">
                   <Button.Flyout>
                     <MenuFlyout>
-                      <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenAccountInfo" Visibility="Collapsed" Text="アカウント情報" Command="{Binding OpenAccountInfoCommand}" />
-                      <MenuFlyoutItem x:Name="MenuFlyoutItem_Logout" Visibility="Collapsed" Text="ログアウト" Command="{Binding LogoutFromNiconicoCommand}" />
-                      <MenuFlyoutItem x:Name="MenuFlyoutItem_Login" Visibility="Collapsed" Text="ログイン" Command="{Binding NiconicoLoginService.LoginCommand}" />
-                      <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenDebugPage" Visibility="Collapsed" Text="デバッグページを開く" Command="{Binding OpenDebugPageCommand}" />
+                      <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenAccountInfo"
+                                      Visibility="Collapsed"
+                                      Text="アカウント情報"
+                                      Command="{Binding OpenAccountInfoCommand}" />
+                      <MenuFlyoutItem x:Name="MenuFlyoutItem_Logout"
+                                      Visibility="Collapsed"
+                                      Text="ログアウト"
+                                      Command="{Binding LogoutFromNiconicoCommand}" />
+                      <MenuFlyoutItem x:Name="MenuFlyoutItem_Login"
+                                      Visibility="Collapsed"
+                                      Text="ログイン"
+                                      Command="{Binding NiconicoLoginService.LoginCommand}" />
+                      <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenDebugPage"
+                                      Visibility="Collapsed"
+                                      Text="デバッグページを開く"
+                                      Command="{Binding OpenDebugPageCommand}" />
                     </MenuFlyout>
                   </Button.Flyout>
                   <StackPanel>
-                    <TextBlock Text="{Binding NiconicoSession.ServiceStatus, Converter={StaticResource LocalizeConverter}}" x:Name="ServiceStateText" />
-                    <uwpToolkitControls:DockPanel Margin="0 0" x:Name="AccountInfoLayout" Visibility="Collapsed">
-                      <Image Source="{Binding NiconicoSession.UserIconUrl,Mode=OneWay}" uwpToolkitControls:DockPanel.Dock="Left" Height="24" Width="24" Margin="0 0 8 0" />
+                    <TextBlock Text="{Binding NiconicoSession.ServiceStatus, Converter={StaticResource LocalizeConverter}}"
+                               x:Name="ServiceStateText" />
+                    <uwpToolkitControls:DockPanel Margin="0 0"
+                                                  x:Name="AccountInfoLayout"
+                                                  Visibility="Collapsed">
+                      <Image Source="{Binding NiconicoSession.UserIconUrl,Mode=OneWay}"
+                             uwpToolkitControls:DockPanel.Dock="Left"
+                             Height="24"
+                             Width="24"
+                             Margin="0 0 8 0" />
                       <StackPanel>
                         <TextBlock Text="{x:Bind _viewModel.NiconicoSession.UserName,Mode=OneWay}" />
                       </StackPanel>
@@ -278,39 +332,72 @@
                 </Button>
               </Grid>
             </uwpToolkitControls:DockPanel>
-            <ScrollViewer HorizontalScrollMode="Disabled" VerticalScrollMode="Auto" VerticalScrollBarVisibility="Hidden">
+            <ScrollViewer HorizontalScrollMode="Disabled"
+                          VerticalScrollMode="Auto"
+                          VerticalScrollBarVisibility="Hidden">
               <StackPanel x:Name="PaneScrollableContentLayout">
                 <StackPanel>
                   <uwpToolkitControls:DockPanel Margin="0">
-                    <Button Command="{x:Bind AddPinCurrentPageCommand}" Background="Transparent" Height="24" uwpToolkitControls:DockPanel.Dock="Right" Margin="0 0 8 0">
-                      <SymbolIcon Symbol="Add" ToolTipService.ToolTip="現在のページをピン留めする" Opacity="0.55" />
+                    <Button Command="{x:Bind AddPinCurrentPageCommand}"
+                            Background="Transparent"
+                            Height="24"
+                            uwpToolkitControls:DockPanel.Dock="Right"
+                            Margin="0 0 8 0">
+                      <SymbolIcon Symbol="Add"
+                                  ToolTipService.ToolTip="現在のページをピン留めする"
+                                  Opacity="0.55" />
                     </Button>
-                    <TextBlock Text="ピン留め" VerticalAlignment="Center" FontSize="14" Margin="16 0 0 0" Opacity="0.55" />
+                    <TextBlock Text="ピン留め"
+                               VerticalAlignment="Center"
+                               FontSize="14"
+                               Margin="16 0 0 0"
+                               Opacity="0.55" />
                   </uwpToolkitControls:DockPanel>
-                  <ListView ItemsSource="{Binding PinSettings.Pins}" ItemTemplate="{StaticResource PinMenuItemTemplate}" uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}" IsItemClickEnabled="True" SelectionMode="None" TabIndex="1" CanReorderItems="True" AllowDrop="True" xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions" myExtensions:ListViewBase.ItemContextFlyoutCustomObjectToTag="{Binding}">
+                  <ListView ItemsSource="{Binding PinSettings.Pins}"
+                            ItemTemplate="{StaticResource PinMenuItemTemplate}"
+                            uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
+                            IsItemClickEnabled="True"
+                            SelectionMode="None"
+                            TabIndex="1"
+                            CanReorderItems="True"
+                            AllowDrop="True"
+                            xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
+                            myExtensions:ListViewBase.ItemContextFlyoutCustomObjectToTag="{Binding}">
                     <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
                       <DataTemplate>
                         <MenuFlyout>
-                          <MenuFlyoutItem Text="ピンに別名を付ける" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.PinChangeOverrideLabelCommand}" CommandParameter="{Binding}" />
+                          <MenuFlyoutItem Text="ピンに別名を付ける"
+                                          Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.PinChangeOverrideLabelCommand}"
+                                          CommandParameter="{Binding}" />
                           <MenuFlyoutSeparator />
-                          <MenuFlyoutItem Text="ピン留めを解除" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.PinRemoveCommand}" CommandParameter="{Binding}" />
+                          <MenuFlyoutItem Text="ピン留めを解除"
+                                          Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.PinRemoveCommand}"
+                                          CommandParameter="{Binding}" />
                         </MenuFlyout>
                       </DataTemplate>
                     </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
                   </ListView>
-                  <StackPanel Visibility="{Binding PinSettings.Pins, Converter={StaticResource EmptyCollectionVisibilityConverter}}" Margin="0 8">
-                    <TextBlock Opacity="0.7" FontSize="12" Margin="24 0 0 0">
+                  <StackPanel Visibility="{Binding PinSettings.Pins, Converter={StaticResource EmptyCollectionVisibilityConverter}}"
+                              Margin="0 8">
+                    <TextBlock Opacity="0.7"
+                               FontSize="12"
+                               Margin="24 0 0 0">
                                                     好きなページを開いて「＋ボタン」でピン留め</TextBlock>
                   </StackPanel>
                 </StackPanel>
                 <Pivot>
                   <Pivot.ItemContainerStyle>
                     <Style TargetType="PivotItem">
-                      <Setter Property="Margin" Value="0" />
+                      <Setter Property="Margin"
+                              Value="0" />
                     </Style>
                   </Pivot.ItemContainerStyle>
-                  <PivotItem Header="動画" Content="{Binding VideoMenu}" ContentTemplate="{StaticResource VideoSubMenuContentTemplate}" />
-                  <PivotItem Header="生放送" Content="{Binding LiveMenu}" ContentTemplate="{StaticResource LiveSubMenuContentTemplate}" />
+                  <PivotItem Header="動画"
+                             Content="{Binding VideoMenu}"
+                             ContentTemplate="{StaticResource VideoSubMenuContentTemplate}" />
+                  <PivotItem Header="生放送"
+                             Content="{Binding LiveMenu}"
+                             ContentTemplate="{StaticResource LiveSubMenuContentTemplate}" />
                 </Pivot>
               </StackPanel>
             </ScrollViewer>
@@ -319,50 +406,112 @@
         <SplitView.Content>
           <Grid x:Name="SplitViewContentLayout">
             <uwpToolkitControls:DockPanel>
-              <Border x:Name="TopMenu" uwpToolkitControls:DockPanel.Dock="Top">
-                <uwpToolkitControls:DockPanel x:Name="TopMenuLayout">
-                  <Border uwpToolkitControls:DockPanel.Dock="Top" Height="{StaticResource TitleBarDummyHeight}" />
-                  <!-- モバイル時のメニュー開閉ボタン -->
-                  <Button x:Name="MenuToggleButton" uwpToolkitControls:DockPanel.Dock="Left" Visibility="Collapsed" Width="40" Height="40" Background="Transparent" Command="{x:Bind TogglePageOpenCommand}">
-                    <iconPack:PackIconMaterial Kind="Menu" Width="20" Height="20" Opacity="0.9" />
-                  </Button>
-                  <Grid Height="40">
-                    <TextBlock x:Name="MenuTitleText" Text="{x:Bind PageTitle,Mode=OneWay}" Style="{StaticResource SubtitleTextBlockStyle}" Margin="16 8 16 8" VerticalAlignment="Center" />
-                    <Button Background="Transparent" HorizontalAlignment="Right" x:Name="Mobile_ShowSearchButton" Visibility="Collapsed" Padding="16 0">
-                      <i:Interaction.Behaviors>
-                        <core:EventTriggerBehavior EventName="Click">
-                          <core:ChangePropertyAction TargetObject="{Binding ElementName=Mobile_SearchTextBox}" PropertyName="Visibility" Value="Visible" />
-                          <mybehavior:SetFocus TargetObject="{Binding ElementName=Mobile_SearchTextBox}" />
-                        </core:EventTriggerBehavior>
-                      </i:Interaction.Behaviors>
-                      <StackPanel Orientation="Horizontal">
-                        <SymbolIcon Symbol="Find" Opacity="0.7" Margin="0 0 8 0" VerticalAlignment="Center">
-                          <SymbolIcon.RenderTransform>
-                            <ScaleTransform ScaleX="0.8" ScaleY="0.8" CenterX="13" CenterY="13" />
-                          </SymbolIcon.RenderTransform>
-                        </SymbolIcon>
-                        <TextBlock Text="{Binding Source=Search, Converter={StaticResource LocalizeConverter}}" Opacity="0.7" VerticalAlignment="Center" FontSize="13" />
-                      </StackPanel>
+              <uwpToolkitControls:DockPanel x:Name="TopMenuLayout"
+                                            uwpToolkitControls:DockPanel.Dock="Top">
+                <Border uwpToolkitControls:DockPanel.Dock="Top"
+                        Height="{StaticResource TitleBarDummyHeight}"
+                        x:Name="TopMarginBorder"
+                        />
+                <StackPanel Orientation="Horizontal"
+                            uwpToolkitControls:DockPanel.Dock="Left"
+                            Spacing="8">
+                  <Border x:Name="Mobile_BackButtonLayout"
+                          Margin="0 0 0 0"
+                          Visibility="Collapsed">
+                    <Button Width="40" Height="32"
+                            Background="Transparent"
+                            VerticalContentAlignment="Center"
+                            Command="{x:Bind GoBackCommand}">
+                      <SymbolIcon Symbol="Back"
+                                  Height="13"
+                                  Width="13" />
                     </Button>
-                    <Border Background="{StaticResource MenuBackgroundBrush}" x:Name="Mobile_BlindSearchTextBoxBorder" Visibility="Collapsed" />
-                    <TextBox x:Name="Mobile_SearchTextBox" Text="{x:Bind SearchInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="検索" UseSystemFocusVisuals="True" TabIndex="103" Padding="0" Visibility="Collapsed" VerticalAlignment="Center">
-                      <i:Interaction.Behaviors>
-                        <core:EventTriggerBehavior EventName="LostFocus">
-                          <core:ChangePropertyAction PropertyName="Visibility" Value="Collapsed" />
-                        </core:EventTriggerBehavior>
-                        <mybehavior:KeyboardTrigger Key="Enter" x:Name="Mobile_SearchSubmitWithEnterKeyTrigger" IsEnabled="False">
-                          <core:InvokeCommandAction Command="{Binding SearchCommand}" CommandParameter="{x:Bind SearchInputText, Mode=OneWay}" />
-                          <core:ChangePropertyAction PropertyName="IsEnabled" Value="False" />
-                          <core:ChangePropertyAction PropertyName="IsEnabled" Value="True" />
-                        </mybehavior:KeyboardTrigger>
-                      </i:Interaction.Behaviors>
-                    </TextBox>
-                  </Grid>
-                </uwpToolkitControls:DockPanel>
-              </Border>
+                  </Border>
+                  <!-- モバイル時のメニュー開閉ボタン -->
+                  <Button x:Name="MenuToggleButton"
+                          Visibility="Collapsed"
+                          Width="40"
+                          Height="32"
+                          Background="Transparent"
+                          Command="{x:Bind TogglePageOpenCommand}">
+                    <iconPack:PackIconMaterial Kind="Menu"
+                                               Width="16"
+                                               Height="16"
+                                               Opacity="0.9" />
+                  </Button>
+                </StackPanel>
+                <Grid Height="40">
+                  <TextBlock x:Name="MenuTitleText"
+                             Text="{x:Bind PageTitle,Mode=OneWay}"
+                             Style="{StaticResource SubtitleTextBlockStyle}"
+                             Margin="16 8 16 8"
+                             VerticalAlignment="Center" />
+                  <Button Background="Transparent"
+                          HorizontalAlignment="Right"
+                          x:Name="Mobile_ShowSearchButton"
+                          Visibility="Collapsed"
+                          Padding="16 0">
+                    <i:Interaction.Behaviors>
+                      <core:EventTriggerBehavior EventName="Click">
+                        <core:ChangePropertyAction TargetObject="{Binding ElementName=Mobile_SearchTextBox}"
+                                                   PropertyName="Visibility"
+                                                   Value="Visible" />
+                        <mybehavior:SetFocus TargetObject="{Binding ElementName=Mobile_SearchTextBox}" />
+                      </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
+                    <StackPanel Orientation="Horizontal">
+                      <SymbolIcon Symbol="Find"
+                                  Opacity="0.7"
+                                  Margin="0 0 8 0"
+                                  VerticalAlignment="Center">
+                        <SymbolIcon.RenderTransform>
+                          <ScaleTransform ScaleX="0.8"
+                                          ScaleY="0.8"
+                                          CenterX="13"
+                                          CenterY="13" />
+                        </SymbolIcon.RenderTransform>
+                      </SymbolIcon>
+                      <TextBlock Text="{Binding Source=Search, Converter={StaticResource LocalizeConverter}}"
+                                 Opacity="0.7"
+                                 VerticalAlignment="Center"
+                                 FontSize="13" />
+                    </StackPanel>
+                  </Button>
+                  <Border Background="{StaticResource MenuBackgroundBrush}"
+                          x:Name="Mobile_BlindSearchTextBoxBorder"
+                          Visibility="Collapsed" />
+                  <TextBox x:Name="Mobile_SearchTextBox"
+                           Text="{x:Bind SearchInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                           PlaceholderText="検索"
+                           UseSystemFocusVisuals="True"
+                           TabIndex="103"
+                           Padding="0"
+                           Visibility="Collapsed"
+                           VerticalAlignment="Center">
+                    <i:Interaction.Behaviors>
+                      <core:EventTriggerBehavior EventName="LostFocus">
+                        <core:ChangePropertyAction PropertyName="Visibility"
+                                                   Value="Collapsed" />
+                      </core:EventTriggerBehavior>
+                      <mybehavior:KeyboardTrigger Key="Enter"
+                                                  x:Name="Mobile_SearchSubmitWithEnterKeyTrigger"
+                                                  IsEnabled="False">
+                        <core:InvokeCommandAction Command="{Binding SearchCommand}"
+                                                  CommandParameter="{x:Bind SearchInputText, Mode=OneWay}" />
+                        <core:ChangePropertyAction PropertyName="IsEnabled"
+                                                   Value="False" />
+                        <core:ChangePropertyAction PropertyName="IsEnabled"
+                                                   Value="True" />
+                      </mybehavior:KeyboardTrigger>
+                    </i:Interaction.Behaviors>
+                  </TextBox>
+                </Grid>
+              </uwpToolkitControls:DockPanel>
               <!-- ページ毎のコンテンツ -->
               <Grid>
-                <Frame x:Name="ContentFrame" VerticalContentAlignment="Stretch" DataContext="{x:Null}">
+                <Frame x:Name="ContentFrame"
+                       VerticalContentAlignment="Stretch"
+                       DataContext="{x:Null}">
                   <myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
                     <templateSelector:HohoemaFlyoutTemplateSelector>
                       <templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
@@ -378,85 +527,187 @@
                     </templateSelector:HohoemaFlyoutTemplateSelector>
                   </myextensions:ContextFlyoutExtension.FlyoutTemplateSelector>
                 </Frame>
-                <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" x:Name="Mobile_BarrierSearchTextBoxBorder" Visibility="Collapsed" IsHitTestVisible="True" Opacity="0.8" />
+                <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                        x:Name="Mobile_BarrierSearchTextBoxBorder"
+                        Visibility="Collapsed"
+                        IsHitTestVisible="True"
+                        Opacity="0.8" />
               </Grid>
             </uwpToolkitControls:DockPanel>
-            <Grid x:Name="MenuBackgroundGrid" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}" Opacity="0.5" Visibility="Collapsed" IsTapEnabled="True" IsHitTestVisible="True">
+            <Grid x:Name="MenuBackgroundGrid"
+                  Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                  Opacity="0.5"
+                  Visibility="Collapsed"
+                  IsTapEnabled="True"
+                  IsHitTestVisible="True">
               <UserControl IsTabStop="True" />
             </Grid>
           </Grid>
         </SplitView.Content>
       </SplitView>
     </uwpToolkitControls:DockPanel>
-    <!-- Player -->
-    <Grid>
-      <Grid x:Name="ContentLayout">
-        <uwpToolkitControls:DockPanel>
-          <Border uwpToolkitControls:DockPanel.Dock="Top" x:Name="MobilePlayerTopMargin" Height="{Binding ElementName=PlayerFrame, Path=ActualHeight, Mode=OneWay}" Visibility="Collapsed" />
-          <ContentPresenter />
-        </uwpToolkitControls:DockPanel>
-      </Grid>
-      <Grid x:Name="PlayerLayout" Visibility="Collapsed">
-        <Frame x:Name="PlayerFrame" DataContext="{x:Null}" CacheSize="1" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
-          <Frame.ContentTransitions>
-            <TransitionCollection>
-              <NavigationThemeTransition>
-                <NavigationThemeTransition.DefaultNavigationTransitionInfo>
-                  <DrillInNavigationTransitionInfo />
-                </NavigationThemeTransition.DefaultNavigationTransitionInfo>
-              </NavigationThemeTransition>
-            </TransitionCollection>
-          </Frame.ContentTransitions>
-        </Frame>
-        <Grid x:Name="FillPlayerLayout" Visibility="Collapsed" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></Grid>
-        <Grid x:Name="FloatPlayerLayout" Visibility="Collapsed">
-          <Button Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalContentAlignment="Stretch">
-            <i:Interaction.Behaviors>
-              <core:EventTriggerBehavior EventName="Click">
-                <core:CallMethodAction TargetObject="{Binding PrimaryViewPlayerManager}" MethodName="ShowWithFill" />
-              </core:EventTriggerBehavior>
-            </i:Interaction.Behaviors>
-            <Button.ContextFlyout>
-              <MenuFlyout>
-                <MenuFlyoutItem Text="閉じる" Command="{Binding PrimaryViewPlayerManager.CloseCommand}" />
-              </MenuFlyout>
-            </Button.ContextFlyout>
-            <Border />
-          </Button>
-        </Grid>
+    <Grid x:Name="PlayerLayout"
+          Visibility="Collapsed">
+      <Frame x:Name="PlayerFrame"
+             DataContext="{x:Null}"
+             CacheSize="1"
+             HorizontalContentAlignment="Stretch"
+             VerticalContentAlignment="Stretch">
+        <Frame.ContentTransitions>
+          <TransitionCollection>
+            <NavigationThemeTransition>
+              <NavigationThemeTransition.DefaultNavigationTransitionInfo>
+                <DrillInNavigationTransitionInfo />
+              </NavigationThemeTransition.DefaultNavigationTransitionInfo>
+            </NavigationThemeTransition>
+          </TransitionCollection>
+        </Frame.ContentTransitions>
+      </Frame>
+      <Grid x:Name="FillPlayerLayout"
+            Visibility="Collapsed"
+            HorizontalAlignment="Stretch"
+            VerticalAlignment="Stretch"></Grid>
+      <Grid x:Name="FloatPlayerLayout"
+            Visibility="Collapsed">
+        <Button Background="Transparent"
+                HorizontalAlignment="Stretch"
+                VerticalAlignment="Stretch"
+                HorizontalContentAlignment="Stretch"
+                VerticalContentAlignment="Stretch">
+          <i:Interaction.Behaviors>
+            <core:EventTriggerBehavior EventName="Click">
+              <core:CallMethodAction TargetObject="{Binding PrimaryViewPlayerManager}"
+                                     MethodName="ShowWithFill" />
+            </core:EventTriggerBehavior>
+          </i:Interaction.Behaviors>
+          <Button.ContextFlyout>
+            <MenuFlyout>
+              <MenuFlyoutItem Text="閉じる"
+                              Command="{Binding PrimaryViewPlayerManager.CloseCommand}" />
+            </MenuFlyout>
+          </Button.ContextFlyout>
+          <Border />
+        </Button>
       </Grid>
     </Grid>
-    <uwpToolkitControls:DockPanel Height="{StaticResource TitleBarDummyHeight}" VerticalAlignment="Top">
-      <Border x:Name="BackButtonLayout" uwpToolkitControls:DockPanel.Dock="Left">
-        <Border>
-          <Button MinHeight="{StaticResource TitleBarDummyHeight}" Background="Transparent" VerticalContentAlignment="Center" Command="{x:Bind GoBackCommand}">
-            <SymbolIcon Symbol="Back" Height="10" Width="10" />
-          </Button>
-        </Border>
-      </Border>
+    <Grid Height="{StaticResource TitleBarDummyHeight}" VerticalAlignment="Top">
       <Border x:Name="DraggableContent" IsTapEnabled="True" Background="Transparent">
         <TextBlock Text="Hohoema" Margin="12 0 0 0" VerticalAlignment="Center" Opacity="0.9" FontSize="13" HorizontalAlignment="Left" x:Name="TitleBarTextBlock"></TextBlock>
       </Border>
-    </uwpToolkitControls:DockPanel>
+      <Border x:Name="BackButtonLayout" Margin="280 0 0 0" >
+        <Button MinHeight="{StaticResource TitleBarDummyHeight}"
+                Background="Transparent"
+                VerticalContentAlignment="Center"
+                Command="{x:Bind GoBackCommand}">
+          <SymbolIcon Symbol="Back"
+                      Height="13"
+                      Width="13" />
+        </Button>
+      </Border>
+    </Grid>
     <VisualStateManager.VisualStateGroups>
-      <VisualStateGroup x:Name="TopBarStateGroup">
-        <!-- トップメニュー非表示 -->
-        <!--
+
+      <!-- デスクトップ向けのバックボタンを表示する条件 -->
+      <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding IsVisibleMenu.Value, Converter={StaticResource BoolNegation}}" />
+            <windowsTriggers:CompositeStateTrigger Operator="Or">
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode.Value, Mode=OneWay}" EqualTo="Fill" />
+            </windowsTriggers:CompositeStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="ContentSplitView.DisplayMode"
-                    Value="Overlay" />
-            <Setter Target="ContentSplitView.IsPaneOpen"
-                    Value="False" />
-
-            <Setter Target="TopMenuLayout.Visibility"
-                    Value="Collapsed" />
+            <Setter Target="BackButtonLayout.Visibility" Value="Collapsed" />
           </VisualState.Setters>
         </VisualState>
-        -->
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
+          </VisualState.StateTriggers>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:AdaptiveTrigger MinWindowWidth="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="BackButtonLayout.Visibility" Value="Collapsed" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      
+      
+      <!-- プレイヤーの表示状態 -->
+      <VisualStateGroup>
+        <!-- ここから下はプレイヤー表示中の表示分岐 -->
+        <!-- PrimaryViewでウィンドウ全体で表示中 -->
+        <VisualState x:Name="PlayingInPrimaryView">
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode.Value, Mode=OneWay}" EqualTo="Fill" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="PlayerLayout.Visibility" Value="Visible" />
+            <Setter Target="ContentSplitView.Visibility" Value="Collapsed" />
+          </VisualState.Setters>
+        </VisualState>
+        <!-- デスクトップサイズで小窓表示中 -->
+        <VisualState x:Name="DisplayIntoDesktopMenu">
+          <VisualState.StateTriggers>
+            <windowsTriggers:CompositeStateTrigger Operator="And">
+              <windowsTriggers:AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode.Value, Mode=OneWay}" EqualTo="WindowInWindow" />
+            </windowsTriggers:CompositeStateTrigger>
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="PlayerLayout.Visibility" Value="Visible" />
+            <Setter Target="FloatPlayerLayout.Visibility" Value="Visible" />
+            <Setter Target="PlayerLayout.Width" Value="256" />
+            <Setter Target="PlayerLayout.Height" Value="144" />
+            <Setter Target="PlayerLayout.Margin" Value="0 0 8 8" />
+            <Setter Target="PlayerLayout.VerticalAlignment" Value="Bottom" />
+            <Setter Target="PlayerLayout.HorizontalAlignment" Value="Right" />
+            <Setter Target="BackButtonLayout.Margin" Value="280 0 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+        <!-- モバイルサイズで小窓表示中 -->
+        <VisualState x:Name="DisplayIntoMobileTopSide">
+          <VisualState.StateTriggers>
+            <windowsTriggers:CompositeStateTrigger Operator="And">
+              <windowsTriggers:AdaptiveTrigger MinWindowWidth="321" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode.Value, Mode=OneWay}" EqualTo="WindowInWindow" />
+            </windowsTriggers:CompositeStateTrigger>
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="PlayerLayout.Visibility" Value="Visible" />
+            <Setter Target="PlayerLayout.Height" Value="240" />
+            <Setter Target="FloatPlayerLayout.Visibility" Value="Visible" />
+            <Setter Target="MobilePlayerTopMargin.Visibility" Value="Visible" />
+            <Setter Target="MobilePlayerTopMargin.Height" Value="240" />
+            <Setter Target="PlayerLayout.VerticalAlignment" Value="Top" />
+            <Setter Target="TopMarginBorder.Height" Value="8" />
+            <Setter Target="BackButtonLayout.Margin" Value="0 248 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+        <!-- モバイルサイズで小窓表示中 -->
+        <VisualState x:Name="DisplayIntoMobileTopSide_MoreSmall">
+          <VisualState.StateTriggers>
+            <windowsTriggers:CompositeStateTrigger Operator="And">
+              <windowsTriggers:AdaptiveTrigger MinWindowWidth="0" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode.Value, Mode=OneWay}" EqualTo="WindowInWindow" />
+            </windowsTriggers:CompositeStateTrigger>
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="PlayerLayout.Visibility" Value="Visible" />
+            <Setter Target="PlayerLayout.Height" Value="180" />
+            <Setter Target="FloatPlayerLayout.Visibility" Value="Visible" />
+            <Setter Target="MobilePlayerTopMargin.Visibility" Value="Visible" />
+            <Setter Target="MobilePlayerTopMargin.Height" Value="180" />
+            <Setter Target="PlayerLayout.VerticalAlignment" Value="Top" />
+            <Setter Target="TopMarginBorder.Height" Value="8" />
+            <Setter Target="BackButtonLayout.Margin" Value="0 188 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      <VisualStateGroup x:Name="TopBarStateGroup">
+       
         <!-- TV Mode ON -->
         <VisualState>
           <VisualState.StateTriggers>
@@ -468,7 +719,7 @@
             <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
             <Setter Target="PaneLayout.Margin" Value="48 27 0 27" />
             <Setter Target="ContentSplitView.OpenPaneLength" Value="{StaticResource SideMenuPaneLength_TVMode}" />
-            <Setter Target="TopMenu.Margin" Value="48 27 0 0" />
+            <Setter Target="TopMenuLayout.Margin" Value="48 27 0 0" />
             <Setter Target="MenuTitleText.Margin" Value="16 5 16 8" />
             <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
           </VisualState.Setters>
@@ -494,9 +745,10 @@
             <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
             <Setter Target="MenuTitleText.Style" Value="{StaticResource BodyTextBlockStyle}" />
             <Setter Target="MenuTitleText.Margin" Value="16 0 16 0" />
-            <Setter Target="TopMenu.Background" Value="{StaticResource MenuBackgroundBrush}" />
+            <Setter Target="TopMenuLayout.Background" Value="{StaticResource MenuBackgroundBrush}" />
             <Setter Target="Mobile_ShowSearchButton.Visibility" Value="Visible" />
             <Setter Target="SearchTextBox.Visibility" Value="Collapsed" />
+            <Setter Target="Mobile_BackButtonLayout.Visibility" Value="Visible" /> 
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -554,7 +806,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="MenuBackgroundGrid.Visibility" Value="Visible" />
-            <Setter Target="ContentLayout.IsHitTestVisible" Value="False" />
+            <Setter Target="SplitViewContentLayout.IsHitTestVisible" Value="False" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -628,73 +880,7 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      <!-- プレイヤーの表示状態 -->
-      <VisualStateGroup>
-        <!-- ここから下はプレイヤー表示中の表示分岐 -->
-        <!-- PrimaryViewでウィンドウ全体で表示中 -->
-        <VisualState x:Name="PlayingInPrimaryView">
-          <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode.Value, Mode=OneWay}" EqualTo="Fill" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="PlayerLayout.Visibility" Value="Visible" />
-            <Setter Target="ContentLayout.Visibility" Value="Collapsed" />
-            <Setter Target="BackButtonLayout.Visibility" Value="Collapsed" />
-          </VisualState.Setters>
-        </VisualState>
-        <!-- デスクトップサイズで小窓表示中 -->
-        <VisualState x:Name="DisplayIntoDesktopMenu">
-          <VisualState.StateTriggers>
-            <windowsTriggers:CompositeStateTrigger Operator="And">
-              <windowsTriggers:AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode.Value, Mode=OneWay}" EqualTo="WindowInWindow" />
-            </windowsTriggers:CompositeStateTrigger>
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="PlayerLayout.Visibility" Value="Visible" />
-            <Setter Target="FloatPlayerLayout.Visibility" Value="Visible" />
-            <Setter Target="PlayerLayout.Width" Value="256" />
-            <Setter Target="PlayerLayout.Height" Value="144" />
-            <Setter Target="PlayerLayout.Margin" Value="0 0 8 8" />
-            <Setter Target="PlayerLayout.VerticalAlignment" Value="Bottom" />
-            <Setter Target="PlayerLayout.HorizontalAlignment" Value="Right" />
-          </VisualState.Setters>
-        </VisualState>
-        <!-- モバイルサイズで小窓表示中 -->
-        <VisualState x:Name="DisplayIntoMobileTopSide">
-          <VisualState.StateTriggers>
-            <windowsTriggers:CompositeStateTrigger Operator="And">
-              <windowsTriggers:AdaptiveTrigger MinWindowWidth="321" />
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode.Value, Mode=OneWay}" EqualTo="WindowInWindow" />
-            </windowsTriggers:CompositeStateTrigger>
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="PlayerLayout.Visibility" Value="Visible" />
-            <Setter Target="PlayerLayout.Height" Value="240" />
-            <Setter Target="FloatPlayerLayout.Visibility" Value="Visible" />
-            <Setter Target="MobilePlayerTopMargin.Visibility" Value="Visible" />
-            <Setter Target="MobilePlayerTopMargin.Height" Value="240" />
-            <Setter Target="PlayerLayout.VerticalAlignment" Value="Top" />
-          </VisualState.Setters>
-        </VisualState>
-        <!-- モバイルサイズで小窓表示中 -->
-        <VisualState x:Name="DisplayIntoMobileTopSide_MoreSmall">
-          <VisualState.StateTriggers>
-            <windowsTriggers:CompositeStateTrigger Operator="And">
-              <windowsTriggers:AdaptiveTrigger MinWindowWidth="0" />
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode.Value, Mode=OneWay}" EqualTo="WindowInWindow" />
-            </windowsTriggers:CompositeStateTrigger>
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="PlayerLayout.Visibility" Value="Visible" />
-            <Setter Target="PlayerLayout.Height" Value="180" />
-            <Setter Target="FloatPlayerLayout.Visibility" Value="Visible" />
-            <Setter Target="MobilePlayerTopMargin.Visibility" Value="Visible" />
-            <Setter Target="MobilePlayerTopMargin.Height" Value="180" />
-            <Setter Target="PlayerLayout.VerticalAlignment" Value="Top" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
+      
     </VisualStateManager.VisualStateGroups>
   </Grid>
 </UserControl>
