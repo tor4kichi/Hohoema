@@ -121,15 +121,9 @@ namespace NicoPlayerHohoema.ViewModels
 
             CanChangeQuality = new ReactiveProperty<bool>(_scheduler, false);
             RequestQuality = new ReactiveProperty<string>(_scheduler);
-            CurrentQuality = new ReactiveProperty<string>(_scheduler);
+            CurrentQuality = new ReactiveProperty<string>(_scheduler, mode: ReactivePropertyMode.DistinctUntilChanged);
 
-            IsLowLatency = PlayerSettings.ObserveProperty(x => x.LiveWatchWithLowLatency)
-                .ToReadOnlyReactiveProperty(eventScheduler: _scheduler);
-
-            IsAvailableSuperLowQuality = new ReactiveProperty<bool>(_scheduler, false);
-            IsAvailableLowQuality = new ReactiveProperty<bool>(_scheduler, false);
-            IsAvailableNormalQuality = new ReactiveProperty<bool>(_scheduler, false);
-            IsAvailableHighQuality = new ReactiveProperty<bool>(_scheduler, false);
+            IsLowLatency = PlayerSettings.ToReactivePropertyAsSynchronized(x => x.LiveWatchWithLowLatency, _scheduler, mode: ReactivePropertyMode.DistinctUntilChanged);
 
             ChangeQualityCommand = new DelegateCommand<string>(
                 (quality) =>
@@ -271,6 +265,7 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     if (NicoLiveVideo != null)
                     {
+                        Debug.WriteLine($"Change Quality: {PlayerSettings.DefaultLiveQuality} - Low Latency: {PlayerSettings.LiveWatchWithLowLatency}");
                         await NicoLiveVideo.ChangeQualityRequest(
                             PlayerSettings.DefaultLiveQuality,
                             PlayerSettings.LiveWatchWithLowLatency
@@ -457,13 +452,9 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<string> CurrentQuality { get; private set; }
 
-        public ReadOnlyReactiveProperty<bool> IsLowLatency { get; }
+        public ReactiveProperty<bool> IsLowLatency { get; }
 
-
-        public ReactiveProperty<bool> IsAvailableSuperLowQuality { get; }
-        public ReactiveProperty<bool> IsAvailableLowQuality { get; }
-        public ReactiveProperty<bool> IsAvailableNormalQuality { get; }
-        public ReactiveProperty<bool> IsAvailableHighQuality { get; }
+        public ObservableCollection<string> LiveAvailableQualities { get; } = new ObservableCollection<string>();
 
         public DelegateCommand<string> ChangeQualityCommand { get; }
 
@@ -1153,6 +1144,8 @@ namespace NicoPlayerHohoema.ViewModels
                     catch { }
                 }
 
+                LiveAvailableQualities.Clear();
+                CanChangeQuality.Value = false;
                 if (NicoLiveVideo.LivePlayerType == Models.Live.LivePlayerType.Leo)
                 {
                     CanChangeQuality.Value = true;
@@ -1179,10 +1172,15 @@ namespace NicoPlayerHohoema.ViewModels
                     NicoLiveVideo.ObserveProperty(x => x.Qualities)
                         .Subscribe(types =>
                         {
-                            IsAvailableSuperLowQuality.Value = types?.Any(x => x == "super_low") ?? false;
-                            IsAvailableLowQuality.Value = types?.Any(x => x == "low") ?? false;
-                            IsAvailableNormalQuality.Value = types?.Any(x => x == "normal") ?? false;
-                            IsAvailableHighQuality.Value = types?.Any(x => x == "high") ?? false;
+                            Debug.WriteLine(String.Join('|', types));
+
+                            if (!LiveAvailableQualities.Any())
+                            {
+                                foreach (var type in types)
+                                {
+                                    LiveAvailableQualities.Add(type);
+                                }
+                            }
 
                             var sidePaneContent = _SidePaneContentCache.ContainsKey(PlayerSidePaneContentType.Setting) ? _SidePaneContentCache[PlayerSidePaneContentType.Setting] : null;
                             if (sidePaneContent != null && NicoLiveVideo != null)

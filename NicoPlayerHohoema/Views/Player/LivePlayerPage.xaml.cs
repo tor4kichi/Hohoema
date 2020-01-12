@@ -15,6 +15,7 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Prism.Ioc;
+using NicoPlayerHohoema.ViewModels;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -89,5 +90,18 @@ namespace NicoPlayerHohoema.Views
             }
         }
 
+
+
+
+        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            var comboBox = (ComboBox)sender;
+            var qualityStr = (string)comboBox.SelectedValue;
+            var viewModel = DataContext as LivePlayerPageViewModel;
+            if (viewModel.ChangeQualityCommand.CanExecute(qualityStr))
+            {
+                viewModel.ChangeQualityCommand.Execute(qualityStr);
+            }
+        }
     }
 }

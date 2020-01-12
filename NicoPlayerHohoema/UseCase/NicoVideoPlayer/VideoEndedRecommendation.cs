@@ -69,6 +69,12 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
                     {
                         if (!_hohoemaPlaylist.PlayDoneAndTryMoveNext())
                         {
+                            if (_videoPlayer.PlayingVideoId == null) 
+                            {
+                                HasNextVideo = _videoRelatedContents.NextVideo != null;
+                                NextVideoTitle = _videoRelatedContents.NextVideo?.Label;
+                                return; 
+                            }
                             _relatedVideoContentsAggregator.GetRelatedContentsAsync(_videoPlayer.PlayingVideoId)
                                 .ContinueWith(async task =>
                                 {

@@ -98,11 +98,15 @@ MylistCount = マイリスト数
 MylistCount_Short = マイ
 
 #### Live ####
-high = 高画質
-low = 低画質
-normal = 通常画質
+LivePlayingQuality = 生放送画質
 super_high = すごく高画質
+high = 高画質
+normal = 通常画質
+low = 低画質
 super_low = モバイル画質
+audio_high = 音質優先
+
+LowLatency = 低遅延モード
 
 ReservationStatus.PRODUCT_ARCHIVE_TIMEOUT = 視聴期間終了
 ReservationStatus.PRODUCT_ARCHIVE_WATCH = 視聴可能
