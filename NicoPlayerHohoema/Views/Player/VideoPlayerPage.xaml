@@ -168,7 +168,7 @@
               <!-- 左右スワイプでシーク -->
               <mybehavior:Swipe x:Name="SeekSwipe" SwipeCommand="{Binding SeekCommand}" SwipeAmountConverter="{StaticResource SwipeSeekValueToTimeSpan}" SwipeAmountScale="0.15" SwipeEdgeOfPlay="48" />
               <!-- マウスの非表示 -->
-              <mybehavior:AutoHideCursor x:Name="AutoHideCursor" IsAutoHideEnabled="False" AutoHideDelay="0:0:4" />
+              <mybehavior:AutoHideCursor x:Name="AutoHideCursor" IsAutoHideEnabled="False" AutoHideDelay="0:0:1" />
               <core:EventTriggerBehavior EventName="Loaded">
                 <mybehavior:SetFocus TargetObject="{Binding ElementName=RootLayout}" />
               </core:EventTriggerBehavior>
@@ -848,6 +848,15 @@
       </VisualStateGroup>
       <!-- フルスクリーン -->
       <VisualStateGroup>
+
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind IsDisplayControlUI, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="AutoHideCursor.IsAutoHideEnabled" Value="False" />
+          </VisualState.Setters>
+        </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
             <StateTrigger IsActive="{Binding WindowService.IsFullScreen.Value, Mode=OneWay}" />
