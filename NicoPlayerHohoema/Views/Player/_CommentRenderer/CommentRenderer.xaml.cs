@@ -31,9 +31,9 @@ using Prism.Unity;
 
 namespace NicoPlayerHohoema.Views
 {
-    public sealed partial class CommentRendererCompositionUI : UserControl
+    public sealed partial class CommentRenderer : UserControl
     {
-        public CommentRendererCompositionUI()
+        public CommentRenderer()
         {
             this.InitializeComponent();
 
@@ -108,7 +108,6 @@ namespace NicoPlayerHohoema.Views
 
         CommentUI PrevRenderComment_Center;
 
-
         private void CommentRendererCompositionUI_Loaded(object sender, RoutedEventArgs e)
         {
             _ = ResetUpdateTimer();
@@ -126,6 +125,7 @@ namespace NicoPlayerHohoema.Views
                 MediaPlayer.SourceChanged += MediaPlayer_SourceChanged;
             }
 
+            Clip = new RectangleGeometry() { Rect = new Rect() { Width = ActualWidth, Height = ActualHeight } };
             this.SizeChanged += CommentRendererCompositionUI_SizeChanged;
         }
 
@@ -834,7 +834,7 @@ namespace NicoPlayerHohoema.Views
         public static readonly DependencyProperty CommentDefaultColorProperty =
             DependencyProperty.Register("CommentDefaultColor"
                 , typeof(Color)
-                , typeof(CommentRendererCompositionUI)
+                , typeof(CommentRenderer)
                 , new PropertyMetadata(Windows.UI.Colors.WhiteSmoke)
                 );
 
@@ -852,7 +852,7 @@ namespace NicoPlayerHohoema.Views
         public static readonly DependencyProperty SelectedCommentOutlineColorProperty =
             DependencyProperty.Register("SelectedCommentOutlineColor"
                 , typeof(Color)
-                , typeof(CommentRendererCompositionUI)
+                , typeof(CommentRenderer)
                 , new PropertyMetadata(Windows.UI.Colors.LightGray)
                 );
 
@@ -867,7 +867,7 @@ namespace NicoPlayerHohoema.Views
         public static readonly DependencyProperty CommentSizeScaleProperty =
             DependencyProperty.Register("CommentSizeScale"
                 , typeof(double)
-                , typeof(CommentRendererCompositionUI)
+                , typeof(CommentRenderer)
                 , new PropertyMetadata(1.0)
                 );
 
@@ -882,7 +882,7 @@ namespace NicoPlayerHohoema.Views
         public static readonly DependencyProperty UpdateIntervalProperty =
             DependencyProperty.Register("UpdateInterval"
                     , typeof(TimeSpan)
-                    , typeof(CommentRendererCompositionUI)
+                    , typeof(CommentRenderer)
                     , new PropertyMetadata(TimeSpan.FromMilliseconds(32), OnUpdateIntervalChanged)
                 );
 
@@ -894,7 +894,7 @@ namespace NicoPlayerHohoema.Views
 
         private static void OnUpdateIntervalChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            var me = sender as CommentRendererCompositionUI;
+            var me = sender as CommentRenderer;
 
             _ = me.ResetUpdateTimer();
         }
@@ -936,13 +936,13 @@ namespace NicoPlayerHohoema.Views
         public static readonly DependencyProperty MediaPlayerProperty =
             DependencyProperty.Register("MediaPlayer"
                     , typeof(MediaPlayer)
-                    , typeof(CommentRendererCompositionUI)
+                    , typeof(CommentRenderer)
                     , new PropertyMetadata(default(MediaPlayer), OnMediaPlayerChanged)
                 );
 
         private static void OnMediaPlayerChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            var me = (CommentRendererCompositionUI)sender;
+            var me = (CommentRenderer)sender;
             
             if (me.MediaPlayer == null)
             {
@@ -1089,7 +1089,7 @@ namespace NicoPlayerHohoema.Views
         public static readonly DependencyProperty DefaultDisplayDurationProperty =
             DependencyProperty.Register("DefaultDisplayDuration"
                 , typeof(TimeSpan)
-                , typeof(CommentRendererCompositionUI)
+                , typeof(CommentRenderer)
                 , new PropertyMetadata(TimeSpan.FromSeconds(4), OnDefaultDisplayDurationChanged)
                 );
 
@@ -1102,13 +1102,13 @@ namespace NicoPlayerHohoema.Views
 
         private static void OnDefaultDisplayDurationChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            var me = (CommentRendererCompositionUI)sender;
+            var me = (CommentRenderer)sender;
         }
 
         public static readonly DependencyProperty SelectedCommentIdProperty =
             DependencyProperty.Register("SelectedCommentId"
                 , typeof(uint)
-                , typeof(CommentRendererCompositionUI)
+                , typeof(CommentRenderer)
                 , new PropertyMetadata(uint.MaxValue, OnSelectedCommentIdChanged)
                 );
 
@@ -1139,13 +1139,13 @@ namespace NicoPlayerHohoema.Views
         public static readonly DependencyProperty CommentsProperty =
             DependencyProperty.Register("Comments"
                 , typeof(IEnumerable)
-                , typeof(CommentRendererCompositionUI)
+                , typeof(CommentRenderer)
                 , new PropertyMetadata(null, OnCommentsChanged)
                 );
 
         private static void OnCommentsChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            CommentRendererCompositionUI me = sender as CommentRendererCompositionUI;
+            CommentRenderer me = sender as CommentRenderer;
 
             {
                 var old = e.OldValue as INotifyCollectionChanged;
@@ -1258,7 +1258,7 @@ namespace NicoPlayerHohoema.Views
         public static readonly DependencyProperty IsShowNicoLiveOperationCommentProperty =
             DependencyProperty.Register(nameof(IsShowNicoLiveOperationComment)
                 , typeof(bool)
-                , typeof(CommentRendererCompositionUI)
+                , typeof(CommentRenderer)
                 , new PropertyMetadata(false)
                 );
 
@@ -1280,7 +1280,7 @@ namespace NicoPlayerHohoema.Views
 
         // Using a DependencyProperty as the backing store for PlayerSettings.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty PlayerSettingsProperty =
-            DependencyProperty.Register("PlayerSettings", typeof(PlayerSettings), typeof(CommentRendererCompositionUI), new PropertyMetadata(null));
+            DependencyProperty.Register("PlayerSettings", typeof(PlayerSettings), typeof(CommentRenderer), new PropertyMetadata(null));
 
 
 
@@ -1299,7 +1299,7 @@ namespace NicoPlayerHohoema.Views
         public static readonly DependencyProperty VideoPositionOffsetProperty =
             DependencyProperty.Register(nameof(VideoPositionOffset)
                 , typeof(TimeSpan)
-                , typeof(CommentRendererCompositionUI)
+                , typeof(CommentRenderer)
                 , new PropertyMetadata(TimeSpan.Zero)
                 );
 

@@ -90,16 +90,19 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
             {
                 if (string.IsNullOrEmpty(pageName)) { throw new ArgumentException(nameof(pageName)); }
 
-                if (_displayMode == displayMode
-                    && _lastNavigatedPageName == pageName
-                    && (_lastNavigatedParameters?.SequenceEqual(parameters) ?? false))
-                {
-                    System.Diagnostics.Debug.WriteLine("Navigation skiped. (same page name and parameter)");
-                    return;
-                }
-
                 if (displayMode == PlayerDisplayView.PrimaryView)
                 {
+                    if (_primaryViewPlayerManager.DisplayMode != PrimaryPlayerDisplayMode.Close)
+                    {
+                        if (_displayMode == displayMode
+                        && _lastNavigatedPageName == pageName
+                        && (_lastNavigatedParameters?.SequenceEqual(parameters) ?? false))
+                        {
+                            System.Diagnostics.Debug.WriteLine("Navigation skiped. (same page name and parameter)");
+                            return;
+                        }
+                    }
+
                     await _secondaryPlayerManager.CloseAsync().ConfigureAwait(false);
 
                     await Task.Delay(10);
@@ -108,6 +111,15 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
                 }
                 else
                 {
+                    if (_displayMode == displayMode
+                    && _lastNavigatedPageName == pageName
+                    && (_lastNavigatedParameters?.SequenceEqual(parameters) ?? false))
+                    {
+                        System.Diagnostics.Debug.WriteLine("Navigation skiped. (same page name and parameter)");
+                        await _secondaryPlayerManager.ShowSecondaryViewAsync();
+                        return;
+                    }
+
                     _primaryViewPlayerManager.Close();
 
                     await Task.Delay(10);

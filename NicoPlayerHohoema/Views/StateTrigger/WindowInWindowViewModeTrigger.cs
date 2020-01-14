@@ -26,9 +26,9 @@ namespace NicoPlayerHohoema.Views.StateTrigger
             if (coreApplication.IsMain)
             {
                 _primaryViewPlayerManager = App.Current.Container.Resolve<PrimaryViewPlayerManager>();
-                _disposable = _primaryViewPlayerManager.DisplayMode
+                _disposable = _primaryViewPlayerManager.ObserveProperty(x => x.DisplayMode)
                     .ObserveOn(scheduler)
-                    .Subscribe(mode => 
+                    .Subscribe(mode =>
                     {
                         SetActive(mode == PrimaryPlayerDisplayMode.WindowInWindow);
                     });

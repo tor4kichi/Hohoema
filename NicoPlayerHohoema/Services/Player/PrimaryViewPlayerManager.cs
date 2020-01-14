@@ -11,6 +11,7 @@ using Windows.UI.ViewManagement;
 using Windows.UI.Xaml.Media.Animation;
 using Prism.Commands;
 using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
 
 namespace NicoPlayerHohoema.Services.Player
 {
@@ -24,7 +25,7 @@ namespace NicoPlayerHohoema.Services.Player
     }
 
 
-    public sealed class PrimaryViewPlayerManager : BindableBase
+    public sealed class PrimaryViewPlayerManager : FixPrism.BindableBase
     {
         INavigationService _navigationService;
 
@@ -44,13 +45,12 @@ namespace NicoPlayerHohoema.Services.Player
             _navigationServiceLazy = navigationServiceLazy;
             _navigationService = null;
 
-            _displayMode = new ReactiveProperty<PrimaryPlayerDisplayMode>(_scheduler, mode:ReactivePropertyMode.DistinctUntilChanged);
-            DisplayMode = _displayMode.ToReadOnlyReactiveProperty(eventScheduler: _scheduler);
-
-            _displayMode.Subscribe(x => 
-            {
-                SetDisplayMode(_prevDisplayMode, x);
-            });
+            this.ObserveProperty(x => x.DisplayMode, isPushCurrentValueAtFirst: false)
+                .Subscribe(x => 
+                {
+                    SetDisplayMode(_prevDisplayMode, x);
+                    _prevDisplayMode = x;
+                });
         }
 
         
@@ -65,12 +65,16 @@ namespace NicoPlayerHohoema.Services.Player
                         _navigationService = _navigationServiceLazy.Value;
                     }
 
-                    if (DisplayMode.Value == PrimaryPlayerDisplayMode.Close)
+                    if (DisplayMode  == PrimaryPlayerDisplayMode.Close)
                     {
-                        _displayMode.Value = PrimaryPlayerDisplayMode.Fill;
+                        DisplayMode = _lastPlayedDisplayMode;
                     }
 
-                    await _navigationService.NavigateAsync(pageName, parameters, new DrillInNavigationTransitionInfo());
+                    var result = await _navigationService.NavigateAsync(pageName, parameters, new DrillInNavigationTransitionInfo());
+                    if (!result.Success)
+                    {
+                        DisplayMode = PrimaryPlayerDisplayMode.Close;
+                    }
                 }
             });
 
@@ -79,33 +83,40 @@ namespace NicoPlayerHohoema.Services.Player
             using (await _navigationLock.LockAsync()) { }
         }
 
+        PrimaryPlayerDisplayMode _lastPlayedDisplayMode = PrimaryPlayerDisplayMode.Fill;
 
-        ReactiveProperty<PrimaryPlayerDisplayMode> _displayMode;
-        public IReadOnlyReactiveProperty<PrimaryPlayerDisplayMode> DisplayMode { get; }
+
+        private PrimaryPlayerDisplayMode _DisplayMode;
+        public PrimaryPlayerDisplayMode DisplayMode
+        {
+            get { return _DisplayMode; }
+            set { SetProperty(ref _DisplayMode, value); }
+        }
 
         public void Close()
         {
-            _displayMode.Value = PrimaryPlayerDisplayMode.Close;
+            _lastPlayedDisplayMode = DisplayMode == PrimaryPlayerDisplayMode.Close ? _lastPlayedDisplayMode : DisplayMode;
+            DisplayMode = PrimaryPlayerDisplayMode.Close;
         }
 
         public void ShowWithFill()
         {
-            _displayMode.Value = PrimaryPlayerDisplayMode.Fill;
+            DisplayMode = PrimaryPlayerDisplayMode.Fill;
         }
 
         public void ShowWithWindowInWindow()
         {
-            _displayMode.Value = PrimaryPlayerDisplayMode.WindowInWindow;
+            DisplayMode = PrimaryPlayerDisplayMode.WindowInWindow;
         }
 
         public void ShowWithFullScreen()
         {
-            _displayMode.Value = PrimaryPlayerDisplayMode.FullScreen;
+            DisplayMode = PrimaryPlayerDisplayMode.FullScreen;
         }
 
         public void ShowWithCompactOverlay()
         {
-            _displayMode.Value = PrimaryPlayerDisplayMode.CompactOverlay;
+            DisplayMode = PrimaryPlayerDisplayMode.CompactOverlay;
         }
 
         void SetDisplayMode(PrimaryPlayerDisplayMode old, PrimaryPlayerDisplayMode mode)
@@ -140,7 +151,8 @@ namespace NicoPlayerHohoema.Services.Player
                 _ = _view.TryEnterViewModeAsync(ApplicationViewMode.Default);
             }
 
-            if (_view.IsFullScreenMode)
+            if (_view.IsFullScreenMode 
+                && ApplicationView.PreferredLaunchWindowingMode != ApplicationViewWindowingMode.FullScreen)
             {
                 _view.ExitFullScreenMode();
             }
@@ -155,7 +167,9 @@ namespace NicoPlayerHohoema.Services.Player
                 _ = _view.TryEnterViewModeAsync(ApplicationViewMode.Default);
             }
 
-            if (_view.IsFullScreenMode)
+            if (_view.IsFullScreenMode
+                && ApplicationView.PreferredLaunchWindowingMode != ApplicationViewWindowingMode.FullScreen
+                )
             {
                 _view.ExitFullScreenMode();
             }
@@ -168,7 +182,9 @@ namespace NicoPlayerHohoema.Services.Player
                 _ = _view.TryEnterViewModeAsync(ApplicationViewMode.Default);
             }
 
-            if (_view.IsFullScreenMode)
+            if (_view.IsFullScreenMode
+                && ApplicationView.PreferredLaunchWindowingMode != ApplicationViewWindowingMode.FullScreen
+                )
             {
                 _view.ExitFullScreenMode();
             }
@@ -205,5 +221,20 @@ namespace NicoPlayerHohoema.Services.Player
         DelegateCommand _FillCommand;
         public DelegateCommand FillCommand => _FillCommand
             ?? (_FillCommand = new DelegateCommand(ShowWithFill));
+
+
+        DelegateCommand _ToggleFillOrWindowInWindowCommand;
+        public DelegateCommand ToggleFillOrWindowInWindowCommand => _ToggleFillOrWindowInWindowCommand
+            ?? (_ToggleFillOrWindowInWindowCommand = new DelegateCommand(() =>
+            {
+                if (DisplayMode == PrimaryPlayerDisplayMode.Fill)
+                {
+                    ShowWithWindowInWindow();
+                }
+                else if (DisplayMode == PrimaryPlayerDisplayMode.WindowInWindow)
+                {
+                    ShowWithFill();
+                }
+            }));
     }
 }

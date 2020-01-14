@@ -156,6 +156,7 @@
     <Compile Include="Services\NoProcessUIScreenContext.cs" />
     <Compile Include="Services\Page\IPinablePage.cs" />
     <Compile Include="Services\Player\PrimaryViewPlayerManager.cs" />
+    <Compile Include="Services\Player\ShowPrimaryViewCommand.cs" />
     <Compile Include="Services\Player\TogglePlayerDisplayViewCommand.cs" />
     <Compile Include="UseCase\NicoVideoPlayer\Commands\OpenLiveContentCommand.cs" />
     <Compile Include="UseCase\Page\Commands\SearchCommand.cs" />
@@ -611,8 +612,8 @@
     <Compile Include="Views\Pages\TimeshiftPage.xaml.cs">
       <DependentUpon>TimeshiftPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Player\_CommentRenderer\CommentRendererCompositionUI.xaml.cs">
-      <DependentUpon>CommentRendererCompositionUI.xaml</DependentUpon>
+    <Compile Include="Views\Player\_CommentRenderer\CommentRenderer.xaml.cs">
+      <DependentUpon>CommentRenderer.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Player\_CommentRenderer\CommentRendererHelper.cs" />
     <Compile Include="Views\Controls\ListingWithHeader.xaml.cs">
@@ -1064,7 +1065,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Player\_CommentRenderer\CommentRendererCompositionUI.xaml">
+    <Page Include="Views\Player\_CommentRenderer\CommentRenderer.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

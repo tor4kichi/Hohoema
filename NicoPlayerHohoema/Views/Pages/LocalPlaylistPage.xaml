@@ -114,7 +114,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
+            <AdaptiveTrigger MinWindowWidth="{StaticResource WidthBreakPoint_WideToMiddle}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
           </VisualState.Setters>

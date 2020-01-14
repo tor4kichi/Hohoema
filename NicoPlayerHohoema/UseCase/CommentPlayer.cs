@@ -294,7 +294,11 @@ namespace NicoPlayerHohoema.UseCase
         
         private static bool IsNicoScriptComment(string userId, string content)
         {
-            return userId == null && (content.StartsWith("＠") || content.StartsWith("@") || content.StartsWith("/"));
+            if (userId != null) { return false; }
+
+            if (string.IsNullOrEmpty(content)) { return false; }
+
+            return (content.StartsWith("＠") || content.StartsWith("@") || content.StartsWith("/"));
         }
 
 

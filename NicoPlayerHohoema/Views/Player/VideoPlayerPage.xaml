@@ -28,6 +28,7 @@
       xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
       xmlns:system1="using:System"
       xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector"
+      xmlns:windowsTriggers="using:WindowsStateTriggers"
       DataContext="{x:Null}"
       x:Name="RootLayout"
       NavigationCacheMode="Required"
@@ -96,8 +97,8 @@
       <MenuFlyoutSeparator />
       <MenuFlyoutItem x:Name="FullscreenButton_Menu" Command="{Binding WindowService.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="全画面" Icon="FullScreen"></MenuFlyoutItem>
       <MenuFlyoutItem x:Name="CompactOverlayButton_Menu" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="小さく最前面"></MenuFlyoutItem>
-      <MenuFlyoutItem x:Name="SmallWindowButton_Menu" Command="{Binding WindowService.PlayerSmallWindowDisplayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="小窓"></MenuFlyoutItem>
-      <MenuFlyoutItem x:Name="DisplayWithSecondaryViewButton_Menu" Command="{Binding WindowService.PlayerDisplayWithSecondaryViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="別ウィンドウ"></MenuFlyoutItem>
+      <MenuFlyoutItem x:Name="SmallWindowButton_Menu" Command="{Binding PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="小窓"></MenuFlyoutItem>
+      <MenuFlyoutItem x:Name="DisplayWithSecondaryViewButton_Menu" Command="{Binding WindowService.PlayerDisplayWithSecondaryViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="別ウィンドウで視聴"></MenuFlyoutItem>
       <ToggleMenuFlyoutItem x:Name="ForceRotateToggleButton_Menu" IsChecked="{Binding PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="横持ち固定" Icon="Orientation"></ToggleMenuFlyoutItem>
     </MenuFlyout>
     <templateselector:PlayerSidePaneContentTemplateSelecter x:Key="PlayerSidePaneContentTemplateSelecter">
@@ -184,8 +185,6 @@
                 <mybehavior:KeyboardTrigger.Actions>
                   <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="False" />
                   <core:ChangePropertyAction TargetObject="{Binding ElementName=CommentTextBox}" PropertyName="IsEnabled" Value="True" />
-                  <core:ChangePropertyAction TargetObject="{Binding ElementName=CO_CommentTextBox}" PropertyName="IsEnabled" Value="False" />
-                  <core:ChangePropertyAction TargetObject="{Binding ElementName=CO_CommentTextBox}" PropertyName="IsEnabled" Value="True" />
                 </mybehavior:KeyboardTrigger.Actions>
               </mybehavior:KeyboardTrigger>
               <mybehavior:KeyboardTrigger Key="Right" x:Name="VideoForwardKeyboardTrigger">
@@ -201,11 +200,6 @@
               <mybehavior:KeyboardTrigger x:Name="CommentWriteBeginKeyboardTrigger">
                 <mybehavior:KeyboardTrigger.Actions>
                   <mybehavior:SetFocus TargetObject="{Binding ElementName=CommentTextBox}" Delay="00:00:00" />
-                </mybehavior:KeyboardTrigger.Actions>
-              </mybehavior:KeyboardTrigger>
-              <mybehavior:KeyboardTrigger x:Name="CO_CommentWriteBeginKeyboardTrigger" IsEnabled="False">
-                <mybehavior:KeyboardTrigger.Actions>
-                  <mybehavior:SetFocus TargetObject="{Binding ElementName=CO_CommentTextBox}" Delay="00:00:00" />
                 </mybehavior:KeyboardTrigger.Actions>
               </mybehavior:KeyboardTrigger>
               <mybehavior:MouseWheelTrigger>
@@ -232,22 +226,27 @@
                 <core:InvokeCommandAction Command="{Binding VideoPlayer.TogglePlayPauseCommand}" />
               </mybehavior:UINavigationTrigger>
             </i:Interaction.Behaviors>
+            <!-- 映像表示 -->
             <MediaPlayerElement x:Name="MediaPlayerElement" AutoPlay="True">
               <i:Interaction.Behaviors>
                 <mybehavior:MediaPlayerSetter MediaPlayer="{Binding MediaPlayer}" />
                 <mybehavior:MediaPlayerElementContentHeightGetter ContentHeight="{x:Bind CommentRederer.Height, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
               </i:Interaction.Behaviors>
             </MediaPlayerElement>
-            <local:CommentRendererCompositionUI x:Name="CommentRederer" MediaPlayer="{Binding MediaPlayer}" Comments="{Binding CommentPlayer.Comments}" Visibility="{Binding PlayerSettings.IsCommentDisplay_Video, Converter={StaticResource BooleanToVisibility}}" CommentSizeScale="{Binding PlayerSettings.DefaultCommentFontScale}" CommentDefaultColor="{Binding PlayerSettings.CommentColor}" DefaultDisplayDuration="{Binding PlayerSettings.CommentDisplayDuration}" Opacity="{Binding PlayerSettings.CommentOpacity, Mode=OneWay}" UpdateInterval="0:0:0.032" PlayerSettings="{Binding PlayerSettings}" />
+            <!-- コメント表示 -->
+            <local:CommentRenderer x:Name="CommentRederer" MediaPlayer="{Binding MediaPlayer}" Comments="{Binding CommentPlayer.Comments}" Visibility="{Binding PlayerSettings.IsCommentDisplay_Video, Converter={StaticResource BooleanToVisibility}}" CommentSizeScale="{Binding PlayerSettings.DefaultCommentFontScale}" CommentDefaultColor="{Binding PlayerSettings.CommentColor}" DefaultDisplayDuration="{Binding PlayerSettings.CommentDisplayDuration}" Opacity="{Binding PlayerSettings.CommentOpacity, Mode=OneWay}" UpdateInterval="0:0:0.032" PlayerSettings="{Binding PlayerSettings}" />
+            <!-- 読み込み中表示 -->
             <ProgressRing Visibility="{Binding ObservableMediaPlayer.NowBuffering.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}" IsActive="{Binding ObservableMediaPlayer.NowBuffering.Value, Mode=OneWay}" Width="48" Height="48" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0 88 24 0" />
             <!-- ウィンドウ非アクティブ時に画面全体をマウス移動の反応対象にするためのコリジョン-->
-            <Border x:Name="WindowDeactiveMouseMoveDetectWall" Background="Transparent"></Border>
+            <Border x:Name="WindowDeactiveMouseMoveDetectWall" Background="Transparent" Visibility="Collapsed"></Border>
             <!-- UI非表示時の再生位置バー -->
             <Slider Value="{Binding ElementName=SeekBarSlider, Path=Value, Mode=TwoWay}" Maximum="{Binding VideoInfo.Length, Converter={StaticResource TimeSpanToDoubleConverter}}" Style="{StaticResource VideoProgressBarStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" IsEnabled="False" Opacity="0.6" x:Name="ReadOnlySeekBarSlider">
               <Slider.RenderTransform>
                 <TranslateTransform Y="8" />
               </Slider.RenderTransform>
             </Slider>
+            
+            <!-- コントロールUIを表示切替する -->
             <Border IsHitTestVisible="True" Background="Transparent">
               <i:Interaction.Behaviors>
                 <core:EventTriggerBehavior EventName="Tapped">
@@ -255,6 +254,8 @@
                 </core:EventTriggerBehavior>
               </i:Interaction.Behaviors>
             </Border>
+            
+            <!-- プレイヤー内の通知表示 -->
             <StackPanel>
               <!-- 音量表示 -->
               <controls:TransientContainer Content="{Binding ObservableMediaPlayer.SoundVolume.Value}" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="16">
@@ -290,6 +291,8 @@
                 </controls:TransientContainer.ContentTemplate>
               </controls:TransientContainer>
             </StackPanel>
+            
+            <!-- コントロールUIの本体 -->
             <Grid x:Name="UIControlLayout">
               <i:Interaction.Behaviors>
                 <mybehavior:VisiblityFadeChanger x:Name="PlayerControlAutoHide" Delay="{Binding PlayerSettings.AutoHidePlayerControlUIPreventTime}" IsVisible="{x:Bind IsDisplayControlUI, Mode=TwoWay}" />
@@ -298,275 +301,282 @@
                 </core:DataTriggerBehavior>
               </i:Interaction.Behaviors>
               <toolkit:DockPanel x:Name="DefaultUIControl">
-                <!-- プレイリスト 操作 -->
-                <StackPanel toolkit:DockPanel.Dock="Top">
-                  <Border Background="{StaticResource HohoemaPlayerBackgroundBrush}">
-                    <toolkit:DockPanel x:Name="UIControlHeaderLayout" Opacity="0.8">
-                      <Border x:Name="TitleBarMarginLayout" Height="32" toolkit:DockPanel.Dock="Top" Visibility="Collapsed"></Border>
-                      <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
-                        <Button x:Name="CloseButton" Command="{Binding PrimaryViewPlayerManager.CloseCommand}" Background="Transparent" UseSystemFocusVisuals="True">
-                          <iconPack:PackIconMaterial Kind="Close" />
-                        </Button>
-                        <Button x:Name="DisplayWithMainViewButton" Command="{Binding TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed">
-                          <StackPanel Orientation="Vertical">
-                            <iconPack:PackIconMaterial Kind="CheckboxBlankOutline" Margin="0 0 0 8" Height="24" Width="24" HorizontalAlignment="Center" />
-                            <TextBlock Text="メインウィンドウ" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" />
-                          </StackPanel>
-                        </Button>
+                <!-- 上側 プレイリスト 操作 -->
+                <toolkit:DockPanel x:Name="UIControlHeaderLayout" toolkit:DockPanel.Dock="Top" Background="{StaticResource HohoemaPlayerBackgroundBrush}">
+
+                  <!-- Title Bar Margin -->
+                  <Grid x:Name="TitleBarMarginLayout" Height="32" toolkit:DockPanel.Dock="Top" Visibility="Collapsed">
+                    <TextBlock x:Name="TitleTextBlock_Nallow" Text="{Binding VideoInfo.Title}" Style="{ThemeResource CaptionTextBlockStyle}" Visibility="Collapsed" Margin="8" />
+                  </Grid>
+                  <!-- 左上 -->
+                  <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
+                    <!-- 閉じる -->
+                    <Button x:Name="CloseButton" Command="{Binding PrimaryViewPlayerManager.CloseCommand}" Background="Transparent" UseSystemFocusVisuals="True" Width="48" Height="48">
+                      <iconPack:PackIconMaterial Kind="Close" />
+                    </Button>
+
+                    <!-- メインウィンドウ表示 -->
+                    <Button x:Name="ShowPrimaryViewButton" Command="{Binding ShowPrimaryViewCommand}" Background="Transparent" Visibility="Collapsed">
+                      <StackPanel Orientation="Vertical">
+                        <TextBlock Text="メインウィンドウに切替" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" />
                       </StackPanel>
-                      <CommandBar toolkit:DockPanel.Dock="Right">
-                        <CommandBar.PrimaryCommands>
-                          <AppBarButton x:Name="ShowVideoInfoButon" Label="動画情報" Command="{Binding OpenVideoInfoCommand}" Visibility="Collapsed"></AppBarButton>
-                          <AppBarButton Command="{x:Bind SelectSidePaneCommand}" CommandParameter="RelatedVideos" Background="Transparent" Label="関連情報" />
-                          <AppBarButton x:Name="ShareButton" Label="共有" Icon="Link" Visibility="Collapsed" Command="{Binding ExternalAccessService.OpenShareUICommand}" CommandParameter="{Binding VideoInfo}"></AppBarButton>
-                          <AppBarButton Label="コピー" Visibility="{Binding IsXbox, Converter={StaticResource BooleanToVisibilityInverted}}">
-                            <AppBarButton.Flyout>
-                              <MenuFlyout>
-                                <MenuFlyoutItem Text="動画IDをコピー" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding VideoId}" />
-                                <MenuFlyoutItem Text="リンクをコピー" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding}" />
-                                <MenuFlyoutItem Text="共有用文章をコピー" Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}" CommandParameter="{Binding}" />
-                              </MenuFlyout>
-                            </AppBarButton.Flyout>
-                          </AppBarButton>
-                          <AppBarButton x:Name="AddContentButton" Label="追加" Icon="Add">
-                            <AppBarButton.Flyout>
-                              <MenuFlyout>
-                                <MenuFlyoutSubItem Text="マイリストに追加">
-                                  <i:Interaction.Behaviors>
-                                    <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding UserMylistManager.Mylists}" CustomObjectToTag="{Binding VideoId}">
-                                      <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
-                                        <DataTemplate>
-                                          <MenuFlyoutItem Text="{Binding Label}" Command="{Binding AddItemCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}"></MenuFlyoutItem>
-                                        </DataTemplate>
-                                      </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
-                                    </mybehavior:MenuFlyoutSubItemItemsSetter>
-                                  </i:Interaction.Behaviors>
-                                  <MenuFlyoutItem Text="新規作成…" Command="{Binding CreateMylistCommand}" CommandParameter="{Binding VideoId}" />
-                                </MenuFlyoutSubItem>
-                                <MenuFlyoutSubItem Text="ローカルマイリストに追加">
-                                  <i:Interaction.Behaviors>
-                                    <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding LocalMylistManager.Mylists}" CustomObjectToTag="{Binding VideoId}">
-                                      <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
-                                        <DataTemplate>
-                                          <MenuFlyoutItem Text="{Binding Label}" Command="{Binding AddItemCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}"></MenuFlyoutItem>
-                                        </DataTemplate>
-                                      </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
-                                    </mybehavior:MenuFlyoutSubItemItemsSetter>
-                                  </i:Interaction.Behaviors>
-                                  <MenuFlyoutItem Text="新規作成…" Command="{Binding CreateLocalMylistCommand}" CommandParameter="{Binding VideoId}" />
-                                </MenuFlyoutSubItem>
-                                <MenuFlyoutSubItem x:Name="AddSubscriptionButton" Text="投稿者動画を購読">
-                                  <i:Interaction.Behaviors>
-                                    <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding SubscriptionManager.Subscriptions}" CustomObjectToTag="{Binding SubscriptionSource}">
-                                      <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
-                                        <DataTemplate>
-                                          <MenuFlyoutItem Text="{Binding Label}" Command="{Binding AddSource}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}" />
-                                        </DataTemplate>
-                                      </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
-                                    </mybehavior:MenuFlyoutSubItemItemsSetter>
-                                  </i:Interaction.Behaviors>
-                                  <MenuFlyoutItem Text="購読グループを作成..." Command="{Binding CreateSubscriptionGroupCommand}" CommandParameter="{Binding SubscriptionSource}" />
-                                </MenuFlyoutSubItem>
-                              </MenuFlyout>
-                            </AppBarButton.Flyout>
-                          </AppBarButton>
-                        </CommandBar.PrimaryCommands>
-                        <CommandBar.SecondaryCommands>
-                          <AppBarButton x:Name="FullscreenButton" Command="{Binding WindowService.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="全画面" Icon="FullScreen"></AppBarButton>
-                          <AppBarButton x:Name="CompactOverlayButton" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="小さく最前面"></AppBarButton>
-                          <AppBarButton x:Name="SmallWindowButton" Command="{Binding PrimaryViewPlayerManager.WindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="小窓"></AppBarButton>
-                          <AppBarButton x:Name="DisplayWithSecondaryViewButton" Command="{Binding TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="別ウィンドウ"></AppBarButton>
-                          <AppBarToggleButton x:Name="ForceRotateToggleButton" IsChecked="{Binding PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="横持ち固定" Icon="Orientation"></AppBarToggleButton>
-                        </CommandBar.SecondaryCommands>
-                      </CommandBar>
-                      <Border />
-                    </toolkit:DockPanel>
-                  </Border>
-                </StackPanel>
-                <!-- 動画コンテンツ 操作 -->
-                <StackPanel toolkit:DockPanel.Dock="Bottom">
-                  <StackPanel x:Name="UIControlContentLayout" Background="{StaticResource HohoemaPlayerBackgroundBrush}">
-                    <StackPanel Margin="8 0">
-                      <TextBlock x:Name="TitleLayout" Text="{Binding VideoInfo.Title}" FontSize="24" HorizontalAlignment="Center" TextWrapping="Wrap" />
-                      <i:Interaction.Behaviors>
-                        <core:EventTriggerBehavior EventName="Tapped">
-                          <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="False" />
-                        </core:EventTriggerBehavior>
-                      </i:Interaction.Behaviors>
-                    </StackPanel>
-                    <!-- シークバー -->
-                    <StackPanel>
-                      <Grid Margin="0 0 0 12">
-                        <!--
-                                        <local:DownloadProgressBar 
-                                                ProgressFragmentItems="{Binding ProgressFragments}"
-                                                Margin="0 20 0 0"
-                                                />
-                                        -->
-                        <TextBlock Text="投稿者によってシークが禁止されています" Visibility="Collapsed" VerticalAlignment="Bottom" HorizontalAlignment="Center" Opacity="0.6" x:Name="SeekDisabledFromNicoScriptText" />
-                        <Slider x:Name="SeekBarSlider" Minimum="0.0" Maximum="{Binding VideoInfo.Length, Converter={StaticResource TimeSpanToDoubleConverter}}" Style="{StaticResource VideoProgressBarStyle}" Padding="0 16 0 8" StepFrequency="0.1" LargeChange="30" SmallChange="5" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Center" Opacity="0.75"></Slider>
-                      </Grid>
-                      <Grid Margin="0 0 0 8">
-                        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Orientation="Horizontal" Margin="8 0 16 0">
-                          <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding VideoPlayer.NowPlayingWithDmcVideo,Converter={StaticResource BooleanToVisibilityInverted}}">
-                            <Run Text="{Binding VideoPlayer.CurrentQuality.Quality, Converter={StaticResource ToLocalText}}" /></TextBlock>
-                          <HyperlinkButton Visibility="{Binding VideoPlayer.NowPlayingWithDmcVideo,Converter={StaticResource BooleanToVisibility}}" Padding="0" Opacity="0.7">
-                            <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}">
-                              <Run Text="{Binding VideoPlayer.CurrentQuality.Quality, Converter={StaticResource ToLocalText}}" /></TextBlock>
-                            <i:Interaction.Behaviors>
-                              <core:EventTriggerBehavior EventName="Click">
-                                <mybehavior:OpenFlyout />
-                              </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
-                            <FlyoutBase.AttachedFlyout>
-                              <Flyout>
-                                <ListView ItemsSource="{Binding VideoPlayer.AvailableQualities, Mode=OneWay}" SelectedItem="{Binding VideoPlayer.CurrentQuality, Mode=OneWay}" SelectionMode="Single" IsItemClickEnabled="True" uwpui:ListViewBase.Command="{Binding VideoPlayer.ChangePlayQualityCommand}">
-                                  <ListView.ItemTemplate>
+                    </Button>
+                  </StackPanel>
+                  <!-- 右上 -->
+                  <CommandBar x:Name="ActionsCommandBar" toolkit:DockPanel.Dock="Right">
+                    <CommandBar.PrimaryCommands>
+                      <AppBarButton x:Name="ShowVideoInfoButon" Label="動画情報" Command="{Binding OpenVideoInfoCommand}" Visibility="Collapsed"></AppBarButton>
+                      <AppBarButton Command="{x:Bind SelectSidePaneCommand}" CommandParameter="RelatedVideos" Background="Transparent" Label="関連情報" />
+                      <AppBarButton x:Name="ShareButton" Label="共有" Icon="Link" Visibility="Collapsed" Command="{Binding ExternalAccessService.OpenShareUICommand}" CommandParameter="{Binding VideoInfo}"></AppBarButton>
+                      <AppBarButton Label="コピー" Visibility="{Binding IsXbox, Converter={StaticResource BooleanToVisibilityInverted}}">
+                        <AppBarButton.Flyout>
+                          <MenuFlyout>
+                            <MenuFlyoutItem Text="動画IDをコピー" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding VideoId}" />
+                            <MenuFlyoutItem Text="リンクをコピー" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding}" />
+                            <MenuFlyoutItem Text="共有用文章をコピー" Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}" CommandParameter="{Binding}" />
+                          </MenuFlyout>
+                        </AppBarButton.Flyout>
+                      </AppBarButton>
+                      <AppBarButton x:Name="AddContentButton" Label="追加" Icon="Add">
+                        <AppBarButton.Flyout>
+                          <MenuFlyout>
+                            <MenuFlyoutSubItem Text="マイリストに追加">
+                              <i:Interaction.Behaviors>
+                                <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding UserMylistManager.Mylists}" CustomObjectToTag="{Binding VideoId}">
+                                  <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
                                     <DataTemplate>
-                                      <StackPanel Orientation="Horizontal" Spacing="8">
-                                        <TextBlock Text="{Binding Quality, Converter={StaticResource ToLocalText}}" />
-                                        <TextBlock toolkitext:ListViewItemExtensions.IsEnabled="{Binding IsAvailable}">
-                                           <Run Text="{Binding Bitrate, Converter={StaticResource ToKMGTPEZY}}" />bps</TextBlock>
-                                      </StackPanel>
+                                      <MenuFlyoutItem Text="{Binding Label}" Command="{Binding AddItemCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}"></MenuFlyoutItem>
                                     </DataTemplate>
-                                  </ListView.ItemTemplate>
-                                </ListView>
-                              </Flyout>
-                            </FlyoutBase.AttachedFlyout>
-                          </HyperlinkButton>
-                          <Border Width="8" />
-                          <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding VideoPlayer.IsPlayWithCache.Value, Converter={StaticResource BooleanToVisibility}}">
+                                  </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
+                                </mybehavior:MenuFlyoutSubItemItemsSetter>
+                              </i:Interaction.Behaviors>
+                              <MenuFlyoutItem Text="新規作成…" Command="{Binding CreateMylistCommand}" CommandParameter="{Binding VideoId}" />
+                            </MenuFlyoutSubItem>
+                            <MenuFlyoutSubItem Text="ローカルマイリストに追加">
+                              <i:Interaction.Behaviors>
+                                <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding LocalMylistManager.Mylists}" CustomObjectToTag="{Binding VideoId}">
+                                  <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
+                                    <DataTemplate>
+                                      <MenuFlyoutItem Text="{Binding Label}" Command="{Binding AddItemCommand}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}"></MenuFlyoutItem>
+                                    </DataTemplate>
+                                  </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
+                                </mybehavior:MenuFlyoutSubItemItemsSetter>
+                              </i:Interaction.Behaviors>
+                              <MenuFlyoutItem Text="新規作成…" Command="{Binding CreateLocalMylistCommand}" CommandParameter="{Binding VideoId}" />
+                            </MenuFlyoutSubItem>
+                            <MenuFlyoutSubItem x:Name="AddSubscriptionButton" Text="投稿者動画を購読">
+                              <i:Interaction.Behaviors>
+                                <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding SubscriptionManager.Subscriptions}" CustomObjectToTag="{Binding SubscriptionSource}">
+                                  <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
+                                    <DataTemplate>
+                                      <MenuFlyoutItem Text="{Binding Label}" Command="{Binding AddSource}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}" />
+                                    </DataTemplate>
+                                  </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
+                                </mybehavior:MenuFlyoutSubItemItemsSetter>
+                              </i:Interaction.Behaviors>
+                              <MenuFlyoutItem Text="購読グループを作成..." Command="{Binding CreateSubscriptionGroupCommand}" CommandParameter="{Binding SubscriptionSource}" />
+                            </MenuFlyoutSubItem>
+                          </MenuFlyout>
+                        </AppBarButton.Flyout>
+                      </AppBarButton>
+                    </CommandBar.PrimaryCommands>
+                    <CommandBar.SecondaryCommands>
+                      <AppBarButton x:Name="FullscreenButton" Command="{Binding WindowService.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="全画面" Icon="FullScreen"></AppBarButton>
+                      <AppBarButton x:Name="CompactOverlayButton" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="小さく最前面"></AppBarButton>
+                      <AppBarButton x:Name="SmallWindowButton" Command="{Binding PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="小窓"></AppBarButton>
+                      <AppBarButton x:Name="DisplayWithSecondaryViewButton" Command="{Binding TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="別ウィンドウで視聴"></AppBarButton>
+                      <AppBarToggleButton x:Name="ForceRotateToggleButton" IsChecked="{Binding PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="横持ち固定" Icon="Orientation"></AppBarToggleButton>
+                    </CommandBar.SecondaryCommands>
+                  </CommandBar>
+
+                  <Button x:Name="ExitWindonwInWindowViewButton" Command="{Binding PrimaryViewPlayerManager.FillCommand}" Background="Transparent" Visibility="Collapsed" toolkit:DockPanel.Dock="Right" Margin="0 8 0 0">
+                    <SymbolIcon Symbol="FullScreen" />
+                  </Button>
+                  <Button x:Name="ExitCompactOverlayButton" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" toolkit:DockPanel.Dock="Right" Margin="0 8 0 0">
+                    <SymbolIcon Symbol="FullScreen" />
+                  </Button>
+
+                  <Border />
+                </toolkit:DockPanel>
+                <!-- 下側 動画コンテンツ 操作 -->
+                <StackPanel x:Name="UIControlContentLayout" toolkit:DockPanel.Dock="Bottom" Background="{StaticResource HohoemaPlayerBackgroundBrush}" Padding="0 0 0 8">
+                  <!-- Title -->
+                  <StackPanel Margin="8 0">
+                    <TextBlock x:Name="TitleTextBlock" Text="{Binding VideoInfo.Title}" FontSize="24" HorizontalAlignment="Center" TextWrapping="Wrap" />
+                    <i:Interaction.Behaviors>
+                      <core:EventTriggerBehavior EventName="Tapped">
+                        <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="False" />
+                      </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
+                  </StackPanel>
+                  <!-- シークバー -->
+                  <Grid Margin="0 0 0 12">
+                    <TextBlock x:Name="SeekDisabledFromNicoScriptText" Text="投稿者によってシークが禁止されています" Visibility="Collapsed" VerticalAlignment="Bottom" HorizontalAlignment="Center" Opacity="0.6" />
+                    <Slider x:Name="SeekBarSlider" Minimum="0.0" Maximum="{Binding VideoInfo.Length, Converter={StaticResource TimeSpanToDoubleConverter}}" Style="{StaticResource VideoProgressBarStyle}" Padding="0 16 0 8" StepFrequency="0.1" LargeChange="30" SmallChange="5" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource TimeToMovieLengthConverter}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Stretch" VerticalAlignment="Center" Opacity="0.75"></Slider>
+                  </Grid>
+                  <!-- 動画画質 -->
+                  <Grid x:Name="VideoProps" Margin="0 0 0 8">
+                    <!-- 画質と動画プロバイダーオリジン -->
+                    <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Orientation="Horizontal" Margin="8 0 16 0" Spacing="8">
+                      <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding VideoPlayer.NowPlayingWithDmcVideo,Converter={StaticResource BooleanToVisibilityInverted}}">
+                            <Run Text="{Binding VideoPlayer.CurrentQuality.Quality, Converter={StaticResource ToLocalText}}" /></TextBlock>
+                      <HyperlinkButton Visibility="{Binding VideoPlayer.NowPlayingWithDmcVideo,Converter={StaticResource BooleanToVisibility}}" Padding="0" Opacity="0.7">
+                        <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}">
+                              <Run Text="{Binding VideoPlayer.CurrentQuality.Quality, Converter={StaticResource ToLocalText}}" /></TextBlock>
+                        <i:Interaction.Behaviors>
+                          <core:EventTriggerBehavior EventName="Click">
+                            <mybehavior:OpenFlyout />
+                          </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+                        <FlyoutBase.AttachedFlyout>
+                          <Flyout>
+                            <ListView ItemsSource="{Binding VideoPlayer.AvailableQualities, Mode=OneWay}" SelectedItem="{Binding VideoPlayer.CurrentQuality, Mode=OneWay}" SelectionMode="Single" IsItemClickEnabled="True" uwpui:ListViewBase.Command="{Binding VideoPlayer.ChangePlayQualityCommand}">
+                              <ListView.ItemTemplate>
+                                <DataTemplate>
+                                  <StackPanel Orientation="Horizontal" Spacing="8">
+                                    <TextBlock Text="{Binding Quality, Converter={StaticResource ToLocalText}}" />
+                                    <TextBlock toolkitext:ListViewItemExtensions.IsEnabled="{Binding IsAvailable}">
+                                           <Run Text="{Binding Bitrate, Converter={StaticResource ToKMGTPEZY}}" />bps</TextBlock>
+                                  </StackPanel>
+                                </DataTemplate>
+                              </ListView.ItemTemplate>
+                            </ListView>
+                          </Flyout>
+                        </FlyoutBase.AttachedFlyout>
+                      </HyperlinkButton>
+                      <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding VideoPlayer.IsPlayWithCache.Value, Converter={StaticResource BooleanToVisibility}}">
                                                         <Run Text="(キャッシュ済み)" /></TextBlock>
-                          <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding VideoPlayer.IsPlayWithCache.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
+                      <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding VideoPlayer.IsPlayWithCache.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
                                                         <Run Text="(オンライン再生)" /></TextBlock>
-                        </StackPanel>
-                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                          <TextBlock VerticalAlignment="Bottom" IsHitTestVisible="False" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Margin="16 0 8 0">
+                    </StackPanel>
+
+                    <!-- 動画位置と再生速度倍率 -->
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                      <TextBlock VerticalAlignment="Bottom" IsHitTestVisible="False" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Margin="16 0 8 0">
                                         
                                                     <Run Text="{x:Bind VideoPosition, Mode=OneWay, Converter={StaticResource TimeToMovieLengthConverter}}" />
                                                     <Run Text="/" />
                                                     <Run Text="{Binding VideoInfo.Length, Converter={StaticResource TimeToMovieLengthConverter}}" /></TextBlock>
-                          <HyperlinkButton Margin="0 0 16 0" VerticalAlignment="Bottom" Opacity="0.7" MinWidth="36" HorizontalAlignment="Right" Padding="0">
-                            <i:Interaction.Behaviors>
-                              <core:EventTriggerBehavior EventName="Click">
-                                <mybehavior:OpenFlyout />
-                              </core:EventTriggerBehavior>
-                            </i:Interaction.Behaviors>
-                            <FlyoutBase.AttachedFlyout>
-                              <Flyout>
-                                <ListView ItemsSource="{x:Bind PlaybackRateList}" SelectedItem="{Binding ObservableMediaPlayer.PlaybackRate.Value, Mode=OneWay}" SelectionMode="Single" IsItemClickEnabled="True" uwpui:ListViewBase.Command="{Binding SetPlaybackRateCommand}">
-                                  <ListView.ItemTemplate>
-                                    <DataTemplate>
-                                      <TextBlock>
+                      <HyperlinkButton Margin="0 0 16 0" VerticalAlignment="Bottom" Opacity="0.7" MinWidth="36" HorizontalAlignment="Right" Padding="0">
+                        <i:Interaction.Behaviors>
+                          <core:EventTriggerBehavior EventName="Click">
+                            <mybehavior:OpenFlyout />
+                          </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+                        <FlyoutBase.AttachedFlyout>
+                          <Flyout>
+                            <ListView ItemsSource="{x:Bind PlaybackRateList}" SelectedItem="{Binding ObservableMediaPlayer.PlaybackRate.Value, Mode=OneWay}" SelectionMode="Single" IsItemClickEnabled="True" uwpui:ListViewBase.Command="{Binding SetPlaybackRateCommand}">
+                              <ListView.ItemTemplate>
+                                <DataTemplate>
+                                  <TextBlock>
                                                                                 x<Run Text="{Binding}" /></TextBlock>
-                                    </DataTemplate>
-                                  </ListView.ItemTemplate>
-                                </ListView>
-                              </Flyout>
-                            </FlyoutBase.AttachedFlyout>
-                            <TextBlock VerticalAlignment="Center">
+                                </DataTemplate>
+                              </ListView.ItemTemplate>
+                            </ListView>
+                          </Flyout>
+                        </FlyoutBase.AttachedFlyout>
+                        <TextBlock VerticalAlignment="Center">
                                                             x<Run Text="{Binding ObservableMediaPlayer.PlaybackRate.Value}" /></TextBlock>
-                          </HyperlinkButton>
-                        </StackPanel>
-                      </Grid>
+                      </HyperlinkButton>
                     </StackPanel>
-                    <!-- 再生コントロール -->
-                    <Grid Padding="8 0 8 0" x:Name="PlaybackControlContainer">
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                      </Grid.ColumnDefinitions>
-                      <StackPanel Orientation="Horizontal">
-                        <!-- 音量 -->
-                        <Button Background="Transparent">
-                          <SymbolIcon x:Name="VolumeButton" Symbol="Mute" />
-                          <Button.Flyout>
-                            <Flyout>
-                              <toolkit:DockPanel toolkit:DockPanel.Dock="Right" Margin="0 0 16 0" Height="66">
-                                <StackPanel toolkit:DockPanel.Dock="Left">
-                                  <AppBarButton Icon="Volume" Label="ミュート" VerticalAlignment="Stretch" x:Name="MuteToggleButton" Command="{Binding ToggleMuteCommand}"></AppBarButton>
-                                </StackPanel>
-                                <StackPanel Margin="8 0" Orientation="Vertical">
-                                  <Slider x:Name="VolumeSlider" Orientation="Horizontal" VerticalAlignment="Top" Margin="8 4" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}" Maximum="1.0" Minimum="0.0" StepFrequency="0.01" SmallChange="0.01" LargeChange="0.1" Height="32" Width="160" ValueChanged="VolumeSlider_ValueChanged"></Slider>
-                                  <TextBlock Text="音量" VerticalAlignment="Center" Margin="8 0 0 0" HorizontalAlignment="Center" FontSize="12" />
-                                </StackPanel>
-                              </toolkit:DockPanel>
-                            </Flyout>
-                          </Button.Flyout>
-                        </Button>
-                        <Button Background="Transparent">
-                          <Grid>
-                            <iconPack:PackIconMaterial Kind="Comment" x:Name="CommentIcon" Width="20" Height="20" />
-                            <Canvas>
-                              <Line X1="{Binding ElementName=CommentIcon, Path=ActualWidth}" Y1="0" X2="0" Y2="{Binding ElementName=CommentIcon, Path=ActualHeight}" Stroke="Red" StrokeThickness="4" Visibility="{Binding PlayerSettings.IsCommentDisplay_Video, Converter={StaticResource BooleanToVisibilityInverted}}" Opacity="0.7" />
-                            </Canvas>
-                          </Grid>
-                          <i:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="Tapped">
-                              <core:ChangePropertyAction TargetObject="{Binding PlayerSettings}" PropertyName="IsCommentDisplay_Video" Value="{Binding PlayerSettings.IsCommentDisplay_Video, Converter={StaticResource BoolNegation}}" />
-                            </core:EventTriggerBehavior>
-                          </i:Interaction.Behaviors>
-                        </Button>
-                      </StackPanel>
-                      <!-- 再生 -->
-                      <StackPanel Orientation="Horizontal" x:Name="MiddleUIControlLayout" Grid.Column="1">
-                        <Button Background="Transparent" Command="{Binding SeekCommand}" CommandParameter="{x:Bind PreviewSeekTime}" x:Name="PreviewVideoPositionButon" Margin="0 0 24 0">
-                          <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" FontSize="24" />
-                        </Button>
-                        <Button Command="{Binding VideoPlayer.TogglePlayPauseCommand}" Background="Transparent" Margin="0 0 0 0" x:Name="PlayPauseButton">
-                          <iconPack:PackIconMaterial Kind="Play" x:Name="PlayPauseButtonIcon" RenderTransformOrigin="0.5, 0.5">
-                            <iconPack:PackIconMaterial.RenderTransform>
-                              <CompositeTransform ScaleX="1.35" ScaleY="1.35" />
-                            </iconPack:PackIconMaterial.RenderTransform>
-                          </iconPack:PackIconMaterial>
-                        </Button>
-                        <Button x:Name="ForwardVideoPositionButon" Background="Transparent" Command="{Binding SeekCommand}" CommandParameter="{x:Bind ForwardSeekTime}" Margin="24 0 0 0">
-                          <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;" FontSize="24" />
-                        </Button>
-                      </StackPanel>
-                      <!-- Fullscreen / More -->
-                      <toolkit:WrapPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <Button Background="Transparent" Command="{x:Bind SelectSidePaneCommand}" CommandParameter="Playlist">
-                          <iconPack:PackIconMaterial Kind="PlaylistPlay" Width="24" Height="24"></iconPack:PackIconMaterial>
-                        </Button>
-                        <Button Command="{x:Bind SelectSidePaneCommand}" CommandParameter="Setting" Background="Transparent">
-                          <SymbolIcon Symbol="Setting" />
-                        </Button>
-                      </toolkit:WrapPanel>
-                    </Grid>
-                    <!-- コメントを書く -->
-                    <Grid x:Name="CommentLayout" Padding="0 8 0 0" Visibility="Collapsed">
-                      <Grid.RowDefinitions>
-                        <RowDefinition Height="*" />
-                        <RowDefinition Height="*" />
-                      </Grid.RowDefinitions>
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="1*" />
-                        <ColumnDefinition Width="1*" />
-                      </Grid.ColumnDefinitions>
-                      <TextBox x:Name="CommentTextBox" Text="{Binding CommentPlayer.WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BGTransparentTextBoxStyle}" FontSize="18" VerticalAlignment="Center" MaxLength="75" IsTabStop="True" toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True" PlaceholderText="コメント" HorizontalAlignment="Stretch" Margin="8 0 8 0" HorizontalContentAlignment="Stretch" Height="40" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="4" IsEnabled="{Binding IsCommentDisabledFromNicoScript.Value, Converter={StaticResource BoolNegation}}"></TextBox>
-                      <Button Content="{Binding CommandString.Value}" Margin="8 0 8 0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" DataContext="{Binding}" x:Name="CommentCommandEditButton" Height="40" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="1">
+                  </Grid>
+                  <!-- ボタン類 -->
+                  <Grid Padding="8 0 8 0">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*" />
+                      <ColumnDefinition Width="Auto" />
+                      <ColumnDefinition Width="*" />
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Orientation="Horizontal">
+                      <!-- 音量 -->
+                      <Button x:Name="VolumeControlLayout" Background="Transparent">
+                        <SymbolIcon x:Name="VolumeButton" Symbol="Mute" />
                         <Button.Flyout>
                           <Flyout>
-                            <local:CommentCommandEditer DataContext="{Binding CommandEditerVM}" />
+                            <toolkit:DockPanel toolkit:DockPanel.Dock="Right" Margin="0 0 16 0" Height="66">
+                              <StackPanel toolkit:DockPanel.Dock="Left">
+                                <AppBarButton Icon="Volume" Label="ミュート" VerticalAlignment="Stretch" x:Name="MuteToggleButton" Command="{Binding ToggleMuteCommand}"></AppBarButton>
+                              </StackPanel>
+                              <StackPanel Margin="8 0" Orientation="Vertical">
+                                <Slider x:Name="VolumeSlider" Orientation="Horizontal" VerticalAlignment="Top" Margin="8 4" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}" Maximum="1.0" Minimum="0.0" StepFrequency="0.01" SmallChange="0.01" LargeChange="0.1" Height="32" Width="160" ValueChanged="VolumeSlider_ValueChanged"></Slider>
+                                <TextBlock Text="音量" VerticalAlignment="Center" Margin="8 0 0 0" HorizontalAlignment="Center" FontSize="12" />
+                              </StackPanel>
+                            </toolkit:DockPanel>
                           </Flyout>
                         </Button.Flyout>
                       </Button>
-                      <Button Margin="8 0 8 0" Height="40" Command="{Binding CommentPlayer.CommentSubmitCommand}" x:Name="CommentSubmitButton" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="5" Grid.ColumnSpan="1">
+                      <!-- コメント表示切替 -->
+                      <Button x:Name="CommentDisplayControlLayout" Background="Transparent">
                         <Grid>
-                          <TextBlock Text="投稿" />
-                          <ProgressRing x:Name="CommentSubmittingProgressRing" IsActive="False" Height="24" Width="24" VerticalAlignment="Center" />
+                          <iconPack:PackIconMaterial Kind="Comment" x:Name="CommentIcon" Width="20" Height="20" />
+                          <Canvas>
+                            <Line X1="{Binding ElementName=CommentIcon, Path=ActualWidth}" Y1="0" X2="0" Y2="{Binding ElementName=CommentIcon, Path=ActualHeight}" Stroke="Red" StrokeThickness="4" Visibility="{Binding PlayerSettings.IsCommentDisplay_Video, Converter={StaticResource BooleanToVisibilityInverted}}" Opacity="0.7" />
+                          </Canvas>
                         </Grid>
+                        <i:Interaction.Behaviors>
+                          <core:EventTriggerBehavior EventName="Tapped">
+                            <core:ChangePropertyAction TargetObject="{Binding PlayerSettings}" PropertyName="IsCommentDisplay_Video" Value="{Binding PlayerSettings.IsCommentDisplay_Video, Converter={StaticResource BoolNegation}}" />
+                          </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
                       </Button>
-                    </Grid>
-                    <Border Height="8" />
-                  </StackPanel>
+                    </StackPanel>
+                    <!-- 再生切り替え・シーク -->
+                    <StackPanel Orientation="Horizontal" Grid.Column="1">
+                      <Button x:Name="PreviewVideoPositionButon" Background="Transparent" Command="{Binding SeekCommand}" CommandParameter="{x:Bind PreviewSeekTime}"  Margin="0 0 24 0">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" FontSize="24" />
+                      </Button>
+                      <Button x:Name="PlayPauseButton" Command="{Binding VideoPlayer.TogglePlayPauseCommand}" Background="Transparent" Margin="0 0 0 0">
+                        <iconPack:PackIconMaterial Kind="Play" x:Name="PlayPauseButtonIcon" RenderTransformOrigin="0.5, 0.5">
+                          <iconPack:PackIconMaterial.RenderTransform>
+                            <CompositeTransform ScaleX="1.35" ScaleY="1.35" />
+                          </iconPack:PackIconMaterial.RenderTransform>
+                        </iconPack:PackIconMaterial>
+                      </Button>
+                      <Button x:Name="ForwardVideoPositionButon" Background="Transparent" Command="{Binding SeekCommand}" CommandParameter="{x:Bind ForwardSeekTime}" Margin="24 0 0 0">
+                        <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;" FontSize="24" />
+                      </Button>
+                    </StackPanel>
+                    <!-- Settings etc -->
+                    <toolkit:WrapPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
+                      <Button x:Name="OpenPlaylistButton" Background="Transparent" Command="{x:Bind SelectSidePaneCommand}" CommandParameter="Playlist">
+                        <iconPack:PackIconMaterial Kind="PlaylistPlay" Width="24" Height="24"></iconPack:PackIconMaterial>
+                      </Button>
+                      <Button x:Name="OpenSettingsPaneButton" Command="{x:Bind SelectSidePaneCommand}" CommandParameter="Setting" Background="Transparent">
+                        <SymbolIcon Symbol="Setting" />
+                      </Button>
+                    </toolkit:WrapPanel>
+                  </Grid>
+                  <!-- コメントを書く -->
+                  <Grid x:Name="CommentLayout" Padding="0 8 0 0" Visibility="Collapsed">
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="*" />
+                      <RowDefinition Height="*" />
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="1*" />
+                      <ColumnDefinition Width="1*" />
+                      <ColumnDefinition Width="1*" />
+                      <ColumnDefinition Width="1*" />
+                      <ColumnDefinition Width="1*" />
+                      <ColumnDefinition Width="1*" />
+                    </Grid.ColumnDefinitions>
+                    <TextBox x:Name="CommentTextBox" Text="{Binding CommentPlayer.WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BGTransparentTextBoxStyle}" FontSize="18" VerticalAlignment="Center" MaxLength="75" IsTabStop="True" toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True" PlaceholderText="コメント" HorizontalAlignment="Stretch" Margin="8 0 8 0" HorizontalContentAlignment="Stretch" Height="40" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="4" IsEnabled="{Binding IsCommentDisabledFromNicoScript.Value, Converter={StaticResource BoolNegation}}"></TextBox>
+                    <Button x:Name="CommentCommandEditButton" Content="{Binding CommandString.Value}" Margin="8 0 8 0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" DataContext="{Binding}" Height="40" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="1">
+                      <Button.Flyout>
+                        <Flyout>
+                          <local:CommentCommandEditer DataContext="{Binding CommandEditerVM}" />
+                        </Flyout>
+                      </Button.Flyout>
+                    </Button>
+                    <Button x:Name="CommentSubmitButton" Margin="8 0 8 0" Height="40" Command="{Binding CommentPlayer.CommentSubmitCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="5" Grid.ColumnSpan="1">
+                      <Grid>
+                        <TextBlock Text="投稿" />
+                        <ProgressRing x:Name="CommentSubmittingProgressRing" IsActive="False" Height="24" Width="24" VerticalAlignment="Center" />
+                      </Grid>
+                    </Button>
+                  </Grid>
                 </StackPanel>
+                <!-- 中央 余白とリコメンド -->
                 <Grid x:Name="UIControlCenterLayout" BorderThickness="0">
                   <Border IsHitTestVisible="True" Background="Transparent" BorderThickness="0">
                     <i:Interaction.Behaviors>
@@ -575,7 +585,7 @@
                       </core:EventTriggerBehavior>
                     </i:Interaction.Behaviors>
                   </Border>
-                  <Border x:Name="PlayEndedRecommendContainer" Background="{ThemeResource SystemAltMediumColor}" Visibility="Collapsed">
+                  <Border x:Name="PlayEndedRecommendContainer" Visibility="Collapsed">
                     <controls:DelayedAutoTriggerButton x:Name="PlayEndedRecommend" Command="{Binding VideoEndedRecommendation.PlayNextVideoCommand}" HorizontalAlignment="Center" VerticalAlignment="Center">
                       <controls:DelayedAutoTriggerButton.CenterContent>
                         <StackPanel Spacing="4">
@@ -590,7 +600,7 @@
                       </i:Interaction.Behaviors>
                     </controls:DelayedAutoTriggerButton>
                   </Border>
-                  <Border Height="32" VerticalAlignment="Top" Visibility="{Binding VideoEndedRecommendation.IsEnded.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
+                  <Border x:Name="CenterTopGradient" Height="32" VerticalAlignment="Top" >
                     <Border.Background>
                       <LinearGradientBrush StartPoint="1, 1" EndPoint="1, 0">
                         <GradientStop Color="{Binding Source={StaticResource SystemAltMediumColor}, Converter={StaticResource ToTransparentColor}}" Offset="0.0" />
@@ -598,7 +608,7 @@
                       </LinearGradientBrush>
                     </Border.Background>
                   </Border>
-                  <Border Height="48" BorderThickness="0" VerticalAlignment="Bottom" Visibility="{Binding VideoEndedRecommendation.IsEnded.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
+                  <Border x:Name="CenterBottomGradient" Height="32" BorderThickness="0" VerticalAlignment="Bottom" >
                     <Border.Background>
                       <LinearGradientBrush x:Name="ControlPanelBackgroundBrush" StartPoint="1, 0" EndPoint="1, 1">
                         <GradientStop Color="{Binding Source={StaticResource SystemAltMediumColor}, Converter={StaticResource ToTransparentColor}}" Offset="0.0" x:Name="GradientStop1" />
@@ -626,108 +636,7 @@
                   </Border>
                 </Grid>
               </toolkit:DockPanel>
-              <!-- Compact Overlay UIControl -->
-              <Grid x:Name="CompactOverlayUIControl" Visibility="Collapsed" Background="{StaticResource HohoemaPlayerBackgroundBrush}">
-                <Grid>
-                  <Border IsHitTestVisible="True" Background="Transparent">
-                    <i:Interaction.Behaviors>
-                      <core:EventTriggerBehavior EventName="Tapped">
-                        <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="{x:Bind IsDisplayControlUI, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
-                      </core:EventTriggerBehavior>
-                    </i:Interaction.Behaviors>
-                  </Border>
-                </Grid>
-                <toolkit:DockPanel>
-                  <Border toolkit:DockPanel.Dock="Top" Height="32" Background="{StaticResource HohoemaPlayerBackgroundBrush}">
-                    <TextBlock Text="{Binding VideoInfo.Title}" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" Margin="14 0 8 0" />
-                  </Border>
-                  <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
-                    <Button x:Name="CO_CloseButton" Command="{Binding PrimaryViewPlayerManager.CloseCommand}" Background="Transparent" toolkit:DockPanel.Dock="Left" UseSystemFocusVisuals="True">
-                      <iconPack:PackIconMaterial Kind="Close" />
-                    </Button>
-                    <Border />
-                  </toolkit:DockPanel>
-                  <Slider Value="{Binding ElementName=SeekBarSlider, Path=Value, Mode=TwoWay}" Maximum="{Binding VideoInfo.Length, Converter={StaticResource TimeSpanToDoubleConverter}}" Style="{StaticResource VideoProgressBarStyle}" HorizontalAlignment="Stretch" IsEnabled="False" Opacity="0.6" toolkit:DockPanel.Dock="Bottom">
-                    <Slider.RenderTransform>
-                      <TranslateTransform Y="8" />
-                    </Slider.RenderTransform>
-                  </Slider>
-                  <StackPanel VerticalAlignment="Bottom">
-                    <!-- 再生コントロール -->
-                    <Grid Padding="8 0 8 0">
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*" />
-                        <ColumnDefinition Width="Auto" />
-                        <ColumnDefinition Width="*" />
-                      </Grid.ColumnDefinitions>
-                      <StackPanel Orientation="Horizontal">
-                        <Button x:Name="CO_ToggleCommentDisplayButton" Background="Transparent">
-                          <Grid>
-                            <iconPack:PackIconMaterial Kind="Comment" Width="18" Height="18" />
-                            <Canvas>
-                              <Line X1="{Binding ElementName=CommentIcon, Path=ActualWidth}" Y1="0" X2="0" Y2="{Binding ElementName=CommentIcon, Path=ActualHeight}" Stroke="Red" StrokeThickness="3" Visibility="{Binding PlayerSettings.IsCommentDisplay_Video, Converter={StaticResource BooleanToVisibilityInverted}}" Opacity="0.7" />
-                            </Canvas>
-                          </Grid>
-                          <i:Interaction.Behaviors>
-                            <core:EventTriggerBehavior EventName="Tapped">
-                              <core:ChangePropertyAction TargetObject="{Binding PlayerSettings}" PropertyName="IsCommentDisplay_Video" Value="{Binding PlayerSettings.IsCommentDisplay_Video, Converter={StaticResource BoolNegation}}" />
-                            </core:EventTriggerBehavior>
-                          </i:Interaction.Behaviors>
-                        </Button>
-                      </StackPanel>
-                      <!-- 再生 -->
-                      <StackPanel Orientation="Horizontal" Grid.Column="1">
-                        <Button Background="Transparent" Command="{Binding SeekCommand}" CommandParameter="{x:Bind PreviewSeekTime}" Margin="0 0 8 0" x:Name="CO_PreviewVideoPositionButton">
-                          <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3C;" FontSize="20" />
-                        </Button>
-                        <Button Command="{Binding VideoPlayer.TogglePlayPauseCommand}" Background="Transparent" Margin="0 0 0 0" x:Name="CO_PlayPauseButton">
-                          <iconPack:PackIconMaterial Kind="Play" x:Name="CO_PlayPauseButtonIcon" RenderTransformOrigin="0.5, 0.5">
-                            <iconPack:PackIconMaterial.RenderTransform>
-                              <CompositeTransform ScaleX="1.35" ScaleY="1.35" />
-                            </iconPack:PackIconMaterial.RenderTransform>
-                          </iconPack:PackIconMaterial>
-                        </Button>
-                        <Button Background="Transparent" Command="{Binding SeekCommand}" CommandParameter="{x:Bind ForwardSeekTime}" x:Name="CO_ForwardVideoPositionButton" Margin="8 0 0 0">
-                          <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xED3D;" FontSize="20" />
-                        </Button>
-                      </StackPanel>
-                      <!-- Fullscreen / More -->
-                      <toolkit:WrapPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
-                        <Button Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" x:Name="CO_CompactOverlayButton">
-                          <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE944;" FontSize="24" />
-                        </Button>
-                      </toolkit:WrapPanel>
-                    </Grid>
-                    <Grid x:Name="CO_CommentBoxLayout" Visibility="Collapsed">
-                      <TextBox x:Name="CO_CommentTextBox" Text="{Binding CommentPlayer.WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BGTransparentTextBoxStyle}" FontSize="18" VerticalAlignment="Center" MaxLength="75" MaxWidth="320" IsTabStop="True" toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True" PlaceholderText="コメント" HorizontalAlignment="Stretch" Margin="8 0 8 0" HorizontalContentAlignment="Stretch" Height="18"></TextBox>
-                      <ProgressRing x:Name="CO_CommentSubmittingProgressRing" IsActive="False" Height="24" Width="24" HorizontalAlignment="Right" Margin="0 0 16 0" />
-                    </Grid>
-                  </StackPanel>
-                </toolkit:DockPanel>
-                <controls:DelayedAutoTriggerButton x:Name="CO_PlayEndedRecommend" IsEnabled="False" Visibility="Collapsed" Command="{Binding VideoEndedRecommendation.PlayNextVideoCommand}" HorizontalAlignment="Center" VerticalAlignment="Center">
-                  <controls:DelayedAutoTriggerButton.CenterContent>
-                    <StackPanel>
-                      <TextBlock Text="次の動画" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" />
-                      <TextBlock Text="{Binding VideoEndedRecommendation.NextVideoTitle}" />
-                    </StackPanel>
-                  </controls:DelayedAutoTriggerButton.CenterContent>
-                  <i:Interaction.Behaviors>
-                    <core:DataTriggerBehavior Binding="{Binding VideoEndedRecommendation.HasNextVideo}" Value="True" ComparisonCondition="Equal">
-                      <core:CallMethodAction MethodName="Start" />
-                    </core:DataTriggerBehavior>
-                  </i:Interaction.Behaviors>
-                </controls:DelayedAutoTriggerButton>
-                <Border x:Name="CO_OpenPreviousPlaylistItemButton" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="0 0 0 8">
-                  <Button MinWidth="48" Height="80" Command="{Binding VideoPlayer.PlayPreviousCommand}" BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}" BorderThickness="0 1 1 1">
-                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE016;" FontSize="20" Foreground="{ThemeResource HohoemaPlayerBackgroundBrush}"></TextBlock>
-                  </Button>
-                </Border>
-                <Border x:Name="CO_OpenNextPlaylistItemButton" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0 0 0 8">
-                  <Button MinWidth="48" Height="80" Command="{Binding VideoPlayer.PlayNextCommand}" BorderBrush="{StaticResource HohoemaPlayerBackgroundBrush}" BorderThickness="1 1 0 1">
-                    <TextBlock FontFamily="Segoe MDL2 Assets" Text="&#xE017;" FontSize="20" Foreground="{ThemeResource HohoemaPlayerBackgroundBrush}"></TextBlock>
-                  </Button>
-                </Border>
-              </Grid>
+              
             </Grid>
             <Grid Visibility="{x:Bind IsDisplayControlUI, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}">
               <Border IsHitTestVisible="True" Background="Transparent">
@@ -756,54 +665,26 @@
         </SplitView.Content>
       </SplitView>
     </toolkit:LayoutTransformControl>
+
+
     <VisualStateManager.VisualStateGroups>
-      <!-- ログインしている場合に有効になるサービスを表示する -->
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding NiconicoSession.IsLoggedIn}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="CommentLayout.Visibility" Value="Visible" />
-            <Setter Target="CO_CommentBoxLayout.Visibility" Value="Visible" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
-      <!-- インターネット接続状態による表示切替 -->
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <connectivityTrigger:NetworkConnectionStateTrigger Condition="InternetAccess" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="ShowVideoInfoButon.Visibility" Value="Visible" />
-            <Setter Target="ShareButton.Visibility" Value="Visible" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
+      
       <!-- 画面サイズごとの表示・非表示に切り替え -->
       <VisualStateGroup>
-        <!-- 一番幅が広いとき -->
-        <!--
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="721" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                    </VisualState.Setters>
-                </VisualState>
-                -->
+
+        <!-- 幅が十分に広いとき -->
+        <VisualState>
+          <VisualState.StateTriggers>
+            <uiTrigger:ControlWidthTrigger TargetElement="{x:Bind MediaControl}" Condition="{StaticResource WidthBreakPoint_WideToMiddle}" ConditionModifier="{StaticResource GreaterThanModifier}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+          </VisualState.Setters>
+        </VisualState>
+
         <!-- 中ぐらい -->
         <VisualState>
           <VisualState.StateTriggers>
-            <uiTrigger:ControlWidthTrigger TargetElement="{x:Bind MediaControl}" Condition="521" ConditionModifier="{StaticResource GreaterThanModifier}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters></VisualState.Setters>
-        </VisualState>
-        <!-- 超狭い -->
-        <VisualState>
-          <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="0" />
+            <uiTrigger:ControlWidthTrigger TargetElement="{x:Bind MediaControl}" Condition="{StaticResource WidthBreakPoint_MiddleToNallow}" ConditionModifier="{StaticResource GreaterThanModifier}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PreviewVideoPositionButon.Visibility" Value="Collapsed" />
@@ -822,46 +703,120 @@
             <Setter Target="CommentSubmitButton.(Grid.ColumnSpan)" Value="3" />
           </VisualState.Setters>
         </VisualState>
-      </VisualStateGroup>
-      <!-- ミニモード　画面サイズごとの表示・非表示に切り替え -->
-      <VisualStateGroup>
-        <!-- 中ぐらい -->
-        <VisualState>
-          <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="280" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters></VisualState.Setters>
-        </VisualState>
         <!-- 超狭い -->
         <VisualState>
           <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="0" />
+            <uiTrigger:ControlWidthTrigger TargetElement="{x:Bind MediaControl}" Condition="{StaticResource WidthBreakPoint_NallowToVeryNallow}" ConditionModifier="{StaticResource GreaterThanModifier}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="CO_PreviewVideoPositionButton.Visibility" Value="Collapsed" />
-            <Setter Target="CO_ForwardVideoPositionButton.Visibility" Value="Collapsed" />
-            <Setter Target="CO_ToggleCommentDisplayButton.Visibility" Value="Collapsed" />
+            <Setter Target="PreviewVideoPositionButon.Visibility" Value="Collapsed" />
+            <Setter Target="ForwardVideoPositionButon.Visibility" Value="Collapsed" />
+            <Setter Target="CommentTextBox.(Grid.Row)" Value="0" />
+            <Setter Target="CommentTextBox.(Grid.RowSpan)" Value="1" />
+            <Setter Target="CommentTextBox.(Grid.Column)" Value="0" />
+            <Setter Target="CommentTextBox.(Grid.ColumnSpan)" Value="6" />
+            <Setter Target="CommentCommandEditButton.(Grid.Row)" Value="1" />
+            <Setter Target="CommentCommandEditButton.(Grid.RowSpan)" Value="1" />
+            <Setter Target="CommentCommandEditButton.(Grid.Column)" Value="0" />
+            <Setter Target="CommentCommandEditButton.(Grid.ColumnSpan)" Value="3" />
+            <Setter Target="CommentSubmitButton.(Grid.Row)" Value="1" />
+            <Setter Target="CommentSubmitButton.(Grid.RowSpan)" Value="1" />
+            <Setter Target="CommentSubmitButton.(Grid.Column)" Value="3" />
+            <Setter Target="CommentSubmitButton.(Grid.ColumnSpan)" Value="3" />
+
+            <Setter Target="TitleTextBlock.Visibility" Value="Collapsed" />
+            <Setter Target="TitleTextBlock_Nallow.Visibility" Value="Visible" />
+            
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <uiTrigger:ControlWidthTrigger TargetElement="{x:Bind MediaControl}" Condition="0" ConditionModifier="{StaticResource GreaterThanModifier}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="PreviewVideoPositionButon.Visibility" Value="Collapsed" />
+            <Setter Target="ForwardVideoPositionButon.Visibility" Value="Collapsed" />
+            <Setter Target="CommentTextBox.(Grid.Row)" Value="0" />
+            <Setter Target="CommentTextBox.(Grid.RowSpan)" Value="1" />
+            <Setter Target="CommentTextBox.(Grid.Column)" Value="0" />
+            <Setter Target="CommentTextBox.(Grid.ColumnSpan)" Value="6" />
+            <Setter Target="CommentCommandEditButton.(Grid.Row)" Value="1" />
+            <Setter Target="CommentCommandEditButton.(Grid.RowSpan)" Value="1" />
+            <Setter Target="CommentCommandEditButton.(Grid.Column)" Value="0" />
+            <Setter Target="CommentCommandEditButton.(Grid.ColumnSpan)" Value="3" />
+            <Setter Target="CommentSubmitButton.(Grid.Row)" Value="1" />
+            <Setter Target="CommentSubmitButton.(Grid.RowSpan)" Value="1" />
+            <Setter Target="CommentSubmitButton.(Grid.Column)" Value="3" />
+            <Setter Target="CommentSubmitButton.(Grid.ColumnSpan)" Value="3" />
+
+            <Setter Target="TitleTextBlock.Visibility" Value="Collapsed" />
+            <Setter Target="TitleTextBlock_Nallow.Visibility" Value="Visible" />
+
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      <!-- ミニモードの縦幅 -->
+      <!-- ログインしている場合に有効になるサービスを表示する -->
       <VisualStateGroup>
-        <!-- 中ぐらい -->
         <VisualState>
           <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowHeight="200" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters></VisualState.Setters>
-        </VisualState>
-        <!-- 超狭い -->
-        <VisualState>
-          <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowHeight="0" />
+            <StateTrigger IsActive="{Binding NiconicoSession.IsLoggedIn}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="CO_CommentTextBox.Visibility" Value="Collapsed" />
-            <Setter Target="CO_OpenPreviousPlaylistItemButton.Visibility" Value="Collapsed" />
-            <Setter Target="CO_OpenNextPlaylistItemButton.Visibility" Value="Collapsed" />
+            <Setter Target="CommentLayout.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      <!-- インターネット接続状態による表示切替 -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <connectivityTrigger:NetworkConnectionStateTrigger Condition="InternetAccess" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="ShowVideoInfoButon.Visibility" Value="Visible" />
+            <Setter Target="ShareButton.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
+      <!-- コンパクトオーバーレイや小窓の戻るボタン表示 -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <myTrigger:CompactOverlayViewModeTrigger />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="ExitCompactOverlayButton.Visibility" Value="Visible" />
+            
+            <Setter Target="ActionsCommandBar.Visibility" Value="Collapsed" />
+            <Setter Target="OpenPlaylistButton.Visibility" Value="Collapsed" />
+            <Setter Target="OpenSettingsPaneButton.Visibility" Value="Collapsed" />
+            <Setter Target="VolumeControlLayout.Visibility" Value="Collapsed" />
+            <Setter Target="VideoProps.Visibility" Value="Collapsed" />
+            <Setter Target="CommentCommandEditButton.Visibility" Value="Collapsed" />
+            <Setter Target="CommentSubmitButton.Visibility" Value="Collapsed" />
+
+            <Setter Target="SeekBarSlider.Visibility" Value="Collapsed" />
+
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="WindowInWindow" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="ExitWindonwInWindowViewButton.Visibility" Value="Visible" />
+            
+            <Setter Target="ActionsCommandBar.Visibility" Value="Collapsed" />
+            <Setter Target="OpenPlaylistButton.Visibility" Value="Collapsed" />
+            <Setter Target="OpenSettingsPaneButton.Visibility" Value="Collapsed" />
+            <Setter Target="VolumeControlLayout.Visibility" Value="Collapsed" />
+            <Setter Target="VideoProps.Visibility" Value="Collapsed" />
+            <Setter Target="CommentCommandEditButton.Visibility" Value="Collapsed" />
+            <Setter Target="CommentSubmitButton.Visibility" Value="Collapsed" />
+
+            <Setter Target="SeekBarSlider.Visibility" Value="Collapsed" />
+
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -877,8 +832,6 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      <!-- コンパクトオーバーレイ表示中のコントロールUI切り替え -->
-      <VisualStateGroup></VisualStateGroup>
       <!-- Xbox時のレイアウト調整 -->
       <VisualStateGroup>
         <VisualState>
@@ -912,8 +865,8 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="SmallWindowButton.Visibility" Value="Visible" />
-            <Setter Target="FullscreenButton.Visibility" Value="Visible" />
             <Setter Target="SmallWindowButton_Menu.Visibility" Value="Visible" />
+            <Setter Target="FullscreenButton.Visibility" Value="Visible" />
             <Setter Target="FullscreenButton_Menu.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
@@ -931,11 +884,16 @@
             <myTrigger:IsShowWithSecondaryViewTrigger />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="DisplayWithMainViewButton.Visibility" Value="Visible" />
+            <Setter Target="ShowPrimaryViewButton.Visibility" Value="Visible" />
             <Setter Target="SmallWindowButton.Visibility" Value="Collapsed" />
             <Setter Target="SmallWindowButton_Menu.Visibility" Value="Collapsed" />
+            <Setter Target="FullscreenButton.Visibility" Value="Visible" />
+            <Setter Target="FullscreenButton_Menu.Visibility" Value="Visible" />
             <Setter Target="CloseButton.Visibility" Value="Collapsed" />
-            <Setter Target="CO_CloseButton.Visibility" Value="Collapsed" />
+            <Setter Target="DisplayWithSecondaryViewButton.Visibility" Value="Visible" />
+            <Setter Target="DisplayWithSecondaryViewButton.Label" Value="メインウィンドウで視聴" />
+            <Setter Target="DisplayWithSecondaryViewButton_Menu.Visibility" Value="Visible" />
+            <Setter Target="DisplayWithSecondaryViewButton_Menu.Text" Value="メインウィンドウで視聴" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -944,8 +902,8 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="SmallWindowButton.Visibility" Value="Visible" />
-            <Setter Target="FullscreenButton.Visibility" Value="Visible" />
             <Setter Target="SmallWindowButton_Menu.Visibility" Value="Visible" />
+            <Setter Target="FullscreenButton.Visibility" Value="Visible" />
             <Setter Target="FullscreenButton_Menu.Visibility" Value="Visible" />
             <Setter Target="DisplayWithSecondaryViewButton.Visibility" Value="Visible" />
             <Setter Target="DisplayWithSecondaryViewButton_Menu.Visibility" Value="Visible" />
@@ -957,13 +915,6 @@
         <VisualState>
           <VisualState.StateTriggers>
             <myTrigger:CompactOverlayViewModeTrigger />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="PlayerSplitView.OpenPaneLength" Value="0" />
-          </VisualState.Setters>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
             <myTrigger:WindowInWindowViewModeTrigger />
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -1003,8 +954,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayPauseButtonIcon.Kind" Value="Pause" />
-            <Setter Target="CO_PlayPauseButtonIcon.Kind" Value="Pause" />
-            <Setter Target="TitleLayout.Opacity" Value="0.7" />
+            <Setter Target="TitleTextBlock.Opacity" Value="0.7" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -1021,7 +971,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding ObservableMediaPlayer.IsMuted.Value, Converter={StaticResource BoolNegation}}" />
+            <StateTrigger IsActive="True" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="VolumeButton.Symbol" Value="Volume" />
@@ -1039,63 +989,9 @@
             <Setter Target="WindowDeactiveMouseMoveDetectWall.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <myTrigger:WindowActiveTrigger Inverted="False" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="WindowDeactiveMouseMoveDetectWall.Visibility" Value="Collapsed" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
-      <!-- 別ウィンドウで開く -->
-      <VisualStateGroup></VisualStateGroup>
-      <!-- 小窓・コンパクトオーバーレイ -->
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <myTrigger:CompactOverlayViewModeTrigger />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="CompactOverlayUIControl.Visibility" Value="Visible" />
-            <Setter Target="DefaultUIControl.Visibility" Value="Collapsed" />
-          </VisualState.Setters>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <myTrigger:WindowInWindowViewModeTrigger />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="DefaultUIControl.Visibility" Value="Collapsed" />
-            <!--  UIControlLayout の表示をコントロールするとFadeアニメーションを含んだ操作によって表示が再開されてしまうので
-                             アニメーションの影響を受けない内部のレイアウトを非表示にする
-                        　　　DefaultUIControlはCompactOverlay時に非表示になるが小窓とは排他的な状態のため動作に競合は起きないはず
-                        <Setter Target="UIControlLayout.Visibility" Value="Collapsed" />
-                        -->
-          </VisualState.Setters>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding ObservableMediaPlayer.NowPlaying.Value}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters></VisualState.Setters>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <StateTrigger IsActive="True" />
-          </VisualState.StateTriggers>
-        </VisualState>
       </VisualStateGroup>
       <!-- シークバー表示 -->
       <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <myTrigger:CompactOverlayViewModeTrigger />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="ReadOnlySeekBarSlider.Visibility" Value="Collapsed" />
-          </VisualState.Setters>
-        </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
             <StateTrigger IsActive="{x:Bind IsDisplayControlUI, Mode=OneWay}" />
@@ -1115,28 +1011,17 @@
             <StateTrigger IsActive="{Binding PlayerSettings.IsAutoHidePlayerControlUI, Converter={StaticResource BoolNegation}}" />
             <StateTrigger IsActive="{Binding ObservableMediaPlayer.NowPlaying.Value, Converter={StaticResource BoolNegation}}" />
             <myTrigger:FocusTrigger Target="{x:Bind CommentTextBox}" />
-            <myTrigger:FocusTrigger Target="{x:Bind CO_CommentTextBox}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerControlAutoHide.IsAutoHideEnabled" Value="False" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      <!-- キーボード入力によるコメント書き込みショートカットの有効・無効 -->
+      <!-- プレイヤーとコメントのショートカットの無効化 -->
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <myTrigger:CompactOverlayViewModeTrigger />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="CommentWriteBeginKeyboardTrigger.IsEnabled" Value="False" />
-            <Setter Target="CO_CommentWriteBeginKeyboardTrigger.IsEnabled" Value="True" />
-          </VisualState.Setters>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
             <myTrigger:FocusTrigger Target="{x:Bind CommentTextBox}" />
-            <myTrigger:FocusTrigger Target="{x:Bind CO_CommentTextBox}" />
             <StateTrigger IsActive="{Binding ElementName=PlayerSplitView, Path=IsPaneOpen}" />
             <myTrigger:WindowInWindowViewModeTrigger />
           </VisualState.StateTriggers>
@@ -1148,25 +1033,16 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
+      <!-- コメント入力中のキーボードショートカットの有効・無効 -->
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
             <myTrigger:FocusTrigger Target="{x:Bind CommentTextBox}" />
-            <myTrigger:FocusTrigger Target="{x:Bind CO_CommentTextBox}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CommentWriteExitKeyboardTrigger.IsEnabled" Value="True" />
             <Setter Target="CommentSubmitKeyboardTrigger.IsEnabled" Value="True" />
           </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
-      <!-- コメント投稿欄の表示 -->
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <myTrigger:WindowInWindowViewModeTrigger />
-          </VisualState.StateTriggers>
-          <VisualState.Setters></VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
       <!-- コメント書き込み中 -->
@@ -1177,7 +1053,6 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CommentSubmittingProgressRing.IsActive" Value="True" />
-            <Setter Target="CO_CommentSubmittingProgressRing.IsActive" Value="True" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -1231,14 +1106,11 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
+      <!-- ウィンドウタイトルバーへの対応 -->
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <logicalTrigger:MultiTrigger>
-              <logicalTrigger:MultiTrigger.Triggers>
-                <hardTrigger:DeviceFamilyTrigger Condition="Desktop" />
-              </logicalTrigger:MultiTrigger.Triggers>
-            </logicalTrigger:MultiTrigger>
+            <hardTrigger:DeviceFamilyTrigger Condition="Desktop" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="TitleBarMarginLayout.Visibility" Value="Visible" />
@@ -1267,20 +1139,23 @@
           <VisualState.Setters>
             <Setter Target="CommentTextBox.IsEnabled" Value="False" />
             <Setter Target="CommentTextBox.PlaceholderText" Value="（コメント禁止）" />
-            <Setter Target="CO_CommentTextBox.IsEnabled" Value="False" />
-            <Setter Target="CO_CommentTextBox.PlaceholderText" Value="（コメント禁止）" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      <!-- 次の動画のオススメ表示 -->
+      
+      <!-- コントロールUI中央の表示 -->
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
             <StateTrigger IsActive="{Binding VideoEndedRecommendation.HasRecomend.Value}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
+            <Setter Target="UIControlCenterLayout.Background" Value="{ThemeResource SystemAltMediumColor}" />
+            <Setter Target="CenterTopGradient.Visibility" Value="Collapsed" />
+            <Setter Target="CenterBottomGradient.Visibility" Value="Collapsed" />
+
+            <!-- リコメンドUI（次の動画のオススメ表示） -->
             <Setter Target="PlayEndedRecommendContainer.Visibility" Value="Visible" />
-            <Setter Target="CO_PlayEndedRecommend.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -1288,13 +1163,16 @@
         <VisualState>
           <VisualState.StateTriggers>
             <myTrigger:CompactOverlayViewModeTrigger />
+            <myTrigger:WindowInWindowViewModeTrigger />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="PlayEndedRecommend.IsEnabled" Value="False" />
-            <Setter Target="CO_PlayEndedRecommend.IsEnabled" Value="True" />
+            <Setter Target="UIControlCenterLayout.Background" Value="{ThemeResource SystemAltMediumColor}" />
+            <Setter Target="CenterTopGradient.Visibility" Value="Collapsed" />
+            <Setter Target="CenterBottomGradient.Visibility" Value="Collapsed" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
+      
       <!-- 小窓状態の時、コントローラーのショートカット操作を無効に -->
       <VisualStateGroup>
         <VisualState>

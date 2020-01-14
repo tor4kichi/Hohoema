@@ -56,7 +56,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
+            <AdaptiveTrigger MinWindowWidth="{StaticResource WidthBreakPoint_WideToMiddle}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="GenreItems.Margin" Value="16 8 0 0" />

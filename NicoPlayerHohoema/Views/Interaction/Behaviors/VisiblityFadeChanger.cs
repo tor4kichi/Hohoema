@@ -146,7 +146,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
             DependencyProperty.Register("IsVisible"
                     , typeof(bool)
                     , typeof(VisiblityFadeChanger)
-                    , new PropertyMetadata(true, OnIsVisiblePropertyChanged)
+                    , new PropertyMetadata(false, OnIsVisiblePropertyChanged)
                 );
 
         public bool IsVisible

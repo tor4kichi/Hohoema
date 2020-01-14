@@ -85,7 +85,8 @@ namespace NicoPlayerHohoema.ViewModels
             WindowService windowService,
             VideoEndedRecommendation videoEndedRecommendation,
             PrimaryViewPlayerManager primaryViewPlayerManager,
-            TogglePlayerDisplayViewCommand togglePlayerDisplayViewCommand
+            TogglePlayerDisplayViewCommand togglePlayerDisplayViewCommand,
+            ShowPrimaryViewCommand showPrimaryViewCommand
             )
         {
             _scheduler = scheduler;
@@ -111,6 +112,7 @@ namespace NicoPlayerHohoema.ViewModels
             CommentPlayer = commentPlayer;
             PrimaryViewPlayerManager = primaryViewPlayerManager;
             TogglePlayerDisplayViewCommand = togglePlayerDisplayViewCommand;
+            ShowPrimaryViewCommand = showPrimaryViewCommand;
             ObservableMediaPlayer = observableMediaPlayer
                 .AddTo(_CompositeDisposable);
             WindowService = windowService
@@ -154,6 +156,7 @@ namespace NicoPlayerHohoema.ViewModels
         public CommentPlayer CommentPlayer { get; }
         public PrimaryViewPlayerManager PrimaryViewPlayerManager { get; }
         public TogglePlayerDisplayViewCommand TogglePlayerDisplayViewCommand { get; }
+        public ShowPrimaryViewCommand ShowPrimaryViewCommand { get; }
         public ObservableMediaPlayer ObservableMediaPlayer { get; }
         public WindowService WindowService { get; }
         public VideoEndedRecommendation VideoEndedRecommendation { get; }

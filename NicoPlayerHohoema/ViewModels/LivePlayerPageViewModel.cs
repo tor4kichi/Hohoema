@@ -82,7 +82,8 @@ namespace NicoPlayerHohoema.ViewModels
             ObservableMediaPlayer observableMediaPlayer,
             WindowService windowService,
             PrimaryViewPlayerManager primaryViewPlayerManager,
-            TogglePlayerDisplayViewCommand togglePlayerDisplayViewCommand
+            TogglePlayerDisplayViewCommand togglePlayerDisplayViewCommand,
+            ShowPrimaryViewCommand showPrimaryViewCommand
             )
         {
             _scheduler = scheduler;
@@ -104,6 +105,7 @@ namespace NicoPlayerHohoema.ViewModels
             WindowService = windowService;
             PrimaryViewPlayerManager = primaryViewPlayerManager;
             TogglePlayerDisplayViewCommand = togglePlayerDisplayViewCommand;
+            ShowPrimaryViewCommand = showPrimaryViewCommand;
             LiveComments = new ReadOnlyObservableCollection<Comment>(_LiveComments);
             FilterdComments.Source = LiveComments;
 
@@ -366,6 +368,7 @@ namespace NicoPlayerHohoema.ViewModels
         public WindowService WindowService { get; }
         public PrimaryViewPlayerManager PrimaryViewPlayerManager { get; }
         public TogglePlayerDisplayViewCommand TogglePlayerDisplayViewCommand { get; }
+        public ShowPrimaryViewCommand ShowPrimaryViewCommand { get; }
 
         private string _LiveId;
         public string LiveId

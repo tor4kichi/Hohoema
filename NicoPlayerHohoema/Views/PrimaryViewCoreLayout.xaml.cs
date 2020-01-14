@@ -210,7 +210,7 @@ namespace NicoPlayerHohoema.Views
 
         bool HandleBackRequest()
         {
-            var displayMode = _viewModel.PrimaryViewPlayerManager.DisplayMode.Value;
+            var displayMode = _viewModel.PrimaryViewPlayerManager.DisplayMode;
             if (displayMode == Services.Player.PrimaryPlayerDisplayMode.Fill
                 || displayMode == Services.Player.PrimaryPlayerDisplayMode.FullScreen
                 || displayMode == Services.Player.PrimaryPlayerDisplayMode.CompactOverlay

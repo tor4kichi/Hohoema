@@ -44,8 +44,9 @@
                     Color="{ThemeResource SystemAltMediumColor}" 
                          />
 
-      <x:Double x:Key="DesktopWindowWidthBreakPoint">800</x:Double>
-
+      <x:Double x:Key="WidthBreakPoint_WideToMiddle">800</x:Double>
+      <x:Double x:Key="WidthBreakPoint_MiddleToNallow">520</x:Double>
+      <x:Double x:Key="WidthBreakPoint_NallowToVeryNallow">300</x:Double>
 
       <uwpconv:BoolNegationConverter x:Key="BoolNegation" />
       <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />

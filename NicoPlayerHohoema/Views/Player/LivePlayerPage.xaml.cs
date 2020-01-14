@@ -103,5 +103,26 @@ namespace NicoPlayerHohoema.Views
                 viewModel.ChangeQualityCommand.Execute(qualityStr);
             }
         }
+
+
+
+
+
+        public double MediaControlActualWidth
+        {
+            get { return (double)GetValue(MediaControlActualWidthProperty); }
+            set { SetValue(MediaControlActualWidthProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for MediaControlActualWidth.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty MediaControlActualWidthProperty =
+            DependencyProperty.Register("MediaControlActualWidth", typeof(double), typeof(LivePlayerPage), new PropertyMetadata(0.0));
+
+
+
+        private void LayoutRoot_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            MediaControlActualWidth = e.NewSize.Width;
+        }
     }
 }

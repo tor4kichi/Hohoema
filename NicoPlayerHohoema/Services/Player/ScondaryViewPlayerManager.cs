@@ -282,6 +282,8 @@ namespace NicoPlayerHohoema.Services
 
                     await SecondaryViewPlayerNavigationService.NavigateAsync(pageName, parameters, new DrillInNavigationTransitionInfo());
                 });
+
+                await ShowSecondaryViewAsync();
             }
         }
 
@@ -306,9 +308,31 @@ namespace NicoPlayerHohoema.Services
         public Task ShowMainViewAsync()
         {
             var currentView = ApplicationView.GetForCurrentView();
-            if (SecondaryAppView != null && currentView.Id != SecondaryAppView.Id)
+            if (SecondaryAppView != null && currentView.Id == SecondaryAppView.Id)
             {
                 return ApplicationViewSwitcher.TryShowAsStandaloneAsync(MainViewId).AsTask();
+            }
+            else
+            {
+                return Task.CompletedTask;
+            }
+        }
+
+        public Task ShowSecondaryViewAsync()
+        {
+            if (!_showSecondaryView) { return Task.CompletedTask; }
+
+            if (SecondaryAppView.ViewMode == ApplicationViewMode.CompactOverlay
+                    || SecondaryAppView.IsFullScreenMode
+                    )
+            {
+                return Task.CompletedTask;
+            }
+
+            var currentView = ApplicationView.GetForCurrentView();
+            if (SecondaryAppView != null && currentView.Id != SecondaryAppView.Id)
+            {
+                return ApplicationViewSwitcher.TryShowAsStandaloneAsync(SecondaryAppView.Id).AsTask();
             }
             else
             {
