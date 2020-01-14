@@ -14,6 +14,11 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         public string ItemId { get; set; }
     }
 
+    public sealed class ContentWatchedEventArgs
+    {
+        public string ContentId { get; set; }
+    }
+
     public sealed class WatchHistoryManager
     {
         private readonly LoginUserHistoryProvider _loginUserHistoryProvider;
@@ -25,6 +30,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             _loginUserHistoryProvider = loginUserHistoryProvider;
         }
 
+        public event EventHandler<ContentWatchedEventArgs> ContentWatched;
         public event EventHandler<WatchHistoryRemovedEventArgs> WatchHistoryRemoved;
         public event EventHandler WatchHistoryAllRemoved;
 

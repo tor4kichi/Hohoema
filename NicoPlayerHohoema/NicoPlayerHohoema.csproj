@@ -215,6 +215,7 @@
     <Compile Include="UseCase\Playlist\Commands\VideoContentSelectionCommandBase.cs" />
     <Compile Include="UseCase\Playlist\Commands\WatchHistoryRemoveAllCommand.cs" />
     <Compile Include="UseCase\Playlist\Commands\WatchHistoryRemoveItemCommand.cs" />
+    <Compile Include="UseCase\Playlist\Events\VideoPlayedEvent.cs" />
     <Compile Include="UseCase\Playlist\LocalMylistManager.cs" />
     <Compile Include="Database\Local\LocalMylist\LocalMylistDb.cs" />
     <Compile Include="Models\NiconicoSession.cs" />

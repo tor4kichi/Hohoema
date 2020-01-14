@@ -136,7 +136,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
     }
 
 
-    public class HohoemaPlaylist : BindableBase, IDisposable
+    public class HohoemaPlaylist : FixPrism.BindableBase, IDisposable
     {
         // Windows10のメディアコントロールとHohoemaのプレイリスト機能を統合してサポート
 
@@ -585,7 +585,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             return await _nicoVideoProvider.GetNicoVideoInfo(videoId);
         }
 
-
+        Events.VideoPlayedEvent _videoPlayedEvent;
         public void PlayDone()
         {
             if (CurrentItem == null)
@@ -602,6 +602,13 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
                 // 視聴完了のイベントをトリガー
                 VideoPlayed?.Invoke(this, new VideoPlayedEventArgs(CurrentItem.Id, (int)history.PlayCount));
+
+                if (_videoPlayedEvent == null)
+                {
+                    _videoPlayedEvent = _eventAggregator.GetEvent<Events.VideoPlayedEvent>();
+                }
+
+                _videoPlayedEvent.Publish(new Events.VideoPlayedEvent.VideoPlayedEventArgs() { ContentId = CurrentItem.Id });
             }
         }
 
