@@ -10,12 +10,29 @@
   mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
-  <StackPanel HorizontalAlignment="Center" Background="{x:Bind Background}">
+  <uwpControls:DockPanel HorizontalAlignment="Center" Background="{x:Bind Background}">
 
+    <Button Width="240"
+            HorizontalAlignment="Center"
+            x:Name="CancelButton"
+            Tapped="{x:Bind Cancel}" 
+            uwpControls:DockPanel.Dock="Bottom"
+            Margin="8"
+            >
+
+      <StackPanel HorizontalAlignment="Center">
+        <TextBlock Text="キャンセル" />
+      </StackPanel>
+
+    </Button>
+
+    
     <Button Command="{x:Bind Command, Mode=OneWay}"
               Background="Transparent"
               HorizontalAlignment="Center"
-                  x:Name="CancelAutoNextVideoPlayButton"
+                  x:Name="PlayNextVideoButton"
+            Height="88"
+            uwpControls:DockPanel.Dock="Top"
               >
 
       <Grid Height="80" Width="80" x:Name="RadialProgressBarContainer">
@@ -37,23 +54,10 @@
       </Grid>
     </Button>
 
+
     <ContentControl Content="{x:Bind CenterContent, Mode=OneWay}">
-      
+
     </ContentControl>
-
-
-    <Button MinWidth="240"
-            HorizontalAlignment="Center"
-            x:Name="CancelButton"
-            Tapped="{x:Bind Cancel}" 
-            >
-
-      <StackPanel HorizontalAlignment="Center">
-        <TextBlock Text="キャンセル" />
-      </StackPanel>
-
-    </Button>
-
 
     <VisualStateManager.VisualStateGroups>
       <VisualStateGroup>
@@ -72,8 +76,15 @@
         <VisualState>
           <VisualState.StateTriggers>
             <myTrigger:CompactOverlayViewModeTrigger />
+            <myTrigger:WindowInWindowViewModeTrigger />
           </VisualState.StateTriggers>
           <VisualState.Setters>
+            <Setter Target="CancelButton.Width" Value="80" />
+            <Setter Target="CancelButton.(uwpControls:DockPanel.Dock)" Value="Right" />
+
+            <Setter Target="PlayNextVideoButton.(uwpControls:DockPanel.Dock)" Value="Left" />
+            <Setter Target="PlayNextVideoButton.Height" Value="80" />
+            
             <Setter Target="RadialProgressBar.Width" Value="48" />
             <Setter Target="RadialProgressBar.Height" Value="48" />
             <Setter Target="RadialProgressBar.Thickness" Value="2" />
@@ -92,5 +103,5 @@
       </VisualStateGroup>
     </VisualStateManager.VisualStateGroups>
    
-  </StackPanel>
+  </uwpControls:DockPanel>
 </UserControl>

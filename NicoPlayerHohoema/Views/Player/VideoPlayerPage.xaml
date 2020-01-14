@@ -586,11 +586,11 @@
                     </i:Interaction.Behaviors>
                   </Border>
                   <Border x:Name="PlayEndedRecommendContainer" Visibility="Collapsed">
-                    <controls:DelayedAutoTriggerButton x:Name="PlayEndedRecommend" Command="{Binding VideoEndedRecommendation.PlayNextVideoCommand}" HorizontalAlignment="Center" VerticalAlignment="Center">
+                    <controls:DelayedAutoTriggerButton x:Name="PlayEndedRecommend" Command="{Binding VideoEndedRecommendation.PlayNextVideoCommand}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="40 0">
                       <controls:DelayedAutoTriggerButton.CenterContent>
                         <StackPanel Spacing="4">
                           <TextBlock Text="次の動画" Opacity="0.7" />
-                          <TextBlock Text="{Binding VideoEndedRecommendation.NextVideoTitle}" Style="{StaticResource SubtitleTextBlockStyle}" />
+                          <TextBlock x:Name="RecommendVideoTitle" Text="{Binding VideoEndedRecommendation.NextVideoTitle}" Style="{StaticResource BaseTextBlockStyle}"  />
                         </StackPanel>
                       </controls:DelayedAutoTriggerButton.CenterContent>
                       <i:Interaction.Behaviors>
@@ -1162,13 +1162,27 @@
             <Setter Target="UIControlCenterLayout.Background" Value="{ThemeResource SystemAltMediumColor}" />
             <Setter Target="CenterTopGradient.Visibility" Value="Collapsed" />
             <Setter Target="CenterBottomGradient.Visibility" Value="Collapsed" />
-
-            <!-- リコメンドUI（次の動画のオススメ表示） -->
             <Setter Target="PlayEndedRecommendContainer.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
-      </VisualStateGroup>
-      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:CompositeStateTrigger Operator="And">
+              <StateTrigger IsActive="{Binding VideoEndedRecommendation.HasRecomend.Value}" />
+              <windowsTriggers:CompositeStateTrigger Operator="Or">
+                <myTrigger:CompactOverlayViewModeTrigger />
+                <myTrigger:WindowInWindowViewModeTrigger />
+              </windowsTriggers:CompositeStateTrigger>
+            </windowsTriggers:CompositeStateTrigger>
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="UIControlCenterLayout.Background" Value="{ThemeResource SystemAltMediumColor}" />
+            <Setter Target="CenterTopGradient.Visibility" Value="Collapsed" />
+            <Setter Target="CenterBottomGradient.Visibility" Value="Collapsed" />
+            <Setter Target="PlayEndedRecommendContainer.Visibility" Value="Visible" />
+            <Setter Target="RecommendVideoTitle.Style" Value="{StaticResource CaptionTextBlockStyle}" />
+          </VisualState.Setters>
+        </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
             <myTrigger:CompactOverlayViewModeTrigger />

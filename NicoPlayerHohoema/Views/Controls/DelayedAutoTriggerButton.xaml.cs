@@ -31,7 +31,10 @@ namespace NicoPlayerHohoema.Views.Controls
             _ProgressTimer.Stop();
         }
 
-
+        private void DelayedAutoTriggerButton_Unloaded(object sender, RoutedEventArgs e)
+        {
+            Cancel();
+        }
 
         public object CenterContent
         {
@@ -45,13 +48,6 @@ namespace NicoPlayerHohoema.Views.Controls
 
 
 
-
-
-
-        private void DelayedAutoTriggerButton_Unloaded(object sender, RoutedEventArgs e)
-        {
-            Cancel();
-        }
 
         public TimeSpan? DelayTime
         {

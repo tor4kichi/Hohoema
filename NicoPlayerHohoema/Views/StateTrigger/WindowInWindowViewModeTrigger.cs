@@ -14,7 +14,7 @@ using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.Views.StateTrigger
 {
-    public sealed class WindowInWindowViewModeTrigger : StateTriggerBase, IDisposable
+    public sealed class WindowInWindowViewModeTrigger : InvertibleStateTrigger, IDisposable
     {
         private PrimaryViewPlayerManager _primaryViewPlayerManager;
 
@@ -30,12 +30,12 @@ namespace NicoPlayerHohoema.Views.StateTrigger
                     .ObserveOn(scheduler)
                     .Subscribe(mode =>
                     {
-                        SetActive(mode == PrimaryPlayerDisplayMode.WindowInWindow);
+                        SetActiveInvertible(mode == PrimaryPlayerDisplayMode.WindowInWindow);
                     });
             }
             else
             {
-                SetActive(false);
+                SetActiveInvertible(false);
             }
         }
 
