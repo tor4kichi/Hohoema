@@ -167,6 +167,7 @@ HohoemaPageType.UserVideo = ユーザー動画一覧
 HohoemaPageType.VideoInfomation = 動画情報
 HohoemaPageType.WatchHistory = 視聴履歴
 HohoemaPageType.LocalPlaylist = プレイリスト
+HohoemaPageType.Mylist = マイリスト
 
 #### Search ####
 SearchTarget.Keyword = キーワード
@@ -247,6 +248,12 @@ SubscriptionAddMylist = マイリストを購読に追加
 SubscriptionAddKeyword = キーワードを購読に追加
 SubscriptionAddTag = タグを購読に追加
 SubscriptionAddToNew = 購読を作成して追加
+
+
+#### Video Cache feature ####
+CacheProgress = DL中
+CachePending = DL順番待ち
+
 
 #### User Videos Page ####
 UserVideosNoItems = 投稿動画はありません

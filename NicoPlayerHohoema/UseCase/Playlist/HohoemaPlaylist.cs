@@ -189,6 +189,16 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             _playerSettings = playerSettings;
             QueuePlaylist = new PlaylistObservableCollection(QueuePlaylistId, QueuePlaylistId.ToCulturelizeString());
 
+
+            this.ObserveProperty(x => x.CurrentItem).Pairwise()
+                .Subscribe(pair => 
+                {
+                    if (pair.OldItem != null)
+                    {
+                        PlayDone(pair.OldItem);
+                    }
+                })
+                .AddTo(_disposable);
             /*
             _ = ResolveItemsAsync(QueuePlaylist)
                 .ContinueWith(prevTask =>
@@ -586,37 +596,26 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         }
 
         Events.VideoPlayedEvent _videoPlayedEvent;
-        public void PlayDone()
+        private void PlayDone(IVideoContent playedItem)
         {
-            if (CurrentItem == null)
+            // アイテムを視聴済みにマーク
+            var history = Database.VideoPlayedHistoryDb.VideoPlayed(playedItem.Id);
+            System.Diagnostics.Debug.WriteLine("視聴完了: " + playedItem.Label);
+
+            // 視聴完了のイベントをトリガー
+            VideoPlayed?.Invoke(this, new VideoPlayedEventArgs(playedItem.Id, (int)history.PlayCount));
+
+            if (_videoPlayedEvent == null)
             {
-                // キューからの再生だったの場合、再生後にアイテムを削除する
-                if (CurrentPlaylist.IsQueuePlaylist())
-                {
-                    RemoveQueue(CurrentItem);
-                }
-
-                // アイテムを視聴済みにマーク
-                var history = Database.VideoPlayedHistoryDb.VideoPlayed(CurrentItem.Id);
-                System.Diagnostics.Debug.WriteLine("視聴完了: " + CurrentItem.Label);
-
-                // 視聴完了のイベントをトリガー
-                VideoPlayed?.Invoke(this, new VideoPlayedEventArgs(CurrentItem.Id, (int)history.PlayCount));
-
-                if (_videoPlayedEvent == null)
-                {
-                    _videoPlayedEvent = _eventAggregator.GetEvent<Events.VideoPlayedEvent>();
-                }
-
-                _videoPlayedEvent.Publish(new Events.VideoPlayedEvent.VideoPlayedEventArgs() { ContentId = CurrentItem.Id });
+                _videoPlayedEvent = _eventAggregator.GetEvent<Events.VideoPlayedEvent>();
             }
+
+            _videoPlayedEvent.Publish(new Events.VideoPlayedEvent.VideoPlayedEventArgs() { ContentId = playedItem.Id });
         }
 
 
         public bool PlayDoneAndTryMoveNext()
         {
-            PlayDone();
-
             // 次送りが出来る場合は次へ
             if (_player?.CanGoNext ?? false)
             {

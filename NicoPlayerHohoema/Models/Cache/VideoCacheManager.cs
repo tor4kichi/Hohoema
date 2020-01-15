@@ -714,7 +714,7 @@ namespace NicoPlayerHohoema.Models.Cache
 
                     var prepareResult = await _nicoVideoSessionProvider.PreparePlayVideoAsync(_info.RawVideoId);
 
-                    var session = (Models.IVideoStreamingDownloadSession)prepareResult.CreateVideoSessionAsync(_info.Quality);
+                    var session = (Models.IVideoStreamingDownloadSession)await prepareResult.CreateVideoSessionAsync(_info.Quality);
 
                     info = new NicoVideoCacheProgress(_info, task, session);
 
@@ -814,7 +814,7 @@ namespace NicoPlayerHohoema.Models.Cache
                     var prepareResult = await _nicoVideoSessionProvider.PreparePlayVideoAsync(videoInfo.RawVideoId);
 
                     // DownloadSessionを保持して、再生完了時にDisposeさせる必要がある
-                    var downloadSession = (Models.IVideoStreamingDownloadSession)prepareResult.CreateVideoSessionAsync(nextDownloadItem.Quality);
+                    var downloadSession = (Models.IVideoStreamingDownloadSession)await prepareResult.CreateVideoSessionAsync(nextDownloadItem.Quality);
 
 
                     

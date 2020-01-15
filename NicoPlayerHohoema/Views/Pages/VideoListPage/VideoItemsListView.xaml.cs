@@ -20,6 +20,7 @@ using NicoPlayerHohoema.Views.Flyouts;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.UseCase.Playlist;
 using System.Threading.Tasks;
+using Reactive.Bindings.Extensions;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -166,6 +167,9 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
             
             Loaded += VideoItemsListView_Loaded;
             Unloaded += VideoItemsListView_Unloaded;
+
+            // Note: Loadedで登録すると速いCPUだと先頭数個の表示要素が漏れることからコンストラクタで登録している
+            ItemsList.ContainerContentChanging += ItemsList_ContainerContentChanging;
         }
 
         private void VideoItemsListView_Loaded(object sender, RoutedEventArgs e)
@@ -180,12 +184,9 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
             
             // Context Flyout
             ItemsList.ContextRequested += ItemsList_ContextRequested;
-            
-            // Update Video Item
-            if (IsUpdateSourceVideoItem)
-            {
-                ItemsList.ContainerContentChanging += ItemsList_ContainerContentChanging;
-            }
+
+            ItemsList.ContainerContentChanging -= ItemsList_ContainerContentChanging;
+            ItemsList.ContainerContentChanging += ItemsList_ContainerContentChanging;
         }
 
         private void ItemsList_ItemClick(object sender, ItemClickEventArgs e)
@@ -330,6 +331,8 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
 
         private void ItemsList_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
         {
+            if (!IsUpdateSourceVideoItem) { return; }
+
             var videoContent = args.Item as Interfaces.IVideoContentWritable;
             //if (videoContent != null && !_updatedItemsId.Contains(videoContent.Id))
             if (videoContent != null && args.Phase == 0)

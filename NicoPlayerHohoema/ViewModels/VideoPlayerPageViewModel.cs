@@ -438,10 +438,6 @@ namespace NicoPlayerHohoema.ViewModels
             VideoPlayer.ClearCurrentSession();
             CommentPlayer.ClearCurrentSession();
 
-            // プレイリストへ再生完了を通知
-            HohoemaPlaylist.PlayDone();
-
-
             App.Current.Resuming -= Current_Resuming;
             App.Current.Suspending -= Current_Suspending;
 

@@ -37,7 +37,7 @@ namespace NicoPlayerHohoema.Models
 			var ranking = await SettingsBase.Load<RankingSettings>(RankingSettingsFileName, userFolder);
             var ng = await SettingsBase.Load<NGSettings>(NGSettingsFileName, userFolder);
 
-            var player = await SettingsBase.Load<PlayerSettings>(CacheSettingsFileName, userFolder);
+            var player = await SettingsBase.Load<PlayerSettings>(PlayerSettingsFileName, userFolder);
             var cache = await SettingsBase.Load<CacheSettings>(CacheSettingsFileName, userFolder);
             var appearance = await SettingsBase.Load<AppearanceSettings>(AppearanceSettingsFileName, userFolder);
             var nicorepoAndFeed = await SettingsBase.Load<ActivityFeedSettings>(NicoRepoAndFeedSettingsFileName, userFolder);

@@ -53,15 +53,11 @@ namespace NicoPlayerHohoema.Views
 
             ContentFrame.Navigated += (_, e) =>
             {
-                if (e.NavigationMode == Windows.UI.Xaml.Navigation.NavigationMode.Back
-                    || e.NavigationMode == Windows.UI.Xaml.Navigation.NavigationMode.Forward)
+                var pageNameRaw = e.SourcePageType.FullName.Split('.').LastOrDefault();
+                var pageName = pageNameRaw.Split('_').FirstOrDefault();
+                if (Enum.TryParse(pageName.Substring(0, pageName.Length - 4), out HohoemaPageType pageType))
                 {
-                    var pageNameRaw = e.SourcePageType.FullName.Split('.').LastOrDefault();
-                    var pageName = pageNameRaw.Split('_').FirstOrDefault();
-                    if (Enum.TryParse(pageName.Substring(0, pageName.Length - 4), out HohoemaPageType pageType))
-                    {
-                        PageTitle = pageType.Translate();
-                    }
+                    PageTitle = pageType.Translate();
                 }
             };
 
@@ -137,8 +133,6 @@ namespace NicoPlayerHohoema.Views
                     var result = await _contentFrameNavigationService.NavigateAsync($"{prefix}{pageType.ToString()}", parameter);
                     if (result.Success)
                     {
-                        PageTitle = pageType.Translate();
-
                         if (behavior == NavigationStackBehavior.NotRemember /*|| IsIgnoreRecordPageType(oldPageType)*/)
                         {
                             // TODO: NavigationStackBehavior.NotRemember
@@ -216,7 +210,7 @@ namespace NicoPlayerHohoema.Views
                 || displayMode == Services.Player.PrimaryPlayerDisplayMode.CompactOverlay
                 )
             {
-                Debug.WriteLine("BackNavigation canceled. due to priority player UI.");
+                Debug.WriteLine("BackNavigation canceled. priority player UI.");
                 return false;
             }
             else

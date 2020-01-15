@@ -251,14 +251,13 @@
             <Border Height="{StaticResource TitleBarDummyHeight}"
                     uwpToolkitControls:DockPanel.Dock="Top" />
             <Border uwpToolkitControls:DockPanel.Dock="Top"
-                    Margin="8 0 8 8">
+                    Margin="8 8 8 8">
               <TextBox x:Name="SearchTextBox"
                        Text="{x:Bind SearchInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                        PlaceholderText="検索"
                        UseSystemFocusVisuals="True"
                        TabIndex="103"
-                       Padding="0"
-                       Margin="0 16 0 0">
+                       Margin="0 0 0 0">
                 <i:Interaction.Behaviors>
                   <mybehavior:KeyboardTrigger Key="Enter"
                                               x:Name="SearchSubmitWithEnterKeyTrigger"
@@ -414,7 +413,7 @@
                         />
                 <StackPanel Orientation="Horizontal"
                             uwpToolkitControls:DockPanel.Dock="Left"
-                            Spacing="8">
+                            Spacing="4">
                   <Border x:Name="Mobile_BackButtonLayout"
                           Margin="0 0 0 0"
                           Visibility="Collapsed">
@@ -423,8 +422,8 @@
                             VerticalContentAlignment="Center"
                             Command="{x:Bind GoBackCommand}">
                       <SymbolIcon Symbol="Back"
-                                  Height="13"
-                                  Width="13" />
+                                  Height="16"
+                                  Width="16" />
                     </Button>
                   </Border>
                   <!-- モバイル時のメニュー開閉ボタン -->

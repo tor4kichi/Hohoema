@@ -13,12 +13,12 @@ namespace NicoPlayerHohoema.Views.Converters
 		{
 			try
 			{
-				int casted = (int) Math.Round(((double)value * 100));
-				return casted;
+				double casted = Math.Round(((double)value * 100));
+				return casted.ToString("F0");
 			}
 			catch
 			{
-				return value.ToString();
+				return value?.ToString();
 			}
 		}
 

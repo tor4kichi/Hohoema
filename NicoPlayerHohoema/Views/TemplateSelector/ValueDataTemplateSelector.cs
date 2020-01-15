@@ -12,7 +12,7 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
     public class ValueDataTemplate : DependencyObject
     {
         public object Value { get; set; }
-        public DataTemplate Template { get; set; }
+        public Windows.UI.Xaml.DataTemplate Template { get; set; }
     }
 
     public class ValueDataTemplateCollection : Collection<ValueDataTemplate> { }
@@ -23,13 +23,13 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
         public string FieldName { get; set; }
         public string PropertyName { get; set; }
 
-        public DataTemplate Default { get; set; }
+        public Windows.UI.Xaml.DataTemplate Default { get; set; }
 
         public bool ForceCompereWithString { get; set; }
 
         public ValueDataTemplateCollection Templates { get; set; } = new ValueDataTemplateCollection();
 
-        protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+        protected override Windows.UI.Xaml.DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
             if (item == null)
             {

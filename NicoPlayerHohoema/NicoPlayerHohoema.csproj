@@ -141,6 +141,9 @@
     <Compile Include="Interfaces\IPlaylistItem.cs" />
     <Compile Include="Interfaces\IWatchHistory.cs" />
     <Compile Include="Locales\LocalizeConverter.cs" />
+    <Compile Include="Models\Cache\NicoVideoCacheInfo.cs" />
+    <Compile Include="Models\Cache\NicoVideoCacheProgress.cs" />
+    <Compile Include="Models\Cache\NicoVideoCacheRequestExtension.cs" />
     <Compile Include="Models\Niconico\INiconicoVideoSessionProvider.cs" />
     <Compile Include="Models\Niconico\Video\Comment\NicoScript.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideoQualityEntity.cs" />
@@ -609,6 +612,7 @@
     <Compile Include="Views\TemplateSelector\NullableTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\PlayerSidePaneContentTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\SearchTargetContentTemplateSelector.cs" />
+    <Compile Include="Views\TemplateSelector\TypeBasedTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\ValueDataTemplateSelector.cs" />
     <Compile Include="Views\Pages\TimeshiftPage.xaml.cs">
       <DependentUpon>TimeshiftPage.xaml</DependentUpon>

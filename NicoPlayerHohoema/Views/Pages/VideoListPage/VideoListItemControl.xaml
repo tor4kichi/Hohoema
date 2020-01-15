@@ -6,11 +6,61 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
   xmlns:toolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
+  xmlns:templateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
+  xmlns:cacheModels="using:NicoPlayerHohoema.Models.Cache"
+  xmlns:windowsStateTrigger="using:WindowsStateTriggers"
   mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
+  <UserControl.Resources>
+    <templateSelector:StringToTypeConverter x:Key="StringToType" />
+    <templateSelector:TypeBasedTemplateSelector x:Key="CacheRequestTemplateSelector">
+      <templateSelector:TypeBasedTemplateSelector.DefaultTemplate>
+        <DataTemplate>
+          <TextBlock Text="aaa" />
+        </DataTemplate>
+      </templateSelector:TypeBasedTemplateSelector.DefaultTemplate>
+      <!-- Cached -->
+      <DataTemplate x:DataType="cacheModels:NicoVideoCacheInfo" templateSelector:DataTemplate.TargetType="{Binding Source=NicoPlayerHohoema.Models.Cache.NicoVideoCacheInfo, Converter={StaticResource StringToType}, Mode=OneTime}">
+        <TextBlock Opacity="0.9" FontSize="12">
+          <Run Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}" />
+        </TextBlock>
+      </DataTemplate>
+      <!-- Progress -->
+      <DataTemplate x:DataType="cacheModels:NicoVideoCacheProgress" templateSelector:DataTemplate.TargetType="{Binding Source=NicoPlayerHohoema.Models.Cache.NicoVideoCacheProgress, Converter={StaticResource StringToType}, Mode=OneTime}">
+        <TextBlock Opacity="0.75" FontSize="12">
+          <Run Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}" />(<Run Text="{Binding Source=CacheProgress, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" />)
+        </TextBlock>
+      </DataTemplate>
+      <!-- Pending -->
+      <DataTemplate x:DataType="cacheModels:NicoVideoCacheRequest" templateSelector:DataTemplate.TargetType="{Binding Source=NicoPlayerHohoema.Models.Cache.NicoVideoCacheRequest, Converter={StaticResource StringToType}, Mode=OneTime}">
+        <TextBlock Opacity="0.6" FontSize="12">
+          <Run Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}" />(<Run Text="{Binding Source=CachePending, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" />)
+        </TextBlock>
+      </DataTemplate>
+    </templateSelector:TypeBasedTemplateSelector>
+  </UserControl.Resources>
   <Grid>
+
+    <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom">
+      <ItemsControl ItemsSource="{x:Bind CacheRequests, Mode=OneWay}"
+                  ItemTemplateSelector="{StaticResource CacheRequestTemplateSelector}"
+                  >
+      </ItemsControl>
+      <StackPanel Orientation="Horizontal" Spacing="8" x:Name="CacheProgressLayout" Visibility="Collapsed">
+        <TextBlock  Opacity="0.75" FontSize="12">
+          <Run Text="{x:Bind DownloadProgress, Mode=OneWay, Converter={StaticResource ToUserFriendlySoubleVolume}}" />%
+        </TextBlock>
+        <ProgressBar x:Name="CacheProgressBar" 
+                     Maximum="1.0"
+                   Minimum="0.0"
+                   Value="{x:Bind DownloadProgress, Mode=OneWay}"
+                   Width="120"
+                   />
+      </StackPanel>
+    </StackPanel>
+    
     <toolkit:DockPanel Margin="4 0 0 0"
                            x:Name="ContentLayout"
                            >
@@ -80,7 +130,7 @@
 
 
     </toolkit:DockPanel>
-
+    
     <VisualStateManager.VisualStateGroups>
       <VisualStateGroup>
         <VisualState>
@@ -92,6 +142,18 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind HasCacheProgress, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="CacheProgressLayout.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      
     </VisualStateManager.VisualStateGroups>
   </Grid>
 </UserControl>

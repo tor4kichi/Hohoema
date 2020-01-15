@@ -10,10 +10,10 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
 {
     public sealed class ContentTemplateSelector : DataTemplateSelector
     {
-        public DataTemplate ContentTemplate { get; set; }
-        public DataTemplate DefaultTemplate { get; set; }
+        public Windows.UI.Xaml.DataTemplate ContentTemplate { get; set; }
+        public Windows.UI.Xaml.DataTemplate DefaultTemplate { get; set; }
 
-        protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+        protected override Windows.UI.Xaml.DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
             if (item != null && ContentTemplate != null)
             {
