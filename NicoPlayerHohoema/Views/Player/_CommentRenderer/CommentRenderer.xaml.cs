@@ -377,7 +377,6 @@ namespace NicoPlayerHohoema.Views
                 DisplayMode = comment.DisplayMode
             };
 
-
             return commentUI;
         }
 
@@ -525,10 +524,16 @@ namespace NicoPlayerHohoema.Views
 //                    if (!isCanAddRenderComment_Center) { continue; }
                 }
                 
-                // TODO: NGCommentの判定
+                // NGCommentの判定
                 if (PlayerSettings.IsNGComment(comment.CommentText) != null)
                 {
-                    Debug.WriteLine("NG: " + comment.CommentText);
+                    Debug.WriteLine("NG(text): " + comment.CommentText);
+                    continue;
+                }
+
+                if (comment.NGScore <= PlayerSettings.NGCommentScore)
+                {
+                    Debug.WriteLine("NG(score): " + comment.CommentText);
                     continue;
                 }
 

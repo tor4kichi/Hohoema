@@ -65,7 +65,7 @@ namespace NicoPlayerHohoema.Models
 			NGCommentUserIds = new ObservableCollection<UserIdInfo>();
 			NGCommentKeywordEnable = true;
 			NGCommentKeywords = new ObservableCollection<NGKeyword>();
-			NGCommentScore = -7200;
+			NGCommentScore = -1000;
 		}
 
 		protected void Reset(PlayerSettings read)

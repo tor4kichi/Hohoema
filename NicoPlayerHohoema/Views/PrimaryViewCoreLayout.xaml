@@ -484,7 +484,6 @@
                            PlaceholderText="検索"
                            UseSystemFocusVisuals="True"
                            TabIndex="103"
-                           Padding="0"
                            Visibility="Collapsed"
                            VerticalAlignment="Center">
                     <i:Interaction.Behaviors>

@@ -1185,15 +1185,6 @@ namespace NicoPlayerHohoema.ViewModels
                                 }
                             }
 
-                            var sidePaneContent = _SidePaneContentCache.ContainsKey(PlayerSidePaneContentType.Setting) ? _SidePaneContentCache[PlayerSidePaneContentType.Setting] : null;
-                            if (sidePaneContent != null && NicoLiveVideo != null)
-                            {
-                                (sidePaneContent as SettingsSidePaneContentViewModel).SetupAvairableLiveQualities(
-                                    NicoLiveVideo.Qualities
-                                    );
-                                (sidePaneContent as SettingsSidePaneContentViewModel).IsLeoPlayerLive = true;
-                            }
-
                             ChangeQualityCommand.RaiseCanExecuteChanged();
                         });
 
@@ -1282,16 +1273,6 @@ namespace NicoPlayerHohoema.ViewModels
                         break;
                     case PlayerSidePaneContentType.Setting:
                         sidePaneContent = App.Current.Container.Resolve<SettingsSidePaneContentViewModel>();
-                        if (NicoLiveVideo != null)
-                        {
-                            if (LivePlayerType.Value == Models.Live.LivePlayerType.Leo)
-                            {
-                                (sidePaneContent as SettingsSidePaneContentViewModel).SetupAvairableLiveQualities(
-                                    NicoLiveVideo.Qualities
-                                    );
-                                (sidePaneContent as SettingsSidePaneContentViewModel).IsLeoPlayerLive = NicoLiveVideo.LivePlayerType == Models.Live.LivePlayerType.Leo;
-                            }
-                        }
                         break;
                     default:
                         sidePaneContent = EmptySidePaneContentViewModel.Default;

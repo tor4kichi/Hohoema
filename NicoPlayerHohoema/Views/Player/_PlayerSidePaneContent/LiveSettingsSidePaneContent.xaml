@@ -14,10 +14,13 @@
              xmlns:uwpconverter="using:Microsoft.Toolkit.Uwp.UI.Converters"
              xmlns:templateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
              xmlns:models="using:NicoPlayerHohoema.Models"
+             xmlns:local="using:NicoPlayerHohoema.Views"
              mc:Ignorable="d"
              d:DesignHeight="300"
              d:DesignWidth="400">
   <UserControl.Resources>
+    <local:CommentNGScoreShareLevelConverter x:Key="CommentNGScoreShareLevelConverter" />
+    
     <Style TargetType="ToggleSwitch" BasedOn="{StaticResource ToggleSwitchNoHeader}">
       <Style.Setters>
         <Setter Property="MinWidth" Value="0" />
@@ -70,17 +73,8 @@
           <Grid>
             <TextBlock Text="デフォルトで匿名(184)コマンドを有効にする"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
-                               
                            />
-            <ToggleSwitch IsOn="{Binding IsDefaultCommentWithAnonymous.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
-                        HorizontalAlignment="Right"
-                        />
-          </Grid>
-          <Grid>
-            <TextBlock Text="コメントを書き始めたら動画を一時停止する"
-                        Style="{StaticResource SettingsOptionTitleTextBlock}"
-                        />
-            <ToggleSwitch IsOn="{Binding IsPauseWithCommentWriting.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            <ToggleSwitch IsOn="{x:Bind _viewModel.PlayerSettings.IsDefaultCommentWithAnonymous, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
                         HorizontalAlignment="Right"
                         />
           </Grid>
@@ -99,7 +93,7 @@
             <TextBlock Text="コメントの表示時間"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
-            <toolkit:NumericUpDown Value="{Binding CommentDisplayDuration.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            <toolkit:NumericUpDown Value="{x:Bind _viewModel.PlayerSettings.CommentDisplayDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToDoubleConverter}}"
                             Maximum="10"
                             Minimum="1"
                             SmallChange="0.5"
@@ -117,7 +111,7 @@
                            toolkit:DockPanel.Dock="Left"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
-            <toolkit:NumericUpDown Value="{Binding CommentFontScale.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            <toolkit:NumericUpDown Value="{x:Bind _viewModel.PlayerSettings.DefaultCommentFontScale, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                                        SmallChange="0.05"
                                        LargeChange="1.0"
                                        Minimum="0.1"
@@ -135,7 +129,7 @@
             <TextBlock Text="コメントの透過設定"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
-            <Slider Value="{Binding CommentOpacity.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            <Slider Value="{x:Bind _viewModel.PlayerSettings.CommentOpacity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                             Width="200"
                             Maximum="1.0"
                             Minimum="0.0"
@@ -143,7 +137,7 @@
                             StepFrequency="0.01"
                             SmallChange="0.05"
                             LargeChange="0.2"
-                            Header="{Binding CommentOpacity.Value}"
+                            Header="{x:Bind _viewModel.PlayerSettings.CommentOpacity, Mode=OneWay}"
                             HorizontalAlignment="Right"
                             HorizontalContentAlignment="Left"
                           />
@@ -152,8 +146,8 @@
             <TextBlock Text="デフォルトのコメント色"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
-            <ComboBox ItemsSource="{Binding CommentColorList}"
-                              SelectedItem="{Binding CommentColor.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+            <ComboBox ItemsSource="{x:Bind CommentColorList}"
+                              SelectedItem="{x:Bind _viewModel.PlayerSettings.CommentColor, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                               
                     HorizontalAlignment="Right"
                           >
@@ -182,11 +176,21 @@
           </toolkit:DockPanel>
           <!-- NGコメント -->
           <!-- NG共有スコア -->
-          <StackPanel Visibility="Collapsed">
+          <Grid Visibility="Visible">
             <TextBlock Text="表示する共有NGスコアの設定" 
-                               VerticalAlignment="Center"
+                               Style="{StaticResource SettingsOptionTitleTextBlock}"
                                />
-          </StackPanel>
+            <ComboBox ItemsSource="{x:Bind _NGScoreShareLevels}"
+                      SelectedItem="{x:Bind _viewModel.PlayerSettings.NGCommentScore, Mode=TwoWay, Converter={StaticResource CommentNGScoreShareLevelConverter}}"
+                      HorizontalAlignment="Right"
+                      >
+              <ComboBox.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+          </Grid>
           <!-- NG ユーザーID -->
           <!--
                     <toolkit:DockPanel Margin="8">
@@ -248,77 +252,12 @@
                          Opacity="0.7"
                                        />
             </StackPanel>
-            <ToggleSwitch IsOn="{Binding CommentGlassMowerEnable.Value, Mode=TwoWay}"
+            <ToggleSwitch IsOn="{x:Bind _viewModel.PlayerSettings.CommentGlassMowerEnable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                           HorizontalAlignment="Right"
                                           />
           </Grid>
         </StackPanel>
-        
-        <!-- ニコスクリプト設定 -->
-        <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
-          <toolkit:DockPanel>
-            <TextBlock Text="ニコスクリプト設定"
-                            FontSize="18"
-                            VerticalAlignment="Center"
-                            FontWeight="SemiBold"
-                            toolkit:DockPanel.Dock="Left"
-                        />
-            <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
-          </toolkit:DockPanel>
-          <Grid>
-            <TextBlock Text="＠デフォルト"
-                        Style="{StaticResource SettingsOptionTitleTextBlock}"
-                        />
-            <ToggleSwitch IsOn="{Binding NicoScript_Default_Enabled.Value, Mode=TwoWay}"                                
-                            OnContent="許可"
-                            OffContent="許可しない"
-                            HorizontalAlignment="Right"
-                                        />
-          </Grid>
-          <Grid>
-            <TextBlock Text="＠シーク禁止"
-                        Style="{StaticResource SettingsOptionTitleTextBlock}"
-                        />
-            <ToggleSwitch IsOn="{Binding NicoScript_DisallowSeek_Enabled.Value, Mode=TwoWay}"
-                                OnContent="許可"
-                            OffContent="許可しない"
-                            HorizontalAlignment="Right"
-                                        />
-          </Grid>
-          <Grid>
-            <TextBlock Text="＠コメント禁止"
-                        Style="{StaticResource SettingsOptionTitleTextBlock}"
-                        />
-            <ToggleSwitch IsOn="{Binding NicoScript_DisallowComment_Enabled.Value, Mode=TwoWay}"
-                            OnContent="許可"
-                            OffContent="許可しない"
-                            HorizontalAlignment="Right"
-                                        />
-          </Grid>
-          <Grid>
-            <TextBlock Text="＠ジャンプ"
-                        Style="{StaticResource SettingsOptionTitleTextBlock}"
-                        />
-            <ToggleSwitch IsOn="{Binding NicoScript_Jump_Enabled.Value, Mode=TwoWay}"
-                            OnContent="許可"
-                            OffContent="許可しない"
-                            HorizontalAlignment="Right"
-                                        />
-          </Grid>
-          <!--
-                    <StackPanel Margin="0 8 0 16">
-                        <TextBlock Text="＠置換"
-                        Style="{StaticResource SettingsOptionTitleTextBlock}"
-                        />
-                        <ToggleSwitch 
-                                IsOn="{Binding NicoScript_Replace_Enabled.Value, Mode=TwoWay}"
-                                OnContent="許可"
-                            OffContent="許可しない"
-                            HorizontalAlignment="Right"
-                                        />
-                    </StackPanel>
-                    -->
-        </StackPanel>
+       
         <StackPanel x:Name="DesktopPlayerSettingsLayout" Style="{StaticResource SettingsGroupStackPanel}">
           <toolkit:DockPanel>
             <TextBlock Text="デスクトップ向け設定"
@@ -333,7 +272,7 @@
             <TextBlock Text="マウススクロール音量変化 (％)"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
-            <toolkit:NumericUpDown Value="{Binding ScrollVolumeFrequency.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource ToUserFriendlySoubleVolume}}"
+            <toolkit:NumericUpDown Value="{x:Bind _viewModel.PlayerSettings.SoundVolumeChangeFrequency, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource ToUserFriendlySoubleVolume}}"
                                                 SmallChange="1"
                                                 LargeChange="5"
                                                 Minimum="1"

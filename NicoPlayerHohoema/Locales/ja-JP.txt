@@ -136,6 +136,19 @@ PlaylistEndAction.NothingDo = 何もしない
 PlaylistEndAction.ChangeIntoSplit = プレイヤーを小さく表示
 PlaylistEndAction.CloseIfPlayWithCurrentWindow = プレイヤーを閉じる
 
+# 全て表示（NGScoreを無視）
+CommentNGScoreShareLevel.None = 無し
+# NGScore -10000 以上を表示
+CommentNGScoreShareLevel.Weak = 弱 (-10000)
+# NGScore -4800 以上を表示
+CommentNGScoreShareLevel.Middle = 中 (-4800)
+# NGScore -1000 以上を表示
+CommentNGScoreShareLevel.Strong = 強 (-1000)
+# NGScore -100 以上を表示
+CommentNGScoreShareLevel.VeryStrong = すごく強 (-100)
+# NGScore -10 以上を表示
+CommentNGScoreShareLevel.UltraVeryStrong = 超スーパー強 (-10)
+
 #### PageType ####
 HohoemaPageType.ChannelInfo = チャンネル情報
 HohoemaPageType.ChannelVideo = チャンネル動画
