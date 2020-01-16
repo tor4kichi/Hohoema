@@ -48,11 +48,10 @@ namespace NicoPlayerHohoema.Models
 			SoundVolume = 0.5;
 			SoundVolumeChangeFrequency = 0.05;
 			IncrementReadablityOwnerComment = true;
-			PauseWithCommentWriting = true;
+			PauseWithCommentWriting = false;
 			CommentRenderingFPS = 60;
 			CommentDisplayDuration = DefaultCommentDisplayDuration;
 			DefaultCommentFontScale = 1.0;
-			CommentCommandPermission = CommentCommandPermissionType.Owner | CommentCommandPermissionType.User | CommentCommandPermissionType.Anonymous;
 			CommentGlassMowerEnable = false;
 			IsKeepDisplayInPlayback = true;
 			IsKeepFrontsideInPlayback = true;
@@ -85,7 +84,6 @@ namespace NicoPlayerHohoema.Models
 			CommentDisplayDuration = read.CommentDisplayDuration;
 			CommentOpacity = read.CommentOpacity;
 			DefaultCommentFontScale = read.DefaultCommentFontScale;
-			CommentCommandPermission = read.CommentCommandPermission;
 			CommentGlassMowerEnable = read.CommentGlassMowerEnable;
 			IsKeepDisplayInPlayback = read.IsKeepDisplayInPlayback;
 			IsKeepFrontsideInPlayback = read.IsKeepFrontsideInPlayback;
@@ -335,17 +333,6 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-
-
-
-        private CommentCommandPermissionType _CommentCommandPermission;
-
-		[DataMember]
-		public CommentCommandPermissionType CommentCommandPermission
-		{
-			get { return _CommentCommandPermission; }
-			set { SetProperty(ref _CommentCommandPermission, value); }
-		}
 
 
 		private bool _CommentGlassMowerEnable;

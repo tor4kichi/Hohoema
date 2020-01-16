@@ -120,17 +120,17 @@
     </Style>
     
     <Style TargetType="ToggleButton" >
-        <Setter Property="MinHeight" Value="48" />
+        <Setter Property="MinHeight" Value="40" />
         <Setter Property="MinWidth" Value="48" />
         <Setter Property="BorderThickness" Value="0" />
     </Style>
-    <Style TargetType="ComboBox" >
-        <Setter Property="MinHeight" Value="48" />
-        <Setter Property="MinWidth" Value="48" />
-        <Setter Property="BorderThickness" Value="0" />
-    </Style>
-
-    <!--    TextBox
+  <Style TargetType="ComboBox" >
+    <Setter Property="MinHeight" Value="40" />
+    <Setter Property="MinWidth" Value="80" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="Background" Value="{ThemeResource ApplicationPageBackgroundThemeBrush}" />
+  </Style>
+  <!--    TextBox
     
     https://msdn.microsoft.com/ja-jp/library/windows/apps/mt299154.aspx
     -->

@@ -50,7 +50,39 @@ namespace NicoPlayerHohoema.Views
 
             SeekBarSlider.FocusEngaged += SeekBarSlider_FocusEngaged;
             SeekBarSlider.FocusDisengaged += SeekBarSlider_FocusDisengaged;
+
+            CommentTextBox.GotFocus += CommentTextBox_GotFocus;
+            CommentTextBox.LostFocus += CommentTextBox_LostFocus;
         }
+
+
+        bool _prevMediaPlayerPlaying;
+        private void CommentTextBox_GotFocus(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is ViewModels.VideoPlayerPageViewModel vm)
+            {
+                if (vm.PlayerSettings.PauseWithCommentWriting)
+                {
+                    _prevMediaPlayerPlaying = _mediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Playing;
+                    _mediaPlayer.Pause();
+                }
+            }
+        }
+
+        private void CommentTextBox_LostFocus(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is ViewModels.VideoPlayerPageViewModel vm)
+            {
+                if (vm.PlayerSettings.PauseWithCommentWriting)
+                {
+                    if (_prevMediaPlayerPlaying)
+                    {
+                        _mediaPlayer.Play();
+                    }
+                }
+            }
+        }
+
 
         public TimeSpan ForwardSeekTime => TimeSpan.FromSeconds(30);
         public TimeSpan PreviewSeekTime => TimeSpan.FromSeconds(-10);

@@ -17,170 +17,178 @@
              mc:Ignorable="d"
              d:DesignHeight="300"
              d:DesignWidth="400">
-  <ScrollViewer>
-    <i:Interaction.Behaviors>
-      <core:EventTriggerBehavior EventName="Loaded">
-        <mybehavior:SetFocus TargetObject="{Binding ElementName=CommentAnonymousToggleSwitch}" />
-      </core:EventTriggerBehavior>
-    </i:Interaction.Behaviors>
-    <VisualStateManager.VisualStateGroups>
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <hardwareTrigger:DeviceFamilyTrigger Condition="Xbox" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <!-- Xbox利用時にはTV Mode変更はできないため設定を非表示に -->
-            <Setter Target="DesktopPlayerSettingsLayout.Visibility"
-                    Value="Collapsed" />
-            <Setter Target="SettingsContentLayout.Padding"
-                    Value="0 0 48 0" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
-    </VisualStateManager.VisualStateGroups>
-    <StackPanel Margin="16 8 8 8"
-                MinWidth="400"
-                HorizontalAlignment="Left"
-                x:Name="SettingsContentLayout"
-                Spacing="16">
-      <toolkit:DockPanel x:Name="LivePlayerSettingsPanel"
+  <UserControl.Resources>
+    <Style TargetType="ToggleSwitch" BasedOn="{StaticResource ToggleSwitchNoHeader}">
+      <Style.Setters>
+        <Setter Property="MinWidth" Value="0" />
+      </Style.Setters>
+    </Style>
+    <Style x:Key="SettingsGroupStackPanel" TargetType="StackPanel">
+      <Setter Property="Spacing" Value="20" />
+      <Setter Property="Margin" Value="0 0 0 16" />
+    </Style>
+    <Style x:Key="SettingsOptionTitleTextBlock" TargetType="TextBlock" >
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style x:Key="SettingsSubHeaderHorizonBorderStyle" TargetType="Border">
+      <Setter Property="BorderBrush" Value="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />
+      <Setter Property="BorderThickness" Value="0 1 0 0" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Margin" Value="8 0 0 0" />
+    </Style>
+    <Style TargetType="toolkit:NumericUpDown">
+      <Setter Property="BorderThickness" Value="1" />
+    </Style>
+  </UserControl.Resources>
+  <Grid>
+    <ScrollViewer>
+      <StackPanel x:Name="SettingsContentLayout" Margin="16 8 8 8" HorizontalAlignment="Stretch"
+                      Spacing="16"
+                      >
+        <StackPanel Style="{StaticResource SettingsGroupStackPanel}" Visibility="Collapsed">
+          <toolkit:DockPanel x:Name="LivePlayerSettingsPanel"
                          Visibility="Collapsed">
-        <TextBlock Text="生放送プレイヤーの設定"
+            <TextBlock Text="生放送プレイヤーの設定"
                    FontSize="18"
                    VerticalAlignment="Center"
                    FontWeight="SemiBold"
                    toolkit:DockPanel.Dock="Left" />
-        <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                BorderThickness="0 1 0 0"
-                Margin="8 0 16 0"
-                VerticalAlignment="Center" />
-      </toolkit:DockPanel>
-      <toolkit:DockPanel>
-        <TextBlock Text="コメントの投稿設定"
-                   FontSize="18"
-                   VerticalAlignment="Center"
-                   FontWeight="SemiBold"
-                   toolkit:DockPanel.Dock="Left" />
-        <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                BorderThickness="0 1 0 0"
-                Margin="8 0 16 0"
-                VerticalAlignment="Center" />
-      </toolkit:DockPanel>
-      <StackPanel Spacing="8">
-        <StackPanel >
-          <TextBlock Text="デフォルトで匿名(184)コマンドを有効にする"
-                     VerticalAlignment="Center" />
-          <ToggleSwitch IsOn="{Binding IsDefaultCommentWithAnonymous.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                        x:Name="CommentAnonymousToggleSwitch" />
+            <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}"/>
+          </toolkit:DockPanel>
         </StackPanel>
-        <StackPanel >
-          <TextBlock Text="コメントを書き始めたら動画を一時停止する"
-                     VerticalAlignment="Center" />
-          <ToggleSwitch IsOn="{Binding IsPauseWithCommentWriting.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+        <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
+          <toolkit:DockPanel>
+            <TextBlock Text="コメントの投稿設定"
+                            FontSize="18"
+                            VerticalAlignment="Center"
+                        FontWeight="SemiBold"
+                            toolkit:DockPanel.Dock="Left"
+                        />
+            <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
+          </toolkit:DockPanel>
+          <Grid>
+            <TextBlock Text="デフォルトで匿名(184)コマンドを有効にする"
+                           Style="{StaticResource SettingsOptionTitleTextBlock}"
+                               
+                           />
+            <ToggleSwitch IsOn="{Binding IsDefaultCommentWithAnonymous.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
+                        HorizontalAlignment="Right"
+                        />
+          </Grid>
+          <Grid>
+            <TextBlock Text="コメントを書き始めたら動画を一時停止する"
+                        Style="{StaticResource SettingsOptionTitleTextBlock}"
+                        />
+            <ToggleSwitch IsOn="{Binding IsPauseWithCommentWriting.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                        HorizontalAlignment="Right"
+                        />
+          </Grid>
         </StackPanel>
-      </StackPanel>
-      <toolkit:DockPanel >
-        <TextBlock Text="コメントの表示設定"
-                   FontSize="18"
-                   VerticalAlignment="Center"
-                   FontWeight="SemiBold"
-                   toolkit:DockPanel.Dock="Left" />
-        <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                BorderThickness="0 1 0 0"
-                Margin="8 0 16 0"
-                VerticalAlignment="Center" />
-      </toolkit:DockPanel>
-      <StackPanel Spacing="8">
-        <StackPanel>
-          <TextBlock Text="コメントの表示時間"
-                     VerticalAlignment="Center" />
-          <toolkit:NumericUpDown Value="{Binding CommentDisplayDuration.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 Maximum="10"
-                                 Minimum="1"
-                                 SmallChange="0.5"
-                                 MinWidth="200"
-                                 Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
-                                 Margin="0 4"
-                                 IsFocusEngagementEnabled="True"
-                                 IsTabStop="False"
-                                 UseSystemFocusVisuals="True"></toolkit:NumericUpDown>
-          <TextBlock Text="デフォルトは4秒"
-                     VerticalAlignment="Center"
-                     Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                     FontSize="12"
-                     Margin="0 4" />
+        <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
+          <toolkit:DockPanel>
+            <TextBlock Text="コメントの表示設定"
+                            FontSize="18"
+                            VerticalAlignment="Center"
+                            FontWeight="SemiBold"
+                            toolkit:DockPanel.Dock="Left"
+                        />
+            <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
+          </toolkit:DockPanel>
+          <Grid>
+            <TextBlock Text="コメントの表示時間"
+                           Style="{StaticResource SettingsOptionTitleTextBlock}"
+                           />
+            <toolkit:NumericUpDown Value="{Binding CommentDisplayDuration.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            Maximum="10"
+                            Minimum="1"
+                            SmallChange="0.5"
+                            MinWidth="200"
+                            Foreground="{ThemeResource ApplicationForegroundThemeBrush}"               
+                            Margin="0 4"
+                            IsFocusEngagementEnabled="True"
+                            IsTabStop="False"
+                            UseSystemFocusVisuals="True"
+                            HorizontalAlignment="Right"
+                          />
+          </Grid>
+          <Grid>
+            <TextBlock Text="コメントの表示サイズ"
+                           toolkit:DockPanel.Dock="Left"
+                           Style="{StaticResource SettingsOptionTitleTextBlock}"
+                           />
+            <toolkit:NumericUpDown Value="{Binding CommentFontScale.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                       SmallChange="0.05"
+                                       LargeChange="1.0"
+                                       Minimum="0.1"
+                                       Maximum="2.0"
+                                        Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
+                                        Margin="0 4"
+                                        IsTabStop="False"
+                                        IsFocusEngagementEnabled="True"
+                                        UseSystemFocusVisuals="True"
+                                 Width="200"
+                                 HorizontalAlignment="Right"
+                                       />
+          </Grid>
+          <Grid>
+            <TextBlock Text="コメントの透過設定"
+                           Style="{StaticResource SettingsOptionTitleTextBlock}"
+                           />
+            <Slider Value="{Binding CommentOpacity.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                            Width="200"
+                            Maximum="1.0"
+                            Minimum="0.0"
+                            TickFrequency="0.01"
+                            StepFrequency="0.01"
+                            SmallChange="0.05"
+                            LargeChange="0.2"
+                            Header="{Binding CommentOpacity.Value}"
+                            HorizontalAlignment="Right"
+                            HorizontalContentAlignment="Left"
+                          />
+          </Grid>
+          <Grid>
+            <TextBlock Text="デフォルトのコメント色"
+                        Style="{StaticResource SettingsOptionTitleTextBlock}"
+                        />
+            <ComboBox ItemsSource="{Binding CommentColorList}"
+                              SelectedItem="{Binding CommentColor.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                              
+                    HorizontalAlignment="Right"
+                          >
+              <ComboBox.ItemTemplate>
+                <DataTemplate>
+                  <Border Background="{Binding Converter={StaticResource ColorToBrush}}"
+                                    Width="80"
+                                    Height="32"
+                        
+                                    />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+          </Grid>
         </StackPanel>
-        <StackPanel>
-          <TextBlock Text="コメントの表示サイズ"
-                     toolkit:DockPanel.Dock="Left"
-                     VerticalAlignment="Center" />
-          <toolkit:NumericUpDown Value="{Binding CommentFontScale.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                                 SmallChange="0.05"
-                                 LargeChange="1.0"
-                                 Minimum="0.1"
-                                 Maximum="2.0"
-                                 Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
-                                 Margin="0 4"
-                                 IsTabStop="False"
-                                 IsFocusEngagementEnabled="True"
-                                 UseSystemFocusVisuals="True" />
-        </StackPanel>
-        <StackPanel>
-          <TextBlock Text="コメントの透過設定"
-                     VerticalAlignment="Center" />
-          <Slider Value="{Binding CommentOpacity.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                  Margin="0 4"
-                  Width="280"
-                  Maximum="1.0"
-                  Minimum="0.0"
-                  TickFrequency="0.01"
-                  StepFrequency="0.01"
-                  SmallChange="0.05"
-                  LargeChange="0.2"
-                  Header="{Binding CommentOpacity.Value}"
-                  HorizontalAlignment="Left"
-                  HorizontalContentAlignment="Left"></Slider>
-        </StackPanel>
-        <StackPanel>
-          <TextBlock Text="デフォルトのコメント色"
-                     VerticalAlignment="Center" />
-          <ComboBox ItemsSource="{Binding CommentColorList}"
-                    SelectedItem="{Binding CommentColor.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                    Margin="0 4">
-            <ComboBox.ItemTemplate>
-              <DataTemplate>
-                <Border Background="{Binding Converter={StaticResource ColorToBrush}}"
-                        Width="80"
-                        Height="32" />
-              </DataTemplate>
-            </ComboBox.ItemTemplate>
-          </ComboBox>
-        </StackPanel>
-      </StackPanel>
-      <!--NGコメント-->
-      <toolkit:DockPanel>
-        <TextBlock Text="コメントのNG設定"
-                   FontSize="18"
-                   VerticalAlignment="Center"
-                   FontWeight="SemiBold"
-                   toolkit:DockPanel.Dock="Left" />
-        <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                BorderThickness="0 1 0 0"
-                Margin="8 0 16 0"
-                VerticalAlignment="Center" />
-      </toolkit:DockPanel>
-      <!-- NGコメント -->
-      <StackPanel Margin="0 0 0 0"
-                  Spacing="8">
-        <!-- NG共有スコア -->
-        <StackPanel Visibility="Collapsed">
-          <TextBlock Text="共有NGスコア設定"
-                     VerticalAlignment="Center" />
-          <Border />
-        </StackPanel>
-        <!-- NG ユーザーID -->
-        <!--
+        <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
+          <!--NGコメント-->
+          <toolkit:DockPanel>
+            <TextBlock Text="コメントのNG設定"
+                            FontSize="18"
+                            VerticalAlignment="Center"
+                            FontWeight="SemiBold"
+                            toolkit:DockPanel.Dock="Left"
+                        />
+            <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
+          </toolkit:DockPanel>
+          <!-- NGコメント -->
+          <!-- NG共有スコア -->
+          <StackPanel Visibility="Collapsed">
+            <TextBlock Text="表示する共有NGスコアの設定" 
+                               VerticalAlignment="Center"
+                               />
+          </StackPanel>
+          <!-- NG ユーザーID -->
+          <!--
                     <toolkit:DockPanel Margin="8">
                         <TextBlock Text="ユーザーIDによるNGコメント機能を有効にする"
                            toolkit:DockPanel.Dock="Left"
@@ -202,98 +210,164 @@
                     </ListView>
 
                     -->
-        <!-- NG キーワード -->
-        <StackPanel Spacing="8">
-          <TextBlock Text="コメントのフィルタを有効にする"
-                     VerticalAlignment="Center" />
-          <ToggleSwitch IsOn="{Binding NGCommentKeywordEnable.Value, Mode=TwoWay}" />
-        </StackPanel>
-        <StackPanel Margin="0 8"
-                    Width="240"
-                    HorizontalAlignment="Left">
-          <TextBox Text="{Binding NGCommentKeywords.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                   AcceptsReturn="True"
-                   Height="120"
-                   Width="240"
-                   PlaceholderText="NGコメントを入力"
-                   ScrollViewer.VerticalScrollBarVisibility="Auto" />
-          <TextBlock Text="{Binding NGCommentKeywordError.Value}" />
-          <TextBlock Margin="0 8"
-                     Foreground="Gray"
-                     TextWrapping="Wrap">
+          <!-- NG キーワード -->
+          <Grid>
+            <TextBlock Text="コメントのフィルタを有効にする"
+                           Style="{StaticResource SettingsOptionTitleTextBlock}"
+                           />
+            <ToggleSwitch IsOn="{Binding NGCommentKeywordEnable.Value, Mode=TwoWay}"
+                          HorizontalAlignment="Right"
+                                          />
+          </Grid>
+          <StackPanel Width="240"
+                            HorizontalAlignment="Right"
+                            >
+            <TextBox Text="{Binding NGCommentKeywords.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                             AcceptsReturn="True"
+                             Height="120"
+                             Width="240"
+                             PlaceholderText="NGコメントを入力"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     IsFocusEngagementEnabled="True"
+                             />
+            <TextBlock Text="{Binding NGCommentKeywordError.Value}" />
+            <TextBlock Margin="0 8" Foreground="Gray" TextWrapping="Wrap">
                         ・１行ごとにフィルタ文字列を指定します
                         ・正規表現が利用できます</TextBlock>
+          </StackPanel>
+          <!-- 自動芝刈り機 -->
+          <Grid>
+            <StackPanel>
+              <TextBlock Text="自動草刈機"
+                           Style="{StaticResource SettingsOptionTitleTextBlock}"
+                           />
+              <TextBlock Text="※ 連続する『ｗ』を１文字に刈り込みます"
+                                       Style="{StaticResource CaptionTextBlockStyle}"
+                                       ToolTipService.ToolTip="ｗｗｗｗｗ -> ｗ"
+                                       toolkit:DockPanel.Dock="Bottom"
+                         Opacity="0.7"
+                                       />
+            </StackPanel>
+            <ToggleSwitch IsOn="{Binding CommentGlassMowerEnable.Value, Mode=TwoWay}"
+                          HorizontalAlignment="Right"
+                                          />
+          </Grid>
         </StackPanel>
-        <!-- 自動芝刈り機 -->
-        <StackPanel Spacing="8">
-          <TextBlock Text="自動草刈機"
-                     VerticalAlignment="Center" />
-          <ToggleSwitch IsOn="{Binding CommentGlassMowerEnable.Value, Mode=TwoWay}" />
-          <TextBlock Text="※ 連続する『ｗ』を１文字に刈り込みます"
-                     Style="{StaticResource CaptionTextBlockStyle}"
-                     ToolTipService.ToolTip="ｗｗｗｗｗ -> ｗ"
-                     toolkit:DockPanel.Dock="Bottom" />
+        
+        <!-- ニコスクリプト設定 -->
+        <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
+          <toolkit:DockPanel>
+            <TextBlock Text="ニコスクリプト設定"
+                            FontSize="18"
+                            VerticalAlignment="Center"
+                            FontWeight="SemiBold"
+                            toolkit:DockPanel.Dock="Left"
+                        />
+            <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
+          </toolkit:DockPanel>
+          <Grid>
+            <TextBlock Text="＠デフォルト"
+                        Style="{StaticResource SettingsOptionTitleTextBlock}"
+                        />
+            <ToggleSwitch IsOn="{Binding NicoScript_Default_Enabled.Value, Mode=TwoWay}"                                
+                            OnContent="許可"
+                            OffContent="許可しない"
+                            HorizontalAlignment="Right"
+                                        />
+          </Grid>
+          <Grid>
+            <TextBlock Text="＠シーク禁止"
+                        Style="{StaticResource SettingsOptionTitleTextBlock}"
+                        />
+            <ToggleSwitch IsOn="{Binding NicoScript_DisallowSeek_Enabled.Value, Mode=TwoWay}"
+                                OnContent="許可"
+                            OffContent="許可しない"
+                            HorizontalAlignment="Right"
+                                        />
+          </Grid>
+          <Grid>
+            <TextBlock Text="＠コメント禁止"
+                        Style="{StaticResource SettingsOptionTitleTextBlock}"
+                        />
+            <ToggleSwitch IsOn="{Binding NicoScript_DisallowComment_Enabled.Value, Mode=TwoWay}"
+                            OnContent="許可"
+                            OffContent="許可しない"
+                            HorizontalAlignment="Right"
+                                        />
+          </Grid>
+          <Grid>
+            <TextBlock Text="＠ジャンプ"
+                        Style="{StaticResource SettingsOptionTitleTextBlock}"
+                        />
+            <ToggleSwitch IsOn="{Binding NicoScript_Jump_Enabled.Value, Mode=TwoWay}"
+                            OnContent="許可"
+                            OffContent="許可しない"
+                            HorizontalAlignment="Right"
+                                        />
+          </Grid>
+          <!--
+                    <StackPanel Margin="0 8 0 16">
+                        <TextBlock Text="＠置換"
+                        Style="{StaticResource SettingsOptionTitleTextBlock}"
+                        />
+                        <ToggleSwitch 
+                                IsOn="{Binding NicoScript_Replace_Enabled.Value, Mode=TwoWay}"
+                                OnContent="許可"
+                            OffContent="許可しない"
+                            HorizontalAlignment="Right"
+                                        />
+                    </StackPanel>
+                    -->
         </StackPanel>
-        <Border Height="32" />
+        <StackPanel x:Name="DesktopPlayerSettingsLayout" Style="{StaticResource SettingsGroupStackPanel}">
+          <toolkit:DockPanel>
+            <TextBlock Text="デスクトップ向け設定"
+                            FontSize="18"
+                            VerticalAlignment="Center"
+                            FontWeight="SemiBold"
+                            toolkit:DockPanel.Dock="Left"
+                        />
+            <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
+          </toolkit:DockPanel>
+          <Grid>
+            <TextBlock Text="マウススクロール音量変化 (％)"
+                        Style="{StaticResource SettingsOptionTitleTextBlock}"
+                        />
+            <toolkit:NumericUpDown Value="{Binding ScrollVolumeFrequency.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource ToUserFriendlySoubleVolume}}"
+                                                SmallChange="1"
+                                                LargeChange="5"
+                                                Minimum="1"
+                                                Maximum="10"
+                                                ValueFormat="F0"
+                                                Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
+                                       Width="180"
+                                               IsFocusEngagementEnabled="True"
+                                               IsTabStop="False"
+                                               UseSystemFocusVisuals="True"
+                                       HorizontalAlignment="Right"
+                                    />
+          </Grid>
+        </StackPanel>
       </StackPanel>
-      <toolkit:DockPanel>
-        <TextBlock Text="コメントの装飾許可設定"
-                   FontSize="18"
-                   VerticalAlignment="Center"
-                   FontWeight="SemiBold"
-                   toolkit:DockPanel.Dock="Left" />
-        <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                BorderThickness="0 1 0 0"
-                Margin="8 0 16 0"
-                VerticalAlignment="Center" />
-      </toolkit:DockPanel>
-      <StackPanel Spacing="8">
-        <StackPanel >
-          <TextBlock Text="動画投稿者コメントの装飾を許可"
-                     VerticalAlignment="Center" />
-          <ToggleSwitch IsOn="{Binding IsEnableOwnerCommentCommand.Value, Mode=TwoWay}" />
-        </StackPanel>
-        <StackPanel>
-          <TextBlock Text="ユーザーコメントの装飾を許可"
-                     VerticalAlignment="Center" />
-          <ToggleSwitch IsOn="{Binding IsEnableUserCommentCommand.Value, Mode=TwoWay}" />
-        </StackPanel>
-        <StackPanel>
-          <TextBlock Text="匿名コメントの装飾を許可"
-                     VerticalAlignment="Center" />
-          <ToggleSwitch IsOn="{Binding IsEnableAnonymousCommentCommand.Value, Mode=TwoWay}" />
-        </StackPanel>
-      </StackPanel>
-      <StackPanel x:Name="DesktopPlayerSettingsLayout"
-                  Spacing="8">
-        <toolkit:DockPanel>
-          <TextBlock Text="マウス操作時のプレイヤー設定"
-                     FontSize="18"
-                     VerticalAlignment="Center"
-                     FontWeight="SemiBold"
-                     toolkit:DockPanel.Dock="Left" />
-          <Border BorderBrush="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                  BorderThickness="0 1 0 0"
-                  Margin="8 0 16 0"
-                  VerticalAlignment="Center" />
-        </toolkit:DockPanel>
-        <StackPanel Spacing="8">
-          <TextBlock Text="マウススクロールの音量変更量 (％)"
-                     toolkit:DockPanel.Dock="Left"
-                     VerticalAlignment="Center" />
-          <toolkit:NumericUpDown Value="{Binding ScrollVolumeFrequency.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource ToUserFriendlySoubleVolume}}"
-                                 SmallChange="1"
-                                 LargeChange="5"
-                                 Minimum="1"
-                                 Maximum="10"
-                                 ValueFormat="F0"
-                                 Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
-                                 Margin="0 8"
-                                 IsFocusEngagementEnabled="True"
-                                 IsTabStop="False"
-                                 UseSystemFocusVisuals="True" />
-        </StackPanel>
-      </StackPanel>
-    </StackPanel>
-  </ScrollViewer>
+    </ScrollViewer>
+    <i:Interaction.Behaviors>
+      <core:EventTriggerBehavior EventName="Loaded">
+        <mybehavior:SetFocus TargetObject="{Binding ElementName=VideoQualityComboBox}" />
+      </core:EventTriggerBehavior>
+    </i:Interaction.Behaviors>
+    <VisualStateManager.VisualStateGroups>
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <hardwareTrigger:DeviceFamilyTrigger Condition="Xbox" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <!-- Xbox利用時にはTV Mode変更はできないため設定を非表示に -->
+            <Setter Target="DesktopPlayerSettingsLayout.Visibility" Value="Collapsed" />
+            <Setter Target="SettingsContentLayout.Padding" Value="0 0 48 0" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
 </UserControl>

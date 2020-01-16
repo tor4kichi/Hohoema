@@ -106,20 +106,6 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             CommentOpacity = _playerSettings.ToReactivePropertyAsSynchronized(x => x.CommentOpacity, _scheduler)
             .AddTo(_CompositeDisposable);
 
-            IsEnableOwnerCommentCommand = new ReactiveProperty<bool>(_scheduler, _playerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.Owner))
-            .AddTo(_CompositeDisposable);
-            IsEnableUserCommentCommand = new ReactiveProperty<bool>(_scheduler, _playerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.User))
-            .AddTo(_CompositeDisposable);
-            IsEnableAnonymousCommentCommand = new ReactiveProperty<bool>(_scheduler, _playerSettings.CommentCommandPermission.HasFlag(CommentCommandPermissionType.Anonymous))
-            .AddTo(_CompositeDisposable);
-
-            IsEnableOwnerCommentCommand.Subscribe(x => SetCommentCommandPermission(x, CommentCommandPermissionType.Owner))
-            .AddTo(_CompositeDisposable);
-            IsEnableUserCommentCommand.Subscribe(x => SetCommentCommandPermission(x, CommentCommandPermissionType.User))
-            .AddTo(_CompositeDisposable);
-            IsEnableAnonymousCommentCommand.Subscribe(x => SetCommentCommandPermission(x, CommentCommandPermissionType.Anonymous))
-            .AddTo(_CompositeDisposable);
-
             NicoScript_Default_Enabled = _playerSettings.ToReactivePropertyAsSynchronized(x => x.NicoScript_Default_Enabled, raiseEventScheduler: _scheduler)
                 .AddTo(_CompositeDisposable);
             NicoScript_DisallowSeek_Enabled = _playerSettings.ToReactivePropertyAsSynchronized(x => x.NicoScript_DisallowSeek_Enabled, raiseEventScheduler: _scheduler)
@@ -346,20 +332,6 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             foreach (var i in LivePlayingQualityList)
             {
                 i.IsAvairable = qualities.Any(x => x == i.Value);
-            }
-        }
-
-
-
-        private void SetCommentCommandPermission(bool isEnable, CommentCommandPermissionType type)
-        {
-            if (isEnable)
-            {
-                _playerSettings.CommentCommandPermission |= type;
-            }
-            else
-            {
-                _playerSettings.CommentCommandPermission = _playerSettings.CommentCommandPermission & ~type;
             }
         }
 

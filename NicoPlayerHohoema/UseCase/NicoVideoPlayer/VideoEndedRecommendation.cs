@@ -1,5 +1,6 @@
 ﻿using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.Services.Player;
 using NicoPlayerHohoema.UseCase.Playlist;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -28,7 +29,9 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
             IScheduler scheduler,
             RelatedVideoContentsAggregator relatedVideoContentsAggregator,
             HohoemaPlaylist hohoemaPlaylist,
-            ScondaryViewPlayerManager playerViewManager
+            PrimaryViewPlayerManager primaryViewPlayerManager,
+            PlayerSettings playerSettings,
+            VideoPlayRequestBridgeToPlayer videoPlayRequestBridgeToPlayer
             )
         {
             _mediaPlayer = mediaPlayer;
@@ -36,8 +39,9 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
             _scheduler = scheduler;
             _relatedVideoContentsAggregator = relatedVideoContentsAggregator;
             _hohoemaPlaylist = hohoemaPlaylist;
-            _playerViewManager = playerViewManager;
-            
+            _primaryViewPlayerManager = primaryViewPlayerManager;
+            _playerSettings = playerSettings;
+            _videoPlayRequestBridgeToPlayer = videoPlayRequestBridgeToPlayer;
             IsEnded = new ReactiveProperty<bool>(_scheduler);
             HasRecomend = new ReactiveProperty<bool>(_scheduler);
             
@@ -109,18 +113,15 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
 
         bool TryPlaylistEndActionPlayerClosed()
         {
-            return false;
-            // TODO: PrimaryViewPlayerManagerを通して実装する？
-            /*
-            if (_playerViewManager.IsPlayerShowWithPrimaryView)
+            if (_videoPlayRequestBridgeToPlayer.DisplayMode == PlayerDisplayView.PrimaryView)
             {
-                switch (_playlistSettings.PlaylistEndAction)
+                switch (_playerSettings.PlaylistEndAction)
                 {
                     case PlaylistEndAction.ChangeIntoSplit:
-                        _playerViewManager.IsPlayerSmallWindowModeEnabled = true;
+                        _primaryViewPlayerManager.ShowWithWindowInWindow();
                         return true;
                     case PlaylistEndAction.CloseIfPlayWithCurrentWindow:
-                        _playerViewManager.ClosePlayerAsync();
+                        _primaryViewPlayerManager.Close();
                         return true;
                 }
 
@@ -130,7 +131,6 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
             {
                 return false;
             }
-            */
         }
 
 
@@ -141,7 +141,9 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
         private readonly IScheduler _scheduler;
         private readonly RelatedVideoContentsAggregator _relatedVideoContentsAggregator;
         private readonly HohoemaPlaylist _hohoemaPlaylist;
-        private readonly ScondaryViewPlayerManager _playerViewManager;
+        private readonly PrimaryViewPlayerManager _primaryViewPlayerManager;
+        private readonly PlayerSettings _playerSettings;
+        private readonly VideoPlayRequestBridgeToPlayer _videoPlayRequestBridgeToPlayer;
 
         public ReactiveProperty<bool> IsEnded { get; }
 

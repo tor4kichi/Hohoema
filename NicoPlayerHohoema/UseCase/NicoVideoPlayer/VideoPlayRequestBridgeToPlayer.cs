@@ -45,7 +45,7 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
             _eventAggregator = eventAggregator;
             _scheduler = scheduler;
 
-            _displayMode = ReadDisplayMode();
+            DisplayMode = ReadDisplayMode();
 
             _eventAggregator.GetEvent<Services.Player.PlayerPlayVideoRequest>()
                 .Subscribe(async e => 
@@ -53,7 +53,7 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
                     var pageName = nameof(Views.VideoPlayerPage);
                     var parameters = new NavigationParameters("id=" + e.VideoId);
                     
-                    await PlayWithCurrentView(_displayMode, pageName, parameters);
+                    await PlayWithCurrentView(DisplayMode, pageName, parameters);
                 });
 
             _eventAggregator.GetEvent<Services.Player.PlayerPlayLiveRequest>()
@@ -62,20 +62,20 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
                     var pageName = nameof(Views.LivePlayerPage);
                     var parameters = new NavigationParameters("id=" + e.LiveId);
 
-                    await PlayWithCurrentView(_displayMode, pageName, parameters);
+                    await PlayWithCurrentView(DisplayMode, pageName, parameters);
                 });
 
 
             _eventAggregator.GetEvent<ChangePlayerDisplayViewRequestEvent>()
                 .Subscribe(async () =>
                 {                     
-                    var mode = _displayMode == PlayerDisplayView.PrimaryView ? PlayerDisplayView.SecondaryView : PlayerDisplayView.PrimaryView;
+                    var mode = DisplayMode == PlayerDisplayView.PrimaryView ? PlayerDisplayView.SecondaryView : PlayerDisplayView.PrimaryView;
                     if (_lastNavigatedPageName != null && _lastNavigatedParameters != null)
                     {
                         await PlayWithCurrentView(mode, _lastNavigatedPageName, _lastNavigatedParameters);
                     }
 
-                    _displayMode = mode;
+                    DisplayMode = mode;
                     SaveDisplayMode();
                 }
                 , ThreadOption.UIThread, true);
@@ -94,7 +94,7 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
                 {
                     if (_primaryViewPlayerManager.DisplayMode != PrimaryPlayerDisplayMode.Close)
                     {
-                        if (_displayMode == displayMode
+                        if (DisplayMode == displayMode
                         && _lastNavigatedPageName == pageName
                         && (_lastNavigatedParameters?.SequenceEqual(parameters) ?? false))
                         {
@@ -111,7 +111,7 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
                 }
                 else
                 {
-                    if (_displayMode == displayMode
+                    if (DisplayMode == displayMode
                     && _lastNavigatedPageName == pageName
                     && (_lastNavigatedParameters?.SequenceEqual(parameters) ?? false))
                     {
@@ -132,7 +132,7 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
             }
         }
 
-        PlayerDisplayView _displayMode;
+        public PlayerDisplayView DisplayMode { get; private set; }
         string _lastNavigatedPageName;
         INavigationParameters _lastNavigatedParameters;
         private CoreDispatcher _dispatcher;
@@ -146,7 +146,7 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
         LocalObjectStorageHelper _localObjectStorage = new LocalObjectStorageHelper();
         void SaveDisplayMode()
         {
-            _localObjectStorage.Save(nameof(PlayerDisplayView), _displayMode);
+            _localObjectStorage.Save(nameof(PlayerDisplayView), DisplayMode);
         }
 
         PlayerDisplayView ReadDisplayMode()
