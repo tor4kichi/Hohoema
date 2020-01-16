@@ -18,8 +18,17 @@ using NicoPlayerHohoema.UseCase.Playlist;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, INavigatedAwareAsync
+    public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, INavigatedAwareAsync, IPinablePage
     {
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = SearchOption.Keyword,
+                PageType = HohoemaPageType.SearchResultKeyword,
+                Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
+            };
+        }
 
         public SearchResultKeywordPageViewModel(
             NGSettings ngSettings,
@@ -280,19 +289,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             return base.CheckNeedUpdateOnNavigateTo(mode);
         }
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = SearchOption.Keyword,
-                PageType = HohoemaPageType.SearchResultKeyword,
-                Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
-            };
-
-            return true;
-        }
-
         #endregion
 
     }

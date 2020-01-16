@@ -30,8 +30,19 @@ using NicoPlayerHohoema.UseCase.Playlist.Commands;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class VideoInfomationPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync
+    public class VideoInfomationPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, IPinablePage
     {
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = VideoTitle,
+                PageType = HohoemaPageType.VideoInfomation,
+                Parameter = $"id={VideoId}"
+            };
+        }
+
+
         public VideoInfomationPageViewModel(
             NGSettings ngSettings,
             Models.NiconicoSession niconicoSession,
@@ -493,18 +504,6 @@ namespace NicoPlayerHohoema.ViewModels
                 IsLoadFailed.Value = true;
                 return;
             }
-        }
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = VideoTitle,
-                PageType = HohoemaPageType.VideoInfomation,
-                Parameter = $"id={VideoId}"
-            };
-
-            return true;
         }
     }
 

@@ -568,12 +568,6 @@ namespace NicoPlayerHohoema.ViewModels
             var removeTarget = PlayerSettings.NGCommentUserIds.First(x => x.UserId == userId);
             PlayerSettings.NGCommentUserIds.Remove(removeTarget);
         }
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = null;
-            return false;
-        }
     }
 
 

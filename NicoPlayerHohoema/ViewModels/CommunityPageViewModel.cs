@@ -20,8 +20,18 @@ using NiconicoSession = NicoPlayerHohoema.Models.NiconicoSession;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class CommunityPageViewModel : HohoemaViewModelBase, ICommunity, INavigatedAwareAsync
+    public class CommunityPageViewModel : HohoemaViewModelBase, ICommunity, INavigatedAwareAsync, IPinablePage
 	{
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = CommunityName,
+                PageType = HohoemaPageType.Community,
+                Parameter = $"id={CommunityId}"
+            };
+        }
+
         public CommunityPageViewModel(
             Services.PageManager pageManager,
             NiconicoSession niconicoSession,
@@ -339,18 +349,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			RaisePropertyChanged(nameof(CanNotFollowReason));
 		}
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = CommunityName,
-                PageType = HohoemaPageType.Community,
-                Parameter = $"id={CommunityId}"
-            };
-
-            return true;
-        }
     }
 
 

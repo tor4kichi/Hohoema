@@ -22,9 +22,19 @@ using NicoPlayerHohoema.UseCase.Playlist;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-	public class CommunityVideoPageViewModel : HohoemaListingPageViewModelBase<CommunityVideoInfoViewModel>
+	public class CommunityVideoPageViewModel : HohoemaListingPageViewModelBase<CommunityVideoInfoViewModel>, IPinablePage
 	{
-        public CommunityVideoPageViewModel(
+		HohoemaPin IPinablePage.GetPin()
+		{
+			return new HohoemaPin()
+			{
+				Label = CommunityName,
+				PageType = HohoemaPageType.CommunityVideo,
+				Parameter = $"id={CommunityId}"
+			};
+		}
+
+		public CommunityVideoPageViewModel(
             CommunityProvider communityProvider,
             Services.PageManager pageManager
             )
@@ -82,18 +92,6 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			return new CommunityVideoIncrementalSource(CommunityId, (int)CommunityDetail.VideoCount, CommunityProvider);
 		}
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = CommunityName,
-                PageType = HohoemaPageType.CommunityVideo,
-                Parameter = $"id={CommunityId}"
-            };
-
-            return true;
-        }
 
         private DelegateCommand _OpenCommunityPageCommand;
 		public DelegateCommand OpenCommunityPageCommand

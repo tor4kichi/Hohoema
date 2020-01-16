@@ -528,12 +528,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			return Task.CompletedTask;
 		}
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = null;
-            return false;
-        }
     }
 
 }

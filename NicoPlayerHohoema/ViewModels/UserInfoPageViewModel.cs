@@ -21,8 +21,18 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class UserInfoPageViewModel : HohoemaViewModelBase, Interfaces.IUser, INavigatedAwareAsync
+    public class UserInfoPageViewModel : HohoemaViewModelBase, Interfaces.IUser, INavigatedAwareAsync, IPinablePage
 	{
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = UserName,
+                PageType = HohoemaPageType.UserInfo,
+                Parameter = $"id={UserId}"
+            };
+        }
+
         public UserInfoPageViewModel(
             UserProvider userProvider,
             NGSettings ngSettings,
@@ -345,17 +355,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             FollowToggleButtonService.SetFollowTarget(this);
         }
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = UserName,
-                PageType = HohoemaPageType.UserInfo,
-                Parameter = $"id={UserId}"
-            };
-
-            return true;
-        }
+        
     }
 }

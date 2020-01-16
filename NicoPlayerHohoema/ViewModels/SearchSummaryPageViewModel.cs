@@ -164,12 +164,6 @@ namespace NicoPlayerHohoema.ViewModels
             return Task.CompletedTask;
         }
 
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = null;
-            return false;
-        }
-
         private DelegateCommand<SearchTarget?> _SearchWithTargetCommand;
         public DelegateCommand<SearchTarget?> SearchWithTargetCommand
         {

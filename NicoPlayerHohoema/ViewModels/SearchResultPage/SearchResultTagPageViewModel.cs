@@ -23,8 +23,18 @@ using System.Threading.Tasks;
 namespace NicoPlayerHohoema.ViewModels
 {
     
-	public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, Interfaces.ISearchWithtag, INavigatedAwareAsync
+	public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, Interfaces.ISearchWithtag, INavigatedAwareAsync, IPinablePage
     {
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = SearchOption.Keyword,
+                PageType = HohoemaPageType.SearchResultTag,
+                Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
+            };
+        }
+
         public SearchResultTagPageViewModel(
            NGSettings ngSettings,
            Models.NiconicoSession niconicoSession,
@@ -309,17 +319,6 @@ namespace NicoPlayerHohoema.ViewModels
             return base.CheckNeedUpdateOnNavigateTo(mode);
         }
 
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = SearchOption.Keyword,
-                PageType = HohoemaPageType.SearchResultTag,
-                Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
-            };
-
-            return true;
-        }
 
         #endregion
 

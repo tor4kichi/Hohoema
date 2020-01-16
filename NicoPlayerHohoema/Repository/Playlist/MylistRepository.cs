@@ -160,7 +160,7 @@ namespace NicoPlayerHohoema.Repository.Playlist
                     throw new ArgumentException("とりあえずマイリストはログインしていなければアクセスできません。");
                 }
 
-                if (mylist.IsPublic)
+                if (!mylist.IsPublic)
                 {
                     throw new ArgumentException("非公開マイリストはアクセスできません。");
                 }

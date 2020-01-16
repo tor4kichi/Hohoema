@@ -20,8 +20,18 @@ using NicoPlayerHohoema.UseCase.Playlist;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public sealed class ChannelVideoPageViewModel : HohoemaListingPageViewModelBase<ChannelVideoListItemViewModel>, Interfaces.IChannel, INavigatedAwareAsync
+    public sealed class ChannelVideoPageViewModel : HohoemaListingPageViewModelBase<ChannelVideoListItemViewModel>, Interfaces.IChannel, INavigatedAwareAsync, IPinablePage
     {
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = ChannelScreenName,
+                PageType = HohoemaPageType.ChannelVideo,
+                Parameter = $"id={ChannelId}"
+            };
+        }
+
         public ChannelVideoPageViewModel(
             NiconicoSession niconicoSession,
             Models.Provider.ChannelProvider channelProvider,
@@ -117,17 +127,6 @@ namespace NicoPlayerHohoema.ViewModels
             return new ChannelVideoLoadingSource(ChannelId?.ToString() ?? RawChannelId, ChannelProvider);
         }
 
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = ChannelName,
-                PageType = HohoemaPageType.ChannelVideo,
-                Parameter = $"id={ChannelId}"
-            };
-
-            return true;
-        }
 
         private DelegateCommand _ShowWithBrowserCommand;
         public DelegateCommand ShowWithBrowserCommand

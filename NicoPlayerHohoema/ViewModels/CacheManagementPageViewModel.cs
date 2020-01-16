@@ -269,12 +269,6 @@ namespace NicoPlayerHohoema.ViewModels
                 || cacheFolderAccessState == CacheFolderAccessState.NotSelected
                 ;
         }
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = null;
-            return false;
-        }
     }
 
 

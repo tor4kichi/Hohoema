@@ -33,8 +33,18 @@ namespace NicoPlayerHohoema.ViewModels
         public string Label { get; set; }
     }
 
-    public sealed class LiveInfomationPageViewModel : HohoemaViewModelBase, Interfaces.ILiveContent, INavigatedAwareAsync
+    public sealed class LiveInfomationPageViewModel : HohoemaViewModelBase, Interfaces.ILiveContent, INavigatedAwareAsync, IPinablePage
     {
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = LiveInfo.Video.Title,
+                PageType = HohoemaPageType.LiveInfomation,
+                Parameter = $"id={LiveId}"
+            };
+        }
+
         // TODO: 視聴開始（会場後のみ、チャンネル会員限定やチケット必要な場合あり）
         // TODO: タイムシフト予約（tsがある場合のみ、会場前のみ、プレミアムの場合は会場後でも可）
         // TODO: 後からタイムシフト予約（プレミアムの場合のみ）
@@ -696,18 +706,6 @@ namespace NicoPlayerHohoema.ViewModels
                 }
             }
         }
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = LiveInfo.Video.Title,
-                PageType = HohoemaPageType.LiveInfomation,
-                Parameter = $"id={LiveId}"
-            };
-
-            return true;
-        }
     }
 
     public enum LiveTagType
@@ -736,7 +734,4 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
     }
-
-
-
 }

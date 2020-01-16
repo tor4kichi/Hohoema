@@ -18,8 +18,18 @@ using System.Threading.Tasks;
 namespace NicoPlayerHohoema.ViewModels
 {
     [PropertyChanged.AddINotifyPropertyChangedInterface]
-    public sealed class LocalPlaylistPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync
+    public sealed class LocalPlaylistPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, IPinablePage
     {
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = Playlist.Label,
+                PageType = HohoemaPageType.LocalPlaylist,
+                Parameter = $"id={Playlist.Id}"
+            };
+        }
+
         private readonly PageManager _pageManager;
         private readonly LocalMylistManager _localMylistManager;
         private readonly PlaylistAggregateGetter _playlistAggregate;
@@ -73,20 +83,6 @@ namespace NicoPlayerHohoema.ViewModels
             Playlist = playlist;
 
             RefreshItems();
-        }
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            if (Playlist == null)
-            {
-                pin = null;
-                return false;
-            }
-            else
-            {
-                pin = new HohoemaPin() { PageType = HohoemaPageType.LocalPlaylist, Parameter = Playlist.Id, Label = Playlist.Label };
-                return true;
-            }
         }
 
 

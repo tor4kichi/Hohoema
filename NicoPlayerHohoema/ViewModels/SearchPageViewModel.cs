@@ -170,12 +170,6 @@ namespace NicoPlayerHohoema.ViewModels
 			RaisePropertyChanged(nameof(IsSearchNiconama));
 		}
 
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = null;
-            return false;
-        }
-
         private DelegateCommand _ShowSearchHistoryCommand;
 		public DelegateCommand ShowSearchHistoryCommand
 		{

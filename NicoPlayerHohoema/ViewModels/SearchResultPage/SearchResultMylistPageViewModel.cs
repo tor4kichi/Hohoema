@@ -19,8 +19,18 @@ using NicoPlayerHohoema.Repository.Playlist;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class SearchResultMylistPageViewModel : HohoemaListingPageViewModelBase<MylistPlaylist>, INavigatedAwareAsync
+    public class SearchResultMylistPageViewModel : HohoemaListingPageViewModelBase<MylistPlaylist>, INavigatedAwareAsync, IPinablePage
     {
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = SearchOption.Keyword,
+                PageType = HohoemaPageType.SearchResultMylist,
+                Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
+            };
+        }
+
         public SearchResultMylistPageViewModel(
             SearchProvider searchProvider,
             Services.PageManager pageManager
@@ -199,18 +209,6 @@ namespace NicoPlayerHohoema.ViewModels
 			if (ItemsView.Source == null) { return true; }
 
             return base.CheckNeedUpdateOnNavigateTo(mode);
-        }
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = SearchOption.Keyword,
-                PageType = HohoemaPageType.SearchResultMylist,
-                Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
-            };
-
-            return true;
         }
 
         #endregion

@@ -29,8 +29,17 @@ using NicoPlayerHohoema.Repository.Playlist;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class MylistPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync
+    public class MylistPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, IPinablePage
 	{
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = Mylist.Value.Label,
+                PageType = HohoemaPageType.Mylist,
+                Parameter = $"id={Mylist.Value.Id}"
+            };
+        }
 
         public MylistPageViewModel(
             Services.PageManager pageManager,
@@ -594,18 +603,6 @@ namespace NicoPlayerHohoema.ViewModels
             var source = new MylistIncrementalSource(mylist, _mylistRepository, NgSettings);
             await source.ResetSource();
             return new IncrementalLoadingCollection<MylistIncrementalSource, IVideoContent>(source);
-        }
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = Mylist.Value.Label,
-                PageType = HohoemaPageType.Mylist,
-                Parameter = $"id={Mylist.Value.Id}"
-            };
-
-            return true;
         }
     }
     

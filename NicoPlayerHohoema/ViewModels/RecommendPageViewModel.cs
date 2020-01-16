@@ -48,12 +48,6 @@ namespace NicoPlayerHohoema.ViewModels
             return source;
         }
 
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = null;
-            return false;
-        }
-
         private DelegateCommand<string> _OpenTagCommand;
         public DelegateCommand<string> OpenTagCommand
         {

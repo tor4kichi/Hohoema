@@ -56,7 +56,7 @@ namespace NicoPlayerHohoema.Database
         public PrivateReasonType PrivateReasonType { get; set; }
 
         [BsonIgnore]
-        public string Id => VideoId;
+        public string Id => VideoId ?? RawVideoId;
 
         [BsonIgnore]
         public string Label

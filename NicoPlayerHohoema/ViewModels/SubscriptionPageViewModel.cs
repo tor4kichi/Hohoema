@@ -75,12 +75,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             base.OnNavigatedTo(parameters);
         }
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = null;
-            return false;
-        }
     }
 
 

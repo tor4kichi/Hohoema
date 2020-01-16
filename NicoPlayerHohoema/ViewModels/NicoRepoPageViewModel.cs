@@ -92,12 +92,6 @@ namespace NicoPlayerHohoema.ViewModels
             }
             return new LoginUserNicoRepoTimelineSource(LoginUserNicoRepoProvider, SubscriptionManager, DisplayNicoRepoItemTopics);
         }
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = null;
-            return false;
-        }
     }
 
 

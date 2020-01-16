@@ -90,12 +90,6 @@ namespace NicoPlayerHohoema.ViewModels
             base.OnNavigatedTo(parameters);
         }
 
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = null;
-            return false;
-        }
-
         private DelegateCommand _RefreshCommand;
         public DelegateCommand RefreshCommand
         {

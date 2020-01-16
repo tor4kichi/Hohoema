@@ -25,8 +25,18 @@ namespace NicoPlayerHohoema.ViewModels
 	// Note: Communityの検索はページベースで行います。
 	// また、ログインが必要です。
 
-	public class SearchResultCommunityPageViewModel : HohoemaListingPageViewModelBase<CommunityInfoControlViewModel>, INavigatedAwareAsync
+	public class SearchResultCommunityPageViewModel : HohoemaListingPageViewModelBase<CommunityInfoControlViewModel>, INavigatedAwareAsync, IPinablePage
     {
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = SearchOption.Keyword,
+                PageType = HohoemaPageType.SearchResultCommunity,
+                Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
+            };
+        }
+
         public SearchResultCommunityPageViewModel(
             PageManager pageManager, 
             SearchProvider searchProvider,
@@ -236,18 +246,6 @@ namespace NicoPlayerHohoema.ViewModels
             var mode = SearchOption.Mode == CommunitySearchMode.Keyword ? "キーワード" : "タグ";
 
             SearchOptionText = $"{optionText}({mode})";
-        }
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = SearchOption.Keyword,
-                PageType = HohoemaPageType.SearchResultCommunity,
-                Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
-            };
-
-            return true;
         }
     }
 

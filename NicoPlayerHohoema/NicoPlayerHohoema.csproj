@@ -245,7 +245,6 @@
     <Compile Include="Services\Notification\NotificationFollowUpdatedService.cs" />
     <Compile Include="Services\Notification\NotificationMylistUpdatedService.cs" />
     <Compile Include="Models\Niconico\ICommentService.cs" />
-    <Compile Include="Services\PinningCurrentPageRequestEvent.cs" />
     <Compile Include="UseCase\NicoVideoPlayer\RelatedVideoContentsAggregator.cs" />
     <Compile Include="UseCase\NicoVideoPlayer\VideoEndedRecommendation.cs" />
     <Compile Include="UseCase\NicoVideoPlayer\VideoPlayRequestBridgeToPlayer.cs" />

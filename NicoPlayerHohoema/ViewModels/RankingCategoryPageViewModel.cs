@@ -29,6 +29,29 @@ namespace NicoPlayerHohoema.ViewModels
 {
     public class RankingCategoryPageViewModel : HohoemaListingPageViewModelBase<RankedVideoInfoControlViewModel>, INavigatedAwareAsync, IPinablePage
     {
+        HohoemaPin IPinablePage.GetPin()
+        {
+            var genreName = RankingGenre.ToCulturelizeString();
+            var tag = SelectedRankingTag.Value?.Tag;
+            var pickedTag = PickedTags.FirstOrDefault(x => x.Tag == tag);
+            string parameter = null;
+            if (string.IsNullOrEmpty(pickedTag?.Tag) || pickedTag.Tag == "all")
+            {
+                pickedTag = null;
+                parameter = $"genre={RankingGenre}";
+            }
+            else
+            {
+                parameter = $"genre={RankingGenre}&tag={Uri.EscapeDataString(SelectedRankingTag.Value.Tag)}";
+            }
+            return new HohoemaPin()
+            {
+                Label = pickedTag != null ? $"{pickedTag.DisplayName} - {genreName}" : $"{genreName}",
+                PageType = HohoemaPageType.RankingCategory,
+                Parameter = parameter
+            };
+        }
+
         static Models.Helpers.AsyncLock _updateLock = new Models.Helpers.AsyncLock();
         public RankingCategoryPageViewModel(
             PageManager pageManager,
@@ -113,31 +136,6 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         bool _nowInitializeRankingTerm = false;
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            var genreName = RankingGenre.ToCulturelizeString();
-            var tag = SelectedRankingTag.Value?.Tag;
-            var pickedTag = PickedTags.FirstOrDefault(x => x.Tag == tag);
-            string parameter = null;
-            if (string.IsNullOrEmpty(pickedTag?.Tag) || pickedTag.Tag == "all")
-            {
-                pickedTag = null;
-                parameter = $"genre={RankingGenre}";
-            }
-            else
-            {
-                parameter = $"genre={RankingGenre}&tag={Uri.EscapeDataString(SelectedRankingTag.Value.Tag)}";
-            }
-            pin = new HohoemaPin()
-            {
-                Label = pickedTag != null ? $"{pickedTag.DisplayName} - {genreName}" : $"{genreName}",
-                PageType = HohoemaPageType.RankingCategory,
-                Parameter = parameter
-            };
-
-            return true;
-        }
 
         private RankingGenre _RankingGenre;
         public RankingGenre RankingGenre
@@ -332,29 +330,6 @@ namespace NicoPlayerHohoema.ViewModels
             _IsNavigateCompleted = true;
 
             base.PostResetList();
-        }
-
-        public HohoemaPin GetPin()
-        {
-            var genreName = RankingGenre.ToCulturelizeString();
-            var tag = SelectedRankingTag.Value?.Tag;
-            var pickedTag = PickedTags.FirstOrDefault(x => x.Tag == tag);
-            string parameter = null;
-            if (string.IsNullOrEmpty(pickedTag?.Tag) || pickedTag.Tag == "all")
-            {
-                pickedTag = null;
-                parameter = $"genre={RankingGenre}";
-            }
-            else
-            {
-                parameter = $"genre={RankingGenre}&tag={Uri.EscapeDataString(SelectedRankingTag.Value.Tag)}";
-            }
-            return new HohoemaPin()
-            {
-                Label = pickedTag != null ? $"{pickedTag.DisplayName} - {genreName}" : $"{genreName}",
-                PageType = HohoemaPageType.RankingCategory,
-                Parameter = parameter
-            };
         }
     }
 

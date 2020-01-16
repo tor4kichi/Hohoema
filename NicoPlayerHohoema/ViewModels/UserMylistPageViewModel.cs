@@ -25,8 +25,18 @@ using NicoPlayerHohoema.Interfaces;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class UserMylistPageViewModel : HohoemaListingPageViewModelBase<MylistPlaylist>, INavigatedAwareAsync
+    public class UserMylistPageViewModel : HohoemaListingPageViewModelBase<MylistPlaylist>, INavigatedAwareAsync, IPinablePage
 	{
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = UserName,
+                PageType = HohoemaPageType.UserMylist,
+                Parameter = $"id={UserId}"
+            };
+        }
+
         public UserMylistPageViewModel(
             Services.PageManager pageManager,
             Services.DialogService dialogService,
@@ -296,18 +306,6 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
             return new OtherUserMylistIncrementalLoadingSource(UserId, _mylistRepository);
-        }
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = UserName,
-                PageType = HohoemaPageType.UserMylist,
-                Parameter = $"id={UserId}"
-            };
-
-            return true;
         }
     }
 

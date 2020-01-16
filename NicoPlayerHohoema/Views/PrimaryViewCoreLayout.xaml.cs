@@ -263,7 +263,7 @@ namespace NicoPlayerHohoema.Views
 
         void TryAddPinWithCurrentFrameContent()
         {
-            if (ContentFrame.Content is IPinablePage page)
+            if ((ContentFrame.Content as FrameworkElement)?.DataContext is IPinablePage page)
             {
                 var pin = page.GetPin();
                 _viewModel.AddPin(pin);

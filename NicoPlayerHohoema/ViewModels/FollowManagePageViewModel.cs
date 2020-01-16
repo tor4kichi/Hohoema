@@ -73,11 +73,6 @@ namespace NicoPlayerHohoema.ViewModels
         public NiconicoSession NiconicoSession { get; }
         public FollowManager FollowManager { get; }
 
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = null;
-            return false;
-        }
     }
 
     public class FavoriteListViewModel : BindableBase

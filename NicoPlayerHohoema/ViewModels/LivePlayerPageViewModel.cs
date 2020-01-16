@@ -1359,12 +1359,6 @@ namespace NicoPlayerHohoema.ViewModels
             }, (_UserInfoResolvingTaskCancellationToken = new CancellationTokenSource()).Token);
         }
 
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = null;
-            return false;
-        }
-
         private DelegateCommand _ToggleCommentListSidePaneContentCommand;
         public DelegateCommand ToggleCommentListSidePaneContentCommand
         {

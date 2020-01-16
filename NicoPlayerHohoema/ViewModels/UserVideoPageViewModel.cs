@@ -19,8 +19,18 @@ using NicoPlayerHohoema.UseCase.Playlist;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, INavigatedAwareAsync
+    public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, INavigatedAwareAsync, IPinablePage
     {
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = UserName,
+                PageType = HohoemaPageType.UserVideo,
+                Parameter = $"id={UserId}"
+            };
+        }
+
         public UserVideoPageViewModel(
             UserProvider userProvider,
             Models.Subscription.SubscriptionManager subscriptionManager,
@@ -78,17 +88,6 @@ namespace NicoPlayerHohoema.ViewModels
                 );
 		}
 
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = UserName,
-                PageType = HohoemaPageType.UserVideo,
-                Parameter = $"id={UserId}"
-            };
-
-            return true;
-        }
 
         private DelegateCommand _OpenVideoOwnerUserPageCommand;
 		public DelegateCommand OpenVideoOwnerUserPageCommand

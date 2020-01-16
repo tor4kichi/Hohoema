@@ -21,8 +21,18 @@ using NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class SearchResultLivePageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>, INavigatedAwareAsync
+    public class SearchResultLivePageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>, INavigatedAwareAsync, IPinablePage
     {
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = SearchOption.Keyword,
+                PageType = HohoemaPageType.SearchResultLive,
+                Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
+            };
+        }
+
         public SearchResultLivePageViewModel(
             Models.NiconicoSession niconicoSession,
             SearchProvider searchProvider,
@@ -312,17 +322,6 @@ namespace NicoPlayerHohoema.ViewModels
 			return new LiveSearchSource(SearchOption, SearchProvider, NiconicoSession);
 		}
 
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = SearchOption.Keyword,
-                PageType = HohoemaPageType.SearchResultLive,
-                Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
-            };
-
-            return true;
-        }
     }
 
 
