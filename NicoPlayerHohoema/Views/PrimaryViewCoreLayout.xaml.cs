@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reactive.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
 using Windows.Foundation;
@@ -66,7 +67,7 @@ namespace NicoPlayerHohoema.Views
             _viewModel.EventAggregator.GetEvent<PageNavigationEvent>()
                 .Subscribe(args =>
                 {
-                    _ = Navigation(args);
+                    _ = ContentFrameNavigation(args);
                 });
 
 
@@ -81,6 +82,7 @@ namespace NicoPlayerHohoema.Views
             }
 
             PlayerFrame.Navigated += PlayerFrame_Navigated;
+
         }
 
         // 狭い画面の時にメニュー項目を選択したらペインを閉じるようにする
@@ -111,7 +113,7 @@ namespace NicoPlayerHohoema.Views
 
         AsyncLock _navigationLock = new AsyncLock();
 
-        async Task Navigation(PageNavigationEventArgs args)
+        async Task ContentFrameNavigation(PageNavigationEventArgs args)
         {
             var pageType = args.PageName;
             var parameter = args.Paramter;
