@@ -31,7 +31,7 @@ namespace NicoPlayerHohoema.UseCase.Page.Commands
                 var searched = Database.SearchHistoryDb.LastSearchedTarget(text);
                 SearchTarget searchType = searched ?? SearchTarget.Keyword;
 
-                _pageManager.Search(SearchTarget.Keyword, text);
+                _pageManager.Search(searchType, text);
             }
         }
     }
