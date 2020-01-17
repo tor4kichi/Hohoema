@@ -435,9 +435,14 @@ namespace NicoPlayerHohoema.ViewModels
             smtc.DisplayUpdater.ClearAll();
             smtc.DisplayUpdater.Update();
 
+            if (VideoInfo != null)
+            {
+                HohoemaPlaylist.PlayDone(VideoInfo);
+            }
+
             VideoPlayer.ClearCurrentSession();
             CommentPlayer.ClearCurrentSession();
-
+            
             App.Current.Resuming -= Current_Resuming;
             App.Current.Suspending -= Current_Suspending;
 

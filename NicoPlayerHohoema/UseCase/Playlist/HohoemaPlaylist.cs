@@ -189,16 +189,6 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             _playerSettings = playerSettings;
             QueuePlaylist = new PlaylistObservableCollection(QueuePlaylistId, QueuePlaylistId.ToCulturelizeString());
 
-
-            this.ObserveProperty(x => x.CurrentItem).Pairwise()
-                .Subscribe(pair => 
-                {
-                    if (pair.OldItem != null)
-                    {
-                        PlayDone(pair.OldItem);
-                    }
-                })
-                .AddTo(_disposable);
             /*
             _ = ResolveItemsAsync(QueuePlaylist)
                 .ContinueWith(prevTask =>
@@ -596,7 +586,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         }
 
         Events.VideoPlayedEvent _videoPlayedEvent;
-        private void PlayDone(IVideoContent playedItem)
+        public void PlayDone(IVideoContent playedItem)
         {
             // アイテムを視聴済みにマーク
             var history = Database.VideoPlayedHistoryDb.VideoPlayed(playedItem.Id);
@@ -616,6 +606,8 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
         public bool PlayDoneAndTryMoveNext()
         {
+            PlayDone(_player.Current);
+
             // 次送りが出来る場合は次へ
             if (_player?.CanGoNext ?? false)
             {
