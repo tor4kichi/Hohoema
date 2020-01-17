@@ -443,6 +443,9 @@ namespace NicoPlayerHohoema.ViewModels
 
             Debug.WriteLine("VideoPlayer OnNavigatingFromAsync done.");
 
+            IsNotSupportVideoType = false;
+            CannotPlayReason = null;
+
             base.OnNavigatedFrom(parameters);
         }
 
