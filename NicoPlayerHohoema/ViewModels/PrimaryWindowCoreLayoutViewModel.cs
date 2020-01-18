@@ -1,4 +1,5 @@
 ﻿using Mntone.Nico2.Live;
+using NicoPlayerHohoema.Commands;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Services;
@@ -75,7 +76,9 @@ namespace NicoPlayerHohoema.ViewModels
             VideoMenuSubPageContent videoMenuSubPageContent,
             LiveMenuSubPageContent liveMenuSubPageContent,
             PrimaryViewPlayerManager primaryViewPlayerManager,
-            ObservableMediaPlayer observableMediaPlayer
+            ObservableMediaPlayer observableMediaPlayer,
+            NiconicoLoginService niconicoLoginService,
+            LogoutFromNiconicoCommand logoutFromNiconicoCommand
             )
         {
             EventAggregator = eventAggregator;
@@ -90,6 +93,8 @@ namespace NicoPlayerHohoema.ViewModels
             LiveMenu = liveMenuSubPageContent;
             PrimaryViewPlayerManager = primaryViewPlayerManager;
             ObservableMediaPlayer = observableMediaPlayer;
+            NiconicoLoginService = niconicoLoginService;
+            LogoutFromNiconicoCommand = logoutFromNiconicoCommand;
         }
 
         public IEventAggregator EventAggregator { get; }
@@ -104,6 +109,8 @@ namespace NicoPlayerHohoema.ViewModels
         public LiveMenuSubPageContent LiveMenu { get; set; }
         public PrimaryViewPlayerManager PrimaryViewPlayerManager { get; }
         public ObservableMediaPlayer ObservableMediaPlayer { get; }
+        public NiconicoLoginService NiconicoLoginService { get; }
+        public LogoutFromNiconicoCommand LogoutFromNiconicoCommand { get; }
 
 
         // call from PrimaryWindowsCoreLayout.xaml.cs
