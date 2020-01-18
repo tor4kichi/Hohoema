@@ -1,4 +1,6 @@
-﻿using Prism.Commands;
+﻿using I18NPortable;
+using NicoPlayerHohoema.Services;
+using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,23 +12,35 @@ namespace NicoPlayerHohoema.UseCase.Playlist.Commands
     public sealed class LocalPlaylistDeleteCommand : DelegateCommandBase
     {
         private readonly LocalMylistManager _localMylistManager;
+        private readonly DialogService _dialogService;
 
         public LocalPlaylistDeleteCommand(
-            LocalMylistManager localMylistManager
+            LocalMylistManager localMylistManager,
+            DialogService dialogService
             )
         {
             _localMylistManager = localMylistManager;
+            _dialogService = dialogService;
         }
         protected override bool CanExecute(object parameter)
         {
             return parameter is LocalPlaylist;
         }
 
-        protected override void Execute(object parameter)
+        protected override async void Execute(object parameter)
         {
             if (parameter is LocalPlaylist localPlaylist)
             {
-                _localMylistManager.RemovePlaylist(localPlaylist);
+                if (await _dialogService.ShowMessageDialog(
+                    "DeleteLocalPlaylistDescription".Translate(localPlaylist.Label),
+                    "DeleteLocalPlaylistTitle".Translate(),
+                    "Delete".Translate(),
+                    "Cancel".Translate()
+                    ))
+                {
+                    _localMylistManager.RemovePlaylist(localPlaylist);
+
+                }
             }
         }
     }

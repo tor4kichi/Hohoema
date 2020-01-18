@@ -1,7 +1,8 @@
 ﻿#### General ####
 cancel = キャンセル
-
+Cancel = キャンセル
 CreateNew = 新規作成
+Delete = 削除
 
 Share = 共有
 Copy = コピー
@@ -210,6 +211,8 @@ ChannelVideoNoItems = チャンネル動画はありません
 #### Playlist ####
 PlayAll = すべて再生
 
+DeleteLocalPlaylistDescription = この操作は元に戻せません。
+DeleteLocalPlaylistTitle = {0} を削除します
 
 #### Mylist #### 
 MylistOwner = オーナー情報

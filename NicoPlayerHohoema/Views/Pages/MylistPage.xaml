@@ -166,7 +166,7 @@
 
                 <AppBarButton x:Name="DeleteMylistButton"
                               Command="{Binding DeleteMylistCommand}"
-                              CommandParameter="{Binding PlaylistOrigin.Value}"
+                              CommandParameter="{Binding Mylist.Value}"
                               Background="Transparent"
                               Visibility="Collapsed"
                               Icon="Delete"
