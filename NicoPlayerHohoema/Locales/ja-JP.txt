@@ -7,6 +7,7 @@ Reset = リセット
 Share = 共有
 Copy = コピー
 OpenWithBrowser = ブラウザで開く
+Search = 検索
 
 Refresh = 更新
 ReturnToPageTop = トップへ戻る

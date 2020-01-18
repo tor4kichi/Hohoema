@@ -329,6 +329,20 @@ namespace NicoPlayerHohoema.Views
 
 
 
+
+
+        public bool NowMobileSearchTextInput
+        {
+            get { return (bool)GetValue(NowMobileSearchTextInputProperty); }
+            set { SetValue(NowMobileSearchTextInputProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for NowMobileSearchTextInput.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty NowMobileSearchTextInputProperty =
+            DependencyProperty.Register("NowMobileSearchTextInput", typeof(bool), typeof(PrimaryWindowCoreLayout), new PropertyMetadata(false));
+
+
+
     }
 
 
