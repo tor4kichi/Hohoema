@@ -34,9 +34,8 @@ namespace NicoPlayerHohoema.UseCase
 
         public ObservableCollection<Comment> Comments { get; private set; }
         public ReactiveProperty<string> WritingComment { get; private set; }
+        public ReactiveProperty<string> CommandText { get; private set; }
         public ReactiveProperty<bool> NowSubmittingComment { get; private set; }
-
-        public CommentCommandEditerViewModel CommandEditer { get;}
 
         public AsyncReactiveCommand CommentSubmitCommand { get; }
         ICommentSession _commentSession;
@@ -63,13 +62,11 @@ namespace NicoPlayerHohoema.UseCase
         public CommentPlayer(
             MediaPlayer mediaPlayer, 
             IScheduler scheduler, 
-            CommentCommandEditerViewModel commandEditer,
             Repository.NicoVideo.CommentRepository commentRepository
             )
         {
             _mediaPlayer = mediaPlayer;
             _scheduler = scheduler;
-            CommandEditer = commandEditer;
             _commentRepository = commentRepository;
             mediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
 
@@ -81,10 +78,14 @@ namespace NicoPlayerHohoema.UseCase
             CommentSubmitCommand.Subscribe(async _ => await SubmitComment())
                 .AddTo(_disposables);
 
-            WritingComment = new ReactiveProperty<string>(_scheduler, "")
+            WritingComment = new ReactiveProperty<string>(_scheduler, string.Empty)
                 .AddTo(_disposables);
 
             NowSubmittingComment = new ReactiveProperty<bool>(_scheduler)
+                .AddTo(_disposables);
+
+
+            CommandText = new ReactiveProperty<string>(_scheduler, string.Empty)
                 .AddTo(_disposables);
         }
 
@@ -161,7 +162,7 @@ namespace NicoPlayerHohoema.UseCase
             {
                 var vpos = (uint)(posision.TotalMilliseconds / 10);
 
-                var res = await _commentSession.PostComment(WritingComment.Value, posision, CommandEditer.MakeCommands());
+                var res = await _commentSession.PostComment(WritingComment.Value, posision, CommandText.Value);
 
                 if (res.Status == ChatResult.Success)
                 {
@@ -174,12 +175,6 @@ namespace NicoPlayerHohoema.UseCase
                         UserId = _commentSession.UserId,
                         CommentText = WritingComment.Value,
                     };
-
-                    if (CommandEditer.IsPickedColor.Value)
-                    {
-                        var color = CommandEditer.FreePickedColor.Value;
-                        commentVM.Color = color;
-                    }
 
                     Comments.Add(commentVM);
 

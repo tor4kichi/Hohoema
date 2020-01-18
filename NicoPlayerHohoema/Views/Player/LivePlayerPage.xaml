@@ -486,10 +486,10 @@
                         </mybehavior:KeyboardTrigger>
                       </i:Interaction.Behaviors>
                     </TextBox>
-                    <Button Content="{Binding CommandString.Value}" Margin="0 0 8 8" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" DataContext="{Binding}" x:Name="CommentCommandEditButton" Height="40" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="1">
+                    <Button Content="{x:Bind CommandEditer.CommandString, Mode=OneWay}" Margin="0 0 8 8" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" DataContext="{Binding}" x:Name="CommentCommandEditButton" Height="40" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="1">
                       <Button.Flyout>
-                        <Flyout>
-                          <local:CommentCommandEditer DataContext="{Binding CommandEditerVM}" />
+                        <Flyout x:Name="CommandEditerFlyout">
+                          <local:CommentCommandEditer x:Name="CommandEditer" CommandString="{Binding CommandString.Value, Mode=TwoWay}" />
                         </Flyout>
                       </Button.Flyout>
                     </Button>
@@ -698,11 +698,13 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind ActionsCommandBar.IsOpen, Mode=OneWay}" />
             <StateTrigger IsActive="{x:Bind NowVideoPositionChanging, Mode=OneWay}" />
             <myTrigger:CompactOverlayViewModeTrigger />
             <StateTrigger IsActive="{Binding PlayerSettings.IsAutoHidePlayerControlUI, Converter={StaticResource BoolNegation}}" />
             <StateTrigger IsActive="{Binding ObservableMediaPlayer.NowPlaying.Value, Converter={StaticResource BoolNegation}}" />
             <myTrigger:FocusTrigger Target="{x:Bind CommentTextBox}" />
+            <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{x:Bind CommandEditerFlyout}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerControlAutoHide.IsAutoHideEnabled"

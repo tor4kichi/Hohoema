@@ -3,7 +3,7 @@ cancel = キャンセル
 Cancel = キャンセル
 CreateNew = 新規作成
 Delete = 削除
-
+Reset = リセット
 Share = 共有
 Copy = コピー
 OpenWithBrowser = ブラウザで開く
@@ -78,6 +78,16 @@ RankingGenre.Entertainment = エンターテイメント
 RankingGenre.HotTopic = 話題
 
 RankingNoItems = ランキングアイテムの取得に失敗しました\nしばらく後で再度アクセスをお試しください
+
+#### Comment Command Editer ####
+CommentCommand = コマンド
+CommentSubmitWithAnonymous = 匿名で投稿
+CommentSubmitWithAnonymousDescription = チャンネル・コミュニティ動画では匿名投稿できません
+CommentSize = 文字サイズ
+CommentVerticalAlignment = 縦揃え
+CommentColor = コメント色
+UseFreeInputCommand = 任意入力コマンドを使う
+FreeInputCommandTextBoxPlacefolderText = ここにコマンドを自由入力
 
 #### Video ####
 NicoVideoQuality.Smile_Low = 旧 低画質

@@ -54,7 +54,14 @@
       <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibility" />
       <conv:BooleanToVisibilityConverter x:Key="BooleanToVisibilityInverted" IsInversed="True" />
       <myconv:InvertVisibilityConverter x:Key="InvertVisibility" />
-
+      <uwpconv:EmptyStringToObjectConverter x:Key="EmptyStringToBoolean">
+        <uwpconv:EmptyStringToObjectConverter.NotEmptyValue>
+          <x:Boolean>False</x:Boolean>
+        </uwpconv:EmptyStringToObjectConverter.NotEmptyValue>
+        <uwpconv:EmptyStringToObjectConverter.EmptyValue>
+          <x:Boolean>True</x:Boolean>
+        </uwpconv:EmptyStringToObjectConverter.EmptyValue>
+      </uwpconv:EmptyStringToObjectConverter>
       <uwpconv:EmptyObjectToObjectConverter x:Key="NotNullToBoolean">
         <uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
           <x:Boolean>True</x:Boolean>

@@ -31,7 +31,7 @@ namespace NicoPlayerHohoema.Models.Niconico
 
         bool CanPostComment { get; }
 
-        Task<CommentPostResult> PostComment(string message, TimeSpan position, IEnumerable<CommandType> commands);
+        Task<CommentPostResult> PostComment(string message, TimeSpan position, string commands);
     }
 
     public class VideoCommentService : ICommentSession
@@ -60,9 +60,9 @@ namespace NicoPlayerHohoema.Models.Niconico
         }
 
         public bool CanPostComment => CommentClient.CanSubmitComment;
-        public async Task<CommentPostResult> PostComment(string message, TimeSpan position, IEnumerable<CommandType> commands)
+        public async Task<CommentPostResult> PostComment(string message, TimeSpan position, string commands)
         {
-            var res = await CommentClient.SubmitComment(message, position, string.Join(" ", commands.Select(x => x.ToString())));
+            var res = await CommentClient.SubmitComment(message, position, commands);
 
             var chatResult = res.Chat_result;
             return new CommentPostResult()

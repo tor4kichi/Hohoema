@@ -193,13 +193,6 @@ namespace NicoPlayerHohoema.ViewModels
             // post comment
 
             CommandString = new ReactiveProperty<string>(_scheduler, "").AddTo(_CompositeDisposable);
-            CommandEditerVM = new CommentCommandEditerViewModel();
-//            CommandEditerVM.OnCommandChanged += CommandEditerVM_OnCommandChanged;
-            CommandEditerVM.ChangeEnableAnonymity(true);
-            CommandEditerVM.IsAnonymousDefault = PlayerSettings.IsDefaultCommentWithAnonymous;
-            CommandEditerVM.IsAnonymousComment.Value = PlayerSettings.IsDefaultCommentWithAnonymous;
-
-            CommandEditerVM_OnCommandChanged();
 
 
 
@@ -894,15 +887,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         #region Event Handling
-
-
-        // コメントコマンドの変更を受け取る
-        private void CommandEditerVM_OnCommandChanged()
-		{
-			var commandString = CommandEditerVM.MakeCommandsString();
-			CommandString.Value = string.IsNullOrEmpty(commandString) ? "コマンド" : commandString;
-		}
-
 
 
 		// コメント投稿の結果を受け取る

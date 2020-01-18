@@ -335,7 +335,7 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
             return Task.FromResult(_comments);
         }
 
-        public Task<CommentPostResult> PostComment(string message, TimeSpan position, IEnumerable<CommandType> commands)
+        public Task<CommentPostResult> PostComment(string message, TimeSpan position, string commands)
         {
             throw new NotSupportedException();
         }

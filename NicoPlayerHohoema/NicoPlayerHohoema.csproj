@@ -600,6 +600,7 @@
     <Compile Include="Views\PrimaryViewCoreLayout.xaml.cs">
       <DependentUpon>PrimaryViewCoreLayout.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\StateTrigger\FlyoutIsOpenStateTrigger.cs" />
     <Compile Include="Views\StateTrigger\IsShowWithPrimaryViewTrigger.cs" />
     <Compile Include="Views\StateTrigger\IsShowWithSecondaryViewTrigger.cs" />
     <Compile Include="Views\StateTrigger\WindowInWindowViewModeTrigger.cs" />
