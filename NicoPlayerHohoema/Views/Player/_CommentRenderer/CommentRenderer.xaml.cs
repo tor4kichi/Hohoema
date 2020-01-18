@@ -26,6 +26,7 @@ using Windows.UI.Xaml.Navigation;
 using Unity;
 using NicoPlayerHohoema.Models;
 using Prism.Unity;
+using System.Text.RegularExpressions;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -325,6 +326,7 @@ namespace NicoPlayerHohoema.Views
             };
         }
 
+        
         private CommentUI MakeCommentUI(Comment comment, ref CommentRenderFrameData frame)
         {
             // フォントサイズの計算
@@ -363,9 +365,18 @@ namespace NicoPlayerHohoema.Views
 
             var textBGOffset = Math.Floor(FontSize * TextBGOffsetBias);
 
+            string commentText = comment.CommentText;
+            if (PlayerSettings.CommentGlassMowerEnable)
+            {
+                if (PlayerSettings.TryGlassMower(comment.CommentText, out commentText))
+                {
+                    Debug.WriteLine($"GlassMower: {comment.CommentText} -----> {commentText}");
+                }
+            }
+
             var commentUI = new CommentUI()
             {
-                CommentText = comment.CommentText,
+                CommentText = commentText,
                 TextColor = commentColor,
                 BackTextColor = GetShadowColor(commentColor),
                 VideoPosition = comment.VideoPosition,

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.Media;
 using Windows.UI;
@@ -344,6 +345,20 @@ namespace NicoPlayerHohoema.Models
 			set { SetProperty(ref _CommentGlassMowerEnable, value); }
 		}
 
+		Regex _glassRegex = new Regex("([wWｗＷ]){2,}");
+		public bool TryGlassMower(string comment, out string glassRemoved)
+		{
+			if (_glassRegex.IsMatch(comment))
+			{
+				glassRemoved = _glassRegex.Replace(comment, "ｗ");
+				return true;
+			}
+			else
+			{
+				glassRemoved = comment;
+				return false;
+			}
+		}
 
 
 		private bool _IsKeepDisplayInPlayback;
