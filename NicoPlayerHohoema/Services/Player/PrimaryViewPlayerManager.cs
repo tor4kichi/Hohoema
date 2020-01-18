@@ -53,7 +53,6 @@ namespace NicoPlayerHohoema.Services.Player
                 });
         }
 
-        
         public async Task NavigationAsync(string pageName, INavigationParameters parameters)
         {
             _scheduler.Schedule(async () =>
@@ -154,7 +153,7 @@ namespace NicoPlayerHohoema.Services.Player
             if (_view.IsFullScreenMode 
                 && ApplicationView.PreferredLaunchWindowingMode != ApplicationViewWindowingMode.FullScreen)
             {
-                _view.ExitFullScreenMode();
+                //_view.ExitFullScreenMode();
             }
 
             _navigationService.NavigateAsync(nameof(Views.BlankPage));
@@ -171,7 +170,7 @@ namespace NicoPlayerHohoema.Services.Player
                 && ApplicationView.PreferredLaunchWindowingMode != ApplicationViewWindowingMode.FullScreen
                 )
             {
-                _view.ExitFullScreenMode();
+                //_view.ExitFullScreenMode();
             }
         }
 
@@ -186,7 +185,7 @@ namespace NicoPlayerHohoema.Services.Player
                 && ApplicationView.PreferredLaunchWindowingMode != ApplicationViewWindowingMode.FullScreen
                 )
             {
-                _view.ExitFullScreenMode();
+                //_view.ExitFullScreenMode();
             }
         }
 
