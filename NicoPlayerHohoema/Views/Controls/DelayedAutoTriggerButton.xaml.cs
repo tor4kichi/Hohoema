@@ -102,7 +102,7 @@ namespace NicoPlayerHohoema.Views.Controls
             var elapsedTime = (_endTime - DateTime.Now);
             RadialProgressBar.Value = elapsedTime.TotalSeconds;
 
-            if (elapsedTime >= DelayTime)
+            if (elapsedTime < TimeSpan.Zero)
             {
                 Cancel();
 

@@ -53,6 +53,7 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
                     _videoRelatedContents = null;
                     HasNextVideo = false;
                     NextVideoTitle = null;
+                    _playNext = false;
                 })
                 .AddTo(_disposables);
         }
@@ -62,6 +63,7 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
         private void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
         {
             if (sender.PlaybackState == MediaPlaybackState.None) { return; }
+            if (_playNext) { return; }
 
             if (sender.Position - sender.NaturalDuration > _endedTime)
             {
@@ -164,6 +166,8 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
             set { SetProperty(ref _hasNextVideo, value); }
         }
 
+        bool _playNext;
+
         private DelegateCommand _playNextVideoCommand;
         public DelegateCommand PlayNextVideoCommand => _playNextVideoCommand
             ?? (_playNextVideoCommand = new DelegateCommand(() =>
@@ -172,6 +176,9 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
 
                 var nextVideo = _videoRelatedContents.NextVideo;
                 _hohoemaPlaylist.Play(nextVideo);
+                IsEnded.Value = false;
+                _playNext = true;
+                HasRecomend.Value = false;
             }));
     }
 }
