@@ -437,7 +437,7 @@
                   <Border x:Name="Mobile_BackButtonLayout"
                           Margin="0 0 0 0"
                           Visibility="Collapsed">
-                    <Button Width="40" Height="32"
+                    <Button Width="40" 
                             Background="Transparent"
                             VerticalContentAlignment="Center"
                             Command="{x:Bind GoBackCommand}">
@@ -450,7 +450,7 @@
                   <Button x:Name="MenuToggleButton"
                           Visibility="Collapsed"
                           Width="40"
-                          Height="32"
+                          
                           Background="Transparent"
                           Command="{x:Bind TogglePageOpenCommand}">
                     <iconPack:PackIconMaterial Kind="Menu"
@@ -459,12 +459,27 @@
                                                Opacity="0.9" />
                   </Button>
                 </StackPanel>
-                <Grid Height="40">
+                <Grid Height="48">
                   <TextBlock x:Name="MenuTitleText"
                              Text="{x:Bind PageTitle,Mode=OneWay}"
                              Style="{StaticResource SubtitleTextBlockStyle}"
                              Margin="16 8 16 8"
                              VerticalAlignment="Center" />
+                  <StackPanel x:Name="MenuTitleText_WithOptional"
+                              Margin="16 0 16 0" Spacing="0"
+                              VerticalAlignment="Top"
+                              Visibility="Collapsed"
+                              >
+                    <TextBlock x:Name="PageTitleText_WithOptionl" Text="{x:Bind PageTitle,Mode=OneWay}"
+                               Style="{StaticResource CaptionTextBlockStyle}"
+                               Opacity="0.7"
+                               />
+                    <TextBlock x:Name="OptionalPageTitleText" Text="{x:Bind OptionalPageTitle,Mode=OneWay}"
+                               Style="{StaticResource SubtitleTextBlockStyle}"
+                               />
+                  </StackPanel>
+                  
+                  
                   <Button Background="Transparent"
                           HorizontalAlignment="Right"
                           x:Name="Mobile_ShowSearchButton"
@@ -801,7 +816,6 @@
             <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
             <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
             <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
-            <Setter Target="MenuTitleText.Style" Value="{StaticResource BodyTextBlockStyle}" />
             <Setter Target="MenuTitleText.Margin" Value="16 0 16 0" />
             <Setter Target="TopMenuLayout.Background" Value="{StaticResource MenuBackgroundBrush}" />
             <Setter Target="Mobile_ShowSearchButton.Visibility" Value="Visible" />
@@ -926,6 +940,19 @@
           <VisualState.Setters>
             <Setter Target="PaneLayout.Margin" Value="0 24 0 0" />
             <Setter Target="TopMenuLayout.Margin" Value="0 24 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind OptionalPageTitle, Mode=OneWay, Converter={StaticResource NotEmptyStringToBoolean}}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="MenuTitleText_WithOptional.Visibility"
+                    Value="Visible" />
+            <Setter Target="MenuTitleText.Visibility"
+                    Value="Collapsed" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

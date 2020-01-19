@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Interfaces;
+﻿using I18NPortable;
+using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Repository.Playlist;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
@@ -18,7 +19,7 @@ using System.Threading.Tasks;
 namespace NicoPlayerHohoema.ViewModels
 {
     [PropertyChanged.AddINotifyPropertyChangedInterface]
-    public sealed class LocalPlaylistPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, IPinablePage
+    public sealed class LocalPlaylistPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -28,6 +29,11 @@ namespace NicoPlayerHohoema.ViewModels
                 PageType = HohoemaPageType.LocalPlaylist,
                 Parameter = $"id={Playlist.Id}"
             };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.Playlist).Select(x => x?.Label);
         }
 
         private readonly PageManager _pageManager;

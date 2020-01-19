@@ -16,10 +16,13 @@ using NicoPlayerHohoema.Services;
 using Prism.Navigation;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.Interfaces;
+using System;
+using Reactive.Bindings.Extensions;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, INavigatedAwareAsync, IPinablePage
+    public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -29,6 +32,11 @@ namespace NicoPlayerHohoema.ViewModels
                 PageType = HohoemaPageType.UserVideo,
                 Parameter = $"id={UserId}"
             };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.UserName);
         }
 
         public UserVideoPageViewModel(

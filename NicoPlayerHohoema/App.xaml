@@ -62,6 +62,14 @@
           <x:Boolean>True</x:Boolean>
         </uwpconv:EmptyStringToObjectConverter.EmptyValue>
       </uwpconv:EmptyStringToObjectConverter>
+      <uwpconv:EmptyStringToObjectConverter x:Key="NotEmptyStringToBoolean">
+        <uwpconv:EmptyStringToObjectConverter.NotEmptyValue>
+          <x:Boolean>True</x:Boolean>
+        </uwpconv:EmptyStringToObjectConverter.NotEmptyValue>
+        <uwpconv:EmptyStringToObjectConverter.EmptyValue>
+          <x:Boolean>False</x:Boolean>
+        </uwpconv:EmptyStringToObjectConverter.EmptyValue>
+      </uwpconv:EmptyStringToObjectConverter>
       <uwpconv:EmptyObjectToObjectConverter x:Key="NotNullToBoolean">
         <uwpconv:EmptyObjectToObjectConverter.NotEmptyValue>
           <x:Boolean>True</x:Boolean>

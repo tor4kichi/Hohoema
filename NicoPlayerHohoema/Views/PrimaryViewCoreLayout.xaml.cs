@@ -1,4 +1,5 @@
 ﻿using I18NPortable;
+using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
@@ -6,11 +7,13 @@ using NicoPlayerHohoema.ViewModels;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Navigation;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Threading.Tasks;
@@ -50,10 +53,38 @@ namespace NicoPlayerHohoema.Views
 
                 _ = (App.Current as App).OutputErrorFile(e.Exception, e.SourcePageType?.AssemblyQualifiedName);
             };
-
-
+            
             ContentFrame.Navigated += (_, e) =>
             {
+                OptionalPageTitle = string.Empty;
+                Action<Page, NavigationEventArgs> UpdateOptionalTitleAction = (page, args) =>
+                {
+                    if (page.DataContext is ITitleUpdatablePage pageVM)
+                    {
+                        pageVM.GetTitleObservable()
+                        .Subscribe(title =>
+                        {
+                            OptionalPageTitle = title;
+                        })
+                        .AddTo(_navigationDisposable);
+                    }
+                };
+
+                var page = e.Content as Page;
+                if (page.DataContext == null)
+                {
+                    page.ObserveDependencyProperty(DataContextProperty)
+                        .Subscribe(_ =>
+                        {
+                            UpdateOptionalTitleAction(page, e);
+                        })
+                        .AddTo(_navigationDisposable);
+                }
+                else
+                {
+                    UpdateOptionalTitleAction(page, e);
+                }
+
                 var pageNameRaw = e.SourcePageType.FullName.Split('.').LastOrDefault();
                 var pageName = pageNameRaw.Split('_').FirstOrDefault();
                 if (Enum.TryParse(pageName.Substring(0, pageName.Length - 4), out HohoemaPageType pageType))
@@ -67,6 +98,9 @@ namespace NicoPlayerHohoema.Views
             _viewModel.EventAggregator.GetEvent<PageNavigationEvent>()
                 .Subscribe(args =>
                 {
+                    _navigationDisposable?.Dispose();
+                    _navigationDisposable = new CompositeDisposable();
+
                     _ = ContentFrameNavigation(args);
                 });
 
@@ -80,10 +114,9 @@ namespace NicoPlayerHohoema.Views
             {
                 Window.Current.SetTitleBar(DraggableContent as UIElement);
             }
-
-            PlayerFrame.Navigated += PlayerFrame_Navigated;
-
         }
+
+        CompositeDisposable _navigationDisposable;
 
         // 狭い画面の時にメニュー項目を選択したらペインを閉じるようにする
         private void ContentFrame_Navigating(object sender, NavigatingCancelEventArgs e)
@@ -92,22 +125,6 @@ namespace NicoPlayerHohoema.Views
                 ContentSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
             {
                 ContentSplitView.IsPaneOpen = false;
-            }
-        }
-
-        private void PlayerFrame_Navigated(object sender, NavigationEventArgs e)
-        {
-            if (e.SourcePageType == typeof(VideoPlayerPage))
-            {
-                
-            }
-            else if (e.SourcePageType == typeof(LivePlayerPage))
-            {
-
-            }
-            else
-            {
-
             }
         }
 
@@ -250,6 +267,18 @@ namespace NicoPlayerHohoema.Views
         public static readonly DependencyProperty PageTitleProperty =
             DependencyProperty.Register("PageTitle", typeof(string), typeof(PrimaryWindowCoreLayout), new PropertyMetadata(string.Empty));
 
+
+
+
+        public string OptionalPageTitle
+        {
+            get { return (string)GetValue(OptionalPageTitleProperty); }
+            set { SetValue(OptionalPageTitleProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for OptionalPageTitle.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty OptionalPageTitleProperty =
+            DependencyProperty.Register("OptionalPageTitle", typeof(string), typeof(PrimaryWindowCoreLayout), new PropertyMetadata(string.Empty));
 
 
 

@@ -24,10 +24,16 @@ using System.Diagnostics;
 using System.Reactive.Concurrency;
 using Prism.Events;
 using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.Interfaces;
+using I18NPortable;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class RankingCategoryPageViewModel : HohoemaListingPageViewModelBase<RankedVideoInfoControlViewModel>, INavigatedAwareAsync, IPinablePage
+    public class RankingCategoryPageViewModel 
+        : HohoemaListingPageViewModelBase<RankedVideoInfoControlViewModel>,
+        INavigatedAwareAsync,
+        IPinablePage,
+        ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -50,6 +56,12 @@ namespace NicoPlayerHohoema.ViewModels
                 PageType = HohoemaPageType.RankingCategory,
                 Parameter = parameter
             };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.RankingGenre)
+                .Select(genre => "RankingTitleWithGenre".Translate(genre.Translate()));
         }
 
         static Models.Helpers.AsyncLock _updateLock = new Models.Helpers.AsyncLock();
@@ -130,10 +142,11 @@ namespace NicoPlayerHohoema.ViewModels
                     _nowInitializeRankingTerm = false;
                 })
                 .AddTo(_CompositeDisposable);
-
-
-
         }
+
+            
+
+        
 
         bool _nowInitializeRankingTerm = false;
 
@@ -328,7 +341,7 @@ namespace NicoPlayerHohoema.ViewModels
         protected override void PostResetList()
         {
             _IsNavigateCompleted = true;
-
+           
             base.PostResetList();
         }
     }

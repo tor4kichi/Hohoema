@@ -15,10 +15,11 @@ using NicoPlayerHohoema.Services;
 using Prism.Navigation;
 using System.Threading.Tasks;
 using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.Interfaces;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, INavigatedAwareAsync, IPinablePage
+    public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -28,6 +29,11 @@ namespace NicoPlayerHohoema.ViewModels
                 PageType = HohoemaPageType.SearchResultKeyword,
                 Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
             };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.Keyword);
         }
 
         public SearchResultKeywordPageViewModel(
@@ -199,6 +205,14 @@ namespace NicoPlayerHohoema.ViewModels
 		static public KeywordSearchPagePayloadContent SearchOption { get; private set; }
 		public ReactiveProperty<int> LoadedPage { get; private set; }
 
+        private string _keyword;
+        public string Keyword
+        {
+            get { return _keyword; }
+            set { SetProperty(ref _keyword, value); }
+        }
+
+
         private string _SearchOptionText;
         public string SearchOptionText
         {
@@ -245,9 +259,11 @@ namespace NicoPlayerHohoema.ViewModels
             var mode = parameters.GetNavigationMode();
             if (mode == NavigationMode.New)
             {
+                Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"));
+
                 SearchOption = new KeywordSearchPagePayloadContent()
                 {
-                    Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"))
+                    Keyword = Keyword
                 };
             }
 

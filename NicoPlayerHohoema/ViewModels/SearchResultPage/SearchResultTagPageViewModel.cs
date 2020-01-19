@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 namespace NicoPlayerHohoema.ViewModels
 {
     
-	public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, Interfaces.ISearchWithtag, INavigatedAwareAsync, IPinablePage
+	public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, Interfaces.ISearchWithtag, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -33,6 +33,11 @@ namespace NicoPlayerHohoema.ViewModels
                 PageType = HohoemaPageType.SearchResultTag,
                 Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
             };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.Keyword);
         }
 
         public SearchResultTagPageViewModel(
@@ -199,6 +204,14 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<SearchSortOptionListItem> SelectedSearchSort { get; private set; }
 
+        private string _keyword;
+        public string Keyword
+        {
+            get { return _keyword; }
+            set { SetProperty(ref _keyword, value); }
+        }
+
+
         private string _SearchOptionText;
         public string SearchOptionText
         {
@@ -268,9 +281,11 @@ namespace NicoPlayerHohoema.ViewModels
             var mode = parameters.GetNavigationMode();
             if (mode == NavigationMode.New)
             {
+                Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"));
+
                 SearchOption = new TagSearchPagePayloadContent()
                 {
-                    Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"))
+                    Keyword = Keyword
                 };
             }
 

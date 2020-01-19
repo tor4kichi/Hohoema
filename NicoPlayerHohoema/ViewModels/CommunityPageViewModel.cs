@@ -9,6 +9,7 @@ using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
 using Prism.Commands;
 using Prism.Navigation;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -20,7 +21,7 @@ using NiconicoSession = NicoPlayerHohoema.Models.NiconicoSession;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class CommunityPageViewModel : HohoemaViewModelBase, ICommunity, INavigatedAwareAsync, IPinablePage
+    public class CommunityPageViewModel : HohoemaViewModelBase, ICommunity, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
         HohoemaPin IPinablePage.GetPin()
         {
@@ -30,6 +31,11 @@ namespace NicoPlayerHohoema.ViewModels
                 PageType = HohoemaPageType.Community,
                 Parameter = $"id={CommunityId}"
             };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.CommunityName);
         }
 
         public CommunityPageViewModel(

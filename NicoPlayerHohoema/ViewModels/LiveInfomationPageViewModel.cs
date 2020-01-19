@@ -1,8 +1,10 @@
-﻿using Mntone.Nico2;
+﻿using I18NPortable;
+using Mntone.Nico2;
 using Mntone.Nico2.Embed.Ichiba;
 using Mntone.Nico2.Live;
 using Mntone.Nico2.Live.Recommend;
 using Mntone.Nico2.Live.Video;
+using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models.Provider;
@@ -33,7 +35,7 @@ namespace NicoPlayerHohoema.ViewModels
         public string Label { get; set; }
     }
 
-    public sealed class LiveInfomationPageViewModel : HohoemaViewModelBase, Interfaces.ILiveContent, INavigatedAwareAsync, IPinablePage
+    public sealed class LiveInfomationPageViewModel : HohoemaViewModelBase, Interfaces.ILiveContent, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -43,6 +45,11 @@ namespace NicoPlayerHohoema.ViewModels
                 PageType = HohoemaPageType.LiveInfomation,
                 Parameter = $"id={LiveId}"
             };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.LiveInfo).Select(x => x.Video.Title);
         }
 
         // TODO: 視聴開始（会場後のみ、チャンネル会員限定やチケット必要な場合あり）

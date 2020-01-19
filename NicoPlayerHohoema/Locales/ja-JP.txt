@@ -80,6 +80,8 @@ RankingGenre.HotTopic = 話題
 
 RankingNoItems = ランキングアイテムの取得に失敗しました\nしばらく後で再度アクセスをお試しください
 
+RankingTitleWithGenre = {0} のランキング
+
 #### Comment Command Editer ####
 CommentCommand = コマンド
 CommentSubmitWithAnonymous = 匿名で投稿

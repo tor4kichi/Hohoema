@@ -27,10 +27,11 @@ using NicoPlayerHohoema.Models.Niconico.Video;
 using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.Repository.Playlist;
 using NicoPlayerHohoema.UseCase.Playlist.Commands;
+using Reactive.Bindings.Extensions;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class VideoInfomationPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, IPinablePage
+    public class VideoInfomationPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -42,6 +43,10 @@ namespace NicoPlayerHohoema.ViewModels
             };
         }
 
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.VideoTitle);
+        }
 
         public VideoInfomationPageViewModel(
             NGSettings ngSettings,

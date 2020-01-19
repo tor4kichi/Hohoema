@@ -17,10 +17,11 @@ using Prism.Navigation;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.UseCase.Playlist;
+using Reactive.Bindings.Extensions;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public sealed class ChannelVideoPageViewModel : HohoemaListingPageViewModelBase<ChannelVideoListItemViewModel>, Interfaces.IChannel, INavigatedAwareAsync, IPinablePage
+    public sealed class ChannelVideoPageViewModel : HohoemaListingPageViewModelBase<ChannelVideoListItemViewModel>, Interfaces.IChannel, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -30,6 +31,11 @@ namespace NicoPlayerHohoema.ViewModels
                 PageType = HohoemaPageType.ChannelVideo,
                 Parameter = $"id={ChannelId}"
             };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.ChannelScreenName);
         }
 
         public ChannelVideoPageViewModel(

@@ -18,10 +18,11 @@ using NicoPlayerHohoema.Services;
 using Prism.Navigation;
 using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands;
+using NicoPlayerHohoema.Interfaces;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class SearchResultLivePageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>, INavigatedAwareAsync, IPinablePage
+    public class SearchResultLivePageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -31,6 +32,11 @@ namespace NicoPlayerHohoema.ViewModels
                 PageType = HohoemaPageType.SearchResultLive,
                 Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
             };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.Keyword);
         }
 
         public SearchResultLivePageViewModel(
@@ -197,6 +203,12 @@ namespace NicoPlayerHohoema.ViewModels
 
         static public LiveSearchPagePayloadContent SearchOption { get; private set; }
 
+        private string _keyword;
+        public string Keyword
+        {
+            get { return _keyword; }
+            set { SetProperty(ref _keyword, value); }
+        }
 
 
         private string _SearchOptionText;
@@ -256,9 +268,11 @@ namespace NicoPlayerHohoema.ViewModels
             var mode = parameters.GetNavigationMode();
             if (mode == NavigationMode.New)
             {
+                Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"));
+
                 SearchOption = new LiveSearchPagePayloadContent()
                 {
-                    Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"))
+                    Keyword = Keyword
                 };
             }
 

@@ -16,10 +16,11 @@ using NicoPlayerHohoema.Services;
 using Prism.Navigation;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Repository.Playlist;
+using System.Reactive.Linq;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class SearchResultMylistPageViewModel : HohoemaListingPageViewModelBase<MylistPlaylist>, INavigatedAwareAsync, IPinablePage
+    public class SearchResultMylistPageViewModel : HohoemaListingPageViewModelBase<MylistPlaylist>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -29,6 +30,11 @@ namespace NicoPlayerHohoema.ViewModels
                 PageType = HohoemaPageType.SearchResultMylist,
                 Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
             };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.Keyword);
         }
 
         public SearchResultMylistPageViewModel(
@@ -105,6 +111,12 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactivePropertySlim<SearchSortOptionListItem> SelectedSearchSort { get; private set; }
 
+        private string _keyword;
+        public string Keyword
+        {
+            get { return _keyword; }
+            set { SetProperty(ref _keyword, value); }
+        }
 
 
         private string _SearchOptionText;
@@ -162,9 +174,11 @@ namespace NicoPlayerHohoema.ViewModels
             var mode = parameters.GetNavigationMode();
             if (mode == NavigationMode.New)
             {
+                Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"));
+
                 SearchOption = new MylistSearchPagePayloadContent()
                 {
-                    Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"))
+                    Keyword = Keyword
                 };
             }
 

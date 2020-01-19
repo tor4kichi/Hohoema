@@ -22,10 +22,11 @@ using Prism.Navigation;
 using NicoPlayerHohoema.Repository.Playlist;
 using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.Interfaces;
+using Reactive.Bindings.Extensions;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class UserMylistPageViewModel : HohoemaListingPageViewModelBase<MylistPlaylist>, INavigatedAwareAsync, IPinablePage
+    public class UserMylistPageViewModel : HohoemaListingPageViewModelBase<MylistPlaylist>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
         HohoemaPin IPinablePage.GetPin()
         {
@@ -35,6 +36,11 @@ namespace NicoPlayerHohoema.ViewModels
                 PageType = HohoemaPageType.UserMylist,
                 Parameter = $"id={UserId}"
             };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.UserName);
         }
 
         public UserMylistPageViewModel(

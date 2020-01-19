@@ -1,4 +1,6 @@
-﻿using Mntone.Nico2;
+﻿using I18NPortable;
+using Mntone.Nico2;
+using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Models.Subscription;
@@ -21,7 +23,7 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class UserInfoPageViewModel : HohoemaViewModelBase, Interfaces.IUser, INavigatedAwareAsync, IPinablePage
+    public class UserInfoPageViewModel : HohoemaViewModelBase, Interfaces.IUser, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
         HohoemaPin IPinablePage.GetPin()
         {
@@ -31,6 +33,11 @@ namespace NicoPlayerHohoema.ViewModels
                 PageType = HohoemaPageType.UserInfo,
                 Parameter = $"id={UserId}"
             };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.UserName);
         }
 
         public UserInfoPageViewModel(

@@ -18,6 +18,7 @@ using System.Reactive.Linq;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Models.Provider;
 using Prism.Navigation;
+using NicoPlayerHohoema.Interfaces;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -25,7 +26,7 @@ namespace NicoPlayerHohoema.ViewModels
 	// Note: Communityの検索はページベースで行います。
 	// また、ログインが必要です。
 
-	public class SearchResultCommunityPageViewModel : HohoemaListingPageViewModelBase<CommunityInfoControlViewModel>, INavigatedAwareAsync, IPinablePage
+	public class SearchResultCommunityPageViewModel : HohoemaListingPageViewModelBase<CommunityInfoControlViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
         HohoemaPin IPinablePage.GetPin()
         {
@@ -35,6 +36,12 @@ namespace NicoPlayerHohoema.ViewModels
                 PageType = HohoemaPageType.SearchResultCommunity,
                 Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
             };
+        }
+
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.Keyword);
         }
 
         public SearchResultCommunityPageViewModel(
@@ -58,6 +65,14 @@ namespace NicoPlayerHohoema.ViewModels
         public NiconicoLoginService NiconicoLoginService { get; }
 
         static public CommunitySearchPagePayloadContent SearchOption { get; private set; }
+
+        private string _keyword;
+        public string Keyword
+        {
+            get { return _keyword; }
+            set { SetProperty(ref _keyword, value); }
+        }
+
 
         private string _SearchOptionText;
         public string SearchOptionText
@@ -182,9 +197,11 @@ namespace NicoPlayerHohoema.ViewModels
             var mode = parameters.GetNavigationMode();
             if (mode == NavigationMode.New)
             {
+                Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"));
+
                 SearchOption = new CommunitySearchPagePayloadContent()
                 {
-                    Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"))
+                    Keyword = Keyword
                 };
             }
 

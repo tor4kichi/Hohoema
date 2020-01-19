@@ -139,6 +139,7 @@
     <Compile Include="FixPrism\BindableBaseWithFix.cs" />
     <Compile Include="Interfaces\IPageNavigatable.cs" />
     <Compile Include="Interfaces\IPlaylistItem.cs" />
+    <Compile Include="Interfaces\ITitleUpdatablePage.cs" />
     <Compile Include="Interfaces\IWatchHistory.cs" />
     <Compile Include="Locales\LocalizeConverter.cs" />
     <Compile Include="Models\Cache\NicoVideoCacheInfo.cs" />
