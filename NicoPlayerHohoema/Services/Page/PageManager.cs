@@ -137,7 +137,6 @@ namespace NicoPlayerHohoema.Services
                     case Interfaces.IMylist mylistContent:
                         OpenPageWithId(HohoemaPageType.Mylist, mylistContent.Id);
                         break;
-                        break;
                     case Interfaces.IUser user:
                         OpenPageWithId(HohoemaPageType.UserInfo, user.Id);
                         break;
@@ -152,6 +151,9 @@ namespace NicoPlayerHohoema.Services
                         break;
                     case Interfaces.IChannel channel:
                         OpenPageWithId(HohoemaPageType.ChannelVideo, channel.Id);
+                        break;
+                    case Interfaces.IPlaylist playlist:
+                        OpenPageWithId(HohoemaPageType.LocalPlaylist, playlist.Id);
                         break;
                 }
             }));

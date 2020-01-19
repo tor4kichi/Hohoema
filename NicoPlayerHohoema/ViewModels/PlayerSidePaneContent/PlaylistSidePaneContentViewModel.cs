@@ -7,6 +7,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -31,8 +32,6 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             _playerSettings = playerSettings;
             PageManager = pageManager;
             _scheduler = scheduler;
-
-            CurrentPlaylist = playerModel.CurrentPlaylist;
             
             CurrentPlaylistName = new ReactiveProperty<string>(_scheduler, HohoemaPlaylist.CurrentPlaylist?.Label)
                 .AddTo(_CompositeDisposable);
@@ -57,14 +56,18 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             PlaylistCanGoNext = HohoemaPlaylist.ObserveProperty(x => x.CanGoNext)
                 .ToReactiveProperty(_scheduler)
                 .AddTo(_CompositeDisposable);
+
+            CurrentItems = HohoemaPlaylist.PlaylistItems.ToReadOnlyReactiveCollection(_scheduler)
+                .AddTo(_CompositeDisposable);
         }
+
+
+        public ReadOnlyReactiveCollection<IVideoContent> CurrentItems { get; }
 
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public MediaPlayer MediaPlayer { get; }
         public PageManager PageManager { get; }
 
-
-        public Interfaces.IPlaylist CurrentPlaylist { get; private set; }
         public ReactiveProperty<string> CurrentPlaylistName { get; private set; }
         public ReactiveProperty<bool> IsShuffleEnabled { get; private set; }
         public ReactiveProperty<bool> IsTrackRepeatModeEnable { get; private set; }

@@ -34,7 +34,7 @@ using NicoPlayerHohoema.Interfaces;
 
 namespace NicoPlayerHohoema.Services
 {
-    public sealed class ScondaryViewPlayerManager : BindableBase
+    public sealed class ScondaryViewPlayerManager : FixPrism.BindableBase
     {
         /* 複数ウィンドウでプレイヤーを一つだけ表示するための管理をしています
          * 
@@ -156,7 +156,7 @@ namespace NicoPlayerHohoema.Services
             }
         }
 
-        bool _showSecondaryView;
+        public bool IsShowSecondaryView { get; private set; }
 
         public const string primary_view_size = "primary_view_size";
         public const string secondary_view_size = "secondary_view_size";
@@ -189,7 +189,7 @@ namespace NicoPlayerHohoema.Services
                 Window.Current.Activate();
 
                 await ApplicationViewSwitcher.TryShowAsStandaloneAsync(id, ViewSizePreference.UseHalf, MainViewId, ViewSizePreference.UseHalf);
-
+                
                 // ウィンドウサイズの保存と復元
                 if (Services.Helpers.DeviceTypeHelper.IsDesktop)
                 {
@@ -258,12 +258,17 @@ namespace NicoPlayerHohoema.Services
                 var cacheManager = App.Current.Container.Resolve<VideoCacheManager>();
                 await cacheManager.ResumeCacheDownload();
 
-                _showSecondaryView = false;
+                IsShowSecondaryView = false;
             });
         }
 
         static Interfaces.INiconicoContent _CurrentPlayContent { get; set; }
 
+        bool _onceSurpressActivation;
+        public void OnceSurpressActivation()
+        {
+            _onceSurpressActivation = true;
+        }
 
         public async Task NavigationAsync(string pageName, INavigationParameters parameters)
         {
@@ -278,12 +283,12 @@ namespace NicoPlayerHohoema.Services
                 {
                     SecondaryCoreAppView.CoreWindow.Activate();
 
-                    _showSecondaryView = true;
-
                     await SecondaryViewPlayerNavigationService.NavigateAsync(pageName, parameters, new DrillInNavigationTransitionInfo());
                 });
 
                 await ShowSecondaryViewAsync();
+
+                IsShowSecondaryView = true;
             }
         }
 
@@ -293,7 +298,7 @@ namespace NicoPlayerHohoema.Services
         /// </summary>
         public async Task CloseAsync()
         {
-            if (!_showSecondaryView) { return; }
+            if (!IsShowSecondaryView) { return; }
 
             await SecondaryCoreAppView.ExecuteOnUIThreadAsync(async () =>
             {
@@ -320,7 +325,12 @@ namespace NicoPlayerHohoema.Services
 
         public Task ShowSecondaryViewAsync()
         {
-            if (!_showSecondaryView) { return Task.CompletedTask; }
+            if (!IsShowSecondaryView) { return Task.CompletedTask; }
+            if (_onceSurpressActivation)
+            {
+                _onceSurpressActivation = false;
+                return ShowMainViewAsync();
+            }
 
             if (SecondaryAppView.ViewMode == ApplicationViewMode.CompactOverlay
                     || SecondaryAppView.IsFullScreenMode
@@ -343,7 +353,7 @@ namespace NicoPlayerHohoema.Services
 
         public async Task ToggleCompactOverlayAsync()
         {
-            if (!_showSecondaryView) { return; }
+            if (!IsShowSecondaryView) { return; }
 
             if (!SecondaryAppView.IsViewModeSupported(ApplicationViewMode.CompactOverlay)) { return; }
 
@@ -362,7 +372,7 @@ namespace NicoPlayerHohoema.Services
 
         public async Task ToggleFullScreenAsync()
         {
-            if (!_showSecondaryView) { return; }
+            if (!IsShowSecondaryView) { return; }
 
             await SecondaryCoreAppView.ExecuteOnUIThreadAsync(() =>
             {

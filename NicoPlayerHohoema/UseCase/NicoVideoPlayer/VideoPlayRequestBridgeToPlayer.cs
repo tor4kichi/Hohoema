@@ -143,13 +143,13 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
         }
 
 
-        LocalObjectStorageHelper _localObjectStorage = new LocalObjectStorageHelper();
+        static LocalObjectStorageHelper _localObjectStorage = new LocalObjectStorageHelper();
         void SaveDisplayMode()
         {
             _localObjectStorage.Save(nameof(PlayerDisplayView), DisplayMode);
         }
 
-        PlayerDisplayView ReadDisplayMode()
+        public static PlayerDisplayView ReadDisplayMode()
         {
             return _localObjectStorage.Read<PlayerDisplayView>(nameof(PlayerDisplayView));
         }

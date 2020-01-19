@@ -147,6 +147,11 @@ namespace NicoPlayerHohoema.Views
 
                     Debug.WriteLineIf(!result.Success, result.Exception?.ToString());
                 }
+
+                if (_viewModel.PrimaryViewPlayerManager.DisplayMode == Services.Player.PrimaryPlayerDisplayMode.Fill)
+                {
+                    _viewModel.PrimaryViewPlayerManager.ShowWithWindowInWindow();
+                }
             });
         }
 

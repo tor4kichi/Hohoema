@@ -1,4 +1,5 @@
-﻿using Mntone.Nico2;
+﻿using I18NPortable;
+using Mntone.Nico2;
 using NicoPlayerHohoema.Database;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
@@ -14,11 +15,13 @@ using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
 using Prism.Unity;
+using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
@@ -27,6 +30,7 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Unity;
 using Windows.Media;
+using Windows.UI.Xaml.Data;
 using AsyncLock = NicoPlayerHohoema.Models.Helpers.AsyncLock;
 using NiconicoSession = NicoPlayerHohoema.Models.NiconicoSession;
 
@@ -159,9 +163,6 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             return NiconicoRegex.IsVideoId(videoId) && !int.TryParse(videoId, out var _);
         }
 
-
-
-
         public event EventHandler<VideoPlayedEventArgs> VideoPlayed;
 
 
@@ -187,7 +188,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             _nicoVideoProvider = nicoVideoProvider;
             _mylistRepository = mylistRepository;
             _playerSettings = playerSettings;
-            QueuePlaylist = new PlaylistObservableCollection(QueuePlaylistId, QueuePlaylistId.ToCulturelizeString());
+            QueuePlaylist = new PlaylistObservableCollection(QueuePlaylistId, QueuePlaylistId.Translate(), _scheduler);
 
             /*
             _ = ResolveItemsAsync(QueuePlaylist)
@@ -206,7 +207,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
                 });
             */
 
-            WatchAfterPlaylist = new PlaylistObservableCollection(WatchAfterPlaylistId, WatchAfterPlaylistId.ToCulturelizeString());
+            WatchAfterPlaylist = new PlaylistObservableCollection(WatchAfterPlaylistId, WatchAfterPlaylistId.Translate(), _scheduler);
             _ = ResolveItemsAsync(WatchAfterPlaylist)
                 .ContinueWith(prevTask =>
                 {
@@ -367,7 +368,9 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         {
             _eventAggregator.GetEvent<PlayerPlayVideoRequest>()
                 .Publish(new PlayerPlayVideoRequestEventArgs() {VideoId = e.Id });
-        }
+
+            RaisePropertyChanged(nameof(CurrentItem));
+        } 
 
 
 
@@ -423,25 +426,43 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         {            
             if (playlist != CurrentPlaylist)
             {
+                // PlaylistPlayerが内部的にReactiveCollectionを使っており
+                // そこでAddOnSchedulerのように非同期操作を行っているため
+                // _player.Itemsは同期的に扱えない
+                // SetSource使用時は_player.Itemsを回避した初期アイテム設定にする
+                IEnumerable<IVideoContent> items = null;
                 if (playlist == QueuePlaylist)
                 {
-                    _player.SetSource(QueuePlaylist);
+                    _player.SetSource(items = QueuePlaylist);
                 }
                 else if (playlist == WatchAfterPlaylist)
                 {
-                    _player.SetSource(WatchAfterPlaylist);
+                    _player.SetSource(items = WatchAfterPlaylist);
                 }
                 else
                 {
-                    _player.SetSource(await ResolveItemsAsync(playlist));
+                    _player.SetSource(items = await ResolveItemsAsync(playlist));
                 }
+
+                if (items?.Any() != true)
+                {
+                    Debug.WriteLine("Playが呼ばれたがSetSourceに指定するアイテムリストが得られなかったため再生できない。");
+                    return;
+                }
+
+                CurrentPlaylist = playlist;
+                
+                var video = items.FirstOrDefault();
+
+                _player.SetCurrent(video);
+            }
+            else
+            {
+                var video = _player.Items.FirstOrDefault();
+                _player.SetCurrent(video);
             }
 
-            CurrentPlaylist = playlist;
 
-            var video = _player.Items.FirstOrDefault();
-
-            _player.SetCurrent(video);
         }
 
         public async void Play(IVideoContent video, IPlaylist playlist = null)
@@ -458,12 +479,12 @@ namespace NicoPlayerHohoema.UseCase.Playlist
                 // 単品再生時は事前にキューを空ける
                 if (QueuePlaylist.Count == 1)
                 {
-                    QueuePlaylist.Clear();
+                    QueuePlaylist.ClearOnScheduler();
                 }
                 
                 if (!QueuePlaylist.Contains(video))
                 {
-                    QueuePlaylist.Add(video);
+                    QueuePlaylist.InsertOnScheduler(0, video);
                 }
             }
 
@@ -492,20 +513,20 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
         public void AddQueue(IVideoContent item)
         {
-            QueuePlaylist.Remove(item);
-            QueuePlaylist.Add(item);
+            QueuePlaylist.RemoveOnScheduler(item);
+            QueuePlaylist.AddOnScheduler(item);
         }
 
 
 
-        public bool RemoveQueue(IVideoContent item)
+        public void RemoveQueue(IVideoContent item)
         {
-            return QueuePlaylist.Remove(item);
+            QueuePlaylist.RemoveOnScheduler(item);
         }
 
         public void ClearQueue()
         {
-            QueuePlaylist.Clear();
+            QueuePlaylist.ClearOnScheduler();
         }
 
 
@@ -525,14 +546,14 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
         public void AddWatchAfterPlaylist(IVideoContent item)
         {
-            WatchAfterPlaylist.Remove(item);
+            WatchAfterPlaylist.RemoveOnScheduler(item);
 
-            WatchAfterPlaylist.Add(item);
+            WatchAfterPlaylist.AddOnScheduler(item);
         }
 
-        public bool RemoveWatchAfter(IVideoContent item)
+        public void RemoveWatchAfter(IVideoContent item)
         {
-            return WatchAfterPlaylist.Remove(item);
+            WatchAfterPlaylist.RemoveOnScheduler(item);
         }
 
         public int RemoveWatchAfterIfWatched()
@@ -541,8 +562,8 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             int removeCount = 0;
             foreach (var item in playedItems)
             {
-                var removed = WatchAfterPlaylist.Remove(item);
-                removeCount = removed ? removeCount + 1 : removeCount;
+                WatchAfterPlaylist.RemoveOnScheduler(item);
+                removeCount++;
             }
 
             var dbRemoveCount = _playlistRepository.DeleteItems(WatchAfterPlaylist.Id, playedItems.Select(x => x.Id));
@@ -588,6 +609,9 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         Events.VideoPlayedEvent _videoPlayedEvent;
         public void PlayDone(IVideoContent playedItem)
         {
+            // キューから削除する
+            QueuePlaylist.RemoveOnScheduler(playedItem);
+
             // アイテムを視聴済みにマーク
             var history = Database.VideoPlayedHistoryDb.VideoPlayed(playedItem.Id);
             System.Diagnostics.Debug.WriteLine("視聴完了: " + playedItem.Label);
@@ -646,7 +670,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
 
 
-    public sealed class PlaylistPlayer : BindableBase, IDisposable
+    public sealed class PlaylistPlayer : FixPrism.BindableBase, IDisposable
     {
         // PlaylistPlayerは再生アイテムの遷移をサポートする
         // 次・前の移動はPlayRequestedイベントを通じてやり取りする
@@ -684,7 +708,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
         private int CurrentIndex { get; set; }
 
-        ObservableCollection<IVideoContent> _items = new ObservableCollection<IVideoContent>();
+        ReactiveCollection<IVideoContent> _items = new ReactiveCollection<IVideoContent>();
         public ReadOnlyObservableCollection<IVideoContent> Items { get; }
 
         private List<IVideoContent> _sourceItems = new List<IVideoContent>();
@@ -771,12 +795,22 @@ namespace NicoPlayerHohoema.UseCase.Playlist
                 _sourceItems.AddRange(items);
 
                 _ItemsObservaeDisposer?.Dispose();
-                _ItemsObservaeDisposer = null;
+                if (items is ObservableCollection<IVideoContent> collection)
+                {
+                    _ItemsObservaeDisposer = collection.CollectionChangedAsObservable()
+                        .Do(args => 
+                        {
+                            _sourceItems.Clear();
+                            _sourceItems.AddRange(collection);
+
+                            ResetItems();
+
+                            Debug.WriteLine("Playlist Updated.");
+                        })
+                        .Subscribe();
+                }
 
                 ResetItems();
-
-                RaisePropertyChanged(nameof(CanGoBack));
-                RaisePropertyChanged(nameof(CanGoNext));
             }
         }
 
@@ -794,11 +828,8 @@ namespace NicoPlayerHohoema.UseCase.Playlist
                 currentSource = currentSource.Reverse();
             }
 
-            _items.Clear();
-            foreach (var item in currentSource)
-            {
-                _items.Add(item);
-            }
+            _items.ClearOnScheduler();
+            _items.AddRangeOnScheduler(currentSource);
 
             CurrentIndex = _items.Any() ? _items.IndexOf(Current) : 0;
 
@@ -954,22 +985,10 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         }
     }
 
-    public sealed class PlaylistObservableCollection : ObservableCollection<IVideoContent>, IPlaylist
+    public sealed class PlaylistObservableCollection : ReactiveCollection<IVideoContent>, IPlaylist
     {
-
-        public PlaylistObservableCollection(string id, string label)
-        {
-            Id = id;
-            Label = label;
-        }
-
-        public PlaylistObservableCollection(string id, string label, List<IVideoContent> list) : base(list)
-        {
-            Id = id;
-            Label = label;
-        }
-
-        public PlaylistObservableCollection(string id, string label, IEnumerable<IVideoContent> collection) : base(collection)
+        public PlaylistObservableCollection(string id, string label, IScheduler scheduler)
+            :base(scheduler)
         {
             Id = id;
             Label = label;
