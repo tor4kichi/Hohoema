@@ -355,7 +355,7 @@
       </Grid>
       
       <Grid>
-        <TextBlock Text="{Binding Source=CommentColor, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        <TextBlock Text="{Binding Source=UseFreeInputCommand, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" HorizontalAlignment="Left" VerticalAlignment="Center" />
         <ToggleSwitch x:Name="UserInputCommandToggleSwitch"
                       IsOn="False"
                       HorizontalAlignment="Right" />
