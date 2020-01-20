@@ -282,6 +282,7 @@
       <DependentUpon>ScrollHeader.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\ScrollHeaderCustom\StickyHeaderBehavior.cs" />
+    <Compile Include="Views\Converters\ItemClickEventArgsConverter.cs" />
     <Compile Include="Views\Converters\StringToUriConverter.cs" />
     <Compile Include="Views\Converters\TimeSpanToSecondsConverter.cs" />
     <Compile Include="Views\Dialogs\NiconicoLoginDialog.xaml.cs">

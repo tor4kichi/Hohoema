@@ -153,8 +153,7 @@
       <myconv:CacheStateToColorBrushConverter x:Key="CacheStateToColorBrush" />
 
       <myconv:TimeSpanToSecondsConverter x:Key="TimeSpanToDoubleConverter" />
-
-
+      <myconv:ItemClickEventArgsConverter x:Key="ItemClickEventArgsConverter" />
       <!-- Logical Modifier-->
       <logicalModifier:AndModifier x:Key="AndModifier" />
       <logicalModifier:OrModifier x:Key="OrModifier" />

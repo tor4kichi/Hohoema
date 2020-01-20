@@ -50,14 +50,16 @@ namespace NicoPlayerHohoema.UseCase.Playlist.Commands
                     result = addedResult.SuccessedItems.Count > 0 ? Mntone.Nico2.ContentManageResult.Success : Mntone.Nico2.ContentManageResult.Failed;
                 }
 
-                NotificationService.ShowInAppNotification(
-                        Services.InAppNotificationPayload.CreateRegistrationResultNotification(
-                            result,
-                            "マイリスト",
-                            targetMylist.Label,
-                            content.Label
-                            ));
-                
+                if (targetMylist != null)
+                {
+                    NotificationService.ShowInAppNotification(
+                            Services.InAppNotificationPayload.CreateRegistrationResultNotification(
+                                result,
+                                "マイリスト",
+                                targetMylist.Label,
+                                content.Label
+                                ));
+                }
             }
         }
     }

@@ -28,6 +28,7 @@ using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.Repository.Playlist;
 using NicoPlayerHohoema.UseCase.Playlist.Commands;
 using Reactive.Bindings.Extensions;
+using System.Reactive.Linq;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -37,15 +38,15 @@ namespace NicoPlayerHohoema.ViewModels
         {
             return new HohoemaPin()
             {
-                Label = VideoTitle,
+                Label = VideoDetals.VideoTitle,
                 PageType = HohoemaPageType.VideoInfomation,
-                Parameter = $"id={VideoId}"
+                Parameter = $"id={VideoDetals.VideoTitle}"
             };
         }
 
         IObservable<string> ITitleUpdatablePage.GetTitleObservable()
         {
-            return this.ObserveProperty(x => x.VideoTitle);
+            return this.ObserveProperty(x => x.VideoDetals).Select(x => x?.VideoTitle);
         }
 
         public VideoInfomationPageViewModel(
@@ -83,32 +84,9 @@ namespace NicoPlayerHohoema.ViewModels
             IsLoadFailed = new ReactiveProperty<bool>(false);
         }
 
-        Database.NicoVideo _VideoInfo;
+        public Database.NicoVideo VideoInfo { get; private set; }
 
         public NicoVideoSessionProvider NicoVideo { get; private set; }
-
-        public Uri DescriptionHtmlFileUri { get; private set; }
-
-        public string VideoId { get; private set; }
-
-        public string VideoTitle { get; private set; }
-
-        public string ThumbnailUrl { get; private set; }
-
-        public IList<NicoVideoTag> Tags { get; private set; }
-
-        public bool IsChannelOwnedVideo { get; private set; }
-        public string ProviderName { get; private set; }
-        public string ProviderId { get; private set; }
-        public string OwnerIconUrl { get; private set; }
-
-        public TimeSpan VideoLength { get; private set; }
-        
-        public DateTime SubmitDate { get; private set; }
-
-        public int ViewCount { get; private set; }
-        public int CommentCount { get; private set; }
-        public int MylistCount { get; private set; }
 
         public ReactiveProperty<bool> NowLoading { get; private set; }
         public ReactiveProperty<bool> IsLoadFailed { get; private set; }
@@ -118,7 +96,10 @@ namespace NicoPlayerHohoema.ViewModels
         public bool IsSelfZoningContent { get; private set; }
         public NGResult SelfZoningInfo { get; private set; }
 
-        
+
+        public Uri DescriptionHtmlFileUri { get; private set; }
+
+
         private DelegateCommand _OpenFilterSettingPageCommand;
         public DelegateCommand OpenFilterSettingPageCommand
         {
@@ -142,12 +123,12 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenOwnerUserPageCommand
                     ?? (_OpenOwnerUserPageCommand = new DelegateCommand(() =>
                     {
-                        if (_VideoInfo.Owner.UserType == Database.NicoVideoUserType.User)
+                        if (VideoInfo.Owner.UserType == Database.NicoVideoUserType.User)
                         {
-                            PageManager.OpenPageWithId(HohoemaPageType.UserInfo, _VideoInfo.Owner.OwnerId);
+                            PageManager.OpenPageWithId(HohoemaPageType.UserInfo, VideoInfo.Owner.OwnerId);
                         }
                     }
-                    , () => _VideoInfo?.Owner.UserType == Database.NicoVideoUserType.User
+                    , () => VideoInfo?.Owner.UserType == Database.NicoVideoUserType.User
                     ));
             }
         }
@@ -161,13 +142,13 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenOwnerUserVideoPageCommand
                     ?? (_OpenOwnerUserVideoPageCommand = new DelegateCommand(() =>
                     {
-                        if (_VideoInfo.Owner.UserType == Database.NicoVideoUserType.User)
+                        if (VideoInfo.Owner.UserType == Database.NicoVideoUserType.User)
                         {
-                            PageManager.OpenPageWithId(HohoemaPageType.UserVideo, _VideoInfo.Owner.OwnerId);
+                            PageManager.OpenPageWithId(HohoemaPageType.UserVideo, VideoInfo.Owner.OwnerId);
                         }
-                        else if (IsChannelOwnedVideo)
+                        else if (VideoDetals.IsChannelOwnedVideo)
                         {
-                            PageManager.OpenPageWithId(HohoemaPageType.ChannelVideo, _VideoInfo.Owner.OwnerId);
+                            PageManager.OpenPageWithId(HohoemaPageType.ChannelVideo, VideoInfo.Owner.OwnerId);
                         }
                     }
                     ));
@@ -183,7 +164,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayVideoCommand
                     ?? (_PlayVideoCommand = new DelegateCommand(() =>
                     {
-                        HohoemaPlaylist.Play(_VideoInfo);
+                        HohoemaPlaylist.Play(VideoInfo);
                     }
                     ));
             }
@@ -197,7 +178,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ShareCommand
                     ?? (_ShareCommand = new DelegateCommand(() =>
                     {
-                        Services.Helpers.ShareHelper.Share(_VideoInfo);
+                        Services.Helpers.ShareHelper.Share(VideoInfo);
                     }
                     , () => DataTransferManager.IsSupported()
                     ));
@@ -212,7 +193,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _VideoInfoCopyToClipboardCommand
                     ?? (_VideoInfoCopyToClipboardCommand = new DelegateCommand(() =>
                     {
-                        Services.Helpers.ClipboardHelper.CopyToClipboard(_VideoInfo);
+                        Services.Helpers.ClipboardHelper.CopyToClipboard(VideoInfo);
                     }
                     ));
             }
@@ -251,11 +232,11 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         if (playlist is LocalPlaylist localPlaylist)
                         {
-                            LocalMylistManager.AddPlaylistItem(localPlaylist, _VideoInfo);
+                            LocalMylistManager.AddPlaylistItem(localPlaylist, VideoInfo);
                         }
                         else if (playlist is LoginUserMylistPlaylist loginUserMylist)
                         {
-                            _ = UserMylistManager.AddItem(loginUserMylist.Id, _VideoInfo.RawVideoId);
+                            _ = UserMylistManager.AddItem(loginUserMylist.Id, VideoInfo.RawVideoId);
                         }
                     }));
             }
@@ -299,6 +280,8 @@ namespace NicoPlayerHohoema.ViewModels
         public AddMylistCommand AddMylistCommand { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
 
+        public INicoVideoDetails VideoDetals { get; private set; }
+
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             NowLoading.Value = true;
@@ -308,15 +291,14 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 if (parameters.TryGetValue("id", out string videoId))
                 {
-                    VideoId = videoId;
-
-                    if (VideoId == null)
+                    
+                    if (videoId == null)
                     {
                         IsLoadFailed.Value = true;
                         throw new Exception();
                     }
 
-                    _VideoInfo = await NicoVideoProvider.GetNicoVideoInfo(VideoId);
+                    VideoInfo = await NicoVideoProvider.GetNicoVideoInfo(videoId);
 
                     await UpdateVideoDescription();
 
@@ -345,7 +327,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 if (_IsInitializedIchibaItems) { return; }
 
-                var ichiba = await NiconicoSession.Context.Embed.GetIchiba(VideoId);
+                var ichiba = await NiconicoSession.Context.Embed.GetIchiba(VideoInfo.RawVideoId);
                 IchibaItems = ichiba.GetMainIchibaItems();
 
                 RaisePropertyChanged(nameof(IchibaItems));
@@ -363,7 +345,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 if (_IsInitializedRelatedVideos) { return; }
 
-                var items = await NiconicoSession.Context.Video.GetRelatedVideoAsync(VideoId, 0, 10, Sort.Relation);
+                var items = await NiconicoSession.Context.Video.GetRelatedVideoAsync(VideoInfo.RawVideoId, 0, 10, Sort.Relation);
                 
                 RelatedVideos = items.Video_info?.Select(x =>
                 {
@@ -383,11 +365,9 @@ namespace NicoPlayerHohoema.ViewModels
         }
         private async Task UpdateVideoDescription()
         {
-            var videoDescriptionHtml = string.Empty;
-
             using (var releaser = await _UpdateLock.LockAsync())
             {
-                if (VideoId == null)
+                if (VideoInfo.RawVideoId == null)
                 {
                     return;
                 }
@@ -396,48 +376,32 @@ namespace NicoPlayerHohoema.ViewModels
 
                 try
                 {
-                    var res = await NicoVideo.PreparePlayVideoAsync(VideoId);
-                    var details = res.GetVideoDetails();
+                    var res = await NicoVideo.PreparePlayVideoAsync(VideoInfo.RawVideoId);
+                    VideoDetals = res.GetVideoDetails();
 
-                    VideoTitle = details.VideoTitle;
-                    Tags = details.Tags.ToList();
-                    ThumbnailUrl = details.ThumbnailUrl;
-                    VideoLength = details.VideoLength;
-                    SubmitDate = details.SubmitDate;
-                    ViewCount = details.ViewCount;
-                    CommentCount = details.CommentCount;
-                    MylistCount = details.MylistCount;
-                    ProviderId = details.ProviderId;
-                    ProviderName = details.ProviderName;
-                    OwnerIconUrl = details.OwnerIconUrl;
-                    IsChannelOwnedVideo = details.IsChannelOwnedVideo;
-
-                    videoDescriptionHtml = details.DescriptionHtml;
+                    //VideoTitle = details.VideoTitle;
+                    //Tags = details.Tags.ToList();
+                    //ThumbnailUrl = details.ThumbnailUrl;
+                    //VideoLength = details.VideoLength;
+                    //SubmitDate = details.SubmitDate;
+                    //ViewCount = details.ViewCount;
+                    //CommentCount = details.CommentCount;
+                    //MylistCount = details.MylistCount;
+                    //ProviderId = details.ProviderId;
+                    //ProviderName = details.ProviderName;
+                    //OwnerIconUrl = details.OwnerIconUrl;
+                    //IsChannelOwnedVideo = details.IsChannelOwnedVideo;
                 }
                 catch
                 {
                     IsLoadFailed.Value = true;
                     return;
                 }
-
-
-
-                RaisePropertyChanged(nameof(VideoTitle));
-                RaisePropertyChanged(nameof(Tags));
-                RaisePropertyChanged(nameof(ThumbnailUrl));
-                RaisePropertyChanged(nameof(VideoLength));
-                RaisePropertyChanged(nameof(SubmitDate));
-                RaisePropertyChanged(nameof(ViewCount));
-                RaisePropertyChanged(nameof(CommentCount));
-                RaisePropertyChanged(nameof(MylistCount));
-                RaisePropertyChanged(nameof(ProviderName));
-                RaisePropertyChanged(nameof(OwnerIconUrl));
-
             }
 
             try
             {
-                DescriptionHtmlFileUri = await Models.Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoId, videoDescriptionHtml);
+                DescriptionHtmlFileUri = await Models.Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoInfo.VideoId, VideoDetals.DescriptionHtml);
                 RaisePropertyChanged(nameof(DescriptionHtmlFileUri));
             }
             catch
@@ -450,22 +414,29 @@ namespace NicoPlayerHohoema.ViewModels
             try
             {
                 var htmlDocument = new HtmlAgilityPack.HtmlDocument();
-                htmlDocument.LoadHtml(videoDescriptionHtml);
+                htmlDocument.LoadHtml(VideoDetals.DescriptionHtml);
                 var root = htmlDocument.DocumentNode;
                 var anchorNodes = root.Descendants("a");
 
                 foreach (var anchor in anchorNodes)
                 {
+                    var href = anchor.Attributes["href"].Value;
+                    if (!Uri.IsWellFormedUriString(href, UriKind.Absolute))
+                    {
+                        Debug.WriteLine("リンク抽出スキップ: " + anchor.InnerText);
+                        continue;
+                    }
+
                     VideoDescriptionHyperlinkItems.Add(new HyperlinkItem()
                     {
                         Label = anchor.InnerText,
-                        Url = new Uri(anchor.Attributes["href"].Value)
+                        Url = new Uri(href)
                     });
 
                     Debug.WriteLine($"{anchor.InnerText} : {anchor.Attributes["href"].Value}");
                 }
 
-                var matches = GeneralUrlRegex.Matches(videoDescriptionHtml);
+                var matches = GeneralUrlRegex.Matches(VideoDetals.DescriptionHtml);
                 foreach (var match in matches.Cast<Match>())
                 {
                     if (!VideoDescriptionHyperlinkItems.Any(x => x.Url.OriginalString == match.Value))
@@ -495,9 +466,9 @@ namespace NicoPlayerHohoema.ViewModels
         {
             try
             {
-                if (_VideoInfo != null)
+                if (VideoInfo != null)
                 {
-                    SelfZoningInfo = NgSettings.IsNgVideo(_VideoInfo);
+                    SelfZoningInfo = NgSettings.IsNgVideo(VideoInfo);
                     IsSelfZoningContent = SelfZoningInfo != null;
 
                     RaisePropertyChanged(nameof(SelfZoningInfo));
