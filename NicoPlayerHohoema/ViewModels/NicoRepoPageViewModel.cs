@@ -19,6 +19,7 @@ using NicoPlayerHohoema.Services;
 using Prism.Navigation;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -29,13 +30,15 @@ namespace NicoPlayerHohoema.ViewModels
             Services.PageManager pageManager,
             ActivityFeedSettings activityFeedSettings,
             Models.Provider.LoginUserNicoRepoProvider loginUserNicoRepoProvider,
-            Models.Subscription.SubscriptionManager subscriptionManager
+            Models.Subscription.SubscriptionManager subscriptionManager,
+            OpenLiveContentCommand openLiveContentCommand
             )
         {
             HohoemaPlaylist = hohoemaPlaylist;
             ActivityFeedSettings = activityFeedSettings;
             LoginUserNicoRepoProvider = loginUserNicoRepoProvider;
             SubscriptionManager = subscriptionManager;
+            _openLiveContentCommand = openLiveContentCommand;
             DisplayNicoRepoItemTopics = ActivityFeedSettings.DisplayNicoRepoItemTopics.ToList();
 
             /*
@@ -92,6 +95,28 @@ namespace NicoPlayerHohoema.ViewModels
             }
             return new LoginUserNicoRepoTimelineSource(LoginUserNicoRepoProvider, SubscriptionManager, DisplayNicoRepoItemTopics);
         }
+
+
+        DelegateCommand<object> _openNicoRepoItemCommand;
+        private readonly OpenLiveContentCommand _openLiveContentCommand;
+
+        public DelegateCommand<object> OpenNicoRepoItemCommand => _openNicoRepoItemCommand
+            ?? (_openNicoRepoItemCommand = new DelegateCommand<object>(item => 
+            {
+                if (item is NicoRepoVideoTimeline videoItem)
+                {
+                    HohoemaPlaylist.Play(videoItem);
+                }
+                else if (item is NicoRepoLiveTimeline liveItem)
+                {
+                    var command = _openLiveContentCommand as ICommand;
+                    if (command.CanExecute(liveItem))
+                    {
+                        command.Execute(liveItem);
+                    }
+                }
+            }));
+
     }
 
 
@@ -107,7 +132,7 @@ namespace NicoPlayerHohoema.ViewModels
                 this.Label = TimelineItem.Program.Title;
                 AddImageUrl(TimelineItem.Program.ThumbnailUrl);
                 this.OptionText = $"{TimelineItem.Program.BeginAt.ToString()} 放送開始";
-
+                CommunityThumbnail = TimelineItem.Program.ThumbnailUrl;
                 if (TimelineItem.Community != null)
                 {
                     CommunityGlobalId = TimelineItem.Community.Id;
@@ -133,8 +158,10 @@ namespace NicoPlayerHohoema.ViewModels
                 this.CommunityType = CommunityType.Official;
             }
 
-            Description = NicoRepoTimelineVM.ItemTopictypeToDescription(ItemTopic, TimelineItem);
+            ItempTopicDescription = NicoRepoTimelineVM.ItemTopictypeToDescription(ItemTopic, TimelineItem);
         }
+
+        public string ItempTopicDescription { get; }
 
 
         public NicoRepoTimelineItem TimelineItem { get; private set; }
@@ -166,7 +193,7 @@ namespace NicoPlayerHohoema.ViewModels
                 this.OptionText = $"{TimelineItem.CreatedAt.ToString()}";
             }
 
-            Description = NicoRepoTimelineVM.ItemTopictypeToDescription(ItemTopic, TimelineItem);
+            ItempTopicDescription = NicoRepoTimelineVM.ItemTopictypeToDescription(ItemTopic, TimelineItem);
             /*
 
             if (TimelineItem.SenderNiconicoUser != null)
@@ -191,6 +218,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         }
 
+
+        public string ItempTopicDescription { get; }
 
         public NicoRepoTimelineItem TimelineItem { get; private set; }
 

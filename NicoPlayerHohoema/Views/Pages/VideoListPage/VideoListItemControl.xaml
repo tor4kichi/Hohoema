@@ -14,7 +14,6 @@
     d:DesignWidth="400">
 
   <UserControl.Resources>
-    <templateSelector:StringToTypeConverter x:Key="StringToType" />
     <templateSelector:TypeBasedTemplateSelector x:Key="CacheRequestTemplateSelector">
       <templateSelector:TypeBasedTemplateSelector.DefaultTemplate>
         <DataTemplate>

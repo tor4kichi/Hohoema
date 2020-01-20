@@ -154,6 +154,8 @@
 
       <myconv:TimeSpanToSecondsConverter x:Key="TimeSpanToDoubleConverter" />
       <myconv:ItemClickEventArgsConverter x:Key="ItemClickEventArgsConverter" />
+      <templateSelector:StringToTypeConverter x:Key="StringToType" />
+      
       <!-- Logical Modifier-->
       <logicalModifier:AndModifier x:Key="AndModifier" />
       <logicalModifier:OrModifier x:Key="OrModifier" />
