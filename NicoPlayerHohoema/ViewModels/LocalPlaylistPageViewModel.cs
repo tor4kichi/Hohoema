@@ -46,7 +46,8 @@ namespace NicoPlayerHohoema.ViewModels
             HohoemaPlaylist hohoemaPlaylist,
             PlaylistAggregateGetter playlistAggregate,
             LocalPlaylistDeleteCommand localPlaylistDeleteCommand,
-            PlaylistPlayAllCommand playlistPlayAllCommand
+            PlaylistPlayAllCommand playlistPlayAllCommand,
+            RemoveWatchedItemsInAfterWatchPlaylistCommand removeWatchedItemsInAfterWatchPlaylistCommand
             )
         {
             _pageManager = pageManager;
@@ -55,13 +56,14 @@ namespace NicoPlayerHohoema.ViewModels
             _playlistAggregate = playlistAggregate;
             LocalPlaylistDeleteCommand = localPlaylistDeleteCommand;
             PlaylistPlayAllCommand = playlistPlayAllCommand;
+            RemoveWatchedItemsInAfterWatchPlaylistCommand = removeWatchedItemsInAfterWatchPlaylistCommand;
         }
 
 
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public LocalPlaylistDeleteCommand LocalPlaylistDeleteCommand { get; }
         public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
-
+        public RemoveWatchedItemsInAfterWatchPlaylistCommand RemoveWatchedItemsInAfterWatchPlaylistCommand { get; }
         public IReadOnlyCollection<IVideoContent> PlaylistItems { get; private set; }
 
         public IPlaylist Playlist { get; private set; }

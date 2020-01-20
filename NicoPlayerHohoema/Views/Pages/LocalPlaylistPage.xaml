@@ -16,7 +16,7 @@
   xmlns:windowsTriggers="using:WindowsStateTriggers"
   mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-  DataContext="{x:Null}"
+  NavigationCacheMode="Enabled"
   >
 
   <Grid>
@@ -38,7 +38,7 @@
                         Mode="QuickReturn" >
 
           <StackPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-            <CommandBar x:Name="VideoListCommandBar" Background="Transparent" >
+            <CommandBar x:Name="VideoListCommandBar" Background="Transparent" OverflowButtonVisibility="Auto" >
 
               <CommandBar.Content>
                 <StackPanel x:Name="TitleLayout" Margin="16 0 0 0">
@@ -47,6 +47,11 @@
               </CommandBar.Content>
 
               <CommandBar.PrimaryCommands>
+                <AppBarButton x:Name="RemoveWatchedItemsButton"
+                  Label="{Binding Source=RemoveWatchedItems, Converter={StaticResource LocalizeConverter}}"
+                              Command="{Binding RemoveWatchedItemsInAfterWatchPlaylistCommand}"
+                              Icon="Delete"
+                  />
                 <!-- 非選択中 -->
                 <AppBarButton x:Name="PlayAllButton" Icon="Play"
                               Label="{Binding Source=PlayAll, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" 
@@ -128,7 +133,13 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding IsWatchAfterPlaylist}" />
+          </VisualState.StateTriggers>
+        </VisualState>
+      </VisualStateGroup>
       <VisualStateGroup>
 
         <VisualState>

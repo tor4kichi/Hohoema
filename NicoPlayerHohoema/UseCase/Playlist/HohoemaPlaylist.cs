@@ -568,7 +568,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
             var dbRemoveCount = _playlistRepository.DeleteItems(WatchAfterPlaylist.Id, playedItems.Select(x => x.Id));
 #if DEBUG
-            System.Diagnostics.Debug.Assert(removeCount != dbRemoveCount);
+            System.Diagnostics.Debug.Assert(removeCount == dbRemoveCount);
 #endif
             return removeCount;
         }

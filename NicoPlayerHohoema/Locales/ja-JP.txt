@@ -235,9 +235,11 @@ MylistDelete = マイリストを削除
 #### Local Playlist ####
 LocalPlaylistDelete = プレイリストを削除
 LocalPlaylistNoItems = プレイリストは空です
+
+
 #### Watch After #### 
 @view = あとで見る
-
+RemoveWatchedItems = 視聴済みを削除
 
 
 

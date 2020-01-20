@@ -208,6 +208,7 @@
     <Compile Include="UseCase\Playlist\Commands\PlaylistPlayAllCommand.cs" />
     <Compile Include="UseCase\Playlist\Commands\QueueAddItemCommand.cs" />
     <Compile Include="UseCase\Playlist\Commands\QueueRemoveItemCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\RemoveWatchedItemsInAfterWatchPlaylistCommand.cs" />
     <Compile Include="UseCase\Playlist\Commands\SelectionAllSelectCommand.cs" />
     <Compile Include="UseCase\Playlist\Commands\SelectionExitCommand.cs" />
     <Compile Include="UseCase\Playlist\Commands\SelectionStartCommand.cs" />
