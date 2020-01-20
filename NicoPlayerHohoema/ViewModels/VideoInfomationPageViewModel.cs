@@ -319,6 +319,15 @@ namespace NicoPlayerHohoema.ViewModels
 
         }
 
+        public override void OnNavigatedFrom(INavigationParameters parameters)
+        {
+            VideoDescriptionHyperlinkItems?.Clear();
+            RaisePropertyChanged(nameof(VideoDescriptionHyperlinkItems));
+            IchibaItems?.Clear();
+            RaisePropertyChanged(nameof(IchibaItems));
+
+            base.OnNavigatedFrom(parameters);
+        }
 
         bool _IsInitializedIchibaItems = false;
         public async void InitializeIchibaItems()
@@ -411,6 +420,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
 
+            VideoDescriptionHyperlinkItems.Clear();
             try
             {
                 var htmlDocument = new HtmlAgilityPack.HtmlDocument();

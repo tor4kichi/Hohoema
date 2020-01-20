@@ -274,16 +274,23 @@
                       <TextBlock Text="動画紹介のリンク" />
                     </DataTemplate>
                   </uwptoolkit:Expander.HeaderTemplate>
+                                    
                   <GridView ItemsSource="{Binding VideoDescriptionHyperlinkItems, Mode=OneWay}"
                                 uwpExtensions:ListViewBase.Command="{Binding ScriptNotifyCommand}"
                             IsItemClickEnabled="True"
                                 HorizontalContentAlignment="Stretch"
                                 Visibility="{Binding VideoDescriptionHyperlinkItems, Converter={StaticResource CollectionVisibilityConverter}}"
                                 Margin="0 8"
-                                IsTabStop="False">
+                                IsTabStop="False"
+                            >
                     <ItemsControl.ItemTemplate>
                       <DataTemplate>
-                        <TextBlock Text="{Binding Label}" TextDecorations="Underline" Foreground="{ThemeResource SystemAccentColor}" />
+                        <TextBlock Text="{Binding Label}"
+                                   TextDecorations="Underline"
+                                   Foreground="{ThemeResource SystemAccentColor}"
+                                   ToolTipService.ToolTip="{Binding Url}"
+                                   
+                                   />
                       </DataTemplate>
                     </ItemsControl.ItemTemplate>
                     <ItemsControl.ItemContainerStyle>
@@ -298,7 +305,7 @@
                     </ItemsControl.ItemContainerStyle>
                     <ItemsControl.ItemsPanel>
                       <ItemsPanelTemplate>
-                        <uwptoolkit:WrapPanel Orientation="Horizontal" />
+                        <ItemsWrapGrid Orientation="Horizontal" ItemWidth="180" />
                       </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                   </GridView>

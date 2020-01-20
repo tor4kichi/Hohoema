@@ -84,9 +84,11 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
                             _relatedVideoContentsAggregator.GetRelatedContentsAsync(_videoPlayer.PlayingVideoId)
                                 .ContinueWith(async task =>
                                 {
-                                    _videoRelatedContents = await task;
+                                    var relatedVideos = await task;
+
                                     _scheduler.Schedule(() =>
                                     {
+                                        _videoRelatedContents = relatedVideos;
                                         HasNextVideo = _videoRelatedContents.NextVideo != null;
                                         NextVideoTitle = _videoRelatedContents.NextVideo?.Label;
                                     });
