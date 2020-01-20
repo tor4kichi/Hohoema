@@ -118,14 +118,17 @@ namespace NicoPlayerHohoema.Views
 
         CompositeDisposable _navigationDisposable;
 
-        // 狭い画面の時にメニュー項目を選択したらペインを閉じるようにする
         private void ContentFrame_Navigating(object sender, NavigatingCancelEventArgs e)
         {
+            // 狭い画面の時にメニュー項目を選択したらペインを閉じるようにする
             if (ContentSplitView.DisplayMode == SplitViewDisplayMode.CompactOverlay ||
                 ContentSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
             {
                 ContentSplitView.IsPaneOpen = false;
             }
+
+            // 選択状態を解除
+            _viewModel.VideoItemsSelectionContext.EndSelectioin();
         }
 
         AsyncLock _navigationLock = new AsyncLock();
