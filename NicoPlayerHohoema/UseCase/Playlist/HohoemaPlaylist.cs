@@ -475,17 +475,8 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             // キューで再生する場合
             if (playlist == QueuePlaylist)
             {
-                // 単品再生を繰り返しててキューを溢れさせないように
-                // 単品再生時は事前にキューを空ける
-                if (QueuePlaylist.Count == 1)
-                {
-                    QueuePlaylist.ClearOnScheduler();
-                }
-                
-                if (!QueuePlaylist.Contains(video))
-                {
-                    QueuePlaylist.InsertOnScheduler(0, video);
-                }
+                QueuePlaylist.RemoveOnScheduler(video);
+                QueuePlaylist.InsertOnScheduler(0, video);
             }
 
             if (CurrentPlaylist != playlist)
