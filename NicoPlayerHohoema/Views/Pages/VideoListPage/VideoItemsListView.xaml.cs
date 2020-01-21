@@ -338,7 +338,7 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
             if (videoContent != null && args.Phase == 0)
             {
                 _updatedItemsId.Add(videoContent.Id);
-                _ = _videoInfoRepository.UpdateAsync(videoContent);
+//                _ = _videoInfoRepository.UpdateAsync(videoContent);
 
                 System.Diagnostics.Debug.WriteLine("updated : " + videoContent.Id);
             }

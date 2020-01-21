@@ -21,6 +21,8 @@ using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Cache;
 using Windows.UI.Core;
 using System.Threading.Tasks;
+using NicoPlayerHohoema.Repository.NicoVideo;
+using NicoPlayerHohoema.Models.Helpers;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -46,32 +48,178 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
 
             _cacheManager = App.Current.Container.Resolve<Models.Cache.VideoCacheManager>();
             CacheRequests = new List<Models.Cache.NicoVideoCacheRequest>();
+
+            _ngSettings = App.Current.Container.Resolve<Models.NGSettings>();
         }
+
+        static VideoListItemControl()
+        {
+            _videoInfoRepository = App.Current.Container.Resolve<Repository.NicoVideo.VideoInfoRepository>();
+        }
+
+        NGSettings _ngSettings;
+
+        Interfaces.IVideoContent _context;
+
+        static VideoInfoRepository _videoInfoRepository;
+        static AsyncLock _updateLock = new AsyncLock();
 
         private void VideoListItemControl_DataContextChanged(FrameworkElement sender, DataContextChangedEventArgs args)
         {
             if (args.NewValue != null)
             {
-                SubscriptionWatchedIfNotWatch();
-                SubscribeCacheState();
+                _ = InitializeAsync();
             }
             else
             {
                 UnsubscriptionWatched();
                 UnsubscribeCacheState();
+                UnsubscribeNGVideoOwnerChanged();
             }
         }
 
         private void VideoListItemControl_Loaded(object sender, RoutedEventArgs e)
         {
+            _ = InitializeAsync();
         }
 
-        private void VideoListItemControl_Unloaded(object sender, RoutedEventArgs e)
+        private async void VideoListItemControl_Unloaded(object sender, RoutedEventArgs e)
         {
-            UnsubscriptionWatched();
-            UnsubscribeCacheState();
+            using (await _updateLock.LockAsync())
+            {
+                UnsubscriptionWatched();
+                UnsubscribeCacheState();
+                UnsubscribeNGVideoOwnerChanged();
+            }
         }
 
+        async Task InitializeAsync()
+        {
+            using (await _updateLock.LockAsync())
+            {
+                if (DataContext is Interfaces.IVideoContent video)
+                {
+                    if (_context == video)
+                    {
+                        return;
+                    }
+
+                    IsInitialized = false;
+
+                    if (video is Interfaces.IVideoContentWritable videoContent)
+                    {
+                        await _videoInfoRepository.UpdateAsync(videoContent);
+                    }
+
+                    await Task.Delay(25);
+
+                    SubscriptionWatchedIfNotWatch(video);
+                    SubscribeCacheState(video);
+                    SubscribeNGVideoOwnerChanged(video);
+
+                    _context = video;
+
+                    IsInitialized = true;
+                }
+            }
+        }
+
+
+
+
+        public bool IsInitialized
+        {
+            get { return (bool)GetValue(IsInitializedProperty); }
+            set { SetValue(IsInitializedProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for IsInitialized.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty IsInitializedProperty =
+            DependencyProperty.Register("IsInitialized", typeof(bool), typeof(VideoListItemControl), new PropertyMetadata(false));
+
+
+
+
+        #region NG Video Owner
+
+        private void SubscribeNGVideoOwnerChanged(Interfaces.IVideoContent video)
+        {
+            UnsubscribeNGVideoOwnerChanged();
+
+            UpdateIsHidenVideoOwner(video);
+
+            _ngSettings.NGVideoOwnerUserIds.CollectionChanged += NGVideoOwnerUserIds_CollectionChanged;
+        }
+
+        private void UnsubscribeNGVideoOwnerChanged()
+        {
+            _ngSettings.NGVideoOwnerUserIds.CollectionChanged -= NGVideoOwnerUserIds_CollectionChanged;
+        }
+
+        private void NGVideoOwnerUserIds_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        {
+            var video = DataContext as Interfaces.IVideoContent;
+            UpdateIsHidenVideoOwner(video);
+        }
+
+
+        void UpdateIsHidenVideoOwner(Interfaces.IVideoContent video)
+        {
+            if (video != null)
+            {
+                IsHiddenVideoOwner = _ngSettings.IsNgVideoOwnerId(video.ProviderId) != null;
+            }
+            else
+            {
+                IsHiddenVideoOwner = false;
+            }
+        }
+
+        public bool IsHiddenVideoOwner
+        {
+            get { return (bool)GetValue(IsHiddenVideoOwnerProperty); }
+            set { SetValue(IsHiddenVideoOwnerProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for IsHiddenVideoOwner.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty IsHiddenVideoOwnerProperty =
+            DependencyProperty.Register("IsHiddenVideoOwner", typeof(bool), typeof(VideoListItemControl), new PropertyMetadata(false));
+
+
+
+
+        public bool IsRevealHiddenVideo
+        {
+            get { return (bool)GetValue(IsRevealHiddenVideoProperty); }
+            set { SetValue(IsRevealHiddenVideoProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for IsRevealHiddenVideo.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty IsRevealHiddenVideoProperty =
+            DependencyProperty.Register("IsRevealHiddenVideo", typeof(bool), typeof(VideoListItemControl), new PropertyMetadata(false));
+
+
+        private void HiddenVideoOnceRevealButton_Click(object sender, RoutedEventArgs e)
+        {
+            IsRevealHiddenVideo = true;
+        }
+
+        private void ExitRevealButton_Click(object sender, RoutedEventArgs e)
+        {
+            IsRevealHiddenVideo = false;
+        }
+
+        private void UnregistrationHiddenVideoOwnerButton_Click(object sender, RoutedEventArgs e)
+        {
+            IsRevealHiddenVideo = false;
+            IsHiddenVideoOwner = false;
+
+            if (DataContext is Interfaces.IVideoContent video)
+            {
+                _ngSettings.RemoveNGVideoOwnerId(video.ProviderId);
+            }
+        }
+        #endregion
 
         #region Cache
 
@@ -128,13 +276,13 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
 
 
 
-        private void SubscribeCacheState()
+        private void SubscribeCacheState(Interfaces.IVideoContent video)
         {
             UnsubscribeCacheState();
 
-            System.Diagnostics.Debug.Assert(DataContext != null);
+//            System.Diagnostics.Debug.Assert(DataContext != null);
 
-            if (DataContext is Interfaces.IVideoContent video)
+            if (video != null)
             {
                 _cacheManager.VideoCacheStateChanged += _cacheManager_VideoCacheStateChanged;
 
@@ -262,11 +410,11 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
             }
         }
 
-        void SubscriptionWatchedIfNotWatch()
+        void SubscriptionWatchedIfNotWatch(Interfaces.IVideoContent video)
         {
             UnsubscriptionWatched();
 
-            if (DataContext is Interfaces.IVideoContent video)
+            if (video != null)
             {
                 var watched = Database.VideoPlayedHistoryDb.IsVideoPlayed(video.Id);
                 IsWatched = watched;
@@ -284,6 +432,7 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
             _watchedDisposable?.Dispose();
         }
 
-        #endregion 
+        #endregion
+
     }
 }

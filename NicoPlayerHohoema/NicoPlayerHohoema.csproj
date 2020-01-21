@@ -145,6 +145,7 @@
     <Compile Include="Models\Cache\NicoVideoCacheInfo.cs" />
     <Compile Include="Models\Cache\NicoVideoCacheProgress.cs" />
     <Compile Include="Models\Cache\NicoVideoCacheRequestExtension.cs" />
+    <Compile Include="Models\Helpers\ObservableHashSet.cs" />
     <Compile Include="Models\Niconico\INiconicoVideoSessionProvider.cs" />
     <Compile Include="Models\Niconico\Video\Comment\NicoScript.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideoQualityEntity.cs" />

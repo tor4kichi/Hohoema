@@ -40,7 +40,7 @@
       </DataTemplate>
     </templateSelector:TypeBasedTemplateSelector>
   </UserControl.Resources>
-  <Grid>
+  <Grid x:Name="UserControlRoot">
 
     <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom">
       <ItemsControl ItemsSource="{x:Bind CacheRequests, Mode=OneWay}"
@@ -130,7 +130,52 @@
 
     </toolkit:DockPanel>
     
+    <Grid x:Name="HiddenVideoOwnerLayout" Opacity="0.0" IsHitTestVisible="False">
+      <StackPanel x:Name="HiddenVideoOwnerRevealedLayout" Visibility="Collapsed" HorizontalAlignment="Right" Orientation="Horizontal" Spacing="8">
+        <Button Content="NG解除"
+                x:Name="UnregistrationHiddenVideoOwnerButton"
+                Click="UnregistrationHiddenVideoOwnerButton_Click"
+                Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                BorderBrush="{ThemeResource ButtonBorderThemeBrush}"
+                BorderThickness="1" 
+                />
+        
+        <Button Content="非表示に戻す"
+                x:Name="ExitRevealButton"
+                Click="ExitRevealButton_Click"
+                Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                BorderBrush="{ThemeResource ButtonBorderThemeBrush}"
+                BorderThickness="1"
+                />
+      </StackPanel>
+      <Grid x:Name="HiddenVideoOwnerUnrevealedLayout"
+            Opacity="0.7">
+        <TextBlock Text="投稿者を非表示にした動画"
+                   VerticalAlignment="Center"
+                   HorizontalAlignment="Center"
+                   Margin="0 0 128 0" />
+        <Button Content="今だけ再表示" x:Name="HiddenVideoOnceRevealButton" Click="HiddenVideoOnceRevealButton_Click"
+                HorizontalAlignment="Right"
+                Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+                BorderBrush="{ThemeResource ButtonBorderThemeBrush}"
+                BorderThickness="1" 
+                />
+      </Grid>
+    </Grid>
+    
     <VisualStateManager.VisualStateGroups>
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind IsInitialized, Mode=OneWay,Converter={StaticResource BoolNegation}}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="UserControlRoot.Opacity"
+                    Value="0.7" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
@@ -152,7 +197,37 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind IsRevealHiddenVideo, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HiddenVideoOwnerLayout.Opacity"
+                    Value="1.0" />
+            <Setter Target="HiddenVideoOwnerLayout.IsHitTestVisible"
+                    Value="True" />
+            <Setter Target="HiddenVideoOwnerUnrevealedLayout.Visibility"
+                    Value="Collapsed" />
+            <Setter Target="HiddenVideoOwnerRevealedLayout.Visibility"
+                    Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind IsHiddenVideoOwner, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HiddenVideoOwnerLayout.Opacity"
+                    Value="1.0" />
+            <Setter Target="HiddenVideoOwnerLayout.IsHitTestVisible"
+                    Value="True" />
+            
+            <Setter Target="ContentLayout.Opacity"
+                    Value="0.0" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
     </VisualStateManager.VisualStateGroups>
   </Grid>
 </UserControl>

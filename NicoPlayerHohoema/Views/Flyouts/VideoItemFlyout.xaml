@@ -72,11 +72,6 @@
                   CommandParameter="{Binding}"
                   />
 
-  <MenuFlyoutItem x:Name="AddNgUser"
-                  Text="{Binding Source=AddHiddenVideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                  CommandParameter="{Binding}"
-                  />
-
   <MenuFlyoutSeparator x:Name="VideoInfoItemSeparator" />
 
 
@@ -139,8 +134,10 @@
 
 
   <MenuFlyoutSeparator x:Name="CacheSeparator"  />
-
-
+  <MenuFlyoutItem x:Name="AddNgUser"
+                  Text="{Binding Source=AddHiddenVideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                  CommandParameter="{Binding}" />
+  <MenuFlyoutSeparator />
   <MenuFlyoutItem x:Name="SelectionAll"
                   Text="{Binding Source=SelectAll, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                   CommandParameter="{Binding}"
