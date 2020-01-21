@@ -54,12 +54,15 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
                     HasNextVideo = false;
                     NextVideoTitle = null;
                     _playNext = false;
+                    _endedProcessed = false;
+                    HasRecomend.Value = false;
                 })
                 .AddTo(_disposables);
         }
 
         readonly TimeSpan _endedTime = TimeSpan.FromSeconds(-1);
 
+        bool _endedProcessed;
         private void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
         {
             if (sender.PlaybackState == MediaPlaybackState.None) { return; }
@@ -69,8 +72,10 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
             {
                 if (_videoRelatedContents == null 
                     && IsEnded.Value == false
+                    && !_endedProcessed
                     )
                 {
+                    _endedProcessed = true;
                     if (!TryPlaylistEndActionPlayerClosed())
                     {
                         if (!_hohoemaPlaylist.PlayDoneAndTryMoveNext())
@@ -91,6 +96,7 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
                                         _videoRelatedContents = relatedVideos;
                                         HasNextVideo = _videoRelatedContents.NextVideo != null;
                                         NextVideoTitle = _videoRelatedContents.NextVideo?.Label;
+                                        HasRecomend.Value = HasNextVideo && IsEnded.Value;
                                     });
                                 });
                         }

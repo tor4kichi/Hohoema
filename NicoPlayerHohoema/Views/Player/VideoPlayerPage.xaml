@@ -599,6 +599,9 @@
                         <core:DataTriggerBehavior Binding="{Binding VideoEndedRecommendation.HasNextVideo}" Value="True" ComparisonCondition="Equal">
                           <core:CallMethodAction MethodName="Start" />
                         </core:DataTriggerBehavior>
+                        <core:DataTriggerBehavior Binding="{Binding VideoEndedRecommendation.IsEnded.Value}" Value="False" ComparisonCondition="Equal">
+                          <core:CallMethodAction MethodName="Cancel" />
+                        </core:DataTriggerBehavior>
                       </i:Interaction.Behaviors>
                     </controls:DelayedAutoTriggerButton>
                   </Border>
@@ -1168,7 +1171,6 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      
       <!-- コントロールUI中央の表示 -->
       <VisualStateGroup>
         <VisualState>
