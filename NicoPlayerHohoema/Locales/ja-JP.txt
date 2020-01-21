@@ -303,7 +303,8 @@ RequirePickFolderToUsingVieoCacheInHohoema = キャッシュ機能を有効に�
 PickCacheSaveFolder = キャッシュ保存フォルダを選択する
 
 
-#### Player Settings ####
+#### Settings Page ####
+
 
 
 
