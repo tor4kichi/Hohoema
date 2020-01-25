@@ -20,166 +20,78 @@
     xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
     xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts"
-  xmlns:videolistPage="using:NicoPlayerHohoema.Views.Pages.VideoListPage"
-  DataContext="{x:Null}"
+  xmlns:videolistPage="using:NicoPlayerHohoema.Views.Pages.VideoListPage" xmlns:windowsStateTriggers="using:WindowsStateTriggers" DataContext="{x:Null}"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d"
     >
-  
   <Grid>
-    
-
-
-    <videolistPage:VideoItemsListView ItemsSource="{Binding MylistItems}"
-                                      ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
-                                      RefreshCommand="{Binding RefreshCommand}"
-                                      PlaylistPassToFlyout="{Binding Playlist.Value}"
-                                      x:Name="VideoItemsListView"
-                                      >
+    <videolistPage:VideoItemsListView ItemsSource="{Binding MylistItems}" ItemCommand="{Binding HohoemaPlaylist.PlayCommand}" RefreshCommand="{Binding RefreshCommand}" PlaylistPassToFlyout="{Binding Playlist.Value}" x:Name="VideoItemsListView">
       <videolistPage:VideoItemsListView.ItemContextFlyoutTemplate>
         <DataTemplate>
           <flyouts:VideoItemFlyout />
         </DataTemplate>
       </videolistPage:VideoItemsListView.ItemContextFlyoutTemplate>
-
-      
       <videolistPage:VideoItemsListView.Header>
-        <controls:ScrollHeader
-                        x:Name="ScrollHeader"
-                        Mode="QuickReturn" >
-
-          <StackPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-            <CommandBar x:Name="VideoListCommandBar" Background="Transparent" >
-
-              <CommandBar.Content>
-                <StackPanel x:Name="TitleLayout" Margin="16 0 0 0">
-                  <StackPanel Orientation="Horizontal" 
-                                            Margin="0 0 0 0"
-                                            Visibility="{Binding UserName, Converter={StaticResource NotNullToVisibility}}"
-                                            >
-
-                    <TextBlock FontSize="14">
-                      <Run Text="{Binding UserName}" /> の <Run Text="{Binding MylistState}" />
-                    </TextBlock>
-
-                    <Border x:Name="DefaultMylistRegistrationCount" Visibility="{Binding IsLoginUserDeflist, Converter={StaticResource BooleanToVisibility}}"
-                                                Margin="8 0 0 0"
-                                                >
-                      <TextBlock>
-                        (登録:<Run Text="{Binding DeflistRegistrationCount}" /> 上限:<Run Text="{Binding DeflistRegistrationCapacity}" />)
-                      </TextBlock>
-
-                    </Border>
-                    <Border x:Name="MylistRegistrationCount" Visibility="{Binding IsLoginUserMylistWithoutDeflist, Converter={StaticResource BooleanToVisibility}}"
-                                                Margin="8 0 0 0"
-                                                >
-                      <TextBlock >
-                        (登録:<Run Text="{Binding MaxItemsCount}" /> 合計:<Run Text="{Binding MylistRegistrationCount}" /> 上限:<Run Text="{Binding MylistRegistrationCapacity}" />)
-                      </TextBlock>
-
-                    </Border>
+        <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
+          <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
+            <StackPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+              <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
+                <CommandBar.Content>
+                  <StackPanel x:Name="TitleLayout" Margin="16 0 0 0">
+                    <StackPanel Orientation="Horizontal" Margin="0 0 0 0" Visibility="{Binding UserName, Converter={StaticResource NotNullToVisibility}}">
+                      <TextBlock FontSize="14">
+                      <Run Text="{Binding UserName}" /> の <Run Text="{Binding MylistState}" /></TextBlock>
+                      <Border x:Name="DefaultMylistRegistrationCount" Visibility="{Binding IsLoginUserDeflist, Converter={StaticResource BooleanToVisibility}}" Margin="8 0 0 0">
+                        <TextBlock>
+                        (登録:<Run Text="{Binding DeflistRegistrationCount}" /> 上限:<Run Text="{Binding DeflistRegistrationCapacity}" />)</TextBlock>
+                      </Border>
+                      <Border x:Name="MylistRegistrationCount" Visibility="{Binding IsLoginUserMylistWithoutDeflist, Converter={StaticResource BooleanToVisibility}}" Margin="8 0 0 0">
+                        <TextBlock>
+                        (登録:<Run Text="{Binding MaxItemsCount}" /> 合計:<Run Text="{Binding MylistRegistrationCount}" /> 上限:<Run Text="{Binding MylistRegistrationCapacity}" />)</TextBlock>
+                      </Border>
+                    </StackPanel>
                   </StackPanel>
-                </StackPanel>
-              </CommandBar.Content>
-
-              <CommandBar.PrimaryCommands>
-                <!-- 非選択中 -->
-                <AppBarToggleButton x:Name="ToggleMylistFavoriteButton"
-                                        IsChecked="{Binding FollowToggleButtonService.IsFollowTarget.Value, Mode=TwoWay}"
-                                        Command="{Binding FollowToggleButtonService.ToggleFollowCommand}"
-                                        Visibility="Collapsed"
-                                        Icon="Favorite"
-                                        Label="{Binding Source=Follow, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                                        />
-                <AppBarButton x:Name="PlayAllButton" Icon="Play"
-                              Label="{Binding Source=PlayAll, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" 
-                              Command="{Binding PlayAllVideosFromHeadCommand}"
-                              >
-                </AppBarButton>
-                <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
-                  <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Click">
-                      <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
-                    </core:EventTriggerBehavior>
-                  </i:Interaction.Behaviors>
-                </AppBarButton>
-                <AppBarButton x:Name="RefreshButton"
-                              Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" 
-                              Icon="Refresh"
-                              Command="{Binding RefreshCommand}"
-                              IsEnabled="{Binding CanChangeSort.Value}"
-                              VerticalAlignment="Center"
-                          >
-                </AppBarButton>
-              </CommandBar.PrimaryCommands>
-
-              <CommandBar.SecondaryCommands>
-                <AppBarButton x:Name="FeedRegstrationButton" Icon="Add"
-                              Visibility="Collapsed"
-                              Label="{Binding Source=SubscriptionAddMylist, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"          
-                              >
-                  <AppBarButton.Flyout>
-                    <MenuFlyout>
-                      <i:Interaction.Behaviors>
-                        <mybehavior:MenuFlyoutItemsSetter ItemsSource="{Binding SubscriptionManager.Subscriptions}" CustomObjectToTag="{Binding PlaylistOrigin.Value}">
-                          <mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
-                            <DataTemplate>
-                              <MenuFlyoutItem Text="{Binding Label}" Command="{Binding AddSource}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag, Converter={StaticResource SubscriptionSourceConverter}}" />
-                            </DataTemplate>
-                          </mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
-                        </mybehavior:MenuFlyoutItemsSetter>
-                      </i:Interaction.Behaviors>
-
-                      <MenuFlyoutItem Text="{Binding Source=SubscriptionAddToNew, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                                      Command="{Binding CreateSubscriptionGroupCommand}"
-                                                                CommandParameter="{Binding PlaylistOrigin.Value, Converter={StaticResource SubscriptionSourceConverter}}"
-                                                                />
-
-
-                    </MenuFlyout>
-                  </AppBarButton.Flyout>
-                </AppBarButton>
-
-
-                <AppBarButton x:Name="OpenUserPageButton"
-                              Command="{Binding OpenMylistOwnerCommand}"
-                              Background="Transparent"          
-                              Visibility="Collapsed"
-                              Icon="People"
-                              Label="{Binding Source=MylistOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                              >
-                </AppBarButton>
-
-                <AppBarButton x:Name="EditMylistButton"
-                              Command="{Binding EditMylistGroupCommand}"
-                              CommandParameter="{Binding PlaylistOrigin.Value}"
-                              Background="Transparent"
-                              Visibility="Collapsed"
-                              Icon="Edit"
-                              Label="{Binding Source=MylistEditInfo, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                              >
-                </AppBarButton>
-
-                <AppBarSeparator x:Name="MylistDeleteButtonSeparator"
-                                  Visibility="Collapsed"
-                                  />
-
-                <AppBarButton x:Name="DeleteMylistButton"
-                              Command="{Binding DeleteMylistCommand}"
-                              CommandParameter="{Binding Mylist.Value}"
-                              Background="Transparent"
-                              Visibility="Collapsed"
-                              Icon="Delete"
-                              Label="{Binding Source=MylistDelete, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                              >
-                </AppBarButton>
-              </CommandBar.SecondaryCommands>
-            </CommandBar>
-          </StackPanel>
-        </controls:ScrollHeader>
-
+                </CommandBar.Content>
+                <CommandBar.PrimaryCommands>
+                  <!-- 非選択中 -->
+                  <AppBarToggleButton x:Name="ToggleMylistFavoriteButton" IsChecked="{Binding FollowToggleButtonService.IsFollowTarget.Value, Mode=TwoWay}" Command="{Binding FollowToggleButtonService.ToggleFollowCommand}" Visibility="Collapsed" Icon="Favorite" Label="{Binding Source=Follow, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" />
+                  <AppBarButton x:Name="PlayAllButton" Icon="Play" Label="{Binding Source=PlayAll, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding PlayAllVideosFromHeadCommand}"></AppBarButton>
+                  <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
+                    <i:Interaction.Behaviors>
+                      <core:EventTriggerBehavior EventName="Click">
+                        <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
+                      </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
+                  </AppBarButton>
+                  <AppBarButton x:Name="RefreshButton" Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" VerticalAlignment="Center"></AppBarButton>
+                </CommandBar.PrimaryCommands>
+                <CommandBar.SecondaryCommands>
+                  <AppBarButton x:Name="FeedRegstrationButton" Icon="Add" Visibility="Collapsed" Label="{Binding Source=SubscriptionAddMylist, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
+                    <AppBarButton.Flyout>
+                      <MenuFlyout>
+                        <i:Interaction.Behaviors>
+                          <mybehavior:MenuFlyoutItemsSetter ItemsSource="{Binding SubscriptionManager.Subscriptions}" CustomObjectToTag="{Binding PlaylistOrigin.Value}">
+                            <mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
+                              <DataTemplate>
+                                <MenuFlyoutItem Text="{Binding Label}" Command="{Binding AddSource}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag, Converter={StaticResource SubscriptionSourceConverter}}" />
+                              </DataTemplate>
+                            </mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
+                          </mybehavior:MenuFlyoutItemsSetter>
+                        </i:Interaction.Behaviors>
+                        <MenuFlyoutItem Text="{Binding Source=SubscriptionAddToNew, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding CreateSubscriptionGroupCommand}" CommandParameter="{Binding PlaylistOrigin.Value, Converter={StaticResource SubscriptionSourceConverter}}" />
+                      </MenuFlyout>
+                    </AppBarButton.Flyout>
+                  </AppBarButton>
+                  <AppBarButton x:Name="OpenUserPageButton" Command="{Binding OpenMylistOwnerCommand}" Background="Transparent" Visibility="Collapsed" Icon="People" Label="{Binding Source=MylistOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"></AppBarButton>
+                  <AppBarButton x:Name="EditMylistButton" Command="{Binding EditMylistGroupCommand}" CommandParameter="{Binding PlaylistOrigin.Value}" Background="Transparent" Visibility="Collapsed" Icon="Edit" Label="{Binding Source=MylistEditInfo, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"></AppBarButton>
+                  <AppBarSeparator x:Name="MylistDeleteButtonSeparator" Visibility="Collapsed" />
+                  <AppBarButton x:Name="DeleteMylistButton" Command="{Binding DeleteMylistCommand}" CommandParameter="{Binding Mylist.Value}" Background="Transparent" Visibility="Collapsed" Icon="Delete" Label="{Binding Source=MylistDelete, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"></AppBarButton>
+                </CommandBar.SecondaryCommands>
+              </CommandBar>
+            </StackPanel>
+          </controls:ScrollHeader>
+        </Grid>
       </videolistPage:VideoItemsListView.Header>
-
       <videolistPage:VideoItemsListView.ItemTemplate>
         <DataTemplate>
           <Grid>
@@ -187,61 +99,48 @@
           </Grid>
         </DataTemplate>
       </videolistPage:VideoItemsListView.ItemTemplate>
-
     </videolistPage:VideoItemsListView>
-
-
-
     <VisualStateManager.VisualStateGroups>
-
-      <!-- トップバー表示時のタイトル位置ずらし -->
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="ItemsList.Padding" Value="48 0 48 27" />
-            <Setter Target="ScrollHeader.Mode" Value="None" />
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentPageMargin_TV}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="{StaticResource WidthBreakPoint_WideToMiddle}" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Desktop" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentPageMargin_Desktop}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="0" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Tablet" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentPageMargin_Tablet}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Mobile" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentPageMargin_Mobile}" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-
+     
       <VisualStateGroup>
-
-        <VisualState>
-          <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding IsWatchAfterLocalMylist}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            
-          </VisualState.Setters>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <mytrigger:EqualConditionStateTrigger Condition="Local" Value="{Binding PlaylistOrigin.Value}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="DeleteMylistButton.Visibility" Value="Visible" />
-            <Setter Target="MylistDeleteButtonSeparator.Visibility" Value="Visible" />
-          </VisualState.Setters>
-        </VisualState>
-        
         <VisualState>
           <VisualState.StateTriggers>
             <StateTrigger IsActive="{Binding IsLoginUserDeflist}" />
@@ -249,11 +148,9 @@
           <VisualState.Setters>
             <Setter Target="FeedRegstrationButton.Visibility" Value="Visible" />
             <Setter Target="OpenUserPageButton.Visibility" Value="Visible" />
-
             <Setter Target="EditMylistButton.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
-        
         <VisualState>
           <VisualState.StateTriggers>
             <StateTrigger IsActive="{Binding IsUserOwnerdMylist}" />
@@ -261,15 +158,12 @@
           <VisualState.Setters>
             <Setter Target="FeedRegstrationButton.Visibility" Value="Visible" />
             <Setter Target="OpenUserPageButton.Visibility" Value="Visible" />
-
             <Setter Target="ToggleMylistFavoriteButton.Visibility" Value="Visible" />
             <Setter Target="EditMylistButton.Visibility" Value="Visible" />
             <Setter Target="DeleteMylistButton.Visibility" Value="Visible" />
             <Setter Target="MylistDeleteButtonSeparator.Visibility" Value="Visible" />
-            
           </VisualState.Setters>
         </VisualState>
-
         <VisualState>
           <VisualState.StateTriggers>
             <mytrigger:EqualConditionStateTrigger Condition="Mylist" Value="{Binding PlaylistOrigin.Value}" />
@@ -280,33 +174,25 @@
             <Setter Target="OpenUserPageButton.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
-
       </VisualStateGroup>
-
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
             <StateTrigger IsActive="{Binding NiconicoSession.IsLoggedIn, Converter={StaticResource BoolNegation}}" />
           </VisualState.StateTriggers>
-          <VisualState.Setters>
-          </VisualState.Setters>
-
+          <VisualState.Setters></VisualState.Setters>
         </VisualState>
-
         <VisualState>
           <VisualState.StateTriggers>
             <mytrigger:EqualConditionStateTrigger Condition="OtherUser" Value="{Binding PlaylistOrigin.Value}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ToggleMylistFavoriteButton.Visibility" Value="Visible" />
-
             <Setter Target="ItemsList.IncrementalLoadingTrigger" Value="Edge" />
             <Setter Target="ItemsList.PullThreshold" Value="85" />
           </VisualState.Setters>
         </VisualState>
-
       </VisualStateGroup>
-
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
@@ -314,13 +200,9 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="FeedRegstrationButton.Visibility" Value="Visible" />
-
           </VisualState.Setters>
         </VisualState>
-
       </VisualStateGroup>
-
     </VisualStateManager.VisualStateGroups>
-
   </Grid>
 </Page>

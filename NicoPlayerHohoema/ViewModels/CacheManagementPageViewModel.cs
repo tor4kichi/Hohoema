@@ -18,12 +18,14 @@ using Unity;
 using Prism.Navigation;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public class CacheManagementPageViewModel : HohoemaListingPageViewModelBase<CacheVideoViewModel>, INavigatedAwareAsync
 	{
         public CacheManagementPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             CacheSettings cacheSettings,
             VideoCacheManager videoCacheManager,
             CacheSaveFolder cacheSaveFolder,
@@ -34,6 +36,7 @@ namespace NicoPlayerHohoema.ViewModels
             HohoemaPlaylist hohoemaPlaylist
             )
         {
+            ApplicationLayoutManager = applicationLayoutManager;
             CacheSettings = cacheSettings;
             VideoCacheManager = videoCacheManager;
             CacheSaveFolder = cacheSaveFolder;
@@ -115,6 +118,7 @@ namespace NicoPlayerHohoema.ViewModels
             });
         }
 
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public CacheSettings CacheSettings { get; }
         public VideoCacheManager VideoCacheManager { get; }
         public CacheSaveFolder CacheSaveFolder { get; }

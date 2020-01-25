@@ -1,5 +1,7 @@
-﻿using System;
+﻿using NicoPlayerHohoema.Models;
+using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -26,5 +28,22 @@ namespace NicoPlayerHohoema.Views
 		{
 			this.InitializeComponent();
 		}
+
+		ImmutableArray<ApplicationIntaractionMode?> OverrideInteractionModeList { get; } = new List<ApplicationIntaractionMode?>()
+		{
+			null,
+			ApplicationIntaractionMode.Controller,
+			ApplicationIntaractionMode.Mouse,
+			ApplicationIntaractionMode.Touch,
+		}.Cast<ApplicationIntaractionMode?>().ToImmutableArray();
+
+
+		bool IsDebug =>
+#if DEBUG
+			true;
+#else
+			false;
+#endif
+
 	}
 }

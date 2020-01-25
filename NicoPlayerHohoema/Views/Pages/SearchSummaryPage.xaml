@@ -18,7 +18,8 @@
     xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
-  DataContext="{x:Null}"
+      xmlns:windowsStateTriggers="using:WindowsStateTriggers"
+      DataContext="{x:Null}"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d">
 
@@ -30,7 +31,7 @@
             <VisualStateGroup>
                 <VisualState>
                     <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
+                        <windowsStateTriggers:DeviceFamilyStateTrigger DeviceFamily="Xbox" /> <StateTrigger IsActive="{Binding AppearanceSettings.IsTVMode_Debug}" />
                     </VisualState.StateTriggers>
                     <VisualState.Setters>
                         <Setter Target="TitleLayout.Margin" Value="48 0 0 0" />

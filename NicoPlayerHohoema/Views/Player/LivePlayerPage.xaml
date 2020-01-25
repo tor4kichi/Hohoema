@@ -270,7 +270,7 @@
                       <AppBarButton Label="放送情報" Command="{Binding PageManager.OpenPageCommand}" CommandParameter="{Binding}" />
                       <AppBarButton Label="配信者情報" Command="{Binding PageManager.OpenContentOwnerPageCommand}" CommandParameter="{Binding}" />
                       <AppBarButton Label="共有" Icon="Link" Command="{Binding ExternalAccessService.OpenShareUICommand}" CommandParameter="{Binding}" />
-                      <AppBarButton Label="コピー" Icon="Copy" Visibility="{Binding IsXbox, Converter={StaticResource BooleanToVisibilityInverted}}">
+                      <AppBarButton x:Name="CopyActionsAppBarButton" Label="コピー" Icon="Copy" Visibility="{Binding AppearanceSettings.IsTVMode, Converter={StaticResource BooleanToVisibilityInverted}}">
                         <AppBarButton.Flyout>
                           <MenuFlyout>
                             <MenuFlyoutItem Text="生放送IDをコピー" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding LiveId}" />
@@ -570,7 +570,23 @@
       </SplitView>
     </toolkit:LayoutTransformControl>
     <VisualStateManager.VisualStateGroups>
-      
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <myTrigger:IsShowWithSecondaryViewTrigger />
+          </VisualState.StateTriggers>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTrigger:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
+            <windowsTrigger:DeviceFamilyStateTrigger DeviceFamily="Xbox" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="FocusWhenShowingControlUIAction.IsEnabled" Value="True" />
+            <Setter Target="CopyActionsAppBarButton.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
       <!-- 画面サイズごとの表示・非表示に切り替え -->
       <VisualStateGroup>
         <!-- 幅が十分に広いとき -->

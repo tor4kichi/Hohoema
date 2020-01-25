@@ -17,21 +17,23 @@ using Unity;
 using Unity.Resolution;
 using Prism.Unity;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class FollowManagePageViewModel : HohoemaViewModelBase
 	{
      	public FollowManagePageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager,
             NiconicoSession niconicoSession,
             FollowManager followManager
             )
 		{
+            ApplicationLayoutManager = applicationLayoutManager;
             PageManager = pageManager;
             NiconicoSession = niconicoSession;
             FollowManager = followManager;
-
             Lists = new ObservableCollection<FavoriteListViewModel>();
 
             NowUpdatingFavList = new ReactiveProperty<bool>();
@@ -69,10 +71,10 @@ namespace NicoPlayerHohoema.ViewModels
         public ObservableCollection<FavoriteListViewModel> Lists { get; private set; }
 
         public DelegateCommand<FavoriteListViewModel> UpdateFavListCommand { get; }
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
         public NiconicoSession NiconicoSession { get; }
         public FollowManager FollowManager { get; }
-
     }
 
     public class FavoriteListViewModel : BindableBase

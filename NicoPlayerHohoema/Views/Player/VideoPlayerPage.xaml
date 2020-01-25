@@ -297,7 +297,7 @@
               <i:Interaction.Behaviors>
                 <mybehavior:VisiblityFadeChanger x:Name="PlayerControlAutoHide" Delay="{Binding PlayerSettings.AutoHidePlayerControlUIPreventTime}" IsVisible="{x:Bind IsDisplayControlUI, Mode=TwoWay}" />
                 <core:DataTriggerBehavior Binding="{x:Bind IsDisplayControlUI, Mode=OneWay}" Value="True">
-                  <mybehavior:SetFocus TargetObject="{Binding ElementName=PlayPauseButton}" Delay="00:00:00" IsEnabled="{Binding IsTVModeEnabled}" />
+                  <mybehavior:SetFocus x:Name="FocusWhenShowingControlUIAction" TargetObject="{Binding ElementName=PlayPauseButton}" Delay="00:00:00" IsEnabled="False" />
                 </core:DataTriggerBehavior>
               </i:Interaction.Behaviors>
               <toolkit:DockPanel x:Name="DefaultUIControl">
@@ -328,7 +328,7 @@
                       <AppBarButton x:Name="ShowVideoInfoButon" Label="動画情報" Command="{Binding OpenVideoInfoCommand}" Visibility="Collapsed"></AppBarButton>
                       <AppBarButton Command="{x:Bind SelectSidePaneCommand}" CommandParameter="RelatedVideos" Background="Transparent" Label="関連情報" />
                       <AppBarButton x:Name="ShareButton" Label="共有" Icon="Link" Visibility="Collapsed" Command="{Binding ExternalAccessService.OpenShareUICommand}" CommandParameter="{Binding VideoInfo}"></AppBarButton>
-                      <AppBarButton Label="コピー" Visibility="{Binding IsXbox, Converter={StaticResource BooleanToVisibilityInverted}}">
+                      <AppBarButton x:Name="CopyActionsAppBarButton" Label="コピー" Visibility="Collapsed">
                         <AppBarButton.Flyout>
                           <MenuFlyout>
                             <MenuFlyoutItem Text="動画IDをコピー" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding VideoId}" />
@@ -673,6 +673,24 @@
 
 
     <VisualStateManager.VisualStateGroups>
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <myTrigger:IsShowWithSecondaryViewTrigger />
+          </VisualState.StateTriggers>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
+            <windowsTriggers:DeviceFamilyStateTrigger DeviceFamily="Xbox" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="FocusWhenShowingControlUIAction.IsEnabled" Value="True" />
+            <Setter Target="CopyActionsAppBarButton.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
       
       <!-- 画面サイズごとの表示・非表示に切り替え -->
       <VisualStateGroup>
@@ -680,7 +698,7 @@
         <!-- 幅が十分に広いとき -->
         <VisualState>
           <VisualState.StateTriggers>
-            <uiTrigger:ControlWidthTrigger TargetElement="{x:Bind MediaControl}" Condition="{StaticResource WidthBreakPoint_WideToMiddle}" ConditionModifier="{StaticResource GreaterThanModifier}" />
+            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControl.ActualWidth, Mode=OneWay}" CompareTo="{StaticResource WidthBreakPoint_WideToMiddle}" Comparison="GreaterThan" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
           </VisualState.Setters>
@@ -689,7 +707,7 @@
         <!-- 中ぐらい -->
         <VisualState>
           <VisualState.StateTriggers>
-            <uiTrigger:ControlWidthTrigger TargetElement="{x:Bind MediaControl}" Condition="{StaticResource WidthBreakPoint_MiddleToNallow}" ConditionModifier="{StaticResource GreaterThanModifier}" />
+            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControl.ActualWidth, Mode=OneWay}" CompareTo="{StaticResource WidthBreakPoint_MiddleToNallow}" Comparison="GreaterThan" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PreviewVideoPositionButon.Visibility" Value="Collapsed" />
@@ -711,7 +729,7 @@
         <!-- 超狭い -->
         <VisualState>
           <VisualState.StateTriggers>
-            <uiTrigger:ControlWidthTrigger TargetElement="{x:Bind MediaControl}" Condition="{StaticResource WidthBreakPoint_NallowToVeryNallow}" ConditionModifier="{StaticResource GreaterThanModifier}" />
+            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControl.ActualWidth, Mode=OneWay}" CompareTo="{StaticResource WidthBreakPoint_NallowToVeryNallow}" Comparison="GreaterThan" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PreviewVideoPositionButon.Visibility" Value="Collapsed" />
@@ -736,7 +754,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <uiTrigger:ControlWidthTrigger TargetElement="{x:Bind MediaControl}" Condition="0" ConditionModifier="{StaticResource GreaterThanModifier}" />
+            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControl.ActualWidth, Mode=OneWay}" CompareTo="0" Comparison="GreaterThan" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PreviewVideoPositionButon.Visibility" Value="Collapsed" />

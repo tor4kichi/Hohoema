@@ -19,6 +19,9 @@ using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.Interfaces;
 using System;
 using Reactive.Bindings.Extensions;
+using NicoPlayerHohoema.Models.Subscription;
+using NicoPlayerHohoema.Commands.Subscriptions;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -40,14 +43,16 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public UserVideoPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             UserProvider userProvider,
-            Models.Subscription.SubscriptionManager subscriptionManager,
+            SubscriptionManager subscriptionManager,
             HohoemaPlaylist hohoemaPlaylist,
-            Services.PageManager pageManager,
-            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
+            PageManager pageManager,
+            CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
         {
             SubscriptionManager = subscriptionManager;
+            ApplicationLayoutManager = applicationLayoutManager;
             UserProvider = userProvider;
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
@@ -56,6 +61,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public Models.Subscription.SubscriptionManager SubscriptionManager { get; }
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public UserProvider UserProvider { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }

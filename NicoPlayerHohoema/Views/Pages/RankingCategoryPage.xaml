@@ -45,9 +45,9 @@
                                       x:Name="VideoItemsListView"
                                       >
       <videolistPage:VideoItemsListView.Header>
-        <controls:ScrollHeader x:Name="ScrollHeader" Mode="QuickReturn">
-          <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-            <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
+        <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky" IsTabStop="False">
+          <Grid Background="{ThemeResource MenuBackgroundBrush}">
+            <CommandBar x:Name="VideoListCommandBar" HorizontalAlignment="Right" >
               <CommandBar.Content>
                 <StackPanel Orientation="Horizontal" Spacing="16">
                   <HyperlinkButton 
@@ -56,7 +56,7 @@
                         Foreground="{StaticResource ApplicationForegroundThemeBrush}"
                         VerticalAlignment="Center"
                         Opacity="0.7"
-                        Margin="16 0 0 0"
+                        Margin="0 0 0 0"
                         uwpcontrol:DockPanel.Dock="Left"
                         >
                     <TextBlock Text="{Binding Source=Ranking, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Style="{StaticResource SubtitleTextBlockStyle}"/>
@@ -133,36 +133,38 @@
 
 
     <VisualStateManager.VisualStateGroups>
-
-      <!-- トップバー表示時のタイトル位置ずらし -->
+      <!-- レイアウトモード -->
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="VideoItemsListView.Padding" Value="48 0 48 27" />
-            <Setter Target="ScrollHeader.Mode" Value="None" />
-          </VisualState.Setters>
-        </VisualState>
-
-
-        <VisualState>
-          <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="{StaticResource WidthBreakPoint_WideToMiddle}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
+            <Setter Target="VideoListCommandBar.Margin" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentListViewBodyMargin_TV}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="0" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Desktop" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-
+            <Setter Target="VideoListCommandBar.Margin" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentPageMargin_Desktop}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Tablet" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Mobile" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="VideoListCommandBar.Margin" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentListViewBodyMargin_Mobile}" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
+      
 
 
 

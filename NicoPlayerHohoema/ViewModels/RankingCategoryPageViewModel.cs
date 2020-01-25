@@ -26,6 +26,7 @@ using Prism.Events;
 using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.Interfaces;
 using I18NPortable;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -65,7 +66,10 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         static Models.Helpers.AsyncLock _updateLock = new Models.Helpers.AsyncLock();
+
+
         public RankingCategoryPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager,
             HohoemaPlaylist hohoemaPlaylist,
             NicoVideoProvider nicoVideoProvider,
@@ -76,6 +80,7 @@ namespace NicoPlayerHohoema.ViewModels
             IEventAggregator eventAggregator
             )
         {
+            ApplicationLayoutManager = applicationLayoutManager;
             PageManager = pageManager;
             HohoemaPlaylist = hohoemaPlaylist;
             NicoVideoProvider = nicoVideoProvider;
@@ -167,6 +172,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<bool> IsFailedRefreshRanking { get; private set; }
         public ReactiveProperty<bool> CanChangeRankingParameter { get; private set; }
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public NicoVideoProvider NicoVideoProvider { get; }

@@ -2,6 +2,7 @@
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Navigation;
@@ -38,7 +39,8 @@ namespace NicoPlayerHohoema.ViewModels
             RankingSettings rankingSettings,
             ActivityFeedSettings activityFeedSettings,
             AppearanceSettings appearanceSettings,
-            CacheSettings cacheSettings
+            CacheSettings cacheSettings,
+            ApplicationLayoutManager applicationLayoutManager
             )
         {
             ToastNotificationService = toastService;
@@ -51,7 +53,8 @@ namespace NicoPlayerHohoema.ViewModels
             ActivityFeedSettings = activityFeedSettings;
             AppearanceSettings = appearanceSettings;
             CacheSettings = cacheSettings;
-            
+            ApplicationLayoutManager = applicationLayoutManager;
+
             // NG Video Owner User Id
             NGVideoOwnerUserIdEnable = NgSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoOwnerUserIdEnable);
             NGVideoOwnerUserIds = NgSettings.NGVideoOwnerUserIds
@@ -112,13 +115,6 @@ namespace NicoPlayerHohoema.ViewModels
                 ThemeChanged = true;
                 RaisePropertyChanged(nameof(ThemeChanged));
             });
-
-            IsTVModeEnable = AppearanceSettings
-                .ToReactivePropertyAsSynchronized(x => x.IsForceTVModeEnable);
-            IsXbox = Services.Helpers.DeviceTypeHelper.IsXbox;
-
-            IsForceMobileModeEnable = AppearanceSettings
-                .ToReactivePropertyAsSynchronized(x => x.IsForceMobileModeEnable);
 
 
 
@@ -192,6 +188,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ActivityFeedSettings ActivityFeedSettings { get; }
         public AppearanceSettings AppearanceSettings { get; }
         public CacheSettings CacheSettings { get; }
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
 
 
         // フィルタ
@@ -214,11 +211,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<string> SelectedApplicationTheme { get; private set; }
         public static bool ThemeChanged { get; private set; } = false;
-
-        public ReactiveProperty<bool> IsTVModeEnable { get; private set; }
-        public bool IsXbox { get; private set; }
-
-        public ReactiveProperty<bool> IsForceMobileModeEnable { get; private set; }
 
 
         public ReactiveProperty<bool> IsDefaultFullScreen { get; private set; }
@@ -543,22 +535,6 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
             NgSettings.Save().ConfigureAwait(false);
-
-
-            // TVMode有効フラグをXaml側に反映されるようリソースに書き込み
-            // 汚いやり方かもしれない
-            App.Current.Resources["IsTVModeEnabled"] = Services.Helpers.DeviceTypeHelper.IsXbox || AppearanceSettings.IsForceTVModeEnable;
-
-            /*
-            RankingSettings.GetFile().ContinueWith(async prevTask =>
-            {
-                await HohoemaApp.PushToRoamingData(prevTask.Result);
-            });
-            NgSettings.GetFile().ContinueWith(async prevTask =>
-            {
-                await HohoemaApp.PushToRoamingData(prevTask.Result);
-            });
-            */
 
             base.OnNavigatedFrom(parameters);
         }

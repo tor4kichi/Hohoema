@@ -16,6 +16,7 @@ using Prism.Navigation;
 using System.Threading.Tasks;
 using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.Interfaces;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -37,6 +38,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public SearchResultKeywordPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             NGSettings ngSettings,
             SearchProvider searchProvider,
             SubscriptionManager subscriptionManager,
@@ -75,6 +77,8 @@ namespace NicoPlayerHohoema.ViewModels
                    await ResetList();
                })
                 .AddTo(_CompositeDisposable);
+
+            ApplicationLayoutManager = applicationLayoutManager;
             NgSettings = ngSettings;
             SearchProvider = searchProvider;
             SubscriptionManager1 = subscriptionManager;
@@ -244,6 +248,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public NGSettings NgSettings { get; }
         public SearchProvider SearchProvider { get; }
         public SubscriptionManager SubscriptionManager1 { get; }

@@ -68,7 +68,7 @@ namespace NicoPlayerHohoema.ViewModels
             IScheduler scheduler,
             PlayerSettings playerSettings,
             NicoLiveProvider nicoLiveProvider,
-            AppearanceSettings appearanceSettings,
+            ApplicationLayoutManager applicationLayoutManager,
             LoginUserLiveReservationProvider loginUserLiveReservationProvider,
             NiconicoSession niconicoSession,
             UserProvider userProvider,
@@ -89,7 +89,7 @@ namespace NicoPlayerHohoema.ViewModels
             _scheduler = scheduler;
             PlayerSettings = playerSettings;
             NicoLiveProvider = nicoLiveProvider;
-            AppearanceSettings = appearanceSettings;
+            ApplicationLayoutManager = applicationLayoutManager;
             LoginUserLiveReservationProvider = loginUserLiveReservationProvider;
             NiconicoSession = niconicoSession;
             UserProvider = userProvider;
@@ -343,7 +343,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public PlayerSettings PlayerSettings { get; }
         public NicoLiveProvider NicoLiveProvider { get; }
-        public AppearanceSettings AppearanceSettings { get; }
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public LoginUserLiveReservationProvider LoginUserLiveReservationProvider { get; }
         public NiconicoSession NiconicoSession { get; }
         public UserProvider UserProvider { get; }
@@ -484,12 +484,6 @@ namespace NicoPlayerHohoema.ViewModels
 		public AsyncReactiveCommand<string> CommentSubmitCommand { get; private set; }
 
         public Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView FilterdComments { get; } = new Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView();
-
-
-		// ui
-        public bool IsXbox => Services.Helpers.DeviceTypeHelper.IsXbox;
-
-        public bool IsTVModeEnabled => AppearanceSettings.IsForceTVModeEnable || Services.Helpers.DeviceTypeHelper.IsXbox;
 
         // suggestion
         public ReactiveProperty<LiveSuggestion> Suggestion { get; private set; }

@@ -18,6 +18,7 @@ using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.UseCase.Playlist;
 using Reactive.Bindings.Extensions;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -27,7 +28,7 @@ namespace NicoPlayerHohoema.ViewModels
         {
             return new HohoemaPin()
             {
-                Label = ChannelScreenName,
+                Label = ChannelName,
                 PageType = HohoemaPageType.ChannelVideo,
                 Parameter = $"id={ChannelId}"
             };
@@ -35,18 +36,20 @@ namespace NicoPlayerHohoema.ViewModels
 
         IObservable<string> ITitleUpdatablePage.GetTitleObservable()
         {
-            return this.ObserveProperty(x => x.ChannelScreenName);
+            return this.ObserveProperty(x => x.ChannelName);
         }
 
         public ChannelVideoPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             NiconicoSession niconicoSession,
-            Models.Provider.ChannelProvider channelProvider,
-            Services.PageManager pageManager,
+            ChannelProvider channelProvider,
+            PageManager pageManager,
             HohoemaPlaylist hohoemaPlaylist,
-            Services.ExternalAccessService externalAccessService,
-            Services.NiconicoFollowToggleButtonService followToggleButtonService
+            ExternalAccessService externalAccessService,
+            NiconicoFollowToggleButtonService followToggleButtonService
             )
         {
+            ApplicationLayoutManager = applicationLayoutManager;
             NiconicoSession = niconicoSession;
             ChannelProvider = channelProvider;
             PageManager = pageManager;
@@ -147,13 +150,14 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public NiconicoSession NiconicoSession { get; }
         public Models.Provider.ChannelProvider ChannelProvider { get; }
         public Services.PageManager PageManager { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public Services.ExternalAccessService ExternalAccessService { get; }
         public Services.NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
-
+        
         string INiconicoObject.Id => RawChannelId;
 
         string INiconicoObject.Label => ChannelName;

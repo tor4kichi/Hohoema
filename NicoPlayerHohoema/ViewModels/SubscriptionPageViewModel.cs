@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Subscription;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Navigation;
@@ -20,11 +21,13 @@ namespace NicoPlayerHohoema.ViewModels
     public sealed class SubscriptionPageViewModel : HohoemaViewModelBase
     {
         public SubscriptionPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             SubscriptionManager subscriptionManager,
             Services.PageManager pageManager,
             Services.WatchItLater watchItLater
             )
         {
+            ApplicationLayoutManager = applicationLayoutManager;
             SubscriptionManager = subscriptionManager;
             WatchItLater = watchItLater;
 
@@ -52,6 +55,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public Services.WatchItLater WatchItLater { get; }
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public SubscriptionManager SubscriptionManager { get; }
 
 

@@ -1,5 +1,7 @@
 ﻿using I18NPortable;
+using Microsoft.Toolkit.Uwp.UI.Extensions;
 using NicoPlayerHohoema.Interfaces;
+using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
@@ -7,9 +9,11 @@ using NicoPlayerHohoema.ViewModels;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Navigation;
+using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -54,6 +58,7 @@ namespace NicoPlayerHohoema.Views
                 _ = (App.Current as App).OutputErrorFile(e.Exception, e.SourcePageType?.AssemblyQualifiedName);
             };
             
+            // Resolve Page Title 
             ContentFrame.Navigated += (_, e) =>
             {
                 OptionalPageTitle = string.Empty;
@@ -104,7 +109,7 @@ namespace NicoPlayerHohoema.Views
                     _ = ContentFrameNavigation(args);
                 });
 
-
+            // Back Navigation Handling            
             SystemNavigationManager.GetForCurrentView().BackRequested += App_BackRequested;
             Window.Current.CoreWindow.KeyDown += CoreWindow_KeyDown;
             Window.Current.CoreWindow.PointerPressed += CoreWindow_PointerPressed;
@@ -114,17 +119,65 @@ namespace NicoPlayerHohoema.Views
             {
                 Window.Current.SetTitleBar(DraggableContent as UIElement);
             }
+
+            ContentFrame.Navigated += TVModeContentFrame_Navigated;
+
+            this.GettingFocus += PrimaryWindowCoreLayout_GettingFocus;
         }
+
+
+        #region Debug
+
+        ImmutableArray<ApplicationIntaractionMode?> IntaractionModeList { get; } = new List<ApplicationIntaractionMode?>()
+        {
+            default,
+            ApplicationIntaractionMode.Controller,
+            ApplicationIntaractionMode.Mouse,
+            ApplicationIntaractionMode.Touch,
+        }.ToImmutableArray();
+
+        bool IsDebug =>
+#if DEBUG
+            true;
+#else
+			false;
+#endif
+
+        #endregion
+
+        #region TV Mode
+
+        private void PrimaryWindowCoreLayout_GettingFocus(UIElement sender, GettingFocusEventArgs e)
+        {
+            var isFocusOnMenu = e.NewFocusedElement?.FindAscendantByName(PaneLayout.Name) != null;
+            _isFocusMenu.Value = isFocusOnMenu;
+            Debug.WriteLine("Focus on Menu : " + _isFocusMenu.Value);
+        }
+
+        ReactiveProperty<bool> _isFocusMenu = new ReactiveProperty<bool>();
+
+        private void TVModeContentFrame_Navigated(object sender, NavigationEventArgs e)
+        {
+            ContentFrame.Focus(FocusState.Programmatic);
+        }
+
+        #endregion
 
         CompositeDisposable _navigationDisposable;
 
         private void ContentFrame_Navigating(object sender, NavigatingCancelEventArgs e)
         {
             // 狭い画面の時にメニュー項目を選択したらペインを閉じるようにする
-            if (ContentSplitView.DisplayMode == SplitViewDisplayMode.CompactOverlay ||
-                ContentSplitView.DisplayMode == SplitViewDisplayMode.Overlay)
+            if (ContentSplitView.DisplayMode == SplitViewDisplayMode.CompactOverlay 
+                || ContentSplitView.DisplayMode == SplitViewDisplayMode.Overlay
+                )
             {
                 ContentSplitView.IsPaneOpen = false;
+            }
+
+            if (_viewModel.ApplicationLayoutManager.AppLayout == ApplicationLayout.TV)
+            {
+                _isFocusMenu.Value = false;
             }
 
             // 選択状態を解除
@@ -330,28 +383,6 @@ namespace NicoPlayerHohoema.Views
                 }
             }
         }
-
-
-        private DelegateCommand _toggleFullScreenCommand;
-        public DelegateCommand ToggleFullScreenCommand =>
-            _toggleFullScreenCommand ?? (_toggleFullScreenCommand = new DelegateCommand(ExecuteToggleFullScreenCommand));
-
-        void ExecuteToggleFullScreenCommand()
-        {
-            var appView = ApplicationView.GetForCurrentView();
-
-            if (!appView.IsFullScreenMode)
-            {
-                appView.TryEnterFullScreenMode();
-            }
-            else
-            {
-                appView.ExitFullScreenMode();
-            }
-        }
-
-
-
 
 
         public string SearchInputText

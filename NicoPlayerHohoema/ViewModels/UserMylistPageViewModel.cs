@@ -23,6 +23,7 @@ using NicoPlayerHohoema.Repository.Playlist;
 using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.Interfaces;
 using Reactive.Bindings.Extensions;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -44,6 +45,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public UserMylistPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             Services.PageManager pageManager,
             Services.DialogService dialogService,
             NiconicoSession niconicoSession,
@@ -54,6 +56,7 @@ namespace NicoPlayerHohoema.ViewModels
             HohoemaPlaylist hohoemaPlaylist
             )
         {
+            ApplicationLayoutManager = applicationLayoutManager;
             PageManager = pageManager;
             DialogService = dialogService;
             NiconicoSession = niconicoSession;
@@ -239,6 +242,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public UserMylistManager _userMylistManager { get; private set; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
         public Services.DialogService DialogService { get; }
         public NiconicoSession NiconicoSession { get; }

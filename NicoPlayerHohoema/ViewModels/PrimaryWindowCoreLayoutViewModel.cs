@@ -79,7 +79,9 @@ namespace NicoPlayerHohoema.ViewModels
             ObservableMediaPlayer observableMediaPlayer,
             NiconicoLoginService niconicoLoginService,
             LogoutFromNiconicoCommand logoutFromNiconicoCommand,
-            VideoItemsSelectionContext videoItemsSelectionContext
+            VideoItemsSelectionContext videoItemsSelectionContext,
+            WindowService windowService,
+            ApplicationLayoutManager applicationLayoutManager
             )
         {
             EventAggregator = eventAggregator;
@@ -97,6 +99,8 @@ namespace NicoPlayerHohoema.ViewModels
             NiconicoLoginService = niconicoLoginService;
             LogoutFromNiconicoCommand = logoutFromNiconicoCommand;
             VideoItemsSelectionContext = videoItemsSelectionContext;
+            WindowService = windowService;
+            ApplicationLayoutManager = applicationLayoutManager;
         }
 
         public IEventAggregator EventAggregator { get; }
@@ -114,6 +118,8 @@ namespace NicoPlayerHohoema.ViewModels
         public NiconicoLoginService NiconicoLoginService { get; }
         public LogoutFromNiconicoCommand LogoutFromNiconicoCommand { get; }
         public VideoItemsSelectionContext VideoItemsSelectionContext { get; }
+        public WindowService WindowService { get; }
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
 
 
         // call from PrimaryWindowsCoreLayout.xaml.cs

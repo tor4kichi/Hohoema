@@ -15,24 +15,28 @@ using Reactive.Bindings;
 using Prism.Navigation;
 using NicoPlayerHohoema.Models.Niconico.Video;
 using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public class RecommendPageViewModel : HohoemaListingPageViewModelBase<RecommendVideoListItem>, INavigatedAwareAsync
     {
         public RecommendPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             NGSettings ngSettings,
             LoginUserRecommendProvider loginUserRecommendProvider,
             HohoemaPlaylist hohoemaPlaylist,
             Services.PageManager pageManager
             )
         {
+            ApplicationLayoutManager = applicationLayoutManager;
             NgSettings = ngSettings;
             LoginUserRecommendProvider = loginUserRecommendProvider;
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
         }
 
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public NGSettings NgSettings { get; }
         public LoginUserRecommendProvider LoginUserRecommendProvider { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }

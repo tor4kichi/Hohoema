@@ -21,8 +21,7 @@
       xmlns:listitem="using:NicoPlayerHohoema.Views.HohoemaListItem"
       xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts"
       xmlns:viewModels="using:NicoPlayerHohoema.ViewModels"
-      xmlns:videoListPage="using:NicoPlayerHohoema.Views.Pages.VideoListPage"
-      DataContext="{x:Null}"
+      xmlns:videoListPage="using:NicoPlayerHohoema.Views.Pages.VideoListPage" xmlns:windowsStateTriggers="using:WindowsStateTriggers" DataContext="{x:Null}"
       mc:Ignorable="d">
   <Page.Resources>
     <templateSelector:TypeBasedTemplateSelector x:Key="NicoRepoItemTemplateSelector">
@@ -82,6 +81,7 @@
                                        uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
                                        xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
                                        myExtensions:ListViewBase.DeferInitialize="True">
+      
       <myExtensions:ListViewBase.ItemContextFlyoutTemplateSelector>
         <templateSelector:HohoemaFlyoutTemplateSelector>
           <templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>
@@ -100,48 +100,43 @@
         <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
       </i:Interaction.Behaviors>
       <ListView.Header>
-        <controls:ScrollHeader x:Name="ScrollHeader"
-                               Mode="QuickReturn">
-          <StackPanel>
-            <CommandBar x:Name="TopCommandBar"
-                        Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-              <CommandBar.PrimaryCommands>
-                <AppBarButton x:Name="ScrollToTopButton"
-                              Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                              Icon="Up">
-                  <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Click">
-                      <core:CallMethodAction TargetObject="{x:Bind}"
-                                             MethodName="ResetScrollPosition" />
-                    </core:EventTriggerBehavior>
-                  </i:Interaction.Behaviors>
-                </AppBarButton>
-                <AppBarButton x:Name="RefreshButton"
-                              Icon="Refresh"
-                              Background="Transparent"
-                              Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                              Command="{Binding RefreshCommand}" />
-                <AppBarButton Icon="Setting">
-                  <AppBarButton.Flyout>
-                    <Flyout>
-                      <ListView ItemsSource="{Binding DisplayCandidateNicoRepoItemTopicList, Mode=OneTime}"
-                                SelectionMode="Multiple"
-                                IsMultiSelectCheckBoxEnabled="True"
-                                ext:ListViewExtensions.BindableSelection="{Binding DisplayNicoRepoItemTopics, Mode=TwoWay}">
-                        <ListView.ItemTemplate>
-                          <DataTemplate>
-                            <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
-                          </DataTemplate>
-                        </ListView.ItemTemplate>
-                      </ListView>
-                    </Flyout>
-                  </AppBarButton.Flyout>
-                </AppBarButton>
-              </CommandBar.PrimaryCommands>
-            </CommandBar>
-          </StackPanel>
-        </controls:ScrollHeader>
+        <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
+          <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
+            <StackPanel>
+              <CommandBar x:Name="TopCommandBar">
+                <CommandBar.PrimaryCommands>
+                  <AppBarButton x:Name="ScrollToTopButton" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Up">
+                    <i:Interaction.Behaviors>
+                      <core:EventTriggerBehavior EventName="Click">
+                        <core:CallMethodAction TargetObject="{x:Bind}" MethodName="ResetScrollPosition" />
+                      </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
+                  </AppBarButton>
+                  <AppBarButton x:Name="RefreshButton" Icon="Refresh" Background="Transparent" Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding RefreshCommand}" />
+                  <AppBarButton Icon="Setting">
+                    <AppBarButton.Flyout>
+                      <Flyout>
+                        <ListView ItemsSource="{Binding DisplayCandidateNicoRepoItemTopicList, Mode=OneTime}" SelectionMode="Multiple" IsMultiSelectCheckBoxEnabled="True" ext:ListViewExtensions.BindableSelection="{Binding DisplayNicoRepoItemTopics, Mode=TwoWay}">
+                          <ListView.ItemTemplate>
+                            <DataTemplate>
+                              <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
+                            </DataTemplate>
+                          </ListView.ItemTemplate>
+                        </ListView>
+                      </Flyout>
+                    </AppBarButton.Flyout>
+                  </AppBarButton>
+                </CommandBar.PrimaryCommands>
+              </CommandBar>
+            </StackPanel>
+          </controls:ScrollHeader>
+        </Grid>
       </ListView.Header>
+      <ListView.ItemsPanel>
+        <ItemsPanelTemplate>
+          <ItemsStackPanel x:Name="ItemsPanel"  />
+        </ItemsPanelTemplate>
+      </ListView.ItemsPanel>
     </uwpcontrols:PullToRefreshListView>
     <Grid x:Name="NoTimelineItemsLayout"
           Visibility="Collapsed">
@@ -152,32 +147,46 @@
                  HorizontalAlignment="Center" />
     </Grid>
     <VisualStateManager.VisualStateGroups>
-      <!-- トップバー表示時のタイトル位置ずらし -->
+      <!-- レイアウトモード -->
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="ItemsList.Padding"
-                    Value="48 0 48 27" />
-            <Setter Target="ScrollHeader.Mode"
-                    Value="None" />
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
+            <Setter Target="ItemsPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_TV}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="{StaticResource WidthBreakPoint_WideToMiddle}" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Desktop" />
           </VisualState.StateTriggers>
-          <VisualState.Setters></VisualState.Setters>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
+            <Setter Target="ItemsPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_Desktop}" />
+          </VisualState.Setters>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="0" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Tablet" />
           </VisualState.StateTriggers>
-          <VisualState.Setters></VisualState.Setters>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="ItemsPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_Tablet}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Mobile" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="ItemsPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_Mobile}" />
+          </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
+     
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>

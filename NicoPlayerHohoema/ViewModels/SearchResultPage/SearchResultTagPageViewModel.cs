@@ -6,6 +6,7 @@ using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Models.Subscription;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase;
 using NicoPlayerHohoema.UseCase.Playlist;
 using Prism.Commands;
 using Prism.Navigation;
@@ -41,6 +42,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public SearchResultTagPageViewModel(
+           ApplicationLayoutManager applicationLayoutManager,
            NGSettings ngSettings,
            Models.NiconicoSession niconicoSession,
            SearchProvider searchProvider,
@@ -56,6 +58,7 @@ namespace NicoPlayerHohoema.ViewModels
             SubscriptionManager = subscriptionManager;
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
+            ApplicationLayoutManager = applicationLayoutManager;
             NgSettings = ngSettings;
             NiconicoSession = niconicoSession;
             HohoemaDialogService = dialogService;
@@ -95,7 +98,7 @@ namespace NicoPlayerHohoema.ViewModels
             SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
         }
 
-
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public NGSettings NgSettings { get; }
         public Models.NiconicoSession NiconicoSession { get; }
         public SearchProvider SearchProvider { get; }

@@ -149,6 +149,21 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
             DependencyProperty.Register("IsUpdateSourceVideoItem", typeof(bool), typeof(VideoItemsListView), new PropertyMetadata(true));
 
 
+
+
+        public Thickness ItemsPanelPadding
+        {
+            get { return (Thickness)GetValue(ItemsPanelPaddingProperty); }
+            set { SetValue(ItemsPanelPaddingProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for ItemsPanelPadding.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ItemsPanelPaddingProperty =
+            DependencyProperty.Register("ItemsPanelPadding", typeof(Thickness), typeof(VideoItemsListView), new PropertyMetadata(new Thickness()));
+
+
+
+
         private readonly VideoInfoRepository _videoInfoRepository;
         private readonly VideoItemsSelectionContext _selectionContext;
 

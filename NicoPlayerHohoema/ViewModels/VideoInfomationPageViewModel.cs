@@ -29,6 +29,7 @@ using NicoPlayerHohoema.Repository.Playlist;
 using NicoPlayerHohoema.UseCase.Playlist.Commands;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -40,7 +41,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 Label = VideoDetals.VideoTitle,
                 PageType = HohoemaPageType.VideoInfomation,
-                Parameter = $"id={VideoDetals.VideoTitle}"
+                Parameter = $"id={VideoInfo.VideoId}"
             };
         }
 
@@ -50,6 +51,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public VideoInfomationPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             NGSettings ngSettings,
             Models.NiconicoSession niconicoSession,
             UserMylistManager userMylistManager,
@@ -66,6 +68,7 @@ namespace NicoPlayerHohoema.ViewModels
             Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
         {
+            ApplicationLayoutManager = applicationLayoutManager;
             NgSettings = ngSettings;
             NiconicoSession = niconicoSession;
             UserMylistManager = userMylistManager;
@@ -266,6 +269,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public Services.NotificationService NotificationService { get; }
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public NGSettings NgSettings { get; }
         public Models.NiconicoSession NiconicoSession { get; }
         public UserMylistManager UserMylistManager { get; }

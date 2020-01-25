@@ -22,6 +22,17 @@ NiconicoServiceType.Video = 動画
 NiconicoServiceType.Live = 生放送
 
 
+#### Settings ####
+ApplicationDisplayMode = 表示モード
+ApplicationDisplayMode.TV = テレビ
+ApplicationDisplayMode.Desktop = デスクトップ
+ApplicationDisplayMode.Tablet = タブレット
+ApplicationDisplayMode.Mobile = モバイル
+
+ApplicationIntaractionMode.Controller = コントローラー
+ApplicationIntaractionMode.Mouse = マウス
+ApplicationIntaractionMode.Touch = タッチ
+
 
 #### Niconico General ####
 PrivateReasonType.PostedBy = 投稿者削除
@@ -168,6 +179,7 @@ HohoemaPageType.ChannelInfo = チャンネル情報
 HohoemaPageType.ChannelVideo = チャンネル動画
 HohoemaPageType.LiveInfomation = 生放送情報
 HohoemaPageType.CacheManagement = キャッシュ管理
+HohoemaPageType.Community = コミュニティ情報
 HohoemaPageType.CommunityVideo = コミュニティ動画一覧
 HohoemaPageType.ConfirmWatchHurmfulVideo = 有害指定動画の視聴確認
 HohoemaPageType.FeedGroup = フィードグループ
@@ -301,10 +313,6 @@ RequireAcceptToUsingVideoCacheInHohoema = キャッシュ機能を有効にす�
 
 RequirePickFolderToUsingVieoCacheInHohoema = キャッシュ機能を有効にするには\nキャッシュフォルダの指定が必要です
 PickCacheSaveFolder = キャッシュ保存フォルダを選択する
-
-
-#### Settings Page ####
-
 
 
 

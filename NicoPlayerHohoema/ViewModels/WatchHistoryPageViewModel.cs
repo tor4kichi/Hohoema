@@ -22,12 +22,14 @@ using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.UseCase.Playlist.Commands;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 	public class WatchHistoryPageViewModel : HohoemaViewModelBase
 	{
 		public WatchHistoryPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             NiconicoSession niconicoSession,
             WatchHistoryManager watchHistoryManager,
             HohoemaPlaylist hohoemaPlaylist,
@@ -35,6 +37,7 @@ namespace NicoPlayerHohoema.ViewModels
             WatchHistoryRemoveAllCommand watchHistoryRemoveAllCommand
             )
 		{
+            ApplicationLayoutManager = applicationLayoutManager;
             _niconicoSession = niconicoSession;
             _watchHistoryManager = watchHistoryManager;
             HohoemaPlaylist = hohoemaPlaylist;
@@ -46,6 +49,7 @@ namespace NicoPlayerHohoema.ViewModels
         private readonly NiconicoSession _niconicoSession;
         private readonly WatchHistoryManager _watchHistoryManager;
 
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public Services.PageManager PageManager { get; }
         public WatchHistoryRemoveAllCommand WatchHistoryRemoveAllCommand { get; }

@@ -17,6 +17,7 @@ using Prism.Navigation;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Repository.Playlist;
 using System.Reactive.Linq;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -38,12 +39,14 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public SearchResultMylistPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             SearchProvider searchProvider,
             Services.PageManager pageManager
             )
         {
             SelectedSearchSort = new ReactivePropertySlim<SearchSortOptionListItem>();
             SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
+            ApplicationLayoutManager = applicationLayoutManager;
             SearchProvider = searchProvider;
             PageManager = pageManager;
         }
@@ -164,6 +167,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public SearchProvider SearchProvider { get; }
         public PageManager PageManager { get; }
 

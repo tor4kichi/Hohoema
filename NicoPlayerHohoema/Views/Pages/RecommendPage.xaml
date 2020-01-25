@@ -16,194 +16,99 @@
     xmlns:uwpextensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:uwpcontrol="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
-    DataContext="{x:Null}"
+      xmlns:windowsStateTriggers="using:WindowsStateTriggers"
+      DataContext="{x:Null}"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d"
     >
-
-    <Grid>
-
-        <VisualStateManager.VisualStateGroups>
-
-            <!-- トップバー表示時のタイトル位置ずらし -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="ItemsList.Padding" Value="48 0 48 27" />
-                        <Setter Target="ScrollHeader.Mode" Value="None" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="{StaticResource WidthBreakPoint_WideToMiddle}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="0" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-
-
-
-
-
-        </VisualStateManager.VisualStateGroups>
-
-
-        <uwpcontrol:PullToRefreshListView 
-            x:Name="ItemsList"
-            ItemsSource="{Binding ItemsView, Mode=OneWay}"
-            RefreshCommand="{Binding RefreshCommand}"
-            IsItemClickEnabled="True"
-            IncrementalLoadingTrigger="Edge"
-            PullThreshold="85"    
-            UseSystemFocusVisuals="True"
-            SelectionMode="None"
-            HorizontalContentAlignment="Stretch"
-            uwpextensions:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
-            ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
-            uwpextensions:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
-            xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
-            myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
-                            >
-            <i:Interaction.Behaviors>
-
-                <mybehavior:KeyboardTrigger Key="F5">
-                    <mybehavior:KeyboardTrigger.Actions>
-                        <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
-                    </mybehavior:KeyboardTrigger.Actions>
-                </mybehavior:KeyboardTrigger>
-
-                <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
-            </i:Interaction.Behaviors>
-            <ListView.Header>
-                <controls:ScrollHeader
-                    x:Name="ScrollHeader"
-                    Mode="QuickReturn" >
-
-
-                    <StackPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
-                        <CommandBar x:Name="TopCommandBar"
-                                    toolkit:DockPanel.Dock="Right"
-                                    VerticalContentAlignment="Bottom"
-                                    >
-
-                            <CommandBar.SecondaryCommands>
-
-                            </CommandBar.SecondaryCommands>
-
-                            <CommandBar.PrimaryCommands>
-
-                                
-                                
-                                <AppBarButton x:Name="ScrollToTopButton"
-                                              Label="トップへ戻る"
-                                              Icon="Up"
-                                            >
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Click">
-                                            <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
-                                </AppBarButton>
-
-                                
-                                <AppBarButton 
-                                        x:Name="UpdateButton"
-                                        Command="{Binding RefreshCommand}"
-                                        Background="Transparent" 
-                                        Icon="Refresh"
-                                        Label="更新"
-                                              
-                                        />
-
-                                <AppBarButton Label="関連タグ"
-                                              Icon="Tag"
-                                              >
-                                    <AppBarButton.Flyout>
-                                        <Flyout>
-                                            <ListView ItemsSource="{Binding RecommendSourceTags}"
-                                                      IsItemClickEnabled="True"
-                                                      uwpextensions:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
-                                                      SelectionMode="None"
-                                                      DisplayMemberPath="Tag"
-                                                      >
-
-                                            </ListView>
-                                        </Flyout>
-                                    </AppBarButton.Flyout>
-                                </AppBarButton>
-
-                                
-
-                            </CommandBar.PrimaryCommands>
-
-                            <CommandBar.Content>
-                                <Border Background="Transparent"
-                                    IsHitTestVisible="True"
-                                    Margin="16 0 0 0"
-                                    VerticalAlignment="Bottom"
-                                    Height="48"
-                                >
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Tapped">
-                                            <core:ChangePropertyAction TargetObject="{Binding}" PropertyName="ListPosition" Value="0.0" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
-
-                                </Border>
-                            </CommandBar.Content>
-
-                        </CommandBar>
-
-                    </StackPanel>
-
-
-                </controls:ScrollHeader>
-            </ListView.Header>
-
-
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <!-- 状態 -->
-                        <Grid toolkit:DockPanel.Dock="Right" HorizontalAlignment="Right"
-                                    >
-                            <StackPanel>
-
-                                <TextBlock 
-                                               Opacity="0.7"
-                                               Margin="0 0 0 4"
-                                               FontSize="12"
-                                               >
-                                    <Run Text="{Binding RecommendSourceTag}" /> 
-                                </TextBlock>
-                            </StackPanel>
-
-                        </Grid>
-
-                        <!-- 操作 -->
-
-                        <local:VideoInfoControl />
-                    </Grid>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-
-        </uwpcontrol:PullToRefreshListView>
-
-
-        
-    </Grid>
-
+  <Grid>
+    
+    <uwpcontrol:PullToRefreshListView x:Name="ItemsList" ItemsSource="{Binding ItemsView, Mode=OneWay}" RefreshCommand="{Binding RefreshCommand}" IsItemClickEnabled="True" IncrementalLoadingTrigger="Edge" PullThreshold="85" UseSystemFocusVisuals="True" SelectionMode="None" HorizontalContentAlignment="Stretch" uwpextensions:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}" ItemContainerStyle="{StaticResource VideoListViewItemStyle}" uwpextensions:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0" xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions" myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}">
+      <i:Interaction.Behaviors>
+        <mybehavior:KeyboardTrigger Key="F5">
+          <mybehavior:KeyboardTrigger.Actions>
+            <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
+          </mybehavior:KeyboardTrigger.Actions>
+        </mybehavior:KeyboardTrigger>
+        <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
+      </i:Interaction.Behaviors>
+      <ListView.Header>
+        <controls:ScrollHeader x:Name="ScrollHeader" Mode="QuickReturn">
+          <StackPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+            <CommandBar x:Name="TopCommandBar" toolkit:DockPanel.Dock="Right" VerticalContentAlignment="Bottom">
+              <CommandBar.SecondaryCommands></CommandBar.SecondaryCommands>
+              <CommandBar.PrimaryCommands>
+                <AppBarButton x:Name="ScrollToTopButton" Label="トップへ戻る" Icon="Up">
+                  <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Click">
+                      <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
+                    </core:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
+                </AppBarButton>
+                <AppBarButton x:Name="UpdateButton" Command="{Binding RefreshCommand}" Background="Transparent" Icon="Refresh" Label="更新" />
+                <AppBarButton Label="関連タグ" Icon="Tag">
+                  <AppBarButton.Flyout>
+                    <Flyout>
+                      <ListView ItemsSource="{Binding RecommendSourceTags}" IsItemClickEnabled="True" uwpextensions:ListViewBase.Command="{Binding PageManager.OpenPageCommand}" SelectionMode="None" DisplayMemberPath="Tag"></ListView>
+                    </Flyout>
+                  </AppBarButton.Flyout>
+                </AppBarButton>
+              </CommandBar.PrimaryCommands>
+              <CommandBar.Content>
+                <Border Background="Transparent" IsHitTestVisible="True" Margin="16 0 0 0" VerticalAlignment="Bottom" Height="48">
+                  <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="Tapped">
+                      <core:ChangePropertyAction TargetObject="{Binding}" PropertyName="ListPosition" Value="0.0" />
+                    </core:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
+                </Border>
+              </CommandBar.Content>
+            </CommandBar>
+          </StackPanel>
+        </controls:ScrollHeader>
+      </ListView.Header>
+      <ListView.ItemTemplate>
+        <DataTemplate>
+          <Grid>
+            <!-- 状態 -->
+            <Grid toolkit:DockPanel.Dock="Right" HorizontalAlignment="Right">
+              <StackPanel>
+                <TextBlock Opacity="0.7" Margin="0 0 0 4" FontSize="12">
+                                    <Run Text="{Binding RecommendSourceTag}" /></TextBlock>
+              </StackPanel>
+            </Grid>
+            <!-- 操作 -->
+            <local:VideoInfoControl />
+          </Grid>
+        </DataTemplate>
+      </ListView.ItemTemplate>
+    </uwpcontrol:PullToRefreshListView>
+    <VisualStateManager.VisualStateGroups>
+      <!-- トップバー表示時のタイトル位置ずらし -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:DeviceFamilyStateTrigger DeviceFamily="Xbox" />
+            <StateTrigger IsActive="{Binding AppearanceSettings.IsTVMode_Debug}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="ItemsList.Padding" Value="48 0 48 27" />
+            <Setter Target="ScrollHeader.Mode" Value="None" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="{StaticResource WidthBreakPoint_WideToMiddle}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters></VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters></VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
 </Page>

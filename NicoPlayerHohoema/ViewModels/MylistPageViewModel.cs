@@ -27,6 +27,7 @@ using Prism.Navigation;
 using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.Repository.Playlist;
 using I18NPortable;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -48,6 +49,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public MylistPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             Services.PageManager pageManager,
             NiconicoSession niconicoSession,
             MylistProvider mylistProvider,
@@ -66,6 +68,7 @@ namespace NicoPlayerHohoema.ViewModels
             Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
         {
+            ApplicationLayoutManager = applicationLayoutManager;
             PageManager = pageManager;
             NiconicoSession = niconicoSession;
             MylistProvider = mylistProvider;
@@ -235,6 +238,7 @@ namespace NicoPlayerHohoema.ViewModels
         private readonly MylistRepository _mylistRepository;
         private readonly PlaylistAggregateGetter _playlistAggregate;
 
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
 
 

@@ -1,8 +1,10 @@
 ﻿using I18NPortable;
 using NicoPlayerHohoema.Interfaces;
+using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Repository.Playlist;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase;
 using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.UseCase.Playlist.Commands;
 using Prism.Commands;
@@ -41,6 +43,7 @@ namespace NicoPlayerHohoema.ViewModels
         private readonly PlaylistAggregateGetter _playlistAggregate;
 
         public LocalPlaylistPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager,
             LocalMylistManager localMylistManager,
             HohoemaPlaylist hohoemaPlaylist,
@@ -50,6 +53,7 @@ namespace NicoPlayerHohoema.ViewModels
             RemoveWatchedItemsInAfterWatchPlaylistCommand removeWatchedItemsInAfterWatchPlaylistCommand
             )
         {
+            ApplicationLayoutManager = applicationLayoutManager;
             _pageManager = pageManager;
             _localMylistManager = localMylistManager;
             HohoemaPlaylist = hohoemaPlaylist;
@@ -59,6 +63,7 @@ namespace NicoPlayerHohoema.ViewModels
             RemoveWatchedItemsInAfterWatchPlaylistCommand = removeWatchedItemsInAfterWatchPlaylistCommand;
         }
 
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
 
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public LocalPlaylistDeleteCommand LocalPlaylistDeleteCommand { get; }

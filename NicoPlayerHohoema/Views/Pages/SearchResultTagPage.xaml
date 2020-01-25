@@ -33,164 +33,93 @@
     </TransitionCollection>
   </Page.Transitions>
   <Grid>
-
-
-    <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
-                                      ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
-                                      ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
-                                      RefreshCommand="{Binding RefreshCommand}"
-                                      x:Name="VideoItemsListView"
-                                      >
+    <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}" ItemCommand="{Binding HohoemaPlaylist.PlayCommand}" ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}" RefreshCommand="{Binding RefreshCommand}" x:Name="VideoItemsListView">
       <videolistPage:VideoItemsListView.Header>
-
-        <controls:ScrollHeader x:Name="ScrollHeader"
-                               Mode="QuickReturn"
-                               >
-          <StackPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
-            <ListView xmlns:ee="using:NicoPlayerHohoema.Models"
-                                      SelectionMode="Single"
-                                      IsItemClickEnabled="True"
-                                      uwpExtension:ListViewBase.Command="{Binding ChangeSearchTargetCommand}"
-                                      ItemsSource="{Binding SearchTargets}"
-                                      SelectedItem="{Binding SelectedSearchTarget.Value, Mode=TwoWay}"
-                                  Style="{StaticResource BandListViewStyle}"
-                                      ItemContainerStyle="{StaticResource SimpleListViewItemStyle}"
-                                  SingleSelectionFollowsFocus="False"
-                                      >
-              <ListView.ItemTemplate>
-                <DataTemplate>
-                  <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
-                </DataTemplate>
-              </ListView.ItemTemplate>
-
-              <ListView.ItemsPanel>
-                <ItemsPanelTemplate>
-                  <ItemsWrapGrid Orientation="Horizontal" />
-                </ItemsPanelTemplate>
-              </ListView.ItemsPanel>
-            </ListView>
-
-            <CommandBar>
-              <CommandBar.PrimaryCommands>
-                <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
-                  <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Click">
-                      <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
-                    </core:EventTriggerBehavior>
-                  </i:Interaction.Behaviors>
-                </AppBarButton>
-
-                <AppBarButton x:Name="RefreshButton"
-                              Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" 
-                              Icon="Refresh"
-                              Command="{Binding RefreshCommand}"
-                              IsEnabled="{Binding CanChangeSort.Value}"
-                              VerticalAlignment="Center"
-                          >
-                </AppBarButton>
-
-                <AppBarToggleButton x:Name="TagFollowButton"
-                                  Label="{Binding Source=Follow, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                                  Icon="Favorite"
-                                  IsChecked="{Binding FollowButtonService.IsFollowTarget.Value, Mode=TwoWay}"
-                                  Command="{Binding FollowButtonService.ToggleFollowCommand}"
-                                  Visibility="Collapsed"
-                                  />
-
-
-              </CommandBar.PrimaryCommands>
-
-              <CommandBar.SecondaryCommands>
-                <AppBarButton x:Name="AddSubscriptionButton" Icon="Add"
-                            Label="{Binding Source=SubscriptionAddTag, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                                        >
-                  <AppBarButton.Flyout>
-                    <MenuFlyout Placement="Bottom">
-                      <i:Interaction.Behaviors>
-                        <mybehavior:MenuFlyoutItemsSetter ItemsSource="{Binding SubscriptionManager.Subscriptions}"
-                                                                                CustomObjectToTag="{Binding SubscriptionSource}"
-                                                                                >
-                          <mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
-                            <DataTemplate>
-                              <MenuFlyoutItem Text="{Binding Label}"
-                                                                    Command="{Binding AddSource}"
-                                                                    CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}"
-                                                                    />
-                            </DataTemplate>
-                          </mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
-                        </mybehavior:MenuFlyoutItemsSetter>
-                      </i:Interaction.Behaviors>
-
-                      <MenuFlyoutItem Text="{Binding Source=SubscriptionAddToNew, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                                                                Command="{Binding CreateSubscriptionGroupCommand}"
-                                                                CommandParameter="{Binding SubscriptionSource}"
-                                                                />
-
-
-                    </MenuFlyout>
-                  </AppBarButton.Flyout>
-                </AppBarButton>
-
-              </CommandBar.SecondaryCommands>
-
-              <CommandBar.Content>
-                <toolkit:DockPanel x:Name="TitleLayout" Margin="16 0 0 0">
-                  <HyperlinkButton Command="{Binding PageManager.OpenPageCommand}" CommandParameter="Search"
-                                 Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                 Margin="0 0 16 0"
-                                 toolkit:DockPanel.Dock="Left"
-                                 VerticalAlignment="Stretch"
-                                 >
-                    <SymbolIcon Symbol="Find" />
-                  </HyperlinkButton>
-
-                  <StackPanel>
-                    <HyperlinkButton toolkit:DockPanel.Dock="Bottom">
-                      <i:Interaction.Behaviors>
-                        <core:EventTriggerBehavior EventName="Click" >
-                          <mybehavior:OpenFlyout />
-                        </core:EventTriggerBehavior>
-                      </i:Interaction.Behaviors>
-
-                      <TextBlock Text="{Binding SearchOptionText}" Style="{StaticResource CaptionTextBlockStyle}" />
-
-                      <FlyoutBase.AttachedFlyout>
-                        <Flyout>
-                          <StackPanel MaxWidth="300">
-                            <ListView ItemsSource="{Binding VideoSearchOptionListItems}"
-                                                        DisplayMemberPath="Label"
-                                                        SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}"
-                                                        Margin="0"
-                                                        HorizontalAlignment="Stretch"
-                                                        VerticalAlignment="Center"
-                                                        SelectionMode="Single"
-                                                        SingleSelectionFollowsFocus="False"
-                                                    >
-                              <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                  <Setter Property="Width" Value="140" />
-                                </Style>
-                              </ListView.ItemContainerStyle>
-                              <ListView.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                  <ItemsWrapGrid Orientation="Horizontal" />
-                                </ItemsPanelTemplate>
-                              </ListView.ItemsPanel>
-                            </ListView>
-                          </StackPanel>
-                        </Flyout>
-                      </FlyoutBase.AttachedFlyout>
+        <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
+          <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
+            <StackPanel >
+              <ListView xmlns:ee="using:NicoPlayerHohoema.Models" SelectionMode="Single" IsItemClickEnabled="True" uwpExtension:ListViewBase.Command="{Binding ChangeSearchTargetCommand}" ItemsSource="{Binding SearchTargets}" SelectedItem="{Binding SelectedSearchTarget.Value, Mode=TwoWay}" Style="{StaticResource BandListViewStyle}" ItemContainerStyle="{StaticResource SimpleListViewItemStyle}" SingleSelectionFollowsFocus="False" HorizontalAlignment="Right">
+                <ListView.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
+                  </DataTemplate>
+                </ListView.ItemTemplate>
+                <ListView.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <ItemsWrapGrid Orientation="Horizontal" />
+                  </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+              </ListView>
+              <CommandBar>
+                <CommandBar.PrimaryCommands>
+                  <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
+                    <i:Interaction.Behaviors>
+                      <core:EventTriggerBehavior EventName="Click">
+                        <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
+                      </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
+                  </AppBarButton>
+                  <AppBarButton x:Name="RefreshButton" Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" VerticalAlignment="Center"></AppBarButton>
+                  <AppBarToggleButton x:Name="TagFollowButton" Label="{Binding Source=Follow, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Favorite" IsChecked="{Binding FollowButtonService.IsFollowTarget.Value, Mode=TwoWay}" Command="{Binding FollowButtonService.ToggleFollowCommand}" Visibility="Collapsed" />
+                </CommandBar.PrimaryCommands>
+                <CommandBar.SecondaryCommands>
+                  <AppBarButton x:Name="AddSubscriptionButton" Icon="Add" Label="{Binding Source=SubscriptionAddTag, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
+                    <AppBarButton.Flyout>
+                      <MenuFlyout Placement="Bottom">
+                        <i:Interaction.Behaviors>
+                          <mybehavior:MenuFlyoutItemsSetter ItemsSource="{Binding SubscriptionManager.Subscriptions}" CustomObjectToTag="{Binding SubscriptionSource}">
+                            <mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
+                              <DataTemplate>
+                                <MenuFlyoutItem Text="{Binding Label}" Command="{Binding AddSource}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}" />
+                              </DataTemplate>
+                            </mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
+                          </mybehavior:MenuFlyoutItemsSetter>
+                        </i:Interaction.Behaviors>
+                        <MenuFlyoutItem Text="{Binding Source=SubscriptionAddToNew, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding CreateSubscriptionGroupCommand}" CommandParameter="{Binding SubscriptionSource}" />
+                      </MenuFlyout>
+                    </AppBarButton.Flyout>
+                  </AppBarButton>
+                </CommandBar.SecondaryCommands>
+                <CommandBar.Content>
+                  <toolkit:DockPanel x:Name="TitleLayout" Margin="16 0 0 0">
+                    <HyperlinkButton Command="{Binding PageManager.OpenPageCommand}" CommandParameter="Search" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Margin="0 0 16 0" toolkit:DockPanel.Dock="Left" VerticalAlignment="Stretch">
+                      <SymbolIcon Symbol="Find" />
                     </HyperlinkButton>
-                  </StackPanel>
-                </toolkit:DockPanel>
-              </CommandBar.Content>
-            </CommandBar>
-          </StackPanel>
-        </controls:ScrollHeader>
-        
+                    <StackPanel>
+                      <HyperlinkButton toolkit:DockPanel.Dock="Bottom">
+                        <i:Interaction.Behaviors>
+                          <core:EventTriggerBehavior EventName="Click">
+                            <mybehavior:OpenFlyout />
+                          </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+                        <TextBlock Text="{Binding SearchOptionText}" Style="{StaticResource CaptionTextBlockStyle}" />
+                        <FlyoutBase.AttachedFlyout>
+                          <Flyout>
+                            <StackPanel MaxWidth="300">
+                              <ListView ItemsSource="{Binding VideoSearchOptionListItems}" DisplayMemberPath="Label" SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" SelectionMode="Single" SingleSelectionFollowsFocus="False">
+                                <ListView.ItemContainerStyle>
+                                  <Style TargetType="ListViewItem">
+                                    <Setter Property="Width" Value="140" />
+                                  </Style>
+                                </ListView.ItemContainerStyle>
+                                <ListView.ItemsPanel>
+                                  <ItemsPanelTemplate>
+                                    <ItemsWrapGrid Orientation="Horizontal" />
+                                  </ItemsPanelTemplate>
+                                </ListView.ItemsPanel>
+                              </ListView>
+                            </StackPanel>
+                          </Flyout>
+                        </FlyoutBase.AttachedFlyout>
+                      </HyperlinkButton>
+                    </StackPanel>
+                  </toolkit:DockPanel>
+                </CommandBar.Content>
+              </CommandBar>
+            </StackPanel>
+          </controls:ScrollHeader>
+        </Grid>
       </videolistPage:VideoItemsListView.Header>
-
       <videolistPage:VideoItemsListView.ItemTemplate>
         <DataTemplate>
           <Grid>
@@ -198,18 +127,11 @@
           </Grid>
         </DataTemplate>
       </videolistPage:VideoItemsListView.ItemTemplate>
-
     </videolistPage:VideoItemsListView>
-
     <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <TextBlock Text="{Binding Source=TagSearchNoItems, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                     Style="{StaticResource SubtitleTextBlockStyle}"
-                     Opacity="0.8"
-                     />
+      <TextBlock Text="{Binding Source=TagSearchNoItems, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8" />
     </Grid>
-
     <VisualStateManager.VisualStateGroups>
-
       <!-- ログインしている場合に有効になるサービスを表示する -->
       <VisualStateGroup>
         <VisualState>
@@ -221,38 +143,46 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-
-
-
-      <!-- トップバー表示時のタイトル位置ずらし -->
+      <!-- レイアウトモード -->
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="VideoItemsListView.Padding" Value="48 0 48 27" />
-            <Setter Target="ScrollHeader.Mode" Value="None" />
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentPageMargin_TV}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="{StaticResource WidthBreakPoint_WideToMiddle}" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Desktop" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentPageMargin_Desktop}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="0" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Tablet" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentPageMargin_Tablet}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Mobile" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentPageMargin_Mobile}" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-
-
+      
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
@@ -272,12 +202,6 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-
-
-
     </VisualStateManager.VisualStateGroups>
   </Grid>
-
- 
-
 </Page>

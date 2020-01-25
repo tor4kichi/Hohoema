@@ -67,7 +67,7 @@ namespace NicoPlayerHohoema.ViewModels
             PlayerSettings playerSettings,
             CacheSettings cacheSettings,
             NGSettings ngSettings,
-            AppearanceSettings appearanceSettings,
+            ApplicationLayoutManager applicationLayoutManager,
             HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
             MediaPlayer mediaPlayer,
@@ -98,7 +98,7 @@ namespace NicoPlayerHohoema.ViewModels
             PlayerSettings = playerSettings;
             CacheSettings = cacheSettings;
             NgSettings = ngSettings;
-            AppearanceSettings = appearanceSettings;
+            ApplicationLayoutManager = applicationLayoutManager;
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
             _NotificationService = notificationService;
@@ -139,8 +139,8 @@ namespace NicoPlayerHohoema.ViewModels
 
         public CacheSettings CacheSettings { get; }
         public NGSettings NgSettings { get; }
-        public AppearanceSettings AppearanceSettings { get; }
-
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
+        
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
         public ScondaryViewPlayerManager PlayerViewManager { get; }
@@ -202,13 +202,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-
-
-        // TODO: IsXbox , VisualStateで実現する
-        public bool IsXbox => Services.Helpers.DeviceTypeHelper.IsXbox;
-
-        // TODO: IsTVModeEnabled 、VideoPlayerPage上でフォーカスを与える目的で利用、レイアウト側で対応すべき
-        public bool IsTVModeEnabled => AppearanceSettings.IsForceTVModeEnable || Services.Helpers.DeviceTypeHelper.IsXbox;
 
         private Database.NicoVideo _videoInfo;
         public Database.NicoVideo VideoInfo

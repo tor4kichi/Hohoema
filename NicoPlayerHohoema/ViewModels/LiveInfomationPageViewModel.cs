@@ -10,6 +10,7 @@ using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase;
 using NicoPlayerHohoema.UseCase.Playlist;
 using Prism.Commands;
 using Prism.Navigation;
@@ -49,7 +50,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         IObservable<string> ITitleUpdatablePage.GetTitleObservable()
         {
-            return this.ObserveProperty(x => x.LiveInfo).Select(x => x.Video.Title);
+            return this.ObserveProperty(x => x.LiveInfo).Select(x => x?.Video.Title);
         }
 
         // TODO: 視聴開始（会場後のみ、チャンネル会員限定やチケット必要な場合あり）
@@ -69,6 +70,7 @@ namespace NicoPlayerHohoema.ViewModels
         // LiveInfo.Video.CurrentStatusは開演前、放送中は時間の経過によって変化する可能性がある
 
         public LiveInfomationPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager,
             Models.NiconicoSession niconicoSession,
             NicoLiveProvider nicoLiveProvider,
@@ -76,6 +78,7 @@ namespace NicoPlayerHohoema.ViewModels
             ExternalAccessService externalAccessService
             )
         {
+            ApplicationLayoutManager = applicationLayoutManager;
             PageManager = pageManager;
             NiconicoSession = niconicoSession;
             NicoLiveProvider = nicoLiveProvider;
@@ -184,7 +187,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public DialogService HohoemaDialogService { get; }
         public ExternalAccessService ExternalAccessService { get; }
-
+        
 
 
 
@@ -659,6 +662,7 @@ namespace NicoPlayerHohoema.ViewModels
         AsyncLock _LiveRecommendLock = new AsyncLock();
         public bool IsLiveRecommendInitialized { get; private set; } = false;
         public bool IsEmptyLiveRecommendItems { get; private set; } = false;
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
         public Models.NiconicoSession NiconicoSession { get; }
         public NicoLiveProvider NicoLiveProvider { get; }

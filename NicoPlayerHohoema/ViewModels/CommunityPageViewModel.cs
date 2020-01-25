@@ -7,6 +7,7 @@ using NicoPlayerHohoema.Models.Niconico.Video;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;
@@ -39,6 +40,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public CommunityPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             Services.PageManager pageManager,
             NiconicoSession niconicoSession,
             CommunityFollowProvider followProvider,
@@ -47,6 +49,7 @@ namespace NicoPlayerHohoema.ViewModels
             NiconicoFollowToggleButtonService followToggleButtonService
             )
         {
+            ApplicationLayoutManager = applicationLayoutManager;
             PageManager = pageManager;
             NiconicoSession = niconicoSession;
             FollowProvider = followProvider;
@@ -321,6 +324,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
         public NiconicoSession NiconicoSession { get; }
         public Models.Provider.CommunityFollowProvider FollowProvider { get; }

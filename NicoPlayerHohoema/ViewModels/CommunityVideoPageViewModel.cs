@@ -22,6 +22,7 @@ using NicoPlayerHohoema.UseCase.Playlist;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using I18NPortable;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -43,13 +44,15 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		public CommunityVideoPageViewModel(
-            CommunityProvider communityProvider,
+			ApplicationLayoutManager applicationLayoutManager,
+			CommunityProvider communityProvider,
             Services.PageManager pageManager
-            )
+			)
         {
-            CommunityProvider = communityProvider;
+			ApplicationLayoutManager = applicationLayoutManager;
+			CommunityProvider = communityProvider;
             PageManager = pageManager;
-        }
+		}
 
 
         public string CommunityId { get; private set; }
@@ -114,9 +117,10 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
-        public CommunityProvider CommunityProvider { get; }
+		public ApplicationLayoutManager ApplicationLayoutManager { get; }
+		public CommunityProvider CommunityProvider { get; }
         public PageManager PageManager { get; }
-    }
+	}
 
 
 	public class CommunityVideoIncrementalSource : HohoemaIncrementalSourceBase<CommunityVideoInfoViewModel>

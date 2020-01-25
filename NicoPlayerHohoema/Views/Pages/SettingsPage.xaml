@@ -17,6 +17,7 @@
       xmlns:myconverters="using:NicoPlayerHohoema.Views.Converters"
       xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
       xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector"
+      xmlns:windowsStateTriggers="using:WindowsStateTriggers"
       DataContext="{x:Null}"
       mc:Ignorable="d">
   <Page.Resources>
@@ -105,63 +106,40 @@
   </Page.Resources>
   <Grid>
     <uwptoolkitControl:DockPanel>
-      <StackPanel x:Name="HeaderLayout" uwptoolkitControl:DockPanel.Dock="Top">
-        <CommandBar x:Name="VideoListCommandBar"
-                    Background="Transparent"
-                    >
+      <StackPanel x:Name="HeaderPanel" uwptoolkitControl:DockPanel.Dock="Top">
+        <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
           <CommandBar.Content>
-            <Border Background="Transparent"
-                    IsHitTestVisible="True"
-                    Margin="16 0 0 0"></Border>
+            <Border Background="Transparent" IsHitTestVisible="True" Margin="16 0 0 0"></Border>
           </CommandBar.Content>
           <CommandBar.PrimaryCommands>
-            <AppBarButton Content="エラーログ"
-                          Command="{Binding ShowErrorFilesFolderCommand}"
-                          Visibility="{Binding IsDebugModeEnabled.Value, Converter={StaticResource BooleanToVisibility}}" />
+            <AppBarButton Content="エラーログ" Command="{Binding ShowErrorFilesFolderCommand}" Visibility="{Binding IsDebugModeEnabled.Value, Converter={StaticResource BooleanToVisibility}}" />
             <AppBarButton Background="Transparent">
               <AppBarButton.Flyout>
                 <MenuFlyout>
-                  <MenuFlyoutItem Text="バージョン番号をコピー"
-                                  Command="{Binding CopyVersionTextToClipboardCommand}" />
-                  <ToggleMenuFlyoutItem Text="デバッグモードを有効にする"
-                                        IsChecked="{Binding IsDebugModeEnabled.Value,Mode=TwoWay}" />
+                  <MenuFlyoutItem Text="バージョン番号をコピー" Command="{Binding CopyVersionTextToClipboardCommand}" />
+                  <ToggleMenuFlyoutItem Text="デバッグモードを有効にする" IsChecked="{Binding IsDebugModeEnabled.Value,Mode=TwoWay}" />
                 </MenuFlyout>
               </AppBarButton.Flyout>
               <StackPanel Orientation="Horizontal">
-                <TextBlock Opacity="0.5"
-                           Style="{StaticResource SubtitleTextBlockStyle}"
-                           VerticalAlignment="Center">
+                <TextBlock Opacity="0.5" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center">
                                         v<Run Text="{Binding VersionText}" /></TextBlock>
               </StackPanel>
             </AppBarButton>
           </CommandBar.PrimaryCommands>
         </CommandBar>
       </StackPanel>
-      <ScrollViewer Padding="0 0 16 27"
-                    MaxWidth="480"
-                    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-        <StackPanel x:Name="SettingsContentPanel"
-                    Spacing="16"
-                    Margin="8 0 0 0"
-                    
-                    >
-          
+      <ScrollViewer MaxWidth="480" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+        <StackPanel x:Name="ContentPanel" Spacing="16">
           <!-- アプリの表示設定 -->
           <StackPanel>
             <toolkit:DockPanel Margin="0 8">
-              <TextBlock Text="アプリの表示設定"
-                         Style="{StaticResource SubtitleTextBlockStyle}"
-                         VerticalAlignment="Center"
-                         toolkit:DockPanel.Dock="Left" />
+              <TextBlock Text="アプリの表示設定" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
               <Grid>
-                <TextBlock Text="起動時の表示ページ"
-                           Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                <ComboBox ItemsSource="{Binding StartupPageTypeList}"
-                          SelectedItem="{Binding StartupPageType.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                          HorizontalAlignment="Right">
+                <TextBlock Text="起動時の表示ページ" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ComboBox ItemsSource="{Binding StartupPageTypeList}" SelectedItem="{Binding StartupPageType.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right">
                   <ComboBox.ItemTemplate>
                     <DataTemplate>
                       <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
@@ -171,90 +149,41 @@
               </Grid>
               <Grid>
                 <StackPanel>
-                  <TextBlock Text="テーマ"
-                             Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                  <TextBlock Text="※テーマの適用にはアプリを再起動してください"
-                             Foreground="Red"
-                             Margin="0 8"
-                             Visibility="{Binding ThemeChanged, Converter={StaticResource BooleanToVisibility}}" />
+                  <TextBlock Text="テーマ" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                  <TextBlock Text="※テーマの適用にはアプリを再起動してください" Foreground="Red" Margin="0 8" Visibility="{Binding ThemeChanged, Converter={StaticResource BooleanToVisibility}}" />
                 </StackPanel>
-                <ComboBox ItemsSource="{Binding ThemeList}"
-                          SelectedItem="{Binding SelectedApplicationTheme.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                          HorizontalAlignment="Right" />
+                <ComboBox ItemsSource="{Binding ThemeList}" SelectedItem="{Binding SelectedApplicationTheme.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" />
               </Grid>
-              <Grid x:Name="DefaultFullScreenSwitchLayout"
-                    Visibility="Collapsed">
+              <Grid x:Name="DefaultFullScreenSwitchLayout" Visibility="Collapsed">
                 <StackPanel>
-                  <TextBlock Text="アプリ起動時にフルスクリーン表示を設定する"
-                             Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                  <TextBlock Text="有効にするとメニューにフルスクリーンモード切り替えボタンが表示されるようになります。"
-                             FontSize="13"
-                             Opacity="0.7"
-                             Width="300"
-                             TextWrapping="Wrap"
-                             HorizontalAlignment="Left" />
+                  <TextBlock Text="アプリ起動時にフルスクリーン表示を設定する" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 </StackPanel>
-                <ToggleSwitch IsOn="{Binding IsDefaultFullScreen.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              HorizontalAlignment="Right" />
+                <ToggleSwitch IsOn="{Binding IsDefaultFullScreen.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" />
               </Grid>
-              <Grid x:Name="SwitchFullScreenButtonLayout"
-                    Visibility="Collapsed">
-                <Button Command="{Binding ToggleFullScreenCommand}"
-                        Content="全画面表示の切り替え"
-                        HorizontalAlignment="Right" />
-              </Grid>
-              <Grid x:Name="TVModeSwitchLayout"
-                    Visibility="Collapsed">
-                <TextBlock Text="コントローラー操作用のUIを利用する"
-                           Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                <ToggleSwitch IsOn="{Binding IsTVModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              HorizontalAlignment="Right" />
-              </Grid>
-              <Grid x:Name="MobileModeSwitchLayout"
-                    Visibility="Collapsed">
-                <TextBlock Text="タッチ操作用のUIを利用する"
-                           Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                <ToggleSwitch IsOn="{Binding IsForceMobileModeEnable.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                              HorizontalAlignment="Right" />
+              <Grid x:Name="AppDisplayModeSettingLayout">
+                <TextBlock Text="{Binding Source=ApplicationIntaractionMode, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ComboBox ItemsSource="{x:Bind OverrideInteractionModeList}" SelectedItem="{Binding AppearanceSettings.OverrideIntractionMode, Mode=TwoWay, UpdateSourceTrigger=Default}" HorizontalAlignment="Right" />
               </Grid>
             </StackPanel>
           </StackPanel>
           <!-- NG設定 -->
           <StackPanel>
             <toolkit:DockPanel Margin="0 8">
-              <TextBlock Text="NG設定"
-                         Style="{StaticResource SubtitleTextBlockStyle}"
-                         VerticalAlignment="Center"
-                         toolkit:DockPanel.Dock="Left" />
+              <TextBlock Text="NG設定" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
-              <Grid >
-                <TextBlock Text="動画投稿者IDによるフィルタを有効にする"
-                           Style="{StaticResource SettingsOptionTitleTextBlock}" />
+              <Grid>
+                <TextBlock Text="動画投稿者IDによるフィルタを有効にする" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 <ToggleSwitch IsOn="{Binding NGVideoOwnerUserIdEnable.Value, Mode=TwoWay}" HorizontalAlignment="Right" />
               </Grid>
               <StackPanel Margin="0 8">
-                <uwpcontrols:Expander Header="NG指定した動画投稿者を表示"
-                                      HorizontalContentAlignment="Left"
-                                      Foreground="DimGray">
-                  <ListView ItemsSource="{Binding NGVideoOwnerUserIds}"
-                            Margin="16 8"
-                            IsTabStop="False"
-                            HorizontalContentAlignment="Stretch"
-                            uwpui:ListViewBase.Command="{Binding OpenUserPageCommand}"
-                            IsItemClickEnabled="True"
-                            SelectionMode="None">
+                <uwpcontrols:Expander Header="NG指定した動画投稿者を表示" HorizontalContentAlignment="Left" Foreground="DimGray">
+                  <ListView ItemsSource="{Binding NGVideoOwnerUserIds}" Margin="16 8" IsTabStop="False" HorizontalContentAlignment="Stretch" uwpui:ListViewBase.Command="{Binding OpenUserPageCommand}" IsItemClickEnabled="True" SelectionMode="None">
                     <ItemsControl.ItemTemplate>
                       <DataTemplate>
-                        <Border Background="Transparent"
-                                IsHitTestVisible="True"
-                                BorderBrush="{ThemeResource ButtonBorderThemeBrush}"
-                                BorderThickness="1"
-                                Padding="16 8"
-                                >
-                          <TextBlock Text="{Binding Description}"
-                                     VerticalAlignment="Center" />
+                        <Border Background="Transparent" IsHitTestVisible="True" BorderBrush="{ThemeResource ButtonBorderThemeBrush}" BorderThickness="1" Padding="16 8">
+                          <TextBlock Text="{Binding Description}" VerticalAlignment="Center" />
                         </Border>
                       </DataTemplate>
                     </ItemsControl.ItemTemplate>
@@ -267,21 +196,13 @@
                 </uwpcontrols:Expander>
               </StackPanel>
               <Grid>
-                <TextBlock Text="動画タイトルによるフィルタを有効にする"
-                           toolkit:DockPanel.Dock="Left"
-                           Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <TextBlock Text="動画タイトルによるフィルタを有効にする" toolkit:DockPanel.Dock="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 <ToggleSwitch IsOn="{Binding NGVideoTitleKeywordEnable.Value, Mode=TwoWay}" HorizontalAlignment="Right" />
               </Grid>
               <StackPanel Visibility="{Binding NGVideoTitleKeywordEnable.Value, Converter={StaticResource BooleanToVisibility}}">
-                <TextBox Text="{Binding NGVideoTitleKeywords.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                         AcceptsReturn="True"
-                         PlaceholderText="NG動画タイトルを入力"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         Height="120" />
-                <TextBlock Text="{Binding NGVideoTitleKeywordError.Value}"
-                           Visibility="{Binding NGVideoTitleKeywordError.Value, Converter={StaticResource NotNullToVisibility}}" />
-                <TextBlock Margin="0 8"
-                           Foreground="Gray">
+                <TextBox Text="{Binding NGVideoTitleKeywords.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" PlaceholderText="NG動画タイトルを入力" ScrollViewer.VerticalScrollBarVisibility="Auto" Height="120" />
+                <TextBlock Text="{Binding NGVideoTitleKeywordError.Value}" Visibility="{Binding NGVideoTitleKeywordError.Value, Converter={StaticResource NotNullToVisibility}}" />
+                <TextBlock Margin="0 8" Foreground="Gray">
                                     ・１行ごとにフィルタ文字列を指定します
                                     ・正規表現が利用できます</TextBlock>
               </StackPanel>
@@ -290,20 +211,13 @@
           <!-- キャッシュ設定 -->
           <StackPanel>
             <toolkit:DockPanel Margin="0 8">
-              <TextBlock Text="キャッシュ設定"
-                         Style="{StaticResource SubtitleTextBlockStyle}"
-                         VerticalAlignment="Center"
-                         toolkit:DockPanel.Dock="Left" />
+              <TextBlock Text="キャッシュ設定" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
               <Grid Margin="0 8">
-                <TextBlock Text="デフォルトのキャッシュ画質"
-                           Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                <ComboBox ItemsSource="{Binding AvairableCacheQualities}"
-                          SelectedItem="{Binding DefaultCacheQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                          HorizontalAlignment="Right"
-                          >
+                <TextBlock Text="デフォルトのキャッシュ画質" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ComboBox ItemsSource="{Binding AvairableCacheQualities}" SelectedItem="{Binding DefaultCacheQuality.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right">
                   <ComboBox.ItemTemplate>
                     <DataTemplate>
                       <TextBlock>
@@ -364,75 +278,40 @@
                             -->
             </StackPanel>
           </StackPanel>
-          
           <!-- このアプリについて -->
           <StackPanel>
             <toolkit:DockPanel Margin="0 8">
-              <TextBlock Text="このアプリについて"
-                         Style="{StaticResource SubtitleTextBlockStyle}"
-                         VerticalAlignment="Center"
-                         toolkit:DockPanel.Dock="Left" />
+              <TextBlock Text="このアプリについて" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
               <Grid>
-                <TextBlock Text="アプリのバージョン"
-                           Opacity="0.7"
-                           VerticalAlignment="Center" />
+                <TextBlock Text="アプリのバージョン" Opacity="0.7" VerticalAlignment="Center" />
                 <TextBlock HorizontalAlignment="Right">
                                 v<Run Text="{Binding VersionText}" /></TextBlock>
               </Grid>
-              <Button Content="更新情報を見る"
-                      Command="{Binding ShowUpdateNoticeCommand}"
-                      CommandParameter="{Binding CurrentVersion}"
-                      HorizontalAlignment="Right" />
-              <HyperlinkButton Content="Hohoemaのプロジェクトページ"
-                               Margin="0 0 0 8"
-                               NavigateUri="https://github.com/tor4kichi/Hohoema"
-                               UseSystemFocusVisuals="True"
-                               HorizontalAlignment="Right" />
-              <HyperlinkButton Content="Hohoemaのプライバシーポリシー"
-                               Margin="0 0 0 8"
-                               NavigateUri="https://github.com/tor4kichi/Hohoema/wiki/Privacy-policy"
-                               UseSystemFocusVisuals="True"
-                               HorizontalAlignment="Right" />
-              
+              <Button Content="更新情報を見る" Command="{Binding ShowUpdateNoticeCommand}" CommandParameter="{Binding CurrentVersion}" HorizontalAlignment="Right" />
+              <HyperlinkButton Content="Hohoemaのプロジェクトページ" Margin="0 0 0 8" NavigateUri="https://github.com/tor4kichi/Hohoema" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
+              <HyperlinkButton Content="Hohoemaのプライバシーポリシー" Margin="0 0 0 8" NavigateUri="https://github.com/tor4kichi/Hohoema/wiki/Privacy-policy" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
             </StackPanel>
-            
-            
           </StackPanel>
           <StackPanel>
             <toolkit:DockPanel Margin="0 8">
-              <TextBlock Text="フィードバック"
-                         Style="{StaticResource SubtitleTextBlockStyle}"
-                         VerticalAlignment="Center"
-                         toolkit:DockPanel.Dock="Left" />
+              <TextBlock Text="フィードバック" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
-            <HyperlinkButton Content="ストアでHohoemaをレビューする"
-                             Margin="0 0 0 8"
-                             Command="{Binding LaunchAppReviewCommand}"
-                             UseSystemFocusVisuals="True"
-                             HorizontalAlignment="Right" />
+            <HyperlinkButton Content="ストアでHohoemaをレビューする" Margin="0 0 0 8" Command="{Binding LaunchAppReviewCommand}" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
           </StackPanel>
           <!--  -->
           <StackPanel>
             <toolkit:DockPanel Margin="0 8">
-              <TextBlock Text="利用ライブラリの一覧"
-                         Style="{StaticResource SubtitleTextBlockStyle}"
-                         VerticalAlignment="Center"
-                         toolkit:DockPanel.Dock="Left" />
+              <TextBlock Text="利用ライブラリの一覧" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
-            <ItemsControl ItemsSource="{Binding LisenceItems}"
-                          Margin="0 8 8 8"
-                          IsTabStop="False">
+            <ItemsControl ItemsSource="{Binding LisenceItems}" Margin="0 8 8 8" IsTabStop="False">
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                  <HyperlinkButton Margin="0 0"
-                                   NavigateUri="{Binding Site}"
-                                   Content="{Binding Name}"
-                                   HorizontalAlignment="Right" />
+                  <HyperlinkButton Margin="0 0" NavigateUri="{Binding Site}" Content="{Binding Name}" HorizontalAlignment="Right" />
                   <!--
                                     <StackPanel Orientation="Horizontal"
                                         Margin="8 8 0 0"                                            
@@ -528,41 +407,23 @@
           <!-- その他 -->
           <StackPanel>
             <toolkit:DockPanel Margin="0 8">
-              <TextBlock Text="その他"
-                         Style="{StaticResource SubtitleTextBlockStyle}"
-                         VerticalAlignment="Center"
-                         toolkit:DockPanel.Dock="Left" />
+              <TextBlock Text="その他" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
-            <ListView ItemsSource="{Binding PurchaseItems}"
-                      uwpui:ListViewBase.Command="{Binding ShowCheerPurchaseCommand}"
-                      IsItemClickEnabled="True"
-                      SelectionMode="None"
-                      >
+            <ListView ItemsSource="{Binding PurchaseItems}" uwpui:ListViewBase.Command="{Binding ShowCheerPurchaseCommand}" IsItemClickEnabled="True" SelectionMode="None">
               <ListView.ItemTemplate>
                 <DataTemplate>
                   <Grid>
                     <toolkit:DockPanel>
-                      <Image Source="{Binding ProductListing.ImageUri}"
-                             Height="48"
-                             Width="48"
-                             toolkit:DockPanel.Dock="Left" />
-                      <StackPanel Orientation="Horizontal"
-                                  toolkit:DockPanel.Dock="Bottom"
-                                  Margin="0 0 0 8">
-                        <TextBlock Margin="8 0"
-                                   VerticalAlignment="Center">
+                      <Image Source="{Binding ProductListing.ImageUri}" Height="48" Width="48" toolkit:DockPanel.Dock="Left" />
+                      <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Bottom" Margin="0 0 0 8">
+                        <TextBlock Margin="8 0" VerticalAlignment="Center">
                                                 <Run Text="{Binding ProductListing.FormattedPrice}" /></TextBlock>
-                        <Border Visibility="{Binding IsActive, Converter={StaticResource BooleanToVisibility}}"
-                                Margin="8 0">
-                          <TextBlock Text="(購入済み)"
-                                     FontWeight="SemiBold"
-                                     VerticalAlignment="Center" />
+                        <Border Visibility="{Binding IsActive, Converter={StaticResource BooleanToVisibility}}" Margin="8 0">
+                          <TextBlock Text="(購入済み)" FontWeight="SemiBold" VerticalAlignment="Center" />
                         </Border>
                       </StackPanel>
-                      <TextBlock Text="{Binding ProductListing.Name}"
-                                 Margin="8 0"
-                                 VerticalAlignment="Center" />
+                      <TextBlock Text="{Binding ProductListing.Name}" Margin="8 0" VerticalAlignment="Center" />
                     </toolkit:DockPanel>
                   </Grid>
                 </DataTemplate>
@@ -572,79 +433,46 @@
         </StackPanel>
       </ScrollViewer>
     </uwptoolkitControl:DockPanel>
-    
     <VisualStateManager.VisualStateGroups>
-      <!-- トップバー表示時のタイトル位置ずらし -->
+      <!-- レイアウトモード -->
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="HeaderLayout.Margin"
-                    Value="0 0 48 0" />
-            <Setter Target="SettingsContentPanel.Margin"
-                    Value="48 0 48 27" />
+            <Setter Target="HeaderPanel.Margin" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
+            <Setter Target="ContentPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_TV}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="{StaticResource WidthBreakPoint_WideToMiddle}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters></VisualState.Setters>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="0" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Desktop" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="ScroolHeader.Mode"
-                    Value="QuickReturn" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
-      <!-- TVモードの仮対応 -->
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <hardTrigger:DeviceFamilyTrigger Condition="Xbox" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <!-- Web連携無効化 -->
-            <Setter Target="WebCollaborationTitle.Visibility"
-                    Value="Collapsed" />
-            <Setter Target="WebCollaborationContent.Visibility"
-                    Value="Collapsed" />
-            <!-- 透過背景のセカンダリタイル配置を無効化 -->
-            <Setter Target="AddTransparencyTileButton.Visibility"
-                    Value="Collapsed" />
+            <Setter Target="HeaderPanel.Margin" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
+            <Setter Target="ContentPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_Desktop}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <hardTrigger:DeviceFamilyTrigger Condition="Mobile" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Tablet" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="SwitchFullScreenButtonLayout.Visibility"
-                    Value="Visible" />
-            <Setter Target="DefaultFullScreenSwitchLayout.Visibility"
-                    Value="Visible" />
+            <Setter Target="HeaderPanel.Margin" Value="{StaticResource ContentListViewHeaderMargin_Tablet}" />
+            <Setter Target="ContentPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_Tablet}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <hardTrigger:DeviceFamilyTrigger Condition="Desktop" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Mobile" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="TVModeSwitchLayout.Visibility"
-                    Value="Visible" />
-            <Setter Target="MobileModeSwitchLayout.Visibility"
-                    Value="Visible" />
+            <Setter Target="HeaderPanel.Margin" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="ContentPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_Mobile}" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      <!-- モバイル -->
-      <VisualStateGroup></VisualStateGroup>
     </VisualStateManager.VisualStateGroups>
   </Grid>
 </Page>

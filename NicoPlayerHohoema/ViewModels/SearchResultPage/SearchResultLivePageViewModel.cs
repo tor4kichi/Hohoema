@@ -19,6 +19,7 @@ using Prism.Navigation;
 using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands;
 using NicoPlayerHohoema.Interfaces;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -40,6 +41,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public SearchResultLivePageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             Models.NiconicoSession niconicoSession,
             SearchProvider searchProvider,
             Services.PageManager pageManager,
@@ -80,6 +82,7 @@ namespace NicoPlayerHohoema.ViewModels
                     await ResetList();
                 })
                 .AddTo(_CompositeDisposable);
+            ApplicationLayoutManager = applicationLayoutManager;
             NiconicoSession = niconicoSession;
             SearchProvider = searchProvider;
             PageManager = pageManager;
@@ -255,6 +258,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public Models.NiconicoSession NiconicoSession { get; }
         public SearchProvider SearchProvider { get; }
         public PageManager PageManager { get; }

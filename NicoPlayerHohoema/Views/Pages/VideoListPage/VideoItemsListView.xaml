@@ -32,8 +32,9 @@
             ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
             uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
             xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
+      Padding="{x:Bind ItemsPanelPadding, Mode=OneWay}"
                             >
-
+      
       <uwpcontrol:PullToRefreshListView.ItemContainerTransitions>
         <TransitionCollection>
 

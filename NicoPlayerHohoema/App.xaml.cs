@@ -40,6 +40,7 @@ using Windows.Media.Playback;
 using Windows.UI.Xaml.Data;
 using Prism.Events;
 using NicoPlayerHohoema.Services.Player;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema
 {
@@ -192,7 +193,9 @@ namespace NicoPlayerHohoema
             unityContainer.RegisterSingleton<UseCase.Playlist.LocalMylistManager>();
             unityContainer.RegisterSingleton<UseCase.Playlist.VideoItemsSelectionContext>();
             unityContainer.RegisterSingleton<UseCase.Playlist.WatchHistoryManager>();
-            
+            unityContainer.RegisterSingleton<UseCase.ApplicationLayoutManager>();
+
+
 
 
             // ViewModels
@@ -354,9 +357,6 @@ namespace NicoPlayerHohoema
                 // 
                 var cacheSettings = Container.Resolve<CacheSettings>();
                 Resources["IsCacheEnabled"] = cacheSettings.IsEnableCache;
-                var appearanceSettings = Container.Resolve<AppearanceSettings>();
-                Resources["IsTVModeEnabled"] = Services.Helpers.DeviceTypeHelper.IsXbox || appearanceSettings.IsForceTVModeEnable;
-
 
                 // ウィンドウコンテンツを作成
                 Window.Current.Content = CreateShell();
@@ -685,7 +685,7 @@ namespace NicoPlayerHohoema
 		
 
 
-        #region Page and Application Appiarance
+#region Page and Application Appiarance
 
         public override void ConfigureViewModelLocator()
         {
@@ -728,12 +728,10 @@ namespace NicoPlayerHohoema
 
         private Type GetPageType(string pageToken)
         {
-            var appearanceSettings = Container.Resolve<AppearanceSettings>();
-            var isForceTVModeEnable = appearanceSettings.IsForceTVModeEnable;
-            var isForceMobileModeEnable = appearanceSettings.IsForceMobileModeEnable;
-
+            var layoutManager= Container.Resolve<ApplicationLayoutManager>();
+            
             Type viewType = null;
-            if (isForceTVModeEnable || Services.Helpers.DeviceTypeHelper.IsXbox)
+            if (layoutManager.AppLayout == ApplicationLayout.TV)
             {
                 // pageTokenに対応するXbox表示用のページの型を取得
                 try
@@ -747,7 +745,7 @@ namespace NicoPlayerHohoema
                 }
                 catch { }
             }
-            else if (isForceMobileModeEnable || Services.Helpers.DeviceTypeHelper.IsMobile)
+            else if (layoutManager.AppLayout == ApplicationLayout.Mobile)
             {
                 try
                 {
@@ -1092,7 +1090,7 @@ namespace NicoPlayerHohoema
 
 
 
-        #endregion
+#endregion
 
     }
 

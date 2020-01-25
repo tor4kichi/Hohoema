@@ -19,6 +19,7 @@ using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Models.Provider;
 using Prism.Navigation;
 using NicoPlayerHohoema.Interfaces;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -45,11 +46,13 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public SearchResultCommunityPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager, 
             SearchProvider searchProvider,
             Services.NiconicoLoginService niconicoLoginService
             )
         {
+            ApplicationLayoutManager = applicationLayoutManager;
             PageManager = pageManager;
             SearchProvider = searchProvider;
             NiconicoLoginService = niconicoLoginService;
@@ -59,6 +62,7 @@ namespace NicoPlayerHohoema.ViewModels
             SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
         }
 
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
 
         public SearchProvider SearchProvider { get; }

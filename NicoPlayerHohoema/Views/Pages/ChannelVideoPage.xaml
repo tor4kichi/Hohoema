@@ -43,26 +43,9 @@
                                       x:Name="VideoItemsListView"
                                       >
       <videolistPage:VideoItemsListView.Header>
-        <controls:ScrollHeader x:Name="ScrollHeader" Mode="QuickReturn">
-          <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-            <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
-              <CommandBar.Content>
-                <StackPanel x:Name="HeaderCommandBarContent" Orientation="Horizontal"
-                            Background="Transparent" IsHitTestVisible="True" IsTapEnabled="True"
-                            Margin="16 0 0 0"
-                            >
-                  <i:Interaction.Behaviors>
-                    <core:EventTriggerBehavior EventName="Tapped">
-                      <core:ChangePropertyAction TargetObject="{Binding ElementName=ScrollHeader}" PropertyName="ListPosition" Value="0.0" />
-                    </core:EventTriggerBehavior>
-                  </i:Interaction.Behaviors>
-
-                  <TextBlock VerticalAlignment="Center">
-                    <Run Text="{Binding ChannelName}" />
-                  </TextBlock>
-                </StackPanel>
-              </CommandBar.Content>
-
+        <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
+          <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
+            <CommandBar x:Name="VideoListCommandBar" HorizontalAlignment="Right">
               <CommandBar.PrimaryCommands>
                 <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
                   <i:Interaction.Behaviors>
@@ -149,7 +132,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
+            <windowsTriggers:DeviceFamilyStateTrigger DeviceFamily="Xbox" /> <StateTrigger IsActive="{Binding AppearanceSettings.IsTVMode_Debug}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="VideoItemsListView.Padding" Value="48 0 48 27" />
@@ -172,8 +155,45 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-
-
+      <!-- レイアウトモード -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentPageMargin_TV}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Desktop" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentPageMargin_Desktop}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Tablet" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentPageMargin_Tablet}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Mobile" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentPageMargin_Mobile}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
