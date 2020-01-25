@@ -621,18 +621,20 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
         public bool PlayDoneAndTryMoveNext()
         {
-            PlayDone(_player.Current);
-
+            var playedItem = _player.Current;
+            var result = (_player?.CanGoNext ?? false);
             // 次送りが出来る場合は次へ
-            if (_player?.CanGoNext ?? false)
+            if (result)
             {
                 _player.GoNext();
-                return true;
             }
-            else
+
+            Task.Delay(250).ContinueWith(_ => 
             {
-                return false;
-            }
+                PlayDone(playedItem);
+            });
+
+            return result;
         }
 
 
@@ -818,11 +820,12 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             {
                 currentSource = currentSource.Reverse();
             }
+            var items = currentSource.ToList();
 
             _items.ClearOnScheduler();
-            _items.AddRangeOnScheduler(currentSource);
+            _items.AddRangeOnScheduler(items);
 
-            CurrentIndex = _items.Any() ? _items.IndexOf(Current) : 0;
+            CurrentIndex = items.Any() ? items.IndexOf(Current) : 0;
 
             RaisePropertyChanged(nameof(CanGoBack));
             RaisePropertyChanged(nameof(CanGoNext));
