@@ -204,6 +204,7 @@
     <Compile Include="Models\Cache\CachefolderAccessState.cs" />
     <Compile Include="Models\LocalMylist\LocalMylist.cs" />
     <Compile Include="UseCase\NicoVideoInfoUpdater.cs" />
+    <Compile Include="UseCase\Playlist\Commands\FollowRemoveCommand.cs" />
     <Compile Include="UseCase\Playlist\Commands\LocalPlaylistDeleteCommand.cs" />
     <Compile Include="UseCase\Playlist\Commands\LocalPlaylistRemoveItemCommand.cs" />
     <Compile Include="UseCase\Playlist\Commands\MylistRemoveItemCommand.cs" />

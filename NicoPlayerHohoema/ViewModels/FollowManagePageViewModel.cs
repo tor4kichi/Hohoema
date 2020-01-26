@@ -18,6 +18,8 @@ using Unity.Resolution;
 using Prism.Unity;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.UseCase;
+using Windows.UI.Xaml.Data;
+using Microsoft.Toolkit.Uwp.UI;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -34,20 +36,19 @@ namespace NicoPlayerHohoema.ViewModels
             PageManager = pageManager;
             NiconicoSession = niconicoSession;
             FollowManager = followManager;
-            Lists = new ObservableCollection<FavoriteListViewModel>();
 
             NowUpdatingFavList = new ReactiveProperty<bool>();
 
-            UpdateFavListCommand = new DelegateCommand<FavoriteListViewModel>((favListVM) =>
+            UpdateFavListCommand = new DelegateCommand<IFollowInfoGroup>(async (group) =>
             {
                 NowUpdatingFavList.Value = true;
                 try
                 {
-                    favListVM.FollowGroup.SyncFollowItems().ConfigureAwait(false);
+                    await FollowManager.SyncAll();
                 }
                 catch
                 {
-                    Debug.WriteLine($"{favListVM.FollowGroup.FollowItemType} のFollow List更新に失敗");
+                    Debug.WriteLine($"{group.FollowItemType} のFollow List更新に失敗");
                 }
                 finally
                 {
@@ -56,25 +57,58 @@ namespace NicoPlayerHohoema.ViewModels
             });
 
 
-            if (NiconicoSession.IsLoggedIn)
+            FollowGroups = new ObservableCollection<IFollowInfoGroup>()
             {
-//                Lists.Add(new FavoriteListViewModel("ユーザー", FollowManager.User, FollowManager, PageManager));
-//                Lists.Add(new FavoriteListViewModel("マイリスト", FollowManager.Mylist, FollowManager, PageManager));
-//                Lists.Add(new FavoriteListViewModel("タグ", FollowManager.Tag, FollowManager, PageManager));
-//                Lists.Add(new FavoriteListViewModel("コミュニティ", FollowManager.Community, FollowManager, PageManager));
-//                Lists.Add(new FavoriteListViewModel("チャンネル", FollowManager.Channel, FollowManager, PageManager));
-            }
+                FollowManager.User,
+                FollowManager.Mylist,
+                FollowManager.Tag,
+                FollowManager.Community,
+                FollowManager.Channel,
+            };
         }
 
         public ReactiveProperty<bool> NowUpdatingFavList { get; }
 
-        public ObservableCollection<FavoriteListViewModel> Lists { get; private set; }
+        public ObservableCollection<IFollowInfoGroup> FollowGroups { get; private set; }
 
-        public DelegateCommand<FavoriteListViewModel> UpdateFavListCommand { get; }
+        public DelegateCommand<IFollowInfoGroup> UpdateFavListCommand { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
         public NiconicoSession NiconicoSession { get; }
         public FollowManager FollowManager { get; }
+
+
+        private DelegateCommand<FollowItemInfo> _RemoveFavoriteCommand;
+        public DelegateCommand<FollowItemInfo> RemoveFavoriteCommand
+        {
+            get
+            {
+                return _RemoveFavoriteCommand
+                    ?? (_RemoveFavoriteCommand = new DelegateCommand<FollowItemInfo>(async (followItem) =>
+                    {
+                        switch (followItem.FollowItemType)
+                        {
+                            case FollowItemType.Tag:
+                                await FollowManager.Tag.RemoveFollow(followItem.Id);
+                                break;
+                            case FollowItemType.Mylist:
+                                await FollowManager.Mylist.RemoveFollow(followItem.Id);
+                                break;
+                            case FollowItemType.User:
+                                await FollowManager.User.RemoveFollow(followItem.Id);
+                                break;
+                            case FollowItemType.Community:
+                                await FollowManager.Community.RemoveFollow(followItem.Id);
+                                break;
+                            case FollowItemType.Channel:
+                                await FollowManager.Channel.RemoveFollow(followItem.Id);
+                                break;
+                            default:
+                                break;
+                        }
+                    }));
+            }
+        }
     }
 
     public class FavoriteListViewModel : BindableBase

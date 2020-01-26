@@ -43,6 +43,16 @@ PrivateReasonType.RightsHolders = 権利者削除
 VideoOwner = 投稿者
 Follow = フォロー
 
+#### Nico Follow ####
+FollowItemType.User = ユーザー
+FollowItemType.Mylist = マイリスト
+FollowItemType.Tag = タグ
+FollowItemType.Community = コミュニティ
+FollowItemType.Channel = チャンネル
+
+ConfirmRemoveFollow_DialogDescWithItemName = 「{0}({1})」のフォローを解除します
+ConfirmRemoveFollow_DialogTitle = フォロー解除の確認
+
 #### Nicorepo ####
 NicoRepoItemTopic.Unknown = 不明
 NicoRepoItemTopic.Live_Channel_Program_Onairs = 生放送開始（チャンネル）

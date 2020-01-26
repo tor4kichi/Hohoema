@@ -76,11 +76,11 @@ namespace NicoPlayerHohoema.UseCase
             if (intaractionMode == ApplicationIntaractionMode.Mouse)
             {
                 var width = Window.Current.Bounds.Width;
-                if (width <= 719)
+                if (width <= 519)
                 {
                     layout = ApplicationLayout.Tablet;
                 }
-                else if (width <= 1439)
+                else if (width <= 1039)
                 {
                     layout = ApplicationLayout.Desktop;
                 }
@@ -92,11 +92,11 @@ namespace NicoPlayerHohoema.UseCase
             else if (intaractionMode == ApplicationIntaractionMode.Touch)
             {
                 var width = Window.Current.Bounds.Width;
-                if (width <= 501)
+                if (width <= 519)
                 {
                     layout = ApplicationLayout.Mobile;
                 }
-                else if (width <= 1280)
+                else if (width <= 1039)
                 {
                     layout = ApplicationLayout.Tablet;
                 }

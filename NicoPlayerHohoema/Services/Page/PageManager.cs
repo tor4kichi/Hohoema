@@ -112,6 +112,28 @@ namespace NicoPlayerHohoema.Services
                             break;
                         }
 
+                    case FollowItemInfo followItem:
+                        switch (followItem.FollowItemType)
+                        {
+                            case FollowItemType.Tag:
+                                this.Search(SearchTarget.Tag, followItem.Id);
+                                break;
+                            case FollowItemType.Mylist:
+                                OpenPageWithId(HohoemaPageType.Mylist, followItem.Id);
+                                break;
+                            case FollowItemType.User:
+                                OpenPageWithId(HohoemaPageType.UserInfo, followItem.Id);
+                                break;
+                            case FollowItemType.Community:
+                                OpenPageWithId(HohoemaPageType.Community, followItem.Id);
+                                break;
+                            case FollowItemType.Channel:
+                                OpenPageWithId(HohoemaPageType.ChannelVideo, followItem.Id);
+                                break;
+                            default:
+                                break;
+                        }
+                        break;
                     case IPageNavigatable item:
                         if (item.Parameter != null)
                         {

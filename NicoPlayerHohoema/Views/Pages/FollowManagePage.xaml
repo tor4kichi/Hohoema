@@ -20,126 +20,100 @@
       DataContext="{x:Null}"
       mc:Ignorable="d">
   <Page.Resources>
+    <CollectionViewSource x:Name="FollowsCollectionViewSource" x:Key="FollowsCollectionViewSource" Source="{x:Bind _vm.FollowGroups, Mode=OneWay}" IsSourceGrouped="True" ItemsPath="FollowInfoItems" />
+
     <DataTemplate x:Key="FavoriteItemTemplate">
-      <TextBlock Text="{Binding Label}"
+      <TextBlock Text="{Binding Name}"
                  HorizontalAlignment="Center"
                  VerticalAlignment="Center"
                  TextWrapping="Wrap" />
     </DataTemplate>
     <local:FollowTypeToSymbolIconConverter x:Key="FavTypeToSymbol" />
+
   </Page.Resources>
   <Grid x:Name="PageRoot">
-    <toolkit:DockPanel>
-      <ScrollViewer x:Name="ScrollList">
-        <StackPanel x:Name="ContentLayout">
-          <ProgressBar IsIndeterminate="False"
+    
+    <GridView x:Name="FollowsGridView" 
+              ItemsSource="{Binding Source={StaticResource FollowsCollectionViewSource}}" ItemTemplate="{StaticResource FavoriteItemTemplate}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" IsItemClickEnabled="True" uwpui:ListViewBase.Command="{Binding ElementName=PageRoot, Path=DataContext.PageManager.OpenPageCommand}" SelectionMode="None" Margin="0 32 0 0"
+              >
+      <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
+        <DataTemplate>
+          <flyouts:FollowItemFlyout />
+        </DataTemplate>
+      </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
+      <ListViewBase.GroupStyle>
+        <GroupStyle>
+          <GroupStyle.HeaderTemplate>
+            <DataTemplate>
+              <StackPanel Orientation="Horizontal">
+                <SymbolIcon Symbol="{Binding FollowItemType, Converter={StaticResource FavTypeToSymbol}}" Margin="0 0 8 0" VerticalAlignment="Center" />
+                <TextBlock Text="{Binding FollowItemType, Converter={StaticResource LocalizeConverter}}" Margin="0 0" VerticalAlignment="Center" />
+                <Grid Margin="0 16" toolkit:DockPanel.Dock="Top">
+                  <TextBlock VerticalAlignment="Center" Margin="8 0" Opacity="0.7">
+                        (<Run Text="{Binding FollowInfoItems.Count}" />
+                        <Run Text="/" />
+                        <Run Text="{Binding MaxFollowItemCount}" />)
+                  </TextBlock>
+                </Grid>
+              </StackPanel>
+            </DataTemplate>
+          </GroupStyle.HeaderTemplate>
+        </GroupStyle>
+      </ListViewBase.GroupStyle>
+      <ListViewBase.ItemContainerStyle>
+        <Style TargetType="GridViewItem">
+          <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+          <Setter Property="VerticalContentAlignment" Value="Stretch" />
+          <Setter Property="Margin" Value="0 0 8 8" />
+          <Setter Property="MinWidth" Value="140" />
+          <Setter Property="MinHeight" Value="80" />
+          <Setter Property="Padding" Value="8" />
+          <Setter Property="BorderBrush" Value="{StaticResource ButtonBorderBrushPointerOver}" />
+          <Setter Property="BorderThickness" Value="1" />
+        </Style>
+      </ListViewBase.ItemContainerStyle>
+      <ItemsControl.ItemsPanel>
+        <ItemsPanelTemplate>
+          <ItemsWrapGrid Orientation="Horizontal" HorizontalAlignment="Left" GroupPadding="0 0 0 0" />
+        </ItemsPanelTemplate>
+      </ItemsControl.ItemsPanel>
+    </GridView>
+
+    
+    <Border x:Name="HeaderLayout" Background="{ThemeResource MenuBackgroundBrush}" toolkit:DockPanel.Dock="Top" VerticalAlignment="Top">
+      <CommandBar x:Name="TopCommandBar" Background="Transparent" HorizontalAlignment="Right">
+        <CommandBar.PrimaryCommands>
+          <AppBarButton Command="{Binding UpdateFavListCommand}" Background="Transparent">
+            <SymbolIcon Symbol="Refresh" />
+          </AppBarButton>
+        </CommandBar.PrimaryCommands>
+      </CommandBar>
+    </Border>
+
+    
+    <ProgressBar IsIndeterminate="False"
                        x:Name="LoadingProgressBar"
                        Visibility="Collapsed"
                        Height="8"
                        HorizontalAlignment="Stretch" />
-          <Pivot ItemsSource="{Binding Lists}"
-                 x:Name="FavListContainer">
-            <Pivot.HeaderTemplate>
-              <DataTemplate>
-                <StackPanel Orientation="Horizontal"
-                            toolkit:DockPanel.Dock="Top">
-                  <SymbolIcon Symbol="{Binding FavType, Converter={StaticResource FavTypeToSymbol}}"
-                              Margin="0 0 8 0"
-                              VerticalAlignment="Center" />
-                  <TextBlock Text="{Binding Label}"
-                             Margin="0 0"
-                             VerticalAlignment="Center" />
-                </StackPanel>
-              </DataTemplate>
-            </Pivot.HeaderTemplate>
-            <Pivot.ItemTemplate>
-              <DataTemplate>
-                <toolkit:DockPanel>
-                  <Grid Margin="0 16"
-                        toolkit:DockPanel.Dock="Top">
-                    <!-- フォロー数が有限 -->
-                    <TextBlock VerticalAlignment="Center"
-                               Margin="8 0"
-                               Visibility="{Binding IsCountInfinity, Converter={StaticResource BooleanToVisibilityInverted}}">
-                                            <Run Text="登録数：" />
-                                            <Run Text="{Binding ItemCount.Value}" />
-                                            <Run Text="/" />
-                                            <Run Text="{Binding MaxItemCount}" /></TextBlock>
-                    <!-- フォロー数が無制限 （ex: ニコニコチャンネル）-->
-                    <TextBlock VerticalAlignment="Center"
-                               Margin="8 0"
-                               Visibility="{Binding IsCountInfinity, Converter={StaticResource BooleanToVisibility}}">
-                                            <Run Text="登録数：" />
-                                            <Run Text="{Binding ItemCount.Value}" /></TextBlock>
-                  </Grid>
-                  <GridView ItemsSource="{Binding Items}"
-                            ItemTemplate="{StaticResource FavoriteItemTemplate}"
-                            Margin="0 8 0 0"
-                            HorizontalAlignment="Stretch"
-                            HorizontalContentAlignment="Left"
-                            IsItemClickEnabled="True"
-                            uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
-                            SelectionMode="None">
-                    <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
-                      <DataTemplate>
-                        <flyouts:FollowItemFlyout />
-                      </DataTemplate>
-                    </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
-                    <GridView.ItemContainerStyle>
-                      <Style TargetType="GridViewItem">
-                        <Setter Property="HorizontalContentAlignment"
-                                Value="Stretch" />
-                        <Setter Property="VerticalContentAlignment"
-                                Value="Stretch" />
-                        <Setter Property="Margin"
-                                Value="0 0 8 8" />
-                        <Setter Property="MinWidth"
-                                Value="140" />
-                        <Setter Property="MinHeight"
-                                Value="80" />
-                        <Setter Property="Padding"
-                                Value="8" />
-                        <Setter Property="BorderBrush"
-                                Value="{StaticResource ButtonBorderBrushPointerOver}" />
-                        <Setter Property="BorderThickness"
-                                Value="1" />
-                      </Style>
-                    </GridView.ItemContainerStyle>
-                    <ItemsControl.ItemsPanel>
-                      <ItemsPanelTemplate>
-                        <ItemsWrapGrid Orientation="Horizontal"
-                                       HorizontalAlignment="Left" />
-                      </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                  </GridView>
-                </toolkit:DockPanel>
-              </DataTemplate>
-            </Pivot.ItemTemplate>
-          </Pivot>
-        </StackPanel>
-      </ScrollViewer>
-    </toolkit:DockPanel>
-    <Border x:Name="HeaderLayout"
-            Background="{ThemeResource MenuBackgroundBrush}"
-            toolkit:DockPanel.Dock="Top"
-            VerticalAlignment="Top"
-            >
-      <StackPanel>
-        <Border Height="32" />
-        <CommandBar x:Name="TopCommandBar"
-                    Background="Transparent"
-                    HorizontalAlignment="Right">
-          <CommandBar.PrimaryCommands>
-            <AppBarButton Command="{Binding UpdateFavListCommand}"
-                          CommandParameter="{Binding ElementName=FavListContainer, Path=SelectedItem}"
-                          Background="Transparent">
-              <SymbolIcon Symbol="Refresh" />
-            </AppBarButton>
-          </CommandBar.PrimaryCommands>
-        </CommandBar>
-      </StackPanel>
-    </Border>
+
+    <Grid x:Name="NotLoggedInLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <TextBlock Text="フォロー情報はログインすると利用できます" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.7" />
+    </Grid>
+    
     <VisualStateManager.VisualStateGroups>
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding NiconicoSession.IsLoggedIn, Converter={StaticResource BoolNegation}}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="FollowsGridView.Visibility" Value="Collapsed" />
+            <Setter Target="NotLoggedInLayout.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
       
       <!-- レイアウトモード -->
       <VisualStateGroup>
@@ -149,7 +123,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
-            <Setter Target="FavListContainer.Padding" Value="{StaticResource ContentPageMargin_TV}" />
+            <Setter Target="FollowsGridView.Padding" Value="{StaticResource ContentPageMargin_TV}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -158,7 +132,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
-            <Setter Target="FavListContainer.Padding" Value="{StaticResource ContentPageMargin_Desktop}" />
+            <Setter Target="FollowsGridView.Padding" Value="{StaticResource ContentPageMargin_Desktop}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -166,8 +140,8 @@
             <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Tablet" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
-            <Setter Target="FavListContainer.Padding" Value="{StaticResource ContentPageMargin_Tablet}" />
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Tablet}" />
+            <Setter Target="FollowsGridView.Padding" Value="{StaticResource ContentPageMargin_Tablet}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -176,11 +150,11 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
-            <Setter Target="FavListContainer.Padding" Value="{StaticResource ContentPageMargin_Mobile}" />
+            <Setter Target="FollowsGridView.Padding" Value="{StaticResource ContentPageMargin_Mobile}" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-     
+    
       <!-- 読み込み中 -->
       <VisualStateGroup>
         <VisualState>

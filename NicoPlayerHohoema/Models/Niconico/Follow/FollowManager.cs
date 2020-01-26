@@ -210,7 +210,7 @@ namespace NicoPlayerHohoema.Models
 
 	
 
-		public async Task SyncAll(CancellationToken token)
+		public async Task SyncAll(CancellationToken token = default)
 		{
             using (var releaser = await _SyncLock.LockAsync())
             {
