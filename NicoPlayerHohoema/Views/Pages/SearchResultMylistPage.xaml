@@ -17,7 +17,8 @@
     xmlns:uwpExtensions="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
-    DataContext="{x:Null}"
+      xmlns:windowsStateTriggers="using:WindowsStateTriggers"
+      DataContext="{x:Null}"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d"
     d:DesignHeight="300"
@@ -30,228 +31,142 @@
             </NavigationThemeTransition>
         </TransitionCollection>
     </Page.Transitions>
+  <Grid>
     
-    <Grid>
-
-        <VisualStateManager.VisualStateGroups>
-            <!-- トップバー表示時のタイトル位置ずらし -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="ItemsList.Padding" Value="48 0 48 27" />
-                        <Setter Target="ScrollHeader.Mode" Value="None" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="0" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateManager.VisualStateGroups>
-        
-        <GridView
-            x:Name="ItemsList"
-            ItemsSource="{Binding ItemsView, Mode=OneWay}"
-            uwpExtensions:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
-            IsItemClickEnabled="True"
-            IncrementalLoadingTrigger="Edge"
-            UseSystemFocusVisuals="True"
-            SelectionMode="None"
-            HorizontalContentAlignment="Stretch"
-            Padding="16 0"
-            uwpExtensions:ScrollViewerEx.VerticalScrollBarMargin="0 96 0 0"
-            >
-
-            <GridView.ItemContainerTransitions>
-                <TransitionCollection>
-
-                </TransitionCollection>
-            </GridView.ItemContainerTransitions>
-            
-            <i:Interaction.Behaviors>
-
-                <mybehavior:KeyboardTrigger Key="F5">
-                    <mybehavior:KeyboardTrigger.Actions>
-                        <core:InvokeCommandAction Command="{Binding RefreshCommand}" />
-                    </mybehavior:KeyboardTrigger.Actions>
-                </mybehavior:KeyboardTrigger>
-
-                <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ScrollPosition.Value, Mode=TwoWay}" />
-
-                <core:DataTriggerBehavior Binding="{Binding ItemsView, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}"  >
-                    <actions:ScrollViewerVerticalPositionSettingsAction Target="{x:Bind ItemsList}" 
-                                                                    VerticalOffset="{Binding ScrollPosition.Value}" 
-                                                                    WithAnimation="False" 
-                                                                        Delay="0:0:0.001"
-                                                                    />
-                </core:DataTriggerBehavior>
-            </i:Interaction.Behaviors>
-            
-            <GridView.Header>
-                <controls:ScrollHeader 
-                    x:Name="ScrollHeader"
-                    Mode="Sticky"
-                    
-                    >
-                    <StackPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
-
-                        <ListView xmlns:ee="using:NicoPlayerHohoema.Models"
-                                      SelectionMode="Single"
-                                      IsItemClickEnabled="True"
-                                      uwpExtensions:ListViewBase.Command="{Binding ChangeSearchTargetCommand}"
-                                      ItemsSource="{Binding SearchTargets}"
-                                      SelectedItem="{Binding SelectedSearchTarget.Value, Mode=TwoWay}"
-                                  Style="{StaticResource BandListViewStyle}"
-                                      ItemContainerStyle="{StaticResource SimpleListViewItemStyle}"
-                                      >
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-
-                            <ListView.ItemsPanel>
+    <GridView x:Name="ItemsList" ItemsSource="{Binding ItemsView, Mode=OneWay}" uwpExtensions:ListViewBase.Command="{Binding PageManager.OpenPageCommand}" IsItemClickEnabled="True" IncrementalLoadingTrigger="Edge" UseSystemFocusVisuals="True" SelectionMode="None" HorizontalContentAlignment="Stretch" Padding="16 0" uwpExtensions:ScrollViewerEx.VerticalScrollBarMargin="0 96 0 0">
+      <GridView.ItemContainerTransitions>
+        <TransitionCollection></TransitionCollection>
+      </GridView.ItemContainerTransitions>
+      <i:Interaction.Behaviors>
+        <mybehavior:KeyboardTrigger Key="F5">
+          <mybehavior:KeyboardTrigger.Actions>
+            <core:InvokeCommandAction Command="{Binding RefreshCommand}" />
+          </mybehavior:KeyboardTrigger.Actions>
+        </mybehavior:KeyboardTrigger>
+        <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ScrollPosition.Value, Mode=TwoWay}" />
+        <core:DataTriggerBehavior Binding="{Binding ItemsView, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}">
+          <actions:ScrollViewerVerticalPositionSettingsAction Target="{x:Bind ItemsList}" VerticalOffset="{Binding ScrollPosition.Value}" WithAnimation="False" Delay="0:0:0.001" />
+        </core:DataTriggerBehavior>
+      </i:Interaction.Behaviors>
+      <GridView.Header>
+        <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
+          <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
+            <StackPanel>
+              <ListView xmlns:ee="using:NicoPlayerHohoema.Models" SelectionMode="Single" IsItemClickEnabled="True" uwpExtensions:ListViewBase.Command="{Binding ChangeSearchTargetCommand}" ItemsSource="{Binding SearchTargets}" SelectedItem="{Binding SelectedSearchTarget.Value, Mode=TwoWay}" Style="{StaticResource BandListViewStyle}" ItemContainerStyle="{StaticResource SimpleListViewItemStyle}" HorizontalAlignment="Right">
+                <ListView.ItemTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
+                  </DataTemplate>
+                </ListView.ItemTemplate>
+                <ListView.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <ItemsWrapGrid Orientation="Horizontal" />
+                  </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+              </ListView>
+              <CommandBar>
+                <CommandBar.PrimaryCommands>
+                  <AppBarButton x:Name="ScrollToTopButton" Label="トップへ戻る" Icon="Up">
+                    <i:Interaction.Behaviors>
+                      <core:EventTriggerBehavior EventName="Click">
+                        <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
+                      </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
+                  </AppBarButton>
+                  <AppBarButton Background="Transparent" Command="{Binding RefreshCommand}" ToolTipService.ToolTip="更新" Icon="Refresh" />
+                </CommandBar.PrimaryCommands>
+                <CommandBar.Content>
+                  <toolkit:DockPanel x:Name="TitleLayout" Margin="16 0 0 0">
+                    <HyperlinkButton Command="{Binding PageManager.OpenPageCommand}" CommandParameter="Search" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Margin="0 0 16 0" toolkit:DockPanel.Dock="Left" VerticalAlignment="Stretch" Height="48">
+                      <SymbolIcon Symbol="Find" />
+                    </HyperlinkButton>
+                    <HyperlinkButton toolkit:DockPanel.Dock="Left" Margin="8 0">
+                      <i:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="Click">
+                          <mybehavior:OpenFlyout />
+                        </core:EventTriggerBehavior>
+                      </i:Interaction.Behaviors>
+                      <TextBlock Text="{Binding SearchOptionText}" Style="{StaticResource CaptionTextBlockStyle}"></TextBlock>
+                      <FlyoutBase.AttachedFlyout>
+                        <Flyout>
+                          <StackPanel MaxWidth="300">
+                            <ListView ItemsSource="{Binding MylistSearchOptionListItems}" DisplayMemberPath="Label" SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" SelectionMode="Single" SingleSelectionFollowsFocus="False">
+                              <ListView.ItemContainerStyle>
+                                <Style TargetType="ListViewItem">
+                                  <Setter Property="Width" Value="140" />
+                                </Style>
+                              </ListView.ItemContainerStyle>
+                              <ListView.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <ItemsWrapGrid Orientation="Horizontal" />
+                                  <ItemsWrapGrid Orientation="Horizontal" />
                                 </ItemsPanelTemplate>
-                            </ListView.ItemsPanel>
-                        </ListView>
-
-                        <CommandBar>
-
-                            <CommandBar.PrimaryCommands>
-                                <AppBarButton x:Name="ScrollToTopButton"
-                                              Label="トップへ戻る"
-                                              Icon="Up"
-                                            >
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Click">
-                                            <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
-                                </AppBarButton>
-                                
-                                <AppBarButton Background="Transparent" 
-                                        Command="{Binding RefreshCommand}"
-                                        ToolTipService.ToolTip="更新"
-                                              Icon="Refresh"
-                                        />
-
-                            </CommandBar.PrimaryCommands>
-
-                            <CommandBar.Content>
-
-                                <toolkit:DockPanel x:Name="TitleLayout"
-                            Margin="16 0 0 0"
-                                               
-                            >
-                                    
-                                    <HyperlinkButton Command="{Binding PageManager.OpenPageCommand}"
-                                             CommandParameter="Search"
-                                             Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"
-                                             Margin="0 0 16 0"
-                                                 toolkit:DockPanel.Dock="Left"
-                                                 VerticalAlignment="Stretch"
-                                                 Height="48"
-                                             >
-                                        <SymbolIcon Symbol="Find"
-                                            />
-                                    </HyperlinkButton>
-
-                                    <HyperlinkButton 
-                                           toolkit:DockPanel.Dock="Left"
-                                        Margin="8 0"
-                                    >
-                                        <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="Click" >
-                                                <mybehavior:OpenFlyout />
-                                            </core:EventTriggerBehavior>
-                                        </i:Interaction.Behaviors>
-
-                                        <TextBlock Text="{Binding SearchOptionText}" 
-                                                       Style="{StaticResource CaptionTextBlockStyle}"
-                                                       >
-                                        </TextBlock>
-
-                                        <FlyoutBase.AttachedFlyout>
-                                            <Flyout>
-                                                <StackPanel MaxWidth="300">
-
-                                                    <ListView ItemsSource="{Binding MylistSearchOptionListItems}"
-                                                        DisplayMemberPath="Label"
-                                                        SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}"
-                                                        Margin="0"
-                                                        HorizontalAlignment="Stretch"
-                                                        VerticalAlignment="Center"
-                                                        SelectionMode="Single"
-                                                        SingleSelectionFollowsFocus="False"
-                                                    >
-                                                        <ListView.ItemContainerStyle>
-                                                            <Style TargetType="ListViewItem">
-                                                                <Setter Property="Width" Value="140" />
-                                                            </Style>
-                                                        </ListView.ItemContainerStyle>
-                                                        <ListView.ItemsPanel>
-                                                            <ItemsPanelTemplate>
-                                                                <ItemsWrapGrid Orientation="Horizontal" />
-                                                            </ItemsPanelTemplate>
-                                                        </ListView.ItemsPanel>
-
-                                                    </ListView>
-
-                                                </StackPanel>
-
-
-                                            </Flyout>
-                                        </FlyoutBase.AttachedFlyout>
-
-
-
-                                    </HyperlinkButton>
-
-                                    <StackPanel Background="Transparent" IsHitTestVisible="True">
-                                        <i:Interaction.Behaviors>
-                                            <core:EventTriggerBehavior EventName="Tapped">
-                                                <core:ChangePropertyAction TargetObject="{Binding}" PropertyName="ListPosition" Value="0.0" />
-                                            </core:EventTriggerBehavior>
-                                        </i:Interaction.Behaviors>
-
-                                    </StackPanel>
-                                </toolkit:DockPanel>
-                                
-                                
-                            </CommandBar.Content>
-
-                        </CommandBar>
+                              </ListView.ItemsPanel>
+                            </ListView>
+                          </StackPanel>
+                        </Flyout>
+                      </FlyoutBase.AttachedFlyout>
+                    </HyperlinkButton>
+                    <StackPanel Background="Transparent" IsHitTestVisible="True">
+                      <i:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="Tapped">
+                          <core:ChangePropertyAction TargetObject="{Binding}" PropertyName="ListPosition" Value="0.0" />
+                        </core:EventTriggerBehavior>
+                      </i:Interaction.Behaviors>
                     </StackPanel>
-                </controls:ScrollHeader>
-
-            </GridView.Header>
-
-
-            <GridView.ItemTemplate>
-                <DataTemplate>
-                    <local:MylistListItem />
-                </DataTemplate>
-            </GridView.ItemTemplate>
-
-        </GridView>
-        
-        
-    </Grid>
+                  </toolkit:DockPanel>
+                </CommandBar.Content>
+              </CommandBar>
+            </StackPanel>
+          </controls:ScrollHeader>
+        </Grid>
+      </GridView.Header>
+      <GridView.ItemTemplate>
+        <DataTemplate>
+          <local:MylistListItem />
+        </DataTemplate>
+      </GridView.ItemTemplate>
+    </GridView>
+    <VisualStateManager.VisualStateGroups>
+      <!-- レイアウトモード -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
+            <Setter Target="ItemsList.Padding" Value="{StaticResource ContentListViewBodyMargin_TV}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Desktop" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
+            <Setter Target="ItemsList.Padding" Value="{StaticResource ContentListViewBodyMargin_Desktop}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Tablet" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="ItemsList.Padding" Value="{StaticResource ContentListViewBodyMargin_Tablet}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Mobile" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="ItemsList.Padding" Value="{StaticResource ContentListViewBodyMargin_Mobile}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
 </Page>

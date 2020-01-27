@@ -14,6 +14,7 @@ namespace NicoPlayerHohoema.Models
         // Note: 再生中のハートビート管理を含めた管理
         // MediaSourceをMediaPlayerに設定する役割
 
+        public override string QualityId { get; }
         public override NicoVideoQuality Quality { get; }
 
         public Uri VideoUrl { get; }
@@ -32,6 +33,8 @@ namespace NicoPlayerHohoema.Models
             {
                 Quality = NicoVideoQuality.Smile_Original;
             }
+
+            QualityId = Quality.ToString();
         }
 
         protected override async Task<MediaSource> GetPlyaingVideoMediaSource()

@@ -1,0 +1,335 @@
+﻿#### General ####
+cancel = キャンセル
+Cancel = キャンセル
+CreateNew = 新規作成
+Delete = 削除
+Reset = リセット
+Share = 共有
+Copy = コピー
+OpenWithBrowser = ブラウザで開く
+Search = 検索
+
+Refresh = 更新
+ReturnToPageTop = トップへ戻る
+NoSelected = 選択なし
+
+#### Hohoema App ####
+HohoemaAppServiceLevel.Offline = オフライン
+HohoemaAppServiceLevel.WithoutLoggedIn = ログイン無し
+HohoemaAppServiceLevel.LoggedIn = ログイン
+HohoemaAppServiceLevel.ServiceUnavailable = ニコニコ動画サービス利用不可
+
+NiconicoServiceType.Video = 動画
+NiconicoServiceType.Live = 生放送
+
+
+#### Settings ####
+ApplicationDisplayMode = 表示モード
+ApplicationDisplayMode.TV = テレビ
+ApplicationDisplayMode.Desktop = デスクトップ
+ApplicationDisplayMode.Tablet = タブレット
+ApplicationDisplayMode.Mobile = モバイル
+ApplicationInteractionMode = レイアウトモード
+ApplicationInteractionMode.Controller = コントローラー
+ApplicationInteractionMode.Mouse = マウス
+ApplicationInteractionMode.Touch = タッチ
+
+
+#### Niconico General ####
+PrivateReasonType.PostedBy = 投稿者削除
+PrivateReasonType.Private = 非公開設定
+PrivateReasonType.Publishers = 管理人削除
+PrivateReasonType.RightsHolders = 権利者削除
+
+VideoOwner = 投稿者
+Follow = フォロー
+
+#### Nico Follow ####
+FollowItemType.User = ユーザー
+FollowItemType.Mylist = マイリスト
+FollowItemType.Tag = タグ
+FollowItemType.Community = コミュニティ
+FollowItemType.Channel = チャンネル
+
+ConfirmRemoveFollow_DialogDescWithItemName = 「{0}({1})」のフォローを解除します
+ConfirmRemoveFollow_DialogTitle = フォロー解除の確認
+
+#### Nicorepo ####
+NicoRepoItemTopic.Unknown = 不明
+NicoRepoItemTopic.Live_Channel_Program_Onairs = 生放送開始（チャンネル）
+NicoRepoItemTopic.Live_Channel_Program_Reserve = 生放送の予約（チャンネル）
+NicoRepoItemTopic.Live_User_Program_OnAirs = 生放送開始（ユーザー）
+NicoRepoItemTopic.Live_User_Program_Reserve = 生放送の予約（ユーザー）
+NicoRepoItemTopic.NicoVideo_Channel_Blomaga_Upload = ブロマガ投稿
+NicoRepoItemTopic.NicoVideo_Channel_Video_Upload = チャンネルの動画投稿
+NicoRepoItemTopic.NicoVideo_Community_Level_Raise = コミュニティレベルの上昇
+NicoRepoItemTopic.NicoVideo_User_Community_Video_Add = 動画をコミュニティ登録
+NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video = 動画をマイリスト登録
+NicoRepoItemTopic.NicoVideo_User_Video_Advertise = ユーザー動画が広告された
+NicoRepoItemTopic.NicoVideo_User_Video_Kiriban_Play = 再生数キリ番
+NicoRepoItemTopic.NicoVideo_User_Video_UpdateHighestRankings = ランキング最高順位更新
+NicoRepoItemTopic.NicoVideo_User_Video_Upload = ユーザーの動画投稿
+
+NicorepoNoItems = 表示可能なニレコポがありません
+
+#### Ranking ####
+Ranking = ランキング
+RankingTerm.Total = 全期間
+RankingTerm.Hour = 毎時
+RankingTerm.Month = 毎月
+RankingTerm.Week = 毎週
+RankingTerm.Day = 24h
+
+RankingGenre.All = 全ジャンル
+RankingGenre.Animal = 動物
+RankingGenre.Anime = アニメ
+RankingGenre.Commentary_Lecture = 解説・講座
+RankingGenre.Cooking = 料理
+RankingGenre.Dance = ダンス
+RankingGenre.Nature = 自然
+RankingGenre.Music_Sound = 音楽・サウンド
+RankingGenre.Other = その他
+RankingGenre.R18 = R-18（アダルトコンテンツ）
+RankingGenre.Radio = ラジオ
+RankingGenre.Society_Politics_News = 社会・政治・時事
+RankingGenre.Sports = スポーツ
+RankingGenre.Technology_Craft = 技術・工作
+RankingGenre.Traveling_Outdoor = 旅行・アウトドア
+RankingGenre.Vehicle = 乗り物
+RankingGenre.Game = ゲーム
+RankingGenre.Entertainment = エンターテイメント
+RankingGenre.HotTopic = 話題
+
+RankingNoItems = ランキングアイテムの取得に失敗しました\nしばらく後で再度アクセスをお試しください
+
+RankingTitleWithGenre = {0} のランキング
+
+#### Comment Command Editer ####
+CommentCommand = コマンド
+CommentSubmitWithAnonymous = 匿名で投稿
+CommentSubmitWithAnonymousDescription = チャンネル・コミュニティ動画では匿名投稿できません
+CommentSize = 文字サイズ
+CommentVerticalAlignment = 縦揃え
+CommentColor = コメント色
+UseFreeInputCommand = 任意入力コマンドを使う
+FreeInputCommandTextBoxPlacefolderText = ここにコマンドを自由入力
+
+#### Video ####
+NicoVideoQuality.Smile_Low = 旧 低画質
+NicoVideoQuality.Smile_Original = 旧 オリジナル画質
+NicoVideoQuality.Dmc_High = 高画質
+NicoVideoQuality.Dmc_Low = 低画質
+NicoVideoQuality.Dmc_Midium = 中画質
+NicoVideoQuality.Dmc_Mobile = モバイル画質
+NicoVideoQuality.Dmc_SuperHigh = すごく高画質
+
+VideoPostAt = 投稿日
+VideoPostAt_Short = 投稿
+
+ViewCount = 再生数
+ViewCount_Short = 再生
+CommentCount = コメント数
+CommentCount_Short = コメ
+MylistCount = マイリスト数
+MylistCount_Short = マイ
+
+#### Live ####
+LivePlayingQuality = 生放送画質
+super_high = すごく高画質
+high = 高画質
+normal = 通常画質
+low = 低画質
+super_low = モバイル画質
+audio_high = 音質優先
+
+LowLatency = 低遅延モード
+
+ReservationStatus.PRODUCT_ARCHIVE_TIMEOUT = 視聴期間終了
+ReservationStatus.PRODUCT_ARCHIVE_WATCH = 視聴可能
+ReservationStatus.RESERVED = 予約済み
+ReservationStatus.TSARCHIVE = 視聴可能
+ReservationStatus.USE_LIMIT_DATE_OUT = 視聴権の期限切れ
+ReservationStatus.WATCH = 視聴可能
+ReservationStatus.USER_TIMESHIFT_DATE_OUT = 視聴期間終了
+ReservationStatus.FIRST_WATCH = 未視聴
+ReservationStatus.LIMIT_DATE_OUT = 視聴権の使用期限切れ
+
+Expired_AllDayLong = 終日
+Expired_Unlimited = 期限未指定または無制限
+
+DeleteOutdatedReservationConfirm_Title = 期限切れタイムシフトの一括削除
+DeleteReservationConfirm_Agree = タイムシフト予約を削除する
+DeleteReservationConfirmText = 以下のタイムシフト予約を削除します
+DeleteSelectedReservationConfirm_Title = 選択されたタイムシフトの一括削除
+DeletingReservations = タイムシフトを削除しています
+
+#### PlayerSettings ####
+CommentOpacityKind.BitSukesuke = 少し透過
+CommentOpacityKind.MoreSukesuke = かなり透過
+CommentOpacityKind.NoSukesuke = 透過しない
+
+PlaylistEndAction.NothingDo = 何もしない
+PlaylistEndAction.ChangeIntoSplit = プレイヤーを小さく表示
+PlaylistEndAction.CloseIfPlayWithCurrentWindow = プレイヤーを閉じる
+
+# 全て表示（NGScoreを無視）
+CommentNGScoreShareLevel.None = 無し
+# NGScore -10000 以上を表示
+CommentNGScoreShareLevel.Weak = 弱 (-10000)
+# NGScore -4800 以上を表示
+CommentNGScoreShareLevel.Middle = 中 (-4800)
+# NGScore -1000 以上を表示
+CommentNGScoreShareLevel.Strong = 強 (-1000)
+# NGScore -100 以上を表示
+CommentNGScoreShareLevel.VeryStrong = すごく強 (-100)
+# NGScore -10 以上を表示
+CommentNGScoreShareLevel.UltraVeryStrong = 超スーパー強 (-10)
+
+#### PageType ####
+HohoemaPageType.ChannelInfo = チャンネル情報
+HohoemaPageType.ChannelVideo = チャンネル動画
+HohoemaPageType.LiveInfomation = 生放送情報
+HohoemaPageType.CacheManagement = キャッシュ管理
+HohoemaPageType.Community = コミュニティ情報
+HohoemaPageType.CommunityVideo = コミュニティ動画一覧
+HohoemaPageType.ConfirmWatchHurmfulVideo = 有害指定動画の視聴確認
+HohoemaPageType.FeedGroup = フィードグループ
+HohoemaPageType.FeedGroupManage = 新着動画
+HohoemaPageType.FeedVideoList = フィードの動画一覧
+HohoemaPageType.FollowManage = フォロー
+HohoemaPageType.NicoRepo = ニコレポ
+HohoemaPageType.RankingCategory = カテゴリランキング
+HohoemaPageType.RankingCategoryList = ランキング一覧
+HohoemaPageType.Recommend = オススメ動画
+HohoemaPageType.Search = 検索
+HohoemaPageType.SearchResultCommunity = コミュニティ検索
+HohoemaPageType.SearchResultKeyword = キーワード検索
+HohoemaPageType.SearchResultLive = 生放送検索
+HohoemaPageType.SearchResultMylist = マイリスト検索
+HohoemaPageType.SearchResultTag = タグ検索
+HohoemaPageType.Settings = 設定
+HohoemaPageType.Splash = 起動画面
+HohoemaPageType.Subscription = 購読
+HohoemaPageType.Timeshift = タイムシフト
+HohoemaPageType.UserInfo = ユーザー情報
+HohoemaPageType.UserMylist = マイリスト一覧
+HohoemaPageType.UserVideo = ユーザー動画一覧
+HohoemaPageType.VideoInfomation = 動画情報
+HohoemaPageType.WatchHistory = 視聴履歴
+HohoemaPageType.LocalPlaylist = プレイリスト
+HohoemaPageType.Mylist = マイリスト
+
+#### Search ####
+SearchTarget.Keyword = キーワード
+SearchTarget.Tag = タグ
+SearchTarget.Mylist = マイリスト
+SearchTarget.Community = コミュニティ
+SearchTarget.Niconama = 生放送
+
+TagSearchNoItems = タグに一致するアイテムはありません
+KeywordSearchNoItems = キーワードに一致するアイテムはありません
+
+#### Watch History ####
+WatchHistoryRemoveAll = 全ての履歴を削除
+WatchHistoryConfirmRemove = 本当に削除
+
+WatchHistoryConfirmRemoveDescription = 視聴履歴を全て削除します\n本当に削除してもいいですか？
+
+WatchCountWithUnit = {0}回
+
+WatchHistoryNoItems = 視聴履歴はありません
+
+
+#### Channel ####
+
+ChannelVideoNoItems = チャンネル動画はありません
+
+#### Playlist ####
+PlayAll = すべて再生
+
+DeleteLocalPlaylistDescription = この操作は元に戻せません。
+DeleteLocalPlaylistTitle = {0} を削除します
+
+#### Mylist #### 
+MylistOwner = オーナー情報
+MylistEditInfo = マイリスト情報を編集
+MylistDelete = マイリストを削除
+
+#### Local Playlist ####
+LocalPlaylistDelete = プレイリストを削除
+LocalPlaylistNoItems = プレイリストは空です
+
+
+#### Watch After #### 
+@view = あとで見る
+RemoveWatchedItems = 視聴済みを削除
+
+
+
+#### Video Items Select Action ####
+
+RemoveWatchHisotryItem = 視聴履歴から削除
+LocalMylistRemoveItem = ローカルマイリストから削除
+MylistRemoveItem = マイリストから削除
+QueueAddItem = キューに追加
+QueueRemoveItem = キューから削除
+WatchAfterAddItem = あとで見るに追加
+WatchAfterRemoveItem = あとで見るから削除
+MylistAddItem = マイリストに追加
+LocalMylistAddItem = ローカルマイリストに追加
+SubscriptionAddVideoOwner = 投稿者を購読に追加
+
+OpenVideoInfo = 動画情報
+OpenOwnerVideos = 投稿者の動画一覧
+AddHiddenVideoOwner = 投稿者を非表示に設定
+
+CopyVideoId = 動画IDをコピー
+CopyVideoLink = 動画リンクをコピー
+CopyShareText = 共有用テキストをコピー
+
+CacheRequest = キャッシュ取得
+CacheRemove = キャッシュ削除
+
+SelectAll = すべて選択
+SelectStart = 選択開始
+SelectEnd = 選択終了
+
+#### Subscribe feature ####
+SubscriptionGroup_Create = 購読グループを作成
+SubscriptionsEmptyNotice = 購読は新着動画のチェックを自動化できる機能です。購読グループを作成して、購読グループにユーザーや検索キーワードや登録すると、定期的（15分毎）に自動巡回して新着があれば「あとで見る」などのプレイリストに追加してくれます。
+SubscriptionAddUser = 投稿者を購読に追加
+SubscriptionAddMylist = マイリストを購読に追加
+SubscriptionAddKeyword = キーワードを購読に追加
+SubscriptionAddTag = タグを購読に追加
+SubscriptionAddToNew = 購読を作成して追加
+
+
+#### Video Cache feature ####
+CacheProgress = DL中
+CachePending = DL順番待ち
+
+
+#### User Videos Page ####
+UserVideosNoItems = 投稿動画はありません
+UserVideosIsPrivate = 投稿動画は非公開です
+
+
+
+#### Cache Management Page ####
+OpenCacheFolder = 保存フォルダを開く
+ChangeCacheFolder = 保存フォルダを変更
+OpenHohoemaCacheVideoFairUsePolicyText = 「キャッシュ機能の利用に関する確認」を表示
+
+RequireAcceptToUsingVideoCacheInHohoema = キャッシュ機能を有効にするには\n「キャッシュ機能の利用に関する確認」への同意が必要です
+
+RequirePickFolderToUsingVieoCacheInHohoema = キャッシュ機能を有効にするには\nキャッシュフォルダの指定が必要です
+PickCacheSaveFolder = キャッシュ保存フォルダを選択する
+
+
+
+#### Unknonw ####
+BookmarkType.User = ユーザー動画
+SearchWithKeyword = キーワード検索
+SearchWithTag = タグ検索
+
+

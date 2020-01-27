@@ -23,7 +23,7 @@ namespace NicoPlayerHohoema.Services
                 case Interfaces.IVideoContent videoContent:
                     uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.VideoWatchPageUrl, videoContent.Id));
                     break;
-                case Interfaces.IMylistItem mylist:
+                case Interfaces.IMylist mylist:
                     uri = new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.MakeMylistPageUrl(mylist.Id)));
                     break;
                 case Interfaces.ILiveContent live:

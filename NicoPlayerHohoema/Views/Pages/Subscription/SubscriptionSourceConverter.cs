@@ -26,34 +26,6 @@ namespace NicoPlayerHohoema.Views.Subscriptions
                         Models.Subscription.SubscriptionSourceType.Channel,
                         channel.Id
                         );
-                case Interfaces.IVideoContent video:
-                    if (string.IsNullOrEmpty(video.ProviderId))
-                    {
-                        break;
-                    }
-                    Models.Subscription.SubscriptionSourceType? souceType = null;
-                    string ownerName = video.ProviderName;
-                    switch (video.ProviderType)
-                    {
-                        case NicoVideoUserType.User:
-                            souceType = Models.Subscription.SubscriptionSourceType.User;
-                            break;
-                        case NicoVideoUserType.Channel:
-                            souceType = Models.Subscription.SubscriptionSourceType.Channel;
-                            break;
-                        default:
-                            break;
-                    }
-
-                    if (souceType.HasValue)
-                    {
-                        return new Models.Subscription.SubscriptionSource(
-                            video.ProviderName,
-                            souceType.Value,
-                            video.ProviderId
-                            );
-                    }
-                    break;
                 case Interfaces.IMylist mylist:
                     return new Models.Subscription.SubscriptionSource(
                         mylist.Label,

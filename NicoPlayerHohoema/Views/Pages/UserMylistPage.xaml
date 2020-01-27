@@ -21,106 +21,29 @@
     xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
     xmlns:myTrigger="using:NicoPlayerHohoema.Views.StateTrigger"
     xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts"
-    DataContext="{x:Null}"
+      xmlns:windowsStateTriggers="using:WindowsStateTriggers"
+      DataContext="{x:Null}"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d"
     >
-    <Grid>
-
-        <VisualStateManager.VisualStateGroups>
-
-            <!-- トップバー表示時のタイトル位置ずらし -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="ContentItemsView.Padding" Value="48 0 48 27" />
-                        <Setter Target="ScrollHeader.Mode" Value="None" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="0" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-            
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{Binding IsLoginUserMylist.Value}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="LoginUserMylistActions.Visibility" Value="Visible" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-
-        </VisualStateManager.VisualStateGroups>
-        
-        
-        
-        <Grid x:Name="ContentLayout">
-
-
-            <GridView ItemsSource="{Binding ItemsView}" 
-                      uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
-                      IsItemClickEnabled="True"
-                      SelectionMode="None"
-                      x:Name="ContentItemsView"
-                      Padding="8 0 8 24"
-                      IncrementalLoadingTrigger="Edge"
-                      IncrementalLoadingThreshold="80"
-
-                      xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
-                >
-
-                <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
-                    <DataTemplate>
-                        <flyouts:MylistItemFlyout />
-                    </DataTemplate>
-                </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
-                
-
-                <GridView.Header>
-                    <mycontrols:ScrollHeader 
-                        x:Name="ScrollHeader"
-                        Mode="Sticky">
-
-                        <Grid x:Name="HeaderLayout"
-                          VerticalAlignment="Top"
-                              Background="{StaticResource ApplicationPageBackgroundThemeBrush}"
-                          >
-                            <StackPanel>
-                                <toolkit:DockPanel >
-                                    <CommandBar toolkit:DockPanel.Dock="Right" 
-                                            Background="Transparent"
-                                        >
-
-                                        <AppBarButton Background="Transparent" 
-                                                      Label="並べ替え"
-                                                      Icon="Sort"
-                                                      Visibility="Collapsed"
-                                            >
-                                            <AppBarButton.Flyout>
-                                                <MenuFlyout>
-                                                    <MenuFlyoutItem Text="並び替えをリセット"
-                                                            Command="{Binding ResetSortCommand}"
-                                                        />
-                                                    
-                                                    <!--
+  <Grid>
+    
+    <Grid x:Name="ContentLayout">
+      <GridView x:Name="ContentItemsView" ItemsSource="{Binding ItemsView}" uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}" IsItemClickEnabled="True" SelectionMode="None" Padding="8 0 8 24" IncrementalLoadingTrigger="Edge" IncrementalLoadingThreshold="80" xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions">
+        <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
+          <DataTemplate>
+            <flyouts:MylistItemFlyout />
+          </DataTemplate>
+        </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
+        <GridView.Header>
+          <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
+            <mycontrols:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
+              <CommandBar toolkit:DockPanel.Dock="Right" Background="Transparent">
+                <AppBarButton Background="Transparent" Label="並べ替え" Icon="Sort" Visibility="Collapsed">
+                  <AppBarButton.Flyout>
+                    <MenuFlyout>
+                      <MenuFlyoutItem Text="並び替えをリセット" Command="{Binding ResetSortCommand}" />
+                      <!--
                                                     <MenuFlyoutItem Text="作成日（新）"
                                                             Command="{Binding SortAscendingCommand}"
                                                                     CommandParameter=""
@@ -129,71 +52,89 @@
                                                             Command="{Binding SortDescendingCommand}"
                                                         />
                                                     -->
-
-                                                    <MenuFlyoutItem Text="タイトル（順）"
-                                                            Command="{Binding SortAscendingCommand}"
-                                                                    CommandParameter="Label"
-                                                        />
-                                                    <MenuFlyoutItem Text="タイトル（逆）"
-                                                            Command="{Binding SortDescendingCommand}"
-                                                                    CommandParameter="Label"
-                                                        />
-                                                    <MenuFlyoutItem Text="アイテム数（大）"
-                                                            Command="{Binding SortAscendingCommand}"
-                                                                    CommandParameter="Count"
-                                                        />
-                                                    <MenuFlyoutItem Text="アイテム数（小）"
-                                                            Command="{Binding SortDescendingCommand}"
-                                                                    CommandParameter="Count"
-                                                        />
-                                                </MenuFlyout>
-                                            </AppBarButton.Flyout>
-
-
-                                            <SymbolIcon Symbol="Sort" />
-
-
-                                        </AppBarButton>
-
-                                        <AppBarButton Background="Transparent" 
-                                                      Label="追加"
-                                                      Icon="Add"
-                                                    Visibility="Collapsed"
-                                                    x:Name="LoginUserMylistActions"
-                                            >
-                                            <AppBarButton.Flyout>
-                                                <MenuFlyout>
-                                                    <MenuFlyoutItem Text="ローカルマイリストを作成"
-                                                    Command="{Binding AddLocalMylistCommand}"
-                                                    />
-                                                    <MenuFlyoutItem Text="マイリストを作成"
-                                                    Command="{Binding AddMylistGroupCommand}"
-                                                    />
-                                                </MenuFlyout>
-                                            </AppBarButton.Flyout>
-                                        </AppBarButton>
-                                    </CommandBar>
-
-                                    <Border Background="Transparent" IsHitTestVisible="True"
-                                        Margin="16 0 0 0"
-                                    >
-                                    </Border>
-                                </toolkit:DockPanel>
-                            </StackPanel>
-                        </Grid>
-                    </mycontrols:ScrollHeader>
-
-                </GridView.Header>
-
-                <GridView.ItemTemplate>
-                    <DataTemplate>
-                        <local:MylistListItem />
-
-                    </DataTemplate>
-                </GridView.ItemTemplate>
-
-            </GridView>
-        </Grid>
+                      <MenuFlyoutItem Text="タイトル（順）" Command="{Binding SortAscendingCommand}" CommandParameter="Label" />
+                      <MenuFlyoutItem Text="タイトル（逆）" Command="{Binding SortDescendingCommand}" CommandParameter="Label" />
+                      <MenuFlyoutItem Text="アイテム数（大）" Command="{Binding SortAscendingCommand}" CommandParameter="Count" />
+                      <MenuFlyoutItem Text="アイテム数（小）" Command="{Binding SortDescendingCommand}" CommandParameter="Count" />
+                    </MenuFlyout>
+                  </AppBarButton.Flyout>
+                  <SymbolIcon Symbol="Sort" />
+                </AppBarButton>
+                <AppBarButton Background="Transparent" Label="追加" Icon="Add" Visibility="Collapsed" x:Name="LoginUserMylistActions">
+                  <AppBarButton.Flyout>
+                    <MenuFlyout>
+                      <MenuFlyoutItem Text="ローカルマイリストを作成" Command="{Binding AddLocalMylistCommand}" />
+                      <MenuFlyoutItem Text="マイリストを作成" Command="{Binding AddMylistGroupCommand}" />
+                    </MenuFlyout>
+                  </AppBarButton.Flyout>
+                </AppBarButton>
+              </CommandBar>
+            </mycontrols:ScrollHeader>
+          </Grid>
+        </GridView.Header>
+        <GridView.ItemTemplate>
+          <DataTemplate>
+            <local:MylistListItem />
+          </DataTemplate>
+        </GridView.ItemTemplate>
+        <GridView.ItemsPanel>
+          <ItemsPanelTemplate>
+            <ItemsWrapGrid x:Name="ItemsPanel" Orientation="Horizontal" />
+          </ItemsPanelTemplate>
+        </GridView.ItemsPanel>
+      </GridView>
     </Grid>
-    
+    <VisualStateManager.VisualStateGroups>
+      <!-- レイアウトモード -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
+            <Setter Target="ItemsPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_TV}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Desktop" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
+            <Setter Target="ItemsPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_Desktop}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Tablet" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Tablet}" />
+            <Setter Target="ItemsPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_Tablet}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Mobile" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="ItemsPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_Mobile}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding IsLoginUserMylist.Value}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="LoginUserMylistActions.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
 </Page>

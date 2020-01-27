@@ -14,17 +14,35 @@ using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Services;
 using Prism.Navigation;
 using System.Threading.Tasks;
+using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.Interfaces;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, INavigatedAwareAsync
+    public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = SearchOption.Keyword,
+                PageType = HohoemaPageType.SearchResultKeyword,
+                Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
+            };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.Keyword);
+        }
 
         public SearchResultKeywordPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             NGSettings ngSettings,
             SearchProvider searchProvider,
             SubscriptionManager subscriptionManager,
-            Services.HohoemaPlaylist hohoemaPlaylist,
+            HohoemaPlaylist hohoemaPlaylist,
             Services.PageManager pageManager,
             Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
@@ -59,6 +77,8 @@ namespace NicoPlayerHohoema.ViewModels
                    await ResetList();
                })
                 .AddTo(_CompositeDisposable);
+
+            ApplicationLayoutManager = applicationLayoutManager;
             NgSettings = ngSettings;
             SearchProvider = searchProvider;
             SubscriptionManager1 = subscriptionManager;
@@ -189,6 +209,14 @@ namespace NicoPlayerHohoema.ViewModels
 		static public KeywordSearchPagePayloadContent SearchOption { get; private set; }
 		public ReactiveProperty<int> LoadedPage { get; private set; }
 
+        private string _keyword;
+        public string Keyword
+        {
+            get { return _keyword; }
+            set { SetProperty(ref _keyword, value); }
+        }
+
+
         private string _SearchOptionText;
         public string SearchOptionText
         {
@@ -220,10 +248,11 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public NGSettings NgSettings { get; }
         public SearchProvider SearchProvider { get; }
         public SubscriptionManager SubscriptionManager1 { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
 
@@ -235,9 +264,11 @@ namespace NicoPlayerHohoema.ViewModels
             var mode = parameters.GetNavigationMode();
             if (mode == NavigationMode.New)
             {
+                Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"));
+
                 SearchOption = new KeywordSearchPagePayloadContent()
                 {
-                    Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"))
+                    Keyword = Keyword
                 };
             }
 
@@ -256,8 +287,6 @@ namespace NicoPlayerHohoema.ViewModels
             RaisePropertyChanged(nameof(KeywordSearchBookmark));
 
             Database.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
-
-            PageManager.PageTitle = $"\"{SearchOption.Keyword}\"";
 
             return base.OnNavigatedToAsync(parameters);
         }
@@ -281,19 +310,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             return base.CheckNeedUpdateOnNavigateTo(mode);
         }
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = SearchOption.Keyword,
-                PageType = HohoemaPageType.SearchResultKeyword,
-                Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
-            };
-
-            return true;
-        }
-
         #endregion
 
     }

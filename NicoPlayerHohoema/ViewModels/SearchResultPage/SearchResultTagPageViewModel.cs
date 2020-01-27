@@ -6,6 +6,8 @@ using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Models.Subscription;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase;
+using NicoPlayerHohoema.UseCase.Playlist;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings;
@@ -22,14 +24,30 @@ using System.Threading.Tasks;
 namespace NicoPlayerHohoema.ViewModels
 {
     
-	public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, Interfaces.ISearchWithtag, INavigatedAwareAsync
+	public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, Interfaces.ISearchWithtag, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = SearchOption.Keyword,
+                PageType = HohoemaPageType.SearchResultTag,
+                Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
+            };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.Keyword);
+        }
+
         public SearchResultTagPageViewModel(
+           ApplicationLayoutManager applicationLayoutManager,
            NGSettings ngSettings,
            Models.NiconicoSession niconicoSession,
            SearchProvider searchProvider,
            SubscriptionManager subscriptionManager,
-           Services.HohoemaPlaylist hohoemaPlaylist,
+           HohoemaPlaylist hohoemaPlaylist,
            Services.PageManager pageManager,
            Services.DialogService dialogService,
            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand,
@@ -40,6 +58,7 @@ namespace NicoPlayerHohoema.ViewModels
             SubscriptionManager = subscriptionManager;
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
+            ApplicationLayoutManager = applicationLayoutManager;
             NgSettings = ngSettings;
             NiconicoSession = niconicoSession;
             HohoemaDialogService = dialogService;
@@ -79,12 +98,12 @@ namespace NicoPlayerHohoema.ViewModels
             SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
         }
 
-
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public NGSettings NgSettings { get; }
         public Models.NiconicoSession NiconicoSession { get; }
         public SearchProvider SearchProvider { get; }
         public SubscriptionManager SubscriptionManager { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
         public Services.DialogService HohoemaDialogService { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
@@ -188,6 +207,14 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<SearchSortOptionListItem> SelectedSearchSort { get; private set; }
 
+        private string _keyword;
+        public string Keyword
+        {
+            get { return _keyword; }
+            set { SetProperty(ref _keyword, value); }
+        }
+
+
         private string _SearchOptionText;
         public string SearchOptionText
         {
@@ -257,9 +284,11 @@ namespace NicoPlayerHohoema.ViewModels
             var mode = parameters.GetNavigationMode();
             if (mode == NavigationMode.New)
             {
+                Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"));
+
                 SearchOption = new TagSearchPagePayloadContent()
                 {
-                    Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"))
+                    Keyword = Keyword
                 };
             }
 
@@ -281,8 +310,6 @@ namespace NicoPlayerHohoema.ViewModels
             FollowButtonService.SetFollowTarget(this);
 
             RaisePropertyChanged(nameof(TagSearchBookmark));
-
-            PageManager.PageTitle = $"\"{SearchOption.Keyword}\"";
 
             return base.OnNavigatedToAsync(parameters);
         }
@@ -310,17 +337,6 @@ namespace NicoPlayerHohoema.ViewModels
             return base.CheckNeedUpdateOnNavigateTo(mode);
         }
 
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = SearchOption.Keyword,
-                PageType = HohoemaPageType.SearchResultTag,
-                Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
-            };
-
-            return true;
-        }
 
         #endregion
 

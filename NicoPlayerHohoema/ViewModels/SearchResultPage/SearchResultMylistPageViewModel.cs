@@ -14,18 +14,39 @@ using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Services;
 using Prism.Navigation;
+using NicoPlayerHohoema.Interfaces;
+using NicoPlayerHohoema.Repository.Playlist;
+using System.Reactive.Linq;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class SearchResultMylistPageViewModel : HohoemaListingPageViewModelBase<Interfaces.IMylist>, INavigatedAwareAsync
+    public class SearchResultMylistPageViewModel : HohoemaListingPageViewModelBase<MylistPlaylist>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = SearchOption.Keyword,
+                PageType = HohoemaPageType.SearchResultMylist,
+                Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
+            };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.Keyword);
+        }
+
         public SearchResultMylistPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             SearchProvider searchProvider,
             Services.PageManager pageManager
             )
         {
             SelectedSearchSort = new ReactivePropertySlim<SearchSortOptionListItem>();
             SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
+            ApplicationLayoutManager = applicationLayoutManager;
             SearchProvider = searchProvider;
             PageManager = pageManager;
         }
@@ -93,6 +114,12 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactivePropertySlim<SearchSortOptionListItem> SelectedSearchSort { get; private set; }
 
+        private string _keyword;
+        public string Keyword
+        {
+            get { return _keyword; }
+            set { SetProperty(ref _keyword, value); }
+        }
 
 
         private string _SearchOptionText;
@@ -140,6 +167,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public SearchProvider SearchProvider { get; }
         public PageManager PageManager { get; }
 
@@ -150,9 +178,11 @@ namespace NicoPlayerHohoema.ViewModels
             var mode = parameters.GetNavigationMode();
             if (mode == NavigationMode.New)
             {
+                Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"));
+
                 SearchOption = new MylistSearchPagePayloadContent()
                 {
-                    Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"))
+                    Keyword = Keyword
                 };
             }
 
@@ -173,8 +203,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             Database.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
 
-            PageManager.PageTitle = $"\"{SearchOption.Keyword}\"";
-
             return base.OnNavigatedToAsync(parameters);
         }
         
@@ -182,7 +210,7 @@ namespace NicoPlayerHohoema.ViewModels
         #region Implement HohoemaVideListViewModelBase
 
 
-        protected override IIncrementalSource<Interfaces.IMylist> GenerateIncrementalSource()
+        protected override IIncrementalSource<MylistPlaylist> GenerateIncrementalSource()
 		{
 			return new MylistSearchSource(new MylistSearchPagePayloadContent()
             {
@@ -201,22 +229,10 @@ namespace NicoPlayerHohoema.ViewModels
             return base.CheckNeedUpdateOnNavigateTo(mode);
         }
 
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = SearchOption.Keyword,
-                PageType = HohoemaPageType.SearchResultMylist,
-                Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
-            };
-
-            return true;
-        }
-
         #endregion
     }
 
-	public class MylistSearchSource : IIncrementalSource<Interfaces.IMylist>
+	public class MylistSearchSource : IIncrementalSource<MylistPlaylist>
 	{
         public MylistSearchSource(
             MylistSearchPagePayloadContent searchOption,
@@ -252,7 +268,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public async Task<int> ResetSource()
 		{
 			// Note: 件数が1だとJsonのParseがエラーになる
-			_MylistGroupResponse = await SearchProvider.MylistSearchAsync(
+			var res = await SearchProvider.MylistSearchAsync(
 				SearchOption.Keyword,
 				0,
 				2,
@@ -260,15 +276,15 @@ namespace NicoPlayerHohoema.ViewModels
 				SearchOption.Order
 				);
 
-			return (int)_MylistGroupResponse.GetTotalCount();
+			return res.TotalCount;
 		}
 
 
 		
 
-		public async Task<IAsyncEnumerable<Interfaces.IMylist>> GetPagedItems(int head, int count)
+		public async Task<IAsyncEnumerable<MylistPlaylist>> GetPagedItems(int head, int count)
 		{
-			var response = await SearchProvider.MylistSearchAsync(
+			var result = await SearchProvider.MylistSearchAsync(
 				SearchOption.Keyword
 				, (uint)head
 				, (uint)count
@@ -276,17 +292,7 @@ namespace NicoPlayerHohoema.ViewModels
 				, SearchOption.Order
 			);
 
-            return response.MylistGroupItems?
-                .Select(item => new OtherOwneredMylist(item.VideoInfoItems.Select(x => x.Video.Id).ToList() ?? Enumerable.Empty<string>().ToList())
-                {
-                    Label = item.Name,
-                    Description = item.Description,
-                    ItemCount = (int)item.ItemCount,
-
-                    
-                } as Interfaces.IMylist)
-                .ToAsyncEnumerable()
-            ?? AsyncEnumerable.Empty<Interfaces.IMylist>();
+            return result.IsSuccess ? result.Items.ToAsyncEnumerable() : AsyncEnumerable.Empty<MylistPlaylist>();
         }
 	}
 }

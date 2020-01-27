@@ -11,12 +11,12 @@ namespace NicoPlayerHohoema.Commands
 {
     public sealed class NicoLiveUserIdAddToNGCommand : DelegateCommandBase
     {
-        public NicoLiveUserIdAddToNGCommand(NGSettings ngSettings)
-        {
-            NgSettings = ngSettings;
-        }
+        private readonly PlayerSettings _playerSettings;
 
-        public NGSettings NgSettings { get; }
+        public NicoLiveUserIdAddToNGCommand(PlayerSettings playerSettings)
+        {
+            _playerSettings = playerSettings;
+        }
 
         protected override bool CanExecute(object parameter)
         {
@@ -28,7 +28,7 @@ namespace NicoPlayerHohoema.Commands
             var userId = parameter as string;
             var screenName = Database.NicoVideoOwnerDb.Get(userId)?.ScreenName;
 
-            NgSettings.AddNGLiveCommentUserId(userId, screenName);
+            _playerSettings.AddNGLiveCommentUserId(userId, screenName);
         }
     }
 }

@@ -23,15 +23,55 @@ using NicoPlayerHohoema.Database.Local;
 using System.Diagnostics;
 using System.Reactive.Concurrency;
 using Prism.Events;
+using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.Interfaces;
+using I18NPortable;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class RankingCategoryPageViewModel : HohoemaListingPageViewModelBase<RankedVideoInfoControlViewModel>, INavigatedAwareAsync
+    public class RankingCategoryPageViewModel 
+        : HohoemaListingPageViewModelBase<RankedVideoInfoControlViewModel>,
+        INavigatedAwareAsync,
+        IPinablePage,
+        ITitleUpdatablePage
     {
+        HohoemaPin IPinablePage.GetPin()
+        {
+            var genreName = RankingGenre.ToCulturelizeString();
+            var tag = SelectedRankingTag.Value?.Tag;
+            var pickedTag = PickedTags.FirstOrDefault(x => x.Tag == tag);
+            string parameter = null;
+            if (string.IsNullOrEmpty(pickedTag?.Tag) || pickedTag.Tag == "all")
+            {
+                pickedTag = null;
+                parameter = $"genre={RankingGenre}";
+            }
+            else
+            {
+                parameter = $"genre={RankingGenre}&tag={Uri.EscapeDataString(SelectedRankingTag.Value.Tag)}";
+            }
+            return new HohoemaPin()
+            {
+                Label = pickedTag != null ? $"{pickedTag.DisplayName} - {genreName}" : $"{genreName}",
+                PageType = HohoemaPageType.RankingCategory,
+                Parameter = parameter
+            };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.RankingGenre)
+                .Select(genre => "RankingTitleWithGenre".Translate(genre.Translate()));
+        }
+
         static Models.Helpers.AsyncLock _updateLock = new Models.Helpers.AsyncLock();
+
+
         public RankingCategoryPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager,
-            Services.HohoemaPlaylist hohoemaPlaylist,
+            HohoemaPlaylist hohoemaPlaylist,
             NicoVideoProvider nicoVideoProvider,
             RankingProvider rankingProvider,
             RankingSettings rankingSettings,
@@ -40,6 +80,7 @@ namespace NicoPlayerHohoema.ViewModels
             IEventAggregator eventAggregator
             )
         {
+            ApplicationLayoutManager = applicationLayoutManager;
             PageManager = pageManager;
             HohoemaPlaylist = hohoemaPlaylist;
             NicoVideoProvider = nicoVideoProvider;
@@ -106,37 +147,13 @@ namespace NicoPlayerHohoema.ViewModels
                     _nowInitializeRankingTerm = false;
                 })
                 .AddTo(_CompositeDisposable);
-
-
-
         }
+
+            
+
+        
 
         bool _nowInitializeRankingTerm = false;
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            var genreName = RankingGenre.ToCulturelizeString();
-            var tag = SelectedRankingTag.Value?.Tag;
-            var pickedTag = PickedTags.FirstOrDefault(x => x.Tag == tag);
-            string parameter = null;
-            if (string.IsNullOrEmpty(pickedTag?.Tag) || pickedTag.Tag == "all")
-            {
-                pickedTag = null;
-                parameter = $"genre={RankingGenre}";
-            }
-            else
-            {
-                parameter = $"genre={RankingGenre}&tag={Uri.EscapeDataString(SelectedRankingTag.Value.Tag)}";
-            }
-            pin = new HohoemaPin()
-            {
-                Label = pickedTag != null ? $"{pickedTag.DisplayName} - {genreName}" : $"{genreName}",
-                PageType = HohoemaPageType.RankingCategory,
-                Parameter = parameter
-            };
-
-            return true;
-        }
 
         private RankingGenre _RankingGenre;
         public RankingGenre RankingGenre
@@ -155,8 +172,9 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<bool> IsFailedRefreshRanking { get; private set; }
         public ReactiveProperty<bool> CanChangeRankingParameter { get; private set; }
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public RankingSettings RankingSettings { get; }
         public RankingProvider RankingProvider { get; }
@@ -235,9 +253,6 @@ namespace NicoPlayerHohoema.ViewModels
                 }
 
                 _IsNavigateCompleted = true;
-
-                PageManager.PageTitle = RankingGenre.ToCulturelizeString();
-
 
                 HasError
                     .Where(x => x)
@@ -332,7 +347,7 @@ namespace NicoPlayerHohoema.ViewModels
         protected override void PostResetList()
         {
             _IsNavigateCompleted = true;
-
+           
             base.PostResetList();
         }
     }
@@ -406,19 +421,17 @@ namespace NicoPlayerHohoema.ViewModels
     public class RankedVideoInfoControlViewModel : VideoInfoControlViewModel
     {
         public RankedVideoInfoControlViewModel(
-            string rawVideoId,
-            Interfaces.IMylist ownerPlaylist = null
+            string rawVideoId
             )
-            : base(rawVideoId, ownerPlaylist)
+            : base(rawVideoId)
         {
 
         }
 
         public RankedVideoInfoControlViewModel(
-            Database.NicoVideo data,
-            Interfaces.IMylist ownerPlaylist = null
+            Database.NicoVideo data
             )
-            : base(data, ownerPlaylist)
+            : base(data)
         {
 
         }

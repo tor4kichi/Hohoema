@@ -22,19 +22,24 @@ namespace NicoPlayerHohoema.Models.Niconico
 
     public interface ICommentSession : IDisposable
     {
+        string ContentId { get; }
+        string UserId { get; }
+
         event EventHandler<Comment> RecieveComment;
 
-        Task<List<Comment>> GetInitialComments();
+        Task<IReadOnlyCollection<Comment>> GetInitialComments();
 
         bool CanPostComment { get; }
 
-        Task<CommentPostResult> PostComment(string message, TimeSpan position, IEnumerable<CommandType> commands);
+        Task<CommentPostResult> PostComment(string message, TimeSpan position, string commands);
     }
 
     public class VideoCommentService : ICommentSession
     {
         CommentClient CommentClient;
 
+        public string ContentId => CommentClient.RawVideoId;
+        public string UserId => CommentClient.NiconicoSession.UserIdString;
 
         public VideoCommentService(CommentClient commentClient)
         {
@@ -49,15 +54,15 @@ namespace NicoPlayerHohoema.Models.Niconico
 
         }
 
-        public async Task<List<Comment>> GetInitialComments()
+        public async Task<IReadOnlyCollection<Comment>> GetInitialComments()
         {
             return await CommentClient.GetCommentsAsync();
         }
 
         public bool CanPostComment => CommentClient.CanSubmitComment;
-        public async Task<CommentPostResult> PostComment(string message, TimeSpan position, IEnumerable<CommandType> commands)
+        public async Task<CommentPostResult> PostComment(string message, TimeSpan position, string commands)
         {
-            var res = await CommentClient.SubmitComment(message, position, string.Join(" ", commands.Select(x => x.ToString())));
+            var res = await CommentClient.SubmitComment(message, position, commands);
 
             var chatResult = res.Chat_result;
             return new CommentPostResult()

@@ -44,15 +44,6 @@ namespace NicoPlayerHohoema.Models
             }
         }
 
-
-
-        private List<Chat> GetCommentsFromLocal()
-        {
-            var j = Database.VideoCommentDb.Get(RawVideoId);
-        // コメントのキャッシュまたはオンラインからの取得と更新
-            return j?.ChatItems;
-        }
-
         private async Task<List<Chat>> GetComments()
         {
             if (CommentServerInfo == null) { return new List<Chat>(); }
@@ -110,7 +101,6 @@ namespace NicoPlayerHohoema.Models
             if (commentRes != null)
             {
                 CachedCommentResponse = commentRes;
-                Database.VideoCommentDb.AddOrUpdate(RawVideoId, commentRes.Chat);
             }
 
             if (commentRes != null && DefaultThreadSubmitInfo == null)
@@ -201,20 +191,26 @@ namespace NicoPlayerHohoema.Models
                 try
                 {
                     oldFormatComments = await GetComments();
-                    if (oldFormatComments == null || oldFormatComments.Count == 0)
-                    {
-                        oldFormatComments = GetCommentsFromLocal();
-                    }
                 }
                 catch
                 {
-                    oldFormatComments = GetCommentsFromLocal();
+                    return new List<Comment>();
                 }
 
                 comments = oldFormatComments?.Select(x => ChatToComment(x)).ToList();
             }
 
-
+            foreach (var comment in comments)
+            {
+                if (!string.IsNullOrEmpty(comment.Mail))
+                {
+                    var commandActions = MailToCommandHelper.MakeCommandActions(comment.Mail.Split(' '));
+                    foreach (var action in commandActions)
+                    {
+                        action(comment);
+                    }
+                }
+            }
 
 
             return comments ?? new List<Comment>();
@@ -224,7 +220,7 @@ namespace NicoPlayerHohoema.Models
 
         private Comment ChatToComment(Chat rawComment)
         {
-            var comment = new Comment()
+            return new Comment()
             {
                 CommentText = rawComment.Text,
                 CommentId = rawComment.GetCommentNo(),
@@ -236,22 +232,11 @@ namespace NicoPlayerHohoema.Models
                 IsLoginUserComment = NiconicoSession.IsLoggedIn && rawComment.UserId == NiconicoSession.UserIdString,
                 IsOwnerComment = rawComment.UserId != null && rawComment.UserId == VideoOwnerId,
             };
-
-            if (!string.IsNullOrEmpty(comment.Mail))
-            {
-                var commandActions = DefaultCommandNicoScript.MakeCommandActions(comment.Mail.Split(' '));
-                foreach (var action in commandActions)
-                {
-                    action(comment);
-                }
-            }
-
-            return comment;
         }
 
         private Comment ChatToComment(NMSG_Chat rawComment)
         {
-            var comment = new Comment()
+            return new Comment()
             {
                 CommentText = rawComment.Content,
                 CommentId = (uint)rawComment.No,
@@ -264,17 +249,6 @@ namespace NicoPlayerHohoema.Models
                 IsOwnerComment = rawComment.UserId != null && rawComment.UserId == VideoOwnerId,
                 DeletedFlag = rawComment.Deleted ?? 0
             };
-
-            if (!string.IsNullOrEmpty(comment.Mail))
-            {
-                var commandActions = DefaultCommandNicoScript.MakeCommandActions(comment.Mail.Split(' '));
-                foreach (var action in commandActions)
-                {
-                    action(comment);
-                }
-            }
-
-            return comment;
         }
 
 

@@ -10,12 +10,12 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
 {
     public class SearchTargetContentTemplateSelector : DataTemplateSelector
     {
-        public DataTemplate Video { get; set; }
-        public DataTemplate Mylist { get; set; }
-        public DataTemplate Community { get; set; }
-        public DataTemplate LiveVideo { get; set; }
+        public Windows.UI.Xaml.DataTemplate Video { get; set; }
+        public Windows.UI.Xaml.DataTemplate Mylist { get; set; }
+        public Windows.UI.Xaml.DataTemplate Community { get; set; }
+        public Windows.UI.Xaml.DataTemplate LiveVideo { get; set; }
 
-        protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+        protected override Windows.UI.Xaml.DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
             if (item is ViewModels.VideoSearchOptionViewModelBase)
             {

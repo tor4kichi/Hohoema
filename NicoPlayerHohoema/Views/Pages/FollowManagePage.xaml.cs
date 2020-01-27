@@ -13,6 +13,7 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Prism.Ioc;
 
 // 空白ページのアイテム テンプレートについては、http://go.microsoft.com/fwlink/?LinkId=234238 を参照してください
 
@@ -23,8 +24,10 @@ namespace NicoPlayerHohoema.Views
 	/// </summary>
 	public sealed partial class FollowManagePage : Page
 	{
+		ViewModels.FollowManagePageViewModel _vm;
 		public FollowManagePage()
 		{
+			DataContext = _vm = App.Current.Container.Resolve<ViewModels.FollowManagePageViewModel>();
 			this.InitializeComponent();
 		}
 	}

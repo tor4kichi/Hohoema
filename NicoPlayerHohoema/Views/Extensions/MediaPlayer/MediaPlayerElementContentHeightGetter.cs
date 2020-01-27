@@ -75,7 +75,9 @@ namespace NicoPlayerHohoema.Views.Behaviors
             this.AssociatedObject.Unloaded += AssociatedObject_Unloaded;
 
             this.AssociatedObject.SizeChanged += AssociatedObject_SizeChanged;
-        }
+
+			StartEnsureResizeNotifyTimer();
+		}
 
         protected override void OnDetaching()
         {

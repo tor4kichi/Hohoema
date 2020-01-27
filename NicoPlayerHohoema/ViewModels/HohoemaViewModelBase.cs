@@ -53,20 +53,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         public virtual void OnNavigatedTo(INavigationParameters parameters)
         {
-            var ea = App.Current.Container.Resolve<IEventAggregator>();
-            ea.GetEvent<PinningCurrentPageRequestEvent>()
-                .Subscribe(() =>
-                {
-                    if (TryGetHohoemaPin(out var pin))
-                    {
-                        var pinSettings = App.Current.Container.Resolve<PinSettings>();
-                        if (!pinSettings.Pins.Any(x => x.PageType == pin.PageType && x.Parameter == pin.Parameter))
-                        {
-                            pinSettings.Pins.Add(pin);
-                        }
-                    }
-                })
-                .AddTo(_NavigatingCompositeDisposable);
         }
 
         public virtual void OnNavigatedFrom(INavigationParameters parameters)
@@ -74,7 +60,5 @@ namespace NicoPlayerHohoema.ViewModels
             _NavigatingCompositeDisposable.Dispose();
             _NavigatingCompositeDisposable = new CompositeDisposable();
         }
-
-        protected abstract bool TryGetHohoemaPin(out HohoemaPin pin);
     }
 }

@@ -13,6 +13,9 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Unity;
+using NicoPlayerHohoema.Models;
+using Prism.Ioc;
+using NicoPlayerHohoema.UseCase.Playlist.Commands;
 
 namespace NicoPlayerHohoema.Views.Flyouts
 {
@@ -21,6 +24,20 @@ namespace NicoPlayerHohoema.Views.Flyouts
         public FollowItemFlyout()
         {
             this.InitializeComponent();
+
+            _followManager = App.Current.Container.Resolve<FollowManager>();
+            FollowRemoveCommand = App.Current.Container.Resolve<FollowRemoveCommand>();
+
+            Opening += FollowItemFlyout_Opening;
         }
+
+        private void FollowItemFlyout_Opening(object sender, object e)
+        {
+            RemoveFollowButton.Command = FollowRemoveCommand;
+        }
+
+        FollowManager _followManager;
+
+        public FollowRemoveCommand FollowRemoveCommand { get; private set; }
     }
 }

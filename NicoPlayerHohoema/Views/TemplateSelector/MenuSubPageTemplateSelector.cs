@@ -11,11 +11,11 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
     public sealed class MenuSubPageTemplateSelector : DataTemplateSelector
     {
 
-        public DataTemplate Video { get; set; }
-        public DataTemplate Live { get; set; }
-        public DataTemplate Empty { get; set; }
+        public Windows.UI.Xaml.DataTemplate Video { get; set; }
+        public Windows.UI.Xaml.DataTemplate Live { get; set; }
+        public Windows.UI.Xaml.DataTemplate Empty { get; set; }
 
-        protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+        protected override Windows.UI.Xaml.DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
             try
             {

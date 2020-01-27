@@ -49,6 +49,8 @@ namespace NicoPlayerHohoema.Models.Provider
             }
         }
 
+
+
         /// <summary>
         /// ニコニコ動画コンテンツの情報を取得します。
         /// 内部DB、サムネイル、Watchページのアクセス情報から更新されたデータを提供します。

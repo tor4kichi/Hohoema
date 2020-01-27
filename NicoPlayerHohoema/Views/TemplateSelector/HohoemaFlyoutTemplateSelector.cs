@@ -11,14 +11,14 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
 {
     public class HohoemaFlyoutTemplateSelector : DataTemplateSelector
     {
-        public DataTemplate VideoFlyoutTemplate { get; set; }
-        public DataTemplate LiveFlyoutTemplate { get; set; }
-        public DataTemplate MylistFlyoutTemplate { get; set; }
-        public DataTemplate UserFlyoutTemplate { get; set; }
-        public DataTemplate CommunityFlyoutTemplate { get; set; }
-        public DataTemplate SearchHistoryFlyoutTemplate { get; set; }
+        public Windows.UI.Xaml.DataTemplate VideoFlyoutTemplate { get; set; }
+        public Windows.UI.Xaml.DataTemplate LiveFlyoutTemplate { get; set; }
+        public Windows.UI.Xaml.DataTemplate MylistFlyoutTemplate { get; set; }
+        public Windows.UI.Xaml.DataTemplate UserFlyoutTemplate { get; set; }
+        public Windows.UI.Xaml.DataTemplate CommunityFlyoutTemplate { get; set; }
+        public Windows.UI.Xaml.DataTemplate SearchHistoryFlyoutTemplate { get; set; }
 
-        protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+        protected override Windows.UI.Xaml.DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
             if (item is ViewModels.VideoInfoControlViewModel)
             {
@@ -36,7 +36,7 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
             return base.SelectTemplateCore(item, container);
         }
 
-        protected override DataTemplate SelectTemplateCore(object item)
+        protected override Windows.UI.Xaml.DataTemplate SelectTemplateCore(object item)
         {
             if (item is ViewModels.VideoInfoControlViewModel)
             {

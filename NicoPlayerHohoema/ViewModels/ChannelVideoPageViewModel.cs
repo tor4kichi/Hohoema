@@ -16,20 +16,40 @@ using NicoPlayerHohoema.Interfaces;
 using Prism.Navigation;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.UseCase.Playlist;
+using Reactive.Bindings.Extensions;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public sealed class ChannelVideoPageViewModel : HohoemaListingPageViewModelBase<ChannelVideoListItemViewModel>, Interfaces.IChannel, INavigatedAwareAsync
+    public sealed class ChannelVideoPageViewModel : HohoemaListingPageViewModelBase<ChannelVideoListItemViewModel>, Interfaces.IChannel, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = ChannelName,
+                PageType = HohoemaPageType.ChannelVideo,
+                Parameter = $"id={ChannelId}"
+            };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.ChannelName);
+        }
+
         public ChannelVideoPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             NiconicoSession niconicoSession,
-            Models.Provider.ChannelProvider channelProvider,
-            Services.PageManager pageManager,
-            Services.HohoemaPlaylist hohoemaPlaylist,
-            Services.ExternalAccessService externalAccessService,
-            Services.NiconicoFollowToggleButtonService followToggleButtonService
+            ChannelProvider channelProvider,
+            PageManager pageManager,
+            HohoemaPlaylist hohoemaPlaylist,
+            ExternalAccessService externalAccessService,
+            NiconicoFollowToggleButtonService followToggleButtonService
             )
         {
+            ApplicationLayoutManager = applicationLayoutManager;
             NiconicoSession = niconicoSession;
             ChannelProvider = channelProvider;
             PageManager = pageManager;
@@ -107,8 +127,6 @@ namespace NicoPlayerHohoema.ViewModels
                 FollowToggleButtonService.SetFollowTarget(this);
             }
 
-            PageManager.PageTitle = ChannelName;
-
             await base.OnNavigatedToAsync(parameters);
         }
 
@@ -118,17 +136,6 @@ namespace NicoPlayerHohoema.ViewModels
             return new ChannelVideoLoadingSource(ChannelId?.ToString() ?? RawChannelId, ChannelProvider);
         }
 
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = ChannelName,
-                PageType = HohoemaPageType.ChannelVideo,
-                Parameter = $"id={ChannelId}"
-            };
-
-            return true;
-        }
 
         private DelegateCommand _ShowWithBrowserCommand;
         public DelegateCommand ShowWithBrowserCommand
@@ -143,13 +150,14 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public NiconicoSession NiconicoSession { get; }
         public Models.Provider.ChannelProvider ChannelProvider { get; }
         public Services.PageManager PageManager { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public Services.ExternalAccessService ExternalAccessService { get; }
         public Services.NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
-
+        
         string INiconicoObject.Id => RawChannelId;
 
         string INiconicoObject.Label => ChannelName;
@@ -162,7 +170,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ChannelVideoListItemViewModel(
             string rawVideoId
             )
-            : base(rawVideoId, null)
+            : base(rawVideoId)
         {
 
         }
@@ -170,7 +178,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ChannelVideoListItemViewModel(
            Database.NicoVideo data
            )
-           : base(data, null)
+           : base(data)
         {
 
         }

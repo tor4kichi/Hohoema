@@ -6,11 +6,12 @@ namespace NicoPlayerHohoema.Models
 {
     public interface IStreamingSession : IDisposable
     {
-        Task StartPlayback(MediaPlayer player);
+        Task StartPlayback(MediaPlayer player, TimeSpan initialPosition = default);
     }
     
     public interface IVideoStreamingSession : IStreamingSession
     {
+        string QualityId { get; }
         NicoVideoQuality Quality { get; }
     }
 

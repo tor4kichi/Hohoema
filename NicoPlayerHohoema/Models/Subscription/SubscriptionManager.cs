@@ -1,7 +1,9 @@
 ﻿using Microsoft.Toolkit.Uwp.Helpers;
+using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Helpers;
+using NicoPlayerHohoema.UseCase.Playlist;
 using Prism.Commands;
 using Prism.Mvvm;
 using Reactive.Bindings;
@@ -520,7 +522,7 @@ namespace NicoPlayerHohoema.Models.Subscription
             var feedResultSet = feedResult.GetFeedResultSet(source);
             var lastUpdated = feedResultSet != null ? feedResultSet.LastUpdated + timeDiffarenceFromJapan : DateTime.MinValue;
             var isFirstUpdate = feedResultSet == null;
-            List<Database.NicoVideo> items = null;
+            List<IVideoContent> items = null;
             switch (source.SourceType)
             {
                 case SubscriptionSourceType.User:
@@ -545,7 +547,7 @@ namespace NicoPlayerHohoema.Models.Subscription
             // 降順（新しい動画を先に）にしてから、前回更新時までのアイテムを取得する
             var newItems = items.OrderByDescending(x => x.PostedAt).TakeWhile(x => x.PostedAt > lastUpdated);
 
-            Database.Local.Subscription.SubscriptionFeedResultDb.AddOrUpdateFeedResult(subscription, source, newItems.Select(x => x.VideoId));
+            Database.Local.Subscription.SubscriptionFeedResultDb.AddOrUpdateFeedResult(subscription, source, newItems.Select(x => x.Id));
 
 
             return new SubscriptionUpdateInfo()
@@ -563,10 +565,10 @@ namespace NicoPlayerHohoema.Models.Subscription
         // 取得数が40になるか、lastUpdatedよりも古いアイテムが見つかるまでデータ取得する
 
        
-        static private async Task<List<Database.NicoVideo>> GetUserVideosFeedResult(string userId, Provider.UserProvider userProvider)
+        static private async Task<List<IVideoContent>> GetUserVideosFeedResult(string userId, Provider.UserProvider userProvider)
         {
             var id = uint.Parse(userId);
-            List<Database.NicoVideo> items = new List<Database.NicoVideo>();
+            List<IVideoContent> items = new List<IVideoContent>();
             uint page = 1;
             
             var res = await userProvider.GetUserVideos(id, page);
@@ -594,9 +596,9 @@ namespace NicoPlayerHohoema.Models.Subscription
             return items;
         }
 
-        static private async Task<List<Database.NicoVideo>> GetChannelVideosFeedResult(string channelId, Provider.ChannelProvider channelProvider)
+        static private async Task<List<IVideoContent>> GetChannelVideosFeedResult(string channelId, Provider.ChannelProvider channelProvider)
         {
-            List<Database.NicoVideo> items = new List<Database.NicoVideo>();
+            List<IVideoContent> items = new List<IVideoContent>();
             int page = 0;
             var res = await channelProvider.GetChannelVideo(channelId, page);
 
@@ -622,35 +624,28 @@ namespace NicoPlayerHohoema.Models.Subscription
             return items;
         }
 
-        static private async Task<List<Database.NicoVideo>> GetMylistFeedResult(string mylistId, Provider.MylistProvider mylistProvider)
+        static private async Task<List<IVideoContent>> GetMylistFeedResult(string mylistId, Provider.MylistProvider mylistProvider)
         {
-            List<Database.NicoVideo> items = new List<Database.NicoVideo>();
+            List<IVideoContent> items = new List<IVideoContent>();
             int page = 0;
             const int itemGetCountPerPage = 50;
             var head = page * itemGetCountPerPage;
             var tail = head + itemGetCountPerPage;
-            var res = await mylistProvider.GetMylistGroupVideo(mylistId, (uint)head, (uint)itemGetCountPerPage);
+            var result = await mylistProvider.GetMylistGroupVideo(mylistId, head, itemGetCountPerPage);
 
-            var videoItems = res;
+            var videoItems = result.Items;
             var currentItemsCount = videoItems?.Count ?? 0;
-            if (videoItems == null || currentItemsCount == 0)
+            if (result.IsSuccess)
             {
-            }
-            else
-            {
-                foreach (var item in videoItems)
-                {
-                    var video = Database.NicoVideoDb.Get(item);
-                    items.Add(video);
-                }
+                items.AddRange(videoItems);
             }
 
             return items;
         }
 
-        static private async Task<List<Database.NicoVideo>> GetKeywordSearchFeedResult(string keyword, Provider.SearchProvider searchProvider)
+        static private async Task<List<IVideoContent>> GetKeywordSearchFeedResult(string keyword, Provider.SearchProvider searchProvider)
         {
-            List<Database.NicoVideo> items = new List<Database.NicoVideo>();
+            List<IVideoContent> items = new List<IVideoContent>();
             int page = 0;
             const int itemGetCountPerPage = 50;
             
@@ -680,9 +675,9 @@ namespace NicoPlayerHohoema.Models.Subscription
             return items;
         }
 
-        static private async Task<List<Database.NicoVideo>> GetTagSearchFeedResult(string tag, Provider.SearchProvider searchProvider)
+        static private async Task<List<IVideoContent>> GetTagSearchFeedResult(string tag, Provider.SearchProvider searchProvider)
         {
-            List<Database.NicoVideo> items = new List<Database.NicoVideo>();
+            List<IVideoContent> items = new List<IVideoContent>();
             int page = 0;
             const int itemGetCountPerPage = 50;
 

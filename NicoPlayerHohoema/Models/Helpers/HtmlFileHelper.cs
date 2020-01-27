@@ -10,53 +10,38 @@ namespace NicoPlayerHohoema.Models.Helpers
 {
 	public static class HtmlFileHelper
 	{
-		
-
-		public static async Task<Uri> PartHtmlOutputToCompletlyHtml(string id, string html)
+		public static async Task<Uri> PartHtmlOutputToCompletlyHtml(string id, string htmlFragment)
 		{
 			// Note: WebViewに渡すHTMLファイルをテンポラリフォルダを経由してアクセスします。
 			// WebView.Sourceの仕様上、テンポラリフォルダにサブフォルダを作成し、そのサブフォルダにコンテンツを配置しなければなりません。
 
 			const string VideDescHTMLFolderName = "html";
-			// ファイルとして動画説明HTMLを書き出す
+			// WebViewで表示可能なHTMLに変換
+			string htmlText = await ToCompletlyHtmlAsync(htmlFragment);
+
+			// テンポラリストレージ空間に動画説明HTMLファイルを書き込み
+			var filename = id + ".html";
 			var outputFolder = await ApplicationData.Current.TemporaryFolder.CreateFolderAsync(VideDescHTMLFolderName, CreationCollisionOption.OpenIfExists);
+			var savedVideoDescHtmlFile = await outputFolder.CreateFileAsync(filename, CreationCollisionOption.ReplaceExisting);
+			await FileIO.WriteTextAsync(savedVideoDescHtmlFile, htmlText);
+
+			return new Uri($"ms-appdata:///temp/{VideDescHTMLFolderName}/{filename}");
+		}
 
 
-
-
-			string descJoinedHtmlText = "";
-
+		public static async Task<string> ToCompletlyHtmlAsync(string htmlFragment)
+		{
 			// ファイルのテンプレートになるHTMLテキストを取得して
 			var templateHtmlFileStorage = await StorageFile.GetFileFromApplicationUriAsync(
 				new Uri("ms-appx:///Assets/html/template.html")
 				);
 
-
 			// テンプレートHTMLに動画説明を埋め込んだテキストを作成
-			using (var stream = await templateHtmlFileStorage.OpenAsync(FileAccessMode.Read))
-			using (var textReader = new StreamReader(stream.AsStream()))
-			{
-				var templateText = textReader.ReadToEnd();
-                descJoinedHtmlText = templateText
-                    .Replace("{content}", html)
-                    .Replace("http://", "https://")
-                    .Replace("{foreground-color}", App.Current.RequestedTheme == Windows.UI.Xaml.ApplicationTheme.Dark ? "#EFEFEF" : "000000");
-			}
-
-
-			// テンポラリストレージ空間に動画説明HTMLファイルを書き込み
-			var filename = id + ".html";
-			var savedVideoDescHtmlFile = await outputFolder.CreateFileAsync(filename, CreationCollisionOption.ReplaceExisting);
-			using (var stream = await savedVideoDescHtmlFile.OpenStreamForWriteAsync())
-			using (var writer = new StreamWriter(stream))
-			{
-				writer.Write(descJoinedHtmlText);
-			}
-
-			var folderName = Path.GetFileName(outputFolder.Path);
-
-			// 
-			return new Uri($"ms-appdata:///temp/{VideDescHTMLFolderName}/{filename}");
+			var templateText = await FileIO.ReadTextAsync(templateHtmlFileStorage);
+			return templateText
+				.Replace("{content}", htmlFragment)
+				.Replace("http://", "https://")
+				.Replace("{foreground-color}", App.Current.RequestedTheme == Windows.UI.Xaml.ApplicationTheme.Dark ? "#EFEFEF" : "000000");
 		}
 	}
 }

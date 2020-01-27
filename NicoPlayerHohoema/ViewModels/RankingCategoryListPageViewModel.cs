@@ -17,18 +17,21 @@ using Prism.Mvvm;
 using Prism.Events;
 using Reactive.Bindings.Extensions;
 using System.Diagnostics;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public class RankingCategoryListPageViewModel : HohoemaViewModelBase
     {
         public RankingCategoryListPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             Services.PageManager pageManager,
             Services.DialogService dialogService,
             RankingSettings rankingSettings,
             IEventAggregator eventAggregator
             )
         {
+            ApplicationLayoutManager = applicationLayoutManager;
             PageManager = pageManager;
             HohoemaDialogService = dialogService;
             RankingSettings = rankingSettings;
@@ -254,6 +257,7 @@ namespace NicoPlayerHohoema.ViewModels
            
         }
 
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
 
         public Services.DialogService HohoemaDialogService { get; }
@@ -305,13 +309,6 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
             base.OnNavigatedTo(parameters);
-        }
-
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = null;
-            return false;
         }
     }
 

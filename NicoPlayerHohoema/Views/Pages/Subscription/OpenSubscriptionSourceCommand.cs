@@ -32,12 +32,7 @@ namespace NicoPlayerHohoema.Views.Subscriptions
                         PageManager.OpenPageWithId(HohoemaPageType.ChannelVideo, source.Parameter);
                         break;
                     case Models.Subscription.SubscriptionSourceType.Mylist:
-                        var p = new NavigationParameters
-                        {
-                            { "id", source.Parameter },
-                            { "origin", Services.PlaylistOrigin.OtherUser }
-                        };
-                        PageManager.OpenPage(HohoemaPageType.Mylist, p);
+                        PageManager.OpenPageWithId(HohoemaPageType.Mylist, source.Parameter);
                         break;
                     case Models.Subscription.SubscriptionSourceType.TagSearch:
                         PageManager.Search(Models.SearchTarget.Tag, source.Parameter);

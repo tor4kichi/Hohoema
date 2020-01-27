@@ -22,6 +22,26 @@ namespace NicoPlayerHohoema.Views
     /// </summary>
     public sealed partial class NicoRepoPage : Page
     {
+
+        public double ScrollPosition
+        {
+            get { return (double)GetValue(ScrollPositionProperty); }
+            set { SetValue(ScrollPositionProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for ScrollPosition.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ScrollPositionProperty =
+            DependencyProperty.Register("ScrollPosition", typeof(double), typeof(NicoRepoPage), new PropertyMetadata(0.0));
+
+
+        public void ResetScrollPosition()
+        {
+            var scrollViweer = ItemsList.FindFirstChild<ScrollViewer>();
+            scrollViweer.ChangeView(null, 0, null);
+        }
+
+
+
         public NicoRepoPage()
         {
             this.InitializeComponent();

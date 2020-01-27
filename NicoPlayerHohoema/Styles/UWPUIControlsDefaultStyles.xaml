@@ -3,29 +3,19 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Controls"
     >
-    <Style TargetType="uwpui:MarkdownTextBlock" x:Key="HohoemaMarkdownTextBlockStyle">
-        
-        <Setter Property="Header1Foreground" Value="DarkOrange" />
-        <Setter Property="Header1FontWeight" Value="Bold" />
-        <Setter Property="Header1FontSize" Value="24" />
-
-        <Setter Property="Header2FontWeight" Value="SemiBold" />
-        <Setter Property="Header2FontSize" Value="20" />
-        <Setter Property="Header2Margin" Value="0 24 0 8" />
-
-        <Setter Property="Header3FontWeight" Value="Normal" />
-        <Setter Property="Header3FontSize" Value="18" />
-        <Setter Property="Header3Margin" Value="0 24 0 8" />
-
-        <Setter Property="ParagraphMargin" Value="0 0 0 4" />
-        
-        
-        <Setter Property="ListMargin" Value="8 8 0 16" />
-
-        <Setter Property="ListGutterWidth" Value="12" />
-
-
-        <Setter Property="HorizontalRuleMargin" Value="0 24" />
-        
-    </Style>
+  <Style TargetType="uwpui:MarkdownTextBlock" x:Key="HohoemaMarkdownTextBlockStyle">
+    <Setter Property="Header1Foreground" Value="DarkOrange" />
+    <Setter Property="Header1FontWeight" Value="Bold" />
+    <Setter Property="Header1FontSize" Value="48" />
+    <Setter Property="Header2FontWeight" Value="Bold" />
+    <Setter Property="Header2FontSize" Value="32" />
+    <Setter Property="Header2Margin" Value="0 24 0 24" />
+    <Setter Property="Header3FontWeight" Value="SemiBold" />
+    <Setter Property="Header3FontSize" Value="20" />
+    <Setter Property="Header3Margin" Value="0 8 0 8" />
+    <Setter Property="ParagraphMargin" Value="0 0 0 4" />
+    <Setter Property="ListMargin" Value="8 16 0 16" />
+    <Setter Property="ListGutterWidth" Value="12" />
+    <Setter Property="HorizontalRuleMargin" Value="0 24 0 16" />
+  </Style>
 </ResourceDictionary>

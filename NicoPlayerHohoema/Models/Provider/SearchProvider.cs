@@ -2,6 +2,7 @@
 using Mntone.Nico2.Searches.Community;
 using Mntone.Nico2.Searches.Mylist;
 using Mntone.Nico2.Searches.Video;
+using NicoPlayerHohoema.Repository.Playlist;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -98,12 +99,37 @@ namespace NicoPlayerHohoema.Models.Provider
             
         }
 
-        public async Task<MylistSearchResponse> MylistSearchAsync(string keyword, uint head, uint count, Sort? sort, Order? order)
+        public class MylistSearchResult
         {
-            return await ContextActionAsync(async context =>
+            public bool IsSuccess { get; set; }
+            public List<MylistPlaylist> Items { get; set; }
+            public int TotalCount { get; set; }
+        }
+
+        public async Task<MylistSearchResult> MylistSearchAsync(string keyword, uint head, uint count, Sort? sort, Order? order)
+        {
+            var res = await ContextActionAsync(async context =>
             {
                 return await context.Search.MylistSearchAsync(keyword, head, count, sort, order);
             });
+
+            if (res.MylistGroupItems?.Any() ?? false)
+            {
+                var items = res.MylistGroupItems
+                    .Select(x => new MylistPlaylist(x.Id, x.Name, (int)x.ItemCount) { Description = x.Description, UpdateTime = x.UpdateTime })
+                    .ToList();
+
+                return new MylistSearchResult()
+                {
+                    IsSuccess = true,
+                    Items = items,
+                    TotalCount = (int)res.GetTotalCount()
+                };
+            }
+            else
+            {
+                return new MylistSearchResult() { IsSuccess = false };
+            }
                 
         }
     }

@@ -21,148 +21,61 @@
     xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
     xmlns:behaviors="using:NicoPlayerHohoema.Views.Interaction.Behaviors"
   xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts"
+  xmlns:videolistPage="using:NicoPlayerHohoema.Views.Pages.VideoListPage"
+  xmlns:windowsTriggers="using:WindowsStateTriggers"
   DataContext="{x:Null}"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d"
     >
 
-    <Page.Transitions>
-        <TransitionCollection>
-            <NavigationThemeTransition>
-                <DrillInNavigationTransitionInfo />
-            </NavigationThemeTransition>
-        </TransitionCollection>
-    </Page.Transitions>
-  
+  <Page.Transitions>
+    <TransitionCollection>
+      <NavigationThemeTransition>
+        <DrillInNavigationTransitionInfo />
+      </NavigationThemeTransition>
+    </TransitionCollection>
+  </Page.Transitions>
 
   <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                                         >
-
-    <VisualStateManager.VisualStateGroups>
-
-      <!-- トップバー表示時のタイトル位置ずらし -->
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="ItemsList.Padding" Value="48 0 48 27" />
-            <Setter Target="ScrollHeader.Mode" Value="None" />
-          </VisualState.Setters>
-        </VisualState>
-
-
-        <VisualState>
-          <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-          </VisualState.Setters>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <AdaptiveTrigger MinWindowWidth="0" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
-
-    </VisualStateManager.VisualStateGroups>
-
-    <uwpcontrol:PullToRefreshListView 
-            x:Name="ItemsList"
-            ItemsSource="{Binding ItemsView, Mode=OneWay}"
-            RefreshCommand="{Binding RefreshCommand}"
-            IsItemClickEnabled="True"
-            IncrementalLoadingTrigger="Edge"
-            PullThreshold="85"    
-            UseSystemFocusVisuals="True"
-            SelectionMode="None"
-            HorizontalContentAlignment="Stretch"
-            uwpExtension:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
-            ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
-            uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
-            
-            xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
-            myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
-            myExtensions:ListViewBase.DeferInitialize="True"
-                            >
-
-      <uwpcontrol:PullToRefreshListView.ItemContainerTransitions>
-        <TransitionCollection>
-
-        </TransitionCollection>
-      </uwpcontrol:PullToRefreshListView.ItemContainerTransitions>
-      <i:Interaction.Behaviors>
-
-        <mybehavior:KeyboardTrigger Key="F5">
-          <mybehavior:KeyboardTrigger.Actions>
-            <core:InvokeCommandAction Command="{Binding  RefreshCommand}" />
-          </mybehavior:KeyboardTrigger.Actions>
-        </mybehavior:KeyboardTrigger>
-
-        <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ScrollPosition.Value, Mode=TwoWay}" />
-
-        <core:DataTriggerBehavior Binding="{Binding ItemsView, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}"  >
-          <actions:ScrollViewerVerticalPositionSettingsAction Target="{x:Bind ItemsList}" 
-                                                                    VerticalOffset="{Binding ScrollPosition.Value}" 
-                                                                    WithAnimation="False" 
-                                                                        Delay="0:0:0.001"
-                                                                    />
-        </core:DataTriggerBehavior>
-
-      </i:Interaction.Behaviors>
-
-      <ListView.Header>
-        <controls:ScrollHeader
-                    x:Name="ScrollHeader"
-                    Mode="QuickReturn" 
-                    >
-
-          <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
-            <CommandBar x:Name="VideoListCommandBar" Background="Transparent"
-                                    >
-
+    <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
+                                      ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
+                                      ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
+                                      RefreshCommand="{Binding RefreshCommand}"
+                                      x:Name="VideoItemsListView"
+                                      >
+      <videolistPage:VideoItemsListView.Header>
+        <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky" IsTabStop="False">
+          <Grid Background="{ThemeResource MenuBackgroundBrush}">
+            <CommandBar x:Name="VideoListCommandBar" HorizontalAlignment="Right" >
               <CommandBar.Content>
-                <StackPanel Orientation="Horizontal"
-                            Spacing="16"
-                                    >
+                <StackPanel Orientation="Horizontal" Spacing="16">
                   <HyperlinkButton 
-                                             Command="{Binding PageManager.OpenPageCommand}"
-                                             CommandParameter="RankingCategoryList"
-                                             Foreground="{StaticResource ApplicationForegroundThemeBrush}"
-                                            VerticalAlignment="Center"
-                                            Opacity="0.7"
-                                            Margin="16 0 0 0"
-                                            uwpcontrol:DockPanel.Dock="Left"
-                                             >
-                    <TextBlock Text="ランキング"
-                                           Style="{StaticResource SubtitleTextBlockStyle}"
-                                           
-                                           >
-
-                    </TextBlock>
-
+                        Command="{Binding PageManager.OpenPageCommand}"
+                        CommandParameter="RankingCategoryList"
+                        Foreground="{StaticResource ApplicationForegroundThemeBrush}"
+                        VerticalAlignment="Center"
+                        Opacity="0.7"
+                        Margin="0 0 0 0"
+                        uwpcontrol:DockPanel.Dock="Left"
+                        >
+                    <TextBlock Text="{Binding Source=Ranking, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Style="{StaticResource SubtitleTextBlockStyle}"/>
                   </HyperlinkButton>
 
-
-                  <ComboBox ItemsSource="{Binding PickedTags}"
+                  <ComboBox x:Name="GenreTagSelector"
+                            ItemsSource="{Binding PickedTags}"
                             SelectedItem="{Binding SelectedRankingTag.Value, Mode=TwoWay}"
                             DisplayMemberPath="DisplayName"
                             >
-                    
                   </ComboBox>
 
-                  <ComboBox ItemsSource="{Binding CurrentSelectableRankingTerms.Value}"
+                  <ComboBox x:Name="RankingTermSelector"
+                            ItemsSource="{Binding CurrentSelectableRankingTerms.Value}"
                             SelectedItem="{Binding SelectedRankingTerm.Value, Mode=TwoWay}"
                             >
                     <ComboBox.ItemTemplate>
                       <DataTemplate>
-                        <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
+                        <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
                       </DataTemplate>
                     </ComboBox.ItemTemplate>
                   </ComboBox>
@@ -171,39 +84,113 @@
               </CommandBar.Content>
 
               <CommandBar.PrimaryCommands>
-                <AppBarButton x:Name="ScrollToTopButton"
-                                              Label="トップへ戻る"
-                                              Icon="Up"
-                                            >
+                <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
                   <i:Interaction.Behaviors>
                     <core:EventTriggerBehavior EventName="Click">
-                      <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
+                      <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
                     </core:EventTriggerBehavior>
                   </i:Interaction.Behaviors>
                 </AppBarButton>
 
-                <AppBarButton Label="更新" 
-                                                    Icon="Refresh"
-                                                    Command="{Binding RefreshCommand}"
-                                                    IsEnabled="{Binding CanChangeSort.Value}"
-                                                    x:Name="RefreshButton"
-                                                    VerticalAlignment="Center"
-                                                >
+                <AppBarButton x:Name="RefreshButton"
+                              Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" 
+                              Icon="Refresh"
+                              Command="{Binding RefreshCommand}"
+                              IsEnabled="{Binding CanChangeSort.Value}"
+                              VerticalAlignment="Center"
+                          >
                 </AppBarButton>
               </CommandBar.PrimaryCommands>
             </CommandBar>
           </Grid>
         </controls:ScrollHeader>
-      </ListView.Header>
+      </videolistPage:VideoItemsListView.Header>
 
-
-      <ListView.ItemTemplate>
+      <videolistPage:VideoItemsListView.ItemTemplate>
         <DataTemplate>
-
-          <controls:RankingCategoryListItem />
+          <Grid>
+            <TextBlock Text="{Binding Rank}"
+                       Style="{StaticResource HeaderTextBlockStyle}"
+                       Opacity="0.25"
+                       VerticalAlignment="Bottom"
+                       HorizontalAlignment="Right"
+                       HorizontalTextAlignment="Left"
+                       Width="70"
+                       FontWeight="Bold" />
+            <videolistPage:VideoListItemControl />
+          </Grid>
         </DataTemplate>
-      </ListView.ItemTemplate>
+      </videolistPage:VideoItemsListView.ItemTemplate>
 
-    </uwpcontrol:PullToRefreshListView>
+    </videolistPage:VideoItemsListView>
+
+    <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <TextBlock Text="{Binding Source=RankingNoItems, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                     Style="{StaticResource SubtitleTextBlockStyle}"
+                     Opacity="0.8"
+                     />
+    </Grid>
+
+
+    <VisualStateManager.VisualStateGroups>
+      <!-- レイアウトモード -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="VideoListCommandBar.Margin" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentListViewBodyMargin_TV}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Desktop" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="VideoListCommandBar.Margin" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentPageMargin_Desktop}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Tablet" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Mobile" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="VideoListCommandBar.Margin" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentListViewBodyMargin_Mobile}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      
+
+
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding NowLoading.Value}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="ScrollToTopButton.IsEnabled" Value="False" />
+            <Setter Target="RefreshButton.IsEnabled" Value="False" />
+            <Setter Target="GenreTagSelector.IsEnabled" Value="False" />
+            <Setter Target="RankingTermSelector.IsEnabled" Value="False" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ItemsView.Count}" EqualTo="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="EmptyItemsLayout.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
+    </VisualStateManager.VisualStateGroups>
+    
   </Grid>
 </Page>
