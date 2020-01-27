@@ -19,7 +19,9 @@
       xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector"
       xmlns:windowsStateTriggers="using:WindowsStateTriggers"
       DataContext="{x:Null}"
-      mc:Ignorable="d">
+      mc:Ignorable="d"
+      x:Name="PageRoot"
+      >
   <Page.Resources>
     <DataTemplate x:Key="RemovableListItemTemplate">
       <Button Background="Transparent"
@@ -161,8 +163,14 @@
                 <ToggleSwitch IsOn="{Binding IsDefaultFullScreen.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" />
               </Grid>
               <Grid x:Name="AppDisplayModeSettingLayout">
-                <TextBlock Text="{Binding Source=ApplicationIntaractionMode, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                <ComboBox ItemsSource="{x:Bind OverrideInteractionModeList}" SelectedItem="{Binding AppearanceSettings.OverrideIntractionMode, Mode=TwoWay, UpdateSourceTrigger=Default}" HorizontalAlignment="Right" />
+                <TextBlock Text="{Binding Source=ApplicationInteractionMode, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
+                <ComboBox ItemsSource="{Binding ElementName=PageRoot, Path=OverrideInteractionModeList}" SelectedItem="{Binding AppearanceSettings.OverrideIntractionMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" IsSynchronizedWithCurrentItem="False">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}, FallbackValue={Binding Source=NoSelected, Converter={StaticResource LocalizeConverter}}}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
               </Grid>
             </StackPanel>
           </StackPanel>

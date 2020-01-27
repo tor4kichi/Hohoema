@@ -20,7 +20,7 @@ namespace NicoPlayerHohoema.UseCase
 
         public ApplicationLayout AppLayout { get; private set; }
 
-        public ApplicationIntaractionMode IntaractionMode { get; private set; }
+        public ApplicationInteractionMode InteractionMode { get; private set; }
 
         public ApplicationLayoutManager(AppearanceSettings appearanceSettings)
         {
@@ -40,14 +40,14 @@ namespace NicoPlayerHohoema.UseCase
 
         void RefreshAppLayout()
         {
-            IntaractionMode = GetInteractionMode();
-            AppLayout = GetAppLayout(IntaractionMode);
-            System.Diagnostics.Debug.WriteLine($"InteractionMode: {IntaractionMode}, ApplicationLayout: {AppLayout} (override: {_appearanceSettings.OverrideIntractionMode.HasValue})");
+            InteractionMode = GetInteractionMode();
+            AppLayout = GetAppLayout(InteractionMode);
+            System.Diagnostics.Debug.WriteLine($"InteractionMode: {InteractionMode}, ApplicationLayout: {AppLayout} (override: {_appearanceSettings.OverrideIntractionMode.HasValue})");
         }
 
-        ApplicationIntaractionMode GetInteractionMode()
+        ApplicationInteractionMode GetInteractionMode()
         {
-            ApplicationIntaractionMode intaractionMode = ApplicationIntaractionMode.Touch;
+            ApplicationInteractionMode intaractionMode = ApplicationInteractionMode.Touch;
             if (_appearanceSettings.OverrideIntractionMode.HasValue)
             {
                 intaractionMode = _appearanceSettings.OverrideIntractionMode.Value;
@@ -56,31 +56,31 @@ namespace NicoPlayerHohoema.UseCase
             {
                 if (DeviceInfo.Idiom == DeviceIdiom.Desktop)
                 {
-                    intaractionMode = ApplicationIntaractionMode.Mouse;
+                    intaractionMode = ApplicationInteractionMode.Mouse;
                 }
                 else if (DeviceInfo.Idiom == DeviceIdiom.Phone || DeviceInfo.Idiom == DeviceIdiom.Tablet)
                 {
-                    intaractionMode = ApplicationIntaractionMode.Touch;
+                    intaractionMode = ApplicationInteractionMode.Touch;
                 }
                 else if (DeviceInfo.Idiom == DeviceIdiom.TV)
                 {
-                    intaractionMode = ApplicationIntaractionMode.Controller;
+                    intaractionMode = ApplicationInteractionMode.Controller;
                 }
             }
             return intaractionMode;
         }
 
-        ApplicationLayout GetAppLayout(ApplicationIntaractionMode intaractionMode)
+        ApplicationLayout GetAppLayout(ApplicationInteractionMode intaractionMode)
         {
             ApplicationLayout layout = ApplicationLayout.Mobile;
-            if (intaractionMode == ApplicationIntaractionMode.Mouse)
+            if (intaractionMode == ApplicationInteractionMode.Mouse)
             {
                 var width = Window.Current.Bounds.Width;
                 if (width <= 519)
                 {
                     layout = ApplicationLayout.Tablet;
                 }
-                else if (width <= 1039)
+                else if (width <= 1439)
                 {
                     layout = ApplicationLayout.Desktop;
                 }
@@ -89,7 +89,7 @@ namespace NicoPlayerHohoema.UseCase
                     layout = ApplicationLayout.TV;
                 }
             }
-            else if (intaractionMode == ApplicationIntaractionMode.Touch)
+            else if (intaractionMode == ApplicationInteractionMode.Touch)
             {
                 var width = Window.Current.Bounds.Width;
                 if (width <= 519)
@@ -105,7 +105,7 @@ namespace NicoPlayerHohoema.UseCase
                     layout = ApplicationLayout.Desktop;
                 }
             }
-            else if (intaractionMode == ApplicationIntaractionMode.Controller)
+            else if (intaractionMode == ApplicationInteractionMode.Controller)
             {
                 layout = ApplicationLayout.TV;
             }

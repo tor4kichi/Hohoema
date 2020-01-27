@@ -18,10 +18,10 @@ namespace NicoPlayerHohoema.Models
         public HohoemaPageType StartupPageType { get; set; } = HohoemaPageType.RankingCategoryList;
 
         [DataMember]
-        public ApplicationIntaractionMode? OverrideIntractionMode { get; set; } = null;
+        public ApplicationInteractionMode? OverrideIntractionMode { get; set; } = null;
     }
 
-    public enum ApplicationIntaractionMode
+    public enum ApplicationInteractionMode
     {
         Controller,
         Mouse,

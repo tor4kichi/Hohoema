@@ -581,17 +581,20 @@
                       Width="13" />
         </Button>
       </Border>
-      <StackPanel x:Name="DebugUIPanel" Orientation="Horizontal" Visibility="Collapsed" HorizontalAlignment="Right" Margin="0 0 140 0" Spacing="8">
+      <StackPanel x:Name="DebugUIPanel" Orientation="Horizontal" Visibility="Collapsed" HorizontalAlignment="Right" Margin="0 0 140 0" Spacing="8" Opacity="0.8">
         <TextBlock Text="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" FontSize="9" VerticalAlignment="Center" />
         <StackPanel>
           <TextBlock Text="レイアウト"
                      VerticalAlignment="Center"
                      FontSize="9" />
-          <winui:ComboBox ItemsSource="{x:Bind IntaractionModeList}" SelectedItem="{Binding AppearanceSettings.OverrideIntractionMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                    FontSize="9"
-                    MinHeight="14"
-                    Height="20"
-                    Padding="3" />
+          <winui:ComboBox ItemsSource="{x:Bind IntaractionModeList}" SelectedItem="{Binding AppearanceSettings.OverrideIntractionMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="9" MinHeight="14" Height="20" Padding="3"
+                          >
+            <winui:ComboBox.ItemTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}, FallbackValue={Binding Source=NoSelected, Converter={StaticResource LocalizeConverter}}}" />
+              </DataTemplate>
+            </winui:ComboBox.ItemTemplate>
+          </winui:ComboBox>
         </StackPanel>
       </StackPanel>
     </Grid>
@@ -650,9 +653,9 @@
           <VisualState.Setters>
             <Setter Target="PlayerLayout.Visibility" Value="Visible" />
             <Setter Target="FloatPlayerLayout.Visibility" Value="Visible" />
-            <Setter Target="PlayerLayout.Width" Value="512" />
-            <Setter Target="PlayerLayout.Height" Value="288" />
-            <Setter Target="PlayerLayout.Margin" Value="0 0 24 13" />
+            <Setter Target="PlayerLayout.Width" Value="426" />
+            <Setter Target="PlayerLayout.Height" Value="240" />
+            <Setter Target="PlayerLayout.Margin" Value="0 0 8 0" />
             <Setter Target="PlayerLayout.VerticalAlignment" Value="Bottom" />
             <Setter Target="PlayerLayout.HorizontalAlignment" Value="Right" />
 
@@ -675,9 +678,9 @@
           <VisualState.Setters>
             <Setter Target="PlayerLayout.Visibility" Value="Visible" />
             <Setter Target="FloatPlayerLayout.Visibility" Value="Visible" />
-            <Setter Target="PlayerLayout.Width" Value="480" />
-            <Setter Target="PlayerLayout.Height" Value="270" />
-            <Setter Target="PlayerLayout.Margin" Value="0 0 8 8" />
+            <Setter Target="PlayerLayout.Width" Value="426" />
+            <Setter Target="PlayerLayout.Height" Value="240" />
+            <Setter Target="PlayerLayout.Margin" Value="0 0 8 0" />
             <Setter Target="PlayerLayout.VerticalAlignment" Value="Bottom" />
             <Setter Target="PlayerLayout.HorizontalAlignment" Value="Right" />
             <Setter Target="BackButtonLayout.Margin" Value="280 0 0 0" />

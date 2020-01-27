@@ -121,19 +121,20 @@ namespace NicoPlayerHohoema.Views
             }
 
             ContentFrame.Navigated += TVModeContentFrame_Navigated;
-
+            UINavigationManager.Pressed += UINavigationManager_Pressed;
             this.GettingFocus += PrimaryWindowCoreLayout_GettingFocus;
         }
 
 
+
         #region Debug
 
-        ImmutableArray<ApplicationIntaractionMode?> IntaractionModeList { get; } = new List<ApplicationIntaractionMode?>()
+        ImmutableArray<ApplicationInteractionMode?> IntaractionModeList { get; } = new List<ApplicationInteractionMode?>()
         {
             default,
-            ApplicationIntaractionMode.Controller,
-            ApplicationIntaractionMode.Mouse,
-            ApplicationIntaractionMode.Touch,
+            ApplicationInteractionMode.Controller,
+            ApplicationInteractionMode.Mouse,
+            ApplicationInteractionMode.Touch,
         }.ToImmutableArray();
 
         bool IsDebug =>
@@ -146,6 +147,22 @@ namespace NicoPlayerHohoema.Views
         #endregion
 
         #region TV Mode
+
+
+        private void UINavigationManager_Pressed(UINavigationManager sender, UINavigationButtons buttons)
+        {
+            if (buttons.HasFlag(UINavigationButtons.View))
+            {
+                if (_viewModel.PrimaryViewPlayerManager.DisplayMode == Services.Player.PrimaryPlayerDisplayMode.Fill)
+                {
+                    _viewModel.PrimaryViewPlayerManager.ShowWithWindowInWindow();
+                }
+                else if (_viewModel.PrimaryViewPlayerManager.DisplayMode == Services.Player.PrimaryPlayerDisplayMode.WindowInWindow)
+                {
+                    _viewModel.PrimaryViewPlayerManager.ShowWithFill();
+                }
+            }
+        }
 
         private void PrimaryWindowCoreLayout_GettingFocus(UIElement sender, GettingFocusEventArgs e)
         {

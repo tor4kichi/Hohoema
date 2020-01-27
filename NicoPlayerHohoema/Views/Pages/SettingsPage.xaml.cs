@@ -29,13 +29,13 @@ namespace NicoPlayerHohoema.Views
 			this.InitializeComponent();
 		}
 
-		ImmutableArray<ApplicationIntaractionMode?> OverrideInteractionModeList { get; } = new List<ApplicationIntaractionMode?>()
+		public ImmutableArray<ApplicationInteractionMode?> OverrideInteractionModeList { get; } = new List<ApplicationInteractionMode?>()
 		{
 			null,
-			ApplicationIntaractionMode.Controller,
-			ApplicationIntaractionMode.Mouse,
-			ApplicationIntaractionMode.Touch,
-		}.Cast<ApplicationIntaractionMode?>().ToImmutableArray();
+			ApplicationInteractionMode.Controller,
+			ApplicationInteractionMode.Mouse,
+			ApplicationInteractionMode.Touch,
+		}.ToImmutableArray();
 
 
 		bool IsDebug =>

@@ -1045,6 +1045,7 @@
             <StateTrigger IsActive="{Binding ObservableMediaPlayer.NowPlaying.Value, Converter={StaticResource BoolNegation}}" />
             <myTrigger:FocusTrigger Target="{x:Bind CommentTextBox}" />
             <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{x:Bind CommandEditerFlyout}" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.InteractionMode}" EqualTo="Controller" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerControlAutoHide.IsAutoHideEnabled" Value="False" />

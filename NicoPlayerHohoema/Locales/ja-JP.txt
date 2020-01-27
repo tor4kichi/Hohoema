@@ -11,6 +11,7 @@ Search = 検索
 
 Refresh = 更新
 ReturnToPageTop = トップへ戻る
+NoSelected = 選択なし
 
 #### Hohoema App ####
 HohoemaAppServiceLevel.Offline = オフライン
@@ -28,10 +29,10 @@ ApplicationDisplayMode.TV = テレビ
 ApplicationDisplayMode.Desktop = デスクトップ
 ApplicationDisplayMode.Tablet = タブレット
 ApplicationDisplayMode.Mobile = モバイル
-
-ApplicationIntaractionMode.Controller = コントローラー
-ApplicationIntaractionMode.Mouse = マウス
-ApplicationIntaractionMode.Touch = タッチ
+ApplicationInteractionMode = レイアウトモード
+ApplicationInteractionMode.Controller = コントローラー
+ApplicationInteractionMode.Mouse = マウス
+ApplicationInteractionMode.Touch = タッチ
 
 
 #### Niconico General ####
