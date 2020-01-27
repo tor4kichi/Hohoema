@@ -108,7 +108,7 @@
   </Page.Resources>
   <Grid>
     <uwptoolkitControl:DockPanel>
-      <StackPanel x:Name="HeaderPanel" uwptoolkitControl:DockPanel.Dock="Top">
+      <StackPanel x:Name="HeaderPanel" uwptoolkitControl:DockPanel.Dock="Top" Background="{StaticResource MenuBackgroundBrush}">
         <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
           <CommandBar.Content>
             <Border Background="Transparent" IsHitTestVisible="True" Margin="16 0 0 0"></Border>
@@ -308,6 +308,8 @@
               <TextBlock Text="フィードバック" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
+            <HyperlinkButton Content="匿名質問サービス＜マシュマロ＞からメッセージを送る" Margin="0 0 0 8" NavigateUri="https://marshmallow-qa.com/tor4kichi" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
+
             <HyperlinkButton Content="ストアでHohoemaをレビューする" Margin="0 0 0 8" Command="{Binding LaunchAppReviewCommand}" UseSystemFocusVisuals="True" HorizontalAlignment="Right" />
           </StackPanel>
           <!--  -->
