@@ -1,13 +1,17 @@
-﻿using Mntone.Nico2;
+﻿using I18NPortable;
+using Mntone.Nico2;
 using Mntone.Nico2.Embed.Ichiba;
 using Mntone.Nico2.Live;
 using Mntone.Nico2.Live.Recommend;
 using Mntone.Nico2.Live.Video;
+using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase;
+using NicoPlayerHohoema.UseCase.Playlist;
 using Prism.Commands;
 using Prism.Navigation;
 using Prism.Unity;
@@ -32,8 +36,23 @@ namespace NicoPlayerHohoema.ViewModels
         public string Label { get; set; }
     }
 
-    public sealed class LiveInfomationPageViewModel : HohoemaViewModelBase, Interfaces.ILiveContent, INavigatedAwareAsync
+    public sealed class LiveInfomationPageViewModel : HohoemaViewModelBase, Interfaces.ILiveContent, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = LiveInfo.Video.Title,
+                PageType = HohoemaPageType.LiveInfomation,
+                Parameter = $"id={LiveId}"
+            };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.LiveInfo).Select(x => x?.Video.Title);
+        }
+
         // TODO: 視聴開始（会場後のみ、チャンネル会員限定やチケット必要な場合あり）
         // TODO: タイムシフト予約（tsがある場合のみ、会場前のみ、プレミアムの場合は会場後でも可）
         // TODO: 後からタイムシフト予約（プレミアムの場合のみ）
@@ -51,19 +70,19 @@ namespace NicoPlayerHohoema.ViewModels
         // LiveInfo.Video.CurrentStatusは開演前、放送中は時間の経過によって変化する可能性がある
 
         public LiveInfomationPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager,
             Models.NiconicoSession niconicoSession,
             NicoLiveProvider nicoLiveProvider,
             DialogService dialogService,
-            Services.HohoemaPlaylist hohoemaPlaylist,
             ExternalAccessService externalAccessService
             )
         {
+            ApplicationLayoutManager = applicationLayoutManager;
             PageManager = pageManager;
             NiconicoSession = niconicoSession;
             NicoLiveProvider = nicoLiveProvider;
             HohoemaDialogService = dialogService;
-            HohoemaPlaylist = hohoemaPlaylist;
             ExternalAccessService = externalAccessService;
             IsLoadFailed = new ReactiveProperty<bool>(false)
                .AddTo(_CompositeDisposable);
@@ -167,9 +186,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public DialogService HohoemaDialogService { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public ExternalAccessService ExternalAccessService { get; }
-
+        
 
 
 
@@ -644,6 +662,7 @@ namespace NicoPlayerHohoema.ViewModels
         AsyncLock _LiveRecommendLock = new AsyncLock();
         public bool IsLiveRecommendInitialized { get; private set; } = false;
         public bool IsEmptyLiveRecommendItems { get; private set; } = false;
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
         public Models.NiconicoSession NiconicoSession { get; }
         public NicoLiveProvider NicoLiveProvider { get; }
@@ -698,18 +717,6 @@ namespace NicoPlayerHohoema.ViewModels
                 }
             }
         }
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = LiveInfo.Video.Title,
-                PageType = HohoemaPageType.LiveInfomation,
-                Parameter = $"id={LiveId}"
-            };
-
-            return true;
-        }
     }
 
     public enum LiveTagType
@@ -738,7 +745,4 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
     }
-
-
-
 }

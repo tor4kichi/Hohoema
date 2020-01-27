@@ -13,6 +13,7 @@ using Prism.Commands;
 using Unity;
 using NicoPlayerHohoema.Services.Helpers;
 using Prism.Unity;
+using NicoPlayerHohoema.UseCase.Playlist;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -21,12 +22,10 @@ namespace NicoPlayerHohoema.ViewModels
         public LiveInfoListItemViewModel(string liveId)
         {
             LiveId = liveId;
-            HohoemaPlaylist = App.Current.Container.Resolve<Services.HohoemaPlaylist>();
             PageManager = App.Current.Container.Resolve<Services.PageManager>();
             ExternalAccessService = App.Current.Container.Resolve<Services.ExternalAccessService>();
         }
 
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
         public ExternalAccessService ExternalAccessService { get; }
         public Mntone.Nico2.Live.ReservationsInDetail.Program Reservation { get; private set; }

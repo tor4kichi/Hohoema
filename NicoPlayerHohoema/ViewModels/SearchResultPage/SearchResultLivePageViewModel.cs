@@ -16,16 +16,37 @@ using NicoPlayerHohoema.Models.Provider;
 using Unity;
 using NicoPlayerHohoema.Services;
 using Prism.Navigation;
+using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands;
+using NicoPlayerHohoema.Interfaces;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class SearchResultLivePageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>, INavigatedAwareAsync
+    public class SearchResultLivePageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = SearchOption.Keyword,
+                PageType = HohoemaPageType.SearchResultLive,
+                Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
+            };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.Keyword);
+        }
+
         public SearchResultLivePageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             Models.NiconicoSession niconicoSession,
             SearchProvider searchProvider,
             Services.PageManager pageManager,
-            HohoemaPlaylist hohoemaPlaylist
+            HohoemaPlaylist hohoemaPlaylist,
+            OpenLiveContentCommand openLiveContentCommand
             )
         {
             SelectedSearchSort = new ReactiveProperty<LiveSearchSortOptionListItem>(LiveSearchSortOptionListItems[0], mode: ReactivePropertyMode.DistinctUntilChanged);
@@ -61,10 +82,12 @@ namespace NicoPlayerHohoema.ViewModels
                     await ResetList();
                 })
                 .AddTo(_CompositeDisposable);
+            ApplicationLayoutManager = applicationLayoutManager;
             NiconicoSession = niconicoSession;
             SearchProvider = searchProvider;
             PageManager = pageManager;
             HohoemaPlaylist = hohoemaPlaylist;
+            OpenLiveContentCommand = openLiveContentCommand;
         }
 
 
@@ -183,6 +206,12 @@ namespace NicoPlayerHohoema.ViewModels
 
         static public LiveSearchPagePayloadContent SearchOption { get; private set; }
 
+        private string _keyword;
+        public string Keyword
+        {
+            get { return _keyword; }
+            set { SetProperty(ref _keyword, value); }
+        }
 
 
         private string _SearchOptionText;
@@ -229,10 +258,12 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public Models.NiconicoSession NiconicoSession { get; }
         public SearchProvider SearchProvider { get; }
         public PageManager PageManager { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public OpenLiveContentCommand OpenLiveContentCommand { get; }
 
         #endregion
 
@@ -241,9 +272,11 @@ namespace NicoPlayerHohoema.ViewModels
             var mode = parameters.GetNavigationMode();
             if (mode == NavigationMode.New)
             {
+                Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"));
+
                 SearchOption = new LiveSearchPagePayloadContent()
                 {
-                    Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"))
+                    Keyword = Keyword
                 };
             }
 
@@ -257,8 +290,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             Database.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
-
-            PageManager.PageTitle = $"\"{SearchOption.Keyword}\"";
 
             return base.OnNavigatedToAsync(parameters);
         }
@@ -309,17 +340,6 @@ namespace NicoPlayerHohoema.ViewModels
 			return new LiveSearchSource(SearchOption, SearchProvider, NiconicoSession);
 		}
 
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = SearchOption.Keyword,
-                PageType = HohoemaPageType.SearchResultLive,
-                Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
-            };
-
-            return true;
-        }
     }
 
 
@@ -340,7 +360,7 @@ namespace NicoPlayerHohoema.ViewModels
         public LiveSearchPagePayloadContent SearchOption { get; private set; }
         public SearchProvider SearchProvider { get; }
         public Models.NiconicoSession NiconicoSession { get; }
-        public List<Tag> Tags { get; private set; }
+        public List<Mntone.Nico2.Searches.Live.Tag> Tags { get; private set; }
 
 		public uint OneTimeLoadCount => 10;
 

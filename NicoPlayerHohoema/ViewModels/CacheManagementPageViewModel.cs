@@ -17,12 +17,15 @@ using NicoPlayerHohoema.Models.Provider;
 using Unity;
 using Prism.Navigation;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public class CacheManagementPageViewModel : HohoemaListingPageViewModelBase<CacheVideoViewModel>, INavigatedAwareAsync
 	{
         public CacheManagementPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             CacheSettings cacheSettings,
             VideoCacheManager videoCacheManager,
             CacheSaveFolder cacheSaveFolder,
@@ -33,6 +36,7 @@ namespace NicoPlayerHohoema.ViewModels
             HohoemaPlaylist hohoemaPlaylist
             )
         {
+            ApplicationLayoutManager = applicationLayoutManager;
             CacheSettings = cacheSettings;
             VideoCacheManager = videoCacheManager;
             CacheSaveFolder = cacheSaveFolder;
@@ -107,13 +111,14 @@ namespace NicoPlayerHohoema.ViewModels
 
                     await RefreshCacheSaveFolderStatus();
 
-                    await VideoCacheManager.OnCacheFolderChanged();
+                    await VideoCacheManager.CacheFolderChanged();
 
                     await ResetList();
                 }
             });
         }
 
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public CacheSettings CacheSettings { get; }
         public VideoCacheManager VideoCacheManager { get; }
         public CacheSaveFolder CacheSaveFolder { get; }
@@ -268,12 +273,6 @@ namespace NicoPlayerHohoema.ViewModels
                 || cacheFolderAccessState == CacheFolderAccessState.NotSelected
                 ;
         }
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = null;
-            return false;
-        }
     }
 
 
@@ -281,19 +280,17 @@ namespace NicoPlayerHohoema.ViewModels
 	{
 
         public CacheVideoViewModel(
-            string rawVideoId,
-            Interfaces.IMylist ownerPlaylist = null
+            string rawVideoId
             )
-            : base(rawVideoId, ownerPlaylist)
+            : base(rawVideoId)
         {
 
         }
 
         public CacheVideoViewModel(
-            Database.NicoVideo data,
-            Interfaces.IMylist ownerPlaylist = null
+            Database.NicoVideo data
             )
-            : base(data, ownerPlaylist)
+            : base(data)
         {
 
         }

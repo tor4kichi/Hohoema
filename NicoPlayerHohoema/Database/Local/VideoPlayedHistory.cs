@@ -9,7 +9,7 @@ namespace NicoPlayerHohoema.Database
 {
     public static class VideoPlayedHistoryDb
     {
-        public static void VideoPlayed(string videoId)
+        public static VideoPlayHistory VideoPlayed(string videoId)
         {
             var db = HohoemaLiteDb.GetLocalLiteRepository();
             {
@@ -29,6 +29,8 @@ namespace NicoPlayerHohoema.Database
                 }
 
                 db.Upsert(history);
+
+                return history;
             }
         }
 

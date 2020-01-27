@@ -1,9 +1,11 @@
 ﻿using Microsoft.Toolkit.Uwp.UI;
+using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models.LocalMylist;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Helpers;
+using NicoPlayerHohoema.UseCase.Playlist;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -15,26 +17,27 @@ namespace NicoPlayerHohoema.Views.Subscriptions
 {
     public sealed class MultiSelectSubscriptionDestinationCommand : DelegateCommandBase
     {
+        private readonly PlaylistAggregateGetter _playlistAggregateGetter;
+
         public MultiSelectSubscriptionDestinationCommand(
             DialogService dialogService,
             LocalMylistManager localMylistManager,
             UserMylistManager userMylistManager,
-            Services.HohoemaPlaylist hohoemaPlaylist,
-            MylistHelper mylistHelper
+            HohoemaPlaylist hohoemaPlaylist,
+            PlaylistAggregateGetter playlistAggregateGetter
             )
         {
             DialogService = dialogService;
             LocalMylistManager = localMylistManager;
             UserMylistManager = userMylistManager;
             HohoemaPlaylist = hohoemaPlaylist;
-            MylistHelper = mylistHelper;
+            _playlistAggregateGetter = playlistAggregateGetter;
         }
 
         public DialogService DialogService { get; }
         public LocalMylistManager LocalMylistManager { get; }
         public UserMylistManager UserMylistManager { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
-        public MylistHelper MylistHelper { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
 
         protected override bool CanExecute(object parameter)
         {
@@ -47,9 +50,9 @@ namespace NicoPlayerHohoema.Views.Subscriptions
             {
                 // 既に登録済みのアイテムを先頭にして
                 // 続いてマイリスト、ローカルプレイリストと表示する
-                var playlists = new List<Interfaces.IMylist>()
+                var playlists = new List<Interfaces.IPlaylist>()
                 {
-                    HohoemaPlaylist.DefaultPlaylist
+                    HohoemaPlaylist.QueuePlaylist
                 };
 
                 foreach (var playlist in UserMylistManager.Mylists)
@@ -57,15 +60,15 @@ namespace NicoPlayerHohoema.Views.Subscriptions
                     playlists.Add(playlist);
                 }
 
-                foreach (var playlist in LocalMylistManager.Mylists)
+                foreach (var playlist in LocalMylistManager.LocalPlaylists)
                 {
                     playlists.Add(playlist);
                 }
 
-                var selectedItems = new List<Interfaces.IMylist>();
+                var selectedItems = new List<Interfaces.IPlaylist>();
                 foreach (var dest in subscription.Destinations.Reverse())
                 {
-                    var list = MylistHelper.FindMylistInCached(dest.PlaylistId, dest.Target == Models.Subscription.SubscriptionDestinationTarget.LocalPlaylist ? PlaylistOrigin.Local : PlaylistOrigin.LoginUser);
+                    var list = await _playlistAggregateGetter.FindPlaylistAsync(dest.PlaylistId);
 
                     if (list != null)
                     {
@@ -91,7 +94,7 @@ namespace NicoPlayerHohoema.Views.Subscriptions
                 {
                     var dest = new Models.Subscription.SubscriptionDestination(
                         choiceItem.Label,
-                        choiceItem.ToMylistOrigin() == PlaylistOrigin.Local ? Models.Subscription.SubscriptionDestinationTarget.LocalPlaylist : Models.Subscription.SubscriptionDestinationTarget.LoginUserMylist,
+                        choiceItem.GetOrigin() == PlaylistOrigin.Local ? Models.Subscription.SubscriptionDestinationTarget.LocalPlaylist : Models.Subscription.SubscriptionDestinationTarget.LoginUserMylist,
                         choiceItem.Id
                         );
                     subscription.Destinations.Add(dest);

@@ -1,380 +1,410 @@
-﻿<UserControl
-    x:Class="NicoPlayerHohoema.Views.CommentCommandEditer"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:NicoPlayerHohoema.Views"
-    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-    xmlns:view="using:NicoPlayerHohoema.Views"
-    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
-    xmlns:i="using:Microsoft.Xaml.Interactivity"
-    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
-    mc:Ignorable="d"
-    d:DesignHeight="300"
-    d:DesignWidth="400">
-
-
-    <UserControl.Resources>
-
-        <DataTemplate x:Key="BigTemplate">
-            <Border Height="24">
-                <TextBlock Text="A" FontSize="28" VerticalAlignment="Bottom" TextLineBounds="TrimToBaseline"/>
-            </Border>
-        </DataTemplate>
-        <DataTemplate x:Key="MidiumTemplate">
-            <Border Height="24">
-                <TextBlock Text="A" FontSize="20" VerticalAlignment="Bottom" TextLineBounds="TrimToBaseline"/>
-            </Border>
-        </DataTemplate>
-        <DataTemplate x:Key="SmallTemplate">
-            <Border Height="24">
-                <TextBlock Text="A" FontSize="14" VerticalAlignment="Bottom" TextLineBounds="TrimToBaseline"/>
-            </Border>
-        </DataTemplate>
-
-
-        <DataTemplate x:Key="UeTemplate">
-            <Border Height="48">
-                <TextBlock Text="上" FontSize="20" VerticalAlignment="Top" />
-            </Border>
-        </DataTemplate>
-        <DataTemplate x:Key="NakaTemplate">
-            <Border Height="48">
-                <TextBlock Text="中ﾐ" FontSize="20" VerticalAlignment="Center" />
-            </Border>
-        </DataTemplate>
-        <DataTemplate x:Key="ShitaTemplate">
-            <Border Height="48">
-                <TextBlock Text="下" FontSize="20" VerticalAlignment="Bottom" />
-            </Border>
-        </DataTemplate>
-
-
-
-
-        <DataTemplate x:Key="WhiteTemplate">
-            <Border Height="32"  Width="32" BorderBrush="#77777777" BorderThickness="2"
-                    Background="White"
-                    >
-            </Border>
-        </DataTemplate>
-        <DataTemplate x:Key="RedTemplate">
-            <Border Height="32"  Width="32" BorderBrush="#77777777" BorderThickness="2"
-                    Background="Red"
-                    >
-            </Border>
-        </DataTemplate>
-        <DataTemplate x:Key="PinkTemplate">
-            <Border Height="32"  Width="32" BorderBrush="#77777777" BorderThickness="2"
-                    Background="Pink"
-                    >
-            </Border>
-        </DataTemplate>
-        <DataTemplate x:Key="OrangeTemplate">
-            <Border Height="32"  Width="32" BorderBrush="#77777777" BorderThickness="2"
-                    Background="Orange"
-                    >
-            </Border>
-        </DataTemplate>
-        <DataTemplate x:Key="YellowTemplate">
-            <Border Height="32"  Width="32" BorderBrush="#77777777" BorderThickness="2"
-                    Background="Yellow"
-                    >
-            </Border>
-        </DataTemplate>
-        <DataTemplate x:Key="GreenTemplate">
-            <Border Height="32"  Width="32" BorderBrush="#77777777" BorderThickness="2"
-                    Background="Green"
-                    >
-            </Border>
-        </DataTemplate>
-        <DataTemplate x:Key="CyanTemplate">
-            <Border Height="32"  Width="32" BorderBrush="#77777777" BorderThickness="2"
-                    Background="Cyan"
-                    >
-            </Border>
-        </DataTemplate>
-        <DataTemplate x:Key="BlueTemplate">
-            <Border Height="32"  Width="32" BorderBrush="#77777777" BorderThickness="2"
-                    Background="Blue"
-                    >
-            </Border>
-        </DataTemplate>
-        <DataTemplate x:Key="PurpleTemplate">
-            <Border Height="32"  Width="32" BorderBrush="#77777777" BorderThickness="2"
-                    Background="Purple"
-                    >
-            </Border>
-        </DataTemplate>
-        <DataTemplate x:Key="BlackTemplate">
-            <Border Height="32"  Width="32" BorderBrush="#77777777" BorderThickness="2"
-                    Background="Black"
-                    >
-            </Border>
-        </DataTemplate>
-
+﻿<UserControl x:Class="NicoPlayerHohoema.Views.CommentCommandEditer"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="using:NicoPlayerHohoema.Views"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:view="using:NicoPlayerHohoema.Views"
+             xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+             xmlns:i="using:Microsoft.Xaml.Interactivity"
+             xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+             xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+             x:Name="UserControlRoot"
+             mc:Ignorable="d"
+             d:DesignHeight="300"
+             d:DesignWidth="400">
+  <UserControl.Resources>
+    <DataTemplate x:Key="BigTemplate">
+      <Border Height="24">
+        <TextBlock Text="A"
+                   FontSize="36"
+                   VerticalAlignment="Bottom"
+                   TextLineBounds="TrimToBaseline" />
+      </Border>
+    </DataTemplate>
+    <DataTemplate x:Key="MidiumTemplate">
+      <Border Height="24">
+        <TextBlock Text="A"
+                   FontSize="24"
+                   VerticalAlignment="Bottom"
+                   TextLineBounds="TrimToBaseline" />
+      </Border>
+    </DataTemplate>
+    <DataTemplate x:Key="SmallTemplate">
+      <Border Height="24">
+        <TextBlock Text="A"
+                   FontSize="14"
+                   VerticalAlignment="Bottom"
+                   TextLineBounds="TrimToBaseline" />
+      </Border>
+    </DataTemplate>
+    <DataTemplate x:Key="UeTemplate">
+      <Border Height="48">
+        <TextBlock Text="上"
+                   FontSize="20"
+                   VerticalAlignment="Top" />
+      </Border>
+    </DataTemplate>
+    <DataTemplate x:Key="NakaTemplate">
+      <Border Height="48">
+        <TextBlock Text="中ﾐ"
+                   FontSize="20"
+                   VerticalAlignment="Center" />
+      </Border>
+    </DataTemplate>
+    <DataTemplate x:Key="ShitaTemplate">
+      <Border Height="48">
+        <TextBlock Text="下"
+                   FontSize="20"
+                   VerticalAlignment="Bottom" />
+      </Border>
+    </DataTemplate>
+    <DataTemplate x:Key="WhiteTemplate">
+      <Border Height="32"
+              Width="32"
+              BorderBrush="#77777777"
+              BorderThickness="2"
+              Background="White"></Border>
+    </DataTemplate>
+    <DataTemplate x:Key="RedTemplate">
+      <Border Height="32"
+              Width="32"
+              BorderBrush="#77777777"
+              BorderThickness="2"
+              Background="Red"></Border>
+    </DataTemplate>
+    <DataTemplate x:Key="PinkTemplate">
+      <Border Height="32"
+              Width="32"
+              BorderBrush="#77777777"
+              BorderThickness="2"
+              Background="Pink"></Border>
+    </DataTemplate>
+    <DataTemplate x:Key="OrangeTemplate">
+      <Border Height="32"
+              Width="32"
+              BorderBrush="#77777777"
+              BorderThickness="2"
+              Background="Orange"></Border>
+    </DataTemplate>
+    <DataTemplate x:Key="YellowTemplate">
+      <Border Height="32"
+              Width="32"
+              BorderBrush="#77777777"
+              BorderThickness="2"
+              Background="Yellow"></Border>
+    </DataTemplate>
+    <DataTemplate x:Key="GreenTemplate">
+      <Border Height="32"
+              Width="32"
+              BorderBrush="#77777777"
+              BorderThickness="2"
+              Background="Green"></Border>
+    </DataTemplate>
+    <DataTemplate x:Key="CyanTemplate">
+      <Border Height="32"
+              Width="32"
+              BorderBrush="#77777777"
+              BorderThickness="2"
+              Background="Cyan"></Border>
+    </DataTemplate>
+    <DataTemplate x:Key="BlueTemplate">
+      <Border Height="32"
+              Width="32"
+              BorderBrush="#77777777"
+              BorderThickness="2"
+              Background="Blue"></Border>
+    </DataTemplate>
+    <DataTemplate x:Key="PurpleTemplate">
+      <Border Height="32"
+              Width="32"
+              BorderBrush="#77777777"
+              BorderThickness="2"
+              Background="Purple"></Border>
+    </DataTemplate>
+    <DataTemplate x:Key="BlackTemplate">
+      <Border Height="32"
+              Width="32"
+              BorderBrush="#77777777"
+              BorderThickness="2"
+              Background="Black"></Border>
+    </DataTemplate>
+    <DataTemplate x:Key="White2Template">
+      <Border Height="32"
+              Width="32"
+              BorderBrush="#77777777"
+              BorderThickness="2"
+              Background="White"></Border>
+    </DataTemplate>
+    <DataTemplate x:Key="Red2Template">
+      <Border Height="32"
+              Width="32"
+              BorderBrush="#77777777"
+              BorderThickness="2"
+              Background="Red"></Border>
+    </DataTemplate>
+    <DataTemplate x:Key="Pink2Template">
+      <Border Height="32"
+              Width="32"
+              BorderBrush="#77777777"
+              BorderThickness="2"
+              Background="Pink"></Border>
+    </DataTemplate>
+    <DataTemplate x:Key="Orange2Template">
+      <Border Height="32"
+              Width="32"
+              BorderBrush="#77777777"
+              BorderThickness="2"
+              Background="Orange"></Border>
+    </DataTemplate>
+    <DataTemplate x:Key="Yellow2Template">
+      <Border Height="32"
+              Width="32"
+              BorderBrush="#77777777"
+              BorderThickness="2"
+              Background="Yellow"></Border>
+    </DataTemplate>
+    <DataTemplate x:Key="Green2Template">
+      <Border Height="32"
+              Width="32"
+              BorderBrush="#77777777"
+              BorderThickness="2"
+              Background="Green"></Border>
+    </DataTemplate>
+    <DataTemplate x:Key="Cyan2Template">
+      <Border Height="32"
+              Width="32"
+              BorderBrush="#77777777"
+              BorderThickness="2"
+              Background="Cyan"></Border>
+    </DataTemplate>
+    <DataTemplate x:Key="Blue2Template">
+      <Border Height="32"
+              Width="32"
+              BorderBrush="#77777777"
+              BorderThickness="2"
+              Background="Blue"></Border>
+    </DataTemplate>
+    <DataTemplate x:Key="Purple2Template">
+      <Border Height="32"
+              Width="32"
+              BorderBrush="#77777777"
+              BorderThickness="2"
+              Background="Purple"></Border>
+    </DataTemplate>
+    <DataTemplate x:Key="Black2Template">
+      <Border Height="32"
+              Width="32"
+              BorderBrush="#77777777"
+              BorderThickness="2"
+              Background="Black"></Border>
+    </DataTemplate>
+    <DataTemplate x:Key="EmptyTemplate">
+      <Border Height="32" Width="32">
+        <SymbolIcon Symbol="Remove" />
+      </Border>
         
-        
-        
-        <DataTemplate x:Key="White2Template">
-            <Border Height="32"  Width="32" BorderBrush="#77777777" BorderThickness="2"
-                    Background="White"
-                    >
-            </Border>
-        </DataTemplate>
-        <DataTemplate x:Key="Red2Template">
-            <Border Height="32"  Width="32" BorderBrush="#77777777" BorderThickness="2"
-                    Background="Red"
-                    >
-            </Border>
-        </DataTemplate>
-        <DataTemplate x:Key="Pink2Template">
-            <Border Height="32"  Width="32" BorderBrush="#77777777" BorderThickness="2"
-                    Background="Pink"
-                    >
-            </Border>
-        </DataTemplate>
-        <DataTemplate x:Key="Orange2Template">
-            <Border Height="32"  Width="32" BorderBrush="#77777777" BorderThickness="2"
-                    Background="Orange"
-                    >
-            </Border>
-        </DataTemplate>
-        <DataTemplate x:Key="Yellow2Template">
-            <Border Height="32"  Width="32" BorderBrush="#77777777" BorderThickness="2"
-                    Background="Yellow"
-                    >
-            </Border>
-        </DataTemplate>
-        <DataTemplate x:Key="Green2Template">
-            <Border Height="32"  Width="32" BorderBrush="#77777777" BorderThickness="2"
-                    Background="Green"
-                    >
-            </Border>
-        </DataTemplate>
-        <DataTemplate x:Key="Cyan2Template">
-            <Border Height="32"  Width="32" BorderBrush="#77777777" BorderThickness="2"
-                    Background="Cyan"
-                    >
-            </Border>
-        </DataTemplate>
-        <DataTemplate x:Key="Blue2Template">
-            <Border Height="32"  Width="32" BorderBrush="#77777777" BorderThickness="2"
-                    Background="Blue"
-                    >
-            </Border>
-        </DataTemplate>
-        <DataTemplate x:Key="Purple2Template">
-            <Border Height="32"  Width="32" BorderBrush="#77777777" BorderThickness="2"
-                    Background="Purple"
-                    >
-            </Border>
-        </DataTemplate>
-        <DataTemplate x:Key="Black2Template">
-            <Border Height="32"  Width="32" BorderBrush="#77777777" BorderThickness="2"
-                    Background="Black"
-                    >
-            </Border>
-        </DataTemplate>
-
-        
-        <local:CommentCommandTemplateSelector x:Key="commentCommandTemplateSelector"
-                                              Big="{StaticResource BigTemplate}"
-                                              Midium="{StaticResource MidiumTemplate}"
-                                              Small="{StaticResource SmallTemplate}"
-                                              
-                                              Ue="{StaticResource UeTemplate}"
-                                              Naka="{StaticResource NakaTemplate}"
-                                              Shita="{StaticResource ShitaTemplate}"
-                                              
-                                              White="{StaticResource WhiteTemplate}"
-                                              Red="{StaticResource RedTemplate}"
-                                              Pink="{StaticResource PinkTemplate}"
-                                              Orange="{StaticResource OrangeTemplate}"
-                                              Yellow="{StaticResource YellowTemplate}"
-                                              Green="{StaticResource GreenTemplate}"
-                                              Cyan="{StaticResource CyanTemplate}"
-                                              Blue="{StaticResource BlueTemplate}"
-                                              Purple="{StaticResource PurpleTemplate}"
-                                              Black="{StaticResource BlackTemplate}"
-                                              
-                                              White2="{StaticResource White2Template}"
-                                              Red2="{StaticResource Red2Template}"
-                                              Pink2="{StaticResource Pink2Template}"
-                                              Orange2="{StaticResource Orange2Template}"
-                                              Yellow2="{StaticResource Yellow2Template}"
-                                              Green2="{StaticResource Green2Template}"
-                                              Cyan2="{StaticResource Cyan2Template}"
-                                              Blue2="{StaticResource Blue2Template}"
-                                              Purple2="{StaticResource Purple2Template}"
-                                              Black2="{StaticResource Black2Template}"
-
-            />
-    </UserControl.Resources>
+    </DataTemplate>
     
-    <Grid>
-        <StackPanel Margin="8">
-
-            <toolkit:DockPanel Margin="0 0 0 8">
-
-                <Button Content="リセット" 
-                        Command="{Binding ResetAllCommand}"
-                        toolkit:DockPanel.Dock="Right" />
-
-                <StackPanel Orientation="Horizontal">
-
-                    
-                    <ToggleButton Content="匿名で投稿" 
-                                  IsChecked="{Binding IsAnonymousComment.Value, Mode=TwoWay}"
-                                  IsEnabled="{Binding CanChangeAnonymity.Value, Mode=OneWay}"
-                                  />
-
-                    <TextBlock Text="チャンネル・コミュニティ動画では匿名投稿できません"
-                               FontSize="12"
-                               Width="150"
-                               TextWrapping="Wrap"
-                               Margin="8 8 0 0"
-                               HorizontalAlignment="Left"
-                               Visibility="{Binding CanChangeAnonymity.Value, Converter={StaticResource BooleanToVisibilityInverted}}"
-                               />
-                    
-                </StackPanel>
-
-            </toolkit:DockPanel>
-
-
-            <toolkit:DockPanel Margin="0 0 0 8"
-                               x:Name="CommentSizePallete"
-                               >
-
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-
-                    <ListView ItemsSource="{Binding SizeCommandItems}"
-                              ItemTemplateSelector="{StaticResource commentCommandTemplateSelector}"
-                              SelectedItem="{Binding SizeSelectedItem.Value, Mode=TwoWay}"
-                              SelectionMode="Single"
-                              >
-                        <ListView.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" />
-                            </ItemsPanelTemplate>
-                        </ListView.ItemsPanel>
-
-                        <ListView.ItemContainerStyle>
-                            <Style TargetType="ListViewItem">
-                                <Setter Property="HorizontalAlignment" Value="Stretch" />
-                                <Setter Property="HorizontalContentAlignment" Value="Center" />
-                            </Style>
-                        </ListView.ItemContainerStyle>
-
-                    </ListView>
-
-                </StackPanel>
-
-            </toolkit:DockPanel>
-
-            
-            
-            <toolkit:DockPanel Margin="0 0 0 8">
-
-               
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-
-                    <Border BorderBrush="Black" BorderThickness="0 1">
-
-                        <ListView ItemsSource="{Binding AlingmentCommandItems}"
-                                  ItemTemplateSelector="{StaticResource commentCommandTemplateSelector}"
-                                  SelectedItem="{Binding AlingmentSelectedItem.Value, Mode=TwoWay}"
-                                  SelectionMode="Single"
-                              >
-                            <ListView.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <StackPanel Orientation="Horizontal" />
-                                </ItemsPanelTemplate>
-                            </ListView.ItemsPanel>
-
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="HorizontalAlignment" Value="Stretch" />
-                                    <Setter Property="HorizontalContentAlignment" Value="Center" />
-                                </Style>
-                            </ListView.ItemContainerStyle>
-
-                        </ListView>
-
-                    </Border>
-
-                </StackPanel>
-
-            </toolkit:DockPanel>
-
-            <toolkit:DockPanel Margin="0 0 0 8"
-                                x:Name="ColorPallete"
-                               >
-                <StackPanel
-                    
-                            Orientation="Horizontal" 
-                            HorizontalAlignment="Center"
-                            
-                            >
-
-                    <ListBox ItemsSource="{Binding ColorCommandItems}"
-                             ItemTemplateSelector="{StaticResource commentCommandTemplateSelector}"
-                             SelectedItem="{Binding ColorSelectedItem.Value, Mode=TwoWay}"
-                             SelectionMode="Single"
-                             >
-                        <ListBox.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" />
-                            </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>
-
-                        <ListBox.ItemContainerStyle>
-                            <Style TargetType="ListBoxItem">
-                                <Setter Property="Padding" Value="4 4" />
-                            </Style>
-                        </ListBox.ItemContainerStyle>
-
-                    </ListBox>
-                </StackPanel>
-
-            </toolkit:DockPanel>
-
-            <toolkit:DockPanel x:Name="ColorPallete_Premium"
-                               Margin="0 0 0 8"
-                               Visibility="{Binding IsPremiumUser, Converter={StaticResource BooleanToVisibility}}"
-                               >
-                <StackPanel Orientation="Horizontal" 
-                            HorizontalAlignment="Center"
-                            
-                            >
-
-                    <ListBox ItemsSource="{Binding ColorPremiumCommandItems}"
-                             ItemTemplateSelector="{StaticResource commentCommandTemplateSelector}"
-                             SelectedItem="{Binding ColorSelectedItem.Value, Mode=TwoWay}"
-                             SelectionMode="Single"
-                             >
-                        <ListBox.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" />
-                            </ItemsPanelTemplate>
-                        </ListBox.ItemsPanel>
-
-                        <ListBox.ItemContainerStyle>
-                            <Style TargetType="ListBoxItem">
-                                <Setter Property="Padding" Value="4 4" />
-                            </Style>
-                        </ListBox.ItemContainerStyle>
-
-                    </ListBox>
-
-                </StackPanel>
-
-            </toolkit:DockPanel>
-
-
+    <local:CommentCommandTemplateSelector x:Key="commentCommandTemplateSelector"
+                                          EmptyTemplate="{StaticResource EmptyTemplate}"
+                                          Big="{StaticResource BigTemplate}"
+                                          Midium="{StaticResource MidiumTemplate}"
+                                          Small="{StaticResource SmallTemplate}"
+                                          Ue="{StaticResource UeTemplate}"
+                                          Naka="{StaticResource NakaTemplate}"
+                                          Shita="{StaticResource ShitaTemplate}"
+                                          White="{StaticResource WhiteTemplate}"
+                                          Red="{StaticResource RedTemplate}"
+                                          Pink="{StaticResource PinkTemplate}"
+                                          Orange="{StaticResource OrangeTemplate}"
+                                          Yellow="{StaticResource YellowTemplate}"
+                                          Green="{StaticResource GreenTemplate}"
+                                          Cyan="{StaticResource CyanTemplate}"
+                                          Blue="{StaticResource BlueTemplate}"
+                                          Purple="{StaticResource PurpleTemplate}"
+                                          Black="{StaticResource BlackTemplate}"
+                                          White2="{StaticResource White2Template}"
+                                          Red2="{StaticResource Red2Template}"
+                                          Pink2="{StaticResource Pink2Template}"
+                                          Orange2="{StaticResource Orange2Template}"
+                                          Yellow2="{StaticResource Yellow2Template}"
+                                          Green2="{StaticResource Green2Template}"
+                                          Cyan2="{StaticResource Cyan2Template}"
+                                          Blue2="{StaticResource Blue2Template}"
+                                          Purple2="{StaticResource Purple2Template}"
+                                          Black2="{StaticResource Black2Template}" />
+    <Style TargetType="ToggleSwitch"
+           BasedOn="{StaticResource ToggleSwitchNoHeader}">
+      <Style.Setters>
+        <Setter Property="MinWidth"
+                Value="0" />
+      </Style.Setters>
+    </Style>
+  </UserControl.Resources>
+  <Grid Width="280">
+    <StackPanel Spacing="16">
+      <Grid>
+        <HyperlinkButton Content="コマンドについて"
+                         NavigateUri="https://dic.nicovideo.jp/a/%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89" />
+        <Button Content="{Binding Source=Reset, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                HorizontalAlignment="Right"
+                Click="AllCommandReset" />
+      </Grid>
+      <Grid>
+        <StackPanel HorizontalAlignment="Left">
+          <TextBlock Text="{Binding Source=CommentSubmitWithAnonymous, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                     VerticalAlignment="Center"
+                      />
+          <TextBlock x:Name="AnonymousCommentCanNotEnableInChannelOrCommunityVideo"
+                     Text="{Binding Source=CommentSubmitWithAnonymousDescription, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                     FontSize="12"
+                     Width="150"
+                     TextWrapping="Wrap"
+                     Margin="8 8 0 0"
+                     Visibility="Collapsed" />
         </StackPanel>
-
-    </Grid>
+        <ToggleSwitch x:Name="AnonymousCommentToggleButton"
+                      HorizontalAlignment="Right" />
+      </Grid>
+      <Grid>
+        <TextBlock HorizontalAlignment="Left"
+                   VerticalAlignment="Center"
+                   Text="{Binding Source=CommentSize, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" />
+        
+        <ListView x:Name="CommentSizePallete"
+                  ItemsSource="{x:Bind SizeCommandItems}"
+                  ItemTemplateSelector="{StaticResource commentCommandTemplateSelector}"
+                  SelectionMode="Single"
+                  HorizontalAlignment="Right"
+                  >
+          <ListView.ItemsPanel>
+            <ItemsPanelTemplate>
+              <StackPanel Orientation="Horizontal" />
+            </ItemsPanelTemplate>
+          </ListView.ItemsPanel>
+          <ListView.ItemContainerStyle>
+            <Style TargetType="ListViewItem">
+              <Setter Property="HorizontalAlignment"
+                      Value="Stretch" />
+              <Setter Property="HorizontalContentAlignment"
+                      Value="Center" />
+              <Setter Property="MinWidth"
+                      Value="48" />
+            </Style>
+          </ListView.ItemContainerStyle>
+        </ListView>
+      </Grid>
+      <Grid>
+        <TextBlock HorizontalAlignment="Left"
+                   VerticalAlignment="Center"
+                   Text="{Binding Source=CommentVerticalAlignment, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                   />
+        <Border BorderBrush="Black"
+                BorderThickness="0 1"
+                HorizontalAlignment="Right"
+                >
+          <ListView x:Name="AlingmentPallete"
+                    ItemsSource="{x:Bind AlingmentCommandItems}"
+                    ItemTemplateSelector="{StaticResource commentCommandTemplateSelector}"
+                    SelectionMode="Single"
+                    HorizontalAlignment="Right">
+            <ListView.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Orientation="Horizontal" />
+              </ItemsPanelTemplate>
+            </ListView.ItemsPanel>
+            <ListView.ItemContainerStyle>
+              <Style TargetType="ListViewItem">
+                <Setter Property="HorizontalAlignment"
+                        Value="Stretch" />
+                <Setter Property="HorizontalContentAlignment"
+                        Value="Center" />
+                <Setter Property="MinWidth"
+                        Value="48" />
+              </Style>
+            </ListView.ItemContainerStyle>
+          </ListView>
+        </Border>
+      </Grid>
+      <Grid>
+        <TextBlock Text="{Binding Source=CommentColor, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                   HorizontalAlignment="Left"
+                   VerticalAlignment="Center"
+                   />
+        <ListView  x:Name="ColorPallete"
+                   ItemsSource="{x:Bind ColorCommandItems}"
+                   ItemTemplateSelector="{StaticResource commentCommandTemplateSelector}"
+                   SelectionMode="Single"
+                   HorizontalAlignment="Right"
+                   Width="200"
+                   >
+          <ListView.ItemsPanel>
+            <ItemsPanelTemplate>
+              <ItemsWrapGrid Orientation="Horizontal"
+                             ItemWidth="40" />
+            </ItemsPanelTemplate>
+          </ListView.ItemsPanel>
+          <ListView.ItemContainerStyle>
+            <Style TargetType="ListViewItem">
+              <Setter Property="Padding"
+                      Value="4 4" />
+            </Style>
+          </ListView.ItemContainerStyle>
+        </ListView>
+      </Grid>
+      
+      <Grid>
+        <TextBlock Text="{Binding Source=UseFreeInputCommand, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" HorizontalAlignment="Left" VerticalAlignment="Center" />
+        <ToggleSwitch x:Name="UserInputCommandToggleSwitch"
+                      IsOn="False"
+                      HorizontalAlignment="Right" />
+      </Grid>
+      <toolkit:DockPanel>
+        <TextBox x:Name="UserInputCommand"
+                 PlaceholderText="{Binding Source=FreeInputCommandTextBoxPlacefolderText, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                 Visibility="Collapsed"
+                 />
+      </toolkit:DockPanel>
+    </StackPanel>
+    <VisualStateManager.VisualStateGroups>
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind _viewModel.NiconicoSession.IsPremiumAccount, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="ColorPallete.ItemsSource"
+                    Value="{Binding ElementName=UserControlRoot, Path=ColorPremiumCommandItems}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind ChannelOrCommunityVideoModeEnable, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="AnonymousCommentToggleButton.IsEnabled"
+                    Value="False" />
+            <Setter Target="AnonymousCommentToggleButton.IsOn"
+                    Value="False" />
+            <Setter Target="AnonymousCommentCanNotEnableInChannelOrCommunityVideo.Visibility"
+                    Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind UserInputCommandToggleSwitch.IsOn, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="UserInputCommand.Visibility"
+                    Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
 </UserControl>

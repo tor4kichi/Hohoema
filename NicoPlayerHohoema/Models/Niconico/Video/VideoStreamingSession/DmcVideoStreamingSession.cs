@@ -17,10 +17,6 @@ namespace NicoPlayerHohoema.Models
         // Note: 再生中のハートビート管理を含めた管理
         // MediaSourceをMediaPlayerに設定する役割
 
-
-        NicoVideoQuality _Quality;
-        public override NicoVideoQuality Quality => _Quality;
-
         public DmcWatchResponse DmcWatchResponse { get; private set; }
 
         private Timer _DmcSessionHeartbeatTimer;
@@ -30,8 +26,6 @@ namespace NicoPlayerHohoema.Models
         private int _HeartbeatCount = 0;
         private bool IsFirstHeartbeat => _HeartbeatCount == 0;
 
-        public NicoVideoQuality RequestedQuality { get; }
-
         public VideoContent VideoContent { get; private set; }
 
         private byte[] _EncryptionKey;
@@ -39,6 +33,11 @@ namespace NicoPlayerHohoema.Models
 
         private Windows.Web.Http.HttpClient _HttpClient;
 
+
+        public override string QualityId { get; }
+        public override NicoVideoQuality Quality { get; }
+
+        /*
         private VideoContent ResetActualQuality()
         {
             if (DmcWatchResponse?.Video.DmcInfo?.Quality?.Videos == null)
@@ -96,16 +95,19 @@ namespace NicoPlayerHohoema.Models
             
             return result;
         }
+        */
 
         DmcWatchData _DmcWatchData;
         static DmcSessionResponse _DmcSessionResponse;
 
-        public DmcVideoStreamingSession(DmcWatchData res, NicoVideoQuality requestQuality, NiconicoSession niconicoSession)
+        public DmcVideoStreamingSession(string qualityId, DmcWatchData res, NiconicoSession niconicoSession)
             : base(niconicoSession)
         {
-            RequestedQuality = requestQuality;
             _DmcWatchData = res;
             DmcWatchResponse = res.DmcWatchResponse;
+
+            QualityId = qualityId;
+            Quality = res.ToNicoVideoQuality(qualityId);
 
 #if DEBUG
             Debug.WriteLine($"Id/Bitrate/Resolution/Available");
@@ -115,21 +117,10 @@ namespace NicoPlayerHohoema.Models
             }
 #endif
 
-            VideoContent = ResetActualQuality();
-
-            if (VideoContent == null || !VideoContent.Available)
-            {
-                VideoContent = DmcWatchResponse.Video.DmcInfo.Quality.Videos.FirstOrDefault(x => x.Available);
-                _Quality = NicoVideoVideoContentHelper.VideoContentToQuality(VideoContent);
-            }
-            else
-            {
-                _Quality = requestQuality;
-            }
+            VideoContent = DmcWatchResponse.Video.DmcInfo.Quality.Videos.FirstOrDefault(x => x.Id == qualityId);
 
             if (VideoContent != null)
             {
-                Debug.WriteLine($"quality={_Quality}");
                 Debug.WriteLine($"{VideoContent.Id}/{VideoContent.Bitrate}/{VideoContent.Available}/w={VideoContent.Resolution.Width} h={VideoContent.Resolution.Height}");
             }
         }

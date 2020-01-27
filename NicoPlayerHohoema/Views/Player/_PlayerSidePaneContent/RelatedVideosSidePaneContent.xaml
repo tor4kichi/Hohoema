@@ -19,17 +19,17 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
-    <UserControl.Resources>
-        <DataTemplate x:Key="MiniListItemTemplate">
-            <toolkit:DockPanel Margin="4 0 0 0"
+  <UserControl.Resources>
+    <DataTemplate x:Key="MiniListItemTemplate">
+      <toolkit:DockPanel Margin="4 0 0 0"
                            x:Name="ContentLayout"
                            >
-                <Grid Margin="0 0 8 0"
+        <Grid Margin="0 0 8 0"
                   toolkit:DockPanel.Dock="Left"
                   MaxHeight="60"
                   Width="80"
                   >
-                    <uwptoolkit:ImageEx Source="{Binding FirstImageUrl, Mode=OneWay}" 
+          <uwptoolkit:ImageEx Source="{Binding FirstImageUrl, Mode=OneWay}" 
                                    Visibility="{Binding HasImageUrl, Converter={StaticResource BooleanToVisibility}}"
                                    Stretch="Uniform"
                                     VerticalAlignment="Center"
@@ -39,163 +39,163 @@
                                     Height="90"
                                         IsTabStop="False"
                    >
-                    </uwptoolkit:ImageEx>
+          </uwptoolkit:ImageEx>
 
-                    <Border HorizontalAlignment="Right" 
+          <Border HorizontalAlignment="Right" 
                         VerticalAlignment="Bottom"
                         Visibility="{Binding HasImageCaption, Converter={StaticResource BooleanToVisibility}}"
                         CornerRadius="4 0 0 0"
                         >
-                        <Border.Background>
-                            <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
-                        </Border.Background>
+            <Border.Background>
+              <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+            </Border.Background>
 
-                        <TextBlock Text="{Binding ImageCaption, Mode=OneWay}" 
+            <TextBlock Text="{Binding ImageCaption, Mode=OneWay}" 
                                Padding="4 0 3 3" 
                                TextWrapping="Wrap" VerticalAlignment="Center" 
                                FontSize="13"
                                
                                />
-                    </Border>
-                </Grid>
+          </Border>
+        </Grid>
 
-                <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
+        <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
 
-                    <TextBlock Text="{Binding OptionText, Mode=OneWay}" 
+          <TextBlock Text="{Binding OptionText, Mode=OneWay}" 
                            Opacity="0.7"
                            FontSize="13"
                            TextLineBounds="Tight"
                            />
 
-                    <Border />
+          <Border />
 
-                </toolkit:DockPanel>
+        </toolkit:DockPanel>
 
-                <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" >
+        <toolkit:DockPanel toolkit:DockPanel.Dock="Bottom" >
 
-                    <TextBlock Text="{Binding Description, Mode=OneWay}" 
+          <TextBlock Text="{Binding Description, Mode=OneWay}" 
                            Opacity="0.7"
                            FontSize="13"
                            TextLineBounds="Tight"
                        />
-                </toolkit:DockPanel>
+        </toolkit:DockPanel>
 
-                <TextBlock Text="{Binding Label, Mode=OneWay}" 
+        <TextBlock Text="{Binding Label, Mode=OneWay}" 
                        FontSize="16"
                        TextWrapping="Wrap"
                        VerticalAlignment="Center"
                        />
 
 
-            </toolkit:DockPanel>
-        </DataTemplate>
-    </UserControl.Resources>
-    <Grid>
+      </toolkit:DockPanel>
+    </DataTemplate>
+  </UserControl.Resources>
+  <Grid>
 
-        <VisualStateManager.VisualStateGroups>
+    <VisualStateManager.VisualStateGroups>
 
-            <!-- Xbox -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <hardwareTrigger:DeviceFamilyTrigger Condition="Xbox" />
-                    </VisualState.StateTriggers>
+      <!-- Xbox -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <hardwareTrigger:DeviceFamilyTrigger Condition="Xbox" />
+          </VisualState.StateTriggers>
 
-                    <VisualState.Setters>
-                        <Setter Target="PlaylistItemsListView.Padding" Value="0 0 48 0" />
-                        <Setter Target="HeaderLayout.Padding" Value="0 0 48 0" />
-                        <Setter Target="FooterLayout.Padding" Value="0 0 48 0" />
+          <VisualState.Setters>
+            <Setter Target="PlaylistItemsListView.Padding" Value="0 0 48 0" />
+            <Setter Target="HeaderLayout.Padding" Value="0 0 48 0" />
+            <Setter Target="FooterLayout.Padding" Value="0 0 48 0" />
 
 
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
 
-            
-        </VisualStateManager.VisualStateGroups>
 
-        <toolkit:DockPanel x:Name="RootLayout">
+    </VisualStateManager.VisualStateGroups>
 
-            <StackPanel toolkit:DockPanel.Dock="Top" Margin="0 0 0 0"
+    <toolkit:DockPanel x:Name="RootLayout">
+
+      <StackPanel toolkit:DockPanel.Dock="Top" Margin="0 0 0 0"
                         x:Name="HeaderLayout"
                         
                         >
-                <toolkit:DockPanel >
-                    <StackPanel Orientation="Horizontal"
+        <toolkit:DockPanel >
+          <StackPanel Orientation="Horizontal"
                                                 toolkit:DockPanel.Dock="Left"
                                             
                                                 >
 
-                        <Border />
-                    </StackPanel>
-                </toolkit:DockPanel>
-            </StackPanel>
-            <StackPanel toolkit:DockPanel.Dock="Bottom"
+            <Border />
+          </StackPanel>
+        </toolkit:DockPanel>
+      </StackPanel>
+      <StackPanel toolkit:DockPanel.Dock="Bottom"
                         x:Name="FooterLayout"
                         >
 
-                
 
 
-            </StackPanel>
 
-            <ScrollViewer>
-                <StackPanel>
+      </StackPanel>
 
-                    <StackPanel toolkit:DockPanel.Dock="Top"
+      <ScrollViewer>
+        <StackPanel>
+
+          <StackPanel toolkit:DockPanel.Dock="Top"
                                     Visibility="{Binding JumpVideo, Converter={StaticResource NotNullToVisibility}}"
                                     >
-                        <!-- ＠ジャンプ動画 -->
-                        <TextBlock Text="＠ジャンプ"
+            <!-- ＠ジャンプ動画 -->
+            <TextBlock Text="＠ジャンプ"
                                    Style="{StaticResource SubtitleTextBlockStyle}" 
                                    Margin="8 8"
                                        />
 
-                        <Button Content="{Binding JumpVideo}"
+            <Button Content="{Binding JumpVideo}"
                                     Command="{Binding HohoemaPlaylist.PlayCommand}"
                                     CommandParameter="{Binding JumpVideo}"
                                 Background="Transparent"
                                     >
-                            <Button.ContentTemplate>
-                                <DataTemplate>
-                                    <local:VideoInfoControl />
-                                </DataTemplate>
-                            </Button.ContentTemplate>
-                        </Button>
+              <Button.ContentTemplate>
+                <DataTemplate>
+                  <local:VideoInfoControl />
+                </DataTemplate>
+              </Button.ContentTemplate>
+            </Button>
 
-                    </StackPanel>
-                    
-                    <StackPanel toolkit:DockPanel.Dock="Top"
+          </StackPanel>
+
+          <StackPanel toolkit:DockPanel.Dock="Top"
                                     Visibility="{Binding NextVideo, Converter={StaticResource NotNullToVisibility}}"
                                     >
-                        <!-- 次動画 -->
-                        <TextBlock Text="次パート動画"
+            <!-- 次動画 -->
+            <TextBlock Text="次パート動画"
                                    Style="{StaticResource SubtitleTextBlockStyle}" 
                                    Margin="8 8"
                                        />
 
-                        <Button Content="{Binding NextVideo}"
+            <Button Content="{Binding NextVideo}"
                                     Command="{Binding HohoemaPlaylist.PlayCommand}"
                                     CommandParameter="{Binding NextVideo}"
                                 Background="Transparent"
                                     >
-                            <Button.ContentTemplate>
-                                <DataTemplate>
-                                    <local:VideoInfoControl />
-                                </DataTemplate>
-                            </Button.ContentTemplate>
-                        </Button>
+              <Button.ContentTemplate>
+                <DataTemplate>
+                  <local:VideoInfoControl />
+                </DataTemplate>
+              </Button.ContentTemplate>
+            </Button>
 
-                    </StackPanel>
+          </StackPanel>
 
-                    <StackPanel Visibility="{Binding OtherVideos, Converter={StaticResource CollectionVisibilityConverter}}">
+          <StackPanel Visibility="{Binding OtherVideos, Converter={StaticResource CollectionVisibilityConverter}}">
 
 
-                        <TextBlock Text="オススメ動画"
+            <TextBlock Text="オススメ動画"
                                    Style="{StaticResource SubtitleTextBlockStyle}" 
                                    Margin="8 8"
                                        />
-                        <ListView ItemsSource="{Binding OtherVideos}"
+            <ListView ItemsSource="{Binding OtherVideos}"
                                 SelectionMode="Single"
                                 SingleSelectionFollowsFocus="False"
                                 uwpext:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
@@ -205,24 +205,24 @@
                                   ItemTemplate="{StaticResource MiniListItemTemplate}"
                                   IsTabStop="False"
                                 >
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="Margin" Value="0" />
-                                    <Setter Property="Padding" Value="0 8 8 8" />
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                        </ListView>
+              <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                  <Setter Property="Margin" Value="0" />
+                  <Setter Property="Padding" Value="0 8 8 8" />
+                </Style>
+              </ListView.ItemContainerStyle>
+            </ListView>
 
-                    </StackPanel>
+          </StackPanel>
 
-                    <StackPanel Visibility="{Binding Mylists, Converter={StaticResource CollectionVisibilityConverter}}">
+          <StackPanel Visibility="{Binding Mylists, Converter={StaticResource CollectionVisibilityConverter}}">
 
 
-                        <TextBlock Text="オススメマイリスト"
+            <TextBlock Text="オススメマイリスト"
                                    Style="{StaticResource SubtitleTextBlockStyle}" 
                                    Margin="8 8"
                                        />
-                        <ListView ItemsSource="{Binding Mylists}"
+            <ListView ItemsSource="{Binding Mylists}"
                                 SelectionMode="Single"
                                 SingleSelectionFollowsFocus="False"
                                 uwpext:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
@@ -231,29 +231,29 @@
                                 Background="{StaticResource HohoemaPlayerBackgroundBrush}"
                                   IsTabStop="False"
                                 >
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="Margin" Value="0" />
-                                    <Setter Property="Padding" Value="0 8" />
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                            <ListView.ItemTemplate>
-                                <DataTemplate>
-                                    <hohoemalistitem:HohoemaListItemVideo  />
-                                </DataTemplate>
-                            </ListView.ItemTemplate>
-                        </ListView>
+              <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                  <Setter Property="Margin" Value="0" />
+                  <Setter Property="Padding" Value="0 8" />
+                </Style>
+              </ListView.ItemContainerStyle>
+              <ListView.ItemTemplate>
+                <DataTemplate>
+                  <hohoemalistitem:HohoemaListItemVideo  />
+                </DataTemplate>
+              </ListView.ItemTemplate>
+            </ListView>
 
-                    </StackPanel>
-                    
-                    <StackPanel Visibility="{Binding Videos, Converter={StaticResource CollectionVisibilityConverter}}">
+          </StackPanel>
+
+          <StackPanel Visibility="{Binding Videos, Converter={StaticResource CollectionVisibilityConverter}}">
 
 
-                        <TextBlock Text="関連動画"
+            <TextBlock Text="関連動画"
                                    Style="{StaticResource SubtitleTextBlockStyle}" 
                                    Margin="8 8"
                                        />
-                        <ListView ItemsSource="{Binding Videos}"
+            <ListView ItemsSource="{Binding Videos}"
                                 SelectionMode="Single"
                                   SingleSelectionFollowsFocus="False"
                                   SelectedItem="{Binding CurrentVideo, Mode=OneTime}"
@@ -265,17 +265,17 @@
                                   IsTabStop="False"
 
                               >
-                            <ListView.ItemContainerStyle>
-                                <Style TargetType="ListViewItem">
-                                    <Setter Property="Margin" Value="0" />
-                                    <Setter Property="Padding" Value="0 8 8 8" />
-                                </Style>
-                            </ListView.ItemContainerStyle>
-                        </ListView>
+              <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                  <Setter Property="Margin" Value="0" />
+                  <Setter Property="Padding" Value="0 8 8 8" />
+                </Style>
+              </ListView.ItemContainerStyle>
+            </ListView>
 
-                    </StackPanel>
-                </StackPanel>
-            </ScrollViewer>
-        </toolkit:DockPanel>
-    </Grid>
+          </StackPanel>
+        </StackPanel>
+      </ScrollViewer>
+    </toolkit:DockPanel>
+  </Grid>
 </UserControl>

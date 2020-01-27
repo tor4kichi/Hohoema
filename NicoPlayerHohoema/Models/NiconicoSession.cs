@@ -51,7 +51,7 @@ namespace NicoPlayerHohoema.Models
         public Exception Exception { get; set; }
     }
 
-    public sealed class NiconicoSession : BindableBase
+    public sealed class NiconicoSession : FixPrism.BindableBase
     {
         public NiconicoSession( 
             IScheduler scheduler

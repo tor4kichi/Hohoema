@@ -3,11 +3,14 @@ using Mntone.Nico2.Communities.Info;
 using Mntone.Nico2.Live;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Models.Niconico.Video;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase;
 using Prism.Commands;
 using Prism.Navigation;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -19,9 +22,25 @@ using NiconicoSession = NicoPlayerHohoema.Models.NiconicoSession;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class CommunityPageViewModel : HohoemaViewModelBase, ICommunity, INavigatedAwareAsync
+    public class CommunityPageViewModel : HohoemaViewModelBase, ICommunity, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = CommunityName,
+                PageType = HohoemaPageType.Community,
+                Parameter = $"id={CommunityId}"
+            };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.CommunityName);
+        }
+
         public CommunityPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             Services.PageManager pageManager,
             NiconicoSession niconicoSession,
             CommunityFollowProvider followProvider,
@@ -30,6 +49,7 @@ namespace NicoPlayerHohoema.ViewModels
             NiconicoFollowToggleButtonService followToggleButtonService
             )
         {
+            ApplicationLayoutManager = applicationLayoutManager;
             PageManager = pageManager;
             NiconicoSession = niconicoSession;
             FollowProvider = followProvider;
@@ -88,7 +108,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public UserInfoViewModel OwnerUserInfo { get; private set; }
 
 		// タグ
-		public List<TagViewModel> Tags { get; private set; }
+		public List<NicoVideoTag> Tags { get; private set; }
 		
 		// 生放送予定の表示
 		public List<CommunityLiveInfoViewModel> FutureLiveList { get; private set; }
@@ -180,7 +200,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                     IsOwnedCommunity = NiconicoSession.UserId.ToString() == OwnerUserInfo.Id;
 
-                    Tags = CommunityDetail.Tags.Select(x => new TagViewModel(x))
+                    Tags = CommunityDetail.Tags.Select(x => new NicoVideoTag(x))
                         .ToList();
 
                     FutureLiveList = CommunityDetail.FutureLiveList.Select(x => new CommunityLiveInfoViewModel(x))
@@ -260,8 +280,6 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 NowLoading = false;
             }
-
-            PageManager.PageTitle = CommunityName;
         }
 
 
@@ -306,6 +324,7 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
 
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
         public NiconicoSession NiconicoSession { get; }
         public Models.Provider.CommunityFollowProvider FollowProvider { get; }
@@ -340,18 +359,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 			RaisePropertyChanged(nameof(CanNotFollowReason));
 		}
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = CommunityName,
-                PageType = HohoemaPageType.Community,
-                Parameter = $"id={CommunityId}"
-            };
-
-            return true;
-        }
     }
 
 
@@ -500,9 +507,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 	public class CommunityVideoInfoViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContent
     {
-		public CommunityVideo VideoInfo { get; private set; }
-
-        public string Title => VideoInfo.Title;
+        public string Title { get; }
 
         public string ProviderId => null;
 
@@ -510,21 +515,51 @@ namespace NicoPlayerHohoema.ViewModels
 
         public Database.NicoVideoUserType ProviderType => Database.NicoVideoUserType.User;
 
-        public string Id => VideoInfo.VideoId;
+        public string Id { get; }
 
-        Interfaces.IMylist IVideoContent.OnwerPlaylist => null;
+        public TimeSpan Length => TimeSpan.Zero;
+
+        public DateTime PostedAt => DateTime.MinValue;
+
+        public int ViewCount => 0;
+
+        public int MylistCount => 0;
+
+        public int CommentCount => 0;
+
+        public string ThumbnailUrl { get; }
+
+        public bool IsDeleted { get; set; }
 
         public CommunityVideoInfoViewModel(CommunityVideo info)
 		{
-			VideoInfo = info;
+			Title = info.Title;
+            Id = info.VideoId;
 
-            Label = VideoInfo.Title;
+            Label = info.Title;
             if (info.ThumbnailUrl != null)
             {
                 AddImageUrl(info.ThumbnailUrl);
             }
+            ThumbnailUrl = info.ThumbnailUrl;
+        }
+
+        public CommunityVideoInfoViewModel(Mntone.Nico2.RssVideoData rssVideoData)
+        {
+            Title = rssVideoData.RawTitle;
+            Id = rssVideoData.WatchPageUrl.OriginalString.Split('/').Last();
+            Label = Title;
         }
 
 
-	}
+        public bool Equals(IVideoContent other)
+        {
+            return Id == other.Id;
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
+    }
 }

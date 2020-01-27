@@ -14,7 +14,7 @@ using Windows.UI;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class Selectable : BindableBase
+    public class Selectable : FixPrism.BindableBase
     {
         private bool _IsSelected;
         public bool IsSelected

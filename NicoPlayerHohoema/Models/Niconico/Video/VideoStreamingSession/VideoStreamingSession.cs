@@ -19,7 +19,8 @@ namespace NicoPlayerHohoema.Models
         
 
 
-        public abstract NicoVideoQuality Quality { get; }
+        public abstract string QualityId { get; }
+        public abstract NicoVideoQuality Quality { get; } 
         public NiconicoSession NiconicoSession { get; }
 
         MediaSource _MediaSource;
@@ -31,7 +32,7 @@ namespace NicoPlayerHohoema.Models
             NiconicoSession = niconicoSession;
         }
 
-        public async Task StartPlayback(MediaPlayer player)
+        public async Task StartPlayback(MediaPlayer player, TimeSpan initialPosition = default)
         {
             // Note: HTML5プレイヤー移行中のFLV動画に対するフォールバック処理
             // サムネではContentType=FLV,SWFとなっていても、
@@ -132,7 +133,11 @@ namespace NicoPlayerHohoema.Models
                 _MediaSource = mediaSource;
                 _PlayingMediaPlayer = player;
 
+                _PlayingMediaPlayer.PlaybackSession.Position = initialPosition;
+
                 OnStartStreaming();
+
+                _PlayingMediaPlayer.Play();
             }
             else
             {

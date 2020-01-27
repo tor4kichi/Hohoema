@@ -13,43 +13,43 @@ using Unity;
 using Reactive.Bindings.Extensions;
 using Reactive.Bindings;
 using Prism.Navigation;
+using NicoPlayerHohoema.Models.Niconico.Video;
+using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public class RecommendPageViewModel : HohoemaListingPageViewModelBase<RecommendVideoListItem>, INavigatedAwareAsync
     {
         public RecommendPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             NGSettings ngSettings,
             LoginUserRecommendProvider loginUserRecommendProvider,
-            Services.HohoemaPlaylist hohoemaPlaylist,
+            HohoemaPlaylist hohoemaPlaylist,
             Services.PageManager pageManager
             )
         {
+            ApplicationLayoutManager = applicationLayoutManager;
             NgSettings = ngSettings;
             LoginUserRecommendProvider = loginUserRecommendProvider;
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
         }
 
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public NGSettings NgSettings { get; }
         public LoginUserRecommendProvider LoginUserRecommendProvider { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public Services.PageManager PageManager { get; }
-        public ReadOnlyObservableCollection<TagViewModel> RecommendSourceTags { get; private set; }
+        public ReadOnlyObservableCollection<NicoVideoTag> RecommendSourceTags { get; private set; }
         
         protected override IIncrementalSource<RecommendVideoListItem> GenerateIncrementalSource()
         {
             var source = new RecommendVideoIncrementalLoadingSource(LoginUserRecommendProvider, NgSettings);
             RecommendSourceTags = source.RecommendSourceTags
-               .ToReadOnlyReactiveCollection(x => new TagViewModel(x));
+               .ToReadOnlyReactiveCollection(x => new NicoVideoTag(x));
             RaisePropertyChanged(nameof(RecommendSourceTags));
             return source;
-        }
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = null;
-            return false;
         }
 
         private DelegateCommand<string> _OpenTagCommand;
@@ -77,7 +77,7 @@ namespace NicoPlayerHohoema.ViewModels
         public RecommendVideoListItem(
             Mntone.Nico2.Videos.Recommend.Item item
             )
-            : base(item.Id, null)
+            : base(item.Id)
         {
             _Item = item;
             RecommendSourceTag = _Item.AdditionalInfo?.Sherlock.Tag;

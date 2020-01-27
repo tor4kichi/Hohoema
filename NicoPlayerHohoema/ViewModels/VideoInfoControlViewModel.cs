@@ -28,37 +28,21 @@ using NicoPlayerHohoema.Commands;
 using NicoPlayerHohoema.Commands.Cache;
 using Prism.Commands;
 using Prism.Unity;
+using NicoPlayerHohoema.Interfaces;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 
-    public class VideoInfoControlViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContent, Views.Extensions.ListViewBase.IDeferInitialize
+    public class VideoInfoControlViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContentWritable, Views.Extensions.ListViewBase.IDeferInitialize
     {
-        public VideoInfoControlViewModel(Database.NicoVideo data, Interfaces.IMylist ownerPlaylist = null)
-            
+        public VideoInfoControlViewModel(Database.NicoVideo data)            
         {
-            RawVideoId = data?.RawVideoId ?? RawVideoId;
-            Data = data;
-            OnwerPlaylist = ownerPlaylist;
-
-            NgSettings = App.Current.Container.Resolve<NGSettings>();
-            CreateMylistCommand = App.Current.Container.Resolve<CreateMylistCommand>();
-            CreateLocalMylistCommand = App.Current.Container.Resolve<CreateLocalMylistCommand>();
-            CreateSubscriptionGroupCommand = App.Current.Container.Resolve<CreateSubscriptionGroupCommand>();
-            AddToHiddenUserCommand = App.Current.Container.Resolve<AddToHiddenUserCommand>();
-            AddCacheRequestCommand = App.Current.Container.Resolve<Commands.Cache.AddCacheRequestCommand>();
-            DeleteCacheRequestCommand = App.Current.Container.Resolve<DeleteCacheRequestCommand>();
-            Scheduler = App.Current.Container.Resolve<IScheduler>();
-            HohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
-            ExternalAccessService = App.Current.Container.Resolve<ExternalAccessService>();
-            PageManager = App.Current.Container.Resolve<PageManager>();
-            UserMylistManager = App.Current.Container.Resolve<UserMylistManager>();
-            LocalMylistManager = App.Current.Container.Resolve<LocalMylistManager>();
-            SubscriptionManager = App.Current.Container.Resolve<SubscriptionManager>();
             VideoCacheManager = App.Current.Container.Resolve<VideoCacheManager>();
             NicoVideoProvider = App.Current.Container.Resolve<NicoVideoProvider>();
+            NgSettings = App.Current.Container.Resolve<NGSettings>();
 
-            _CompositeDisposable = new CompositeDisposable();
+            RawVideoId = data?.RawVideoId ?? RawVideoId;
+            Data = data;
 
             VideoCacheManager.VideoCacheStateChanged += VideoCacheManager_VideoCacheStateChanged;
 
@@ -70,13 +54,49 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public VideoInfoControlViewModel(
-            string rawVideoId, 
-            Interfaces.IMylist ownerPlaylist = null
+            string rawVideoId
             )
-            : this(data: null, ownerPlaylist:ownerPlaylist)
+            : this(data: null)
         {
             RawVideoId = rawVideoId;
         }
+
+        public bool Equals(IVideoContent other)
+        {
+            return Id == other.Id;
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
+        }
+
+
+        public NicoVideoProvider NicoVideoProvider { get; }
+        public VideoCacheManager VideoCacheManager { get; }
+        public NGSettings NgSettings { get; }
+
+        public string RawVideoId { get; }
+        public Database.NicoVideo Data { get; private set; }
+
+        public string Id => RawVideoId;
+
+
+        public string ProviderId { get; set; }
+        public string ProviderName { get; set; }
+        public Database.NicoVideoUserType ProviderType { get; set; }
+
+        public Interfaces.IMylist OnwerPlaylist { get; }
+
+        public VideoStatus VideoStatus { get; private set; }
+
+
+        #region Cache 
+
+        public ReactiveProperty<bool> IsCacheRequested { get; } = new ReactiveProperty<bool>(false);
+
+        public ObservableCollection<CachedQualityNicoVideoListItemViewModel> CachedQualityVideos { get; } = new ObservableCollection<CachedQualityNicoVideoListItemViewModel>();
+
 
         private async void VideoCacheManager_VideoCacheStateChanged(object sender, VideoCacheStateChangedEventArgs e)
         {
@@ -86,44 +106,25 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-        public string RawVideoId { get; }
-        public Database.NicoVideo Data { get; private set; }
+        #endregion
 
-        protected CompositeDisposable _CompositeDisposable { get; private set; }
-        public IScheduler Scheduler { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
-        public ExternalAccessService ExternalAccessService { get; }
-        public PageManager PageManager { get; }
-        public UserMylistManager UserMylistManager { get; }
-        public LocalMylistManager LocalMylistManager { get; }
-        public SubscriptionManager SubscriptionManager { get; }
-        public VideoCacheManager VideoCacheManager { get; }
-        public NicoVideoProvider NicoVideoProvider { get; }
-        public NGSettings NgSettings { get; }
-        public Commands.Mylist.CreateMylistCommand CreateMylistCommand { get; }
-        public Commands.Mylist.CreateLocalMylistCommand CreateLocalMylistCommand { get; }
-        public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
-        public Commands.AddToHiddenUserCommand AddToHiddenUserCommand { get; }
-        public Commands.Cache.AddCacheRequestCommand AddCacheRequestCommand { get; }
-        public Commands.Cache.DeleteCacheRequestCommand DeleteCacheRequestCommand { get; }
-
-        public string Id => RawVideoId;
-
-
-        public string ProviderId { get; private set; }
-        public string ProviderName { get; private set; }
-        public Database.NicoVideoUserType ProviderType { get; private set; }
-
-        public Interfaces.IMylist OnwerPlaylist { get; }
-
-        public VideoStatus VideoStatus { get; private set; }
-
-        public bool IsCacheEnabled { get; private set; }
-        public ReactiveProperty<bool> IsCacheRequested { get; } = new ReactiveProperty<bool>(false);
-
-        public ObservableCollection<CachedQualityNicoVideoListItemViewModel> CachedQualityVideos { get; } = new ObservableCollection<CachedQualityNicoVideoListItemViewModel>();
 
         bool Views.Extensions.ListViewBase.IDeferInitialize.IsInitialized { get; set; }
+
+        public TimeSpan Length { get; set; }
+
+        public DateTime PostedAt { get; set; }
+
+        public int ViewCount { get; set; }
+
+        public int MylistCount { get; set; }
+
+        public int CommentCount { get; set; }
+
+        public string ThumbnailUrl { get; set; }
+        public bool IsDeleted { get; set; }
+
+        bool IVideoContent.IsDeleted => IsDeleted;
 
         async Task Views.Extensions.ListViewBase.IDeferInitialize.DeferInitializeAsync()
         {
@@ -134,25 +135,31 @@ namespace NicoPlayerHohoema.ViewModels
 
             _ = RefrechCacheState();
 
-            await Task.Run(async () =>
+            var data = await Task.Run(async () =>
             {
                 if (IsDisposed)
                 {
                     Debug.WriteLine("skip thumbnail loading: " + RawVideoId);
-                    return;
+                    return null;
                 }
 
                 if (NicoVideoProvider != null)
                 {
-                    Data = await NicoVideoProvider.GetNicoVideoInfo(RawVideoId);
+                    return await NicoVideoProvider.GetNicoVideoInfo(RawVideoId);
                 }
 
                 // オフライン時はローカルDBの情報を利用する
                 if (Data == null)
                 {
-                    Data = Database.NicoVideoDb.Get(RawVideoId);
+                    return Database.NicoVideoDb.Get(RawVideoId);
                 }
+
+                return null;
             });
+
+            if (data == null) { return; }
+
+            Data = data;
 
             if (IsDisposed)
             {
@@ -205,6 +212,12 @@ namespace NicoPlayerHohoema.ViewModels
             Debug.WriteLine("thumbnail reflect : " + info.RawVideoId);
             
             Label = info.Title;
+            PostedAt = info.PostedAt;
+            Length = info.Length;
+            ViewCount = info.ViewCount;
+            MylistCount = info.MylistCount;
+            CommentCount = info.CommentCount;
+            ThumbnailUrl = info.ThumbnailUrl;
 
             // NG判定
             if (NgSettings != null)
@@ -277,10 +290,12 @@ namespace NicoPlayerHohoema.ViewModels
         internal void SetSubmitDate(DateTime submitDate)
         {
             OptionText = submitDate.ToString("yyyy/MM/dd HH:mm");
+            PostedAt = submitDate;
         }
 
         internal void SetVideoDuration(TimeSpan duration)
         {
+            Length = duration;
             string timeText;
             if (duration.Hours > 0)
             {
@@ -303,8 +318,6 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override void OnDispose()
 		{
-			_CompositeDisposable?.Dispose();
-
             ClearCacheQuality();
 
             VideoCacheManager.VideoCacheStateChanged -= VideoCacheManager_VideoCacheStateChanged;

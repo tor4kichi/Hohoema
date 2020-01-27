@@ -6,38 +6,34 @@ using System.Threading.Tasks;
 using Reactive.Bindings;
 using System.Runtime.Serialization;
 using NicoPlayerHohoema.Services;
+using System.Collections.Immutable;
 
 namespace NicoPlayerHohoema.Models
 {
+    [PropertyChanged.AddINotifyPropertyChangedInterface]
     [DataContract]
     public class AppearanceSettings : SettingsBase
     {
-        private HohoemaPageType _StartupPageType = HohoemaPageType.RankingCategoryList;
+        [DataMember]
+        public HohoemaPageType StartupPageType { get; set; } = HohoemaPageType.RankingCategoryList;
 
         [DataMember]
-        public HohoemaPageType StartupPageType
-        {
-            get { return _StartupPageType; }
-            set { SetProperty(ref _StartupPageType, value); }
-        }
+        public ApplicationInteractionMode? OverrideIntractionMode { get; set; } = null;
+    }
+
+    public enum ApplicationInteractionMode
+    {
+        Controller,
+        Mouse,
+        Touch,
+    }
 
 
-        private bool _IsForceTVModeEnable = false;
-
-        [DataMember]
-        public bool IsForceTVModeEnable
-        {
-            get { return _IsForceTVModeEnable; }
-            set { SetProperty(ref _IsForceTVModeEnable, value); }
-        }
-
-        private bool _IsForceMobileModeEnable = false;
-
-        [DataMember]
-        public bool IsForceMobileModeEnable
-        {
-            get { return _IsForceMobileModeEnable; }
-            set { SetProperty(ref _IsForceMobileModeEnable, value); }
-        }
+    public enum ApplicationLayout
+    {
+        TV,
+        Desktop,
+        Tablet,
+        Mobile,
     }
 }

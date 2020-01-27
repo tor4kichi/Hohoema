@@ -10,28 +10,21 @@ using System.Windows.Input;
 
 namespace NicoPlayerHohoema.Models
 {
-    public class UserOwnedMylist : ReadOnlyObservableCollection<string>, Interfaces.IUserOwnedRemoteMylist
+    public class UserOwnedMylist 
     {
-        public UserOwnedMylist(string groupId, Provider.LoginUserMylistProvider loginUserMylistProvider, ObservableCollection<string> collection)
-            : base(collection)
+        public UserOwnedMylist(string groupId, int count, Provider.LoginUserMylistProvider loginUserMylistProvider)
+            : base()
         {
-            OriginalCollection = collection;
-
             GroupId = groupId;
+            Count = count;
             LoginUserMylistProvider = loginUserMylistProvider;
-
-            foreach (var item in Items)
-            {
-                _VideoIdHashSet.Add(item);
-            }
         }
-
-        private ObservableCollection<string> OriginalCollection { get; }
 
         public const string DefailtMylistId = "0";
 
         public string Id => GroupId;
         public int SortIndex => 0;
+        public int Count { get; private set; }
 
 		public string GroupId { get; private set; }
         public string UserId { get; set; }
@@ -48,81 +41,74 @@ namespace NicoPlayerHohoema.Models
 
         public bool IsDefaultMylist => IsDeflist;
 
-        public Provider.LoginUserMylistProvider LoginUserMylistProvider { get; }
+        public Provider.LoginUserMylistProvider LoginUserMylistProvider { get; }        
 
-        HashSet<string> _VideoIdHashSet = new HashSet<string>();
+        //private DelegateCommand<object> _AddItemCommand;
+        //public ICommand AddItemCommand => _AddItemCommand
+        //    ?? (_AddItemCommand = new DelegateCommand<object>(async (p) =>
+        //    {
+        //        string videoId = null;
+        //        if (p is Interfaces.IVideoContent videoItem)
+        //        {
+        //            videoId = videoItem.Id;
+        //        }
+        //        else if (p is string maybeVideoId)
+        //        {
+        //            videoId = maybeVideoId;
+        //        }
 
+        //        if (videoId != null)
+        //        {
+        //            var result = await AddMylistItem(videoId);
 
-        
-
-        private DelegateCommand<object> _AddItemCommand;
-        public ICommand AddItemCommand => _AddItemCommand
-            ?? (_AddItemCommand = new DelegateCommand<object>(async (p) =>
-            {
-                string videoId = null;
-                if (p is Interfaces.IVideoContent videoItem)
-                {
-                    videoId = videoItem.Id;
-                }
-                else if (p is string maybeVideoId)
-                {
-                    var info = Database.NicoVideoDb.Get(maybeVideoId);
-                    videoId = info?.RawVideoId;
-                }
-
-                if (videoId != null)
-                {
-                    var result = await AddMylistItem(videoId);
-
-                    /*
-                    var notificationService = Commands.HohoemaCommnadHelper.GetNotificationService();
-                    notificationService.ShowInAppNotification(
-                        Services.InAppNotificationPayload.CreateRegistrationResultNotification(
-                            result,
-                            "マイリスト",
-                            Label,
-                            videoItem.Label
-                            ));
-                            */
-                }
-            }
-            , (p) => true
-            ));
+        //            /*
+        //            var notificationService = Commands.HohoemaCommnadHelper.GetNotificationService();
+        //            notificationService.ShowInAppNotification(
+        //                Services.InAppNotificationPayload.CreateRegistrationResultNotification(
+        //                    result,
+        //                    "マイリスト",
+        //                    Label,
+        //                    videoItem.Label
+        //                    ));
+        //                    */
+        //        }
+        //    }
+        //    , (p) => true
+        //    ));
 
 
-        private DelegateCommand<object> _RemoveItemCommand;
-        public ICommand RemoveItemCommand => _RemoveItemCommand
-            ?? (_RemoveItemCommand = new DelegateCommand<object>(async (p) =>
-            {
-                string videoId = null;
-                if (p is Interfaces.IVideoContent videoItem)
-                {
-                    videoId = videoItem.Id;
-                }
-                else if (p is string maybeVideoId)
-                {
-                    var info = Database.NicoVideoDb.Get(maybeVideoId);
-                    videoId = info?.RawVideoId;
-                }
+        //private DelegateCommand<object> _RemoveItemCommand;
+        //public ICommand RemoveItemCommand => _RemoveItemCommand
+        //    ?? (_RemoveItemCommand = new DelegateCommand<object>(async (p) =>
+        //    {
+        //        string videoId = null;
+        //        if (p is Interfaces.IVideoContent videoItem)
+        //        {
+        //            videoId = videoItem.Id;
+        //        }
+        //        else if (p is string maybeVideoId)
+        //        {
+        //            videoId = maybeVideoId;
+        //        }
 
-                if (videoId != null)
-                {
-                    var result = await RemoveMylistItem(videoId);
+        //        if (videoId != null)
+        //        {
+        //            var result = await RemoveMylistItem(videoId);
 
-                    /*
-                    var notificationService = Commands.HohoemaCommnadHelper.GetNotificationService();
-                    notificationService.ShowInAppNotification(
-                        Services.InAppNotificationPayload.CreateRegistrationResultNotification(
-                            result,
-                            "マイリスト",
-                            Label,
-                            videoItem.Label
-                            ));
-                            */
-                }
-            }
-            , (p) => true
-            ));
+        //            /*
+        //            var notificationService = Commands.HohoemaCommnadHelper.GetNotificationService();
+        //            notificationService.ShowInAppNotification(
+        //                Services.InAppNotificationPayload.CreateRegistrationResultNotification(
+        //                    result,
+        //                    "マイリスト",
+        //                    Label,
+        //                    videoItem.Label
+        //                    ));
+        //                    */
+        //        }
+        //    }
+        //    , (p) => true
+        //    ));
 
 
 
@@ -143,7 +129,7 @@ namespace NicoPlayerHohoema.Models
 			}
 		}
 
-
+        /*
 
         public async Task<bool> AddMylistItem(string videoId)
         {
@@ -185,6 +171,8 @@ namespace NicoPlayerHohoema.Models
 		{
 			return _VideoIdHashSet.Contains(videoId);
 		}
+
+    */
 
         static private void SortMylistData(ref List<MylistData> mylist, MylistDefaultSort sort)
 		{

@@ -23,29 +23,52 @@ using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Services;
 using Prism.Navigation;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.Models.Niconico.Video;
+using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.Repository.Playlist;
+using NicoPlayerHohoema.UseCase.Playlist.Commands;
+using Reactive.Bindings.Extensions;
+using System.Reactive.Linq;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class VideoInfomationPageViewModel : HohoemaViewModelBase, Interfaces.IVideoContent, INavigatedAwareAsync
+    public class VideoInfomationPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = VideoDetals.VideoTitle,
+                PageType = HohoemaPageType.VideoInfomation,
+                Parameter = $"id={VideoInfo.VideoId}"
+            };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.VideoDetals).Select(x => x?.VideoTitle);
+        }
+
         public VideoInfomationPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             NGSettings ngSettings,
             Models.NiconicoSession niconicoSession,
             UserMylistManager userMylistManager,
-            Services.HohoemaPlaylist hohoemaPlaylist,
+            HohoemaPlaylist hohoemaPlaylist,
             NicoVideoProvider nicoVideoProvider,
             LoginUserMylistProvider loginUserMylistProvider,
             VideoCacheManager videoCacheManager,
-            Models.NicoVideoStreamingSessionProvider nicoVideo,
-            Services.Helpers.MylistHelper mylistHelper,
+            Models.NicoVideoSessionProvider nicoVideo,
             Services.PageManager pageManager,
             Services.NotificationService notificationService,
             Services.DialogService dialogService,
             Services.ExternalAccessService externalAccessService,
-            Commands.AddMylistCommand addMylistCommand,
+            AddMylistCommand addMylistCommand,
             Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
         {
+            ApplicationLayoutManager = applicationLayoutManager;
             NgSettings = ngSettings;
             NiconicoSession = niconicoSession;
             UserMylistManager = userMylistManager;
@@ -54,7 +77,6 @@ namespace NicoPlayerHohoema.ViewModels
             LoginUserMylistProvider = loginUserMylistProvider;
             VideoCacheManager = videoCacheManager;
             NicoVideo = nicoVideo;
-            MylistHelper = mylistHelper;
             PageManager = pageManager;
             NotificationService = notificationService;
             DialogService = dialogService;
@@ -65,32 +87,9 @@ namespace NicoPlayerHohoema.ViewModels
             IsLoadFailed = new ReactiveProperty<bool>(false);
         }
 
-        Database.NicoVideo _VideoInfo;
+        public Database.NicoVideo VideoInfo { get; private set; }
 
-        public NicoVideoStreamingSessionProvider NicoVideo { get; private set; }
-
-        public Uri DescriptionHtmlFileUri { get; private set; }
-
-        public string VideoId { get; private set; }
-
-        public string VideoTitle { get; private set; }
-
-        public string ThumbnailUrl { get; private set; }
-
-        public IList<TagViewModel> Tags { get; private set; }
-
-        public bool IsChannelOwnedVideo { get; private set; }
-        public string ProviderName { get; private set; }
-        public string ProviderId { get; private set; }
-        public string OwnerIconUrl { get; private set; }
-
-        public TimeSpan VideoLength { get; private set; }
-        
-        public DateTime SubmitDate { get; private set; }
-
-        public uint ViewCount { get; private set; }
-        public uint CommentCount { get; private set; }
-        public uint MylistCount { get; private set; }
+        public NicoVideoSessionProvider NicoVideo { get; private set; }
 
         public ReactiveProperty<bool> NowLoading { get; private set; }
         public ReactiveProperty<bool> IsLoadFailed { get; private set; }
@@ -100,7 +99,10 @@ namespace NicoPlayerHohoema.ViewModels
         public bool IsSelfZoningContent { get; private set; }
         public NGResult SelfZoningInfo { get; private set; }
 
-        
+
+        public Uri DescriptionHtmlFileUri { get; private set; }
+
+
         private DelegateCommand _OpenFilterSettingPageCommand;
         public DelegateCommand OpenFilterSettingPageCommand
         {
@@ -124,12 +126,12 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenOwnerUserPageCommand
                     ?? (_OpenOwnerUserPageCommand = new DelegateCommand(() =>
                     {
-                        if (_VideoInfo.Owner.UserType == Database.NicoVideoUserType.User)
+                        if (VideoInfo.Owner.UserType == Database.NicoVideoUserType.User)
                         {
-                            PageManager.OpenPageWithId(HohoemaPageType.UserInfo, _VideoInfo.Owner.OwnerId);
+                            PageManager.OpenPageWithId(HohoemaPageType.UserInfo, VideoInfo.Owner.OwnerId);
                         }
                     }
-                    , () => _VideoInfo?.Owner.UserType == Database.NicoVideoUserType.User
+                    , () => VideoInfo?.Owner.UserType == Database.NicoVideoUserType.User
                     ));
             }
         }
@@ -143,13 +145,13 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenOwnerUserVideoPageCommand
                     ?? (_OpenOwnerUserVideoPageCommand = new DelegateCommand(() =>
                     {
-                        if (_VideoInfo.Owner.UserType == Database.NicoVideoUserType.User)
+                        if (VideoInfo.Owner.UserType == Database.NicoVideoUserType.User)
                         {
-                            PageManager.OpenPageWithId(HohoemaPageType.UserVideo, _VideoInfo.Owner.OwnerId);
+                            PageManager.OpenPageWithId(HohoemaPageType.UserVideo, VideoInfo.Owner.OwnerId);
                         }
-                        else if (IsChannelOwnedVideo)
+                        else if (VideoDetals.IsChannelOwnedVideo)
                         {
-                            PageManager.OpenPageWithId(HohoemaPageType.ChannelVideo, _VideoInfo.Owner.OwnerId);
+                            PageManager.OpenPageWithId(HohoemaPageType.ChannelVideo, VideoInfo.Owner.OwnerId);
                         }
                     }
                     ));
@@ -165,7 +167,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _PlayVideoCommand
                     ?? (_PlayVideoCommand = new DelegateCommand(() =>
                     {
-                        HohoemaPlaylist.PlayVideo(VideoId);
+                        HohoemaPlaylist.Play(VideoInfo);
                     }
                     ));
             }
@@ -179,7 +181,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _ShareCommand
                     ?? (_ShareCommand = new DelegateCommand(() =>
                     {
-                        Services.Helpers.ShareHelper.Share(_VideoInfo);
+                        Services.Helpers.ShareHelper.Share(VideoInfo);
                     }
                     , () => DataTransferManager.IsSupported()
                     ));
@@ -194,7 +196,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _VideoInfoCopyToClipboardCommand
                     ?? (_VideoInfoCopyToClipboardCommand = new DelegateCommand(() =>
                     {
-                        Services.Helpers.ClipboardHelper.CopyToClipboard(_VideoInfo);
+                        Services.Helpers.ClipboardHelper.CopyToClipboard(VideoInfo);
                     }
                     ));
             }
@@ -223,19 +225,21 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        private DelegateCommand<string> _AddPlaylistCommand;
-        public DelegateCommand<string> AddPlaylistCommand
+        private DelegateCommand<IPlaylist> _AddPlaylistCommand;
+        public DelegateCommand<IPlaylist> AddPlaylistCommand
         {
             get
             {
                 return _AddPlaylistCommand
-                    ?? (_AddPlaylistCommand = new DelegateCommand<string>(async (playlistId) =>
+                    ?? (_AddPlaylistCommand = new DelegateCommand<IPlaylist>(async (playlist) =>
                     {
-                        var playlist = await MylistHelper.FindMylist(playlistId);
-
-                        if (playlist is Interfaces.IUserOwnedMylist userOwnedMylist)
+                        if (playlist is LocalPlaylist localPlaylist)
                         {
-                            var result = await userOwnedMylist.AddMylistItem(VideoId);
+                            LocalMylistManager.AddPlaylistItem(localPlaylist, VideoInfo);
+                        }
+                        else if (playlist is LoginUserMylistPlaylist loginUserMylist)
+                        {
+                            _ = UserMylistManager.AddItem(loginUserMylist.Id, VideoInfo.RawVideoId);
                         }
                     }));
             }
@@ -265,32 +269,22 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public Services.NotificationService NotificationService { get; }
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public NGSettings NgSettings { get; }
         public Models.NiconicoSession NiconicoSession { get; }
         public UserMylistManager UserMylistManager { get; }
         public LocalMylistManager LocalMylistManager { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public LoginUserMylistProvider LoginUserMylistProvider { get; }
         public VideoCacheManager VideoCacheManager { get; }
-        public Services.Helpers.MylistHelper MylistHelper { get; }
         public PageManager PageManager { get; }
         public Services.DialogService DialogService { get; }
         public Services.ExternalAccessService ExternalAccessService { get; }
-        public Commands.AddMylistCommand AddMylistCommand { get; }
+        public AddMylistCommand AddMylistCommand { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
 
-        string IVideoContent.ProviderId => _VideoInfo.Owner?.OwnerId;
-
-        string IVideoContent.ProviderName => _VideoInfo.Owner?.ScreenName;
-
-        Database.NicoVideoUserType IVideoContent.ProviderType => _VideoInfo.Owner.UserType;
-
-        string INiconicoObject.Id => _VideoInfo.RawVideoId;
-
-        string INiconicoObject.Label => _VideoInfo.Title;
-
-        IMylist IVideoContent.OnwerPlaylist => null;
+        public INicoVideoDetails VideoDetals { get; private set; }
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
@@ -301,15 +295,14 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 if (parameters.TryGetValue("id", out string videoId))
                 {
-                    VideoId = videoId;
-
-                    if (VideoId == null)
+                    
+                    if (videoId == null)
                     {
                         IsLoadFailed.Value = true;
                         throw new Exception();
                     }
 
-                    _VideoInfo = await NicoVideoProvider.GetNicoVideoInfo(VideoId);
+                    VideoInfo = await NicoVideoProvider.GetNicoVideoInfo(videoId);
 
                     await UpdateVideoDescription();
 
@@ -330,6 +323,15 @@ namespace NicoPlayerHohoema.ViewModels
 
         }
 
+        public override void OnNavigatedFrom(INavigationParameters parameters)
+        {
+            VideoDescriptionHyperlinkItems?.Clear();
+            RaisePropertyChanged(nameof(VideoDescriptionHyperlinkItems));
+            IchibaItems?.Clear();
+            RaisePropertyChanged(nameof(IchibaItems));
+
+            base.OnNavigatedFrom(parameters);
+        }
 
         bool _IsInitializedIchibaItems = false;
         public async void InitializeIchibaItems()
@@ -338,7 +340,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 if (_IsInitializedIchibaItems) { return; }
 
-                var ichiba = await NiconicoSession.Context.Embed.GetIchiba(VideoId);
+                var ichiba = await NiconicoSession.Context.Embed.GetIchiba(VideoInfo.RawVideoId);
                 IchibaItems = ichiba.GetMainIchibaItems();
 
                 RaisePropertyChanged(nameof(IchibaItems));
@@ -356,7 +358,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 if (_IsInitializedRelatedVideos) { return; }
 
-                var items = await NiconicoSession.Context.Video.GetRelatedVideoAsync(VideoId, 0, 10, Sort.Relation);
+                var items = await NiconicoSession.Context.Video.GetRelatedVideoAsync(VideoInfo.RawVideoId, 0, 10, Sort.Relation);
                 
                 RelatedVideos = items.Video_info?.Select(x =>
                 {
@@ -376,11 +378,9 @@ namespace NicoPlayerHohoema.ViewModels
         }
         private async Task UpdateVideoDescription()
         {
-            var videoDescriptionHtml = string.Empty;
-
             using (var releaser = await _UpdateLock.LockAsync())
             {
-                if (VideoId == null)
+                if (VideoInfo.RawVideoId == null)
                 {
                     return;
                 }
@@ -389,72 +389,32 @@ namespace NicoPlayerHohoema.ViewModels
 
                 try
                 {
-                    var res = await NicoVideo.VisitWatchPage(VideoId);
+                    var res = await NicoVideo.PreparePlayVideoAsync(VideoInfo.RawVideoId);
+                    VideoDetals = res.GetVideoDetails();
 
-                    if (res is WatchApiResponse)
-                    {
-                        var watchApi = res as WatchApiResponse;
-
-                        VideoTitle = watchApi.videoDetail.title;
-                        Tags = watchApi.videoDetail.tagList.Select(x => new TagViewModel(x.tag))
-                            .ToList();
-                        ThumbnailUrl = watchApi.videoDetail.thumbnail;
-                        VideoLength = TimeSpan.FromSeconds(watchApi.videoDetail.length.Value);
-                        SubmitDate = DateTime.Parse(watchApi.videoDetail.postedAt);
-                        ViewCount = (uint)watchApi.videoDetail.viewCount.Value;
-                        CommentCount = (uint)watchApi.videoDetail.commentCount.Value;
-                        MylistCount = (uint)watchApi.videoDetail.mylistCount.Value;
-                        ProviderName = watchApi.UserName;
-                        OwnerIconUrl = watchApi.UploaderInfo?.icon_url ?? watchApi.channelInfo?.icon_url;
-                        IsChannelOwnedVideo = watchApi.channelInfo != null;
-
-                        videoDescriptionHtml = watchApi.videoDetail.description;
-                    }
-                    else if (res is DmcWatchData)
-                    {
-                        var dmcWatchApi = (res as DmcWatchData).DmcWatchResponse;
-
-                        VideoTitle = dmcWatchApi.Video.Title;
-                        Tags = dmcWatchApi.Tags.Select(x => new TagViewModel(x.Name))
-                            .ToList();
-                        ThumbnailUrl = dmcWatchApi.Video.ThumbnailURL;
-                        VideoLength = TimeSpan.FromSeconds(dmcWatchApi.Video.Duration);
-                        SubmitDate = DateTime.Parse(dmcWatchApi.Video.PostedDateTime);
-                        ViewCount = (uint)dmcWatchApi.Video.ViewCount;
-                        CommentCount = (uint)dmcWatchApi.Thread.CommentCount;
-                        MylistCount = (uint)dmcWatchApi.Video.MylistCount;
-                        ProviderId = dmcWatchApi.Owner?.Nickname ?? dmcWatchApi.Channel?.Name;
-                        ProviderName = dmcWatchApi.Owner?.Nickname ?? dmcWatchApi.Channel?.Name;
-                        OwnerIconUrl = dmcWatchApi.Owner?.IconURL ?? dmcWatchApi.Channel?.IconURL;
-                        IsChannelOwnedVideo = dmcWatchApi.Channel != null;
-
-                        videoDescriptionHtml = dmcWatchApi.Video.Description;
-                    }
+                    //VideoTitle = details.VideoTitle;
+                    //Tags = details.Tags.ToList();
+                    //ThumbnailUrl = details.ThumbnailUrl;
+                    //VideoLength = details.VideoLength;
+                    //SubmitDate = details.SubmitDate;
+                    //ViewCount = details.ViewCount;
+                    //CommentCount = details.CommentCount;
+                    //MylistCount = details.MylistCount;
+                    //ProviderId = details.ProviderId;
+                    //ProviderName = details.ProviderName;
+                    //OwnerIconUrl = details.OwnerIconUrl;
+                    //IsChannelOwnedVideo = details.IsChannelOwnedVideo;
                 }
                 catch
                 {
                     IsLoadFailed.Value = true;
                     return;
                 }
-
-
-
-                RaisePropertyChanged(nameof(VideoTitle));
-                RaisePropertyChanged(nameof(Tags));
-                RaisePropertyChanged(nameof(ThumbnailUrl));
-                RaisePropertyChanged(nameof(VideoLength));
-                RaisePropertyChanged(nameof(SubmitDate));
-                RaisePropertyChanged(nameof(ViewCount));
-                RaisePropertyChanged(nameof(CommentCount));
-                RaisePropertyChanged(nameof(MylistCount));
-                RaisePropertyChanged(nameof(ProviderName));
-                RaisePropertyChanged(nameof(OwnerIconUrl));
-
             }
 
             try
             {
-                DescriptionHtmlFileUri = await Models.Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoId, videoDescriptionHtml);
+                DescriptionHtmlFileUri = await Models.Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoInfo.VideoId, VideoDetals.DescriptionHtml);
                 RaisePropertyChanged(nameof(DescriptionHtmlFileUri));
             }
             catch
@@ -464,25 +424,33 @@ namespace NicoPlayerHohoema.ViewModels
             }
 
 
+            VideoDescriptionHyperlinkItems.Clear();
             try
             {
                 var htmlDocument = new HtmlAgilityPack.HtmlDocument();
-                htmlDocument.LoadHtml(videoDescriptionHtml);
+                htmlDocument.LoadHtml(VideoDetals.DescriptionHtml);
                 var root = htmlDocument.DocumentNode;
                 var anchorNodes = root.Descendants("a");
 
                 foreach (var anchor in anchorNodes)
                 {
+                    var href = anchor.Attributes["href"].Value;
+                    if (!Uri.IsWellFormedUriString(href, UriKind.Absolute))
+                    {
+                        Debug.WriteLine("リンク抽出スキップ: " + anchor.InnerText);
+                        continue;
+                    }
+
                     VideoDescriptionHyperlinkItems.Add(new HyperlinkItem()
                     {
                         Label = anchor.InnerText,
-                        Url = new Uri(anchor.Attributes["href"].Value)
+                        Url = new Uri(href)
                     });
 
                     Debug.WriteLine($"{anchor.InnerText} : {anchor.Attributes["href"].Value}");
                 }
 
-                var matches = GeneralUrlRegex.Matches(videoDescriptionHtml);
+                var matches = GeneralUrlRegex.Matches(VideoDetals.DescriptionHtml);
                 foreach (var match in matches.Cast<Match>())
                 {
                     if (!VideoDescriptionHyperlinkItems.Any(x => x.Url.OriginalString == match.Value))
@@ -512,9 +480,9 @@ namespace NicoPlayerHohoema.ViewModels
         {
             try
             {
-                if (_VideoInfo != null)
+                if (VideoInfo != null)
                 {
-                    SelfZoningInfo = NgSettings.IsNgVideo(_VideoInfo);
+                    SelfZoningInfo = NgSettings.IsNgVideo(VideoInfo);
                     IsSelfZoningContent = SelfZoningInfo != null;
 
                     RaisePropertyChanged(nameof(SelfZoningInfo));
@@ -526,18 +494,6 @@ namespace NicoPlayerHohoema.ViewModels
                 IsLoadFailed.Value = true;
                 return;
             }
-        }
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = VideoTitle,
-                PageType = HohoemaPageType.VideoInfomation,
-                Parameter = $"id={VideoId}"
-            };
-
-            return true;
         }
     }
 

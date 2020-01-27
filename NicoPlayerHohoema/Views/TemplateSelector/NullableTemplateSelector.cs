@@ -10,11 +10,11 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
 {
     public sealed class NicoVideoCacheQualityTemplateSelector : DataTemplateSelector
     {
-        public DataTemplate UnknownTemplate { get; set; }
-        public DataTemplate DefaultTemplate { get; set; }
+        public Windows.UI.Xaml.DataTemplate UnknownTemplate { get; set; }
+        public Windows.UI.Xaml.DataTemplate DefaultTemplate { get; set; }
 
 
-        protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+        protected override Windows.UI.Xaml.DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
             if (item is Models.NicoVideoQuality quality
                 && quality == Models.NicoVideoQuality.Unknown 

@@ -18,172 +18,137 @@
     xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:actions="using:NicoPlayerHohoema.Views.Actions"
     xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts"
-    DataContext="{x:Null}"
+  xmlns:videolistPage="using:NicoPlayerHohoema.Views.Pages.VideoListPage"
+  xmlns:windowsTriggers="using:WindowsStateTriggers"
+  DataContext="{x:Null}"
     NavigationCacheMode="Enabled"
     mc:Ignorable="d"
     >
-
-
-    <Grid>
-
-        <VisualStateManager.VisualStateGroups>
-            <!-- トップバー表示時のタイトル位置ずらし -->
-            <VisualStateGroup>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <StateTrigger IsActive="{StaticResource IsTVModeEnabled}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        <Setter Target="ItemsList.Padding" Value="48 0 48 27" />
-                        <Setter Target="ScrollHeader.Mode" Value="None" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="{StaticResource DesktopWindowWidthBreakPoint}" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState>
-                    <VisualState.StateTriggers>
-                        <AdaptiveTrigger MinWindowWidth="0" />
-                    </VisualState.StateTriggers>
-                    <VisualState.Setters>
-                        
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-
-        </VisualStateManager.VisualStateGroups>
-
-
-        <ListView
-            x:Name="ItemsList"
-            ItemsSource="{Binding Histories, Mode=OneWay}"
-            uwpExtension:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}"
-            IsItemClickEnabled="True"
-            UseSystemFocusVisuals="True"
-            SelectionMode="None"
-            HorizontalContentAlignment="Stretch"
-            ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
-            uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
-            
-            xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
-            myExtensions:ListViewBase.DeferInitialize="True"
-            >
-            <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
-                <DataTemplate>
-                    <flyouts:VideoHistoryItemFlyout />
-                </DataTemplate>
-            </myExtensions:ListViewBase.ItemContextFlyoutTemplate>
-            
-            <i:Interaction.Behaviors>
-
-                <mybehavior:KeyboardTrigger Key="F5">
-                    <mybehavior:KeyboardTrigger.Actions>
-                        <core:InvokeCommandAction Command="{Binding RefreshCommand}" />
-                    </mybehavior:KeyboardTrigger.Actions>
-                </mybehavior:KeyboardTrigger>
-
-            </i:Interaction.Behaviors>
-            
-            <ListView.Header>
-
-                <controls:ScrollHeader
-                    x:Name="ScrollHeader"
-                    Mode="QuickReturn" >
-                    <StackPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
-
-                        <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
-
-                            <CommandBar.PrimaryCommands>
-
-                                <AppBarButton x:Name="ScrollToTopButton"
-                                              Label="トップへ戻る"
-                                              Icon="Up"
-                                            >
-                                    <i:Interaction.Behaviors>
-                                        <core:EventTriggerBehavior EventName="Click">
-                                            <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
-                                        </core:EventTriggerBehavior>
-                                    </i:Interaction.Behaviors>
-                                </AppBarButton>
-
-                                <AppBarButton 
-                                        Command="{Binding RefreshCommand}"
-                                        Label="更新"
-                                              Icon="Refresh"
-                                        />
-                                
-                            </CommandBar.PrimaryCommands>
-
-                            <CommandBar.SecondaryCommands>
-                                
-
-                                <AppBarButton 
-                                    IsEnabled="{Binding HasItem.Value}"
-                                    Label="全ての履歴を削除"
-                                    Icon="Delete"
-                                    AllowFocusOnInteraction="True"
-                                    >
-
-                                    <AppBarButton.Flyout>
-                                        <Flyout>
-                                            <StackPanel Margin="8" Width="240">
-                                                <TextBlock Margin="0 0 0 16"
-                                                   LineHeight="20"
-                                                   TextWrapping="Wrap"
-                                                   >
-                                                    <Run>視聴履歴を全て削除します</Run>
-                                                    <LineBreak />
-                                                    <Run>本当に削除してもいいですか？</Run>
-                                                </TextBlock>
-
-                                                <Button Content="本当に削除" 
-                                                    Command="{Binding RemoveAllHistoryCommand}"
-                                                    HorizontalAlignment="Stretch"
-                                                    />
-                                            </StackPanel>
-                                        </Flyout>
-                                    </AppBarButton.Flyout>
-                                </AppBarButton>
-
-
-                            </CommandBar.SecondaryCommands>
-
-                        </CommandBar>
-                    </StackPanel>
-                </controls:ScrollHeader>
-
-            </ListView.Header>
-
-
-            <ListView.ItemTemplate>
-                <DataTemplate>
-                    <Grid>
-                        <local:VideoInfoControl />
-
-
-                        <TextBlock HorizontalAlignment="Right"
-                                        VerticalAlignment="Top"
-                                        Foreground="#55777777"
-                                        >
-                                <Run Text="{Binding LastWatchedAt}" />
-                        </TextBlock>
-                        <TextBlock 
-                                    HorizontalAlignment="Right"
-                                    VerticalAlignment="Bottom"
-                                    FontSize="32"
-                                    Foreground="#55777777"
-                                    >
-                                <Run Text="{Binding UserViewCount, Mode=OneTime}" />
-                                <Run Text="回" />
-                        </TextBlock>
-                    </Grid>
-                </DataTemplate>
-            </ListView.ItemTemplate>
-
-        </ListView>
+  <Grid>
+    <videolistPage:VideoItemsListView x:Name="VideoItemsListView" ItemsSource="{Binding Histories}" ItemCommand="{Binding HohoemaPlaylist.PlayCommand}" ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}" RefreshCommand="{Binding RefreshCommand}" >
+      <videolistPage:VideoItemsListView.Header>
+        <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
+          <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
+            <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+              <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
+                <CommandBar.PrimaryCommands>
+                  <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
+                    <i:Interaction.Behaviors>
+                      <core:EventTriggerBehavior EventName="Click">
+                        <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
+                      </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
+                  </AppBarButton>
+                  <AppBarButton Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" x:Name="RefreshButton" VerticalAlignment="Center"></AppBarButton>
+                </CommandBar.PrimaryCommands>
+                <CommandBar.SecondaryCommands>
+                  <AppBarButton Label="{Binding Source=WatchHistoryRemoveAll, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" IsEnabled="{Binding HasItem.Value}" Icon="Delete" AllowFocusOnInteraction="True">
+                    <AppBarButton.Flyout>
+                      <Flyout>
+                        <StackPanel Margin="8" Width="240">
+                          <TextBlock Margin="0 0 0 16" LineHeight="20" TextWrapping="Wrap" Text="{Binding Source=WatchHistoryConfirmRemoveDescription, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"></TextBlock>
+                          <Button Content="{Binding Source=WatchHistoryConfirmRemove, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding WatchHistoryRemoveAllCommand}" HorizontalAlignment="Stretch" />
+                        </StackPanel>
+                      </Flyout>
+                    </AppBarButton.Flyout>
+                  </AppBarButton>
+                </CommandBar.SecondaryCommands>
+              </CommandBar>
+            </Grid>
+          </controls:ScrollHeader>
+        </Grid>
+      </videolistPage:VideoItemsListView.Header>
+      <videolistPage:VideoItemsListView.ItemTemplate>
+        <DataTemplate>
+          <Grid>
+            <videolistPage:VideoListItemControl />
+            <TextBlock HorizontalAlignment="Right" VerticalAlignment="Top" Foreground="#77777777">
+              <Run Text="{Binding LastWatchedAt, Converter={StaticResource DateTimeToString}}" /></TextBlock>
+            <TextBlock HorizontalAlignment="Right" VerticalAlignment="Bottom" FontSize="24" Foreground="#77777777">
+              <Run Text="{Binding UserViewCount}" /></TextBlock>
+          </Grid>
+        </DataTemplate>
+      </videolistPage:VideoItemsListView.ItemTemplate>
+    </videolistPage:VideoItemsListView>
+    <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <TextBlock Text="{Binding Source=WatchHistoryNoItems, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8" />
     </Grid>
+    <VisualStateManager.VisualStateGroups>
+      <!-- レイアウトモード -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentListViewBodyMargin_TV}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Desktop" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentListViewBodyMargin_Desktop}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Tablet" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Tablet}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentListViewBodyMargin_Tablet}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Mobile" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentListViewBodyMargin_Mobile}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      
+      <!-- トップバー表示時のタイトル位置ずらし -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:DeviceFamilyStateTrigger DeviceFamily="Xbox" />
+            <StateTrigger IsActive="{Binding AppearanceSettings.IsTVMode_Debug}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="VideoItemsListView.Padding" Value="48 0 48 27" />
+            <Setter Target="ScrollHeader.Mode" Value="None" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="{StaticResource WidthBreakPoint_WideToMiddle}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters></VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters></VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding Histories.Count}" EqualTo="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="EmptyItemsLayout.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
 </Page>

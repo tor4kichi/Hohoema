@@ -21,13 +21,13 @@ namespace NicoPlayerHohoema.Services
     {
         public NiconicoLoginService(
             Models.NiconicoSession niconicoSession,
-            PageManager pageManager,
+            NoUIProcessScreenContext noProcessUIScreenContext,
             DialogService dialogService,
             NotificationService notificationService
             )
         {
             NiconicoSession = niconicoSession;
-            PageManager = pageManager;
+            _noProcessUIScreenContext = noProcessUIScreenContext;
             DialogService = dialogService;
             NotificationService = notificationService;
 
@@ -37,11 +37,12 @@ namespace NicoPlayerHohoema.Services
         }
 
         public Models.NiconicoSession NiconicoSession { get; }
-        public PageManager PageManager { get; }
         public DialogService DialogService { get; }
         public NotificationService NotificationService { get; }
 
         private DelegateCommand _LoginCommand;
+        private readonly NoUIProcessScreenContext _noProcessUIScreenContext;
+
         public DelegateCommand LoginCommand => _LoginCommand
             ?? (_LoginCommand = new DelegateCommand(async () => 
             {
@@ -51,7 +52,7 @@ namespace NicoPlayerHohoema.Services
                     var currentView = CoreApplication.GetCurrentView();
                     if (currentView.IsMain)
                     {
-                        await PageManager.StartNoUIWork("ログイン中...",
+                        await _noProcessUIScreenContext.StartNoUIWork("ログイン中...",
                             () => StartLoginSequence().AsAsyncAction()
                             );
                     }
@@ -162,7 +163,7 @@ namespace NicoPlayerHohoema.Services
             var currentView = CoreApplication.GetCurrentView();
             if (currentView.IsMain)
             {
-                await PageManager.StartNoUIWork("２段階認証を処理しています...",
+                await _noProcessUIScreenContext.StartNoUIWork("２段階認証を処理しています...",
                         () => ShowTwoFactorNumberInputDialogAsync(e.HttpRequestMessage.RequestUri, e.Context).AsAsyncAction()
                         );
             }

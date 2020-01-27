@@ -17,33 +17,40 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Collections.ObjectModel;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public sealed class TimeshiftPageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>
     {
         public TimeshiftPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             LoginUserLiveReservationProvider loginUserLiveReservationProvider,
             NicoLiveProvider nicoLiveProvider,
-            Services.HohoemaPlaylist hohoemaPlaylist,
-            Services.PageManager pageManager, 
+            HohoemaPlaylist hohoemaPlaylist,
+            NoUIProcessScreenContext noUIProcessScreenContext, 
             Services.DialogService dialogService
             ) 
         {
+            ApplicationLayoutManager = applicationLayoutManager;
             LoginUserLiveReservationProvider = loginUserLiveReservationProvider;
             NicoLiveProvider = nicoLiveProvider;
             HohoemaPlaylist = hohoemaPlaylist;
-            PageManager = pageManager;
+            _noUIProcessScreenContext = noUIProcessScreenContext;
             DialogService = dialogService;
         }
 
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public LoginUserLiveReservationProvider LoginUserLiveReservationProvider { get; }
         public NicoLiveProvider NicoLiveProvider { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
-        public Services.PageManager PageManager { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public Services.DialogService DialogService { get; }
 
         private DelegateCommand _DeleteOutdatedReservations;
+        private readonly NoUIProcessScreenContext _noUIProcessScreenContext;
+
         public DelegateCommand DeleteOutdatedReservations 
         {
             get
@@ -67,12 +74,12 @@ namespace NicoPlayerHohoema.ViewModels
 
                         if (!acceptDeletion) { return; }
 
-                        await PageManager.StartNoUIWork(
+                        await _noUIProcessScreenContext.StartNoUIWork(
                             "DeletingReservations".ToCulturelizeString()
                             , dateOutReservations.Count,
-                            () => AsyncInfo.Run<uint>(async (cancelToken, progress) =>
+                            () => AsyncInfo.Run<int>(async (cancelToken, progress) =>
                             {
-                                uint cnt = 0;
+                                int cnt = 0;
                                 var token = await LoginUserLiveReservationProvider.GetReservationTokenAsync();
 
                                 foreach (var reservation in dateOutReservations)
@@ -124,12 +131,6 @@ namespace NicoPlayerHohoema.ViewModels
         protected override IIncrementalSource<LiveInfoListItemViewModel> GenerateIncrementalSource()
         {
             return new TimeshiftIncrementalCollectionSource(LoginUserLiveReservationProvider, NicoLiveProvider);
-        }
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = null;
-            return false;
         }
     }
 

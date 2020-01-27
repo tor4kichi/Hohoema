@@ -48,14 +48,20 @@ namespace NicoPlayerHohoema.Views.Extensions
             }
         }
 
-        private static async void Target_ContainerContentChanging(Windows.UI.Xaml.Controls.ListViewBase sender, Windows.UI.Xaml.Controls.ContainerContentChangingEventArgs args)
+        private static void Target_ContainerContentChanging(Windows.UI.Xaml.Controls.ListViewBase sender, Windows.UI.Xaml.Controls.ContainerContentChangingEventArgs args)
         {
+            var dispatcher = sender.Dispatcher;
             if (args.Item is IDeferInitialize updatable)
             {
 
                 if (updatable.IsInitialized) { return; }
                 updatable.IsInitialized = true;
-                await updatable.DeferInitializeAsync();
+
+                _ = dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, () => 
+                {
+                    updatable.DeferInitializeAsync();
+                });
+                
 
                 // Handled = trueを指定すると、UIの描画が始まる模様
                 // データ受信などが完了してない状態ではHandledを変更しない

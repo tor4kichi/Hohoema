@@ -21,12 +21,6 @@ namespace NicoPlayerHohoema.Models
 			NGVideoOwnerUserIds = new ObservableCollection<UserIdInfo>();
 			NGVideoTitleKeywordEnable = false;
 			NGVideoTitleKeywords = new ObservableCollection<NGKeyword>();
-
-			NGCommentUserIdEnable = true;
-			NGCommentUserIds = new ObservableCollection<UserIdInfo>();
-			NGCommentKeywordEnable = true;
-			NGCommentKeywords = new ObservableCollection<NGKeyword>();
-			NGCommentScoreType = NGCommentScore.Middle;
 		}
 
 
@@ -109,49 +103,6 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-
-		public NGResult IsNGCommentUser(string userId)
-		{
-			if (this.NGCommentUserIdEnable && this.NGCommentUserIds.Count > 0)
-			{
-				var ngItem = this.NGCommentUserIds.FirstOrDefault(x => x.UserId == userId);
-
-				if (ngItem != null)
-				{
-					return new NGResult()
-					{
-						NGReason = NGReason.UserId,
-						Content = userId.ToString(),
-						NGDescription = ngItem.Description,
-					};
-
-				}
-			}
-
-			return null;
-		}
-
-		public NGResult IsNGComment(string commentText)
-		{
-			if (this.NGCommentKeywordEnable && this.NGCommentKeywords.Count > 0)
-			{
-				var ngItem = this.NGCommentKeywords.FirstOrDefault(x => x.CheckNG(commentText));
-
-				if (ngItem != null)
-				{
-					return new NGResult()
-					{
-						NGReason = NGReason.Keyword,
-						Content = ngItem.Keyword,
-					};
-
-				}
-			}
-
-			return null;
-		}
-
-
 		#region Video NG
 
 
@@ -199,46 +150,7 @@ namespace NicoPlayerHohoema.Models
 		#endregion
 
 
-		#region Comment NG
-
-
-		private bool _NGCommentUserIdEnable;
-
-		[DataMember]
-		public bool NGCommentUserIdEnable
-		{
-			get { return _NGCommentUserIdEnable; }
-			set { SetProperty(ref _NGCommentUserIdEnable, value); }
-		}
-
-		[DataMember]
-		public ObservableCollection<UserIdInfo> NGCommentUserIds { get; private set; }
-
-		private bool _NGCommentKeywordEnable;
-
-		[DataMember]
-		public bool NGCommentKeywordEnable
-		{
-			get { return _NGCommentKeywordEnable; }
-			set { SetProperty(ref _NGCommentKeywordEnable, value); }
-		}
-
-		[DataMember]
-		public ObservableCollection<NGKeyword> NGCommentKeywords { get; private set; }
-
-
 		
-
-		private NGCommentScore _NGCommentScoreType;
-
-		[DataMember]
-		public NGCommentScore NGCommentScoreType
-		{
-			get { return _NGCommentScoreType; }
-			set { SetProperty(ref _NGCommentScoreType, value); }
-		}
-
-		#endregion
 
 
 
@@ -281,56 +193,6 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-
-        private bool _NGLiveCommentUserEnable = true;
-
-        [DataMember]
-        public bool IsNGLiveCommentUserEnable
-        {
-            get { return _NGLiveCommentUserEnable; }
-            set { SetProperty(ref _NGLiveCommentUserEnable, value); }
-        }
-
-        [DataMember]
-        public ObservableCollection<NGUserIdInfo> NGLiveCommentUserIds { get; private set; } = new ObservableCollection<NGUserIdInfo>();
-
-        public void AddNGLiveCommentUserId(string userId, string screenName)
-        {
-            NGLiveCommentUserIds.Add(new NGUserIdInfo()
-            {
-                UserId = userId,
-                ScreenName = screenName,
-                AddedAt = DateTime.Now,
-            });
-
-            Save().ConfigureAwait(false);
-        }
-        public void RemoveNGLiveCommentUserId(string userId)
-        {
-            var ngUser = NGLiveCommentUserIds.FirstOrDefault(x => x.UserId == userId);
-            if (ngUser != null)
-            {
-                NGLiveCommentUserIds.Remove(ngUser);
-            }
-
-            Save().ConfigureAwait(false);
-        }
-
-        public void RemoveOutdatedLiveCommentNGUserIds()
-        {
-            foreach (var ngUserInfo in NGLiveCommentUserIds.Where(x => x.IsOutDated).ToArray())
-            {
-                NGLiveCommentUserIds.Remove(ngUserInfo);
-            }
-
-            Save().ConfigureAwait(false);
-        }
-
-        public bool IsLiveNGComment(string userId)
-        {
-            if (userId == null) { return false; }
-            return NGLiveCommentUserIds.Any(x => x.UserId == userId);
-        }
     }
 
 
@@ -387,54 +249,8 @@ namespace NicoPlayerHohoema.Models
 		public string Description { get; set; }
 	}
 
-    public class NGUserIdInfo
-    {
-        static readonly TimeSpan OUTDATE_TIME = TimeSpan.FromDays(7);
-        public string UserId { get; set; }
-        public string ScreenName { get; set; }
-        public bool IsAnonimity => int.TryParse(UserId, out var _);
-        public DateTime AddedAt { get; set; } = DateTime.Now;
-
-        public bool IsOutDated => IsAnonimity && (DateTime.Now - AddedAt > OUTDATE_TIME);
-    }
-
-	public enum NGCommentScore
-	{
-		None,
-		Low,
-		Middle,
-		High,
-		VeryHigh,
-		SuperVeryHigh,
-		UltraSuperVeryHigh
-	}
 
 
-	public static class NGCommentScoreHelper
-	{
-		public static int GetCommentScoreAmount(this NGCommentScore scoreType)
-		{
-			switch (scoreType)
-			{
-				case NGCommentScore.None:
-					return int.MinValue;
-				case NGCommentScore.Low:
-					return -10000;
-				case NGCommentScore.Middle:
-					return -7200;
-				case NGCommentScore.High:
-					return -4800;
-				case NGCommentScore.VeryHigh:
-					return -2400;
-				case NGCommentScore.SuperVeryHigh:
-					return -600;
-				case NGCommentScore.UltraSuperVeryHigh:
-					return 0;
-				default:
-					throw new NotSupportedException();
-			}
-		}
-	}
 
     public class NGResult
     {

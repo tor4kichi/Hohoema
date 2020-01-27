@@ -15,6 +15,7 @@ using Reactive.Bindings.Extensions;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Models.Provider;
 using Unity;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -22,10 +23,15 @@ namespace NicoPlayerHohoema.ViewModels
     {
 
         public SearchSummaryPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             SearchProvider searchProvider,
             Services.PageManager pageManager
             )
         {
+            ApplicationLayoutManager = applicationLayoutManager;
+            SearchProvider = searchProvider;
+            PageManager = pageManager;
+
             RelatedVideoTags = new ObservableCollection<string>();
 
             KeywordSearchResultItems = this.ObserveProperty(x => x.Keyword)
@@ -108,8 +114,6 @@ namespace NicoPlayerHohoema.ViewModels
                 .Select(x => x > 0)
                 .ToReadOnlyReactiveProperty()
                 .AddTo(_CompositeDisposable);
-            SearchProvider = searchProvider;
-            PageManager = pageManager;
         }
 
 
@@ -164,12 +168,6 @@ namespace NicoPlayerHohoema.ViewModels
             return Task.CompletedTask;
         }
 
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = null;
-            return false;
-        }
-
         private DelegateCommand<SearchTarget?> _SearchWithTargetCommand;
         public DelegateCommand<SearchTarget?> SearchWithTargetCommand
         {
@@ -217,6 +215,8 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        public AppearanceSettings AppearanceSettings { get; }
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public SearchProvider SearchProvider { get; }
         public Services.PageManager PageManager { get; }
     }

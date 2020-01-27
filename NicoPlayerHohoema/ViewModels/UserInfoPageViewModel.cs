@@ -1,9 +1,14 @@
-﻿using Mntone.Nico2;
+﻿using I18NPortable;
+using Mntone.Nico2;
+using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Models.Subscription;
+using NicoPlayerHohoema.Repository.Playlist;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase;
+using NicoPlayerHohoema.UseCase.Playlist;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings;
@@ -19,25 +24,53 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class UserInfoPageViewModel : HohoemaViewModelBase, Interfaces.IUser, INavigatedAwareAsync
+    public class UserInfoPageViewModel : HohoemaViewModelBase, Interfaces.IUser, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = UserName,
+                PageType = HohoemaPageType.UserInfo,
+                Parameter = $"id={UserId}"
+            };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.UserName);
+        }
+
         public UserInfoPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             UserProvider userProvider,
             NGSettings ngSettings,
             Models.NiconicoSession niconicoSession,
             SubscriptionManager subscriptionManager,
             UserMylistManager userMylistManager,
-            Services.HohoemaPlaylist hohoemaPlaylist,
+            HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
+            MylistRepository mylistRepository,
             ExternalAccessService externalAccessService,
             NiconicoFollowToggleButtonService followToggleButtonService,
             Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
         {
+            NiconicoSession = niconicoSession;
+            SubscriptionManager = subscriptionManager;
+            UserMylistManager = userMylistManager;
+            HohoemaPlaylist = hohoemaPlaylist;
+            PageManager = pageManager;
+            _mylistRepository = mylistRepository;
+            ExternalAccessService = externalAccessService;
+            FollowToggleButtonService = followToggleButtonService;
+            CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
+            ApplicationLayoutManager = applicationLayoutManager;
+            UserProvider = userProvider;
+            NgSettings = ngSettings;
+
             HasOwnerVideo = true;
 
-
-            MylistGroups = new ObservableCollection<MylistGroupListItem>();
             VideoInfoItems = new ObservableCollection<VideoInfoControlViewModel>();
 
             OpenUserVideoPageCommand = VideoInfoItems.ObserveProperty(x => x.Count)
@@ -69,15 +102,6 @@ namespace NicoPlayerHohoema.ViewModels
 
                 }
             });
-            NiconicoSession = niconicoSession;
-            SubscriptionManager = subscriptionManager;
-            UserMylistManager = userMylistManager;
-            PageManager = pageManager;
-            ExternalAccessService = externalAccessService;
-            FollowToggleButtonService = followToggleButtonService;
-            CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
-            UserProvider = userProvider;
-            NgSettings = ngSettings;
         }
 
         public ReactiveCommand OpenUserVideoPageCommand { get; private set; }
@@ -88,6 +112,7 @@ namespace NicoPlayerHohoema.ViewModels
         public ExternalAccessService ExternalAccessService { get; }
         public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public UserProvider UserProvider { get; }
         public NGSettings NgSettings { get; }
        
@@ -209,8 +234,18 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<bool> IsNGVideoOwner { get; private set; }
 
 
-		public ObservableCollection<MylistGroupListItem> MylistGroups { get; private set; }
-		public ObservableCollection<VideoInfoControlViewModel> VideoInfoItems { get; private set; }
+        public  HohoemaPlaylist HohoemaPlaylist { get; }
+
+        private readonly MylistRepository _mylistRepository;
+
+        private IReadOnlyCollection<MylistPlaylist> _mylists;
+        public IReadOnlyCollection<MylistPlaylist> MylistGroups
+        {
+            get { return _mylists; }
+            set { SetProperty(ref _mylists, value); }
+        }
+
+        public ObservableCollection<VideoInfoControlViewModel> VideoInfoItems { get; private set; }
 
 
         string Interfaces.INiconicoObject.Id => UserId;
@@ -239,7 +274,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             IsLoadFailed = false;
 
-            MylistGroups.Clear();
             VideoInfoItems.Clear();
 
             try
@@ -301,22 +335,14 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (NiconicoSession.IsLoginUserId(UserId))
             {
-                foreach (var item in UserMylistManager.Mylists)
-                {
-                    MylistGroups.Add(new MylistGroupListItem(item));
-                }
+                MylistGroups = UserMylistManager.Mylists;
             }
             else
             {
                 try
                 {
                     //					await Task.Delay(500);
-
-                    var mylistGroups = await UserProvider.GetUserMylistGroups(UserId);
-                    foreach (var item in mylistGroups)
-                    {
-                        MylistGroups.Add(new MylistGroupListItem(item));
-                    }
+                    MylistGroups = await _mylistRepository.GetUserMylistsAsync(UserId);
                 }
                 catch (Exception ex)
                 {
@@ -340,17 +366,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             FollowToggleButtonService.SetFollowTarget(this);
         }
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = UserName,
-                PageType = HohoemaPageType.UserInfo,
-                Parameter = $"id={UserId}"
-            };
-
-            return true;
-        }
+        
     }
 }

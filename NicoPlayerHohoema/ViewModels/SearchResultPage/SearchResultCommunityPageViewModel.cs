@@ -18,6 +18,8 @@ using System.Reactive.Linq;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Models.Provider;
 using Prism.Navigation;
+using NicoPlayerHohoema.Interfaces;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -25,14 +27,32 @@ namespace NicoPlayerHohoema.ViewModels
 	// Note: Communityの検索はページベースで行います。
 	// また、ログインが必要です。
 
-	public class SearchResultCommunityPageViewModel : HohoemaListingPageViewModelBase<CommunityInfoControlViewModel>, INavigatedAwareAsync
+	public class SearchResultCommunityPageViewModel : HohoemaListingPageViewModelBase<CommunityInfoControlViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = SearchOption.Keyword,
+                PageType = HohoemaPageType.SearchResultCommunity,
+                Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
+            };
+        }
+
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.Keyword);
+        }
+
         public SearchResultCommunityPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager, 
             SearchProvider searchProvider,
             Services.NiconicoLoginService niconicoLoginService
             )
         {
+            ApplicationLayoutManager = applicationLayoutManager;
             PageManager = pageManager;
             SearchProvider = searchProvider;
             NiconicoLoginService = niconicoLoginService;
@@ -42,12 +62,21 @@ namespace NicoPlayerHohoema.ViewModels
             SelectedSearchTarget = new ReactiveProperty<SearchTarget>();
         }
 
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
 
         public SearchProvider SearchProvider { get; }
         public NiconicoLoginService NiconicoLoginService { get; }
 
         static public CommunitySearchPagePayloadContent SearchOption { get; private set; }
+
+        private string _keyword;
+        public string Keyword
+        {
+            get { return _keyword; }
+            set { SetProperty(ref _keyword, value); }
+        }
+
 
         private string _SearchOptionText;
         public string SearchOptionText
@@ -172,9 +201,11 @@ namespace NicoPlayerHohoema.ViewModels
             var mode = parameters.GetNavigationMode();
             if (mode == NavigationMode.New)
             {
+                Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"));
+
                 SearchOption = new CommunitySearchPagePayloadContent()
                 {
-                    Keyword = System.Net.WebUtility.UrlDecode(parameters.GetValue<string>("keyword"))
+                    Keyword = Keyword
                 };
             }
 
@@ -206,8 +237,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             Database.SearchHistoryDb.Searched(SearchOption.Keyword, SearchOption.SearchTarget);
 
-            PageManager.PageTitle = $"\"{SearchOption.Keyword}\"";
-
             return base.OnNavigatedToAsync(parameters);
         }
 
@@ -238,18 +267,6 @@ namespace NicoPlayerHohoema.ViewModels
             var mode = SearchOption.Mode == CommunitySearchMode.Keyword ? "キーワード" : "タグ";
 
             SearchOptionText = $"{optionText}({mode})";
-        }
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = SearchOption.Keyword,
-                PageType = HohoemaPageType.SearchResultCommunity,
-                Parameter = $"keyword={System.Net.WebUtility.UrlEncode(SearchOption.Keyword)}&target={SearchOption.SearchTarget}"
-            };
-
-            return true;
         }
     }
 

@@ -21,15 +21,17 @@
     <AppxAutoIncrementPackageRevision>False</AppxAutoIncrementPackageRevision>
     <AppxSymbolPackageEnabled>True</AppxSymbolPackageEnabled>
     <AppxBundle>Always</AppxBundle>
-    <AppxBundlePlatforms>x86|x64</AppxBundlePlatforms>
-    <PackageCertificateThumbprint>A968876E2F8F3DA9CDACE108F7CB17A1F4F8EA47</PackageCertificateThumbprint>
+    <AppxBundlePlatforms>x86|x64|arm</AppxBundlePlatforms>
+    <PackageCertificateThumbprint>
+    </PackageCertificateThumbprint>
     <AppxPackageDir>D:\tor4kichi\Hohoema\packages\</AppxPackageDir>
     <RuntimeIdentifiers>win10-arm;win10-arm-aot;win10-x86;win10-x86-aot;win10-x64;win10-x64-aot</RuntimeIdentifiers>
     <GenerateAppInstallerFile>False</GenerateAppInstallerFile>
-    <AppInstallerUpdateFrequency>1</AppInstallerUpdateFrequency>
+    <AppInstallerUpdateFrequency>0</AppInstallerUpdateFrequency>
     <AppInstallerCheckForUpdateFrequency>OnApplicationRun</AppInstallerCheckForUpdateFrequency>
     <GenerateTestArtifacts>True</GenerateTestArtifacts>
     <HoursBetweenUpdateChecks>0</HoursBetweenUpdateChecks>
+    <AppxPackageSigningTimestampDigestAlgorithm>SHA256</AppxPackageSigningTimestampDigestAlgorithm>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -136,16 +138,46 @@
     </Compile>
     <Compile Include="Database\Local\RankingGenreTagsDb.cs" />
     <Compile Include="Events\RankingGenreCustomizeEvent.cs" />
-    <Compile Include="Models\Niconico\INiconicoStreamingSessionProvider.cs" />
+    <Compile Include="FixPrism\BindableBaseWithFix.cs" />
+    <Compile Include="Interfaces\IPageNavigatable.cs" />
+    <Compile Include="Interfaces\IPlaylistItem.cs" />
+    <Compile Include="Interfaces\ITitleUpdatablePage.cs" />
+    <Compile Include="Interfaces\IWatchHistory.cs" />
+    <Compile Include="Locales\LocalizeConverter.cs" />
+    <Compile Include="Models\Cache\NicoVideoCacheInfo.cs" />
+    <Compile Include="Models\Cache\NicoVideoCacheProgress.cs" />
+    <Compile Include="Models\Cache\NicoVideoCacheRequestExtension.cs" />
+    <Compile Include="Models\Helpers\ObservableHashSet.cs" />
+    <Compile Include="Models\Niconico\INiconicoVideoSessionProvider.cs" />
     <Compile Include="Models\Niconico\Video\Comment\NicoScript.cs" />
-    <Compile Include="Services\Commands\AddMylistCommand.cs" />
-    <Compile Include="Services\Commands\AddToHiddenUserCommand.cs" />
+    <Compile Include="Models\Niconico\Video\NicoVideoQualityEntity.cs" />
+    <Compile Include="Models\Niconico\Video\Tag.cs" />
+    <Compile Include="Repository\LiteDbService.cs" />
+    <Compile Include="Repository\NicoVideo\VideoInfoRepository.cs" />
+    <Compile Include="Repository\Playlist\MylistRepository.cs" />
+    <Compile Include="Repository\Playlist\PlaylistItemsRepository.cs" />
+    <Compile Include="Repository\Playlist\PlaylistRepository.cs" />
+    <Compile Include="Repository\NicoVideo\CommentRepository.cs" />
+    <Compile Include="Services\Player\ChangePlayerDisplayViewRequestEvent.cs" />
+    <Compile Include="Services\Player\PlayerEvents.cs" />
+    <Compile Include="Services\NoProcessUIScreenContext.cs" />
+    <Compile Include="Services\Page\IPinablePage.cs" />
+    <Compile Include="Services\Player\PrimaryViewPlayerManager.cs" />
+    <Compile Include="Services\Player\ShowPrimaryViewCommand.cs" />
+    <Compile Include="Services\Player\TogglePlayerDisplayViewCommand.cs" />
+    <Compile Include="UseCase\ApplicationLayoutManager.cs" />
+    <Compile Include="UseCase\NicoVideoPlayer\Commands\OpenLiveContentCommand.cs" />
+    <Compile Include="UseCase\Page\Commands\SearchCommand.cs" />
+    <Compile Include="UseCase\Pin\PinChangeOverrideLabelCommand.cs" />
+    <Compile Include="UseCase\Pin\PinRemoveCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\AddMylistCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\AddToHiddenUserCommand.cs" />
     <Compile Include="Services\Commands\Cache\AddCacheRequestCommand.cs" />
     <Compile Include="Services\Commands\Cache\DeleteCacheRequestCommand.cs" />
     <Compile Include="Services\Commands\GoNextIntroductionPageCommand.cs" />
     <Compile Include="Services\Commands\LogoutFromNiconicoCommand.cs" />
-    <Compile Include="Services\Commands\Mylist\CreateLocalMylistCommand.cs" />
-    <Compile Include="Services\Commands\Mylist\CreateMylistCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\CreateLocalMylistCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\CreateMylistCommand.cs" />
     <Compile Include="Services\Commands\NicoLiveUserIdAddToNGCommand.cs" />
     <Compile Include="Services\Commands\NicoLiveUserIdRemoveFromNGCommand.cs" />
     <Compile Include="Services\Commands\OpenBroadcasterInfoCommand.cs" />
@@ -169,13 +201,32 @@
     <Compile Include="Database\Temporary\NicoVideo.cs" />
     <Compile Include="Database\Temporary\NicoVideoOwner.cs" />
     <Compile Include="Database\Local\SearchHistory.cs" />
-    <Compile Include="Database\Temporary\VideoCommentDb.cs" />
     <Compile Include="Database\Local\VideoPlayedHistory.cs" />
     <Compile Include="Interfaces\ITag.cs" />
-    <Compile Include="Models\Helpers\MylistOriginExtension.cs" />
     <Compile Include="Models\Cache\CachefolderAccessState.cs" />
     <Compile Include="Models\LocalMylist\LocalMylist.cs" />
-    <Compile Include="Models\LocalMylist\LocalMylistManager.cs" />
+    <Compile Include="UseCase\NicoVideoInfoUpdater.cs" />
+    <Compile Include="UseCase\Playlist\Commands\FollowRemoveCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\LocalPlaylistDeleteCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\LocalPlaylistRemoveItemCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\MylistRemoveItemCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\PlaylistPlayAllCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\QueueAddItemCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\QueueRemoveItemCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\RemoveWatchedItemsInAfterWatchPlaylistCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\SelectionAllSelectCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\SelectionExitCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\SelectionStartCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\WatchAfterAddItemCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\LocalPlaylistAddItemCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\MylistAddItemCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\PlayWithPlaylistCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\WatchAfterRemoveItemCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\VideoContentSelectionCommandBase.cs" />
+    <Compile Include="UseCase\Playlist\Commands\WatchHistoryRemoveAllCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\WatchHistoryRemoveItemCommand.cs" />
+    <Compile Include="UseCase\Playlist\Events\VideoPlayedEvent.cs" />
+    <Compile Include="UseCase\Playlist\LocalMylistManager.cs" />
     <Compile Include="Database\Local\LocalMylist\LocalMylistDb.cs" />
     <Compile Include="Models\NiconicoSession.cs" />
     <Compile Include="Models\Niconico\Mylist\UserOwnedMylist.cs" />
@@ -194,16 +245,31 @@
     <Compile Include="Models\Provider\SearchProvider.cs" />
     <Compile Include="Models\Provider\UserProvider.cs" />
     <Compile Include="Services\ExternalAccessService.cs" />
-    <Compile Include="Services\Helpers\MylistHelper.cs" />
     <Compile Include="Services\NiconicoLoginService.cs" />
     <Compile Include="Services\Notification\NotificationCacheRequestRejectedService.cs" />
     <Compile Include="Services\Notification\CheckingClipboardAndNotificationService.cs" />
     <Compile Include="Services\Notification\NotificationCacheVideoDeletedService.cs" />
     <Compile Include="Services\Notification\NotificationFollowUpdatedService.cs" />
     <Compile Include="Services\Notification\NotificationMylistUpdatedService.cs" />
-    <Compile Include="Services\Page\PreventBackNavigationOnShowPlayerService.cs" />
     <Compile Include="Models\Niconico\ICommentService.cs" />
-    <Compile Include="Services\PinningCurrentPageRequestEvent.cs" />
+    <Compile Include="UseCase\NicoVideoPlayer\RelatedVideoContentsAggregator.cs" />
+    <Compile Include="UseCase\NicoVideoPlayer\VideoEndedRecommendation.cs" />
+    <Compile Include="UseCase\NicoVideoPlayer\VideoPlayRequestBridgeToPlayer.cs" />
+    <Compile Include="UseCase\Playlist\PlaylistAggregateGetter.cs" />
+    <Compile Include="UseCase\Playlist\PlaylistSelectDialogService.cs" />
+    <Compile Include="UseCase\Playlist\VideoItemsSelectionContext.cs" />
+    <Compile Include="UseCase\Playlist\WatchHistoryManager.cs" />
+    <Compile Include="UseCase\VideoCacheResumingObserver.cs" />
+    <Compile Include="UseCase\WindowService.cs" />
+    <Compile Include="UseCase\CommentPlayer.cs" />
+    <Compile Include="UseCase\NicoVideoPlayer\Commands\MediaPlayerSeekCommand.cs" />
+    <Compile Include="UseCase\NicoVideoPlayer\Commands\MediaPlayerSetPlaybackRateCommand.cs" />
+    <Compile Include="UseCase\NicoVideoPlayer\Commands\MediaPlayerToggleMuteCommand.cs" />
+    <Compile Include="UseCase\NicoVideoPlayer\Commands\MediaPlayerVolumeChangeCommand.cs" />
+    <Compile Include="UseCase\NicoVideoPlayer\KeepActiveDisplayWhenPlaying.cs" />
+    <Compile Include="UseCase\NicoVideoPlayer\VideoStreamingOriginOrchestrator.cs" />
+    <Compile Include="UseCase\ObservableMediaPlayer.cs" />
+    <Compile Include="UseCase\VideoPlayer.cs" />
     <Compile Include="ViewModels\BlankPageViewModel.cs" />
     <Compile Include="ViewModels\Flyouts\LiveItemFlyoutViewModel.cs" />
     <Compile Include="ViewModels\Flyouts\MylistItemFlyoutViewModel.cs" />
@@ -211,13 +277,20 @@
     <Compile Include="ViewModels\Flyouts\SubscriptionItemFlyoutViewModel.cs" />
     <Compile Include="Services\NiconicoFollowToggleButtonService.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\LiveInfoContentViewModelBase.cs" />
+    <Compile Include="ViewModels\LocalPlaylistPageViewModel.cs" />
+    <Compile Include="ViewModels\PrimaryWindowCoreLayoutViewModel.cs" />
     <Compile Include="ViewModels\SubscriptionControlViewModel.cs" />
+    <Compile Include="Views\Controls\DelayedAutoTriggerButton.xaml.cs">
+      <DependentUpon>DelayedAutoTriggerButton.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Controls\ScrollHeaderCustom\QuickReturnHeaderBehavior.cs" />
     <Compile Include="Views\Controls\ScrollHeaderCustom\ScrollHeader.xaml.cs">
       <DependentUpon>ScrollHeader.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Controls\ScrollHeaderCustom\StickyHeaderBehavior.cs" />
+    <Compile Include="Views\Converters\ItemClickEventArgsConverter.cs" />
     <Compile Include="Views\Converters\StringToUriConverter.cs" />
+    <Compile Include="Views\Converters\TimeSpanToSecondsConverter.cs" />
     <Compile Include="Views\Dialogs\NiconicoLoginDialog.xaml.cs">
       <DependentUpon>NiconicoLoginDialog.xaml</DependentUpon>
     </Compile>
@@ -282,8 +355,8 @@
     <Compile Include="Models\Niconico\Follow\IFollowInfoGroup.cs" />
     <Compile Include="Models\HohoemaAppServiceLevel.cs" />
     <Compile Include="Services\Page\HohoemaPageType.cs" />
-    <Compile Include="Services\HohoemaPlaylist.cs" />
-    <Compile Include="Services\PlayerViewManager.cs" />
+    <Compile Include="UseCase\Playlist\HohoemaPlaylist.cs" />
+    <Compile Include="Services\Player\ScondaryViewPlayerManager.cs" />
     <Compile Include="Interfaces\IHohoemaListItem.cs" />
     <Compile Include="Models\Niconico\Video\Comment\CommentClient.cs" />
     <Compile Include="Models\Niconico\Video\Comment\CommentServerInfo.cs" />
@@ -304,9 +377,7 @@
     <Compile Include="Models\Niconico\Live\NicoLiveVideo.cs" />
     <Compile Include="Services\Page\PagePayload\LoginRedirectPayload.cs" />
     <Compile Include="Services\Page\PagePayload\MylistPagePayload.cs" />
-    <Compile Include="Interfaces\IMylist.cs" />
-    <Compile Include="Models\LocalMylist\LegacyLocalMylist.cs" />
-    <Compile Include="Models\Niconico\Mylist\OtherOwneredMylist.cs" />
+    <Compile Include="Interfaces\IPlaylist.cs" />
     <Compile Include="Services\Page\PageManagerSearchExtention.cs" />
     <Compile Include="Services\Page\PagePayload\Search\CommunitySearchPagePayloadContent.cs" />
     <Compile Include="Services\Page\PagePayload\Search\ISearchPagePayloadContent.cs" />
@@ -326,19 +397,17 @@
     <Compile Include="Models\Settings\ActivityFeedSettings.cs" />
     <Compile Include="Services\Page\HohoemaPin.cs" />
     <Compile Include="Models\Settings\PinSettings.cs" />
-    <Compile Include="Models\Settings\PlaylistSettings.cs" />
-    <Compile Include="Models\Niconico\Mylist\UserMylistManager.cs" />
+    <Compile Include="UseCase\Playlist\UserMylistManager.cs" />
     <Compile Include="Services\Helpers\ShareHelper.cs" />
     <Compile Include="Models\Niconico\Video\MediaProtocolType.cs" />
     <Compile Include="Models\Helpers\AsyncLock.cs" />
-    <Compile Include="Models\Niconico\Video\NicoVideoStreamingSessionProvider.cs" />
+    <Compile Include="Models\Niconico\Video\NicoVideoSessionProvider.cs" />
     <Compile Include="Models\Cache\NicoVideoCacheRequest.cs" />
     <Compile Include="Models\Cache\NicoVideoCacheState.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideoCanNotDownloadReason.cs" />
     <Compile Include="Models\Settings\HohoemaUserSettings.cs" />
     <Compile Include="Models\Cache\VideoCacheManager.cs" />
     <Compile Include="Services\Page\PageManager.cs" />
-    <Compile Include="Services\PlayerDisplayMode.cs" />
     <Compile Include="Services\Page\PagePayload\Search\SearchPagePayloadContentBase.cs" />
     <Compile Include="Services\Page\SearchTarget.cs" />
     <Compile Include="Models\Settings\NGSettings.cs" />
@@ -376,7 +445,6 @@
     <Compile Include="ViewModels\CacheManagementPageViewModel.cs" />
     <Compile Include="ViewModels\ChannelVideoPageViewModel.cs" />
     <Compile Include="ViewModels\CommentCommandEditerViewModel.cs" />
-    <Compile Include="ViewModels\CommentStreamingViewModel.cs" />
     <Compile Include="ViewModels\CommunityPageViewModel.cs" />
     <Compile Include="ViewModels\CommunityVideoPageViewModel.cs" />
     <Compile Include="ViewModels\FollowManagePageViewModel.cs" />
@@ -404,13 +472,11 @@
     <Compile Include="ViewModels\LiveVideoInfoContent\ShereLiveInfoContentViewModel.cs" />
     <Compile Include="ViewModels\LivePlayerPageViewModel.cs" />
     <Compile Include="ViewModels\LoginPageViewModel.cs" />
-    <Compile Include="ViewModels\MenuNavigatePageBaseViewModel.cs" />
     <Compile Include="ViewModels\MylistPageViewModel.cs" />
     <Compile Include="ViewModels\NicoRepoPageViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\EmptySidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\SettingsSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\PlaylistSidePaneContentViewModel.cs" />
-    <Compile Include="ViewModels\PlayerWithPageContainerViewModel.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultCommunityPageViewModel.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultKeywordPageViewModel.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultLivePageViewModel.cs" />
@@ -428,6 +494,7 @@
     <Compile Include="Views\Extensions\Flyout\FlyoutCustomContext.cs" />
     <Compile Include="Views\Extensions\ListViewBase\GroupHeaderContextFlyoutTemplate.cs" />
     <Compile Include="Views\Extensions\ListViewBase\ListViewItemDeferInitialize.cs" />
+    <Compile Include="Views\Extensions\VIsualStateManager\DebugCurrentState.cs" />
     <Compile Include="Views\Flyouts\MylistVideoItemFlyout.xaml.cs">
       <DependentUpon>MylistVideoItemFlyout.xaml</DependentUpon>
     </Compile>
@@ -452,6 +519,7 @@
     <Compile Include="Views\Flyouts\VideoHistoryItemFlyout.xaml.cs">
       <DependentUpon>VideoHistoryItemFlyout.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Helpers\VisibilityExtension.cs" />
     <Compile Include="Views\Interaction\Actions\ScrollViewerVerticalPositionSettingsAction.cs" />
     <Compile Include="Views\Interaction\Behaviors\FocusGetter.cs" />
     <Compile Include="Views\Interaction\Behaviors\ListViewItemTappedCommand.cs" />
@@ -473,6 +541,9 @@
     <Compile Include="Views\Interaction\Behaviors\SetFocus.cs" />
     <Compile Include="Views\Interaction\Input\HideInputPaneAction.cs" />
     <Compile Include="Views\Interaction\Input\UINavigationTrigger.cs" />
+    <Compile Include="Views\NoUIProcessScreen.xaml.cs">
+      <DependentUpon>NoUIProcessScreen.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Pages\BlankPage.xaml.cs">
       <DependentUpon>BlankPage.xaml</DependentUpon>
     </Compile>
@@ -505,6 +576,9 @@
     <Compile Include="Views\Pages\ListItem\MylistListItem.xaml.cs">
       <DependentUpon>MylistListItem.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Pages\LocalPlaylistPage.xaml.cs">
+      <DependentUpon>LocalPlaylistPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Pages\RecommendPage.xaml.cs">
       <DependentUpon>RecommendPage.xaml</DependentUpon>
     </Compile>
@@ -525,6 +599,20 @@
       <DependentUpon>SubscriptionControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Pages\Subscription\SubscriptionSourceConverter.cs" />
+    <Compile Include="Views\Pages\VideoListPage\VideoItemsListView.xaml.cs">
+      <DependentUpon>VideoItemsListView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\VideoListPage\VideoListItemControl.xaml.cs">
+      <DependentUpon>VideoListItemControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\PrimaryViewCoreLayout.xaml.cs">
+      <DependentUpon>PrimaryViewCoreLayout.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\StateTrigger\CompositeStateTrigger.cs" />
+    <Compile Include="Views\StateTrigger\FlyoutIsOpenStateTrigger.cs" />
+    <Compile Include="Views\StateTrigger\IsShowWithPrimaryViewTrigger.cs" />
+    <Compile Include="Views\StateTrigger\IsShowWithSecondaryViewTrigger.cs" />
+    <Compile Include="Views\StateTrigger\WindowInWindowViewModeTrigger.cs" />
     <Compile Include="Views\TemplateSelector\ContentTemplateSelector.cs" />
     <Compile Include="Views\Pages\RankingCategoryPage.xaml.cs">
       <DependentUpon>RankingCategoryPage.xaml</DependentUpon>
@@ -533,17 +621,15 @@
     <Compile Include="Views\TemplateSelector\NullableTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\PlayerSidePaneContentTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\SearchTargetContentTemplateSelector.cs" />
+    <Compile Include="Views\TemplateSelector\TypeBasedTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\ValueDataTemplateSelector.cs" />
     <Compile Include="Views\Pages\TimeshiftPage.xaml.cs">
       <DependentUpon>TimeshiftPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Player\_CommentRenderer\CommentRendererCompositionUI.xaml.cs">
-      <DependentUpon>CommentRendererCompositionUI.xaml</DependentUpon>
+    <Compile Include="Views\Player\_CommentRenderer\CommentRenderer.xaml.cs">
+      <DependentUpon>CommentRenderer.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Player\_CommentRenderer\CommentRendererHelper.cs" />
-    <Compile Include="Views\Controls\ListingWithHeader.xaml.cs">
-      <DependentUpon>ListingWithHeader.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\Flyouts\LiveListItemFlyout.xaml.cs">
       <DependentUpon>LiveListItemFlyout.xaml</DependentUpon>
     </Compile>
@@ -554,8 +640,8 @@
     <Compile Include="Views\HohoemaInAppNotification.xaml.cs">
       <DependentUpon>HohoemaInAppNotification.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\HohoemaSecondaryViewFrame.xaml.cs">
-      <DependentUpon>HohoemaSecondaryViewFrame.xaml</DependentUpon>
+    <Compile Include="Views\SecondaryViewCoreLayout.xaml.cs">
+      <DependentUpon>SecondaryViewCoreLayout.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Pages\NicoRepoPage.xaml.cs">
       <DependentUpon>NicoRepoPage.xaml</DependentUpon>
@@ -658,9 +744,6 @@
     <Compile Include="Views\Pages\MylistPage.xaml.cs">
       <DependentUpon>MylistPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\PlayerWithPageContainer.xaml.cs">
-      <DependentUpon>PlayerWithPageContainer.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\Pages\SearchPage.xaml.cs">
       <DependentUpon>SearchPage.xaml</DependentUpon>
     </Compile>
@@ -695,9 +778,6 @@
     <Compile Include="Views\Converters\TimeSpanToMovieLengthStringValueConverter.cs" />
     <Compile Include="Views\Pages\WatchHistoryPage.xaml.cs">
       <DependentUpon>WatchHistoryPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\MenuNavigatePageBase.xaml.cs">
-      <DependentUpon>MenuNavigatePageBase.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Dialogs\_ContentSelectDialog\ContentSelectDialog.xaml.cs">
       <DependentUpon>ContentSelectDialog.xaml</DependentUpon>
@@ -762,6 +842,7 @@
     <AppxManifest Include="Package.appxmanifest">
       <SubType>Designer</SubType>
     </AppxManifest>
+    <Content Include="Assets\Square44x44Logo.targetsize-32.png" />
     <Content Include="Assets\_UpdateNotice.md" />
     <None Include="Models\Provider\README.md" />
     <None Include="Models\Subscription\README.md" />
@@ -821,6 +902,8 @@
     <Content Include="Assets\xbox_encrypt_key.txt" />
     <None Include="Package.StoreAssociation.xml" />
     <None Include="Package.xml" />
+    <Content Include="FodyWeavers.xml" />
+    <EmbeddedResource Include="Locales\ja-JP.txt" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
     <Content Include="Assets\Square150x150Logo.scale-200.png" />
@@ -832,6 +915,14 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Page Include="Styles\SettingsControlStyles.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Controls\DelayedAutoTriggerButton.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Controls\ScrollHeaderCustom\ScrollHeader.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -914,6 +1005,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\NoUIProcessScreen.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Pages\BlankPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -946,6 +1041,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Pages\LocalPlaylistPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Pages\RecommendPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -974,7 +1073,15 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Player\_CommentRenderer\CommentRendererCompositionUI.xaml">
+    <Page Include="Views\Pages\VideoListPage\VideoItemsListView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\VideoListPage\VideoListItemControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Player\_CommentRenderer\CommentRenderer.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
@@ -1018,10 +1125,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Page>
-    <Page Include="Views\Controls\ListingWithHeader.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Flyouts\LiveListItemFlyout.xaml">
       <SubType>Designer</SubType>
@@ -1084,7 +1187,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\HohoemaSecondaryViewFrame.xaml">
+    <Page Include="Views\SecondaryViewCoreLayout.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1095,10 +1198,6 @@
     <Page Include="Views\Pages\LoginPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\MenuNavigatePageBase.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Pages\MylistPage.xaml">
       <SubType>Designer</SubType>
@@ -1129,10 +1228,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Player\_PlayerSidePaneContent\PlaylistSidePaneContent.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\PlayerWithPageContainer.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1228,6 +1323,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\PrimaryViewCoreLayout.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="ActionMessageFormat.UWP">
@@ -1243,16 +1342,16 @@
       <Version>1.0.4</Version>
     </PackageReference>
     <PackageReference Include="HtmlAgilityPack">
-      <Version>1.11.8</Version>
+      <Version>1.11.12</Version>
     </PackageReference>
-    <PackageReference Include="LiteDB">
-      <Version>4.1.2</Version>
+    <PackageReference Include="I18NPortable">
+      <Version>0.6.0</Version>
     </PackageReference>
     <PackageReference Include="MahApps.Metro.IconPacks.Material">
       <Version>1.9.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
-      <Version>6.1.12</Version>
+      <Version>6.2.9</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp">
       <Version>2.2.0</Version>
@@ -1263,17 +1362,29 @@
     <PackageReference Include="Microsoft.Toolkit.Uwp.UI.Controls">
       <Version>2.2.0</Version>
     </PackageReference>
+    <PackageReference Include="MonkeyCache.LiteDB">
+      <Version>1.3.0</Version>
+    </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>12.0.2</Version>
     </PackageReference>
     <PackageReference Include="Prism.Unity.Windows">
       <Version>7.2.0</Version>
     </PackageReference>
+    <PackageReference Include="PropertyChanged.Fody">
+      <Version>3.2.1</Version>
+    </PackageReference>
     <PackageReference Include="ReactiveProperty">
       <Version>4.2.1</Version>
     </PackageReference>
+    <PackageReference Include="Uno.WindowsStateTriggers">
+      <Version>1.1.1-uno.119</Version>
+    </PackageReference>
     <PackageReference Include="WinRTXamlToolkit.UWP">
       <Version>2.3.0</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.Essentials">
+      <Version>1.3.1</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -1285,7 +1396,8 @@
     </SDKReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Services\Player\" />
+    <Folder Include="Services\CoreLayoutEvents\" />
+    <Folder Include="UseCase\NicoVideoPlayer\Playlist\" />
     <Folder Include="ViewModels\Follow\" />
     <Folder Include="ViewModels\ListItem\" />
   </ItemGroup>

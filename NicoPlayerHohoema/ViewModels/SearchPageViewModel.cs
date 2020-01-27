@@ -19,18 +19,21 @@ using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Models.Provider;
 using Unity;
 using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public class SearchPageViewModel : HohoemaViewModelBase
     {
         public SearchPageViewModel(
-            Models.NiconicoSession niconicoSession,
+			ApplicationLayoutManager applicationLayoutManager,
+			Models.NiconicoSession niconicoSession,
             SearchProvider searchProvider,
             Services.PageManager pageManager
             )
         {
-            NiconicoSession = niconicoSession;
+			ApplicationLayoutManager = applicationLayoutManager;
+			NiconicoSession = niconicoSession;
             SearchProvider = searchProvider;
             PageManager = pageManager;
             HashSet<string> HistoryKeyword = new HashSet<string>();
@@ -128,8 +131,8 @@ namespace NicoPlayerHohoema.ViewModels
             .AddTo(_CompositeDisposable);
         }
 
-
-        public Models.NiconicoSession NiconicoSession { get; }
+		public ApplicationLayoutManager ApplicationLayoutManager { get; }
+		public Models.NiconicoSession NiconicoSession { get; }
         public SearchProvider SearchProvider { get; }
         public PageManager PageManager { get; }
 
@@ -169,12 +172,6 @@ namespace NicoPlayerHohoema.ViewModels
 			RaisePropertyChanged(nameof(IsSearchCommunity));
 			RaisePropertyChanged(nameof(IsSearchNiconama));
 		}
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = null;
-            return false;
-        }
 
         private DelegateCommand _ShowSearchHistoryCommand;
 		public DelegateCommand ShowSearchHistoryCommand

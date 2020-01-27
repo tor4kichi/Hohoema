@@ -16,19 +16,16 @@ namespace NicoPlayerHohoema.Models.LocalMylist
         Tail,
     }
 
-    public sealed class LocalMylistGroup : ReadOnlyObservableCollection<string>, Interfaces.ILocalMylist, INotifyPropertyChanged, INotifyCollectionChanged
+    public sealed class LocalMylistGroup 
     {
-        
-        public LocalMylistGroup(string id, string label, ObservableCollection<string> initialItems = null)
-            : base(initialItems ?? (initialItems = new ObservableCollection<string>()))
+        public LocalMylistGroup() { }
+
+        public LocalMylistGroup(string id, string label)
+            : base()
         {
-            OriginalItems = initialItems;
             Id = id;
             Label = label;
         }
-
-
-        private ObservableCollection<string> OriginalItems;
 
         public string Id { get; internal set; }
 
@@ -43,86 +40,11 @@ namespace NicoPlayerHohoema.Models.LocalMylist
                 if (_Label != value)
                 {
                     _Label = value;
-                    OnPropertyChanged(new PropertyChangedEventArgs(nameof(Label)));
+//                    OnPropertyChanged(new PropertyChangedEventArgs(nameof(Label)));
                 }
             }
         }
 
-        public int ItemCount => Count;
-
-        public Task<bool> AddMylistItem(string videoId)
-        {
-            if (!Items.Any(x => x == videoId))
-            {
-                var video = Database.NicoVideoDb.Get(videoId);
-                OriginalItems.Add(videoId);
-                return Task.FromResult(true);
-            }
-            else
-            {
-                return Task.FromResult(false);
-            }
-        }
-
-        public Task<bool> AddMylistItem(string videoId, ContentInsertPosition insertPosition = ContentInsertPosition.Tail)
-        {
-            if (!Items.Any(x => x == videoId))
-            {
-                var video = Database.NicoVideoDb.Get(videoId);
-                if (insertPosition == ContentInsertPosition.Head)
-                {
-                    OriginalItems.Insert(0, videoId);
-                }
-                else
-                {
-                    OriginalItems.Add(videoId);
-                }
-                return Task.FromResult(true);
-            }
-            else
-            {
-                return Task.FromResult(false);
-            }
-        }
-
-        public Task<bool> RemoveMylistItem(string videoId)
-        {
-            var target = Items.SingleOrDefault(x => x == videoId);
-            if (target != null)
-            {
-                OriginalItems.Remove(target);
-                return Task.FromResult(true);
-            }
-            else
-            {
-                return Task.FromResult(false);
-            }
-        }
-
-
-        private DelegateCommand<string> _AddItemCommand;
-        public DelegateCommand<string> AddItemCommand => _AddItemCommand
-            ?? (_AddItemCommand = new DelegateCommand<string>((videoId) =>
-            {
-                AddMylistItem(videoId);
-            }
-            , (videoId) => videoId != null && !Contains(videoId)
-            ));
-
-
-        private DelegateCommand<string> _RemoveItemCommand;
-        public DelegateCommand<string> RemoveItemCommand => _RemoveItemCommand
-            ?? (_RemoveItemCommand = new DelegateCommand<string>(videoId =>
-            {
-                RemoveMylistItem(videoId);
-            }
-            , (videoId) => videoId != null && Contains(videoId)
-            ));
-
-        public string ProviderId => null;
-
-        public string ProviderName => string.Empty;
-
-        public Database.NicoVideoUserType ProviderType => Database.NicoVideoUserType.User;
+        public int Count { get; }
     }
 }

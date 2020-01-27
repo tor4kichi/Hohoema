@@ -19,39 +19,59 @@ using NicoPlayerHohoema.Models.LocalMylist;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
 using Prism.Navigation;
+using NicoPlayerHohoema.Repository.Playlist;
+using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.Interfaces;
+using Reactive.Bindings.Extensions;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class UserMylistPageViewModel : HohoemaListingPageViewModelBase<Interfaces.IMylist>, INavigatedAwareAsync
+    public class UserMylistPageViewModel : HohoemaListingPageViewModelBase<MylistPlaylist>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = UserName,
+                PageType = HohoemaPageType.UserMylist,
+                Parameter = $"id={UserId}"
+            };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.UserName);
+        }
+
         public UserMylistPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             Services.PageManager pageManager,
             Services.DialogService dialogService,
             NiconicoSession niconicoSession,
             UserProvider userProvider,
-            LoginUserMylistProvider loginUserMylistProvider,
-            OtherOwneredMylistManager otherOwneredMylistManager,
+            MylistRepository mylistRepository,
             UserMylistManager userMylistManager,
             LocalMylistManager localMylistManager,
             HohoemaPlaylist hohoemaPlaylist
             )
         {
+            ApplicationLayoutManager = applicationLayoutManager;
             PageManager = pageManager;
             DialogService = dialogService;
             NiconicoSession = niconicoSession;
             UserProvider = userProvider;
-            LoginUserMylistProvider = loginUserMylistProvider;
-            OtherOwneredMylistManager = otherOwneredMylistManager;
-            UserMylistManager = userMylistManager;
-            LocalMylistManager = localMylistManager;
+            _mylistRepository = mylistRepository;
+            _userMylistManager = userMylistManager;
+            _localMylistManager = localMylistManager;
             HohoemaPlaylist = hohoemaPlaylist;
             IsLoginUserMylist = new ReactiveProperty<bool>(false);
 
-            OpenMylistCommand = new ReactiveCommand<Interfaces.IMylist>();
+            OpenMylistCommand = new ReactiveCommand<IPlaylist>();
 
             OpenMylistCommand.Subscribe(listItem =>
             {
-                PageManager.OpenPage(HohoemaPageType.Mylist, $"id={listItem.Id}&origin={listItem.ToMylistOrigin().ToString()}");
+                PageManager.OpenPage(HohoemaPageType.Mylist, $"id={listItem.Id}");
             });
 
             AddMylistGroupCommand = new DelegateCommand(async () =>
@@ -70,7 +90,7 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     if (true == await DialogService.ShowCreateMylistGroupDialogAsync(data))
                     {
-                        var result = await UserMylistManager.AddMylist(
+                        var result = await _userMylistManager.AddMylist(
                             data.Name,
                             data.Description,
                             data.IsPublic,
@@ -92,36 +112,36 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             }
-            , () => UserMylistManager.Mylists.Count < UserMylistManager.MaxMylistGroupCountCurrentUser
+            , () => _userMylistManager.Mylists.Count < _userMylistManager.MaxMylistGroupCountCurrentUser
             );
 
-            RemoveMylistGroupCommand = new DelegateCommand<Interfaces.IMylist>(async (item) =>
+            RemoveMylistGroupCommand = new DelegateCommand<Interfaces.IPlaylist>(async (item) =>
             {
-                var mylistOrigin = item.ToMylistOrigin();
-                if (mylistOrigin == PlaylistOrigin.Local)
                 {
-                    if (item.Id == HohoemaPlaylist.WatchAfterPlaylistId) { return; }
-                }
-                else if (mylistOrigin == PlaylistOrigin.LoginUser)
-                {
-                    if (item.Id == "0") { return; }
+                    if (item is LocalPlaylist localPlaylist)
+                    {
+                        if (localPlaylist.IsWatchAfterPlaylist()) { return; }
+                    }
+                    else if (item is LoginUserMylistPlaylist loginUserMylist)
+                    {
+                        if (loginUserMylist.IsDefaultMylist()) { return; }
+                    }
                 }
 
                 // 確認ダイアログ
-                var originText = mylistOrigin == PlaylistOrigin.Local ? "ローカルマイリスト" : "マイリスト";
+                var originText = item.GetOrigin() == PlaylistOrigin.Local ? "ローカルマイリスト" : "マイリスト";
                 var contentMessage = $"{item.Label} を削除してもよろしいですか？（変更は元に戻せません）";
 
                 var dialog = new MessageDialog(contentMessage, $"{originText}削除の確認");
                 dialog.Commands.Add(new UICommand("削除", async (i) =>
                 {
-                    if (mylistOrigin == PlaylistOrigin.Local)
+                    if (item is LocalPlaylist localPlaylist)
                     {
-                        LocalMylistManager.RemoveCommand.Execute(item as LocalMylistGroup);
+                        _localMylistManager.RemovePlaylist(localPlaylist);
                     }
-                    else if (mylistOrigin == PlaylistOrigin.LoginUser)
+                    else if (item is LoginUserMylistPlaylist loginUserMylist)
                     {
-                        await UserMylistManager.RemoveMylist(item.Id);
-                        //                        await UpdateUserMylist();
+                        await _userMylistManager.RemoveMylist(item.Id);
                     }
                 }));
 
@@ -133,49 +153,40 @@ namespace NicoPlayerHohoema.ViewModels
             });
 
 
-            EditMylistGroupCommand = new DelegateCommand<Interfaces.IMylist>(async item =>
+            EditMylistGroupCommand = new DelegateCommand<Interfaces.IPlaylist>(async item =>
             {
-                var mylistOrigin = item.ToMylistOrigin();
-                if (mylistOrigin == PlaylistOrigin.Local)
+                if (item is LocalPlaylist localPlaylist)
                 {
-                    if (item.Id == HohoemaPlaylist.WatchAfterPlaylistId) { return; }
-                }
-                else if (mylistOrigin == PlaylistOrigin.LoginUser)
-                {
-                    if (item.Id == "0") { return; }
-                }
+                    if (item.Id == HohoemaPlaylist.WatchAfterPlaylistId)
+                    {
+                        return;
+                    }
 
-                if (mylistOrigin == PlaylistOrigin.Local)
-                {
-                    var localMylist = item as LocalMylistGroup;
                     var resultText = await DialogService.GetTextAsync("プレイリスト名を変更",
-                        localMylist.Label,
-                        localMylist.Label,
+                        localPlaylist.Label,
+                        localPlaylist.Label,
                         (tempName) => !string.IsNullOrWhiteSpace(tempName)
                         );
 
                     if (!string.IsNullOrWhiteSpace(resultText))
                     {
-                        localMylist.Label = resultText;
+                        localPlaylist.Label = resultText;
                     }
                 }
-
-
-                if (mylistOrigin == PlaylistOrigin.LoginUser)
+                else if (item is LoginUserMylistPlaylist loginUserMylist)
                 {
-                    var mylistGroupListItem = item as UserOwnedMylist;
-                    var selectedMylistGroupId = mylistGroupListItem.Id;
+                    if (loginUserMylist.IsDefaultMylist())
+                    {
+                        return;
+                    }
 
-                    if (selectedMylistGroupId == null) { return; }
-
-                    var mylistGroup = UserMylistManager.GetMylistGroup(selectedMylistGroupId);
                     MylistGroupEditData data = new MylistGroupEditData()
                     {
-                        Name = mylistGroup.Label,
-                        Description = mylistGroup.Description,
-                        IsPublic = mylistGroup.IsPublic,
-                        MylistDefaultSort = mylistGroup.Sort,
-                        IconType = mylistGroup.IconType,
+                        Name = loginUserMylist.Label,
+                        Description = loginUserMylist.Description,
+                        IsPublic = loginUserMylist.IsPublic,
+                        MylistDefaultSort = loginUserMylist.DefaultSort,
+                        IconType = loginUserMylist.IconType,
                     };
 
                     // 成功するかキャンセルが押されるまで繰り返す
@@ -183,16 +194,16 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         if (true == await DialogService.ShowCreateMylistGroupDialogAsync(data))
                         {
-                            mylistGroup.Label = data.Name;
-                            mylistGroup.Description = data.Description;
-                            mylistGroup.IsPublic = data.IsPublic;
-                            mylistGroup.Sort = data.MylistDefaultSort;
-                            mylistGroup.IconType = data.IconType;
-                            var result = await LoginUserMylistProvider.UpdateMylist(mylistGroup);
+                            var result = await _userMylistManager.UpdateMylist(loginUserMylist.Id, data);
 
                             if (result == Mntone.Nico2.ContentManageResult.Success)
                             {
-                                // TODO: UI上のマイリスト表示を更新する
+                                loginUserMylist.Label = data.Name;
+                                loginUserMylist.Description = data.Description;
+                                loginUserMylist.IsPublic = data.IsPublic;
+                                loginUserMylist.DefaultSort = data.MylistDefaultSort;
+                                loginUserMylist.IconType = data.IconType;
+
                                 break;
                             }
                         }
@@ -202,16 +213,6 @@ namespace NicoPlayerHohoema.ViewModels
                         }
                     }
                 }
-
-
-
-            });
-
-            PlayAllCommand = new DelegateCommand<Interfaces.IMylist>((mylist) =>
-            {
-                if (mylist.ItemCount == 0) { return; }
-
-                HohoemaPlaylist.Play(mylist);
             });
 
 
@@ -223,7 +224,7 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         if (string.IsNullOrWhiteSpace(s)) { return false; }
 
-                        if (LocalMylistManager.Mylists.Any(x => x.Label == s))
+                        if (_localMylistManager.LocalPlaylists.Any(x => x.Label == s))
                         {
                             return false;
                         }
@@ -233,22 +234,21 @@ namespace NicoPlayerHohoema.ViewModels
 
                 if (name != null)
                 {
-                    LocalMylistManager.Mylists.Add(new LocalMylistGroup(Guid.NewGuid().ToString(), name));
+                    _localMylistManager.CreatePlaylist(name);
                 }
             });
             
         }
 
-        public UserMylistManager UserMylistManager { get; private set; }
-        public LocalMylistManager LocalMylistManager { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
-        public OtherOwneredMylistManager OtherOwneredMylistManager { get; }
+        public UserMylistManager _userMylistManager { get; private set; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
         public Services.DialogService DialogService { get; }
         public NiconicoSession NiconicoSession { get; }
         public UserProvider UserProvider { get; }
-        public LoginUserMylistProvider LoginUserMylistProvider { get; }
-
+        private readonly MylistRepository _mylistRepository;
+        private readonly LocalMylistManager _localMylistManager;
 
         public string UserId { get; private set; }
 
@@ -263,12 +263,11 @@ namespace NicoPlayerHohoema.ViewModels
         public ReactiveProperty<bool> IsLoginUserMylist { get; private set; }
 
 
-        public ReactiveCommand<Interfaces.IMylist> OpenMylistCommand { get; private set; }
+        public ReactiveCommand<Interfaces.IPlaylist> OpenMylistCommand { get; private set; }
         public DelegateCommand AddMylistGroupCommand { get; private set; }
-        public DelegateCommand<Interfaces.IMylist> RemoveMylistGroupCommand { get; private set; }
-        public DelegateCommand<Interfaces.IMylist> EditMylistGroupCommand { get; private set; }
-        public DelegateCommand<Interfaces.IMylist> PlayAllCommand { get; private set; }
-
+        public DelegateCommand<Interfaces.IPlaylist> RemoveMylistGroupCommand { get; private set; }
+        public DelegateCommand<Interfaces.IPlaylist> EditMylistGroupCommand { get; private set; }
+        
         public DelegateCommand AddLocalMylistCommand { get; private set; }
 
 
@@ -303,170 +302,54 @@ namespace NicoPlayerHohoema.ViewModels
                 throw new Exception("UserMylistPage が不明なパラメータと共に開かれました : " + parameters.ToString());
             }
 
-            PageManager.PageTitle = UserName;
-
             AddMylistGroupCommand.RaiseCanExecuteChanged();
 
             await base.OnNavigatedToAsync(parameters);
         }
 
 
-        protected override IIncrementalSource<Interfaces.IMylist> GenerateIncrementalSource()
+        protected override IIncrementalSource<MylistPlaylist> GenerateIncrementalSource()
         {
-            if (!IsLoginUserMylist.Value && UserId != null)
+            if (UserId == null)
             {
-                return new OtherUserMylistIncrementalLoadingSource(UserId, OtherOwneredMylistManager);
+                UserId = NiconicoSession.UserIdString;
             }
-            else
-            {
-                if (NiconicoSession.IsLoggedIn)
-                {
-                    var items =
-                        Enumerable.Concat(
-                            LocalMylistManager.Mylists.Cast<Interfaces.IMylist>(),
-                            UserMylistManager.Mylists ?? Enumerable.Empty<Interfaces.IMylist>()
-                        )
-                        .ToList();
-                    return new ImmidiateIncrementalLoadingCollectionSource<Interfaces.IMylist>(items);
-                }
-                else
-                {
-                    return new ImmidiateIncrementalLoadingCollectionSource<Interfaces.IMylist>(LocalMylistManager.Mylists);
 
-                }
-            }
-        }
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = UserName,
-                PageType = HohoemaPageType.UserMylist,
-                Parameter = $"id={UserId}"
-            };
-
-            return true;
+            return new OtherUserMylistIncrementalLoadingSource(UserId, _mylistRepository);
         }
     }
 
-    public sealed class OtherUserMylistIncrementalLoadingSource : HohoemaIncrementalSourceBase<Interfaces.IMylist>
+    public sealed class OtherUserMylistIncrementalLoadingSource : HohoemaIncrementalSourceBase<MylistPlaylist>
     {
-        List<OtherOwneredMylist> OtherUserMylists { get; set; }
+        List<MylistPlaylist> _userMylists { get; set; }
 
         public string UserId { get; }
         public OtherOwneredMylistManager OtherOwneredMylistManager;
-        public OtherUserMylistIncrementalLoadingSource(string userId, OtherOwneredMylistManager otherOwneredMylistManager)
+        private readonly MylistRepository _mylistRepository;
+
+        public OtherUserMylistIncrementalLoadingSource(string userId, MylistRepository mylistRepository)
         {
             UserId = userId;
-            OtherOwneredMylistManager = otherOwneredMylistManager;
+            _mylistRepository = mylistRepository;
         }
 
-        protected override Task<IAsyncEnumerable<Interfaces.IMylist>> GetPagedItemsImpl(int head, int count)
+        protected override Task<IAsyncEnumerable<MylistPlaylist>> GetPagedItemsImpl(int head, int count)
         {
-            return Task.FromResult(OtherUserMylists.Skip(head).Take(count).Cast<Interfaces.IMylist>().ToAsyncEnumerable());
+            return Task.FromResult(_userMylists.Skip(head).Take(count).ToAsyncEnumerable());
         }
 
         protected override async Task<int> ResetSourceImpl()
         {
             try
             {
-                OtherUserMylists = await OtherOwneredMylistManager.GetByUserId(UserId);
+                _userMylists = await _mylistRepository.GetUserMylistsAsync(UserId);
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine(ex.Message);
             }
 
-            return OtherUserMylists?.Count ?? 0;
+            return _userMylists?.Count ?? 0;
         }
     }
-
-
-
-    public class MylistGroupListItem : HohoemaListingPageItemBase, Interfaces.IMylistItem
-	{
-        public MylistGroupListItem(Interfaces.IMylist list)
-        {
-            GroupId = list.Id;
-
-            Label = list.Label;
-        }
-
-
-        public MylistGroupListItem(UserOwnedMylist info)
-		{
-			GroupId = info.GroupId;
-
-			Update(info);
-        }
-
-		public MylistGroupListItem(MylistGroupData mylistGroup)
-		{
-			Label = mylistGroup.Name;
-			Description = mylistGroup.Description;
-			GroupId = mylistGroup.Id;
-            OptionText = (mylistGroup.GetIsPublic() ? "公開" : "非公開") + $" - {mylistGroup.Count}件";
-
-            ThemeColor = mylistGroup.GetIconType().ToColor();
-            ItemCount = (uint)mylistGroup.Count;
-
-            if (mylistGroup.ThumbnailUrls != null)
-            {
-                foreach (var thumbnailUri in mylistGroup.ThumbnailUrls)
-                {
-                    AddImageUrl(thumbnailUri.OriginalString);
-                }
-            }
-        }
-
-        public MylistGroupListItem(MylistGroup mylistGroup)
-        {
-            Label = mylistGroup.Name;
-            Description = mylistGroup.Description;
-            GroupId = mylistGroup.Id;
-            OptionText = ("公開") + $" - {mylistGroup.ItemCount}件";
-            ItemCount = mylistGroup.ItemCount;
-
-            foreach (var thumbnailUri in mylistGroup.VideoInfoItems.Take(3).Select(x => x.Video.ThumbnailUrl))
-            {
-                AddImageUrl(thumbnailUri.OriginalString);
-            }
-        }
-
-        public MylistGroupListItem(Mylistgroup mylistGroup)
-        {
-            Label = mylistGroup.Name;
-            Description = mylistGroup.Description;
-            GroupId = mylistGroup.Id;
-            OptionText = ("公開") + $" - {mylistGroup.Count}件";
-            ItemCount = mylistGroup.Count;
-
-            foreach (var thumbnailUri in mylistGroup.SampleVideoInfoItems.Select(x => x.Video.ThumbnailUrl))
-            {
-                AddImageUrl(thumbnailUri.OriginalString);
-            }
-        }
-
-        public void Update(UserOwnedMylist info)
-		{
-			Label = info.Label;
-			Description = info.Description;
-			OptionText = (info.IsPublic ? "公開" : "非公開") + $" - {info.ItemCount}件";
-
-            ThemeColor = info.IconType.ToColor();
-
-            // ユーザーマイリストの情報はそのままではサムネが取れない
-            // マイリスト内の動画からサムネを取得する？
-        }
-
-		public string GroupId { get; private set; }
-
-        public string Id => GroupId;
-
-        public uint ItemCount { get; private set; }
-        public DateTime UpdateTime { get; private set; }
-        public List<Mntone.Nico2.Searches.Video.Video> SampleVideos { get; private set; }
-	}
-
 }

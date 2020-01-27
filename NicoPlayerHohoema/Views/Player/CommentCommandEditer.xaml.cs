@@ -1,4 +1,5 @@
 ﻿using Mntone.Nico2.Videos.Comment;
+using NicoPlayerHohoema.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,6 +14,11 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Prism.Ioc;
+using System.Reactive.Disposables;
+using Reactive.Bindings.Extensions;
+using System.Reactive.Linq;
+using Windows.UI.Core;
 
 // The User Control item template is documented at http://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -20,14 +26,178 @@ namespace NicoPlayerHohoema.Views
 {
 	public sealed partial class CommentCommandEditer : UserControl
 	{
+		CompositeDisposable _disposables = new CompositeDisposable();
+		CommentCommandEditerViewModel _viewModel;
+
+		CoreDispatcher _dispatcher;
 		public CommentCommandEditer()
 		{
+			DataContext = _viewModel = App.Current.Container.Resolve<CommentCommandEditerViewModel>();
+
 			this.InitializeComponent();
+
+			_dispatcher = Dispatcher;
+			Loaded += CommentCommandEditer_Loaded;
+			Unloaded += CommentCommandEditer_Unloaded;
 		}
+
+		private void CommentCommandEditer_Unloaded(object sender, RoutedEventArgs e)
+		{
+			_disposables.Dispose();
+		}
+
+		private void CommentCommandEditer_Loaded(object sender, RoutedEventArgs e)
+		{
+			_disposables = new CompositeDisposable();
+
+			new[]
+			{
+				AnonymousCommentToggleButton.ObserveDependencyProperty(ToggleSwitch.IsOnProperty),
+				CommentSizePallete.ObserveDependencyProperty(ListView.SelectedItemProperty),
+				AlingmentPallete.ObserveDependencyProperty(ListView.SelectedItemProperty),
+				ColorPallete.ObserveDependencyProperty(ListView.SelectedItemProperty),
+				UserInputCommand.ObserveDependencyProperty(TextBox.TextProperty),
+				UserInputCommandToggleSwitch.ObserveDependencyProperty(ToggleSwitch.IsOnProperty),
+			}
+			.Merge()
+			.Throttle(TimeSpan.FromSeconds(0.1))
+			.Subscribe(__ => 
+			{
+				_ = _dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
+				{
+					CommandString = MakeCommandsString();
+				});
+			})
+			.AddTo(_disposables);
+
+			AnonymousCommentToggleButton.IsOn = _viewModel.PlayerSettings.IsDefaultCommentWithAnonymous;
+			CommandString = MakeCommandsString();
+		}
+
+		public string MakeCommandsString()
+		{
+			List<string> commands = new List<string>();
+
+			if (AnonymousCommentToggleButton.IsOn)
+			{
+				commands.Add("184");
+			}
+
+			if (CommentSizePallete.SelectedValue is CommandType sizeCommand)
+			{
+				commands.Add(sizeCommand.ToString());
+			}
+
+			if (AlingmentPallete.SelectedValue is CommandType alignmentCommand)
+			{
+				commands.Add(alignmentCommand.ToString());
+			}
+
+			if (ColorPallete.SelectedValue is CommandType colorType)
+			{
+				commands.Add(colorType.ToString());
+			}
+
+			if (UserInputCommandToggleSwitch.IsOn
+				&& !string.IsNullOrWhiteSpace(UserInputCommand.Text)
+				)
+			{
+				commands.Add(UserInputCommand.Text);
+			}
+
+			return String.Join(" ", commands.Distinct());
+		}
+
+		private void AllCommandReset(object sender, RoutedEventArgs e)
+		{
+			CommentSizePallete.SelectedValue = null;
+			AlingmentPallete.SelectedValue = null;
+			ColorPallete.SelectedValue = null;
+		}
+
+
+
+		public string CommandString
+		{
+			get { return (string)GetValue(CommandStringProperty); }
+			set { SetValue(CommandStringProperty, value); }
+		}
+
+		// Using a DependencyProperty as the backing store for CommandString.  This enables animation, styling, binding, etc...
+		public static readonly DependencyProperty CommandStringProperty =
+			DependencyProperty.Register("CommandString", typeof(string), typeof(CommentCommandEditer), new PropertyMetadata(string.Empty));
+
+
+
+		public bool ChannelOrCommunityVideoModeEnable
+		{
+			get { return (bool)GetValue(ChannelOrCommunityVideoModeEnableProperty); }
+			set { SetValue(ChannelOrCommunityVideoModeEnableProperty, value); }
+		}
+
+		// Using a DependencyProperty as the backing store for ChannelOrCommunityVideoModeEnable.  This enables animation, styling, binding, etc...
+		public static readonly DependencyProperty ChannelOrCommunityVideoModeEnableProperty =
+			DependencyProperty.Register("ChannelOrCommunityVideoModeEnable", typeof(bool), typeof(CommentCommandEditer), new PropertyMetadata(false));
+
+
+
+		List<CommandType?> SizeCommandItems = new List<CommandType?>()
+		{
+			CommandType.big,
+			CommandType.medium,
+			CommandType.small
+		};
+
+		List<CommandType?> AlingmentCommandItems = new List<CommandType?>()
+		{
+			CommandType.ue,
+			CommandType.naka,
+			CommandType.shita
+		};
+
+		List<CommandType?> ColorCommandItems = new List<CommandType?>()
+		{
+			CommandType.white,
+			CommandType.red,
+			CommandType.pink,
+			CommandType.orange,
+			CommandType.yellow,
+			CommandType.green,
+			CommandType.cyan,
+			CommandType.blue,
+			CommandType.purple,
+			CommandType.black,
+		};
+
+		List<CommandType?> ColorPremiumCommandItems = new List<CommandType?>()
+		{
+			CommandType.white2,
+			CommandType.red2,
+			CommandType.pink2,
+			CommandType.orange2,
+			CommandType.yellow2,
+			CommandType.green2,
+			CommandType.cyan2,
+			CommandType.blue2,
+			CommandType.purple2,
+			CommandType.black2,
+			CommandType.white,
+			CommandType.red,
+			CommandType.pink,
+			CommandType.orange,
+			CommandType.yellow,
+			CommandType.green,
+			CommandType.cyan,
+			CommandType.blue,
+			CommandType.purple,
+			CommandType.black,
+		};
+
 	}
 
 	public class CommentCommandTemplateSelector : DataTemplateSelector
 	{
+		public DataTemplate EmptyTemplate { get; set; }
 		public DataTemplate Big { get; set; }
 		public DataTemplate Midium { get; set; }
 		public DataTemplate Small { get; set; }
@@ -63,6 +233,8 @@ namespace NicoPlayerHohoema.Views
 
 		protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
 		{
+			if (item == null) { return EmptyTemplate; }
+
 			CommandType? type = item as CommandType?;
 
 			if (type.HasValue)

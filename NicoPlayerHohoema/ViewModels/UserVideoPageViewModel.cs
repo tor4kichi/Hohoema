@@ -15,20 +15,44 @@ using Unity;
 using NicoPlayerHohoema.Services;
 using Prism.Navigation;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.Interfaces;
+using System;
+using Reactive.Bindings.Extensions;
+using NicoPlayerHohoema.Models.Subscription;
+using NicoPlayerHohoema.Commands.Subscriptions;
+using NicoPlayerHohoema.UseCase;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, INavigatedAwareAsync
+    public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
+        HohoemaPin IPinablePage.GetPin()
+        {
+            return new HohoemaPin()
+            {
+                Label = UserName,
+                PageType = HohoemaPageType.UserVideo,
+                Parameter = $"id={UserId}"
+            };
+        }
+
+        IObservable<string> ITitleUpdatablePage.GetTitleObservable()
+        {
+            return this.ObserveProperty(x => x.UserName);
+        }
+
         public UserVideoPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             UserProvider userProvider,
-            Models.Subscription.SubscriptionManager subscriptionManager,
-            Services.HohoemaPlaylist hohoemaPlaylist,
-            Services.PageManager pageManager,
-            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
+            SubscriptionManager subscriptionManager,
+            HohoemaPlaylist hohoemaPlaylist,
+            PageManager pageManager,
+            CreateSubscriptionGroupCommand createSubscriptionGroupCommand
             )
         {
             SubscriptionManager = subscriptionManager;
+            ApplicationLayoutManager = applicationLayoutManager;
             UserProvider = userProvider;
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
@@ -37,8 +61,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public Models.Subscription.SubscriptionManager SubscriptionManager { get; }
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public UserProvider UserProvider { get; }
-        public Services.HohoemaPlaylist HohoemaPlaylist { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
 
@@ -63,8 +88,6 @@ namespace NicoPlayerHohoema.ViewModels
                 }
             }
 
-            PageManager.PageTitle = UserName;
-
             await base.OnNavigatedToAsync(parameters);
         }
 
@@ -79,17 +102,6 @@ namespace NicoPlayerHohoema.ViewModels
                 );
 		}
 
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = new HohoemaPin()
-            {
-                Label = UserName,
-                PageType = HohoemaPageType.UserVideo,
-                Parameter = $"id={UserId}"
-            };
-
-            return true;
-        }
 
         private DelegateCommand _OpenVideoOwnerUserPageCommand;
 		public DelegateCommand OpenVideoOwnerUserPageCommand

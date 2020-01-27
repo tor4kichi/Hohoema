@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace NicoPlayerHohoema.Models
 {
 	[DataContract]
-	public class FollowItemInfo
+	public class FollowItemInfo 
 	{
 		public FollowItemInfo()
 		{

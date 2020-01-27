@@ -10,34 +10,45 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
 {
     public class PlayerSidePaneContentTemplateSelecter : DataTemplateSelector
     {
-        public DataTemplate Empty { get; set; }
-        public DataTemplate Playlist { get; set; }
-        public DataTemplate Settings { get; set; }
-        public DataTemplate Comments { get; set; }
-        public DataTemplate RelatedVideos { get; set; }
+        public Windows.UI.Xaml.DataTemplate Empty { get; set; }
+        public Windows.UI.Xaml.DataTemplate Playlist { get; set; }
+        public Windows.UI.Xaml.DataTemplate Settings { get; set; }
+        public Windows.UI.Xaml.DataTemplate Comments { get; set; }
+        public Windows.UI.Xaml.DataTemplate RelatedVideos { get; set; }
 
-        protected override DataTemplate SelectTemplateCore(object item, DependencyObject container)
+        protected override Windows.UI.Xaml.DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
-            if (item is ViewModels.PlayerSidePaneContent.PlaylistSidePaneContentViewModel)
-            {
-                return Playlist;
-            }
-            else if (item is ViewModels.PlayerSidePaneContent.LiveCommentSidePaneContentViewModel)
+            if (item is ViewModels.PlayerSidePaneContent.LiveCommentSidePaneContentViewModel)
             {
                 return Comments;
+            }
+            else if (item is ViewModels.PlayerSidePaneContent.EmptySidePaneContentViewModel)
+            {
+                return Empty;
             }
             else if (item is ViewModels.PlayerSidePaneContent.SettingsSidePaneContentViewModel)
             {
                 return Settings;
             }
-            else if (item is ViewModels.PlayerSidePaneContent.RelatedVideosSidePaneContentViewModel)
+
+            var sidePaneType = (PlayerSidePaneContentType?)item;
+            if (sidePaneType == null) { return Empty; }
+
+            switch (sidePaneType)
             {
-                return RelatedVideos;
+                case PlayerSidePaneContentType.Playlist:
+                    return Playlist;
+                case PlayerSidePaneContentType.Comment:
+                    return Comments;
+                case PlayerSidePaneContentType.Setting:
+                    return Settings;
+                case PlayerSidePaneContentType.RelatedVideos:
+                    return RelatedVideos;
+                default:
+                    break;
             }
-            else
-            {
-                return Empty;
-            }
+
+            return Empty;
         }
     }
 }

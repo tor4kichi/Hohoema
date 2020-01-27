@@ -20,6 +20,10 @@ namespace NicoPlayerHohoema.Models
 			CacheOnPlayTagConditions = new ObservableCollection<TagCondition>();
 		}
 
+		[IgnoreDataMember]
+		public bool CanDownload => IsUserAcceptedCache && IsEnableCache;
+
+
 		private bool _IsEnableCache;
 
 		[DataMember]

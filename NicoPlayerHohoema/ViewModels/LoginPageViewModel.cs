@@ -2,6 +2,7 @@
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase;
 using Prism.Navigation;
 using Reactive.Bindings;
 using System;
@@ -16,6 +17,7 @@ namespace NicoPlayerHohoema.ViewModels
         // TODO: ログインエラー時のテキスト表示
 
         public LoginPageViewModel(
+            ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager,
             NiconicoSession niconicoSession
             )
@@ -157,12 +159,6 @@ namespace NicoPlayerHohoema.ViewModels
                     PageManager.OpenStartupPage();
                 }
             }
-        }
-
-        protected override bool TryGetHohoemaPin(out HohoemaPin pin)
-        {
-            pin = null;
-            return false;
         }
     }
 }

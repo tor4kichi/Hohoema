@@ -59,5 +59,7 @@ namespace NicoPlayerHohoema.Services
 
 
         Subscription,
+
+        LocalPlaylist,
     }
 }

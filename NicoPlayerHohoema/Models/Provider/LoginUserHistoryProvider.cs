@@ -3,6 +3,7 @@ using Mntone.Nico2.Users.Follow;
 using Mntone.Nico2.Users.FollowCommunity;
 using Mntone.Nico2.Videos.Histories;
 using Mntone.Nico2.Videos.Recommend;
+using Mntone.Nico2.Videos.RemoveHistory;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,20 +40,20 @@ namespace NicoPlayerHohoema.Models.Provider
         }
 
 
-        public async Task RemoveAllHistoriesAsync(string token)
+        public Task<RemoveHistoryResponse> RemoveAllHistoriesAsync(string token)
         {
-            await ContextActionAsync(async context =>
+            return ContextActionAsync(async context =>
             {
-                await context.Video.RemoveAllHistoriesAsync(token);
+                return await context.Video.RemoveAllHistoriesAsync(token);
             });
             
         }
 
-        public async Task RemoveHistoryAsync(string token, string videoId)
+        public Task<RemoveHistoryResponse> RemoveHistoryAsync(string token, string videoId)
         {
-            await ContextActionAsync(async context =>
+            return ContextActionAsync(async context =>
             {
-                await context.Video.RemoveHistoryAsync(token, videoId);
+                return await context.Video.RemoveHistoryAsync(token, videoId);
             });
         }
     }
