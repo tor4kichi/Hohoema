@@ -9,6 +9,7 @@ using NicoPlayerHohoema.ViewModels;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Navigation;
+using Prism.Services;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
@@ -247,17 +248,17 @@ namespace NicoPlayerHohoema.Views
 
         
 
-        INavigationService _contentFrameNavigationService;
+        IPlatformNavigationService _contentFrameNavigationService;
 
         public INavigationService CreateNavigationService()
         {
-            return _contentFrameNavigationService ?? (_contentFrameNavigationService = NavigationService.Create(ContentFrame, new Prism.Services.Gesture[] { Prism.Services.Gesture.Refresh }));
+            return _contentFrameNavigationService ?? (_contentFrameNavigationService = NavigationService.Create(ContentFrame, new Gestures[] { Gestures.Refresh }));
         }
 
-        INavigationService _playerNavigationService;
+        IPlatformNavigationService _playerNavigationService;
         public INavigationService CreatePlayerNavigationService()
         {
-            return _playerNavigationService ?? (_playerNavigationService = NavigationService.Create(PlayerFrame, new Prism.Services.Gesture[] { }));
+            return _playerNavigationService ?? (_playerNavigationService = NavigationService.Create(PlayerFrame, new Gestures[] { }));
         }
 
 
