@@ -588,7 +588,7 @@
                     </i:Interaction.Behaviors>
                   </Border>
                   <Border x:Name="PlayEndedRecommendContainer" Visibility="Collapsed">
-                    <controls:DelayedAutoTriggerButton x:Name="PlayEndedRecommend" Command="{Binding VideoEndedRecommendation.PlayNextVideoCommand}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="40 0">
+                    <controls:DelayedAutoTriggerButton x:Name="PlayEndedRecommend" Command="{Binding VideoEndedRecommendation.PlayNextVideoCommand}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="40 0" IsAutoTriggerEnabled="{Binding PlayerSettings.AutoMoveNextVideoOnPlaylistEmpty}">
                       <controls:DelayedAutoTriggerButton.CenterContent>
                         <StackPanel Spacing="4">
                           <TextBlock Text="次の動画" Opacity="0.7" />
