@@ -510,7 +510,7 @@
                               </Grid>
                               <Grid>
                                 <TextBlock Text="音量"  uwpControls:DockPanel.Dock="Left" VerticalAlignment="Center" />
-                                <Slider x:Name="VolumeSlider" Orientation="Horizontal" VerticalAlignment="Top" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}" Maximum="1.0" Minimum="0.0" StepFrequency="0.01" SmallChange="0.01" LargeChange="0.1" Height="32" Width="160" ValueChanged="VolumeSlider_ValueChanged" HorizontalAlignment="Right" />
+                                <Slider x:Name="VolumeSlider" Orientation="Horizontal" VerticalAlignment="Top" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}" Maximum="1.0" Minimum="0.0" StepFrequency="0.01" SmallChange="0.05" LargeChange="0.1" Height="32" Width="160" ValueChanged="VolumeSlider_ValueChanged" HorizontalAlignment="Right" TabIndex="-1" />
                               </Grid>
                             </StackPanel>
                           </Flyout>
