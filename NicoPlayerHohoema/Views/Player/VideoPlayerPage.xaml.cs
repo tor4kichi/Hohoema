@@ -37,12 +37,14 @@ namespace NicoPlayerHohoema.Views
         {
             this.InitializeComponent();
 
+            _UIdispatcher = Dispatcher;
+
             _mediaPlayer = App.Current.Container.Resolve<MediaPlayer>();
             _mediaPlayer.VolumeChanged += OnMediaPlayerVolumeChanged;
             _mediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
-            VolumeSlider.Value = _mediaPlayer.Volume;
+            _soundVolumeManager = App.Current.Container.Resolve<UseCase.NicoVideoPlayer.MediaPlayerSoundVolumeManager>();
+            VolumeSlider.Value = _soundVolumeManager.Volume;
 
-            _UIdispatcher = Dispatcher;
 
             SeekBarSlider.ManipulationMode = ManipulationModes.TranslateX;
             SeekBarSlider.ManipulationStarting += SeekBarSlider_ManipulationStarting;
@@ -114,6 +116,7 @@ namespace NicoPlayerHohoema.Views
             DependencyProperty.Register("IsDisplayControlUI", typeof(bool), typeof(VideoPlayerPage), new PropertyMetadata(true));
 
 
+        private readonly UseCase.NicoVideoPlayer.MediaPlayerSoundVolumeManager _soundVolumeManager;
 
         CoreDispatcher _UIdispatcher;
         private readonly MediaPlayer _mediaPlayer;
@@ -122,7 +125,7 @@ namespace NicoPlayerHohoema.Views
         {
             if (_nowVolumeChanging) { return; }
 
-            _mediaPlayer.Volume = e.NewValue;
+            _soundVolumeManager.Volume = e.NewValue;
         }
 
         private void OnMediaPlayerVolumeChanged(MediaPlayer sender, object args)
@@ -132,7 +135,7 @@ namespace NicoPlayerHohoema.Views
             {
                 _ = _UIdispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
                 {
-                    VolumeSlider.Value = sender.Volume;
+                    VolumeSlider.Value = _soundVolumeManager.Volume;
                 });
             }
             finally

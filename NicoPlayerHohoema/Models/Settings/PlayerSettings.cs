@@ -198,50 +198,14 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
+		private bool _IsLoudnessCorrectionEnabled = true;
 
-        
-
-        private DelegateCommand _ToggleMuteCommand;
-        public DelegateCommand ToggleMuteCommand
-        {
-            get
-            {
-                return _ToggleMuteCommand
-                    ?? (_ToggleMuteCommand = new DelegateCommand(() =>
-                    {
-                        IsMute = !IsMute;
-                    }));
-            }
-        }
-
-
-        private DelegateCommand _VolumeUpCommand;
-        public DelegateCommand VolumeUpCommand
-        {
-            get
-            {
-                return _VolumeUpCommand
-                    ?? (_VolumeUpCommand = new DelegateCommand(() =>
-                    {
-                        SoundVolume = SoundVolume + SoundVolumeChangeFrequency;
-                    }));
-            }
-        }
-
-        private DelegateCommand _VolumeDownCommand;
-        public DelegateCommand VolumeDownCommand
-        {
-            get
-            {
-                return _VolumeDownCommand
-                    ?? (_VolumeDownCommand = new DelegateCommand(() =>
-                    {
-                        SoundVolume = SoundVolume - SoundVolumeChangeFrequency;
-                    }));
-            }
-        }
-
-
+		[DataMember]
+		public bool IsLoudnessCorrectionEnabled
+		{
+			get { return _IsLoudnessCorrectionEnabled; }
+			set { SetProperty(ref _IsLoudnessCorrectionEnabled, value); }
+		}
 
 
         #endregion

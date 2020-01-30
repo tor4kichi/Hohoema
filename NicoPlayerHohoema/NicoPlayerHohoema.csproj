@@ -168,6 +168,7 @@
     <Compile Include="Services\Player\TogglePlayerDisplayViewCommand.cs" />
     <Compile Include="UseCase\ApplicationLayoutManager.cs" />
     <Compile Include="UseCase\NicoVideoPlayer\Commands\OpenLiveContentCommand.cs" />
+    <Compile Include="UseCase\NicoVideoPlayer\MediaPlayerSoundVolumeManager.cs" />
     <Compile Include="UseCase\Page\Commands\OpenPageWithIdCommand.cs" />
     <Compile Include="UseCase\Page\Commands\SearchCommand.cs" />
     <Compile Include="UseCase\Pin\PinChangeOverrideLabelCommand.cs" />

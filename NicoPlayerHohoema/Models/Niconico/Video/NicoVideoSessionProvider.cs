@@ -87,18 +87,18 @@ namespace NicoPlayerHohoema.Models
         {
             get
             {
-                if (_dmcWatchRes.Video.SmileInfo != null)
-                {
-                    return _dmcWatchRes.Video.SmileInfo.LoudnessCorrectionValue?.First(x => x.Type == "video").Value ?? 1.0;
-                }
-
                 var audio = _dmcWatchRes.Video.DmcInfo?.Quality.Audios.FirstOrDefault()?.LoudnessCorrectionValue.FirstOrDefault();
                 if (audio != null)
                 {
                     return audio.Value;
                 }
 
-                throw new Exception();
+                if (_dmcWatchRes.Video.SmileInfo != null)
+                {
+                    return _dmcWatchRes.Video.SmileInfo.LoudnessCorrectionValue?.First(x => x.Type == "video").Value ?? 1.0;
+                }
+
+                return 1.0;
             }
         }
 
