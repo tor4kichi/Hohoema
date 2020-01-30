@@ -71,6 +71,10 @@
                   Text="{Binding Source=OpenOwnerVideos, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                   CommandParameter="{Binding}"
                   />
+  <MenuFlyoutItem x:Name="OpenOwnerSeriesPage" 
+                  Text="{Binding Source=OpenOwnerSeriesVideos, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" 
+                  Visibility="Collapsed"
+                  />
 
   <MenuFlyoutSeparator x:Name="VideoInfoItemSeparator" />
 

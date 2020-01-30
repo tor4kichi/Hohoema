@@ -39,6 +39,8 @@ namespace NicoPlayerHohoema.Database
 
         public string Description { get; set; }
 
+        public double LoudnessCollectionValue { get; set; } = 1.0;
+
         [BsonRef]
         public NicoVideoOwner Owner { get; set; }
 

@@ -222,6 +222,16 @@ namespace NicoPlayerHohoema.Models.Provider
                         info.MylistCount = res.Video.MylistCount;
                         info.CommentCount = res.Thread.CommentCount;
 
+                        if (res.Video.DmcInfo?.Quality.Audios != null)
+                        {
+                            info.LoudnessCollectionValue = res.Video.DmcInfo.Quality.Audios[0].VideoLoudnessCorrectionValue;
+                        }
+                        else if (res.Video.SmileInfo != null)
+                        {
+                            info.LoudnessCollectionValue = res.Video.SmileInfo.VideoLoudnessCorrectionValue;
+                        }
+
+
                         switch (res.Video.MovieType)
                         {
                             case @"mp4":

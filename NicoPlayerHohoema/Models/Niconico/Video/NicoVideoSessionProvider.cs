@@ -20,6 +20,8 @@ using System.Collections.Immutable;
 
 namespace NicoPlayerHohoema.Models
 {
+
+    
     public interface INicoVideoDetails
     {
         string VideoTitle { get; }
@@ -38,6 +40,11 @@ namespace NicoPlayerHohoema.Models
         bool IsChannelOwnedVideo { get; }
 
         string DescriptionHtml { get; }
+
+        double LoudnessCorrectionValue { get; }
+
+        bool IsSeriesVideo { get; }
+        Series Series { get; }
     }
 
 
@@ -75,6 +82,28 @@ namespace NicoPlayerHohoema.Models
         public bool IsChannelOwnedVideo => _dmcWatchRes.Channel != null;
 
         public string DescriptionHtml => _dmcWatchRes.Video.Description;
+
+        public double LoudnessCorrectionValue
+        {
+            get
+            {
+                if (_dmcWatchRes.Video.SmileInfo != null)
+                {
+                    return _dmcWatchRes.Video.SmileInfo.LoudnessCorrectionValue?.First(x => x.Type == "video").Value ?? 1.0;
+                }
+
+                var audio = _dmcWatchRes.Video.DmcInfo?.Quality.Audios.FirstOrDefault()?.LoudnessCorrectionValue.FirstOrDefault();
+                if (audio != null)
+                {
+                    return audio.Value;
+                }
+
+                throw new Exception();
+            }
+        }
+
+        public bool IsSeriesVideo => _dmcWatchRes?.Series != null;
+        public Series Series => _dmcWatchRes?.Series;
     }
 
     public class WatchApiVideoDetails : INicoVideoDetails
@@ -113,6 +142,12 @@ namespace NicoPlayerHohoema.Models
         public bool IsChannelOwnedVideo => _watchApiRes.channelInfo != null;
 
         public string DescriptionHtml => _watchApiRes.videoDetail.description;
+
+        public double LoudnessCorrectionValue => 1.0;
+        
+        public bool IsSeriesVideo => false;
+
+        public Series Series => null;
     }
 
     public class PreparePlayVideoResult : INiconicoVideoSessionProvider, INiconicoCommentSessionProvider

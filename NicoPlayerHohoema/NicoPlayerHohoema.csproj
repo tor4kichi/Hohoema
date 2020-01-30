@@ -153,6 +153,7 @@
     <Compile Include="Models\Niconico\Video\NicoVideoQualityEntity.cs" />
     <Compile Include="Models\Niconico\Video\Tag.cs" />
     <Compile Include="Repository\LiteDbService.cs" />
+    <Compile Include="Repository\NicoVideo\SeriesRepository.cs" />
     <Compile Include="Repository\NicoVideo\VideoInfoRepository.cs" />
     <Compile Include="Repository\Playlist\MylistRepository.cs" />
     <Compile Include="Repository\Playlist\PlaylistItemsRepository.cs" />
@@ -167,6 +168,7 @@
     <Compile Include="Services\Player\TogglePlayerDisplayViewCommand.cs" />
     <Compile Include="UseCase\ApplicationLayoutManager.cs" />
     <Compile Include="UseCase\NicoVideoPlayer\Commands\OpenLiveContentCommand.cs" />
+    <Compile Include="UseCase\Page\Commands\OpenPageWithIdCommand.cs" />
     <Compile Include="UseCase\Page\Commands\SearchCommand.cs" />
     <Compile Include="UseCase\Pin\PinChangeOverrideLabelCommand.cs" />
     <Compile Include="UseCase\Pin\PinRemoveCommand.cs" />
@@ -280,6 +282,7 @@
     <Compile Include="ViewModels\LocalPlaylistPageViewModel.cs" />
     <Compile Include="ViewModels\PrimaryWindowCoreLayoutViewModel.cs" />
     <Compile Include="ViewModels\SubscriptionControlViewModel.cs" />
+    <Compile Include="ViewModels\UserSeriesPageViewModel.cs" />
     <Compile Include="Views\Controls\DelayedAutoTriggerButton.xaml.cs">
       <DependentUpon>DelayedAutoTriggerButton.xaml</DependentUpon>
     </Compile>
@@ -599,6 +602,9 @@
       <DependentUpon>SubscriptionControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Pages\Subscription\SubscriptionSourceConverter.cs" />
+    <Compile Include="Views\Pages\UserSeriesPage.xaml.cs">
+      <DependentUpon>UserSeriesPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Pages\VideoListPage\VideoItemsListView.xaml.cs">
       <DependentUpon>VideoItemsListView.xaml</DependentUpon>
     </Compile>
@@ -1070,6 +1076,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Pages\TimeshiftPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\UserSeriesPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

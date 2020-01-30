@@ -351,6 +351,10 @@ namespace NicoPlayerHohoema.ViewModels
                 smtc.DisplayUpdater.Update();
             }
 
+            // 実行順依存：VideoPlayerで再生開始後に次シリーズ動画を設定する
+            VideoEndedRecommendation.SetCurrentVideoSeries(VideoDetails.Series);
+            Debug.WriteLine("次シリーズ動画: " + VideoDetails.Series?.NextVideo?.Title);
+
 #if DEBUG
             if (HohoemaPlaylist.CurrentPlaylist == null)
             {

@@ -23,6 +23,7 @@ using System.Collections.Generic;
 using System.Linq;
 using NicoPlayerHohoema.Views.Helpers;
 using I18NPortable;
+using NicoPlayerHohoema.UseCase.Page.Commands;
 
 namespace NicoPlayerHohoema.Views.Flyouts
 {
@@ -94,6 +95,7 @@ namespace NicoPlayerHohoema.Views.Flyouts
 
             OpenVideoInfoPage.Command = PageManager.OpenPageCommand;
             OpenOwnerVideosPage.Command = PageManager.OpenVideoListPageCommand;
+            OpenOwnerSeriesPage.Command = new OpenPageWithIdCommand(HohoemaPageType.UserSeries, PageManager);
             Share.Command = ExternalAccessService.OpenShareUICommand;
             CopyVideoId.Command = ExternalAccessService.CopyToClipboardCommand;
             CopyVideoId.Command = ExternalAccessService.CopyToClipboardCommand;
@@ -221,6 +223,10 @@ namespace NicoPlayerHohoema.Views.Flyouts
             OpenOwnerVideosPage.Visibility = visibleSingleSelectionItem;
             AddNgUser.Visibility = visibleSingleSelectionItem;
             VideoInfoItemSeparator.Visibility = visibleSingleSelectionItem;
+
+
+            //OpenOwnerSeriesPage.Visibility = (content?.ProviderType == Database.NicoVideoUserType.User && content?.ProviderId != null).ToVisibility();
+            //OpenOwnerSeriesPage.CommandParameter = content?.ProviderId;
 
             Share.Visibility = visibleSingleSelectionItem;
             CopySubItem.Visibility = visibleSingleSelectionItem;
