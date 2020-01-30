@@ -8,6 +8,7 @@ using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Services.Player;
 using NicoPlayerHohoema.UseCase;
+using NicoPlayerHohoema.UseCase.NicoVideoPlayer;
 using NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands;
 using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.ViewModels.PlayerSidePaneContent;
@@ -67,6 +68,7 @@ namespace NicoPlayerHohoema.ViewModels
         public LivePlayerPageViewModel(
             IScheduler scheduler,
             PlayerSettings playerSettings,
+            AppearanceSettings appearanceSettings,
             NicoLiveProvider nicoLiveProvider,
             ApplicationLayoutManager applicationLayoutManager,
             LoginUserLiveReservationProvider loginUserLiveReservationProvider,
@@ -83,11 +85,13 @@ namespace NicoPlayerHohoema.ViewModels
             WindowService windowService,
             PrimaryViewPlayerManager primaryViewPlayerManager,
             TogglePlayerDisplayViewCommand togglePlayerDisplayViewCommand,
-            ShowPrimaryViewCommand showPrimaryViewCommand
+            ShowPrimaryViewCommand showPrimaryViewCommand,
+            UseCase.NicoVideoPlayer.MediaPlayerSoundVolumeManager soundVolumeManager
             )
         {
             _scheduler = scheduler;
             PlayerSettings = playerSettings;
+            AppearanceSettings = appearanceSettings;
             NicoLiveProvider = nicoLiveProvider;
             ApplicationLayoutManager = applicationLayoutManager;
             LoginUserLiveReservationProvider = loginUserLiveReservationProvider;
@@ -106,14 +110,15 @@ namespace NicoPlayerHohoema.ViewModels
             PrimaryViewPlayerManager = primaryViewPlayerManager;
             TogglePlayerDisplayViewCommand = togglePlayerDisplayViewCommand;
             ShowPrimaryViewCommand = showPrimaryViewCommand;
+            SoundVolumeManager = soundVolumeManager;
             LiveComments = new ReadOnlyObservableCollection<Comment>(_LiveComments);
             FilterdComments.Source = LiveComments;
 
             SeekCommand = new MediaPlayerSeekCommand(MediaPlayer);
             SetPlaybackRateCommand = new MediaPlayerSetPlaybackRateCommand(MediaPlayer);
             ToggleMuteCommand = new MediaPlayerToggleMuteCommand(MediaPlayer);
-            VolumeUpCommand = new MediaPlayerVolumeUpCommand(MediaPlayer);
-            VolumeDownCommand = new MediaPlayerVolumeDownCommand(MediaPlayer);
+            VolumeUpCommand = new MediaPlayerVolumeUpCommand(SoundVolumeManager);
+            VolumeDownCommand = new MediaPlayerVolumeDownCommand(SoundVolumeManager);
 
             // play
             WatchStartLiveElapsedTime = new ReactiveProperty<TimeSpan>(raiseEventScheduler: _scheduler, initialValue: TimeSpan.Zero);
@@ -342,6 +347,7 @@ namespace NicoPlayerHohoema.ViewModels
         public IScheduler _scheduler { get; }
 
         public PlayerSettings PlayerSettings { get; }
+        public AppearanceSettings AppearanceSettings { get; }
         public NicoLiveProvider NicoLiveProvider { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public LoginUserLiveReservationProvider LoginUserLiveReservationProvider { get; }
@@ -362,6 +368,7 @@ namespace NicoPlayerHohoema.ViewModels
         public PrimaryViewPlayerManager PrimaryViewPlayerManager { get; }
         public TogglePlayerDisplayViewCommand TogglePlayerDisplayViewCommand { get; }
         public ShowPrimaryViewCommand ShowPrimaryViewCommand { get; }
+        public MediaPlayerSoundVolumeManager SoundVolumeManager { get; }
 
         private string _LiveId;
         public string LiveId
@@ -585,6 +592,7 @@ namespace NicoPlayerHohoema.ViewModels
                     NicoLiveProvider,
                     LoginUserLiveReservationProvider,
                     PlayerSettings,
+                    AppearanceSettings,
                     _scheduler,
                     CommunityId
                     );
@@ -676,6 +684,9 @@ namespace NicoPlayerHohoema.ViewModels
                 NicoLiveVideo.FailedOpenLive += NicoLiveVideo_FailedOpenLive1;
                 NicoLiveVideo.OperationCommandRecieved += NicoLiveVideo_OperationCommandRecieved;
                 NicoLiveVideo.LiveElapsed += NicoLiveVideo_LiveElapsed;
+
+                // 生放送ではラウドネス正規化は対応してない
+                SoundVolumeManager.LoudnessCorrectionValue = 1.0;
             }
 
 

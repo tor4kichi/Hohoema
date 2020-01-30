@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Models;
+﻿using Mntone.Nico2.Videos.Dmc;
+using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Player;
 using NicoPlayerHohoema.UseCase.Playlist;
@@ -8,6 +9,7 @@ using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
@@ -50,6 +52,7 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
             _videoPlayer.ObserveProperty(x => x.PlayingVideoId)
                 .Subscribe(x =>
                 {
+                    _series = null;
                     _videoRelatedContents = null;
                     HasNextVideo = false;
                     NextVideoTitle = null;
@@ -86,19 +89,36 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
                                 NextVideoTitle = _videoRelatedContents.NextVideo?.Label;
                                 return; 
                             }
-                            _relatedVideoContentsAggregator.GetRelatedContentsAsync(_videoPlayer.PlayingVideoId)
-                                .ContinueWith(async task =>
-                                {
-                                    var relatedVideos = await task;
 
-                                    _scheduler.Schedule(() =>
-                                    {
-                                        _videoRelatedContents = relatedVideos;
-                                        HasNextVideo = _videoRelatedContents.NextVideo != null;
-                                        NextVideoTitle = _videoRelatedContents.NextVideo?.Label;
-                                        HasRecomend.Value = HasNextVideo && IsEnded.Value;
-                                    });
+                            if (_series?.NextVideo != null)
+                            {
+                                _scheduler.Schedule(() =>
+                                {
+                                    HasNextVideo = true;
+                                    NextVideoTitle = _series.NextVideo.Title;
+                                    HasRecomend.Value = true;
+
+                                    Debug.WriteLine("シリーズ情報から次の動画を提示: " + _series.NextVideo.Title);
                                 });
+                            }
+                            else
+                            {
+                                _relatedVideoContentsAggregator.GetRelatedContentsAsync(_videoPlayer.PlayingVideoId)
+                                    .ContinueWith(async task =>
+                                    {
+                                        var relatedVideos = await task;
+
+                                        _scheduler.Schedule(() =>
+                                        {
+                                            _videoRelatedContents = relatedVideos;
+                                            HasNextVideo = _videoRelatedContents.NextVideo != null;
+                                            NextVideoTitle = _videoRelatedContents.NextVideo?.Label;
+                                            HasRecomend.Value = HasNextVideo && IsEnded.Value;
+
+                                            Debug.WriteLine("動画情報から次の動画を提示: " + NextVideoTitle);
+                                        });
+                                    });
+                            }
                         }
                     }
                 }
@@ -180,13 +200,25 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
         public DelegateCommand PlayNextVideoCommand => _playNextVideoCommand
             ?? (_playNextVideoCommand = new DelegateCommand(() =>
             {
-                if (_videoRelatedContents?.NextVideo == null) { return; }
+                if (_videoRelatedContents?.NextVideo != null)
+                {
+                    var nextVideo = _videoRelatedContents.NextVideo;
+                    _hohoemaPlaylist.Play(nextVideo);
+                }
+                else if (_series.NextVideo != null)
+                {
+                    _hohoemaPlaylist.Play(_series.NextVideo.Id);
+                }
 
-                var nextVideo = _videoRelatedContents.NextVideo;
-                _hohoemaPlaylist.Play(nextVideo);
                 IsEnded.Value = false;
                 _playNext = true;
                 HasRecomend.Value = false;
             }));
+
+        Series _series;
+        public void SetCurrentVideoSeries(Series series)
+        {
+            _series = series;
+        }
     }
 }

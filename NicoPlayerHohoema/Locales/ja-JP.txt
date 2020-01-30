@@ -34,6 +34,11 @@ ApplicationInteractionMode.Controller = コントローラー
 ApplicationInteractionMode.Mouse = マウス
 ApplicationInteractionMode.Touch = タッチ
 
+ElementTheme.Default = システム設定に準じる
+ElementTheme.Light = Light
+ElementTheme.Dark = Dark
+
+
 
 #### Niconico General ####
 PrivateReasonType.PostedBy = 投稿者削除

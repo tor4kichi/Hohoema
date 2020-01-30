@@ -1,0 +1,25 @@
+﻿<Page
+    x:Class="NicoPlayerHohoema.Views.UserSeriesPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:nicoSeries="using:Mntone.Nico2.Videos.Series" xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls" mc:Ignorable="d"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+  <Grid>
+    <ListView ItemsSource="{Binding UserSeriesList}">
+      <ListView.ItemTemplate>
+        <DataTemplate x:DataType="nicoSeries:Series">
+          <uwpControls:DockPanel>
+            <uwpControls:ImageEx Source="{x:Bind ThumbnailUrl}" Height="80" uwpControls:DockPanel.Dock="Left" />
+            <StackPanel Spacing="16">
+              <TextBlock Text="{x:Bind Title}" />
+              <TextBlock Text="{x:Bind Count}" />
+            </StackPanel>
+          </uwpControls:DockPanel>
+        </DataTemplate>
+      </ListView.ItemTemplate>
+    </ListView>
+
+  </Grid>
+</Page>

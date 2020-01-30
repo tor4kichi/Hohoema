@@ -17,6 +17,10 @@ using Prism.Ioc;
 using Windows.Media.Playback;
 using Windows.UI.Core;
 using System.Windows.Input;
+using Reactive.Bindings.Extensions;
+using Windows.UI;
+using Microsoft.Toolkit.Uwp.Helpers;
+using NicoPlayerHohoema.Models;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -37,12 +41,14 @@ namespace NicoPlayerHohoema.Views
         {
             this.InitializeComponent();
 
+            _UIdispatcher = Dispatcher;
+
             _mediaPlayer = App.Current.Container.Resolve<MediaPlayer>();
             _mediaPlayer.VolumeChanged += OnMediaPlayerVolumeChanged;
             _mediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
-            VolumeSlider.Value = _mediaPlayer.Volume;
+            _soundVolumeManager = App.Current.Container.Resolve<UseCase.NicoVideoPlayer.MediaPlayerSoundVolumeManager>();
+            VolumeSlider.Value = _soundVolumeManager.Volume;
 
-            _UIdispatcher = Dispatcher;
 
             SeekBarSlider.ManipulationMode = ManipulationModes.TranslateX;
             SeekBarSlider.ManipulationStarting += SeekBarSlider_ManipulationStarting;
@@ -53,6 +59,54 @@ namespace NicoPlayerHohoema.Views
 
             CommentTextBox.GotFocus += CommentTextBox_GotFocus;
             CommentTextBox.LostFocus += CommentTextBox_LostFocus;
+
+            var appearanceSettings = App.Current.Container.Resolve<AppearanceSettings>();
+            appearanceSettings.ObserveProperty(x => x.Theme)
+                .Subscribe(theme => 
+                {
+                    ThemeChanged(theme);
+                });
+        }
+
+        void ThemeChanged(ElementTheme theme)
+        {
+            ApplicationTheme appTheme;
+            if (theme == ElementTheme.Default)
+            {
+                if (theme == ElementTheme.Default)
+                {
+                    appTheme = Views.Helpers.SystemThemeHelper.GetSystemTheme();
+                }
+                else if (theme == ElementTheme.Dark)
+                {
+                    appTheme = ApplicationTheme.Dark;
+                }
+                else
+                {
+                    appTheme = ApplicationTheme.Light;
+                }
+            }
+            else if (theme == ElementTheme.Light)
+            {
+                appTheme = ApplicationTheme.Light;
+            }
+            else
+            {
+                appTheme = ApplicationTheme.Dark;
+            }
+
+            if (appTheme == ApplicationTheme.Light)
+            {
+                var color = "#00FFFFFF".ToColor();
+                CenterTopGradientStop_End.Color = color;
+                CenterBottomGradientStop_End.Color = color;
+            }
+            else
+            {
+                var color = "#00000000".ToColor();
+                CenterTopGradientStop_End.Color = color;
+                CenterBottomGradientStop_End.Color = color;
+            }
         }
 
 
@@ -114,6 +168,7 @@ namespace NicoPlayerHohoema.Views
             DependencyProperty.Register("IsDisplayControlUI", typeof(bool), typeof(VideoPlayerPage), new PropertyMetadata(true));
 
 
+        private readonly UseCase.NicoVideoPlayer.MediaPlayerSoundVolumeManager _soundVolumeManager;
 
         CoreDispatcher _UIdispatcher;
         private readonly MediaPlayer _mediaPlayer;
@@ -122,7 +177,7 @@ namespace NicoPlayerHohoema.Views
         {
             if (_nowVolumeChanging) { return; }
 
-            _mediaPlayer.Volume = e.NewValue;
+            _soundVolumeManager.Volume = e.NewValue;
         }
 
         private void OnMediaPlayerVolumeChanged(MediaPlayer sender, object args)
@@ -132,7 +187,7 @@ namespace NicoPlayerHohoema.Views
             {
                 _ = _UIdispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
                 {
-                    VolumeSlider.Value = sender.Volume;
+                    VolumeSlider.Value = _soundVolumeManager.Volume;
                 });
             }
             finally

@@ -1,4 +1,5 @@
-﻿using Prism.Navigation;
+﻿using NicoPlayerHohoema.Models;
+using Prism.Navigation;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,6 +14,10 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Prism.Ioc;
+using Reactive.Bindings.Extensions;
+using Windows.UI.ViewManagement;
+using Windows.UI;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -23,6 +28,57 @@ namespace NicoPlayerHohoema.Views
         public SecondaryViewCoreLayout()
         {
             this.InitializeComponent();
+
+            var appearanceSettings = App.Current.Container.Resolve<AppearanceSettings>();
+            appearanceSettings.ObserveProperty(x => x.Theme)
+                .Subscribe(theme =>
+                {
+                    ThemeChanged(theme);
+                });
+        }
+
+        void ThemeChanged(ElementTheme theme)
+        {
+            this.RequestedTheme = theme;
+
+            ApplicationTheme appTheme;
+            if (theme == ElementTheme.Default)
+            {
+                var DefaultTheme = new Windows.UI.ViewManagement.UISettings();
+                var uiTheme = DefaultTheme.GetColorValue(Windows.UI.ViewManagement.UIColorType.Background).ToString();
+                if (uiTheme == "#FF000000")
+                {
+                    appTheme = ApplicationTheme.Dark;
+                }
+                else
+                {
+                    appTheme = ApplicationTheme.Light;
+                }
+            }
+            else if (theme == ElementTheme.Dark)
+            {
+                appTheme = ApplicationTheme.Dark;
+            }
+            else
+            {
+                appTheme = ApplicationTheme.Light;
+            }
+
+            var appView = ApplicationView.GetForCurrentView();
+            if (appTheme == ApplicationTheme.Light)
+            {
+                appView.TitleBar.ButtonForegroundColor = Colors.Black;
+                appView.TitleBar.ButtonHoverBackgroundColor = Colors.DarkGray;
+                appView.TitleBar.ButtonHoverForegroundColor = Colors.Black;
+                appView.TitleBar.ButtonInactiveForegroundColor = Colors.Gray;
+            }
+            else
+            {
+                appView.TitleBar.ButtonForegroundColor = Colors.White;
+                appView.TitleBar.ButtonHoverBackgroundColor = Colors.DimGray;
+                appView.TitleBar.ButtonHoverForegroundColor = Colors.White;
+                appView.TitleBar.ButtonInactiveForegroundColor = Colors.DarkGray;
+            }
         }
 
 

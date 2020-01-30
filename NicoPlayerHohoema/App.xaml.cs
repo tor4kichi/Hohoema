@@ -189,6 +189,7 @@ namespace NicoPlayerHohoema
             // UseCase
             unityContainer.RegisterType<UseCase.VideoPlayer>(new PerThreadLifetimeManager());
             unityContainer.RegisterType<UseCase.CommentPlayer>(new PerThreadLifetimeManager());
+            unityContainer.RegisterSingleton<UseCase.NicoVideoPlayer.MediaPlayerSoundVolumeManager>();
             unityContainer.RegisterSingleton<UseCase.Playlist.HohoemaPlaylist>();
             unityContainer.RegisterSingleton<UseCase.Playlist.LocalMylistManager>();
             unityContainer.RegisterSingleton<UseCase.Playlist.VideoItemsSelectionContext>();
@@ -247,6 +248,7 @@ namespace NicoPlayerHohoema
             containerRegistry.RegisterForNavigation<Views.UserVideoPage>();
             containerRegistry.RegisterForNavigation<Views.VideoInfomationPage>();
             containerRegistry.RegisterForNavigation<Views.WatchHistoryPage>();
+            containerRegistry.RegisterForNavigation<Views.UserSeriesPage>();
 
             containerRegistry.RegisterForNavigation<Views.LivePlayerPage>();
             containerRegistry.RegisterForNavigation<Views.VideoPlayerPage>();

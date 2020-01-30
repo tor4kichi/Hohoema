@@ -30,6 +30,7 @@ using NicoPlayerHohoema.UseCase.Playlist.Commands;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using NicoPlayerHohoema.UseCase;
+using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -52,6 +53,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public VideoInfomationPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
+            AppearanceSettings appearanceSettings,
             NGSettings ngSettings,
             Models.NiconicoSession niconicoSession,
             UserMylistManager userMylistManager,
@@ -69,6 +71,7 @@ namespace NicoPlayerHohoema.ViewModels
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
+            _appearanceSettings = appearanceSettings;
             NgSettings = ngSettings;
             NiconicoSession = niconicoSession;
             UserMylistManager = userMylistManager;
@@ -352,6 +355,8 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         bool _IsInitializedRelatedVideos = false;
+        private readonly AppearanceSettings _appearanceSettings;
+
         public async void InitializeRelatedVideos()
         {
             using (var releaser = await _UpdateLock.LockAsync())
@@ -414,7 +419,21 @@ namespace NicoPlayerHohoema.ViewModels
 
             try
             {
-                DescriptionHtmlFileUri = await Models.Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoInfo.VideoId, VideoDetals.DescriptionHtml);
+                ApplicationTheme appTheme;
+                if (_appearanceSettings.Theme == ElementTheme.Dark)
+                {
+                    appTheme = ApplicationTheme.Dark;
+                }
+                else if (_appearanceSettings.Theme == ElementTheme.Light)
+                {
+                    appTheme = ApplicationTheme.Light;
+                }
+                else
+                {
+                    appTheme = Views.Helpers.SystemThemeHelper.GetSystemTheme();
+                }
+
+                DescriptionHtmlFileUri = await Models.Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoInfo.VideoId, VideoDetals.DescriptionHtml, appTheme);
                 RaisePropertyChanged(nameof(DescriptionHtmlFileUri));
             }
             catch

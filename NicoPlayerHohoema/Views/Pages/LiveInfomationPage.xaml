@@ -324,7 +324,7 @@
                             HorizontalAlignment="Right"
                             x:Name="ViewActionButtonsLayout">
         <Button x:Name="OpenLiveContentButton"
-                Style="{StaticResource AccentButtonStyle}"
+                Style="{ThemeResource AccentButtonStyle}"
                 Command="{Binding HohoemaPlaylist.PlayCommand}"
                 CommandParameter="{Binding}"
                 Visibility="{Binding IsShowOpenLiveContentButton.Value}"

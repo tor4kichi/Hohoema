@@ -27,6 +27,7 @@ using Unity;
 using NicoPlayerHohoema.Models;
 using Prism.Unity;
 using System.Text.RegularExpressions;
+using System.Reactive.Disposables;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -200,9 +201,9 @@ namespace NicoPlayerHohoema.Views
             var mediaPlayer = MediaPlayer;
             if (mediaPlayer != null)
             {
-                mediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
-                mediaPlayer.PlaybackSession.SeekCompleted += PlaybackSession_SeekCompleted;
-                mediaPlayer.SourceChanged += MediaPlayer_SourceChanged;
+                mediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
+                mediaPlayer.PlaybackSession.SeekCompleted -= PlaybackSession_SeekCompleted;
+                mediaPlayer.SourceChanged -= MediaPlayer_SourceChanged;
             }
         }
 

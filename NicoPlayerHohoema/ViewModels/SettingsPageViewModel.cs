@@ -20,6 +20,7 @@ using System.Windows.Input;
 using Windows.ApplicationModel.Store;
 using Windows.Storage;
 using Windows.System;
+using Windows.UI;
 using Windows.UI.StartScreen;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
@@ -99,21 +100,43 @@ namespace NicoPlayerHohoema.ViewModels
             // アピアランス
 
             var currentTheme = App.GetTheme();
-            SelectedApplicationTheme = new ReactiveProperty<string>(currentTheme.ToString(), mode: ReactivePropertyMode.DistinctUntilChanged);
+            SelectedTheme = new ReactiveProperty<ElementTheme>(AppearanceSettings.Theme, mode: ReactivePropertyMode.DistinctUntilChanged);
 
-            SelectedApplicationTheme.Subscribe(x =>
+            SelectedTheme.Subscribe(theme =>
             {
-                var type = (ApplicationTheme)Enum.Parse(typeof(ApplicationTheme), x);
-                App.SetTheme(type);
+                AppearanceSettings.Theme = theme;
 
-                // 一度だけトースト通知
-                if (!ThemeChanged)
+                ApplicationTheme appTheme;
+                if (theme == ElementTheme.Default)
                 {
-                    toastService.ShowToast("Hohoemaを再起動するとテーマが適用されます。", "");
+                    appTheme = Views.Helpers.SystemThemeHelper.GetSystemTheme();
+                }
+                else if (theme == ElementTheme.Dark)
+                {
+                    appTheme = ApplicationTheme.Dark;
+                }
+                else
+                {
+                    appTheme = ApplicationTheme.Light;
                 }
 
-                ThemeChanged = true;
-                RaisePropertyChanged(nameof(ThemeChanged));
+                App.SetTheme(appTheme);
+
+                var appView = ApplicationView.GetForCurrentView();
+                if (appTheme == ApplicationTheme.Light)
+                {
+                    appView.TitleBar.ButtonForegroundColor = Colors.Black;
+                    appView.TitleBar.ButtonHoverBackgroundColor = Colors.DarkGray;
+                    appView.TitleBar.ButtonHoverForegroundColor = Colors.Black;
+                    appView.TitleBar.ButtonInactiveForegroundColor = Colors.Gray;
+                }
+                else
+                {
+                    appView.TitleBar.ButtonForegroundColor = Colors.White;
+                    appView.TitleBar.ButtonHoverBackgroundColor = Colors.DimGray;
+                    appView.TitleBar.ButtonHoverForegroundColor = Colors.White;
+                    appView.TitleBar.ButtonInactiveForegroundColor = Colors.DarkGray;
+                }
             });
 
 
@@ -203,13 +226,8 @@ namespace NicoPlayerHohoema.ViewModels
         public ReadOnlyReactiveProperty<string> NGVideoTitleKeywordError { get; private set; }
 
 
-        // アピアランス
-        public static List<string> ThemeList { get; private set; } =
-            Enum.GetValues(typeof(ApplicationTheme)).Cast<ApplicationTheme>()
-            .Select(x => x.ToString())
-            .ToList();
-
-        public ReactiveProperty<string> SelectedApplicationTheme { get; private set; }
+        
+        public ReactiveProperty<ElementTheme> SelectedTheme { get; private set; }
         public static bool ThemeChanged { get; private set; } = false;
 
 

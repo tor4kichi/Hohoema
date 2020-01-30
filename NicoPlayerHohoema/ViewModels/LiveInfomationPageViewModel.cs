@@ -26,6 +26,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Unity;
 using Windows.System;
+using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -71,6 +72,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public LiveInfomationPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
+            AppearanceSettings appearanceSettings,
             PageManager pageManager,
             Models.NiconicoSession niconicoSession,
             NicoLiveProvider nicoLiveProvider,
@@ -79,6 +81,7 @@ namespace NicoPlayerHohoema.ViewModels
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
+            _appearanceSettings = appearanceSettings;
             PageManager = pageManager;
             NiconicoSession = niconicoSession;
             NicoLiveProvider = nicoLiveProvider;
@@ -484,7 +487,21 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (htmlDescription != null)
             {
-                HtmlDescription = await Models.Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(LiveId, htmlDescription);
+                ApplicationTheme appTheme;
+                if (_appearanceSettings.Theme == ElementTheme.Dark)
+                {
+                    appTheme = ApplicationTheme.Dark;
+                }
+                else if (_appearanceSettings.Theme == ElementTheme.Light)
+                {
+                    appTheme = ApplicationTheme.Light;
+                }
+                else
+                {
+                    appTheme = Views.Helpers.SystemThemeHelper.GetSystemTheme();
+                }
+
+                HtmlDescription = await Models.Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(LiveId, htmlDescription, appTheme);
 
                 try
                 {
@@ -660,6 +677,8 @@ namespace NicoPlayerHohoema.ViewModels
         Mntone.Nico2.Live.ReservationsInDetail.ReservationsInDetailResponse _Reservations;
 
         AsyncLock _LiveRecommendLock = new AsyncLock();
+        private readonly AppearanceSettings _appearanceSettings;
+
         public bool IsLiveRecommendInitialized { get; private set; } = false;
         public bool IsEmptyLiveRecommendItems { get; private set; } = false;
         public ApplicationLayoutManager ApplicationLayoutManager { get; }

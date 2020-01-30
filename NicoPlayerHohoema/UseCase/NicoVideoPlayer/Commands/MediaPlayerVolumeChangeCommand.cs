@@ -10,11 +10,11 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands
 {
     public sealed class MediaPlayerVolumeUpCommand : DelegateCommandBase
     {
-        private readonly MediaPlayer _mediaPlayer;
+        private readonly UseCase.NicoVideoPlayer.MediaPlayerSoundVolumeManager _soundVolumeManager;
 
-        public MediaPlayerVolumeUpCommand(MediaPlayer mediaPlayer)
+        public MediaPlayerVolumeUpCommand(MediaPlayerSoundVolumeManager soundVolumeManager)
         {
-            _mediaPlayer = mediaPlayer;
+            _soundVolumeManager = soundVolumeManager;
         }
 
         protected override bool CanExecute(object parameter)
@@ -26,18 +26,18 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands
         {
             if (parameter is double val)
             {
-                _mediaPlayer.Volume = Math.Clamp(_mediaPlayer.Volume + val, 0.0, 1.0);
+                _soundVolumeManager.Volume = _soundVolumeManager.Volume + val;
             }
         }
     }
 
     public sealed class MediaPlayerVolumeDownCommand : DelegateCommandBase
     {
-        private readonly MediaPlayer _mediaPlayer;
+        private readonly UseCase.NicoVideoPlayer.MediaPlayerSoundVolumeManager _soundVolumeManager;
 
-        public MediaPlayerVolumeDownCommand(MediaPlayer mediaPlayer)
+        public MediaPlayerVolumeDownCommand(MediaPlayerSoundVolumeManager soundVolumeManager)
         {
-            _mediaPlayer = mediaPlayer;
+            _soundVolumeManager = soundVolumeManager;
         }
 
         protected override bool CanExecute(object parameter)
@@ -49,7 +49,7 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands
         {
             if (parameter is double val)
             {
-                _mediaPlayer.Volume = Math.Clamp(_mediaPlayer.Volume - val, 0.0, 1.0);
+                _soundVolumeManager.Volume = _soundVolumeManager.Volume - val;
             }
         }
     }

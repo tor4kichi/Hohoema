@@ -7,6 +7,7 @@ using Reactive.Bindings;
 using System.Runtime.Serialization;
 using NicoPlayerHohoema.Services;
 using System.Collections.Immutable;
+using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -19,6 +20,9 @@ namespace NicoPlayerHohoema.Models
 
         [DataMember]
         public ApplicationInteractionMode? OverrideIntractionMode { get; set; } = null;
+
+        [DataMember]
+        public ElementTheme Theme { get; set; } = ElementTheme.Default;
     }
 
     public enum ApplicationInteractionMode

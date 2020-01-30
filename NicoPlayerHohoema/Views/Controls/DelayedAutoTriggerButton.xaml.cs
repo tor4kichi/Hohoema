@@ -86,6 +86,21 @@ namespace NicoPlayerHohoema.Views.Controls
             DependencyProperty.Register("IsCanceled", typeof(bool), typeof(DelayedAutoTriggerButton), new PropertyMetadata(false));
 
 
+
+
+        public bool IsAutoTriggerEnabled
+        {
+            get { return (bool)GetValue(IsAutoTriggerEnabledProperty); }
+            set { SetValue(IsAutoTriggerEnabledProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for IsAutoTriggerEnabled.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty IsAutoTriggerEnabledProperty =
+            DependencyProperty.Register("IsAutoTriggerEnabled", typeof(bool), typeof(DelayedAutoTriggerButton), new PropertyMetadata(true));
+
+
+
+
         DispatcherTimer _ProgressTimer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(32) };
 
         DateTime _endTime;
@@ -93,7 +108,7 @@ namespace NicoPlayerHohoema.Views.Controls
 
         private void _ProgressTimer_Tick(object sender, object e)
         {
-            if (!IsEnabled)
+            if (!IsAutoTriggerEnabled)
             {
                 Cancel();
                 return; 
@@ -122,7 +137,11 @@ namespace NicoPlayerHohoema.Views.Controls
 
         public void Start()
         {
-            if (!IsEnabled) { return; }
+            if (!IsAutoTriggerEnabled) 
+            {
+                Cancel();
+                return; 
+            }
 
             if (DelayTime == null)
             {

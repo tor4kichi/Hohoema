@@ -275,6 +275,12 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
         public bool IsChannelOwnedVideo { get; set; }
 
         public string DescriptionHtml { get; set; }
+
+        public double LoudnessCorrectionValue { get; set; }
+
+        public bool IsSeriesVideo => false;
+
+        public Series Series => null;
     }
 
 

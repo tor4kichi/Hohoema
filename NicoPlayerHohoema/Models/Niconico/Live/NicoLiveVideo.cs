@@ -19,6 +19,7 @@ using Unity;
 using Windows.Media.Core;
 using Windows.Media.Playback;
 using Windows.Media.Streaming.Adaptive;
+using Windows.UI.Xaml;
 
 namespace NicoPlayerHohoema.Models.Live
 {
@@ -79,6 +80,7 @@ namespace NicoPlayerHohoema.Models.Live
             NicoLiveProvider nicoLiveProvider,
             LoginUserLiveReservationProvider loginUserLiveReservationProvider,
             PlayerSettings playerSettings,
+            AppearanceSettings appearanceSettings,
             IScheduler scheduler,
             string communityId = null
             )
@@ -90,6 +92,7 @@ namespace NicoPlayerHohoema.Models.Live
             NicoLiveProvider = nicoLiveProvider;
             LoginUserLiveReservationProvider = loginUserLiveReservationProvider;
             PlayerSettings = playerSettings;
+            _appearanceSettings = appearanceSettings;
             _UIScheduler = scheduler;
 
             _LiveComments = new ObservableCollection<LiveChatData>();
@@ -251,6 +254,7 @@ namespace NicoPlayerHohoema.Models.Live
             public string CommandParameter { get; set; }
         }
 
+        private readonly AppearanceSettings _appearanceSettings;
         IScheduler _UIScheduler;
 
        
@@ -666,7 +670,21 @@ namespace NicoPlayerHohoema.Models.Live
 
             var desc = LiveInfo.VideoInfo.Video.Description;
 
-            return await Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(LiveId, desc);
+            ApplicationTheme appTheme;
+            if (_appearanceSettings.Theme == ElementTheme.Dark)
+            {
+                appTheme = ApplicationTheme.Dark;
+            }
+            else if (_appearanceSettings.Theme == ElementTheme.Light)
+            {
+                appTheme = ApplicationTheme.Light;
+            }
+            else
+            {
+                appTheme = Views.Helpers.SystemThemeHelper.GetSystemTheme();
+            }
+
+            return await Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(LiveId, desc, appTheme);
         }
 
         #region Live2WebSocket Event Handling

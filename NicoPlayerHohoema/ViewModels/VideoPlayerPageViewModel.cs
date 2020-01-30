@@ -86,7 +86,8 @@ namespace NicoPlayerHohoema.ViewModels
             VideoEndedRecommendation videoEndedRecommendation,
             PrimaryViewPlayerManager primaryViewPlayerManager,
             TogglePlayerDisplayViewCommand togglePlayerDisplayViewCommand,
-            ShowPrimaryViewCommand showPrimaryViewCommand
+            ShowPrimaryViewCommand showPrimaryViewCommand,
+            MediaPlayerSoundVolumeManager soundVolumeManager
             )
         {
             _scheduler = scheduler;
@@ -113,6 +114,7 @@ namespace NicoPlayerHohoema.ViewModels
             PrimaryViewPlayerManager = primaryViewPlayerManager;
             TogglePlayerDisplayViewCommand = togglePlayerDisplayViewCommand;
             ShowPrimaryViewCommand = showPrimaryViewCommand;
+            SoundVolumeManager = soundVolumeManager;
             ObservableMediaPlayer = observableMediaPlayer
                 .AddTo(_CompositeDisposable);
             WindowService = windowService
@@ -126,8 +128,8 @@ namespace NicoPlayerHohoema.ViewModels
             SeekCommand = new MediaPlayerSeekCommand(MediaPlayer);
             SetPlaybackRateCommand = new MediaPlayerSetPlaybackRateCommand(MediaPlayer);
             ToggleMuteCommand = new MediaPlayerToggleMuteCommand(MediaPlayer);
-            VolumeUpCommand = new MediaPlayerVolumeUpCommand(MediaPlayer);
-            VolumeDownCommand = new MediaPlayerVolumeDownCommand(MediaPlayer);
+            VolumeUpCommand = new MediaPlayerVolumeUpCommand(SoundVolumeManager);
+            VolumeDownCommand = new MediaPlayerVolumeDownCommand(SoundVolumeManager);
         }
 
 
@@ -157,6 +159,7 @@ namespace NicoPlayerHohoema.ViewModels
         public PrimaryViewPlayerManager PrimaryViewPlayerManager { get; }
         public TogglePlayerDisplayViewCommand TogglePlayerDisplayViewCommand { get; }
         public ShowPrimaryViewCommand ShowPrimaryViewCommand { get; }
+        public MediaPlayerSoundVolumeManager SoundVolumeManager { get; }
         public ObservableMediaPlayer ObservableMediaPlayer { get; }
         public WindowService WindowService { get; }
         public VideoEndedRecommendation VideoEndedRecommendation { get; }
@@ -304,6 +307,8 @@ namespace NicoPlayerHohoema.ViewModels
 
             VideoDetails = result.VideoDetails;
 
+            SoundVolumeManager.LoudnessCorrectionValue = VideoDetails.LoudnessCorrectionValue;
+
             // 動画再生コンテンツをセット
             VideoPlayer.UpdatePlayingVideo(result.VideoSessionProvider);
 
@@ -350,6 +355,10 @@ namespace NicoPlayerHohoema.ViewModels
                 smtc.DisplayUpdater.Thumbnail = RandomAccessStreamReference.CreateFromUri(new Uri(VideoInfo.ThumbnailUrl));
                 smtc.DisplayUpdater.Update();
             }
+
+            // 実行順依存：VideoPlayerで再生開始後に次シリーズ動画を設定する
+            VideoEndedRecommendation.SetCurrentVideoSeries(VideoDetails.Series);
+            Debug.WriteLine("次シリーズ動画: " + VideoDetails.Series?.NextVideo?.Title);
 
 #if DEBUG
             if (HohoemaPlaylist.CurrentPlaylist == null)

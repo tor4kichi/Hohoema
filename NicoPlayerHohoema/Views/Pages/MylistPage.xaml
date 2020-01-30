@@ -34,7 +34,7 @@
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
           <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
-            <StackPanel Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+            <StackPanel >
               <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
                 <CommandBar.Content>
                   <StackPanel x:Name="TitleLayout" Margin="16 0 0 0">
