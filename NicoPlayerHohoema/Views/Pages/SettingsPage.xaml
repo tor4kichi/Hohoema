@@ -108,10 +108,10 @@
   </Page.Resources>
   <Grid>
     <uwptoolkitControl:DockPanel>
-      <StackPanel x:Name="HeaderPanel" uwptoolkitControl:DockPanel.Dock="Top" Background="{StaticResource MenuBackgroundBrush}">
+      <StackPanel x:Name="HeaderPanel" uwptoolkitControl:DockPanel.Dock="Top" Background="{StaticResource MenuBackgroundBrush}" HorizontalAlignment="Stretch">
         <CommandBar x:Name="VideoListCommandBar" Background="Transparent">
           <CommandBar.Content>
-            <Border Background="Transparent" IsHitTestVisible="True" Margin="16 0 0 0"></Border>
+            <Border Background="Transparent" IsHitTestVisible="True" Margin="0 0 0 0"></Border>
           </CommandBar.Content>
           <CommandBar.PrimaryCommands>
             <AppBarButton Content="エラーログ" Command="{Binding ShowErrorFilesFolderCommand}" Visibility="{Binding IsDebugModeEnabled.Value, Converter={StaticResource BooleanToVisibility}}" />
@@ -154,7 +154,13 @@
                   <TextBlock Text="テーマ" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                   <TextBlock Text="※テーマの適用にはアプリを再起動してください" Foreground="Red" Margin="0 8" Visibility="{Binding ThemeChanged, Converter={StaticResource BooleanToVisibility}}" />
                 </StackPanel>
-                <ComboBox ItemsSource="{Binding ThemeList}" SelectedItem="{Binding SelectedApplicationTheme.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right" />
+                <ComboBox ItemsSource="{Binding ElementName=PageRoot, Path=_elementThemeList}" SelectedItem="{Binding SelectedTheme.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right">
+                  <ComboBox.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
+                    </DataTemplate>
+                  </ComboBox.ItemTemplate>
+                </ComboBox>
               </Grid>
               <Grid x:Name="DefaultFullScreenSwitchLayout" Visibility="Collapsed">
                 <StackPanel>
@@ -451,7 +457,7 @@
             <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="HeaderPanel.Margin" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
+            <Setter Target="HeaderPanel.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
             <Setter Target="ContentPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_TV}" />
           </VisualState.Setters>
         </VisualState>
@@ -460,7 +466,7 @@
             <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Desktop" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="HeaderPanel.Margin" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
+            <Setter Target="HeaderPanel.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
             <Setter Target="ContentPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_Desktop}" />
           </VisualState.Setters>
         </VisualState>
@@ -469,7 +475,7 @@
             <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Tablet" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="HeaderPanel.Margin" Value="{StaticResource ContentListViewHeaderMargin_Tablet}" />
+            <Setter Target="HeaderPanel.Padding" Value="{StaticResource ContentListViewHeaderMargin_Tablet}" />
             <Setter Target="ContentPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_Tablet}" />
           </VisualState.Setters>
         </VisualState>
@@ -478,7 +484,7 @@
             <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Mobile" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="HeaderPanel.Margin" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="HeaderPanel.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
             <Setter Target="ContentPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_Mobile}" />
           </VisualState.Setters>
         </VisualState>

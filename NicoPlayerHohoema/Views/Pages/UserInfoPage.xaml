@@ -65,7 +65,7 @@
             <StackPanel Margin="0 0">
               <Border Height="16" Visibility="{Binding IsVideoPrivate, Converter={StaticResource BooleanToVisibilityInverted}}" />
               <toolkit:DockPanel x:Name="UserVideoTitleLayout">
-                <HyperlinkButton Command="{Binding PageManager.OpenVideoListPageCommand}" CommandParameter="{Binding}" IsEnabled="{Binding HasOwnerVideo}" Foreground="{StaticResource ApplicationForegroundThemeBrush}" Margin="0 8">
+                <HyperlinkButton Command="{Binding PageManager.OpenVideoListPageCommand}" CommandParameter="{Binding}" IsEnabled="{Binding HasOwnerVideo}" Foreground="{ThemeResource ApplicationForegroundThemeBrush}" Margin="0 8">
                   <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="投稿動画" />
                 </HyperlinkButton>
               </toolkit:DockPanel>
@@ -100,7 +100,7 @@
               </Border>
               <Border Height="16" />
               <!-- Mylist -->
-              <HyperlinkButton Command="{Binding OpenUserMylistPageCommand}" Foreground="{StaticResource ApplicationForegroundThemeBrush}" Margin="0 8" x:Name="UserMylistTitleLayout">
+              <HyperlinkButton Command="{Binding OpenUserMylistPageCommand}" Foreground="{ThemeResource ApplicationForegroundThemeBrush}" Margin="0 8" x:Name="UserMylistTitleLayout">
                 <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="マイリスト" />
               </HyperlinkButton>
               <Border>

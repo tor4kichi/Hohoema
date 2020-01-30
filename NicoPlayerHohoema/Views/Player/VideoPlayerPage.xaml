@@ -129,7 +129,7 @@
       </templateselector:PlayerSidePaneContentTemplateSelecter.RelatedVideos>
     </templateselector:PlayerSidePaneContentTemplateSelecter>
   </UserControl.Resources>
-  <Grid x:Name="LayoutRoot" Background="{StaticResource AppBarBorderThemeBrush}">
+  <Grid x:Name="LayoutRoot" Background="{ThemeResource AppBarBorderThemeBrush}">
     <toolkit:LayoutTransformControl x:Name="LayoutTransform">
       <toolkit:LayoutTransformControl.Transform>
         <RotateTransform x:Name="LayoutRotateTranform" Angle="0" />
@@ -619,7 +619,8 @@
                   <Border x:Name="CenterTopGradient" Height="32" VerticalAlignment="Top" >
                     <Border.Background>
                       <LinearGradientBrush StartPoint="1, 1" EndPoint="1, 0">
-                        <GradientStop Color="{Binding Source={StaticResource SystemAltMediumColor}, Converter={StaticResource ToTransparentColor}}" Offset="0.0" />
+                        <!-- Color set in code behind -->
+                        <GradientStop x:Name="CenterTopGradientStop_End" Color="Transparent" Offset="0.0" />
                         <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" />
                       </LinearGradientBrush>
                     </Border.Background>
@@ -627,7 +628,7 @@
                   <Border x:Name="CenterBottomGradient" Height="32" BorderThickness="0" VerticalAlignment="Bottom" >
                     <Border.Background>
                       <LinearGradientBrush x:Name="ControlPanelBackgroundBrush" StartPoint="1, 0" EndPoint="1, 1">
-                        <GradientStop Color="{Binding Source={StaticResource SystemAltMediumColor}, Converter={StaticResource ToTransparentColor}}" Offset="0.0" x:Name="GradientStop1" />
+                        <GradientStop x:Name="CenterBottomGradientStop_End" Color="Transparent" Offset="0.0" />
                         <GradientStop Color="{ThemeResource SystemAltMediumColor}" Offset="1.0" x:Name="GradientStop2" />
                       </LinearGradientBrush>
                     </Border.Background>

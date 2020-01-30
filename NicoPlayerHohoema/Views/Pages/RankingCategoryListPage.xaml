@@ -96,7 +96,7 @@
               <DataTemplate>
                 <Border>
                   <HyperlinkButton FontSize="18"
-                                   Foreground="{StaticResource ApplicationHeaderForegroundThemeBrush}"
+                                   Foreground="{ThemeResource ApplicationHeaderForegroundThemeBrush}"
                                    Command="{Binding ElementName=ContentLayout, Path=DataContext.OpenRankingPageCommand}"
                                    CommandParameter="{Binding}"
                                    Width="128"
@@ -131,7 +131,7 @@
             <Setter Property="MinWidth"
                     Value="140" />
             <Setter Property="BorderBrush"
-                    Value="{StaticResource SystemBaseLowColor}" />
+                    Value="{ThemeResource SystemBaseLowColor}" />
             <Setter Property="BorderThickness"
                     Value="1" />
           </Style>

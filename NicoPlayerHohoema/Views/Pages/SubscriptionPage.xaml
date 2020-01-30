@@ -79,7 +79,7 @@
             <Setter Property="VerticalContentAlignment" Value="Top" />
             <Setter Property="MinWidth" Value="300" />
             <Setter Property="BorderThickness" Value="0 0 1 0" />
-            <Setter Property="BorderBrush" Value="{StaticResource ApplicationSecondaryForegroundThemeBrush}" />
+            <Setter Property="BorderBrush" Value="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />
           </Style>
         </GridView.ItemContainerStyle>
         <GridView.ItemsPanel>

@@ -45,5 +45,10 @@ namespace NicoPlayerHohoema.Views
 			false;
 #endif
 
+		// アピアランス
+		public IReadOnlyCollection<ElementTheme?> _elementThemeList { get; } =
+			Enum.GetValues(typeof(ElementTheme)).Cast<ElementTheme?>()
+			.ToList();
+
 	}
 }

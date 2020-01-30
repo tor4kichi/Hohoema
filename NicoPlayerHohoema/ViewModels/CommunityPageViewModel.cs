@@ -18,6 +18,7 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Windows.System;
+using Windows.UI.Xaml;
 using NiconicoSession = NicoPlayerHohoema.Models.NiconicoSession;
 
 namespace NicoPlayerHohoema.ViewModels
@@ -41,6 +42,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public CommunityPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
+            AppearanceSettings appearanceSettings,
             Services.PageManager pageManager,
             NiconicoSession niconicoSession,
             CommunityFollowProvider followProvider,
@@ -50,6 +52,7 @@ namespace NicoPlayerHohoema.ViewModels
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
+            _appearanceSettings = appearanceSettings;
             PageManager = pageManager;
             NiconicoSession = niconicoSession;
             FollowProvider = followProvider;
@@ -190,8 +193,21 @@ namespace NicoPlayerHohoema.ViewModels
 
                     CommunityDetail = detail.CommunitySammary.CommunityDetail;
 
+                    ApplicationTheme appTheme;
+                    if (_appearanceSettings.Theme == ElementTheme.Dark)
+                    {
+                        appTheme = ApplicationTheme.Dark;
+                    }
+                    else if (_appearanceSettings.Theme == ElementTheme.Light)
+                    {
+                        appTheme = ApplicationTheme.Light;
+                    }
+                    else
+                    {
+                        appTheme = Views.Helpers.SystemThemeHelper.GetSystemTheme();
+                    }
                     var profileHtmlId = $"{CommunityId}_profile";
-                    ProfileHtmlFileUri = await Models.Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(profileHtmlId, CommunityDetail.ProfielHtml);
+                    ProfileHtmlFileUri = await Models.Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(profileHtmlId, CommunityDetail.ProfielHtml, appTheme);
 
                     OwnerUserInfo = new UserInfoViewModel(
                         CommunityDetail.OwnerUserName,
@@ -212,7 +228,7 @@ namespace NicoPlayerHohoema.ViewModels
                     NewsList = new List<CommunityNewsViewModel>();
                     foreach (var news in CommunityDetail.NewsList)
                     {
-                        var newsVM = await CommunityNewsViewModel.Create(CommunityId, news.Title, news.PostAuthor, news.PostDate, news.ContentHtml, PageManager);
+                        var newsVM = await CommunityNewsViewModel.Create(CommunityId, news.Title, news.PostAuthor, news.PostDate, news.ContentHtml, PageManager, _appearanceSettings);
                         NewsList.Add(newsVM);
                     }
 
@@ -310,7 +326,9 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 
 		private DelegateCommand<Uri> _ScriptNotifyCommand;
-		public DelegateCommand<Uri> ScriptNotifyCommand
+        private readonly AppearanceSettings _appearanceSettings;
+
+        public DelegateCommand<Uri> ScriptNotifyCommand
 		{
 			get
 			{
@@ -396,11 +414,26 @@ namespace NicoPlayerHohoema.ViewModels
 			string authorName, 
 			DateTime postAt, 
 			string contentHtml,
-            Services.PageManager pageManager
+            Services.PageManager pageManager,
+            AppearanceSettings appearanceSettings
 			)
 		{
-			var id = $"{communityId}_{postAt.ToString("yy-MM-dd-H-mm")}";
-			var uri = await Models.Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(id, contentHtml);
+            ApplicationTheme appTheme;
+            if (appearanceSettings.Theme == ElementTheme.Dark)
+            {
+                appTheme = ApplicationTheme.Dark;
+            }
+            else if (appearanceSettings.Theme == ElementTheme.Light)
+            {
+                appTheme = ApplicationTheme.Light;
+            }
+            else
+            {
+                appTheme = Views.Helpers.SystemThemeHelper.GetSystemTheme();
+            }
+
+            var id = $"{communityId}_{postAt.ToString("yy-MM-dd-H-mm")}";
+			var uri = await Models.Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(id, contentHtml, appTheme);
 			return new CommunityNewsViewModel(communityId, title, authorName, postAt, uri, pageManager);
 		}
 

@@ -124,6 +124,15 @@ namespace NicoPlayerHohoema.Views
             ContentFrame.Navigated += TVModeContentFrame_Navigated;
             UINavigationManager.Pressed += UINavigationManager_Pressed;
             this.GettingFocus += PrimaryWindowCoreLayout_GettingFocus;
+
+
+            _viewModel.AppearanceSettings.ObserveProperty(x => x.Theme)
+                .Subscribe(theme => 
+                {
+                    this.RequestedTheme = theme;
+                });
+
+
         }
 
 

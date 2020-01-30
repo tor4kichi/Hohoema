@@ -68,6 +68,7 @@ namespace NicoPlayerHohoema.ViewModels
         public LivePlayerPageViewModel(
             IScheduler scheduler,
             PlayerSettings playerSettings,
+            AppearanceSettings appearanceSettings,
             NicoLiveProvider nicoLiveProvider,
             ApplicationLayoutManager applicationLayoutManager,
             LoginUserLiveReservationProvider loginUserLiveReservationProvider,
@@ -90,6 +91,7 @@ namespace NicoPlayerHohoema.ViewModels
         {
             _scheduler = scheduler;
             PlayerSettings = playerSettings;
+            AppearanceSettings = appearanceSettings;
             NicoLiveProvider = nicoLiveProvider;
             ApplicationLayoutManager = applicationLayoutManager;
             LoginUserLiveReservationProvider = loginUserLiveReservationProvider;
@@ -345,6 +347,7 @@ namespace NicoPlayerHohoema.ViewModels
         public IScheduler _scheduler { get; }
 
         public PlayerSettings PlayerSettings { get; }
+        public AppearanceSettings AppearanceSettings { get; }
         public NicoLiveProvider NicoLiveProvider { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public LoginUserLiveReservationProvider LoginUserLiveReservationProvider { get; }
@@ -589,6 +592,7 @@ namespace NicoPlayerHohoema.ViewModels
                     NicoLiveProvider,
                     LoginUserLiveReservationProvider,
                     PlayerSettings,
+                    AppearanceSettings,
                     _scheduler,
                     CommunityId
                     );

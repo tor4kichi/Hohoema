@@ -523,6 +523,7 @@
     <Compile Include="Views\Flyouts\VideoHistoryItemFlyout.xaml.cs">
       <DependentUpon>VideoHistoryItemFlyout.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Helpers\SystemThemeHelper.cs" />
     <Compile Include="Views\Helpers\VisibilityExtension.cs" />
     <Compile Include="Views\Interaction\Actions\ScrollViewerVerticalPositionSettingsAction.cs" />
     <Compile Include="Views\Interaction\Behaviors\FocusGetter.cs" />

@@ -10,14 +10,14 @@ namespace NicoPlayerHohoema.Models.Helpers
 {
 	public static class HtmlFileHelper
 	{
-		public static async Task<Uri> PartHtmlOutputToCompletlyHtml(string id, string htmlFragment)
+		public static async Task<Uri> PartHtmlOutputToCompletlyHtml(string id, string htmlFragment, Windows.UI.Xaml.ApplicationTheme theme)
 		{
 			// Note: WebViewに渡すHTMLファイルをテンポラリフォルダを経由してアクセスします。
 			// WebView.Sourceの仕様上、テンポラリフォルダにサブフォルダを作成し、そのサブフォルダにコンテンツを配置しなければなりません。
 
 			const string VideDescHTMLFolderName = "html";
 			// WebViewで表示可能なHTMLに変換
-			string htmlText = await ToCompletlyHtmlAsync(htmlFragment);
+			string htmlText = await ToCompletlyHtmlAsync(htmlFragment, theme);
 
 			// テンポラリストレージ空間に動画説明HTMLファイルを書き込み
 			var filename = id + ".html";
@@ -29,7 +29,7 @@ namespace NicoPlayerHohoema.Models.Helpers
 		}
 
 
-		public static async Task<string> ToCompletlyHtmlAsync(string htmlFragment)
+		public static async Task<string> ToCompletlyHtmlAsync(string htmlFragment, Windows.UI.Xaml.ApplicationTheme theme)
 		{
 			// ファイルのテンプレートになるHTMLテキストを取得して
 			var templateHtmlFileStorage = await StorageFile.GetFileFromApplicationUriAsync(
@@ -41,7 +41,7 @@ namespace NicoPlayerHohoema.Models.Helpers
 			return templateText
 				.Replace("{content}", htmlFragment)
 				.Replace("http://", "https://")
-				.Replace("{foreground-color}", App.Current.RequestedTheme == Windows.UI.Xaml.ApplicationTheme.Dark ? "#EFEFEF" : "000000");
+				.Replace("{foreground-color}", theme == Windows.UI.Xaml.ApplicationTheme.Dark ? "#EFEFEF" : "000000");
 		}
 	}
 }

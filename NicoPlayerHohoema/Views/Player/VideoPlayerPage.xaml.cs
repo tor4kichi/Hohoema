@@ -17,6 +17,10 @@ using Prism.Ioc;
 using Windows.Media.Playback;
 using Windows.UI.Core;
 using System.Windows.Input;
+using Reactive.Bindings.Extensions;
+using Windows.UI;
+using Microsoft.Toolkit.Uwp.Helpers;
+using NicoPlayerHohoema.Models;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -55,6 +59,54 @@ namespace NicoPlayerHohoema.Views
 
             CommentTextBox.GotFocus += CommentTextBox_GotFocus;
             CommentTextBox.LostFocus += CommentTextBox_LostFocus;
+
+            var appearanceSettings = App.Current.Container.Resolve<AppearanceSettings>();
+            appearanceSettings.ObserveProperty(x => x.Theme)
+                .Subscribe(theme => 
+                {
+                    ThemeChanged(theme);
+                });
+        }
+
+        void ThemeChanged(ElementTheme theme)
+        {
+            ApplicationTheme appTheme;
+            if (theme == ElementTheme.Default)
+            {
+                if (theme == ElementTheme.Default)
+                {
+                    appTheme = Views.Helpers.SystemThemeHelper.GetSystemTheme();
+                }
+                else if (theme == ElementTheme.Dark)
+                {
+                    appTheme = ApplicationTheme.Dark;
+                }
+                else
+                {
+                    appTheme = ApplicationTheme.Light;
+                }
+            }
+            else if (theme == ElementTheme.Light)
+            {
+                appTheme = ApplicationTheme.Light;
+            }
+            else
+            {
+                appTheme = ApplicationTheme.Dark;
+            }
+
+            if (appTheme == ApplicationTheme.Light)
+            {
+                var color = "#00FFFFFF".ToColor();
+                CenterTopGradientStop_End.Color = color;
+                CenterBottomGradientStop_End.Color = color;
+            }
+            else
+            {
+                var color = "#00000000".ToColor();
+                CenterTopGradientStop_End.Color = color;
+                CenterBottomGradientStop_End.Color = color;
+            }
         }
 
 
