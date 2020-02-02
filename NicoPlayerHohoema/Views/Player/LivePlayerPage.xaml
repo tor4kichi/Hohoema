@@ -1,9 +1,9 @@
 ﻿<Page x:Class="NicoPlayerHohoema.Views.LivePlayerPage" x:Name="PageRoot" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="using:NicoPlayerHohoema.Views" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:i="using:Microsoft.Xaml.Interactivity" xmlns:core="using:Microsoft.Xaml.Interactions.Core" xmlns:toolkit="using:WinRTXamlToolkit.Controls" xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions" xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors" xmlns:logicalTrigger="using:AdaptiveTriggerLibrary.Triggers.LogicalTriggers" xmlns:intractionTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInteractionTriggers" xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers" xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers" xmlns:myTrigger="using:NicoPlayerHohoema.Views.StateTrigger" xmlns:media="using:Microsoft.Xaml.Interactions.Media" xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors" xmlns:iconPack="using:MahApps.Metro.IconPacks" xmlns:mvvm="using:Prism.Mvvm" xmlns:controls="using:NicoPlayerHohoema.Views.Controls" xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector" xmlns:windowsTrigger="using:WindowsStateTriggers" xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions" NavigationCacheMode="Required" DataContext="{x:Null}" mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="400">
   <Page.Resources>
     <MenuFlyout x:Name="LivePlayerFlyout">
-      <MenuFlyoutItem Text="再生/一時停止" Command="{Binding TogglePlayPauseCommand}" />
-      <ToggleMenuFlyoutItem IsChecked="{Binding ObservableMediaPlayer.IsMuted.Value, Mode=TwoWay}" Text="ミュート" />
-      <ToggleMenuFlyoutItem IsChecked="{Binding PlayerSettings.IsCommentDisplay_Live, Mode=TwoWay, Converter={StaticResource BoolNegation}}" Text="コメント非表示" />
+      <MenuFlyoutItem Text="{Binding Source=PlayPauseToggleButtonTitle, Converter={StaticResource LocalizeConverter}}" Command="{Binding TogglePlayPauseCommand}" />
+      <ToggleMenuFlyoutItem IsChecked="{Binding ObservableMediaPlayer.IsMuted.Value, Mode=TwoWay}" Text="{Binding Source=Mute, Converter={StaticResource LocalizeConverter}}" />
+      <ToggleMenuFlyoutItem IsChecked="{Binding PlayerSettings.IsCommentDisplay_Live, Mode=TwoWay, Converter={StaticResource BoolNegation}}" Text="{Binding Source=ToggleHideComment, Converter={StaticResource LocalizeConverter}}" />
       <MenuFlyoutSeparator />
       <!--
             <MenuFlyoutSubItem Text="画質" 
@@ -32,11 +32,11 @@
                                  x:Name="LeoLiveQualityMenuFlyoutSeparator"
                                  />
             -->
-      <MenuFlyoutItem x:Name="FullscreenButton_Menu" Command="{Binding WindowService.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="全画面" Icon="FullScreen"></MenuFlyoutItem>
-      <MenuFlyoutItem x:Name="CompactOverlayButton_Menu" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="小さく最前面"></MenuFlyoutItem>
-      <MenuFlyoutItem x:Name="SmallWindowButton_Menu" Command="{Binding PrimaryViewPlayerManager.WindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="小窓"></MenuFlyoutItem>
-      <MenuFlyoutItem x:Name="DisplayWithSecondaryViewButton_Menu" Command="{Binding TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="別ウィンドウで視聴"></MenuFlyoutItem>
-      <ToggleMenuFlyoutItem x:Name="ForceRotateToggleButton_Menu" IsChecked="{Binding PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="横持ち固定" Icon="Orientation"></ToggleMenuFlyoutItem>
+      <MenuFlyoutItem x:Name="FullscreenButton_Menu" Command="{Binding WindowService.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{Binding Source=FullScreen, Converter={StaticResource LocalizeConverter}}" Icon="FullScreen"></MenuFlyoutItem>
+      <MenuFlyoutItem x:Name="CompactOverlayButton_Menu" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{Binding Source=CompactOverlay, Converter={StaticResource LocalizeConverter}}"></MenuFlyoutItem>
+      <MenuFlyoutItem x:Name="SmallWindowButton_Menu" Command="{Binding PrimaryViewPlayerManager.WindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{Binding Source=WindowInWindow, Converter={StaticResource LocalizeConverter}}"></MenuFlyoutItem>
+      <MenuFlyoutItem x:Name="DisplayWithSecondaryViewButton_Menu" Command="{Binding TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{Binding Source=PlayWithSecondaryView, Converter={StaticResource LocalizeConverter}}"></MenuFlyoutItem>
+      <ToggleMenuFlyoutItem x:Name="ForceRotateToggleButton_Menu" IsChecked="{Binding PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Text="{Binding Source=FixToLandscape, Converter={StaticResource LocalizeConverter}}" Icon="Orientation"></ToggleMenuFlyoutItem>
     </MenuFlyout>
     <templateselector:PlayerSidePaneContentTemplateSelecter x:Key="PlayerSidePaneContentTemplateSelecter">
       <templateselector:PlayerSidePaneContentTemplateSelecter.Empty>
@@ -216,8 +216,9 @@
                 <Grid Margin="16 2 16 4">
                   <Border>
                     <TextBlock FontSize="20" VerticalAlignment="Center">
-                                                <Run Text="音量" />:
-                                                <Run Text="{Binding Converter={StaticResource ToUserFriendlySoubleVolume}}" FontSize="22" />%</TextBlock>
+                      <Run Text="{Binding Source=SoundVolume, Converter={StaticResource LocalizeConverter}}" />:
+                      <Run Text="{Binding Converter={StaticResource ToUserFriendlySoubleVolume}}" FontSize="22" />%
+                    </TextBlock>
                   </Border>
                 </Grid>
               </DataTemplate>
@@ -233,7 +234,8 @@
                 <Grid Margin="16 2 16 4">
                   <Border>
                     <TextBlock FontSize="25" VerticalAlignment="Center" TextLineBounds="TrimToBaseline">
-                                                シーク: <Run Text="{Binding Converter={StaticResource TimeToMovieLengthConverter}}" />秒</TextBlock>
+                       <Run Text="{Binding Source=SeekPlaybackPosition, Converter={StaticResource LocalizeConverter}}" />: <Run Text="{Binding Converter={StaticResource TimeToMovieLengthConverter}}" /> <Run Text="{Binding Source=Seconds, Converter={StaticResource LocalizeConverter}}" />
+                    </TextBlock>
                   </Border>
                 </Grid>
               </DataTemplate>
@@ -262,29 +264,29 @@
                       </Button>
                       <Button x:Name="ShowPrimaryViewButton" Command="{Binding ShowPrimaryViewCommand}" Background="Transparent" Visibility="Collapsed">
                         <StackPanel Orientation="Vertical">
-                          <TextBlock Text="メインウィンドウに切替" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" />
+                          <TextBlock Text="{Binding Source=SwitchToMainWindow, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource CaptionTextBlockStyle}" VerticalAlignment="Center" />
                         </StackPanel>
                       </Button>
                     </StackPanel>
                     <CommandBar x:Name="ActionsCommandBar" HorizontalAlignment="Right">
-                      <AppBarButton Label="放送情報" Command="{Binding PageManager.OpenPageCommand}" CommandParameter="{Binding}" />
-                      <AppBarButton Label="配信者情報" Command="{Binding PageManager.OpenContentOwnerPageCommand}" CommandParameter="{Binding}" />
-                      <AppBarButton Label="共有" Icon="Link" Command="{Binding ExternalAccessService.OpenShareUICommand}" CommandParameter="{Binding}" />
-                      <AppBarButton x:Name="CopyActionsAppBarButton" Label="コピー" Icon="Copy" Visibility="{Binding AppearanceSettings.IsTVMode, Converter={StaticResource BooleanToVisibilityInverted}}">
+                      <AppBarButton Label="{Binding Source=LiveInfomation, Converter={StaticResource LocalizeConverter}}" Command="{Binding PageManager.OpenPageCommand}" CommandParameter="{Binding}" />
+                      <AppBarButton Label="{Binding Source=LiveBroadcasterInfomation, Converter={StaticResource LocalizeConverter}}" Command="{Binding PageManager.OpenContentOwnerPageCommand}" CommandParameter="{Binding}" />
+                      <AppBarButton Label="{Binding Source=Share, Converter={StaticResource LocalizeConverter}}" Icon="Link" Command="{Binding ExternalAccessService.OpenShareUICommand}" CommandParameter="{Binding}" />
+                      <AppBarButton x:Name="CopyActionsAppBarButton" Label="{Binding Source=Copy, Converter={StaticResource LocalizeConverter}}" Icon="Copy" Visibility="{Binding AppearanceSettings.IsTVMode, Converter={StaticResource BooleanToVisibilityInverted}}">
                         <AppBarButton.Flyout>
                           <MenuFlyout>
-                            <MenuFlyoutItem Text="生放送IDをコピー" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding LiveId}" />
-                            <MenuFlyoutItem Text="リンクをコピー" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding}" />
-                            <MenuFlyoutItem Text="共有用文章をコピー" Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}" CommandParameter="{Binding}" />
+                            <MenuFlyoutItem Text="{Binding Source=CopyLiveStreamingId, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding LiveId}" />
+                            <MenuFlyoutItem Text="{Binding Source=CopyLiveStreamingLink, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding}" />
+                            <MenuFlyoutItem Text="{Binding Source=CopyLiveStreamingShareText, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}" CommandParameter="{Binding}" />
                           </MenuFlyout>
                         </AppBarButton.Flyout>
                       </AppBarButton>
                       <CommandBar.SecondaryCommands>
-                        <AppBarButton x:Name="FullscreenButton" Command="{Binding WindowService.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="全画面" Icon="FullScreen"></AppBarButton>
-                        <AppBarButton x:Name="CompactOverlayButton" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="小さく最前面"></AppBarButton>
-                        <AppBarButton x:Name="SmallWindowButton" Command="{Binding PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="小窓"></AppBarButton>
-                        <AppBarButton x:Name="DisplayWithSecondaryViewButton" Command="{Binding TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="別ウィンドウで視聴"></AppBarButton>
-                        <AppBarToggleButton x:Name="ForceRotateToggleButton" IsChecked="{Binding PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="横持ち固定" Icon="Orientation"></AppBarToggleButton>
+                        <AppBarButton x:Name="FullscreenButton" Command="{Binding WindowService.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{Binding Source=FullScreen, Converter={StaticResource LocalizeConverter}}" Icon="FullScreen"></AppBarButton>
+                        <AppBarButton x:Name="CompactOverlayButton" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{Binding Source=CompactOverlay, Converter={StaticResource LocalizeConverter}}"></AppBarButton>
+                        <AppBarButton x:Name="SmallWindowButton" Command="{Binding PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{Binding Source=WindowInWindow, Converter={StaticResource LocalizeConverter}}"></AppBarButton>
+                        <AppBarButton x:Name="DisplayWithSecondaryViewButton" Command="{Binding TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{Binding Source=PlayWithSecondaryView, Converter={StaticResource LocalizeConverter}}"></AppBarButton>
+                        <AppBarToggleButton x:Name="ForceRotateToggleButton" IsChecked="{Binding PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{Binding Source=FixToLandscape, Converter={StaticResource LocalizeConverter}}" Icon="Orientation"></AppBarToggleButton>
                       </CommandBar.SecondaryCommands>
                     </CommandBar>
 
@@ -350,7 +352,7 @@
                                                         <Run Text="{Binding CurrentQuality.Value, Converter={StaticResource ToLocalText}}" /></TextBlock>
                             <TextBlock x:Name="PlayerTypeTextBlock" Margin="0 0" VerticalAlignment="Center" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"></TextBlock>
                             <TextBlock Visibility="{Binding IsLowLatency.Value, Converter={StaticResource BooleanToVisibility}}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Margin="8 0 0 0">
-                                                        <Run Text="低遅延" /></TextBlock>
+                                                        <Run Text="{Binding Source=LowLatency, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
                             <TextBlock Text="TS" Margin="8 0" x:Name="WatchWithTimeshiftText" Visibility="Collapsed" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />
                           </StackPanel>
                           <i:Interaction.Behaviors>
@@ -379,7 +381,7 @@
                           <TextBlock VerticalAlignment="Center" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding RoomName, Converter={StaticResource NotNullToVisibility}}">
                                                     <Run Text="{Binding RoomName}" /></TextBlock>
                           <TextBlock VerticalAlignment="Center" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding SeetId, Converter={StaticResource NotNullToVisibility}}">
-                                                    <Run Text=" - " /><Run Text="{Binding SeetId}" />番</TextBlock>
+                                                    <Run Text=" - " /><Run Text="{Binding SeetId}" /></TextBlock>
                         </StackPanel>
                       </StackPanel>
                       <Border />
@@ -403,11 +405,11 @@
                           <Flyout>
                             <toolkit:DockPanel toolkit:DockPanel.Dock="Right" Margin="0 0 16 0" Height="66">
                               <StackPanel Background="#AA777777" toolkit:DockPanel.Dock="Left">
-                                <AppBarButton Icon="Volume" Label="ミュート" VerticalAlignment="Stretch" x:Name="MuteToggleButton" Command="{Binding ToggleMuteCommand}"></AppBarButton>
+                                <AppBarButton Icon="Volume" Label="{Binding Source=Mute, Converter={StaticResource LocalizeConverter}}" VerticalAlignment="Stretch" x:Name="MuteToggleButton" Command="{Binding ToggleMuteCommand}"></AppBarButton>
                               </StackPanel>
                               <StackPanel Margin="8 0" Orientation="Vertical">
                                 <Slider x:Name="VolumeSlider" Orientation="Horizontal" VerticalAlignment="Top" Margin="8 4" IsThumbToolTipEnabled="True" ThumbToolTipValueConverter="{StaticResource ToUserFriendlySoubleVolume}" Maximum="1.0" Minimum="0.0" StepFrequency="0.01" SmallChange="0.01" LargeChange="0.1" Height="32" Width="160" Background="Transparent"></Slider>
-                                <TextBlock Text="音量" VerticalAlignment="Center" Margin="8 0 0 0" HorizontalAlignment="Center" FontSize="12" />
+                                <TextBlock Text="{Binding Source=SoundVolume, Converter={StaticResource LocalizeConverter}}" VerticalAlignment="Center" Margin="8 0 0 0" HorizontalAlignment="Center" FontSize="12" />
                               </StackPanel>
                             </toolkit:DockPanel>
                           </Flyout>
@@ -493,12 +495,12 @@
                         </Flyout>
                       </Button.Flyout>
                     </Button>
-                    <Button x:Name="CommentSubmitButton" Content="投稿" Margin="8 0 0 8" Height="40" Command="{Binding CommentSubmitCommand}" CommandParameter="{x:Bind CommentTextBox.Text, Mode=OneWay}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="5" Grid.ColumnSpan="1" />
+                    <Button x:Name="CommentSubmitButton" Content="{Binding Source=SubmitComment, Converter={StaticResource LocalizeConverter}}" Margin="8 0 0 8" Height="40" Command="{Binding CommentSubmitCommand}" CommandParameter="{x:Bind CommentTextBox.Text, Mode=OneWay}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="5" Grid.ColumnSpan="1" />
                     <Border Grid.ColumnSpan="6" Grid.RowSpan="2" x:Name="WhenTimeshiftIgnoreCommentLayout" Visibility="Collapsed">
                       <Border.Background>
                         <SolidColorBrush Color="{ThemeResource SystemAltLowColor}" />
                       </Border.Background>
-                      <TextBlock Text="タイムシフト視聴時はコメント出来ません" Margin="8" TextWrapping="Wrap" Opacity="0.9" VerticalAlignment="Center" HorizontalAlignment="Center" />
+                      <TextBlock Text="{Binding Source=DisallowCommentInTimeshift, Converter={StaticResource LocalizeConverter}}" Margin="8" TextWrapping="Wrap" Opacity="0.9" VerticalAlignment="Center" HorizontalAlignment="Center" />
                     </Border>
                   </Grid>
                 </StackPanel>
@@ -997,9 +999,9 @@
             <Setter Target="FullscreenButton.Visibility" Value="Visible" />
             <Setter Target="FullscreenButton_Menu.Visibility" Value="Visible" />
             <Setter Target="DisplayWithSecondaryViewButton.Visibility" Value="Visible" />
-            <Setter Target="DisplayWithSecondaryViewButton.Label" Value="メインウィンドウで視聴" />
+            <Setter Target="DisplayWithSecondaryViewButton.Label" Value="{Binding Source=PlayWithPrimaryView, Converter={StaticResource LocalizeConverter}}" />
             <Setter Target="DisplayWithSecondaryViewButton_Menu.Visibility" Value="Visible" />
-            <Setter Target="DisplayWithSecondaryViewButton_Menu.Text" Value="メインウィンドウで視聴" />
+            <Setter Target="DisplayWithSecondaryViewButton_Menu.Text" Value="{Binding Source=PlayWithPrimaryView, Converter={StaticResource LocalizeConverter}}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>

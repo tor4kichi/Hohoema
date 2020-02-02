@@ -304,11 +304,11 @@ CopyLiveStreamingLink = 生放送リンクをコピー
 CopyLiveStreamingId = 生放送IDをコピー
 CopyLiveStreamingShareText = 共有文章をコピー
 
+LiveInfomation = 放送情報
+LiveBroadcasterInfomation = 放送者情報
 
+DisallowCommentInTimeshift = タイムシフト視聴時はコメントできません
 #### PlayerSettings ####
-CommentOpacityKind.BitSukesuke = 少し透過
-CommentOpacityKind.MoreSukesuke = かなり透過
-CommentOpacityKind.NoSukesuke = 透過しない
 
 PlaylistEndAction.NothingDo = 何もしない
 PlaylistEndAction.ChangeIntoSplit = プレイヤーを小さく表示
@@ -409,7 +409,6 @@ CommunitySearchSort.VideoCount_Descending = 投稿動画数が多い順
 
 CommunitySearchWithKeyword = キーワードで探す
 CommunitySearchWithTag = タグで探す
-
 
 LiveSearchResultOption_Order = 表示順
 LiveSearchResultOption_Mode = 放送状態

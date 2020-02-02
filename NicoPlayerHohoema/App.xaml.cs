@@ -113,7 +113,7 @@ namespace NicoPlayerHohoema
             }
 
 
-            base.OnStart(args);
+            await base.OnStartAsync(args);
         }
 
         UIElement CreateShell()
@@ -267,13 +267,20 @@ namespace NicoPlayerHohoema
                 isInitialized = true;
 
                 // ローカリゼーション用のライブラリを初期化
-                I18NPortable.I18N.Current
+                try
+                {
+                    I18NPortable.I18N.Current
 #if DEBUG
                     .SetLogger(text => System.Diagnostics.Debug.WriteLine(text))
-                    .SetNotFoundSymbol("🍣")
+                        .SetNotFoundSymbol("🍣")
 #endif
                     .SetFallbackLocale("ja")
-                    .Init(GetType().Assembly);
+                        .Init(GetType().Assembly);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.ToString());
+                }
 
                 Resources["Strings"] = I18NPortable.I18N.Current;
 
@@ -288,7 +295,7 @@ namespace NicoPlayerHohoema
                 unityContainer.RegisterInstance(settings.NGSettings);
                 unityContainer.RegisterInstance(settings.PlayerSettings);
 
-                I18NPortable.I18N.Current.Locale = settings.AppearanceSettings.Locale;
+                I18NPortable.I18N.Current.Locale = settings.AppearanceSettings.Locale ?? I18NPortable.I18N.Current.Locale;
 
                 // ログイン前にログインセッションによって状態が変化するフォローとマイリストの初期化
                 var followManager = Container.Resolve<FollowManager>();

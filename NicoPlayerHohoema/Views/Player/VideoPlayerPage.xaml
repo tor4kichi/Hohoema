@@ -38,7 +38,7 @@
     <MenuFlyout x:Key="VideoOptionsFlyout">
       <MenuFlyoutItem Text="{Binding Source=PlayPauseToggleButtonTitle, Converter={StaticResource LocalizeConverter}}" Command="{Binding VideoPlayer.TogglePlayPauseCommand}" />
       <ToggleMenuFlyoutItem IsChecked="{Binding ObservableMediaPlayer.IsMuted.Value, Mode=TwoWay}" Text="{Binding Source=Mute, Converter={StaticResource LocalizeConverter}}" />
-      <ToggleMenuFlyoutItem IsChecked="{Binding IsCommentDisplayEnable.Value, Mode=TwoWay, Converter={StaticResource BoolNegation}}" Text="{Binding Source=HideComment, Converter={StaticResource LocalizeConverter}}" />
+      <ToggleMenuFlyoutItem IsChecked="{Binding IsCommentDisplayEnable.Value, Mode=TwoWay, Converter={StaticResource BoolNegation}}" Text="{Binding Source=ToggleHideComment, Converter={StaticResource LocalizeConverter}}" />
       <MenuFlyoutSubItem Text="{Binding Source=Quality, Converter={StaticResource LocalizeConverter}}" Visibility="{Binding VideoPlayer.AvailableQualities, Converter={StaticResource CollectionVisibilityConverter}}" x:Name="VideoQualityMenuFlyoutSubImte">
         <i:Interaction.Behaviors>
           <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding VideoPlayer.AvailableQualities}" CustomObjectToTag="{Binding}">
@@ -262,8 +262,9 @@
                     <Grid Margin="16 2 16 4">
                       <Border>
                         <TextBlock FontSize="20" VerticalAlignment="Center">
-                                                <Run Text="{Binding Source=SoundVolume, Converter={StaticResource LocalizeConverter}}" />:
-                                                <Run Text="{Binding Converter={StaticResource ToUserFriendlySoubleVolume}}" FontSize="22" />%</TextBlock>
+                          <Run Text="{Binding Source=SoundVolume, Converter={StaticResource LocalizeConverter}}" />:
+                          <Run Text="{Binding Converter={StaticResource ToUserFriendlySoubleVolume}}" FontSize="22" />%
+                        </TextBlock>
                       </Border>
                     </Grid>
                   </DataTemplate>
@@ -279,7 +280,8 @@
                     <Grid Margin="16 2 16 4">
                       <Border>
                         <TextBlock FontSize="25" VerticalAlignment="Center" TextLineBounds="TrimToBaseline">
-                           <Run Text="{Binding Source=SeekPlaybackPosition, Converter={StaticResource LocalizeConverter}}" />: <Run Text="{Binding Converter={StaticResource TimeToMovieLengthConverter}}" /> <Run Text="{Binding Source=Seconds, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
+                           <Run Text="{Binding Source=SeekPlaybackPosition, Converter={StaticResource LocalizeConverter}}" />: <Run Text="{Binding Converter={StaticResource TimeToMovieLengthConverter}}" /> <Run Text="{Binding Source=Seconds, Converter={StaticResource LocalizeConverter}}" />
+                        </TextBlock>
                       </Border>
                     </Grid>
                   </DataTemplate>
@@ -564,7 +566,7 @@
                       <ColumnDefinition Width="1*" />
                       <ColumnDefinition Width="1*" />
                     </Grid.ColumnDefinitions>
-                    <TextBox x:Name="CommentTextBox" Text="{Binding CommentPlayer.WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BGTransparentTextBoxStyle}" FontSize="18" VerticalAlignment="Center" MaxLength="75" IsTabStop="True" toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True" PlaceholderText="{Binding Source=CommentTextBoxPlacefolder}" HorizontalAlignment="Stretch" Margin="8 0 8 0" HorizontalContentAlignment="Stretch" Height="40" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="4" IsEnabled="{Binding IsCommentDisabledFromNicoScript.Value, Converter={StaticResource BoolNegation}}"></TextBox>
+                    <TextBox x:Name="CommentTextBox" Text="{Binding CommentPlayer.WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BGTransparentTextBoxStyle}" FontSize="18" VerticalAlignment="Center" MaxLength="75" IsTabStop="True" toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True" PlaceholderText="{Binding Source=CommentTextBoxPlacefolder, Converter={StaticResource LocalizeConverter}}" HorizontalAlignment="Stretch" Margin="8 0 8 0" HorizontalContentAlignment="Stretch" Height="40" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="4" IsEnabled="{Binding IsCommentDisabledFromNicoScript.Value, Converter={StaticResource BoolNegation}}"></TextBox>
                     <Button x:Name="CommentCommandEditButton"
                             Content="{x:Bind CommandEditer.CommandString, Mode=OneWay}"                            
                             Margin="8 0 8 0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" DataContext="{Binding}" Height="40" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="1">
