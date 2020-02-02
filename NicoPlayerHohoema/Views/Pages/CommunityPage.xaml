@@ -30,11 +30,11 @@
           <Border Background="Transparent" IsHitTestVisible="True" Margin="0 0 0 0">
             <StackPanel Orientation="Vertical" Margin="0 8">
               <StackPanel Orientation="Horizontal">
-                <TextBlock Text="オーナー" Width="80" />
+                <TextBlock Text="{Binding Source=ContentOwner, Converter={StaticResource LocalizeConverter}}" Width="80" />
                 <TextBlock Text="{Binding CommunityOwnerName}" />
               </StackPanel>
               <StackPanel Orientation="Horizontal">
-                <TextBlock Text="開設日" Width="80" />
+                <TextBlock Text="{Binding Source=CommunityOpenAt, Converter={StaticResource LocalizeConverter}}" Width="80" />
                 <TextBlock Text="{Binding CreatedAt}" />
               </StackPanel>
             </StackPanel>
@@ -43,7 +43,7 @@
         <!-- 放送の状態表示 -->
         <Border Margin="0 16 0 8" Visibility="{Binding HasCurrentLiveInfo, Converter={StaticResource BooleanToVisibility}}" MaxWidth="960">
           <StackPanel HorizontalAlignment="Stretch">
-            <TextBlock Text="現在放送中" FontSize="18" />
+            <TextBlock Text="{Binding Source=NowLiveStreaming, Converter={StaticResource LocalizeConverter}}" FontSize="18" />
             <ItemsControl ItemsSource="{Binding CurrentLiveInfoList}" HorizontalContentAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0 8">
               <ItemsControl.ItemTemplate>
                 <DataTemplate>
@@ -68,7 +68,7 @@
           <StackPanel Margin="0 0" Visibility="{Binding CommunityVideoSamples, Converter={StaticResource CollectionVisibilityConverter}}">
             <Border Height="16" />
             <HyperlinkButton Command="{Binding OpenCommunityVideoListPageCommand}" Foreground="{ThemeResource ButtonForegroundThemeBrush}" Margin="0 8">
-              <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="コミュニティ動画" />
+              <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="{Binding Source=CommunityVidoes, Converter={StaticResource LocalizeConverter}}" />
             </HyperlinkButton>
             <!-- Ownered Videos -->
             <ScrollViewer VerticalScrollMode="Disabled" VerticalScrollBarVisibility="Disabled" HorizontalScrollMode="Auto" HorizontalScrollBarVisibility="Hidden">
@@ -92,7 +92,7 @@
         </Grid>
         <!-- コミュニティのプロフィール -->
         <Border Margin="0 4 0 4" Padding="0 4 0 4">
-          <TextBlock Text="プロフィール" FontSize="18" />
+          <TextBlock Text="{Binding Source=Profile, Converter={StaticResource LocalizeConverter}}" FontSize="18" />
         </Border>
         <Border Margin="0 0 0 0">
           <WebView Source="{Binding ProfileHtmlFileUri}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DefaultBackgroundColor="Transparent" xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions" myExtensions:WebView.UriNotifyCommand="{Binding ScriptNotifyCommand}">
@@ -104,7 +104,7 @@
         </Border>
         <!-- コミュニティのお知らせ -->
         <Border Margin="0 4 0 4" Padding="0 4 0 4" Visibility="{Binding HasNews, Converter={StaticResource BooleanToVisibility}}">
-          <TextBlock Text="お知らせ" FontSize="18" />
+          <TextBlock Text="{Binding Source=Notice, Converter={StaticResource LocalizeConverter}}" FontSize="18" />
         </Border>
         <Border Margin="0 0 0 0" MaxWidth="960">
           <ItemsControl ItemsSource="{Binding NewsList}">
@@ -137,7 +137,7 @@
       <Border Height="48" />
       <CommandBar HorizontalAlignment="Right">
         <AppBarToggleButton Background="Transparent" IsChecked="{Binding FollowToggleButtonService.IsFollowTarget.Value, Mode=TwoWay}" Command="{Binding FollowToggleButtonService.ToggleFollowCommand}" Icon="Favorite" Label="フォロー" Visibility="Collapsed" x:Name="CommunityFollowButton" />
-        <AppBarButton Label="ブラウザで開く" Command="{Binding OpenCommunityWebPagePageCommand}" VerticalAlignment="Center" UseSystemFocusVisuals="True" />
+        <AppBarButton Label="{Binding Source=OpenWithBrowser, Converter={StaticResource LocalizeConverter}}" Command="{Binding OpenCommunityWebPagePageCommand}" VerticalAlignment="Center" UseSystemFocusVisuals="True" />
       </CommandBar>
     </Grid>
     <VisualStateManager.VisualStateGroups>

@@ -1,4 +1,5 @@
-﻿using Mntone.Nico2;
+﻿using I18NPortable;
+using Mntone.Nico2;
 using Mntone.Nico2.Searches.Community;
 using Mntone.Nico2.Searches.Live;
 using System;
@@ -14,67 +15,75 @@ namespace NicoPlayerHohoema.Services.Helpers
 		public static string ToCulturizedText(Sort sort, Order order)
 		{
 			var isAscending = order == Order.Ascending;
+			string text;
 			switch (sort)
 			{
 				case Sort.NewComment:
-					return isAscending ? "コメントが古い順" : "コメントが新しい順";
+					text = isAscending ? "Sort.NewComment_Ascending" : "Sort.NewComment_Descending";  break;
 				case Sort.ViewCount:
-					return isAscending ? "再生数が少ない順" : "再生数が多い順";
+					text = isAscending ? "Sort.ViewCount_Ascending" : "Sort.ViewCount_Descending"; break;
 				case Sort.MylistCount:
-					return isAscending ? "マイリスト数が少ない順" : "マイリスト数が多い順";
+					text = isAscending ? "Sort.MylistCount_Ascending" : "Sort.MylistCount_Descending"; break;
 				case Sort.CommentCount:
-					return isAscending ? "コメント数が少ない順" : "コメント数が多い順";
+					text = isAscending ? "Sort.CommentCount_Ascending" : "Sort.CommentCount_Descending"; break;
 				case Sort.FirstRetrieve:
-					return isAscending ? "投稿日時が古い順" : "投稿日時が新しい順";
+					text = isAscending ? "Sort.FirstRetrieve_Ascending" : "Sort.FirstRetrieve_Descending"; break;
 				case Sort.Length:
-					return isAscending ? "動画時間が短い順" : "動画時間が長い順";
+					text = isAscending ? "Sort.Length_Ascending" : "Sort.Length_Descending"; break;
 				case Sort.Popurarity:
-					return isAscending ? "人気が低い順" : "人気が高い順";
+					text = isAscending ? "Sort.Popurarity_Ascending" : "Sort.Popurarity_Descending"; break;
 				case Sort.MylistPopurarity:
-					return isAscending ? "人気が低い順" : "人気が高い順";
+					text = isAscending ? "Sort.MylistPopurarity_Ascending" : "Sort.MylistPopurarity_Descending"; break;
 				case Sort.VideoCount:
-					return isAscending ? "動画数が少ない順" : "動画数が多い順";
+					text = isAscending ? "Sort.VideoCount_Ascending" : "Sort.VideoCount_Descending"; break;
 				case Sort.UpdateTime:
-					return isAscending ? "更新が古い順" : "更新が新しい順";
+					text = isAscending ? "Sort.UpdateTime_Ascending" : "Sort.UpdateTime_Descending"; break;
 				case Sort.Relation:
-					return isAscending ? "適合率が低い順" : "適合率が高い順";
+					text = isAscending ? "Sort.Relation_Ascending" : "Sort.Relation_Descending"; break;
 				default:
 					throw new NotSupportedException();
 			}
+
+			return text.Translate();
 		}
 
 		public static string ToCulturizedText(CommunitySearchSort sort, Order order)
 		{
 			var isAscending = order == Order.Ascending;
+			string text;
 			switch (sort)
 			{
 				case CommunitySearchSort.CreatedAt:
-					return isAscending ? "作成が古い順" : "作成が新しい順";
+					text = isAscending ? "CommunitySearchSort.CreatedAt_Ascending" : "CommunitySearchSort.CreatedAt_Descending"; break;
 				case CommunitySearchSort.UpdateAt:
-					return isAscending ? "更新が古い順" : "更新が新しい順";
+					text = isAscending ? "CommunitySearchSort.UpdateAt_Ascending" : "CommunitySearchSort.UpdateAt_Descending"; break;
 				case CommunitySearchSort.CommunityLevel:
-					return isAscending ? "レベルが小さい順" : "レベルが大きい順";
+					text = isAscending ? "CommunitySearchSort.CommunityLevel_Ascending" : "CommunitySearchSort.CommunityLevel_Descending"; break;
 				case CommunitySearchSort.MemberCount:
-					return isAscending ? "登録メンバーが少ない順" : "登録メンバーが多い順";
+					text = isAscending ? "CommunitySearchSort.MemberCount_Ascending" : "CommunitySearchSort.MemberCount_Descending"; break;
 				case CommunitySearchSort.VideoCount:
-					return isAscending ? "投稿動画数が少ない順" : "投稿動画数が多い順";
+					text = isAscending ? "CommunitySearchSort.VideoCount_Ascending" : "CommunitySearchSort.VideoCount_Descending"; break;
 				default:
 					throw new NotSupportedException();
 			}
+			return text.Translate();
 		}
 
 		public static string ToCulturizedText(NicoliveSearchSort sort, Order order)
 		{
 			var isAscending = order == Order.Ascending;
+			string text;
 			switch (sort)
 			{
 				case NicoliveSearchSort.Recent:
-					return isAscending ? "放送日時が近い順" : "放送日時が遠い順";
+					text = isAscending ? "NicoliveSearchSort.Recent_Ascending" : "NicoliveSearchSort.Recent_Descending"; break;
 				case NicoliveSearchSort.Comment:
-					return isAscending ? "コメントが多い順" : "コメントが少ない順";
+					text = isAscending ? "NicoliveSearchSort.Comment_Ascending" : "NicoliveSearchSort.Comment_Descending"; break;
 				default:
 					throw new NotSupportedException();
 			}
+
+			return text.Translate();
 		}
 	}
 }

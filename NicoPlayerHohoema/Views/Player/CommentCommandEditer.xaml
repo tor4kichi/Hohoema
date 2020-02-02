@@ -16,7 +16,7 @@
   <UserControl.Resources>
     <DataTemplate x:Key="BigTemplate">
       <Border Height="24">
-        <TextBlock Text="A"
+        <TextBlock Text="{Binding Source=CommentSizeCommandSampleText, Converter={StaticResource LocalizeConverter}}"
                    FontSize="36"
                    VerticalAlignment="Bottom"
                    TextLineBounds="TrimToBaseline" />
@@ -24,7 +24,7 @@
     </DataTemplate>
     <DataTemplate x:Key="MidiumTemplate">
       <Border Height="24">
-        <TextBlock Text="A"
+        <TextBlock Text="{Binding Source=CommentSizeCommandSampleText, Converter={StaticResource LocalizeConverter}}"
                    FontSize="24"
                    VerticalAlignment="Bottom"
                    TextLineBounds="TrimToBaseline" />
@@ -32,7 +32,7 @@
     </DataTemplate>
     <DataTemplate x:Key="SmallTemplate">
       <Border Height="24">
-        <TextBlock Text="A"
+        <TextBlock Text="{Binding Source=CommentSizeCommandSampleText, Converter={StaticResource LocalizeConverter}}"
                    FontSize="14"
                    VerticalAlignment="Bottom"
                    TextLineBounds="TrimToBaseline" />
@@ -40,21 +40,21 @@
     </DataTemplate>
     <DataTemplate x:Key="UeTemplate">
       <Border Height="48">
-        <TextBlock Text="上"
+        <TextBlock Text="{Binding Source=CommentVerticalPositionTopCommandText, Converter={StaticResource LocalizeConverter}}"
                    FontSize="20"
                    VerticalAlignment="Top" />
       </Border>
     </DataTemplate>
     <DataTemplate x:Key="NakaTemplate">
       <Border Height="48">
-        <TextBlock Text="中ﾐ"
+        <TextBlock Text="{Binding Source=CommentVerticalPositionMiddleCommandText, Converter={StaticResource LocalizeConverter}}"
                    FontSize="20"
                    VerticalAlignment="Center" />
       </Border>
     </DataTemplate>
     <DataTemplate x:Key="ShitaTemplate">
       <Border Height="48">
-        <TextBlock Text="下"
+        <TextBlock Text="{Binding Source=CommentVerticalPositionBottomCommandText, Converter={StaticResource LocalizeConverter}}"
                    FontSize="20"
                    VerticalAlignment="Bottom" />
       </Border>
@@ -245,7 +245,7 @@
   <Grid Width="280">
     <StackPanel Spacing="16">
       <Grid>
-        <HyperlinkButton Content="コマンドについて"
+        <HyperlinkButton Content="{Binding Source=OpenAboutCommentCommand, Converter={StaticResource LocalizeConverter}}"
                          NavigateUri="https://dic.nicovideo.jp/a/%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89" />
         <Button Content="{Binding Source=Reset, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                 HorizontalAlignment="Right"

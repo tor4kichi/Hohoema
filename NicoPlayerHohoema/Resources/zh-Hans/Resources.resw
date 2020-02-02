@@ -159,7 +159,6 @@
   </data>
   <data name="ConfirmWatchHurmfulVideo" xml:space="preserve">
     <value>确认播放有害视频</value>
-    <comment>HohoemaPageType</comment>
   </data>
   <data name="dance" xml:space="preserve">
     <value>试跳</value>

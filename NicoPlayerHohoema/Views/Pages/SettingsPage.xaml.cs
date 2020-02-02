@@ -37,6 +37,7 @@ namespace NicoPlayerHohoema.Views
 			ApplicationInteractionMode.Touch,
 		}.ToImmutableArray();
 
+		public IReadOnlyCollection<string> AvairableLocales { get; } = I18NPortable.I18N.Current.Languages.Select(x => x.Locale).ToList();
 
 		bool IsDebug =>
 #if DEBUG

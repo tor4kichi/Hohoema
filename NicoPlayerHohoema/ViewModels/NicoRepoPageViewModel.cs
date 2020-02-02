@@ -21,6 +21,7 @@ using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands;
 using NicoPlayerHohoema.UseCase;
+using I18NPortable;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -135,7 +136,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 this.Label = TimelineItem.Program.Title;
                 AddImageUrl(TimelineItem.Program.ThumbnailUrl);
-                this.OptionText = $"{TimelineItem.Program.BeginAt.ToString()} 放送開始";
+                this.OptionText = "LiveStreamingStartAtWithDateTime".Translate(TimelineItem.Program.BeginAt.ToString());
                 CommunityThumbnail = TimelineItem.Program.ThumbnailUrl;
                 if (TimelineItem.Community != null)
                 {
@@ -239,47 +240,23 @@ namespace NicoPlayerHohoema.ViewModels
             switch (topicType)
             {
                 case NicoRepoItemTopic.Unknown:
-                    return $"（対応していないニコレポアイテム）";
-                    
-                case NicoRepoItemTopic.NicoVideo_User_Video_Kiriban_Play:
-                    return $"動画再生数がキリ番に到達しました";
-                    
+                    return "Unknown".Translate();
                 case NicoRepoItemTopic.NicoVideo_User_Video_Upload:
-                    return $"{timelineItem.SenderNiconicoUser.Nickname} さんが動画を投稿";
-                    
-                case NicoRepoItemTopic.NicoVideo_Community_Level_Raise:
-                    return $"コミュニティレベル";
-                    
+                    return "NicoRepo_Video_UserVideoUpload".Translate(timelineItem.SenderNiconicoUser.Nickname);
                 case NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video:
-                    return $"{timelineItem.SenderNiconicoUser.Nickname} さんがマイリストに動画を追加";
-                    
+                    return "NicoRepo_Video_UserMylistAddVideo".Translate(timelineItem.SenderNiconicoUser.Nickname);
                 case NicoRepoItemTopic.NicoVideo_User_Community_Video_Add:
-                    return $"コミュニティ動画に動画が追加されました";
-                    
-                case NicoRepoItemTopic.NicoVideo_User_Video_UpdateHighestRankings:
-                    return $"動画がランキングにランクイン";
-                    
-                case NicoRepoItemTopic.NicoVideo_User_Video_Advertise:
-                    return $"動画が広告されました";
-                    
-                case NicoRepoItemTopic.NicoVideo_Channel_Blomaga_Upload:
-                    return $"ブロマガが投稿されました";
-                    
+                    return "NicoRepo_Video_CommunityAddVideo".Translate(timelineItem.Community.Name);
                 case NicoRepoItemTopic.NicoVideo_Channel_Video_Upload:
-                    return $"{timelineItem.SenderChannel.Name} が動画を投稿";
-                    
+                    return "NicoRepo_Video_ChannelVideoUpload".Translate(timelineItem.SenderChannel.Name);
                 case NicoRepoItemTopic.Live_User_Program_OnAirs:
-                    return $"{timelineItem.SenderNiconicoUser.Nickname} さんが生放送を開始";
-                    
+                    return "NicoRepo_Live_UserProgramOnAirs".Translate(timelineItem.SenderNiconicoUser.Nickname);
                 case NicoRepoItemTopic.Live_User_Program_Reserve:
-                    return $"{timelineItem.SenderNiconicoUser.Nickname} さんが生放送を予約";
-                    
+                    return "NicoRepo_Live_UserProgramReserve".Translate(timelineItem.SenderNiconicoUser.Nickname);
                 case NicoRepoItemTopic.Live_Channel_Program_Onairs:
-                    return $"{timelineItem.SenderChannel.Name} が生放送を開始";
-                    
+                    return "NicoRepo_Live_ChannelProgramOnAirs".Translate(timelineItem.SenderChannel.Name);
                 case NicoRepoItemTopic.Live_Channel_Program_Reserve:
-                    return $"{timelineItem.SenderChannel.Name} が生放送を予約";
-                    
+                    return "NicoRepo_Live_ChannelProgramReserve".Translate(timelineItem.SenderChannel.Name);
                 default:
                     return string.Empty;
             }

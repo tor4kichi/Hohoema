@@ -143,6 +143,7 @@
     <Compile Include="Interfaces\IPlaylistItem.cs" />
     <Compile Include="Interfaces\ITitleUpdatablePage.cs" />
     <Compile Include="Interfaces\IWatchHistory.cs" />
+    <Compile Include="Locales\LocaleToDisplayNameConverter.cs" />
     <Compile Include="Locales\LocalizeConverter.cs" />
     <Compile Include="Models\Cache\NicoVideoCacheInfo.cs" />
     <Compile Include="Models\Cache\NicoVideoCacheProgress.cs" />
@@ -597,9 +598,6 @@
     <Compile Include="Views\Pages\SubscriptionPage.xaml.cs">
       <DependentUpon>SubscriptionPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\Pages\SubscriptionPage_Mobile.xaml.cs">
-      <DependentUpon>SubscriptionPage_Mobile.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\Pages\Subscription\SubscriptionControl.xaml.cs">
       <DependentUpon>SubscriptionControl.xaml</DependentUpon>
     </Compile>
@@ -912,6 +910,7 @@
     <None Include="Package.xml" />
     <Content Include="FodyWeavers.xml" />
     <EmbeddedResource Include="Locales\ja-JP.txt" />
+    <EmbeddedResource Include="Locales\zh-CHS.txt" />
     <Content Include="Properties\Default.rd.xml" />
     <Content Include="Assets\SplashScreen.scale-200.png" />
     <Content Include="Assets\Square150x150Logo.scale-200.png" />
@@ -1070,10 +1069,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Pages\SubscriptionPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Pages\SubscriptionPage_Mobile.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

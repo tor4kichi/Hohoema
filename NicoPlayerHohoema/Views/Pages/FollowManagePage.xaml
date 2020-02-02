@@ -98,7 +98,7 @@
                        HorizontalAlignment="Stretch" />
 
     <Grid x:Name="NotLoggedInLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <TextBlock Text="フォロー情報はログインすると利用できます" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.7" />
+      <TextBlock Text="{Binding Source=FollowInfoIsRequireLogIn, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.7" />
     </Grid>
     
     <VisualStateManager.VisualStateGroups>

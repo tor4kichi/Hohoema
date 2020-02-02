@@ -63,8 +63,8 @@
                 <AppBarButton Background="Transparent" Label="追加" Icon="Add" Visibility="Collapsed" x:Name="LoginUserMylistActions">
                   <AppBarButton.Flyout>
                     <MenuFlyout>
-                      <MenuFlyoutItem Text="ローカルマイリストを作成" Command="{Binding AddLocalMylistCommand}" />
-                      <MenuFlyoutItem Text="マイリストを作成" Command="{Binding AddMylistGroupCommand}" />
+                      <MenuFlyoutItem Text="{Binding Source=LocalPlaylistCreate, Converter={StaticResource LocalizeConverter}}" Command="{Binding AddLocalMylistCommand}" />
+                      <MenuFlyoutItem Text="{Binding Source=MylistCreate, Converter={StaticResource LocalizeConverter}}" Command="{Binding AddMylistGroupCommand}" />
                     </MenuFlyout>
                   </AppBarButton.Flyout>
                 </AppBarButton>

@@ -52,17 +52,11 @@
           <CommandBar Background="Transparent"
                       Margin="0 0 0 0">
             <CommandBar.PrimaryCommands>
-              <AppBarButton Label="設定"
+              <AppBarButton Label="{Binding Source=Settings, Converter={StaticResource LocalizeConverter}}"
                             Icon="Setting">
-                <AppBarButton.Flyout>
-                  <MenuFlyout Placement="Bottom">
-                    <MenuFlyoutItem Text="隠したジャンルやタグを再表示">
-                      <MenuFlyoutItem.Command>
-                        <mycommands:ShowHiddenRankingGenreTagsDialogCommand />
-                      </MenuFlyoutItem.Command>
-                    </MenuFlyoutItem>
-                  </MenuFlyout>
-                </AppBarButton.Flyout>
+                <AppBarButton.Command>
+                  <mycommands:ShowHiddenRankingGenreTagsDialogCommand />
+                </AppBarButton.Command>
               </AppBarButton>
             </CommandBar.PrimaryCommands>
           </CommandBar>

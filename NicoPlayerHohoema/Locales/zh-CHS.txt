@@ -1,0 +1,337 @@
+#### General ####
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### Hohoema App ####
+
+
+
+
+
+
+
+
+
+#### Settings ####
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### Niconico General ####
+
+
+
+
+
+
+
+
+#### Nico Follow ####
+
+
+
+
+
+
+
+
+
+#### Nicorepo ####
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### Ranking ####
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### Comment Command Editer ####
+
+
+
+
+
+
+
+
+
+#### Video ####
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### Live ####
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### PlayerSettings ####
+
+
+
+
+
+
+
+
+# 全て表示（NGScoreを無視）
+
+# NGScore -10000 以上を表示
+
+# NGScore -4800 以上を表示
+
+# NGScore -1000 以上を表示
+
+# NGScore -100 以上を表示
+
+# NGScore -10 以上を表示
+
+
+#### PageType ####
+HohoemaPageType.ChannelInfo = 频道信息
+HohoemaPageType.ChannelVideo = 频道视频
+
+HohoemaPageType.CacheManagement = 缓存管理
+
+HohoemaPageType.CommunityVideo = 社区视频一览
+
+HohoemaPageType.FeedGroup = Feed流群组
+HohoemaPageType.FeedGroupManage = Mylist更新
+HohoemaPageType.FeedVideoList = Feed流视频一览
+HohoemaPageType.FollowManage = 关注
+HohoemaPageType.NicoRepo = Nico动态
+HohoemaPageType.RankingCategory = 分类排行
+HohoemaPageType.RankingCategoryList = 排行一览
+HohoemaPageType.Recommend = 推荐视频
+HohoemaPageType.Search = 搜索
+HohoemaPageType.SearchResultCommunity = 社区搜索
+HohoemaPageType.SearchResultKeyword = 关键字搜索
+HohoemaPageType.SearchResultLive = 直播搜索
+HohoemaPageType.SearchResultMylist = Mylist搜索
+HohoemaPageType.SearchResultTag = 标签搜索
+HohoemaPageType.Settings = 设定
+HohoemaPageType.Splash = 启动画面
+
+
+
+HohoemaPageType.UserMylist = Mylist一览
+HohoemaPageType.UserVideo = 用户视频一览
+HohoemaPageType.VideoInfomation = 动画信息
+HohoemaPageType.WatchHistory = 播放历史
+
+
+
+#### Search ####
+
+
+
+
+
+
+
+
+
+#### Watch History ####
+
+
+
+
+
+
+
+
+
+
+#### Channel ####
+
+
+
+#### Playlist ####
+
+
+
+
+
+#### Mylist ####
+
+
+
+
+#### Local Playlist ####
+
+
+
+
+#### Watch After ####
+
+
+
+
+
+#### Video Items Select Action ####
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#### Subscribe feature ####
+
+
+
+
+
+
+
+
+
+#### Video Cache feature ####
+
+
+
+
+#### User Videos Page ####
+
+
+
+
+
+#### Cache Management Page ####
+
+
+
+
+
+
+
+
+
+
+
+#### Unknonw ####
+
+
+

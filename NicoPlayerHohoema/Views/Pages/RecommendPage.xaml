@@ -38,7 +38,7 @@
             <CommandBar x:Name="TopCommandBar" toolkit:DockPanel.Dock="Right" VerticalContentAlignment="Bottom">
               <CommandBar.SecondaryCommands></CommandBar.SecondaryCommands>
               <CommandBar.PrimaryCommands>
-                <AppBarButton x:Name="ScrollToTopButton" Label="トップへ戻る" Icon="Up">
+                <AppBarButton x:Name="ScrollToTopButton" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Up">
                   <i:Interaction.Behaviors>
                     <core:EventTriggerBehavior EventName="Click">
                       <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
@@ -46,7 +46,7 @@
                   </i:Interaction.Behaviors>
                 </AppBarButton>
                 <AppBarButton x:Name="UpdateButton" Command="{Binding RefreshCommand}" Background="Transparent" Icon="Refresh" Label="更新" />
-                <AppBarButton Label="関連タグ" Icon="Tag">
+                <AppBarButton Label="{Binding Source=RelatedTags, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Tag">
                   <AppBarButton.Flyout>
                     <Flyout>
                       <ListView ItemsSource="{Binding RecommendSourceTags}" IsItemClickEnabled="True" uwpextensions:ListViewBase.Command="{Binding PageManager.OpenPageCommand}" SelectionMode="None" DisplayMemberPath="Tag"></ListView>

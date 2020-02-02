@@ -40,14 +40,14 @@
                   <StackPanel x:Name="TitleLayout" Margin="16 0 0 0">
                     <StackPanel Orientation="Horizontal" Margin="0 0 0 0" Visibility="{Binding UserName, Converter={StaticResource NotNullToVisibility}}">
                       <TextBlock FontSize="14">
-                      <Run Text="{Binding UserName}" /> の <Run Text="{Binding MylistState}" /></TextBlock>
+                        <Run Text="{Binding Source=ContentOwner, Converter={StaticResource LocalizeConverter}}" /> : <Run Text="{Binding UserName}" /> </TextBlock>
                       <Border x:Name="DefaultMylistRegistrationCount" Visibility="{Binding IsLoginUserDeflist, Converter={StaticResource BooleanToVisibility}}" Margin="8 0 0 0">
                         <TextBlock>
-                        (登録:<Run Text="{Binding DeflistRegistrationCount}" /> 上限:<Run Text="{Binding DeflistRegistrationCapacity}" />)</TextBlock>
+                        (<Run Text="{Binding Source=MylistRegisteredCount}" />:<Run Text="{Binding DeflistRegistrationCount}" /> <Run Text="{Binding Source=MylistRegisteredCountLimit}" />:<Run Text="{Binding DeflistRegistrationCapacity}" />)</TextBlock>
                       </Border>
                       <Border x:Name="MylistRegistrationCount" Visibility="{Binding IsLoginUserMylistWithoutDeflist, Converter={StaticResource BooleanToVisibility}}" Margin="8 0 0 0">
                         <TextBlock>
-                        (登録:<Run Text="{Binding MaxItemsCount}" /> 合計:<Run Text="{Binding MylistRegistrationCount}" /> 上限:<Run Text="{Binding MylistRegistrationCapacity}" />)</TextBlock>
+                        (<Run Text="{Binding Source=MylistRegisteredCount}" />:<Run Text="{Binding MaxItemsCount}" /> <Run Text="{Binding Source=MylistRegisteredCountSum}" />:<Run Text="{Binding MylistRegistrationCount}" /> 上限:<Run Text="{Binding MylistRegistrationCapacity}" />)</TextBlock>
                       </Border>
                     </StackPanel>
                   </StackPanel>
@@ -166,7 +166,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <mytrigger:EqualConditionStateTrigger Condition="Mylist" Value="{Binding PlaylistOrigin.Value}" />
+            <StateTrigger IsActive="True" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ToggleMylistFavoriteButton.Visibility" Value="Visible" />
@@ -175,34 +175,7 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding NiconicoSession.IsLoggedIn, Converter={StaticResource BoolNegation}}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters></VisualState.Setters>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <mytrigger:EqualConditionStateTrigger Condition="OtherUser" Value="{Binding PlaylistOrigin.Value}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="ToggleMylistFavoriteButton.Visibility" Value="Visible" />
-            <Setter Target="ItemsList.IncrementalLoadingTrigger" Value="Edge" />
-            <Setter Target="ItemsList.PullThreshold" Value="85" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <mytrigger:EqualConditionStateTrigger Condition="OtherUser" Value="{Binding PlaylistOrigin.Value}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="FeedRegstrationButton.Visibility" Value="Visible" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
+      
     </VisualStateManager.VisualStateGroups>
   </Grid>
 </Page>

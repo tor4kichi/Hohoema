@@ -241,7 +241,6 @@ namespace NicoPlayerHohoema
             containerRegistry.RegisterForNavigation<Views.SearchResultLivePage>();
             containerRegistry.RegisterForNavigation<Views.SettingsPage>();
             containerRegistry.RegisterForNavigation<Views.SubscriptionPage>();
-            containerRegistry.RegisterForNavigation<Views.SubscriptionPage_Mobile>();
             containerRegistry.RegisterForNavigation<Views.TimeshiftPage>();
             containerRegistry.RegisterForNavigation<Views.UserInfoPage>();
             containerRegistry.RegisterForNavigation<Views.UserMylistPage>();
@@ -273,7 +272,7 @@ namespace NicoPlayerHohoema
                     .SetLogger(text => System.Diagnostics.Debug.WriteLine(text))
                     .SetNotFoundSymbol("🍣")
 #endif
-                    .SetFallbackLocale("en")
+                    .SetFallbackLocale("ja")
                     .Init(GetType().Assembly);
 
                 Resources["Strings"] = I18NPortable.I18N.Current;
@@ -288,6 +287,8 @@ namespace NicoPlayerHohoema
                 unityContainer.RegisterInstance(settings.RankingSettings);
                 unityContainer.RegisterInstance(settings.NGSettings);
                 unityContainer.RegisterInstance(settings.PlayerSettings);
+
+                I18NPortable.I18N.Current.Locale = settings.AppearanceSettings.Locale;
 
                 // ログイン前にログインセッションによって状態が変化するフォローとマイリストの初期化
                 var followManager = Container.Resolve<FollowManager>();

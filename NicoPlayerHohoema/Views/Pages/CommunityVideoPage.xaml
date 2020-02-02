@@ -23,7 +23,7 @@
               <StackPanel>
                 <CommandBar x:Name="TopCommandBar">
                   <CommandBar.PrimaryCommands>
-                    <AppBarButton x:Name="ScrollToTopButton" Label="トップへ戻る" Icon="Up">
+                    <AppBarButton x:Name="ScrollToTopButton" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Up">
                       <i:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Click">
                           <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />

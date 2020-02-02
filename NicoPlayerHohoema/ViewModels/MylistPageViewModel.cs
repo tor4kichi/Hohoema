@@ -327,7 +327,7 @@ namespace NicoPlayerHohoema.ViewModels
                 return _OpenMylistOwnerCommand
                     ?? (_OpenMylistOwnerCommand = new DelegateCommand(() =>
                     {
-                        PageManager.OpenPageWithId(HohoemaPageType.UserInfo, OwnerUserId);
+                        PageManager.OpenPageWithId(HohoemaPageType.UserInfo, Mylist.Value.UserId);
                     }));
             }
         }
