@@ -54,7 +54,7 @@
               <ListView xmlns:ee="using:NicoPlayerHohoema.Models" SelectionMode="Single" IsItemClickEnabled="True" uwpExtension:ListViewBase.Command="{Binding ChangeSearchTargetCommand}" ItemsSource="{Binding SearchTargets}" SelectedItem="{Binding SelectedSearchTarget.Value, Mode=TwoWay}" Style="{StaticResource BandListViewStyle}" ItemContainerStyle="{StaticResource SimpleListViewItemStyle}" SingleSelectionFollowsFocus="False" HorizontalAlignment="Right">
                 <ListView.ItemTemplate>
                   <DataTemplate>
-                    <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
+                    <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
                   </DataTemplate>
                 </ListView.ItemTemplate>
                 <ListView.ItemsPanel>

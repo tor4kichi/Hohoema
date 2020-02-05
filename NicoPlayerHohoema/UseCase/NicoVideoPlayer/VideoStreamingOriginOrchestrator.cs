@@ -1,4 +1,5 @@
-﻿using Mntone.Nico2.Videos.Comment;
+﻿using I18NPortable;
+using Mntone.Nico2.Videos.Comment;
 using Mntone.Nico2.Videos.Dmc;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Cache;
@@ -238,12 +239,18 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
             var currentDownloadingItems = await _videoCacheManager.GetDownloadProgressVideosAsync();
             var downloadingItem = currentDownloadingItems.FirstOrDefault();
             var downloadingItemVideoInfo = Database.NicoVideoDb.Get(downloadingItem.RawVideoId);
-
+/*
             var totalSize = downloadingItem.DownloadOperation.Progress.TotalBytesToReceive;
             var receivedSize = downloadingItem.DownloadOperation.Progress.BytesReceived;
             var megaBytes = (totalSize - receivedSize) / 1000_000.0;
             var downloadProgressDescription = $"ダウンロード中\n{downloadingItemVideoInfo.Title}\n残り {megaBytes:0.0} MB ( {receivedSize / 1000_000.0:0.0} MB / {totalSize / 1000_000.0:0.0} MB)";
-            var isCancelCacheAndPlay = await _dialogService.ShowMessageDialog("ニコニコのプレミアム会員以外は 視聴とダウンロードは一つしか同時に行えません。\n視聴を開始する場合、キャッシュは中止されます。またキャッシュを再開する場合はダウンロードは最初からやり直しになります。\n\n" + downloadProgressDescription, "キャッシュを中止して視聴を開始しますか？", "キャッシュを中止して視聴する", "何もしない");
+            */
+            var isCancelCacheAndPlay = await _dialogService.ShowMessageDialog(
+                "CancelCacheAndPlayDesc".Translate(),
+                "CancelCacheAndPlayTitle".Translate(),
+                "CancelCacheAndPlay".Translate(),
+                "Cancel".Translate()
+                );
             return isCancelCacheAndPlay;
         }
     }

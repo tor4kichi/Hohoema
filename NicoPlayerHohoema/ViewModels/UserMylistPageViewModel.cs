@@ -24,6 +24,8 @@ using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.Interfaces;
 using Reactive.Bindings.Extensions;
 using NicoPlayerHohoema.UseCase;
+using I18NPortable;
+using NicoPlayerHohoema.Commands.Mylist;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -53,7 +55,8 @@ namespace NicoPlayerHohoema.ViewModels
             MylistRepository mylistRepository,
             UserMylistManager userMylistManager,
             LocalMylistManager localMylistManager,
-            HohoemaPlaylist hohoemaPlaylist
+            HohoemaPlaylist hohoemaPlaylist,
+            CreateLocalMylistCommand createLocalMylistCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -64,6 +67,7 @@ namespace NicoPlayerHohoema.ViewModels
             _mylistRepository = mylistRepository;
             _userMylistManager = userMylistManager;
             _localMylistManager = localMylistManager;
+            CreateLocalMylistCommand = createLocalMylistCommand;
             HohoemaPlaylist = hohoemaPlaylist;
             IsLoginUserMylist = new ReactiveProperty<bool>(false);
 
@@ -78,7 +82,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 MylistGroupEditData data = new MylistGroupEditData()
                 {
-                    Name = "新しいマイリスト",
+                    Name = "",
                     Description = "",
                     IsPublic = false,
                     MylistDefaultSort = MylistDefaultSort.Latest,
@@ -129,11 +133,10 @@ namespace NicoPlayerHohoema.ViewModels
                 }
 
                 // 確認ダイアログ
-                var originText = item.GetOrigin() == PlaylistOrigin.Local ? "ローカルマイリスト" : "マイリスト";
-                var contentMessage = $"{item.Label} を削除してもよろしいですか？（変更は元に戻せません）";
+                var contentMessage = "ConfirmDeleteX_ImpossibleReDo".Translate(item.Label);
 
-                var dialog = new MessageDialog(contentMessage, $"{originText}削除の確認");
-                dialog.Commands.Add(new UICommand("削除", async (i) =>
+                var dialog = new MessageDialog(contentMessage, "ConfirmDeleteX".Translate(item.GetOrigin().Translate()));
+                dialog.Commands.Add(new UICommand("Delete".Translate(), async (i) =>
                 {
                     if (item is LocalPlaylist localPlaylist)
                     {
@@ -145,7 +148,7 @@ namespace NicoPlayerHohoema.ViewModels
                     }
                 }));
 
-                dialog.Commands.Add(new UICommand("キャンセル"));
+                dialog.Commands.Add(new UICommand("Cancel".Translate()));
                 dialog.CancelCommandIndex = 1;
                 dialog.DefaultCommandIndex = 1;
 
@@ -162,7 +165,7 @@ namespace NicoPlayerHohoema.ViewModels
                         return;
                     }
 
-                    var resultText = await DialogService.GetTextAsync("プレイリスト名を変更",
+                    var resultText = await DialogService.GetTextAsync("RenameLocalPlaylist".Translate(),
                         localPlaylist.Label,
                         localPlaylist.Label,
                         (tempName) => !string.IsNullOrWhiteSpace(tempName)
@@ -214,30 +217,6 @@ namespace NicoPlayerHohoema.ViewModels
                     }
                 }
             });
-
-
-
-            AddLocalMylistCommand = new DelegateCommand(async () =>
-            {
-                var name = await DialogService.GetTextAsync("新しいローカルマイリスト名を入力", "ローカルマイリスト名", "",
-                    (s) =>
-                    {
-                        if (string.IsNullOrWhiteSpace(s)) { return false; }
-
-                        if (_localMylistManager.LocalPlaylists.Any(x => x.Label == s))
-                        {
-                            return false;
-                        }
-
-                        return true;
-                    });
-
-                if (name != null)
-                {
-                    _localMylistManager.CreatePlaylist(name);
-                }
-            });
-            
         }
 
         public UserMylistManager _userMylistManager { get; private set; }
@@ -268,7 +247,7 @@ namespace NicoPlayerHohoema.ViewModels
         public DelegateCommand<Interfaces.IPlaylist> RemoveMylistGroupCommand { get; private set; }
         public DelegateCommand<Interfaces.IPlaylist> EditMylistGroupCommand { get; private set; }
         
-        public DelegateCommand AddLocalMylistCommand { get; private set; }
+        public CreateLocalMylistCommand CreateLocalMylistCommand { get; private set; }
 
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)

@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.Helpers;
+﻿using I18NPortable;
+using Microsoft.Toolkit.Uwp.Helpers;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Services;
@@ -38,7 +39,7 @@ namespace NicoPlayerHohoema.Models.Subscription
                 var subsc = SubscriptionManager.CreateNewSubscription("旧 新着");
 
                 subsc.Destinations.Add(new SubscriptionDestination(
-                    "@view".ToCulturelizeString(),
+                    "@view".Translate(),
                     SubscriptionDestinationTarget.LocalPlaylist,
                     HohoemaPlaylist.WatchAfterPlaylistId)
                     );
@@ -178,7 +179,7 @@ namespace NicoPlayerHohoema.Models.Subscription
                         var newSubscription = SubscriptionManager.CreateNewSubscription(subscriptionLabel);
 
                         // TODO: "あとで見る"の多言語対応
-                        newSubscription.Destinations.Add(new SubscriptionDestination("あとで見る", SubscriptionDestinationTarget.LocalPlaylist, HohoemaPlaylist.WatchAfterPlaylistId));
+                        newSubscription.Destinations.Add(new SubscriptionDestination("@view".Translate(), SubscriptionDestinationTarget.LocalPlaylist, HohoemaPlaylist.WatchAfterPlaylistId));
                         Subscriptions.Insert(0, newSubscription);
 
                         // TODO: ソースアイテムの選択ダイアログ？を表示する
@@ -309,7 +310,7 @@ namespace NicoPlayerHohoema.Models.Subscription
                                 // Add
                                 NotificationService.ShowInAppNotification(
                                     Services.InAppNotificationPayload.CreateReadOnlyNotification(
-                                        content: $"購読「{subscription.Label} 」に「 {newItem.Label}({newItem.SourceType.ToCulturelizeString()})」を追加",
+                                        content: "InAppNotification_AddItem1_ToSubsc0".Translate(subscription.Label, $"{newItem.Label}({newItem.SourceType.Translate()}"),
                                         showDuration: TimeSpan.FromSeconds(3)
                                         ));
                             }
@@ -323,7 +324,7 @@ namespace NicoPlayerHohoema.Models.Subscription
                             var oldItem = (SubscriptionSource)e.OldItems[0];
                             NotificationService.ShowInAppNotification(
                                     Services.InAppNotificationPayload.CreateReadOnlyNotification(
-                                    content: $"購読「{subscription.Label}」から「{oldItem.Label}({oldItem.SourceType.ToCulturelizeString()})」を削除"
+                                    content: "InAppNotification_RemoveItem1_FromSubsc0".Translate(subscription.Label, $"{oldItem.Label}({oldItem.SourceType.Translate()}")
                                     ));
                             break;
                         case System.Collections.Specialized.NotifyCollectionChangedAction.Move:

@@ -8,7 +8,7 @@
   xmlns:myCommands="using:NicoPlayerHohoema.Services.Commands.Ranking"
   mc:Ignorable="d">
 
-  <MenuFlyoutItem Text="お気に入りに追加"
+  <MenuFlyoutItem Text="{Binding Source=AddFavoriteRankingTag, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                   CommandParameter="{Binding}"
                   Visibility="{Binding IsFavorite, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}"
                   >
@@ -17,7 +17,7 @@
     </MenuFlyoutItem.Command>
   </MenuFlyoutItem>
 
-  <MenuFlyoutItem Text="お気に入りから削除"
+  <MenuFlyoutItem Text="{Binding Source=RemoveFavoriteRankingTag, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                   CommandParameter="{Binding}"
                   Visibility="{Binding IsFavorite, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}"
                   >
@@ -28,7 +28,7 @@
 
   <MenuFlyoutSeparator Visibility="{Binding IsFavorite, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}" />
 
-  <MenuFlyoutItem Text="このタグを隠す"
+  <MenuFlyoutItem Text="{Binding Source=HiddenThisRankingTag, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                   CommandParameter="{Binding}"
                   Visibility="{Binding IsFavorite, Mode=OneWay, Converter={StaticResource BooleanToVisibilityInverted}}"
                   >

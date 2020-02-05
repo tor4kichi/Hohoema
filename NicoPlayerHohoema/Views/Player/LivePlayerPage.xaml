@@ -349,7 +349,7 @@
                         <HyperlinkButton IsEnabled="{Binding CanChangeQuality.Value}">
                           <StackPanel Orientation="Horizontal" Margin="0 0 0 8" HorizontalAlignment="Right" Visibility="{Binding CurrentQuality.Value, Converter={StaticResource NotNullToVisibility}}">
                             <TextBlock VerticalAlignment="Center" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" x:Name="LeoLiveQualityTextBlock">
-                                                        <Run Text="{Binding CurrentQuality.Value, Converter={StaticResource ToLocalText}}" /></TextBlock>
+                                                        <Run Text="{Binding CurrentQuality.Value, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
                             <TextBlock x:Name="PlayerTypeTextBlock" Margin="0 0" VerticalAlignment="Center" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"></TextBlock>
                             <TextBlock Visibility="{Binding IsLowLatency.Value, Converter={StaticResource BooleanToVisibility}}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Margin="8 0 0 0">
                                                         <Run Text="{Binding Source=LowLatency, Converter={StaticResource LocalizeConverter}}" /></TextBlock>

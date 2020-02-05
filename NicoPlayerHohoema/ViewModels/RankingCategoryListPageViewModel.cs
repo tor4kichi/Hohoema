@@ -18,6 +18,7 @@ using Prism.Events;
 using Reactive.Bindings.Extensions;
 using System.Diagnostics;
 using NicoPlayerHohoema.UseCase;
+using I18NPortable;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -45,7 +46,7 @@ namespace NicoPlayerHohoema.ViewModels
             
             _RankingGenreItemsSource.Add(new FavoriteRankingGenreGroupItem()
             {
-                Label = "お気に入りタグ",
+                Label = "FavoriteRankingTag".Translate(),
                 IsDisplay = true,
                 Items = new AdvancedCollectionView(FavoriteItems),
             });
@@ -64,7 +65,7 @@ namespace NicoPlayerHohoema.ViewModels
                     return new RankingGenreItem()
                     {
                         Genre = x,
-                        Label = x.ToCulturelizeString(),
+                        Label = x.Translate(),
                         IsDisplay = !RankingSettings.IsHiddenGenre(x),
                         Items = acv
                     };

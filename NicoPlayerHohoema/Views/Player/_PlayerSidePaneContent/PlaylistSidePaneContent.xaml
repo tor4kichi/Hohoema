@@ -75,7 +75,7 @@
                 >
           <StackPanel>
             <TextBlock toolkit:DockPanel.Dock="Top"
-                       Text="現在のプレイリスト"
+                       Text="{Binding Source=CurrentPlaylist, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                        Style="{StaticResource CaptionTextBlockStyle}"
                        Margin="0"
                        Opacity="0.7"></TextBlock>

@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Dialogs;
+﻿using I18NPortable;
+using NicoPlayerHohoema.Dialogs;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Repository.Playlist;
 using NicoPlayerHohoema.Services;
@@ -60,13 +61,13 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             {
                 selectDialogContent = new List<ISelectableContainer>()
                 {
-                    new ChoiceFromListSelectableContainer("ローカルマイリスト",
+                    new ChoiceFromListSelectableContainer("LocalPlaylist".Translate(),
                         localMylists.Where(x => ignoreMylistId.All(y => x.Id != y))
                             .Select(x => new SelectDialogPayload() { Label = x.Label, Id = x.Id, Context = x })
                     ),
-                    new ChoiceFromListSelectableContainer("新規作成",
+                    new ChoiceFromListSelectableContainer("CreateNew".Translate(),
                         new [] {
-                            new SelectDialogPayload() { Label = "ローカルマイリストを作成", Id = "local", Context = CreateNewContextLabel},
+                            new SelectDialogPayload() { Label = "LocalPlaylistCreate".Translate(), Id = "local", Context = CreateNewContextLabel},
                         }
                     )
                 };
@@ -77,7 +78,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             while (resultList == null)
             {
                 var result = await _dialogService.ShowContentSelectDialogAsync(
-                    "追加先マイリストを選択",
+                    "SelectMylist".Translate(),
                     selectDialogContent
                     );
 
@@ -85,24 +86,23 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
                 if (result?.Context as string == CreateNewContextLabel)
                 {
-                    var mylistTypeLabel = result.Id == "mylist" ? "マイリスト" : "ローカルマイリスト";
-                    var title = await _dialogService.GetTextAsync(
-                        $"{mylistTypeLabel}を作成",
-                        $"{mylistTypeLabel}名",
-                        validater: (str) => !string.IsNullOrWhiteSpace(str)
-                        );
-                    if (title == null)
-                    {
-                        continue;
-                    }
-
                     if (result.Id == "mylist")
                     {
+                        var title = await _dialogService.GetTextAsync(
+                        $"MylistCreate".Translate(),
+                        $"MylistNameTextBoxPlacefolder".Translate(),
+                        validater: (str) => !string.IsNullOrWhiteSpace(str)
+                        );
                         await _userMylistManager.AddMylist(title, "", false, Mntone.Nico2.Mylist.MylistDefaultSort.FirstRetrieve_Descending, Mntone.Nico2.Mylist.IconType.Default);
                         resultList = _userMylistManager.Mylists.LastOrDefault(x => x.Label == title);
                     }
                     else //if (result.Id == "local")
                     {
+                        var title = await _dialogService.GetTextAsync(
+                        $"LocalPlaylistCreate".Translate(),
+                        $"LocalPlaylistNameTextBoxPlacefolder".Translate(),
+                        validater: (str) => !string.IsNullOrWhiteSpace(str)
+                        );
                         resultList = _localMylistManager.CreatePlaylist(title); ;
                     }
                 }

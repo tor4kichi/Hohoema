@@ -27,12 +27,7 @@ namespace NicoPlayerHohoema.Commands.Mylist
 
         protected override bool CanExecute(object parameter)
         {
-            if (parameter == null) { return false; }
-
-            if (parameter is Interfaces.IVideoContent) { return true; }
-            if (parameter is string ) { return Mntone.Nico2.NiconicoRegex.IsVideoId(parameter as string); }
-
-            return false;
+            return true;
         }
 
         protected override async void Execute(object parameter)

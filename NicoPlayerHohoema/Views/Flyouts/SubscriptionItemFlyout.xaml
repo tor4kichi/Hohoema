@@ -17,7 +17,7 @@
                             />
 
 
-    <MenuFlyoutItem Text="削除"
+    <MenuFlyoutItem Text="{Binding Source=Delete, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                         Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.RemoveSource}"
                         CommandParameter="{Binding}"
                             />

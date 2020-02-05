@@ -347,7 +347,7 @@
                 Margin="0 0 8 0">
           <Button.Flyout>
             <MenuFlyout>
-              <MenuFlyoutItem Text="{Binding Source=DeleteThimeshift, Converter={StaticResource LocalizeConverter}}"
+              <MenuFlyoutItem Text="{Binding Source=DeleteTimeshift, Converter={StaticResource LocalizeConverter}}"
                               Command="{Binding TogglePreserveTimeshift}" />
             </MenuFlyout>
           </Button.Flyout>

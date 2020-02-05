@@ -9,6 +9,7 @@ using System.Diagnostics;
 using NicoPlayerHohoema.Models.LocalMylist;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.UseCase.Playlist;
+using I18NPortable;
 
 namespace NicoPlayerHohoema.Commands.Mylist
 {
@@ -28,18 +29,17 @@ namespace NicoPlayerHohoema.Commands.Mylist
 
         protected override bool CanExecute(object parameter)
         {
-            if (parameter == null) { return false; }
-
-            if (parameter is Interfaces.IVideoContent) { return true; }
-            if (parameter is string id) { return Mntone.Nico2.NiconicoRegex.IsVideoId(id); }
-
-            return false;
+            return true;
         }
 
         protected override async void Execute(object parameter)
         {
-            var data = new Dialogs.MylistGroupEditData() { };
-            var result = await DialogService.GetTextAsync("新しいローカルマイリストを作成", "ローカルマイリスト名", "", (s) => !string.IsNullOrWhiteSpace(s));
+            var result = await DialogService.GetTextAsync(
+                "LocalPlaylistCreate".Translate(),
+                "LocalPlaylistNameTextBoxPlacefolder".Translate(), 
+                "", 
+                (s) => !string.IsNullOrWhiteSpace(s)
+                );
             if (result != null)
             {
                 var localMylist = new Models.LocalMylist.LocalMylistGroup(Guid.NewGuid().ToString(), result);

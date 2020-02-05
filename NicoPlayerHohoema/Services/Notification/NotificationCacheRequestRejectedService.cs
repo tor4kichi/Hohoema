@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Models.Cache;
+﻿using I18NPortable;
+using NicoPlayerHohoema.Models.Cache;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -24,7 +25,7 @@ namespace NicoPlayerHohoema.Services.Notification
         {
             NotificationService.ShowInAppNotification(new InAppNotificationPayload()
             {
-                Content = $"チャンネル動画はコンテンツ保護のためキャッシュできません"
+                Content = "InAppNotification_CanNotCacheChannelVideos_ForContentProtection".Translate(),
             });
         }
 

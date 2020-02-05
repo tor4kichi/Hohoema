@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp;
+﻿using I18NPortable;
+using Microsoft.Toolkit.Uwp;
 using Microsoft.Toolkit.Uwp.Notifications;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Services.Helpers;
@@ -100,14 +101,14 @@ namespace NicoPlayerHohoema.Services
 
             return new InAppNotificationPayload()
             {
-                Content = $"{nicoVideo.Title} をお探しですか？",
+                Content = "InAppNotification_ContentDetectedFromClipboard".Translate(nicoVideo.Title),
                 ShowDuration = DefaultNotificationShowDuration,
                 SymbolIcon = Symbol.Video,
                 IsShowDismissButton = true,
                 Commands = {
                         new InAppNotificationCommand()
                         {
-                            Label = "再生",
+                            Label = "Play".Translate(),
                             Command = new DelegateCommand(() =>
                             {
                                 Playlist.Play(nicoVideo);
@@ -117,7 +118,7 @@ namespace NicoPlayerHohoema.Services
                         },
                         new InAppNotificationCommand()
                         {
-                            Label = "あとで見る",
+                            Label = "@view".Translate(),
                             Command = new DelegateCommand(() =>
                             {
                                 Playlist.AddWatchAfterPlaylist(nicoVideo);
@@ -127,7 +128,7 @@ namespace NicoPlayerHohoema.Services
                         },
                         new InAppNotificationCommand()
                         {
-                            Label = "動画情報を開く",
+                            Label = HohoemaPageType.VideoInfomation.Translate(),
                             Command = new DelegateCommand(() =>
                             {
                                 PageManager.OpenPageWithId(HohoemaPageType.VideoInfomation, videoId);
@@ -149,14 +150,14 @@ namespace NicoPlayerHohoema.Services
 
             var payload = new InAppNotificationPayload()
             {
-                Content = $"{liveTitle} をお探しですか？",
+                Content = "InAppNotification_ContentDetectedFromClipboard".Translate(liveTitle),
                 ShowDuration = DefaultNotificationShowDuration,
                 SymbolIcon = Symbol.Video,
                 IsShowDismissButton = true,
                 Commands = {
                         new InAppNotificationCommand()
                         {
-                            Label = "視聴する",
+                            Label = "WatchLiveStreaming".Translate(),
                             Command = new DelegateCommand(() =>
                             {
                                 _eventAggregator.GetEvent<Services.Player.PlayerPlayLiveRequest>()
@@ -167,7 +168,7 @@ namespace NicoPlayerHohoema.Services
                         },
                         new InAppNotificationCommand()
                         {
-                            Label = "放送情報を確認",
+                            Label = HohoemaPageType.LiveInfomation.Translate(),
                             Command = new DelegateCommand(() =>
                             {
                                 PageManager.OpenPageWithId(HohoemaPageType.LiveInfomation, liveId);
@@ -183,7 +184,7 @@ namespace NicoPlayerHohoema.Services
             {
                 payload.Commands.Add(new InAppNotificationCommand()
                 {
-                    Label = "コミュニティを開く",
+                    Label = HohoemaPageType.Community.Translate(),
                     Command = new DelegateCommand(() =>
                     {
                         PageManager.OpenPageWithId(HohoemaPageType.Community, liveDesc.VideoInfo.Community.GlobalId);
@@ -210,14 +211,14 @@ namespace NicoPlayerHohoema.Services
             var mylistGroup = mylistDetail.MylistGroup;
             return new InAppNotificationPayload()
             {
-                Content = $"{mylistGroup.Name} をお探しですか？",
+                Content = "InAppNotification_ContentDetectedFromClipboard".Translate(mylistGroup.Name),
                 ShowDuration = DefaultNotificationShowDuration,
                 SymbolIcon = Symbol.Video,
                 IsShowDismissButton = true,
                 Commands = {
                         new InAppNotificationCommand()
                         {
-                            Label = "マイリストを開く",
+                            Label = HohoemaPageType.Mylist.Translate(),
                             Command = new DelegateCommand(() =>
                             {
                                 PageManager.OpenPageWithId(HohoemaPageType.Mylist, mylistId);
@@ -243,14 +244,14 @@ namespace NicoPlayerHohoema.Services
             var communityInfo = communityDetail.CommunitySammary.CommunityDetail;
             return new InAppNotificationPayload()
             {
-                Content = $"{communityInfo.Name} をお探しですか？",
+                Content = "InAppNotification_ContentDetectedFromClipboard".Translate(communityInfo.Name),
                 ShowDuration = DefaultNotificationShowDuration,
                 SymbolIcon = Symbol.Video,
                 IsShowDismissButton = true,
                 Commands = {
                         new InAppNotificationCommand()
                         {
-                            Label = "コミュニティを開く",
+                            Label = HohoemaPageType.Community.Translate(),
                             Command = new DelegateCommand(() =>
                             {
                                 PageManager.OpenPageWithId(HohoemaPageType.Community, communityId);
@@ -270,14 +271,14 @@ namespace NicoPlayerHohoema.Services
 
             return new InAppNotificationPayload()
             {
-                Content = $"{user.ScreenName} をお探しですか？",
+                Content = "InAppNotification_ContentDetectedFromClipboard".Translate(user.ScreenName),
                 ShowDuration = DefaultNotificationShowDuration,
                 SymbolIcon = Symbol.Video,
                 IsShowDismissButton = true,
                 Commands = {
                         new InAppNotificationCommand()
                         {
-                            Label = "ユーザー情報を開く",
+                            Label = HohoemaPageType.UserInfo.Translate(),
                             Command = new DelegateCommand(() =>
                             {
                                 PageManager.OpenPageWithId(HohoemaPageType.UserInfo, userId);
@@ -287,7 +288,7 @@ namespace NicoPlayerHohoema.Services
                         },
                         new InAppNotificationCommand()
                         {
-                            Label = "動画一覧を開く",
+                            Label = HohoemaPageType.UserVideo.Translate(),
                             Command = new DelegateCommand(() =>
                             {
                                 PageManager.OpenPageWithId(HohoemaPageType.UserVideo, userId);

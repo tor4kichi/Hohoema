@@ -77,17 +77,22 @@
               <StackPanel>
                 <CommandBar x:Name="TopCommandBar" toolkit:DockPanel.Dock="Right" VerticalContentAlignment="Bottom">
                   <CommandBar.SecondaryCommands>
-                    <AppBarButton Label="{Binding Source=DeleteOutdatedReservationConfirm_Title, Converter={StaticResource ToLocalText}}" Icon="Delete" Command="{Binding DeleteOutdatedReservations}" />
+                    <AppBarButton Label="{Binding Source=DeleteOutdatedReservationConfirm_Title, Converter={StaticResource LocalizeConverter}}" Icon="Delete" Command="{Binding DeleteOutdatedReservations}" />
                   </CommandBar.SecondaryCommands>
                   <CommandBar.PrimaryCommands>
-                    <AppBarButton x:Name="ScrollToTopButton" Label="トップへ戻る" Icon="Up">
+                    <AppBarButton x:Name="ScrollToTopButton"
+                                  Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Up">
                       <i:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Click">
                           <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
                         </core:EventTriggerBehavior>
                       </i:Interaction.Behaviors>
                     </AppBarButton>
-                    <AppBarButton x:Name="UpdateButton" Command="{Binding RefreshCommand}" Background="Transparent" Icon="Refresh" Label="更新" />
+                    <AppBarButton x:Name="UpdateButton"
+                                  Command="{Binding RefreshCommand}"
+                                  Background="Transparent"
+                                  Icon="Refresh"
+                                  Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" />
                   </CommandBar.PrimaryCommands>
                 </CommandBar>
               </StackPanel>

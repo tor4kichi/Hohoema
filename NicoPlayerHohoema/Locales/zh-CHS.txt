@@ -1,202 +1,65 @@
 #### General ####
+cancel = 取消
+Cancel = 取消
+Confirm = 决断
 
+CreateNew = 新创作
+Delete = 删掉
 
+Edit = 编辑
+Reset = 重设
+Share = 分享到
+Copy = 复制
+Add = 新增
+OpenAsLink = 开启连结
+CopyAsLink = 复制链接
+OpenWithBrowser = 在浏览器中打开
+Search = 搜寻
+Refresh = 更新资料
+ReturnToPageTop = 回页首
+NoSelected = 没有选择
+Settings = 设定值
 
-
-
-
-
-
-
-
-
+ContentOwner = 车主
+Profile = 个人资料
+Notice = 注意事项
+All = 全部
+Close = 关门
+Open = 开门
+Rename = 重命名
+RenameX = 重命名{0}
+ConfirmDeleteX = 删除{0}？
+ConfirmDeleteX_ImpossibleReDo = 您确定要删除{0}吗？ （更改无法撤消）
+Submit = 提交
+Done = 完成
+Select = 请选择
 
 
 #### Hohoema App ####
-
-
-
-
-
-
-
-
-
-#### Settings ####
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#### Niconico General ####
-
-
-
-
-
-
-
-
-#### Nico Follow ####
-
-
-
-
-
-
-
-
-
-#### Nicorepo ####
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#### Ranking ####
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#### Comment Command Editer ####
-
-
-
-
-
-
-
-
-
-#### Video ####
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#### Live ####
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#### PlayerSettings ####
-
-
-
-
-
-
-
-
-# 全て表示（NGScoreを無視）
-
-# NGScore -10000 以上を表示
-
-# NGScore -4800 以上を表示
-
-# NGScore -1000 以上を表示
-
-# NGScore -100 以上を表示
-
-# NGScore -10 以上を表示
+HohoemaAppServiceLevel.Offline = 离线
+HohoemaAppServiceLevel.WithoutLoggedIn = 未登录
+HohoemaAppServiceLevel.LoggedIn = 已登陆
+HohoemaAppServiceLevel.ServiceUnavailable = Niconico动画服务不可用
+
+NiconicoServiceType.Video = 视频
+NiconicoServiceType.Live = 直播
+
+ToastNotification_ExceptionHandled = Hohoema遇到问题
+OpenErrorLog = 复制错误日志
+OpenErrorLogFolder = 打开日志文件夹
+
+## Clipboard action
+InAppNotification_ContentDetectedFromClipboard = 寻找{0}？
 
 
 #### PageType ####
 HohoemaPageType.ChannelInfo = 频道信息
 HohoemaPageType.ChannelVideo = 频道视频
-
+HohoemaPageType.LiveInfomation = 直播信息
 HohoemaPageType.CacheManagement = 缓存管理
-
+HohoemaPageType.Community = 社区信息
 HohoemaPageType.CommunityVideo = 社区视频一览
-
+HohoemaPageType.ConfirmWatchHurmfulVideo = 确认播放有害视频
 HohoemaPageType.FeedGroup = Feed流群组
 HohoemaPageType.FeedGroupManage = Mylist更新
 HohoemaPageType.FeedVideoList = Feed流视频一览
@@ -213,125 +76,689 @@ HohoemaPageType.SearchResultMylist = Mylist搜索
 HohoemaPageType.SearchResultTag = 标签搜索
 HohoemaPageType.Settings = 设定
 HohoemaPageType.Splash = 启动画面
-
-
-
+HohoemaPageType.Subscription = 订阅
+HohoemaPageType.Timeshift = 时移
+HohoemaPageType.UserInfo = 用户信息
 HohoemaPageType.UserMylist = Mylist一览
 HohoemaPageType.UserVideo = 用户视频一览
 HohoemaPageType.VideoInfomation = 动画信息
 HohoemaPageType.WatchHistory = 播放历史
-
-
-
-#### Search ####
-
-
-
-
-
-
-
-
-
-#### Watch History ####
-
-
-
-
-
-
-
-
-
-
-#### Channel ####
-
-
-
-#### Playlist ####
-
-
-
-
-
-#### Mylist ####
-
-
-
-
-#### Local Playlist ####
-
-
-
-
-#### Watch After ####
-
-
-
-
-
-#### Video Items Select Action ####
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#### Subscribe feature ####
-
-
-
-
-
-
-
+HohoemaPageType.LocalPlaylist = 播放清单
+HohoemaPageType.Mylist = Mylist
+
+
+#### Menu ####
+LogInUserInfo = 登录用户信息
+LogOut = 登出
+LogIn = 已登陆
+
+Pin = 固定
+PinCurrentPage = 固定当前页
+PinChangeArias = 别名针
+PinRemove = 取消固定
+PinHowToAddition = 打开您喜欢的页面，然后使用“ +”按钮将其固定
+PinRenameDialogPlacefolder_EmptyToDefault = 示例）音乐排名（保留空白以返回默认名称）
 
 
 #### Video Cache feature ####
+Cache = 快取
+CacheProgress = DL
+CachePending = DL等待
+SelectDeleteVideoQuality = 选择要删除的图像质量
+OpenCacheFolder = 打开存储文件夹
+ChangeCacheFolder = 更改存储文件夹
+OpenHohoemaCacheVideoFairUsePolicyText = 显示“使用缓存功能的确认”
+RequireAcceptToUsingVideoCacheInHohoema = 要启用缓存功能，\n您需要同意“关于使用缓存功能的确认”
+RequirePickFolderToUsingVieoCacheInHohoema = 您需要指定一个缓存文件夹以启用缓存功能\n
+PickCacheSaveFolder = 选择缓存存储文件夹
+HohoemaCacheVideoFairUsePolicy = 确认使用缓存功能
+Accept = 同意
+ChoiceCacheSavingFolder = 请为缓存选择一个目标文件夹。 \n选择保存目的地后，使用准备完毕。
+ReadyForVideoCache = 缓存可以使用了
+CacheSaveFolderChangeToX = 缓存目标已更改为{0}
+CacheFolderAccessState.NotAccepted_Desc = 必须同意使用缓存。按下“启用缓存”按钮以显示同意文件
+CacheFolderAccessState.NotEnabled_Desc = 需要激活缓存
+CacheFolderAccessState.NotSelected_Desc = 选择一个文件夹以使用缓存功能
+CacheFolderAccessState.SelectedButNotExist_Desc = 无法确认选择的文件夹。重新连接外部存储或重新选择缓存目标文件夹
+CancelCacheAndPlayDesc = 非Nico Nico Premium会员一次只能查看和下载一个。 \n您必须停止缓存才能开始观看。 \n（以前的所有下载都不会丢失，并且将从头开始重新启动）
+CancelCacheAndPlayTitle = 停止缓存并开始观看？
+CancelCacheAndPlay = 停止缓存并观看
 
 
+#### Subscribe feature ####
+SubscriptionGroup_Create = 创建订阅组
+SubscriptionGroupCreate_Flyout_Title = 订阅组名称
+SubscriptionsEmptyNotice = 订阅功能可以自动检查新视频。创建订阅组，用户和搜索关键字并在订阅组中注册时，它会定期（每15分钟）巡逻一次，并将新项目添加到播放列表中，例如“稍后观看”。
+SubscriptionAddUser = 将作者添加到订阅
+SubscriptionAddMylist = 将我的列表添加到订阅
+SubscriptionAddKeyword = 将关键字添加到订阅
+SubscriptionAddTag = 将标签添加到订阅
+SubscriptionAddToNew = 创建和添加订阅
+AutoUpdateToggleButtonTitle = 自动更新
+SelectSubscriptionGroup = 选择要添加的订阅
+SubscriptionGroup_Delete = 删除订阅组
+
+InAppNotification_AddItem1_ToSubsc0 = 在订阅“ {0}”中添加了“ {1）”
+InAppNotification_RemoveItem1_FromSubsc0 = 从订阅“ {0}”中删除“ {1）”
+
+ExcludeKeywordSettings = 排除标题设置
+ExcludeKeywordOnVideoTitle = 排除的视频标题关键字
+UseRegularExpression = 使用正则表达式
+AutoRefresh = 自动更新
+AddToPlaylist = 目标播放列表
+
+
+#### Settings ####
+AppearanceSettings = 显示设定
+ApplicationDisplayMode = 显示方式
+ApplicationDisplayMode.TV = 电视台
+ApplicationDisplayMode.Desktop = 台式机
+ApplicationDisplayMode.Tablet = 平板电脑
+ApplicationDisplayMode.Mobile = 手机版
+ApplicationInteractionMode = 版面模式
+ApplicationInteractionMode.Controller = 控制者
+ApplicationInteractionMode.Mouse = 滑鼠
+ApplicationInteractionMode.Touch = 触碰
+DisplayLanguage = 显示语言🌏
+FirstOpenPageType = 启动时显示的页面
+Theme = 主题
+ElementTheme.Default = 根据系统设置
+ElementTheme.Light = 轻便
+ElementTheme.Dark = 黑暗的
+FilterSettings = 筛选器设定
+FilterEnableWithVideoOwnerID = 按视频提供者ID过滤
+ShowFilteredVideoOwnerNames = 显示过滤的视频提供者名称
+FilterEnableWithVideoTitle = 按视频标题过滤
+AvairableRegureExpression = 正则表达式可用
+CacheSettings = 缓存设置
+DefaultCacheVideoQuality = 缓存视频的图像质量
+AboutThisApp = 关于这个程序
+ApplicationVersion = 应用程式版本
+UpdateNotice = 更新信息
+ShowUpdateNote = 查看更新的信息
+DevelopProjectPage_LinkTitle = 项目页面
+PrivacyPolicy = 私隐政策
+Feedback = 意见反馈
+SendMessageToDeveloperWith_Marshmallow-QA = 使用匿名问题服务<Marshmallow>向开发人员发送消息
+ReviewInMicrosoftStore = 从商店提交评论
+ThirdPartyLibraryDependencies = 应用中使用的库
+Others = 其他
+Purchased = 已购买
+
+ShowErrorLogButtonTitle = 错误记录
+CopyAppVersionToClipboard = 复制版本号
+EnableDebugModeToggleSwitchTitle = 启用调试模式
+
+
+#### Niconico General ####
+PrivateReasonType.PostedBy = 投稿者删除
+PrivateReasonType.Private = 非公开设定
+PrivateReasonType.Publishers = 管理员删除
+PrivateReasonType.RightsHolders = 版权方删除
+
+VideoOwner = 贡献者
+Follow = 跟随
+Keyword = 关键字
+Tag = 标签
+NiconicoIchiba = 市场
+Mylist = Mylist
+Comment  = 留言
+
+
+#### Login ####
+LogInToNiconicoVideo = 登录到Nico Nico Douga
+Mail = 电邮地址
+Password = 密码
+AllowSavePassword = 记住密码
+IfCreateNewAccount_ClickHere = 点击这里创建一个新帐户
+IfForgetPassword_ClickHere = 如果您忘记了密码，请重新签发
+Hohoema_PrivacyPolicy = Hohoema隐私政策
+
+TwoFactorAuth_InputCode = 输入验证码
+CodeTextBoxPlacefolder_Input6digit = 输入6位数字
+IsTrustedDevice = 信任您的设备
+IsTrustedDevice_Desc = 启用此功能即可从下一次跳过此设备上的两步验证
+
+UnavailableNiconicoService = [Nico Nico服务不可用] \n服务可能正在维护中，或者服务可能已发生故障
+LoginFailed_WrongMailOrPassword = 您的电子邮件地址或密码似乎不一样
+NowProcessTwoFactorAuth = 处理两因素验证
+
+
+#### Comment Command Editer ####
+CommentCommand = 命令
+CommentSubmitWithAnonymous = 匿名发布
+CommentSubmitWithAnonymousDescription = 无法在频道社区视频上匿名发布
+CommentSize = 字号
+CommentVerticalAlignment = 垂直对齐
+CommentColor = 评论颜色
+UseFreeInputCommand = 使用任意输入命令
+FreeInputCommandTextBoxPlacefolderText = 在这里自由输入命令
+
+
+#### Video ####
+NicoVideoQuality.Smile_Low = 旧的低画质
+NicoVideoQuality.Smile_Original = 旧的原始图像质量
+NicoVideoQuality.Dmc_High = 高画质
+NicoVideoQuality.Dmc_Low = 低画质
+NicoVideoQuality.Dmc_Midium = 中等图像质量
+NicoVideoQuality.Dmc_Mobile = 手机图像质量
+NicoVideoQuality.Dmc_SuperHigh = 很高的图像质量
+
+VideoPostAt = 发布日期
+VideoPostAt_Short = 发布
+
+ViewCount = 观看次数
+ViewCount_Short = 玩游戏
+CommentCount = 留言
+CommentCount_Short = 米饭
+MylistCount = 我的清单数
+MylistCount_Short = 我的
+
+Play = 玩游戏
+PlayPauseToggleButtonTitle = 播放/暂停
+Quality = 画质
+PlaybackRate = 播放速度
+FullScreen = 全萤幕
+CompactOverlay = 前小屏
+WindowInWindow = 小窗户
+PlayWithSecondaryView = 在另一个窗口中观看
+PlayWithPrimaryView = 在主视窗中观看
+FixToLandscape = 侧身固定
+
+SoundVolume = 数量
+SeekPlaybackPosition = 寻求
+Seconds = 第二个
+SwitchToMainWindow = 切换到主窗口
+VideoInfomation = 影片资讯
+RelatedInfomation = 相关资料
+
+DisableSeekFromNicoScript = 寻求海报禁止的人
+DisableCommentSubmitFromNicoScript = 作者禁止发表评论
+
+VideoPlayWithCached = 已缓存
+VideoPlayWithOnline = 在线播放
+
+LoudnessCorrectionValueTitle = 调整此视频的音量
+UseLoudnessCorrection = 减少视频之间的音量差异
+Mute = 静音
+ToggleHideComment = 隐藏评论
+CommentTextBoxPlacefolder = 留言
+SubmitComment = 发布
+
+RecommendedNextVideo = 下一个视频
+CanNotPlay = 该视频无法播放
+CanNotPlayWithPrivateReason = 该视频为{0}，因此无法播放
+CanNotPlayNotice_NotSupportSWF = 不支持SWF格式的视频，无法观看
+
+DeletedVideoNoticeWithTitle = {0}是已删除的视频
+DeletedVideoNotice = 删除的视频
+DeletedVideoToastNotificationTitleWithVideoId = 视频{0}无法播放
+ToastNotification_VideoDeletedWithId = 视频删除：{0}
+ToastNotification_ExplainVideoForceDeletion = “ {0}”已被强制删除，因为它已从NicoNico Video Server中删除。
+
+# CommentCommandEditer
+OpenAboutCommentCommand = 关于命令
+CommentSizeCommandSampleText = 一
+CommentVerticalPositionTopCommandText = 以上
+CommentVerticalPositionMiddleCommandText = 中间的
+CommentVerticalPositionBottomCommandText = 低于
+
+# Video Settings
+VideoPlayerSettings = 视频播放器设置
+PlaylistEndedAction = 播放完成时自动采取行动
+NextVideoAutoDectectionAndMove = 自动检测并移至下一部分视频
+CommentSubmitSettings = 发表评论设置
+EnableAnonimityCommentCommandAsDefault = 默认启用匿名（184）命令
+PauseWithWritingComment = 开始评论后暂停视频
+CommentDisplaySettings = 评论显示设置
+CommentDisplayDuration = 显示评论时间
+CommentDisplaySize = 显示评论的大小
+CommentOpacity = 评论不透明度
+CommentDefaultColor = 默认评论颜色
+CommentFilteringSettings = NG的评论设定
+AppearShareNGScore = 显示共享的NG分数
+EnableCommentFilteringWithFreeWord = 启用评论过滤
+PlacefolderCommentFilteringFreeWord = 输入NG评论
+CommentFilteringHowToUse = ・为每行指定一个过滤字符串\n ・可以使用正则表达式
+AutoShortingKUSAWords = 自动割草机
+AutoShortingKUSAWordsDescription = *将连续的“ w”修饰为一个字符
+AutoShortingKUSAWordsExample = wwwww-> w
+NicoScriptSettings = NicoScript设置
+NicoScript_Default = ＠默认
+NicoScript_DisallowSeek = 禁止
+NicoScript_DisallowComment = prohibited禁止评论
+NicoScript_Jump = ＠跳
+DesktopSettings = 桌面设置
+SoundVolumeChangeValueWithMouseScroll = 鼠标滚动音量更改
+
+
+#### Live ####
+LivePlayingQuality = 直播影像质量
+super_high = 超高画质
+high = 高画质
+normal = 普通画质
+low = 低画质
+super_low = 移动设备画质
+audio_high = 音质优先
+
+LowLatency = 低延迟模式
+
+ReservationStatus.PRODUCT_ARCHIVE_TIMEOUT = 观看期结束
+ReservationStatus.PRODUCT_ARCHIVE_WATCH = 可见的
+ReservationStatus.RESERVED = 已预留
+ReservationStatus.TSARCHIVE = 可见的
+ReservationStatus.USE_LIMIT_DATE_OUT = 查看权限已过期
+ReservationStatus.WATCH = 可见的
+ReservationStatus.USER_TIMESHIFT_DATE_OUT = 观看期结束
+ReservationStatus.FIRST_WATCH = 未被监视
+ReservationStatus.LIMIT_DATE_OUT = 观看权到期
+
+Expired_AllDayLong = 整天
+Expired_Unlimited = 未指定或无限
+
+DeleteOutdatedReservationConfirm_Title = 批量删除过期的时移
+DeleteReservationConfirm_Agree = 删除时移预约
+DeleteReservationConfirmText = 删除以下时移保留
+DeleteSelectedReservationConfirm_Title = 批量删除所选时移
+DeletingReservations = 删除时移
+
+LiveStreamingStartAt = 开始播放
+LiveStreamingEndAt = 广播结束
+LiveStreamingDescription = 广播说明
+LinkItemsInLiveStreamingDescription = 广播说明中的链接
+NoTags = 没有注册标签
+LiveStreamOwner = 播音员
+CommunityMemberCount = 成员人数
+CommunityLevel = 等级
+CommunityDetail = 社区详情
+ThisStreamingIsPresentedByOfficial = 此广播已正式分发
+
+WatchLiveStreaming = 观看
+
+TimeShift_WatchLimit = 查看到期日期
+AddTimeshift = 时移预约
+AlreadyAddedTimeshift = 时移保留
+DeleteThimeshift = 删除预订
+ConfirmDeleteTimeshift = 删除时移预约？
+InAppNotification_DeletedTimeshift = 时移预约已删除
+InAppNotification_FailedDeleteTimeshift = [失败]无法删除时移预约
+DialogContent_ConfirmTimeshiftReservationiOverwrite = 您可以通过时移保留“ {1}”覆盖“ {0}”来进行保留。 \n（如果要删除其他时移，请取消它，然后从时移列表页面进行操作。）
+DialogTitle_ConfirmTimeshiftReservationiOverwrite = 预订位没有空位。覆盖旧时移预订？
+Overwrite = 覆写
+InAppNotification_AddedTimeshiftWithTitle = 为“ {0}”保留时移
+InAppNotification_ExistTimeshift = 指定的广播已被时移保留
+InAppNotification_TimeshiftExpired = 由于时移保留已过期，因此无法保留指定的广播
+Dialog_ConfirmTimeshiftWatch_WatchLimitByDate = 您要开始时移观看此广播吗？ \n您只能在发行期内反复观看。 \n \n发布日期：{0}
+Dialog_ConfirmTimeshiftWatch_WatchLimitByDuration = 您要开始时移观看此广播吗？ \n观看有效期从观看开始就设置。您只能在观看期间内重复观看。 \n \n预计观看时间：{0}
+FailedWatchLive = 无法获取直播信息
+
+CopyLiveStreamingLink = 复制直播链接
+CopyLiveStreamingId = 复制直播ID
+CopyLiveStreamingShareText = 复制共享文本
+
+LiveInfomation = 广播信息
+LiveBroadcasterInfomation = 广播员信息
+
+DisallowCommentInTimeshift = 观看时移时您无法发表评论
+
+# Live Settings
+LivePlayerSettings = 直播播放器设置
+
+# Live ListViewItem
+LiveContentElement.Provider_Community = 社区活动
+LiveContentElement.Provider_Channel = 频道
+LiveContentElement.Provider_Official = 官方的
+LiveContentElement.Status_Pending = 播放前
+LiveContentElement.Status_Open = 广播（开始之前）
+LiveContentElement.Status_Start = 播出
+LiveContentElement.Status_Closed = 广播结束
+LiveContentElement.Timeshift_Enable = 时移
+LiveContentElement.Timeshift_Preserved = 时移（保留）
+LiveContentElement.Timeshift_OutDated = 时移（过期）
+LiveContentElement.Timeshift_Watch = 时移（保留）
+LiveContentElement.MemberOnly = 仅限会员
+
+LiveViewCount = 来访
+LiveCommentCount = 米饭
+
+
+#### Comment ####
+CommentOwnerAddToHiddenCommentUser = 隐藏对此用户的评论
+RemoveHiddenCommentOwner = 取消隐藏
+HiddenCommentUser = 评论隐藏的用户
+
+
+#### PlayerSettings ####
+PlaylistEndAction.NothingDo = 无动作
+PlaylistEndAction.ChangeIntoSplit = 播放窗口小窗化
+PlaylistEndAction.CloseIfPlayWithCurrentWindow = 关闭播放窗口
+
+# 全て表示（NGScoreを無視）
+CommentNGScoreShareLevel.None = 无
+# NGScore -10000 以上を表示
+CommentNGScoreShareLevel.Weak = 弱（-10000）
+# NGScore -4800 以上を表示
+CommentNGScoreShareLevel.Middle = 中（-4800）
+# NGScore -1000 以上を表示
+CommentNGScoreShareLevel.Strong = 强（-1000）
+# NGScore -100 以上を表示
+CommentNGScoreShareLevel.VeryStrong = 非常强（-100）
+# NGScore -10 以上を表示
+CommentNGScoreShareLevel.UltraVeryStrong = 超强力（-10）
+
+
+#### Nico Follow ####
+FollowItemType.User = 用户名
+FollowItemType.Mylist = Mylist
+FollowItemType.Tag = 标签
+FollowItemType.Community = 社区
+FollowItemType.Channel = 频道
+
+FollowAddedNotification_WithItemName = 跟随“ {0}”
+FollowRemovedNotification_WithItemName = 未关注的“ {0}”
+ConfirmRemoveFollow_DialogDescWithItemName = 取消关注“ {0}（{1}）”
+ConfirmRemoveFollow_DialogTitle = 确认取消关注
+RemoveFollow = 取消关注
+
+FollowInfoIsRequireLogIn = 您需要登录才能查看关注信息
+
+
+#### Nicorepo ####
+NicoRepoItemTopic.Unknown = 不明
+NicoRepoItemTopic.Live_Channel_Program_Onairs = 直播开始（频道）
+NicoRepoItemTopic.Live_Channel_Program_Reserve = 直播预定（频道）
+NicoRepoItemTopic.Live_User_Program_OnAirs = 直播开始（用户）
+NicoRepoItemTopic.Live_User_Program_Reserve = 直播预定（用户）
+NicoRepoItemTopic.NicoVideo_Channel_Blomaga_Upload = Blomaga邮政
+NicoRepoItemTopic.NicoVideo_Channel_Video_Upload = 频道视频发布
+NicoRepoItemTopic.NicoVideo_Community_Level_Raise = 社区水平上升
+NicoRepoItemTopic.NicoVideo_User_Community_Video_Add = 视频的社区注册
+NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video = 在我的列表中注册视频
+NicoRepoItemTopic.NicoVideo_User_Video_Advertise = 用户视频已发布
+NicoRepoItemTopic.NicoVideo_User_Video_Kiriban_Play = 播放编号
+NicoRepoItemTopic.NicoVideo_User_Video_UpdateHighestRankings = 排名最新
+NicoRepoItemTopic.NicoVideo_User_Video_Upload = 用户视频发布
+
+NicorepoNoItems = 没有可显示的Nirekopo
+
+NicoRepo_Video_UserVideoUpload = {0}发布了一个视频
+NicoRepo_Video_UserMylistAddVideo = {0}已将视频添加到“我的列表”中
+NicoRepo_Video_CommunityAddVideo = 将视频添加到{0}（社区）
+NicoRepo_Video_ChannelVideoUpload = {0}发布了一个视频
+NicoRepo_Live_UserProgramOnAirs = {0}已开始直播
+NicoRepo_Live_UserProgramReserve = {0}已预订直播
+NicoRepo_Live_ChannelProgramOnAirs = {0}已开始直播
+NicoRepo_Live_ChannelProgramReserve = {0}已预订直播
+LiveStreamingStartAtWithDateTime = {0}广播开始
+
+
+#### Ranking ####
+Ranking = 排名
+RankingTerm.Total = 一直
+RankingTerm.Hour = 每小时
+RankingTerm.Month = 每个月
+RankingTerm.Week = 每周一次
+RankingTerm.Day = 24小时
+
+RankingGenre.All = 总排行
+RankingGenre.Animal = 动物
+RankingGenre.Anime = 动漫
+RankingGenre.Commentary_Lecture = 评论/讲座
+RankingGenre.Cooking = 做饭
+RankingGenre.Dance = 试跳
+RankingGenre.Nature = 大自然
+RankingGenre.Music_Sound = 音乐/声音
+RankingGenre.Other = 其他
+RankingGenre.R18 = R-18（成人内容）
+RankingGenre.Radio = 广播
+RankingGenre.Society_Politics_News = 社会，政治，时事
+RankingGenre.Sports = 体育运动
+RankingGenre.Technology_Craft = 技术/工作
+RankingGenre.Traveling_Outdoor = 旅游/户外
+RankingGenre.Vehicle = 车辆
+RankingGenre.Game = 游戏
+RankingGenre.Entertainment = 娱乐
+RankingGenre.HotTopic = 话题
+
+RankingNoItems = 无法获得排名项目\n请稍后再试
+
+RankingTitleWithGenre = 排名: {0}
+SelectDisplayRankingGenreOrTag = 指定要重新显示的流派和标签
+FavoriteRankingTag = 最喜欢的标签
+AddFavoriteRankingTag = 添加到收藏夹
+RemoveFavoriteRankingTag = 从收藏夹中删除
+HiddenThisRankingTag = 隐藏这个标签
+HiddenThisRankingGenre = 隐藏此类型
+
+
+#### Search ####
+SearchTarget.Keyword = 关键字
+SearchTarget.Tag = 标签
+SearchTarget.Mylist = Mylist
+SearchTarget.Community = 社区
+SearchTarget.Niconama = 直播
+
+TagSearchNoItems = 没有与标签匹配的项目
+KeywordSearchNoItems = 没有与您的关键字匹配的项目
+
+SearchHistory = 搜索记录
+RemoveSearchHistory = 从搜索记录中删除
+
+Sort.NewComment_Ascending = 最早的评论
+Sort.NewComment_Descending = 最新评论
+Sort.ViewCount_Ascending = 观看次数最少的顺序
+Sort.ViewCount_Descending = 最多玩
+Sort.MylistCount_Ascending = 我列表中数量最少的订单
+Sort.MylistCount_Descending = 最我的清单
+Sort.CommentCount_Ascending = 评论最少的顺序
+Sort.CommentCount_Descending = 评论最多的顺序
+Sort.FirstRetrieve_Ascending = 最早的发布日期
+Sort.FirstRetrieve_Descending = 最新发布日期
+Sort.Length_Ascending = 视频时间最短
+Sort.Length_Descending = 最长的录像时间
+Sort.Popurarity_Ascending = 人气下降
+Sort.Popurarity_Descending = 最受欢迎的
+Sort.MylistPopurarity_Ascending = 人气下降
+Sort.MylistPopurarity_Descending = 最受欢迎的
+Sort.VideoCount_Ascending = 视频最少的顺序
+Sort.VideoCount_Descending = 多数视频优先
+Sort.UpdateTime_Ascending = 最旧的更新优先
+Sort.UpdateTime_Descending = 更新是最新的
+Sort.Relation_Ascending = 精度降序
+Sort.Relation_Descending = 精度降序
+
+CommunitySearchSort.CreatedAt_Ascending = 最早到最新
+CommunitySearchSort.CreatedAt_Descending = 最新作品
+CommunitySearchSort.UpdateAt_Ascending = 最旧的更新优先
+CommunitySearchSort.UpdateAt_Descending = 更新是最新的
+CommunitySearchSort.CommunityLevel_Ascending = 等级升序
+CommunitySearchSort.CommunityLevel_Descending = 下降水平
+CommunitySearchSort.MemberCount_Ascending = 注册会员少的订单
+CommunitySearchSort.MemberCount_Descending = 注册最多的会员
+CommunitySearchSort.VideoCount_Ascending = 发布视频最少的顺序
+CommunitySearchSort.VideoCount_Descending = 发布视频数量最多的顺序
+
+CommunitySearchWithKeyword = 按关键词搜索
+CommunitySearchWithTag = 按标签搜索
+
+LiveSearchResultOption_Order = 显示顺序
+LiveSearchResultOption_Mode = 广播状态
+LiveSearchResultOption_Provider = 播音员
+NicoliveSearchSort.Recent_Ascending = 广播日期最接近的顺序
+NicoliveSearchSort.Recent_Descending = 广播日期最远
+NicoliveSearchSort.Comment_Ascending = 最多评论
+NicoliveSearchSort.Comment_Descending = 评论最少的顺序
+
+NicoliveSearchMode.OnAir = 播出
+NicoliveSearchMode.Reserved = 广播
+NicoliveSearchMode.Closed = 广播结束
+
+CommunityType.Official = 官方的
+CommunityType.Channel = 频道
+CommunityType.Community = 用户名
+
+SearchWithKeyword = 关键字搜寻
+SearchWithTag = 标签搜寻
+
+#### Playlist ####
+PlayAll = 全部播放
+CurrentPlaylist = 当前播放列表
+
+DeleteLocalPlaylistDescription = 此操作无法撤消。
+DeleteLocalPlaylistTitle = 删除{0}
+
+
+#### Local Playlist ####
+LocalPlaylistDelete = 删除播放列表
+LocalPlaylistNoItems = 播放列表为空
+
+
+#### Watch After ####
+@view = 稍后观看
+@queue = 列
+RemoveWatchedItems = 删除观看
+
+
+#### Mylist ####
+MylistOwner = 车主信息
+MylistEditInfo = 编辑我的清单信息
+MylistDelete = 删除我的清单
+
+MylistRegisteredCount = 报名
+MylistRegisteredCountLimit = 上限
+MylistRegisteredCountSum = 合计
+
+# ex) マイリストに登録完了\n「作業用BGM」に「動画タイトル」を追加しました
+CompleteRegisrationForKind0_AddItem2_ToKindTitle1 = {0}的注册完成\n“ {2}”已添加到“ {1}”
+ExistRegisrationForKind0_AddItem2_ToKindTitle1 = 已添加到{0} \n“ {2}”已添加到“ {1}”
+FailedRegisrationForKind0_AddItem2_ToKindTitle1 = {0}上的注册失败\n无法将“ {2}”添加到“ {1}”
+
+
+## Edit Mylist
+MylistName = 我的清单名称
+MylistDescription = 内容描述
+MylistMemo = 注意事项
+MylistPrivateSettings = 开放范围
+MylistPrivateSettings_Private = 只有我
+MylistPrivateSettings_Public = 任何人
+MylistThemeColor = 主题色
+MylistSort = 排序
+
+
+#### Video Items Select Action ####
+RemoveWatchHisotryItem = 从观看记录中删除
+LocalMylistRemoveItem = 从本地我的列表中删除
+MylistRemoveItem = 从我的清单中删除
+QueueAddItem = 添加到队列
+QueueRemoveItem = 从队列中删除
+WatchAfterAddItem = 稍后添加观看
+WatchAfterRemoveItem = 从以后删除
+MylistAddItem = 加到我的清单
+LocalMylistAddItem = 添加到本地我的列表
+SubscriptionAddVideoOwner = 将作者添加到订阅
+
+OpenVideoInfo = 影片资讯
+OpenOwnerVideos = 贡献者的视频列表
+AddHiddenVideoOwner = 隐藏作者
+Dialog_HiddenVideoOwnerDesc = 您可以从设置页面撤消此更改
+Dialog_HiddenVideoOwnerTitle = 隐藏“ {0}”发布的视频？
+ExitOnceReveal = 取消隐藏
+HiddenVideo = 隐藏的视频
+OnceReveal = 现在才刷新
+RemoveHiddenVideoOwner = 取消隐藏
+
+CopyVideoId = 复制视频ID
+CopyVideoLink = 复制视频链接
+CopyShareText = 复制文字以分享
+
+CacheRequest = 获取缓存
+CacheRemove = 删除缓存
+
+SelectAll = 全选
+SelectStart = 开始选择
+SelectEnd = 结束选择
+
+
+#### Video Infomation Page ####
+PlayVideo = 玩游戏
+ThisVideoIsHidden = 该视频已被您的过滤器设置隐藏
+OpenFilterSettings = 打开过滤器设置
+VideoDescription = 影片说明
+VideoOwnerDetail = 作者详情
+VideoIntroduction = 影片介绍
+LinkInVideoIntroduction = 视频介绍链接
+RelatedVideos = 相关影片
+NoItems_RelatedVideos = 没有相关视频
+FailedLoading_VideoInfomation = 无法加载视频信息
 
 
 #### User Videos Page ####
+UserVideosNoItems = 没有发布视频
+UserVideosIsPrivate = 发布的视频是私人的
 
 
+#### UserInfo ####
+UserFollower = 追随者
+UserStamp = 邮票
+UserOwnedVideos = 电影清单
+NoItems_UserOwnedVideos = 没有发布视频
+IsVideoPrivate_UserOwnedVideos = 发布的视频列表是私人的
+NoItems_Mylist = 没有我的清单
 
 
+#### User Mylist ####
+LocalPlaylistCreate = 创建本地我的列表
+LocalPlaylistNameTextBoxPlacefolder = 输入本地我的列表名称
+MylistCreate = 建立我的清单
+MylistNameTextBoxPlacefolder = 输入我的清单名称
+SelectMylist = 选择我的清单
+RenameLocalPlaylist = 重命名我的清单
 
-#### Cache Management Page ####
+EditMylist = 编辑我的清单
+MylistDefaultSort.Old = 最早的注册
+MylistDefaultSort.Latest = 最新注册
+MylistDefaultSort.Memo_Ascending = 注意升序
+MylistDefaultSort.Memo_Descending = 注意降序
+MylistDefaultSort.Title_Ascending = 标题升序
+MylistDefaultSort.Title_Descending = 标题降序
+MylistDefaultSort.FirstRetrieve_Ascending = 最新帖子
+MylistDefaultSort.FirstRetrieve_Descending = 最旧的帖子
+MylistDefaultSort.View_Ascending = 最多玩
+MylistDefaultSort.View_Descending = 播放次数最少的顺序
+MylistDefaultSort.Comment_New = 最新评论
+MylistDefaultSort.Comment_Old = 最早的评论
+MylistDefaultSort.CommentCount_Ascending = 评论最多的顺序
+MylistDefaultSort.CommentCount_Descending = 评论最少的顺序
+MylistDefaultSort.MylistCount_Ascending = 最多添加到我的列表
+MylistDefaultSort.MylistCount_Descending = 添加到“我的列表”最少的顺序
+MylistDefaultSort.Length_Ascending = 最长的录像时间
+MylistDefaultSort.Length_Descending = 视频时间最短
 
 
+#### Ichiba ####
+IchibaNoItems = 没有可显示的项目
 
 
+#### Recommend ####
+Recommend = 推荐的
+RecommendNotFound = 找不到建议
+RelatedTags = 相关标签
 
 
+#### Watch History ####
+WatchHistoryRemoveAll = 删除所有历史
+WatchHistoryConfirmRemove = 真的删除
+WatchHistoryConfirmRemoveDescription = 删除所有观看记录\n我真的可以删除它吗？
+WatchCountWithUnit = {0}次
+WatchHistoryNoItems = 没有观看记录
 
 
+#### Community ####
+CommunityOpenAt = 成立日期
+NowLiveStreaming = 目前正在播放
+CommunityVidoes = 社区视频
 
 
-
-#### Unknonw ####
-
-
-
+#### Channel ####
+ChannelVideoNoItems = 无频道影片
+InAppNotification_CanNotCacheChannelVideos_ForContentProtection = 频道视频无法缓存以进行内容保护

@@ -209,7 +209,7 @@
         <ListView ItemsSource="{Binding MenuItems}" ItemTemplate="{StaticResource MenuItemTemplate}" uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}" IsItemClickEnabled="True" SelectionMode="None" IsTabStop="False" Background="Transparent" ScrollViewer.VerticalScrollMode="Disabled" />
         <Border BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}" Opacity="0.3" BorderThickness="0 1 0 0" VerticalAlignment="Center" Margin="16 8" />
         <Button Command="{Binding PageManager.OpenPageCommand}" CommandParameter="UserMylist" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" Padding="16 0">
-          <TextBlock Text="マイリスト" uwpToolkitControls:DockPanel.Dock="Left" VerticalAlignment="Center" Style="{StaticResource SubtitleTextBlockStyle}" />
+          <TextBlock Text="{Binding Source=Mylist, Converter={StaticResource LocalizeConverter}}" uwpToolkitControls:DockPanel.Dock="Left" VerticalAlignment="Center" Style="{StaticResource SubtitleTextBlockStyle}" />
         </Button>
         <ListView ItemsSource="{Binding Mylists}" ItemTemplate="{StaticResource MenuItemTemplate}" uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}" IsItemClickEnabled="True" SelectionMode="None" IsTabStop="False" Background="Transparent" ScrollViewer.VerticalScrollMode="Disabled" />
         <Border BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}" Opacity="0.3" BorderThickness="0 1 0 0" VerticalAlignment="Center" Margin="16 8" Visibility="{Binding LocalMylists, Converter={StaticResource CollectionVisibilityConverter}}" />
@@ -291,20 +291,16 @@
                   <Button.Flyout>
                     <MenuFlyout>
                       <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenAccountInfo"
-                                      Visibility="Collapsed"
-                                      Text="アカウント情報"
+                                      Visibility="Collapsed" Text="{Binding Source=LogInUserInfo, Converter={StaticResource LocalizeConverter}}"
                                       Command="{Binding OpenAccountInfoCommand}" />
                       <MenuFlyoutItem x:Name="MenuFlyoutItem_Logout"
-                                      Visibility="Collapsed"
-                                      Text="ログアウト"
+                                      Visibility="Collapsed" Text="{Binding Source=LogOut, Converter={StaticResource LocalizeConverter}}"
                                       Command="{Binding LogoutFromNiconicoCommand}" />
                       <MenuFlyoutItem x:Name="MenuFlyoutItem_Login"
-                                      Visibility="Collapsed"
-                                      Text="ログイン"
+                                      Visibility="Collapsed" Text="{Binding Source=LogIn, Converter={StaticResource LocalizeConverter}}"
                                       Command="{Binding NiconicoLoginService.LoginCommand}" />
                       <MenuFlyoutItem x:Name="MenuFlyoutItem_OpenDebugPage"
-                                      Visibility="Collapsed"
-                                      Text="デバッグページを開く"
+                                      Visibility="Collapsed" Text="Open Debug Page"
                                       Command="{Binding OpenDebugPageCommand}" />
                     </MenuFlyout>
                   </Button.Flyout>
@@ -329,7 +325,7 @@
             </uwpToolkitControls:DockPanel>
             <!-- Search Box -->
             <Border uwpToolkitControls:DockPanel.Dock="Top" Margin="8 8 8 8">
-              <TextBox x:Name="SearchTextBox" Text="{x:Bind SearchInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="検索" UseSystemFocusVisuals="True" TabIndex="103" Margin="0 0 0 0" IsFocusEngagementEnabled="True">
+              <TextBox x:Name="SearchTextBox" Text="{x:Bind SearchInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="{Binding Source=Search, Converter={StaticResource LocalizeConverter}}" UseSystemFocusVisuals="True" TabIndex="103" Margin="0 0 0 0" IsFocusEngagementEnabled="True">
                 <i:Interaction.Behaviors>
                   <core:EventTriggerBehavior EventName="GotFocus">
                     <core:CallMethodAction MethodName="SelectAll" />
@@ -356,11 +352,10 @@
                             Height="24"
                             uwpToolkitControls:DockPanel.Dock="Right"
                             Margin="0 0 8 0">
-                      <SymbolIcon Symbol="Add"
-                                  ToolTipService.ToolTip="現在のページをピン留めする"
+                      <SymbolIcon Symbol="Add" ToolTipService.ToolTip="{Binding Source=PinCurrentPage, Converter={StaticResource LocalizeConverter}}"
                                   Opacity="0.55" />
                     </Button>
-                    <TextBlock Text="ピン留め"
+                    <TextBlock Text="{Binding Source=Pin, Converter={StaticResource LocalizeConverter}}"
                                VerticalAlignment="Center"
                                FontSize="14"
                                Margin="16 0 0 0"
@@ -379,11 +374,11 @@
                     <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
                       <DataTemplate>
                         <MenuFlyout>
-                          <MenuFlyoutItem Text="ピンに別名を付ける"
+                          <MenuFlyoutItem Text="{Binding Source=PinChangeArias, Converter={StaticResource LocalizeConverter}}"
                                           Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.PinChangeOverrideLabelCommand}"
                                           CommandParameter="{Binding}" />
                           <MenuFlyoutSeparator />
-                          <MenuFlyoutItem Text="ピン留めを解除"
+                          <MenuFlyoutItem Text="{Binding Source=PinRemove, Converter={StaticResource LocalizeConverter}}"
                                           Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.PinRemoveCommand}"
                                           CommandParameter="{Binding}" />
                         </MenuFlyout>
@@ -395,7 +390,8 @@
                     <TextBlock Opacity="0.7"
                                FontSize="12"
                                Margin="24 0 0 0">
-                                                    好きなページを開いて「＋ボタン」でピン留め</TextBlock>
+                      <Run Text="{Binding Source=PinHowToAddition, Converter={StaticResource LocalizeConverter}}" />
+                    </TextBlock>
                   </StackPanel>
                 </StackPanel>
                 <Pivot >
@@ -406,10 +402,10 @@
                               Value="0" />
                     </Style>
                   </Pivot.ItemContainerStyle>
-                  <PivotItem Header="動画"
+                  <PivotItem Header="{Binding Source=NiconicoServiceType.Video, Converter={StaticResource LocalizeConverter}}"
                              Content="{Binding VideoMenu}"
                              ContentTemplate="{StaticResource VideoSubMenuContentTemplate}" />
-                  <PivotItem Header="生放送"
+                  <PivotItem Header="{Binding Source=NiconicoServiceType.Live, Converter={StaticResource LocalizeConverter}}"
                              Content="{Binding LiveMenu}"
                              ContentTemplate="{StaticResource LiveSubMenuContentTemplate}" />
                 </Pivot>
@@ -493,7 +489,7 @@
                   </core:EventTriggerBehavior>
                 </i:Interaction.Behaviors>
               </Border>
-              <TextBox x:Name="Mobile_SearchTextBox" Text="{x:Bind SearchInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="検索" UseSystemFocusVisuals="True" TabIndex="103" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="120 0 32 0">
+              <TextBox x:Name="Mobile_SearchTextBox" Text="{x:Bind SearchInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="{Binding Source=Search, Converter={StaticResource LocalizeConverter}}" UseSystemFocusVisuals="True" TabIndex="103" Visibility="Collapsed" VerticalAlignment="Center" HorizontalAlignment="Stretch" Margin="120 0 32 0">
                 <i:Interaction.Behaviors>
                   <core:EventTriggerBehavior EventName="GotFocus">
                     <core:CallMethodAction MethodName="SelectAll" />

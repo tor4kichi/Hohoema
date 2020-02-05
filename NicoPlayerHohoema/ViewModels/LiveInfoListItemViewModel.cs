@@ -14,6 +14,7 @@ using Unity;
 using NicoPlayerHohoema.Services.Helpers;
 using Prism.Unity;
 using NicoPlayerHohoema.UseCase.Playlist;
+using I18NPortable;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -341,10 +342,10 @@ namespace NicoPlayerHohoema.ViewModels
 
                         var reservationTitlesText = LiveTitle;
                         var acceptDeletion = await dialogService.ShowMessageDialog(
-                            "DeleteReservationConfirmText".ToCulturelizeString() + "\r\r" + reservationTitlesText,
-                            "DeleteSelectedReservationConfirm_Title".ToCulturelizeString(),
-                            "DeleteReservationConfirm_Agree".ToCulturelizeString(),
-                            "Cancel".ToCulturelizeString()
+                            "DeleteReservationConfirmText".Translate() + "\r\r" + reservationTitlesText,
+                            "DeleteSelectedReservationConfirm_Title".Translate(),
+                            "DeleteReservationConfirm_Agree".Translate(),
+                            "Cancel".Translate()
                             );
 
                         if (!acceptDeletion) { return; }

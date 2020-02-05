@@ -140,7 +140,7 @@
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
             <StackPanel Style="{StaticResource SettingsMiddleGroupStackPanelStyle}">
-              <Grid Visibility="Collapsed">
+              <Grid x:Name="DisplayLanguageLayout" Visibility="Collapsed">
                 <TextBlock Text="{Binding Source=DisplayLanguage, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 <ComboBox ItemsSource="{Binding ElementName=PageRoot, Path=AvairableLocales}" HorizontalAlignment="Right" SelectedItem="{Binding AppearanceSettings.Locale, Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
                   <ComboBox.ItemTemplate>
@@ -155,7 +155,7 @@
                 <ComboBox ItemsSource="{Binding StartupPageTypeList}" SelectedItem="{Binding StartupPageType.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right">
                   <ComboBox.ItemTemplate>
                     <DataTemplate>
-                      <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
+                      <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
                     </DataTemplate>
                   </ComboBox.ItemTemplate>
                 </ComboBox>
@@ -244,7 +244,7 @@
                   <ComboBox.ItemTemplate>
                     <DataTemplate>
                       <TextBlock>
-                                                <Run Text="{Binding Converter={StaticResource ToLocalText}}" /></TextBlock>
+                                                <Run Text="{Binding Converter={StaticResource LocalizeConverter}}" /></TextBlock>
                     </DataTemplate>
                   </ComboBox.ItemTemplate>
                 </ComboBox>
@@ -285,7 +285,7 @@
                                             <templateselector:NicoVideoCacheQualityTemplateSelector.DefaultTemplate>
                                                 <DataTemplate>
                                                     <TextBlock>
-                                                        <Run Text="{Binding Converter={StaticResource ToLocalText}}" />
+                                                        <Run Text="{Binding Converter={StaticResource LocalizeConverter}}" />
                                                     </TextBlock>
                                                 </DataTemplate>
                                             </templateselector:NicoVideoCacheQualityTemplateSelector.DefaultTemplate>
@@ -495,6 +495,18 @@
           <VisualState.Setters>
             <Setter Target="HeaderPanel.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
             <Setter Target="ContentPanel.Margin" Value="{StaticResource ContentListViewBodyMargin_Mobile}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding IsDebugModeEnabled.Value}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="DisplayLanguageLayout.Visibility"
+                    Value="Visible" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

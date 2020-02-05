@@ -29,6 +29,7 @@ using NicoPlayerHohoema.Commands.Cache;
 using Prism.Commands;
 using Prism.Unity;
 using NicoPlayerHohoema.Interfaces;
+using I18NPortable;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -261,7 +262,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 if (info.PrivateReasonType != PrivateReasonType.None)
                 {
-                    Description = info.PrivateReasonType.ToCulturelizeString();
+                    Description = info.PrivateReasonType.Translate();
                 }
                 else
                 {

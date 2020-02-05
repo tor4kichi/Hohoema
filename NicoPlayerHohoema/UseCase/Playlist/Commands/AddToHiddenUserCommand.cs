@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Database;
+﻿using I18NPortable;
+using NicoPlayerHohoema.Database;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Provider;
 using Prism.Commands;
@@ -76,20 +77,19 @@ namespace NicoPlayerHohoema.UseCase.Playlist.Commands
                 }
 
                 var dialog = new MessageDialog(
-                    $"この変更は投稿者（{ownerName} さん）のアプリ内ユーザー情報ページから取り消すことができます。",
-
-                    $"『{ownerName}』さんの投稿動画を非表示にしますか？"
+                    "Dialog_HiddenVideoOwnerDesc".Translate(ownerName),
+                    "Dialog_HiddenVideoOwnerTitle".Translate(ownerName)
                     );
 
                 dialog.Commands.Add(new UICommand()
                 {
-                    Label = "非表示に設定",
+                    Label = "AddHiddenVideoOwner".Translate(),
                     Invoked = (uicommand) =>
                     {
                         NgSettings.AddNGVideoOwnerId(content.ProviderId.ToString(), ownerName);
                     }
                 });
-                dialog.Commands.Add(new UICommand() { Label = "キャンセル" });
+                dialog.Commands.Add(new UICommand() { Label = "Cancel".Translate() });
 
                 dialog.DefaultCommandIndex = 0;
 

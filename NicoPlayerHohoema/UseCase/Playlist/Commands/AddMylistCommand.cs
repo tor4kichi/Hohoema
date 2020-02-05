@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Models;
+﻿using I18NPortable;
+using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Repository.Playlist;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.UseCase.Playlist;
@@ -55,7 +56,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist.Commands
                     NotificationService.ShowInAppNotification(
                             Services.InAppNotificationPayload.CreateRegistrationResultNotification(
                                 result,
-                                "マイリスト",
+                                "Mylist".Translate(),
                                 targetMylist.Label,
                                 content.Label
                                 ));

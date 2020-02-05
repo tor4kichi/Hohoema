@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Database;
+﻿using I18NPortable;
+using NicoPlayerHohoema.Database;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Helpers;
@@ -482,7 +483,7 @@ namespace NicoPlayerHohoema.Services
 
 		public string CurrentDefaultPageTitle()
 		{
-            return CurrentPageType.ToCulturelizeString();
+            return CurrentPageType.Translate();
 		}
 
 
@@ -524,7 +525,7 @@ namespace NicoPlayerHohoema.Services
 
 		public static string PageTypeToTitle(HohoemaPageType pageType)
 		{
-            return pageType.ToCulturelizeString();
+            return pageType.Translate();
 		}
     }
 }

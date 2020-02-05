@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Dialogs;
+﻿using I18NPortable;
+using NicoPlayerHohoema.Dialogs;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.LocalMylist;
 using NicoPlayerHohoema.Repository.Playlist;
@@ -31,7 +32,7 @@ namespace NicoPlayerHohoema.Services
 
         public async Task<bool> ShowAcceptCacheUsaseDialogAsync(bool showWithoutConfirmButton = false)
         {
-            var dialog = new Dialogs.MarkdownTextDialog("キャッシュ機能の利用に関する確認");
+            var dialog = new Dialogs.MarkdownTextDialog("HohoemaCacheVideoFairUsePolicy".Translate());
 
             
             var file = await StorageFile.GetFileFromPathAsync(CacheUsageConfirmationFileUri);
@@ -39,12 +40,12 @@ namespace NicoPlayerHohoema.Services
             
             if (!showWithoutConfirmButton)
             {
-                dialog.PrimaryButtonText = "同意する";
-                dialog.SecondaryButtonText = "キャンセル";
+                dialog.PrimaryButtonText = "Accept".Translate();
+                dialog.SecondaryButtonText = "Cancel".Translate();
             }
             else
             {
-                dialog.PrimaryButtonText = "閉じる";
+                dialog.PrimaryButtonText = "Close".Translate();
             }
 
             var result = await dialog.ShowAsync();
@@ -61,26 +62,10 @@ namespace NicoPlayerHohoema.Services
         public async Task ShowLatestUpdateNotice()
         {
             var text = await Models.Helpers.AppUpdateNotice.GetUpdateNoticeAsync();
-            var dialog = new Dialogs.MarkdownTextDialog("更新情報");
+            var dialog = new Dialogs.MarkdownTextDialog("UpdateNotice".Translate());
             dialog.Text = text;
-            dialog.PrimaryButtonText = "OK";
-
-            try
-            {
-                var addon = await Models.Purchase.HohoemaPurchase.GetAvailableCheersAddOn();
-                var product = addon.ProductListings.FirstOrDefault(x => Models.Purchase.HohoemaPurchase.ProductIsActive(x.Value));
-
-                if (product.Value != null)
-                {
-                    dialog.SecondaryButtonText = "開発支援について確認する";
-                    dialog.SecondaryButtonClick += async (_, e) =>
-                    {
-                        await Models.Purchase.HohoemaPurchase.RequestPurchase(product.Value);
-                    };
-                }
-            }
-            catch { }
-
+            dialog.PrimaryButtonText = "Close".Translate();
+            
             await dialog.ShowAsync();
         }
 

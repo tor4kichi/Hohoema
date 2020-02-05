@@ -44,6 +44,7 @@ using Prism.Ioc;
 using NicoPlayerHohoema.Repository.Playlist;
 using NicoPlayerHohoema.Services.Player;
 using NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands;
+using I18NPortable;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -323,12 +324,12 @@ namespace NicoPlayerHohoema.ViewModels
                 _ = CheckDeleted(VideoInfo);
 
                 IsNotSupportVideoType = true;
-                CannotPlayReason = $"この動画は {VideoInfo.PrivateReasonType.ToCulturelizeString()} のため視聴できません";
+                CannotPlayReason = "CanNotPlayNotice_WithPrivateReason".Translate(VideoInfo.PrivateReasonType);
             }
             else if (VideoInfo.MovieType == Database.MovieType.Swf)
             {
                 IsNotSupportVideoType = true;
-                CannotPlayReason = $" SWF形式の動画は対応していないため視聴できません";
+                CannotPlayReason = "CanNotPlayNotice_NotSupportSWF".Translate();
             }
             else
             {
@@ -390,13 +391,14 @@ namespace NicoPlayerHohoema.ViewModels
                         string toastContent = "";
                         if (!String.IsNullOrEmpty(videoInfo.Title))
                         {
-                            toastContent = $"\"{videoInfo.Title}\" は削除された動画です";
+                            toastContent = "DeletedVideoNoticeWithTitle".Translate(videoInfo.Title);
                         }
                         else
                         {
-                            toastContent = $"削除された動画です";
+                            toastContent = "DeletedVideoNotice".Translate();
                         }
-                        _NotificationService.ShowToast($"動画 {VideoId} は再生できません", toastContent);
+
+                        _NotificationService.ShowToast("DeletedVideoToastNotificationTitleWithVideoId".Translate(videoInfo.RawVideoId), toastContent);
                     });
 
                     // ローカルプレイリストの場合は勝手に消しておく

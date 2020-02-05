@@ -43,8 +43,8 @@
     <UseVSHostingProcess>false</UseVSHostingProcess>
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
-    <LangVersion>default</LangVersion>
     <UseDotNetNativeToolchain>false</UseDotNetNativeToolchain>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -57,7 +57,7 @@
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
     <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
-    <LangVersion>default</LangVersion>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|ARM'">
     <DebugSymbols>true</DebugSymbols>
@@ -70,6 +70,7 @@
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
     <UseDotNetNativeToolchain>false</UseDotNetNativeToolchain>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|ARM'">
     <OutputPath>bin\ARM\Release\</OutputPath>
@@ -82,7 +83,7 @@
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
     <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
-    <LangVersion>default</LangVersion>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -95,6 +96,7 @@
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
     <UseDotNetNativeToolchain>false</UseDotNetNativeToolchain>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
     <OutputPath>bin\x64\Release\</OutputPath>
@@ -107,7 +109,7 @@
     <ErrorReport>prompt</ErrorReport>
     <Prefer32Bit>true</Prefer32Bit>
     <UseDotNetNativeToolchain>true</UseDotNetNativeToolchain>
-    <LangVersion>default</LangVersion>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <ItemGroup>
     <!-- A reference to the entire .Net Framework and Windows SDK are automatically included -->
@@ -129,8 +131,6 @@
     <Content Include="Assets\Square30x30Logo.scale-100.png" />
     <Content Include="Assets\Square30x30Logo.scale-200.png" />
     <Content Include="Assets\CacheUsageConfirmation.md" />
-    <PRIResource Include="Resources\zh-Hans\Resources.resw" />
-    <PRIResource Include="Resources\ja-jp\Resources.resw" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="App.xaml.cs">
@@ -312,7 +312,6 @@
     <Compile Include="Views\Dialogs\_ContentSelectDialog\SelectDialogPayload.cs" />
     <Compile Include="Views\Dialogs\_ContentSelectDialog\TextInputSelectableContainer.cs" />
     <Compile Include="Services\Helpers\ApiContractHelper.cs" />
-    <Compile Include="Services\Helpers\CulturelizeHelper.cs" />
     <Compile Include="Models\Helpers\IAsyncInitialize.cs" />
     <Compile Include="Models\Helpers\StringHelper.cs" />
     <Compile Include="Interfaces\IChannel.cs" />
@@ -500,9 +499,6 @@
     <Compile Include="Views\Extensions\ListViewBase\GroupHeaderContextFlyoutTemplate.cs" />
     <Compile Include="Views\Extensions\ListViewBase\ListViewItemDeferInitialize.cs" />
     <Compile Include="Views\Extensions\VIsualStateManager\DebugCurrentState.cs" />
-    <Compile Include="Views\Flyouts\MylistVideoItemFlyout.xaml.cs">
-      <DependentUpon>MylistVideoItemFlyout.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\Flyouts\RankingGenreItemFlyout.xaml.cs">
       <DependentUpon>RankingGenreItemFlyout.xaml</DependentUpon>
     </Compile>
@@ -517,12 +513,6 @@
     </Compile>
     <Compile Include="Views\Flyouts\FollowItemFlyout.xaml.cs">
       <DependentUpon>FollowItemFlyout.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Flyouts\MenuPinItemFlyout.xaml.cs">
-      <DependentUpon>MenuPinItemFlyout.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Flyouts\VideoHistoryItemFlyout.xaml.cs">
-      <DependentUpon>VideoHistoryItemFlyout.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Helpers\SystemThemeHelper.cs" />
     <Compile Include="Views\Helpers\VisibilityExtension.cs" />
@@ -697,9 +687,6 @@
     </Compile>
     <Compile Include="Views\Controls\FloatContentContainer\FloatContentContainer.Event.cs" />
     <Compile Include="Views\Controls\FloatContentContainer\FloatContentContainer.Properties.cs" />
-    <Compile Include="Views\Pages\ListItem\HistoryListItem.xaml.cs">
-      <DependentUpon>HistoryListItem.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\Controls\FloatContentContainer\FloatContentContainer.cs" />
     <Compile Include="Views\Controls\IncrementalLoadingList\IncrementalLoadingList.cs" />
     <Compile Include="Views\Controls\IncrementalLoadingList\IncrementalLoadingList.Event.cs" />
@@ -712,9 +699,6 @@
     <Compile Include="Views\Converters\TransparentColorConverter.cs" />
     <Compile Include="Views\Pages\ListItem\LiveVideoListItem.xaml.cs">
       <DependentUpon>LiveVideoListItem.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\Pages\ListItem\RankingCategoryListItem.xaml.cs">
-      <DependentUpon>RankingCategoryListItem.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Pages\ListItem\SearchHistoryListItem.xaml.cs">
       <DependentUpon>SearchHistoryListItem.xaml</DependentUpon>
@@ -980,10 +964,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Flyouts\MylistVideoItemFlyout.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\Flyouts\RankingGenreItemFlyout.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1001,14 +981,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\Flyouts\FollowItemFlyout.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Flyouts\MenuPinItemFlyout.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Flyouts\VideoHistoryItemFlyout.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1124,10 +1096,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\Pages\ListItem\HistoryListItem.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\Controls\IncrementalLoadingList\IncrementalLoadingList.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1155,10 +1123,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Pages\ListItem\LiveVideoListItem.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\Pages\ListItem\RankingCategoryListItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1400,6 +1364,7 @@
     </SDKReference>
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Resources\" />
     <Folder Include="Services\CoreLayoutEvents\" />
     <Folder Include="UseCase\NicoVideoPlayer\Playlist\" />
     <Folder Include="ViewModels\Follow\" />

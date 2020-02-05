@@ -351,7 +351,8 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         if (playlist is LocalPlaylist localMylist)
                         {
-                            var resultText = await DialogService.GetTextAsync("プレイリスト名を変更",
+                            var resultText = await DialogService.GetTextAsync(
+                                "RenameLocalPlaylist".Translate(),
                                 localMylist.Label,
                                 localMylist.Label,
                                 (tempName) => !string.IsNullOrWhiteSpace(tempName)
@@ -418,11 +419,10 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         // 確認ダイアログ
                         var mylistOrigin = mylist.GetOrigin();
-                        var originText = mylistOrigin == Interfaces.PlaylistOrigin.Local ? "ローカルマイリスト" : "マイリスト";
-                        var contentMessage = $"{mylist.Label} を削除してもよろしいですか？（変更は元に戻せません）";
+                        var contentMessage = "ConfirmDeleteX_ImpossibleReDo".Translate(mylist.Label);
 
-                        var dialog = new MessageDialog(contentMessage, $"{originText}削除の確認");
-                        dialog.Commands.Add(new UICommand("削除", async (i) =>
+                        var dialog = new MessageDialog(contentMessage, $"ConfirmDeleteX".Translate(Interfaces.PlaylistOrigin.Local.Translate()));
+                        dialog.Commands.Add(new UICommand("Delete".Translate(), async (i) =>
                         {
                             if (mylistOrigin == Interfaces.PlaylistOrigin.Local)
                             {
@@ -437,7 +437,7 @@ namespace NicoPlayerHohoema.ViewModels
                             PageManager.OpenPage(HohoemaPageType.UserMylist, OwnerUserId);
                         }));
 
-                        dialog.Commands.Add(new UICommand("キャンセル"));
+                        dialog.Commands.Add(new UICommand("Cancel".Translate()));
                         dialog.CancelCommandIndex = 1;
                         dialog.DefaultCommandIndex = 1;
 

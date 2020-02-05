@@ -19,6 +19,7 @@ using Prism.Navigation;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.UseCase;
+using I18NPortable;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -61,7 +62,7 @@ namespace NicoPlayerHohoema.ViewModels
                     await RefreshCacheSaveFolderStatus();
 
                     NotificationService.ShowInAppNotification(
-                        InAppNotificationPayload.CreateReadOnlyNotification("キャッシュの保存先フォルダを選択してください。\n保存先が選択されると利用準備が完了します。",
+                        InAppNotificationPayload.CreateReadOnlyNotification("ChoiceCacheSavingFolder".Translate(),
                         showDuration: TimeSpan.FromSeconds(30)
                         ));
 
@@ -71,7 +72,7 @@ namespace NicoPlayerHohoema.ViewModels
                         await ResetList();
 
                         NotificationService.ShowInAppNotification(
-                            InAppNotificationPayload.CreateReadOnlyNotification("キャッシュの利用準備が出来ました")
+                            InAppNotificationPayload.CreateReadOnlyNotification("ReadyForVideoCache".Translate())
                             );
                     }
                 }
@@ -106,7 +107,7 @@ namespace NicoPlayerHohoema.ViewModels
                 if (await CacheSaveFolder.ChangeUserDataFolder())
                 {
                     NotificationService.ShowInAppNotification(
-                        InAppNotificationPayload.CreateReadOnlyNotification($"キャッシュの保存先を {CacheSaveFolderPath.Value} に変更しました")
+                        InAppNotificationPayload.CreateReadOnlyNotification("CacheSaveFolderChangeToX".Translate(CacheSaveFolderPath.Value))
                         );
 
                     await RefreshCacheSaveFolderStatus();
@@ -168,7 +169,7 @@ namespace NicoPlayerHohoema.ViewModels
             if (IsRequireUpdateCacheSaveFolder.Value)
             {
                 NotificationService.ShowInAppNotification(
-                    InAppNotificationPayload.CreateReadOnlyNotification("キャッシュの保存先フォルダを選択してください。\n保存先が選択されると利用準備が完了します。",
+                    InAppNotificationPayload.CreateReadOnlyNotification( "ChoiceCacheSavingFolder".Translate(),
                     showDuration: TimeSpan.FromSeconds(30)
                     ));
 
@@ -180,7 +181,7 @@ namespace NicoPlayerHohoema.ViewModels
                     await ResetList();
 
                     NotificationService.ShowInAppNotification(
-                        InAppNotificationPayload.CreateReadOnlyNotification("キャッシュの利用準備が出来ました")
+                        InAppNotificationPayload.CreateReadOnlyNotification("ReadyForVideoCache".Translate())
                         );
                 }
             }
@@ -242,20 +243,20 @@ namespace NicoPlayerHohoema.ViewModels
             switch (cacheFolderAccessState)
             {
                 case CacheFolderAccessState.NotAccepted:
-                    CacheFolderStateDescription.Value = "キャッシュ利用の同意が必要です。 「キャッシュを有効にする」ボタンを押すと同意文書が表示されます。";
+                    CacheFolderStateDescription.Value = "CacheFolderAccessState.NotAccepted_Desc".Translate();
                     break;
                 case CacheFolderAccessState.NotEnabled:
-                    CacheFolderStateDescription.Value = "キャッシュの有効化が必要です";
+                    CacheFolderStateDescription.Value = "CacheFolderAccessState.NotEnabled_Desc".Translate();
                     break;
                 case CacheFolderAccessState.NotSelected:
-                    CacheFolderStateDescription.Value = "フォルダを選択するとキャッシュ機能が使えるようになります";
+                    CacheFolderStateDescription.Value = "CacheFolderAccessState.NotSelected_Desc".Translate();
                     break;
                 case CacheFolderAccessState.SelectedButNotExist:
-                    CacheFolderStateDescription.Value = "選択されたフォルダが確認できません。外付けストレージを再接続するか、キャッシュ先フォルダを再選択してください。";
+                    CacheFolderStateDescription.Value = "CacheFolderAccessState.SelectedButNotExist_Desc".Translate();
                     CacheSaveFolderPath.Value = "?????";
                     break;
                 case CacheFolderAccessState.Exist:
-                    CacheFolderStateDescription.Value = "キャッシュ利用の準備ができました";
+                    CacheFolderStateDescription.Value = "ReadyForVideoCache".Translate();
                     break;
                 default:
                     break;

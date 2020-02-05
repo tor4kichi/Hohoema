@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Dialogs;
+﻿using I18NPortable;
+using NicoPlayerHohoema.Dialogs;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Helpers;
@@ -32,7 +33,7 @@ namespace NicoPlayerHohoema.Views.Subscriptions
                 // フォローしているアイテムから選択できるように
                 // （コミュニティを除く）
                 var selectableContents = FollowManager.GetAllFollowInfoGroups()
-                            .Select(x => new ChoiceFromListSelectableContainer(x.FollowItemType.ToCulturelizeString(),
+                            .Select(x => new ChoiceFromListSelectableContainer(x.FollowItemType.Translate(),
                                 x.FollowInfoItems.Where(y => y.FollowItemType != Models.FollowItemType.Community).Select(y => new SelectDialogPayload()
                                 {
                                     Label = y.Name,

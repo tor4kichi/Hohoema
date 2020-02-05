@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Models;
+﻿using I18NPortable;
+using NicoPlayerHohoema.Models;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
@@ -41,7 +42,7 @@ namespace NicoPlayerHohoema.Services.Notification
                             {
                                 NotificationService.ShowInAppNotification(new InAppNotificationPayload()
                                 {
-                                    Content = $"「{newItem.Name}」をフォローしました"
+                                    Content = "FollowAddedNotification_WithItemName".Translate(newItem.Name)
                                     , ShowDuration = TimeSpan.FromSeconds(4)
                                 });
                             }
@@ -56,7 +57,7 @@ namespace NicoPlayerHohoema.Services.Notification
                             {
                                 NotificationService.ShowInAppNotification(new InAppNotificationPayload()
                                 {
-                                    Content = $"「{item.Name}」のフォローを解除しました"
+                                    Content = "FollowRemovedNotification_WithItemName".Translate(item.Name)
                                     , ShowDuration = TimeSpan.FromSeconds(4)
                                 });
                             }

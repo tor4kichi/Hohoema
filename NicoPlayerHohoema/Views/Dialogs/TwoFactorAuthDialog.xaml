@@ -8,28 +8,28 @@
     mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400"
-  PrimaryButtonText="送信"
-  SecondaryButtonText="キャンセル"
-    Title="認証コードを入力してください"
+               PrimaryButtonText="{Binding Source=Submit, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+               SecondaryButtonText="{Binding Source=Cancel, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+               Title="{Binding Source=TwoFactorAuth_InputCode, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
   >
   <StackPanel Spacing="8">
     <TextBox x:Name="CodeTextBox"
              InputScope="Digits"
              MaxLength="6"
-             PlaceholderText="6桁の数字を入力"
+             PlaceholderText="{Binding Source=CodeTextBoxPlacefolder_Input6digit, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
              />
 
     <ToggleSwitch x:Name="IsTrustedDeviceToggleSwitch"
-                  Header="デバイスを信頼" 
+                  Header="{Binding Source=IsTrustedDevice, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" 
                   />
-    
-    <TextBlock Text="有効にすると、このデバイスでの二段階認証を次回以降スキップできます"
+
+    <TextBlock Text="{Binding Source=IsTrustedDevice_Desc, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                Style="{StaticResource CaptionTextBlockStyle}"
                Opacity="0.7"
                />
 
     <TextBox x:Name="DeviceNameTextBox"
-             Text="Hohoema_UWP"
+             Text="Hohoema_App"
             />
     
   </StackPanel>

@@ -44,7 +44,7 @@
           <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding VideoPlayer.AvailableQualities}" CustomObjectToTag="{Binding}">
             <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
               <DataTemplate>
-                <MenuFlyoutItem IsEnabled="{Binding IsAvailable}" Text="{Binding Quality, Converter={StaticResource ToLocalText}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.VideoPlayer.ChangePlayQualityCommand}" CommandParameter="{Binding}"></MenuFlyoutItem>
+                <MenuFlyoutItem IsEnabled="{Binding IsAvailable}" Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}" Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.VideoPlayer.ChangePlayQualityCommand}" CommandParameter="{Binding}"></MenuFlyoutItem>
               </DataTemplate>
             </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
           </mybehavior:MenuFlyoutSubItemItemsSetter>
@@ -416,10 +416,10 @@
                     <!-- 画質と動画プロバイダーオリジン -->
                     <StackPanel HorizontalAlignment="Left" VerticalAlignment="Bottom" Orientation="Horizontal" Margin="8 0 16 0" Spacing="8">
                       <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding VideoPlayer.NowPlayingWithDmcVideo,Converter={StaticResource BooleanToVisibilityInverted}}">
-                            <Run Text="{Binding VideoPlayer.CurrentQuality.Quality, Converter={StaticResource ToLocalText}}" /></TextBlock>
+                            <Run Text="{Binding VideoPlayer.CurrentQuality.Quality, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
                       <HyperlinkButton Visibility="{Binding VideoPlayer.NowPlayingWithDmcVideo,Converter={StaticResource BooleanToVisibility}}" Padding="0" Opacity="0.7">
                         <TextBlock Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}">
-                              <Run Text="{Binding VideoPlayer.CurrentQuality.Quality, Converter={StaticResource ToLocalText}}" /></TextBlock>
+                              <Run Text="{Binding VideoPlayer.CurrentQuality.Quality, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
                         <i:Interaction.Behaviors>
                           <core:EventTriggerBehavior EventName="Click">
                             <mybehavior:OpenFlyout />
@@ -431,7 +431,7 @@
                               <ListView.ItemTemplate>
                                 <DataTemplate>
                                   <StackPanel Orientation="Horizontal" Spacing="8">
-                                    <TextBlock Text="{Binding Quality, Converter={StaticResource ToLocalText}}" />
+                                    <TextBlock Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}" />
                                     <TextBlock toolkitext:ListViewItemExtensions.IsEnabled="{Binding IsAvailable}">
                                            <Run Text="{Binding Bitrate, Converter={StaticResource ToKMGTPEZY}}" />bps</TextBlock>
                                   </StackPanel>

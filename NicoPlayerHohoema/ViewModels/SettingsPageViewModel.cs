@@ -157,6 +157,10 @@ namespace NicoPlayerHohoema.ViewModels
             StartupPageType = AppearanceSettings
                 .ToReactivePropertyAsSynchronized(x => x.StartupPageType);
 
+            AppearanceSettings.ObserveProperty(x => x.Locale).Subscribe(locale => 
+            {
+                I18NPortable.I18N.Current.Locale = locale;
+            });
 
             // キャッシュ
             DefaultCacheQuality = CacheSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCacheQuality);
