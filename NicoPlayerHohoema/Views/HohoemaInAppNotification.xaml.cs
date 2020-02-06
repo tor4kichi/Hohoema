@@ -28,7 +28,7 @@ namespace NicoPlayerHohoema.Views
             }, ThreadOption.UIThread);
 
 
-            LiteNotification.Dismissed += LiteNotification_Dismissed;
+            LiteNotification.Closed += LiteNotification_Dismissed;
 
         }
 

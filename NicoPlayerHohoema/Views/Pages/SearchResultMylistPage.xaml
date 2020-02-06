@@ -32,8 +32,16 @@
         </TransitionCollection>
     </Page.Transitions>
   <Grid>
-    
-    <GridView x:Name="ItemsList" ItemsSource="{Binding ItemsView, Mode=OneWay}" uwpExtensions:ListViewBase.Command="{Binding PageManager.OpenPageCommand}" IsItemClickEnabled="True" IncrementalLoadingTrigger="Edge" UseSystemFocusVisuals="True" SelectionMode="None" HorizontalContentAlignment="Stretch" Padding="16 0" uwpExtensions:ScrollViewerEx.VerticalScrollBarMargin="0 96 0 0">
+
+    <GridView x:Name="ItemsList"
+              ItemsSource="{Binding ItemsView, Mode=OneWay}"
+              IsItemClickEnabled="True"
+              IncrementalLoadingTrigger="Edge"
+              UseSystemFocusVisuals="True"
+              SelectionMode="None"
+              HorizontalContentAlignment="Stretch"
+              Padding="16 0"
+              uwpExtensions:ScrollViewerExtensions.VerticalScrollBarMargin="0 96 0 0">
       <GridView.ItemContainerTransitions>
         <TransitionCollection></TransitionCollection>
       </GridView.ItemContainerTransitions>
@@ -47,12 +55,30 @@
         <core:DataTriggerBehavior Binding="{Binding ItemsView, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}">
           <actions:ScrollViewerVerticalPositionSettingsAction Target="{x:Bind ItemsList}" VerticalOffset="{Binding ScrollPosition.Value}" WithAnimation="False" Delay="0:0:0.001" />
         </core:DataTriggerBehavior>
+        <core:EventTriggerBehavior EventName="ItemClick">
+          <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+                                    InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+        </core:EventTriggerBehavior>
+
       </i:Interaction.Behaviors>
       <GridView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
           <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
             <StackPanel>
-              <ListView xmlns:ee="using:NicoPlayerHohoema.Models" SelectionMode="Single" IsItemClickEnabled="True" uwpExtensions:ListViewBase.Command="{Binding ChangeSearchTargetCommand}" ItemsSource="{Binding SearchTargets}" SelectedItem="{Binding SelectedSearchTarget.Value, Mode=TwoWay}" Style="{StaticResource BandListViewStyle}" ItemContainerStyle="{StaticResource SimpleListViewItemStyle}" HorizontalAlignment="Right">
+              <ListView xmlns:ee="using:NicoPlayerHohoema.Models"
+                        SelectionMode="Single"
+                        IsItemClickEnabled="True"
+                        ItemsSource="{Binding SearchTargets}"
+                        SelectedItem="{Binding SelectedSearchTarget.Value, Mode=TwoWay}"
+                        Style="{StaticResource BandListViewStyle}"
+                        ItemContainerStyle="{StaticResource SimpleListViewItemStyle}"
+                        HorizontalAlignment="Right">
+                <i:Interaction.Behaviors>
+                  <core:EventTriggerBehavior EventName="ItemClick">
+                    <core:InvokeCommandAction Command="{Binding ChangeSearchTargetCommand}"
+                                              InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                  </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
                 <ListView.ItemTemplate>
                   <DataTemplate>
                     <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />

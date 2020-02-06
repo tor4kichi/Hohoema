@@ -22,8 +22,18 @@
     mc:Ignorable="d"
     >
   <Grid>
-    
-    <uwpcontrol:PullToRefreshListView x:Name="ItemsList" ItemsSource="{Binding ItemsView, Mode=OneWay}" RefreshCommand="{Binding RefreshCommand}" IsItemClickEnabled="True" IncrementalLoadingTrigger="Edge" PullThreshold="85" UseSystemFocusVisuals="True" SelectionMode="None" HorizontalContentAlignment="Stretch" uwpextensions:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}" ItemContainerStyle="{StaticResource VideoListViewItemStyle}" uwpextensions:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0" xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions" myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}">
+
+    <ListView x:Name="ItemsList"
+              ItemsSource="{Binding ItemsView, Mode=OneWay}"
+              IsItemClickEnabled="True"
+              IncrementalLoadingTrigger="Edge"
+              UseSystemFocusVisuals="True"
+              SelectionMode="None"
+              HorizontalContentAlignment="Stretch"
+              ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+              uwpextensions:ScrollViewerExtensions.VerticalScrollBarMargin="0 48 0 0"
+              xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
+              myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}">
       <i:Interaction.Behaviors>
         <mybehavior:KeyboardTrigger Key="F5">
           <mybehavior:KeyboardTrigger.Actions>
@@ -31,6 +41,10 @@
           </mybehavior:KeyboardTrigger.Actions>
         </mybehavior:KeyboardTrigger>
         <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
+        <core:EventTriggerBehavior EventName="ItemClick">
+          <core:InvokeCommandAction Command="{Binding HohoemaPlaylist.PlayCommand}"
+                                    InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+        </core:EventTriggerBehavior>
       </i:Interaction.Behaviors>
       <ListView.Header>
         <controls:ScrollHeader x:Name="ScrollHeader" Mode="QuickReturn">
@@ -49,7 +63,17 @@
                 <AppBarButton Label="{Binding Source=RelatedTags, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Tag">
                   <AppBarButton.Flyout>
                     <Flyout>
-                      <ListView ItemsSource="{Binding RecommendSourceTags}" IsItemClickEnabled="True" uwpextensions:ListViewBase.Command="{Binding PageManager.OpenPageCommand}" SelectionMode="None" DisplayMemberPath="Tag"></ListView>
+                      <ListView ItemsSource="{Binding RecommendSourceTags}"
+                                IsItemClickEnabled="True"
+                                SelectionMode="None"
+                                DisplayMemberPath="Tag">
+                        <i:Interaction.Behaviors>
+                          <core:EventTriggerBehavior EventName="ItemClick">
+                            <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+                                                      InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                          </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+                      </ListView>
                     </Flyout>
                   </AppBarButton.Flyout>
                 </AppBarButton>
@@ -82,7 +106,7 @@
           </Grid>
         </DataTemplate>
       </ListView.ItemTemplate>
-    </uwpcontrol:PullToRefreshListView>
+    </ListView>
     <VisualStateManager.VisualStateGroups>
       <!-- トップバー表示時のタイトル位置ずらし -->
       <VisualStateGroup>

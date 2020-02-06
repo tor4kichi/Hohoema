@@ -92,12 +92,16 @@
               ItemTemplateSelector="{StaticResource SubscriptionSourceTypeListViewItemTemplateSelector}"
               AllowDrop="True"
               CanReorderItems="True"
-              uwpUiExtension:ListViewBase.Command="{x:Bind ViewModel.OpenSubscriptionSourceCommand}"
               IsItemClickEnabled="True"
               SelectionMode="None"
               xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
               myExtensions:ListViewBase.ItemContextFlyoutCustomObjectToTag="{Binding}">
-
+      <i:Interaction.Behaviors>
+        <core:EventTriggerBehavior EventName="ItemClick">
+          <core:InvokeCommandAction Command="{x:Bind ViewModel.OpenSubscriptionSourceCommand}"
+                                    InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+        </core:EventTriggerBehavior>
+      </i:Interaction.Behaviors>
       <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
         <DataTemplate>
           <flyouts:SubscriptionItemFlyout />

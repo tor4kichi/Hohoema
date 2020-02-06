@@ -66,22 +66,19 @@
     </templateSelector:TypeBasedTemplateSelector>
   </Page.Resources>
   <Grid>
-    <uwpcontrols:PullToRefreshListView x:Name="ItemsList"
-                                       ItemsSource="{Binding ItemsView, Mode=OneWay}"
-                                       ItemTemplateSelector="{StaticResource NicoRepoItemTemplateSelector}"
-                                       RefreshCommand="{Binding RefreshCommand}"
-                                       IsItemClickEnabled="True"
-                                       IncrementalLoadingTrigger="Edge"
-                                       PullThreshold="85"
-                                       UseSystemFocusVisuals="True"
-                                       SelectionMode="None"
-                                       HorizontalContentAlignment="Stretch"
-                                       uwpExtension:ListViewBase.Command="{Binding OpenNicoRepoItemCommand}"
-                                       ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
-                                       uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
-                                       xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
-                                       myExtensions:ListViewBase.DeferInitialize="True">
-      
+    <ListView x:Name="ItemsList"
+              ItemsSource="{Binding ItemsView, Mode=OneWay}"
+              ItemTemplateSelector="{StaticResource NicoRepoItemTemplateSelector}"
+              IsItemClickEnabled="True"
+              IncrementalLoadingTrigger="Edge"
+              UseSystemFocusVisuals="True"
+              SelectionMode="None"
+              HorizontalContentAlignment="Stretch"
+              ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+              uwpExtensions:ScrollViewerExtensions.VerticalScrollBarMargin="0 48 0 0"
+              xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
+              myExtensions:ListViewBase.DeferInitialize="True">
+
       <myExtensions:ListViewBase.ItemContextFlyoutTemplateSelector>
         <templateSelector:HohoemaFlyoutTemplateSelector>
           <templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>
@@ -98,6 +95,9 @@
       </myExtensions:ListViewBase.ItemContextFlyoutTemplateSelector>
       <i:Interaction.Behaviors>
         <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
+        <core:EventTriggerBehavior EventName="ItemClick">
+          <core:InvokeCommandAction Command="{Binding OpenNicoRepoItemCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+        </core:EventTriggerBehavior>
       </i:Interaction.Behaviors>
       <ListView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
@@ -137,7 +137,7 @@
           <ItemsStackPanel x:Name="ItemsPanel"  />
         </ItemsPanelTemplate>
       </ListView.ItemsPanel>
-    </uwpcontrols:PullToRefreshListView>
+    </ListView>
     <Grid x:Name="NoTimelineItemsLayout"
           Visibility="Collapsed">
       <TextBlock Text="{Binding Source=NicorepoNoItems, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"

@@ -103,10 +103,15 @@
                   </DataTemplate>
                 </uwptoolkit:Expander.HeaderTemplate>
                 <GridView ItemsSource="{Binding DescriptionHyperlinkItems, Mode=OneWay}"
-                          uwpExtension:ListViewBase.Command="{Binding ScriptNotifyCommand}"
                           IsItemClickEnabled="True"
                           HorizontalContentAlignment="Stretch"
                           SelectionMode="None">
+                  <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="ItemClick">
+                      <core:InvokeCommandAction Command="{Binding ScriptNotifyCommand}"
+                                                InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                    </core:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
                   <GridView.ItemTemplate>
                     <DataTemplate>
                       <TextBlock Text="{Binding Label}" />
@@ -287,8 +292,13 @@
                         IsItemClickEnabled="True"
                         SelectionMode="None"
                         HorizontalContentAlignment="Stretch"
-                        uwpExtension:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
                         myExtensions:ListViewBase.DeferInitialize="True">
+                <i:Interaction.Behaviors>
+                  <core:EventTriggerBehavior EventName="ItemClick">
+                    <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+                                              InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                  </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
                 <ItemsControl.ItemTemplate>
                   <DataTemplate>
                     <controls:LiveVideoListItem />

@@ -347,7 +347,7 @@ namespace NicoPlayerHohoema.ViewModels
         protected override void PostResetList()
         {
             _IsNavigateCompleted = true;
-           
+
             base.PostResetList();
         }
     }

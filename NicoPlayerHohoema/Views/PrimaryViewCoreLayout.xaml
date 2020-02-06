@@ -195,7 +195,15 @@
       </StackPanel>
     </DataTemplate>
     <DataTemplate x:Key="SingleMenuItemTemplate">
-      <ListView uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}" IsItemClickEnabled="True" SelectionMode="None" IsTabStop="False">
+      <ListView IsItemClickEnabled="True"
+                SelectionMode="None"
+                IsTabStop="False">
+        <i:Interaction.Behaviors>
+          <core:EventTriggerBehavior EventName="ItemClick">
+            <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+                                      InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+          </core:EventTriggerBehavior>
+        </i:Interaction.Behaviors>
         <ListView.ItemContainerStyle>
           <Style TargetType="ListViewItem">
             <Setter Property="Padding" Value="0" />
@@ -206,27 +214,79 @@
     </DataTemplate>
     <DataTemplate x:Name="VideoSubMenuContentTemplate">
       <StackPanel>
-        <ListView ItemsSource="{Binding MenuItems}" ItemTemplate="{StaticResource MenuItemTemplate}" uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}" IsItemClickEnabled="True" SelectionMode="None" IsTabStop="False" Background="Transparent" ScrollViewer.VerticalScrollMode="Disabled" />
+        <ListView ItemsSource="{Binding MenuItems}"
+                  ItemTemplate="{StaticResource MenuItemTemplate}"
+                  IsItemClickEnabled="True"
+                  SelectionMode="None"
+                  IsTabStop="False"
+                  Background="Transparent"
+                  ScrollViewer.VerticalScrollMode="Disabled">
+          <i:Interaction.Behaviors>
+            <core:EventTriggerBehavior EventName="ItemClick">
+              <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+                                        InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+            </core:EventTriggerBehavior>
+          </i:Interaction.Behaviors>
+        </ListView>
         <Border BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}" Opacity="0.3" BorderThickness="0 1 0 0" VerticalAlignment="Center" Margin="16 8" />
         <Button Command="{Binding PageManager.OpenPageCommand}" CommandParameter="UserMylist" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" Padding="16 0">
           <TextBlock Text="{Binding Source=Mylist, Converter={StaticResource LocalizeConverter}}" uwpToolkitControls:DockPanel.Dock="Left" VerticalAlignment="Center" Style="{StaticResource SubtitleTextBlockStyle}" />
         </Button>
-        <ListView ItemsSource="{Binding Mylists}" ItemTemplate="{StaticResource MenuItemTemplate}" uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}" IsItemClickEnabled="True" SelectionMode="None" IsTabStop="False" Background="Transparent" ScrollViewer.VerticalScrollMode="Disabled" />
+        <ListView ItemsSource="{Binding Mylists}"
+                  ItemTemplate="{StaticResource MenuItemTemplate}"
+                  IsItemClickEnabled="True"
+                  SelectionMode="None"
+                  IsTabStop="False"
+                  Background="Transparent"
+                  ScrollViewer.VerticalScrollMode="Disabled">
+          <i:Interaction.Behaviors>
+            <core:EventTriggerBehavior EventName="ItemClick">
+              <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+                                        InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+            </core:EventTriggerBehavior>
+          </i:Interaction.Behaviors>
+        </ListView>
         <Border BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}" Opacity="0.3" BorderThickness="0 1 0 0" VerticalAlignment="Center" Margin="16 8" Visibility="{Binding LocalMylists, Converter={StaticResource CollectionVisibilityConverter}}" />
-        <ListView ItemsSource="{Binding LocalMylists}" ItemTemplate="{StaticResource MenuItemTemplate}" uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}" IsItemClickEnabled="True" SelectionMode="None" IsTabStop="False" Background="Transparent" ScrollViewer.VerticalScrollMode="Disabled" />
+        <ListView ItemsSource="{Binding LocalMylists}"
+                  ItemTemplate="{StaticResource MenuItemTemplate}"
+                  IsItemClickEnabled="True"
+                  SelectionMode="None"
+                  IsTabStop="False"
+                  Background="Transparent"
+                  ScrollViewer.VerticalScrollMode="Disabled">
+          <i:Interaction.Behaviors>
+            <core:EventTriggerBehavior EventName="ItemClick">
+              <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+                                        InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+            </core:EventTriggerBehavior>
+          </i:Interaction.Behaviors>
+        </ListView>
       </StackPanel>
     </DataTemplate>
     <DataTemplate x:Key="LiveStreamInfoTemplate">
       <uwpToolkitControls:DockPanel>
         <TextBlock Text="{Binding StartAt}" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" TextWrapping="Wrap" uwpToolkitControls:DockPanel.Dock="Top" />
-        <uwpToolkitControls:RoundImageEx Source="{Binding Thumbnail}" Style="{StaticResource RoundStyle}" uwpToolkitControls:DockPanel.Dock="Left" Margin="0 0 8 0" />
+        <uwpToolkitControls:ImageEx Source="{Binding Thumbnail}" Style="{StaticResource RoundStyle}" uwpToolkitControls:DockPanel.Dock="Left" Margin="0 0 8 0" CornerRadius="60" />
         <TextBlock Text="{Binding CommunityName}" VerticalAlignment="Center" uwpToolkitControls:DockPanel.Dock="Top" />
         <TextBlock Text="{Binding Label}" Style="{StaticResource CaptionTextBlockStyle}" Opacity="0.7" TextWrapping="Wrap" />
       </uwpToolkitControls:DockPanel>
     </DataTemplate>
     <DataTemplate x:Name="LiveSubMenuContentTemplate">
       <StackPanel>
-        <ListView ItemsSource="{Binding MenuItems}" ItemTemplate="{StaticResource MenuItemTemplate}" uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}" IsItemClickEnabled="True" SelectionMode="None" IsTabStop="False" Background="Transparent" ScrollViewer.VerticalScrollMode="Disabled" />
+        <ListView ItemsSource="{Binding MenuItems}"
+                  ItemTemplate="{StaticResource MenuItemTemplate}"
+                  IsItemClickEnabled="True"
+                  SelectionMode="None"
+                  IsTabStop="False"
+                  Background="Transparent"
+                  ScrollViewer.VerticalScrollMode="Disabled">
+          <i:Interaction.Behaviors>
+            <core:EventTriggerBehavior EventName="ItemClick">
+              <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+                                        InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+            </core:EventTriggerBehavior>
+          </i:Interaction.Behaviors>
+        </ListView>
       </StackPanel>
     </DataTemplate>
     <templateSelector:MenuSubPageTemplateSelector x:Name="MenuSubPageTemplateSelector" Video="{StaticResource VideoSubMenuContentTemplate}" Live="{StaticResource LiveSubMenuContentTemplate}">
@@ -246,7 +306,7 @@
       <Setter Property="Foreground" Value="White" />
     </Style>
     <!--Create a Style based on BaseStyle-->
-    <Style x:Key="RoundStyle" TargetType="uwpToolkitControls:RoundImageEx" BasedOn="{StaticResource BaseStyle}">
+    <Style x:Key="RoundStyle" TargetType="uwpToolkitControls:ImageEx" BasedOn="{StaticResource BaseStyle}">
       <Setter Property="Width" Value="48" />
       <Setter Property="Height" Value="48" />
       <Setter Property="CornerRadius" Value="999" />
@@ -363,7 +423,6 @@
                   </uwpToolkitControls:DockPanel>
                   <ListView ItemsSource="{Binding PinSettings.Pins}"
                             ItemTemplate="{StaticResource PinMenuItemTemplate}"
-                            uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
                             IsItemClickEnabled="True"
                             SelectionMode="None"
                             TabIndex="1"
@@ -371,6 +430,12 @@
                             AllowDrop="True"
                             xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
                             myExtensions:ListViewBase.ItemContextFlyoutCustomObjectToTag="{Binding}">
+                    <i:Interaction.Behaviors>
+                      <core:EventTriggerBehavior EventName="ItemClick">
+                        <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+                                                  InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                      </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
                     <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
                       <DataTemplate>
                         <MenuFlyout>

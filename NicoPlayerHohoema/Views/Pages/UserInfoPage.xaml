@@ -70,7 +70,21 @@
                 </HyperlinkButton>
               </toolkit:DockPanel>
               <!-- Ownered Videos -->
-              <ListView ItemsSource="{Binding VideoInfoItems}" x:Name="UserVideosLayout" IsTabStop="False" uwpui:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}" SelectionMode="None" IsItemClickEnabled="True" ScrollViewer.VerticalScrollMode="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.HorizontalScrollMode="Auto" ScrollViewer.HorizontalScrollBarVisibility="Hidden">
+              <ListView ItemsSource="{Binding VideoInfoItems}"
+                        x:Name="UserVideosLayout"
+                        IsTabStop="False"
+                        SelectionMode="None"
+                        IsItemClickEnabled="True"
+                        ScrollViewer.VerticalScrollMode="Disabled"
+                        ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                        ScrollViewer.HorizontalScrollMode="Auto"
+                        ScrollViewer.HorizontalScrollBarVisibility="Hidden">
+                <i:Interaction.Behaviors>
+                  <core:EventTriggerBehavior EventName="ItemClick">
+                    <core:InvokeCommandAction Command="{Binding HohoemaPlaylist.PlayCommand}"
+                                              InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                  </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
                 <ListView.ItemContainerStyle>
                   <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -106,7 +120,17 @@
               <Border>
                 <ScrollViewer VerticalScrollMode="Disabled" VerticalScrollBarVisibility="Disabled" HorizontalScrollMode="Auto" HorizontalScrollBarVisibility="Hidden">
                   <StackPanel Orientation="Horizontal">
-                    <ListView ItemsSource="{Binding MylistGroups}" x:Name="UserMylistLayout" IsTabStop="False" uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}" SelectionMode="None" IsItemClickEnabled="True">
+                    <ListView ItemsSource="{Binding MylistGroups}"
+                              x:Name="UserMylistLayout"
+                              IsTabStop="False"
+                              SelectionMode="None"
+                              IsItemClickEnabled="True">
+                      <i:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="ItemClick">
+                          <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+                                                    InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                        </core:EventTriggerBehavior>
+                      </i:Interaction.Behaviors>
                       <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                           <Setter Property="VerticalAlignment" Value="Center" />

@@ -60,8 +60,20 @@
     </templateselector:ValueDataTemplateSelector>
   </Page.Resources>
   <Grid>
-    
-    <uwpcontrols:PullToRefreshListView x:Name="ItemsList" ItemsSource="{Binding ItemsView, Mode=OneWay}" RefreshCommand="{Binding RefreshCommand}" uwpExtensions:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}" IsItemClickEnabled="True" IncrementalLoadingTrigger="Edge" PullThreshold="85" UseSystemFocusVisuals="True" SelectionMode="None" HorizontalContentAlignment="Stretch" ItemContainerStyle="{StaticResource VideoListViewItemStyle}" uwpExtensions:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0" ScrollViewer.BringIntoViewOnFocusChange="False" ItemTemplateSelector="{StaticResource TimeshiftItemTemplateSelector}" xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions" myExtensions:ListViewBase.DeferInitialize="True">
+
+    <ListView x:Name="ItemsList"
+              ItemsSource="{Binding ItemsView, Mode=OneWay}"
+              IsItemClickEnabled="True"
+              IncrementalLoadingTrigger="Edge"
+              UseSystemFocusVisuals="True"
+              SelectionMode="None"
+              HorizontalContentAlignment="Stretch"
+              ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+              uwpExtensions:ScrollViewerExtensions.VerticalScrollBarMargin="0 48 0 0"
+              ScrollViewer.BringIntoViewOnFocusChange="False"
+              ItemTemplateSelector="{StaticResource TimeshiftItemTemplateSelector}"
+              xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
+              myExtensions:ListViewBase.DeferInitialize="True">
       <i:Interaction.Behaviors>
         <mybehavior:KeyboardTrigger Key="F5">
           <mybehavior:KeyboardTrigger.Actions>
@@ -69,6 +81,10 @@
           </mybehavior:KeyboardTrigger.Actions>
         </mybehavior:KeyboardTrigger>
         <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ScrollPosition.Value, Mode=TwoWay}" />
+        <core:EventTriggerBehavior EventName="ItemClick">
+          <core:InvokeCommandAction Command="{Binding HohoemaPlaylist.PlayCommand}"
+                                    InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+        </core:EventTriggerBehavior>
       </i:Interaction.Behaviors>
       <ListView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
@@ -105,13 +121,7 @@
           <ItemsStackPanel x:Name="ItemsPanel" />
         </ItemsPanelTemplate>
       </ListView.ItemsPanel>
-      <uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
-        <StackPanel Margin="0 32 0 0">
-          <Border Margin="0 16 0 0" BorderThickness="0 0 0 1" BorderBrush="Gray" />
-          <SymbolIcon Symbol="Refresh" VerticalAlignment="Bottom" Height="48" Width="48" Margin="0 24 0 8" />
-        </StackPanel>
-      </uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
-    </uwpcontrols:PullToRefreshListView>
+    </ListView>
     <VisualStateManager.VisualStateGroups>
       <!-- レイアウトモード -->
       <VisualStateGroup>

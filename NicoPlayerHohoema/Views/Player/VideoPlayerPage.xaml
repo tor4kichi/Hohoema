@@ -427,7 +427,17 @@
                         </i:Interaction.Behaviors>
                         <FlyoutBase.AttachedFlyout>
                           <Flyout>
-                            <ListView ItemsSource="{Binding VideoPlayer.AvailableQualities, Mode=OneWay}" SelectedItem="{Binding VideoPlayer.CurrentQuality, Mode=OneWay}" SelectionMode="Single" IsItemClickEnabled="True" uwpui:ListViewBase.Command="{Binding VideoPlayer.ChangePlayQualityCommand}">
+                            <ListView ItemsSource="{Binding VideoPlayer.AvailableQualities, Mode=OneWay}"
+                                      SelectedItem="{Binding VideoPlayer.CurrentQuality, Mode=OneWay}"
+                                      SelectionMode="Single"
+                                      IsItemClickEnabled="True"
+                                      >
+                              <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="ItemClick">
+                                  <core:InvokeCommandAction Command="{Binding VideoPlayer.ChangePlayQualityCommand}"
+                                                            InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                                </core:EventTriggerBehavior>
+                              </i:Interaction.Behaviors>
                               <ListView.ItemTemplate>
                                 <DataTemplate>
                                   <StackPanel Orientation="Horizontal" Spacing="8">
@@ -462,7 +472,17 @@
                         </i:Interaction.Behaviors>
                         <FlyoutBase.AttachedFlyout>
                           <Flyout>
-                            <ListView ItemsSource="{x:Bind PlaybackRateList}" SelectedItem="{Binding ObservableMediaPlayer.PlaybackRate.Value, Mode=OneWay}" SelectionMode="Single" IsItemClickEnabled="True" uwpui:ListViewBase.Command="{Binding SetPlaybackRateCommand}">
+                            <ListView ItemsSource="{x:Bind PlaybackRateList}"
+                                      SelectedItem="{Binding ObservableMediaPlayer.PlaybackRate.Value, Mode=OneWay}"
+                                      SelectionMode="Single"
+                                      IsItemClickEnabled="True"
+                                      >
+                              <i:Interaction.Behaviors>
+                                <core:EventTriggerBehavior EventName="ItemClick">
+                                  <core:InvokeCommandAction Command="{Binding SetPlaybackRateCommand}"
+                                                            InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                                </core:EventTriggerBehavior>
+                              </i:Interaction.Behaviors>
                               <ListView.ItemTemplate>
                                 <DataTemplate>
                                   <TextBlock>x<Run Text="{Binding}" /></TextBlock>

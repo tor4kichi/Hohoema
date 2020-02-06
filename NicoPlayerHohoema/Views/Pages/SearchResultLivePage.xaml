@@ -31,11 +31,20 @@
     </TransitionCollection>
   </Page.Transitions>
   <Grid>
-    
-    <uwpcontrols:PullToRefreshListView x:Name="ItemsList" ItemsSource="{Binding ItemsView, Mode=OneWay}" RefreshCommand="{Binding RefreshCommand}" IsItemClickEnabled="True" IncrementalLoadingTrigger="Edge" PullThreshold="85" UseSystemFocusVisuals="True" SelectionMode="None" HorizontalContentAlignment="Stretch" uwpExtension:ListViewBase.Command="{Binding OpenLiveContentCommand}" uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 96 0 0" xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions" myExtensions:ListViewBase.DeferInitialize="True">
-      <uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
+
+    <ListView x:Name="ItemsList"
+              ItemsSource="{Binding ItemsView, Mode=OneWay}"
+              IsItemClickEnabled="True"
+              IncrementalLoadingTrigger="Edge"
+              UseSystemFocusVisuals="True"
+              SelectionMode="None"
+              HorizontalContentAlignment="Stretch"
+              uwpExtension:ScrollViewerExtensions.VerticalScrollBarMargin="0 96 0 0"
+              xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
+              myExtensions:ListViewBase.DeferInitialize="True">
+      <ListView.ItemContainerTransitions>
         <TransitionCollection></TransitionCollection>
-      </uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
+      </ListView.ItemContainerTransitions>
       <i:Interaction.Behaviors>
         <mybehavior:KeyboardTrigger Key="F5">
           <mybehavior:KeyboardTrigger.Actions>
@@ -46,12 +55,30 @@
         <core:DataTriggerBehavior Binding="{Binding ItemsView, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}">
           <actions:ScrollViewerVerticalPositionSettingsAction Target="{x:Bind ItemsList}" VerticalOffset="{Binding ScrollPosition.Value}" WithAnimation="False" Delay="0:0:0.001" />
         </core:DataTriggerBehavior>
+        <core:EventTriggerBehavior EventName="ItemClick">
+          <core:InvokeCommandAction Command="{Binding OpenLiveContentCommand}"
+                                    InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+        </core:EventTriggerBehavior>
       </i:Interaction.Behaviors>
       <ListView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
           <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
             <StackPanel>
-              <ListView xmlns:ee="using:NicoPlayerHohoema.Models" SelectionMode="Single" IsItemClickEnabled="True" uwpExtension:ListViewBase.Command="{Binding ChangeSearchTargetCommand}" ItemsSource="{Binding SearchTargets}" SelectedItem="{Binding SelectedSearchTarget.Value, Mode=TwoWay}" Style="{StaticResource BandListViewStyle}" ItemContainerStyle="{StaticResource SimpleListViewItemStyle}" SingleSelectionFollowsFocus="False" HorizontalAlignment="Right">
+              <ListView xmlns:ee="using:NicoPlayerHohoema.Models"
+                        SelectionMode="Single"
+                        IsItemClickEnabled="True"
+                        ItemsSource="{Binding SearchTargets}"
+                        SelectedItem="{Binding SelectedSearchTarget.Value, Mode=TwoWay}"
+                        Style="{StaticResource BandListViewStyle}"
+                        ItemContainerStyle="{StaticResource SimpleListViewItemStyle}"
+                        SingleSelectionFollowsFocus="False"
+                        HorizontalAlignment="Right">
+                <i:Interaction.Behaviors>
+                  <core:EventTriggerBehavior EventName="ItemClick">
+                    <core:InvokeCommandAction Command="{Binding ChangeSearchTargetCommand}"
+                                              InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                  </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
                 <ListView.ItemTemplate>
                   <DataTemplate>
                     <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
@@ -159,13 +186,7 @@
           <Setter Property="BorderBrush" Value="#44707070" />
         </Style>
       </ListView.ItemContainerStyle>
-      <uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
-        <StackPanel Margin="0 32 0 0">
-          <Border Margin="0 16 0 0" BorderThickness="0 0 0 1" BorderBrush="Gray" />
-          <SymbolIcon Symbol="Refresh" VerticalAlignment="Bottom" Height="48" Width="48" Margin="0 24 0 8" />
-        </StackPanel>
-      </uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
-    </uwpcontrols:PullToRefreshListView>
+    </ListView>
     <VisualStateManager.VisualStateGroups>
       <!-- レイアウトモード -->
       <VisualStateGroup>

@@ -160,7 +160,18 @@
             </StackPanel>
           </toolkit:DockPanel>
           <TextBlock Text="{Binding Source=SearchHistory}" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0 24 0 8" toolkit:DockPanel.Dock="Top"></TextBlock>
-          <ListView ItemsSource="{Binding SearchHistoryItems}" ItemTemplate="{StaticResource SearchHistoryItemTemplate}" uwpextensions:ListViewBase.Command="{Binding SearchHistoryItemCommand}" IsItemClickEnabled="True" SelectionMode="None" SingleSelectionFollowsFocus="False"></ListView>
+          <ListView ItemsSource="{Binding SearchHistoryItems}"
+                    ItemTemplate="{StaticResource SearchHistoryItemTemplate}"
+                    IsItemClickEnabled="True"
+                    SelectionMode="None"
+                    SingleSelectionFollowsFocus="False">
+            <i:Interaction.Behaviors>
+              <core:EventTriggerBehavior EventName="ItemClick">
+                <core:InvokeCommandAction Command="{Binding SearchHistoryItemCommand}"
+                                          InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+              </core:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
+          </ListView>
         </toolkit:DockPanel>
         <Grid x:Name="HeaderLayout" VerticalAlignment="Top" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
           <StackPanel>

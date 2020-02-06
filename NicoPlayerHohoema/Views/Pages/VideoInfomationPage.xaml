@@ -137,7 +137,18 @@
                       <TextBlock Text="{Binding Source=LinkInVideoIntroduction, Converter={StaticResource LocalizeConverter}}" />
                     </DataTemplate>
                   </uwptoolkit:Expander.HeaderTemplate>
-                  <GridView ItemsSource="{Binding VideoDescriptionHyperlinkItems, Mode=OneWay}" uwpExtensions:ListViewBase.Command="{Binding ScriptNotifyCommand}" IsItemClickEnabled="True" HorizontalContentAlignment="Stretch" Visibility="{Binding VideoDescriptionHyperlinkItems, Converter={StaticResource CollectionVisibilityConverter}}" Margin="0 8" IsTabStop="False">
+                  <GridView ItemsSource="{Binding VideoDescriptionHyperlinkItems, Mode=OneWay}"
+                            IsItemClickEnabled="True"
+                            HorizontalContentAlignment="Stretch"
+                            Visibility="{Binding VideoDescriptionHyperlinkItems, Converter={StaticResource CollectionVisibilityConverter}}"
+                            Margin="0 8"
+                            IsTabStop="False">
+                    <i:Interaction.Behaviors>
+                      <core:EventTriggerBehavior EventName="ItemClick">
+                        <core:InvokeCommandAction Command="{Binding ScriptNotifyCommand}"
+                                                  InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                      </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
                     <ItemsControl.ItemTemplate>
                       <DataTemplate>
                         <TextBlock Text="{Binding Label}" TextDecorations="Underline" Foreground="{ThemeResource SystemAccentColor}" ToolTipService.ToolTip="{Binding Url}" />
@@ -186,7 +197,17 @@
             <PivotItem x:Name="RelatedVideosPivotItem" Header="{Binding Source=RelatedVideos, Converter={StaticResource LocalizeConverter}}">
               <Grid>
                 <TextBlock Text="{Binding Source=NoItems_RelatedVideos, Converter={StaticResource LocalizeConverter}}" Opacity="0.6" Margin="16" Visibility="{Binding RelatedVideos, Mode=OneWay, Converter={StaticResource EmptyCollectionVisibilityConverter}}" />
-                <ListView ItemsSource="{Binding RelatedVideos, Mode=OneWay}" uwpExtensions:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}" IsItemClickEnabled="True" SelectionMode="None" SingleSelectionFollowsFocus="False" ItemContainerStyle="{StaticResource VideoListViewItemStyle}">
+                <ListView ItemsSource="{Binding RelatedVideos, Mode=OneWay}"
+                          IsItemClickEnabled="True"
+                          SelectionMode="None"
+                          SingleSelectionFollowsFocus="False"
+                          ItemContainerStyle="{StaticResource VideoListViewItemStyle}">
+                  <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="ItemClick">
+                      <core:InvokeCommandAction Command="{Binding HohoemaPlaylist.PlayCommand}"
+                                                InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                    </core:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
                   <ListView.ItemTemplate>
                     <DataTemplate>
                       <local:VideoInfoControl />

@@ -73,7 +73,15 @@
             <!-- Ownered Videos -->
             <ScrollViewer VerticalScrollMode="Disabled" VerticalScrollBarVisibility="Disabled" HorizontalScrollMode="Auto" HorizontalScrollBarVisibility="Hidden">
               <StackPanel>
-                <ListView ItemsSource="{Binding CommunityVideoSamples}" uwpui:ListViewBase.Command="{Binding PlayUserVideoCommand}" SelectionMode="None" IsItemClickEnabled="True">
+                <ListView ItemsSource="{Binding CommunityVideoSamples}"
+                          SelectionMode="None"
+                          IsItemClickEnabled="True">
+                  <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="ItemClick">
+                      <core:InvokeCommandAction Command="{Binding PlayUserVideoCommand}"
+                                                InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                    </core:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
                   <ListView.ItemsPanel>
                     <ItemsPanelTemplate>
                       <ItemsStackPanel Orientation="Horizontal" Margin="0 0 40 0" />

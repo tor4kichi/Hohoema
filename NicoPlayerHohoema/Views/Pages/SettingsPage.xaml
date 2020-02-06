@@ -203,7 +203,18 @@
               </Grid>
               <StackPanel Margin="0 8">
                 <uwpcontrols:Expander Header="{Binding Source=ShowFilteredVideoOwnerNames, Converter={StaticResource LocalizeConverter}}" HorizontalContentAlignment="Left" Foreground="DimGray">
-                  <ListView ItemsSource="{Binding NGVideoOwnerUserIds}" Margin="16 8" IsTabStop="False" HorizontalContentAlignment="Stretch" uwpui:ListViewBase.Command="{Binding OpenUserPageCommand}" IsItemClickEnabled="True" SelectionMode="None">
+                  <ListView ItemsSource="{Binding NGVideoOwnerUserIds}"
+                            Margin="16 8"
+                            IsTabStop="False"
+                            HorizontalContentAlignment="Stretch"
+                            IsItemClickEnabled="True"
+                            SelectionMode="None">
+                    <i:Interaction.Behaviors>
+                      <core:EventTriggerBehavior EventName="ItemClick">
+                        <core:InvokeCommandAction Command="{Binding OpenUserPageCommand}"
+                                                  InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                      </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
                     <ItemsControl.ItemTemplate>
                       <DataTemplate>
                         <Border Background="Transparent" IsHitTestVisible="True" BorderBrush="{ThemeResource ButtonBorderThemeBrush}" BorderThickness="1" Padding="16 8">
@@ -435,7 +446,15 @@
               <TextBlock Text="{Binding Source=Others, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" VerticalAlignment="Center" toolkit:DockPanel.Dock="Left" />
               <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
             </toolkit:DockPanel>
-            <ListView ItemsSource="{Binding PurchaseItems}" uwpui:ListViewBase.Command="{Binding ShowCheerPurchaseCommand}" IsItemClickEnabled="True" SelectionMode="None">
+            <ListView ItemsSource="{Binding PurchaseItems}"
+                      IsItemClickEnabled="True"
+                      SelectionMode="None">
+              <i:Interaction.Behaviors>
+                <core:EventTriggerBehavior EventName="ItemClick">
+                  <core:InvokeCommandAction Command="{Binding ShowCheerPurchaseCommand}"
+                                            InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                </core:EventTriggerBehavior>
+              </i:Interaction.Behaviors>
               <ListView.ItemTemplate>
                 <DataTemplate>
                   <Grid>
