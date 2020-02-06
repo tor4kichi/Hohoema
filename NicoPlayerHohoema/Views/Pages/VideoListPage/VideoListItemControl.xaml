@@ -132,6 +132,7 @@
     
     <Grid x:Name="HiddenVideoOwnerLayout" Opacity="0.0" IsHitTestVisible="False">
       <StackPanel x:Name="HiddenVideoOwnerRevealedLayout" Visibility="Collapsed" HorizontalAlignment="Right" Orientation="Horizontal" Spacing="8">
+        <!--
         <Button Content="{Binding Source=RemoveHiddenVideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                 x:Name="UnregistrationHiddenVideoOwnerButton"
                 Click="UnregistrationHiddenVideoOwnerButton_Click"
@@ -139,6 +140,7 @@
                 BorderBrush="{ThemeResource ButtonBorderThemeBrush}"
                 BorderThickness="1" 
                 />
+        -->
 
         <Button Content="{Binding Source=ExitOnceReveal, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                 x:Name="ExitRevealButton"
@@ -150,10 +152,12 @@
       </StackPanel>
       <Grid x:Name="HiddenVideoOwnerUnrevealedLayout"
             Opacity="0.7">
-        <TextBlock Text="{Binding Source=HiddenVideo, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+        <TextBlock 
                    VerticalAlignment="Center"
                    HorizontalAlignment="Center"
-                   Margin="0 0 128 0" />
+                   Margin="0 0 128 0">
+          <Run Text="{Binding Source=HiddenVideo, Converter={StaticResource LocalizeConverter}, Mode=OneWay}" />
+        </TextBlock>
         <Button Content="{Binding Source=OnceReveal, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" 
                 x:Name="HiddenVideoOnceRevealButton" Click="HiddenVideoOnceRevealButton_Click"
                 HorizontalAlignment="Right"
@@ -216,7 +220,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{x:Bind IsHiddenVideoOwner, Mode=OneWay}" />
+            <windowsStateTrigger:NotEqualStateTrigger Value="{x:Bind VideoHiddenInfo, Mode=OneWay}" NotEqualTo="{x:Null}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HiddenVideoOwnerLayout.Opacity"

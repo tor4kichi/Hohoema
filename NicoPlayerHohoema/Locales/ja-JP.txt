@@ -668,6 +668,12 @@ HiddenVideo = 非表示設定された動画
 OnceReveal = 今だけ再表示
 RemoveHiddenVideoOwner = 非表示を解除
 
+HiddenReason = 非表示理由
+NGReason.VideoId = 動画ID
+NGReason.UserId = 投稿ユーザーID
+NGReason.Keyword = 動画タイトル
+NGReason.Tag = 動画タグ
+
 CopyVideoId = 動画IDをコピー
 CopyVideoLink = 動画リンクをコピー
 CopyShareText = 共有用テキストをコピー

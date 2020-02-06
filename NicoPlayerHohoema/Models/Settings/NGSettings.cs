@@ -24,17 +24,17 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-		public NGResult IsNgVideo(Database.NicoVideo info)
+		public NGResult IsNgVideo(Interfaces.IVideoContent info)
 		{
 			NGResult result = null;
 
-            if (info.Owner != null)
+            if (info.ProviderId != null)
             {
-                result = IsNgVideoOwnerId(info.Owner.OwnerId);
+                result = IsNgVideoOwnerId(info.ProviderId);
                 if (result != null) return result;
             }
 
-            result = IsNGVideoTitle(info.Title);
+            result = IsNGVideoTitle(info.Label);
 			if (result != null) return result;
 
 			return result;
@@ -257,21 +257,6 @@ namespace NicoPlayerHohoema.Models
         public NGReason NGReason { get; set; }
         public string NGDescription { get; set; } = "";
         public string Content { get; set; }
-
-        internal string GetReasonText()
-        {
-            switch (NGReason)
-            {
-                case NGReason.VideoId:
-                    return $"NG対象の動画ID : {Content}";
-                case NGReason.UserId:
-                    return $"NG対象の投稿者ID : {Content}";
-                case NGReason.Keyword:
-                    return $"NG対象のキーワード : {Content}";
-                default:
-                    throw new NotSupportedException();
-            }
-        }
     }
 
     public enum NGReason
@@ -280,7 +265,5 @@ namespace NicoPlayerHohoema.Models
         UserId,
         Keyword,
         Tag,
-
-        Score,
     }
 }

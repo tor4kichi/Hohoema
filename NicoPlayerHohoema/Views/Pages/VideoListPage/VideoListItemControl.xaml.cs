@@ -167,23 +167,26 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
         {
             if (video != null)
             {
-                IsHiddenVideoOwner = _ngSettings.IsNgVideoOwnerId(video.ProviderId) != null;
+                VideoHiddenInfo = _ngSettings.IsNgVideo(video);
             }
             else
             {
-                IsHiddenVideoOwner = false;
+                VideoHiddenInfo = null;
             }
         }
 
-        public bool IsHiddenVideoOwner
+
+
+
+        public NGResult VideoHiddenInfo
         {
-            get { return (bool)GetValue(IsHiddenVideoOwnerProperty); }
-            set { SetValue(IsHiddenVideoOwnerProperty, value); }
+            get { return (NGResult)GetValue(VideoHiddenInfoProperty); }
+            set { SetValue(VideoHiddenInfoProperty, value); }
         }
 
-        // Using a DependencyProperty as the backing store for IsHiddenVideoOwner.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty IsHiddenVideoOwnerProperty =
-            DependencyProperty.Register("IsHiddenVideoOwner", typeof(bool), typeof(VideoListItemControl), new PropertyMetadata(false));
+        // Using a DependencyProperty as the backing store for VideoHiddenInfo.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty VideoHiddenInfoProperty =
+            DependencyProperty.Register("VideoHiddenInfo", typeof(NGResult), typeof(VideoListItemControl), new PropertyMetadata(null));
 
 
 
@@ -212,7 +215,7 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
         private void UnregistrationHiddenVideoOwnerButton_Click(object sender, RoutedEventArgs e)
         {
             IsRevealHiddenVideo = false;
-            IsHiddenVideoOwner = false;
+            VideoHiddenInfo = null;
 
             if (DataContext is Interfaces.IVideoContent video)
             {
