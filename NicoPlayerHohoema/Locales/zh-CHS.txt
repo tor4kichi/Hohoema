@@ -611,6 +611,8 @@ DeleteLocalPlaylistTitle = 删除{0}
 #### Local Playlist ####
 LocalPlaylistDelete = 删除播放列表
 LocalPlaylistNoItems = 播放列表为空
+InAppNotification_LocalPlaylistAddedItems = 已将{1}个视频添加到{0}
+InAppNotification_LocalPlaylistRemovedItems = {1}个视频已从{0}中删除
 
 
 #### Watch After ####
@@ -632,6 +634,11 @@ MylistRegisteredCountSum = 合计
 CompleteRegisrationForKind0_AddItem2_ToKindTitle1 = {0}的注册完成\n“ {2}”已添加到“ {1}”
 ExistRegisrationForKind0_AddItem2_ToKindTitle1 = 已添加到{0} \n“ {2}”已添加到“ {1}”
 FailedRegisrationForKind0_AddItem2_ToKindTitle1 = {0}上的注册失败\n无法将“ {2}”添加到“ {1}”
+
+InAppNotification_MylistAddedItems_Success = 已将{1}个视频添加到{0}
+InAppNotification_MylistAddedItems_Fail = 无法添加到{0}
+InAppNotification_MylistRemovedItems_Success = {1}个视频已从{0}中删除
+InAppNotification_MylistRemovedItems_Fail = 无法从{0}中删除
 
 
 ## Edit Mylist
