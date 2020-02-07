@@ -612,7 +612,8 @@ DeleteLocalPlaylistTitle = {0} を削除します
 #### Local Playlist ####
 LocalPlaylistDelete = プレイリストを削除
 LocalPlaylistNoItems = プレイリストは空です
-
+InAppNotification_LocalPlaylistAddedItems = {0} に {1} 個の動画を追加しました
+InAppNotification_LocalPlaylistRemovedItems = {0} から {1} 個の動画を削除しました
 
 #### Watch After ####
 @view = あとで見る

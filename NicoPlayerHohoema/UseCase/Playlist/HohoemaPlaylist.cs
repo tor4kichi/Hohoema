@@ -57,6 +57,18 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         public LiveVideoPlaylistItem RequestLiveItem { get; set; }
     }
 
+    public sealed class LocalPlaylistItemRemovedEventArgs
+    {
+        public string PlaylistId { get; internal set; }
+        public IReadOnlyCollection<string> RemovedItems { get; internal set; }
+    }
+
+    public sealed class LocalPlaylistItemAddedEventArgs
+    {
+        public string PlaylistId { get; internal set; }
+        public IReadOnlyCollection<string> AddedItems { get; internal set; }
+    }
+
     public class LocalPlaylist : IPlaylist
     {
         private readonly PlaylistRepository _playlistRepository;
@@ -82,16 +94,28 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
 
         public event EventHandler<LocalPlaylistItemRemovedEventArgs> ItemRemoved;
+        public event EventHandler<LocalPlaylistItemAddedEventArgs> ItemAdded;
 
 
         public void AddPlaylistItem(IVideoContent item)
         {
             _playlistRepository.AddItem(Id, item.Id);
+            ItemAdded?.Invoke(this, new LocalPlaylistItemAddedEventArgs()
+            {
+                PlaylistId = Id,
+                AddedItems = new[] { item.Id }
+            });
         }
 
         public void AddPlaylistItem(IEnumerable<IVideoContent> items)
         {
-            _playlistRepository.AddItems(Id, items.Select(x => x.Id));
+            var ids = items.Select(x => x.Id).ToList();
+            _playlistRepository.AddItems(Id, ids);
+            ItemAdded?.Invoke(this, new LocalPlaylistItemAddedEventArgs()
+            {
+                PlaylistId = Id,
+                AddedItems = ids
+            });
         }
 
 

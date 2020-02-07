@@ -1,10 +1,12 @@
-﻿using Microsoft.Toolkit.Uwp.Helpers;
+﻿using I18NPortable;
+using Microsoft.Toolkit.Uwp.Helpers;
 using NicoPlayerHohoema.Database.Local.LocalMylist;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models.LocalMylist;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Repository.Playlist;
+using NicoPlayerHohoema.Services;
 using Prism.Commands;
 using Reactive.Bindings.Extensions;
 using System;
@@ -21,12 +23,7 @@ using Windows.Storage;
 
 namespace NicoPlayerHohoema.UseCase.Playlist
 {
-    public sealed class LocalPlaylistItemRemovedEventArgs
-    {
-        public string PlaylistId { get; internal set; }
-        public IReadOnlyCollection<string> RemovedItems { get; internal set; }
-    }
-
+    
 
     public sealed class LocalMylistManager : IDisposable
     {
@@ -59,11 +56,13 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
         public LocalMylistManager(
             PlaylistRepository playlistRepository,
-            NicoVideoProvider nicoVideoProvider
+            NicoVideoProvider nicoVideoProvider,
+            Services.NotificationService notificationService
             )
         {
             _playlistRepository = playlistRepository;
             _nicoVideoProvider = nicoVideoProvider;
+            _notificationService = notificationService;
             MigrateLocalMylistToPlaylistRepository(_playlistRepository);
 
             var localPlaylistEntities = _playlistRepository.GetPlaylistsFromOrigin(Interfaces.PlaylistOrigin.Local);
@@ -76,65 +75,22 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             _playlists = new ObservableCollection<LocalPlaylist>(localPlaylists);
             LocalPlaylists = new ReadOnlyObservableCollection<LocalPlaylist>(_playlists);
 
+            localPlaylists.ForEach(HandleItemsChanged);
+
             foreach (var entity in localPlaylistEntities)
             {
                 _playlistIdToEntity.Add(entity.Id, entity);
             }
 
-            /*
-            LocalPlaylists.CollectionChangedAsObservable()
-                .Subscribe(e =>
-                {
-                    if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Add)
-                    {
-                        foreach (var newItem in e.NewItems.Cast<LocalPlaylist>())
-                        {
-                            CompositeDisposable disposables = new CompositeDisposable();
-                            new[]
-                            {
-                                newItem.ObserveProperty(x => x.Label).ToUnit(),
-                                newItem.CollectionChangedAsObservable().ToUnit()
-                            }
-                            .Merge()
-                            .Throttle(TimeSpan.FromSeconds(1))
-                            .Subscribe(_ =>
-                            {
-                                LocalMylistDb.AddOrUpdate(new LocalMylistData()
-                                {
-                                    Id = newItem.Id,
-                                    Label = newItem.Label,
-                                    Items = newItem.ToList(),
-                                    SortIndex = newItem.SortIndex
-                                });
-                            })
-                            .AddTo(disposables);
-
-                            LocalMylistPropertyChangedObserverMap.Add(newItem.Id, disposables);
-                        }
-                    }
-                    else if (e.Action == System.Collections.Specialized.NotifyCollectionChangedAction.Remove)
-                    {
-                        foreach (var removeItem in e.NewItems.Cast<LocalMylistGroup>())
-                        {
-                            LocalMylistDb.Get(removeItem.Id);
-
-                            if (LocalMylistPropertyChangedObserverMap.TryGetValue(removeItem.Id, out var disposer))
-                            {
-                                disposer.Dispose();
-                                LocalMylistPropertyChangedObserverMap.Remove(removeItem.Id);
-                            }
-                        }
-                    }
-                });
-                */
         }
 
         private readonly PlaylistRepository _playlistRepository;
         private readonly NicoVideoProvider _nicoVideoProvider;
+        private readonly NotificationService _notificationService;
         ObservableCollection<LocalPlaylist> _playlists;
         public ReadOnlyObservableCollection<LocalPlaylist> LocalPlaylists { get; }
 
-        Dictionary<string, IDisposable> LocalMylistPropertyChangedObserverMap = new Dictionary<string, IDisposable>();
+        Dictionary<string, CompositeDisposable> LocalMylistPropertyChangedObserverMap = new Dictionary<string, CompositeDisposable>();
 
         Dictionary<string, PlaylistEntity> _playlistIdToEntity = new Dictionary<string, PlaylistEntity>();
 
@@ -147,6 +103,13 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         }
 
         public LocalPlaylist CreatePlaylist(string label)
+        {
+            var playlist = CreatePlaylist_Internal(label);
+
+            return playlist;
+        }
+
+        private LocalPlaylist CreatePlaylist_Internal(string label)
         {
             var entity = new PlaylistEntity()
             {
@@ -163,17 +126,64 @@ namespace NicoPlayerHohoema.UseCase.Playlist
                 Label = label,
             };
 
-            _playlists.Add(playlist);
-            
+            HandleItemsChanged(playlist);
+
+            _playlists.Add(playlist);            
             return playlist;
         }
+
+
+        void HandleItemsChanged(LocalPlaylist playlist)
+        {
+            CompositeDisposable disposables = new CompositeDisposable();
+            LocalMylistPropertyChangedObserverMap.Add(playlist.Id, disposables);
+
+            Observable.FromEventPattern<LocalPlaylistItemAddedEventArgs>(
+                h => playlist.ItemAdded += h,
+                h => playlist.ItemAdded -= h
+                )
+                .Subscribe(args =>
+                {
+                    var sender = args.Sender as LocalPlaylist;
+                    _notificationService.ShowInAppNotification(new InAppNotificationPayload()
+                    {
+                        Content = "InAppNotification_LocalPlaylistAddedItems".Translate(sender.Label, args.EventArgs.AddedItems.Count)
+                    });
+                })
+                .AddTo(disposables);
+
+            Observable.FromEventPattern<LocalPlaylistItemRemovedEventArgs>(
+                h => playlist.ItemRemoved += h,
+                h => playlist.ItemRemoved -= h
+                )
+                .Subscribe(args =>
+                {
+                    var sender = args.Sender as LocalPlaylist;
+                    _notificationService.ShowInAppNotification(new InAppNotificationPayload()
+                    {
+                        Content = "InAppNotification_LocalPlaylistRemovedItems".Translate(sender.Label, args.EventArgs.RemovedItems.Count)
+                    });
+                })
+                .AddTo(disposables);
+        }
+
+        void RemoveHandleItemsChanged(LocalPlaylist playlist)
+        {
+            if (LocalMylistPropertyChangedObserverMap.Remove(playlist.Id, out var disposables))
+            {
+                disposables.Dispose();
+            }
+        }
+
 
         public LocalPlaylist CreatePlaylist(string label, IEnumerable<Interfaces.IVideoContent> firstItems)
         {
             var playlist = CreatePlaylist(label);
             playlist.AddPlaylistItem(firstItems);
+
             return playlist;
         }
+
 
         public bool HasPlaylist(string playlistId)
         {
@@ -188,7 +198,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         public bool RemovePlaylist(LocalPlaylist localPlaylist)
         {
             var result = _playlistRepository.Delete(localPlaylist.Id);
-
+            RemoveHandleItemsChanged(localPlaylist);
             return _playlists.Remove(localPlaylist);
         }
 
@@ -208,7 +218,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         public DelegateCommand<LocalPlaylist> RemoveCommand => _RemoveCommand
             ?? (_RemoveCommand = new DelegateCommand<LocalPlaylist>((group) =>
             {
-                _playlists.Remove(group);
+                RemovePlaylist(group);
             }
             , (p) => p != null && LocalPlaylists.Contains(p)
             ));
