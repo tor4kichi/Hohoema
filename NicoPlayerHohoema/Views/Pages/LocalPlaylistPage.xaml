@@ -49,7 +49,9 @@
                   <AppBarButton x:Name="RemoveWatchedItemsButton"
                                 Label="{Binding Source=RemoveWatchedItems, Converter={StaticResource LocalizeConverter}}"
                                 Command="{Binding RemoveWatchedItemsInAfterWatchPlaylistCommand}"
-                                Icon="Delete" />
+                                Icon="Delete"
+                                Visibility="Collapsed"
+                                />
                   <!-- 非選択中 -->
                   <AppBarButton x:Name="PlayAllButton"
                                 Icon="Play"
@@ -158,6 +160,10 @@
           <VisualState.StateTriggers>
             <StateTrigger IsActive="{Binding IsWatchAfterPlaylist}" />
           </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="RemoveWatchedItemsButton.Visibility"
+                    Value="Visible" />
+          </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
       <VisualStateGroup>
