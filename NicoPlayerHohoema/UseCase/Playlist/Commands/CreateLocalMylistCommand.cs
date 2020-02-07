@@ -49,15 +49,13 @@ namespace NicoPlayerHohoema.Commands.Mylist
 
                 if (parameter is Interfaces.IVideoContent content)
                 {
-                    LocalMylistManager.AddPlaylistItem(localPlaylist, content);
+                    localPlaylist.AddPlaylistItem(content);
                 }
                 else if (parameter is string itemId)
                 {
                     throw new NotSupportedException();
                 }
             }
-
-            
         }
     }
 }

@@ -621,6 +621,7 @@ RemoveWatchedItems = 視聴済みを削除
 
 
 #### Mylist ####
+DefaultMylist = とりあえずマイリスト
 MylistOwner = オーナー情報
 MylistEditInfo = マイリスト情報を編集
 MylistDelete = マイリストを削除

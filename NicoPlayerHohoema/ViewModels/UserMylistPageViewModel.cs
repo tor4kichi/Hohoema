@@ -197,7 +197,7 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         if (true == await DialogService.ShowCreateMylistGroupDialogAsync(data))
                         {
-                            var result = await _userMylistManager.UpdateMylist(loginUserMylist.Id, data);
+                            var result = await loginUserMylist.UpdateMylist(data);
 
                             if (result == Mntone.Nico2.ContentManageResult.Success)
                             {

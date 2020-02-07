@@ -71,9 +71,6 @@ namespace NicoPlayerHohoema.Models
             };
         }
 
-        public event EventHandler<MylistItemAddedEventArgs> MylistItemAdded;
-        public event EventHandler<MylistItemRemovedEventArgs> MylistItemRemoved;
-
 
 
 
@@ -200,88 +197,6 @@ namespace NicoPlayerHohoema.Models
 			//return Mylists.Any(x => x.ContainsVideoId(videoId));
 		}
 
-        public Task<List<IVideoContent>> GetLoginUserMylistItemsAsync(IMylist mylist)
-        {
-            return _loginUserMylistProvider.GetLoginUserMylistItemsAsync(mylist);
-        }
-
-
-        public Task<ContentManageResult> UpdateMylist(string mylistId, Dialogs.MylistGroupEditData editData)
-        {
-            return _loginUserMylistProvider.UpdateMylist(mylistId, editData);
-        }
-
-
-
-
-        public Task<MylistItemAddedEventArgs> AddItem(string mylistId, string videoId, string mylistComment = "")
-        {
-            return AddItem(mylistId, new[] { videoId }, mylistComment);
-        }
-
-        public async Task<MylistItemAddedEventArgs> AddItem(string mylistId, IEnumerable<string> items, string mylistComment = "")
-        {
-            List<string> successed = new List<string>();
-            List<string> failed = new List<string>();
-
-            foreach (var videoId in items)
-            {
-                var result = await  _loginUserMylistProvider.AddMylistItem(mylistId, videoId, mylistComment);
-                if (result != ContentManageResult.Failed)
-                {
-                    successed.Add(videoId);
-                }
-                else
-                {
-                    failed.Add(videoId);
-                }
-            }
-
-            var args = new MylistItemAddedEventArgs()
-            {
-                MylistId = mylistId,
-                SuccessedItems = successed,
-                FailedItems = failed
-            };
-            MylistItemAdded?.Invoke(this, args);
-
-            return args;
-        }
-
-
-        public Task<MylistItemRemovedEventArgs> RemoveItem(string mylistId, string videoId)
-        {
-            return RemoveItem(mylistId, new[] { videoId });
-        }
-
-        public async Task<MylistItemRemovedEventArgs> RemoveItem(string mylistId, IEnumerable<string> items)
-        {
-            List<string> successed = new List<string>();
-            List<string> failed = new List<string>();
-
-            foreach (var videoId in items)
-            {
-                var result = await _loginUserMylistProvider.RemoveMylistItem(mylistId, videoId);
-                if (result == ContentManageResult.Success)
-                {
-                    successed.Add(videoId);
-                }
-                else
-                {
-                    failed.Add(videoId);
-                }
-            }
-
-            var args = new MylistItemRemovedEventArgs()
-            {
-                MylistId = mylistId,
-                SuccessedItems = successed,
-                FailedItems = failed
-            };
-            MylistItemRemoved?.Invoke(this, args);
-
-            return args;
-        }
     }
 
 	public class MylistVideoItemInfo

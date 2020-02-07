@@ -47,11 +47,11 @@ namespace NicoPlayerHohoema.Commands.Mylist
 
             if (parameter is Interfaces.IVideoContent content)
             {
-                await UserMylistManager.AddItem(mylist.Id, content.Id);
+                await mylist.AddItem(content.Id);
             }
             else if (parameter is string videoId)
             {
-                await UserMylistManager.AddItem(mylist.Id, videoId);
+                await mylist.AddItem(videoId);
             }
         }
     }

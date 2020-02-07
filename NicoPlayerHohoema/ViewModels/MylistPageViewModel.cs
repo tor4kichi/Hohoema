@@ -549,9 +549,11 @@ namespace NicoPlayerHohoema.ViewModels
             IsWatchAfterLocalMylist = false;
             IsLocalMylist = false;
 
-            Observable.FromEventPattern<MylistItemAddedEventArgs>(
-                h => UserMylistManager.MylistItemAdded += h,
-                h => UserMylistManager.MylistItemAdded -= h
+            if (mylist is LoginUserMylistPlaylist loginMylist)
+            {
+                Observable.FromEventPattern<MylistItemAddedEventArgs>(
+                h => loginMylist.MylistItemAdded += h,
+                h => loginMylist.MylistItemAdded -= h
                 )
                 .Subscribe(e =>
                 {
@@ -563,27 +565,27 @@ namespace NicoPlayerHohoema.ViewModels
                 })
                 .AddTo(_NavigatingCompositeDisposable);
 
-            Observable.FromEventPattern<MylistItemRemovedEventArgs>(
-                h => UserMylistManager.MylistItemRemoved += h,
-                h => UserMylistManager.MylistItemRemoved -= h
-                )
-                .Subscribe(e =>
-                {
-                    var args = e.EventArgs;
-                    if (args.MylistId == Mylist.Value.Id)
+                Observable.FromEventPattern<MylistItemRemovedEventArgs>(
+                    h => loginMylist.MylistItemRemoved += h,
+                    h => loginMylist.MylistItemRemoved -= h
+                    )
+                    .Subscribe(e =>
                     {
-                        foreach (var removed in args.SuccessedItems)
+                        var args = e.EventArgs;
+                        if (args.MylistId == Mylist.Value.Id)
                         {
-                            var removedItem = MylistItems.FirstOrDefault(x => x.Id == removed);
-                            if (removedItem != null)
+                            foreach (var removed in args.SuccessedItems)
                             {
-                                MylistItems.Remove(removedItem);
+                                var removedItem = MylistItems.FirstOrDefault(x => x.Id == removed);
+                                if (removedItem != null)
+                                {
+                                    MylistItems.Remove(removedItem);
+                                }
                             }
                         }
-                    }
-                })
-                .AddTo(_NavigatingCompositeDisposable);
-            
+                    })
+                    .AddTo(_NavigatingCompositeDisposable);
+            }
 
             MylistItems = await CreateItemsSourceAsync(mylist);
             MaxItemsCount = Mylist.Value.Count;
@@ -610,28 +612,31 @@ namespace NicoPlayerHohoema.ViewModels
 
         private async Task<ICollection<IVideoContent>> CreateItemsSourceAsync(MylistPlaylist mylist)
         {
-            var source = new MylistIncrementalSource(mylist, _mylistRepository, NgSettings);
-            await source.ResetSource();
-            return new IncrementalLoadingCollection<MylistIncrementalSource, IVideoContent>(source);
+            if (mylist is LoginUserMylistPlaylist loginUserMylist)
+            {
+                var source = new LoginUserMylistIncrementalSource(loginUserMylist);
+                await source.ResetSource();
+                return new IncrementalLoadingCollection<LoginUserMylistIncrementalSource, IVideoContent>(source);
+            }
+            else
+            {
+                var source = new MylistIncrementalSource(mylist);
+                await source.ResetSource();
+                return new IncrementalLoadingCollection<MylistIncrementalSource, IVideoContent>(source);
+            }
         }
     }
     
 	public class MylistIncrementalSource : HohoemaIncrementalSourceBase<IVideoContent>
 	{
-        private readonly IMylist _mylist;
-        private readonly MylistRepository _mylistRepository;
-        public NGSettings NgSettings { get; }
+        private readonly MylistPlaylist _mylist;
 
         public MylistIncrementalSource(
-            IMylist mylist,
-            MylistRepository mylistRepository
-            , NGSettings ngSettings = null
+            MylistPlaylist mylist
             )
             : base()
         {
             _mylist = mylist;
-            _mylistRepository = mylistRepository;
-            NgSettings = ngSettings;
         }
 
 
@@ -647,7 +652,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override async Task<int> ResetSourceImpl()
         {
-            var result = await _mylistRepository.GetItemsAsync(_mylist, 0, (int)base.OneTimeLoadCount);
+            var result = await _mylist.GetItemsAsync(0, (int)base.OneTimeLoadCount);
             _firstResult = result;
 
 
@@ -666,7 +671,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
             else
             {
-                var result = await _mylistRepository.GetItemsAsync(_mylist, head, count);
+                var result = await _mylist.GetItemsAsync(head, count);
 
                 if (result.IsSuccess)
                 {
@@ -677,6 +682,46 @@ namespace NicoPlayerHohoema.ViewModels
                     return AsyncEnumerable.Empty<IVideoContent>();
                 }
             }
+        }
+
+        #endregion
+
+    }
+
+    public class LoginUserMylistIncrementalSource : HohoemaIncrementalSourceBase<IVideoContent>
+    {
+        private readonly LoginUserMylistPlaylist _mylist;
+        private List<IVideoContent> _ItemsCache;
+
+        public LoginUserMylistIncrementalSource(
+            LoginUserMylistPlaylist mylist
+            )
+            : base()
+        {
+            _mylist = mylist;
+        }
+
+
+
+
+
+
+        #region Implements HohoemaPreloadingIncrementalSourceBase		
+
+        protected override Task<int> ResetSourceImpl()
+        {
+            return Task.FromResult(_mylist.Count);
+        }
+
+        
+        protected override async Task<IAsyncEnumerable<IVideoContent>> GetPagedItemsImpl(int head, int count)
+        {
+            if (_ItemsCache == null)
+            {
+                _ItemsCache = await _mylist.GetLoginUserMylistItemsAsync();
+            }
+
+            return _ItemsCache.Skip(head).Take(count).ToAsyncEnumerable();
         }
 
         #endregion

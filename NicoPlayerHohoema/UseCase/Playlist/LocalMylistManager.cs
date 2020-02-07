@@ -57,8 +57,6 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             }
         }
 
-        public event EventHandler<LocalPlaylistItemRemovedEventArgs> ItemRemoved;
-
         public LocalMylistManager(
             PlaylistRepository playlistRepository,
             NicoVideoProvider nicoVideoProvider
@@ -69,7 +67,11 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             MigrateLocalMylistToPlaylistRepository(_playlistRepository);
 
             var localPlaylistEntities = _playlistRepository.GetPlaylistsFromOrigin(Interfaces.PlaylistOrigin.Local);
-            var localPlaylists = localPlaylistEntities.Select(x => new LocalPlaylist(x.Id, x.Label, x.Count)).ToList();
+            var localPlaylists = localPlaylistEntities.Select(x => new LocalPlaylist(x.Id, _playlistRepository) 
+            {
+                Label = x.Label,
+                Count = x.Count
+            }).ToList();
 
             _playlists = new ObservableCollection<LocalPlaylist>(localPlaylists);
             LocalPlaylists = new ReadOnlyObservableCollection<LocalPlaylist>(_playlists);
@@ -156,7 +158,11 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             _playlistRepository.Upsert(entity);
             _playlistIdToEntity.Add(entity.Id, entity);
 
-            var playlist = new LocalPlaylist(entity.Id, entity.Label, entity.Count);
+            var playlist = new LocalPlaylist(entity.Id, _playlistRepository)
+            { 
+                Label = label,
+            };
+
             _playlists.Add(playlist);
             
             return playlist;
@@ -165,7 +171,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         public LocalPlaylist CreatePlaylist(string label, IEnumerable<Interfaces.IVideoContent> firstItems)
         {
             var playlist = CreatePlaylist(label);
-            AddPlaylistItem(playlist, firstItems);
+            playlist.AddPlaylistItem(firstItems);
             return playlist;
         }
 
@@ -186,54 +192,6 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             return _playlists.Remove(localPlaylist);
         }
 
-        public IEnumerable<IVideoContent> GetPlaylistItems(IPlaylist playlist)
-        {
-            var items = _playlistRepository.GetItems(playlist.Id);
-            return Database.NicoVideoDb.Get(items.Select(x => x.ContentId));
-        }
-
-
-        public void AddPlaylistItem(IPlaylist playlist, IVideoContent item)
-        {
-            _playlistRepository.AddItem(playlist.Id, item.Id);
-        }
-
-        public void AddPlaylistItem(IPlaylist playlist, IEnumerable<IVideoContent> items)
-        {
-            _playlistRepository.AddItems(playlist.Id, items.Select(x => x.Id));
-        }
-
-        public bool RemovePlaylistItem(IPlaylist playlist, IVideoContent item)
-        {
-            var result =  _playlistRepository.DeleteItem(playlist.Id, item.Id);
-
-            if (result)
-            {
-                ItemRemoved?.Invoke(this, new LocalPlaylistItemRemovedEventArgs()
-                {
-                    PlaylistId = playlist.Id,
-                    RemovedItems = new[] { item.Id }
-                });
-            }
-            return result;
-        }
-
-        public int RemovePlaylistItems(IPlaylist playlist, IEnumerable<IVideoContent> items)
-        {
-            var ids = items.Select(x => x.Id).ToList();
-            var result = _playlistRepository.DeleteItems(playlist.Id, ids);
-
-            if (result > 0)
-            {
-                ItemRemoved?.Invoke(this, new LocalPlaylistItemRemovedEventArgs()
-                {
-                    PlaylistId = playlist.Id,
-                    RemovedItems = ids
-                });
-            }
-
-            return result;
-        }
 
 
         private DelegateCommand<string> _AddCommand;

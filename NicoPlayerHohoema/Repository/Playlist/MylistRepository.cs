@@ -3,6 +3,7 @@ using Mntone.Nico2.Mylist;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Provider;
+using NicoPlayerHohoema.UseCase.Playlist.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,18 +27,24 @@ namespace NicoPlayerHohoema.Repository.Playlist
 
     public class MylistPlaylist : IMylist
     {
-        public MylistPlaylist(string id, string label, int count)
+        private readonly MylistProvider _mylistProvider;
+
+        public MylistPlaylist(string id)
         {
             Id = id;
-            Label = label;
-            Count = count;
+        }
+
+        public MylistPlaylist(string id, MylistProvider mylistProvider)
+        {
+            Id = id;
+            _mylistProvider = mylistProvider;
         }
 
         public string Id { get; }
 
-        public string Label { get; }
+        public string Label { get; internal set; }
 
-        public int Count { get; }
+        public int Count { get; internal set; }
 
         public int SortIndex { get; internal set; }
 
@@ -56,22 +63,161 @@ namespace NicoPlayerHohoema.Repository.Playlist
         public DateTime UpdateTime { get; internal set; }
 
         public DateTime CreateTime { get; internal set; }
+
+
+        public async Task<MylistItemsGetResult> GetItemsAsync(int start, int count)
+        {
+           
+            if (this.IsDefaultMylist())
+            {
+                throw new ArgumentException("とりあえずマイリストはログインしていなければアクセスできません。");
+            }
+
+            if (!IsPublic)
+            {
+                throw new ArgumentException("非公開マイリストはアクセスできません。");
+            }
+
+            // 他ユーザーマイリストとして取得を実行
+            try
+            {
+                var result = await GetMylistItemsWithRangeAsync(start, count);
+
+                return new MylistItemsGetResult()
+                {
+                    IsSuccess = true,
+                    IsDefaultMylist = this.IsDefaultMylist(),
+                    Mylist = this,
+                    IsLoginUserMylist = false,
+                    Items = result.Items,
+                    ItemsHeadPosition = result.HeadPosition,
+                    TotalCount = result.TotalCount,
+                };
+            }
+            catch
+            {
+
+            }
+
+            return new MylistItemsGetResult() { IsSuccess = false };
+
+        }
+
+        public Task<MylistProvider.MylistItemsGetResult> GetMylistItemsWithRangeAsync(int start, int count)
+        {
+            return _mylistProvider.GetMylistGroupVideo(Id, start, count);
+        }
     }
 
     public class LoginUserMylistPlaylist : MylistPlaylist
     {
-        public LoginUserMylistPlaylist(string id, string label, int count)
-            : base(id, label, count)
+        LoginUserMylistProvider _loginUserMylistProvider;
+
+        public LoginUserMylistPlaylist(string id, LoginUserMylistProvider loginUserMylistProvider)
+            : base(id)
         {
-            Label = label;
-            Count = count;
+            _loginUserMylistProvider = loginUserMylistProvider;
+            ItemsRemoveCommand = new MylistRemoveItemCommand(this);
+            ItemsAddCommand = new MylistAddItemCommand(this);
         }
+
+        public MylistRemoveItemCommand ItemsRemoveCommand { get; }
+        public MylistAddItemCommand ItemsAddCommand { get; }
 
         public new string Label { get; internal set; }
 
         public new int Count { get; internal set; }
 
         public MylistDefaultSort DefaultSort { get; internal set; }
+
+
+        public Task<List<IVideoContent>> GetLoginUserMylistItemsAsync()
+        {
+            return _loginUserMylistProvider.GetLoginUserMylistItemsAsync(this);
+        }
+
+
+        public Task<ContentManageResult> UpdateMylist(Dialogs.MylistGroupEditData editData)
+        {
+            return _loginUserMylistProvider.UpdateMylist(Id, editData);
+        }
+
+
+
+
+        public Task<MylistItemAddedEventArgs> AddItem(string videoId, string mylistComment = "")
+        {
+            return AddItem(new[] { videoId }, mylistComment);
+        }
+
+        public async Task<MylistItemAddedEventArgs> AddItem(IEnumerable<string> items, string mylistComment = "")
+        {
+            List<string> successed = new List<string>();
+            List<string> failed = new List<string>();
+
+            foreach (var videoId in items)
+            {
+                var result = await _loginUserMylistProvider.AddMylistItem(Id, videoId, mylistComment);
+                if (result != ContentManageResult.Failed)
+                {
+                    successed.Add(videoId);
+                }
+                else
+                {
+                    failed.Add(videoId);
+                }
+            }
+
+            var args = new MylistItemAddedEventArgs()
+            {
+                MylistId = Id,
+                SuccessedItems = successed,
+                FailedItems = failed
+            };
+            MylistItemAdded?.Invoke(this, args);
+
+            return args;
+        }
+
+
+        public Task<MylistItemRemovedEventArgs> RemoveItem(string videoId)
+        {
+            return RemoveItem(new[] { videoId });
+        }
+
+        public async Task<MylistItemRemovedEventArgs> RemoveItem(IEnumerable<string> items)
+        {
+            List<string> successed = new List<string>();
+            List<string> failed = new List<string>();
+
+            foreach (var videoId in items)
+            {
+                var result = await _loginUserMylistProvider.RemoveMylistItem(Id, videoId);
+                if (result == ContentManageResult.Success)
+                {
+                    successed.Add(videoId);
+                }
+                else
+                {
+                    failed.Add(videoId);
+                }
+            }
+
+            var args = new MylistItemRemovedEventArgs()
+            {
+                MylistId = Id,
+                SuccessedItems = successed,
+                FailedItems = failed
+            };
+            MylistItemRemoved?.Invoke(this, args);
+
+            return args;
+        }
+
+        public event EventHandler<MylistItemAddedEventArgs> MylistItemAdded;
+        public event EventHandler<MylistItemRemovedEventArgs> MylistItemRemoved;
+
+
     }
 
 
@@ -134,65 +280,6 @@ namespace NicoPlayerHohoema.Repository.Playlist
                 return await _otherOwneredMylistManager.GetByUserId(userId);
             }
         }
-
-
-        public async Task<MylistItemsGetResult> GetItemsAsync(IMylist mylist, int start, int count)
-        {
-            // ログインユーザーのマイリストかどうかをチェック
-            if (_niconicoSession.UserIdString == mylist.UserId)
-            {
-                var items = await _userMylistManager.GetLoginUserMylistItemsAsync(mylist);
-                return new MylistItemsGetResult()
-                {
-                    IsSuccess = true,
-                    TotalCount = items.Count,
-                    IsDefaultMylist = mylist.IsDefaultMylist(),
-                    IsLoginUserMylist = true,
-                    Items = items,
-                    ItemsHeadPosition = 0,
-                    Mylist = mylist,
-                };
-            }
-            else
-            {
-                if (mylist.IsDefaultMylist())
-                {
-                    throw new ArgumentException("とりあえずマイリストはログインしていなければアクセスできません。");
-                }
-
-                if (!mylist.IsPublic)
-                {
-                    throw new ArgumentException("非公開マイリストはアクセスできません。");
-                }
-
-                // 他ユーザーマイリストとして取得を実行
-                try
-                {
-                    var result = await _otherOwneredMylistManager.GetMylistItemsWithRangeAsync(mylist, start, count);
-
-                    return new MylistItemsGetResult()
-                    {
-                        IsSuccess = true,
-                        IsDefaultMylist = mylist.IsDefaultMylist(),
-                        Mylist = mylist,
-                        IsLoginUserMylist = false,
-                        Items = result.Items,
-                        ItemsHeadPosition = result.HeadPosition,
-                        TotalCount = result.TotalCount,
-                    };
-                }
-                catch
-                {
-
-                }
-            }
-
-            return new MylistItemsGetResult() { IsSuccess = false };
-        }
-
-        
-
-
     }
 
     public class OtherOwneredMylistManager
@@ -215,8 +302,10 @@ namespace NicoPlayerHohoema.Repository.Playlist
             if (res.IsOK)
             {
                 var detail = res.MylistGroup;
-                var mylist = new MylistPlaylist(detail.Id, detail.Name, (int)detail.Count)
+                var mylist = new MylistPlaylist(detail.Id, MylistProvider)
                 {
+                    Label = detail.Name,
+                    Count = (int)detail.Count,
                     IconType = detail.GetIconType(),
                     CreateTime = detail.CreateTime,
                     UpdateTime = detail.UpdateTime,
@@ -241,8 +330,10 @@ namespace NicoPlayerHohoema.Repository.Playlist
 
             var list = groups.Select((x, i) =>
             {
-                return new MylistPlaylist(x.Id, x.Name, x.Count)
+                return new MylistPlaylist(x.Id, MylistProvider)
                 {
+                    Label = x.Name,
+                    Count = x.Count,
                     SortIndex = i,
                     UserId = x.UserId,
                     Description = x.Description,
@@ -253,12 +344,6 @@ namespace NicoPlayerHohoema.Repository.Playlist
             ).ToList();
 
             return list;
-        }
-
-
-        public Task<MylistProvider.MylistItemsGetResult> GetMylistItemsWithRangeAsync(IMylist mylist, int start, int count)
-        {
-            return MylistProvider.GetMylistGroupVideo(mylist.Id, start, count);
         }
     }
 }

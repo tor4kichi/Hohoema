@@ -11,18 +11,16 @@ namespace NicoPlayerHohoema.UseCase.Playlist.Commands
 {
     public sealed class MylistRemoveItemCommand : VideoContentSelectionCommandBase
     {
-        private readonly MylistPlaylist _playlist;
-        private readonly UserMylistManager _userMylistManager;
+        private readonly LoginUserMylistPlaylist _playlist;
 
-        public MylistRemoveItemCommand(MylistPlaylist playlist, UserMylistManager userMylistManager)
+        public MylistRemoveItemCommand(LoginUserMylistPlaylist playlist)
         {
             _playlist = playlist;
-            _userMylistManager = userMylistManager;
         }
 
         protected override void Execute(IVideoContent content)
         {
-            _userMylistManager.RemoveItem(_playlist.Id, content.Id);
+            _playlist.RemoveItem(content.Id);
         }
     }
 }

@@ -70,6 +70,8 @@ namespace NicoPlayerHohoema.ViewModels
             NGSettings ngSettings,
             ApplicationLayoutManager applicationLayoutManager,
             HohoemaPlaylist hohoemaPlaylist,
+            LocalMylistManager localMylistManager,
+            UserMylistManager userMylistManager,
             PageManager pageManager,
             MediaPlayer mediaPlayer,
             NotificationService notificationService,
@@ -102,6 +104,8 @@ namespace NicoPlayerHohoema.ViewModels
             NgSettings = ngSettings;
             ApplicationLayoutManager = applicationLayoutManager;
             HohoemaPlaylist = hohoemaPlaylist;
+            LocalMylistManager = localMylistManager;
+            UserMylistManager = userMylistManager;
             PageManager = pageManager;
             _NotificationService = notificationService;
             _HohoemaDialogService = dialogService;
@@ -145,6 +149,8 @@ namespace NicoPlayerHohoema.ViewModels
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         
         public HohoemaPlaylist HohoemaPlaylist { get; }
+        public LocalMylistManager LocalMylistManager { get; }
+        public UserMylistManager UserMylistManager { get; }
         public PageManager PageManager { get; }
         public ScondaryViewPlayerManager PlayerViewManager { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
