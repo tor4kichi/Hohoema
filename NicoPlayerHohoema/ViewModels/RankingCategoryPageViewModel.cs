@@ -38,7 +38,7 @@ namespace NicoPlayerHohoema.ViewModels
     {
         HohoemaPin IPinablePage.GetPin()
         {
-            var genreName = RankingGenre.ToCulturelizeString();
+            var genreName = RankingGenre.Translate();
             var tag = SelectedRankingTag.Value?.Tag;
             var pickedTag = PickedTags.FirstOrDefault(x => x.Tag == tag);
             string parameter = null;
@@ -347,7 +347,7 @@ namespace NicoPlayerHohoema.ViewModels
         protected override void PostResetList()
         {
             _IsNavigateCompleted = true;
-           
+
             base.PostResetList();
         }
     }

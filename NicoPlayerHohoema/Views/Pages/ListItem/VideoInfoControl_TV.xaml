@@ -71,7 +71,7 @@
                                            FontSize="14"
                                            VerticalAlignment="Center"
                                                 >
-                                        <Run Text="{Binding Quality, Converter={StaticResource ToLocalText}}" />画質
+                                        <Run Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}" />画質
                                     </TextBlock>
 
                                     <TextBlock toolkit:DockPanel.Dock="Right" 

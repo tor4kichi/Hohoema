@@ -75,7 +75,7 @@
                 >
           <StackPanel>
             <TextBlock toolkit:DockPanel.Dock="Top"
-                       Text="現在のプレイリスト"
+                       Text="{Binding Source=CurrentPlaylist, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                        Style="{StaticResource CaptionTextBlockStyle}"
                        Margin="0"
                        Opacity="0.7"></TextBlock>
@@ -91,11 +91,16 @@
                 SelectedItem="{x:Bind _viewModel.HohoemaPlaylist.CurrentItem, Mode=OneWay}"
                 SelectionMode="Single"
                 SingleSelectionFollowsFocus="False"
-                uwpext:ListViewBase.Command="{x:Bind _viewModel.HohoemaPlaylist.PlayCommand}"
                 IsItemClickEnabled="True"
                 x:Name="PlaylistItemsListView"
                 Background="{StaticResource HohoemaPlayerBackgroundBrush}"
                 IsFocusEngagementEnabled="True">
+        <i:Interaction.Behaviors>
+          <core:EventTriggerBehavior EventName="ItemClick">
+            <core:InvokeCommandAction Command="{x:Bind _viewModel.HohoemaPlaylist.PlayCommand}"
+                                      InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+          </core:EventTriggerBehavior>
+        </i:Interaction.Behaviors>
         <ListView.ItemContainerStyle>
           <Style TargetType="ListViewItem">
             <Setter Property="Padding"

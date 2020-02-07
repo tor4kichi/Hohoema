@@ -189,9 +189,6 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
 
         private void VideoItemsListView_Loaded(object sender, RoutedEventArgs e)
         {
-            ItemsList.IsItemClickEnabled = true;
-            ItemsList.ItemClick += ItemsList_ItemClick;
-
             // Selection
             _selectionContext.RequestSelectAll += _selectionContext_RequestSelectAll;
             _selectionContext.SelectionStarted += _selectionContext_SelectionStarted;
@@ -204,26 +201,8 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
             ItemsList.ContainerContentChanging += ItemsList_ContainerContentChanging;
         }
 
-        private void ItemsList_ItemClick(object sender, ItemClickEventArgs e)
-        {
-            var itemCommand = ItemCommand;
-            if (itemCommand == null) { return; }
-
-            if (ItemsList.SelectionMode == ListViewSelectionMode.None 
-                || ItemsList.SelectionMode == ListViewSelectionMode.Single)
-            {
-                if (itemCommand.CanExecute(e.ClickedItem))
-                {
-                    itemCommand.Execute(e.ClickedItem);
-                }
-            }
-        }
-
         private void VideoItemsListView_Unloaded(object sender, RoutedEventArgs e)
         {
-            // Item Play
-            ItemsList.ItemClick -= ItemsList_ItemClick;
-
             // Selection
             _selectionContext.RequestSelectAll -= _selectionContext_RequestSelectAll;
             _selectionContext.SelectionStarted -= _selectionContext_SelectionStarted;

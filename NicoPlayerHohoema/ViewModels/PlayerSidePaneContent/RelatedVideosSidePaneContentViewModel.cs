@@ -92,9 +92,9 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             NextVideo = null;
             JumpVideo = null;
             JumpVideoId = null;
-            Videos.Clear();
-            OtherVideos.Clear();
-            Mylists.Clear();
+            Videos?.Clear();
+            OtherVideos?.Clear();
+            Mylists?.Clear();
         }
 
         public async Task InitializeRelatedVideos(IVideoContent currentVideo)
@@ -252,21 +252,25 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
                 RaisePropertyChanged(nameof(Mylists));
 
-                /*
-                var videos = await Video.GetRelatedVideos(videoId);
-                Videos = videos.Select(x =>
-                {
-                    var vm = new VideoInfoControlViewModel(x);
-                    return vm;
-                })
-                .ToList();
-                */
-            
-                CurrentVideo = Videos.FirstOrDefault(x => x.RawVideoId == videoId);
 
+                Videos = new List<VideoInfoControlViewModel>();
+                var items = await NicoVideoProvider.GetRelatedVideos(videoId, 0, 10);
+                if (items.Video_info?.Any() ?? false)
+                {
+                    Videos.AddRange(items.Video_info?.Select(x =>
+                    {
+                        var video = Database.NicoVideoDb.Get(x.Video.Id);
+                        video.Title = x.Video.Title;
+                        video.ThumbnailUrl = x.Video.Thumbnail_url;
+
+                        var vm = new VideoInfoControlViewModel(video);
+                        return vm;
+                    }));
+                }
+
+                CurrentVideo = Videos.FirstOrDefault(x => x.RawVideoId == videoId);
                 RaisePropertyChanged(nameof(Videos));
                 RaisePropertyChanged(nameof(CurrentVideo));
-
 
                 _IsInitialized = true;
             }

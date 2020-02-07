@@ -30,11 +30,19 @@
     </TransitionCollection>
   </Page.Transitions>
   <Grid>
-    
-    <uwpcontrols:PullToRefreshListView x:Name="ItemsList" ItemsSource="{Binding ItemsView, Mode=OneWay}" IsItemClickEnabled="True" IncrementalLoadingTrigger="Edge" PullThreshold="85" UseSystemFocusVisuals="True" SelectionMode="None" HorizontalContentAlignment="Stretch" uwpExtension:ListViewBase.Command="{Binding PageManager.OpenPageCommand}" ItemContainerStyle="{StaticResource VideoListViewItemStyle}" uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 96 0 0">
-      <uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
+
+    <ListView x:Name="ItemsList"
+              ItemsSource="{Binding ItemsView, Mode=OneWay}"
+              IsItemClickEnabled="True"
+              IncrementalLoadingTrigger="Edge"
+              UseSystemFocusVisuals="True"
+              SelectionMode="None"
+              HorizontalContentAlignment="Stretch"
+              ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+              uwpExtension:ScrollViewerExtensions.VerticalScrollBarMargin="0 96 0 0">
+      <ListView.ItemContainerTransitions>
         <TransitionCollection></TransitionCollection>
-      </uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
+      </ListView.ItemContainerTransitions>
       <i:Interaction.Behaviors>
         <mybehavior:KeyboardTrigger Key="F5">
           <mybehavior:KeyboardTrigger.Actions>
@@ -45,15 +53,33 @@
         <core:DataTriggerBehavior Binding="{Binding ItemsView, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}">
           <actions:ScrollViewerVerticalPositionSettingsAction Target="{x:Bind ItemsList}" VerticalOffset="{Binding ScrollPosition.Value}" WithAnimation="False" Delay="0:0:0.001" />
         </core:DataTriggerBehavior>
+        <core:EventTriggerBehavior EventName="ItemClick">
+          <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+                                    InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+        </core:EventTriggerBehavior>
       </i:Interaction.Behaviors>
       <ListView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
           <uwpcontrols:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
             <StackPanel >
-              <ListView xmlns:ee="using:NicoPlayerHohoema.Models" SelectionMode="Single" IsItemClickEnabled="True" uwpExtension:ListViewBase.Command="{Binding ChangeSearchTargetCommand}" ItemsSource="{Binding SearchTargets}" SelectedItem="{Binding SelectedSearchTarget.Value, Mode=TwoWay}" Style="{StaticResource BandListViewStyle}" ItemContainerStyle="{StaticResource SimpleListViewItemStyle}" SingleSelectionFollowsFocus="False" HorizontalAlignment="Right">
+              <ListView xmlns:ee="using:NicoPlayerHohoema.Models"
+                        SelectionMode="Single"
+                        IsItemClickEnabled="True"
+                        ItemsSource="{Binding SearchTargets}"
+                        SelectedItem="{Binding SelectedSearchTarget.Value, Mode=TwoWay}"
+                        Style="{StaticResource BandListViewStyle}"
+                        ItemContainerStyle="{StaticResource SimpleListViewItemStyle}"
+                        SingleSelectionFollowsFocus="False"
+                        HorizontalAlignment="Right">
+                <i:Interaction.Behaviors>
+                  <core:EventTriggerBehavior EventName="ItemClick">
+                    <core:InvokeCommandAction Command="{Binding ChangeSearchTargetCommand}"
+                                              InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                  </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
                 <ListView.ItemTemplate>
                   <DataTemplate>
-                    <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
+                    <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
                   </DataTemplate>
                 </ListView.ItemTemplate>
                 <ListView.ItemsPanel>
@@ -64,14 +90,14 @@
               </ListView>
               <CommandBar>
                 <CommandBar.PrimaryCommands>
-                  <AppBarButton x:Name="ScrollToTopButton" Label="トップへ戻る" Icon="Up">
+                  <AppBarButton x:Name="ScrollToTopButton" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Up">
                     <i:Interaction.Behaviors>
                       <core:EventTriggerBehavior EventName="Click">
                         <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
                       </core:EventTriggerBehavior>
                     </i:Interaction.Behaviors>
                   </AppBarButton>
-                  <AppBarButton Background="Transparent" Command="{Binding RefreshCommand}" ToolTipService.ToolTip="更新" Icon="Refresh" />
+                  <AppBarButton Background="Transparent" Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding RefreshCommand}"  Icon="Refresh" />
                 </CommandBar.PrimaryCommands>
                 <CommandBar.Content>
                   <toolkit:DockPanel Margin="16 0 0 0" x:Name="TitleLayout">
@@ -131,13 +157,7 @@
           </Grid>
         </DataTemplate>
       </ListView.ItemTemplate>
-      <uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
-        <StackPanel Margin="0 32 0 0">
-          <Border Margin="0 16 0 0" BorderThickness="0 0 0 1" BorderBrush="Gray" />
-          <SymbolIcon Symbol="Refresh" VerticalAlignment="Bottom" Height="48" Width="48" Margin="0 24 0 8" />
-        </StackPanel>
-      </uwpcontrols:PullToRefreshListView.RefreshIndicatorContent>
-    </uwpcontrols:PullToRefreshListView>
+    </ListView>
     <!-- ログインしていない場合はコミュニティ検索ができません 
         -->
     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="RequireLoginNoticePanel" Visibility="Collapsed">

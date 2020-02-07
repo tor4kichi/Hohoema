@@ -38,11 +38,11 @@
                     </mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
                   </mybehavior:MenuFlyoutItemsSetter>
                 </i:Interaction.Behaviors>
-                <MenuFlyoutItem Text="購読グループを作成..." Command="{Binding CreateSubscriptionGroupCommand}" CommandParameter="{Binding Converter={StaticResource SubscriptionSourceConverter}}" />
+                <MenuFlyoutItem Text="{Binding Source=SubscriptionGroup_Create, Converter={StaticResource LocalizeConverter}}" Command="{Binding CreateSubscriptionGroupCommand}" CommandParameter="{Binding Converter={StaticResource SubscriptionSourceConverter}}" />
               </MenuFlyout>
             </AppBarButton.Flyout>
           </AppBarButton>
-          <AppBarButton Label="ブラウザで開く" Command="{Binding ExternalAccessService.OpenLinkCommand}" CommandParameter="{Binding}" VerticalAlignment="Center" UseSystemFocusVisuals="True" />
+          <AppBarButton Label="{Binding Source=OpenWithBrowser, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.OpenLinkCommand}" CommandParameter="{Binding}" VerticalAlignment="Center" UseSystemFocusVisuals="True" />
         </CommandBar>
       </Border>
       <ScrollViewer>
@@ -53,10 +53,10 @@
             <Border Background="Transparent" IsHitTestVisible="True" VerticalAlignment="Bottom" Margin="0 0 0 0">
               <StackPanel Orientation="Horizontal" Margin="0 8">
                 <TextBlock Margin="0 0 8 0">
-                                <Run Text="フォロワー:" />
+                                <Run Text="{Binding Source=UserFollower, Converter={StaticResource LocalizeConverter}}" />:
                                 <Run Text="{Binding FollowerCount}" /></TextBlock>
                 <TextBlock Margin="0 0 8 0">
-                                <Run Text="スタンプ:" />
+                                <Run Text="{Binding Source=UserStamp, Converter={StaticResource LocalizeConverter}}" />:
                                 <Run Text="{Binding StampCount}" /></TextBlock>
               </StackPanel>
             </Border>
@@ -66,11 +66,25 @@
               <Border Height="16" Visibility="{Binding IsVideoPrivate, Converter={StaticResource BooleanToVisibilityInverted}}" />
               <toolkit:DockPanel x:Name="UserVideoTitleLayout">
                 <HyperlinkButton Command="{Binding PageManager.OpenVideoListPageCommand}" CommandParameter="{Binding}" IsEnabled="{Binding HasOwnerVideo}" Foreground="{ThemeResource ApplicationForegroundThemeBrush}" Margin="0 8">
-                  <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="投稿動画" />
+                  <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="{Binding Source=UserOwnedVideos, Converter={StaticResource LocalizeConverter}}" />
                 </HyperlinkButton>
               </toolkit:DockPanel>
               <!-- Ownered Videos -->
-              <ListView ItemsSource="{Binding VideoInfoItems}" x:Name="UserVideosLayout" IsTabStop="False" uwpui:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}" SelectionMode="None" IsItemClickEnabled="True" ScrollViewer.VerticalScrollMode="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled" ScrollViewer.HorizontalScrollMode="Auto" ScrollViewer.HorizontalScrollBarVisibility="Hidden">
+              <ListView ItemsSource="{Binding VideoInfoItems}"
+                        x:Name="UserVideosLayout"
+                        IsTabStop="False"
+                        SelectionMode="None"
+                        IsItemClickEnabled="True"
+                        ScrollViewer.VerticalScrollMode="Disabled"
+                        ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                        ScrollViewer.HorizontalScrollMode="Auto"
+                        ScrollViewer.HorizontalScrollBarVisibility="Hidden">
+                <i:Interaction.Behaviors>
+                  <core:EventTriggerBehavior EventName="ItemClick">
+                    <core:InvokeCommandAction Command="{Binding HohoemaPlaylist.PlayCommand}"
+                                              InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                  </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
                 <ListView.ItemContainerStyle>
                   <Style TargetType="ListViewItem">
                     <Setter Property="HorizontalContentAlignment" Value="Stretch" />
@@ -93,20 +107,30 @@
               </ListView>
               <Border Visibility="{Binding VideoInfoItems, Converter={StaticResource EmptyCollectionVisibilityConverter}}" Margin="8 16" x:Name="EmptyVideosDescLayout" Opacity="0.7">
                 <TextBlock>
-                                        <Run Text="投稿動画はありません" /></TextBlock>
+                                        <Run Text="{Binding Source=NoItems_UserOwnedVideos, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
               </Border>
               <Border Visibility="{Binding IsVideoPrivate, Converter={StaticResource BooleanToVisibility}}" x:Name="VideoPrivateDescLayout">
-                <TextBlock Text="投稿動画一覧は非公開です" Opacity="0.7" />
+                <TextBlock Text="{Binding Source=IsVideoPrivate_UserOwnedVideos, Converter={StaticResource LocalizeConverter}}" Opacity="0.7" />
               </Border>
               <Border Height="16" />
               <!-- Mylist -->
               <HyperlinkButton Command="{Binding OpenUserMylistPageCommand}" Foreground="{ThemeResource ApplicationForegroundThemeBrush}" Margin="0 8" x:Name="UserMylistTitleLayout">
-                <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="マイリスト" />
+                <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="{Binding Source=Mylist, Converter={StaticResource LocalizeConverter}}" />
               </HyperlinkButton>
               <Border>
                 <ScrollViewer VerticalScrollMode="Disabled" VerticalScrollBarVisibility="Disabled" HorizontalScrollMode="Auto" HorizontalScrollBarVisibility="Hidden">
                   <StackPanel Orientation="Horizontal">
-                    <ListView ItemsSource="{Binding MylistGroups}" x:Name="UserMylistLayout" IsTabStop="False" uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}" SelectionMode="None" IsItemClickEnabled="True">
+                    <ListView ItemsSource="{Binding MylistGroups}"
+                              x:Name="UserMylistLayout"
+                              IsTabStop="False"
+                              SelectionMode="None"
+                              IsItemClickEnabled="True">
+                      <i:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="ItemClick">
+                          <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+                                                    InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                        </core:EventTriggerBehavior>
+                      </i:Interaction.Behaviors>
                       <ListView.ItemContainerStyle>
                         <Style TargetType="ListViewItem">
                           <Setter Property="VerticalAlignment" Value="Center" />
@@ -132,15 +156,8 @@
               </Border>
               <Border Visibility="{Binding MylistGroups, Converter={StaticResource EmptyCollectionVisibilityConverter}}" Margin="8 16" x:Name="EmptyMylistDescLayout" Opacity="0.7">
                 <TextBlock>
-                                        <Run Text="マイリストなし" /></TextBlock>
+                                        <Run Text="{Binding Source=NoItems_Mylist, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
               </Border>
-              <Border Height="16" />
-              <StackPanel Visibility="{Binding IsLoginUser, Converter={StaticResource BooleanToVisibilityInverted}}" Margin="0 0 8 0" x:Name="NGLayout" Padding="16" BorderThickness="2" BorderBrush="Gray">
-                <TextBlock Margin="0 8 0 0">
-                                <Run Text="{Binding UserName}" /> さんをNG動画投稿者として登録する</TextBlock>
-                <ToggleSwitch IsOn="{Binding IsNGVideoOwner.Value, Mode=TwoWay}" Margin="0 0 0 8" />
-                <TextBlock Text="※ NG動画投稿者に指定されたユーザーの投稿動画は、動画一覧に表示されなくなります。" TextWrapping="Wrap" Margin="0 8" Opacity="0.7" />
-              </StackPanel>
             </StackPanel>
           </Grid>
         </StackPanel>

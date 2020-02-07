@@ -20,6 +20,7 @@ using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.UseCase;
+using I18NPortable;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -66,16 +67,16 @@ namespace NicoPlayerHohoema.ViewModels
 
                         var reservationTitlesText = string.Join("\r", dateOutReservations.Select(x => x.Title));
                         var acceptDeletion = await DialogService.ShowMessageDialog(
-                            "DeleteReservationConfirmText".ToCulturelizeString() + "\r\r" + reservationTitlesText,
-                            "DeleteOutdatedReservationConfirm_Title".ToCulturelizeString(),
-                            "DeleteReservationConfirm_Agree".ToCulturelizeString(),
-                            "Cancel".ToCulturelizeString()
+                            "DeleteReservationConfirmText".Translate() + "\r\r" + reservationTitlesText,
+                            "DeleteOutdatedReservationConfirm_Title".Translate(),
+                            "DeleteReservationConfirm_Agree".Translate(),
+                            "Cancel".Translate()
                             );
 
                         if (!acceptDeletion) { return; }
 
                         await _noUIProcessScreenContext.StartNoUIWork(
-                            "DeletingReservations".ToCulturelizeString()
+                            "DeletingReservations".Translate()
                             , dateOutReservations.Count,
                             () => AsyncInfo.Run<int>(async (cancelToken, progress) =>
                             {

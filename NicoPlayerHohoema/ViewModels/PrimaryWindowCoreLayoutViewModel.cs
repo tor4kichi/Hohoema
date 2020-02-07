@@ -1,4 +1,5 @@
-﻿using Mntone.Nico2.Live;
+﻿using I18NPortable;
+using Mntone.Nico2.Live;
 using NicoPlayerHohoema.Commands;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
@@ -216,22 +217,22 @@ namespace NicoPlayerHohoema.ViewModels
             MenuItems.Clear();
             if (NiconicoSession.IsLoggedIn)
             {
-                MenuItems.Add(new MenuItemViewModel("ランキング", HohoemaPageType.RankingCategoryList));
-                MenuItems.Add(new MenuItemViewModel("ニコレポ", HohoemaPageType.NicoRepo));
-                MenuItems.Add(new MenuItemViewModel("新着", HohoemaPageType.Subscription));
-                MenuItems.Add(new MenuItemViewModel("フォロー", HohoemaPageType.FollowManage));
-                MenuItems.Add(new MenuItemViewModel("視聴履歴", HohoemaPageType.WatchHistory));
-                MenuItems.Add(new MenuItemViewModel("キャッシュ", HohoemaPageType.CacheManagement));
-                //                MenuItems.Add(new MenuItemViewModel("オススメ", HohoemaPageType.Recommend));
-                MenuItems.Add(new MenuItemViewModel("あとで見る", HohoemaPageType.LocalPlaylist, new NavigationParameters { { "id", HohoemaPlaylist.WatchAfterPlaylistId } }));
+                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList));
+                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo));
+                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.FeedGroupManage.Translate(), HohoemaPageType.Subscription));
+                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage));
+                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.WatchHistory));
+                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement));
+                //                MenuItems.Add(new MenuItemViewModel("オススメ".Translate(), HohoemaPageType.Recommend));
+                MenuItems.Add(new MenuItemViewModel("@view".Translate(), HohoemaPageType.LocalPlaylist, new NavigationParameters { { "id", HohoemaPlaylist.WatchAfterPlaylistId } }));
             }
             else
             {
-                MenuItems.Add(new MenuItemViewModel("ランキング", HohoemaPageType.RankingCategoryList));
-                MenuItems.Add(new MenuItemViewModel("新着", HohoemaPageType.Subscription));
+                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList));
+                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.FeedGroupManage.Translate(), HohoemaPageType.Subscription));
                 //                MenuItems.Add(new MenuItemViewModel("視聴履歴", HohoemaPageType.WatchHistory));
-                MenuItems.Add(new MenuItemViewModel("キャッシュ", HohoemaPageType.CacheManagement));
-                MenuItems.Add(new MenuItemViewModel("あとで見る", HohoemaPageType.LocalPlaylist, new NavigationParameters { { "id", HohoemaPlaylist.WatchAfterPlaylistId } }));
+                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement));
+                MenuItems.Add(new MenuItemViewModel("@view".Translate(), HohoemaPageType.LocalPlaylist, new NavigationParameters { { "id", HohoemaPlaylist.WatchAfterPlaylistId } }));
             }
 
             RaisePropertyChanged(nameof(MenuItems));
@@ -288,9 +289,9 @@ namespace NicoPlayerHohoema.ViewModels
 
                 if (NiconicoSession.IsLoggedIn)
                 {
-                    MenuItems.Add(new MenuItemViewModel("タイムシフト", HohoemaPageType.Timeshift));
-                    MenuItems.Add(new MenuItemViewModel("ニコレポ", HohoemaPageType.NicoRepo));
-                    MenuItems.Add(new MenuItemViewModel("フォロー", HohoemaPageType.FollowManage));
+                    MenuItems.Add(new MenuItemViewModel(HohoemaPageType.Timeshift.Translate(), HohoemaPageType.Timeshift));
+                    MenuItems.Add(new MenuItemViewModel(HohoemaPageType.NicoRepo.Translate(), HohoemaPageType.NicoRepo));
+                    MenuItems.Add(new MenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage));
                 }
 
                 RaisePropertyChanged(nameof(MenuItems));

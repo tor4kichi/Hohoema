@@ -41,6 +41,7 @@ using Windows.UI.Xaml.Data;
 using Prism.Events;
 using NicoPlayerHohoema.Services.Player;
 using NicoPlayerHohoema.UseCase;
+using I18NPortable;
 
 namespace NicoPlayerHohoema
 {
@@ -113,7 +114,7 @@ namespace NicoPlayerHohoema
             }
 
 
-            base.OnStart(args);
+            await base.OnStartAsync(args);
         }
 
         UIElement CreateShell()
@@ -241,7 +242,6 @@ namespace NicoPlayerHohoema
             containerRegistry.RegisterForNavigation<Views.SearchResultLivePage>();
             containerRegistry.RegisterForNavigation<Views.SettingsPage>();
             containerRegistry.RegisterForNavigation<Views.SubscriptionPage>();
-            containerRegistry.RegisterForNavigation<Views.SubscriptionPage_Mobile>();
             containerRegistry.RegisterForNavigation<Views.TimeshiftPage>();
             containerRegistry.RegisterForNavigation<Views.UserInfoPage>();
             containerRegistry.RegisterForNavigation<Views.UserMylistPage>();
@@ -268,13 +268,20 @@ namespace NicoPlayerHohoema
                 isInitialized = true;
 
                 // ローカリゼーション用のライブラリを初期化
-                I18NPortable.I18N.Current
+                try
+                {
+                    I18NPortable.I18N.Current
 #if DEBUG
-                    .SetLogger(text => System.Diagnostics.Debug.WriteLine(text))
-                    .SetNotFoundSymbol("🍣")
+                    //.SetLogger(text => System.Diagnostics.Debug.WriteLine(text))
+                        .SetNotFoundSymbol("🍣")
 #endif
-                    .SetFallbackLocale("en")
-                    .Init(GetType().Assembly);
+                    .SetFallbackLocale("ja")
+                        .Init(GetType().Assembly);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine(ex.ToString());
+                }
 
                 Resources["Strings"] = I18NPortable.I18N.Current;
 
@@ -288,6 +295,10 @@ namespace NicoPlayerHohoema
                 unityContainer.RegisterInstance(settings.RankingSettings);
                 unityContainer.RegisterInstance(settings.NGSettings);
                 unityContainer.RegisterInstance(settings.PlayerSettings);
+
+                I18NPortable.I18N.Current.Locale = settings.AppearanceSettings.Locale ?? I18NPortable.I18N.Current.Locale;
+
+                CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(I18NPortable.I18N.Current.Locale);
 
                 // ログイン前にログインセッションによって状態が変化するフォローとマイリストの初期化
                 var followManager = Container.Resolve<FollowManager>();
@@ -998,14 +1009,14 @@ namespace NicoPlayerHohoema
         public void ShowErrorToast(string message)
         {
             var toast = Container.Resolve<Services.NotificationService>();
-            toast.ShowToast("Hohoemaに問題が発生しました"
+            toast.ShowToast("ToastNotification_ExceptionHandled".Translate()
                 , message
                 , Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long
                 , luanchContent: ACTIVATION_WITH_ERROR
                 ,  toastButtons: new[] 
                 {
-                    new ToastButton("エラーログをコピー", ACTIVATION_WITH_ERROR_COPY_LOG) { ActivationType = ToastActivationType.Background },
-                    new ToastButton("ログフォルダを開く", ACTIVATION_WITH_ERROR_OPEN_LOG) { ActivationType = ToastActivationType.Background },
+                    new ToastButton("OpenErrorLog".Translate(), ACTIVATION_WITH_ERROR_COPY_LOG) { ActivationType = ToastActivationType.Background },
+                    new ToastButton("OpenErrorLogFolder".Translate(), ACTIVATION_WITH_ERROR_OPEN_LOG) { ActivationType = ToastActivationType.Background },
                 }
                 );
         }

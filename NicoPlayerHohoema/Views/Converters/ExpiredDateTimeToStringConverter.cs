@@ -1,4 +1,5 @@
-﻿using System;
+﻿using I18NPortable;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -20,11 +21,11 @@ namespace NicoPlayerHohoema.Views.Converters
             {
                 if (time == DateTime.MaxValue)
                 {
-                    return Services.Helpers.CulturelizeHelper.ToCulturelizeString("Expired_Unlimited") ?? "Expired_Unlimited";
+                    return "Expired_Unlimited".Translate();
                 }
                 else if (time.Hour == 23 && time.Minute == 59 && time.Second == 59)
                 {
-                    var allDayText = Services.Helpers.CulturelizeHelper.ToCulturelizeString("Expired_AllDayLong") ?? time.ToString("hh:mm");
+                    var allDayText = "Expired_AllDayLong".Translate() ?? time.ToString("hh:mm");
                     return $"{time.ToString("D")} {allDayText}";
                 }
                 else

@@ -30,8 +30,8 @@ namespace NicoPlayerHohoema.UseCase.Pin
             {
                 var name = pin.OverrideLabel ?? $"{pin.Label} ({pin.PageType.Translate()})";
                 var result = await _dialogService.GetTextAsync(
-                    $"{name} のリネーム",
-                    "例）音楽のランキング（空欄にするとデフォルト名に戻せます）",
+                    $"RenameX".Translate(name),
+                    "PinRenameDialogPlacefolder_EmptyToDefault".Translate(),
                     name,
                     (s) => true
                     );

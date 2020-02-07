@@ -29,8 +29,6 @@
         <ResourceDictionary Source="Styles/ListViewItemStyles.xaml"/>
         <ResourceDictionary Source="Styles/SettingsControlStyles.xaml"/>
 
-        <ResourceDictionary Source="Views/Controls/FloatContentContainer/FloatContentContainer.xaml"/>
-        <ResourceDictionary Source="Views/Controls/IncrementalLoadingList/IncrementalLoadingList.xaml"/>
         <ResourceDictionary Source="Views/Controls/MasterDetailsView/MasterDetailsView.xaml"/>
         <ResourceDictionary Source="Views/Controls/TransientContainer/TransientContainer.xaml"/>
       </ResourceDictionary.MergedDictionaries>
@@ -160,7 +158,6 @@
         </uwpconv:BoolToObjectConverter.FalseValue>
       </uwpconv:BoolToObjectConverter>
 
-      <uwpconv:ResourceNameToResourceStringConverter x:Key="ToLocalText" />
       <locales:LocalizeConverter x:Key="LocalizeConverter" />
 
       <myconv:CacheStateToColorBrushConverter x:Key="CacheStateToColorBrush" />
@@ -195,7 +192,7 @@
                             
                     -->
         <StackPanel Orientation="Horizontal">
-          <TextBlock Text="{Binding Quality, Converter={StaticResource ToLocalText}}"
+          <TextBlock Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}"
                            Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"                               
                             Margin="0 0"
                             VerticalAlignment="Center"
@@ -228,7 +225,7 @@
                             VerticalAlignment="Center"
                             x:Name="QualityText"
                             >
-                    <Run Text="{Binding Quality, Converter={StaticResource ToLocalText}}" />
+                    <Run Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}" />
           </TextBlock>
         </Border>
       </DataTemplate>

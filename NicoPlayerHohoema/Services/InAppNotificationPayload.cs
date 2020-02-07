@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using System.Windows.Input;
 using Windows.UI.Xaml.Controls;
 using Unity;
+using I18NPortable;
 
 namespace NicoPlayerHohoema.Services
 {
@@ -74,15 +75,15 @@ namespace NicoPlayerHohoema.Services
             string notifyContent = null;
             if (registrationResult == Mntone.Nico2.ContentManageResult.Success)
             {
-                notifyContent = $"{containerKindLabel}に登録完了\n「{containerTitle}」に「{targetTitle}」を追加しました";
+                notifyContent = "CompleteRegisrationForKind0_AddItem1_ToKindTitle2".Translate(containerKindLabel, containerKindLabel, targetTitle);
             }
             else if (registrationResult == Mntone.Nico2.ContentManageResult.Exist)
             {
-                notifyContent = $"{containerKindLabel}に既に追加済み\n「{containerTitle}」に「{targetTitle}」を追加済みです";
+                notifyContent = "ExistRegisrationForKind0_AddItem2_ToKindTitle1".Translate(containerKindLabel, containerKindLabel, targetTitle);
             }
             else
             {
-                notifyContent = $"{containerKindLabel}に登録失敗\n「{containerTitle}」に「{targetTitle}」を追加できませんでした";
+                notifyContent = "FailedRegisrationForKind0_AddItem2_ToKindTitle1".Translate(containerKindLabel, containerKindLabel, targetTitle);
             }
 
             return new InAppNotificationPayload()

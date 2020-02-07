@@ -126,7 +126,7 @@
               <ListView ItemsSource="{Binding TargetListItems}" SelectedItem="{Binding SelectedTarget.Value, Mode=TwoWay}" HorizontalAlignment="Stretch" TabIndex="1" IsTabStop="True" UseSystemFocusVisuals="True" IsSynchronizedWithCurrentItem="False">
                 <ListView.ItemTemplate>
                   <DataTemplate>
-                    <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" />
+                    <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
                   </DataTemplate>
                 </ListView.ItemTemplate>
                 <ListView.ItemsPanel>
@@ -159,8 +159,19 @@
               <uwpControls:Expander Content="{Binding SearchOptionVM.Value}" ContentTemplateSelector="{StaticResource SearchTargetContentTemplateSelector}" Header="検索オプション" toolkit:DockPanel.Dock="Bottom" Margin="0 8 0 0" HorizontalContentAlignment="Left"></uwpControls:Expander>
             </StackPanel>
           </toolkit:DockPanel>
-          <TextBlock Text="検索履歴" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0 24 0 8" toolkit:DockPanel.Dock="Top"></TextBlock>
-          <ListView ItemsSource="{Binding SearchHistoryItems}" ItemTemplate="{StaticResource SearchHistoryItemTemplate}" uwpextensions:ListViewBase.Command="{Binding SearchHistoryItemCommand}" IsItemClickEnabled="True" SelectionMode="None" SingleSelectionFollowsFocus="False"></ListView>
+          <TextBlock Text="{Binding Source=SearchHistory}" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0 24 0 8" toolkit:DockPanel.Dock="Top"></TextBlock>
+          <ListView ItemsSource="{Binding SearchHistoryItems}"
+                    ItemTemplate="{StaticResource SearchHistoryItemTemplate}"
+                    IsItemClickEnabled="True"
+                    SelectionMode="None"
+                    SingleSelectionFollowsFocus="False">
+            <i:Interaction.Behaviors>
+              <core:EventTriggerBehavior EventName="ItemClick">
+                <core:InvokeCommandAction Command="{Binding SearchHistoryItemCommand}"
+                                          InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+              </core:EventTriggerBehavior>
+            </i:Interaction.Behaviors>
+          </ListView>
         </toolkit:DockPanel>
         <Grid x:Name="HeaderLayout" VerticalAlignment="Top" Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
           <StackPanel>

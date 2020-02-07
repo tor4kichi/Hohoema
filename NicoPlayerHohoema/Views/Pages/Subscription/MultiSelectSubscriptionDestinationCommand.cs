@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.UI;
+﻿using I18NPortable;
+using Microsoft.Toolkit.Uwp.UI;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Helpers;
@@ -81,7 +82,7 @@ namespace NicoPlayerHohoema.Views.Subscriptions
 
 
                 var choiceItems = await DialogService.ShowMultiChoiceDialogAsync(
-                    $"購読『{subscription.Label}』の新着追加先を選択",
+                    $"SelectSubscriptionGroup".Translate(),
                     playlists,
                     selectedItems,
                     x => x.Label

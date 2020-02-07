@@ -132,15 +132,17 @@
     
     <Grid x:Name="HiddenVideoOwnerLayout" Opacity="0.0" IsHitTestVisible="False">
       <StackPanel x:Name="HiddenVideoOwnerRevealedLayout" Visibility="Collapsed" HorizontalAlignment="Right" Orientation="Horizontal" Spacing="8">
-        <Button Content="NG解除"
+        <!--
+        <Button Content="{Binding Source=RemoveHiddenVideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                 x:Name="UnregistrationHiddenVideoOwnerButton"
                 Click="UnregistrationHiddenVideoOwnerButton_Click"
                 Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                 BorderBrush="{ThemeResource ButtonBorderThemeBrush}"
                 BorderThickness="1" 
                 />
-        
-        <Button Content="非表示に戻す"
+        -->
+
+        <Button Content="{Binding Source=ExitOnceReveal, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                 x:Name="ExitRevealButton"
                 Click="ExitRevealButton_Click"
                 Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
@@ -150,11 +152,14 @@
       </StackPanel>
       <Grid x:Name="HiddenVideoOwnerUnrevealedLayout"
             Opacity="0.7">
-        <TextBlock Text="投稿者を非表示にした動画"
+        <TextBlock 
                    VerticalAlignment="Center"
                    HorizontalAlignment="Center"
-                   Margin="0 0 128 0" />
-        <Button Content="今だけ再表示" x:Name="HiddenVideoOnceRevealButton" Click="HiddenVideoOnceRevealButton_Click"
+                   Margin="0 0 128 0">
+          <Run Text="{Binding Source=HiddenVideo, Converter={StaticResource LocalizeConverter}, Mode=OneWay}" />
+        </TextBlock>
+        <Button Content="{Binding Source=OnceReveal, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" 
+                x:Name="HiddenVideoOnceRevealButton" Click="HiddenVideoOnceRevealButton_Click"
                 HorizontalAlignment="Right"
                 Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                 BorderBrush="{ThemeResource ButtonBorderThemeBrush}"
@@ -215,7 +220,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{x:Bind IsHiddenVideoOwner, Mode=OneWay}" />
+            <windowsStateTrigger:NotEqualStateTrigger Value="{x:Bind VideoHiddenInfo, Mode=OneWay}" NotEqualTo="{x:Null}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HiddenVideoOwnerLayout.Opacity"

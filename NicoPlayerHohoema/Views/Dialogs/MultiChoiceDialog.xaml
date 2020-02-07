@@ -15,8 +15,8 @@
     d:DesignHeight="300"
     d:DesignWidth="400"
     VerticalAlignment="Center"
-    PrimaryButtonText="選択"
-    SecondaryButtonText="キャンセル"
+    PrimaryButtonText="{Binding Source=Select, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+    SecondaryButtonText="{Binding Source=Cancel, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
     >
 
     <ListView ItemsSource="{x:Bind Items}"

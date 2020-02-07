@@ -116,80 +116,80 @@ namespace NicoPlayerHohoema.ViewModels
         {
             new SearchSortOptionListItem()
             {
-                Label = "投稿が新しい順",
-                Order = Mntone.Nico2.Order.Descending,
+                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.FirstRetrieve, Order.Descending),
+                Order = Order.Descending,
                 Sort = Sort.FirstRetrieve,
             },
             new SearchSortOptionListItem()
             {
-                Label = "投稿が古い順",
-                Order = Mntone.Nico2.Order.Ascending,
+                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.FirstRetrieve, Order.Ascending),
+                Order = Order.Ascending,
                 Sort = Sort.FirstRetrieve,
             },
 
             new SearchSortOptionListItem()
             {
-                Label = "コメントが新しい順",
-                Order = Mntone.Nico2.Order.Descending,
+                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.NewComment, Order.Descending),
+                Order = Order.Descending,
                 Sort = Sort.NewComment,
             },
             new SearchSortOptionListItem()
             {
-                Label = "コメントが古い順",
-                Order = Mntone.Nico2.Order.Ascending,
+                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.NewComment, Order.Ascending),
+                Order = Order.Ascending,
                 Sort = Sort.NewComment,
             },
 
             new SearchSortOptionListItem()
             {
-                Label = "再生数が多い順",
-                Order = Mntone.Nico2.Order.Descending,
+                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.ViewCount, Order.Descending),
+                Order = Order.Descending,
                 Sort = Sort.ViewCount,
             },
             new SearchSortOptionListItem()
             {
-                Label = "再生数が少ない順",
-                Order = Mntone.Nico2.Order.Ascending,
+                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.ViewCount, Order.Ascending),
+                Order = Order.Ascending,
                 Sort = Sort.ViewCount,
             },
 
             new SearchSortOptionListItem()
             {
-                Label = "コメント数が多い順",
-                Order = Mntone.Nico2.Order.Descending,
+                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.CommentCount, Order.Descending),
+                Order = Order.Descending,
                 Sort = Sort.CommentCount,
             },
             new SearchSortOptionListItem()
             {
-                Label = "コメント数が少ない順",
-                Order = Mntone.Nico2.Order.Ascending,
+                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.CommentCount, Order.Ascending),
+                Order = Order.Ascending,
                 Sort = Sort.CommentCount,
             },
 
 
             new SearchSortOptionListItem()
             {
-                Label = "再生時間が長い順",
-                Order = Mntone.Nico2.Order.Descending,
+                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.Length, Order.Descending),
+                Order = Order.Descending,
                 Sort = Sort.Length,
             },
             new SearchSortOptionListItem()
             {
-                Label = "再生時間が短い順",
-                Order = Mntone.Nico2.Order.Ascending,
+                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.Length, Order.Ascending),
+                Order = Order.Ascending,
                 Sort = Sort.Length,
             },
 
             new SearchSortOptionListItem()
             {
-                Label = "マイリスト数が多い順",
-                Order = Mntone.Nico2.Order.Descending,
+                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.MylistCount, Order.Descending),
+                Order = Order.Descending,
                 Sort = Sort.MylistCount,
             },
             new SearchSortOptionListItem()
             {
-                Label = "マイリスト数が少ない順",
-                Order = Mntone.Nico2.Order.Ascending,
+                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.MylistCount, Order.Ascending),
+                Order = Order.Ascending,
                 Sort = Sort.MylistCount,
             },
 			// V1APIだとサポートしてない

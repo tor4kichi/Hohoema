@@ -136,7 +136,7 @@ namespace NicoPlayerHohoema.Views.Flyouts
             if (playlist is LocalPlaylist localPlaylist)
             {
                 RemoveLocalPlaylistItem.CommandParameter = dataContext;
-                RemoveLocalPlaylistItem.Command = new LocalPlaylistRemoveItemCommand(localPlaylist, LocalMylistManager);
+                RemoveLocalPlaylistItem.Command = localPlaylist.ItemsRemoveCommand;
                 RemoveLocalPlaylistItem.Visibility = Visibility.Visible;
             }
             else
@@ -145,10 +145,10 @@ namespace NicoPlayerHohoema.Views.Flyouts
             }
 
             // マイリスト
-            if (playlist is MylistPlaylist mylistPlaylist)
+            if (playlist is LoginUserMylistPlaylist mylistPlaylist)
             {
                 RemoveMylistItem.CommandParameter = dataContext;
-                RemoveMylistItem.Command = new MylistRemoveItemCommand(mylistPlaylist, UserMylistManager);
+                RemoveMylistItem.Command = mylistPlaylist.ItemsRemoveCommand;
                 RemoveMylistItem.Visibility = Visibility.Visible;
             }
             else
@@ -212,7 +212,7 @@ namespace NicoPlayerHohoema.Views.Flyouts
                     AddToMylistSubItem.Items.Add(new MenuFlyoutItem()
                     {
                         Text = mylist.Label,
-                        Command = new UseCase.Playlist.Commands.MylistAddItemCommand(mylist, UserMylistManager),
+                        Command = mylist.ItemsAddCommand,
                         CommandParameter = dataContext
                     });
                 }
@@ -248,7 +248,7 @@ namespace NicoPlayerHohoema.Views.Flyouts
                 LocalMylistSubItem.Items.Add(new MenuFlyoutItem()
                 {
                     Text = localMylist.Label,
-                    Command = new UseCase.Playlist.Commands.LocalPlaylistAddItemCommand(localMylist, LocalMylistManager),
+                    Command = localMylist.ItemsAddCommand,
                     CommandParameter = dataContext
                 });
             }

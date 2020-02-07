@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Services.Helpers;
+﻿using I18NPortable;
+using NicoPlayerHohoema.Services.Helpers;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ namespace NicoPlayerHohoema.Commands.Cache
                 if (cacheRequests.Any())
                 {
                     var choiceItems = await DialogService.ShowMultiChoiceDialogAsync(
-                        $"削除するキャッシュ動画を選択する\n「{video.Title}」",
+                        $"SelectDeleteVideoQuality".Translate(),
                         cacheRequests,
                         Enumerable.Empty<Models.Cache.NicoVideoCacheRequest>(),
                         nameof(Models.Cache.NicoVideoCacheRequest.Quality)

@@ -11,6 +11,7 @@ using NicoPlayerHohoema.Repository;
 using NicoPlayerHohoema.Repository.Playlist;
 using NicoPlayerHohoema.Services.Helpers;
 using NicoPlayerHohoema.Services.Player;
+using NicoPlayerHohoema.UseCase.Playlist.Commands;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
@@ -56,15 +57,32 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         public LiveVideoPlaylistItem RequestLiveItem { get; set; }
     }
 
-    
+    public sealed class LocalPlaylistItemRemovedEventArgs
+    {
+        public string PlaylistId { get; internal set; }
+        public IReadOnlyCollection<string> RemovedItems { get; internal set; }
+    }
+
+    public sealed class LocalPlaylistItemAddedEventArgs
+    {
+        public string PlaylistId { get; internal set; }
+        public IReadOnlyCollection<string> AddedItems { get; internal set; }
+    }
+
     public class LocalPlaylist : IPlaylist
     {
-        internal LocalPlaylist(string id, string label, int count)
+        private readonly PlaylistRepository _playlistRepository;
+
+        internal LocalPlaylist(string id, PlaylistRepository playlistRepository)
         {
             Id = id;
-            Label = label;
-            Count = count;
+            _playlistRepository = playlistRepository;
+            ItemsAddCommand = new LocalPlaylistAddItemCommand(this);
+            ItemsRemoveCommand = new LocalPlaylistRemoveItemCommand(this);
         }
+
+        public LocalPlaylistAddItemCommand ItemsAddCommand { get; }
+        public LocalPlaylistRemoveItemCommand ItemsRemoveCommand { get; }
 
         public string Id { get; }
 
@@ -73,6 +91,72 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         public int Count { get; set; }
 
         public int SortIndex { get; set; }
+
+
+        public event EventHandler<LocalPlaylistItemRemovedEventArgs> ItemRemoved;
+        public event EventHandler<LocalPlaylistItemAddedEventArgs> ItemAdded;
+
+
+        public void AddPlaylistItem(IVideoContent item)
+        {
+            _playlistRepository.AddItem(Id, item.Id);
+            ItemAdded?.Invoke(this, new LocalPlaylistItemAddedEventArgs()
+            {
+                PlaylistId = Id,
+                AddedItems = new[] { item.Id }
+            });
+        }
+
+        public void AddPlaylistItem(IEnumerable<IVideoContent> items)
+        {
+            var ids = items.Select(x => x.Id).ToList();
+            _playlistRepository.AddItems(Id, ids);
+            ItemAdded?.Invoke(this, new LocalPlaylistItemAddedEventArgs()
+            {
+                PlaylistId = Id,
+                AddedItems = ids
+            });
+        }
+
+
+
+        public IEnumerable<IVideoContent> GetPlaylistItems()
+        {
+            var items = _playlistRepository.GetItems(Id);
+            return Database.NicoVideoDb.Get(items.Select(x => x.ContentId));
+        }
+
+        public bool RemovePlaylistItem(IVideoContent item)
+        {
+            var result = _playlistRepository.DeleteItem(Id, item.Id);
+
+            if (result)
+            {
+                ItemRemoved?.Invoke(this, new LocalPlaylistItemRemovedEventArgs()
+                {
+                    PlaylistId = Id,
+                    RemovedItems = new[] { item.Id }
+                });
+            }
+            return result;
+        }
+
+        public int RemovePlaylistItems(IEnumerable<IVideoContent> items)
+        {
+            var ids = items.Select(x => x.Id).ToList();
+            var result = _playlistRepository.DeleteItems(Id, ids);
+
+            if (result > 0)
+            {
+                ItemRemoved?.Invoke(this, new LocalPlaylistItemRemovedEventArgs()
+                {
+                    PlaylistId = Id,
+                    RemovedItems = ids
+                });
+            }
+
+            return result;
+        }
     }
 
     public static class PlaylistExtension
@@ -565,26 +649,42 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
         async Task<IEnumerable<IVideoContent>> ResolveItemsAsync(IPlaylist playlist)
         {
-            var origin = playlist.GetOrigin();
             var playlistItems = new List<IVideoContent>();
-            switch (origin)
+            switch (playlist)
             {
-                case PlaylistOrigin.Mylist:
-                    var result = await _mylistRepository.GetItemsAsync(playlist as IMylist, 0, 50);
-                    return result.Items;
-                case PlaylistOrigin.Local:
-                    var items = _playlistRepository.GetItems(playlist.Id);
-                    foreach (var item in items)
+                case LoginUserMylistPlaylist loginUserMylist:
+                    var loginUserMylistResult = await loginUserMylist.GetItemsAsync(0, 50);
+                    return loginUserMylistResult.Items;
+
+                case MylistPlaylist mylist:
+                    var mylistResult = await mylist.GetItemsAsync(0, 50);
+                    return mylistResult.Items;
+                case LocalPlaylist localPlaylist:
                     {
-                        var videoContent = await ResolveVideoItemAsync(item.ContentId);
-                        playlistItems.Add(videoContent);
+                        var items = _playlistRepository.GetItems(playlist.Id);
+                        foreach (var item in items)
+                        {
+                            var videoContent = await ResolveVideoItemAsync(item.ContentId);
+                            playlistItems.Add(videoContent);
+                        }
                     }
                     
                     break;
-                case PlaylistOrigin.ChannelVideos:
-                case PlaylistOrigin.UserVideos:
+                case PlaylistObservableCollection specialLocalPlaylist:
+                    {
+                        var items = _playlistRepository.GetItems(specialLocalPlaylist.Id);
+                        foreach (var item in items)
+                        {
+                            var videoContent = await ResolveVideoItemAsync(item.ContentId);
+                            playlistItems.Add(videoContent);
+                        }
+                    }
+
+                    break;
+                //case PlaylistOrigin.ChannelVideos:
+                //case PlaylistOrigin.UserVideos:
                 default:
-                    throw new NotSupportedException(origin.ToString());
+                    throw new NotSupportedException(playlist.GetOrigin().ToString());
             }
 
             return playlistItems;

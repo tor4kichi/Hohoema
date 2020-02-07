@@ -53,7 +53,7 @@
                       >
         <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
           <toolkit:DockPanel>
-            <TextBlock Text="動画プレイヤーの設定"
+            <TextBlock Text="{Binding Source=VideoPlayerSettings, Converter={StaticResource LocalizeConverter}}"
                             FontSize="18"
                             VerticalAlignment="Center"
                         FontWeight="SemiBold"
@@ -99,7 +99,7 @@
                 </toolkit:DockPanel>
                 -->
           <Grid>
-            <TextBlock Text="再生速度倍率"
+            <TextBlock Text="{Binding Source=PlaybackRate, Converter={StaticResource LocalizeConverter}}"
                        Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
             <ComboBox SelectedItem="{x:Bind _viewModel.PlayerSettings.PlaybackRate, Mode=TwoWay, UpdateSourceTrigger=Default}"
@@ -115,7 +115,7 @@
             </ComboBox>
           </Grid>
           <Grid>
-            <TextBlock Text="再生完了時の自動アクション"
+            <TextBlock Text="{Binding Source=PlaylistEndedAction, Converter={StaticResource LocalizeConverter}}"
                        Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
             <ComboBox ItemsSource="{x:Bind PlaylistEndActionList}"
@@ -124,14 +124,14 @@
                               >
               <ComboBox.ItemTemplate>
                 <DataTemplate>
-                  <TextBlock Text="{Binding Converter={StaticResource ToLocalText}}" 
+                  <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" 
                                            />
                 </DataTemplate>
               </ComboBox.ItemTemplate>
             </ComboBox>
           </Grid>
           <Grid>
-            <TextBlock Text="次パート動画を自動検出して移動"
+            <TextBlock Text="{Binding Source=NextVideoAutoDectectionAndMove, Converter={StaticResource LocalizeConverter}}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
             <ToggleSwitch IsOn="{x:Bind _viewModel.PlayerSettings.AutoMoveNextVideoOnPlaylistEmpty, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 
@@ -146,7 +146,7 @@
         </StackPanel>
         <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
           <toolkit:DockPanel>
-            <TextBlock Text="コメントの投稿設定"
+            <TextBlock Text="{Binding Source=CommentSubmitSettings, Converter={StaticResource LocalizeConverter}}"
                             FontSize="18"
                             VerticalAlignment="Center"
                         FontWeight="SemiBold"
@@ -155,7 +155,7 @@
             <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
           </toolkit:DockPanel>
           <Grid>
-            <TextBlock Text="デフォルトで匿名(184)コマンドを有効にする"
+            <TextBlock Text="{Binding Source=EnableAnonimityCommentCommandAsDefault, Converter={StaticResource LocalizeConverter}}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                                
                            />
@@ -164,7 +164,7 @@
                         />
           </Grid>
           <Grid>
-            <TextBlock Text="コメントを書き始めたら動画を一時停止する"
+            <TextBlock Text="{Binding Source=PauseWithWritingComment, Converter={StaticResource LocalizeConverter}}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
             <ToggleSwitch IsOn="{x:Bind _viewModel.PlayerSettings.PauseWithCommentWriting, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -174,7 +174,7 @@
         </StackPanel>
         <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
           <toolkit:DockPanel>
-            <TextBlock Text="コメントの表示設定"
+            <TextBlock Text="{Binding Source=CommentDisplaySettings, Converter={StaticResource LocalizeConverter}}"
                             FontSize="18"
                             VerticalAlignment="Center"
                             FontWeight="SemiBold"
@@ -183,7 +183,7 @@
             <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
           </toolkit:DockPanel>
           <Grid>
-            <TextBlock Text="コメントの表示時間"
+            <TextBlock Text="{Binding Source=CommentDisplayDuration, Converter={StaticResource LocalizeConverter}}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
             <toolkit:NumericUpDown Value="{x:Bind _viewModel.PlayerSettings.CommentDisplayDuration, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource TimeSpanToDoubleConverter}}"
@@ -200,7 +200,7 @@
                           />
           </Grid>
           <Grid>
-            <TextBlock Text="コメントの表示サイズ"
+            <TextBlock Text="{Binding Source=CommentDisplayDuration, Converter={StaticResource LocalizeConverter}}"
                            toolkit:DockPanel.Dock="Left"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
@@ -219,7 +219,7 @@
                                        />
           </Grid>
           <Grid>
-            <TextBlock Text="コメントの透過設定"
+            <TextBlock Text="{Binding Source=CommentOpacity, Converter={StaticResource LocalizeConverter}}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
             <Slider Value="{x:Bind _viewModel.PlayerSettings.CommentOpacity, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
@@ -236,7 +236,7 @@
                           />
           </Grid>
           <Grid>
-            <TextBlock Text="デフォルトのコメント色"
+            <TextBlock Text="{Binding Source=CommentDefaultColor, Converter={StaticResource LocalizeConverter}}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
             <ComboBox ItemsSource="{x:Bind CommentColorList}"
@@ -259,7 +259,7 @@
         <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
           <!--NGコメント-->
           <toolkit:DockPanel>
-            <TextBlock Text="コメントのNG設定"
+            <TextBlock Text="{Binding Source=CommentFilteringSettings, Converter={StaticResource LocalizeConverter}}"
                             FontSize="18"
                             VerticalAlignment="Center"
                             FontWeight="SemiBold"
@@ -270,7 +270,7 @@
           <!-- NGコメント -->
           <!-- NG共有スコア -->
           <Grid Visibility="Visible">
-            <TextBlock Text="表示する共有NGスコアの設定" 
+            <TextBlock Text="{Binding Source=AppearShareNGScore, Converter={StaticResource LocalizeConverter}}" 
                                Style="{StaticResource SettingsOptionTitleTextBlock}"
                                />
             <ComboBox ItemsSource="{x:Bind _NGScoreShareLevels}"
@@ -310,7 +310,7 @@
                     -->
           <!-- NG キーワード -->
           <Grid>
-            <TextBlock Text="コメントのフィルタを有効にする"
+            <TextBlock Text="{Binding Source=EnableCommentFilteringWithFreeWord, Converter={StaticResource LocalizeConverter}}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
             <ToggleSwitch IsOn="{Binding NGCommentKeywordEnable.Value, Mode=TwoWay}"
@@ -323,26 +323,25 @@
             <TextBox Text="{Binding NGCommentKeywords.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                              AcceptsReturn="True"
                              Height="120"
-                             Width="240"
-                             PlaceholderText="NGコメントを入力"
+                             Width="240" PlaceholderText="{Binding Source=PlacefolderCommentFilteringFreeWord, Converter={StaticResource LocalizeConverter}}"
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
                      IsFocusEngagementEnabled="True"
                              />
             <TextBlock Text="{Binding NGCommentKeywordError.Value}" />
             <TextBlock Margin="0 8" Foreground="Gray" TextWrapping="Wrap">
-                        ・１行ごとにフィルタ文字列を指定します
-                        ・正規表現が利用できます</TextBlock>
+              <Run Text="{Binding Source=CommentFilteringHowToUse, Converter={StaticResource LocalizeConverter}}" />
+            </TextBlock>
           </StackPanel>
           <!-- 自動芝刈り機 -->
           <Grid>
             <StackPanel>
-              <TextBlock Text="自動草刈機"
+              <TextBlock Text="{Binding Source=AutoShortingKUSAWords, Converter={StaticResource LocalizeConverter}}"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
-              <TextBlock Text="※ 連続する『ｗ』を１文字に刈り込みます"
-                                       Style="{StaticResource CaptionTextBlockStyle}"
-                                       ToolTipService.ToolTip="ｗｗｗｗｗ -> ｗ"
-                                       toolkit:DockPanel.Dock="Bottom"
+              <TextBlock Text="{Binding Source=AutoShortingKUSAWordsDescription, Converter={StaticResource LocalizeConverter}}" 
+                         Style="{StaticResource CaptionTextBlockStyle}" 
+                         ToolTipService.ToolTip="{Binding Source=AutoShortingKUSAWordsExample, Converter={StaticResource LocalizeConverter}}"
+                         toolkit:DockPanel.Dock="Bottom"
                          Opacity="0.7"
                                        />
             </StackPanel>
@@ -355,7 +354,7 @@
         <!-- ニコスクリプト設定 -->
         <StackPanel Style="{StaticResource SettingsGroupStackPanel}">
           <toolkit:DockPanel>
-            <TextBlock Text="ニコスクリプト設定"
+            <TextBlock Text="{Binding Source=NicoScriptSettings, Converter={StaticResource LocalizeConverter}}"
                             FontSize="18"
                             VerticalAlignment="Center"
                             FontWeight="SemiBold"
@@ -364,42 +363,34 @@
             <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
           </toolkit:DockPanel>
           <Grid>
-            <TextBlock Text="＠デフォルト"
+            <TextBlock Text="{Binding Source=NicoScript_Default, Converter={StaticResource LocalizeConverter}}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
             <ToggleSwitch IsOn="{x:Bind _viewModel.PlayerSettings.NicoScript_Default_Enabled, Mode=TwoWay}"                                
-                            OnContent="許可"
-                            OffContent="許可しない"
                             HorizontalAlignment="Right"
                                         />
           </Grid>
           <Grid>
-            <TextBlock Text="＠シーク禁止"
+            <TextBlock Text="{Binding Source=NicoScript_DisallowSeek, Converter={StaticResource LocalizeConverter}}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
             <ToggleSwitch IsOn="{x:Bind _viewModel.PlayerSettings.NicoScript_DisallowSeek_Enabled, Mode=TwoWay}"
-                                OnContent="許可"
-                            OffContent="許可しない"
                             HorizontalAlignment="Right"
                                         />
           </Grid>
           <Grid>
-            <TextBlock Text="＠コメント禁止"
+            <TextBlock Text="{Binding Source=NicoScript_DisallowComment, Converter={StaticResource LocalizeConverter}}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
             <ToggleSwitch IsOn="{x:Bind _viewModel.PlayerSettings.NicoScript_DisallowComment_Enabled, Mode=TwoWay}"
-                            OnContent="許可"
-                            OffContent="許可しない"
                             HorizontalAlignment="Right"
                                         />
           </Grid>
           <Grid>
-            <TextBlock Text="＠ジャンプ"
+            <TextBlock Text="{Binding Source=NicoScript_Jump, Converter={StaticResource LocalizeConverter}}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
             <ToggleSwitch IsOn="{x:Bind _viewModel.PlayerSettings.NicoScript_Jump_Enabled, Mode=TwoWay}"
-                            OnContent="許可"
-                            OffContent="許可しない"
                             HorizontalAlignment="Right"
                                         />
           </Grid>
@@ -419,7 +410,7 @@
         </StackPanel>
         <StackPanel x:Name="DesktopPlayerSettingsLayout" Style="{StaticResource SettingsGroupStackPanel}">
           <toolkit:DockPanel>
-            <TextBlock Text="デスクトップ向け設定"
+            <TextBlock Text="{Binding Source=DesktopSettings, Converter={StaticResource LocalizeConverter}}"
                             FontSize="18"
                             VerticalAlignment="Center"
                             FontWeight="SemiBold"
@@ -428,7 +419,7 @@
             <Border Style="{StaticResource SettingsSubHeaderHorizonBorderStyle}" />
           </toolkit:DockPanel>
           <Grid>
-            <TextBlock Text="マウススクロール音量変化 (％)"
+            <TextBlock Text="{Binding Source=SoundVolumeChangeValueWithMouseScroll, Converter={StaticResource LocalizeConverter}}"
                         Style="{StaticResource SettingsOptionTitleTextBlock}"
                         />
             <toolkit:NumericUpDown Value="{x:Bind _viewModel.PlayerSettings.SoundVolumeChangeFrequency, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource ToUserFriendlySoubleVolume}}"

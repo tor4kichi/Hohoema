@@ -24,19 +24,19 @@
     >
   <Grid>
     <Grid x:Name="EmptySubscriptionsNoticeLayout" Margin="16" VerticalAlignment="Center" Visibility="Collapsed">
-      <TextBlock Text="{Binding Source=SubscriptionsEmptyNotice, Converter={StaticResource ToLocalText}}" TextWrapping="Wrap" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.7" />
+      <TextBlock Text="{Binding Source=SubscriptionsEmptyNotice, Converter={StaticResource LocalizeConverter}}" TextWrapping="Wrap" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.7" />
     </Grid>
     <toolkit:DockPanel x:Name="RootLayoutDockPanel">
       <Grid toolkit:DockPanel.Dock="Top" x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
         <CommandBar x:Name="CommandBar">
           <CommandBar.PrimaryCommands>
-            <AppBarButton Label="購読グループを追加" Icon="Add" AllowFocusOnInteraction="True">
+            <AppBarButton Label="{Binding Source=SubscriptionGroup_Create, Converter={StaticResource LocalizeConverter}}" Icon="Add" AllowFocusOnInteraction="True">
               <AppBarButton.Flyout>
                 <Flyout>
                   <StackPanel MinWidth="180">
-                    <TextBox x:Name="SubscriptionGroupNameTextBox" Header="購読グループ名" InputScope="Text" MinWidth="80" />
+                    <TextBox x:Name="SubscriptionGroupNameTextBox" Header="{Binding Source=SubscriptionGroupCreate_Flyout_Title, Converter={StaticResource LocalizeConverter}}" InputScope="Text" MinWidth="80" />
                     <Border Height="8" />
-                    <Button Content="追加" HorizontalAlignment="Stretch">
+                    <Button Content="{Binding Source=Create, Converter={StaticResource LocalizeConverter}}" HorizontalAlignment="Stretch">
                       <i:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Click">
                           <core:InvokeCommandAction Command="{Binding SubscriptionManager.AddSubscription}" CommandParameter="{Binding ElementName=SubscriptionGroupNameTextBox, Path=Text}" />
@@ -53,11 +53,11 @@
                 </Flyout>
               </AppBarButton.Flyout>
             </AppBarButton>
-            <AppBarButton Label="更新" Icon="Refresh" Command="{Binding WatchItLater.Refresh}" />
-            <AppBarButton Label="設定" Icon="Setting">
+            <AppBarButton Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}}" Icon="Refresh" Command="{Binding WatchItLater.Refresh}" />
+            <AppBarButton Label="{Binding Source=Settings, Converter={StaticResource LocalizeConverter}}" Icon="Setting">
               <AppBarButton.Flyout>
                 <MenuFlyout>
-                  <ToggleMenuFlyoutItem Text="自動更新" IsChecked="{Binding WatchItLater.IsAutoUpdateEnabled, Mode=TwoWay}" />
+                  <ToggleMenuFlyoutItem Text="{Binding Source=AutoUpdateToggleButtonTitle, Converter={StaticResource LocalizeConverter}}" IsChecked="{Binding WatchItLater.IsAutoUpdateEnabled, Mode=TwoWay}" />
                 </MenuFlyout>
               </AppBarButton.Flyout>
             </AppBarButton>

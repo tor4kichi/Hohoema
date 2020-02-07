@@ -18,30 +18,33 @@
 
   <Grid>
 
-    <uwpcontrol:PullToRefreshListView 
-            x:Name="ItemsList"
-      ItemsSource="{x:Bind ItemsSource, Mode=OneWay}"
-      ItemTemplate="{x:Bind ItemTemplate, Mode=OneWay}"
-      Header="{x:Bind Header}"
-            RefreshCommand="{x:Bind RefreshCommand}"
-            IncrementalLoadingTrigger="Edge"
-            PullThreshold="85"    
-            UseSystemFocusVisuals="True"
-            SelectionMode="None"
-            HorizontalContentAlignment="Stretch"
-            ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
-            uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0"
-            xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
-      Padding="{x:Bind ItemsPanelPadding, Mode=OneWay}"
-                            >
-      
-      <uwpcontrol:PullToRefreshListView.ItemContainerTransitions>
+    <ListView x:Name="ItemsList"
+              ItemsSource="{x:Bind ItemsSource, Mode=OneWay}"
+              ItemTemplate="{x:Bind ItemTemplate, Mode=OneWay}"
+              Header="{x:Bind Header}"
+              IncrementalLoadingTrigger="Edge"
+              UseSystemFocusVisuals="True"
+              SelectionMode="None"
+              HorizontalContentAlignment="Stretch"
+              ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+              uwpExtension:ScrollViewerExtensions.VerticalScrollBarMargin="0 48 0 0"
+              xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
+              IsItemClickEnabled="True"
+              Padding="{x:Bind ItemsPanelPadding, Mode=OneWay}">
+
+      <i:Interaction.Behaviors>
+        <core:EventTriggerBehavior EventName="ItemClick">
+          <core:InvokeCommandAction Command="{x:Bind ItemCommand, Mode=OneWay}"
+                                    InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+        </core:EventTriggerBehavior>
+      </i:Interaction.Behaviors>
+      <ListView.ItemContainerTransitions>
         <TransitionCollection>
 
         </TransitionCollection>
-      </uwpcontrol:PullToRefreshListView.ItemContainerTransitions>
+      </ListView.ItemContainerTransitions>
 
-    </uwpcontrol:PullToRefreshListView>
+    </ListView>
 
     <VisualStateManager.VisualStateGroups>
       <VisualStateGroup>
@@ -53,6 +56,8 @@
           <VisualState.Setters>
             <Setter Target="ItemsList.SelectionMode" Value="Multiple" />
             <Setter Target="ItemsList.IsMultiSelectCheckBoxEnabled" Value="True" />
+            <Setter Target="ItemsList.IsItemClickEnabled" Value="False" />
+            
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

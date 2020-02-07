@@ -67,11 +67,11 @@
                           Margin="16 8"
                           >
                 <TextBlock Opacity="0.7">
-                                開始 <Run Text="{Binding LiveInfo.Video.OpenTime, Converter={StaticResource DateTimeToString}}" /><LineBreak />
-                                終了 <Run Text="{Binding LiveInfo.Video.EndTime, Converter={StaticResource DateTimeToString}}" /></TextBlock>
+                                <Run Text="{Binding Source=LiveStreamingStartAt, Converter={StaticResource LocalizeConverter}}" /> <Run Text="{Binding LiveInfo.Video.OpenTime, Converter={StaticResource DateTimeToString}}" /><LineBreak />
+                                <Run Text="{Binding Source=LiveStreamingEndAt, Converter={StaticResource LocalizeConverter}}" /> <Run Text="{Binding LiveInfo.Video.EndTime, Converter={StaticResource DateTimeToString}}" /></TextBlock>
               </StackPanel>
               <StackPanel>
-                <TextBlock Text="放送説明"
+                <TextBlock Text="{Binding Source=LiveStreamingDescription, Converter={StaticResource LocalizeConverter}}"
                            Margin="0 16 8 8"
                            Style="{StaticResource SubtitleTextBlockStyle}" />
                 <TextBox Text="{Binding LiveInfo.Video.Description}"
@@ -98,15 +98,20 @@
                                    x:Name="DescriptionHyperlinkItems">
                 <uwptoolkit:Expander.HeaderTemplate>
                   <DataTemplate>
-                    <TextBlock Text="放送説明のリンク"
+                    <TextBlock Text="{Binding Source=LinkItemsInLiveStreamingDescription, Converter={StaticResource LocalizeConverter}}"
                                Style="{StaticResource SubtitleTextBlockStyle}" />
                   </DataTemplate>
                 </uwptoolkit:Expander.HeaderTemplate>
                 <GridView ItemsSource="{Binding DescriptionHyperlinkItems, Mode=OneWay}"
-                          uwpExtension:ListViewBase.Command="{Binding ScriptNotifyCommand}"
                           IsItemClickEnabled="True"
                           HorizontalContentAlignment="Stretch"
                           SelectionMode="None">
+                  <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="ItemClick">
+                      <core:InvokeCommandAction Command="{Binding ScriptNotifyCommand}"
+                                                InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                    </core:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
                   <GridView.ItemTemplate>
                     <DataTemplate>
                       <TextBlock Text="{Binding Label}" />
@@ -124,10 +129,10 @@
               </uwptoolkit:Expander>
               <!-- タグ -->
               <StackPanel>
-                <TextBlock Text="タグ"
+                <TextBlock Text="{Binding Source=Tag, Converter={StaticResource LocalizeConverter}}"
                            Margin="0 16 8 8"
                            Style="{StaticResource SubtitleTextBlockStyle}" />
-                <TextBlock Text="登録されたタグはありません"
+                <TextBlock Text="{Binding Source=NoTags, Converter={StaticResource LocalizeConverter}}"
                            Opacity="0.7"
                            Visibility="{Binding LiveTags, Converter={StaticResource EmptyCollectionVisibilityConverter}}" />
                 <ItemsControl ItemsSource="{Binding LiveTags}">
@@ -201,7 +206,7 @@
                   <Image Source="{Binding LiveInfo.Community.ThumbnailSmall}"
                          Height="32"
                          Margin="0 0 8 0" />
-                  <TextBlock Text="放送者" />
+                  <TextBlock Text="{Binding Source=LiveStreamOwner, Converter={StaticResource LocalizeConverter}}" />
                 </StackPanel>
               </StackPanel>
             </PivotItem.Header>
@@ -217,10 +222,11 @@
                                 Orientation="Horizontal"
                                 Margin="8 0 0 16">
                       <TextBlock>
-                                メンバー数: <Run Text="{Binding LiveInfo.Community.UserCount}" /></TextBlock>
+                            <Run Text="{Binding Source=CommunityMemberCount, Converter={StaticResource LocalizeConverter}}" /> : <Run Text="{Binding LiveInfo.Community.UserCount}" />
+                      </TextBlock>
                       <Border Width="16" />
                       <TextBlock>
-                                レベル: <Run Text="{Binding LiveInfo.Community.Level}" /></TextBlock>
+                                <Run Text="{Binding Source=CommunityLevel, Converter={StaticResource LocalizeConverter}}" /> : <Run Text="{Binding LiveInfo.Community.Level}" /></TextBlock>
                     </StackPanel>
                     <TextBlock Text="{Binding LiveInfo.Community.Name}"
                                Style="{StaticResource TitleTextBlockStyle}" />
@@ -230,7 +236,7 @@
                         toolkit:DockPanel.Dock="Top" />
                 <StackPanel Orientation="Horizontal"
                             toolkit:DockPanel.Dock="Top">
-                  <Button Content="コミュニティ詳細"
+                  <Button Content="{Binding Source=CommunityDetail, Converter={StaticResource LocalizeConverter}}"
                           Command="{Binding PageManager.OpenPageCommand}"
                           CommandParameter="{Binding Community}"
                           Visibility="{Binding Community, Converter={StaticResource NotNullToVisibility}}" />
@@ -245,14 +251,13 @@
               </toolkit:DockPanel>
               <Grid x:Name="BroadcasterDesc_Official"
                     Visibility="Collapsed">
-                <TextBlock Text="この放送は運営公式によって配信されています" />
+                <TextBlock Text="{Binding Source=ThisStreamingIsPresentedByOfficial, Converter={StaticResource LocalizeConverter}}" />
               </Grid>
             </Grid>
           </PivotItem>
-          <PivotItem x:Name="IchibaPivotItem"
-                     Header="市場">
+          <PivotItem x:Name="IchibaPivotItem" Header="{Binding Source=NiconicoIchiba, Converter={StaticResource LocalizeConverter}}">
             <Grid Visibility="{Binding IsIchibaInitialized}">
-              <TextBlock Text="表示できるアイテムはありません"
+              <TextBlock Text="{Binding Source=IchibaNoItems, Converter={StaticResource LocalizeConverter}}"
                          Visibility="{Binding IsEmptyIchibaItems}"
                          Opacity="0.7"
                          Margin="16" />
@@ -277,19 +282,23 @@
               </ItemsControl>
             </Grid>
           </PivotItem>
-          <PivotItem x:Name="RecommendItemsPivotItem"
-                     Header="オススメ">
+          <PivotItem x:Name="RecommendItemsPivotItem" Header="{Binding Source=Recommend, Converter={StaticResource LocalizeConverter}}">
             <StackPanel Visibility="{Binding IsLiveRecommendInitialized}">
-              <TextBlock Visibility="{Binding IsEmptyLiveRecommendItems}"
-                         Text="オススメ生放送が見つかりませんでした"
+              <TextBlock Visibility="{Binding IsEmptyLiveRecommendItems}" 
+                         Text="{Binding Source=RecommendNotFound, Converter={StaticResource LocalizeConverter}}"
                          Opacity="0.7"
                          Margin="16" />
               <ListView ItemsSource="{Binding ReccomendItems}"
                         IsItemClickEnabled="True"
                         SelectionMode="None"
                         HorizontalContentAlignment="Stretch"
-                        uwpExtension:ListViewBase.Command="{Binding PageManager.OpenPageCommand}"
                         myExtensions:ListViewBase.DeferInitialize="True">
+                <i:Interaction.Behaviors>
+                  <core:EventTriggerBehavior EventName="ItemClick">
+                    <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+                                              InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                  </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
                 <ItemsControl.ItemTemplate>
                   <DataTemplate>
                     <controls:LiveVideoListItem />
@@ -332,25 +341,23 @@
                 Height="48"
                 Padding="16 0">
           <StackPanel>
-            <TextBlock Text="視聴する"
+            <TextBlock Text="{Binding Source=WatchLiveStreaming, Converter={StaticResource LocalizeConverter}}"
                        HorizontalAlignment="Center" />
             <TextBlock Visibility="{Binding ExpiredTime, Converter={StaticResource NotNullToVisibility}}"
                        Opacity="0.8">
-                                    (視聴期間 <Run Text="{Binding ExpiredTime, Converter={StaticResource ExpiredDateTimeToString}}" />)</TextBlock>
+                                    (<Run Text="{Binding Source=TimeShift_WatchLimit, Converter={StaticResource LocalizeConverter}}" /> <Run Text="{Binding ExpiredTime, Converter={StaticResource ExpiredDateTimeToString}}" />)</TextBlock>
           </StackPanel>
         </Button>
-        <Button x:Name="AddTimeshiftButton"
-                Content="タイムシフト予約"
+        <Button x:Name="AddTimeshiftButton" Content="{Binding Source=AddTimeshift, Converter={StaticResource LocalizeConverter}}"
                 Command="{Binding TogglePreserveTimeshift}"
                 Visibility="{Binding IsShowAddTimeshiftButton.Value}"
                 Margin="0 0 8 0" />
-        <Button x:Name="DeleteTimeshiftButton"
-                Content="タイムシフト予約済み"
+        <Button x:Name="DeleteTimeshiftButton" Content="{Binding Source=AlreadyAddedTimeshift, Converter={StaticResource LocalizeConverter}}"
                 Visibility="{Binding IsShowDeleteTimeshiftButton.Value}"
                 Margin="0 0 8 0">
           <Button.Flyout>
             <MenuFlyout>
-              <MenuFlyoutItem Text="予約削除"
+              <MenuFlyoutItem Text="{Binding Source=DeleteTimeshift, Converter={StaticResource LocalizeConverter}}"
                               Command="{Binding TogglePreserveTimeshift}" />
             </MenuFlyout>
           </Button.Flyout>
@@ -359,22 +366,22 @@
           <SymbolIcon Symbol="More" />
           <Button.Flyout>
             <MenuFlyout>
-              <MenuFlyoutItem Text="ブラウザで開く"
+              <MenuFlyoutItem Text="{Binding Source=OpenWithBrowser, Converter={StaticResource LocalizeConverter}}"
                               Command="{Binding ExternalAccessService.OpenLinkCommand}"
                               CommandParameter="{Binding}" />
-              <MenuFlyoutItem Text="共有"
+              <MenuFlyoutItem Text="{Binding Source=Share, Converter={StaticResource LocalizeConverter}}"
                               Command="{Binding ExternalAccessService.OpenShareUICommand}"
                               CommandParameter="{Binding}"
                               Visibility="{Binding Source={StaticResource IsXbox}, Converter={StaticResource BooleanToVisibilityInverted}}" />
-              <MenuFlyoutSubItem Text="コピー..."
+              <MenuFlyoutSubItem Text="{Binding Source=Copy, Converter={StaticResource LocalizeConverter}}"
                                  Visibility="{Binding Source={StaticResource IsXbox}, Converter={StaticResource BooleanToVisibilityInverted}}">
-                <MenuFlyoutItem Text="リンクをコピー"
+                <MenuFlyoutItem Text="{Binding Source=CopyLiveStreamingLink, Converter={StaticResource LocalizeConverter}}"
                                 Command="{Binding ExternalAccessService.CopyToClipboardCommand}"
                                 CommandParameter="{Binding}" />
-                <MenuFlyoutItem Text="生放送IDをコピー"
+                <MenuFlyoutItem Text="{Binding Source=CopyLiveStreamingId, Converter={StaticResource LocalizeConverter}}"
                                 Command="{Binding ExternalAccessService.CopyToClipboardCommand}"
                                 CommandParameter="{Binding Id}" />
-                <MenuFlyoutItem Text="共有文章をコピー"
+                <MenuFlyoutItem Text="{Binding Source=CopyLiveStreamingShareText, Converter={StaticResource LocalizeConverter}}"
                                 Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}"
                                 CommandParameter="{Binding}" />
               </MenuFlyoutSubItem>

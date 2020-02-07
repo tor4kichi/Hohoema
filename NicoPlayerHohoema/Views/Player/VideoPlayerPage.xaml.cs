@@ -66,6 +66,7 @@ namespace NicoPlayerHohoema.Views
                 {
                     ThemeChanged(theme);
                 });
+
         }
 
         void ThemeChanged(ElementTheme theme)

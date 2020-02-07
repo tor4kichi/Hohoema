@@ -136,6 +136,11 @@ namespace NicoPlayerHohoema.Repository.Playlist
 
         public void AddItem(string playlistId, string contentId)
         {
+            if (_itemsDbService.Exists(x => x.PlaylistId == playlistId && x.ContentId == contentId))
+            {
+                return;
+            }
+
             _itemsDbService.UpdateItem(new PlaylistItemEntity()
             {
                 PlaylistId = playlistId,
@@ -145,7 +150,7 @@ namespace NicoPlayerHohoema.Repository.Playlist
 
         public void AddItems(string playlistId, IEnumerable<string> items)
         {
-            _itemsDbService.UpdateItem(items.Select(item => new PlaylistItemEntity()
+            _itemsDbService.UpdateItem(items.Where(itemId => !_itemsDbService.Exists(x => x.PlaylistId == playlistId && x.ContentId == itemId)).Select(item => new PlaylistItemEntity()
             {
                 PlaylistId = playlistId,
                 ContentId = item,

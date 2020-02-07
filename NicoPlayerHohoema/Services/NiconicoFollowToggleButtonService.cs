@@ -6,6 +6,7 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using I18NPortable;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
 using Reactive.Bindings;
@@ -142,9 +143,9 @@ namespace NicoPlayerHohoema.Services
 
             return await DialogService.ShowMessageDialog(
                 "",
-                $"『{followTarget.Label}』のフォローを解除してもいいですか？ ",
-                "フォロー解除",
-                "キャンセル"
+                "ConfirmRemoveFollow_DialogTitle".Translate(),
+                "RemoveFollow".Translate(),
+                "Cancel".Translate()
                 );
         }
 

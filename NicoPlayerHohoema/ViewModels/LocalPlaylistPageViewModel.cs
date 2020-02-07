@@ -103,15 +103,15 @@ namespace NicoPlayerHohoema.ViewModels
         {
             if (Playlist is LocalPlaylist localPlaylist)
             {
-                var localPlaylistItems = new ObservableCollection<IVideoContent>(_localMylistManager.GetPlaylistItems(localPlaylist).ToList());
+                var localPlaylistItems = new ObservableCollection<IVideoContent>(localPlaylist.GetPlaylistItems().ToList());
                 PlaylistItems = localPlaylistItems;
 
                 // キューと「あとで見る」はHohoemaPlaylistがリスト内容を管理しているが
                 // ローカルプレイリストは内部DBが書き換えられるだけなので
                 // 表示向けの更新をVMで引き受ける必要がある
                 Observable.FromEventPattern<LocalPlaylistItemRemovedEventArgs>(
-                    h => _localMylistManager.ItemRemoved += h,
-                    h => _localMylistManager.ItemRemoved -= h
+                    h => localPlaylist.ItemRemoved += h,
+                    h => localPlaylist.ItemRemoved -= h
                     )
                     .Subscribe(e =>
                     {

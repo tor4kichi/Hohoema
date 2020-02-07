@@ -20,6 +20,7 @@ using NicoPlayerHohoema.Models.Provider;
 using Prism.Navigation;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.UseCase;
+using I18NPortable;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -161,12 +162,12 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 new CommynitySearchModeOptionListItem()
                 {
-                    Label = "キーワードで探す",
+                    Label = "SearchWithKeyword".Translate(),
                     Mode = CommunitySearchMode.Keyword
                 },
                 new CommynitySearchModeOptionListItem()
                 {
-                    Label = "タグで探す",
+                    Label = "CommunitySearchWithTag".Translate(),
                     Mode = CommunitySearchMode.Tag
                 },
             };
@@ -264,7 +265,7 @@ namespace NicoPlayerHohoema.ViewModels
         private void RefreshSearchOptionText()
         {
             var optionText = Services.Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
-            var mode = SearchOption.Mode == CommunitySearchMode.Keyword ? "キーワード" : "タグ";
+            var mode = (SearchOption.Mode == CommunitySearchMode.Keyword ? "Keyword" : "Tag").Translate();
 
             SearchOptionText = $"{optionText}({mode})";
         }

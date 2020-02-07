@@ -1,8 +1,10 @@
-﻿using Mntone.Nico2;
+﻿using I18NPortable;
+using Mntone.Nico2;
 using Mntone.Nico2.Mylist;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Repository.Playlist;
+using NicoPlayerHohoema.Services;
 using Prism.Mvvm;
 using System;
 using System.Collections.Generic;
@@ -13,6 +15,7 @@ using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Uno.Extensions;
 using Windows.Foundation;
 using Windows.UI.Core;
 
@@ -34,17 +37,20 @@ namespace NicoPlayerHohoema.Models
         public IReadOnlyCollection<string> FailedItems { get; internal set; }
     }
 
+    // TODO: アイテム個数上限による失敗
+
 
     public class UserMylistManager : BindableBase
     {
         public UserMylistManager(
             NiconicoSession niconicoSession,
-            Provider.LoginUserMylistProvider loginUserMylistProvider
+            Provider.LoginUserMylistProvider loginUserMylistProvider,
+            Services.NotificationService notificationService
             )
         {
             _niconicoSession = niconicoSession;
             _loginUserMylistProvider = loginUserMylistProvider;
-
+            _notificationService = notificationService;
             _mylists = new ObservableCollection<LoginUserMylistPlaylist>();
             Mylists = new ReadOnlyObservableCollection<LoginUserMylistPlaylist>(_mylists);
 
@@ -71,9 +77,6 @@ namespace NicoPlayerHohoema.Models
             };
         }
 
-        public event EventHandler<MylistItemAddedEventArgs> MylistItemAdded;
-        public event EventHandler<MylistItemRemovedEventArgs> MylistItemRemoved;
-
 
 
 
@@ -89,6 +92,8 @@ namespace NicoPlayerHohoema.Models
 
         readonly private NiconicoSession _niconicoSession;
         readonly private Provider.LoginUserMylistProvider _loginUserMylistProvider;
+        private readonly NotificationService _notificationService;
+
         public LoginUserMylistPlaylist Deflist { get; private set; }
 
 		private ObservableCollection<LoginUserMylistPlaylist> _mylists;
@@ -121,10 +126,61 @@ namespace NicoPlayerHohoema.Models
         public bool CanAddMylistItem => MylistRegistrationCount < MylistRegistrationCapacity;
 
 
-      
-        
+        private void HandleMylistItemChanged(LoginUserMylistPlaylist playlist)
+        {
+            playlist.MylistItemAdded += Playlist_MylistItemAdded;
+            playlist.MylistItemRemoved += Playlist_MylistItemRemoved;
+        }
 
-		public bool HasMylistGroup(string groupId)
+        private void RemoveHandleMylistItemChanged(LoginUserMylistPlaylist playlist)
+        {
+            playlist.MylistItemAdded -= Playlist_MylistItemAdded;
+            playlist.MylistItemRemoved -= Playlist_MylistItemRemoved;
+        }
+
+
+        private void Playlist_MylistItemAdded(object sender, MylistItemAddedEventArgs e)
+        {
+            var playlist = (LoginUserMylistPlaylist)sender;
+            if (e.FailedItems?.Any() ?? false)
+            {
+                _notificationService.ShowInAppNotification(new InAppNotificationPayload()
+                {
+                    Content = "InAppNotification_MylistAddedItems_Fail".Translate(playlist.Label)
+                });
+            }
+            else
+            {
+                _notificationService.ShowInAppNotification(new InAppNotificationPayload()
+                {
+                    Content = "InAppNotification_MylistAddedItems_Success".Translate(playlist.Label, e.SuccessedItems.Count),
+                    ShowDuration = TimeSpan.FromSeconds(5)
+                });
+            }
+        }
+
+        private void Playlist_MylistItemRemoved(object sender, MylistItemRemovedEventArgs e)
+        {
+            var playlist = (LoginUserMylistPlaylist)sender;
+            if (e.FailedItems?.Any() ?? false)
+            {
+                _notificationService.ShowInAppNotification(new InAppNotificationPayload()
+                {
+                    Content = "InAppNotification_MylistRemovedItems_Fail".Translate(playlist.Label),
+                });
+            }
+            else
+            {
+                _notificationService.ShowInAppNotification(new InAppNotificationPayload()
+                {
+                    Content = "InAppNotification_MylistRemovedItems_Success".Translate(playlist.Label, e.SuccessedItems.Count),
+                    ShowDuration = TimeSpan.FromSeconds(5)
+                });
+            }
+        }
+
+
+        public bool HasMylistGroup(string groupId)
 		{
 			return Mylists.Any(x => x.Id == groupId);
 		}
@@ -141,6 +197,8 @@ namespace NicoPlayerHohoema.Models
             using (var releaser = await _updateLock.LockAsync())
             {
                 Deflist = null;
+
+                _mylists.ForEach(RemoveHandleMylistItemChanged);
                 _mylists.Clear();
 
                 await Task.Delay(TimeSpan.FromSeconds(2));
@@ -165,6 +223,8 @@ namespace NicoPlayerHohoema.Models
                         _mylists.Clear();
                     }
                 }
+
+                _mylists.ForEach(HandleMylistItemChanged);
             }
 		}
 
@@ -200,88 +260,6 @@ namespace NicoPlayerHohoema.Models
 			//return Mylists.Any(x => x.ContainsVideoId(videoId));
 		}
 
-        public Task<List<IVideoContent>> GetLoginUserMylistItemsAsync(IMylist mylist)
-        {
-            return _loginUserMylistProvider.GetLoginUserMylistItemsAsync(mylist);
-        }
-
-
-        public Task<ContentManageResult> UpdateMylist(string mylistId, Dialogs.MylistGroupEditData editData)
-        {
-            return _loginUserMylistProvider.UpdateMylist(mylistId, editData);
-        }
-
-
-
-
-        public Task<MylistItemAddedEventArgs> AddItem(string mylistId, string videoId, string mylistComment = "")
-        {
-            return AddItem(mylistId, new[] { videoId }, mylistComment);
-        }
-
-        public async Task<MylistItemAddedEventArgs> AddItem(string mylistId, IEnumerable<string> items, string mylistComment = "")
-        {
-            List<string> successed = new List<string>();
-            List<string> failed = new List<string>();
-
-            foreach (var videoId in items)
-            {
-                var result = await  _loginUserMylistProvider.AddMylistItem(mylistId, videoId, mylistComment);
-                if (result != ContentManageResult.Failed)
-                {
-                    successed.Add(videoId);
-                }
-                else
-                {
-                    failed.Add(videoId);
-                }
-            }
-
-            var args = new MylistItemAddedEventArgs()
-            {
-                MylistId = mylistId,
-                SuccessedItems = successed,
-                FailedItems = failed
-            };
-            MylistItemAdded?.Invoke(this, args);
-
-            return args;
-        }
-
-
-        public Task<MylistItemRemovedEventArgs> RemoveItem(string mylistId, string videoId)
-        {
-            return RemoveItem(mylistId, new[] { videoId });
-        }
-
-        public async Task<MylistItemRemovedEventArgs> RemoveItem(string mylistId, IEnumerable<string> items)
-        {
-            List<string> successed = new List<string>();
-            List<string> failed = new List<string>();
-
-            foreach (var videoId in items)
-            {
-                var result = await _loginUserMylistProvider.RemoveMylistItem(mylistId, videoId);
-                if (result == ContentManageResult.Success)
-                {
-                    successed.Add(videoId);
-                }
-                else
-                {
-                    failed.Add(videoId);
-                }
-            }
-
-            var args = new MylistItemRemovedEventArgs()
-            {
-                MylistId = mylistId,
-                SuccessedItems = successed,
-                FailedItems = failed
-            };
-            MylistItemRemoved?.Invoke(this, args);
-
-            return args;
-        }
     }
 
 	public class MylistVideoItemInfo

@@ -9,20 +9,18 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.UseCase.Playlist.Commands
 {
-    class MylistAddItemCommand : VideoContentSelectionCommandBase
+    public class MylistAddItemCommand : VideoContentSelectionCommandBase
     {
         private readonly LoginUserMylistPlaylist _playlist;
-        private readonly UserMylistManager _userMylistManager;
 
-        public MylistAddItemCommand(LoginUserMylistPlaylist playlist, UserMylistManager userMylistManager)
+        public MylistAddItemCommand(LoginUserMylistPlaylist playlist)
         {
             _playlist = playlist;
-            _userMylistManager = userMylistManager;
         }
 
         protected override void Execute(IVideoContent content)
         {
-            _userMylistManager.AddItem(_playlist.Id, content.Id);
+            _playlist.AddItem(content.Id);
         }
     }
 }

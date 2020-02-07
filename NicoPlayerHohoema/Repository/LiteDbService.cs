@@ -54,6 +54,10 @@ namespace NicoPlayerHohoema.Repository
             return new List<T>(all);
         }
 
+        public bool Exists(System.Linq.Expressions.Expression<Func<T, bool>> predicate)
+        {
+            return _collection.Exists(predicate);
+        }
 
         public int Count()
         {

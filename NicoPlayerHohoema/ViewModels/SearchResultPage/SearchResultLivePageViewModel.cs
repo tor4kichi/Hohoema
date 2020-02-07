@@ -20,6 +20,7 @@ using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.UseCase;
+using I18NPortable;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -150,22 +151,22 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 new LiveSearchModeOptionListItem()
                 {
-                    Label = "放送中",
+                    Label = NicoliveSearchMode.OnAir.Translate(),
                     Mode = NicoliveSearchMode.OnAir
                 },
                 new LiveSearchModeOptionListItem()
                 {
-                    Label = "放送予定",
+                    Label = NicoliveSearchMode.Reserved.Translate(),
                     Mode = NicoliveSearchMode.Reserved
                 },
 				new LiveSearchModeOptionListItem()
 				{
-					Label = "放送終了",
+					Label = NicoliveSearchMode.Closed.Translate(),
 					Mode = NicoliveSearchMode.Closed
 				},
 				new LiveSearchModeOptionListItem()
 				{
-					Label = "すべて",
+					Label = "All".Translate(),
 					Mode = null
 				},
 			};
@@ -175,23 +176,23 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 new LiveSearchProviderOptionListItem()
                 {
-                    Label = "すべて",
+                    Label = "All".Translate(),
                     Provider = null,
                 },
 
                 new LiveSearchProviderOptionListItem()
                 {
-                    Label = "公式",
+                    Label = Mntone.Nico2.Live.CommunityType.Official.Translate(),
                     Provider = Mntone.Nico2.Live.CommunityType.Official,
                 },
                 new LiveSearchProviderOptionListItem()
                 {
-                    Label = "チャンネル",
+                    Label = Mntone.Nico2.Live.CommunityType.Channel.Translate(),
                     Provider = Mntone.Nico2.Live.CommunityType.Channel,
                 },
                 new LiveSearchProviderOptionListItem()
                 {
-                    Label = "ユーザー",
+                    Label = Mntone.Nico2.Live.CommunityType.Community.Translate(),
                     Provider = Mntone.Nico2.Live.CommunityType.Community,
                 },
 
@@ -304,24 +305,11 @@ namespace NicoPlayerHohoema.ViewModels
             string mode = "";
             if (SearchOption.Mode.HasValue)
             {
-                switch (SearchOption.Mode)
-                {
-                    case Mntone.Nico2.Searches.Live.NicoliveSearchMode.OnAir:
-                        mode = "放送中";
-                        break;
-                    case Mntone.Nico2.Searches.Live.NicoliveSearchMode.Reserved:
-                        mode = "放送予定";
-                        break;
-                    case Mntone.Nico2.Searches.Live.NicoliveSearchMode.Closed:
-                        mode = "放送終了";
-                        break;
-                    default:
-                        break;
-                }
+                mode = SearchOption.Mode.Value.Translate();
             }
             else
             {
-                mode = "すべて";
+                mode = "All".Translate();
             }
 
             SearchOptionText = $"{optionText}/{mode}/{providerText}";

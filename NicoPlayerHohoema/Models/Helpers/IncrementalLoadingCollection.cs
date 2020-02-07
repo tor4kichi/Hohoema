@@ -65,62 +65,63 @@ namespace NicoPlayerHohoema.Models.Helpers
 
         public async Task<LoadMoreItemsResult> LoadDataAsync(uint count, CancellationToken cancellationToken)
         {
-            
-            uint resultCount = 0;
+			using (await LoadingLock.LockAsync())
+			{
+				uint resultCount = 0;
 
-            BeginLoading?.Invoke();
+				BeginLoading?.Invoke();
 
-            IAsyncEnumerable<I> items = null;
+				IAsyncEnumerable<I> items = null;
 
-            cancellationToken.ThrowIfCancellationRequested();
+				cancellationToken.ThrowIfCancellationRequested();
 
-            try
-            {
-                items = await _Source.GetPagedItems((int)_Position, (int)_Source.OneTimeLoadCount);
-            }
-            catch (OperationCanceledException)
-            {
+				try
+				{
+					items = await _Source.GetPagedItems((int)_Position, (int)_Source.OneTimeLoadCount);
+				}
+				catch (OperationCanceledException)
+				{
 
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.Message);
-            }
+				}
+				catch (Exception ex)
+				{
+					Debug.WriteLine(ex.Message);
+				}
 
-            cancellationToken.ThrowIfCancellationRequested();
+				cancellationToken.ThrowIfCancellationRequested();
 
-            if (items != null)
-            {
-                // Task.Delay(50)は多重読み込み防止のためのおまじない
-                // アイテム追加完了のタイミングで次の追加読み込みの判定が走るっぽいので
-                // アイテム追加が完了するまでUIスレッドが止まっている必要があるっぽい、つまり
-                // 
-                // 「非同期処理のことはよくわからない
-                //       
-                //      俺たちは雰囲気で非同期処理をやっているんだ」
-                // 
+				if (items != null)
+				{
+					// Task.Delay(50)は多重読み込み防止のためのおまじない
+					// アイテム追加完了のタイミングで次の追加読み込みの判定が走るっぽいので
+					// アイテム追加が完了するまでUIスレッドが止まっている必要があるっぽい、つまり
+					// 
+					// 「非同期処理のことはよくわからない
+					//       
+					//      俺たちは雰囲気で非同期処理をやっているんだ」
+					// 
 
 
-                await Task.WhenAll(
-                    items.ForEachAsync((item) =>
-                    {
-                        this.Add(item);
-                        ++resultCount;
-                    })
-                    , Task.Delay(50)
-                    );
+					await Task.WhenAll(
+						items.ForEachAsync((item) =>
+						{
+							this.Add(item);
+							++resultCount;
+						})
+						, Task.Delay(100)
+						);
 
-                _Position += resultCount;
-            }
+					_Position += resultCount;
+				}
 
-            if (resultCount == 0)
-            {
-                _HasMoreItems = false;
-            }
+				if (resultCount == 0)
+				{
+					_HasMoreItems = false;
+				}
 
-            DoneLoading?.Invoke();
-            return new LoadMoreItemsResult() { Count = resultCount };
-            
+				DoneLoading?.Invoke();
+				return new LoadMoreItemsResult() { Count = resultCount };
+			}
         }
 
 

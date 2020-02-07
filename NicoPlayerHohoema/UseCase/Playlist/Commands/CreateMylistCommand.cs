@@ -27,12 +27,7 @@ namespace NicoPlayerHohoema.Commands.Mylist
 
         protected override bool CanExecute(object parameter)
         {
-            if (parameter == null) { return false; }
-
-            if (parameter is Interfaces.IVideoContent) { return true; }
-            if (parameter is string ) { return Mntone.Nico2.NiconicoRegex.IsVideoId(parameter as string); }
-
-            return false;
+            return true;
         }
 
         protected override async void Execute(object parameter)
@@ -52,11 +47,11 @@ namespace NicoPlayerHohoema.Commands.Mylist
 
             if (parameter is Interfaces.IVideoContent content)
             {
-                await UserMylistManager.AddItem(mylist.Id, content.Id);
+                await mylist.AddItem(content.Id);
             }
             else if (parameter is string videoId)
             {
-                await UserMylistManager.AddItem(mylist.Id, videoId);
+                await mylist.AddItem(videoId);
             }
         }
     }

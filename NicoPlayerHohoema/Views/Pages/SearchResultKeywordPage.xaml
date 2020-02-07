@@ -39,7 +39,21 @@
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
           <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
             <StackPanel >
-              <ListView xmlns:ee="using:NicoPlayerHohoema.Models" SelectionMode="Single" IsItemClickEnabled="True" uwpExtension:ListViewBase.Command="{Binding ChangeSearchTargetCommand}" ItemsSource="{Binding SearchTargets}" SelectedItem="{Binding SelectedSearchTarget.Value, Mode=TwoWay}" Style="{StaticResource BandListViewStyle}" ItemContainerStyle="{StaticResource SimpleListViewItemStyle}" SingleSelectionFollowsFocus="False" HorizontalAlignment="Right">
+              <ListView xmlns:ee="using:NicoPlayerHohoema.Models"
+                        SelectionMode="Single"
+                        IsItemClickEnabled="True"
+                        ItemsSource="{Binding SearchTargets}"
+                        SelectedItem="{Binding SelectedSearchTarget.Value, Mode=TwoWay}"
+                        Style="{StaticResource BandListViewStyle}"
+                        ItemContainerStyle="{StaticResource SimpleListViewItemStyle}"
+                        SingleSelectionFollowsFocus="False"
+                        HorizontalAlignment="Right">
+                <i:Interaction.Behaviors>
+                  <core:EventTriggerBehavior EventName="ItemClick">
+                    <core:InvokeCommandAction Command="{Binding ChangeSearchTargetCommand}"
+                                              InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                  </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
                 <ListView.ItemTemplate>
                   <DataTemplate>
                     <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />

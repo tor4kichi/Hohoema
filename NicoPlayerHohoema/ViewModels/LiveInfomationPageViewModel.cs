@@ -361,9 +361,9 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (await HohoemaDialogService.ShowMessageDialog(
                 $"{liveTitle}",
-                "タイムシフト予約を削除しますか？"
-                , "予約を削除"
-                , "キャンセル"
+                "ConfirmDeleteTimeshift".Translate()
+                , "DeleteTimeshift".Translate()
+                , "Cancel".Translate()
                 )
                 )
             {
@@ -378,7 +378,7 @@ namespace NicoPlayerHohoema.ViewModels
                     var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
                     notificationService.ShowInAppNotification(new InAppNotificationPayload()
                     {
-                        Content = $"タイムシフト予約を削除しました。\r削除後の予約数は {deleteAfterReservations.Count}件 です。",
+                        Content = "InAppNotification_DeletedTimeshift".Translate(),
                         IsShowDismissButton = true,
                     });
                 }
@@ -388,7 +388,7 @@ namespace NicoPlayerHohoema.ViewModels
                     var notificationService = App.Current.Container.Resolve<Services.NotificationService>();
                     notificationService.ShowInAppNotification(new InAppNotificationPayload()
                     {
-                        Content = $"【失敗】タイムシフト予約を削除できませんでした。",
+                        Content = "InAppNotification_FailedDeleteTimeshift".Translate(),
                         IsShowDismissButton = true,
                     });
 
@@ -410,10 +410,10 @@ namespace NicoPlayerHohoema.ViewModels
                 // 予約数が上限到達、他のタイムシフトを削除すれば予約可能
                 // いずれかの予約を削除するよう選択してもらう
                 if (await HohoemaDialogService.ShowMessageDialog(
-                       $"『{result.Data.Overwrite.Title}』を『{liveTitle}』のタイムシフト予約で上書きすると予約できます。\r（他のタイムシフトを削除したい場合はキャンセルしてタイムシフト一覧ページから操作してください。）",
-                       "予約枠に空きがありません。古いタイムシフト予約を上書きしますか？"
-                       , "予約を上書きする"
-                       , "キャンセル"
+                       "Dialog_ConfirmTimeshiftReservationiOverwrite".Translate(result.Data.Overwrite.Title, liveTitle),
+                       "DialogTitle_ConfirmTimeshiftReservationiOverwrite".Translate(),
+                       "Overwrite".Translate(),
+                       "Cancel".Translate()
                     ))
                 {
                     result = await NiconicoSession.Context.Live.ReservationAsync(liveId, isOverwrite: true);
@@ -427,7 +427,7 @@ namespace NicoPlayerHohoema.ViewModels
                 var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
                 notificationService.ShowInAppNotification(new InAppNotificationPayload()
                 {
-                    Content = $"『{liveTitle}』のタイムシフトを予約しました。",
+                    Content = "InAppNotification_AddedTimeshiftWithTitle".Translate(liveTitle),
                 });
 
                 isAdded = true;
@@ -441,7 +441,7 @@ namespace NicoPlayerHohoema.ViewModels
                 var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
                 notificationService.ShowInAppNotification(new InAppNotificationPayload()
                 {
-                    Content = $"指定された放送は既にタイムシフト予約しています。",
+                    Content = "InAppNotification_ExistTimeshift".Translate(),
                 });
             }
             else if (result.IsReservationExpired)
@@ -449,7 +449,7 @@ namespace NicoPlayerHohoema.ViewModels
                 var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
                 notificationService.ShowInAppNotification(new InAppNotificationPayload()
                 {
-                    Content = $"指定された放送はタイムシフト予約の期限を過ぎているため予約できませんでした。",
+                    Content = "InAppNotification_TimeshiftExpired".Translate(),
                 });
             }
 

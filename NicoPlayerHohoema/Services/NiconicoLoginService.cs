@@ -1,4 +1,5 @@
-﻿using Mntone.Nico2;
+﻿using I18NPortable;
+using Mntone.Nico2;
 using NicoPlayerHohoema.Dialogs;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Helpers;
@@ -73,20 +74,17 @@ namespace NicoPlayerHohoema.Services
         {
             var dialog = new Dialogs.NiconicoLoginDialog();
 
-
-
             var currentStatus = await NiconicoSession.CheckSignedInStatus();
             if (currentStatus == Mntone.Nico2.NiconicoSignInStatus.ServiceUnavailable)
             {
-                dialog.WarningText = "【ニコニコサービス利用不可】\nメンテナンス中またはサービス障害が発生しているかもしれません";
+                dialog.WarningText = "UnavailableNiconicoService".Translate();
 
-                // TODO: トースト通知で障害発生中としてブラウザで開くアクションを提示？
+                NotificationService.ShowInAppNotification(new InAppNotificationPayload()
+                {
+                    Content = "UnavailableNiconicoService".Translate(),
+                    ShowDuration = TimeSpan.FromSeconds(10)
+                });
             }
-            if (currentStatus == Mntone.Nico2.NiconicoSignInStatus.TwoFactorAuthRequired)
-            {
-                dialog.WarningText = "二要素認証によるログインが必要です";
-            }
-
 
             var account = await AccountManager.GetPrimaryAccount();
             if (account != null)
@@ -117,7 +115,7 @@ namespace NicoPlayerHohoema.Services
                     // 何か通知を出す？
                     NotificationService.ShowInAppNotification(new InAppNotificationPayload()
                     {
-                        Content = "【ニコニコサービス利用不可】\nサービスがメンテナンス中、また何らかの障害が発生しているかもしれません"
+                        Content = "UnavailableNiconicoService".Translate()
                         , ShowDuration = TimeSpan.FromSeconds(10)
                     });
                     break;
@@ -130,7 +128,7 @@ namespace NicoPlayerHohoema.Services
 
                 if (loginResult == Mntone.Nico2.NiconicoSignInStatus.Failed)
                 {
-                    dialog.WarningText = "メールアドレスかパスワードが違うようです";
+                    dialog.WarningText = "LoginFailed_WrongMailOrPassword".Translate();
                 }
 
                 isLoginSuccess = loginResult == Mntone.Nico2.NiconicoSignInStatus.Success;
@@ -163,7 +161,7 @@ namespace NicoPlayerHohoema.Services
             var currentView = CoreApplication.GetCurrentView();
             if (currentView.IsMain)
             {
-                await _noProcessUIScreenContext.StartNoUIWork("２段階認証を処理しています...",
+                await _noProcessUIScreenContext.StartNoUIWork("NowProcessTwoFactorAuth".Translate(),
                         () => ShowTwoFactorNumberInputDialogAsync(e.HttpRequestMessage.RequestUri, e.Context).AsAsyncAction()
                         );
             }
@@ -189,7 +187,7 @@ namespace NicoPlayerHohoema.Services
             var dialog = new TwoFactorAuthDialog()
             {
                 IsTrustedDevice = true,
-                DeviceName = "Hohoema_UWP"
+                DeviceName = "Hohoema_App"
             };
 
             var result = await dialog.ShowAsync();

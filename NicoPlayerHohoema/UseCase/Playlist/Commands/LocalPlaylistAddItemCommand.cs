@@ -12,22 +12,20 @@ namespace NicoPlayerHohoema.UseCase.Playlist.Commands
     public sealed class LocalPlaylistAddItemCommand : VideoContentSelectionCommandBase
     {
         private readonly LocalPlaylist _playlist;
-        private readonly LocalMylistManager _localMylistManager;
 
-        public LocalPlaylistAddItemCommand(LocalPlaylist playlist, LocalMylistManager localMylistManager)
+        public LocalPlaylistAddItemCommand(LocalPlaylist playlist)
         {
             _playlist = playlist;
-            _localMylistManager = localMylistManager;
         }
 
         protected override void Execute(IVideoContent content)
         {
-            _localMylistManager.AddPlaylistItem(_playlist, content);
+            _playlist.AddPlaylistItem(content);
         }
 
         protected override void Execute(IEnumerable<IVideoContent> items)
         {
-            _localMylistManager.AddPlaylistItem(_playlist, items);
+            _playlist.AddPlaylistItem(items);
         }
     }
 }

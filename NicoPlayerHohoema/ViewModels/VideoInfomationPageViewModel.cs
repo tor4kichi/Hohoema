@@ -238,11 +238,11 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         if (playlist is LocalPlaylist localPlaylist)
                         {
-                            LocalMylistManager.AddPlaylistItem(localPlaylist, VideoInfo);
+                            localPlaylist.AddPlaylistItem(VideoInfo);
                         }
                         else if (playlist is LoginUserMylistPlaylist loginUserMylist)
                         {
-                            _ = UserMylistManager.AddItem(loginUserMylist.Id, VideoInfo.RawVideoId);
+                            _ = loginUserMylist.AddItem(VideoInfo.RawVideoId);
                         }
                     }));
             }

@@ -8,6 +8,7 @@ using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Services.Helpers;
 using NicoPlayerHohoema.Models.Subscription;
 using NicoPlayerHohoema.Services;
+using I18NPortable;
 
 namespace NicoPlayerHohoema.Commands.Subscriptions
 {
@@ -32,7 +33,7 @@ namespace NicoPlayerHohoema.Commands.Subscriptions
 
         protected override async void Execute(object parameter)
         {
-            var groupName = await DialogService.GetTextAsync("SubscriptionGroup_Create".ToCulturelizeString(), "", validater: (s) => !string.IsNullOrWhiteSpace(s));
+            var groupName = await DialogService.GetTextAsync("SubscriptionGroup_Create".Translate(), "", validater: (s) => !string.IsNullOrWhiteSpace(s));
 
             if (groupName == null) { return; }
 

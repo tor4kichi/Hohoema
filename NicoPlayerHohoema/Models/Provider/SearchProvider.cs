@@ -13,11 +13,17 @@ namespace NicoPlayerHohoema.Models.Provider
 {
     public sealed class SearchProvider : ProviderBase
     {
+        private readonly MylistProvider _mylistProvider;
+
         // TODO: タグによる生放送検索を別メソッドに分ける
 
-        public SearchProvider(NiconicoSession niconicoSession)
+        public SearchProvider(
+            NiconicoSession niconicoSession,
+            MylistProvider mylistProvider
+            )
             : base(niconicoSession)
         {
+            _mylistProvider = mylistProvider;
         }
 
 
@@ -116,7 +122,13 @@ namespace NicoPlayerHohoema.Models.Provider
             if (res.MylistGroupItems?.Any() ?? false)
             {
                 var items = res.MylistGroupItems
-                    .Select(x => new MylistPlaylist(x.Id, x.Name, (int)x.ItemCount) { Description = x.Description, UpdateTime = x.UpdateTime })
+                    .Select(x => new MylistPlaylist(x.Id, _mylistProvider) 
+                    {
+                        Label = x.Name,
+                        Count = (int)x.ItemCount,
+                        Description = x.Description, UpdateTime = x.UpdateTime 
+                    }
+                    )
                     .ToList();
 
                 return new MylistSearchResult()

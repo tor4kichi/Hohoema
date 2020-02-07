@@ -62,7 +62,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 new SearchSortOptionListItem()
                 {
-                    Label = "人気が高い順",
+                    Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.MylistPopurarity, Order.Descending),
                     Sort = Sort.MylistPopurarity,
                     Order = Order.Descending,
                 }
@@ -74,7 +74,7 @@ namespace NicoPlayerHohoema.ViewModels
 				//}
 				, new SearchSortOptionListItem()
                 {
-                    Label = "更新が新しい順",
+                    Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.UpdateTime, Order.Descending),
                     Sort = Sort.UpdateTime,
                     Order = Order.Descending,
                 }
@@ -86,7 +86,7 @@ namespace NicoPlayerHohoema.ViewModels
 				//}
 				, new SearchSortOptionListItem()
                 {
-                    Label = "動画数が多い順",
+                    Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.VideoCount, Order.Descending),
                     Sort = Sort.VideoCount,
                     Order = Order.Descending,
                 }
@@ -98,7 +98,7 @@ namespace NicoPlayerHohoema.ViewModels
                 //}
                 , new SearchSortOptionListItem()
                 {
-                    Label = "適合率が高い順",
+                    Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.Relation, Order.Descending),
                     Sort = Sort.Relation,
                     Order = Order.Descending,
                 }

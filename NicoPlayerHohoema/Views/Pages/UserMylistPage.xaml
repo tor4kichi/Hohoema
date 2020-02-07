@@ -29,7 +29,20 @@
   <Grid>
     
     <Grid x:Name="ContentLayout">
-      <GridView x:Name="ContentItemsView" ItemsSource="{Binding ItemsView}" uwpui:ListViewBase.Command="{Binding PageManager.OpenPageCommand}" IsItemClickEnabled="True" SelectionMode="None" Padding="8 0 8 24" IncrementalLoadingTrigger="Edge" IncrementalLoadingThreshold="80" xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions">
+      <GridView x:Name="ContentItemsView"
+                ItemsSource="{Binding ItemsView}"
+                IsItemClickEnabled="True"
+                SelectionMode="None"
+                Padding="8 0 8 24"
+                IncrementalLoadingTrigger="Edge"
+                IncrementalLoadingThreshold="80"
+                xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions">
+        <i:Interaction.Behaviors>
+          <core:EventTriggerBehavior EventName="ItemClick">
+            <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+                                      InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+          </core:EventTriggerBehavior>
+        </i:Interaction.Behaviors>
         <myExtensions:ListViewBase.ItemContextFlyoutTemplate>
           <DataTemplate>
             <flyouts:MylistItemFlyout />
@@ -63,8 +76,8 @@
                 <AppBarButton Background="Transparent" Label="追加" Icon="Add" Visibility="Collapsed" x:Name="LoginUserMylistActions">
                   <AppBarButton.Flyout>
                     <MenuFlyout>
-                      <MenuFlyoutItem Text="ローカルマイリストを作成" Command="{Binding AddLocalMylistCommand}" />
-                      <MenuFlyoutItem Text="マイリストを作成" Command="{Binding AddMylistGroupCommand}" />
+                      <MenuFlyoutItem Text="{Binding Source=LocalPlaylistCreate, Converter={StaticResource LocalizeConverter}}" Command="{Binding CreateLocalMylistCommand}" />
+                      <MenuFlyoutItem Text="{Binding Source=MylistCreate, Converter={StaticResource LocalizeConverter}}" Command="{Binding AddMylistGroupCommand}" />
                     </MenuFlyout>
                   </AppBarButton.Flyout>
                 </AppBarButton>

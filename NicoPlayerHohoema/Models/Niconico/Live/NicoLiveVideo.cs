@@ -1,4 +1,5 @@
-﻿using Mntone.Nico2;
+﻿using I18NPortable;
+using Mntone.Nico2;
 using Mntone.Nico2.Live;
 using Mntone.Nico2.Live.Video;
 using Mntone.Nico2.Videos.Comment;
@@ -421,15 +422,15 @@ namespace NicoPlayerHohoema.Models.Live
                 if (outdatedTime > _TimeshiftProgram.ExpiredAt)
                 {
                     outdatedTime = _TimeshiftProgram.ExpiredAt.LocalDateTime;
-                    desc = $"この放送のタイムシフト視聴を開始しますか？\r公開期限内に限って繰り返し視聴できます。\r\r公開期限：{_TimeshiftProgram.ExpiredAt.ToString("g")}";
+                    desc = "Dialog_ConfirmTimeshiftWatch_WatchLimitByDate".Translate(_TimeshiftProgram.ExpiredAt.ToString("g"));
                 }
                 else
                 {
-                    desc = $"この放送のタイムシフト視聴を開始しますか？\r視聴開始を起点に視聴期限が設定されます。視聴期限内に限って繰り返し視聴できます。\r\r推定視聴期限：{outdatedTime.Value.ToString("g")}";
+                    desc = "Dialog_ConfirmTimeshiftWatch_WatchLimitByDuration".Translate(outdatedTime.Value.ToString("g"));
                 }
                 var result = await dialog.ShowMessageDialog(
                     desc
-                    , _TimeshiftProgram.Title, "視聴する", "キャンセル"
+                    , _TimeshiftProgram.Title, "WatchLiveStreaming".Translate(), "Cancel".Translate()
                     );
 
                 if (result)
@@ -460,8 +461,8 @@ namespace NicoPlayerHohoema.Models.Live
                 FailedOpenLive?.Invoke(this, new FailedOpenLiveEventArgs()
                 {
                     Exception = ex,
-                    Message = "サービスからの応答がありません"
-                });
+                    Message = "FailedWatchLive".Translate()
+                }) ;
 
                 LiveStatus = StatusType.Invalid;
             }

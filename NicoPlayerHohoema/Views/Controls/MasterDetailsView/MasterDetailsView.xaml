@@ -51,7 +51,7 @@
                                           ItemsSource="{TemplateBinding ItemsSource}"
                                           SelectedItem="{Binding SelectedItem, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
                                           SingleSelectionFollowsFocus="False"
-                                          uwpExtensions:ListViewBase.AlternateColor="#197F7F7F"
+                                          uwpExtensions:ListViewExtensions.AlternateColor="#197F7F7F"
                                           >
                                 </ListView>
                                 <Grid x:Name="MasterCommandBarPanel" Grid.Row="2"></Grid>

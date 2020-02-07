@@ -281,12 +281,12 @@ namespace NicoPlayerHohoema.Services
 
                 await SecondaryCoreAppView.ExecuteOnUIThreadAsync(async () =>
                 {
-                    SecondaryCoreAppView.CoreWindow.Activate();
+                    await ApplicationViewSwitcher.TryShowAsStandaloneAsync(this.SecondaryAppView.Id);
 
                     await SecondaryViewPlayerNavigationService.NavigateAsync(pageName, parameters, new DrillInNavigationTransitionInfo());
                 });
 
-                await ShowSecondaryViewAsync();
+//                await ShowSecondaryViewAsync();
 
                 IsShowSecondaryView = true;
             }

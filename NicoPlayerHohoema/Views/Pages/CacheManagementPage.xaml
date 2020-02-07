@@ -93,7 +93,6 @@
     <Grid x:Name="RequireChangeCacheFolderLayout" Visibility="Collapsed">
       <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="8">
         <TextBlock Text="{Binding Source=RequirePickFolderToUsingVieoCacheInHohoema, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" />
-
         <Button x:Name="UpdateCacheSaveFolderButton" 
                 Command="{Binding ChangeCacheFolderCommand}"
                 Content="{Binding Source=PickCacheSaveFolder, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"

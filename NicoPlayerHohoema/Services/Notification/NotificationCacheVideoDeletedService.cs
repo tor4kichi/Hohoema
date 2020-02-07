@@ -1,4 +1,5 @@
-﻿using Prism.Events;
+﻿using I18NPortable;
+using Prism.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,8 +36,8 @@ namespace NicoPlayerHohoema.Services.Notification
 
                     if (deletedCount > 0)
                     {
-                        NotificationService.ShowToast("動画削除：" + videoInfo.RawVideoId
-                            , $"『{videoInfo?.Title ?? videoInfo.RawVideoId}』 はニコニコ動画サーバーから削除されたため、キャッシュを強制削除しました。"
+                        NotificationService.ShowToast("ToastNotification_VideoDeletedWithId".Translate(videoInfo.RawVideoId)
+                            , "ToastNotification_ExplainVideoForceDeletion".Translate(videoInfo?.Title ?? videoInfo.RawVideoId)
                             , Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long
                             );
                     }

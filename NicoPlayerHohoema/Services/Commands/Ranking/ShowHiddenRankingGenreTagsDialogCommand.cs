@@ -9,6 +9,7 @@ using Mntone.Nico2.Videos.Ranking;
 using NicoPlayerHohoema.Models;
 using Prism.Events;
 using NicoPlayerHohoema.Services.Helpers;
+using I18NPortable;
 
 namespace NicoPlayerHohoema.Services.Commands.Ranking
 {
@@ -55,12 +56,16 @@ namespace NicoPlayerHohoema.Services.Commands.Ranking
             _ = rankingSettings.Save();
 
             var items = Enumerable.Concat(
-                rankingSettings.HiddenGenres.Select(x => new HiddenGenreItem() { Label = x.ToCulturelizeString(), Genre = x }),
-                rankingSettings.HiddenTags.Select(x => new HiddenGenreItem() { Label = $"{x.Label} - {x.Genre.ToCulturelizeString()}" , Tag = x.Tag, Genre = x.Genre })
+                rankingSettings.HiddenGenres.Select(x => new HiddenGenreItem() { Label = x.Translate(), Genre = x }),
+                rankingSettings.HiddenTags.Select(x => new HiddenGenreItem() { Label = $"{x.Label} - {x.Genre.Translate()}" , Tag = x.Tag, Genre = x.Genre })
                 )
                 .ToArray();
 
-            var result = await dialogService.ShowMultiChoiceDialogAsync<HiddenGenreItem>("再表示するジャンルやタグの指定", items, Enumerable.Empty<HiddenGenreItem>(), nameof(HiddenGenreItem.Label));
+            var result = await dialogService.ShowMultiChoiceDialogAsync<HiddenGenreItem>(
+                "SelectDisplayRankingGenreOrTag".Translate(), 
+                items, Enumerable.Empty<HiddenGenreItem>(),
+                nameof(HiddenGenreItem.Label)
+                );
 
             var genreShowRequestEvent = eventAggregator.GetEvent<Events.RankingGenreShowRequestedEvent>();
             foreach (var showGenreOrTag in result ?? Enumerable.Empty<HiddenGenreItem>())

@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Models;
+﻿using I18NPortable;
+using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Repository.Playlist;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.UseCase.Playlist;
@@ -41,12 +42,12 @@ namespace NicoPlayerHohoema.UseCase.Playlist.Commands
                 var targetMylist = await _playlistSelectDialogService.ChoiceMylist();
                 if (targetMylist is LocalPlaylist localPlaylist)
                 {
-                    _localMylistManager.AddPlaylistItem(localPlaylist, content);
+                    localPlaylist.AddPlaylistItem(content);
                     result = Mntone.Nico2.ContentManageResult.Success;
                 }
                 else if (targetMylist is LoginUserMylistPlaylist loginUserMylist)
                 {
-                    var addedResult = await _userMylistManager.AddItem(loginUserMylist.Id, content.Id);
+                    var addedResult = await loginUserMylist.AddItem(content.Id);
                     result = addedResult.SuccessedItems.Count > 0 ? Mntone.Nico2.ContentManageResult.Success : Mntone.Nico2.ContentManageResult.Failed;
                 }
 
@@ -55,7 +56,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist.Commands
                     NotificationService.ShowInAppNotification(
                             Services.InAppNotificationPayload.CreateRegistrationResultNotification(
                                 result,
-                                "マイリスト",
+                                "Mylist".Translate(),
                                 targetMylist.Label,
                                 content.Label
                                 ));

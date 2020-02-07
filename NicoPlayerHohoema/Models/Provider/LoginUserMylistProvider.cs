@@ -1,4 +1,5 @@
-﻿using Mntone.Nico2;
+﻿using I18NPortable;
+using Mntone.Nico2;
 using Mntone.Nico2.Mylist;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Repository.Playlist;
@@ -35,7 +36,12 @@ namespace NicoPlayerHohoema.Models.Provider
 
             // TODO: とりあえずマイリストのSortやOrderの取得
 
-            return new LoginUserMylistPlaylist(MylistPlaylistExtension.DefailtMylistId, "とりあえずマイリスト", defMylist.Count) { UserId = NiconicoSession.UserIdString };
+            return new LoginUserMylistPlaylist(MylistPlaylistExtension.DefailtMylistId, this) 
+            {
+                Label = "DefaultMylist".Translate(),
+                Count = defMylist.Count,
+                UserId = NiconicoSession.UserIdString 
+            };
         }
 
         public async Task<List<LoginUserMylistPlaylist>> GetLoginUserMylistGroups()
@@ -58,8 +64,10 @@ namespace NicoPlayerHohoema.Models.Provider
 
             foreach (var mylistGroup in res ?? Enumerable.Empty<LoginUserMylistGroup>())
             {
-                var mylist = new LoginUserMylistPlaylist(mylistGroup.Id, mylistGroup.Name, mylistGroup.Count)
+                var mylist = new LoginUserMylistPlaylist(mylistGroup.Id, this)
                 {
+                    Label = mylistGroup.Name,
+                    Count = mylistGroup.Count,
                     UserId = mylistGroup.UserId,
                     Description = mylistGroup.Description,
                     IsPublic = mylistGroup.GetIsPublic(),

@@ -70,6 +70,7 @@ namespace NicoPlayerHohoema.ViewModels
                 }
                 oldItems.BeginLoading -= BeginLoadingItems;
                 oldItems.DoneLoading -= CompleteLoadingItems;
+                oldItems.Dispose();
             }
         }
 
@@ -78,8 +79,6 @@ namespace NicoPlayerHohoema.ViewModels
             var navigationMode = parameters.GetNavigationMode();
             if (navigationMode == NavigationMode.New || navigationMode == NavigationMode.Refresh)
             {
-                ItemsView = null;
-                RaisePropertyChanged(nameof(ItemsView));
             }
 
             base.OnNavigatingTo(parameters);
@@ -88,8 +87,7 @@ namespace NicoPlayerHohoema.ViewModels
         public virtual async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             var navigationMode = parameters.GetNavigationMode();
-            if (ItemsView == null
-                || CheckNeedUpdateOnNavigateTo(navigationMode))
+            if (CheckNeedUpdateOnNavigateTo(navigationMode))
             {
                 await ResetList();
             }
@@ -112,7 +110,7 @@ namespace NicoPlayerHohoema.ViewModels
                 HasItem.Value = true;
                 LoadedItemsCount.Value = 0;
 
-                if (ItemsView?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
+                if (ItemsView.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
                 {
                     if (oldItems.Source is HohoemaIncrementalSourceBase<ITEM_VM> hohoemaIncrementalSource)
                     {
@@ -120,6 +118,8 @@ namespace NicoPlayerHohoema.ViewModels
                     }
                     oldItems.BeginLoading -= BeginLoadingItems;
                     oldItems.DoneLoading -= CompleteLoadingItems;
+                    oldItems.Dispose();
+                    ItemsView.Source = new List<ITEM_VM>();
                 }
 
                 try
@@ -134,10 +134,10 @@ namespace NicoPlayerHohoema.ViewModels
 
                     MaxItemsCount.Value = await source.ResetSource();
 
-                    _scheduler.Schedule(() =>
+                    _scheduler.Schedule(async () =>
                     {
                         var items = new IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>(source);
-
+                        
                         items.BeginLoading += BeginLoadingItems;
                         items.DoneLoading += CompleteLoadingItems;
 
@@ -146,8 +146,14 @@ namespace NicoPlayerHohoema.ViewModels
                             (items.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error += HohoemaIncrementalSource_Error;
                         }
 
-                        ItemsView = new AdvancedCollectionView(items);
+                        ItemsView.Source = items;
+                        var acv = ItemsView;
+                        ItemsView = null;
                         RaisePropertyChanged(nameof(ItemsView));
+                        ItemsView = acv;
+                        RaisePropertyChanged(nameof(ItemsView));
+
+                        //await ItemsView.LoadMoreItemsAsync(items.Source.OneTimeLoadCount);
 
                         PostResetList();
                     });
@@ -177,7 +183,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			NowLoading.Value = false;
 
-			LoadedItemsCount.Value = ItemsView?.Count ?? 0;
+			LoadedItemsCount.Value = ItemsView.Count;
 			HasItem.Value = LoadedItemsCount.Value > 0;
         }
 

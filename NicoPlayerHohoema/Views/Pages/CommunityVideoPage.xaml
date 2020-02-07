@@ -1,10 +1,20 @@
 ﻿<Page x:Class="NicoPlayerHohoema.Views.CommunityVideoPage" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="using:NicoPlayerHohoema.Views" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:i="using:Microsoft.Xaml.Interactivity" xmlns:core="using:Microsoft.Xaml.Interactions.Core" xmlns:toolkit="using:WinRTXamlToolkit.Controls" xmlns:mvvm="using:Prism.Mvvm" xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors" xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions" xmlns:controls="using:NicoPlayerHohoema.Views.Controls" xmlns:iconPack="using:MahApps.Metro.IconPacks" xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls" xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions" xmlns:actions="using:NicoPlayerHohoema.Views.Actions" xmlns:windowsStateTriggers="using:WindowsStateTriggers" DataContext="{x:Null}" NavigationCacheMode="Enabled" mc:Ignorable="d">
   <Grid>
-    
-    <uwpcontrols:PullToRefreshListView x:Name="ItemsList" ItemsSource="{Binding ItemsView, Mode=OneWay}" RefreshCommand="{Binding RefreshCommand}" IsItemClickEnabled="True" IncrementalLoadingTrigger="Edge" PullThreshold="85" UseSystemFocusVisuals="True" SelectionMode="None" HorizontalContentAlignment="Stretch" uwpExtension:ListViewBase.Command="{Binding HohoemaPlaylist.PlayCommand}" ItemContainerStyle="{StaticResource VideoListViewItemStyle}" uwpExtension:ScrollViewerEx.VerticalScrollBarMargin="0 48 0 0" xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions" myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}">
-      <uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
+
+    <ListView x:Name="ItemsList"
+              ItemsSource="{Binding ItemsView, Mode=OneWay}"
+              IsItemClickEnabled="True"
+              IncrementalLoadingTrigger="Edge"
+              UseSystemFocusVisuals="True"
+              SelectionMode="None"
+              HorizontalContentAlignment="Stretch"
+              ItemContainerStyle="{StaticResource VideoListViewItemStyle}"
+              uwpExtension:ScrollViewerExtensions.VerticalScrollBarMargin="0 48 0 0"
+              xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
+              myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}">
+      <ListView.ItemContainerTransitions>
         <TransitionCollection></TransitionCollection>
-      </uwpcontrols:PullToRefreshListView.ItemContainerTransitions>
+      </ListView.ItemContainerTransitions>
       <i:Interaction.Behaviors>
         <mybehavior:KeyboardTrigger Key="F5">
           <mybehavior:KeyboardTrigger.Actions>
@@ -15,6 +25,10 @@
         <core:DataTriggerBehavior Binding="{Binding IncrementalLoadingItems, Mode=OneWay}" ComparisonCondition="NotEqual" Value="{x:Null}">
           <actions:ScrollViewerVerticalPositionSettingsAction Target="{x:Bind ItemsList}" VerticalOffset="{Binding ScrollPosition.Value}" WithAnimation="False" Delay="0:0:0.001" />
         </core:DataTriggerBehavior>
+        <core:EventTriggerBehavior EventName="ItemClick">
+          <core:InvokeCommandAction Command="{Binding HohoemaPlaylist.PlayCommand}"
+                                    InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+        </core:EventTriggerBehavior>
       </i:Interaction.Behaviors>
       <ListView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
@@ -23,7 +37,7 @@
               <StackPanel>
                 <CommandBar x:Name="TopCommandBar">
                   <CommandBar.PrimaryCommands>
-                    <AppBarButton x:Name="ScrollToTopButton" Label="トップへ戻る" Icon="Up">
+                    <AppBarButton x:Name="ScrollToTopButton" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Up">
                       <i:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Click">
                           <actions:ScrollViewerVerticalPositionSettingsAction Target="{Binding ElementName=ItemsList}" VerticalOffset="0.0" />
@@ -48,7 +62,7 @@
           </Grid>
         </DataTemplate>
       </ListView.ItemTemplate>
-    </uwpcontrols:PullToRefreshListView>
+    </ListView>
     <VisualStateManager.VisualStateGroups>
       <!-- レイアウトモード -->
       <VisualStateGroup>
