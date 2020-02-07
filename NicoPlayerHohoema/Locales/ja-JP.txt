@@ -636,6 +636,10 @@ CompleteRegisrationForKind0_AddItem2_ToKindTitle1 = {0}に登録完了\n「{1}�
 ExistRegisrationForKind0_AddItem2_ToKindTitle1 = {0}に既に追加済み\n「{1}」に「{2}」を追加済みです
 FailedRegisrationForKind0_AddItem2_ToKindTitle1 = {0}に登録失敗\n「{1}」に「{2}」を追加できませんでした
 
+InAppNotification_MylistAddedItems_Success = {0} に {1} 個の動画を追加しました
+InAppNotification_MylistAddedItems_Fail = {0} への追加に失敗
+InAppNotification_MylistRemovedItems_Success = {0} から {1} 個の動画を削除しました
+InAppNotification_MylistRemovedItems_Fail = {0} からの削除に失敗
 
 ## Edit Mylist
 MylistName = マイリスト名
