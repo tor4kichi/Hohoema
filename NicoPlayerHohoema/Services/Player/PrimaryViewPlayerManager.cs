@@ -74,12 +74,39 @@ namespace NicoPlayerHohoema.Services.Player
                     {
                         DisplayMode = PrimaryPlayerDisplayMode.Close;
                     }
+                    else
+                    {
+                        var name = ResolveContentName(pageName, parameters);
+                        _view.Title = name != null ? $"{name}" : "Hohoema";
+                    }
                 }
             });
 
             await Task.Delay(50);
 
             using (await _navigationLock.LockAsync()) { }
+        }
+
+        string ResolveContentName(string pageName, INavigationParameters parameters)
+        {
+            if (pageName == nameof(Views.VideoPlayerPage))
+            {
+                if (parameters.TryGetValue("id", out string videoId))
+                {
+                    var videoData = Database.NicoVideoDb.Get(videoId);
+                    return videoData.Title;
+                }
+            }
+            else if (pageName == nameof(Views.LivePlayerPage))
+            {
+                if (parameters.TryGetValue("id", out string liveId))
+                {
+                    var liveData = Database.NicoLiveDb.Get(liveId);
+                    return liveData.Title;
+                }
+            }
+
+            return null;
         }
 
         PrimaryPlayerDisplayMode _lastPlayedDisplayMode = PrimaryPlayerDisplayMode.Fill;
@@ -96,6 +123,7 @@ namespace NicoPlayerHohoema.Services.Player
         {
             _lastPlayedDisplayMode = DisplayMode == PrimaryPlayerDisplayMode.Close ? _lastPlayedDisplayMode : DisplayMode;
             DisplayMode = PrimaryPlayerDisplayMode.Close;
+            _view.Title = "";
         }
 
         public void ShowWithFill()

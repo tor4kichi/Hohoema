@@ -281,15 +281,43 @@ namespace NicoPlayerHohoema.Services
 
                 await SecondaryCoreAppView.ExecuteOnUIThreadAsync(async () =>
                 {
-                    await ApplicationViewSwitcher.TryShowAsStandaloneAsync(this.SecondaryAppView.Id);
+                    var result = await SecondaryViewPlayerNavigationService.NavigateAsync(pageName, parameters, new DrillInNavigationTransitionInfo());
+                    if (result.Success)
+                    {
+                        var name = ResolveContentName(pageName, parameters);
+                        SecondaryAppView.Title = name != null ? $"{name}" : "Hohoema";
+                    }
 
-                    await SecondaryViewPlayerNavigationService.NavigateAsync(pageName, parameters, new DrillInNavigationTransitionInfo());
+                    await ApplicationViewSwitcher.TryShowAsStandaloneAsync(this.SecondaryAppView.Id);
                 });
 
 //                await ShowSecondaryViewAsync();
 
                 IsShowSecondaryView = true;
             }
+        }
+
+
+        string ResolveContentName(string pageName, INavigationParameters parameters)
+        {
+            if (pageName == nameof(Views.VideoPlayerPage))
+            {
+                if (parameters.TryGetValue("id", out string videoId))
+                {
+                    var videoData = Database.NicoVideoDb.Get(videoId);
+                    return videoData.Title;
+                }
+            }
+            else if (pageName == nameof(Views.LivePlayerPage))
+            {
+                if (parameters.TryGetValue("id", out string liveId))
+                {
+                    var liveData = Database.NicoLiveDb.Get(liveId);
+                    return liveData.Title;
+                }
+            }
+
+            return null;
         }
 
         /// <summary>
@@ -302,6 +330,8 @@ namespace NicoPlayerHohoema.Services
 
             await SecondaryCoreAppView.ExecuteOnUIThreadAsync(async () =>
             {
+                SecondaryAppView.Title = "Hohoema";
+
                 await ShowMainViewAsync();
 
                 await SecondaryViewPlayerNavigationService.NavigateAsync(nameof(Views.BlankPage), new SuppressNavigationTransitionInfo());
