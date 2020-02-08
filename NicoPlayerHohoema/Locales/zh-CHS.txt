@@ -33,6 +33,7 @@ ConfirmDeleteX_ImpossibleReDo = 您确定要删除{0}吗？ （更改无法撤�
 Submit = 提交
 Done = 完成
 Select = 请选择
+WatchVideo = 观看
 
 
 #### Hohoema App ####
@@ -129,6 +130,7 @@ CancelCacheAndPlay = 停止缓存并观看
 SubscriptionGroup_Create = 创建订阅组
 SubscriptionGroupCreate_Flyout_Title = 订阅组名称
 SubscriptionsEmptyNotice = 订阅功能可以自动检查新视频。创建订阅组，用户和搜索关键字并在订阅组中注册时，它会定期（每15分钟）巡逻一次，并将新项目添加到播放列表中，例如“稍后观看”。
+
 SubscriptionAddUser = 将作者添加到订阅
 SubscriptionAddMylist = 将我的列表添加到订阅
 SubscriptionAddKeyword = 将关键字添加到订阅
@@ -138,14 +140,20 @@ AutoUpdateToggleButtonTitle = 自动更新
 SelectSubscriptionGroup = 选择要添加的订阅
 SubscriptionGroup_Delete = 删除订阅组
 
-InAppNotification_AddItem1_ToSubsc0 = 在订阅“ {0}”中添加了“ {1）”
-InAppNotification_RemoveItem1_FromSubsc0 = 从订阅“ {0}”中删除“ {1）”
+InAppNotification_AddItem1_ToSubsc0 = 在订阅“ {0}”中添加了“ {1}”
+InAppNotification_RemoveItem1_FromSubsc0 = 从订阅“ {0}”中删除“ {1}”
 
 ExcludeKeywordSettings = 排除标题设置
 ExcludeKeywordOnVideoTitle = 排除的视频标题关键字
 UseRegularExpression = 使用正则表达式
 AutoRefresh = 自动更新
 AddToPlaylist = 目标播放列表
+
+SubscriptionSourceType.User = 用户名
+SubscriptionSourceType.Channel = 频道
+SubscriptionSourceType.Mylist = Mylist
+SubscriptionSourceType.TagSearch = 标签搜寻
+SubscriptionSourceType.KeywordSearch = 关键字搜寻
 
 
 #### Settings ####

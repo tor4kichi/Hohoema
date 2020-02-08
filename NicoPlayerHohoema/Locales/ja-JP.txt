@@ -33,7 +33,7 @@ ConfirmDeleteX_ImpossibleReDo = {0}を削除してもよろしいですか？（
 Submit = 送信
 Done = 完了
 Select = 選択
-
+WatchVideo = 視聴する
 
 #### Hohoema App ####
 HohoemaAppServiceLevel.Offline = オフライン
@@ -129,6 +129,7 @@ CancelCacheAndPlay = キャッシュを中止して視聴する
 SubscriptionGroup_Create = 購読グループを作成
 SubscriptionGroupCreate_Flyout_Title = 購読グループ名
 SubscriptionsEmptyNotice = 購読は新着動画のチェックを自動化できる機能です。購読グループを作成して、購読グループにユーザーや検索キーワードや登録すると、定期的（15分毎）に自動巡回して新着があれば「あとで見る」などのプレイリストに追加してくれます。
+SubscriptionAdd = 購読追加
 SubscriptionAddUser = 投稿者を購読に追加
 SubscriptionAddMylist = マイリストを購読に追加
 SubscriptionAddKeyword = キーワードを購読に追加
@@ -138,14 +139,23 @@ AutoUpdateToggleButtonTitle = 自動更新
 SelectSubscriptionGroup = 追加先の購読を選択
 SubscriptionGroup_Delete = 購読グループを削除
 
-InAppNotification_AddItem1_ToSubsc0 = 購読「{0}」に「{1)」を追加
-InAppNotification_RemoveItem1_FromSubsc0 = 購読「{0}」から「{1)」を削除
+InAppNotification_AddItem1_ToSubsc0 = 購読「{0}」に「{1}」を追加
+InAppNotification_RemoveItem1_FromSubsc0 = 購読「{0}」から「{1}」を削除
 
 ExcludeKeywordSettings = 除外タイトル設定
 ExcludeKeywordOnVideoTitle = 除外する動画タイトルのキーワード
 UseRegularExpression = 正規表現を使う
 AutoRefresh = 自動更新
 AddToPlaylist = 追加先プレイリスト
+
+SubscriptionSettings = 購読設定
+SubscriptionSourceType.User = ユーザー
+SubscriptionSourceType.Channel = チャンネル
+SubscriptionSourceType.Mylist = マイリスト
+SubscriptionSourceType.TagSearch = タグ検索
+SubscriptionSourceType.KeywordSearch = キーワード検索
+
+InAppNotification_AddItemToSubscription = 『{0}』に新着動画を追加
 
 
 #### Settings ####

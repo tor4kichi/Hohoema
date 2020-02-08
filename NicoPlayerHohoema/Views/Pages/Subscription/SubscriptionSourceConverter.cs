@@ -14,6 +14,29 @@ namespace NicoPlayerHohoema.Views.Subscriptions
         {
             switch (value)
             {
+                case Interfaces.IVideoContent video:
+
+                    var ownerInfo = Database.NicoVideoOwnerDb.Get(video.ProviderId);
+                    if (ownerInfo != null)
+                    {
+                        if (ownerInfo.UserType == NicoVideoUserType.User)
+                        {
+                            return new Models.Subscription.SubscriptionSource(
+                                ownerInfo.ScreenName,
+                                Models.Subscription.SubscriptionSourceType.User,
+                                ownerInfo.OwnerId
+                                );
+                        }
+                        else if (ownerInfo.UserType == NicoVideoUserType.Channel)
+                        {
+                            return new Models.Subscription.SubscriptionSource(
+                                ownerInfo.ScreenName,
+                                Models.Subscription.SubscriptionSourceType.Channel,
+                                ownerInfo.OwnerId
+                                );
+                        }
+                    }
+                    break;
                 case Interfaces.IUser user:
                     return new Models.Subscription.SubscriptionSource(
                         user.Label,

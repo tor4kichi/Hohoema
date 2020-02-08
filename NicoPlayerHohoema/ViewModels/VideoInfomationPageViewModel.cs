@@ -31,6 +31,7 @@ using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using NicoPlayerHohoema.UseCase;
 using Windows.UI.Xaml;
+using NicoPlayerHohoema.Models.Subscription;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -61,6 +62,7 @@ namespace NicoPlayerHohoema.ViewModels
             NicoVideoProvider nicoVideoProvider,
             LoginUserMylistProvider loginUserMylistProvider,
             VideoCacheManager videoCacheManager,
+            SubscriptionManager subscriptionManager,
             Models.NicoVideoSessionProvider nicoVideo,
             Services.PageManager pageManager,
             Services.NotificationService notificationService,
@@ -79,6 +81,7 @@ namespace NicoPlayerHohoema.ViewModels
             NicoVideoProvider = nicoVideoProvider;
             LoginUserMylistProvider = loginUserMylistProvider;
             VideoCacheManager = videoCacheManager;
+            SubscriptionManager = subscriptionManager;
             NicoVideo = nicoVideo;
             PageManager = pageManager;
             NotificationService = notificationService;
@@ -281,6 +284,7 @@ namespace NicoPlayerHohoema.ViewModels
         public NicoVideoProvider NicoVideoProvider { get; }
         public LoginUserMylistProvider LoginUserMylistProvider { get; }
         public VideoCacheManager VideoCacheManager { get; }
+        public SubscriptionManager SubscriptionManager { get; }
         public PageManager PageManager { get; }
         public Services.DialogService DialogService { get; }
         public Services.ExternalAccessService ExternalAccessService { get; }
