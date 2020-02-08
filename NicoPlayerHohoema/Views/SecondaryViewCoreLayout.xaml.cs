@@ -35,24 +35,24 @@ namespace NicoPlayerHohoema.Views
                 {
                     ThemeChanged(theme);
                 });
+
         }
+
+        string _uiTheme;
 
         void ThemeChanged(ElementTheme theme)
         {
-            this.RequestedTheme = theme;
-
             ApplicationTheme appTheme;
             if (theme == ElementTheme.Default)
             {
-                var DefaultTheme = new Windows.UI.ViewManagement.UISettings();
-                var uiTheme = DefaultTheme.GetColorValue(Windows.UI.ViewManagement.UIColorType.Background).ToString();
-                if (uiTheme == "#FF000000")
+                appTheme = Helpers.SystemThemeHelper.GetSystemTheme();
+                if (appTheme == ApplicationTheme.Dark)
                 {
-                    appTheme = ApplicationTheme.Dark;
+                    theme = ElementTheme.Dark;
                 }
                 else
                 {
-                    appTheme = ApplicationTheme.Light;
+                    theme = ElementTheme.Light;
                 }
             }
             else if (theme == ElementTheme.Dark)
@@ -63,6 +63,8 @@ namespace NicoPlayerHohoema.Views
             {
                 appTheme = ApplicationTheme.Light;
             }
+
+            this.RequestedTheme = theme;
 
             var appView = ApplicationView.GetForCurrentView();
             if (appTheme == ApplicationTheme.Light)

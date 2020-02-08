@@ -89,6 +89,8 @@ namespace NicoPlayerHohoema.ViewModels
             var navigationMode = parameters.GetNavigationMode();
             if (CheckNeedUpdateOnNavigateTo(navigationMode))
             {
+                ItemsView = null;
+                RaisePropertyChanged(nameof(ItemsView));
                 await ResetList();
             }
         }
@@ -98,19 +100,14 @@ namespace NicoPlayerHohoema.ViewModels
             base.OnNavigatedFrom(parameters);
         }
 
-
-
-        protected async Task ResetList()
-		{
-            await Task.CompletedTask;
-
-            
+        private async Task ResetList_Internal()
+        {
             using (var releaser = await _ItemsUpdateLock.LockAsync())
             {
                 HasItem.Value = true;
                 LoadedItemsCount.Value = 0;
 
-                if (ItemsView.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
+                if (ItemsView?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
                 {
                     if (oldItems.Source is HohoemaIncrementalSourceBase<ITEM_VM> hohoemaIncrementalSource)
                     {
@@ -119,7 +116,6 @@ namespace NicoPlayerHohoema.ViewModels
                     oldItems.BeginLoading -= BeginLoadingItems;
                     oldItems.DoneLoading -= CompleteLoadingItems;
                     oldItems.Dispose();
-                    ItemsView.Source = new List<ITEM_VM>();
                 }
 
                 try
@@ -134,29 +130,22 @@ namespace NicoPlayerHohoema.ViewModels
 
                     MaxItemsCount.Value = await source.ResetSource();
 
-                    _scheduler.Schedule(async () =>
+                    var items = new IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>(source);
+
+                    items.BeginLoading += BeginLoadingItems;
+                    items.DoneLoading += CompleteLoadingItems;
+
+                    if (items.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
                     {
-                        var items = new IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM>(source);
-                        
-                        items.BeginLoading += BeginLoadingItems;
-                        items.DoneLoading += CompleteLoadingItems;
+                        (items.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error += HohoemaIncrementalSource_Error;
+                    }
 
-                        if (items.Source is HohoemaIncrementalSourceBase<ITEM_VM>)
-                        {
-                            (items.Source as HohoemaIncrementalSourceBase<ITEM_VM>).Error += HohoemaIncrementalSource_Error;
-                        }
+                    ItemsView = new AdvancedCollectionView(items);
+                    RaisePropertyChanged(nameof(ItemsView));
 
-                        ItemsView.Source = items;
-                        var acv = ItemsView;
-                        ItemsView = null;
-                        RaisePropertyChanged(nameof(ItemsView));
-                        ItemsView = acv;
-                        RaisePropertyChanged(nameof(ItemsView));
+                    //await ItemsView.LoadMoreItemsAsync(items.Source.OneTimeLoadCount);
 
-                        //await ItemsView.LoadMoreItemsAsync(items.Source.OneTimeLoadCount);
-
-                        PostResetList();
-                    });
+                    PostResetList();
                 }
                 catch
                 {
@@ -165,8 +154,19 @@ namespace NicoPlayerHohoema.ViewModels
                     Debug.WriteLine("failed GenerateIncrementalSource.");
                 }
             }
+        }
+
+        protected async Task ResetList()
+        {
+            TaskCompletionSource<int> tcs = new TaskCompletionSource<int>();
+            _scheduler.ScheduleAsync(async (_ , __) =>
+            {
+                await ResetList_Internal();
+                tcs.SetResult(0);
+            });
             
-		}
+            await tcs.Task;
+        }
 
 		private void HohoemaIncrementalSource_Error()
 		{
@@ -183,7 +183,7 @@ namespace NicoPlayerHohoema.ViewModels
 		{
 			NowLoading.Value = false;
 
-			LoadedItemsCount.Value = ItemsView.Count;
+			LoadedItemsCount.Value = ItemsView?.Count ?? 0;
 			HasItem.Value = LoadedItemsCount.Value > 0;
         }
 
@@ -309,7 +309,7 @@ namespace NicoPlayerHohoema.ViewModels
 		public ReactiveProperty<int> MaxItemsCount { get; private set; }
 		public ReactiveProperty<int> LoadedItemsCount { get; private set; }
 
-        public AdvancedCollectionView ItemsView { get; private set; } = new AdvancedCollectionView();
+        public AdvancedCollectionView ItemsView { get; private set; }
 
         public ReactiveProperty<bool> NowLoading { get; private set; }
         public ReactiveProperty<bool> CanChangeSort { get; private set; }

@@ -9,12 +9,12 @@ namespace NicoPlayerHohoema.Views.Helpers
 {
     public static class SystemThemeHelper
     {
+        static string _uiTheme = new Windows.UI.ViewManagement.UISettings().GetColorValue(Windows.UI.ViewManagement.UIColorType.Background).ToString();
+
         public static ApplicationTheme GetSystemTheme()
         {
             ApplicationTheme appTheme;
-            var DefaultTheme = new Windows.UI.ViewManagement.UISettings();
-            var uiTheme = DefaultTheme.GetColorValue(Windows.UI.ViewManagement.UIColorType.Background).ToString();
-            if (uiTheme == "#FF000000")
+            if (_uiTheme == "#FF000000")
             {
                 appTheme = ApplicationTheme.Dark;
             }

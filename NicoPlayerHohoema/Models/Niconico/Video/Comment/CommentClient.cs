@@ -200,19 +200,6 @@ namespace NicoPlayerHohoema.Models
                 comments = oldFormatComments?.Select(x => ChatToComment(x)).ToList();
             }
 
-            foreach (var comment in comments)
-            {
-                if (!string.IsNullOrEmpty(comment.Mail))
-                {
-                    var commandActions = MailToCommandHelper.MakeCommandActions(comment.Mail.Split(' '));
-                    foreach (var action in commandActions)
-                    {
-                        action(comment);
-                    }
-                }
-            }
-
-
             return comments ?? new List<Comment>();
         }
 

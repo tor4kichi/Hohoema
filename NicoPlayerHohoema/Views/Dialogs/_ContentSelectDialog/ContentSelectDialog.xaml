@@ -10,8 +10,8 @@
                xmlns:mvvm="using:Prism.Mvvm"
                mc:Ignorable="d"
                Title="{Binding Title}"
-               PrimaryButtonText="{Binding Select, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-               SecondaryButtonText="{Binding Cancel, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+               PrimaryButtonText="{Binding Source=Select, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+               SecondaryButtonText="{Binding Source=Cancel, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                IsPrimaryButtonEnabled="{Binding IsValidItemSelected.Value}"
                ScrollViewer.VerticalScrollMode="Disabled">
 

@@ -304,18 +304,6 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
 
         public Task<ICommentSession> CreateCommentSessionAsync()
         {
-            foreach (var comment in _comments)
-            {
-                if (!string.IsNullOrEmpty(comment.Mail))
-                {
-                    var commandActions = MailToCommandHelper.MakeCommandActions(comment.Mail.Split(' '));
-                    foreach (var action in commandActions)
-                    {
-                        action(comment);
-                    }
-                }
-            }
-
             return Task.FromResult(new OfflineVideoCommentSession(ContentId, _comments) as ICommentSession);
         }
     }

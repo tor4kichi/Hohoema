@@ -239,7 +239,7 @@
             <AppBarButton.Flyout>
               <MenuFlyout>
                 <i:Interaction.Behaviors>
-                  <mybehavior:MenuFlyoutItemsSetter ItemsSource="{Binding SubscriptionManager.Subscriptions}" CustomObjectToTag="{Binding SubscriptionSource}">
+                  <mybehavior:MenuFlyoutItemsSetter ItemsSource="{Binding SubscriptionManager.Subscriptions}" CustomObjectToTag="{Binding VideoInfo, Converter={StaticResource SubscriptionSourceConverter}}">
                     <mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
                       <DataTemplate>
                         <MenuFlyoutItem Text="{Binding Label}" Command="{Binding AddSource}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}" />

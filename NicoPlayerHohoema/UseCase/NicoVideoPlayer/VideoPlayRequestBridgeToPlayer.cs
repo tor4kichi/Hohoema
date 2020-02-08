@@ -61,7 +61,7 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
                 {
                     var pageName = nameof(Views.LivePlayerPage);
                     var parameters = new NavigationParameters("id=" + e.LiveId);
-
+                    
                     await PlayWithCurrentView(DisplayMode, pageName, parameters);
                 });
 

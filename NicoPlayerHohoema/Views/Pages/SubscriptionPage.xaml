@@ -32,21 +32,27 @@
           <CommandBar.PrimaryCommands>
             <AppBarButton Label="{Binding Source=SubscriptionGroup_Create, Converter={StaticResource LocalizeConverter}}" Icon="Add" AllowFocusOnInteraction="True">
               <AppBarButton.Flyout>
-                <Flyout>
-                  <StackPanel MinWidth="180">
-                    <TextBox x:Name="SubscriptionGroupNameTextBox" Header="{Binding Source=SubscriptionGroupCreate_Flyout_Title, Converter={StaticResource LocalizeConverter}}" InputScope="Text" MinWidth="80" />
-                    <Border Height="8" />
-                    <Button Content="{Binding Source=Create, Converter={StaticResource LocalizeConverter}}" HorizontalAlignment="Stretch">
+                <Flyout x:Name="SubscriptionCraeteFlyout">
+                  <StackPanel MinWidth="180" Spacing="8">
+                    <TextBox x:Name="SubscriptionGroupNameTextBox"
+                             Header="{Binding Source=SubscriptionGroupCreate_Flyout_Title, Converter={StaticResource LocalizeConverter}}"
+                             InputScope="Text"
+                             MinWidth="80">
+                      <i:Interaction.Behaviors>
+                        <mybehavior:KeyboardTrigger Key="Enter" OnlyWhenFocus="{x:Bind SubscriptionGroupNameTextBox}" IsEnabled="True">
+                          <core:InvokeCommandAction Command="{Binding SubscriptionManager.AddSubscription}" CommandParameter="{Binding ElementName=SubscriptionGroupNameTextBox, Path=Text}" />
+                          <core:CallMethodAction TargetObject="{x:Bind SubscriptionCraeteFlyout}" MethodName="Hide" />
+                          <core:ChangePropertyAction TargetObject="{x:Bind SubscriptionGroupNameTextBox}" PropertyName="Text" Value="" />
+                        </mybehavior:KeyboardTrigger>
+                      </i:Interaction.Behaviors>
+                    </TextBox>
+                    <Button Content="{Binding Source=Add, Converter={StaticResource LocalizeConverter}}" HorizontalAlignment="Stretch">
                       <i:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="Click">
                           <core:InvokeCommandAction Command="{Binding SubscriptionManager.AddSubscription}" CommandParameter="{Binding ElementName=SubscriptionGroupNameTextBox, Path=Text}" />
-                          <core:ChangePropertyAction TargetObject="{x:Bind SubscriptionGroupNameTextBox}" PropertyName="Text" Value="" />
+                          <core:CallMethodAction TargetObject="{x:Bind SubscriptionCraeteFlyout}" MethodName="Hide" />
+                          <core:ChangePropertyAction TargetObject="{x:Bind SubscriptionGroupNameTextBox}" PropertyName="Text" Value="" />                          
                         </core:EventTriggerBehavior>
-                        <mybehavior:KeyboardTrigger Key="Enter" OnlyWhenFocus="{x:Bind SubscriptionGroupNameTextBox}" IsEnabled="True">
-                          <core:InvokeCommandAction Command="{Binding SubscriptionManager.AddSubscription}" CommandParameter="{Binding ElementName=SubscriptionGroupNameTextBox, Path=Text}" />
-                          <mybehavior:CloseFlyoutAction />
-                          <core:ChangePropertyAction TargetObject="{x:Bind SubscriptionGroupNameTextBox}" PropertyName="Text" Value="" />
-                        </mybehavior:KeyboardTrigger>
                       </i:Interaction.Behaviors>
                     </Button>
                   </StackPanel>
@@ -133,7 +139,7 @@
       <VisualStateGroup>
         <VisualState x:Name="EmptySubscriptions">
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding SubscriptionManager.Subscriptions, Mode=OneWay, Converter={StaticResource EmptyCollectionToBooleanConverter}}" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding SubscriptionManager.Subscriptions.Count, Mode=OneWay}" EqualTo="0" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="EmptySubscriptionsNoticeLayout.Visibility" Value="Visible" />

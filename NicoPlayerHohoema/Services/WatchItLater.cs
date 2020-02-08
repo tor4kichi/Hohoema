@@ -22,6 +22,8 @@ using NicoPlayerHohoema.Services.Page;
 using Prism.Unity;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.Repository.Playlist;
+using I18NPortable;
 
 namespace NicoPlayerHohoema.Services
 {
@@ -211,18 +213,18 @@ namespace NicoPlayerHohoema.Services
 
                         if (info.NewFeedItems?.Any() ?? false)
                         {
-                            // 新着動画を対象プレイリストに追加
-                            Scheduler.Schedule(() => 
-                            {
-                                // NGキーワードを含むタイトルの動画を取り除いて
-                                var filterdNewItems = info.NewFeedItems
-                                    .Where(x => !WatchItLater.IsVideoPlayed(x.Id))
-                                    .Where(x => !info.Subscription.IsContainDoNotNoticeKeyword(x.Label))
-                                    .ToList()
-                                    ;
+                            // NGキーワードを含むタイトルの動画を取り除いて
+                            var filterdNewItems = info.NewFeedItems
+                                .Where(x => !WatchItLater.IsVideoPlayed(x.Id))
+                                .Where(x => !info.Subscription.IsContainDoNotNoticeKeyword(x.Label))
+                                .ToList()
+                                ;
 
+                            // 新着動画を対象プレイリストに追加
+                            Scheduler.Schedule(async () => 
+                            {
                                 Debug.WriteLine($"{info.Subscription.Label} - {info.Source?.Label} -> {string.Join(",", filterdNewItems.Select(x => x.Id))}");
-                                NewVideosAddToDestinations(info.Subscription.Destinations, filterdNewItems);
+                                await NewVideosAddToDestinations(info.Subscription.Destinations, filterdNewItems);
 
                                 // トースト通知を発行
                                 ShowNewVideosToastNotification(info.Subscription, info.Source.Value, info.NewFeedItems);
@@ -310,13 +312,12 @@ namespace NicoPlayerHohoema.Services
                         BindingGeneric = new ToastBindingGeneric()
                         {
                             Children = { }
-
                         }
                     };
 
                     visual.BindingGeneric.Children.Insert(0, new AdaptiveText()
                     {
-                        Text = $"『{playableList.Label}』に新着動画を追加",
+                        Text = "InAppNotification_AddItemToSubscription".Translate(playableList.Label),
                         HintStyle = AdaptiveTextStyle.Base
                     });
 
@@ -335,11 +336,11 @@ namespace NicoPlayerHohoema.Services
                     {
                         Buttons =
                         {
-                            new ToastButton("視聴する", new LoginRedirectPayload() { RedirectPageType = HohoemaPageType.VideoPlayer, RedirectParamter = newItemsPerList.First().Id }.ToParameterString())
+                            new ToastButton("WatchVideo".Translate(), new LoginRedirectPayload() { RedirectPageType = HohoemaPageType.VideoPlayer, RedirectParamter = newItemsPerList.First().Id }.ToParameterString())
                             {
                                 ActivationType = ToastActivationType.Foreground,
                             },
-                            new ToastButton("購読を管理", new LoginRedirectPayload() { RedirectPageType = HohoemaPageType.Subscription }.ToParameterString())
+                            new ToastButton("SubscriptionSettings".Translate(), new LoginRedirectPayload() { RedirectPageType = HohoemaPageType.Subscription }.ToParameterString())
                             {
                                 ActivationType = ToastActivationType.Foreground,
                             },
@@ -374,21 +375,28 @@ namespace NicoPlayerHohoema.Services
         
 
 
-        private void NewVideosAddToDestinations(IEnumerable<SubscriptionDestination> destinations, IEnumerable<IVideoContent> newItems)
-        {            
-            // あとで見るに追加
-            //foreach (var dest in destinations)
-            //{
-            //    var mylist = MylistHelper.FindMylistInCached(dest.PlaylistId);
-            //    if (mylist is IPlaylist ownedMylist)
-            //    {
-            //        foreach (var video in newItems)
-            //        {
-            //            throw new NotImplementedException();
-            //            //_ = ownedMylist.AddMylistItem(video.RawVideoId);
-            //        }
-            //    }
-            //}
+        private async Task NewVideosAddToDestinations(IEnumerable<SubscriptionDestination> destinations, IEnumerable<IVideoContent> newItems)
+        {
+            foreach (var dest in destinations)
+            {
+                var mylist = await this._playlistAggregate.FindPlaylistAsync(dest.PlaylistId);
+                if (mylist is LocalPlaylist playlist)
+                {
+                    playlist.AddPlaylistItem(newItems);
+                }
+                else if (mylist is LoginUserMylistPlaylist loginUserMylist)
+                {
+                    await loginUserMylist.AddItem(newItems.Select(x => x.Id));
+                }
+                else if (mylist is MylistPlaylist otherUserMylist)
+                {
+                    // ログインが必要？
+                }
+                else
+                {
+                    // 削除済み？
+                }
+            }
         }
 
 

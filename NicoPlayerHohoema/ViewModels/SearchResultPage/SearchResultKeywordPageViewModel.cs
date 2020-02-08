@@ -81,9 +81,9 @@ namespace NicoPlayerHohoema.ViewModels
             ApplicationLayoutManager = applicationLayoutManager;
             NgSettings = ngSettings;
             SearchProvider = searchProvider;
-            SubscriptionManager1 = subscriptionManager;
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
+            SubscriptionManager = subscriptionManager;
             CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
         }
 
@@ -254,6 +254,7 @@ namespace NicoPlayerHohoema.ViewModels
         public SubscriptionManager SubscriptionManager1 { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
+        public SubscriptionManager SubscriptionManager { get; }
         public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
 
 

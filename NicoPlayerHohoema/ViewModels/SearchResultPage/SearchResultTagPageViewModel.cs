@@ -332,7 +332,7 @@ namespace NicoPlayerHohoema.ViewModels
 		
 		protected override bool CheckNeedUpdateOnNavigateTo(NavigationMode mode)
 		{
-			if (ItemsView.Source == null) { return true; }
+			if (ItemsView?.Source == null) { return true; }
 
             return base.CheckNeedUpdateOnNavigateTo(mode);
         }

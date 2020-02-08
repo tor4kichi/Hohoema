@@ -164,7 +164,7 @@
 
             <CommandBar>
               <CommandBar.PrimaryCommands>
-                <AppBarButton Label="{Binding Source=SubscriptionGroup_Create, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                <AppBarButton Label="{Binding Source=SubscriptionAdd, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                               Icon="Add"
                               x:Name="AddSubscriptionSourceButton"
                               Command="{x:Bind ViewModel.ChoiceSubscriptionSourceCommand}"

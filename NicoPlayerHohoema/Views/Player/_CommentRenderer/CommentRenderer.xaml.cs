@@ -28,6 +28,7 @@ using NicoPlayerHohoema.Models;
 using Prism.Unity;
 using System.Text.RegularExpressions;
 using System.Reactive.Disposables;
+using NicoPlayerHohoema.Models.Niconico.Video;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -330,6 +331,15 @@ namespace NicoPlayerHohoema.Views
         
         private CommentUI MakeCommentUI(Comment comment, ref CommentRenderFrameData frame)
         {
+            if (!string.IsNullOrEmpty(comment.Mail))
+            {
+                var commandActions = MailToCommandHelper.MakeCommandActions(comment.Mail.Split(' '));
+                foreach (var action in commandActions)
+                {
+                    action(comment);
+                }
+            }
+
             // フォントサイズの計算
             // 画面サイズの10分の１＊ベーススケール＊フォントスケール
             float commentFontScale = 1.0f;

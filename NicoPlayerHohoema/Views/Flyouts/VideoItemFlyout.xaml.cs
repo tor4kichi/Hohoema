@@ -257,7 +257,6 @@ namespace NicoPlayerHohoema.Views.Flyouts
             var susbcSourceConverter = new Subscriptions.SubscriptionSourceConverter();
             var subscSource = susbcSourceConverter.Convert(content, typeof(SubscriptionSource), null, CultureInfo.CurrentCulture.Name);
             SusbcriptionSubItem.Items.Clear();
-            SusbcriptionSubItem.Items.Clear();
             SusbcriptionSubItem.Items.Add(new MenuFlyoutItem()
             {
                 Text = _localizedText_CreateNew,

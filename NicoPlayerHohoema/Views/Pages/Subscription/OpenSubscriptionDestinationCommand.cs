@@ -27,8 +27,15 @@ namespace NicoPlayerHohoema.Views.Subscriptions
         {
             if (parameter is Models.Subscription.SubscriptionDestination dest)
             {
-                var mylistPagePayload = new MylistPagePayload(dest.PlaylistId);
-                PageManager.OpenPage(HohoemaPageType.Mylist, mylistPagePayload.ToParameterString());
+                if (dest.Target == Models.Subscription.SubscriptionDestinationTarget.LoginUserMylist)
+                {
+                    var mylistPagePayload = new MylistPagePayload(dest.PlaylistId);
+                    PageManager.OpenPage(HohoemaPageType.Mylist, mylistPagePayload.ToParameterString());
+                }
+                else if (dest.Target == Models.Subscription.SubscriptionDestinationTarget.LocalPlaylist)
+                {
+                    PageManager.OpenPage(HohoemaPageType.LocalPlaylist, "id=" + dest.PlaylistId);
+                }
             }
         }
     }
