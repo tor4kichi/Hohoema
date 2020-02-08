@@ -129,6 +129,19 @@ namespace NicoPlayerHohoema.Views
             _viewModel.AppearanceSettings.ObserveProperty(x => x.Theme)
                 .Subscribe(theme => 
                 {
+                    if (theme == ElementTheme.Default)
+                    {
+                        var appTheme = Helpers.SystemThemeHelper.GetSystemTheme();
+                        if (appTheme == ApplicationTheme.Dark)
+                        {
+                            theme = ElementTheme.Dark;
+                        }
+                        else
+                        {
+                            theme = ElementTheme.Light;
+                        }
+                    }
+
                     this.RequestedTheme = theme;
                 });
 
