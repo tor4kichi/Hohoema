@@ -178,7 +178,7 @@ namespace NicoPlayerHohoema.Models.Subscription
 
                         var newSubscription = SubscriptionManager.CreateNewSubscription(subscriptionLabel);
 
-                        // TODO: "あとで見る"の多言語対応
+                        // "あとで見る"の多言語対応
                         newSubscription.Destinations.Add(new SubscriptionDestination("@view".Translate(), SubscriptionDestinationTarget.LocalPlaylist, HohoemaPlaylist.WatchAfterPlaylistId));
                         Subscriptions.Insert(0, newSubscription);
 
