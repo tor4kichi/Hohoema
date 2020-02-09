@@ -336,7 +336,7 @@ namespace NicoPlayerHohoema.Services
                     {
                         Buttons =
                         {
-                            new ToastButton("WatchVideo".Translate(), new LoginRedirectPayload() { RedirectPageType = HohoemaPageType.VideoPlayer, RedirectParamter = newItemsPerList.First().Id }.ToParameterString())
+                            new ToastButton("WatchVideo".Translate(), new LoginRedirectPayload() { RedirectPageType = HohoemaPageType.VideoPlayer, RedirectParamter = $"id={newItemsPerList.First().Id}&playlist_id=@view"  }.ToParameterString())
                             {
                                 ActivationType = ToastActivationType.Foreground,
                             },
@@ -380,7 +380,11 @@ namespace NicoPlayerHohoema.Services
             foreach (var dest in destinations)
             {
                 var mylist = await this._playlistAggregate.FindPlaylistAsync(dest.PlaylistId);
-                if (mylist is LocalPlaylist playlist)
+                if (mylist is PlaylistObservableCollection specLocalPlaylist)
+                {
+                    specLocalPlaylist.AddRangeOnScheduler(newItems);
+                }
+                else if (mylist is LocalPlaylist playlist)
                 {
                     playlist.AddPlaylistItem(newItems);
                 }

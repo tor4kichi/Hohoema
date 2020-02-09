@@ -40,10 +40,6 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             {
                 return _localMylistManager.GetPlaylist(id);
             }
-            else if (HohoemaPlaylist.WatchAfterPlaylistId == id)
-            {
-                return _hohoemaPlaylist.QueuePlaylist;
-            }
             else 
             {
                 return await _mylistRepository.GetMylist(id);
