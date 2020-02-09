@@ -109,7 +109,7 @@ namespace NicoPlayerHohoema.Models.Niconico.Video
 
     public static class MailToCommandHelper
     {
-        public static IEnumerable<Action<Comment>> MakeCommandActions(string[] commands)
+        public static IEnumerable<Action<Comment>> MakeCommandActions(IEnumerable<string> commands)
         {
             foreach (var command in commands)
             {

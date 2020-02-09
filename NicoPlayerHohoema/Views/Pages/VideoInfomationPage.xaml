@@ -118,7 +118,7 @@
                     <Button.Flyout>
                       <MenuFlyout>
                         <MenuFlyoutItem Text="{Binding Source=VideoOwnerDetail, Converter={StaticResource LocalizeConverter}}" Command="{Binding PageManager.OpenContentOwnerPageCommand}" CommandParameter="{Binding VideoInfo}" />
-                        <MenuFlyoutItem Text="{Binding Source=OpenOwnerVideos, Converter={StaticResource LocalizeConverter}}" Command="{Binding PageManager.OpenVideoListPageCommand}" CommandParameter="{Binding VideoInfo.RawVideoId}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="{Binding Source=OpenOwnerVideos, Converter={StaticResource LocalizeConverter}}" Command="{Binding PageManager.OpenVideoListPageCommand}" CommandParameter="{Binding VideoInfo}"></MenuFlyoutItem>
                       </MenuFlyout>
                     </Button.Flyout>
                   </Button>

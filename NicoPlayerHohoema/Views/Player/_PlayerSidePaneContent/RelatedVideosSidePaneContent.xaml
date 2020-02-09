@@ -14,12 +14,15 @@
     xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
     xmlns:uwpext="using:Microsoft.Toolkit.Uwp.UI.Extensions"
     xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
-    xmlns:hohoemalistitem="using:NicoPlayerHohoema.Views.HohoemaListItem"
-    mc:Ignorable="d"
+    xmlns:hohoemalistitem="using:NicoPlayerHohoema.Views.HohoemaListItem" 
+  xmlns:videoListPage="using:NicoPlayerHohoema.Views.Pages.VideoListPage" mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
   <UserControl.Resources>
+    <DataTemplate x:Key="VideoLiteItemControl">
+      <videoListPage:VideoListItemControl />
+    </DataTemplate>
     <DataTemplate x:Key="MiniListItemTemplate">
       <toolkit:DockPanel Margin="4 0 0 0"
                            x:Name="ContentLayout"
@@ -187,7 +190,7 @@
                       IsItemClickEnabled="True"
                       x:Name="VideoOwnerOtherVideosListView"
                       Background="{StaticResource HohoemaPlayerBackgroundBrush}"
-                      ItemTemplate="{StaticResource MiniListItemTemplate}"
+                      ItemTemplate="{StaticResource VideoLiteItemControl}"
                       IsTabStop="False">
               <i:Interaction.Behaviors>
                 <core:EventTriggerBehavior EventName="ItemClick">
@@ -254,7 +257,7 @@
                       IsItemClickEnabled="True"
                       x:Name="PlaylistItemsListView"
                       Background="{StaticResource HohoemaPlayerBackgroundBrush}"
-                      ItemTemplate="{StaticResource MiniListItemTemplate}"
+                      ItemTemplate="{StaticResource VideoLiteItemControl}"
                       IsTabStop="False">
               <i:Interaction.Behaviors>
                 <core:EventTriggerBehavior EventName="ItemClick">

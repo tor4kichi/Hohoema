@@ -333,7 +333,8 @@ namespace NicoPlayerHohoema.Views
         {
             if (!string.IsNullOrEmpty(comment.Mail))
             {
-                var commandActions = MailToCommandHelper.MakeCommandActions(comment.Mail.Split(' '));
+                var filteredCommands = comment.Mail.Split(' ').Where(x => !PlayerSettings.FilteringCommands.Contains(x));
+                var commandActions = MailToCommandHelper.MakeCommandActions(filteredCommands);
                 foreach (var action in commandActions)
                 {
                     action(comment);

@@ -553,6 +553,19 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
+		bool _IsCommentCommandFilteringEnable = true;
+
+		[DataMember]
+		public bool IsCommentCommandFilteringEnable
+		{
+			get { return _IsCommentCommandFilteringEnable; }
+			set { SetProperty(ref _IsCommentCommandFilteringEnable, value); }
+		}
+
+		[DataMember]
+		public ObservableHashSet<string> FilteringCommands { get; private set; } = new ObservableHashSet<string>() { "naka", "center" };
+
+
 
 
 		#endregion
