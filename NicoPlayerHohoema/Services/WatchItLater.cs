@@ -380,7 +380,11 @@ namespace NicoPlayerHohoema.Services
             foreach (var dest in destinations)
             {
                 var mylist = await this._playlistAggregate.FindPlaylistAsync(dest.PlaylistId);
-                if (mylist is LocalPlaylist playlist)
+                if (mylist is PlaylistObservableCollection specLocalPlaylist)
+                {
+                    specLocalPlaylist.AddRangeOnScheduler(newItems);
+                }
+                else if (mylist is LocalPlaylist playlist)
                 {
                     playlist.AddPlaylistItem(newItems);
                 }

@@ -15,7 +15,7 @@ using Windows.Foundation;
 namespace NicoPlayerHohoema.Models.Subscription
 {
 
-    public sealed class Subscription : BindableBase, IDisposable
+    public sealed class Subscription : FixPrism.BindableBase, IDisposable
     {
         // instantiate from only on SubscriptionManager.
         internal Subscription(Guid id, string label)
