@@ -41,13 +41,16 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             HasVideoDescription = _VideoViewerHelpInfo != null;
 
             HohoemaPlaylist.ObserveProperty(x => x.CurrentItem)
-                .Subscribe(item =>
+                .Subscribe(async item =>
                 {
                     Clear();
+                    _IsInitialized = false;
+
+                    await Task.Delay(1000);
 
                     if (item != null)
                     {
-                        _ = InitializeRelatedVideos(item);
+                        await InitializeRelatedVideos(item);
                     }
                 })
                 .AddTo(_CompositeDisposable);
@@ -122,22 +125,25 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 // タイトル文字列が近似する動画をシリーズ動画として取り込む
                 // 違うっぽい動画も投稿者が提示したい動画として確保
                 var sourceVideo = Database.NicoVideoDb.Get(videoId);
-                var videoIds = _VideoViewerHelpInfo.GetVideoIds();
                 List<Database.NicoVideo> seriesVideos = new List<Database.NicoVideo>();
                 seriesVideos.Add(sourceVideo);
-                foreach (var id in videoIds)
+                if (_VideoViewerHelpInfo != null)
                 {
-                    var video = await NicoVideoProvider.GetNicoVideoInfo(id, requireLatest: true);
+                    var videoIds = _VideoViewerHelpInfo.GetVideoIds();
+                    foreach (var id in videoIds)
+                    {
+                        var video = await NicoVideoProvider.GetNicoVideoInfo(id, requireLatest: true);
 
-                    var titleSimilarity = sourceVideo.Title.CalculateSimilarity(video.Title);
-                    if (titleSimilarity > _SeriesVideosTitleSimilarityValue)
-                    {
-                        seriesVideos.Add(video);
-                    }
-                    else
-                    {
-                        var otherVideo = new VideoInfoControlViewModel(video);
-                        OtherVideos.Add(otherVideo);
+                        var titleSimilarity = sourceVideo.Title.CalculateSimilarity(video.Title);
+                        if (titleSimilarity > _SeriesVideosTitleSimilarityValue)
+                        {
+                            seriesVideos.Add(video);
+                        }
+                        else
+                        {
+                            var otherVideo = new VideoInfoControlViewModel(video);
+                            OtherVideos.Add(otherVideo);
+                        }
                     }
                 }
 
@@ -174,7 +180,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
                 // チャンネル動画で次動画が見つからなかった場合は
                 // チャンネル動画一覧から次動画をサジェストする
-                if (sourceVideo.Owner.UserType == NicoVideoUserType.Channel
+                if (sourceVideo.Owner?.UserType == NicoVideoUserType.Channel
                     && NextVideo == null
                     )
                 {
@@ -240,17 +246,20 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 }
 
                 // マイリスト
-                var relatedMylistIds = _VideoViewerHelpInfo.GetMylistIds();
-                foreach (var mylistId in relatedMylistIds)
+                if (_VideoViewerHelpInfo != null)
                 {
-                    var mylistDetails = await _mylistRepository.GetMylist(mylistId);
-                    if (mylistDetails != null)
+                    var relatedMylistIds = _VideoViewerHelpInfo.GetMylistIds();
+                    foreach (var mylistId in relatedMylistIds)
                     {
-                        Mylists.Add(mylistDetails);
+                        var mylistDetails = await _mylistRepository.GetMylist(mylistId);
+                        if (mylistDetails != null)
+                        {
+                            Mylists.Add(mylistDetails);
+                        }
                     }
-                }
 
-                RaisePropertyChanged(nameof(Mylists));
+                    RaisePropertyChanged(nameof(Mylists));
+                }
 
 
                 Videos = new List<VideoInfoControlViewModel>();
