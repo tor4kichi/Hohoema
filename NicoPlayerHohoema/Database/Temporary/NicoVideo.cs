@@ -19,7 +19,7 @@ namespace NicoPlayerHohoema.Database
     }
 
     [PropertyChanged.AddINotifyPropertyChangedInterface]
-    public class NicoVideo : BindableBase, Interfaces.IVideoContent, IVideoContentWritable
+    public class NicoVideo : FixPrism.BindableBase, Interfaces.IVideoContent, IVideoContentWritable
     {
         [BsonId]
         public string RawVideoId { get; set; }

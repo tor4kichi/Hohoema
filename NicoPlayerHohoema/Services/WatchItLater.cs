@@ -336,7 +336,7 @@ namespace NicoPlayerHohoema.Services
                     {
                         Buttons =
                         {
-                            new ToastButton("WatchVideo".Translate(), new LoginRedirectPayload() { RedirectPageType = HohoemaPageType.VideoPlayer, RedirectParamter = newItemsPerList.First().Id }.ToParameterString())
+                            new ToastButton("WatchVideo".Translate(), new LoginRedirectPayload() { RedirectPageType = HohoemaPageType.VideoPlayer, RedirectParamter = $"id={newItemsPerList.First().Id}&playlist_id=@view"  }.ToParameterString())
                             {
                                 ActivationType = ToastActivationType.Foreground,
                             },

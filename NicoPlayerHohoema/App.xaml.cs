@@ -42,6 +42,8 @@ using Prism.Events;
 using NicoPlayerHohoema.Services.Player;
 using NicoPlayerHohoema.UseCase;
 using I18NPortable;
+using Newtonsoft.Json;
+using NicoPlayerHohoema.UseCase.Playlist;
 
 namespace NicoPlayerHohoema
 {
@@ -553,10 +555,23 @@ namespace NicoPlayerHohoema
                             isHandled = true;
                         }
                     }
-                    else
+
+                    var payload = JsonConvert.DeserializeObject<LoginRedirectPayload>(arguments);
+                    if (payload != null)
+                    {
+                        if (payload.RedirectPageType == HohoemaPageType.VideoPlayer)
+                        {
+                            var parameter = new NavigationParameters(payload.RedirectParamter);
+                            var id = parameter.GetValue<string>("id");
+                            var playlistId = parameter.GetValue<string>("playlist_id");
+                            PlayVideoFromExternal(id, playlistId);
+                        }
+                    }
+                    
+                    if (Uri.TryCreate(arguments, UriKind.Absolute, out var uri))
                     {
                         var pageManager = Container.Resolve<Services.PageManager>();
-                        pageManager.OpenPage(new Uri(arguments));
+                        pageManager.OpenPage(uri);
                     }
                 }
                 catch { }
@@ -674,16 +689,33 @@ namespace NicoPlayerHohoema
 
 
 
-        private void PlayVideoFromExternal(string videoId, string videoTitle = null, NicoVideoQuality? quality = null)
+        private async void PlayVideoFromExternal(string videoId, string playlistId = null)
         {
-            var playlist = Container.Resolve<UseCase.Playlist.HohoemaPlaylist>();
+            var hohoemaPlaylist = Container.Resolve<UseCase.Playlist.HohoemaPlaylist>();
 
             // TODO: ログインが必要な動画かをチェックしてログインダイアログを出す
 
             // EventAggregator経由で動画IDの再生リクエストを送って
             // アプリケーションユースケースで動画情報を解決して再生開始するほうが良さそう
 
-            playlist.Play(videoId);
+            var nicoVideoProvider = App.Current.Container.Resolve<Models.Provider.NicoVideoProvider>();
+            var videoInfo = await nicoVideoProvider.GetNicoVideoInfo(videoId);
+            
+            if (videoInfo == null || videoInfo.IsDeleted) { return; }
+
+            if (playlistId != null)
+            {
+                var playlistAggregator = App.Current.Container.Resolve<PlaylistAggregateGetter>();
+                var playlist = await playlistAggregator.FindPlaylistAsync(playlistId);
+
+                if (playlist != null)
+                {
+                    hohoemaPlaylist.Play(videoInfo, playlist);
+                    return;
+                }
+            }
+
+            hohoemaPlaylist.Play(videoInfo);
         }
         private void PlayLiveVideoFromExternal(string videoId)
         {
