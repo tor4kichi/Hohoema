@@ -74,8 +74,8 @@
             Visibility="{Binding ThumbnailUrl, Converter={StaticResource NotNullToVisibility}}"
             Stretch="Uniform"
             VerticalAlignment="Center"
-            VerticalContentAlignment="Center"
-            IsCacheEnabled="True"
+            VerticalContentAlignment="Center" 
+                         IsCacheEnabled="{x:Bind IsThumbnailUseCache}"
             IsTabStop="False"
                    >
         </toolkit:ImageEx>

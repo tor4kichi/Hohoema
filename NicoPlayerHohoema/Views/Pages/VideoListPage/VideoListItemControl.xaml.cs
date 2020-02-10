@@ -127,6 +127,22 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
 
 
 
+
+        public bool IsThumbnailUseCache
+        {
+            get { return (bool)GetValue(IsThumbnailUseCacheProperty); }
+            set { SetValue(IsThumbnailUseCacheProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for IsThumbnailUseCache.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty IsThumbnailUseCacheProperty =
+            DependencyProperty.Register("IsThumbnailUseCache", typeof(bool), typeof(VideoListItemControl), new PropertyMetadata(true));
+
+
+
+
+
+
         public bool IsInitialized
         {
             get { return (bool)GetValue(IsInitializedProperty); }
