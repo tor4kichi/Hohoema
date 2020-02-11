@@ -384,8 +384,8 @@
               </Grid>
             </uwpToolkitControls:DockPanel>
             <!-- Search Box -->
-            <Border uwpToolkitControls:DockPanel.Dock="Top" Margin="8 8 8 8">
-              <TextBox x:Name="SearchTextBox" Text="{x:Bind SearchInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="{Binding Source=Search, Converter={StaticResource LocalizeConverter}}" UseSystemFocusVisuals="True" TabIndex="103" Margin="0 0 0 0" IsFocusEngagementEnabled="True">
+            <Border uwpToolkitControls:DockPanel.Dock="Top">
+              <TextBox x:Name="SearchTextBox" Text="{x:Bind SearchInputText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PlaceholderText="{Binding Source=Search, Converter={StaticResource LocalizeConverter}}" UseSystemFocusVisuals="True" TabIndex="103" Margin="8" IsFocusEngagementEnabled="True" >
                 <i:Interaction.Behaviors>
                   <core:EventTriggerBehavior EventName="GotFocus">
                     <core:CallMethodAction MethodName="SelectAll" />
@@ -393,11 +393,21 @@
                   <mybehavior:KeyboardTrigger Key="Enter" x:Name="SearchSubmitWithEnterKeyTrigger" IsEnabled="False">
                     <core:InvokeCommandAction Command="{Binding SearchCommand}" CommandParameter="{x:Bind SearchInputText, Mode=OneWay}" />
                   </mybehavior:KeyboardTrigger>
-                  <mybehavior:UINavigationTrigger Kind="Cancel">
-                    <mybehavior:SetFocus TargetObject="{Binding ElementName=SubMenuPageTypesListView}" />
-                  </mybehavior:UINavigationTrigger>
                 </i:Interaction.Behaviors>
               </TextBox>
+            </Border>
+
+            <Border x:Name="TV_OpenSearchPageButton" Visibility="Collapsed" uwpToolkitControls:DockPanel.Dock="Top">
+              <Button  Background="Transparent" Command="{x:Bind _viewModel.PageManager.OpenPageCommand}" CommandParameter="Search"
+                       HorizontalAlignment="Stretch"
+                       HorizontalContentAlignment="Left"
+                       Padding="16 8"
+                       >
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <SymbolIcon Symbol="Find" />
+                  <TextBlock Text="{Binding Source=Search, Converter={StaticResource LocalizeConverter}}" />
+                </StackPanel>
+              </Button>
             </Border>
 
             <!-- Pins / Video / Live / Mylist -->
@@ -725,6 +735,10 @@
             <Setter Target="TopMenuLayout.Padding" Value="16 0 0 0" />
             <Setter Target="ContentFrame.Margin" Value="0 0 0 0" />
             <Setter Target="ContentFrameTopSpace.Visibility" Value="Collapsed" />
+            
+            <Setter Target="SearchTextBox.Visibility" Value="Collapsed" />
+            <Setter Target="TV_OpenSearchPageButton.Visibility" Value="Visible" />
+
           </VisualState.Setters>
         </VisualState>
 
@@ -822,6 +836,10 @@
             <Setter Target="PaneLayout.Margin" Value="48 27 0 27" />
             <Setter Target="TopMenuLayout.Padding" Value="16 0 0 0" />
             <Setter Target="ContentFrameTopSpace.Visibility" Value="Collapsed" />
+            
+            <Setter Target="SearchTextBox.Visibility" Value="Collapsed" />
+            <Setter Target="TV_OpenSearchPageButton.Visibility" Value="Visible" />
+
           </VisualState.Setters>
         </VisualState>
         <!-- Desktop -->
