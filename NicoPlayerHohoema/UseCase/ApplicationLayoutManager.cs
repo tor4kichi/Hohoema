@@ -62,7 +62,7 @@ namespace NicoPlayerHohoema.UseCase
                 {
                     intaractionMode = ApplicationInteractionMode.Touch;
                 }
-                else if (DeviceInfo.Idiom == DeviceIdiom.TV)
+                else if (DeviceInfo.Idiom == DeviceIdiom.TV || Services.Helpers.DeviceTypeHelper.IsXbox)
                 {
                     intaractionMode = ApplicationInteractionMode.Controller;
                 }

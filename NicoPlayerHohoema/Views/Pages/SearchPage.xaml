@@ -117,13 +117,15 @@
   <Grid>
     
     <Border>
-      <Grid Margin="0 0 0 0">
+      <Grid Margin="0 16 0 0">
         <toolkit:DockPanel Margin="16 8" x:Name="ContentLayout">
           <Border Height="{Binding ElementName=HeaderLayout, Path=ActualHeight, Mode=OneWay}" toolkit:DockPanel.Dock="Top" />
           <toolkit:DockPanel Margin="0" toolkit:DockPanel.Dock="Top">
             <!-- ターゲット（Keyword, Tag etc） -->
             <Border Margin="0 0 16 0" toolkit:DockPanel.Dock="Top">
-              <ListView ItemsSource="{Binding TargetListItems}" SelectedItem="{Binding SelectedTarget.Value, Mode=TwoWay}" HorizontalAlignment="Stretch" TabIndex="1" IsTabStop="True" UseSystemFocusVisuals="True" IsSynchronizedWithCurrentItem="False">
+              <ListView ItemsSource="{Binding TargetListItems}" SelectedItem="{Binding SelectedTarget.Value, Mode=TwoWay}" HorizontalAlignment="Stretch" TabIndex="1" IsTabStop="True" UseSystemFocusVisuals="True" IsSynchronizedWithCurrentItem="False"
+                        SingleSelectionFollowsFocus="False"
+                        >
                 <ListView.ItemTemplate>
                   <DataTemplate>
                     <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
@@ -159,7 +161,7 @@
               <uwpControls:Expander Content="{Binding SearchOptionVM.Value}" ContentTemplateSelector="{StaticResource SearchTargetContentTemplateSelector}" Header="検索オプション" toolkit:DockPanel.Dock="Bottom" Margin="0 8 0 0" HorizontalContentAlignment="Left"></uwpControls:Expander>
             </StackPanel>
           </toolkit:DockPanel>
-          <TextBlock Text="{Binding Source=SearchHistory}" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0 24 0 8" toolkit:DockPanel.Dock="Top"></TextBlock>
+          <TextBlock Text="{Binding Source=SearchHistory, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0 24 0 8" toolkit:DockPanel.Dock="Top"></TextBlock>
           <ListView ItemsSource="{Binding SearchHistoryItems}"
                     ItemTemplate="{StaticResource SearchHistoryItemTemplate}"
                     IsItemClickEnabled="True"

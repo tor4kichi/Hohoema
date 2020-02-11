@@ -21,7 +21,7 @@
 
   <UserControl.Resources>
     <DataTemplate x:Key="VideoLiteItemControl">
-      <videoListPage:VideoListItemControl />
+      <videoListPage:VideoListItemControl IsThumbnailUseCache="False" />
     </DataTemplate>
     <DataTemplate x:Key="MiniListItemTemplate">
       <toolkit:DockPanel Margin="4 0 0 0"
