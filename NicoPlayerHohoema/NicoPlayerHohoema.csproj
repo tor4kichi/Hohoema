@@ -145,14 +145,14 @@
     <Compile Include="Interfaces\IWatchHistory.cs" />
     <Compile Include="Locales\LocaleToDisplayNameConverter.cs" />
     <Compile Include="Locales\LocalizeConverter.cs" />
-    <Compile Include="Models\Cache\NicoVideoCacheInfo.cs" />
+    <Compile Include="Models\Cache\NicoVideoCached.cs" />
     <Compile Include="Models\Cache\NicoVideoCacheProgress.cs" />
-    <Compile Include="Models\Cache\NicoVideoCacheRequestExtension.cs" />
     <Compile Include="Models\Helpers\ObservableHashSet.cs" />
     <Compile Include="Models\Niconico\INiconicoVideoSessionProvider.cs" />
     <Compile Include="Models\Niconico\Video\Comment\NicoScript.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideoQualityEntity.cs" />
     <Compile Include="Models\Niconico\Video\Tag.cs" />
+    <Compile Include="Repository\VideoCache\CacheRequestRepository.cs" />
     <Compile Include="Repository\LiteDbService.cs" />
     <Compile Include="Repository\NicoVideo\SeriesRepository.cs" />
     <Compile Include="Repository\NicoVideo\VideoInfoRepository.cs" />
@@ -406,7 +406,6 @@
     <Compile Include="Models\Niconico\Video\MediaProtocolType.cs" />
     <Compile Include="Models\Helpers\AsyncLock.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideoSessionProvider.cs" />
-    <Compile Include="Models\Cache\NicoVideoCacheRequest.cs" />
     <Compile Include="Models\Cache\NicoVideoCacheState.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideoCanNotDownloadReason.cs" />
     <Compile Include="Models\Settings\HohoemaUserSettings.cs" />

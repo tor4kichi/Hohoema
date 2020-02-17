@@ -182,7 +182,8 @@ namespace NicoPlayerHohoema
 
             // Models
             unityContainer.RegisterSingleton<Models.NiconicoSession>();
-
+            unityContainer.RegisterSingleton<Models.NicoVideoSessionOwnershipManager>();
+            
             unityContainer.RegisterSingleton<Models.UserMylistManager>();
             unityContainer.RegisterSingleton<Models.FollowManager>();
 
@@ -601,7 +602,7 @@ namespace NicoPlayerHohoema
                         var quality = (NicoVideoQuality)Enum.Parse(typeof(NicoVideoQuality), decode.GetFirstValueByName("quality"));
 
                         var cacheManager = Container.Resolve<Models.Cache.VideoCacheManager>();
-                        await cacheManager.CancelCacheRequest(videoId, quality);
+                        await cacheManager.CancelCacheRequest(videoId);
                     }
                     else
                     {
@@ -1110,7 +1111,7 @@ namespace NicoPlayerHohoema
                 var videoId = decode.GetFirstValueByName("id");
                 var quality = (NicoVideoQuality)Enum.Parse(typeof(NicoVideoQuality), decode.GetFirstValueByName("quality"));
 
-                await cacheManager.CancelCacheRequest(videoId, quality);
+                await cacheManager.CancelCacheRequest(videoId);
             }
         }
 

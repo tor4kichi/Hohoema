@@ -26,10 +26,22 @@ namespace NicoPlayerHohoema.Models
         MediaSource _MediaSource;
 
         MediaPlayer _PlayingMediaPlayer;
+        private readonly NicoVideoSessionOwnershipManager.VideoSessionOwnership _videoSessionOwnership;
 
-        public VideoStreamingSession(NiconicoSession niconicoSession)
+        public VideoStreamingSession(NiconicoSession niconicoSession, NicoVideoSessionOwnershipManager.VideoSessionOwnership videoSessionOwnership)
         {
             NiconicoSession = niconicoSession;
+            _videoSessionOwnership = videoSessionOwnership;
+
+            if (_videoSessionOwnership != null)
+            {
+                _videoSessionOwnership.ReturnOwnershipRequested += _videoSessionOwnership_ReturnOwnershipRequested;
+            }
+        }
+
+        private void _videoSessionOwnership_ReturnOwnershipRequested(object sender, EventArgs e)
+        {
+            Dispose();
         }
 
         public async Task StartPlayback(MediaPlayer player, TimeSpan initialPosition = default)
@@ -161,6 +173,12 @@ namespace NicoPlayerHohoema.Models
                 _PlayingMediaPlayer = null;
 
                 _MediaSource?.Dispose();
+            }
+
+            if (_videoSessionOwnership != null)
+            {
+                _videoSessionOwnership.ReturnOwnershipRequested -= _videoSessionOwnership_ReturnOwnershipRequested;
+                _videoSessionOwnership?.Dispose();
             }
         }
     }

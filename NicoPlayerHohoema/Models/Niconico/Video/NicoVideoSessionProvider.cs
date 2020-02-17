@@ -17,6 +17,7 @@ using Unity;
 using NicoPlayerHohoema.Models.Provider;
 using Prism.Unity;
 using System.Collections.Immutable;
+using Windows.Foundation;
 
 namespace NicoPlayerHohoema.Models
 {
@@ -160,6 +161,7 @@ namespace NicoPlayerHohoema.Models
         
         public ImmutableArray<NicoVideoQualityEntity> AvailableQualities { get; }
 
+        private readonly NicoVideoSessionOwnershipManager _ownershipManager;
         private readonly WatchApiResponse _watchApiResponse;
         private readonly DmcWatchData _dmcWatchData;
 
@@ -176,11 +178,13 @@ namespace NicoPlayerHohoema.Models
         {
             Exception = e;
             AvailableQualities = ImmutableArray<NicoVideoQualityEntity>.Empty;
+            IsSuccess = false;
         }
 
-        public PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession, WatchApiResponse watchApiResponse)
+        public PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession, NicoVideoSessionOwnershipManager ownershipManager, WatchApiResponse watchApiResponse)
             : this(contentId, niconicoSession)
         {
+            _ownershipManager = ownershipManager;
             _watchApiResponse = watchApiResponse;
             IsSuccess = _watchApiResponse != null;
             var quality = _watchApiResponse.VideoUrl.OriginalString.EndsWith("low") ? NicoVideoQuality.Smile_Low : NicoVideoQuality.Smile_Original;
@@ -193,9 +197,10 @@ namespace NicoPlayerHohoema.Models
             // Note: スマイル鯖はいずれ無くなると見て対応を限定的にしてしまう
         }
 
-        public PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession, DmcWatchData dmcWatchData)
+        public PreparePlayVideoResult(string contentId, NiconicoSession niconicoSession, NicoVideoSessionOwnershipManager ownershipManager, DmcWatchData dmcWatchData)
             : this(contentId, niconicoSession)
         {
+            _ownershipManager = ownershipManager;
             _dmcWatchData = dmcWatchData;
             IsSuccess = _dmcWatchData != null;
             if (_dmcWatchData?.DmcWatchResponse.Video.DmcInfo != null)
@@ -232,6 +237,7 @@ namespace NicoPlayerHohoema.Models
             else { throw new ArgumentNullException(); }
         }
 
+        public bool IsForCacheDownload { get; set; }
 
 
         public async Task<List<Database.NicoVideo>> GetRelatedVideos()
@@ -279,16 +285,20 @@ namespace NicoPlayerHohoema.Models
         /// 動画ストリームの取得します
         /// </summary>
         /// <exception cref="NotSupportedException" />
-        public Task<IStreamingSession> CreateVideoSessionAsync(NicoVideoQuality quality = NicoVideoQuality.Unknown)
+        public async Task<IStreamingSession> CreateVideoSessionAsync(NicoVideoQuality quality = NicoVideoQuality.Unknown)
         {
             IStreamingSession streamingSession = null;
-
             if (_watchApiResponse != null)
             {
-                streamingSession = new SmileVideoStreamingSession(
-                    _watchApiResponse.VideoUrl,
-                    _niconicoSession
-                    );
+                var ownership = await _ownershipManager.TryRentVideoSessionOwnershipAsync(_watchApiResponse.videoDetail.id, !IsForCacheDownload);
+                if (ownership != null)
+                {
+                    streamingSession = new SmileVideoStreamingSession(
+                        _watchApiResponse.VideoUrl,
+                        _niconicoSession,
+                        ownership
+                        );
+                }
             }
             else if (_dmcWatchData != null)
             {
@@ -300,12 +310,21 @@ namespace NicoPlayerHohoema.Models
                         qualityEntity = AvailableQualities.Where(x => x.IsAvailable).First();
                     }
 
-                    streamingSession = new DmcVideoStreamingSession(qualityEntity.QualityId, _dmcWatchData, _niconicoSession);
+                    var ownership = await _ownershipManager.TryRentVideoSessionOwnershipAsync(_dmcWatchData.DmcWatchResponse.Video.Id, !IsForCacheDownload);
+                    if (ownership != null)
+                    {
+                        streamingSession = new DmcVideoStreamingSession(qualityEntity.QualityId, _dmcWatchData, _niconicoSession, ownership);
+                    }
+                    
                 }
                 else if (_dmcWatchData.DmcWatchResponse.Video.SmileInfo != null)
                 {
-                    streamingSession = new SmileVideoStreamingSession(
-                        new Uri(_dmcWatchData.DmcWatchResponse.Video.SmileInfo.Url), _niconicoSession);
+                    var ownership = await _ownershipManager.TryRentVideoSessionOwnershipAsync(_watchApiResponse.videoDetail.id, !IsForCacheDownload);
+                    if (ownership != null)
+                    {
+                        streamingSession = new SmileVideoStreamingSession(
+                            new Uri(_dmcWatchData.DmcWatchResponse.Video.SmileInfo.Url), _niconicoSession, ownership);
+                    }
                 }
                 else
                 {
@@ -317,7 +336,7 @@ namespace NicoPlayerHohoema.Models
                 throw new NotSupportedException("動画の再生準備に失敗（動画ページの解析でエラーが発生）");
             }
 
-            return Task.FromResult(streamingSession);
+            return streamingSession;
         }
 
 
@@ -390,25 +409,194 @@ namespace NicoPlayerHohoema.Models
         {
             return _dmcWatchData?.ToNicoVideoQuality(qualityId) ?? NicoVideoQuality.Unknown;
         }
-
     }
+
+    public sealed class SessionOwnershipRentFailedEventArgs
+    {
+        Deferral _deferral;
+        public SessionOwnershipRentFailedEventArgs(DeferralCompletedHandler deferralCompleted)
+        {
+            _deferralCompleted = deferralCompleted;
+        }
+
+        internal bool IsUseDeferral => _deferral != null;
+        private readonly DeferralCompletedHandler _deferralCompleted;
+
+        public bool IsHandled { get; set; }
+
+        public Deferral GetDeferral()
+        {
+            return _deferral ??= new Deferral(_deferralCompleted);
+        }
+    }
+
+
+    public sealed class SessionOwnershipRemoveRequestedEventArgs
+    {
+        public SessionOwnershipRemoveRequestedEventArgs(string videoId)
+        {
+            VideoId = videoId;
+        }
+
+        public string VideoId { get; }
+    }
+
+
+    public class NicoVideoSessionOwnershipManager
+    {
+        public NicoVideoSessionOwnershipManager(NiconicoSession niconicoSession)
+        {
+            _niconicoSession = niconicoSession;
+        }
+
+        List<VideoSessionOwnership> _VideoSessions = new List<VideoSessionOwnership>();
+
+        public event TypedEventHandler<NicoVideoSessionOwnershipManager, SessionOwnershipRentFailedEventArgs> RentFailed;
+        public event TypedEventHandler<NicoVideoSessionOwnershipManager, SessionOwnershipRemoveRequestedEventArgs> OwnershipRemoveRequested;
+
+        // ダウンロードライン数（再生中DLも含める）
+        // 未登録ユーザー = 1
+        // 通常会員       = 1
+        // プレミアム会員 = 3
+        public const int MaxDownloadLineCount = 1;
+        public const int MaxDownloadLineCount_Premium = 3;
+        private readonly NiconicoSession _niconicoSession;
+
+        public int DownloadSessionCount => _VideoSessions.Count;
+
+        public int AvairableDownloadLineCount => _niconicoSession.IsPremiumAccount 
+            ? MaxDownloadLineCount_Premium - DownloadSessionCount
+            : MaxDownloadLineCount - DownloadSessionCount 
+            ;
+        public bool CanAddDownloadLine()
+        {
+            return AvairableDownloadLineCount >= 1;
+        }
+
+        public class VideoSessionOwnership : IDisposable
+        {
+            private readonly NicoVideoSessionOwnershipManager _ownershipManager;
+
+            bool _isDisposed;
+            internal VideoSessionOwnership(string videoId, NicoVideoSessionOwnershipManager ownershipManager)
+            {
+                VideoId = videoId;
+                _ownershipManager = ownershipManager;
+            }
+
+            public string VideoId { get; }
+
+            public void Dispose()
+            {
+                if (_isDisposed) { return; }
+
+                _isDisposed = true;
+                _ownershipManager.RemoveVideoSessionOwnership(this);
+            }
+
+            public event EventHandler ReturnOwnershipRequested;
+
+            internal void TriggerStopOwnership()
+            {
+                ReturnOwnershipRequested?.Invoke(this, EventArgs.Empty);
+            }
+        }
+
+        public async Task<VideoSessionOwnership> TryRentVideoSessionOwnershipAsync(string videoId, bool isPriorityRent)
+        {
+            if (CanAddDownloadLine())
+            {
+                var ownership = new VideoSessionOwnership(videoId, this);
+                _VideoSessions.Add(ownership);
+                return ownership;
+            }
+
+            var handlers = RentFailed;
+            if (handlers != null)
+            {
+                TaskCompletionSource<bool> taskCompletionSource = new TaskCompletionSource<bool>();
+                var args = new SessionOwnershipRentFailedEventArgs(() => taskCompletionSource.SetResult(true));
+                handlers.Invoke(this, args);
+
+                await Task.Delay(10);
+                if (args.IsUseDeferral)
+                {
+                    await taskCompletionSource.Task;
+                }
+
+                if (!args.IsHandled) 
+                {
+                    return null;
+                }
+
+                if (isPriorityRent)
+                {
+                    var session = _VideoSessions.First();
+                    session.TriggerStopOwnership();
+                    (session as IDisposable).Dispose();
+
+                    await Task.Delay(10);
+                }
+
+                if (CanAddDownloadLine())
+                {
+                    var ownership = new VideoSessionOwnership(videoId, this);
+                    _VideoSessions.Add(ownership);
+                    return ownership;
+                }
+            }
+            else
+            {
+                if (isPriorityRent)
+                {
+                    var session = _VideoSessions.First();
+                    session.TriggerStopOwnership();
+                    (session as IDisposable).Dispose();
+
+                    await Task.Delay(10);
+                }
+
+                if (CanAddDownloadLine())
+                {
+                    var ownership = new VideoSessionOwnership(videoId, this);
+                    _VideoSessions.Add(ownership);
+                    return ownership;
+                }
+            }
+
+            return null;
+        }
+
+        private void RemoveVideoSessionOwnership(VideoSessionOwnership ownership)
+        {
+            _VideoSessions.Remove(ownership);
+
+            OwnershipRemoveRequested?.Invoke(this, new SessionOwnershipRemoveRequestedEventArgs(ownership.VideoId));
+        }
+    }
+
 
     public class NicoVideoSessionProvider
 	{
-        public NicoVideoSessionProvider(NicoVideoProvider nicoVideoProvider, NiconicoSession niconicoSession)
+        public NicoVideoSessionProvider(
+            NicoVideoProvider nicoVideoProvider, 
+            NiconicoSession niconicoSession,
+            NicoVideoSessionOwnershipManager nicoVideoSessionOwnershipManager
+            )
 		{
             _nicoVideoProvider = nicoVideoProvider;
             _niconicoSession = niconicoSession;
+            _nicoVideoSessionOwnershipManager = nicoVideoSessionOwnershipManager;
         }
 
         readonly private Provider.NicoVideoProvider _nicoVideoProvider;
         readonly private NiconicoSession _niconicoSession;
+        private readonly NicoVideoSessionOwnershipManager _nicoVideoSessionOwnershipManager;
 
-        public async Task<PreparePlayVideoResult> PreparePlayVideoAsync(string rawVideoId)
+        public async Task<PreparePlayVideoResult> PreparePlayVideoAsync(string rawVideoId, bool isForCacheDownload = false)
         {
             if (!Helpers.InternetConnection.IsInternet()) { return null; }
 
-            object res = null;
             var dmcRes = await _nicoVideoProvider.GetDmcWatchResponse(rawVideoId);
             if (dmcRes?.DmcWatchResponse.Video.IsDeleted ?? false)
             {
@@ -424,7 +612,10 @@ namespace NicoPlayerHohoema.Models
             
             if (dmcRes != null)
             {
-                return new PreparePlayVideoResult(rawVideoId, _niconicoSession, dmcRes);
+                return new PreparePlayVideoResult(rawVideoId, _niconicoSession, _nicoVideoSessionOwnershipManager, dmcRes)
+                {
+                    IsForCacheDownload = isForCacheDownload
+                };
             }
 
             try
@@ -448,7 +639,10 @@ namespace NicoPlayerHohoema.Models
                     throw new NotSupportedException("RTMP形式の動画はサポートしていません");
                 }
 
-                return new PreparePlayVideoResult(rawVideoId, _niconicoSession, watchApiRes);
+                return new PreparePlayVideoResult(rawVideoId, _niconicoSession, _nicoVideoSessionOwnershipManager, watchApiRes)
+                {
+                    IsForCacheDownload = isForCacheDownload
+                };
             }
             catch (Exception e)
             {

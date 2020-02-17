@@ -12,5 +12,10 @@ namespace NicoPlayerHohoema.Models.Cache
 		Pending,
 		Downloading,
 		Cached,
+
+		Failed,
+		FailedWithQualityNotAvairable,
+		DeletedFromUser,
+		DeletedFromNiconicoServer,
 	}
 }

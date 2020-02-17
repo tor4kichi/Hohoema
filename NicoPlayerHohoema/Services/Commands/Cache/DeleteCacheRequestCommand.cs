@@ -26,20 +26,20 @@ namespace NicoPlayerHohoema.Commands.Cache
             if (parameter is Interfaces.IVideoContent content)
             {
                 var video = Database.NicoVideoDb.Get(content.Id);
-                var cacheRequests = await VideoCacheManager.GetCacheRequest(content.Id);
+                var cacheRequests = await VideoCacheManager.GetCachedAsync(content.Id);
                 if (cacheRequests.Any())
                 {
                     var choiceItems = await DialogService.ShowMultiChoiceDialogAsync(
                         $"SelectDeleteVideoQuality".Translate(),
                         cacheRequests,
-                        Enumerable.Empty<Models.Cache.NicoVideoCacheRequest>(),
-                        nameof(Models.Cache.NicoVideoCacheRequest.Quality)
+                        Enumerable.Empty<Models.Cache.NicoVideoCached>(),
+                        nameof(Models.Cache.NicoVideoCached.Quality)
                         );
                     if (choiceItems?.Any() ?? false)
                     {
                         foreach (var deleteItem in choiceItems)
                         {
-                            await VideoCacheManager.CancelCacheRequest(content.Id, deleteItem.Quality);
+                            await VideoCacheManager.CancelCacheRequest(content.Id);
                         }
                     }
                 }
