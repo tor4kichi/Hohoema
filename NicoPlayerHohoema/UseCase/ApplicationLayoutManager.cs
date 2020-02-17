@@ -73,30 +73,16 @@ namespace NicoPlayerHohoema.UseCase
         ApplicationLayout GetAppLayout(ApplicationInteractionMode intaractionMode)
         {
             ApplicationLayout layout = ApplicationLayout.Mobile;
-            if (intaractionMode == ApplicationInteractionMode.Mouse)
-            {
-                var width = Window.Current.Bounds.Width;
-                if (width <= 519)
-                {
-                    layout = ApplicationLayout.Tablet;
-                }
-                else if (width <= 1439)
-                {
-                    layout = ApplicationLayout.Desktop;
-                }
-                else
-                {
-                    layout = ApplicationLayout.TV;
-                }
-            }
-            else if (intaractionMode == ApplicationInteractionMode.Touch)
+            if (intaractionMode == ApplicationInteractionMode.Mouse
+                || intaractionMode == ApplicationInteractionMode.Touch
+                )
             {
                 var width = Window.Current.Bounds.Width;
                 if (width <= 519)
                 {
                     layout = ApplicationLayout.Mobile;
                 }
-                else if (width <= 1039)
+                else if (width <= 799)
                 {
                     layout = ApplicationLayout.Tablet;
                 }
