@@ -325,12 +325,12 @@
                       <AppBarButton x:Name="ShowVideoInfoButon" Label="{Binding Source=VideoInfomation, Converter={StaticResource LocalizeConverter}}" Command="{Binding OpenVideoInfoCommand}" Visibility="Collapsed"></AppBarButton>
                       <AppBarButton Command="{x:Bind SelectSidePaneCommand}" CommandParameter="RelatedVideos" Background="Transparent" Label="{Binding Source=RelatedInfomation, Converter={StaticResource LocalizeConverter}}" />
                       <AppBarButton x:Name="ShareButton" Label="{Binding Source=Share, Converter={StaticResource LocalizeConverter}}" Icon="Link" Visibility="Collapsed" Command="{Binding ExternalAccessService.OpenShareUICommand}" CommandParameter="{Binding VideoInfo}"></AppBarButton>
-                      <AppBarButton x:Name="CopyActionsAppBarButton" Label="{Binding Source=Copy, Converter={StaticResource LocalizeConverter}}" Visibility="Collapsed">
+                      <AppBarButton x:Name="CopyActionsAppBarButton" Label="{Binding Source=Copy, Converter={StaticResource LocalizeConverter}}" Visibility="Visible">
                         <AppBarButton.Flyout>
                           <MenuFlyout>
                             <MenuFlyoutItem Text="{Binding Source=CopyVideoId, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding VideoId}" />
-                            <MenuFlyoutItem Text="{Binding Source=CopyVideoLink, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding}" />
-                            <MenuFlyoutItem Text="{Binding Source=CopyShareText, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}" CommandParameter="{Binding}" />
+                            <MenuFlyoutItem Text="{Binding Source=CopyVideoLink, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding VideoInfo}" />
+                            <MenuFlyoutItem Text="{Binding Source=CopyShareText, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}" CommandParameter="{Binding VideoInfo}" />
                           </MenuFlyout>
                         </AppBarButton.Flyout>
                       </AppBarButton>
@@ -704,6 +704,17 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
+            <windowsTriggers:DeviceFamilyStateTrigger DeviceFamily="Xbox" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="CopyActionsAppBarButton.Visibility" Value="Collapsed" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
             <myTrigger:IsShowWithSecondaryViewTrigger />
           </VisualState.StateTriggers>
         </VisualState>
@@ -714,7 +725,6 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="FocusWhenShowingControlUIAction.IsEnabled" Value="True" />
-            <Setter Target="CopyActionsAppBarButton.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
