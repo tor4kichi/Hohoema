@@ -688,6 +688,8 @@ CopyShareText = 复制文字以分享
 
 CacheRequest = 获取缓存
 CacheRemove = 删除缓存
+ConfirmCacheRemoveContent = 标题：“{0}” \n需要重新下载才能撤消
+ConfirmCacheRemoveTitle = 删除缓存
 
 SelectAll = 全选
 SelectStart = 开始选择

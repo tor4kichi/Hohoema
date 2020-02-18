@@ -696,6 +696,8 @@ CopyShareText = 共有用テキストをコピー
 
 CacheRequest = キャッシュ取得
 CacheRemove = キャッシュ削除
+ConfirmCacheRemoveContent = タイトル：『{0}』\n元に戻すには再ダウンロードが必要です
+ConfirmCacheRemoveTitle = キャッシュを削除します
 
 SelectAll = すべて選択
 SelectStart = 選択開始
