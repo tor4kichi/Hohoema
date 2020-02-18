@@ -23,6 +23,8 @@ using Windows.UI.Core;
 using System.Threading.Tasks;
 using NicoPlayerHohoema.Repository.NicoVideo;
 using NicoPlayerHohoema.Models.Helpers;
+using NicoPlayerHohoema.Repository.VideoCache;
+using Reactive.Bindings.Extensions;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -47,8 +49,7 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
             _dispatcher = Dispatcher;
 
             _cacheManager = App.Current.Container.Resolve<Models.Cache.VideoCacheManager>();
-            CacheRequests = new List<Models.Cache.NicoVideoCacheRequest>();
-
+            
             _ngSettings = App.Current.Container.Resolve<Models.NGSettings>();
         }
 
@@ -244,15 +245,15 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
 
 
 
-        public List<Models.Cache.NicoVideoCacheRequest> CacheRequests
+        public CacheRequest? CacheRequest
         {
-            get { return (List<Models.Cache.NicoVideoCacheRequest>)GetValue(CacheRequestsProperty); }
-            set { SetValue(CacheRequestsProperty, value); }
+            get { return (CacheRequest?)GetValue(CacheRequestProperty); }
+            set { SetValue(CacheRequestProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for CacheRequests.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty CacheRequestsProperty =
-            DependencyProperty.Register("CacheRequests", typeof(List<Models.Cache.NicoVideoCacheRequest>), typeof(VideoListItemControl), new PropertyMetadata(null));
+        public static readonly DependencyProperty CacheRequestProperty =
+            DependencyProperty.Register("CacheRequest", typeof(CacheRequest?), typeof(VideoListItemControl), new PropertyMetadata(default(CacheRequest?)));
 
         public bool HasCacheProgress
         {
@@ -305,47 +306,57 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
             {
                 _cacheManager.VideoCacheStateChanged += _cacheManager_VideoCacheStateChanged;
 
-                ResetIsCached(video);
-                ResetCacheRequests(video);
+                var cacheRequest = _cacheManager.GetCacheRequest(video.Id);
+                ResetCacheRequests(video, cacheRequest);
             }
         }
 
-        void ResetIsCached(Interfaces.IVideoContent video)
-        {
-            var cached = _cacheManager.CheckCached(video.Id);
-        }
-
-        void ResetCacheRequests(Interfaces.IVideoContent video)
+        void ResetCacheRequests(Interfaces.IVideoContent video, CacheRequest? cacheRequest)
         {
             ClearHandleProgress();
 
-            _cacheManager.GetCacheRequest(video.Id)
-                .ContinueWith(async prevTask => 
+            _ = _dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
+            {
+                if (cacheRequest?.CacheState == NicoVideoCacheState.Downloading)
                 {
-                    await _dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () => 
+                    var progress = await _cacheManager.GetCacheProgress(video.Id);
+                    if (progress != null)
                     {
-                        var cacheRequests = await prevTask;
-                        CacheRequests = cacheRequests;
+                        HandleProgress(progress);
+                    }
 
-                        var progressRequest = cacheRequests.FirstOrDefault(x => x is Models.Cache.NicoVideoCacheProgress);
-                        if (progressRequest is Models.Cache.NicoVideoCacheProgress progress)
+                    cacheRequest = new CacheRequest(cacheRequest.Value, cacheRequest.Value.CacheState)
+                    {
+                        PriorityQuality = progress.Quality
+                    };
+                }
+
+                if (cacheRequest?.CacheState == NicoVideoCacheState.Cached 
+                && cacheRequest.Value.PriorityQuality == NicoVideoQuality.Unknown)
+                {
+                    var cached = await _cacheManager.GetCachedAsync(video.Id);
+                    if (cached?.Any() ?? false)
+                    {
+                        cacheRequest = new CacheRequest(cacheRequest.Value, cacheRequest.Value.CacheState)
                         {
-                            HandleProgress(progress);
-                        }
-                    });
-                });
+                            PriorityQuality = cached.First().Quality
+                        };
+                    }
+                }
+
+                CacheRequest = cacheRequest;
+            });
         }
 
         private void _cacheManager_VideoCacheStateChanged(object sender, VideoCacheStateChangedEventArgs e)
         {
             if (DataContext is Interfaces.IVideoContent video)
             {
-                if (e.Request.RawVideoId == video.Id)
+                if (e.Request.VideoId == video.Id)
                 {
                     _ = _dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
                     {
-                        ResetIsCached(video);
-                        ResetCacheRequests(video);
+                        ResetCacheRequests(video, e.Request);
                     });
                 }
             }
@@ -359,6 +370,7 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
         Models.Cache.NicoVideoCacheProgress _progress;
         private CoreDispatcher _dispatcher;
 
+        IDisposable _progressObserver;
         double _totalSizeInverted;
         private void HandleProgress(Models.Cache.NicoVideoCacheProgress progress)
         {
@@ -366,30 +378,24 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
             DownloadProgress = default; // nullの時はゲージ表示を曖昧に表現する
             CacheProgressQuality = progress.Quality;
 
-            var ranges = progress.DownloadOperation.GetDownloadedRanges();
-
-            progress.DownloadOperation.RangesDownloaded += DownloadOperation_RangesDownloaded;
             _progress = progress;
-            _totalSizeInverted = 1.0 / progress.DownloadOperation.Progress.TotalBytesToReceive;
+            _progressObserver = _progress.ObserveProperty(x => x.Progress)
+                .Subscribe(async x => 
+                {
+                    await _dispatcher.RunAsync(CoreDispatcherPriority.Normal, () =>
+                    {
+                        DownloadProgress = x;
+                    });
+                });
         }
-
-        private void DownloadOperation_RangesDownloaded(Windows.Networking.BackgroundTransfer.DownloadOperation sender, Windows.Networking.BackgroundTransfer.BackgroundTransferRangesDownloadedEventArgs args)
-        {
-            var byteRecieved = sender.Progress.BytesReceived;
-            _ = _dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
-            {
-                DownloadProgress = byteRecieved * _totalSizeInverted;
-            });
-        }
-
 
         private void ClearHandleProgress()
         {
             if (_progress != null)
             {
-                _progress.DownloadOperation.RangesDownloaded -= DownloadOperation_RangesDownloaded;
                 _progress = null;
             }
+            _progressObserver?.Dispose();
 
             _totalSizeInverted = 0.0;
             DownloadProgress = default;

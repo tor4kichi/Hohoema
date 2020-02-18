@@ -21,8 +21,8 @@ namespace NicoPlayerHohoema.Models
 
         FFmpegInteropMSS _VideoMSS;
 
-        public SmileVideoStreamingSession(Uri videoUrl, NiconicoSession niconicoSession)
-            : base(niconicoSession)
+        public SmileVideoStreamingSession(Uri videoUrl, NiconicoSession niconicoSession, NicoVideoSessionOwnershipManager.VideoSessionOwnership videoSessionOwnership)
+            : base(niconicoSession, videoSessionOwnership)
         {
             VideoUrl = videoUrl;
             if (VideoUrl.OriginalString.EndsWith("low"))

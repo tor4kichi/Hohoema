@@ -17,12 +17,12 @@ namespace NicoPlayerHohoema.Models
         public override string QualityId { get; }
         public override NicoVideoQuality Quality { get; }
 
-        public StorageFile File { get; }
+        public IStorageFile File { get; }
 
         FFmpegInteropMSS _VideoMSS;
 
-        public LocalVideoStreamingSession(StorageFile file, NicoVideoQuality requestQuality, NiconicoSession niconicoSession)
-            : base(niconicoSession)
+        public LocalVideoStreamingSession(IStorageFile file, NicoVideoQuality requestQuality, NiconicoSession niconicoSession)
+            : base(niconicoSession, null)
         {
             File = file;
             Quality = requestQuality;

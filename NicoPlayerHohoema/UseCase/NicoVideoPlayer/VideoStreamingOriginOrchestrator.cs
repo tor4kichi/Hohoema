@@ -127,8 +127,10 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
             }
             else
             {
+                /*
                 bool canPlay = true;
-                if (await IsRequireCacheDLSuspendToPlayVideoOnline(videoId))
+                var downloadLineOwnership = await _videoCacheManager.TryRentDownloadLineAsync();
+                if (downloadLineOwnership == null)
                 {
                     canPlay = false;
                     if (await ShowSuspendCacheDownloadingDialog())
@@ -142,10 +144,24 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
                 {
                     return new PlayingOrchestrateResult();
                 }
+                */
 
                 var preparePlayVideo = await _nicoVideoSessionProvider.PreparePlayVideoAsync(videoId);
 
                 if (!preparePlayVideo.IsSuccess)
+                {
+                    var progress = await _videoCacheManager.GetDownloadProgressVideosAsync();
+                    if (!_niconicoSession.IsPremiumAccount && progress.Any())
+                    {
+                        var result = await ShowSuspendCacheDownloadingDialog();
+                        if (result)
+                        {
+                            preparePlayVideo = await _nicoVideoSessionProvider.PreparePlayVideoAsync(videoId);
+                        }
+                    }
+                }
+
+                if (preparePlayVideo == null || !preparePlayVideo.IsSuccess)
                 {
                     throw new NotSupportedException("不明なエラーにより再生できません");
                 }
@@ -156,89 +172,13 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
                     preparePlayVideo.GetVideoDetails()
                     );
             }
-
-            /*
-        try
-        {
-
-
-            await _session.StartPlayback(_mediaPlayer);
-
-            _mediaPlayer.PlaybackSession.Position = initialPosition;
-
-            quality = _session.Quality;
-
-            if (_session is DmcVideoStreamingSession dmcSession)
-            {
-                var content = dmcSession.VideoContent;
-                if (content != null)
-                {
-                    isDmcContent = true;
-                }
-
-                List<VideoContent> qualities = new List<VideoContent>();
-                if (dmcSession.DmcWatchResponse?.Video?.DmcInfo?.Quality != null)
-                {
-                    qualities = dmcSession.DmcWatchResponse.Video.DmcInfo.Quality.Videos.ToList() ?? new List<VideoContent>();
-                }
-            }
-
-
-            isSuccess = true;
-
-            return new TryContentPlayingResult()
-            {
-                IsDmcContent = isDmcContent,
-
-            };
-            
-        }
-        */
-        }
-
-
-
-        async Task<bool> IsRequireCacheDLSuspendToPlayVideoOnline(string videoId)
-        {
-            if (!_niconicoSession.IsPremiumAccount && !_videoCacheManager.CanAddDownloadLine)
-            {
-                // 一般ユーザーまたは未登録ユーザーの場合
-                // 視聴セッションを１つに制限するため、キャッシュダウンロードを止める必要がある
-                // キャッシュ済みのアイテムを再生中の場合はダウンロード可能なので確認をスキップする
-                var cachedItems = await _videoCacheManager.GetCacheRequest(videoId);
-                if (cachedItems.FirstOrDefault(x => x.ToCacheState() == NicoVideoCacheState.Cached) != null)
-                {
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
-            }
-            else if (!_niconicoSession.IsPremiumAccount)
-            {
-                // キャッシュ済みの場合はサスペンドを掛けない
-                if (false == await _videoCacheManager.CheckCachedAsync(videoId))
-                {
-                    return false;
-                }
-                else
-                {
-                    return true;
-                }
-            }
-            else
-            {
-                // プレミアムアカウントであれば常にキャッシュDLを止める必要はない
-                return false;
-            }
         }
 
         async Task<bool> ShowSuspendCacheDownloadingDialog()
         {
             var currentDownloadingItems = await _videoCacheManager.GetDownloadProgressVideosAsync();
             var downloadingItem = currentDownloadingItems.FirstOrDefault();
-            var downloadingItemVideoInfo = Database.NicoVideoDb.Get(downloadingItem.RawVideoId);
+            var downloadingItemVideoInfo = Database.NicoVideoDb.Get(downloadingItem.VideoId);
 /*
             var totalSize = downloadingItem.DownloadOperation.Progress.TotalBytesToReceive;
             var receivedSize = downloadingItem.DownloadOperation.Progress.BytesReceived;

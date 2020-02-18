@@ -100,8 +100,8 @@ namespace NicoPlayerHohoema.Models
         DmcWatchData _DmcWatchData;
         static DmcSessionResponse _DmcSessionResponse;
 
-        public DmcVideoStreamingSession(string qualityId, DmcWatchData res, NiconicoSession niconicoSession)
-            : base(niconicoSession)
+        public DmcVideoStreamingSession(string qualityId, DmcWatchData res, NiconicoSession niconicoSession, NicoVideoSessionOwnershipManager.VideoSessionOwnership videoSessionOwnership)
+            : base(niconicoSession, videoSessionOwnership)
         {
             _DmcWatchData = res;
             DmcWatchResponse = res.DmcWatchResponse;

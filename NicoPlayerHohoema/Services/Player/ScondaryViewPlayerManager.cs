@@ -251,13 +251,8 @@ namespace NicoPlayerHohoema.Services
                 localObjectStorageHelper.Save(secondary_view_size, _PrevSecondaryViewSize);
             }
 
-            _scheduler.Schedule(async () => 
+            _scheduler.Schedule(() => 
             {
-                // セカンダリウィンドウを閉じるタイミングでキャッシュを再開する
-                // プレミアム会員の場合は何もおきない
-                var cacheManager = App.Current.Container.Resolve<VideoCacheManager>();
-                await cacheManager.ResumeCacheDownload();
-
                 IsShowSecondaryView = false;
             });
         }

@@ -11,6 +11,8 @@ namespace NicoPlayerHohoema.Models
     
 	public enum NicoVideoQuality
 	{
+        Unknown,
+
         Smile_Original,
 		Smile_Low,
 
@@ -19,9 +21,6 @@ namespace NicoPlayerHohoema.Models
         Dmc_Midium,
         Dmc_Low,
         Dmc_Mobile,
-
-        Unknown,
-
     }
 
 
