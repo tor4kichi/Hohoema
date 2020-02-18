@@ -1314,13 +1314,13 @@ namespace NicoPlayerHohoema.Models.Cache
         }
 
 
-        public async Task<int> DeleteFromNiconicoServer(string videoId)
+        public async Task<bool> DeleteFromNiconicoServer(string videoId)
         {
             using var releaser = await _CacheRequestProcessingLock.LockAsync();
 
             if (!_cacheRequestRepository.TryGet(videoId, out var request))
             {
-                throw new Exception();
+                return false;
             }
 
             var cachedItems = await GetCachedAsync_Internal(videoId);
@@ -1333,7 +1333,7 @@ namespace NicoPlayerHohoema.Models.Cache
 
             HandleCacheStateChanged(ref request, NicoVideoCacheState.DeletedFromNiconicoServer);
 
-            return deletedCount;
+            return deletedCount != 0;
         }
 
 

@@ -32,7 +32,7 @@ namespace NicoPlayerHohoema.Services.Notification
             EventAggregator.GetEvent<Models.Provider.VideoDeletedEvent>()
                 .Subscribe(async videoInfo => 
                 {
-                    if (await VideoCacheManager.CancelCacheRequest(videoInfo.RawVideoId))
+                    if (await VideoCacheManager.DeleteFromNiconicoServer(videoInfo.RawVideoId))
                     {
                         NotificationService.ShowToast("ToastNotification_VideoDeletedWithId".Translate(videoInfo.RawVideoId)
                             , "ToastNotification_ExplainVideoForceDeletion".Translate(videoInfo?.Title ?? videoInfo.RawVideoId)
