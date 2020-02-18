@@ -319,7 +319,7 @@ namespace NicoPlayerHohoema.Models
                 }
                 else if (_dmcWatchData.DmcWatchResponse.Video.SmileInfo != null)
                 {
-                    var ownership = await _ownershipManager.TryRentVideoSessionOwnershipAsync(_watchApiResponse.videoDetail.id, !IsForCacheDownload);
+                    var ownership = await _ownershipManager.TryRentVideoSessionOwnershipAsync(_dmcWatchData.DmcWatchResponse.Video.Id, !IsForCacheDownload);
                     if (ownership != null)
                     {
                         streamingSession = new SmileVideoStreamingSession(

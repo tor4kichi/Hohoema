@@ -794,6 +794,12 @@ namespace NicoPlayerHohoema.Models.Cache
         {
             using var realeser = await _CacheRequestProcessingLock.LockAsync();
 
+            return await GetCachedAsync_Internal(videoId);
+        }
+
+
+        private async Task<List<NicoVideoCached>> GetCachedAsync_Internal(string videoId)
+        {
             var folder = await CacheSaveFolder.GetVideoCacheFolder();
             if (folder == null) { return new List<NicoVideoCached>(); }
 
@@ -846,21 +852,20 @@ namespace NicoPlayerHohoema.Models.Cache
                 // ただし、状態を中断して新しくDLし直して欲しいニーズがあるので、
                 // DLセッションが問題ないかのチェックはしておきたい
 
-                bool continueProgressDownload = false;
                 var progress = alreadyDownload;
                 if (requestQuality != NicoVideoQuality.Unknown)
                 {
-                    if (progress.Quality != requestQuality)
+                    if (progress.Quality == requestQuality)
                     {
-                        continueProgressDownload = true;
+                        return;
                     }
                 }
 
-                if (continueProgressDownload)
-                {
-                    return;
-                }
+                RemoveDownloadOperation(alreadyDownload);
+                await alreadyDownload.CancelAndDeleteFileAsync();
             }
+
+
 
             // 既にリクエスト済み
             if (_cacheRequestRepository.TryGet(videoId, out var req))
@@ -924,7 +929,7 @@ namespace NicoPlayerHohoema.Models.Cache
                 }
             }
 
-            foreach (var cached in await GetCachedAsync(videoId))
+            foreach (var cached in await GetCachedAsync_Internal(videoId))
             {
                 await cached.File.DeleteAsync(StorageDeleteOption.PermanentDelete);
             }
@@ -1318,7 +1323,7 @@ namespace NicoPlayerHohoema.Models.Cache
                 throw new Exception();
             }
 
-            var cachedItems = await GetCachedAsync(videoId);
+            var cachedItems = await GetCachedAsync_Internal(videoId);
             int deletedCount = 0;
             foreach (var cached in cachedItems)
             {
@@ -1375,6 +1380,11 @@ namespace NicoPlayerHohoema.Models.Cache
             {
                 return false;
             }
+        }
+
+        internal bool IsCacheRequested(string videoId)
+        {
+            return _cacheRequestRepository.Exists(x => x.VideoId == videoId);
         }
 
         private void TriggerCacheStateChangedEventOnUIThread(CacheRequest req, NicoVideoCacheState prevCacheState)

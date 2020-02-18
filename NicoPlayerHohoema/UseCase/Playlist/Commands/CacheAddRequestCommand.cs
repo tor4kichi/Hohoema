@@ -1,15 +1,17 @@
-﻿using Prism.Commands;
+﻿using NicoPlayerHohoema.Interfaces;
+using NicoPlayerHohoema.Models;
+using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NicoPlayerHohoema.Commands.Cache
+namespace NicoPlayerHohoema.UseCase.Playlist.Commands
 {
-    public sealed class AddCacheRequestCommand : DelegateCommandBase
+    public sealed class CacheAddRequestCommand : VideoContentSelectionCommandBase
     {
-        public AddCacheRequestCommand(
+        public CacheAddRequestCommand(
             Models.Cache.VideoCacheManager videoCacheManager,
             Services.DialogService dialogService
             )
@@ -21,17 +23,16 @@ namespace NicoPlayerHohoema.Commands.Cache
         public Models.Cache.VideoCacheManager VideoCacheManager { get; }
         public Services.DialogService DialogService { get; }
 
+        public NicoVideoQuality VideoQuality { get; set; } = NicoVideoQuality.Unknown;
+
         protected override bool CanExecute(object parameter)
         {
             return parameter is Interfaces.IVideoContent;
         }
 
-        protected override void Execute(object parameter)
+        protected override void Execute(IVideoContent content)
         {
-            if (parameter is Interfaces.IVideoContent content)
-            {
-                VideoCacheManager.RequestCache(content.Id);
-            }
+            VideoCacheManager.RequestCache(content.Id, VideoQuality);
         }
     }
 }

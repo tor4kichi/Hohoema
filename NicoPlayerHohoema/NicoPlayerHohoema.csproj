@@ -176,8 +176,8 @@
     <Compile Include="UseCase\Pin\PinRemoveCommand.cs" />
     <Compile Include="UseCase\Playlist\Commands\AddMylistCommand.cs" />
     <Compile Include="UseCase\Playlist\Commands\AddToHiddenUserCommand.cs" />
-    <Compile Include="Services\Commands\Cache\AddCacheRequestCommand.cs" />
-    <Compile Include="Services\Commands\Cache\DeleteCacheRequestCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\CacheAddRequestCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\CacheDeleteRequestCommand.cs" />
     <Compile Include="Services\Commands\GoNextIntroductionPageCommand.cs" />
     <Compile Include="Services\Commands\LogoutFromNiconicoCommand.cs" />
     <Compile Include="UseCase\Playlist\Commands\CreateLocalMylistCommand.cs" />
@@ -1349,6 +1349,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
+    <Folder Include="Services\Commands\Cache\" />
     <Folder Include="Services\CoreLayoutEvents\" />
     <Folder Include="UseCase\NicoVideoPlayer\Playlist\" />
     <Folder Include="ViewModels\Follow\" />

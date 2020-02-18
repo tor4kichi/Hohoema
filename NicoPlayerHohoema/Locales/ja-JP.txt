@@ -248,10 +248,10 @@ FreeInputCommandTextBoxPlacefolderText = ここにコマンドを自由入力
 #### Video ####
 NicoVideoQuality.Smile_Low = 旧 低画質
 NicoVideoQuality.Smile_Original = 旧 オリジナル画質
-NicoVideoQuality.Dmc_High = 高画質
+NicoVideoQuality.Dmc_Mobile = モバイル画質
 NicoVideoQuality.Dmc_Low = 低画質
 NicoVideoQuality.Dmc_Midium = 中画質
-NicoVideoQuality.Dmc_Mobile = モバイル画質
+NicoVideoQuality.Dmc_High = 高画質
 NicoVideoQuality.Dmc_SuperHigh = すごく高画質
 
 VideoPostAt = 投稿日
@@ -695,9 +695,12 @@ CopyVideoLink = 動画リンクをコピー
 CopyShareText = 共有用テキストをコピー
 
 CacheRequest = キャッシュ取得
+CacheRequestWithQuality = キャッシュ取得（画質指定）
 CacheRemove = キャッシュ削除
-ConfirmCacheRemoveContent = タイトル：『{0}』\n元に戻すには再ダウンロードが必要です
 ConfirmCacheRemoveTitle = キャッシュを削除します
+ConfirmCacheRemoveContent = タイトル：『{0}』\n元に戻すには再ダウンロードが必要です
+ConfirmCacheRemoveTitle_Multiple = {0}件のキャッシュを削除します
+ConfirmCacheRemoveContent_Multiple = 元に戻すには再ダウンロードが必要です
 
 SelectAll = すべて選択
 SelectStart = 選択開始

@@ -320,7 +320,10 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
                 if (cacheRequest?.CacheState == NicoVideoCacheState.Downloading)
                 {
                     var progress = await _cacheManager.GetCacheProgress(video.Id);
-                    HandleProgress(progress);
+                    if (progress != null)
+                    {
+                        HandleProgress(progress);
+                    }
                 }
 
                 CacheRequest = cacheRequest;

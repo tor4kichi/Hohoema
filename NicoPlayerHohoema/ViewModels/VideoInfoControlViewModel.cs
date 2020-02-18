@@ -25,7 +25,6 @@ using System.Reactive.Concurrency;
 using NicoPlayerHohoema.Commands.Mylist;
 using NicoPlayerHohoema.Commands.Subscriptions;
 using NicoPlayerHohoema.Commands;
-using NicoPlayerHohoema.Commands.Cache;
 using Prism.Commands;
 using Prism.Unity;
 using NicoPlayerHohoema.Interfaces;
