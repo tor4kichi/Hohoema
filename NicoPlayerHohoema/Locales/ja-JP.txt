@@ -124,6 +124,15 @@ CancelCacheAndPlayDesc = ニコニコのプレミアム会員以外は 視聴と
 CancelCacheAndPlayTitle = キャッシュを中止して視聴を開始しますか？
 CancelCacheAndPlay = キャッシュを中止して視聴する
 
+NicoVideoCacheState.NotCacheRequested = キャンセル済み
+NicoVideoCacheState.Pending = DL待ち
+NicoVideoCacheState.Downloading = ダウンロード中
+NicoVideoCacheState.Cached = キャッシュ済み
+NicoVideoCacheState.Failed = DL失敗
+NicoVideoCacheState.FailedWithQualityNotAvairable = 指定画質DL不可（時間を変えて再試行）
+NicoVideoCacheState.DeletedFromUser = 削除済み
+NicoVideoCacheState.DeletedFromNiconicoServer = サーバーから削除済み
+
 
 #### Subscribe feature ####
 SubscriptionGroup_Create = 購読グループを作成
@@ -246,6 +255,7 @@ FreeInputCommandTextBoxPlacefolderText = ここにコマンドを自由入力
 
 
 #### Video ####
+NicoVideoQuality.Unknown = 画質指定なし
 NicoVideoQuality.Smile_Low = 旧 低画質
 NicoVideoQuality.Smile_Original = 旧 オリジナル画質
 NicoVideoQuality.Dmc_Mobile = モバイル画質

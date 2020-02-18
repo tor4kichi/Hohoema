@@ -1012,7 +1012,7 @@ namespace NicoPlayerHohoema.Models.Cache
             var prepareResult = await _nicoVideoSessionProvider.PreparePlayVideoAsync(videoInfo.RawVideoId, isForCacheDownload: true);
 
             // DownloadSessionを保持して、再生完了時にDisposeさせる必要がある
-            var downloadSession = await prepareResult.CreateVideoSessionAsync(nextRequest.PriorityQuality);
+            var downloadSession = await prepareResult.CreateVideoSessionAsync(nextRequest.PriorityQuality == NicoVideoQuality.Unknown ? CacheSettings.DefaultCacheQuality : nextRequest.PriorityQuality);
             if (downloadSession == null)
             {
                 // TODO: 再生中のプレイヤーを閉じることでキャッシュを再開できることを確認する

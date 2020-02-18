@@ -324,6 +324,24 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
                     {
                         HandleProgress(progress);
                     }
+
+                    cacheRequest = new CacheRequest(cacheRequest.Value, cacheRequest.Value.CacheState)
+                    {
+                        PriorityQuality = progress.Quality
+                    };
+                }
+
+                if (cacheRequest?.CacheState == NicoVideoCacheState.Cached 
+                && cacheRequest.Value.PriorityQuality == NicoVideoQuality.Unknown)
+                {
+                    var cached = await _cacheManager.GetCachedAsync(video.Id);
+                    if (cached?.Any() ?? false)
+                    {
+                        cacheRequest = new CacheRequest(cacheRequest.Value, cacheRequest.Value.CacheState)
+                        {
+                            PriorityQuality = cached.First().Quality
+                        };
+                    }
                 }
 
                 CacheRequest = cacheRequest;

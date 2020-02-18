@@ -20,8 +20,9 @@
 
     <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom">
 
+      
       <TextBlock Opacity="0.6" FontSize="12">
-              <Run Text="{x:Bind CacheRequest.Value.CacheState, Converter={StaticResource LocalizeConverter}, Mode=OneWay}" />
+         <Run Text="{x:Bind CacheRequest.Value.CacheState, Converter={StaticResource LocalizeConverter}, Mode=OneWay}" /> <Run Text="{x:Bind CacheRequest.Value.PriorityQuality, Converter={StaticResource LocalizeConverter}, Mode=OneWay}" />
       </TextBlock>
 
       <StackPanel Orientation="Horizontal" Spacing="8" x:Name="CacheProgressLayout" Visibility="Collapsed">
