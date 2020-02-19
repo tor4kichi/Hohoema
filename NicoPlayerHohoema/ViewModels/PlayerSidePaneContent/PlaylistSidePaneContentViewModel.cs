@@ -92,12 +92,15 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                         {
                             case MediaPlaybackAutoRepeatMode.List:
                                 _playerSettings.RepeatMode = MediaPlaybackAutoRepeatMode.Track;
+                                MediaPlayer.IsLoopingEnabled = true;
                                 break;
                             case MediaPlaybackAutoRepeatMode.Track:
                                 _playerSettings.RepeatMode = MediaPlaybackAutoRepeatMode.None;
+                                MediaPlayer.IsLoopingEnabled = false;
                                 break;
                             case MediaPlaybackAutoRepeatMode.None:
                                 _playerSettings.RepeatMode = MediaPlaybackAutoRepeatMode.List;
+                                MediaPlayer.IsLoopingEnabled = false;
                                 break;
                             default:
                                 break;
