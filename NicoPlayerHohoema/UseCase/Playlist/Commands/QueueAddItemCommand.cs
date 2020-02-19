@@ -37,14 +37,20 @@ namespace NicoPlayerHohoema.UseCase.Playlist.Commands
                 var displayViewMode = NicoVideoPlayer.VideoPlayRequestBridgeToPlayer.ReadDisplayMode();
                 if (displayViewMode == NicoVideoPlayer.PlayerDisplayView.SecondaryView)
                 {
-                    _scondaryViewPlayerManager.OnceSurpressActivation();
+                    if (!_scondaryViewPlayerManager.IsShowSecondaryView)
+                    {
+                        _scondaryViewPlayerManager.OnceSurpressActivation();
 
-                    _hohoemaPlaylist.Play(content);
+                        _hohoemaPlaylist.Play(content);
+                    }
                 }
                 else
                 {
-                    _primaryViewPlayerManager.ShowWithWindowInWindow();
-                    _hohoemaPlaylist.Play(content);
+                    if (_primaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.Close)
+                    {
+                        _primaryViewPlayerManager.ShowWithWindowInWindow();
+                        _hohoemaPlaylist.Play(content);
+                    }
                 }
             }
         }
