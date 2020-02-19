@@ -197,7 +197,7 @@ namespace NicoPlayerHohoema.Models.Cache
                 folderPicker.FileTypeFilter.Add("*");
 
                 var folder = await folderPicker.PickSingleFolderAsync();
-                if (folder != null && folder.Path != _DownloadFolder?.Path)
+                if (folder != null)
                 {
                     if (false == String.IsNullOrWhiteSpace(CurrentFolderAccessToken))
                     {
@@ -539,18 +539,19 @@ namespace NicoPlayerHohoema.Models.Cache
         /// <returns></returns>
         public async Task SuspendCacheDownload()
         {
-            using var releaser = await _CacheRequestProcessingLock.LockAsync();
-
-            if (State != CacheManagerState.Running) { return; }
-
-            State = CacheManagerState.SuspendDownload;
-
-            var operations = _DownloadOperations.ToList();
-            _DownloadOperations.Clear();
-            foreach (var progress in operations)
+            using (var releaser = await _CacheRequestProcessingLock.LockAsync())
             {
-                RemoveDownloadOperation(progress);
-                await progress.CancelAndDeleteFileAsync();
+                if (State != CacheManagerState.Running) { return; }
+
+                State = CacheManagerState.SuspendDownload;
+
+                var operations = _DownloadOperations.ToList();
+                _DownloadOperations.Clear();
+                foreach (var progress in operations)
+                {
+                    RemoveDownloadOperation(progress);
+                    await progress.CancelAndDeleteFileAsync();
+                }
             }
         }
 
@@ -565,7 +566,7 @@ namespace NicoPlayerHohoema.Models.Cache
             if (State != CacheManagerState.SuspendDownload) { return; }
 
             State = CacheManagerState.Running;
-            await TryNextCacheRequestedVideoDownload();
+            _ = TryNextCacheRequestedVideoDownload().ConfigureAwait(false);
         }
 
 
@@ -692,38 +693,46 @@ namespace NicoPlayerHohoema.Models.Cache
             }
 
             List<CacheRequest> retrievedCacheInfoList = new List<CacheRequest>();
-            var files = await videoFolder.GetFilesAsync();
-            foreach (var file in files)
+            using (var cancelTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+            try
             {
-                if (!(file.FileType == ".mp4" || file.FileType == ".flv"))
+                var files = await videoFolder.GetFilesAsync();
+                foreach (var file in files)
                 {
-                    continue;
-                }
-
-                // ファイル名の最後方にある[]の中身の文字列を取得
-                // (動画タイトルに[]が含まれる可能性に配慮)
-                var match = NicoVideoIdRegex.Match(file.Name);
-                var id = match.Groups[1]?.Value;
-                if (string.IsNullOrEmpty(id))
-                {
-                    // 外部キャッシュとして取得可能かをチェック
-                    match = ExternalCachedNicoVideoIdRegex.Match(file.Name);
-
-                    if (match.Groups.Count > 0)
-                    {
-                        id = match.Groups[match.Groups.Count - 1].Value;
-                    }
-
-                    // 動画IDを抽出不可だった場合はスキップ
-                    if (string.IsNullOrEmpty(id))
+                    if (!(file.FileType == ".mp4" || file.FileType == ".flv"))
                     {
                         continue;
                     }
+
+                    // ファイル名の最後方にある[]の中身の文字列を取得
+                    // (動画タイトルに[]が含まれる可能性に配慮)
+                    var match = NicoVideoIdRegex.Match(file.Name);
+                    var id = match.Groups[1]?.Value;
+                    if (string.IsNullOrEmpty(id))
+                    {
+                        // 外部キャッシュとして取得可能かをチェック
+                        match = ExternalCachedNicoVideoIdRegex.Match(file.Name);
+
+                        if (match.Groups.Count > 0)
+                        {
+                            id = match.Groups[match.Groups.Count - 1].Value;
+                        }
+
+                        // 動画IDを抽出不可だった場合はスキップ
+                        if (string.IsNullOrEmpty(id))
+                        {
+                            continue;
+                        }
+                    }
+
+                    retrievedCacheInfoList.Add(new CacheRequest(id, file.DateCreated.DateTime, NicoVideoCacheState.NotCacheRequested));
+
+                    Debug.Write(".");
                 }
-
-                retrievedCacheInfoList.Add(new CacheRequest(id, file.DateCreated.DateTime, NicoVideoCacheState.Cached));
-
-                Debug.Write(".");
+            }
+            catch (TaskCanceledException)
+            {
+                
             }
 
 
@@ -731,7 +740,7 @@ namespace NicoPlayerHohoema.Models.Cache
             foreach (var req in retrievedCacheInfoList)
             {
                 var r = req;
-                HandleCacheStateChanged(ref r, NicoVideoCacheState.NotCacheRequested);
+                HandleCacheStateChanged(ref r, NicoVideoCacheState.Cached);
             }
         }
 
