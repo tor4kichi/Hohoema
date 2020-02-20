@@ -324,6 +324,7 @@ namespace NicoPlayerHohoema.ViewModels
                                     Tag = y.Tag
                                 }
                             );
+                            genreItem.Items.Clear();
                             foreach (var tag in rankingItems)
                             {
                                 genreItem.Items.Add(tag);
