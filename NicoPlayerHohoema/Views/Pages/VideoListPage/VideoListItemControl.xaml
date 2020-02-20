@@ -26,7 +26,7 @@
       </TextBlock>
 
       <StackPanel Orientation="Horizontal" Spacing="8" x:Name="CacheProgressLayout" Visibility="Collapsed">
-        <TextBlock  Opacity="0.75" FontSize="12">
+        <TextBlock x:Name="CacheProgressPercentage" Opacity="0.75" FontSize="12">
           <Run Text="{x:Bind DownloadProgress, Mode=OneWay, Converter={StaticResource ToUserFriendlySoubleVolume}}" />%
         </TextBlock>
         <ProgressBar x:Name="CacheProgressBar" 
@@ -34,6 +34,7 @@
                    Minimum="0.0"
                    Value="{x:Bind DownloadProgress, Mode=OneWay}"
                    Width="120"
+                     IsIndeterminate="False"
                    />
       </StackPanel>
     </StackPanel>
@@ -171,6 +172,16 @@
       </VisualStateGroup>
 
       <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind IsProgressUnknown, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="CacheProgressLayout.Visibility" Value="Visible" />
+            <Setter Target="CacheProgressBar.IsIndeterminate" Value="True" />
+            <Setter Target="CacheProgressPercentage.Visibility" Value="Collapsed" />
+          </VisualState.Setters>
+        </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
             <StateTrigger IsActive="{x:Bind HasCacheProgress, Mode=OneWay}" />

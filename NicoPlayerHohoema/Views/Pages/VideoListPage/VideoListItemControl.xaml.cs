@@ -280,6 +280,19 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
 
 
 
+        public bool IsProgressUnknown
+        {
+            get { return (bool)GetValue(IsProgressUnknownProperty); }
+            set { SetValue(IsProgressUnknownProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for IsProgressUnknown.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty IsProgressUnknownProperty =
+            DependencyProperty.Register("IsProgressUnknown", typeof(bool), typeof(VideoListItemControl), new PropertyMetadata(false));
+
+
+
+
         public NicoVideoQuality? CacheProgressQuality
         {
             get { return (NicoVideoQuality?)GetValue(CacheProgressQualityProperty); }
@@ -377,7 +390,7 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
             HasCacheProgress = true;
             DownloadProgress = default; // nullの時はゲージ表示を曖昧に表現する
             CacheProgressQuality = progress.Quality;
-
+            IsProgressUnknown = double.IsInfinity(progress.DownloadOperation.Progress.TotalBytesToReceive);
             _progress = progress;
             _progressObserver = _progress.ObserveProperty(x => x.Progress)
                 .Subscribe(async x => 
