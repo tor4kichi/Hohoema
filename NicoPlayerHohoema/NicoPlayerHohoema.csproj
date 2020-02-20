@@ -188,7 +188,6 @@
     <Compile Include="Services\Commands\OpenBroadcasterInfoCommand.cs" />
     <Compile Include="Services\Commands\Ranking\FavoriteRankingGenreItemCommand.cs" />
     <Compile Include="Services\Commands\Ranking\HiddenRankingGenreItemCommand.cs" />
-    <Compile Include="Services\Commands\Ranking\ShowHiddenRankingGenreTagsDialogCommand.cs" />
     <Compile Include="Services\Commands\Ranking\UnFavoriteRankingGenreItemCommand.cs" />
     <Compile Include="Services\Commands\RemoveSearchHistoryCommand.cs" />
     <Compile Include="Services\Commands\Subscriptions\CreateSubscriptionGroupCommand.cs" />

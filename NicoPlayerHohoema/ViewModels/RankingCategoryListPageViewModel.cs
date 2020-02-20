@@ -50,13 +50,13 @@ namespace NicoPlayerHohoema.ViewModels
             _RankingGenreItemsSource = new List<RankingGenreItem>();
 
             FavoriteItems = new ObservableCollection<RankingItem>(GetFavoriteRankingItems());
-            
-            _RankingGenreItemsSource.Add(new FavoriteRankingGenreGroupItem()
+            _favoriteRankingGenreGroupItem = new FavoriteRankingGenreGroupItem()
             {
                 Label = "FavoriteRankingTag".Translate(),
                 IsDisplay = true,
                 Items = new AdvancedCollectionView(FavoriteItems),
-            });
+            };
+            _RankingGenreItemsSource.Add(_favoriteRankingGenreGroupItem);
             
 
             var sourceGenreItems = Enum.GetValues(typeof(RankingGenre)).Cast<RankingGenre>()
@@ -224,6 +224,7 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(_CompositeDisposable);
         }
 
+        FavoriteRankingGenreGroupItem _favoriteRankingGenreGroupItem;
         public ObservableCollection<RankingItem> FavoriteItems { get; set; }
 
         static IEnumerable<RankingItem> GetGenreTagRankingItems(RankingGenre genre, RankingSettings rankingSettings)
@@ -357,8 +358,88 @@ namespace NicoPlayerHohoema.ViewModels
                 }
             }
         }
+
+
+
+        DelegateCommand _ShowDisplayGenreSelectDialogCommand;
+        public DelegateCommand ShowDisplayGenreSelectDialogCommand => _ShowDisplayGenreSelectDialogCommand
+            ?? (_ShowDisplayGenreSelectDialogCommand = new DelegateCommand(async () => 
+            {
+                var rankingGenres = Enum.GetValues(typeof(RankingGenre)).Cast<RankingGenre>().Where(x => x != RankingGenre.R18);
+                var allItems = rankingGenres.Select(x => new HiddenGenreItem() { Label = x.Translate(), Genre = x }).ToArray();
+
+                var selectedItems = rankingGenres.Where(x => !RankingSettings.HiddenGenres.Contains(x)).Select(x => allItems.First(y => y.Genre == x));
+
+                var result = await HohoemaDialogService.ShowMultiChoiceDialogAsync<HiddenGenreItem>(
+                    "SelectDisplayRankingGenre".Translate(), 
+                    allItems, selectedItems,
+                    nameof(HiddenGenreItem.Label)
+                    );
+
+                if (result == null)
+                {
+                    return;
+                }
+
+                var hiddenGenres = rankingGenres.Where(x => !result.Any(y => x == y.Genre));
+                RankingSettings.HiddenGenres.Clear();
+                foreach (var hiddenGenre in hiddenGenres)
+                {
+                    RankingSettings.HiddenGenres.Add(hiddenGenre);
+                }
+                _ = RankingSettings.Save();
+
+                _RankingGenreItems.Clear();
+                _RankingGenreItems.Add(_favoriteRankingGenreGroupItem);
+                foreach (var displayGenre in _RankingGenreItemsSource)
+                {
+                    if (result.Any(x => x.Genre == displayGenre.Genre))
+                    {
+                        _RankingGenreItems.Add(displayGenre);
+                    }
+                }
+            }));
+
+        DelegateCommand _ShowDisplayGenreTagSelectDialogCommand;
+        public DelegateCommand ShowDisplayGenreTagSelectDialogCommand => _ShowDisplayGenreTagSelectDialogCommand
+            ?? (_ShowDisplayGenreTagSelectDialogCommand = new DelegateCommand(async () =>
+            {
+                var result = await HohoemaDialogService.ShowMultiChoiceDialogAsync<RankingGenreTag>(
+                    "SelectReDisplayHiddenRankingTags".Translate(),
+                    RankingSettings.HiddenTags, Enumerable.Empty<RankingGenreTag>(),
+                    nameof(RankingGenreTag.Label)
+                    );
+
+                if (result == null) { return; }
+
+                foreach (var removeHiddenTag in result)
+                {
+                    RankingSettings.HiddenTags.Remove(removeHiddenTag);
+                }
+                _ = RankingSettings.Save();
+
+                foreach (var displayTag in result)
+                {
+                    var genreGroup =  _RankingGenreItemsSource.FirstOrDefault(x => x.Genre == displayTag.Genre);
+                    if (genreGroup != null)
+                    {
+                        var tagItem = genreGroup.Items.SourceCollection.Cast<RankingItem>().FirstOrDefault(x => x.Tag == displayTag.Tag);
+                        if (tagItem is RankingItem item)
+                        {
+                            item.IsDisplay = true;
+                        }
+                    }
+                }
+            }));
     }
 
+
+    public class HiddenGenreItem
+    {
+        public string Label { get; set; }
+        public RankingGenre Genre { get; set; }
+        public string Tag { get; set; }
+    }
 
     public class RankingItem : BindableBase
     {
