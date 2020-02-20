@@ -272,7 +272,6 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             _nicoVideoProvider = nicoVideoProvider;
             _mylistRepository = mylistRepository;
             _playerSettings = playerSettings;
-            QueuePlaylist = new PlaylistObservableCollection(QueuePlaylistId, QueuePlaylistId.Translate(), _scheduler);
 
             /*
             _ = ResolveItemsAsync(QueuePlaylist)
@@ -389,7 +388,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         private readonly MylistRepository _mylistRepository;
         private readonly PlayerSettings _playerSettings;
 
-        public PlaylistObservableCollection QueuePlaylist { get; }
+        public ReadOnlyObservableCollection<IVideoContent> QueuePlaylist => _player.QueueItems;
         public PlaylistObservableCollection WatchAfterPlaylist { get; }
 
         public ReadOnlyObservableCollection<IVideoContent> PlaylistItems => _player.Items;
@@ -551,18 +550,6 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
         public async void Play(IVideoContent video, IPlaylist playlist = null)
         {
-            if (playlist == null)
-            {
-                playlist = QueuePlaylist;
-            }
-
-            // キューで再生する場合
-            if (playlist == QueuePlaylist)
-            {
-                QueuePlaylist.RemoveOnScheduler(video);
-                QueuePlaylist.InsertOnScheduler(0, video);
-            }
-
             if (CurrentPlaylist != playlist)
             {
                 if (playlist == QueuePlaylist)
@@ -588,20 +575,19 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
         public void AddQueue(IVideoContent item)
         {
-            QueuePlaylist.RemoveOnScheduler(item);
-            QueuePlaylist.AddOnScheduler(item);
+            _player.AddQueue(item);
         }
 
 
 
         public void RemoveQueue(IVideoContent item)
         {
-            QueuePlaylist.RemoveOnScheduler(item);
+            _player.RemoveQueue(item);
         }
 
         public void ClearQueue()
         {
-            QueuePlaylist.ClearOnScheduler();
+            _player.ClearQueue();
         }
 
 
@@ -699,7 +685,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         public void PlayDone(IVideoContent playedItem)
         {
             // キューから削除する
-            QueuePlaylist.RemoveOnScheduler(playedItem);
+            _player.RemoveQueue(playedItem);
 
             // アイテムを視聴済みにマーク
             var history = Database.VideoPlayedHistoryDb.VideoPlayed(playedItem.Id);
@@ -799,6 +785,11 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
         private int CurrentIndex { get; set; }
 
+        ReactiveCollection<IVideoContent> _queueItems = new ReactiveCollection<IVideoContent>();
+        public ReadOnlyObservableCollection<IVideoContent> QueueItems { get; }
+
+
+
         ReactiveCollection<IVideoContent> _items = new ReactiveCollection<IVideoContent>();
         public ReadOnlyObservableCollection<IVideoContent> Items { get; }
 
@@ -828,6 +819,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             HohoemaPlaylist = hohoemaPlaylist;
             PlayerSettings = playerSettings;
 
+            QueueItems = new ReadOnlyObservableCollection<IVideoContent>(_queueItems);
             Items = new ReadOnlyObservableCollection<IVideoContent>(_items);
 
             CompositeDisposable disposables = new CompositeDisposable();
@@ -1000,6 +992,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         {
             get
             {
+                if (_queueItems.Any()) { return true; }
                 if (!_items.Any()) { return false; }
 
                 switch (this.RepeatMode)
@@ -1026,29 +1019,39 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
             using (var releaser = await _PlaylistUpdateLock.LockAsync())
             {
-                var prevPlayed = Current;
-                var nextIndex = CurrentIndex + 1;
-
-                if (nextIndex >= _sourceItems.Count)
+                if (_queueItems.Any())
                 {
-                    ResetItems();
-                    nextIndex = 0;
-                }
+                    var firstQueue = _queueItems.First();
+                    _queueItems.RemoveOnScheduler(firstQueue);
+                    Current = firstQueue;
 
-                var nextItem = _items
-                    .ElementAt(nextIndex);
-
-
-                if (nextItem != null)
-                {
-                    Current = nextItem;
-                    CurrentIndex = nextIndex;
-
-                    PlayRequested?.Invoke(this, nextItem);
+                    PlayRequested?.Invoke(this, firstQueue);
                 }
                 else
                 {
-                    throw new Exception();
+                    var prevPlayed = Current;
+                    var nextIndex = CurrentIndex + 1;
+
+                    if (nextIndex >= _sourceItems.Count)
+                    {
+                        ResetItems();
+                        nextIndex = 0;
+                    }
+
+                    var nextItem = _items
+                        .ElementAt(nextIndex);
+
+                    if (nextItem != null)
+                    {
+                        Current = nextItem;
+                        CurrentIndex = nextIndex;
+
+                        PlayRequested?.Invoke(this, nextItem);
+                    }
+                    else
+                    {
+                        throw new Exception();
+                    }
                 }
             }
         }
@@ -1074,6 +1077,22 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
                 PlayRequested?.Invoke(this, Current);
             }
+        }
+
+        internal void AddQueue(IVideoContent item)
+        {
+            _queueItems.RemoveOnScheduler(item);
+            _queueItems.AddOnScheduler(item);
+        }
+
+        internal void RemoveQueue(IVideoContent item)
+        {
+            _queueItems.RemoveOnScheduler(item);
+        }
+
+        internal void ClearQueue()
+        {
+            _queueItems.ClearOnScheduler();
         }
     }
 

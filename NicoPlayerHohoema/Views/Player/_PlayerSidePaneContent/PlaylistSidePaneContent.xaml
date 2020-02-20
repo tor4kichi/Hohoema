@@ -86,35 +86,49 @@
           </StackPanel>
         </Button>
       </toolkit:DockPanel>
+
+      <StackPanel>
+        <TextBlock Text="{Binding Source=@queue, Converter={StaticResource LocalizeConverter}}" />
+
+        <ListView x:Name="QueueItemsListView" ItemsSource="{x:Bind _viewModel.QueueItems}" SelectionMode="None" SingleSelectionFollowsFocus="False" IsItemClickEnabled="True" Background="{StaticResource HohoemaPlayerBackgroundBrush}" IsFocusEngagementEnabled="True">
+          <i:Interaction.Behaviors>
+            <core:EventTriggerBehavior EventName="ItemClick">
+              <core:InvokeCommandAction Command="{x:Bind _viewModel.HohoemaPlaylist.PlayCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+            </core:EventTriggerBehavior>
+          </i:Interaction.Behaviors>
+          <ListView.ItemContainerStyle>
+            <Style TargetType="ListViewItem">
+              <Setter Property="Padding" Value="8 6 8 6" />
+            </Style>
+          </ListView.ItemContainerStyle>
+          <ListView.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding Label}" TextWrapping="Wrap" VerticalAlignment="Center" />
+            </DataTemplate>
+          </ListView.ItemTemplate>
+        </ListView>
+
+        <TextBlock Text="{Binding CurrentPlaylistName.Value}" />
+
+        <ListView ItemsSource="{Binding CurrentItems}" SelectedItem="{x:Bind _viewModel.HohoemaPlaylist.CurrentItem, Mode=OneWay}" SelectionMode="Single" SingleSelectionFollowsFocus="False" IsItemClickEnabled="True" x:Name="PlaylistItemsListView" Background="{StaticResource HohoemaPlayerBackgroundBrush}" IsFocusEngagementEnabled="True">
+          <i:Interaction.Behaviors>
+            <core:EventTriggerBehavior EventName="ItemClick">
+              <core:InvokeCommandAction Command="{x:Bind _viewModel.PlayWithCurrentPlaylistCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+            </core:EventTriggerBehavior>
+          </i:Interaction.Behaviors>
+          <ListView.ItemContainerStyle>
+            <Style TargetType="ListViewItem">
+              <Setter Property="Padding" Value="8 6 8 6" />
+            </Style>
+          </ListView.ItemContainerStyle>
+          <ListView.ItemTemplate>
+            <DataTemplate>
+              <TextBlock Text="{Binding Label}" TextWrapping="Wrap" VerticalAlignment="Center" />
+            </DataTemplate>
+          </ListView.ItemTemplate>
+        </ListView>
+      </StackPanel>
       
-      <ListView ItemsSource="{Binding CurrentItems}"
-                SelectedItem="{x:Bind _viewModel.HohoemaPlaylist.CurrentItem, Mode=OneWay}"
-                SelectionMode="Single"
-                SingleSelectionFollowsFocus="False"
-                IsItemClickEnabled="True"
-                x:Name="PlaylistItemsListView"
-                Background="{StaticResource HohoemaPlayerBackgroundBrush}"
-                IsFocusEngagementEnabled="True">
-        <i:Interaction.Behaviors>
-          <core:EventTriggerBehavior EventName="ItemClick">
-            <core:InvokeCommandAction Command="{x:Bind _viewModel.HohoemaPlaylist.PlayCommand}"
-                                      InputConverter="{StaticResource ItemClickEventArgsConverter}" />
-          </core:EventTriggerBehavior>
-        </i:Interaction.Behaviors>
-        <ListView.ItemContainerStyle>
-          <Style TargetType="ListViewItem">
-            <Setter Property="Padding"
-                    Value="8 6 8 6" />
-          </Style>
-        </ListView.ItemContainerStyle>
-        <ListView.ItemTemplate>
-          <DataTemplate>
-            <TextBlock Text="{Binding Label}"
-                       TextWrapping="Wrap"
-                       VerticalAlignment="Center" />
-          </DataTemplate>
-        </ListView.ItemTemplate>
-      </ListView>
     </toolkit:DockPanel>
     <VisualStateManager.VisualStateGroups>
       <!-- Xbox -->
