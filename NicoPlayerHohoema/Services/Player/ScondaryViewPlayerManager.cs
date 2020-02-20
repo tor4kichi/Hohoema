@@ -282,6 +282,12 @@ namespace NicoPlayerHohoema.Services
                         var name = ResolveContentName(pageName, parameters);
                         SecondaryAppView.Title = name != null ? $"{name}" : "Hohoema";
                     }
+                    else
+                    {
+                        Debug.WriteLine(result.Exception?.ToString());
+                        await CloseAsync();
+                        throw result.Exception;
+                    }
 
                     await ApplicationViewSwitcher.TryShowAsStandaloneAsync(this.SecondaryAppView.Id);
                 });
