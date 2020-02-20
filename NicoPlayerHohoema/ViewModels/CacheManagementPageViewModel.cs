@@ -310,58 +310,26 @@ namespace NicoPlayerHohoema.ViewModels
             NicoVideoProvider = nicoVideoProvider;
         }
 
-
         public VideoCacheManager VideoCacheManager { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
 
         public override uint OneTimeLoadCount => (uint)10;
-        List<string> _CacheRequestedItems;
-        Dictionary<string, List<NicoVideoCacheRequest>> _CacheRequestMap = new Dictionary<string, List<NicoVideoCacheRequest>>();
-
 
         protected override Task<IAsyncEnumerable<CacheVideoViewModel>> GetPagedItemsImpl(int head, int count)
         {
-            return Task.FromResult(_CacheRequestedItems.Skip(head).Take(count)
-                .Select(x => new { VideoId = x, CacheRequests = _CacheRequestMap[x] })
+            return Task.FromResult(VideoCacheManager.GetCacheRequests(head, count)
                 .Select(x =>
                 {
                     var vm = new CacheVideoViewModel(x.VideoId);
-                    vm.CacheRequestTime = x.CacheRequests.First().RequestAt;
+                    vm.CacheRequestTime = x.RequestAt;
                     return vm;
                 })
                 .ToAsyncEnumerable());
-
         }
 
-        protected override async Task<int> ResetSourceImpl()
+        protected override Task<int> ResetSourceImpl()
         {
-            await VideoCacheManager.Initialize();
-
-
-            _CacheRequestMap.Clear();
-
-            var list = new List<NicoVideoCacheRequest>();
-
-            // キャッシュ待ちアイテム
-            // キャッシュ中アイテム
-            // キャッシュ済みアイテム
-            foreach (var item in await VideoCacheManager.EnumerateCacheRequestedVideosAsync())
-            {
-                if (!_CacheRequestMap.ContainsKey(item.RawVideoId))
-                {
-                    list.Add(item);
-
-                    _CacheRequestMap.Add(item.RawVideoId, new List<NicoVideoCacheRequest>());
-                }
-
-                _CacheRequestMap[item.RawVideoId].Add(item);
-            }
-
-            
-
-            _CacheRequestedItems = list.OrderBy(x => x.RequestAt.Ticks).Reverse().Select(x => x.RawVideoId).ToList();
-
-            return _CacheRequestedItems.Count;
+            return Task.FromResult(VideoCacheManager.GetCacheRequestCount());
         }
     }
 

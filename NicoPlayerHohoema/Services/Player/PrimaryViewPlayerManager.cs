@@ -12,6 +12,7 @@ using Windows.UI.Xaml.Media.Animation;
 using Prism.Commands;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
+using System.Diagnostics;
 
 namespace NicoPlayerHohoema.Services.Player
 {
@@ -72,12 +73,15 @@ namespace NicoPlayerHohoema.Services.Player
                     var result = await _navigationService.NavigateAsync(pageName, parameters, new DrillInNavigationTransitionInfo());
                     if (!result.Success)
                     {
+                        Debug.WriteLine(result.Exception?.ToString());
                         DisplayMode = PrimaryPlayerDisplayMode.Close;
+                        _view.Title = string.Empty;
+                        throw result.Exception ?? new Exception("unknown navigation error.");
                     }
                     else
                     {
                         var name = ResolveContentName(pageName, parameters);
-                        _view.Title = name != null ? $"{name}" : "Hohoema";
+                        _view.Title = name != null ? $"{name}" : string.Empty;
                     }
                 }
             });

@@ -8,47 +8,25 @@
   xmlns:toolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
   xmlns:templateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
   xmlns:cacheModels="using:NicoPlayerHohoema.Models.Cache"
-  xmlns:windowsStateTrigger="using:WindowsStateTriggers"
-  mc:Ignorable="d"
+  xmlns:windowsStateTrigger="using:WindowsStateTriggers" 
+  xmlns:repository="using:NicoPlayerHohoema.Repository.VideoCache" mc:Ignorable="d"
     d:DesignHeight="300"
     d:DesignWidth="400">
 
   <UserControl.Resources>
-    <templateSelector:TypeBasedTemplateSelector x:Key="CacheRequestTemplateSelector">
-      <templateSelector:TypeBasedTemplateSelector.DefaultTemplate>
-        <DataTemplate>
-          <TextBlock Text="aaa" />
-        </DataTemplate>
-      </templateSelector:TypeBasedTemplateSelector.DefaultTemplate>
-      <!-- Cached -->
-      <DataTemplate x:DataType="cacheModels:NicoVideoCacheInfo" templateSelector:DataTemplate.TargetType="{Binding Source=NicoPlayerHohoema.Models.Cache.NicoVideoCacheInfo, Converter={StaticResource StringToType}, Mode=OneTime}">
-        <TextBlock Opacity="0.9" FontSize="12">
-          <Run Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}" />
-        </TextBlock>
-      </DataTemplate>
-      <!-- Progress -->
-      <DataTemplate x:DataType="cacheModels:NicoVideoCacheProgress" templateSelector:DataTemplate.TargetType="{Binding Source=NicoPlayerHohoema.Models.Cache.NicoVideoCacheProgress, Converter={StaticResource StringToType}, Mode=OneTime}">
-        <TextBlock Opacity="0.75" FontSize="12">
-          <Run Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}" />(<Run Text="{Binding Source=CacheProgress, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" />)
-        </TextBlock>
-      </DataTemplate>
-      <!-- Pending -->
-      <DataTemplate x:DataType="cacheModels:NicoVideoCacheRequest" templateSelector:DataTemplate.TargetType="{Binding Source=NicoPlayerHohoema.Models.Cache.NicoVideoCacheRequest, Converter={StaticResource StringToType}, Mode=OneTime}">
-        <TextBlock Opacity="0.6" FontSize="12">
-          <Run Text="{Binding Quality, Converter={StaticResource LocalizeConverter}}" />(<Run Text="{Binding Source=CachePending, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" />)
-        </TextBlock>
-      </DataTemplate>
-    </templateSelector:TypeBasedTemplateSelector>
+    
   </UserControl.Resources>
   <Grid x:Name="UserControlRoot">
 
     <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom">
-      <ItemsControl ItemsSource="{x:Bind CacheRequests, Mode=OneWay}"
-                  ItemTemplateSelector="{StaticResource CacheRequestTemplateSelector}"
-                  >
-      </ItemsControl>
+
+      
+      <TextBlock Opacity="0.6" FontSize="12">
+         <Run Text="{x:Bind CacheRequest.Value.CacheState, Converter={StaticResource LocalizeConverter}, Mode=OneWay}" /> <Run Text="{x:Bind CacheRequest.Value.PriorityQuality, Converter={StaticResource LocalizeConverter}, Mode=OneWay}" />
+      </TextBlock>
+
       <StackPanel Orientation="Horizontal" Spacing="8" x:Name="CacheProgressLayout" Visibility="Collapsed">
-        <TextBlock  Opacity="0.75" FontSize="12">
+        <TextBlock x:Name="CacheProgressPercentage" Opacity="0.75" FontSize="12">
           <Run Text="{x:Bind DownloadProgress, Mode=OneWay, Converter={StaticResource ToUserFriendlySoubleVolume}}" />%
         </TextBlock>
         <ProgressBar x:Name="CacheProgressBar" 
@@ -56,6 +34,7 @@
                    Minimum="0.0"
                    Value="{x:Bind DownloadProgress, Mode=OneWay}"
                    Width="120"
+                     IsIndeterminate="False"
                    />
       </StackPanel>
     </StackPanel>
@@ -193,6 +172,16 @@
       </VisualStateGroup>
 
       <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{x:Bind IsProgressUnknown, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="CacheProgressLayout.Visibility" Value="Visible" />
+            <Setter Target="CacheProgressBar.IsIndeterminate" Value="True" />
+            <Setter Target="CacheProgressPercentage.Visibility" Value="Collapsed" />
+          </VisualState.Setters>
+        </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
             <StateTrigger IsActive="{x:Bind HasCacheProgress, Mode=OneWay}" />

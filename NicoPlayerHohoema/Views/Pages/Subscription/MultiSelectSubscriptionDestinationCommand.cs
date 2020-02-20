@@ -53,8 +53,7 @@ namespace NicoPlayerHohoema.Views.Subscriptions
                 // 続いてマイリスト、ローカルプレイリストと表示する
                 var playlists = new List<Interfaces.IPlaylist>()
                 {
-                    HohoemaPlaylist.WatchAfterPlaylist,
-                    HohoemaPlaylist.QueuePlaylist
+                    HohoemaPlaylist.WatchAfterPlaylist
                 };
 
                 foreach (var playlist in UserMylistManager.Mylists)

@@ -145,14 +145,14 @@
     <Compile Include="Interfaces\IWatchHistory.cs" />
     <Compile Include="Locales\LocaleToDisplayNameConverter.cs" />
     <Compile Include="Locales\LocalizeConverter.cs" />
-    <Compile Include="Models\Cache\NicoVideoCacheInfo.cs" />
+    <Compile Include="Models\Cache\NicoVideoCached.cs" />
     <Compile Include="Models\Cache\NicoVideoCacheProgress.cs" />
-    <Compile Include="Models\Cache\NicoVideoCacheRequestExtension.cs" />
     <Compile Include="Models\Helpers\ObservableHashSet.cs" />
     <Compile Include="Models\Niconico\INiconicoVideoSessionProvider.cs" />
     <Compile Include="Models\Niconico\Video\Comment\NicoScript.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideoQualityEntity.cs" />
     <Compile Include="Models\Niconico\Video\Tag.cs" />
+    <Compile Include="Repository\VideoCache\CacheRequestRepository.cs" />
     <Compile Include="Repository\LiteDbService.cs" />
     <Compile Include="Repository\NicoVideo\SeriesRepository.cs" />
     <Compile Include="Repository\NicoVideo\VideoInfoRepository.cs" />
@@ -176,8 +176,8 @@
     <Compile Include="UseCase\Pin\PinRemoveCommand.cs" />
     <Compile Include="UseCase\Playlist\Commands\AddMylistCommand.cs" />
     <Compile Include="UseCase\Playlist\Commands\AddToHiddenUserCommand.cs" />
-    <Compile Include="Services\Commands\Cache\AddCacheRequestCommand.cs" />
-    <Compile Include="Services\Commands\Cache\DeleteCacheRequestCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\CacheAddRequestCommand.cs" />
+    <Compile Include="UseCase\Playlist\Commands\CacheDeleteRequestCommand.cs" />
     <Compile Include="Services\Commands\GoNextIntroductionPageCommand.cs" />
     <Compile Include="Services\Commands\LogoutFromNiconicoCommand.cs" />
     <Compile Include="UseCase\Playlist\Commands\CreateLocalMylistCommand.cs" />
@@ -406,7 +406,6 @@
     <Compile Include="Models\Niconico\Video\MediaProtocolType.cs" />
     <Compile Include="Models\Helpers\AsyncLock.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideoSessionProvider.cs" />
-    <Compile Include="Models\Cache\NicoVideoCacheRequest.cs" />
     <Compile Include="Models\Cache\NicoVideoCacheState.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideoCanNotDownloadReason.cs" />
     <Compile Include="Models\Settings\HohoemaUserSettings.cs" />
@@ -1350,6 +1349,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
+    <Folder Include="Services\Commands\Cache\" />
     <Folder Include="Services\CoreLayoutEvents\" />
     <Folder Include="UseCase\NicoVideoPlayer\Playlist\" />
     <Folder Include="ViewModels\Follow\" />

@@ -367,13 +367,6 @@ namespace NicoPlayerHohoema.ViewModels
             VideoEndedRecommendation.SetCurrentVideoSeries(VideoDetails.Series);
             Debug.WriteLine("次シリーズ動画: " + VideoDetails.Series?.NextVideo?.Title);
 
-#if DEBUG
-            if (HohoemaPlaylist.CurrentPlaylist == null)
-            {
-                throw new Exception();
-            }
-#endif
-
 
             Debug.WriteLine("VideoPlayer OnNavigatedToAsync done.");
 
@@ -412,11 +405,7 @@ namespace NicoPlayerHohoema.ViewModels
                     {
                         if (localPlaylist.IsWatchAfterPlaylist())
                         {
-                            var item = HohoemaPlaylist.QueuePlaylist.FirstOrDefault(x => x.Id == VideoId);
-                            if (item != null)
-                            {
-                                HohoemaPlaylist.QueuePlaylist.Remove(item);
-                            }
+                            HohoemaPlaylist.RemoveWatchAfter(videoInfo);
                         }
                     }
                 }

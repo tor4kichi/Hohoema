@@ -30,7 +30,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         {
             if (HohoemaPlaylist.QueuePlaylistId == id)
             {
-                return _hohoemaPlaylist.QueuePlaylist;
+                throw new Exception("queue playlist");
             }
             else if (HohoemaPlaylist.WatchAfterPlaylistId == id)
             {

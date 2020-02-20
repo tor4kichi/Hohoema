@@ -6,7 +6,6 @@ using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Commands.Mylist;
 using NicoPlayerHohoema.Commands.Subscriptions;
 using NicoPlayerHohoema.Commands;
-using NicoPlayerHohoema.Commands.Cache;
 using System.Reactive.Concurrency;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Models.LocalMylist;
@@ -24,6 +23,7 @@ using System.Linq;
 using NicoPlayerHohoema.Views.Helpers;
 using I18NPortable;
 using NicoPlayerHohoema.UseCase.Page.Commands;
+using System;
 
 namespace NicoPlayerHohoema.Views.Flyouts
 {
@@ -101,8 +101,8 @@ namespace NicoPlayerHohoema.Views.Flyouts
             CopyVideoId.Command = ExternalAccessService.CopyToClipboardCommand;
             CopyShareText.Command = ExternalAccessService.CopyToClipboardWithShareTextCommand;
 
-            CacheRequest.Command = App.Current.Container.Resolve<Commands.Cache.AddCacheRequestCommand>();
-            DeleteCacheRequest.Command = App.Current.Container.Resolve<DeleteCacheRequestCommand>();
+            CacheRequest.Command = App.Current.Container.Resolve<CacheAddRequestCommand>();
+            DeleteCacheRequest.Command = App.Current.Container.Resolve<CacheDeleteRequestCommand>();
 
             AddNgUser.Command = App.Current.Container.Resolve<AddToHiddenUserCommand>();
 
@@ -276,12 +276,70 @@ namespace NicoPlayerHohoema.Views.Flyouts
 
             // キャッシュ
             var isCacheEnabled = VideoCacheManager.CacheSettings.IsEnableCache && VideoCacheManager.CacheSettings.IsUserAcceptedCache;
-            var visibleCacheItem = isCacheEnabled.ToVisibility();
-            CacheRequest.Visibility = visibleCacheItem;
-            CacheRequest.CommandParameter = dataContext;
-            DeleteCacheRequest.Visibility = visibleCacheItem;
-            DeleteCacheRequest.CommandParameter = dataContext;
-            CacheSeparator.Visibility = visibleCacheItem;
+            var cacheEnableToVisibility = isCacheEnabled.ToVisibility();
+            if (isMultipleSelection && isCacheEnabled)
+            {
+                // 一つでもキャッシュ済みがあれば削除ボタンを表示
+                // 一つでも未キャッシュがあれば取得ボタンを表示
+                var anyItemsCached = VideoItems.Any(x => VideoCacheManager.IsCacheRequested(x.Id));
+                var anyItemsNotCached = VideoItems.Any(x => !VideoCacheManager.CheckCachedAsyncUnsafe(x.Id));
+
+                var notCachedToVisible = (anyItemsNotCached).ToVisibility();
+                CacheRequest.Visibility = notCachedToVisible;
+                CacheRequest.CommandParameter = dataContext;
+                CacheRequestWithQuality.Visibility = notCachedToVisible;
+                DeleteCacheRequest.CommandParameter = dataContext;
+
+                CacheSeparator.Visibility = Visibility.Visible;
+
+                var cachedToVisible = (anyItemsCached).ToVisibility();
+                DeleteCacheRequest.Visibility = cachedToVisible;
+            }
+            else if (isCacheEnabled)
+            {
+                var itemCached = VideoCacheManager.IsCacheRequested(content.Id);
+                var itemNotCached = !VideoCacheManager.CheckCachedAsyncUnsafe(content.Id);
+
+                var notCachedToVisible = (itemNotCached).ToVisibility();
+                CacheRequest.Visibility = notCachedToVisible;
+                CacheRequest.CommandParameter = dataContext;
+                CacheRequestWithQuality.Visibility = notCachedToVisible;
+                DeleteCacheRequest.CommandParameter = dataContext;
+
+                CacheSeparator.Visibility = Visibility.Visible;
+
+                var cachedToVisible = (itemCached).ToVisibility();
+                DeleteCacheRequest.Visibility = cachedToVisible;
+            }
+            else
+            {
+                CacheRequest.Visibility = Visibility.Collapsed;
+                CacheRequestWithQuality.Visibility = Visibility.Collapsed;
+                CacheSeparator.Visibility = Visibility.Collapsed;
+                DeleteCacheRequest.Visibility = Visibility.Collapsed;
+            }
+            
+
+            if (CacheRequestWithQuality.Items.Count == 0)
+            {
+                foreach (var quality in Enum.GetValues(typeof(NicoVideoQuality)).Cast<NicoVideoQuality>().Where(x => x.IsDmc() && x != NicoVideoQuality.Unknown))
+                {
+                    var command = App.Current.Container.Resolve<CacheAddRequestCommand>();
+                    command.VideoQuality = quality;
+                    var cacheRequestMenuItem = new MenuFlyoutItem() 
+                    {
+                        Text = quality.Translate(),
+                        Command = command,
+                    };
+                    CacheRequestWithQuality.Items.Add(cacheRequestMenuItem);
+                }
+            }
+
+            foreach (var qualityCacheRequest in CacheRequestWithQuality.Items)
+            {
+                (qualityCacheRequest as MenuFlyoutItem).CommandParameter = dataContext;
+            }
+
 
             // 選択
             if (!VideoItemsSelectionContext.IsSelectionEnabled)

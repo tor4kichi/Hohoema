@@ -251,13 +251,8 @@ namespace NicoPlayerHohoema.Services
                 localObjectStorageHelper.Save(secondary_view_size, _PrevSecondaryViewSize);
             }
 
-            _scheduler.Schedule(async () => 
+            _scheduler.Schedule(() => 
             {
-                // セカンダリウィンドウを閉じるタイミングでキャッシュを再開する
-                // プレミアム会員の場合は何もおきない
-                var cacheManager = App.Current.Container.Resolve<VideoCacheManager>();
-                await cacheManager.ResumeCacheDownload();
-
                 IsShowSecondaryView = false;
             });
         }
@@ -286,6 +281,12 @@ namespace NicoPlayerHohoema.Services
                     {
                         var name = ResolveContentName(pageName, parameters);
                         SecondaryAppView.Title = name != null ? $"{name}" : "Hohoema";
+                    }
+                    else
+                    {
+                        Debug.WriteLine(result.Exception?.ToString());
+                        await CloseAsync();
+                        throw result.Exception;
                     }
 
                     await ApplicationViewSwitcher.TryShowAsStandaloneAsync(this.SecondaryAppView.Id);

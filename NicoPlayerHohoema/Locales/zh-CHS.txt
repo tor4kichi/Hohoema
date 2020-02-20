@@ -125,6 +125,15 @@ CancelCacheAndPlayDesc = 非Nico Nico Premium会员一次只能查看和下载�
 CancelCacheAndPlayTitle = 停止缓存并开始观看？
 CancelCacheAndPlay = 停止缓存并观看
 
+NicoVideoCacheState.NotCacheRequested = 已取消
+NicoVideoCacheState.Pending = 等待DL
+NicoVideoCacheState.Downloading = 立即下载
+NicoVideoCacheState.Cached = 已缓存
+NicoVideoCacheState.Failed = DL故障
+NicoVideoCacheState.FailedWithQualityNotAvairable = 指定的图像质量DL不可用（更改时间并重试）
+NicoVideoCacheState.DeletedFromUser = 已删除
+NicoVideoCacheState.DeletedFromNiconicoServer = 已从服务器中删除
+
 
 #### Subscribe feature ####
 SubscriptionGroup_Create = 创建订阅组
@@ -244,12 +253,13 @@ FreeInputCommandTextBoxPlacefolderText = 在这里自由输入命令
 
 
 #### Video ####
+NicoVideoQuality.Unknown = 未指定图像质量
 NicoVideoQuality.Smile_Low = 旧的低画质
 NicoVideoQuality.Smile_Original = 旧的原始图像质量
-NicoVideoQuality.Dmc_High = 高画质
+NicoVideoQuality.Dmc_Mobile = 手机图像质量
 NicoVideoQuality.Dmc_Low = 低画质
 NicoVideoQuality.Dmc_Midium = 中等图像质量
-NicoVideoQuality.Dmc_Mobile = 手机图像质量
+NicoVideoQuality.Dmc_High = 高画质
 NicoVideoQuality.Dmc_SuperHigh = 很高的图像质量
 
 VideoPostAt = 发布日期
@@ -687,7 +697,12 @@ CopyVideoLink = 复制视频链接
 CopyShareText = 复制文字以分享
 
 CacheRequest = 获取缓存
+CacheRequestWithQuality = 获取缓存（指定图像质量）
 CacheRemove = 删除缓存
+ConfirmCacheRemoveTitle = 删除缓存
+ConfirmCacheRemoveContent = 标题：“{0}” \n需要重新下载才能撤消
+ConfirmCacheRemoveTitle_Multiple = 删除{0}缓存
+ConfirmCacheRemoveContent_Multiple = 需要重新下载才能撤消
 
 SelectAll = 全选
 SelectStart = 开始选择

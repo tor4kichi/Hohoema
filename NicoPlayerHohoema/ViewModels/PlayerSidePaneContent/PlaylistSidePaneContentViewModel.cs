@@ -59,11 +59,14 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
             CurrentItems = HohoemaPlaylist.PlaylistItems.ToReadOnlyReactiveCollection(_scheduler)
                 .AddTo(_CompositeDisposable);
+
+            QueueItems = HohoemaPlaylist.QueuePlaylist.ToReadOnlyReactiveCollection(_scheduler)
+                .AddTo(_CompositeDisposable);
         }
 
 
         public ReadOnlyReactiveCollection<IVideoContent> CurrentItems { get; }
-
+        public ReadOnlyReactiveCollection<IVideoContent> QueueItems { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public MediaPlayer MediaPlayer { get; }
         public PageManager PageManager { get; }
@@ -92,12 +95,15 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                         {
                             case MediaPlaybackAutoRepeatMode.List:
                                 _playerSettings.RepeatMode = MediaPlaybackAutoRepeatMode.Track;
+                                MediaPlayer.IsLoopingEnabled = true;
                                 break;
                             case MediaPlaybackAutoRepeatMode.Track:
                                 _playerSettings.RepeatMode = MediaPlaybackAutoRepeatMode.None;
+                                MediaPlayer.IsLoopingEnabled = false;
                                 break;
                             case MediaPlaybackAutoRepeatMode.None:
                                 _playerSettings.RepeatMode = MediaPlaybackAutoRepeatMode.List;
+                                MediaPlayer.IsLoopingEnabled = false;
                                 break;
                             default:
                                 break;
@@ -135,6 +141,19 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             }
         }
 
-        
+
+        private DelegateCommand<IVideoContent> _PlayWithCurrentPlaylistCommand;
+        public DelegateCommand<IVideoContent> PlayWithCurrentPlaylistCommand
+        {
+            get
+            {
+                return _PlayWithCurrentPlaylistCommand
+                    ?? (_PlayWithCurrentPlaylistCommand = new DelegateCommand<IVideoContent>((video) =>
+                    {
+                        HohoemaPlaylist.Play(video, HohoemaPlaylist.CurrentPlaylist);
+                    }
+                    ));
+            }
+        }
     }
 }

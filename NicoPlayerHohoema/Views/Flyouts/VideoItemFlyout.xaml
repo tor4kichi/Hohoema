@@ -10,8 +10,7 @@
     xmlns:i="using:Microsoft.Xaml.Interactivity"
     xmlns:core="using:Microsoft.Xaml.Interactions.Core"
     xmlns:HohoemaCommand="using:NicoPlayerHohoema.Commands"
-    xmlns:mvvm="using:Prism.Mvvm"
-    x:Name="FlyoutRoot"    
+    xmlns:mvvm="using:Prism.Mvvm" xmlns:models="using:NicoPlayerHohoema.Models" x:Name="FlyoutRoot"    
     mc:Ignorable="d">
 
   
@@ -130,6 +129,10 @@
   <MenuFlyoutItem x:Name="CacheRequest"
                   Text="{Binding Source=CacheRequest, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                   />
+
+  <MenuFlyoutSubItem x:Name="CacheRequestWithQuality" Text="{Binding Source=CacheRequestWithQuality, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
+    
+  </MenuFlyoutSubItem>
 
 
   <MenuFlyoutItem x:Name="DeleteCacheRequest"

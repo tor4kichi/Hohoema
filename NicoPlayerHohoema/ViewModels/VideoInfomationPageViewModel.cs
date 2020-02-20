@@ -310,6 +310,7 @@ namespace NicoPlayerHohoema.ViewModels
                     }
 
                     VideoInfo = await NicoVideoProvider.GetNicoVideoInfo(videoId);
+                    RaisePropertyChanged(nameof(VideoInfo));
 
                     await UpdateVideoDescription();
 
