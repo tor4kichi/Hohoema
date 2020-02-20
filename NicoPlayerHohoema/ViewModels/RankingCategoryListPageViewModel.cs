@@ -19,17 +19,22 @@ using Reactive.Bindings.Extensions;
 using System.Diagnostics;
 using NicoPlayerHohoema.UseCase;
 using I18NPortable;
+using NicoPlayerHohoema.Repository;
+using System.Threading.Tasks;
+using NicoPlayerHohoema.Models.Provider;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public class RankingCategoryListPageViewModel : HohoemaViewModelBase
+    public class RankingCategoryListPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync
     {
         public RankingCategoryListPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
             Services.PageManager pageManager,
             Services.DialogService dialogService,
             RankingSettings rankingSettings,
-            IEventAggregator eventAggregator
+            IEventAggregator eventAggregator,
+            AppFlagsRepository appFlagsRepository,
+            RankingProvider rankingProvider
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -37,6 +42,8 @@ namespace NicoPlayerHohoema.ViewModels
             HohoemaDialogService = dialogService;
             RankingSettings = rankingSettings;
             _eventAggregator = eventAggregator;
+            _appFlagsRepository = appFlagsRepository;
+            _rankingProvider = rankingProvider;
 
 
             // TODO: ログインユーザーが成年であればR18ジャンルを表示するように
@@ -289,27 +296,66 @@ namespace NicoPlayerHohoema.ViewModels
 
         private RankingGenre? _prevSelectedGenre;
         private readonly IEventAggregator _eventAggregator;
+        private readonly AppFlagsRepository _appFlagsRepository;
+        private readonly RankingProvider _rankingProvider;
 
-        public override void OnNavigatedTo(INavigationParameters parameters)
+        public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            if (_prevSelectedGenre != null)
+            if (!_appFlagsRepository.IsRankingInitialUpdate)
             {
-                var updateTargetGenre = _RankingGenreItems.FirstOrDefault(x => x.Genre == _prevSelectedGenre);
-                if (updateTargetGenre != null)
+                try
                 {
-                    updateTargetGenre.Items.Clear();
-                    var items = GetGenreTagRankingItems(updateTargetGenre.Genre.Value, RankingSettings);
-                    using (updateTargetGenre.Items.DeferRefresh())
+                    foreach (var genreItem in _RankingGenreItems)
                     {
-                        foreach (var a in items)
+                        if (genreItem.Genre == null) { continue; }
+                        var genre = genreItem.Genre.Value;
+                        var tags = await _rankingProvider.GetRankingGenreTagsAsync(genre, true);
+
+                        using (var refresh = genreItem.Items.DeferRefresh())
                         {
-                            updateTargetGenre.Items.Add(a);
+                            var rankingItems = tags
+                                .Where(x => !string.IsNullOrEmpty(x.Tag) && x.Tag != "all")
+                                .Select(y => new RankingItem()
+                                {
+                                    Genre = genre,
+                                    IsDisplay = !RankingSettings.IsHiddenTag(genre, y.Tag),
+                                    Label = y.DisplayName,
+                                    Tag = y.Tag
+                                }
+                            );
+                            foreach (var tag in rankingItems)
+                            {
+                                genreItem.Items.Add(tag);
+                            }
+                        }
+
+                        await Task.Delay(500);
+                    }
+                }
+                finally
+                {
+                    _appFlagsRepository.IsRankingInitialUpdate = true;
+                }
+            }
+            else
+            {
+                if (_prevSelectedGenre != null)
+                {
+                    var updateTargetGenre = _RankingGenreItems.FirstOrDefault(x => x.Genre == _prevSelectedGenre);
+                    if (updateTargetGenre != null)
+                    {
+                        updateTargetGenre.Items.Clear();
+                        var items = GetGenreTagRankingItems(updateTargetGenre.Genre.Value, RankingSettings);
+                        using (updateTargetGenre.Items.DeferRefresh())
+                        {
+                            foreach (var a in items)
+                            {
+                                updateTargetGenre.Items.Add(a);
+                            }
                         }
                     }
                 }
             }
-
-            base.OnNavigatedTo(parameters);
         }
     }
 

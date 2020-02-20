@@ -152,6 +152,7 @@
     <Compile Include="Models\Niconico\Video\Comment\NicoScript.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideoQualityEntity.cs" />
     <Compile Include="Models\Niconico\Video\Tag.cs" />
+    <Compile Include="Repository\AppFlagsRepository.cs" />
     <Compile Include="Repository\VideoCache\CacheRequestRepository.cs" />
     <Compile Include="Repository\LiteDbService.cs" />
     <Compile Include="Repository\NicoVideo\SeriesRepository.cs" />
