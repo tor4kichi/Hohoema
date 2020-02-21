@@ -273,6 +273,12 @@ namespace NicoPlayerHohoema.Services
                 Interfaces.IPlaylist list = null;
                 list = await _playlistAggregate.FindPlaylistAsync(dest.PlaylistId);
 
+                if (list == null) 
+                {
+                    // TODO: 購読で利用できない追加先プレイリストを通知する
+                    continue; 
+                }
+
                 IList<IVideoContent> videoList;
                 if (NewItemsPerPlayableList.TryGetValue(list, out var cacheVideoList))
                 {
