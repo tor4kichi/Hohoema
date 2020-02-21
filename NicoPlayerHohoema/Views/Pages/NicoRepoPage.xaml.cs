@@ -46,5 +46,13 @@ namespace NicoPlayerHohoema.Views
         {
             this.InitializeComponent();
         }
+
+        private void TopicsEditFlyout_Closed(object sender, object e)
+        {
+            if (DataContext is ViewModels.NicoRepoPageViewModel vm)
+            {
+                vm.OnResetNicoRepoItemTopicsEditCompleted();
+            }
+        }
     }
 }
