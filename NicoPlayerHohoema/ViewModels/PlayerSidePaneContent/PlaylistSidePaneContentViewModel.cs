@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Interfaces;
+﻿using I18NPortable;
+using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.UseCase.Playlist;
@@ -13,6 +14,7 @@ using System.Reactive.Concurrency;
 using System.Reactive.Linq;
 using Windows.Media;
 using Windows.Media.Playback;
+using Windows.UI.Xaml.Data;
 
 namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 {
@@ -33,7 +35,8 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             PageManager = pageManager;
             _scheduler = scheduler;
             
-            CurrentPlaylistName = new ReactiveProperty<string>(_scheduler, HohoemaPlaylist.CurrentPlaylist?.Label)
+            CurrentPlaylistName = HohoemaPlaylist.ObserveProperty(x => x.CurrentPlaylist).Select(x => x?.Label)
+                .ToReadOnlyReactiveProperty(eventScheduler: _scheduler)
                 .AddTo(_CompositeDisposable);
             IsShuffleEnabled = _playerSettings.ToReactivePropertyAsSynchronized(x => x.IsShuffleEnable, _scheduler)
                 .AddTo(_CompositeDisposable);
@@ -57,7 +60,68 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
             QueueItems = HohoemaPlaylist.QueuePlaylist.ToReadOnlyReactiveCollection(_scheduler)
                 .AddTo(_CompositeDisposable);
+
+            _currentItemCollectionView = new ObservableCollection<IVideoContent>();
+
+            _currentPlaylistViewItem = new PlaylistCollectionViewItem()
+            {
+                Id = "playlist",
+                Items = CurrentItems
+            };
+
+            _playlistCollectionViews = new ObservableCollection<PlaylistCollectionViewItem>()
+            {
+                new PlaylistCollectionViewItem()
+                {
+                    Id = "_current_video_",
+                    Label = "PlayingVideo".Translate(),
+                    Items = _currentItemCollectionView
+                },
+                new PlaylistCollectionViewItem()
+                {
+                    Id = "@queue",
+                    Label = "@queue".Translate(),
+                    Items = QueueItems,
+                },
+                _currentPlaylistViewItem
+            };
+
+            HohoemaPlaylist.ObserveProperty(x => x.CurrentPlaylist).Subscribe(x =>
+            {
+                _currentPlaylistViewItem.Label = x?.Label ?? string.Empty;
+            })
+                .AddTo(_CompositeDisposable);
+
+            HohoemaPlaylist.ObserveProperty(x => x.CurrentItem)
+                .Subscribe(x => 
+                {
+                    _currentItemCollectionView.Clear();
+                    _currentItemCollectionView.Add(x);
+                })
+                .AddTo(_CompositeDisposable);
+
+            CollectionViewSource = new CollectionViewSource()
+            {
+                IsSourceGrouped = true,
+                Source = _playlistCollectionViews,
+                ItemsPath = new Windows.UI.Xaml.PropertyPath(nameof(PlaylistCollectionViewItem.Items))
+            };
         }
+
+        PlaylistCollectionViewItem _currentPlaylistViewItem;
+
+        [PropertyChanged.AddINotifyPropertyChangedInterface]
+        public class PlaylistCollectionViewItem
+        {
+            public string Id { get; set; }
+            public string Label { get; set; }
+            public object Items { get; set; }
+        }
+
+        ObservableCollection<IVideoContent> _currentItemCollectionView;
+        ObservableCollection<PlaylistCollectionViewItem> _playlistCollectionViews;
+
+        public CollectionViewSource CollectionViewSource { get; }
 
 
         public ReadOnlyReactiveCollection<IVideoContent> CurrentItems { get; }
@@ -66,7 +130,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
         public MediaPlayer MediaPlayer { get; }
         public PageManager PageManager { get; }
 
-        public ReactiveProperty<string> CurrentPlaylistName { get; private set; }
+        public IReadOnlyReactiveProperty<string> CurrentPlaylistName { get; private set; }
         public ReactiveProperty<bool> IsShuffleEnabled { get; private set; }
         public ReactiveProperty<bool> IsTrackRepeatModeEnable { get; private set; }
         public ReactiveProperty<bool> IsListRepeatModeEnable { get; private set; }

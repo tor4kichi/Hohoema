@@ -620,6 +620,7 @@ SearchWithKeyword = 关键字搜寻
 SearchWithTag = 标签搜寻
 
 #### Playlist ####
+PlayingVideo = 播放影片
 PlayAll = 全部播放
 CurrentPlaylist = 当前播放列表
 

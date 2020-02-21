@@ -6,6 +6,7 @@ using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.UseCase.Playlist.Commands;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -106,6 +107,40 @@ namespace NicoPlayerHohoema.Repository.Playlist
         public Task<MylistProvider.MylistItemsGetResult> GetMylistItemsWithRangeAsync(int start, int count)
         {
             return _mylistProvider.GetMylistGroupVideo(Id, start, count);
+        }
+
+        public async Task<MylistProvider.MylistItemsGetResult> GetMylistAllItems()
+        {
+            var firstResult = await _mylistProvider.GetMylistGroupVideo(Id, 0, 150);
+            if (!firstResult.IsSuccess || firstResult.TotalCount == firstResult.Items.Count)
+            {
+                return firstResult;
+            }
+
+            var itemsList = new List<IVideoContent>(firstResult.Items);
+            var totalCount = firstResult.TotalCount;
+            var currentCount = firstResult.Items.Count;
+            do
+            {
+                await Task.Delay(500);
+                var result = await _mylistProvider.GetMylistGroupVideo(Id, currentCount, 150);
+                if (result.IsSuccess)
+                {
+                    itemsList.AddRange(result.Items);
+                }
+
+                currentCount += result.Items.Count;
+            }
+            while (currentCount < totalCount);
+
+            return new MylistProvider.MylistItemsGetResult()
+            {
+                MylistId = Id,
+                HeadPosition = 0,
+                TotalCount = totalCount,
+                IsSuccess = true,
+                Items = new ReadOnlyCollection<IVideoContent>(itemsList)
+            };
         }
     }
 

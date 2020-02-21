@@ -9,8 +9,7 @@
              xmlns:toolkit="using:WinRTXamlToolkit.Controls"
              xmlns:iconPack="using:MahApps.Metro.IconPacks"
              xmlns:uwpext="using:Microsoft.Toolkit.Uwp.UI.Extensions"
-             xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
-             mc:Ignorable="d"
+             xmlns:hardwareTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers" xmlns:windowsTrigger="using:WindowsStateTriggers" xmlns:videoList="using:NicoPlayerHohoema.Views.Pages.VideoListPage" mc:Ignorable="d"
              d:DesignHeight="300"
              d:DesignWidth="400">
   <Grid>
@@ -20,115 +19,68 @@
           <mybehavior:SetFocus TargetObject="{Binding ElementName=ShuffleSwitchingButton}" />
         </core:EventTriggerBehavior>
       </i:Interaction.Behaviors>
-      <toolkit:DockPanel x:Name="HeaderLayout"
-                         toolkit:DockPanel.Dock="Top">
-        <StackPanel Orientation="Horizontal"
-                    toolkit:DockPanel.Dock="Left">
-          <ToggleButton IsChecked="{x:Bind _viewModel.IsShuffleEnabled.Value, Mode=TwoWay}"
-                        UseSystemFocusVisuals="True"
-                        Margin="8 0 0 0"
-                        x:Name="ShuffleSwitchingButton"
-                        Background="Transparent">
-            <iconPack:PackIconMaterial x:Name="ToggleShuffleButtonIcon"
-                                       Kind="Shuffle"
-                                       RenderTransformOrigin="0.5, 0.5">
+
+      <toolkit:DockPanel x:Name="HeaderLayout" toolkit:DockPanel.Dock="Top">
+        <StackPanel Orientation="Horizontal" toolkit:DockPanel.Dock="Left">
+          <ToggleButton IsChecked="{x:Bind _viewModel.IsShuffleEnabled.Value, Mode=TwoWay}" UseSystemFocusVisuals="True" Margin="8 0 0 0" x:Name="ShuffleSwitchingButton" Background="Transparent">
+            <iconPack:PackIconMaterial x:Name="ToggleShuffleButtonIcon" Kind="Shuffle" RenderTransformOrigin="0.5, 0.5">
               <iconPack:PackIconMaterial.RenderTransform>
-                <CompositeTransform ScaleX="1.1"
-                                    ScaleY="1.1" />
+                <CompositeTransform ScaleX="1.1" ScaleY="1.1" />
               </iconPack:PackIconMaterial.RenderTransform>
             </iconPack:PackIconMaterial>
           </ToggleButton>
-          <Button Command="{x:Bind _viewModel.ToggleRepeatModeCommand}"
-                  Background="Transparent"
-                  UseSystemFocusVisuals="True"
-                  Margin="8 0 0 0">
-            <iconPack:PackIconMaterial x:Name="RepeatModeToggleButtonIcon"
-                                       Kind="Repeat"
-                                       RenderTransformOrigin="0.5, 0.5">
+          <Button Command="{x:Bind _viewModel.ToggleRepeatModeCommand}" Background="Transparent" UseSystemFocusVisuals="True" Margin="8 0 0 0">
+            <iconPack:PackIconMaterial x:Name="RepeatModeToggleButtonIcon" Kind="Repeat" RenderTransformOrigin="0.5, 0.5">
               <iconPack:PackIconMaterial.RenderTransform>
-                <CompositeTransform ScaleX="1.4"
-                                    ScaleY="1.4" />
+                <CompositeTransform ScaleX="1.4" ScaleY="1.4" />
               </iconPack:PackIconMaterial.RenderTransform>
             </iconPack:PackIconMaterial>
           </Button>
-          <Button Command="{x:Bind _viewModel.ToggleReverseModeCommand}"
-                  UseSystemFocusVisuals="True"
-                  Margin="8 0 0 0"
-                  x:Name="ReverseSwitchingButton"
-                  Background="Transparent">
-            <iconPack:PackIconMaterial x:Name="ToggleReverseButtonIcon"
-                                       Kind="ArrowDownBold"
-                                       RenderTransformOrigin="0.5, 0.5">
+          <Button Command="{x:Bind _viewModel.ToggleReverseModeCommand}" UseSystemFocusVisuals="True" Margin="8 0 0 0" x:Name="ReverseSwitchingButton" Background="Transparent">
+            <iconPack:PackIconMaterial x:Name="ToggleReverseButtonIcon" Kind="ArrowDownBold" RenderTransformOrigin="0.5, 0.5">
               <iconPack:PackIconMaterial.RenderTransform>
-                <CompositeTransform ScaleX="1.1"
-                                    ScaleY="1.1" />
+                <CompositeTransform ScaleX="1.1" ScaleY="1.1" />
               </iconPack:PackIconMaterial.RenderTransform>
             </iconPack:PackIconMaterial>
           </Button>
           <Border />
         </StackPanel>
-        
-        <Button HorizontalAlignment="Stretch"
-                Command="{x:Bind _viewModel.PageManager.OpenPageCommand}"
-                CommandParameter="{x:Bind _viewModel.HohoemaPlaylist.CurrentPlaylist, Mode=OneWay}"
-                HorizontalContentAlignment="Left"
-                >
+
+        <Button HorizontalAlignment="Stretch" Command="{x:Bind _viewModel.PageManager.OpenPageCommand}" CommandParameter="{x:Bind _viewModel.HohoemaPlaylist.CurrentPlaylist, Mode=OneWay}" HorizontalContentAlignment="Left">
           <StackPanel>
-            <TextBlock toolkit:DockPanel.Dock="Top"
-                       Text="{Binding Source=CurrentPlaylist, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                       Style="{StaticResource CaptionTextBlockStyle}"
-                       Margin="0"
-                       Opacity="0.7"></TextBlock>
-            <TextBlock Text="{x:Bind _viewModel.HohoemaPlaylist.CurrentPlaylist.Label, Mode=OneWay}"
-                       Style="{StaticResource BodyTextBlockStyle}"
-                       Margin="0"
-                       VerticalAlignment="Top" />
+            <TextBlock toolkit:DockPanel.Dock="Top" Text="{Binding Source=CurrentPlaylist, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Style="{StaticResource CaptionTextBlockStyle}" Margin="0" Opacity="0.7"></TextBlock>
+            <TextBlock Text="{x:Bind _viewModel.HohoemaPlaylist.CurrentPlaylist.Label, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" Margin="0" VerticalAlignment="Top" />
           </StackPanel>
         </Button>
       </toolkit:DockPanel>
 
-      <StackPanel>
-        <TextBlock Text="{Binding Source=@queue, Converter={StaticResource LocalizeConverter}}" />
+      <ListView x:Name="ItemsListView" ItemsSource="{x:Bind _viewModel.CollectionViewSource.View}" SelectionMode="None" SingleSelectionFollowsFocus="False" IsItemClickEnabled="True" IsFocusEngagementEnabled="True" uwpext:ListViewExtensions.AlternateColor="{ThemeResource ToggleSwitchTrackDisabledBackgroundThemeBrush}" uwpext:ListViewExtensions.StretchItemContainerDirection="Horizontal">
+        <i:Interaction.Behaviors>
+          <core:EventTriggerBehavior EventName="ItemClick">
+            <core:InvokeCommandAction Command="{x:Bind _viewModel.HohoemaPlaylist.PlayCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+          </core:EventTriggerBehavior>
+        </i:Interaction.Behaviors>
+        <ListView.GroupStyle>
+          <GroupStyle HidesIfEmpty="True">
+            <GroupStyle.HeaderTemplate>
+              <DataTemplate>
+                <TextBlock Text="{Binding Label}" Style="{StaticResource SubtitleTextBlockStyle}" />
+              </DataTemplate>
+            </GroupStyle.HeaderTemplate>
+          </GroupStyle>
+        </ListView.GroupStyle>
+        <ListView.ItemContainerStyle>
+          <Style TargetType="ListViewItem">
+            <Setter Property="Padding" Value="0 8" />
+          </Style>
+        </ListView.ItemContainerStyle>
+        <ListView.ItemTemplate>
+          <DataTemplate>
+            <videoList:VideoListItemControl />
+          </DataTemplate>
+        </ListView.ItemTemplate>
+      </ListView>
 
-        <ListView x:Name="QueueItemsListView" ItemsSource="{x:Bind _viewModel.QueueItems}" SelectionMode="None" SingleSelectionFollowsFocus="False" IsItemClickEnabled="True" Background="{StaticResource HohoemaPlayerBackgroundBrush}" IsFocusEngagementEnabled="True">
-          <i:Interaction.Behaviors>
-            <core:EventTriggerBehavior EventName="ItemClick">
-              <core:InvokeCommandAction Command="{x:Bind _viewModel.HohoemaPlaylist.PlayCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />
-            </core:EventTriggerBehavior>
-          </i:Interaction.Behaviors>
-          <ListView.ItemContainerStyle>
-            <Style TargetType="ListViewItem">
-              <Setter Property="Padding" Value="8 6 8 6" />
-            </Style>
-          </ListView.ItemContainerStyle>
-          <ListView.ItemTemplate>
-            <DataTemplate>
-              <TextBlock Text="{Binding Label}" TextWrapping="Wrap" VerticalAlignment="Center" />
-            </DataTemplate>
-          </ListView.ItemTemplate>
-        </ListView>
-
-        <TextBlock Text="{Binding CurrentPlaylistName.Value}" />
-
-        <ListView ItemsSource="{Binding CurrentItems}" SelectedItem="{x:Bind _viewModel.HohoemaPlaylist.CurrentItem, Mode=OneWay}" SelectionMode="Single" SingleSelectionFollowsFocus="False" IsItemClickEnabled="True" x:Name="PlaylistItemsListView" Background="{StaticResource HohoemaPlayerBackgroundBrush}" IsFocusEngagementEnabled="True">
-          <i:Interaction.Behaviors>
-            <core:EventTriggerBehavior EventName="ItemClick">
-              <core:InvokeCommandAction Command="{x:Bind _viewModel.PlayWithCurrentPlaylistCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />
-            </core:EventTriggerBehavior>
-          </i:Interaction.Behaviors>
-          <ListView.ItemContainerStyle>
-            <Style TargetType="ListViewItem">
-              <Setter Property="Padding" Value="8 6 8 6" />
-            </Style>
-          </ListView.ItemContainerStyle>
-          <ListView.ItemTemplate>
-            <DataTemplate>
-              <TextBlock Text="{Binding Label}" TextWrapping="Wrap" VerticalAlignment="Center" />
-            </DataTemplate>
-          </ListView.ItemTemplate>
-        </ListView>
-      </StackPanel>
-      
     </toolkit:DockPanel>
     <VisualStateManager.VisualStateGroups>
       <!-- Xbox -->
@@ -168,7 +120,7 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      <!-- リピートモード -->
+      <!-- 反転モード -->
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
@@ -180,6 +132,7 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
+      
     </VisualStateManager.VisualStateGroups>
   </Grid>
 </UserControl>

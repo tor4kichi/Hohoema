@@ -554,9 +554,9 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         {
             if (CurrentPlaylist != playlist)
             {
-                if (playlist == QueuePlaylist)
+                if (playlist == null)
                 {
-                    _player.SetSource(QueuePlaylist);
+                    //_player.SetSource(null);
                 }
                 else if (playlist == WatchAfterPlaylist)
                 {
@@ -645,7 +645,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
                     return loginUserMylistResult.Items;
 
                 case MylistPlaylist mylist:
-                    var mylistResult = await mylist.GetItemsAsync(0, 50);
+                    var mylistResult = await mylist.GetMylistAllItems();
                     return mylistResult.Items;
                 case LocalPlaylist localPlaylist:
                     {
@@ -849,22 +849,26 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             using (var releaser = await _PlaylistUpdateLock.LockAsync())
             {
                 _sourceItems.Clear();
-                _sourceItems.AddRange(items);
-
                 _ItemsObservaeDisposer?.Dispose();
-                if (items is ObservableCollection<IVideoContent> collection)
+
+                if (items != null)
                 {
-                    _ItemsObservaeDisposer = collection.CollectionChangedAsObservable()
-                        .Do(args => 
-                        {
-                            _sourceItems.Clear();
-                            _sourceItems.AddRange(collection);
+                    _sourceItems.AddRange(items);
 
-                            ResetItems();
+                    if (items is ObservableCollection<IVideoContent> collection)
+                    {
+                        _ItemsObservaeDisposer = collection.CollectionChangedAsObservable()
+                            .Do(args =>
+                            {
+                                _sourceItems.Clear();
+                                _sourceItems.AddRange(collection);
 
-                            Debug.WriteLine("Playlist Updated.");
-                        })
-                        .Subscribe();
+                                ResetItems();
+
+                                Debug.WriteLine("Playlist Updated.");
+                            })
+                            .Subscribe();
+                    }
                 }
 
                 ResetItems();

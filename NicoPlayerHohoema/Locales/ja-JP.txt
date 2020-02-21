@@ -623,6 +623,7 @@ SearchWithTag = タグ検索
 
 
 #### Playlist ####
+PlayingVideo = 再生中動画
 PlayAll = すべて再生
 CurrentPlaylist = 現在のプレイリスト
 
