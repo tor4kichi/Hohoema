@@ -22,12 +22,14 @@ using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands;
 using NicoPlayerHohoema.UseCase;
 using I18NPortable;
+using System.Reactive.Concurrency;
 
 namespace NicoPlayerHohoema.ViewModels
 {
     public class NicoRepoPageViewModel : HohoemaListingPageViewModelBase<HohoemaListingPageItemBase>, INavigatedAwareAsync
     {
         public NicoRepoPageViewModel(
+            IScheduler scheduler,
             ApplicationLayoutManager applicationLayoutManager,
             HohoemaPlaylist hohoemaPlaylist,
             Services.PageManager pageManager,
@@ -37,26 +39,24 @@ namespace NicoPlayerHohoema.ViewModels
             OpenLiveContentCommand openLiveContentCommand
             )
         {
+            _scheduler = scheduler;
             ApplicationLayoutManager = applicationLayoutManager;
             HohoemaPlaylist = hohoemaPlaylist;
             ActivityFeedSettings = activityFeedSettings;
             LoginUserNicoRepoProvider = loginUserNicoRepoProvider;
             SubscriptionManager = subscriptionManager;
             _openLiveContentCommand = openLiveContentCommand;
-            DisplayNicoRepoItemTopics = ActivityFeedSettings.DisplayNicoRepoItemTopics.ToList();
+            DisplayNicoRepoItemTopics = new ObservableCollection<NicoRepoItemTopic>(ActivityFeedSettings.DisplayNicoRepoItemTopics);
 
-            /*
             DisplayNicoRepoItemTopics.CollectionChangedAsObservable()
-                .Throttle(TimeSpan.FromSeconds(1))
-                .Subscribe(async _ => 
+                .Subscribe(_ =>
                 {
-                    await HohoemaApp.UIDispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () => 
-                    {
-                        await ResetList();
-                    });
-                });
-              */
+                    _NicoRepoItemTopicsChanged = true;
+                })
+                .AddTo(_CompositeDisposable);
         }
+
+        bool _NicoRepoItemTopicsChanged;
 
         public static IList<NicoRepoItemTopic> DisplayCandidateNicoRepoItemTopicList { get; } = new List<NicoRepoItemTopic>()
         {
@@ -69,7 +69,7 @@ namespace NicoPlayerHohoema.ViewModels
             NicoRepoItemTopic.Live_User_Program_Reserve,
         };
 
-        public IList<NicoRepoItemTopic> DisplayNicoRepoItemTopics { get; }
+        public ObservableCollection<NicoRepoItemTopic> DisplayNicoRepoItemTopics { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public ActivityFeedSettings ActivityFeedSettings { get; }
@@ -103,6 +103,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         DelegateCommand<object> _openNicoRepoItemCommand;
+        private readonly IScheduler _scheduler;
         private readonly OpenLiveContentCommand _openLiveContentCommand;
 
         public DelegateCommand<object> OpenNicoRepoItemCommand => _openNicoRepoItemCommand
@@ -121,6 +122,17 @@ namespace NicoPlayerHohoema.ViewModels
                     }
                 }
             }));
+
+
+        public void OnResetNicoRepoItemTopicsEditCompleted()
+        {
+            if (_NicoRepoItemTopicsChanged)
+            {
+                _ = ResetList();
+
+                _NicoRepoItemTopicsChanged = false;
+            }
+        }
 
     }
 

@@ -543,7 +543,8 @@ RankingGenre.HotTopic = 話題
 RankingNoItems = ランキングアイテムの取得に失敗しました\nしばらく後で再度アクセスをお試しください
 
 RankingTitleWithGenre = {0} のランキング
-SelectDisplayRankingGenreOrTag = 再表示するジャンルやタグの指定
+SelectDisplayRankingGenre = 表示するジャンルを選択
+SelectReDisplayHiddenRankingTags = 再表示するタグを選択
 FavoriteRankingTag = お気に入りタグ
 AddFavoriteRankingTag = お気に入りに追加
 RemoveFavoriteRankingTag = お気に入りから削除
@@ -622,6 +623,7 @@ SearchWithTag = タグ検索
 
 
 #### Playlist ####
+PlayingVideo = 再生中動画
 PlayAll = すべて再生
 CurrentPlaylist = 現在のプレイリスト
 

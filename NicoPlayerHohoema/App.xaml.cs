@@ -140,6 +140,7 @@ namespace NicoPlayerHohoema
                 {
                     primaryWindowCoreLayout,
                     hohoemaInAppNotification,
+                    new Views.NoUIProcessScreen()
                 }
             };
 

@@ -21,7 +21,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			set { SetValue(SelectedItemsProperty, value); }
 		}
 
-
+	
 		// Using a DependencyProperty as the backing store for WorkItems.  This enables animation, styling, binding, etc...
 		public static readonly DependencyProperty SelectedItemsProperty =
 			DependencyProperty.Register("SelectedItems"

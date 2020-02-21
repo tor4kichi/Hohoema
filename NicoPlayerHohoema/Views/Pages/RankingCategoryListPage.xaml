@@ -54,9 +54,12 @@
             <CommandBar.PrimaryCommands>
               <AppBarButton Label="{Binding Source=Settings, Converter={StaticResource LocalizeConverter}}"
                             Icon="Setting">
-                <AppBarButton.Command>
-                  <mycommands:ShowHiddenRankingGenreTagsDialogCommand />
-                </AppBarButton.Command>
+                <AppBarButton.Flyout>
+                  <MenuFlyout>
+                    <MenuFlyoutItem Text="{Binding Source=SelectDisplayRankingGenre, Converter={StaticResource LocalizeConverter}}" Command="{Binding ShowDisplayGenreSelectDialogCommand}" />
+                    <MenuFlyoutItem Text="{Binding Source=SelectReDisplayHiddenRankingTags, Converter={StaticResource LocalizeConverter}}" Command="{Binding ShowDisplayGenreTagSelectDialogCommand}" />
+                  </MenuFlyout>
+                </AppBarButton.Flyout>
               </AppBarButton>
             </CommandBar.PrimaryCommands>
           </CommandBar>

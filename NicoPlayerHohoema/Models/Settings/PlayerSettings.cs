@@ -69,68 +69,6 @@ namespace NicoPlayerHohoema.Models
 			NGCommentScore = -1000;
 		}
 
-		protected void Reset(PlayerSettings read)
-		{
-			DefaultQuality = read.DefaultQuality;
-			DefaultLiveQuality = read.DefaultLiveQuality;
-			LiveWatchWithLowLatency = read.LiveWatchWithLowLatency;
-			IsMute = read.IsMute;
-			SoundVolume = read.SoundVolume;
-			SoundVolumeChangeFrequency = read.SoundVolumeChangeFrequency;
-			IncrementReadablityOwnerComment = read.IncrementReadablityOwnerComment;
-			IsCommentDisplay_Video = read.IsCommentDisplay_Video;
-			IsCommentDisplay_Live = read.IsCommentDisplay_Live;
-			PauseWithCommentWriting = read.PauseWithCommentWriting;
-			CommentRenderingFPS = read.CommentRenderingFPS;
-			CommentDisplayDuration = read.CommentDisplayDuration;
-			CommentOpacity = read.CommentOpacity;
-			DefaultCommentFontScale = read.DefaultCommentFontScale;
-			CommentGlassMowerEnable = read.CommentGlassMowerEnable;
-			IsKeepDisplayInPlayback = read.IsKeepDisplayInPlayback;
-			IsKeepFrontsideInPlayback = read.IsKeepFrontsideInPlayback;
-			IsDefaultCommentWithAnonymous = read.IsDefaultCommentWithAnonymous;
-			CommentColor = read.CommentColor;
-			PlaybackRate = read.PlaybackRate;
-			IsAutoHidePlayerControlUI = read.IsAutoHidePlayerControlUI;
-			AutoHidePlayerControlUIPreventTime = read.AutoHidePlayerControlUIPreventTime;
-			IsForceLandscape = read.IsForceLandscape;
-
-			NicoScript_DisallowSeek_Enabled = read.NicoScript_DisallowSeek_Enabled;
-			NicoScript_Default_Enabled = read.NicoScript_Default_Enabled;
-			NicoScript_DisallowComment_Enabled = read.NicoScript_DisallowComment_Enabled;
-			NicoScript_Jump_Enabled = read.NicoScript_Jump_Enabled;
-			NicoScript_Replace_Enabled = read.NicoScript_Replace_Enabled;
-
-			NGCommentUserIdEnable = read.NGCommentUserIdEnable;
-			NGCommentUserIds.Clear();
-			foreach (var id in read.NGCommentUserIds)
-			{
-				NGCommentUserIds.Add(id);
-			}
-
-			NGCommentKeywordEnable = read.NGCommentKeywordEnable;
-			NGCommentKeywords.Clear();
-			foreach (var keyword in read.NGCommentKeywords)
-			{
-				NGCommentKeywords.Add(keyword);
-			}
-			NGCommentScore = read.NGCommentScore;
-
-			IsNGLiveCommentUserEnable = read.IsNGLiveCommentUserEnable;
-			NGLiveCommentUserIds.Clear();
-			foreach (var id in read.NGLiveCommentUserIds)
-			{
-				NGLiveCommentUserIds.Add(id);
-			}
-
-			RepeatMode = read.RepeatMode;
-			IsShuffleEnable = read.IsShuffleEnable;
-			IsReverseModeEnable = read.IsReverseModeEnable;
-			PlaylistEndAction = read.PlaylistEndAction;
-			AutoMoveNextVideoOnPlaylistEmpty = read.AutoMoveNextVideoOnPlaylistEmpty;
-		}
-
-
 
 
 		private NicoVideoQuality _DefaultQuality;
@@ -622,14 +560,24 @@ namespace NicoPlayerHohoema.Models
 		#region Playlist
 
 
-		private MediaPlaybackAutoRepeatMode _RepeatMode = MediaPlaybackAutoRepeatMode.List;
+		private bool _isCurrentVideoLoopingEnabled = false;
 
 		[DataMember]
-		public MediaPlaybackAutoRepeatMode RepeatMode
+		public bool IsCurrentVideoLoopingEnabled
 		{
-			get { return _RepeatMode; }
-			set { SetProperty(ref _RepeatMode, value); }
+			get { return _isCurrentVideoLoopingEnabled; }
+			set { SetProperty(ref _isCurrentVideoLoopingEnabled, value); }
 		}
+
+		private bool _isPlaylistLoopingEnabled = false;
+
+		[DataMember]
+		public bool IsPlaylistLoopingEnabled
+		{
+			get { return _isPlaylistLoopingEnabled; }
+			set { SetProperty(ref _isPlaylistLoopingEnabled, value); }
+		}
+
 
 
 		private bool _IsShuffleEnable = false;
@@ -670,33 +618,6 @@ namespace NicoPlayerHohoema.Models
 		{
 			get { return _AutoMoveNextVideoOnPlaylistEmpty; }
 			set { SetProperty(ref _AutoMoveNextVideoOnPlaylistEmpty, value); }
-		}
-
-		private DelegateCommand _ToggleRepeatModeCommand;
-		public DelegateCommand ToggleRepeatModeCommand
-		{
-			get
-			{
-				return _ToggleRepeatModeCommand
-					?? (_ToggleRepeatModeCommand = new DelegateCommand(() =>
-					{
-						switch (RepeatMode)
-						{
-							case MediaPlaybackAutoRepeatMode.None:
-								RepeatMode = MediaPlaybackAutoRepeatMode.Track;
-								break;
-							case MediaPlaybackAutoRepeatMode.Track:
-								RepeatMode = MediaPlaybackAutoRepeatMode.List;
-								break;
-							case MediaPlaybackAutoRepeatMode.List:
-								RepeatMode = MediaPlaybackAutoRepeatMode.None;
-								break;
-							default:
-								break;
-						}
-					}
-					));
-			}
 		}
 
 		private DelegateCommand _ToggleShuffleCommand;

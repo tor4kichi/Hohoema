@@ -468,7 +468,7 @@ namespace NicoPlayerHohoema.ViewModels
             finally
             {
                 defferal.Complete();
-            }
+            }            
         }
 
         private void Current_Resuming(object sender, object e)

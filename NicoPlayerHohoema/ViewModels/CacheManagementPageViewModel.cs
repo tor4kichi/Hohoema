@@ -69,6 +69,9 @@ namespace NicoPlayerHohoema.ViewModels
                     if (await CacheSaveFolder.ChangeUserDataFolder())
                     {
                         await RefreshCacheSaveFolderStatus();
+
+                        await VideoCacheManager.CacheFolderChanged();
+
                         await ResetList();
 
                         NotificationService.ShowInAppNotification(

@@ -541,7 +541,8 @@ RankingGenre.HotTopic = 话题
 RankingNoItems = 无法获得排名项目\n请稍后再试
 
 RankingTitleWithGenre = 排名: {0}
-SelectDisplayRankingGenreOrTag = 指定要重新显示的流派和标签
+SelectDisplayRankingGenre = 选择流派来显示
+SelectReDisplayHiddenRankingTags = 选择要重新显示的标签
 FavoriteRankingTag = 最喜欢的标签
 AddFavoriteRankingTag = 添加到收藏夹
 RemoveFavoriteRankingTag = 从收藏夹中删除
@@ -619,6 +620,7 @@ SearchWithKeyword = 关键字搜寻
 SearchWithTag = 标签搜寻
 
 #### Playlist ####
+PlayingVideo = 播放影片
 PlayAll = 全部播放
 CurrentPlaylist = 当前播放列表
 

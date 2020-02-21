@@ -45,7 +45,7 @@
 
         </PasswordBox>
 
-        <Grid>
+        <Grid Margin="0 16">
           <TextBlock Text="{Binding Source=AllowSavePassword, Converter={StaticResource LocalizeConverter}}"
                      VerticalAlignment="Center"
                      />
