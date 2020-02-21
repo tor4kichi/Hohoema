@@ -308,7 +308,8 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
             _isShuffleEnabled = playerSettings.IsShuffleEnable;
             _isReverseEnabled = playerSettings.IsReverseModeEnable;
-            _repeatMode = playerSettings.RepeatMode;
+            _isPlaylistLoopingEnabled = playerSettings.IsPlaylistLoopingEnabled;
+
 
             /*
             if (newOwner is INotifyCollectionChanged playlistNotifyCollectionChanged)
@@ -419,15 +420,16 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             }
         }
 
-        private MediaPlaybackAutoRepeatMode _repeatMode;
-        public MediaPlaybackAutoRepeatMode RepeatMode
+
+        private bool _isPlaylistLoopingEnabled;
+        public bool IsPlaylistLoopingEnabled
         {
-            get { return _repeatMode; }
+            get { return _isPlaylistLoopingEnabled; }
             set
             {
-                if (SetProperty(ref _repeatMode, value))
+                if (SetProperty(ref _isPlaylistLoopingEnabled, value))
                 {
-                    _playerSettings.RepeatMode = value;
+                    _playerSettings.IsPlaylistLoopingEnabled = value;
                 }
             }
         }
@@ -797,23 +799,6 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         IDisposable _SettingsObserveDisposer;
         IDisposable _ItemsObservaeDisposer;
         
-        private MediaPlaybackAutoRepeatMode _RepeatMode;
-        public MediaPlaybackAutoRepeatMode RepeatMode
-        {
-            get { return _RepeatMode; }
-            set
-            {
-                if (_RepeatMode != value)
-                {
-                    _RepeatMode = value;
-                    PlayerSettings.RepeatMode = _RepeatMode;
-                }
-            }
-        }
-
-
-
-
         public PlaylistPlayer(HohoemaPlaylist hohoemaPlaylist, PlayerSettings playerSettings)
         {
             HohoemaPlaylist = hohoemaPlaylist;
@@ -823,17 +808,6 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             Items = new ReadOnlyObservableCollection<IVideoContent>(_items);
 
             CompositeDisposable disposables = new CompositeDisposable();
-
-            PlayerSettings.ObserveProperty(x => x.RepeatMode)
-                .Subscribe(async repeatMode =>
-                {
-                    _RepeatMode = repeatMode;
-                    using (var releaser = await _PlaylistUpdateLock.LockAsync())
-                    {
-                        ResetItems();
-                    }
-                })
-                .AddTo(disposables);
 
             PlayerSettings.ObserveProperty(x => x.IsReverseModeEnable)
                 .Subscribe(async x => 
@@ -930,15 +904,13 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             {
                 if (!_items.Any()) { return false; }
 
-                switch (this.RepeatMode)
+                if (this.PlayerSettings.IsPlaylistLoopingEnabled)
                 {
-                    case MediaPlaybackAutoRepeatMode.None:
-                    case MediaPlaybackAutoRepeatMode.Track:
-                        return _items.Count > 1;
-                    case MediaPlaybackAutoRepeatMode.List:
-                        return _items.Count > 1;
-                    default:
-                        throw new NotImplementedException();
+                    return true;
+                }
+                else
+                {
+                    return _items.Count >= 2 && CurrentIndex >= 1;
                 }
             }
         }
@@ -957,14 +929,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             int prevIndex = CurrentIndex - 1;
             if (prevIndex < 0)
             {
-                if (RepeatMode != MediaPlaybackAutoRepeatMode.List)
-                {
-                    throw new Exception();
-                }
-                else
-                {
-                    prevIndex = _items.Count - 1;
-                }
+                prevIndex = _items.Count - 1;
             }
 
             prevItem = _items.ElementAt(prevIndex);
@@ -995,15 +960,13 @@ namespace NicoPlayerHohoema.UseCase.Playlist
                 if (_queueItems.Any()) { return true; }
                 if (!_items.Any()) { return false; }
 
-                switch (this.RepeatMode)
+                if (PlayerSettings.IsPlaylistLoopingEnabled)
                 {
-                    case MediaPlaybackAutoRepeatMode.None:
-                    case MediaPlaybackAutoRepeatMode.Track:
-                        return _items.Count > 1 && _items.Count > (CurrentIndex + 1);
-                    case MediaPlaybackAutoRepeatMode.List:
-                        return _items.Count > 1;
-                    default:
-                        throw new NotSupportedException("not support repeat mode : " + RepeatMode.ToString());
+                    return true;
+                }
+                else
+                {
+                    return _items.Count >= 2 && _items.Count > (CurrentIndex + 1);
                 }
             }
         }

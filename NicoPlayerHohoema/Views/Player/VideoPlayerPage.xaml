@@ -545,6 +545,17 @@
                           </core:EventTriggerBehavior>
                         </i:Interaction.Behaviors>
                       </Button>
+                      
+                      <!-- 単品リピート -->
+                      <ToggleButton IsChecked="{Binding VideoPlayer.IsCurrentVideoLoopingEnabled.Value, Mode=TwoWay}" Background="Transparent" UseSystemFocusVisuals="True"
+                                    >
+                        <iconPack:PackIconMaterial x:Name="RepeatModeToggleButtonIcon" Kind="Repeat" RenderTransformOrigin="0.5, 0.5">
+                          <iconPack:PackIconMaterial.RenderTransform>
+                            <CompositeTransform ScaleX="1.4" ScaleY="1.4" />
+                          </iconPack:PackIconMaterial.RenderTransform>
+                        </iconPack:PackIconMaterial>
+                        
+                      </ToggleButton>
                     </StackPanel>
                     <!-- 再生切り替え・シーク -->
                     <StackPanel Orientation="Horizontal" Grid.Column="1">

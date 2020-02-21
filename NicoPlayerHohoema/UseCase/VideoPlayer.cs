@@ -35,12 +35,14 @@ namespace NicoPlayerHohoema.UseCase
         public VideoPlayer(
             MediaPlayer mediaPlayer,
             IScheduler scheduler,
-            HohoemaPlaylist hohoemaPlaylist
+            HohoemaPlaylist hohoemaPlaylist,
+            PlayerSettings playerSettings
             )
         {
             _mediaPlayer = mediaPlayer;
             _scheduler = scheduler;
             _hohoemaPlaylist = hohoemaPlaylist;
+            _playerSettings = playerSettings;
 
             // Playing Video
             IsPlayWithCache = new ReactiveProperty<bool>(_scheduler, false)
@@ -67,13 +69,14 @@ namespace NicoPlayerHohoema.UseCase
             IsReverseEnabled = _hohoemaPlaylist.ToReactivePropertyAsSynchronized(x => x.IsReverseEnable, _scheduler)
                 .AddTo(_disposables);
 
-            RepeatMode = _hohoemaPlaylist.ToReactivePropertyAsSynchronized(x => x.RepeatMode, _scheduler)
-                .AddTo(_disposables);
-            RepeatMode.Select(x => x == MediaPlaybackAutoRepeatMode.Track)
-                .Subscribe(x => _mediaPlayer.IsLoopingEnabled = x)
+            IsCurrentVideoLoopingEnabled = _playerSettings.ToReactivePropertyAsSynchronized(x => x.IsCurrentVideoLoopingEnabled, _scheduler)
                 .AddTo(_disposables);
 
-            
+            IsCurrentVideoLoopingEnabled.Subscribe(x =>
+            {
+                _mediaPlayer.IsLoopingEnabled = x;
+            })
+                .AddTo(_disposables);
         }
 
 
@@ -236,6 +239,7 @@ namespace NicoPlayerHohoema.UseCase
 
 
         private readonly HohoemaPlaylist _hohoemaPlaylist;
+        private readonly PlayerSettings _playerSettings;
 
         public ReactiveCommand PlayNextCommand { get; }
         public ReactiveCommand PlayPreviousCommand { get; }
@@ -256,38 +260,9 @@ namespace NicoPlayerHohoema.UseCase
 
         public ReactiveProperty<bool> IsShuffleEnabled { get; private set; }
         public ReactiveProperty<bool> IsReverseEnabled { get; private set; }
-        public ReactiveProperty<MediaPlaybackAutoRepeatMode> RepeatMode { get; private set; }
+        public ReactiveProperty<bool> IsCurrentVideoLoopingEnabled { get; private set; }
         public ReadOnlyReactiveCollection<IPlaylistItem> PlaylistItems { get; private set; }
 
-
-        // TODO: HohoemaPlaylistへの書き込みに差し替え（PlayerSettingsへの書き戻しはObserverを立てる）
-
-        private DelegateCommand _ToggleRepeatModeCommand;
-        public DelegateCommand ToggleRepeatModeCommand
-        {
-            get
-            {
-                return _ToggleRepeatModeCommand
-                    ?? (_ToggleRepeatModeCommand = new DelegateCommand(() =>
-                    {
-                        switch (RepeatMode.Value)
-                        {
-                            case MediaPlaybackAutoRepeatMode.None:
-                                RepeatMode.Value = MediaPlaybackAutoRepeatMode.Track;
-                                break;
-                            case MediaPlaybackAutoRepeatMode.Track:
-                                RepeatMode.Value = MediaPlaybackAutoRepeatMode.List;
-                                break;
-                            case MediaPlaybackAutoRepeatMode.List:
-                                RepeatMode.Value = MediaPlaybackAutoRepeatMode.None;
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    ));
-            }
-        }
 
         private DelegateCommand _ToggleShuffleCommand;
         public DelegateCommand ToggleShuffleCommand

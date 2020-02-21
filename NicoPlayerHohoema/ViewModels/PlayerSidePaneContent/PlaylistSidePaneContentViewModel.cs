@@ -38,12 +38,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             IsShuffleEnabled = _playerSettings.ToReactivePropertyAsSynchronized(x => x.IsShuffleEnable, _scheduler)
                 .AddTo(_CompositeDisposable);
 
-            IsTrackRepeatModeEnable = _playerSettings.ObserveProperty(x => x.RepeatMode)
-                .Select(x => x == MediaPlaybackAutoRepeatMode.Track)
-                .ToReactiveProperty(_scheduler)
-                .AddTo(_CompositeDisposable);
-            IsListRepeatModeEnable = _playerSettings.ObserveProperty(x => x.RepeatMode)
-                .Select(x => x == MediaPlaybackAutoRepeatMode.List)
+            IsListRepeatModeEnable = _playerSettings.ObserveProperty(x => x.IsPlaylistLoopingEnabled)
                 .ToReactiveProperty(_scheduler)
                 .AddTo(_CompositeDisposable);
 
@@ -91,23 +86,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 return _ToggleRepeatModeCommand
                     ?? (_ToggleRepeatModeCommand = new DelegateCommand(() =>
                     {
-                        switch (_playerSettings.RepeatMode)
-                        {
-                            case MediaPlaybackAutoRepeatMode.List:
-                                _playerSettings.RepeatMode = MediaPlaybackAutoRepeatMode.Track;
-                                MediaPlayer.IsLoopingEnabled = true;
-                                break;
-                            case MediaPlaybackAutoRepeatMode.Track:
-                                _playerSettings.RepeatMode = MediaPlaybackAutoRepeatMode.None;
-                                MediaPlayer.IsLoopingEnabled = false;
-                                break;
-                            case MediaPlaybackAutoRepeatMode.None:
-                                _playerSettings.RepeatMode = MediaPlaybackAutoRepeatMode.List;
-                                MediaPlayer.IsLoopingEnabled = false;
-                                break;
-                            default:
-                                break;
-                        }
+                        _playerSettings.IsPlaylistLoopingEnabled = !_playerSettings.IsPlaylistLoopingEnabled;
                     }
                     ));
             }

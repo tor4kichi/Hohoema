@@ -151,15 +151,6 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{x:Bind _viewModel.IsTrackRepeatModeEnable.Value, Mode=OneWay}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="RepeatModeToggleButtonIcon.Kind"
-                    Value="RepeatOnce" />
-          </VisualState.Setters>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
             <StateTrigger IsActive="{x:Bind _viewModel.IsListRepeatModeEnable.Value, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
