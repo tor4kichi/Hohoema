@@ -77,9 +77,15 @@ namespace NicoPlayerHohoema.UseCase
                 _mediaPlayer.IsLoopingEnabled = x;
             })
                 .AddTo(_disposables);
+
+            _mediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
         }
 
-
+        TimeSpan? _prevPosition;
+        private void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
+        {
+            _prevPosition = sender.Position;
+        }
 
         CompositeDisposable _disposables = new CompositeDisposable();
         INiconicoVideoSessionProvider _niconicoVideoSessionProvider;
@@ -92,6 +98,7 @@ namespace NicoPlayerHohoema.UseCase
         {
             ClearCurrentSession();
 
+            _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
             _disposables.Dispose();
         }
 
@@ -188,7 +195,7 @@ namespace NicoPlayerHohoema.UseCase
                         if (_mediaPlayer.Source == null 
                         || session.PlaybackState == MediaPlaybackState.None)
                         {
-                            await PlayAsync(startPosition: session.Position);
+                            await PlayAsync(startPosition: _prevPosition ?? TimeSpan.Zero);
                         }
                         else if (session.PlaybackState == MediaPlaybackState.Playing)
                         {
