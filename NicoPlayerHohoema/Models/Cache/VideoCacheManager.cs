@@ -34,6 +34,7 @@ using NicoPlayerHohoema.Repository.VideoCache;
 using I18NPortable;
 using System.Reactive.Subjects;
 using System.Reactive;
+using NicoPlayerHohoema.Repository;
 
 namespace NicoPlayerHohoema.Models.Cache
 {
@@ -324,7 +325,8 @@ namespace NicoPlayerHohoema.Models.Cache
             CacheSettings cacheSettings,
             NicoVideoSessionProvider nicoVideoSessionProvider,
             NicoVideoSessionOwnershipManager sessionOwnershipManager,
-            CacheRequestRepository cacheRequestRepository
+            CacheRequestRepository cacheRequestRepository,
+            AppFlagsRepository appFlagsRepository
             )
         {
             Scheduler = scheduler;
@@ -335,6 +337,7 @@ namespace NicoPlayerHohoema.Models.Cache
             _nicoVideoSessionProvider = nicoVideoSessionProvider;
             _sessionOwnershipManager = sessionOwnershipManager;
             _cacheRequestRepository = cacheRequestRepository;
+            _appFlagsRepository = appFlagsRepository;
             NiconicoSession.LogIn += async (sender, e) =>
             {
                 await TryNextCacheRequestedVideoDownload();
@@ -397,6 +400,7 @@ namespace NicoPlayerHohoema.Models.Cache
         private readonly NicoVideoSessionProvider _nicoVideoSessionProvider;
         private readonly NicoVideoSessionOwnershipManager _sessionOwnershipManager;
         private readonly CacheRequestRepository _cacheRequestRepository;
+        private readonly AppFlagsRepository _appFlagsRepository;
         static readonly Regex NicoVideoIdRegex = new Regex("\\[((?:sm|so|lv)\\d+)\\]");
 
         static readonly Regex ExternalCachedNicoVideoIdRegex = new Regex("(?>sm|so|lv)\\d*");
@@ -615,7 +619,12 @@ namespace NicoPlayerHohoema.Models.Cache
             await RestoreBackgroundDownloadTask();
 
             // キャッシュ完了したアイテムをキャッシュフォルダから検索
-            //await RetrieveCacheCompletedVideos();
+            if (!_appFlagsRepository.IsMigratedCacheFolder_V_0_21_0)
+            {
+                await RetrieveCacheCompletedVideos();
+
+                _appFlagsRepository.IsMigratedCacheFolder_V_0_21_0 = true;
+            }
 
             State = CacheManagerState.Running;
         }
