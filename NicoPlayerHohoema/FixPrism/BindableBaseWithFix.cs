@@ -136,10 +136,18 @@ namespace NicoPlayerHohoema.FixPrism
                     {
                         context.Post(_ =>
                         {
-                            var eventArgs = new PropertyChangedEventArgs(propertyName);
-                            foreach (var eventHandler in handlers)
+                            lockSlim.EnterReadLock();
+                            try
                             {
-                                OnPropertyChanged(eventHandler, eventArgs);
+                                var eventArgs = new PropertyChangedEventArgs(propertyName);
+                                foreach (var eventHandler in handlers)
+                                {
+                                    OnPropertyChanged(eventHandler, eventArgs);
+                                }
+                            }
+                            finally
+                            {
+                                lockSlim.ExitReadLock();
                             }
                         },
                         null );
