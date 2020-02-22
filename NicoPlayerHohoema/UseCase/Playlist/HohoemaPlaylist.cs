@@ -982,8 +982,6 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
         private async void __GoNext()
         {
-            if (!_items.Any()) { return; }
-
             using (var releaser = await _PlaylistUpdateLock.LockAsync())
             {
                 if (_queueItems.Any())
@@ -994,8 +992,10 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
                     PlayRequested?.Invoke(this, firstQueue);
                 }
-                else
+                else 
                 {
+                    if (!_items.Any()) { return; }
+
                     var prevPlayed = Current;
                     var nextIndex = CurrentIndex + 1;
 
@@ -1050,16 +1050,20 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         {
             _queueItems.RemoveOnScheduler(item);
             _queueItems.AddOnScheduler(item);
+
+            RaisePropertyChanged(nameof(CanGoNext));
         }
 
         internal void RemoveQueue(IVideoContent item)
         {
             _queueItems.RemoveOnScheduler(item);
+            RaisePropertyChanged(nameof(CanGoNext));
         }
 
         internal void ClearQueue()
         {
             _queueItems.ClearOnScheduler();
+            RaisePropertyChanged(nameof(CanGoNext));
         }
     }
 
