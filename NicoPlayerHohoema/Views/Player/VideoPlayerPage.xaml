@@ -109,7 +109,7 @@
       </templateselector:PlayerSidePaneContentTemplateSelecter.Playlist>
       <templateselector:PlayerSidePaneContentTemplateSelecter.Comments>
         <DataTemplate>
-          <local:LiveCommentsSidePaneContent />
+          <local:VideoCommentSidePaneContent />
         </DataTemplate>
       </templateselector:PlayerSidePaneContentTemplateSelecter.Comments>
       <templateselector:PlayerSidePaneContentTemplateSelecter.Settings>
@@ -575,6 +575,9 @@
                     </StackPanel>
                     <!-- Settings etc -->
                     <toolkit:WrapPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
+                      <Button x:Name="OpenCommentListButton" Background="Transparent" Command="{x:Bind SelectSidePaneCommand}" CommandParameter="Comment">
+                        <iconPack:PackIconMaterial Kind="Comment" Width="24" Height="24"></iconPack:PackIconMaterial>
+                      </Button>
                       <Button x:Name="OpenPlaylistButton" Background="Transparent" Command="{x:Bind SelectSidePaneCommand}" CommandParameter="Playlist">
                         <iconPack:PackIconMaterial Kind="PlaylistPlay" Width="24" Height="24"></iconPack:PackIconMaterial>
                       </Button>
@@ -1298,6 +1301,22 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
+      
+      
+      <!-- サイドペインの内容毎の表示切替 -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind SidePaneType, Mode=OneWay}" EqualTo="Comment" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="PlayerSplitView.DisplayMode" Value="Inline" />
+            <Setter Target="PlayerSplitView.PaneBackground" Value="{ThemeResource AppBarBackgroundThemeBrush}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
     </VisualStateManager.VisualStateGroups>
+    
+    
   </Grid>
 </Page>

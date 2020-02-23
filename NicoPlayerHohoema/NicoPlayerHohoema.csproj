@@ -282,6 +282,7 @@
     <Compile Include="Services\NiconicoFollowToggleButtonService.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\LiveInfoContentViewModelBase.cs" />
     <Compile Include="ViewModels\LocalPlaylistPageViewModel.cs" />
+    <Compile Include="ViewModels\PlayerSidePaneContent\VideoCommentSizePaneContentViewModel.cs" />
     <Compile Include="ViewModels\PrimaryWindowCoreLayoutViewModel.cs" />
     <Compile Include="ViewModels\SubscriptionControlViewModel.cs" />
     <Compile Include="ViewModels\UserSeriesPageViewModel.cs" />
@@ -518,6 +519,7 @@
     <Compile Include="Views\Interaction\Actions\ScrollViewerVerticalPositionSettingsAction.cs" />
     <Compile Include="Views\Interaction\Behaviors\FocusGetter.cs" />
     <Compile Include="Views\Interaction\Behaviors\ListViewItemTappedCommand.cs" />
+    <Compile Include="Views\Interaction\Behaviors\ListViewScrollFollowsToItemBehavior.cs" />
     <Compile Include="Views\Interaction\Behaviors\MultiSelection.cs" />
     <Compile Include="Views\Interaction\Input\AutoHideCursor.cs" />
     <Compile Include="Views\Interaction\Flyout\MenuFlyoutItemsSetter.cs" />
@@ -599,6 +601,9 @@
     </Compile>
     <Compile Include="Views\Pages\VideoListPage\VideoListItemControl.xaml.cs">
       <DependentUpon>VideoListItemControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Player\_PlayerSidePaneContent\VideoCommentSidePaneContent.xaml.cs">
+      <DependentUpon>VideoCommentSidePaneContent.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\PrimaryViewCoreLayout.xaml.cs">
       <DependentUpon>PrimaryViewCoreLayout.xaml</DependentUpon>
@@ -1139,6 +1144,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Pages\ListItem\HohoemaListItemVideo.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Player\_PlayerSidePaneContent\VideoCommentSidePaneContent.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

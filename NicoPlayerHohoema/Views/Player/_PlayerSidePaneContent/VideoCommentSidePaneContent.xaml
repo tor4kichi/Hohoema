@@ -1,0 +1,66 @@
+﻿<UserControl
+    x:Class="NicoPlayerHohoema.Views.VideoCommentSidePaneContent"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:niconicoModels="using:NicoPlayerHohoema.Models.Niconico" xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls" xmlns:i="using:Microsoft.Xaml.Interactivity" xmlns:myBehaviors="using:NicoPlayerHohoema.Views.Interaction.Behaviors" mc:Ignorable="d"
+    d:DesignHeight="300"
+    d:DesignWidth="400">
+
+  <UserControl.Resources>
+    <Style TargetType="TextBlock" x:Key="CommentOptionTextBlockStyle">
+      <Setter Property="FontSize" Value="11"/>
+      <Setter Property="Opacity" Value="0.7" />
+    </Style>
+
+    <Style TargetType="TextBlock" x:Key="CommentTextBlockStyle">
+      <Setter Property="FontSize"  Value="14" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+  </UserControl.Resources>
+  <Grid>
+    <ListView ItemsSource="{x:Bind _viewModel.CommentPlayer.Comments}" SingleSelectionFollowsFocus="False">
+      <ListView.ItemTemplate>
+        <DataTemplate x:DataType="niconicoModels:Comment">
+          <uwpControls:DockPanel>
+            <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Top" Spacing="8">
+              <TextBlock Style="{StaticResource CommentOptionTextBlockStyle}">
+                No. <Run Text="{x:Bind CommentId}" />
+              </TextBlock>
+              <TextBlock Text="{x:Bind Mail}" Style="{StaticResource CommentOptionTextBlockStyle}" />
+
+              <TextBlock Style="{StaticResource CommentOptionTextBlockStyle}">
+                UserId: <Run Text="{x:Bind UserId}" />
+              </TextBlock>
+            </StackPanel>
+
+            <TextBlock Text="{x:Bind CommentText}" Style="{StaticResource CommentTextBlockStyle}" />
+          </uwpControls:DockPanel>
+        </DataTemplate>
+      </ListView.ItemTemplate>
+
+      <ListView.Header>
+        <uwpControls:ScrollHeader Mode="Sticky">
+          <Grid Padding="16" Background="{StaticResource MenuBackgroundBrush}">
+            <StackPanel Orientation="Horizontal" Spacing="16">
+              <TextBlock Text="{Binding Source=Comment, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" />
+
+              <TextBlock VerticalAlignment="Bottom">
+                <Run Text="{Binding Source=CommentCount, Converter={StaticResource LocalizeConverter}}" />:<Run Text="{x:Bind _viewModel.CommentPlayer.Comments.Count, Mode=OneWay}" />
+              </TextBlock>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+              <ToggleSwitch x:Name="AutoScrollToggleSwitch" IsOn="True" Header="自動スクロール" Style="{StaticResource ToggleSwitchNoHeader}"/>
+            </StackPanel>
+            
+          </Grid>
+        </uwpControls:ScrollHeader>
+      </ListView.Header>
+
+      <i:Interaction.Behaviors>
+        <myBehaviors:ListViewScrollFollowsToItemBehavior ScrollTargetItem="{x:Bind _viewModel.CommentPlayer.CurrentComment, Mode=OneWay}" IsEnabled="{x:Bind AutoScrollToggleSwitch.IsOn, Mode=OneWay}" />
+      </i:Interaction.Behaviors>
+    </ListView>
+  </Grid>
+</UserControl>

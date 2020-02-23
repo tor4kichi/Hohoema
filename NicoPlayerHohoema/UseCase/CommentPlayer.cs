@@ -23,7 +23,7 @@ using NicoPlayerHohoema.Repository.NicoVideo;
 
 namespace NicoPlayerHohoema.UseCase
 {
-    public class CommentPlayer : BindableBase, IDisposable
+    public class CommentPlayer : FixPrism.BindableBase, IDisposable
     {
         CompositeDisposable _disposables = new CompositeDisposable();
 
@@ -93,6 +93,7 @@ namespace NicoPlayerHohoema.UseCase
 
         public void Dispose()
         {
+            _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
             ClearCurrentSession();
 
             _disposables.Dispose();
@@ -111,6 +112,9 @@ namespace NicoPlayerHohoema.UseCase
             Comments.Clear();
 
             WritingComment.Value = string.Empty;
+
+            CurrentCommentIndex = 0;
+            CurrentComment = null;
         }
 
 
@@ -212,7 +216,7 @@ namespace NicoPlayerHohoema.UseCase
 
 
             // 投コメからニコスクリプトをセットアップしていく
-            foreach (var comment in comments)
+            foreach (var comment in comments.OrderBy(x => x.VideoPosition))
             {
                 if (comment.UserId == null)
                 {
@@ -275,7 +279,43 @@ namespace NicoPlayerHohoema.UseCase
                 }
             }
 
+            RefreshCurrentPlaybackPositionComment(sender.Position);
+
             _PrevPlaybackPosition = sender.Position;
+        }
+
+        void RefreshCurrentPlaybackPositionComment(TimeSpan position)
+        {
+            // TODO: Commentsにアクセスする際の非同期ロック
+            const int CommentReadabilityIncreaseDelayVpos = 0;
+            var vpos = (long)(position.TotalMilliseconds * 0.1) + CommentReadabilityIncreaseDelayVpos;
+            var currentIndex = CurrentCommentIndex;
+            foreach (var comment in Comments.Skip(CurrentCommentIndex))
+            {
+                if (comment.VideoPosition > vpos)
+                {
+                    CurrentComment = comment;
+                    break;
+                }
+
+                ++currentIndex;
+            }
+
+            CurrentCommentIndex = currentIndex;
+        }
+
+        private Comment _CurrentComment;
+        public Comment CurrentComment
+        {
+            get { return _CurrentComment; }
+            private set { SetProperty(ref _CurrentComment, value); }
+        }
+
+        private int _currentCommentIndex;
+        public int CurrentCommentIndex
+        {
+            get { return _currentCommentIndex; }
+            private set { SetProperty(ref _currentCommentIndex, value); }
         }
 
 
