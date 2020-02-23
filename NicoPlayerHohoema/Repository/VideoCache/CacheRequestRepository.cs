@@ -9,8 +9,10 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Repository.VideoCache
 {
-    public struct CacheRequest
+    public class CacheRequest
     {
+        public CacheRequest() { }
+
         public CacheRequest(string videoId, NicoVideoCacheState cacheState = NicoVideoCacheState.NotCacheRequested, NicoVideoQuality priorityQuality = NicoVideoQuality.Unknown)
         {
             VideoId = videoId;
@@ -60,15 +62,15 @@ namespace NicoPlayerHohoema.Repository.VideoCache
         public bool TryGetPendingFirstItem(out CacheRequest cacheRequest)
         {
             var req = this._collection.FindOne(x => x.CacheState == NicoVideoCacheState.Pending);
-            cacheRequest = req.VideoId != null ? req : default(CacheRequest);
-            return req.VideoId != null;
+            cacheRequest = req;
+            return req != null;
         }
 
         public bool TryGet(string videoId, out CacheRequest request)
         {
             var req = _collection.FindById(videoId);
-            request = req.VideoId != null ? req : default(CacheRequest);
-            return req.VideoId != null;
+            request = req;
+            return req != null;
         }
 
         public bool TryRemove(string videoId, out CacheRequest request)

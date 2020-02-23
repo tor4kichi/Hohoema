@@ -245,15 +245,15 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
 
 
 
-        public CacheRequest? CacheRequest
+        public CacheRequest CacheRequest
         {
-            get { return (CacheRequest?)GetValue(CacheRequestProperty); }
+            get { return (CacheRequest)GetValue(CacheRequestProperty); }
             set { SetValue(CacheRequestProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for CacheRequests.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty CacheRequestProperty =
-            DependencyProperty.Register("CacheRequest", typeof(CacheRequest?), typeof(VideoListItemControl), new PropertyMetadata(default(CacheRequest?)));
+            DependencyProperty.Register("CacheRequest", typeof(CacheRequest), typeof(VideoListItemControl), new PropertyMetadata(default(CacheRequest)));
 
         public bool HasCacheProgress
         {
@@ -324,7 +324,7 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
             }
         }
 
-        void ResetCacheRequests(Interfaces.IVideoContent video, CacheRequest? cacheRequest)
+        void ResetCacheRequests(Interfaces.IVideoContent video, CacheRequest cacheRequest)
         {
             ClearHandleProgress();
 
@@ -338,19 +338,19 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
                         HandleProgress(progress);
                     }
 
-                    cacheRequest = new CacheRequest(cacheRequest.Value, cacheRequest.Value.CacheState)
+                    cacheRequest = new CacheRequest(cacheRequest, cacheRequest.CacheState)
                     {
                         PriorityQuality = progress.Quality
                     };
                 }
 
                 if (cacheRequest?.CacheState == NicoVideoCacheState.Cached 
-                && cacheRequest.Value.PriorityQuality == NicoVideoQuality.Unknown)
+                && cacheRequest.PriorityQuality == NicoVideoQuality.Unknown)
                 {
                     var cached = await _cacheManager.GetCachedAsync(video.Id);
                     if (cached?.Any() ?? false)
                     {
-                        cacheRequest = new CacheRequest(cacheRequest.Value, cacheRequest.Value.CacheState)
+                        cacheRequest = new CacheRequest(cacheRequest, cacheRequest.CacheState)
                         {
                             PriorityQuality = cached.First().Quality
                         };
@@ -377,6 +377,7 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
 
         private void UnsubscribeCacheState()
         {
+            CacheRequest = null;
             _cacheManager.VideoCacheStateChanged -= _cacheManager_VideoCacheStateChanged;
         }
 

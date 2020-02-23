@@ -18,11 +18,11 @@
   </UserControl.Resources>
   <Grid x:Name="UserControlRoot">
 
-    <StackPanel HorizontalAlignment="Right" VerticalAlignment="Bottom">
+    <StackPanel x:Name="CacheStatusLayout" HorizontalAlignment="Right" VerticalAlignment="Bottom">
 
       
       <TextBlock Opacity="0.6" FontSize="12">
-         <Run Text="{x:Bind CacheRequest.Value.CacheState, Converter={StaticResource LocalizeConverter}, Mode=OneWay}" /> <Run Text="{x:Bind CacheRequest.Value.PriorityQuality, Converter={StaticResource LocalizeConverter}, Mode=OneWay}" />
+         <Run Text="{x:Bind CacheRequest.CacheState, Converter={StaticResource LocalizeConverter}, Mode=OneWay}" /> <Run Text="{x:Bind CacheRequest.PriorityQuality, Converter={StaticResource LocalizeConverter}, Mode=OneWay}" />
       </TextBlock>
 
       <StackPanel Orientation="Horizontal" Spacing="8" x:Name="CacheProgressLayout" Visibility="Collapsed">
@@ -159,7 +159,18 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      
+
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTrigger:EqualsStateTrigger Value="{x:Bind CacheRequest, Mode=OneWay}" EqualTo="{x:Null}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="CacheStatusLayout.Visibility" Value="Collapsed" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
