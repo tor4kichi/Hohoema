@@ -330,6 +330,9 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
 
             _ = _dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
+                // Note: 表示バグのワークアラウンドのため必要
+                CacheRequest = null;
+
                 if (cacheRequest?.CacheState == NicoVideoCacheState.Downloading)
                 {
                     var progress = await _cacheManager.GetCacheProgress(video.Id);
@@ -377,8 +380,8 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
 
         private void UnsubscribeCacheState()
         {
-            CacheRequest = null;
             _cacheManager.VideoCacheStateChanged -= _cacheManager_VideoCacheStateChanged;
+            ClearHandleProgress();
         }
 
         Models.Cache.NicoVideoCacheProgress _progress;
