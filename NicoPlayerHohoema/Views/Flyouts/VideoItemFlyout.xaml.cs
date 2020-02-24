@@ -113,6 +113,11 @@ namespace NicoPlayerHohoema.Views.Flyouts
             Opening += VideoItemFlyout_Opening;
         }
 
+        ~VideoItemFlyout()
+        {
+            Opening -= VideoItemFlyout_Opening;
+        }
+
         private void VideoItemFlyout_Opening(object sender, object e)
         {
             object dataContext = Target.DataContext ?? (Target as SelectorItem)?.Content;
@@ -255,7 +260,7 @@ namespace NicoPlayerHohoema.Views.Flyouts
 
             // 購読
             var susbcSourceConverter = new Subscriptions.SubscriptionSourceConverter();
-            var subscSource = susbcSourceConverter.Convert(content, typeof(SubscriptionSource), null, CultureInfo.CurrentCulture.Name);
+            var subscSource = susbcSourceConverter.Convert(content, typeof(SubscriptionSource), null, null);
             SusbcriptionSubItem.Items.Clear();
             SusbcriptionSubItem.Items.Add(new MenuFlyoutItem()
             {
