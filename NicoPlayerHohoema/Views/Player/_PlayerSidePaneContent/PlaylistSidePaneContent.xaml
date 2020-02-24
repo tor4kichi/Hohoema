@@ -76,7 +76,7 @@
         </ListView.ItemContainerStyle>
         <ListView.ItemTemplate>
           <DataTemplate>
-            <videoList:VideoListItemControl />
+            <videoList:VideoListItemControl IsThumbnailUseCache="False" />
           </DataTemplate>
         </ListView.ItemTemplate>
       </ListView>

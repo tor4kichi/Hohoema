@@ -758,15 +758,15 @@ namespace NicoPlayerHohoema.Models.Cache
 
 
 
-        public async Task<CacheRequest?> GetCacheRequestAsync(string videoId)
+        public async Task<CacheRequest> GetCacheRequestAsync(string videoId)
         {
             using var releaser = await _CacheRequestProcessingLock.LockAsync();
             return GetCacheRequestAsyncUnsafe(videoId);
         }
 
-        public CacheRequest? GetCacheRequestAsyncUnsafe(string videoId)
+        public CacheRequest GetCacheRequestAsyncUnsafe(string videoId)
         {
-            return _cacheRequestRepository.TryGet(videoId, out var req) ? req : default(CacheRequest?);
+            return _cacheRequestRepository.TryGet(videoId, out var req) ? req : default(CacheRequest);
         }
 
         public int GetCacheRequestCount()
@@ -782,9 +782,9 @@ namespace NicoPlayerHohoema.Models.Cache
 
             return _cacheRequestRepository.GetRange(start, length);
         }
-        public CacheRequest? GetCacheRequest(string videoId)
+        public CacheRequest GetCacheRequest(string videoId)
         {
-            return _cacheRequestRepository.TryGet(videoId, out var req) ? req : default(CacheRequest?);
+            return _cacheRequestRepository.TryGet(videoId, out var req) ? req : default(CacheRequest);
         }
 
         public async Task<List<NicoVideoCacheProgress>> GetDownloadProgressVideosAsync()

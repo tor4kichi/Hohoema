@@ -105,12 +105,17 @@ namespace NicoPlayerHohoema.Views.Flyouts
             DeleteCacheRequest.Command = App.Current.Container.Resolve<CacheDeleteRequestCommand>();
 
             AddNgUser.Command = App.Current.Container.Resolve<AddToHiddenUserCommand>();
-
+            RemoveNgUser.Command = App.Current.Container.Resolve<RemoveHiddenVideoOwnerCommand>();
             SelectionStart.Command = App.Current.Container.Resolve<SelectionStartCommand>();
             SelectionEnd.Command = App.Current.Container.Resolve<SelectionExitCommand>();
             SelectionAll.Command = App.Current.Container.Resolve<SelectionAllSelectCommand>();
 
             Opening += VideoItemFlyout_Opening;
+        }
+
+        ~VideoItemFlyout()
+        {
+            Opening -= VideoItemFlyout_Opening;
         }
 
         private void VideoItemFlyout_Opening(object sender, object e)
@@ -255,7 +260,7 @@ namespace NicoPlayerHohoema.Views.Flyouts
 
             // 購読
             var susbcSourceConverter = new Subscriptions.SubscriptionSourceConverter();
-            var subscSource = susbcSourceConverter.Convert(content, typeof(SubscriptionSource), null, CultureInfo.CurrentCulture.Name);
+            var subscSource = susbcSourceConverter.Convert(content, typeof(SubscriptionSource), null, null);
             SusbcriptionSubItem.Items.Clear();
             SusbcriptionSubItem.Items.Add(new MenuFlyoutItem()
             {
@@ -273,6 +278,11 @@ namespace NicoPlayerHohoema.Views.Flyouts
                     CommandParameter = subscSource
                 });
             }
+
+            // NG投稿者
+            AddNgUser.Visibility = AddNgUser.Command.CanExecute(content).ToVisibility();
+            RemoveNgUser.Visibility = RemoveNgUser.Command.CanExecute(content).ToVisibility();
+
 
             // キャッシュ
             var isCacheEnabled = VideoCacheManager.CacheSettings.IsEnableCache && VideoCacheManager.CacheSettings.IsUserAcceptedCache;

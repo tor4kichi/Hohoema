@@ -76,24 +76,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist.Commands
                     }
                 }
 
-                var dialog = new MessageDialog(
-                    "Dialog_HiddenVideoOwnerDesc".Translate(ownerName),
-                    "Dialog_HiddenVideoOwnerTitle".Translate(ownerName)
-                    );
-
-                dialog.Commands.Add(new UICommand()
-                {
-                    Label = "AddHiddenVideoOwner".Translate(),
-                    Invoked = (uicommand) =>
-                    {
-                        NgSettings.AddNGVideoOwnerId(content.ProviderId.ToString(), ownerName);
-                    }
-                });
-                dialog.Commands.Add(new UICommand() { Label = "Cancel".Translate() });
-
-                dialog.DefaultCommandIndex = 0;
-
-                await dialog.ShowAsync();
+                NgSettings.AddNGVideoOwnerId(content.ProviderId.ToString(), ownerName);
             }
         }
     }
