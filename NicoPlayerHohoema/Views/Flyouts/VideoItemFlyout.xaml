@@ -133,18 +133,14 @@
   <MenuFlyoutSubItem x:Name="CacheRequestWithQuality" Text="{Binding Source=CacheRequestWithQuality, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
     
   </MenuFlyoutSubItem>
+  <MenuFlyoutItem x:Name="DeleteCacheRequest" Text="{Binding Source=CacheRemove, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" />
+  <MenuFlyoutSeparator x:Name="CacheSeparator" />
+  
+  <MenuFlyoutItem x:Name="AddNgUser" Text="{Binding Source=AddHiddenVideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" CommandParameter="{Binding}" />
+  <MenuFlyoutItem x:Name="RemoveNgUser" Text="{Binding Source=RemoveHiddenVideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" CommandParameter="{Binding}" />
 
-
-  <MenuFlyoutItem x:Name="DeleteCacheRequest"
-                  Text="{Binding Source=CacheRemove, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                  />
-
-
-  <MenuFlyoutSeparator x:Name="CacheSeparator"  />
-  <MenuFlyoutItem x:Name="AddNgUser"
-                  Text="{Binding Source=AddHiddenVideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                  CommandParameter="{Binding}" />
   <MenuFlyoutSeparator />
+  
   <MenuFlyoutItem x:Name="SelectionAll"
                   Text="{Binding Source=SelectAll, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                   CommandParameter="{Binding}"
