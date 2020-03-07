@@ -20,6 +20,10 @@ using System.Reactive.Linq;
 using Mntone.Nico2.Videos.Comment;
 using Mntone.Nico2;
 using NicoPlayerHohoema.Repository.NicoVideo;
+using NicoPlayerHohoema.UseCase.NicoVideoPlayer;
+using Microsoft.Toolkit.Uwp.UI;
+using Uno.Extensions;
+using MvvmHelpers;
 
 namespace NicoPlayerHohoema.UseCase
 {
@@ -29,16 +33,21 @@ namespace NicoPlayerHohoema.UseCase
 
         private readonly IScheduler _scheduler;
         private readonly CommentRepository _commentRepository;
+        private readonly CommentDisplayingRangeExtractor _commentDisplayingRangeExtractor;
+        private readonly CommentFiltering _commentFiltering;
         private INiconicoCommentSessionProvider _niconicoCommentSessionProvider;
         private readonly MediaPlayer _mediaPlayer;
 
-        public ObservableCollection<Comment> Comments { get; private set; }
+        public ObservableRangeCollection<Comment> Comments { get; private set; }
+        public ObservableRangeCollection<Comment> DisplayingComments { get; } = new ObservableRangeCollection<Comment>();
         public ReactiveProperty<string> WritingComment { get; private set; }
         public ReactiveProperty<string> CommandText { get; private set; }
         public ReactiveProperty<bool> NowSubmittingComment { get; private set; }
 
         public AsyncReactiveCommand CommentSubmitCommand { get; }
         ICommentSession _commentSession;
+
+        Models.Helpers.AsyncLock _commentUpdateLock = new Models.Helpers.AsyncLock();
 
         private bool _nowSeekDisabledFromNicoScript;
         public bool NowSeekDisabledFromNicoScript
@@ -62,15 +71,18 @@ namespace NicoPlayerHohoema.UseCase
         public CommentPlayer(
             MediaPlayer mediaPlayer, 
             IScheduler scheduler, 
-            Repository.NicoVideo.CommentRepository commentRepository
+            Repository.NicoVideo.CommentRepository commentRepository,
+            UseCase.CommentDisplayingRangeExtractor commentDisplayingRangeExtractor,
+            UseCase.NicoVideoPlayer.CommentFiltering commentFiltering
             )
         {
             _mediaPlayer = mediaPlayer;
             _scheduler = scheduler;
             _commentRepository = commentRepository;
-            mediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
+            _commentDisplayingRangeExtractor = commentDisplayingRangeExtractor;
+            _commentFiltering = commentFiltering;
 
-            Comments = new ObservableCollection<Comment>();
+            Comments = new ObservableRangeCollection<Comment>();
 
             CommentSubmitCommand = new AsyncReactiveCommand()
                 .AddTo(_disposables);
@@ -87,9 +99,59 @@ namespace NicoPlayerHohoema.UseCase
 
             CommandText = new ReactiveProperty<string>(_scheduler, string.Empty)
                 .AddTo(_disposables);
+
+            new[]
+            {
+                Observable.FromEventPattern<CommentFiltering.CommentOwnerIdFilteredEventArgs>(
+                    h => _commentFiltering.FilteringCommentOwnerIdAdded += h,
+                    h => _commentFiltering.FilteringCommentOwnerIdAdded -= h
+                ).ToUnit(),
+                Observable.FromEventPattern<CommentFiltering.CommentOwnerIdFilteredEventArgs>(
+                    h => _commentFiltering.FilteringCommentOwnerIdRemoved += h,
+                    h => _commentFiltering.FilteringCommentOwnerIdRemoved -= h
+                ).ToUnit(),
+                Observable.FromEventPattern<CommentFiltering.FilteringCommentTextKeywordEventArgs>(
+                    h => _commentFiltering.FilterKeywordAdded += h,
+                    h => _commentFiltering.FilterKeywordAdded -= h
+                ).ToUnit(),
+                Observable.FromEventPattern<CommentFiltering.FilteringCommentTextKeywordEventArgs>(
+                    h => _commentFiltering.FilterKeywordRemoved += h,
+                    h => _commentFiltering.FilterKeywordRemoved -= h
+                ).ToUnit(),
+                Observable.FromEventPattern<CommentFiltering.FilteringCommentTextKeywordEventArgs>(
+                    h => _commentFiltering.FilterKeywordUpdated += h,
+                    h => _commentFiltering.FilterKeywordUpdated -= h
+                ).ToUnit(),
+            }
+            .Merge()
+            .Subscribe(_ => RefreshFiltering())
+            .AddTo(_disposables);
+            
         }
 
+        void RefreshFiltering()
+        {
+            FilteredCommentIds.Clear();
+            DisplayingComments.Clear();
 
+            var displayingComments = _commentDisplayingRangeExtractor.Rewind(_mediaPlayer.PlaybackSession.Position);
+            foreach (var comment in displayingComments)
+            {
+                DisplayingComments.Add(comment);
+            }
+        }
+
+        private void RewindAsync(TimeSpan position)
+        {
+            DisplayingComments.Clear();
+            var displayingComments = _commentDisplayingRangeExtractor.Rewind(position);
+            foreach (var comment in displayingComments)
+            {
+                DisplayingComments.Add(comment);
+            }
+        }
+
+        
 
         public void Dispose()
         {
@@ -102,6 +164,8 @@ namespace NicoPlayerHohoema.UseCase
 
         public void ClearCurrentSession()
         {
+            _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
+
             _commentSession?.Dispose();
             _commentSession = null;
             
@@ -110,6 +174,7 @@ namespace NicoPlayerHohoema.UseCase
             ClearNicoScriptState();
 
             Comments.Clear();
+            DisplayingComments.Clear();
 
             WritingComment.Value = string.Empty;
 
@@ -120,25 +185,31 @@ namespace NicoPlayerHohoema.UseCase
 
         public async Task UpdatePlayingCommentAsync(INiconicoCommentSessionProvider niconicoCommentSessionProvider)
         {
-            _niconicoCommentSessionProvider = niconicoCommentSessionProvider;
-
-            if (_niconicoCommentSessionProvider == null) { return; }
-
-            try
+            using (await _commentUpdateLock.LockAsync())
             {
-                var commentSession = await _niconicoCommentSessionProvider.CreateCommentSessionAsync();
+                _niconicoCommentSessionProvider = niconicoCommentSessionProvider;
 
-                // コミュニティやチャンネルの動画では匿名コメントは利用できない
-                //CommandEditerVM.ChangeEnableAnonymity(CommentClient.IsAllowAnnonimityComment);
+                if (_niconicoCommentSessionProvider == null) { return; }
 
-                // コメントの更新
-                await UpdateComments_Internal(commentSession);
+                try
+                {
+                    var commentSession = await _niconicoCommentSessionProvider.CreateCommentSessionAsync();
 
-                _commentSession = commentSession;
-            }
-            catch
-            {
+                    // コミュニティやチャンネルの動画では匿名コメントは利用できない
+                    //CommandEditerVM.ChangeEnableAnonymity(CommentClient.IsAllowAnnonimityComment);
 
+                    // コメントの更新
+                    await UpdateComments_Internal(commentSession);
+
+                    _commentSession = commentSession;
+
+                    _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
+                    _mediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
+                }
+                catch
+                {
+
+                }
             }
         }
 
@@ -147,60 +218,68 @@ namespace NicoPlayerHohoema.UseCase
         {
             if (_commentSession == null) { return; }
 
-            await UpdateComments_Internal(_commentSession);
+            using (await _commentUpdateLock.LockAsync())
+            {
+                await UpdateComments_Internal(_commentSession);
+            }
         }
 
         
 
         private async Task SubmitComment()
         {
-            if (_commentSession == null) { return; }
-
-            NowSubmittingComment.Value = true;
-
-            Debug.WriteLine($"try comment submit:{WritingComment.Value}");
-
-            var posision = _mediaPlayer.PlaybackSession.Position;
-
-            try
+            using (await _commentUpdateLock.LockAsync())
             {
-                var vpos = (uint)(posision.TotalMilliseconds / 10);
+                if (_commentSession == null) { return; }
 
-                var res = await _commentSession.PostComment(WritingComment.Value, posision, CommandText.Value);
+                NowSubmittingComment.Value = true;
 
-                if (res.Status == ChatResult.Success)
+                Debug.WriteLine($"try comment submit:{WritingComment.Value}");
+
+                var posision = _mediaPlayer.PlaybackSession.Position;
+
+                try
                 {
-                    Debug.WriteLine("コメントの投稿に成功: " + res.CommentNo);
+                    var vpos = (uint)(posision.TotalMilliseconds / 10);
 
-                    var commentVM = new Comment()
+                    var res = await _commentSession.PostComment(WritingComment.Value, posision, CommandText.Value);
+
+                    if (res.Status == ChatResult.Success)
                     {
-                        CommentId = (uint)res.CommentNo,
-                        VideoPosition = vpos,
-                        UserId = _commentSession.UserId,
-                        CommentText = WritingComment.Value,
-                    };
+                        Debug.WriteLine("コメントの投稿に成功: " + res.CommentNo);
 
-                    Comments.Add(commentVM);
+                        var commentVM = new Comment()
+                        {
+                            CommentId = (uint)res.CommentNo,
+                            VideoPosition = vpos,
+                            UserId = _commentSession.UserId,
+                            CommentText = WritingComment.Value,
+                        };
 
-                    WritingComment.Value = "";
+                        Comments.Add(commentVM);
+                        
+                        ResetDisplayingComments(Comments);
+
+                        WritingComment.Value = "";
+                    }
+                    else
+                    {
+                        CommentSubmitFailed?.Invoke(this, EventArgs.Empty);
+
+                        //                    _NotificationService.ShowToast("コメント投稿", $"{_commentSession.ContentId} へのコメント投稿に失敗 （error code : {res.StatusCode}", duration: Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Short);
+
+                        Debug.WriteLine("コメントの投稿に失敗: " + res.Status.ToString());
+                    }
+
                 }
-                else
+                catch (NotSupportedException ex)
                 {
-                    CommentSubmitFailed?.Invoke(this, EventArgs.Empty);
-
-//                    _NotificationService.ShowToast("コメント投稿", $"{_commentSession.ContentId} へのコメント投稿に失敗 （error code : {res.StatusCode}", duration: Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Short);
-
-                    Debug.WriteLine("コメントの投稿に失敗: " + res.Status.ToString());
+                    Debug.WriteLine(ex.ToString());
                 }
-
-            }
-            catch (NotSupportedException ex)
-            {
-                Debug.WriteLine(ex.ToString());
-            }
-            finally
-            {
-                NowSubmittingComment.Value = false;
+                finally
+                {
+                    NowSubmittingComment.Value = false;
+                }
             }
         }
 
@@ -209,52 +288,162 @@ namespace NicoPlayerHohoema.UseCase
 
         private async Task UpdateComments_Internal(ICommentSession commentSession)
         {
-            Comments.Clear();
+            // ニコスクリプトの状態を初期化
+            ClearNicoScriptState();
 
+            Comments.Clear();
+            DisplayingComments.Clear();
 
             var comments = await commentSession.GetInitialComments();
 
-
-            // 投コメからニコスクリプトをセットアップしていく
-            foreach (var comment in comments.OrderBy(x => x.VideoPosition))
+            IEnumerable<Comment> commentsAction(IEnumerable<Comment> comments)
             {
-                if (comment.UserId == null)
+                foreach (var comment in comments)
                 {
-                    if (comment.DeletedFlag > 0) { continue; }
-                    if (TryAddNicoScript(comment))
+                    if (comment.UserId == null)
                     {
-                        // 投コメのニコスクリプトをスキップして
-                        continue;
+                        if (comment.DeletedFlag > 0) { continue; }
+                        if (TryAddNicoScript(comment))
+                        {
+                            // 投コメのニコスクリプトをスキップして
+                            continue;
+                        }
                     }
-                }
 
-                // コメントをコメントリストに追加する（通常の投コメも含めて）
-                Comments.Add(comment);
+                    yield return comment;
+                }
             }
 
-            // ニコスクリプトの状態を初期化
-            ClearNicoScriptState();
-            _NicoScriptList.Sort((x, y) => (int)(x.BeginTime.Ticks - y.BeginTime.Ticks));
-
-            System.Diagnostics.Debug.WriteLine($"コメント数:{Comments.Count}");
+            Comments.AddRange(commentsAction(comments));
 
             if (commentSession is VideoCommentService onlineCommentSession)
             {
                 _ = Task.Run(() =>
                 {
-                    _commentRepository.SetCache(commentSession.ContentId, comments);                    
+                    _commentRepository.SetCache(commentSession.ContentId, comments);
                 });
             }
+
+
+            ResetDisplayingComments(Comments);
+
+            _NicoScriptList.Sort((x, y) => (int)(x.BeginTime.Ticks - y.BeginTime.Ticks));
+            System.Diagnostics.Debug.WriteLine($"コメント数:{Comments.Count}");
+            
         }
+
+
+        void ResetDisplayingComments(IReadOnlyCollection<Comment> comments)
+        {
+            DisplayingComments.Clear();
+            Debug.WriteLine($"CommentReset");
+
+            var displayingComments = _commentDisplayingRangeExtractor.ResetComments(comments, _mediaPlayer.PlaybackSession.Position);
+            DisplayingComments.AddRange(FilteringComment(displayingComments.ToArray()));
+        }
+
+
+
+        void TickNextDisplayingComments(TimeSpan position)
+        {
+            var comments = _commentDisplayingRangeExtractor.UpdateToNextFrame(position);
+
+            if (!comments.RemovedComments.IsEmpty)
+            {
+                DisplayingComments.RemoveRange(comments.RemovedComments.ToArray(), System.Collections.Specialized.NotifyCollectionChangedAction.Remove);
+            }
+
+            if (!comments.AddedComments.IsEmpty)
+            {
+                DisplayingComments.AddRange(FilteringComment(comments.AddedComments.ToArray()));
+            }
+        }
+
+        bool FilteringComment(Comment comment)
+        {
+            bool IsFilteredComment(Comment comment)
+            {
+                if (_commentFiltering.IsCommentOwnerUserIdFiltered(comment.UserId))
+                {
+                    return true;
+                }
+                else if (_commentFiltering.GetAllFilteringCommentTextCondition().IsMatchAny(comment.CommentText))
+                {
+                    return true;
+                }
+
+                return false;
+            }
+
+            if (IsFilteredComment(comment))
+            {
+                return true;
+            }
+
+            if (!string.IsNullOrWhiteSpace(comment.Mail))
+            {
+                var commands = comment.Mail.Split(' ');
+                if (commands.Any(x => _commentFiltering.IsIgnoreCommand(x)))
+                {
+                    return true;
+                }
+
+                foreach (var action in MailToCommandHelper.MakeCommandActions(commands))
+                {
+                    action(comment);
+                }
+            }
+
+            comment.CommentText = _commentFiltering.TransformCommentText(comment.CommentText);
+
+            return false;
+        }
+
+        bool FilteringCommentWithCache(Comment comment)
+        {
+            if (FilteredCommentIds.TryGetValue(comment.CommentId, out bool isFiltered))
+            {
+                return !isFiltered;
+            }
+            else
+            {
+                var isFilteredComment = FilteringComment(comment);
+                FilteredCommentIds.Add(comment.CommentId, isFilteredComment);
+                return !isFilteredComment;
+            }
+        }
+
+        IEnumerable<Comment> FilteringComment(IEnumerable<Comment> comments)
+        {
+            foreach (var comment in comments)
+            {
+                if (FilteringCommentWithCache(comment))
+                {
+                    yield return comment;
+                }
+            }
+        }
+
+
+        Dictionary<uint, bool> FilteredCommentIds = new Dictionary<uint, bool>();
 
         TimeSpan _PrevPlaybackPosition;
         private void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
         {
+            TickNextDisplayingComments(sender.Position);
+            UpdateNicoScriptComment(sender.Position);
+            RefreshCurrentPlaybackPositionComment(sender.Position);
+
+            _PrevPlaybackPosition = sender.Position;
+        }
+
+        void UpdateNicoScriptComment(TimeSpan position)
+        {
             foreach (var script in _NicoScriptList)
             {
-                if (_PrevPlaybackPosition <= script.BeginTime && sender.Position > script.BeginTime)
+                if (_PrevPlaybackPosition <= script.BeginTime && position > script.BeginTime)
                 {
-                    if (script.EndTime < sender.Position)
+                    if (script.EndTime < position)
                     {
                         Debug.WriteLine("nicoscript Enabling Skiped :" + script.Type);
                         continue;
@@ -271,7 +460,7 @@ namespace NicoPlayerHohoema.UseCase
                         continue;
                     }
 
-                    if (_PrevPlaybackPosition < script.EndTime && sender.Position > script.EndTime)
+                    if (_PrevPlaybackPosition < script.EndTime && position > script.EndTime)
                     {
                         Debug.WriteLine("nicoscript Disabling :" + script.Type);
                         script.ScriptDisabling?.Invoke();
@@ -279,9 +468,6 @@ namespace NicoPlayerHohoema.UseCase
                 }
             }
 
-            RefreshCurrentPlaybackPositionComment(sender.Position);
-
-            _PrevPlaybackPosition = sender.Position;
         }
 
         void RefreshCurrentPlaybackPositionComment(TimeSpan position)
@@ -290,9 +476,9 @@ namespace NicoPlayerHohoema.UseCase
             const int CommentReadabilityIncreaseDelayVpos = 0;
             var vpos = (long)(position.TotalMilliseconds * 0.1) + CommentReadabilityIncreaseDelayVpos;
             var currentIndex = CurrentCommentIndex;
-            foreach (var comment in Comments.Skip(CurrentCommentIndex))
+            foreach (var comment in Comments.Skip(CurrentCommentIndex).Cast<Comment>())
             {
-                if (comment.VideoPosition > vpos)
+                if ((comment as Comment).VideoPosition > vpos)
                 {
                     CurrentComment = comment;
                     break;

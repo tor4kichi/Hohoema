@@ -8,26 +8,8 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Repository
 {
-    public sealed class AppFlagsRepository
+    public sealed class AppFlagsRepository : FlagsRepositoryBase
     {
-        private readonly LocalObjectStorageHelper _LocalStorageHelper;
-
-        public AppFlagsRepository()
-        {
-            _LocalStorageHelper = new Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper();
-        }
-
-        private T Read<T>([CallerMemberName] string propertyName = null)
-        {
-            return _LocalStorageHelper.Read<T>(propertyName);
-        }
-
-        private void Save<T>(T value, [CallerMemberName] string propertyName = null)
-        {
-            _LocalStorageHelper.Save(propertyName, value);
-        }
-
-
         public bool IsRankingInitialUpdate
         {
             get => Read<bool>();
@@ -39,5 +21,19 @@ namespace NicoPlayerHohoema.Repository
             get => Read<bool>();
             set => Save(value);
         }
+
+
+        public bool IsMigratedCommentFilterSettings_V_0_21_5
+        {
+            get => Read<bool>();
+            set => Save(value);
+        }
+
+        public bool IsCreatedGlassMowerTextTransformCondition_V_0_21_5
+        {
+            get => Read<bool>();
+            set => Save(value);
+        }
+
     }
 }

@@ -50,7 +50,7 @@ namespace NicoPlayerHohoema.Repository.VideoCache
         public NicoVideoQuality PriorityQuality { get; set; }
     }
 
-    public sealed class CacheRequestRepository : LiteDBService<CacheRequest>
+    public sealed class CacheRequestRepository : LocalLiteDBService<CacheRequest>
     {
         public CacheRequestRepository()
         {

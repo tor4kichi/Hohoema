@@ -229,7 +229,7 @@
               </i:Interaction.Behaviors>
             </MediaPlayerElement>
             <!-- コメント表示 -->
-            <local:CommentRenderer x:Name="CommentRederer" MediaPlayer="{Binding MediaPlayer}" Comments="{Binding CommentPlayer.Comments}" Visibility="{Binding PlayerSettings.IsCommentDisplay_Video, Converter={StaticResource BooleanToVisibility}}" CommentSizeScale="{Binding PlayerSettings.DefaultCommentFontScale}" CommentDefaultColor="{Binding PlayerSettings.CommentColor}" DefaultDisplayDuration="{Binding PlayerSettings.CommentDisplayDuration}" Opacity="{Binding PlayerSettings.CommentOpacity, Mode=OneWay}" UpdateInterval="0:0:0.032" PlayerSettings="{Binding PlayerSettings}" />
+            <local:CommentRenderer x:Name="CommentRederer" MediaPlayer="{Binding MediaPlayer}" Comments="{Binding CommentPlayer.DisplayingComments}" Visibility="{Binding PlayerSettings.IsCommentDisplay_Video, Converter={StaticResource BooleanToVisibility}}" CommentSizeScale="{Binding PlayerSettings.DefaultCommentFontScale}" CommentDefaultColor="{Binding PlayerSettings.CommentColor}" DefaultDisplayDuration="{Binding PlayerSettings.CommentDisplayDuration}" Opacity="{Binding PlayerSettings.CommentOpacity, Mode=OneWay}" />
             <!-- 読み込み中表示 -->
             <ProgressRing Visibility="{Binding ObservableMediaPlayer.NowBuffering.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}" IsActive="{Binding ObservableMediaPlayer.NowBuffering.Value, Mode=OneWay}" Width="48" Height="48" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0 88 24 0" />
             <!-- ウィンドウ非アクティブ時に画面全体をマウス移動の反応対象にするためのコリジョン-->

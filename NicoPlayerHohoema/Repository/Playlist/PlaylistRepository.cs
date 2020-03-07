@@ -48,7 +48,7 @@ namespace NicoPlayerHohoema.Repository.Playlist
 
     public class PlaylistRepository
     {
-        class PlaylistDbService : LiteDBService<PlaylistEntity>
+        class PlaylistDbService : LocalLiteDBService<PlaylistEntity>
         {
             public PlaylistEntity Get(string playlistId)
             {
@@ -61,7 +61,7 @@ namespace NicoPlayerHohoema.Repository.Playlist
             }
         }
 
-        class PlaylistItemsDbService : LiteDBService<PlaylistItemEntity>
+        class PlaylistItemsDbService : LocalLiteDBService<PlaylistItemEntity>
         {
             public PlaylistItemsDbService()
             {

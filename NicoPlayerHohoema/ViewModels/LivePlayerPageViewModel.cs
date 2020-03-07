@@ -111,8 +111,7 @@ namespace NicoPlayerHohoema.ViewModels
             TogglePlayerDisplayViewCommand = togglePlayerDisplayViewCommand;
             ShowPrimaryViewCommand = showPrimaryViewCommand;
             SoundVolumeManager = soundVolumeManager;
-            LiveComments = new ReadOnlyObservableCollection<Comment>(_LiveComments);
-            FilterdComments.Source = LiveComments;
+            DisplayingLiveComments = new ReadOnlyObservableCollection<Comment>(_DisplayingLiveComments);
 
             SeekCommand = new MediaPlayerSeekCommand(MediaPlayer);
             SetPlaybackRateCommand = new MediaPlayerSetPlaybackRateCommand(MediaPlayer);
@@ -415,9 +414,9 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public NicoLiveVideo NicoLiveVideo { get; private set; }
 
+        private ObservableCollection<Comment> _DisplayingLiveComments { get; } = new ObservableCollection<Comment>();
+        public ReadOnlyObservableCollection<Comment> DisplayingLiveComments { get; private set; }
 
-        private ObservableCollection<Comment> _LiveComments { get; } = new ObservableCollection<Comment>();
-        public ReadOnlyObservableCollection<Comment> LiveComments { get; private set; } 
 
         public ObservableCollection<LiveOperationCommand> LiveOperationCommands { get; private set; } = new ObservableCollection<LiveOperationCommand>();
         public ReactiveProperty<LiveOperationCommand> BroadcasterLiveOperationCommand { get; }
@@ -598,19 +597,8 @@ namespace NicoPlayerHohoema.ViewModels
                     );
 
                 NicoLiveVideo.LiveComments.ObserveAddChanged()
-                    .Subscribe(x =>
+                    .Subscribe(comment =>
                     {
-                        var comment = new LiveComment();
-
-                        comment.VideoPosition = x.Vpos;
-
-                        comment.CommentText = x.Content;
-                        comment.CommentId = (uint)x.No;
-                        comment.IsAnonimity = x.IsAnonymity;
-                        comment.UserId = x.UserId;
-                        comment.IsOwnerComment = x.UserId == NicoLiveVideo?.BroadcasterId;
-                        comment.IsOperationCommand = x.IsOperater && x.HasOperatorCommand;
-
                         if (!comment.IsAnonimity && TryResolveUserId(comment.UserId, out var owner))
                         {
                             comment.UserName = owner.ScreenName;
@@ -630,19 +618,19 @@ namespace NicoPlayerHohoema.ViewModels
 
                         try
                         {
-                            comment.IsLoginUserComment = !comment.IsAnonimity ? NiconicoSession.IsLoginUserId(x.UserId) : false;
+                            comment.IsLoginUserComment = !comment.IsAnonimity ? NiconicoSession.IsLoginUserId(comment.UserId) : false;
                         }
                         catch { }
 
                         _scheduler.Schedule(() =>
                         {
-                            _LiveComments.Add(comment);
+                            _DisplayingLiveComments.Add(comment);
                         });
                     }
                 )
                 .AddTo(_NavigatingCompositeDisposable);
 
-                FilterdComments.Source = LiveComments;
+                FilterdComments.Source = NicoLiveVideo.LiveComments;
 
                 CommentCount = NicoLiveVideo.ObserveProperty(x => x.CommentCount)
                     .ToReactiveProperty(_scheduler)
@@ -714,6 +702,8 @@ namespace NicoPlayerHohoema.ViewModels
                 using (var defer = FilterdComments.DeferRefresh())
                 {
                     await TryStartViewing();
+
+                    FilterdComments.Source = NicoLiveVideo?.LiveComments;
                 }
 
                 RoomName = NicoLiveVideo.RoomName;
@@ -914,7 +904,7 @@ namespace NicoPlayerHohoema.ViewModels
         private void NicoLiveVideo_OperationCommandRecieved(object sender, OperationCommandRecievedEventArgs e)
         {
             LiveOperationCommand operationCommand = null;
-            var vpos = TimeSpan.FromMilliseconds(e.Chat.Vpos * 10);
+            var vpos = TimeSpan.FromMilliseconds(e.Comment.VideoPosition * 10);
 //            var relatedVpos = vpos - WatchStartLiveElapsedTime;
             bool isDisplayComment = (this.LiveElapsedTime - vpos) < TimeSpan.FromSeconds(10);
             switch (e.CommandType)
