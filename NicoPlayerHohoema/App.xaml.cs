@@ -197,6 +197,7 @@ namespace NicoPlayerHohoema
             // UseCase
             unityContainer.RegisterType<UseCase.VideoPlayer>(new PerThreadLifetimeManager());
             unityContainer.RegisterType<UseCase.CommentPlayer>(new PerThreadLifetimeManager());
+            unityContainer.RegisterType<UseCase.NicoVideoPlayer.CommentFiltering>(new PerThreadLifetimeManager());
             unityContainer.RegisterType<UseCase.NicoVideoPlayer.MediaPlayerSoundVolumeManager>(new PerThreadLifetimeManager());
             unityContainer.RegisterSingleton<UseCase.Playlist.HohoemaPlaylist>();
             unityContainer.RegisterSingleton<UseCase.Playlist.LocalMylistManager>();

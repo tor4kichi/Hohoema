@@ -132,10 +132,11 @@ namespace NicoPlayerHohoema.UseCase
         void RefreshFiltering()
         {
             FilteredCommentIds.Clear();
-            DisplayingComments.Clear();
-
+            
             var displayingComments = _commentDisplayingRangeExtractor.Rewind(_mediaPlayer.PlaybackSession.Position);
-            foreach (var comment in displayingComments)
+
+            DisplayingComments.Clear();
+            foreach (var comment in FilteringComment(displayingComments.ToArray()))
             {
                 DisplayingComments.Add(comment);
             }
@@ -145,16 +146,17 @@ namespace NicoPlayerHohoema.UseCase
         {
             DisplayingComments.Clear();
             var displayingComments = _commentDisplayingRangeExtractor.Rewind(position);
-            foreach (var comment in displayingComments)
+            foreach (var comment in FilteringComment(displayingComments.ToArray()))
             {
                 DisplayingComments.Add(comment);
             }
         }
 
-        
+
 
         public void Dispose()
         {
+            _mediaPlayer.PlaybackSession.SeekCompleted -= PlaybackSession_SeekCompleted;
             _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
             ClearCurrentSession();
 
@@ -164,6 +166,7 @@ namespace NicoPlayerHohoema.UseCase
 
         public void ClearCurrentSession()
         {
+            _mediaPlayer.PlaybackSession.SeekCompleted -= PlaybackSession_SeekCompleted;
             _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
 
             _commentSession?.Dispose();
@@ -205,6 +208,9 @@ namespace NicoPlayerHohoema.UseCase
 
                     _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
                     _mediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
+                    _mediaPlayer.PlaybackSession.SeekCompleted -= PlaybackSession_SeekCompleted;
+                    _mediaPlayer.PlaybackSession.SeekCompleted += PlaybackSession_SeekCompleted;
+
                 }
                 catch
                 {
@@ -213,6 +219,17 @@ namespace NicoPlayerHohoema.UseCase
             }
         }
 
+        private void PlaybackSession_SeekCompleted(MediaPlaybackSession sender, object args)
+        {
+            CurrentCommentIndex = 0;
+            CurrentComment = null;
+
+            TickNextDisplayingComments(sender.Position);
+            UpdateNicoScriptComment(sender.Position);
+            RefreshCurrentPlaybackPositionComment(sender.Position);
+
+            _PrevPlaybackPosition = sender.Position;
+        }
 
         public async Task RefreshComments()
         {
@@ -314,7 +331,7 @@ namespace NicoPlayerHohoema.UseCase
                 }
             }
 
-            Comments.AddRange(commentsAction(comments));
+            Comments.AddRange(commentsAction(comments.OrderBy(x => x.VideoPosition)));
 
             if (commentSession is VideoCommentService onlineCommentSession)
             {
@@ -323,7 +340,6 @@ namespace NicoPlayerHohoema.UseCase
                     _commentRepository.SetCache(commentSession.ContentId, comments);
                 });
             }
-
 
             ResetDisplayingComments(Comments);
 
@@ -491,6 +507,8 @@ namespace NicoPlayerHohoema.UseCase
         }
 
         private Comment _CurrentComment;
+
+        [PropertyChanged.DoNotNotify]
         public Comment CurrentComment
         {
             get { return _CurrentComment; }

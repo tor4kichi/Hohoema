@@ -288,7 +288,7 @@
     <Compile Include="Services\NiconicoFollowToggleButtonService.cs" />
     <Compile Include="ViewModels\LiveVideoInfoContent\LiveInfoContentViewModelBase.cs" />
     <Compile Include="ViewModels\LocalPlaylistPageViewModel.cs" />
-    <Compile Include="ViewModels\PlayerSidePaneContent\VideoCommentSizePaneContentViewModel.cs" />
+    <Compile Include="ViewModels\PlayerSidePaneContent\VideoCommentSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\PrimaryWindowCoreLayoutViewModel.cs" />
     <Compile Include="ViewModels\SubscriptionControlViewModel.cs" />
     <Compile Include="ViewModels\UserSeriesPageViewModel.cs" />

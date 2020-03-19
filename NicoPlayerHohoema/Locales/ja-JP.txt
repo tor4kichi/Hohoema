@@ -323,6 +323,13 @@ CommentVerticalPositionTopCommandText = 上
 CommentVerticalPositionMiddleCommandText = 中ﾐ
 CommentVerticalPositionBottomCommandText = 下
 
+# Comment List
+AddFilteringCommentUserId = コメントユーザーIDを非表示に追加
+ClearFilteredCommentUserIdInCurrentVideo = 再生中動画の非表示コメントユーザーIDをクリア
+ClearFilteredCommentUserId = 全ての非表示コメントユーザーIDをクリア
+
+
+
 # Video Settings
 VideoPlayerSettings = 動画プレイヤーの設定
 PlaylistEndedAction = 再生完了時の自動アクション

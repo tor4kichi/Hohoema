@@ -250,6 +250,19 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
             }
             else { return false; }
         }
+        private DelegateCommand _ClearFilteringCommentUserIdCommand;
+        public DelegateCommand ClearFilteringCommentUserIdCommand => _ClearFilteringCommentUserIdCommand
+            ?? (_ClearFilteringCommentUserIdCommand = new DelegateCommand(() =>
+            {
+                foreach (var id in _filteredCommentOwnerIds.ToArray())
+                {
+                    _filteredCommentOwnerIds.Remove(id);
+
+                    _commentFliteringRepository.RemoveFilteringCommenOwnerId(id);
+
+                    FilteringCommentOwnerIdRemoved?.Invoke(this, new CommentOwnerIdFilteredEventArgs() { UserId = id });
+                }
+            }));
 
         #endregion
 

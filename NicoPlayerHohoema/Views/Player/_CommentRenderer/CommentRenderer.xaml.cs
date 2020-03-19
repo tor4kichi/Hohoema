@@ -535,6 +535,8 @@ namespace NicoPlayerHohoema.Views
             {
                 if (Comments != null)
                 {
+                    await Task.Delay(100);
+
                     await AddCommentToCanvasAsyncSafe(Comments.Cast<Comment>().ToArray());
                 }
             }
