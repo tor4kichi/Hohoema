@@ -68,7 +68,7 @@ namespace NicoPlayerHohoema.Models.Niconico
         public int DeletedFlag { get; set; }
 
         
-
+       
 
 
 
@@ -104,6 +104,8 @@ namespace NicoPlayerHohoema.Models.Niconico
 
         public bool IsOperationCommand { get; internal set; }
 
+        public string OperatorCommandType { get; set; }
+        public string[] OperatorCommandParameters { get; set; }
 
         bool? _IsLink;
         public bool IsLink

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
@@ -136,10 +137,18 @@ namespace NicoPlayerHohoema.FixPrism
                     {
                         context.Post(_ =>
                         {
-                            var eventArgs = new PropertyChangedEventArgs(propertyName);
-                            foreach (var eventHandler in handlers)
+                            lockSlim.EnterUpgradeableReadLock();
+                            try
                             {
-                                OnPropertyChanged(eventHandler, eventArgs);
+                                var eventArgs = new PropertyChangedEventArgs(propertyName);
+                                foreach (var eventHandler in handlers.ToArray())
+                                {
+                                    OnPropertyChanged(eventHandler, eventArgs);
+                                }
+                            }
+                            finally
+                            {
+                                lockSlim.ExitUpgradeableReadLock();
                             }
                         },
                         null );

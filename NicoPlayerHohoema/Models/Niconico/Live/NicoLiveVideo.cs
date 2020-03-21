@@ -3,6 +3,8 @@ using Mntone.Nico2;
 using Mntone.Nico2.Live;
 using Mntone.Nico2.Live.Video;
 using Mntone.Nico2.Videos.Comment;
+using MvvmHelpers;
+using NicoPlayerHohoema.Models.Niconico;
 using NicoPlayerHohoema.Models.Provider;
 using Prism.Mvvm;
 using Prism.Unity;
@@ -51,10 +53,10 @@ namespace NicoPlayerHohoema.Models.Live
 
     public struct OperationCommandRecievedEventArgs
     {
-        public LiveChatData Chat { get; set; }
+        public LiveComment Comment { get; set; }
 
-        public string CommandType => Chat.OperatorCommandType;
-        public string[] CommandParameter => Chat.OperatorCommandParameters;
+        public string CommandType => Comment.OperatorCommandType;
+        public string[] CommandParameter => Comment.OperatorCommandParameters;
     }
 
     public enum LivePlayerType
@@ -96,16 +98,16 @@ namespace NicoPlayerHohoema.Models.Live
             _appearanceSettings = appearanceSettings;
             _UIScheduler = scheduler;
 
-            _LiveComments = new ObservableCollection<LiveChatData>();
-            LiveComments = new ReadOnlyObservableCollection<LiveChatData>(_LiveComments);
+            _LiveComments = new ObservableRangeCollection<LiveComment>();
+            LiveComments = new ReadOnlyObservableCollection<LiveComment>(_LiveComments);
 
 
             LiveComments.ObserveAddChanged()
-                .Where(x => x.IsOperater && x.HasOperatorCommand)
+                .Where(x => x.IsOperationCommand)
                 .SubscribeOn(_UIScheduler)
                 .Subscribe(chat =>
                 {
-                    OperationCommandRecieved?.Invoke(this, new OperationCommandRecievedEventArgs() { Chat = chat });
+                    OperationCommandRecieved?.Invoke(this, new OperationCommandRecievedEventArgs() { Comment = chat });
                 });
         }
 
@@ -179,9 +181,9 @@ namespace NicoPlayerHohoema.Models.Live
         /// 受信した生放送コメント<br />
         /// </summary>
         /// <remarks>NicoLiveCommentClient.CommentRecieved</remarks>
-        public ReadOnlyObservableCollection<LiveChatData> LiveComments { get; private set; }
+        public ReadOnlyObservableCollection<LiveComment> LiveComments { get; private set; }
 
-        private ObservableCollection<LiveChatData> _LiveComments;
+        private ObservableRangeCollection<LiveComment> _LiveComments;
 
         private uint _CommentCount;
         public uint CommentCount
@@ -403,6 +405,10 @@ namespace NicoPlayerHohoema.Models.Live
             else
             {
                 _StartTimeOffset = TimeSpan.Zero;
+
+                var liveInfo = LiveInfo.VideoInfo.Video;
+                LiveElapsedTimeFromOpen = DateTimeOffset.Now.ToOffset(JapanTimeZoneOffset) - _StartTimeOffset - liveInfo.OpenTime.Value;
+                LiveElapsedTime = DateTimeOffset.Now.ToOffset(JapanTimeZoneOffset) - _StartTimeOffset - liveInfo.StartTime.Value;
             }
 
 
@@ -556,8 +562,21 @@ namespace NicoPlayerHohoema.Models.Live
                         {
                             await UpdateLiveElapsedTimeAsync();
 
-                            var time = LiveElapsedTimeFromOpen + TimeSpan.FromSeconds(2);
+                            var time = LiveElapsedTimeFromOpen ;
                             await ProcessingBufferedCommentsAsync(time);
+
+                            using (var releaser = await _LiveElapsedTimeUpdateTimerLock.LockAsync())
+                            {
+                                // 表示向けコメントを表示区間を過ぎたら削除する
+                                var positionFromOpenVpos = (int)(LiveElapsedTimeFromOpen.TotalMilliseconds * 0.1);
+                                var commentDisplayDurationVpos = (int)(PlayerSettings.CommentDisplayDuration.TotalMilliseconds * 0.1);
+                                var commentHiddenPositionVpos = positionFromOpenVpos - (commentDisplayDurationVpos + 500);
+                                var removeComments = DisplayingComments.Where(x => x.VideoPosition < commentHiddenPositionVpos).ToArray();
+                                if (removeComments.Any())
+                                {
+                                    DisplayingComments.RemoveRange(removeComments);
+                                }
+                            }
                         });
                     });
             }
@@ -1066,6 +1085,8 @@ namespace NicoPlayerHohoema.Models.Live
         }
 
 
+        public ObservableRangeCollection<LiveComment> DisplayingComments { get; } = new ObservableRangeCollection<LiveComment>();
+
         private const int PreviousProcessingRangeCommentsTimeInSeconds = 3;
 
         private async Task ProcessingBufferedCommentsAsync(TimeSpan positionFromOpen)
@@ -1075,7 +1096,6 @@ namespace NicoPlayerHohoema.Models.Live
             using (var releaser = await _CommentRecievingLock.LockAsync())
             {
                 var keyVpos = VposToCacheDictTime(positionFromOpen);
-
                 foreach (var key in Enumerable.Range(keyVpos - range, range))
                 {
                     if (_TimeToCommentsDict.TryGetValue(key, out var list))
@@ -1085,16 +1105,35 @@ namespace NicoPlayerHohoema.Models.Live
                 }
             }
 
-            foreach (var comment in candidateChatItems)
+            var addComments = candidateChatItems.Select(x => ChatToComment(x)).ToArray();
+            if (addComments.Any())
             {
-                _LiveComments.Add(comment);
+                _LiveComments.AddRange(addComments);
             }
 
             await RemoveCommentsFromCache(positionFromOpen);
         }
 
 
+        LiveComment ChatToComment(LiveChatData x)
+        {
+            var comment = new LiveComment();
 
+            comment.VideoPosition = x.Vpos;
+
+            comment.CommentText = x.Content;
+            comment.CommentId = (uint)x.No;
+            comment.IsAnonimity = x.IsAnonymity;
+            comment.UserId = x.UserId;
+            comment.IsOwnerComment = x.UserId == this.BroadcasterId;
+            comment.IsOperationCommand = x.IsOperater && x.HasOperatorCommand;
+            if (comment.IsOperationCommand)
+            {
+                comment.OperatorCommandType = x.OperatorCommandType;
+                comment.OperatorCommandParameters = x.OperatorCommandParameters;
+            }
+            return comment;
+        }
 
         private void _NicoLiveCommentClient_CommentPosted(object sender, CommentPostedEventArgs e)
         {
@@ -1117,7 +1156,13 @@ namespace NicoPlayerHohoema.Models.Live
             }
             else
             {
-                _LiveComments.Add(e.Chat);
+                var comment = ChatToComment(e.Chat);
+                _LiveComments.Add(comment);
+
+                if (!PlayerSettings.IsLiveNGComment(comment.UserId) && !comment.IsOperationCommand)
+                {
+                    DisplayingComments.Add(comment);
+                }
             }
         }
 

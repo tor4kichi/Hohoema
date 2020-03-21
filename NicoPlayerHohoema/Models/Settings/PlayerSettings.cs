@@ -63,7 +63,6 @@ namespace NicoPlayerHohoema.Models
 			IsForceLandscape = false;
 
 			NGCommentUserIdEnable = true;
-			NGCommentUserIds = new ObservableCollection<UserIdInfo>();
 			NGCommentKeywordEnable = true;
 			NGCommentKeywords = new ObservableCollection<NGKeyword>();
 			NGCommentScore = -1000;

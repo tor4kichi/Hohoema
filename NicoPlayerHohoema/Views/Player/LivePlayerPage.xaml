@@ -197,7 +197,7 @@
             </Grid>
           </toolkit:DockPanel>
           <Grid Height="{Binding CommentCanvasHeight.Value}">
-            <local:CommentRenderer x:Name="CommentRederer" Comments="{Binding FilterdComments}" MediaPlayer="{Binding MediaPlayer, Mode=OneWay}" Visibility="{Binding PlayerSettings.IsCommentDisplay_Live, Converter={StaticResource BooleanToVisibility}}" CommentSizeScale="{Binding CommentFontScale.Value}" CommentDefaultColor="{Binding CommentDefaultColor.Value}" DefaultDisplayDuration="{Binding RequestCommentDisplayDuration.Value}" Opacity="{Binding CommentOpacity.Value, Mode=OneWay}" UpdateInterval="0:0:0.032" VideoPositionOffset="{Binding WatchStartLiveElapsedTime.Value}" PlayerSettings="{Binding PlayerSettings}" />
+            <local:CommentRenderer x:Name="CommentRederer" Comments="{Binding NicoLiveVideo.DisplayingComments}" MediaPlayer="{Binding MediaPlayer, Mode=OneWay}" Visibility="{Binding PlayerSettings.IsCommentDisplay_Live, Converter={StaticResource BooleanToVisibility}}" CommentSizeScale="{Binding CommentFontScale.Value}" CommentDefaultColor="{Binding CommentDefaultColor.Value}" DefaultDisplayDuration="{Binding RequestCommentDisplayDuration.Value}" Opacity="{Binding CommentOpacity.Value, Mode=OneWay}" VideoPositionOffset="{Binding WatchStartLiveElapsedTime.Value}" />
             <Border VerticalAlignment="Bottom" HorizontalAlignment="Left">
               <Border.Background>
                 <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}" />

@@ -50,6 +50,7 @@ namespace NicoPlayerHohoema.Views
 
         public CommentDisplayMode DisplayMode { get; set; }
 
+        public double VerticalPosition { get; set; }
 
         public CommentUI()
 		{
@@ -150,7 +151,7 @@ namespace NicoPlayerHohoema.Views
 
             var speed = MoveSpeedPer1VPos(canvasWidth);
             var delta = currentVPos - VideoPosition;
-            return canvasWidth - (double)(speed * delta);
+            return (canvasWidth) - (double)(speed * delta);
         }
 
         public long CalcTextShowRightEdgeTime(int canvasWidth)

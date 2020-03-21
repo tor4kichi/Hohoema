@@ -307,7 +307,15 @@ namespace NicoPlayerHohoema.Views
             {
                 if (Enum.TryParse<PlayerSidePaneContentType>(str, out var type))
                 {
-                    SidePaneType = type;
+                    if (SidePaneType == type)
+                    {
+                        PlayerSplitView.IsPaneOpen = false;
+                        SidePaneType = null;
+                    }
+                    else
+                    {
+                        SidePaneType = type;
+                    }
                 }
             }));
 
