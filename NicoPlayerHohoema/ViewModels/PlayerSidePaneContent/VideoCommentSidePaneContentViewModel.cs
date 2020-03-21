@@ -94,9 +94,9 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
         bool isCommentFiltered(Comment comment)
         {
-            if (CommentFiltering.IsCommentOwnerUserIdFiltered(comment.UserId)) { return true; }
+            if (CommentFiltering.IsHiddenCommentOwnerUserId(comment.UserId)) { return true; }
             if (CommentFiltering.GetAllFilteringCommentTextCondition().IsMatchAny(comment.CommentText)) { return true; }
-            if (CommentFiltering.IsShareNGScoreFilterd(comment.NGScore)) { return true; }
+            if (CommentFiltering.IsHiddenShareNGScore(comment.NGScore)) { return true; }
 
             return false;
         }

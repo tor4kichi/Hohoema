@@ -275,7 +275,7 @@ namespace NicoPlayerHohoema.Repository
 
             public bool IsMatch(string commentText)
             {
-                if (_regex == null)
+                if (_regex == null && !string.IsNullOrWhiteSpace(Condition))
                 {
                     try
                     {
@@ -325,7 +325,7 @@ namespace NicoPlayerHohoema.Repository
 
         public bool RemoveFilteringCommentText(FilteringCommentTextKeyword filteringCommentText)
         {
-            return _filteringCommentTextDBService.DeleteItem(filteringCommentText);
+            return _filteringCommentTextDBService.DeleteItem(filteringCommentText._id);
         }
 
 

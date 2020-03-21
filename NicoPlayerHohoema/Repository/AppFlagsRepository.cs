@@ -29,7 +29,7 @@ namespace NicoPlayerHohoema.Repository
             set => Save(value);
         }
 
-        public bool IsCreatedGlassMowerTextTransformCondition_V_0_21_5
+        public bool IsInitializedCommentFilteringCondition
         {
             get => Read<bool>();
             set => Save(value);

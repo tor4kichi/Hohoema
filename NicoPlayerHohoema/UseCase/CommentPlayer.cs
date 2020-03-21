@@ -122,6 +122,8 @@ namespace NicoPlayerHohoema.UseCase
                     h => _commentFiltering.FilterKeywordUpdated += h,
                     h => _commentFiltering.FilterKeywordUpdated -= h
                 ).ToUnit(),
+                _commentFiltering.ObserveProperty(x => x.IsEnableFilteringCommentText).ToUnit(),
+                _commentFiltering.ObserveProperty(x => x.IsEnableFilteringCommentOwnerId).ToUnit(),
             }
             .Merge()
             .Subscribe(_ => RefreshFiltering())
@@ -131,12 +133,12 @@ namespace NicoPlayerHohoema.UseCase
 
         void RefreshFiltering()
         {
-            FilteredCommentIds.Clear();
+            HiddenCommentIds.Clear();
             
             var displayingComments = _commentDisplayingRangeExtractor.Rewind(_mediaPlayer.PlaybackSession.Position);
 
             DisplayingComments.Clear();
-            foreach (var comment in FilteringComment(displayingComments.ToArray()))
+            foreach (var comment in EnumerateFilteredDisplayComment(displayingComments.ToArray()))
             {
                 DisplayingComments.Add(comment);
             }
@@ -146,7 +148,7 @@ namespace NicoPlayerHohoema.UseCase
         {
             DisplayingComments.Clear();
             var displayingComments = _commentDisplayingRangeExtractor.Rewind(position);
-            foreach (var comment in FilteringComment(displayingComments.ToArray()))
+            foreach (var comment in EnumerateFilteredDisplayComment(displayingComments.ToArray()))
             {
                 DisplayingComments.Add(comment);
             }
@@ -355,7 +357,7 @@ namespace NicoPlayerHohoema.UseCase
             Debug.WriteLine($"CommentReset");
 
             var displayingComments = _commentDisplayingRangeExtractor.ResetComments(comments, _mediaPlayer.PlaybackSession.Position);
-            DisplayingComments.AddRange(FilteringComment(displayingComments.ToArray()));
+            DisplayingComments.AddRange(EnumerateFilteredDisplayComment(displayingComments.ToArray()));
         }
 
 
@@ -371,27 +373,13 @@ namespace NicoPlayerHohoema.UseCase
 
             if (!comments.AddedComments.IsEmpty)
             {
-                DisplayingComments.AddRange(FilteringComment(comments.AddedComments.ToArray()));
+                DisplayingComments.AddRange(EnumerateFilteredDisplayComment(comments.AddedComments.ToArray()));
             }
         }
 
-        bool FilteringComment(Comment comment)
+        bool IsHiddenComment(Comment comment)
         {
-            bool IsFilteredComment(Comment comment)
-            {
-                if (_commentFiltering.IsCommentOwnerUserIdFiltered(comment.UserId))
-                {
-                    return true;
-                }
-                else if (_commentFiltering.GetAllFilteringCommentTextCondition().IsMatchAny(comment.CommentText))
-                {
-                    return true;
-                }
-
-                return false;
-            }
-
-            if (IsFilteredComment(comment))
+            if (_commentFiltering.IsHiddenComment(comment))
             {
                 return true;
             }
@@ -410,30 +398,33 @@ namespace NicoPlayerHohoema.UseCase
                 }
             }
 
-            comment.CommentText = _commentFiltering.TransformCommentText(comment.CommentText);
-
             return false;
         }
 
-        bool FilteringCommentWithCache(Comment comment)
+        bool IsHiddenCommentWithCache(Comment comment)
         {
-            if (FilteredCommentIds.TryGetValue(comment.CommentId, out bool isFiltered))
+            if (HiddenCommentIds.TryGetValue(comment.CommentId, out bool isHiddenComment))
             {
-                return !isFiltered;
+                return isHiddenComment;
             }
             else
             {
-                var isFilteredComment = FilteringComment(comment);
-                FilteredCommentIds.Add(comment.CommentId, isFilteredComment);
-                return !isFilteredComment;
+                isHiddenComment = IsHiddenComment(comment);
+                HiddenCommentIds.Add(comment.CommentId, isHiddenComment);
+                if (!isHiddenComment)
+                {
+                    comment.CommentText = _commentFiltering.TransformCommentText(comment.CommentText);
+                }
+
+                return isHiddenComment;
             }
         }
 
-        IEnumerable<Comment> FilteringComment(IEnumerable<Comment> comments)
+        IEnumerable<Comment> EnumerateFilteredDisplayComment(IEnumerable<Comment> comments)
         {
             foreach (var comment in comments)
             {
-                if (FilteringCommentWithCache(comment))
+                if (!IsHiddenCommentWithCache(comment))
                 {
                     yield return comment;
                 }
@@ -441,7 +432,7 @@ namespace NicoPlayerHohoema.UseCase
         }
 
 
-        Dictionary<uint, bool> FilteredCommentIds = new Dictionary<uint, bool>();
+        Dictionary<uint, bool> HiddenCommentIds = new Dictionary<uint, bool>();
 
         TimeSpan _PrevPlaybackPosition;
         private void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)

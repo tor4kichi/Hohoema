@@ -9,7 +9,7 @@ namespace NicoPlayerHohoema.Interfaces
 {
     public interface ICommentFilter
     {
-        bool IsFilterdComment(Comment comment);
+        bool IsHiddenComment(Comment comment);
         string TransformCommentText(string CommentText);
         bool IsIgnoreCommand(string command);
     }

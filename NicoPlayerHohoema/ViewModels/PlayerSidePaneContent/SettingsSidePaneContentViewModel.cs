@@ -1,10 +1,12 @@
 ﻿using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.UseCase.NicoVideoPlayer;
 using Prism.Commands;
 using Prism.Mvvm;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -20,11 +22,36 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
         public SettingsSidePaneContentViewModel(
             NGSettings ngSettings, 
             PlayerSettings playerSettings,
+            CommentFiltering commentFiltering,
             IScheduler scheduler
             )
         {
             PlayerSettings = playerSettings;
+            CommentFiltering = commentFiltering;
             _scheduler = scheduler;
+
+            FilteringKeywords = new ObservableCollection<Repository.CommentFliteringRepository.FilteringCommentTextKeyword>(CommentFiltering.GetAllFilteringCommentTextCondition());
+
+            Observable.FromEventPattern<CommentFiltering.FilteringCommentTextKeywordEventArgs>(
+                h => CommentFiltering.FilterKeywordAdded += h,
+                h => CommentFiltering.FilterKeywordAdded -= h
+                )
+                .Subscribe(args => 
+                {
+                    FilteringKeywords.Add(args.EventArgs.FilterKeyword);
+                })
+                .AddTo(_CompositeDisposable);
+
+            Observable.FromEventPattern<CommentFiltering.FilteringCommentTextKeywordEventArgs>(
+                h => CommentFiltering.FilterKeywordRemoved += h,
+                h => CommentFiltering.FilterKeywordRemoved -= h
+                )
+                .Subscribe(args =>
+                {
+                    FilteringKeywords.Remove(args.EventArgs.FilterKeyword);
+                })
+                .AddTo(_CompositeDisposable);
+
 
             // NG Comment
             NGCommentKeywordEnable = PlayerSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentKeywordEnable, _scheduler)
@@ -75,6 +102,13 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 .AddTo(_CompositeDisposable);
         }
 
+        private void CommentFiltering_FilterKeywordAdded(object sender, CommentFiltering.FilteringCommentTextKeywordEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
+        public ObservableCollection<Repository.CommentFliteringRepository.FilteringCommentTextKeyword> FilteringKeywords { get; }
+
         public ReactiveProperty<bool> IsLowLatency { get; private set; }
 
         // NG Comments
@@ -86,6 +120,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
         public PlayerSettings PlayerSettings { get; }
 
+        public CommentFiltering CommentFiltering { get; }
         private readonly IScheduler _scheduler;
         
         protected override void OnDispose()

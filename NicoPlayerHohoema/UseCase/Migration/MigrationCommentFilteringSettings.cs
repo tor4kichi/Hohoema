@@ -50,7 +50,7 @@ namespace NicoPlayerHohoema.UseCase.Migration
                     _commentFiltering.AddFilteringCommentTextKeyword(ngText.Keyword);
                 }
 
-                // Glass Mower
+                // Glass Mower と centerコマンドのNG は
                 // 移行としてではなく初期化として追加してます
 
                 _appFlagsRepository.IsMigratedCommentFilterSettings_V_0_21_5 = true;

@@ -51,16 +51,17 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
 
         void Initialize()
         {
-            if (!_appFlagsRepository.IsCreatedGlassMowerTextTransformCondition_V_0_21_5)
+            if (!_appFlagsRepository.IsInitializedCommentFilteringCondition)
             {
                 AddGlassMowerCommentTextTransformCondition();
-                _appFlagsRepository.IsCreatedGlassMowerTextTransformCondition_V_0_21_5 = true;
+                AddCenterCommandFiltering();
+                _appFlagsRepository.IsInitializedCommentFilteringCondition = true;
             }
         }
 
         public void AddGlassMowerCommentTextTransformCondition()
         {
-            _commentTextTransformConditions.Add(new CommentFliteringRepository.CommentTextTransformCondition()
+            AddTextTransformConditions(new CommentFliteringRepository.CommentTextTransformCondition()
             {
                 RegexPattern = "([wWｗＷ]){2,}",
                 ReplaceText = "ｗ",
@@ -70,19 +71,36 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
 
         public void AddCenterCommandFiltering()
         {
-            
+            AddFilteredCommentCommand("naka");
+            AddFilteredCommentCommand("center");
         }
 
 
 
         #region ICommentFilter
 
-        public bool IsFilterdComment(Comment comment)
+        public bool IsHiddenComment(Comment comment)
         {
-            return IsShareNGScoreFilterd(comment.NGScore)
-                || IsCommentOwnerUserIdFiltered(comment.UserId)
-                || _filteringCommentTextKeywords.IsMatchAny(comment.CommentText)
-                ;
+            if (IsHiddenShareNGScore(comment.NGScore))
+            {
+                return true;
+            }
+
+            if (IsEnableFilteringCommentOwnerId
+                && IsHiddenCommentOwnerUserId(comment.UserId)
+                )
+            {
+                return true;
+            }
+
+            if (IsEnableFilteringCommentText 
+                && _filteringCommentTextKeywords.IsMatchAny(comment.CommentText)
+                )
+            {
+                return true;
+            }
+
+            return false;
         }
 
 
@@ -172,7 +190,7 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
 
         #region Share NG Score 
 
-        public bool IsShareNGScoreFilterd(int score)
+        public bool IsHiddenShareNGScore(int score)
         {
             return _commentFliteringRepository.ShareNGScore < score;
         }
@@ -184,7 +202,7 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
 
         HashSet<string> _filteredCommentOwnerIds = new HashSet<string>();
 
-        public bool IsCommentOwnerUserIdFiltered(string userId)
+        public bool IsHiddenCommentOwnerUserId(string userId)
         {
             if (!_commentFliteringRepository.IsFilteringCommentOwnerIdEnabled) { return false; }
 
@@ -197,10 +215,8 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
             get => _commentFliteringRepository.IsFilteringCommentOwnerIdEnabled;
             set
             {
-                if (SetProperty(ref _IsEnableFilteringCommentOwnerId, value))
-                {
-                    _commentFliteringRepository.IsFilteringCommentOwnerIdEnabled = value;
-                }
+                _commentFliteringRepository.IsFilteringCommentOwnerIdEnabled = value;
+                SetProperty(ref _IsEnableFilteringCommentOwnerId, value);
             }
         }
 
@@ -287,10 +303,8 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
             get => _commentFliteringRepository.IsFilteringCommentTextEnabled;
             set
             {
-                if (SetProperty(ref _IsEnableFilteringCommentText, value))
-                {
-                    _commentFliteringRepository.IsFilteringCommentTextEnabled = value;
-                }
+                _commentFliteringRepository.IsFilteringCommentTextEnabled = value;
+                SetProperty(ref _IsEnableFilteringCommentText, value);
             }
         }
 
