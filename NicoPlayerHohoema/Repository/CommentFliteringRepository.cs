@@ -177,7 +177,7 @@ namespace NicoPlayerHohoema.Repository
 
         public bool RemoveCommentTextTransformCondition(CommentTextTransformCondition commentTextTransformCondition)
         {
-            return _commentTextTransformConditionDBService.DeleteItem(commentTextTransformCondition);
+            return _commentTextTransformConditionDBService.DeleteItem(commentTextTransformCondition._id);
         }
 
 

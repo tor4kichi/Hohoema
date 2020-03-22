@@ -15,7 +15,8 @@
     xmlns:uwpconverter="using:Microsoft.Toolkit.Uwp.UI.Converters"
     xmlns:templateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
     xmlns:models="using:NicoPlayerHohoema.Models"
-  xmlns:local="using:NicoPlayerHohoema.Views"
+  xmlns:local="using:NicoPlayerHohoema.Views" 
+  xmlns:commentFilteringRepository="using:NicoPlayerHohoema.Repository" 
   mc:Ignorable="d"
     d:DesignHeight="800"
     d:DesignWidth="800">
@@ -359,23 +360,74 @@
 
           <Button Content="NGキーワードを追加" Command="{Binding CommentFiltering.AddFilteringCommentTextConditionCommand}" CommandParameter="" />
 
-          <!-- 自動芝刈り機 -->
+          
+          <!-- コメント文字列の置換 -->
           <Grid>
-            <StackPanel>
-              <TextBlock Text="{Binding Source=AutoShortingKUSAWords, Converter={StaticResource LocalizeConverter}}"
-                           Style="{StaticResource SettingsOptionTitleTextBlock}"
-                           />
-              <TextBlock Text="{Binding Source=AutoShortingKUSAWordsDescription, Converter={StaticResource LocalizeConverter}}" 
-                         Style="{StaticResource CaptionTextBlockStyle}" 
-                         ToolTipService.ToolTip="{Binding Source=AutoShortingKUSAWordsExample, Converter={StaticResource LocalizeConverter}}"
-                         toolkit:DockPanel.Dock="Bottom"
-                         Opacity="0.7"
-                                       />
-            </StackPanel>
-            <ToggleSwitch IsOn="{x:Bind _viewModel.PlayerSettings.CommentGlassMowerEnable, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
-                          HorizontalAlignment="Right"
-                                          />
+            <TextBlock Text="{Binding Source=CommentReplaceSettings, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
           </Grid>
+
+          <ItemsControl ItemsSource="{Binding VideoCommentTransformConditions}" x:Name="TransformConditionItems">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <toolkit:DockPanel Margin="0 0 0 8">
+
+                  <ToggleSwitch IsOn="{Binding IsEnabled, Mode=TwoWay}" toolkit:DockPanel.Dock="Left"
+                                >
+                    <i:Interaction.Behaviors>
+                      <core:EventTriggerBehavior EventName="Toggled">
+                        <core:InvokeCommandAction Command="{Binding ElementName=TransformConditionItems, Path=DataContext.CommentFiltering.UpdateTextTransformConditionsCommand}" CommandParameter="{Binding}" />
+                      </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
+                  </ToggleSwitch>
+
+                  <Button toolkit:DockPanel.Dock="Right" Height="32" Background="Transparent">
+                    <Button.Content>
+                      <SymbolIcon Symbol="More" />
+                    </Button.Content>
+                    <Button.Flyout>
+                      <MenuFlyout>
+                        <MenuFlyoutItem Text="ラベル変更" Visibility="Collapsed" />
+                        <MenuFlyoutSeparator Visibility="Collapsed" />
+                        <MenuFlyoutItem Text="{Binding Source=Delete, Converter={StaticResource LocalizeConverter}}" Command="{Binding ElementName=FilteringKeywordItems, Path=DataContext.CommentFiltering.RemoveTextTransformConditionsCommand}" CommandParameter="{Binding}" />
+                      </MenuFlyout>
+                    </Button.Flyout>
+                  </Button>
+
+                  <toolkit:DockPanel>
+
+                    <StackPanel toolkit:DockPanel.Dock="Right" Orientation="Horizontal">
+
+                      <SymbolIcon Symbol="Forward" Margin="8 0" />
+
+                      <TextBox Text="{Binding ReplaceText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="32" PlaceholderText="{Binding Source=PlacefolderCommentTransformConditionReplaced, Converter={StaticResource LocalizeConverter}}" 
+                               IsFocusEngagementEnabled="True"
+                               >
+                        <i:Interaction.Behaviors>
+                          <core:EventTriggerBehavior EventName="LostFocus">
+                            <core:InvokeCommandAction Command="{Binding ElementName=TransformConditionItems, Path=DataContext.CommentFiltering.UpdateTextTransformConditionsCommand}" CommandParameter="{Binding}" />
+                          </core:EventTriggerBehavior>
+                        </i:Interaction.Behaviors>
+                      </TextBox>
+
+                    </StackPanel>
+
+                    <TextBox Text="{Binding RegexPattern, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Height="32" PlaceholderText="{Binding Source=PlacefolderCommentTransformConditionRegex, Converter={StaticResource LocalizeConverter}}" IsFocusEngagementEnabled="True">
+                      <i:Interaction.Behaviors>
+                        <core:EventTriggerBehavior EventName="LostFocus">
+                          <core:InvokeCommandAction Command="{Binding ElementName=TransformConditionItems, Path=DataContext.CommentFiltering.UpdateTextTransformConditionsCommand}" CommandParameter="{Binding}" />
+                        </core:EventTriggerBehavior>
+                      </i:Interaction.Behaviors>
+                    </TextBox>
+                  </toolkit:DockPanel>
+
+                </toolkit:DockPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+
+          <Button Content="置換を追加" Command="{Binding CommentFiltering.AddTextTransformConditionsCommand}">
+          </Button>
+
         </StackPanel>
         
         <!-- ニコスクリプト設定 -->

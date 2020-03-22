@@ -251,6 +251,14 @@ CommentColor = 评论颜色
 UseFreeInputCommand = 使用任意输入命令
 FreeInputCommandTextBoxPlacefolderText = 在这里自由输入命令
 
+# Comment List
+AddFilteringCommentUserId = 添加评论用户ID隐藏
+ClearFilteredCommentUserIdInCurrentVideo = 清除播放视频的隐藏评论用户ID
+ClearFilteredCommentUserId = 清除所有隐藏的评论用户ID
+
+CommentReplaceSettings = 评论替换设置
+PlacefolderCommentTransformConditionRegex = 要替换的字符串
+PlacefolderCommentTransformConditionReplaced = 替换字符串
 
 #### Video ####
 NicoVideoQuality.Unknown = 未指定图像质量

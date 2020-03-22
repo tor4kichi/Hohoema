@@ -588,7 +588,7 @@ namespace NicoPlayerHohoema.Views
                 var commentUI = new CommentUI()
                 {
                     DataContext = comment,
-                    CommentText = comment.CommentText,
+                    CommentText = comment.CommentText_Transformed,
                     TextColor = commentColor,
                     BackTextColor = GetShadowColor(commentColor),
                     VideoPosition = comment.VideoPosition,

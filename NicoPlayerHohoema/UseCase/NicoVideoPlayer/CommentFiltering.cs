@@ -63,7 +63,7 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
         {
             AddTextTransformConditions(new CommentFliteringRepository.CommentTextTransformCondition()
             {
-                RegexPattern = "([wWｗＷ]){2,}",
+                RegexPattern = "[wWｗＷ]{2,}",
                 ReplaceText = "ｗ",
                 Description = "AutoShortingKUSAWords".Translate(),
             });
@@ -118,8 +118,6 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
 
         #endregion
 
-
-
         DelegateCommand<string> _AddFilteredCommentCommandCommand;
         public DelegateCommand<string> AddFilteredCommentCommandCommand => _AddFilteredCommentCommandCommand
             ?? (_AddFilteredCommentCommandCommand = new DelegateCommand<string>((commandText) =>
@@ -141,6 +139,22 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
 
         #region Comment Text Transform
 
+        public class CommentTextTranformConditionChangedArgs
+        {
+            public CommentFliteringRepository.CommentTextTransformCondition TransformCondition { get; set; }
+        }
+
+        public event EventHandler<CommentTextTranformConditionChangedArgs> TransformConditionAdded;
+        public event EventHandler<CommentTextTranformConditionChangedArgs> TransformConditionUpdated;
+        public event EventHandler<CommentTextTranformConditionChangedArgs> TransformConditionRemoved;
+
+
+        public IEnumerable<CommentFliteringRepository.CommentTextTransformCondition> GetTextTranformConditions()
+        {
+            return _commentTextTransformConditions.ToList();
+        }
+
+
         List<CommentFliteringRepository.CommentTextTransformCondition> _commentTextTransformConditions;
 
         public string TranformCommentText(string commentText)
@@ -152,12 +166,14 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
         public DelegateCommand<CommentFliteringRepository.CommentTextTransformCondition> AddTextTransformConditionsCommand => _AddTextTransformConditionsCommand
             ?? (_AddTextTransformConditionsCommand = new DelegateCommand<CommentFliteringRepository.CommentTextTransformCondition>((condition) =>
             {
-                AddTextTransformConditions(condition);
+                AddTextTransformConditions(condition ?? new CommentFliteringRepository.CommentTextTransformCondition());
             }));
 
         public void AddTextTransformConditions(CommentFliteringRepository.CommentTextTransformCondition condition)
         {
-            _commentFliteringRepository.AddCommentTextTransformCondition(condition.RegexPattern, condition.ReplaceText, condition.Description);
+            var added = _commentFliteringRepository.AddCommentTextTransformCondition(condition.RegexPattern, condition.ReplaceText, condition.Description);
+            _commentTextTransformConditions.Add(added);
+            TransformConditionAdded?.Invoke(this, new CommentTextTranformConditionChangedArgs() { TransformCondition = added });
         }
 
         DelegateCommand<CommentFliteringRepository.CommentTextTransformCondition> _UpdateTextTransformConditionsCommand;
@@ -169,7 +185,10 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
 
         public void UpdateTextTransformConditions(CommentFliteringRepository.CommentTextTransformCondition condition)
         {
+            if (condition == null) { return; }
+
             _commentFliteringRepository.UpdateCommentTextTransformCondition(condition);
+            TransformConditionUpdated?.Invoke(this, new CommentTextTranformConditionChangedArgs() { TransformCondition = condition });
         }
 
 
@@ -182,7 +201,11 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
 
         public void RemoveTextTransformConditions(CommentFliteringRepository.CommentTextTransformCondition condition)
         {
-            _commentFliteringRepository.RemoveCommentTextTransformCondition(condition);
+            if (_commentFliteringRepository.RemoveCommentTextTransformCondition(condition))
+            {
+                _commentTextTransformConditions.Remove(condition);
+                TransformConditionRemoved?.Invoke(this, new CommentTextTranformConditionChangedArgs() { TransformCondition = condition });
+            }
         }
 
         #endregion

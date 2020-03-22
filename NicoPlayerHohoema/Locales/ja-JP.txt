@@ -328,7 +328,9 @@ AddFilteringCommentUserId = コメントユーザーIDを非表示に追加
 ClearFilteredCommentUserIdInCurrentVideo = 再生中動画の非表示コメントユーザーIDをクリア
 ClearFilteredCommentUserId = 全ての非表示コメントユーザーIDをクリア
 
-
+CommentReplaceSettings = コメントの置換設定
+PlacefolderCommentTransformConditionRegex = 置換対象の文字列
+PlacefolderCommentTransformConditionReplaced =  置換後の文字列
 
 # Video Settings
 VideoPlayerSettings = 動画プレイヤーの設定

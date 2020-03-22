@@ -102,6 +102,7 @@ namespace NicoPlayerHohoema.UseCase
 
             new[]
             {
+                _commentFiltering.ObserveProperty(x => x.IsEnableFilteringCommentOwnerId).ToUnit(),
                 Observable.FromEventPattern<CommentFiltering.CommentOwnerIdFilteredEventArgs>(
                     h => _commentFiltering.FilteringCommentOwnerIdAdded += h,
                     h => _commentFiltering.FilteringCommentOwnerIdAdded -= h
@@ -110,6 +111,8 @@ namespace NicoPlayerHohoema.UseCase
                     h => _commentFiltering.FilteringCommentOwnerIdRemoved += h,
                     h => _commentFiltering.FilteringCommentOwnerIdRemoved -= h
                 ).ToUnit(),
+
+                _commentFiltering.ObserveProperty(x => x.IsEnableFilteringCommentText).ToUnit(),
                 Observable.FromEventPattern<CommentFiltering.FilteringCommentTextKeywordEventArgs>(
                     h => _commentFiltering.FilterKeywordAdded += h,
                     h => _commentFiltering.FilterKeywordAdded -= h
@@ -122,13 +125,23 @@ namespace NicoPlayerHohoema.UseCase
                     h => _commentFiltering.FilterKeywordUpdated += h,
                     h => _commentFiltering.FilterKeywordUpdated -= h
                 ).ToUnit(),
-                _commentFiltering.ObserveProperty(x => x.IsEnableFilteringCommentText).ToUnit(),
-                _commentFiltering.ObserveProperty(x => x.IsEnableFilteringCommentOwnerId).ToUnit(),
+
+                Observable.FromEventPattern<CommentFiltering.CommentTextTranformConditionChangedArgs>(
+                    h => _commentFiltering.TransformConditionAdded += h,
+                    h => _commentFiltering.TransformConditionAdded -= h
+                ).ToUnit(),
+                Observable.FromEventPattern<CommentFiltering.CommentTextTranformConditionChangedArgs>(
+                    h => _commentFiltering.TransformConditionUpdated += h,
+                    h => _commentFiltering.TransformConditionUpdated -= h
+                ).ToUnit(),
+                Observable.FromEventPattern<CommentFiltering.CommentTextTranformConditionChangedArgs>(
+                    h => _commentFiltering.TransformConditionRemoved += h,
+                    h => _commentFiltering.TransformConditionRemoved -= h
+                ).ToUnit(),
             }
             .Merge()
             .Subscribe(_ => RefreshFiltering())
             .AddTo(_disposables);
-            
         }
 
         void RefreshFiltering()
@@ -413,7 +426,7 @@ namespace NicoPlayerHohoema.UseCase
                 HiddenCommentIds.Add(comment.CommentId, isHiddenComment);
                 if (!isHiddenComment)
                 {
-                    comment.CommentText = _commentFiltering.TransformCommentText(comment.CommentText);
+                    comment.CommentText_Transformed = _commentFiltering.TransformCommentText(comment.CommentText);
                 }
 
                 return isHiddenComment;

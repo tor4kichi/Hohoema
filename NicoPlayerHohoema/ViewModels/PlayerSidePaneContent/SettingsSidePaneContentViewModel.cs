@@ -30,8 +30,8 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             CommentFiltering = commentFiltering;
             _scheduler = scheduler;
 
-            FilteringKeywords = new ObservableCollection<Repository.CommentFliteringRepository.FilteringCommentTextKeyword>(CommentFiltering.GetAllFilteringCommentTextCondition());
 
+            FilteringKeywords = new ObservableCollection<Repository.CommentFliteringRepository.FilteringCommentTextKeyword>(CommentFiltering.GetAllFilteringCommentTextCondition());
             Observable.FromEventPattern<CommentFiltering.FilteringCommentTextKeywordEventArgs>(
                 h => CommentFiltering.FilterKeywordAdded += h,
                 h => CommentFiltering.FilterKeywordAdded -= h
@@ -52,52 +52,25 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 })
                 .AddTo(_CompositeDisposable);
 
-
-            // NG Comment
-            NGCommentKeywordEnable = PlayerSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentKeywordEnable, _scheduler)
-            .AddTo(_CompositeDisposable);
-            NGCommentKeywords = new ReactiveProperty<string>(_scheduler, string.Empty)
-            .AddTo(_CompositeDisposable);
-
-            NGCommentKeywordError = NGCommentKeywords
-                .Select(x =>
+            // 
+            VideoCommentTransformConditions = new ObservableCollection<Repository.CommentFliteringRepository.CommentTextTransformCondition>(CommentFiltering.GetTextTranformConditions());
+            Observable.FromEventPattern<CommentFiltering.CommentTextTranformConditionChangedArgs>(
+                h => CommentFiltering.TransformConditionAdded += h,
+                h => CommentFiltering.TransformConditionAdded -= h
+                )
+                .Subscribe(args =>
                 {
-                    var keywords = x.Split('\r');
-                    var invalidRegex = keywords.FirstOrDefault(keyword =>
-                    {
-                        Regex regex = null;
-                        try
-                        {
-                            regex = new Regex(keyword);
-                        }
-                        catch { }
-                        return regex == null;
-                    });
-
-                    if (invalidRegex == null)
-                    {
-                        return string.Empty;
-                    }
-                    else
-                    {
-                        return $"Error in \"{invalidRegex}\"";
-                    }
+                    VideoCommentTransformConditions.Add(args.EventArgs.TransformCondition);
                 })
-                .ToReadOnlyReactiveProperty(eventScheduler: _scheduler)
-            .AddTo(_CompositeDisposable);
+                .AddTo(_CompositeDisposable);
 
-            NGCommentKeywords.Value = string.Join("\r", PlayerSettings.NGCommentKeywords.Select(x => x.Keyword)) + "\r";
-            NGCommentKeywords.Throttle(TimeSpan.FromSeconds(3))
-                .Subscribe(_ =>
+            Observable.FromEventPattern<CommentFiltering.CommentTextTranformConditionChangedArgs>(
+                h => CommentFiltering.TransformConditionRemoved += h,
+                h => CommentFiltering.TransformConditionRemoved -= h
+                )
+                .Subscribe(args =>
                 {
-                    PlayerSettings.NGCommentKeywords.Clear();
-                    foreach (var ngKeyword in NGCommentKeywords.Value.Split('\r'))
-                    {
-                        if (!string.IsNullOrWhiteSpace(ngKeyword))
-                        {
-                            PlayerSettings.NGCommentKeywords.Add(new NGKeyword() { Keyword = ngKeyword });
-                        }
-                    }
+                    VideoCommentTransformConditions.Remove(args.EventArgs.TransformCondition);
                 })
                 .AddTo(_CompositeDisposable);
         }
@@ -108,14 +81,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
         }
 
         public ObservableCollection<Repository.CommentFliteringRepository.FilteringCommentTextKeyword> FilteringKeywords { get; }
-
-        public ReactiveProperty<bool> IsLowLatency { get; private set; }
-
-        // NG Comments
-
-        public ReactiveProperty<bool> NGCommentKeywordEnable { get; private set; }
-        public ReactiveProperty<string> NGCommentKeywords { get; private set; }
-        public ReadOnlyReactiveProperty<string> NGCommentKeywordError { get; private set; }
+        public ObservableCollection<Repository.CommentFliteringRepository.CommentTextTransformCondition> VideoCommentTransformConditions { get; }
 
 
         public PlayerSettings PlayerSettings { get; }
