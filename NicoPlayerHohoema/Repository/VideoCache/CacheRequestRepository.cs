@@ -57,6 +57,7 @@ namespace NicoPlayerHohoema.Repository.VideoCache
         public CacheRequestRepository()
         {
             this._collection.EnsureIndex(x => x.CacheState);
+            this._collection.EnsureIndex(x => x.RequestAt);
         }
 
         public bool TryGetPendingFirstItem(out CacheRequest cacheRequest)
