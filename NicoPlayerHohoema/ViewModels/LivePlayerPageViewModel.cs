@@ -682,14 +682,14 @@ namespace NicoPlayerHohoema.ViewModels
             // NavigatedToAsync
             try
             {
-                var liveInfo = await NiconicoSession.Context.Live.GetLiveVideoInfoAsync(LiveId);
+                var liveInfo = await NiconicoSession.Context.Live.GetProgramInfoAsync(LiveId);
                 if (liveInfo != null && liveInfo.IsOK)
                 {
-                    LiveTitle = liveInfo.VideoInfo.Video.Title;
+                    LiveTitle = liveInfo.Data.Title;
 
-                    _OpenAt = liveInfo.VideoInfo.Video.OpenTime.Value;
-                    _StartAt = liveInfo.VideoInfo.Video.StartTime.Value;
-                    _EndAt = liveInfo.VideoInfo.Video.EndTime.Value;
+                    _OpenAt = liveInfo.Data.BeginAt;
+                    _StartAt = liveInfo.Data.VposBaseAt;
+                    _EndAt = liveInfo.Data.EndAt;
                 }
             }
             catch (Exception ex)
@@ -785,8 +785,8 @@ namespace NicoPlayerHohoema.ViewModels
                     WatchStartLiveElapsedTime.Value = NicoLiveVideo.TimeshiftPosition.Value;
                 }
 
-                Debug.WriteLine(this.NicoLiveVideo.LiveInfo.VideoInfo.Video.TsArchiveStartTime);
-                Debug.WriteLine(this.NicoLiveVideo.LiveInfo.VideoInfo.Video.TsArchiveEndTime);
+                //Debug.WriteLine(this.NicoLiveVideo.LiveInfo.VideoInfo.Video.TsArchiveStartTime);
+                //Debug.WriteLine(this.NicoLiveVideo.LiveInfo.VideoInfo.Video.TsArchiveEndTime);
 
                 _MaxSeekablePosition.Value = (_EndAt - _OpenAt).TotalSeconds;
             }

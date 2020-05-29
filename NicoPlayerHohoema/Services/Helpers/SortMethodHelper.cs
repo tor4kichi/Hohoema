@@ -69,15 +69,17 @@ namespace NicoPlayerHohoema.Services.Helpers
 			return text.Translate();
 		}
 
-		public static string ToCulturizedText(NicoliveSearchSort sort, Order order)
+		public static string ToCulturizedText(LiveSearchSortType sort)
 		{
-			var isAscending = order == Order.Ascending;
+			var isAscending = sort.HasFlag(LiveSearchSortType.SortAcsending);
+
+			sort = isAscending ? (LiveSearchSortType)(sort - LiveSearchSortType.SortAcsending) : sort;
 			string text;
 			switch (sort)
 			{
-				case NicoliveSearchSort.Recent:
+				case LiveSearchSortType.StartTime:
 					text = isAscending ? "NicoliveSearchSort.Recent_Ascending" : "NicoliveSearchSort.Recent_Descending"; break;
-				case NicoliveSearchSort.Comment:
+				case LiveSearchSortType.CommentCounter:
 					text = isAscending ? "NicoliveSearchSort.Comment_Ascending" : "NicoliveSearchSort.Comment_Descending"; break;
 				default:
 					throw new NotSupportedException();
