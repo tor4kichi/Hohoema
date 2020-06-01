@@ -14,7 +14,9 @@
   xmlns:trigger="using:NicoPlayerHohoema.Views.StateTrigger"
   mc:Ignorable="d"
     d:DesignHeight="300"
-    d:DesignWidth="400">
+    d:DesignWidth="400"
+  
+  >
 
   <Grid>
 
@@ -30,7 +32,10 @@
               uwpExtension:ScrollViewerExtensions.VerticalScrollBarMargin="0 48 0 0"
               xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
               IsItemClickEnabled="True"
-              Padding="{x:Bind ItemsPanelPadding, Mode=OneWay}">
+              Padding="{x:Bind ItemsPanelPadding, Mode=OneWay}"
+              xmlns:ex="using:NicoPlayerHohoema.Views.Extensions"
+              ex:ListViewBase.DeferInitialize="True"
+              >
 
       <i:Interaction.Behaviors>
         <core:EventTriggerBehavior EventName="ItemClick">

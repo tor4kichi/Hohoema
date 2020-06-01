@@ -425,7 +425,8 @@ namespace NicoPlayerHohoema.ViewModels
 
             MediaPlayer.Source = null;
 
-            App.Current.Suspending -= Current_Suspending;
+            VideoPlayer.ClearCurrentSession();
+            CommentPlayer.ClearCurrentSession();
 
             MediaPlayer.CommandManager.NextReceived -= CommandManager_NextReceived;
             MediaPlayer.CommandManager.PreviousReceived -= CommandManager_PreviousReceived;
@@ -439,9 +440,6 @@ namespace NicoPlayerHohoema.ViewModels
                 HohoemaPlaylist.PlayDone(VideoInfo);
             }
 
-            VideoPlayer.ClearCurrentSession();
-            CommentPlayer.ClearCurrentSession();
-            
             App.Current.Resuming -= Current_Resuming;
             App.Current.Suspending -= Current_Suspending;
 

@@ -182,9 +182,6 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
             
             Loaded += VideoItemsListView_Loaded;
             Unloaded += VideoItemsListView_Unloaded;
-
-            // Note: Loadedで登録すると速いCPUだと先頭数個の表示要素が漏れることからコンストラクタで登録している
-            ItemsList.ContainerContentChanging += ItemsList_ContainerContentChanging;
         }
 
         private void VideoItemsListView_Loaded(object sender, RoutedEventArgs e)
@@ -196,9 +193,6 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
             
             // Context Flyout
             ItemsList.ContextRequested += ItemsList_ContextRequested;
-
-            ItemsList.ContainerContentChanging -= ItemsList_ContainerContentChanging;
-            ItemsList.ContainerContentChanging += ItemsList_ContainerContentChanging;
         }
 
         private void VideoItemsListView_Unloaded(object sender, RoutedEventArgs e)
@@ -210,10 +204,6 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
 
             // Context Flyout
             ItemsList.ContextRequested -= ItemsList_ContextRequested;
-
-            // Update Video Item
-            ItemsList.ContainerContentChanging -= ItemsList_ContainerContentChanging;
-            _updatedItemsId.Clear();
         }
 
         #region Selection
@@ -316,29 +306,5 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
 
         #endregion
 
-
-        #region Update Video Item
-
-
-
-        HashSet<string> _updatedItemsId = new HashSet<string>();
-
-        private void ItemsList_ContainerContentChanging(ListViewBase sender, ContainerContentChangingEventArgs args)
-        {
-            if (!IsUpdateSourceVideoItem) { return; }
-
-            var videoContent = args.Item as Interfaces.IVideoContentWritable;
-            //if (videoContent != null && !_updatedItemsId.Contains(videoContent.Id))
-            if (videoContent != null && args.Phase == 0)
-            {
-                _updatedItemsId.Add(videoContent.Id);
-//                _ = _videoInfoRepository.UpdateAsync(videoContent);
-
-                System.Diagnostics.Debug.WriteLine("updated : " + videoContent.Id);
-            }
-        }
-
-
-        #endregion
     }
 }
