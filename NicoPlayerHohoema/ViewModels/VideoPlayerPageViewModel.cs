@@ -317,7 +317,7 @@ namespace NicoPlayerHohoema.ViewModels
             SoundVolumeManager.LoudnessCorrectionValue = VideoDetails.LoudnessCorrectionValue;
 
             // 動画再生コンテンツをセット
-            VideoPlayer.UpdatePlayingVideo(result.VideoSessionProvider);
+            await VideoPlayer.UpdatePlayingVideoAsync(result.VideoSessionProvider);
 
             // そのあとで表示情報を取得
             VideoInfo = await NicoVideoProvider.GetNicoVideoInfo(VideoId)
@@ -339,7 +339,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
             else
             {
-                // TODO: デフォルト指定した画質で再生開始
+                // デフォルト指定した画質で再生開始
                 await VideoPlayer.PlayAsync(_requestVideoQuality);
 
                 // コメントを更新
@@ -425,7 +425,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             MediaPlayer.Source = null;
 
-            VideoPlayer.ClearCurrentSession();
+            _ = VideoPlayer.ClearCurrentSessionAsync();
             CommentPlayer.ClearCurrentSession();
 
             MediaPlayer.CommandManager.NextReceived -= CommandManager_NextReceived;

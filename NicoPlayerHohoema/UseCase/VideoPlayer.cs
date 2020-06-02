@@ -1,6 +1,7 @@
 ﻿using Mntone.Nico2.Videos.Dmc;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models.Niconico;
 using NicoPlayerHohoema.Models.Niconico.Video;
 using NicoPlayerHohoema.Services;
@@ -93,10 +94,11 @@ namespace NicoPlayerHohoema.UseCase
         private readonly MediaPlayer _mediaPlayer;
         private readonly IScheduler _scheduler;
 
+        Models.Helpers.AsyncLock _playerLock = new Models.Helpers.AsyncLock();
 
         public void Dispose()
         {
-            ClearCurrentSession();
+            ClearCurrentSessionAsync();
 
             _mediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
             _disposables.Dispose();
@@ -133,9 +135,11 @@ namespace NicoPlayerHohoema.UseCase
         }
 
 
-        public void UpdatePlayingVideo(INiconicoVideoSessionProvider videoSessionProvider)
+        public async Task UpdatePlayingVideoAsync(INiconicoVideoSessionProvider videoSessionProvider)
         {
-            ClearCurrentSession();
+            await ClearCurrentSessionAsync();
+
+            using var _ = await _playerLock.LockAsync();
 
             _niconicoVideoSessionProvider = videoSessionProvider;
             PlayingVideoId = videoSessionProvider.ContentId;
@@ -144,6 +148,8 @@ namespace NicoPlayerHohoema.UseCase
 
         public async Task PlayAsync(NicoVideoQuality quality = NicoVideoQuality.Unknown, TimeSpan startPosition = default)
         {
+            using var _ = await _playerLock.LockAsync();
+
             if (_niconicoVideoSessionProvider == null) { throw new ArgumentException("please call VideoPlayer.UpdatePlayingVideo() before VideoPlayer.PlayAsync()."); }
 
             if ((_currentSession as IVideoStreamingSession)?.Quality == quality)
@@ -168,8 +174,10 @@ namespace NicoPlayerHohoema.UseCase
             await _currentSession.StartPlayback(_mediaPlayer, startPosition);
         }
 
-        public void ClearCurrentSession()
+        public async Task ClearCurrentSessionAsync()
         {
+            using var _ = await _playerLock.LockAsync();
+
             _currentSession?.Dispose();
             _currentSession = null;
             _niconicoVideoSessionProvider = null;
