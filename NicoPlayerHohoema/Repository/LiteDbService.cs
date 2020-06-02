@@ -9,15 +9,35 @@ using Windows.Storage;
 
 namespace NicoPlayerHohoema.Repository
 {
-    public class LiteDBService<T>
+    public abstract class LocalLiteDBService<T> : LiteDBServiceBase<T>
     {
         static readonly string LocalConnectionString = $"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "_v3")}; Async=false;";
+        public LocalLiteDBService()
+            : base(LocalConnectionString)
+        {
+
+        }
+    }
+
+
+    public abstract class TempraryLiteDBService<T> : LiteDBServiceBase<T>
+    {
+        static readonly string TempraryConnectionString = $"Filename={Path.Combine(ApplicationData.Current.TemporaryFolder.Path, "_v3")}; Async=false;";
+        public TempraryLiteDBService()
+            : base(TempraryConnectionString)
+        {
+
+        }
+
+    }
+    public abstract class LiteDBServiceBase<T>
+    {
 
         protected LiteCollection<T> _collection;
 
-        public LiteDBService()
+        public LiteDBServiceBase(string connectionString)
         {
-            var db = new LiteDatabase(LocalConnectionString);
+            var db = new LiteDatabase(connectionString);
             _collection = db.GetCollection<T>();
         }
 

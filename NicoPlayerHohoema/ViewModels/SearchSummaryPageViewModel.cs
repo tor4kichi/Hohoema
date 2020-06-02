@@ -82,29 +82,21 @@ namespace NicoPlayerHohoema.ViewModels
                 .SelectMany(async (x, i, cancelToken) =>
                 {
                     RelatedLiveTags.Clear();
-                    var res = await SearchProvider.LiveSearchAsync(x, false, length: 10);
-                    if (res.IsStatusOK)
+                    var res = await SearchProvider.LiveSearchAsync(x, 0, 10);
+                    if (res.IsOK)
                     {
-                        if (res.Tags != null)
-                        {
-                            foreach (var tag in res.Tags.Tag)
-                            {
-                                RelatedLiveTags.Add(tag.Name);
-                            }
-                        }
-
-                        LiveSearchItemsTotalCount = res.TotalCount.FilteredCount;
-                        return res.VideoInfo?.AsEnumerable() ?? Enumerable.Empty<Mntone.Nico2.Searches.Live.VideoInfo>();
+                        LiveSearchItemsTotalCount = res.Meta.TotalCount ?? 0;
+                        return res.Data?.AsEnumerable() ?? Enumerable.Empty<Mntone.Nico2.Searches.Live.LiveSearchResultItem>();
                     }
                     else
                     {
-                        return Enumerable.Empty<Mntone.Nico2.Searches.Live.VideoInfo>();
+                        return Enumerable.Empty<Mntone.Nico2.Searches.Live.LiveSearchResultItem>();
                     }
                 })
                 .SelectMany(x => x)
                 .Select(x =>
                 {
-                    var liveInfoVM = new LiveInfoListItemViewModel(x.Video.Id);
+                    var liveInfoVM = new LiveInfoListItemViewModel(x.ContentId);
                     liveInfoVM.Setup(x);
                     return liveInfoVM;
                 })

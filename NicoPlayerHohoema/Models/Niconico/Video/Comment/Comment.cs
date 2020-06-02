@@ -67,9 +67,13 @@ namespace NicoPlayerHohoema.Models.Niconico
         [DataMember]
         public int DeletedFlag { get; set; }
 
-        
 
-
+        private string _commentText_Transformed;
+        public string CommentText_Transformed
+        {
+            get => _commentText_Transformed ?? CommentText;
+            set => _commentText_Transformed = value;
+        }
 
 
         public CommentDisplayMode DisplayMode { get; set; }
@@ -104,6 +108,8 @@ namespace NicoPlayerHohoema.Models.Niconico
 
         public bool IsOperationCommand { get; internal set; }
 
+        public string OperatorCommandType { get; set; }
+        public string[] OperatorCommandParameters { get; set; }
 
         bool? _IsLink;
         public bool IsLink

@@ -273,7 +273,7 @@ namespace NicoPlayerHohoema.ViewModels
 				case SearchTarget.Community:
 					return new CommunitySearchOptionViewModel();
 				case SearchTarget.Niconama:
-					return new LiveSearchOptionViewModel();
+					//return new LiveSearchOptionViewModel();
 				default:
 					break;
 			}
@@ -606,145 +606,144 @@ namespace NicoPlayerHohoema.ViewModels
 		}
 	}
 
+	
+	//public class LiveSearchOptionViewModel : SearchOptionViewModelBase
+	//{
+	//	public class LiveSearchSortOptionListItem
+	//	{
+	//		public string Label { get; set; }
+	//		public NicoliveSearchSort Sort { get; set; }
+	//		public Order Order { get; set; }
+	//	}
+
+	//	public class LiveSearchModeOptionListItem
+	//	{
+	//		public string Label { get; set; }
+	//		public NicoliveSearchMode? Mode { get; set; }
+	//	}
+
+	//	public class LiveSearchProviderOptionListItem
+	//	{
+	//		public string Label { get; set; }
+	//		public Mntone.Nico2.Live.CommunityType? Provider { get; set; }
+	//	}
+
+	//	public static IReadOnlyList<LiveSearchSortOptionListItem> LiveSearchSortOptionListItems { get; private set; }
+	//	public static IReadOnlyList<LiveSearchModeOptionListItem> LiveSearchModeOptionListItems { get; private set; }
+	//	public static IReadOnlyList<LiveSearchProviderOptionListItem> LiveSearchProviderOptionListItems { get; private set; }
+
+	//	static LiveSearchOptionViewModel()
+	//	{
+	//		var sortList = new[]
+	//		{
+	//			NicoliveSearchSort.Recent,
+	//			NicoliveSearchSort.Comment,
+	//		};
+
+	//		LiveSearchSortOptionListItems = sortList.SelectMany(x =>
+	//		{
+	//			return new List<LiveSearchSortOptionListItem>()
+	//			{
+ //                   new LiveSearchSortOptionListItem()
+ //                   {
+ //                       Sort = x,
+ //                       Order = Order.Ascending,
+ //                   },
+ //                   new LiveSearchSortOptionListItem()
+ //                   {
+ //                       Sort = x,
+ //                       Order = Order.Descending,
+ //                   },
+ //               };
+	//		})
+	//		.ToList();
+
+	//		foreach (var item in LiveSearchSortOptionListItems)
+	//		{
+	//			item.Label = Services.Helpers.SortHelper.ToCulturizedText(item.Sort, item.Order);
+	//		}
 
 
-	public class LiveSearchOptionViewModel : SearchOptionViewModelBase
-	{
-		public class LiveSearchSortOptionListItem
-		{
-			public string Label { get; set; }
-			public NicoliveSearchSort Sort { get; set; }
-			public Order Order { get; set; }
-		}
-
-		public class LiveSearchModeOptionListItem
-		{
-			public string Label { get; set; }
-			public NicoliveSearchMode? Mode { get; set; }
-		}
-
-		public class LiveSearchProviderOptionListItem
-		{
-			public string Label { get; set; }
-			public Mntone.Nico2.Live.CommunityType? Provider { get; set; }
-		}
-
-		public static IReadOnlyList<LiveSearchSortOptionListItem> LiveSearchSortOptionListItems { get; private set; }
-		public static IReadOnlyList<LiveSearchModeOptionListItem> LiveSearchModeOptionListItems { get; private set; }
-		public static IReadOnlyList<LiveSearchProviderOptionListItem> LiveSearchProviderOptionListItems { get; private set; }
-
-		static LiveSearchOptionViewModel()
-		{
-			var sortList = new[]
-			{
-				NicoliveSearchSort.Recent,
-				NicoliveSearchSort.Comment,
-			};
-
-			LiveSearchSortOptionListItems = sortList.SelectMany(x =>
-			{
-				return new List<LiveSearchSortOptionListItem>()
-				{
-                    new LiveSearchSortOptionListItem()
-                    {
-                        Sort = x,
-                        Order = Order.Ascending,
-                    },
-                    new LiveSearchSortOptionListItem()
-                    {
-                        Sort = x,
-                        Order = Order.Descending,
-                    },
-                };
-			})
-			.ToList();
-
-			foreach (var item in LiveSearchSortOptionListItems)
-			{
-				item.Label = Services.Helpers.SortHelper.ToCulturizedText(item.Sort, item.Order);
-			}
+	//		LiveSearchModeOptionListItems = new List<LiveSearchModeOptionListItem>()
+	//		{
+	//			new LiveSearchModeOptionListItem()
+	//			{
+	//				Label = "放送中",
+	//				Mode = NicoliveSearchMode.OnAir
+	//			},
+	//			new LiveSearchModeOptionListItem()
+	//			{
+	//				Label = "放送予定",
+	//				Mode = NicoliveSearchMode.Reserved
+	//			},
+ //               /*
+	//			new LiveSearchModeOptionListItem()
+	//			{
+	//				Label = "放送終了",
+	//				Mode = NicoliveSearchMode.Closed
+	//			},
+	//			new LiveSearchModeOptionListItem()
+	//			{
+	//				Label = "すべて",
+	//				Mode = null
+	//			},
+ //               */
+	//		};
 
 
-			LiveSearchModeOptionListItems = new List<LiveSearchModeOptionListItem>()
-			{
-				new LiveSearchModeOptionListItem()
-				{
-					Label = "放送中",
-					Mode = NicoliveSearchMode.OnAir
-				},
-				new LiveSearchModeOptionListItem()
-				{
-					Label = "放送予定",
-					Mode = NicoliveSearchMode.Reserved
-				},
-                /*
-				new LiveSearchModeOptionListItem()
-				{
-					Label = "放送終了",
-					Mode = NicoliveSearchMode.Closed
-				},
-				new LiveSearchModeOptionListItem()
-				{
-					Label = "すべて",
-					Mode = null
-				},
-                */
-			};
+	//		LiveSearchProviderOptionListItems = new List<LiveSearchProviderOptionListItem>()
+	//		{
+	//			new LiveSearchProviderOptionListItem()
+	//			{
+	//				Label = "すべて",
+	//				Provider = null,
+	//			},
 
-
-			LiveSearchProviderOptionListItems = new List<LiveSearchProviderOptionListItem>()
-			{
-				new LiveSearchProviderOptionListItem()
-				{
-					Label = "すべて",
-					Provider = null,
-				},
-
-				new LiveSearchProviderOptionListItem()
-				{
-					Label = "公式",
-					Provider = Mntone.Nico2.Live.CommunityType.Official,
-				},
-				new LiveSearchProviderOptionListItem()
-				{
-					Label = "チャンネル",
-					Provider = Mntone.Nico2.Live.CommunityType.Channel,
-				},
-				new LiveSearchProviderOptionListItem()
-				{
-					Label = "ユーザー",
-					Provider = Mntone.Nico2.Live.CommunityType.Community,
-				},
+	//			new LiveSearchProviderOptionListItem()
+	//			{
+	//				Label = "公式",
+	//				Provider = Mntone.Nico2.Live.CommunityType.Official,
+	//			},
+	//			new LiveSearchProviderOptionListItem()
+	//			{
+	//				Label = "チャンネル",
+	//				Provider = Mntone.Nico2.Live.CommunityType.Channel,
+	//			},
+	//			new LiveSearchProviderOptionListItem()
+	//			{
+	//				Label = "ユーザー",
+	//				Provider = Mntone.Nico2.Live.CommunityType.Community,
+	//			},
 							
-			};
-		}
+	//		};
+	//	}
 
-		public ReactiveProperty<LiveSearchSortOptionListItem> SelectedSearchSort { get; private set; }
-		public ReactiveProperty<LiveSearchModeOptionListItem> SelectedSearchMode { get; private set; }
-		public ReactiveProperty<bool> IsTagSearch { get; private set; }
-		public ReactiveProperty<LiveSearchProviderOptionListItem> SelectedProvider { get; private set; }
+	//	public ReactiveProperty<LiveSearchSortOptionListItem> SelectedSearchSort { get; private set; }
+	//	public ReactiveProperty<LiveSearchModeOptionListItem> SelectedSearchMode { get; private set; }
+	//	public ReactiveProperty<bool> IsTagSearch { get; private set; }
+	//	public ReactiveProperty<LiveSearchProviderOptionListItem> SelectedProvider { get; private set; }
 
-		public LiveSearchOptionViewModel()
-		{
-			SelectedSearchSort = new ReactiveProperty<LiveSearchSortOptionListItem>(LiveSearchSortOptionListItems[0]);
-			SelectedSearchMode = new ReactiveProperty<LiveSearchModeOptionListItem>(LiveSearchModeOptionListItems[0]);
-			SelectedProvider = new ReactiveProperty<LiveSearchProviderOptionListItem>(LiveSearchProviderOptionListItems[0]);
-			IsTagSearch = new ReactiveProperty<bool>(false);
-		}
+	//	public LiveSearchOptionViewModel()
+	//	{
+	//		SelectedSearchSort = new ReactiveProperty<LiveSearchSortOptionListItem>(LiveSearchSortOptionListItems[0]);
+	//		SelectedSearchMode = new ReactiveProperty<LiveSearchModeOptionListItem>(LiveSearchModeOptionListItems[0]);
+	//		SelectedProvider = new ReactiveProperty<LiveSearchProviderOptionListItem>(LiveSearchProviderOptionListItems[0]);
+	//		IsTagSearch = new ReactiveProperty<bool>(false);
+	//	}
 
-		public override ISearchPagePayloadContent MakePayload()
-		{
-			return new LiveSearchPagePayloadContent()
-			{
-				Keyword = Keyword,
-				Sort = SelectedSearchSort.Value.Sort,
-				Order = SelectedSearchSort.Value.Order,
-				Mode = SelectedSearchMode.Value.Mode,
-				Provider = SelectedProvider.Value.Provider,
-				IsTagSearch = IsTagSearch.Value
-			};
-		}
-	}
+	//	public override ISearchPagePayloadContent MakePayload()
+	//	{
+	//		return new LiveSearchPagePayloadContent()
+	//		{
+	//			Keyword = Keyword,
+	//			Sort = SelectedSearchSort.Value.Sort,
+	//			Order = SelectedSearchSort.Value.Order,
+	//			Mode = SelectedSearchMode.Value.Mode,
+	//			Provider = SelectedProvider.Value.Provider,
+	//			IsTagSearch = IsTagSearch.Value
+	//		};
+	//	}
+	//}
 
 
 

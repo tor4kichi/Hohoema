@@ -27,8 +27,6 @@ namespace NicoPlayerHohoema.Interfaces
         string ImageCaption { get; }
         bool HasImageCaption { get; }
 
-        Color? ThemeColor { get; }
-
         bool IsVisible { get; }
 
         List<ActionSet> SecondaryActions { get; }

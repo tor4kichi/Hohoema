@@ -1,4 +1,5 @@
-﻿using Mntone.Nico2.Searches.Live;
+﻿using Mntone.Nico2.Live;
+using Mntone.Nico2.Searches.Live;
 using NicoPlayerHohoema.Models;
 using System.Runtime.Serialization;
 
@@ -16,12 +17,13 @@ namespace NicoPlayerHohoema.Services.Page
 		public Mntone.Nico2.Live.CommunityType? Provider { get; set; }
 
         [DataMember]
-        public Mntone.Nico2.Order Order { get; set; } = Mntone.Nico2.Order.Ascending;
+        public LiveSearchSortType Sort { get; set; } = LiveSearchSortType.StartTime | LiveSearchSortType.SortDecsending;
 
-        [DataMember]
-        public NicoliveSearchSort Sort { get; set; } = NicoliveSearchSort.Recent;
+		[DataMember]
+		public StatusType LiveStatus { get; set; } = StatusType.OnAir;
 
-        [DataMember]
-        public NicoliveSearchMode? Mode { get; set; } = NicoliveSearchMode.OnAir;
+		[DataMember]
+		public bool IsExcludeCommunityMemberOnly { get; set; }
+
 	}
 }

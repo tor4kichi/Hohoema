@@ -85,8 +85,8 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
                         {
                             if (_videoPlayer.PlayingVideoId == null) 
                             {
-                                HasNextVideo = _videoRelatedContents.NextVideo != null;
-                                NextVideoTitle = _videoRelatedContents.NextVideo?.Label;
+                                HasNextVideo = _videoRelatedContents?.NextVideo != null;
+                                NextVideoTitle = _videoRelatedContents?.NextVideo?.Label;
                                 return; 
                             }
 

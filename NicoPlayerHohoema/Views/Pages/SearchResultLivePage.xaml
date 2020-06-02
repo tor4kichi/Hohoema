@@ -107,60 +107,39 @@
                       <HyperlinkButton Command="{Binding PageManager.OpenPageCommand}" CommandParameter="Search" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Margin="0 0 16 0" toolkit:DockPanel.Dock="Left" VerticalAlignment="Stretch">
                         <SymbolIcon Symbol="Find" />
                       </HyperlinkButton>
-                      <HyperlinkButton toolkit:DockPanel.Dock="Bottom">
-                        <i:Interaction.Behaviors>
-                          <core:EventTriggerBehavior EventName="Click">
-                            <mybehavior:OpenFlyout />
-                          </core:EventTriggerBehavior>
-                        </i:Interaction.Behaviors>
-                        <TextBlock Text="{Binding SearchOptionText}" Style="{StaticResource CaptionTextBlockStyle}"></TextBlock>
-                        <FlyoutBase.AttachedFlyout>
-                          <Flyout>
-                            <StackPanel MaxWidth="340">
-                              <TextBlock Text="{Binding Source=LiveSearchResultOption_Order, Converter={StaticResource LocalizeConverter}}" Margin="0 0 0 0" Style="{StaticResource BodyTextBlockStyle}" Opacity="0.7" />
-                              <ListView ItemsSource="{Binding LiveSearchSortOptionListItems}" DisplayMemberPath="Label" SelectedItem="{Binding SelectedSearchSort.Value, Mode=TwoWay}" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" SelectionMode="Single" SingleSelectionFollowsFocus="False">
-                                <ListView.ItemContainerStyle>
-                                  <Style TargetType="ListViewItem">
-                                    <Setter Property="Width" Value="160" />
-                                  </Style>
-                                </ListView.ItemContainerStyle>
-                                <ListView.ItemsPanel>
-                                  <ItemsPanelTemplate>
-                                    <ItemsWrapGrid Orientation="Horizontal" />
-                                  </ItemsPanelTemplate>
-                                </ListView.ItemsPanel>
-                              </ListView>
-                              <TextBlock Text="{Binding Source=LiveSearchResultOption_Mode, Converter={StaticResource LocalizeConverter}}" Margin="0 8 0 0" Style="{StaticResource BodyTextBlockStyle}" Opacity="0.7" />
-                              <ListView ItemsSource="{Binding LiveSearchModeOptionListItems}" DisplayMemberPath="Label" SelectedItem="{Binding SelectedSearchMode.Value, Mode=TwoWay}" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" SelectionMode="Single" SingleSelectionFollowsFocus="False">
-                                <ListView.ItemContainerStyle>
-                                  <Style TargetType="ListViewItem">
-                                    <Setter Property="Width" Value="160" />
-                                  </Style>
-                                </ListView.ItemContainerStyle>
-                                <ListView.ItemsPanel>
-                                  <ItemsPanelTemplate>
-                                    <ItemsWrapGrid Orientation="Horizontal" />
-                                  </ItemsPanelTemplate>
-                                </ListView.ItemsPanel>
-                              </ListView>
-                              <TextBlock Text="{Binding Source=LiveSearchResultOption_Provider, Converter={StaticResource LocalizeConverter}}" Margin="0 8 0 0" Style="{StaticResource BodyTextBlockStyle}" Opacity="0.7" />
-                              <ListView ItemsSource="{Binding LiveSearchProviderOptionListItems}" DisplayMemberPath="Label" SelectedItem="{Binding SelectedProvider.Value, Mode=TwoWay}" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Center" SelectionMode="Single" SingleSelectionFollowsFocus="False">
-                                <ListView.ItemContainerStyle>
-                                  <Style TargetType="ListViewItem">
-                                    <Setter Property="Width" Value="160" />
-                                  </Style>
-                                </ListView.ItemContainerStyle>
-                                <ListView.ItemsPanel>
-                                  <ItemsPanelTemplate>
-                                    <ItemsWrapGrid Orientation="Horizontal" />
-                                  </ItemsPanelTemplate>
-                                </ListView.ItemsPanel>
-                              </ListView>
-                            </StackPanel>
-                          </Flyout>
-                        </FlyoutBase.AttachedFlyout>
-                      </HyperlinkButton>
-                      <Border />
+                      <uwpcontrols:WrapPanel Orientation="Horizontal">
+                        <!-- LiveStatus -->
+                        <ListView ItemsSource="{Binding LiveSearchLiveStatusListItems}" 
+                                  SelectedValue="{Binding SelectedLiveStatus.Value, Mode=TwoWay}" 
+                                  DisplayMemberPath="Label"
+                                  SelectionMode="Single"
+                                  >
+                          <ListView.ItemsPanel>
+                            <ItemsPanelTemplate>
+                              <ItemsStackPanel Orientation="Horizontal" />
+                            </ItemsPanelTemplate>
+                          </ListView.ItemsPanel>
+                        </ListView>
+                        
+                        <!-- Sort -->
+                        <ComboBox ItemsSource="{Binding LiveSearchSortOptionListItems}" 
+                                  SelectedValue="{Binding SelectedSearchSort.Value, Mode=TwoWay}" 
+                                  DisplayMemberPath="Label"
+                                  />
+
+                        <Button Content="絞り込み" Visibility="Collapsed">
+                          <Button.Flyout>
+                            <MenuFlyout>
+                              <ToggleMenuFlyoutItem IsChecked="{Binding IsTagSearch.Value, Mode=TwoWay}" 
+                                                    Text="タグを対象に検索"  />
+
+                              <ToggleMenuFlyoutItem IsChecked="{Binding IsExcludeCommunityMemberOnly.Value, Mode=TwoWay}" 
+                                                    Text="タグを対象に検索"  />
+                              
+                            </MenuFlyout>
+                          </Button.Flyout>
+                        </Button>
+                      </uwpcontrols:WrapPanel>
                     </toolkit:DockPanel>
                   </Border>
                 </CommandBar.Content>
@@ -196,7 +175,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
-            <Setter Target="ItemsList.Padding" Value="{StaticResource ContentListViewBodyMargin_TV}" />
+            <Setter Target="ItemsList.Padding" Value="{StaticResource ContentPageMargin_TV}" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -205,7 +184,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
-            <Setter Target="ItemsList.Padding" Value="{StaticResource ContentListViewBodyMargin_Desktop}" />
+            <Setter Target="ItemsList.Padding" Value="0" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -214,7 +193,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
-            <Setter Target="ItemsList.Padding" Value="{StaticResource ContentListViewBodyMargin_Tablet}" />
+            <Setter Target="ItemsList.Padding" Value="0" />
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -223,7 +202,7 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
-            <Setter Target="ItemsList.Padding" Value="{StaticResource ContentListViewBodyMargin_Mobile}" />
+            <Setter Target="ItemsList.Padding" Value="0" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

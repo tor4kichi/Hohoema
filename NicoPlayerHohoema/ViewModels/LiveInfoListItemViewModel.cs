@@ -135,30 +135,24 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        public void Setup(VideoInfo liveVideoInfo)
+        public void Setup(LiveSearchResultItem liveVideoInfo)
         {
-            CommunityName = liveVideoInfo.Community?.Name;
-            if (liveVideoInfo.Community?.Thumbnail != null)
-            {
-                CommunityThumbnail = liveVideoInfo.Community?.Thumbnail;
-            }
-            else
-            {
-                CommunityThumbnail = liveVideoInfo.Video.ThumbnailUrl;
-            }
-            CommunityGlobalId = liveVideoInfo.Community?.GlobalId;
-            CommunityType = liveVideoInfo.Video.ProviderType;
+            CommunityName = liveVideoInfo.CommunityText;
+            CommunityThumbnail = liveVideoInfo.CommunityIcon ?? liveVideoInfo.ThumbnailUrl;
 
-            LiveTitle = liveVideoInfo.Video.Title;
-            ViewCounter = int.Parse(liveVideoInfo.Video.ViewCounter);
-            CommentCount = int.Parse(liveVideoInfo.Video.CommentCount);
-            OpenTime = new DateTimeOffset(liveVideoInfo.Video.OpenTime, TimeSpan.FromHours(9));
-            StartTime = new DateTimeOffset(liveVideoInfo.Video.StartTime, TimeSpan.FromHours(9));
-            EndTime = new DateTimeOffset(liveVideoInfo.Video.EndTime, TimeSpan.FromHours(9));
-            IsTimeshiftEnabled = liveVideoInfo.Video.TimeshiftEnabled;
-            IsCommunityMemberOnly = liveVideoInfo.Video.CommunityOnly;
+            CommunityGlobalId = liveVideoInfo.CommunityId?.ToString() ?? liveVideoInfo.ChannelId?.ToString() ?? string.Empty;
+            CommunityType = liveVideoInfo.GetCommunityType();
 
-            Label = liveVideoInfo.Video.Title;
+            LiveTitle = liveVideoInfo.Title;
+            ViewCounter = liveVideoInfo.ViewCounter ?? 0;
+            CommentCount = liveVideoInfo.CommentCounter ?? 0;
+            OpenTime = new DateTimeOffset(liveVideoInfo.OpenTime ?? DateTime.MinValue, TimeSpan.FromHours(9));
+            StartTime = new DateTimeOffset(liveVideoInfo.StartTime ?? DateTime.MinValue, TimeSpan.FromHours(9));
+            EndTime = new DateTimeOffset(liveVideoInfo.LiveEndTime ?? DateTime.MinValue, TimeSpan.FromHours(9));
+            IsTimeshiftEnabled = liveVideoInfo.TimeshiftEnabled ?? false;
+            IsCommunityMemberOnly = liveVideoInfo.MemberOnly ?? false;
+
+            Label = liveVideoInfo.Title;
             AddImageUrl(CommunityThumbnail);
 
             Description = $"来場者:{ViewCounter} コメ:{CommentCount}";
@@ -286,13 +280,13 @@ namespace NicoPlayerHohoema.ViewModels
 
             switch (CommunityType)
             {
-                case CommunityType.Official:
+                case Mntone.Nico2.Live.CommunityType.Official:
                     Elements.Add(LiveContentElement.Provider_Official);
                     break;
-                case CommunityType.Community:
+                case Mntone.Nico2.Live.CommunityType.Community:
                     Elements.Add(LiveContentElement.Provider_Community);
                     break;
-                case CommunityType.Channel:
+                case Mntone.Nico2.Live.CommunityType.Channel:
                     Elements.Add(LiveContentElement.Provider_Channel);
                     break;
                 default:

@@ -13,8 +13,6 @@
             <Setter.Value>
                 <ControlTemplate TargetType="local:TransientContainer">
                     <Border x:Name="ContentContainer" 
-                            Opacity="0.0"
-                            Visibility="Collapsed"
                         >
                         <Grid 
                               Background="{TemplateBinding Background}"

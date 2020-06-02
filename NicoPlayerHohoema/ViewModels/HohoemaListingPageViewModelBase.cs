@@ -77,8 +77,10 @@ namespace NicoPlayerHohoema.ViewModels
         public override void OnNavigatingTo(INavigationParameters parameters)
         {
             var navigationMode = parameters.GetNavigationMode();
-            if (navigationMode == NavigationMode.New || navigationMode == NavigationMode.Refresh)
+            if (CheckNeedUpdateOnNavigateTo(navigationMode))
             {
+                ItemsView = null;
+                RaisePropertyChanged(nameof(ItemsView));
             }
 
             base.OnNavigatingTo(parameters);
@@ -89,8 +91,8 @@ namespace NicoPlayerHohoema.ViewModels
             var navigationMode = parameters.GetNavigationMode();
             if (CheckNeedUpdateOnNavigateTo(navigationMode))
             {
-                ItemsView = null;
-                RaisePropertyChanged(nameof(ItemsView));
+                await Task.Delay(100);
+
                 await ResetList();
             }
         }
@@ -104,10 +106,14 @@ namespace NicoPlayerHohoema.ViewModels
         {
             using (var releaser = await _ItemsUpdateLock.LockAsync())
             {
+                var prevItemsView = ItemsView;
+                ItemsView = null;
+                RaisePropertyChanged(nameof(ItemsView));
+
                 HasItem.Value = true;
                 LoadedItemsCount.Value = 0;
 
-                if (ItemsView?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
+                if (prevItemsView?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
                 {
                     if (oldItems.Source is HohoemaIncrementalSourceBase<ITEM_VM> hohoemaIncrementalSource)
                     {

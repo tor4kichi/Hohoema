@@ -323,6 +323,15 @@ CommentVerticalPositionTopCommandText = 上
 CommentVerticalPositionMiddleCommandText = 中ﾐ
 CommentVerticalPositionBottomCommandText = 下
 
+# Comment List
+AddFilteringCommentUserId = コメントユーザーIDを非表示に追加
+ClearFilteredCommentUserIdInCurrentVideo = 再生中動画の非表示コメントユーザーIDをクリア
+ClearFilteredCommentUserId = 全ての非表示コメントユーザーIDをクリア
+
+CommentReplaceSettings = コメントの置換設定
+PlacefolderCommentTransformConditionRegex = 置換対象の文字列
+PlacefolderCommentTransformConditionReplaced =  置換後の文字列
+
 # Video Settings
 VideoPlayerSettings = 動画プレイヤーの設定
 PlaylistEndedAction = 再生完了時の自動アクション
@@ -605,14 +614,19 @@ CommunitySearchWithTag = タグで探す
 LiveSearchResultOption_Order = 表示順
 LiveSearchResultOption_Mode = 放送状態
 LiveSearchResultOption_Provider = 放送者
-NicoliveSearchSort.Recent_Ascending = 放送日時が近い順
-NicoliveSearchSort.Recent_Descending = 放送日時が遠い順
-NicoliveSearchSort.Comment_Ascending = コメントが多い順
-NicoliveSearchSort.Comment_Descending = コメントが少ない順
+
+LiveSearchSortType.StartTime_Descending = 放送日時が近い順
+LiveSearchSortType.StartTime_Ascending = 放送日時が遠い順
+LiveSearchSortType.ScoreTimeshiftReserved_Descending = タイムシフト予約数が多い順
+LiveSearchSortType.ScoreTimeshiftReserved_Ascending = タイムシフト予約数が少ない順
+LiveSearchSortType.ViewCounter_Descending = 来場者数が多い順
+LiveSearchSortType.ViewCounter_Ascending = 来場者数が少ない順
+LiveSearchSortType.CommentCounter_Descending = コメントが多い順
+LiveSearchSortType.CommentCounter_Ascending = コメントが少ない順
 
 NicoliveSearchMode.OnAir = 放送中
 NicoliveSearchMode.Reserved = 放送予定
-NicoliveSearchMode.Closed = 放送終了
+NicoliveSearchMode.Closed = 過去の放送
 
 CommunityType.Official = 公式
 CommunityType.Channel = チャンネル

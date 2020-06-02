@@ -28,7 +28,8 @@ namespace NicoPlayerHohoema.Views.Controls
         }
 
         Models.Helpers.AsyncLock _AnimLock = new Models.Helpers.AsyncLock();
-        AnimationSet _PrevFadeAnimation;
+        AnimationSet _FadeInAnimation;
+        AnimationSet _FadeOutAnimation;
 
         CompositeDisposable _CompositeDisposable;
 
@@ -38,6 +39,8 @@ namespace NicoPlayerHohoema.Views.Controls
             this.ObserveDependencyProperty(IsAutoHideEnabledProperty)
                 .Subscribe(_ =>
                 {
+                    _FadeInAnimation?.Dispose();
+                    _FadeInAnimation = null;
                     ResetAnimation();
                 })
                 .AddTo(_CompositeDisposable);
@@ -49,13 +52,8 @@ namespace NicoPlayerHohoema.Views.Controls
                 })
                 .AddTo(_CompositeDisposable);
 
-            (GetTemplateChild("ContentContainer") as FrameworkElement).ObserveDependencyProperty(OpacityProperty)
-                .Subscribe(_ =>
-                {
-                    var container = (GetTemplateChild("ContentContainer") as FrameworkElement);
-                    container.Visibility = container.Opacity == 0 ? Visibility.Collapsed : Visibility.Visible;
-                })
-                .AddTo(_CompositeDisposable);
+            var container = GetTemplateChild("ContentContainer") as FrameworkElement;
+            container.Fade(0.0f, 0).Start();
         }
 
         private void TransientContainer_Unloaded(object sender, RoutedEventArgs e)
@@ -70,36 +68,33 @@ namespace NicoPlayerHohoema.Views.Controls
 
             using (var releaser = await _AnimLock.LockAsync())
             {
-                if (_PrevFadeAnimation != null)
-                {
-                    var prevAnimState = _PrevFadeAnimation.State;
-                    _PrevFadeAnimation?.Dispose();
-                    if (prevAnimState == AnimationSetState.Running)
-                    {
-                        // 前アニメーションが実行中だった場合は終わるまで待機
-                        // （ここでは横着して50ms止めるだけ）
-                        await Task.Delay(50);
-                    }
-                }
-
                 if (Content != null)
                 {
-                    _PrevFadeAnimation = container
+                    _FadeOutAnimation?.Stop();
+                    _FadeInAnimation?.Stop();
+
+                    _FadeInAnimation = container
                             .Fade(1.0f, 100);
 
                     if (IsAutoHideEnabled)
                     {
-                        _PrevFadeAnimation = _PrevFadeAnimation.Then()
+                        _FadeInAnimation = _FadeInAnimation.Then()
                             .Fade(0.0f, 100, delay: DisplayDuration.TotalMilliseconds);
                     }
+
+                    _FadeInAnimation.Start();
                 }
                 else
                 {
-                    _PrevFadeAnimation = container
+                    _FadeInAnimation?.Stop();
+                    _FadeOutAnimation?.Stop();
+
+                    _FadeOutAnimation = container
                         .Fade(0.0f, 100);
+
+                    _FadeOutAnimation.Start();
                 }
 
-                _PrevFadeAnimation?.StartAsync().ConfigureAwait(false);
             }
         }
     }

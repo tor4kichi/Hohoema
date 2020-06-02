@@ -44,6 +44,7 @@ using NicoPlayerHohoema.UseCase;
 using I18NPortable;
 using Newtonsoft.Json;
 using NicoPlayerHohoema.UseCase.Playlist;
+using Microsoft.Toolkit.Uwp.UI.Animations;
 
 namespace NicoPlayerHohoema
 {
@@ -83,6 +84,8 @@ namespace NicoPlayerHohoema
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.CacheDuration = TimeSpan.FromDays(7);
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.MaxMemoryCacheCount = 1000;
             Microsoft.Toolkit.Uwp.UI.ImageCache.Instance.RetryCount = 3;
+            
+            AnimationSet.UseComposition = true;
 
             this.InitializeComponent();
         }
@@ -194,6 +197,7 @@ namespace NicoPlayerHohoema
             // UseCase
             unityContainer.RegisterType<UseCase.VideoPlayer>(new PerThreadLifetimeManager());
             unityContainer.RegisterType<UseCase.CommentPlayer>(new PerThreadLifetimeManager());
+            unityContainer.RegisterType<UseCase.NicoVideoPlayer.CommentFiltering>(new PerThreadLifetimeManager());
             unityContainer.RegisterType<UseCase.NicoVideoPlayer.MediaPlayerSoundVolumeManager>(new PerThreadLifetimeManager());
             unityContainer.RegisterSingleton<UseCase.Playlist.HohoemaPlaylist>();
             unityContainer.RegisterSingleton<UseCase.Playlist.LocalMylistManager>();

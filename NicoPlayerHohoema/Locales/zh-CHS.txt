@@ -251,6 +251,14 @@ CommentColor = 评论颜色
 UseFreeInputCommand = 使用任意输入命令
 FreeInputCommandTextBoxPlacefolderText = 在这里自由输入命令
 
+# Comment List
+AddFilteringCommentUserId = 添加评论用户ID隐藏
+ClearFilteredCommentUserIdInCurrentVideo = 清除播放视频的隐藏评论用户ID
+ClearFilteredCommentUserId = 清除所有隐藏的评论用户ID
+
+CommentReplaceSettings = 评论替换设置
+PlacefolderCommentTransformConditionRegex = 要替换的字符串
+PlacefolderCommentTransformConditionReplaced = 替换字符串
 
 #### Video ####
 NicoVideoQuality.Unknown = 未指定图像质量
@@ -603,14 +611,18 @@ CommunitySearchWithTag = 按标签搜索
 LiveSearchResultOption_Order = 显示顺序
 LiveSearchResultOption_Mode = 广播状态
 LiveSearchResultOption_Provider = 播音员
-NicoliveSearchSort.Recent_Ascending = 广播日期最接近的顺序
-NicoliveSearchSort.Recent_Descending = 广播日期最远
-NicoliveSearchSort.Comment_Ascending = 最多评论
-NicoliveSearchSort.Comment_Descending = 评论最少的顺序
+LiveSearchSortType.StartTime_Descending = 升序播放日期和时间
+LiveSearchSortType.StartTime_Ascending = 按照远播日期和时间的顺序
+LiveSearchSortType.ScoreTimeshiftReserved_Descending = 时移预订数量最多的订单
+LiveSearchSortType.ScoreTimeshiftReserved_Ascending = 时移预约的升序
+LiveSearchSortType.ViewCounter_Descending = 参观人数最多
+LiveSearchSortType.ViewCounter_Ascending = 参观人数升序
+LiveSearchSortType.CommentCounter_Descending = 大多数评论
+LiveSearchSortType.CommentCounter_Ascending = 以评论的升序
 
 NicoliveSearchMode.OnAir = 播出
 NicoliveSearchMode.Reserved = 广播
-NicoliveSearchMode.Closed = 广播结束
+NicoliveSearchMode.Closed = 过去的广播
 
 CommunityType.Official = 官方的
 CommunityType.Channel = 频道

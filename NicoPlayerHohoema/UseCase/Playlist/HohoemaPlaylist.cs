@@ -362,7 +362,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             switch (args.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    _playlistRepository.AddItems(playlist.Id, args.NewItems.Cast<IVideoContent>().Select(x => x.Id));
+                    _playlistRepository.AddItems(playlist.Id, args.NewItems.Cast<IVideoContent>().Select(x => x?.Id).Where(x => !(x is null)));
                     break;
                 case NotifyCollectionChangedAction.Move:
                     // TODO: 全消し＆全追加

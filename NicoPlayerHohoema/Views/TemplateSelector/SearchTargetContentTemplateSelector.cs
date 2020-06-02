@@ -29,10 +29,10 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
             {
                 return Community;
             }
-            else if (item is ViewModels.LiveSearchOptionViewModel)
-            {
-                return LiveVideo;
-            }
+            //else if (item is ViewModels.LiveSearchOptionViewModel)
+            //{
+            //    return LiveVideo;
+            //}
 
             return base.SelectTemplateCore(item, container);
         }

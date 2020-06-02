@@ -67,7 +67,7 @@ namespace NicoPlayerHohoema.Views.Flyouts
 
 
 
-        readonly private string _localizedText_CreateNew = "CreateNew".Translate();
+        private string _localizedText_CreateNew { get; } =  "CreateNew".Translate();
 
         public VideoItemFlyout()
         {
@@ -98,7 +98,7 @@ namespace NicoPlayerHohoema.Views.Flyouts
             OpenOwnerSeriesPage.Command = new OpenPageWithIdCommand(HohoemaPageType.UserSeries, PageManager);
             Share.Command = ExternalAccessService.OpenShareUICommand;
             CopyVideoId.Command = ExternalAccessService.CopyToClipboardCommand;
-            CopyVideoId.Command = ExternalAccessService.CopyToClipboardCommand;
+            CopyVideoLink.Command = ExternalAccessService.CopyToClipboardCommand;
             CopyShareText.Command = ExternalAccessService.CopyToClipboardWithShareTextCommand;
 
             CacheRequest.Command = App.Current.Container.Resolve<CacheAddRequestCommand>();

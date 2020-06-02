@@ -52,11 +52,12 @@ namespace NicoPlayerHohoema.Repository.VideoCache
         public NicoVideoQuality PriorityQuality { get; set; }
     }
 
-    public sealed class CacheRequestRepository : LiteDBService<CacheRequest>
+    public sealed class CacheRequestRepository : LocalLiteDBService<CacheRequest>
     {
         public CacheRequestRepository()
         {
             this._collection.EnsureIndex(x => x.CacheState);
+            this._collection.EnsureIndex(x => x.RequestAt);
         }
 
         public bool TryGetPendingFirstItem(out CacheRequest cacheRequest)

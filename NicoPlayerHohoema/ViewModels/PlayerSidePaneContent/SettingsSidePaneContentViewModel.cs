@@ -1,10 +1,12 @@
 ﻿using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.UseCase.NicoVideoPlayer;
 using Prism.Commands;
 using Prism.Mvvm;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
@@ -20,72 +22,71 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
         public SettingsSidePaneContentViewModel(
             NGSettings ngSettings, 
             PlayerSettings playerSettings,
+            CommentFiltering commentFiltering,
             IScheduler scheduler
             )
         {
             PlayerSettings = playerSettings;
+            CommentFiltering = commentFiltering;
             _scheduler = scheduler;
 
-            // NG Comment
-            NGCommentKeywordEnable = PlayerSettings.ToReactivePropertyAsSynchronized(x => x.NGCommentKeywordEnable, _scheduler)
-            .AddTo(_CompositeDisposable);
-            NGCommentKeywords = new ReactiveProperty<string>(_scheduler, string.Empty)
-            .AddTo(_CompositeDisposable);
 
-            NGCommentKeywordError = NGCommentKeywords
-                .Select(x =>
+            FilteringKeywords = new ObservableCollection<Repository.CommentFliteringRepository.FilteringCommentTextKeyword>(CommentFiltering.GetAllFilteringCommentTextCondition());
+            Observable.FromEventPattern<CommentFiltering.FilteringCommentTextKeywordEventArgs>(
+                h => CommentFiltering.FilterKeywordAdded += h,
+                h => CommentFiltering.FilterKeywordAdded -= h
+                )
+                .Subscribe(args => 
                 {
-                    var keywords = x.Split('\r');
-                    var invalidRegex = keywords.FirstOrDefault(keyword =>
-                    {
-                        Regex regex = null;
-                        try
-                        {
-                            regex = new Regex(keyword);
-                        }
-                        catch { }
-                        return regex == null;
-                    });
-
-                    if (invalidRegex == null)
-                    {
-                        return string.Empty;
-                    }
-                    else
-                    {
-                        return $"Error in \"{invalidRegex}\"";
-                    }
+                    FilteringKeywords.Add(args.EventArgs.FilterKeyword);
                 })
-                .ToReadOnlyReactiveProperty(eventScheduler: _scheduler)
-            .AddTo(_CompositeDisposable);
+                .AddTo(_CompositeDisposable);
 
-            NGCommentKeywords.Value = string.Join("\r", PlayerSettings.NGCommentKeywords.Select(x => x.Keyword)) + "\r";
-            NGCommentKeywords.Throttle(TimeSpan.FromSeconds(3))
-                .Subscribe(_ =>
+            Observable.FromEventPattern<CommentFiltering.FilteringCommentTextKeywordEventArgs>(
+                h => CommentFiltering.FilterKeywordRemoved += h,
+                h => CommentFiltering.FilterKeywordRemoved -= h
+                )
+                .Subscribe(args =>
                 {
-                    PlayerSettings.NGCommentKeywords.Clear();
-                    foreach (var ngKeyword in NGCommentKeywords.Value.Split('\r'))
-                    {
-                        if (!string.IsNullOrWhiteSpace(ngKeyword))
-                        {
-                            PlayerSettings.NGCommentKeywords.Add(new NGKeyword() { Keyword = ngKeyword });
-                        }
-                    }
+                    FilteringKeywords.Remove(args.EventArgs.FilterKeyword);
+                })
+                .AddTo(_CompositeDisposable);
+
+            // 
+            VideoCommentTransformConditions = new ObservableCollection<Repository.CommentFliteringRepository.CommentTextTransformCondition>(CommentFiltering.GetTextTranformConditions());
+            Observable.FromEventPattern<CommentFiltering.CommentTextTranformConditionChangedArgs>(
+                h => CommentFiltering.TransformConditionAdded += h,
+                h => CommentFiltering.TransformConditionAdded -= h
+                )
+                .Subscribe(args =>
+                {
+                    VideoCommentTransformConditions.Add(args.EventArgs.TransformCondition);
+                })
+                .AddTo(_CompositeDisposable);
+
+            Observable.FromEventPattern<CommentFiltering.CommentTextTranformConditionChangedArgs>(
+                h => CommentFiltering.TransformConditionRemoved += h,
+                h => CommentFiltering.TransformConditionRemoved -= h
+                )
+                .Subscribe(args =>
+                {
+                    VideoCommentTransformConditions.Remove(args.EventArgs.TransformCondition);
                 })
                 .AddTo(_CompositeDisposable);
         }
 
-        public ReactiveProperty<bool> IsLowLatency { get; private set; }
+        private void CommentFiltering_FilterKeywordAdded(object sender, CommentFiltering.FilteringCommentTextKeywordEventArgs e)
+        {
+            throw new NotImplementedException();
+        }
 
-        // NG Comments
-
-        public ReactiveProperty<bool> NGCommentKeywordEnable { get; private set; }
-        public ReactiveProperty<string> NGCommentKeywords { get; private set; }
-        public ReadOnlyReactiveProperty<string> NGCommentKeywordError { get; private set; }
+        public ObservableCollection<Repository.CommentFliteringRepository.FilteringCommentTextKeyword> FilteringKeywords { get; }
+        public ObservableCollection<Repository.CommentFliteringRepository.CommentTextTransformCondition> VideoCommentTransformConditions { get; }
 
 
         public PlayerSettings PlayerSettings { get; }
 
+        public CommentFiltering CommentFiltering { get; }
         private readonly IScheduler _scheduler;
         
         protected override void OnDispose()

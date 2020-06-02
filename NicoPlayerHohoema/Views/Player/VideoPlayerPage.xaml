@@ -109,7 +109,7 @@
       </templateselector:PlayerSidePaneContentTemplateSelecter.Playlist>
       <templateselector:PlayerSidePaneContentTemplateSelecter.Comments>
         <DataTemplate>
-          <local:LiveCommentsSidePaneContent />
+          <local:VideoCommentSidePaneContent />
         </DataTemplate>
       </templateselector:PlayerSidePaneContentTemplateSelecter.Comments>
       <templateselector:PlayerSidePaneContentTemplateSelecter.Settings>
@@ -229,7 +229,7 @@
               </i:Interaction.Behaviors>
             </MediaPlayerElement>
             <!-- コメント表示 -->
-            <local:CommentRenderer x:Name="CommentRederer" MediaPlayer="{Binding MediaPlayer}" Comments="{Binding CommentPlayer.Comments}" Visibility="{Binding PlayerSettings.IsCommentDisplay_Video, Converter={StaticResource BooleanToVisibility}}" CommentSizeScale="{Binding PlayerSettings.DefaultCommentFontScale}" CommentDefaultColor="{Binding PlayerSettings.CommentColor}" DefaultDisplayDuration="{Binding PlayerSettings.CommentDisplayDuration}" Opacity="{Binding PlayerSettings.CommentOpacity, Mode=OneWay}" UpdateInterval="0:0:0.032" PlayerSettings="{Binding PlayerSettings}" />
+            <local:CommentRenderer x:Name="CommentRederer" MediaPlayer="{Binding MediaPlayer}" Comments="{Binding CommentPlayer.DisplayingComments}" Visibility="{Binding PlayerSettings.IsCommentDisplay_Video, Converter={StaticResource BooleanToVisibility}}" CommentSizeScale="{Binding PlayerSettings.DefaultCommentFontScale}" CommentDefaultColor="{Binding PlayerSettings.CommentColor}" DefaultDisplayDuration="{Binding PlayerSettings.CommentDisplayDuration}" Opacity="{Binding PlayerSettings.CommentOpacity, Mode=OneWay}" />
             <!-- 読み込み中表示 -->
             <ProgressRing Visibility="{Binding ObservableMediaPlayer.NowBuffering.Value, Mode=OneWay, Converter={StaticResource BooleanToVisibility}}" IsActive="{Binding ObservableMediaPlayer.NowBuffering.Value, Mode=OneWay}" Width="48" Height="48" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0 88 24 0" />
             <!-- ウィンドウ非アクティブ時に画面全体をマウス移動の反応対象にするためのコリジョン-->
@@ -575,6 +575,9 @@
                     </StackPanel>
                     <!-- Settings etc -->
                     <toolkit:WrapPanel Orientation="Horizontal" Grid.Column="2" HorizontalAlignment="Right" VerticalAlignment="Center">
+                      <Button x:Name="OpenCommentListButton" Background="Transparent" Command="{x:Bind SelectSidePaneCommand}" CommandParameter="Comment">
+                        <iconPack:PackIconMaterial Kind="Comment" Width="24" Height="24"></iconPack:PackIconMaterial>
+                      </Button>
                       <Button x:Name="OpenPlaylistButton" Background="Transparent" Command="{x:Bind SelectSidePaneCommand}" CommandParameter="Playlist">
                         <iconPack:PackIconMaterial Kind="PlaylistPlay" Width="24" Height="24"></iconPack:PackIconMaterial>
                       </Button>
@@ -1298,6 +1301,22 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
+      
+      
+      <!-- サイドペインの内容毎の表示切替 -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind SidePaneType, Mode=OneWay}" EqualTo="Comment" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="PlayerSplitView.DisplayMode" Value="Inline" />
+            <Setter Target="PlayerSplitView.PaneBackground" Value="{ThemeResource AppBarBackgroundThemeBrush}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
     </VisualStateManager.VisualStateGroups>
+    
+    
   </Grid>
 </Page>

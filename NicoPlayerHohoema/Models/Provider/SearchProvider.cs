@@ -1,11 +1,14 @@
 ﻿using Mntone.Nico2;
+using Mntone.Nico2.Searches;
 using Mntone.Nico2.Searches.Community;
+using Mntone.Nico2.Searches.Live;
 using Mntone.Nico2.Searches.Mylist;
 using Mntone.Nico2.Searches.Video;
 using NicoPlayerHohoema.Repository.Playlist;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -46,28 +49,20 @@ namespace NicoPlayerHohoema.Models.Provider
             
         }
 
-        public async Task<Mntone.Nico2.Searches.Live.NicoliveVideoResponse> LiveSearchAsync(
-            string word,
-            bool isTagSearch,
-            Mntone.Nico2.Live.CommunityType? provider = null,
-            uint from = 0,
-            uint length = 30,
-            Order? order = null,
-            Mntone.Nico2.Searches.Live.NicoliveSearchSort? sort = null,
-            Mntone.Nico2.Searches.Live.NicoliveSearchMode? mode = null
+        public async Task<Mntone.Nico2.Searches.Live.LiveSearchResponse> LiveSearchAsync(
+            string q,
+            int offset,
+            int limit,
+            SearchTargetType targets = SearchTargetType.All,
+            LiveSearchFieldType fields = LiveSearchFieldType.All,
+            LiveSearchSortType sortType = LiveSearchSortType.StartTime | LiveSearchSortType.SortDecsending,
+            Expression<Func<SearchFilterField, bool>> filterExpression = null
             )
         {
             return await ContextActionWithPageAccessWaitAsync(async context =>
             {
                 return await context.Search.LiveSearchAsync(
-                word,
-                isTagSearch,
-                provider,
-                from,
-                length,
-                order,
-                sort,
-                mode
+                    q, offset, limit, targets, fields, sortType, filterExpression
                 );
 
             });

@@ -22,17 +22,17 @@
 
       
       <TextBlock Opacity="0.6" FontSize="12">
-         <Run Text="{x:Bind CacheRequest.CacheState, Converter={StaticResource LocalizeConverter}, Mode=OneWay}" /> <Run Text="{x:Bind CacheRequest.PriorityQuality, Converter={StaticResource LocalizeConverter}, Mode=OneWay}" />
+         <Run Text="{Binding CacheRequest.CacheState, Converter={StaticResource LocalizeConverter}}" /> <Run Text="{Binding CacheRequest.PriorityQuality, Converter={StaticResource LocalizeConverter}}" />
       </TextBlock>
 
       <StackPanel Orientation="Horizontal" Spacing="8" x:Name="CacheProgressLayout" Visibility="Collapsed">
         <TextBlock x:Name="CacheProgressPercentage" Opacity="0.75" FontSize="12">
-          <Run Text="{x:Bind DownloadProgress, Mode=OneWay, Converter={StaticResource ToUserFriendlySoubleVolume}}" />%
+          <Run Text="{Binding DownloadProgress, Converter={StaticResource ToUserFriendlySoubleVolume}}" />%
         </TextBlock>
         <ProgressBar x:Name="CacheProgressBar" 
                      Maximum="1.0"
                    Minimum="0.0"
-                   Value="{x:Bind DownloadProgress, Mode=OneWay}"
+                   Value="{Binding DownloadProgress}"
                    Width="120"
                      IsIndeterminate="False"
                    />
@@ -151,7 +151,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{x:Bind IsInitialized, Mode=OneWay,Converter={StaticResource BoolNegation}}" />
+            <StateTrigger IsActive="{Binding IsInitialized, Mode=OneWay,Converter={StaticResource BoolNegation}}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="UserControlRoot.Opacity"
@@ -163,7 +163,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsStateTrigger:EqualsStateTrigger Value="{x:Bind CacheRequest, Mode=OneWay}" EqualTo="{x:Null}" />
+            <windowsStateTrigger:EqualsStateTrigger Value="{Binding CacheRequest}" EqualTo="{x:Null}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CacheStatusLayout.Visibility" Value="Collapsed" />
@@ -174,7 +174,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{x:Bind IsWatched, Mode=OneWay}" />
+            <StateTrigger IsActive="{Binding IsWatched}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="LabelTextBlock.Opacity" Value="0.6" />
@@ -185,7 +185,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{x:Bind IsProgressUnknown, Mode=OneWay}" />
+            <StateTrigger IsActive="{Binding IsProgressUnknown}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CacheProgressLayout.Visibility" Value="Visible" />
@@ -195,7 +195,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{x:Bind HasCacheProgress, Mode=OneWay}" />
+            <StateTrigger IsActive="{Binding HasCacheProgress}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CacheProgressLayout.Visibility" Value="Visible" />
@@ -220,7 +220,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsStateTrigger:NotEqualStateTrigger Value="{x:Bind VideoHiddenInfo, Mode=OneWay}" NotEqualTo="{x:Null}" />
+            <windowsStateTrigger:NotEqualStateTrigger Value="{Binding VideoHiddenInfo, Mode=OneWay}" NotEqualTo="{x:Null}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="HiddenVideoOwnerLayout.Opacity"
