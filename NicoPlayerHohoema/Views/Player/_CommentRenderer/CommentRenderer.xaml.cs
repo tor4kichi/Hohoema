@@ -245,29 +245,7 @@ namespace NicoPlayerHohoema.Views
 
                     PlaybackState = sender?.PlaybackState ?? null;
 
-                    if (PlaybackState == MediaPlaybackState.Paused)
-                    {
-                        var frame = GetRenderFrameData();
-                        foreach (var renderComment in CommentCanvas.Children.Cast<CommentUI>())
-                        {
-                            if (renderComment.DisplayMode == CommentDisplayMode.Scrolling)
-                            {
-                                // 現在時間での横位置を求める
-                                // lerp 現在時間における位置の比率
-                                //var val = renderComment.GetPosition(frame.CanvasWidth, frame.CurrentVpos);
-                                //if (val.HasValue)
-                                //{
-                                //    renderComment.Offset((float)val.Value, duration: 0).Start();
-                                //}
-
-                                if (_animationSetMap.TryGetValue(renderComment.DataContext as Comment, out var anim))
-                                {
-                                    anim.Stop();
-                                }
-                            }
-                        }
-                    }
-                    else
+                    if (PlaybackState == MediaPlaybackState.Playing)
                     {
                         var frame = GetRenderFrameData();
                         foreach (var renderComment in CommentCanvas.Children.Cast<CommentUI>())
@@ -290,6 +268,28 @@ namespace NicoPlayerHohoema.Views
                                         );
                                     anim.Start();
                                     _animationSetMap.Add(comment, anim);
+                                }
+                            }
+                        }
+                    }
+                    else
+                    {
+                        var frame = GetRenderFrameData();
+                        foreach (var renderComment in CommentCanvas.Children.Cast<CommentUI>())
+                        {
+                            if (renderComment.DisplayMode == CommentDisplayMode.Scrolling)
+                            {
+                                // 現在時間での横位置を求める
+                                // lerp 現在時間における位置の比率
+                                //var val = renderComment.GetPosition(frame.CanvasWidth, frame.CurrentVpos);
+                                //if (val.HasValue)
+                                //{
+                                //    renderComment.Offset((float)val.Value, duration: 0).Start();
+                                //}
+
+                                if (_animationSetMap.TryGetValue(renderComment.DataContext as Comment, out var anim))
+                                {
+                                    anim.Stop();
                                 }
                             }
                         }
