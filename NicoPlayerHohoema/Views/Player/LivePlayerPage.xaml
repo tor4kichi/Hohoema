@@ -473,22 +473,22 @@
                       <ColumnDefinition Width="1*" />
                       <ColumnDefinition Width="1*" />
                     </Grid.ColumnDefinitions>
-                    <TextBox x:Name="CommentTextBox" Style="{StaticResource BGTransparentTextBoxStyle}" FontSize="18" VerticalAlignment="Center" MaxLength="75" IsTabStop="True" toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True" PlaceholderText="コメント" HorizontalAlignment="Stretch" Margin="8 0 8 8" HorizontalContentAlignment="Stretch" Height="40" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="4">
+                    <TextBox x:Name="CommentTextBox" Text="{Binding CommentSubmitText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BGTransparentTextBoxStyle}" FontSize="18" VerticalAlignment="Center" MaxLength="75" IsTabStop="True" toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True" PlaceholderText="コメント" HorizontalAlignment="Stretch" Margin="8 0 8 8" HorizontalContentAlignment="Stretch" Height="40" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="4">
                       <i:Interaction.Behaviors>
                         <!-- コメントの書き込み-->
-                        <mybehavior:KeyboardTrigger Key="Escape" OnlyWhenFocus="{x:Bind CommentTextBox}">
-                          <mybehavior:KeyboardTrigger.Actions>
-                            <mybehavior:SetFocus TargetObject="{x:Bind PlayPauseToggleButton}" />
-                          </mybehavior:KeyboardTrigger.Actions>
-                        </mybehavior:KeyboardTrigger>
                         <mybehavior:KeyboardTrigger Key="Enter" OnlyWhenFocus="{x:Bind CommentTextBox}">
                           <mybehavior:KeyboardTrigger.Actions>
                             <core:InvokeCommandAction Command="{Binding CommentSubmitCommand}" CommandParameter="{x:Bind CommentTextBox.Text, Mode=OneWay}" />
                           </mybehavior:KeyboardTrigger.Actions>
                         </mybehavior:KeyboardTrigger>
+                        <mybehavior:KeyboardTrigger Key="Escape" OnlyWhenFocus="{x:Bind CommentTextBox}">
+                          <mybehavior:KeyboardTrigger.Actions>
+                            <mybehavior:SetFocus TargetObject="{x:Bind PlayPauseToggleButton}" />
+                          </mybehavior:KeyboardTrigger.Actions>
+                        </mybehavior:KeyboardTrigger>
                       </i:Interaction.Behaviors>
                     </TextBox>
-                    <Button Content="{x:Bind CommandEditer.CommandString, Mode=OneWay}" Margin="0 0 8 8" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" DataContext="{Binding}" x:Name="CommentCommandEditButton" Height="40" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="1">
+                    <Button Content="{Binding CommandString.Value, Mode=OneWay}" Margin="0 0 8 8" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" DataContext="{Binding}" x:Name="CommentCommandEditButton" Height="40" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="1">
                       <Button.Flyout>
                         <Flyout x:Name="CommandEditerFlyout">
                           <local:CommentCommandEditer x:Name="CommandEditer" CommandString="{Binding CommandString.Value, Mode=TwoWay}" />
@@ -826,9 +826,21 @@
             <myTrigger:FocusTrigger Target="{x:Bind CommentTextBox}" />
             <StateTrigger IsActive="{Binding ElementName=PlayerSplitView, Path=IsPaneOpen}" />
             <myTrigger:WindowInWindowViewModeTrigger />
+            <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{x:Bind CommandEditerFlyout}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CommentWriteBeginKeyboardTrigger.IsEnabled" Value="False" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      <!-- コメント送信中のテキスト入力防止 -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding NowCommentSubmitting.Value}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="CommentTextBox.IsEnabled" Value="False" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
