@@ -172,16 +172,11 @@ namespace NicoPlayerHohoema.Models.Live
             var data = (JObject)param["data"];
             switch (type)
             {
-                case "servertime":
-
-                    var paramItems = (JArray)data["params"];
-                    var serverTimeString = paramItems[0].ToString();
-                    var serverTimeTick = long.Parse(serverTimeString);
-                    var serverTime = DateTime.FromBinary(serverTimeTick);
+                case "serverTime":
+                    var serverTime = DateTime.Parse((string)data["currentMs"]);
                     RecieveServerTime?.Invoke(serverTime);
                     break;
                 case "stream":
-
                     var currentStreamArgs = new Live2CurrentStreamEventArgs()
                     {
                         Uri = (string)data["uri"],
