@@ -1068,12 +1068,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <logicalTrigger:MultiTrigger>
-              <logicalTrigger:MultiTrigger.Triggers>
-                <hardTrigger:DeviceFamilyTrigger Condition="Desktop" />
-                <intractionTrigger:InteractionModeTrigger Condition="Mouse" />
-              </logicalTrigger:MultiTrigger.Triggers>
-            </logicalTrigger:MultiTrigger>
+            <windowsTrigger:DeviceFamilyStateTrigger DeviceFamily="Desktop" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="TitleBarMarginLayout.Visibility" Value="Visible" />
