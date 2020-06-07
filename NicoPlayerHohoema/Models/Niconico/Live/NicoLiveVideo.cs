@@ -569,7 +569,7 @@ namespace NicoPlayerHohoema.Models.Live
                                 var removeComments = DisplayingComments.Where(x => x.VideoPosition < commentHiddenPositionVpos).ToArray();
                                 if (removeComments.Any())
                                 {
-                                    DisplayingComments.RemoveRange(removeComments);
+                                    DisplayingComments.RemoveRange(removeComments, System.Collections.Specialized.NotifyCollectionChangedAction.Remove);
                                 }
                             }
                         });
