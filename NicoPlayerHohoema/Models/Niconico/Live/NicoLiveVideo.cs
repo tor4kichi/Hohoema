@@ -296,6 +296,7 @@ namespace NicoPlayerHohoema.Models.Live
                 _CommunityId = props.SocialGroup.Id;
 
                 LiveTitle = props.Program.Title;
+                RaisePropertyChanged(nameof(LiveTitle));
                 BroadcasterId = props.Program.BroadcastId ?? props.SocialGroup.Id;
                 BroadcasterName = props.SocialGroup.Name;
                 BroadcasterCommunityType = props.SocialGroup.Type switch 
