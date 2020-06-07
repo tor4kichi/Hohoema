@@ -811,13 +811,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 			LiveStatusType? liveStatus = null;
 			try
-			{
-                await NicoLiveVideo.UpdateLiveStatus();
-                
+			{                
 				if (NicoLiveVideo != null)
 				{
-					_StartAt = NicoLiveVideo.StartTime.Value;
-					_EndAt = NicoLiveVideo.EndTime.Value;
+					_StartAt = NicoLiveVideo.StartTime;
+					_EndAt = NicoLiveVideo.EndTime;
 				}
 				else
 				{
