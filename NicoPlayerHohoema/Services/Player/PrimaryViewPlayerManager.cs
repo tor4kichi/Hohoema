@@ -106,7 +106,7 @@ namespace NicoPlayerHohoema.Services.Player
                 if (parameters.TryGetValue("id", out string liveId))
                 {
                     var liveData = Database.NicoLiveDb.Get(liveId);
-                    return liveData.Title;
+                    return liveData?.Title;
                 }
             }
 

@@ -28,12 +28,11 @@ namespace NicoPlayerHohoema.Models.Live
     public class Live2CurrentStreamEventArgs
     {
         public string Uri { get; set; }
-        public string Name { get; set; }
         public string Quality { get; set; }
-        public string[] QualityTypes { get; set; }
+        public string[] AvailableQualities { get; set; }
         public string MediaServerType { get; set; }
         public string MediaServerAuth { get; set; }
-        public string StreamingProtocol { get; set; }
+        public string Protocol { get; set; }
     }
 
     public class Live2CurrentRoomEventArgs
@@ -42,16 +41,16 @@ namespace NicoPlayerHohoema.Models.Live
         public string MessageServerType { get; set; }
         public string RoomName { get; set; }
         public string ThreadId { get; set; }
-        public int[] Forks { get; set; }
-        public int[] ImportedForks { get; set; }
+        public bool IsFirst { get; set; }
+        public string WaybackKey { get; set; }
     }
 
     public class Live2StatisticsEventArgs
     {
         public long ViewCount { get; set; }
         public long CommentCount { get; set; }
-        public long Count_3 { get; set; }
-        public long Count_4 { get; set; }
+        public long AdPoints { get; set; }
+        public long GiftPoints { get; set; }
     }
 
     public class Live2ScheduleEventArgs
@@ -72,11 +71,9 @@ namespace NicoPlayerHohoema.Models.Live
         private bool _IsWatchWithTimeshift => Props?.Program.Status == "ENDED";
 
         public event LiveStreamRecieveServerTimeHandler RecieveServerTime;
-        public event LiveStreamRecievePermitHandler RecievePermit;
         public event LiveStreamRecieveCurrentStreamHandler RecieveCurrentStream;
         public event LiveStreamRecieveCurrentRoomHandler RecieveCurrentRoom;
         public event LiveStreamRecieveStatisticsHandler RecieveStatistics;
-        public event LiveStreamRecieveWatchIntervalHandler RecieveWatchInterval;
         public event LiveStreamRecieveScheduleHandler RecieveSchedule;
         public event LiveStreamRecieveDisconnectHandler RecieveDisconnect;
 
@@ -111,10 +108,8 @@ namespace NicoPlayerHohoema.Models.Live
                 requestQuality = "high";
             }
 
-
-            var getpermitCommandText = $@"{{""type"":""watch"",""body"":{{""command"":""getpermit"",""requirement"":{{""broadcastId"":""{broadcastId}"",""route"":"""",""stream"":{{""protocol"":""hls"",""requireNewStream"":true,""priorStreamQuality"":""{requestQuality}"", ""isLowLatency"":{isLowLatency.ToString().ToLower()}}},""room"":{{""isCommentable"":true,""protocol"":""webSocket""}}}}}}}}";
-            //var getpermitCommandText = $"{{\"type\":\"watch\",\"body\":{{\"params\":[\"{Props.BroadcastId}\",\"\",\"true\",\"hls\",\"\"],\"command\":\"getpermit\"}}}}";
-            await SendMessageAsync(getpermitCommandText);
+            var startWatchingCommandText = $@"{{""type"":""startWatching"",""data"":{{""stream"":{{""quality"":""{requestQuality}"",""protocol"":""hls"",""latency"":""{(isLowLatency ? "low" : "high")}"",""chasePlay"":false}},""room"":{{""protocol"":""webSocket"",""commentable"":true}},""reconnect"":false}}}}";
+            await SendMessageAsync(startWatchingCommandText);
         }
 
         private async Task SendMessageAsync(string message)
@@ -139,13 +134,7 @@ namespace NicoPlayerHohoema.Models.Live
 
         public Task SendChangeQualityMessageAsync(string quality, bool isLowLatency = true)
         {
-            // qualityは
-            // abr = 自動
-            // normal = 1M
-            // low = 384k
-            // super_low = 192k
-            // の4種類
-            var message = $"{{\"type\":\"watch\",\"body\":{{\"command\":\"getstream\",\"requirement\":{{\"protocol\":\"hls\",\"quality\":\"{quality}\",\"isLowLatency\":{isLowLatency.ToString().ToLower()}}}}}}}";
+            var message = $"{{\"type\":\"changeStream\",\"data\":{{\"quality\":\"{quality}\",\"protocol\":\"hls\",\"latency\":\"{(isLowLatency ? "low" : "high")}\",\"chasePlay\":false}}}}";
             return SendMessageAsync(message);
         }
 
@@ -180,108 +169,78 @@ namespace NicoPlayerHohoema.Models.Live
             var param = (JObject)Newtonsoft.Json.JsonConvert.DeserializeObject(recievedText);
 
             var type = (string)param["type"];
-            if (type == "watch")
+            var data = (JObject)param["data"];
+            switch (type)
             {
-                var body = (JObject)param["body"];
-                var command = (string)body["command"];
-                switch (command)
-                {
-                    case "servertime":
-                        
-                        var paramItems = (JArray)body["params"];
-                        var serverTimeString = paramItems[0].ToString();
-                        var serverTimeTick = long.Parse(serverTimeString);
-                        var serverTime = DateTime.FromBinary(serverTimeTick);
-                        RecieveServerTime?.Invoke(serverTime);
-                        break;
-                    case "permit":
-                        var permit = (string)(((JArray)body["params"])[0]);
-                        RecievePermit?.Invoke(permit);
-                        break;
-                    case "currentstream":
+                case "serverTime":
+                    var serverTime = DateTime.Parse((string)data["currentMs"]);
+                    RecieveServerTime?.Invoke(serverTime);
+                    break;
+                case "stream":
+                    var currentStreamArgs = new Live2CurrentStreamEventArgs()
+                    {
+                        Uri = (string)data["uri"],
+                        Quality = (string)data["quality"],
+                        AvailableQualities = ((JArray)data["availableQualities"]).Select(x => x.ToString()).ToArray(),
+                        Protocol = (string)data["protocol"]
+                    };
+                    RecieveCurrentStream?.Invoke(currentStreamArgs);
+                    break;
+                case "room":
+                    var messageServer = (JObject)data["messageServer"];
+                    var currentRoomArgs = new Live2CurrentRoomEventArgs()
+                    {
+                        MessageServerUrl = (string)messageServer["uri"],
+                        MessageServerType = (string)messageServer["type"],
+                        RoomName = (string)data["name"],
+                        ThreadId = (string)data["threadId"],
+                        IsFirst = (bool)data["isFirst"],
+                        WaybackKey = (string)data["waybackkey"]
+                    };
+                    RecieveCurrentRoom?.Invoke(currentRoomArgs);
+                    break;
+                case "seat":
+                    var intervalSec = (int)data["keepIntervalSec"];
+                    WatchingHeartbaetTimer?.Dispose();
+                    WatchingHeartbaetTimer = new Timer((state) =>
+                    {
+                        _= SendMessageAsync(@"{""type"":""keepSeat""}");
+                    }
+                    , null, TimeSpan.FromSeconds(intervalSec), TimeSpan.FromSeconds(intervalSec)
+                    );
+                    break;
+                case "statistics":
+                    var statisticsArgs = new Live2StatisticsEventArgs()
+                    {
+                        ViewCount = data.TryGetValue("viewers", out var viewers) ? (int)viewers : 0,
+                        CommentCount = data.TryGetValue("comments", out var comments) ? (int)comments : 0,
+                        AdPoints = data.TryGetValue("adPoints", out var adPoint) ? (int)adPoint : 0,
+                        GiftPoints = data.TryGetValue("giftPoints", out var giftPoints) ? (int)giftPoints : 0,
+                    };
+                    RecieveStatistics?.Invoke(statisticsArgs);
+                    break;
+                case "schedule":
+                    var scheduleArgs = new Live2ScheduleEventArgs()
+                    {
+                        BeginTime = DateTime.Parse((string)data["begin"]),
+                        EndTime = DateTime.Parse((string)data["end"]),
+                    };
+                    RecieveSchedule?.Invoke(scheduleArgs);
+                    break;
+                case "disconnect":
+                    // "END_PROGRAM" "TAKEOVER"(追い出し) など
+                    var endReason = (string)data["reason"];
+                    RecieveDisconnect?.Invoke();
+                    break;
+                case "postkey":
+                    var postKey = (string)data["value"];
+                    //var expireAt = DateTime.Parse((string)data["expireAt"]);
 
-                        var current_stream = (JObject)body["currentStream"];
-                        var currentStreamArgs = new Live2CurrentStreamEventArgs()
-                        {
-                            Uri = (string)current_stream["uri"],
-                            Quality = (string)current_stream["quality"],
-                            QualityTypes = ((JArray)current_stream["qualityTypes"]).Select(x => x.ToString()).ToArray(),
-                            MediaServerType = (string)current_stream["mediaServerType"],
-                            //MediaServerAuth = (string)current_stream["mediaServerAuth"],
-                            StreamingProtocol = (string)current_stream["streamingProtocol"]
-                        };
-                        if (current_stream.TryGetValue("name", out var name))
-                        {
-                            currentStreamArgs.Name = (string)name;
-                        }
-                        RecieveCurrentStream?.Invoke(currentStreamArgs);
-                        break;
-                    case "currentroom":
-                        var room = (JObject)body["room"];
-                        var currentRoomArgs = new Live2CurrentRoomEventArgs()
-                        {
-                            MessageServerUrl = (string)room["messageServerUri"],
-                            MessageServerType = (string)room["messageServerType"],
-                            RoomName = (string)room["roomName"],
-                            ThreadId = (string)room["threadId"],
-                            Forks = ((JArray)room["forks"]).Select(x => (int)x).ToArray(),
-                            ImportedForks = ((JArray)room["importedForks"]).Select(x => (int)x).ToArray()
-                        };
-                        RecieveCurrentRoom?.Invoke(currentRoomArgs);
-                        break;
-                    case "statistics":
-                        var countItems = ((JArray)body["params"])
-                            .Select(x => x.ToString())
-                            .Select(x => long.TryParse(x, out var result) ? result : 0)
-                            .ToArray();
-                        var statisticsArgs = new Live2StatisticsEventArgs()
-                        {
-                            ViewCount = countItems[0],
-                            CommentCount = countItems[1],
-                            Count_3 = countItems[2],
-                            Count_4 = countItems[3],
-                        };
-                        RecieveStatistics?.Invoke(statisticsArgs);
-                        break;
-                    case "watchinginterval":
-                        var timeString = ((JArray)body["params"]).Select(x => x.ToString()).ToArray()[0];
-                        var time = TimeSpan.FromSeconds(long.Parse(timeString));
-                        RecieveWatchInterval?.Invoke(time);
-
-                        WatchingHeartbaetTimer = new Timer((state) => 
-                        {
-                            SendMessageAsync($"{{\"type\":\"watch\",\"body\":{{\"command\":\"watching\",\"params\":[\"{Props.Program.BroadcastId}\",\"-1\",\"0\"]}}}}").ConfigureAwait(false);
-                        }
-                        , null, time, time
-                        );
-                        break;
-                    case "schedule":
-                        var updateParam = (JObject)body["update"];
-                        var scheduleArgs = new Live2ScheduleEventArgs()
-                        {
-                            BeginTime = DateTime.FromBinary((long)updateParam["begintime"]),
-                            EndTime = DateTime.FromBinary((long)updateParam["endtime"]),
-                        };
-                        RecieveSchedule?.Invoke(scheduleArgs);
-                        break;
-                    case "disconnect":
-                        var disconnectParams = ((JArray)body["params"]).Select(x => x.ToString()).ToArray();
-                        var endtimeString = disconnectParams[0];
-                        var endTime = DateTime.FromBinary(long.Parse(endtimeString));
-                        var endReason = disconnectParams[1];
-                        RecieveDisconnect?.Invoke();
-                        break;
-                    case "postkey":
-                        var postkeyParams = ((JArray)body["params"]).Select(x => x.ToString()).ToArray();
-                        var postKey = postkeyParams[0];
-
-                        _Postkey = postKey;
-                        break;
-                }
-            }
-            else if (type == "ping")
-            {
-                await SendMessageAsync("{\"type\":\"pong\",\"body\":{}}");
+                    _Postkey = postKey;
+                    break;
+                case "ping":
+                    await SendMessageAsync("{\"type\":\"pong\"}");
+                    break;
             }
         }
 
@@ -310,7 +269,7 @@ namespace NicoPlayerHohoema.Models.Live
         {
             _Postkey = null;
             await SendMessageAsync(
-                $"{{\"type\":\"watch\",\"body\":{{\"command\":\"getpostkey\",\"params\":[\"{threadId}\"]}}}}"
+                $"{{\"type\":\"getPostkey\"}}"
                 );
 
             using (var cancelToken = new CancellationTokenSource(1000))

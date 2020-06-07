@@ -267,7 +267,7 @@ namespace NicoPlayerHohoema.Views.Behaviors
 			{
                 foreach (var action in this.Actions.Cast<IAction>())
                 {
-                    var result = action.Execute(this, args);
+                    var result = action.Execute(this, null);
                     if (result is bool)
                     {
                         var isExecuted = (bool)result;

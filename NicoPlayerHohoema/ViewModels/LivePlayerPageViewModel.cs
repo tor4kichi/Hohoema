@@ -24,8 +24,10 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Reactive;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
+using System.Reactive.Subjects;
 using System.Threading;
 using System.Threading.Tasks;
 using Unity;
@@ -195,8 +197,11 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(_CompositeDisposable);
 
             // post comment
-
-            CommandString = new ReactiveProperty<string>(_scheduler, "").AddTo(_CompositeDisposable);
+            _SuccessPostCommentSubject = new BehaviorSubject<Unit>(Unit.Default);
+            SuccessPostCommentSubject = _SuccessPostCommentSubject
+                .ToReadOnlyReactiveProperty(mode: ReactivePropertyMode.None, eventScheduler: _scheduler)
+                .AddTo(_CompositeDisposable);
+            CommandString = new ReactiveProperty<string>(_scheduler, PlayerSettings.IsDefaultCommentWithAnonymous ? "184" : "").AddTo(_CompositeDisposable);
 
 
 
@@ -481,13 +486,18 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReadOnlyReactiveProperty<double> CommentOpacity { get; private set; }
 
-        
+
 
         // post comment
+        ISubject<Unit> _SuccessPostCommentSubject { get; }
+        public IReadOnlyReactiveProperty<Unit> SuccessPostCommentSubject { get; }
 		public CommentCommandEditerViewModel CommandEditerVM { get; private set; }
 		public ReactiveProperty<string> CommandString { get; private set; }
+        public ReactiveProperty<string> CommentSubmitText { get; private set; }
+        public ReactiveProperty<bool> NowCommentSubmitting { get; private set; }
 
-		public AsyncReactiveCommand<string> CommentSubmitCommand { get; private set; }
+
+        public AsyncReactiveCommand<string> CommentSubmitCommand { get; private set; }
 
         public Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView FilterdComments { get; } = new Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView();
 
@@ -645,20 +655,30 @@ namespace NicoPlayerHohoema.ViewModels
                 CommunityId = NicoLiveVideo.BroadcasterCommunityId;
 
                 // post comment 
+                NowCommentSubmitting = new ReactiveProperty<bool>(_scheduler, false)
+                    .AddTo(_CompositeDisposable);
+                CommentSubmitText = new ReactiveProperty<string>(_scheduler, null, mode: ReactivePropertyMode.DistinctUntilChanged)
+                    .AddTo(_CompositeDisposable);
+
                 CommentSubmitCommand = Observable.CombineLatest(
-                    NicoLiveVideo.ObserveProperty(x => x.CanPostComment)
+                    NicoLiveVideo.ObserveProperty(x => x.CanPostComment),
+                    CommentSubmitText.Select(x => x != null && x.Length > 0),
+                    NowCommentSubmitting.Select(x => !x)
                     )
                     .Select(x => x.All(y => y))
                     .ToAsyncReactiveCommand<string>()
                     .AddTo(_CompositeDisposable);
 
-                CommentSubmitCommand.Subscribe(async x =>
+                CommentSubmitCommand.Subscribe(async _ =>
                 {
-                    if (string.IsNullOrWhiteSpace(x)) { return; }
+                    var text = CommentSubmitText.Value;
+                    if (string.IsNullOrWhiteSpace(text)) { return; }
+
+                    NowCommentSubmitting.Value = true;
 
                     if (NicoLiveVideo != null)
                     {
-                        await NicoLiveVideo.PostComment(x, CommandString.Value, LiveElapsedTime);
+                        await NicoLiveVideo.PostComment(text, CommandString.Value, LiveElapsedTime);
                     }
                 })
                 .AddTo(_CompositeDisposable);
@@ -772,6 +792,11 @@ namespace NicoPlayerHohoema.ViewModels
             {                
                 await NicoLiveVideo.StartLiveWatchingSessionAsync();
 
+                LiveTitle = NicoLiveVideo.LiveTitle;
+                _OpenAt = NicoLiveVideo.OpenTime;
+                _StartAt = NicoLiveVideo.StartTime;
+                _EndAt = NicoLiveVideo.EndTime;
+
                 IsWatchWithTimeshift.Value = NicoLiveVideo.IsWatchWithTimeshift;
 
                 if (!IsWatchWithTimeshift.Value)
@@ -811,13 +836,11 @@ namespace NicoPlayerHohoema.ViewModels
 
 			LiveStatusType? liveStatus = null;
 			try
-			{
-                await NicoLiveVideo.UpdateLiveStatus();
-                
+			{                
 				if (NicoLiveVideo != null)
 				{
-					_StartAt = NicoLiveVideo.StartTime.Value;
-					_EndAt = NicoLiveVideo.EndTime.Value;
+					_StartAt = NicoLiveVideo.StartTime;
+					_EndAt = NicoLiveVideo.EndTime;
 				}
 				else
 				{
@@ -889,9 +912,11 @@ namespace NicoPlayerHohoema.ViewModels
 		{
             if (postSuccess)
             {
-                // TODO: ポスト成功を通知
+                CommentSubmitText.Value = string.Empty;
             }
-		}
+
+            NowCommentSubmitting.Value = false;
+        }
 
 
 
