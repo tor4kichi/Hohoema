@@ -204,6 +204,16 @@ namespace NicoPlayerHohoema.Models.Live
                     };
                     RecieveCurrentRoom?.Invoke(currentRoomArgs);
                     break;
+                case "seat":
+                    var intervalSec = (int)data["keepIntervalSec"];
+                    WatchingHeartbaetTimer?.Dispose();
+                    WatchingHeartbaetTimer = new Timer((state) =>
+                    {
+                        _= SendMessageAsync(@"{""type"":""keepSeat""}");
+                    }
+                    , null, TimeSpan.FromSeconds(intervalSec), TimeSpan.FromSeconds(intervalSec)
+                    );
+                    break;
                 case "statistics":
                     var statisticsArgs = new Live2StatisticsEventArgs()
                     {
@@ -223,7 +233,7 @@ namespace NicoPlayerHohoema.Models.Live
                     RecieveSchedule?.Invoke(scheduleArgs);
                     break;
                 case "disconnect":
-                    // "END_PROGRAM" など
+                    // "END_PROGRAM" "TAKEOVER"(追い出し) など
                     var endReason = (string)data["reason"];
                     RecieveDisconnect?.Invoke();
                     break;
