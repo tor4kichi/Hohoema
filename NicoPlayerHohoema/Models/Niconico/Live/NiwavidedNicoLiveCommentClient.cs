@@ -35,7 +35,7 @@ namespace NicoPlayerHohoema.Models.Live.Niwavided
 
     public sealed class NiwavidedNicoLiveCommentClient : INicoLiveCommentClient, IDisposable
     {
-        const uint FirstGetRecentMessageCount = 1000;
+        const uint FirstGetRecentMessageCount = 50;
 
         MessageWebSocket _CommentSessionWebSocket { get; }
         DataWriter _DataWriter;
