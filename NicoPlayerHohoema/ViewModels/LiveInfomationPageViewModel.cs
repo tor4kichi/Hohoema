@@ -4,6 +4,7 @@ using Mntone.Nico2.Embed.Ichiba;
 using Mntone.Nico2.Live;
 using Mntone.Nico2.Live.Recommend;
 using Mntone.Nico2.Live.Video;
+using Mntone.Nico2.Nicocas.Live;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Helpers;
@@ -11,6 +12,7 @@ using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.UseCase;
+using NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands;
 using NicoPlayerHohoema.UseCase.Playlist;
 using Prism.Commands;
 using Prism.Navigation;
@@ -18,6 +20,7 @@ using Prism.Unity;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
@@ -35,6 +38,9 @@ namespace NicoPlayerHohoema.ViewModels
         public string Id { get; set; }
 
         public string Label { get; set; }
+
+        public string Thumbnail { get; set; }
+        public string Description { get; internal set; }
     }
 
     public sealed class LiveInfomationPageViewModel : HohoemaViewModelBase, Interfaces.ILiveContent, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
@@ -43,7 +49,7 @@ namespace NicoPlayerHohoema.ViewModels
         {
             return new HohoemaPin()
             {
-                Label = LiveInfo.Video.Title,
+                Label = LiveProgram?.Title,
                 PageType = HohoemaPageType.LiveInfomation,
                 Parameter = $"id={LiveId}"
             };
@@ -51,7 +57,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         IObservable<string> ITitleUpdatablePage.GetTitleObservable()
         {
-            return this.ObserveProperty(x => x.LiveInfo).Select(x => x?.Video.Title);
+            return this.ObserveProperty(x => x.LiveProgram).Select(x => x?.Title);
         }
 
         // TODO: 視聴開始（会場後のみ、チャンネル会員限定やチケット必要な場合あり）
@@ -77,7 +83,8 @@ namespace NicoPlayerHohoema.ViewModels
             Models.NiconicoSession niconicoSession,
             NicoLiveProvider nicoLiveProvider,
             DialogService dialogService,
-            ExternalAccessService externalAccessService
+            ExternalAccessService externalAccessService,
+            OpenLiveContentCommand openLiveContentCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -87,6 +94,7 @@ namespace NicoPlayerHohoema.ViewModels
             NicoLiveProvider = nicoLiveProvider;
             HohoemaDialogService = dialogService;
             ExternalAccessService = externalAccessService;
+            OpenLiveContentCommand = openLiveContentCommand;
             IsLoadFailed = new ReactiveProperty<bool>(false)
                .AddTo(_CompositeDisposable);
             LoadFailedMessage = new ReactiveProperty<string>()
@@ -134,25 +142,32 @@ namespace NicoPlayerHohoema.ViewModels
             })
                 .AddTo(_CompositeDisposable);
 
-            IsShowOpenLiveContentButton = this.ObserveProperty(x => LiveInfo)
+            IsShowOpenLiveContentButton = 
+                new[]
+                {
+                    this.ObserveProperty(x => LiveProgram).ToUnit(),
+                    NiconicoSession.ObserveProperty(x => x.IsLoggedIn).ToUnit(),
+                    _IsTsPreserved.ToUnit()
+                }
+                .Merge()
                 .Select(x =>
                 {
-                    if (LiveInfo == null) { return false; }
+                    if (LiveProgram == null) { return false; }
 
                     if (NiconicoSession.IsPremiumAccount)
                     {
-                        if (LiveInfo.Video.OpenTime > DateTime.Now) { return false; }
+                        if (LiveProgram.OnAirTime.BeginAt > DateTime.Now) { return false; }
 
-                        return LiveInfo.Video.TimeshiftEnabled;
+                        return LiveProgram.Timeshift.Enabled;
                     }
                     else
                     {
                         // 一般アカウントは放送中のみ
-                        if (LiveInfo.Video.OpenTime > DateTime.Now) { return false; }
+                        if (LiveProgram.OnAirTime.BeginAt > DateTime.Now) { return false; }
 
                         if (_IsTsPreserved.Value) { return true; }
 
-                        if (LiveInfo.Video.EndTime < DateTime.Now) { return false; }
+                        if (LiveProgram.OnAirTime.EndAt < DateTime.Now) { return false; }
 
                         return true;
                     }
@@ -160,22 +175,31 @@ namespace NicoPlayerHohoema.ViewModels
                 .ToReadOnlyReactiveProperty()
                 .AddTo(_CompositeDisposable);
 
-            IsShowAddTimeshiftButton = this.ObserveProperty(x => LiveInfo)
+            IsShowAddTimeshiftButton = 
+                new []
+                {
+                    this.ObserveProperty(x => LiveProgram).ToUnit(),
+                    NiconicoSession.ObserveProperty(x => x.IsLoggedIn).ToUnit(),
+                    _IsTsPreserved.ToUnit()
+                }
+                .Merge()
                 .Select(x =>
                 {
-                    if (LiveInfo == null) { return false; }
-                    if (!LiveInfo.Video.TimeshiftEnabled) { return false; }
+                    if (LiveProgram == null) { return false; }
+                    if (!LiveProgram.Timeshift.Enabled) { return false; }
                     if (!NiconicoSession.IsLoggedIn) { return false; }
 
-                    if (!niconicoSession.IsPremiumAccount)
+                    if (!NiconicoSession.IsPremiumAccount)
                     {
                         // 一般アカウントは放送開始の30分前からタイムシフトの登録はできなくなる
-                        if ((LiveInfo.Video.StartTime - TimeSpan.FromMinutes(30)) < DateTime.Now) { return false; }
+                        if ((LiveProgram.ShowTime.BeginAt - TimeSpan.FromMinutes(30)) < DateTime.Now) { return false; }
                     }
 
-                    if (LiveInfo.Video.TsArchiveEndTime != null
-                        && LiveInfo.Video.TsArchiveEndTime > DateTime.Now) { return false; }
+                    // 放送前、及び放送中はタイムシフトボタンを非表示…？
+                    // プレ垢なら常に表示しておいていいんじゃないの？
+                    //if (LiveProgram.ShowTime.EndAt > DateTime.Now) { return false; }
 
+                    // タイムシフト予約済み
                     if (_IsTsPreserved.Value) { return false; }
 
                     return true;
@@ -190,20 +214,21 @@ namespace NicoPlayerHohoema.ViewModels
 
         public DialogService HohoemaDialogService { get; }
         public ExternalAccessService ExternalAccessService { get; }
-        
+        public OpenLiveContentCommand OpenLiveContentCommand { get; }
+
 
 
 
         #region Interfaces.ILiveContent
 
-        string Interfaces.ILiveContent.ProviderId => LiveInfo.Community?.GlobalId;
-        string Interfaces.ILiveContent.ProviderName => LiveInfo.Community?.Name;
-        CommunityType Interfaces.ILiveContent.ProviderType => LiveInfo.Video.ProviderType;
+        string Interfaces.ILiveContent.ProviderId => Community.Id;
+        string Interfaces.ILiveContent.ProviderName => Community.Label;
+        CommunityType Interfaces.ILiveContent.ProviderType => LiveProgram.CommunityType;
 
 
-        string Interfaces.INiconicoObject.Id => LiveInfo.Video.Id;
+        string Interfaces.INiconicoObject.Id => LiveProgram.Id;
 
-        string Interfaces.INiconicoObject.Label => LiveInfo.Video.Title;
+        string Interfaces.INiconicoObject.Label => LiveProgram.Title;
 
         #endregion
 
@@ -219,15 +244,15 @@ namespace NicoPlayerHohoema.ViewModels
 
         public IReadOnlyReactiveProperty<bool> IsLiveIdAvairable { get; }
 
-        private VideoInfo _LiveInfo;
-        public VideoInfo LiveInfo
+        private NicoCasLiveProgramData _LiveProgram;
+        public NicoCasLiveProgramData LiveProgram
         {
-            get { return _LiveInfo; }
+            get { return _LiveProgram; }
             private set
             {
-                if (SetProperty(ref _LiveInfo, value))
+                if (SetProperty(ref _LiveProgram, value))
                 {
-                    LivePageUrl = _LiveInfo != null ? NiconicoUrls.LiveWatchPageUrl + LiveId : null;
+                    LivePageUrl = _LiveProgram != null ? NiconicoUrls.LiveWatchPageUrl + LiveId : null;
                 }
             }
         }
@@ -330,18 +355,18 @@ namespace NicoPlayerHohoema.ViewModels
                         
                         if (reservations.Any(x => LiveId.EndsWith(x)))
                         {
-                            var result = await DeleteReservation(LiveId, LiveInfo.Video.Title);
+                            var result = await DeleteReservation(LiveId, LiveProgram.Title);
                             if (result)
                             {
-                                await RefreshLiveInfoAsync();
+                                await RefreshReservationInfo(LiveId);
                             }
                         }
                         else
                         {
-                            var result = await AddReservation(LiveId, LiveInfo.Video.Title);
+                            var result = await AddReservation(LiveId, LiveProgram.Title);
                             if (result)
                             {
-                                await RefreshLiveInfoAsync();
+                                await RefreshReservationInfo(LiveId);
                             }
                         }
 
@@ -466,25 +491,78 @@ namespace NicoPlayerHohoema.ViewModels
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            LiveId = parameters.GetValue<string>("id");
-
-            await RefreshLiveInfoAsync();
-
-            string htmlDescription = null;
-            if (htmlDescription == null)
+            var liveId = parameters.GetValue<string>("id");
+            if (liveId != null)
             {
-                var programInfo = await NiconicoSession.Context.Live.GetProgramInfoAsync(LiveId);
+                await RefreshLiveInfoAsync(liveId);
+            }
+            else
+            {
+
+            }
+        }
+
+
+        async Task RefreshLiveInfoAsync(string liveId)
+        {
+            IsLoadFailed.Value = false;
+            LoadFailedMessage.Value = string.Empty;
+
+            IsLiveInfoLoaded.Value = false;
+
+            if (liveId == null) { throw new Exception("Require LiveId in LiveInfomationPage navigation with (e.Parameter as string)"); }
+
+            try
+            {
+                var programInfo = await NiconicoSession.Context.Nicocas.GetLiveProgramAsync(liveId);
                 if (programInfo.IsOK)
                 {
-                    htmlDescription = programInfo.Data.Description;
-                    Debug.WriteLine("programInfoから放送説明HTML取得：Success");
+                    await RefreshLiveTagsAsync(programInfo.Data.Tags);
+
+                    await RefreshHtmlDescriptionAsync(programInfo.Data.Description);
+
+                    var communityInfo = await NiconicoSession.Context.Community.GetCommunifyInfoAsync(programInfo.Data.SocialGroupId);
+                    if (communityInfo.IsStatusOK)
+                    {
+                        var community = communityInfo.Community;
+                        Community = new LiveCommunityInfo() 
+                        { 
+                            Id = community.GlobalId, 
+                            Label = community.Name,
+                            Thumbnail = community.Thumbnail,
+                            Description = community.Description
+                        };
+                    }
+                    else
+                    {
+                        Community = null;
+                    }
+
+                    await RefreshReservationInfo(liveId);
+
+                    // タイムシフト視聴開始の判定処理のため_IsTsPreservedより後にLiveInfoを代入する
+                    LiveProgram = programInfo.Data;
+
+                    LiveId = liveId;
                 }
                 else
                 {
-                    Debug.WriteLine("programInfoから放送説明HTML取得：Failed");
+                    throw new Exception("Live not found. LiveId is " + LiveId);
                 }
             }
+            catch (Exception ex)
+            {
+                IsLoadFailed.Value = true;
+                LoadFailedMessage.Value = ex.Message;
+            }
+            finally
+            {
+                IsLiveInfoLoaded.Value = true;
+            }
+        }
 
+        private async Task RefreshHtmlDescriptionAsync(string htmlDescription)
+        {
             if (htmlDescription != null)
             {
                 ApplicationTheme appTheme;
@@ -563,73 +641,39 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public ReactiveProperty<bool> IsLiveInfoLoaded { get; } = new ReactiveProperty<bool>(false);
-        private async Task RefreshLiveInfoAsync()
+        private async Task RefreshLiveTagsAsync(IList<Tag> liveTags)
         {
-            IsLoadFailed.Value = false;
-            LoadFailedMessage.Value = string.Empty;
+            _LiveTags.Clear();
 
-            IsLiveInfoLoaded.Value = false;
-            try
-            {
-                if (LiveId == null) { throw new Exception("Require LiveId in LiveInfomationPage navigation with (e.Parameter as string)"); }
+            Func<Tag, LiveTagType, LiveTagViewModel> ConvertToLiveTagVM =
+                (x, type) => new LiveTagViewModel() { Tag = x.Text, Type = type };
 
-                var liveInfoResponse = await NiconicoSession.Context.Live.GetLiveVideoInfoAsync(LiveId);
-
-                if (!liveInfoResponse.IsOK)
-                {
-                    throw new Exception("Live not found. LiveId is " + LiveId);
+            var tags = new[] {
+                    liveTags.Where(x => x.IsCategoryTag).Select(x => ConvertToLiveTagVM(x, LiveTagType.Category)),
+                    liveTags.Where(x => x.IsLocked).Select(x => ConvertToLiveTagVM(x, LiveTagType.Locked)),
+                    liveTags.Where(x => !x.IsCategoryTag && !x.IsLocked).Select(x => ConvertToLiveTagVM(x, LiveTagType.Free)),
                 }
+            .SelectMany(x => x ?? Enumerable.Empty<LiveTagViewModel>());
 
-                var liveInfo = liveInfoResponse.VideoInfo;
-                {
-                    _LiveTags.Clear();
-
-                    Func<string, LiveTagType, LiveTagViewModel> ConvertToLiveTagVM =
-                        (x, type) => new LiveTagViewModel() { Tag = x, Type = type };
-
-                    var tags = new[] {
-                        liveInfo.Livetags.Category?.Tags.Select(x => ConvertToLiveTagVM(x, LiveTagType.Category)),
-                        liveInfo.Livetags.Locked?.Tags.Select(x => ConvertToLiveTagVM(x, LiveTagType.Locked)),
-                        liveInfo.Livetags.Free?.Tags.Select(x => ConvertToLiveTagVM(x, LiveTagType.Free)),
-                    }
-                    .SelectMany(x => x ?? Enumerable.Empty<LiveTagViewModel>());
-
-                    foreach (var tag in tags)
-                    {
-                        _LiveTags.Add(tag);
-                    }
-
-                    RaisePropertyChanged(nameof(LiveTags));
-                }
-
-                var reseevations = await NiconicoSession.Context.Live.GetReservationsInDetailAsync();
-                var thisLiveReservation = reseevations.ReservedProgram.FirstOrDefault(x => LiveId.EndsWith(x.Id));
-                if (thisLiveReservation != null)
-                {
-                    var timeshiftList = await NiconicoSession.Context.Live.GetMyTimeshiftListAsync();
-                    ExpiredTime = (timeshiftList.Items.FirstOrDefault(x => x.Id == LiveId)?.WatchTimeLimit ?? thisLiveReservation.ExpiredAt).LocalDateTime;
-                }
-
-                _IsTsPreserved.Value = thisLiveReservation != null;
-
-                // タイムシフト視聴開始の判定処理のため_IsTsPreservedより後にLiveInfoを代入する
-                LiveInfo = liveInfo;
-
-                Community = LiveInfo.Community != null ? new LiveCommunityInfo() { Id = LiveInfo.Community.GlobalId, Label = LiveInfo.Community.Name } : null;
-
-            }
-            catch (Exception ex)
+            foreach (var tag in tags)
             {
-                IsLoadFailed.Value = true;
-                LoadFailedMessage.Value = ex.Message;
-            }
-            finally
-            {
-                IsLiveInfoLoaded.Value = true;
+                _LiveTags.Add(tag);
             }
 
+            RaisePropertyChanged(nameof(LiveTags));
+        }
 
+        async Task RefreshReservationInfo(string liveId)
+        {
+            var reseevations = await NiconicoSession.Context.Live.GetReservationsInDetailAsync();
+            var thisLiveReservation = reseevations.ReservedProgram.FirstOrDefault(x => liveId.EndsWith(x.Id));
+            if (thisLiveReservation != null)
+            {
+                var timeshiftList = await NiconicoSession.Context.Live.GetMyTimeshiftListAsync();
+                ExpiredTime = (timeshiftList.Items.FirstOrDefault(x => x.Id == liveId)?.WatchTimeLimit ?? thisLiveReservation.ExpiredAt).LocalDateTime;
+            }
 
+            _IsTsPreserved.Value = thisLiveReservation != null;
         }
 
         AsyncLock _IchibaUpdateLock = new AsyncLock();
@@ -639,13 +683,13 @@ namespace NicoPlayerHohoema.ViewModels
         {
             using (var releaser = await _IchibaUpdateLock.LockAsync())
             {
-                if (LiveInfo == null) { return; }
+                if (LiveProgram == null) { return; }
 
                 if (IsIchibaInitialized) { return; }
 
                 try
                 {
-                    var ichibaResponse = await NiconicoSession.Context.Embed.GetIchiba(LiveInfo.Video.Id);
+                    var ichibaResponse = await NiconicoSession.Context.Embed.GetIchiba(LiveProgram.Id);
                     if (ichibaResponse != null)
                     {
                         foreach (var ichibaItem in ichibaResponse.GetMainIchibaItems() ?? Enumerable.Empty<IchibaItem>())
@@ -690,7 +734,7 @@ namespace NicoPlayerHohoema.ViewModels
         {
             using (var releaser = await _LiveRecommendLock.LockAsync())
             {
-                if (LiveInfo == null) { return; }
+                if (LiveProgram == null) { return; }
 
                 if (IsLiveRecommendInitialized) { return; }
 
@@ -706,13 +750,13 @@ namespace NicoPlayerHohoema.ViewModels
                 try
                 {
                     LiveRecommendResponse recommendResponse = null;
-                    if (LiveInfo.Community?.GlobalId.StartsWith("co") ?? false)
+                    if (LiveProgram?.SocialGroupId.StartsWith("co") ?? false)
                     {
-                        recommendResponse = await NiconicoSession.Context.Live.GetCommunityRecommendAsync(LiveInfo.Video.Id, LiveInfo.Community.GlobalId);
+                        recommendResponse = await NiconicoSession.Context.Live.GetCommunityRecommendAsync(LiveProgram.Id, LiveProgram.SocialGroupId);
                     }
                     else
                     {
-                        recommendResponse = await NiconicoSession.Context.Live.GetOfficialOrChannelLiveRecommendAsync(LiveInfo.Video.Id);
+                        recommendResponse = await NiconicoSession.Context.Live.GetOfficialOrChannelLiveRecommendAsync(LiveProgram.Id);
                     }
 
                     foreach (var recommendItem in recommendResponse.RecommendItems)
