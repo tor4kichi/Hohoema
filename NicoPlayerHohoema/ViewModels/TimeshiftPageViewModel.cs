@@ -21,10 +21,12 @@ using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.UseCase;
 using I18NPortable;
+using Prism.Navigation;
+using NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands;
 
 namespace NicoPlayerHohoema.ViewModels
 {
-    public sealed class TimeshiftPageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>
+    public sealed class TimeshiftPageViewModel : HohoemaListingPageViewModelBase<LiveInfoListItemViewModel>, INavigatedAwareAsync
     {
         public TimeshiftPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
@@ -32,7 +34,8 @@ namespace NicoPlayerHohoema.ViewModels
             NicoLiveProvider nicoLiveProvider,
             HohoemaPlaylist hohoemaPlaylist,
             NoUIProcessScreenContext noUIProcessScreenContext, 
-            Services.DialogService dialogService
+            Services.DialogService dialogService,
+            OpenLiveContentCommand openLiveContentCommand
             ) 
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -41,6 +44,7 @@ namespace NicoPlayerHohoema.ViewModels
             HohoemaPlaylist = hohoemaPlaylist;
             _noUIProcessScreenContext = noUIProcessScreenContext;
             DialogService = dialogService;
+            OpenLiveContentCommand = openLiveContentCommand;
         }
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
@@ -48,6 +52,7 @@ namespace NicoPlayerHohoema.ViewModels
         public NicoLiveProvider NicoLiveProvider { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public Services.DialogService DialogService { get; }
+        public OpenLiveContentCommand OpenLiveContentCommand { get; }
 
         private DelegateCommand _DeleteOutdatedReservations;
         private readonly NoUIProcessScreenContext _noUIProcessScreenContext;
@@ -171,42 +176,22 @@ namespace NicoPlayerHohoema.ViewModels
 
             // 生放送情報の詳細をローカルDBに確保
             // 既に存在する場合はスキップ
+            List<LiveInfoListItemViewModel> returnItems = new List<LiveInfoListItemViewModel>();
             foreach (var item in items)
             {
-                if (NicoLiveDb.Get(item.Id) == null)
-                {
-                    var res = await NicoLiveProvider.GetLiveInfoAsync(item.Id);
+                var liveData = await NicoLiveProvider.GetLiveInfoAsync(item.Id);
+                var tsItem = _TimeshiftList?.Items.FirstOrDefault(y => y.Id == item.Id);
 
-                    // チャンネル放送などで期限切れになると生放送情報が取れなくなるので
-                    // 別APIで取得チャレンジ
-                    if ((!res?.IsOK) ?? true)
-                    {
-                        if (NicoLiveDb.Get(item.Id) == null)
-                        {
-                            await NicoLiveProvider.GetLiveProgramInfoAsync(item.Id);
-                        }
-                    }
-                }
+                var liveInfoVM = new LiveInfoListItemViewModel(item.Id);
+                liveInfoVM.ExpiredAt = tsItem?.WatchTimeLimit ?? item.ExpiredAt;
+                liveInfoVM.Setup(liveData.Data);
+
+                liveInfoVM.SetReservation(item);
+
+                returnItems.Add(liveInfoVM);
             }
 
-            return
-                items
-                .Select(x =>
-                {
-                    var liveData = NicoLiveDb.Get(x.Id);
-                    var tsItem = _TimeshiftList?.Items.FirstOrDefault(y => y.Id == x.Id);
-
-                    var liveInfoVM = new LiveInfoListItemViewModel(x.Id);
-                    liveInfoVM.ExpiredAt = tsItem?.WatchTimeLimit ?? x.ExpiredAt;
-                    liveInfoVM.Setup(liveData);
-
-                    liveInfoVM.SetReservation(x);
-
-                    return liveInfoVM;
-                }
-                )
-                .ToAsyncEnumerable();
-                
+            return returnItems.ToAsyncEnumerable();
         }
 
         

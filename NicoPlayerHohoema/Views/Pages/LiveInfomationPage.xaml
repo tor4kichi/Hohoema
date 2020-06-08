@@ -27,17 +27,16 @@
   <Grid>
     <ScrollViewer >
       <StackPanel x:Name="ContentLayout">
-        <Border Height="80" />
+        <Border Height="128" />
         <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
           <!-- 視聴開始などのボタン -->
-          
-          <Image Source="{Binding LiveInfo.Video.ThumbnailUrl}"
+
+          <Image Source="{Binding LiveProgram.ThumbnailUrl}"
                  Height="80"
                  Width="80"
                  Margin="0 8 0 16"
                  toolkit:DockPanel.Dock="Left"
-                 Visibility="{Binding LiveInfo.Video.HasThumbnailUrl}"
-                 VerticalAlignment="Top" />
+                 VerticalAlignment="Top" Visibility="Collapsed" />
         </toolkit:DockPanel>
         <Pivot Margin="0 8 0 16"
                x:Name="Pivot">
@@ -67,14 +66,14 @@
                           Margin="16 8"
                           >
                 <TextBlock Opacity="0.7">
-                                <Run Text="{Binding Source=LiveStreamingStartAt, Converter={StaticResource LocalizeConverter}}" /> <Run Text="{Binding LiveInfo.Video.OpenTime, Converter={StaticResource DateTimeToString}}" /><LineBreak />
-                                <Run Text="{Binding Source=LiveStreamingEndAt, Converter={StaticResource LocalizeConverter}}" /> <Run Text="{Binding LiveInfo.Video.EndTime, Converter={StaticResource DateTimeToString}}" /></TextBlock>
+                                <Run Text="{Binding Source=LiveStreamingStartAt, Converter={StaticResource LocalizeConverter}}" /> <Run Text="{Binding LiveProgram.ShowTime.BeginAt, Converter={StaticResource DateTimeToString}}" /><LineBreak />
+                                <Run Text="{Binding Source=LiveStreamingEndAt, Converter={StaticResource LocalizeConverter}}" /> <Run Text="{Binding LiveProgram.ShowTime.EndAt, Converter={StaticResource DateTimeToString}}" /></TextBlock>
               </StackPanel>
               <StackPanel>
                 <TextBlock Text="{Binding Source=LiveStreamingDescription, Converter={StaticResource LocalizeConverter}}"
                            Margin="0 16 8 8"
                            Style="{StaticResource SubtitleTextBlockStyle}" />
-                <TextBox Text="{Binding LiveInfo.Video.Description}"
+                <TextBox Text="{Binding LiveProgram.Description}"
                          IsReadOnly="True"
                          Background="Transparent"
                          MaxWidth="800"
@@ -203,9 +202,6 @@
             <PivotItem.Header>
               <StackPanel>
                 <StackPanel Orientation="Horizontal">
-                  <Image Source="{Binding LiveInfo.Community.ThumbnailSmall}"
-                         Height="32"
-                         Margin="0 0 8 0" />
                   <TextBlock Text="{Binding Source=LiveStreamOwner, Converter={StaticResource LocalizeConverter}}" />
                 </StackPanel>
               </StackPanel>
@@ -214,22 +210,26 @@
               <toolkit:DockPanel x:Name="BroadcasterDesc_Other">
                 <StackPanel toolkit:DockPanel.Dock="Top">
                   <toolkit:DockPanel Margin="0 0 0 0">
-                    <Image Source="{Binding LiveInfo.Community.Thumbnail}"
-                           Height="80"
+                    <Image Source="{Binding Community.Thumbnail}"
+                           Height="60"
                            Margin="0 0 8 0"
                            toolkit:DockPanel.Dock="Left" />
                     <StackPanel toolkit:DockPanel.Dock="Bottom"
                                 Orientation="Horizontal"
+                                Visibility="Collapsed"
                                 Margin="8 0 0 16">
                       <TextBlock>
-                            <Run Text="{Binding Source=CommunityMemberCount, Converter={StaticResource LocalizeConverter}}" /> : <Run Text="{Binding LiveInfo.Community.UserCount}" />
+                            <Run Text="{Binding Source=CommunityMemberCount, Converter={StaticResource LocalizeConverter}}" /> : <Run Text="{Binding Community.UserCount}" />
                       </TextBlock>
                       <Border Width="16" />
                       <TextBlock>
-                                <Run Text="{Binding Source=CommunityLevel, Converter={StaticResource LocalizeConverter}}" /> : <Run Text="{Binding LiveInfo.Community.Level}" /></TextBlock>
+                                <Run Text="{Binding Source=CommunityLevel, Converter={StaticResource LocalizeConverter}}" /> : <Run Text="{Binding Community.Level}" /></TextBlock>
                     </StackPanel>
-                    <TextBlock Text="{Binding LiveInfo.Community.Name}"
-                               Style="{StaticResource TitleTextBlockStyle}" />
+                    <TextBlock Text="{Binding Community.Label}"
+                               Style="{StaticResource TitleTextBlockStyle}"
+                               VerticalAlignment="Center"
+                               Margin="16 0 0 0"
+                               />
                   </toolkit:DockPanel>
                 </StackPanel>
                 <Border Height="16"
@@ -243,7 +243,7 @@
                 </StackPanel>
                 <Border Height="16"
                         toolkit:DockPanel.Dock="Top" />
-                <TextBox Text="{Binding LiveInfo.Community.Description}"
+                <TextBox Text="{Binding Community.Description}"
                          AcceptsReturn="True"
                          IsReadOnly="True"
                          TextWrapping="Wrap"
@@ -326,15 +326,17 @@
         </Pivot>
       </StackPanel>
     </ScrollViewer>
-    <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}" VerticalAlignment="Top">
-      <Border Height="48" />
+    <uwptoolkit:DockPanel x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}" VerticalAlignment="Top">
+
       <uwptoolkit:WrapPanel Orientation="Horizontal"
                             VerticalAlignment="Center"
                             HorizontalAlignment="Right"
-                            x:Name="ViewActionButtonsLayout">
+                            x:Name="ViewActionButtonsLayout"
+                            Margin="0 48 0 0"
+                            >
         <Button x:Name="OpenLiveContentButton"
                 Style="{ThemeResource AccentButtonStyle}"
-                Command="{Binding HohoemaPlaylist.PlayCommand}"
+                Command="{Binding OpenLiveContentCommand}"
                 CommandParameter="{Binding}"
                 Visibility="{Binding IsShowOpenLiveContentButton.Value}"
                 Margin="0 0 8 0"
@@ -389,7 +391,8 @@
           </Button.Flyout>
         </Button>
       </uwptoolkit:WrapPanel>
-    </Grid>
+
+    </uwptoolkit:DockPanel>
     
     <VisualStateManager.VisualStateGroups>
       <!-- レイアウトモード -->
@@ -458,21 +461,21 @@
         <VisualState>
           <VisualState.StateTriggers>
             <myTrigger:EqualConditionStateTrigger Condition="{x:Bind live:CommunityType.Community}"
-                                                  Value="{Binding LiveInfo.Video.ProviderType, Mode=OneWay}" />
+                                                  Value="{Binding LiveProgram.Community, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters></VisualState.Setters>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
             <myTrigger:EqualConditionStateTrigger Condition="{x:Bind live:CommunityType.Channel}"
-                                                  Value="{Binding LiveInfo.Video.ProviderType, Mode=OneWay}" />
+                                                  Value="{Binding LiveProgram.Community, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters></VisualState.Setters>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
             <myTrigger:EqualConditionStateTrigger Condition="{x:Bind live:CommunityType.Official}"
-                                                  Value="{Binding LiveInfo.Video.ProviderType, Mode=OneWay}" />
+                                                  Value="{Binding LiveProgram.Community, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="BroadcasterDesc_Official.Visibility"
@@ -487,28 +490,28 @@
         <VisualState>
           <VisualState.StateTriggers>
             <myTrigger:EqualConditionStateTrigger Condition="{x:Bind live:StatusType.ComingSoon}"
-                                                  Value="{Binding LiveInfo.Video.CurrentStatus, Mode=OneWay}" />
+                                                  Value="{Binding LiveProgram.LiveStatus, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters></VisualState.Setters>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
             <myTrigger:EqualConditionStateTrigger Condition="{x:Bind live:StatusType.OnAir}"
-                                                  Value="{Binding LiveInfo.Video.CurrentStatus, Mode=OneWay}" />
+                                                  Value="{Binding LiveProgram.LiveStatus, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters></VisualState.Setters>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
             <myTrigger:EqualConditionStateTrigger Condition="{x:Bind live:StatusType.Closed}"
-                                                  Value="{Binding LiveInfo.Video.CurrentStatus, Mode=OneWay}" />
+                                                  Value="{Binding LiveProgram.LiveStatus, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters></VisualState.Setters>
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
             <myTrigger:EqualConditionStateTrigger Condition="{x:Bind live:StatusType.Invalid}"
-                                                  Value="{Binding LiveInfo.Video.CurrentStatus, Mode=OneWay}" />
+                                                  Value="{Binding LiveProgram.LiveStatus, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters></VisualState.Setters>
         </VisualState>
@@ -523,7 +526,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding LiveInfo.Video.TimeshiftEnabled, Mode=OneWay}" />
+            <StateTrigger IsActive="{Binding LiveInfo.Timeshift.Enabled, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters></VisualState.Setters>
         </VisualState>
@@ -568,6 +571,9 @@
           <VisualState.Setters></VisualState.Setters>
         </VisualState>
         <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="True" />
+          </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="LiveDescTextBox.Visibility"
                     Value="Collapsed" />

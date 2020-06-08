@@ -12,6 +12,15 @@ namespace NicoPlayerHohoema.Models.Provider
         {
         }
 
+
+        public async Task<ReservationResponse> ReservtionAsync(string liveId, bool isOverrwite = false)
+        {
+            return await ContextActionAsync(async context =>
+            {
+                return await context.Live.ReservationAsync(liveId, isOverrwite);
+            });
+        }
+
         public async Task<ReservationsInDetailResponse> GetReservtionsAsync()
         {
             return await ContextActionAsync(async context =>

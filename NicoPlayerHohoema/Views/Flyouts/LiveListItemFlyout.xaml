@@ -6,18 +6,11 @@
             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
             mc:Ignorable="d">
 
-  <MenuFlyoutSubItem Text="{Binding Source=DeleteTimeshift, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                     Visibility="{Binding ReservationStatus, Converter={StaticResource NotNullToVisibility}}">
-    <MenuFlyoutItem Text="{Binding Source=Delete, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                    Command="{Binding DeleteReservation}" />
-
-  </MenuFlyoutSubItem>
-
-  <MenuFlyoutSeparator Visibility="{Binding ReservationStatus, Converter={StaticResource NotNullToVisibility}}" />
-
   <MenuFlyoutItem Text="{Binding Source=WatchLiveStreaming, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                  Command="{Binding HohoemaPlaylist.PlayCommand}"
+                  Command="{Binding OpenLiveContentCommand}"
                   CommandParameter="{Binding}" />
+
+  <MenuFlyoutSeparator />
 
   <MenuFlyoutItem Text="{Binding Source=HohoemaPageType.LiveInfomation, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                   Command="{Binding PageManager.OpenPageCommand}"
@@ -46,5 +39,17 @@
                     Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}"
                     CommandParameter="{Binding}" />
   </MenuFlyoutSubItem>
+
+  <MenuFlyoutSeparator />
+
+  <MenuFlyoutItem Text="{Binding Source=DeleteTimeshift, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                    Command="{Binding DeleteReservationCommand}"
+                    Visibility="{Binding ReservationStatus, Converter={StaticResource NotNullToVisibility}}"
+                    />
+
+  <MenuFlyoutItem Text="{Binding Source=AddTimeshift, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                    Command="{Binding AddReservationCommand}"
+                    Visibility="{Binding ReservationStatus, Converter={StaticResource NullToVisibility}}"
+                    />
 
 </MenuFlyout>

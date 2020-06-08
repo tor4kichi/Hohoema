@@ -414,7 +414,6 @@ namespace NicoPlayerHohoema.Models.Live
                 LiveElapsedTimeFromOpen = DateTimeOffset.Now.ToOffset(JapanTimeZoneOffset) - _StartTimeOffset - OpenTime;
                 LiveElapsedTime = DateTimeOffset.Now.ToOffset(JapanTimeZoneOffset) - _StartTimeOffset - StartTime;
 
-
                 LivePlayerType = Live.LivePlayerType.Leo;
 
                 if (Live2WebSocket == null)
@@ -442,6 +441,9 @@ namespace NicoPlayerHohoema.Models.Live
                 TimeshiftPosition = StartTime - OpenTime;
 
                 _StartTimeOffset = DateTimeOffset.Now.ToOffset(JapanTimeZoneOffset) - OpenTime;
+
+                LiveElapsedTimeFromOpen = DateTimeOffset.Now.ToOffset(JapanTimeZoneOffset) - _StartTimeOffset - OpenTime;
+                LiveElapsedTime = DateTimeOffset.Now.ToOffset(JapanTimeZoneOffset) - _StartTimeOffset - StartTime;
 
                 // タイムシフトでの視聴かつタイムシフトの視聴予約済みかつ視聴権が未取得の場合は
                 // 視聴権の使用を確認する
@@ -488,6 +490,22 @@ namespace NicoPlayerHohoema.Models.Live
                     }
                 }
 
+                LivePlayerType = Live.LivePlayerType.Leo;
+
+                if (Live2WebSocket == null)
+                {
+                    Live2WebSocket = new Live2WebSocket(_PlayerProps);
+                    Live2WebSocket.RecieveCurrentStream += Live2WebSocket_RecieveCurrentStream;
+                    Live2WebSocket.RecieveStatistics += Live2WebSocket_RecieveStatistics;
+                    Live2WebSocket.RecieveDisconnect += Live2WebSocket_RecieveDisconnect;
+                    Live2WebSocket.RecieveCurrentRoom += Live2WebSocket_RecieveCurrentRoom;
+                    var quality = PlayerSettings.DefaultLiveQuality;
+
+                    _IsLowLatency = PlayerSettings.LiveWatchWithLowLatency;
+                    await Live2WebSocket.StartAsync(quality, _IsLowLatency);
+                }
+
+                await StartLiveViewing();
             }
             else
             {
@@ -1072,7 +1090,7 @@ namespace NicoPlayerHohoema.Models.Live
 
         public ObservableRangeCollection<LiveComment> DisplayingComments { get; } = new ObservableRangeCollection<LiveComment>();
 
-        private const int PreviousProcessingRangeCommentsTimeInSeconds = 3;
+        private const int PreviousProcessingRangeCommentsTimeInSeconds = 5;
 
         private async Task ProcessingBufferedCommentsAsync(TimeSpan positionFromOpen)
         {
@@ -1094,6 +1112,7 @@ namespace NicoPlayerHohoema.Models.Live
             if (addComments.Any())
             {
                 _LiveComments.AddRange(addComments);
+                DisplayingComments.AddRange(addComments);
             }
 
             await RemoveCommentsFromCache(positionFromOpen);
