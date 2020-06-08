@@ -15,6 +15,7 @@ using NicoPlayerHohoema.Services.Helpers;
 using Prism.Unity;
 using NicoPlayerHohoema.UseCase.Playlist;
 using I18NPortable;
+using NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -25,10 +26,12 @@ namespace NicoPlayerHohoema.ViewModels
             LiveId = liveId;
             PageManager = App.Current.Container.Resolve<Services.PageManager>();
             ExternalAccessService = App.Current.Container.Resolve<Services.ExternalAccessService>();
+            OpenLiveContentCommand = App.Current.Container.Resolve<OpenLiveContentCommand>();
         }
 
         public PageManager PageManager { get; }
         public ExternalAccessService ExternalAccessService { get; }
+        public OpenLiveContentCommand OpenLiveContentCommand { get; }
         public Mntone.Nico2.Live.ReservationsInDetail.Program Reservation { get; private set; }
 
 
@@ -256,7 +259,7 @@ namespace NicoPlayerHohoema.ViewModels
             OptionText = DurationText;
         }
 
-        public void Setup(Mntone.Nico2.Nicocas.Live.Data liveData)
+        public void Setup(Mntone.Nico2.Nicocas.Live.NicoCasLiveProgramData liveData)
         {
             //CommunityName = data.;
             

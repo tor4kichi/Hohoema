@@ -21,13 +21,9 @@ namespace NicoPlayerHohoema.Views.Controls
 {
     public sealed partial class LiveListItemFlyout : MenuFlyout
     {
-        public ViewModels.Flyouts.LiveItemFlyoutViewModel ItemContext { get; set; }
-
         public LiveListItemFlyout()
         {
             this.InitializeComponent();
-
-            ItemContext = App.Current.Container.Resolve<ViewModels.Flyouts.LiveItemFlyoutViewModel>();
         }
     }
 }
