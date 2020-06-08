@@ -151,7 +151,7 @@
   </UserControl.Resources>
 
   <Grid>
-    <ItemsControl ItemsSource="{Binding Elements}"
+    <ItemsControl ItemsSource="{Binding Elements, Mode=OneWay}"
                   ItemTemplateSelector="{StaticResource LiveInfoListItemElementTemplateSelector}"
                   HorizontalAlignment="Right"
                   VerticalAlignment="Bottom">
@@ -170,7 +170,7 @@
           <Setter Property="Background">
             <Setter.Value>
               <SolidColorBrush Color="{StaticResource SystemBaseHighColor}"
-                               Opacity="0.35" />
+                               Opacity="0.6" />
             </Setter.Value>
           </Setter>
           <Setter Property="Foreground"

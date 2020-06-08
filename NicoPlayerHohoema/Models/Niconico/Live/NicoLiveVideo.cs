@@ -1090,7 +1090,7 @@ namespace NicoPlayerHohoema.Models.Live
 
         public ObservableRangeCollection<LiveComment> DisplayingComments { get; } = new ObservableRangeCollection<LiveComment>();
 
-        private const int PreviousProcessingRangeCommentsTimeInSeconds = 3;
+        private const int PreviousProcessingRangeCommentsTimeInSeconds = 5;
 
         private async Task ProcessingBufferedCommentsAsync(TimeSpan positionFromOpen)
         {

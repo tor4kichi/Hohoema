@@ -16,6 +16,9 @@ using Prism.Unity;
 using NicoPlayerHohoema.UseCase.Playlist;
 using I18NPortable;
 using NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands;
+using Mntone.Nico2;
+using System.Diagnostics;
+using System.Collections.ObjectModel;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -27,11 +30,15 @@ namespace NicoPlayerHohoema.ViewModels
             PageManager = App.Current.Container.Resolve<Services.PageManager>();
             ExternalAccessService = App.Current.Container.Resolve<Services.ExternalAccessService>();
             OpenLiveContentCommand = App.Current.Container.Resolve<OpenLiveContentCommand>();
+            _niconicoSession = App.Current.Container.Resolve<Models.NiconicoSession>();
         }
 
         public PageManager PageManager { get; }
         public ExternalAccessService ExternalAccessService { get; }
         public OpenLiveContentCommand OpenLiveContentCommand { get; }
+
+        private readonly Models.NiconicoSession _niconicoSession;
+
         public Mntone.Nico2.Live.ReservationsInDetail.Program Reservation { get; private set; }
 
 
@@ -62,7 +69,7 @@ namespace NicoPlayerHohoema.ViewModels
         public bool IsReserved => Elements.Any(x => x == LiveContentElement.Timeshift_Preserved || x == LiveContentElement.Timeshift_Watch);
         public bool IsTimedOut => Elements.Any(x => x == LiveContentElement.Timeshift_OutDated);
 
-        public List<LiveContentElement> Elements { get; } = new List<LiveContentElement>();
+        public ObservableCollection<LiveContentElement> Elements { get; } = new ObservableCollection<LiveContentElement>();
         public DateTimeOffset ExpiredAt { get; internal set; }
         public Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus? ReservationStatus { get; internal set; }
 
@@ -94,7 +101,8 @@ namespace NicoPlayerHohoema.ViewModels
         {
             Reservation = reservationInfo;
             ReservationStatus = NowLive ? null : reservationInfo?.GetReservationStatus();
-            DeleteReservation.RaiseCanExecuteChanged();
+            DeleteReservationCommand.RaiseCanExecuteChanged();
+            AddReservationCommand.RaiseCanExecuteChanged();
         }
 
         public void Setup(Mntone.Nico2.Live.Recommend.LiveRecommendData liveVideoInfo)
@@ -108,7 +116,7 @@ namespace NicoPlayerHohoema.ViewModels
             OpenTime = liveVideoInfo.OpenTime;
             StartTime = liveVideoInfo.StartTime;
 
-            //IsTimeshiftEnabled = liveVideoInfo.Video.TimeshiftEnabled;
+            IsTimeshiftEnabled = false;
             //IsCommunityMemberOnly = liveVideoInfo.Video.CommunityOnly;
 
             AddImageUrl(CommunityThumbnail);
@@ -323,7 +331,7 @@ namespace NicoPlayerHohoema.ViewModels
         private void ResetElements()
         {
             Elements.Clear();
-            
+
             if (DateTimeOffset.Now < OpenTime)
             {
                 Elements.Add(LiveContentElement.Status_Pending);
@@ -385,44 +393,177 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-        private DelegateCommand _DeleteReservation;
-        public DelegateCommand DeleteReservation
+        private DelegateCommand _DeleteReservationCommand;
+        public DelegateCommand DeleteReservationCommand
         {
             get
             {
-                return _DeleteReservation
-                    ?? (_DeleteReservation = new DelegateCommand(async () =>
+                return _DeleteReservationCommand
+                    ?? (_DeleteReservationCommand = new DelegateCommand(async () =>
                     {
-                        var reservationProvider = App.Current.Container.Resolve<Models.Provider.LoginUserLiveReservationProvider>();
-                        var reservations = await reservationProvider.GetReservtionsAsync();
-                        var dialogService = App.Current.Container.Resolve<Services.DialogService>();
+                        var isDeleted = await DeleteReservation(LiveId, Label);
 
-                        var reservationTitlesText = LiveTitle;
-                        var acceptDeletion = await dialogService.ShowMessageDialog(
-                            "DeleteReservationConfirmText".Translate() + "\r\r" + reservationTitlesText,
-                            "DeleteSelectedReservationConfirm_Title".Translate(),
-                            "DeleteReservationConfirm_Agree".Translate(),
-                            "Cancel".Translate()
-                            );
+                        if (isDeleted)
+                        {
+                            // 予約状態が削除になったことを通知
+                            Reservation = null;
+                            RaisePropertyChanged(nameof(Reservation));
+                            ReservationStatus = null;
+                            RaisePropertyChanged(nameof(ReservationStatus));
 
-                        if (!acceptDeletion) { return; }
+                            ResetElements();
 
-                        var token = await reservationProvider.GetReservationTokenAsync();
-
-                        await reservationProvider.DeleteReservationAsync(LiveId, token);
-
-                        // 予約状態が削除になったことを通知
-                        Reservation = null;
-                        RaisePropertyChanged(nameof(Reservation));
-                        ReservationStatus = null;
-                        RaisePropertyChanged(nameof(ReservationStatus));
-
-                        ResetElements();
+                            AddReservationCommand.RaiseCanExecuteChanged();
+                        }
                     }
                     , () => Reservation != null
                     ));
             }
         }
+
+
+        private async Task<bool> DeleteReservation(string liveId, string liveTitle)
+        {
+            if (string.IsNullOrEmpty(liveId)) { throw new ArgumentException(nameof(liveId)); }
+
+            var niconicoSession = App.Current.Container.Resolve<Models.NiconicoSession>();
+            var hohoemaDialogService = App.Current.Container.Resolve<DialogService>();
+
+            bool isDeleted = false;
+
+            var token = await niconicoSession.Context.Live.GetReservationTokenAsync();
+
+            if (token == null) { return isDeleted; }
+
+            if (await hohoemaDialogService.ShowMessageDialog(
+                $"{liveTitle}",
+                "ConfirmDeleteTimeshift".Translate()
+                , "DeleteTimeshift".Translate()
+                , "Cancel".Translate()
+                )
+                )
+            {
+                await niconicoSession.Context.Live.DeleteReservationAsync(liveId, token);
+
+                var deleteAfterReservations = await niconicoSession.Context.Live.GetReservationsAsync();
+
+                isDeleted = !deleteAfterReservations.Any(x => liveId.EndsWith(x));
+                if (isDeleted)
+                {
+                    // 削除成功
+                    var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
+                    notificationService.ShowInAppNotification(new InAppNotificationPayload()
+                    {
+                        Content = "InAppNotification_DeletedTimeshift".Translate(),
+                        IsShowDismissButton = true,
+                    });
+                }
+                else
+                {
+                    // まだ存在するゾイ
+                    var notificationService = App.Current.Container.Resolve<Services.NotificationService>();
+                    notificationService.ShowInAppNotification(new InAppNotificationPayload()
+                    {
+                        Content = "InAppNotification_FailedDeleteTimeshift".Translate(),
+                        IsShowDismissButton = true,
+                    });
+
+                    Debug.Fail("タイムシフト削除に失敗しました: " + liveId);
+                }
+            }
+
+            return isDeleted;
+
+        }
+
+
+        private DelegateCommand _AddReservationCommand;
+        public DelegateCommand AddReservationCommand
+        {
+            get
+            {
+                return _AddReservationCommand
+                    ?? (_AddReservationCommand = new DelegateCommand(async () =>
+                    {
+                        var result = await AddReservationAsync(LiveId, Label);
+                        if (result)
+                        {
+                            var reservationProvider = App.Current.Container.Resolve<Models.Provider.LoginUserLiveReservationProvider>();
+                            var reservations = await reservationProvider.GetReservtionsAsync();
+                            var reservation = reservations.ReservedProgram.FirstOrDefault(x => x.Id == LiveId);
+                            if (reservation != null)
+                            {
+                                SetReservation(reservation);
+                            }
+
+                            RaisePropertyChanged(nameof(Reservation));
+                            RaisePropertyChanged(nameof(ReservationStatus));
+                            ResetElements();
+                        }
+                    }
+                    , () => IsTimeshiftEnabled && (OpenTime - TimeSpan.FromMinutes(30) > DateTime.Now || _niconicoSession.IsPremiumAccount) &&  Reservation == null
+                    ));
+            }
+        }
+
+        private async Task<bool> AddReservationAsync(string liveId, string liveTitle)
+        {
+            var niconicoSession = App.Current.Container.Resolve<Models.NiconicoSession>();
+            var hohoemaDialogService = App.Current.Container.Resolve<DialogService>();
+            var result = await niconicoSession.Context.Live.ReservationAsync(liveId);
+
+            bool isAdded = false;
+            if (result.IsCanOverwrite)
+            {
+                // 予約数が上限到達、他のタイムシフトを削除すれば予約可能
+                // いずれかの予約を削除するよう選択してもらう
+                if (await hohoemaDialogService.ShowMessageDialog(
+                       "DialogContent_ConfirmTimeshiftReservationiOverwrite".Translate(result.Data.Overwrite.Title, liveTitle),
+                       "DialogTitle_ConfirmTimeshiftReservationiOverwrite".Translate(),
+                       "Overwrite".Translate(),
+                       "Cancel".Translate()
+                    ))
+                {
+                    result = await niconicoSession.Context.Live.ReservationAsync(liveId, isOverwrite: true);
+                }
+            }
+
+            if (result.IsOK)
+            {
+                // 予約できてるはず
+                // LiveInfoのタイムシフト周りの情報と共に通知
+                var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
+                notificationService.ShowInAppNotification(new InAppNotificationPayload()
+                {
+                    Content = "InAppNotification_AddedTimeshiftWithTitle".Translate(liveTitle),
+                });
+
+                isAdded = true;
+            }
+            else if (result.IsCanOverwrite)
+            {
+                // 一つ前のダイアログで明示的的にキャンセルしてるはずなので特に通知を表示しない
+            }
+            else if (result.IsReservationDeuplicated)
+            {
+                var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
+                notificationService.ShowInAppNotification(new InAppNotificationPayload()
+                {
+                    Content = "InAppNotification_ExistTimeshift".Translate(),
+                });
+            }
+            else if (result.IsReservationExpired)
+            {
+                var notificationService = (App.Current as App).Container.Resolve<Services.NotificationService>();
+                notificationService.ShowInAppNotification(new InAppNotificationPayload()
+                {
+                    Content = "InAppNotification_TimeshiftExpired".Translate(),
+                });
+            }
+
+            return isAdded;
+        }
+
     }
 
 

@@ -435,7 +435,7 @@ namespace NicoPlayerHohoema.ViewModels
                 // 予約数が上限到達、他のタイムシフトを削除すれば予約可能
                 // いずれかの予約を削除するよう選択してもらう
                 if (await HohoemaDialogService.ShowMessageDialog(
-                       "Dialog_ConfirmTimeshiftReservationiOverwrite".Translate(result.Data.Overwrite.Title, liveTitle),
+                       "DialogContent_ConfirmTimeshiftReservationiOverwrite".Translate(result.Data.Overwrite.Title, liveTitle),
                        "DialogTitle_ConfirmTimeshiftReservationiOverwrite".Translate(),
                        "Overwrite".Translate(),
                        "Cancel".Translate()

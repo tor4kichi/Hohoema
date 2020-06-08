@@ -40,11 +40,16 @@
                     CommandParameter="{Binding}" />
   </MenuFlyoutSubItem>
 
-  <MenuFlyoutSeparator Visibility="{Binding ReservationStatus, Converter={StaticResource NotNullToVisibility}}" />
+  <MenuFlyoutSeparator />
 
   <MenuFlyoutItem Text="{Binding Source=DeleteTimeshift, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                    Command="{Binding DeleteReservation}"
+                    Command="{Binding DeleteReservationCommand}"
                     Visibility="{Binding ReservationStatus, Converter={StaticResource NotNullToVisibility}}"
+                    />
+
+  <MenuFlyoutItem Text="{Binding Source=AddTimeshift, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                    Command="{Binding AddReservationCommand}"
+                    Visibility="{Binding ReservationStatus, Converter={StaticResource NullToVisibility}}"
                     />
 
 </MenuFlyout>
