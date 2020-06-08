@@ -256,6 +256,66 @@ namespace NicoPlayerHohoema.ViewModels
             OptionText = DurationText;
         }
 
+        public void Setup(Mntone.Nico2.Nicocas.Live.Data liveData)
+        {
+            //CommunityName = data.;
+            
+            if (liveData.ThumbnailUrl != null)
+            {
+                CommunityThumbnail = liveData.ThumbnailUrl;
+            }
+
+            CommunityGlobalId = liveData.ProviderId;
+            CommunityType = liveData.CommunityType;
+
+            LiveTitle = liveData.Title;
+            ViewCounter = liveData.Viewers;
+            CommentCount = liveData.Comments;
+            OpenTime = liveData.OnAirTime.BeginAt;
+            StartTime = liveData.ShowTime.BeginAt;
+            EndTime = liveData.ShowTime.EndAt;
+            IsTimeshiftEnabled = liveData.Timeshift.Enabled;
+            IsCommunityMemberOnly = liveData.IsMemberOnly;
+
+            Label = LiveTitle;
+            AddImageUrl(CommunityThumbnail);
+
+            Description = $"来場者:{ViewCounter} コメ:{CommentCount}";
+
+            if (StartTime > DateTimeOffset.Now)
+            {
+                // 予約
+                DurationText = $" 開始予定: {StartTime.LocalDateTime.ToString("g")}";
+            }
+            else if (EndTime > DateTimeOffset.Now)
+            {
+                var duration = DateTimeOffset.Now - StartTime;
+                // 放送中
+                if (duration.Hours > 0)
+                {
+                    DurationText = $"{duration.Hours}時間 {duration.Minutes}分 経過";
+                }
+                else
+                {
+                    DurationText = $"{duration.Minutes}分 経過";
+                }
+            }
+            else
+            {
+                var duration = EndTime - StartTime;
+                // 終了
+                if (duration.Hours > 0)
+                {
+                    DurationText = $"{EndTime.LocalDateTime.ToString("g")} 終了（{duration.Hours}時間 {duration.Minutes}分）";
+                }
+                else
+                {
+                    DurationText = $"{EndTime.LocalDateTime.ToString("g")} 終了（{duration.Minutes}分）";
+                }
+            }
+
+            OptionText = DurationText;
+        }
 
         private void ResetElements()
         {

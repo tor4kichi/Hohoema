@@ -142,6 +142,7 @@ namespace NicoPlayerHohoema.Services
 
         private async Task<InAppNotificationPayload> SubmitLiveContentSuggestion(string liveId)
         {
+            /*
             var liveDesc = await NicoLiveProvider.GetLiveInfoAsync(liveId);
 
             if (liveDesc == null) { return null; }
@@ -195,6 +196,9 @@ namespace NicoPlayerHohoema.Services
             }
 
             return payload;
+            */
+
+            throw new NotImplementedException();
         }
 
         private async Task<InAppNotificationPayload> SubmitMylistContentSuggestion(string mylistId)

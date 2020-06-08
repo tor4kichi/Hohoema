@@ -82,7 +82,7 @@
         </mybehavior:KeyboardTrigger>
         <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ScrollPosition.Value, Mode=TwoWay}" />
         <core:EventTriggerBehavior EventName="ItemClick">
-          <core:InvokeCommandAction Command="{Binding HohoemaPlaylist.PlayCommand}"
+          <core:InvokeCommandAction Command="{Binding OpenLiveContentCommand}"
                                     InputConverter="{StaticResource ItemClickEventArgsConverter}" />
         </core:EventTriggerBehavior>
       </i:Interaction.Behaviors>
