@@ -159,10 +159,6 @@ namespace NicoPlayerHohoema.Repository.Playlist
         public MylistRemoveItemCommand ItemsRemoveCommand { get; }
         public MylistAddItemCommand ItemsAddCommand { get; }
 
-        public new string Label { get; internal set; }
-
-        public new int Count { get; internal set; }
-
         public MylistDefaultSort DefaultSort { get; internal set; }
 
 
