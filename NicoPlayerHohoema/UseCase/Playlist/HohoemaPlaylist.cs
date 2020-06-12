@@ -31,6 +31,7 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Unity;
 using Windows.Media;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 using AsyncLock = NicoPlayerHohoema.Models.Helpers.AsyncLock;
 using NiconicoSession = NicoPlayerHohoema.Models.NiconicoSession;
@@ -556,7 +557,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             {
                 if (playlist == null)
                 {
-                    //_player.SetSource(null);
+                    _player.SetSource(Enumerable.Empty<IVideoContent>());
                 }
                 else if (playlist == WatchAfterPlaylist)
                 {
@@ -641,8 +642,8 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             switch (playlist)
             {
                 case LoginUserMylistPlaylist loginUserMylist:
-                    var loginUserMylistResult = await loginUserMylist.GetItemsAsync(0, 50);
-                    return loginUserMylistResult.Items;
+                    var loginUserMylistResult = await loginUserMylist.GetLoginUserMylistItemsAsync();
+                    return loginUserMylistResult;
 
                 case MylistPlaylist mylist:
                     var mylistResult = await mylist.GetMylistAllItems();

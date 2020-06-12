@@ -69,9 +69,9 @@ namespace NicoPlayerHohoema.Repository.Playlist
         public async Task<MylistItemsGetResult> GetItemsAsync(int start, int count)
         {
            
-            if (this.IsDefaultMylist())
+            //if (this.IsDefaultMylist())
             {
-                throw new ArgumentException("とりあえずマイリストはログインしていなければアクセスできません。");
+                //throw new ArgumentException("とりあえずマイリストはログインしていなければアクセスできません。");
             }
 
             if (!IsPublic)
