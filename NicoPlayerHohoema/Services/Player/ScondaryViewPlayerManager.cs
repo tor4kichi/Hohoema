@@ -289,7 +289,10 @@ namespace NicoPlayerHohoema.Services
                         throw result.Exception;
                     }
 
-                    await ApplicationViewSwitcher.TryShowAsStandaloneAsync(this.SecondaryAppView.Id, ViewSizePreference.Default, MainViewId, ViewSizePreference.UseNone);
+                    if (SecondaryAppView.ViewMode != ApplicationViewMode.CompactOverlay)
+                    {
+                        await ApplicationViewSwitcher.TryShowAsStandaloneAsync(this.SecondaryAppView.Id, ViewSizePreference.Default, MainViewId, ViewSizePreference.UseNone);
+                    }
                 });
 
 //                await ShowSecondaryViewAsync();
