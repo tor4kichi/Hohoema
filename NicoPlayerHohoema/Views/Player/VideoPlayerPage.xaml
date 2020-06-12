@@ -749,7 +749,7 @@
         <!-- 幅が十分に広いとき -->
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControl.ActualWidth, Mode=OneWay}" CompareTo="{StaticResource WidthBreakPoint_WideToMiddle}" Comparison="GreaterThan" />
+            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControlWidth, Mode=OneWay}" CompareTo="{StaticResource WidthBreakPoint_WideToMiddle}" Comparison="GreaterThan" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
           </VisualState.Setters>
@@ -758,7 +758,7 @@
         <!-- 中ぐらい -->
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControl.ActualWidth, Mode=OneWay}" CompareTo="{StaticResource WidthBreakPoint_MiddleToNallow}" Comparison="GreaterThan" />
+            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControlWidth, Mode=OneWay}" CompareTo="{StaticResource WidthBreakPoint_MiddleToNallow}" Comparison="GreaterThan" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PreviewVideoPositionButon.Visibility" Value="Collapsed" />
@@ -780,7 +780,7 @@
         <!-- 超狭い -->
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControl.ActualWidth, Mode=OneWay}" CompareTo="{StaticResource WidthBreakPoint_NallowToVeryNallow}" Comparison="GreaterThan" />
+            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControlWidth, Mode=OneWay}" CompareTo="{StaticResource WidthBreakPoint_NallowToVeryNallow}" Comparison="GreaterThan" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PreviewVideoPositionButon.Visibility" Value="Collapsed" />
@@ -805,7 +805,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControl.ActualWidth, Mode=OneWay}" CompareTo="0" Comparison="GreaterThan" />
+            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControlWidth, Mode=OneWay}" CompareTo="0" Comparison="GreaterThan" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PreviewVideoPositionButon.Visibility" Value="Collapsed" />

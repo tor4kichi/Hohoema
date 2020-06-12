@@ -67,6 +67,27 @@ namespace NicoPlayerHohoema.Views
                     ThemeChanged(theme);
                 });
 
+            MediaControl.SizeChanged += MediaControl_SizeChanged;
+        }
+
+
+        /// <summary>
+        /// ActualWidthは初回描画後はRaiseされないため手動で幅情報を更新する
+        /// </summary>
+        public double MediaControlWidth
+        {
+            get { return (double)GetValue(MediaControlWidthProperty); }
+            set { SetValue(MediaControlWidthProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for MediaControlWidth.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty MediaControlWidthProperty =
+            DependencyProperty.Register("MediaControlWidth", typeof(double), typeof(VideoPlayerPage), new PropertyMetadata(0.0));
+
+
+        private void MediaControl_SizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            MediaControlWidth = e.NewSize.Width;
         }
 
         void ThemeChanged(ElementTheme theme)
