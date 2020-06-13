@@ -488,10 +488,10 @@
                         </mybehavior:KeyboardTrigger>
                       </i:Interaction.Behaviors>
                     </TextBox>
-                    <Button Content="{Binding CommandString.Value, Mode=OneWay}" Margin="0 0 8 8" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" DataContext="{Binding}" x:Name="CommentCommandEditButton" Height="40" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="1">
+                    <Button Content="{Binding CommentCommandEditerViewModel.CommandsText.Value, Mode=OneWay}" Margin="0 0 8 8" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" DataContext="{Binding}" x:Name="CommentCommandEditButton" Height="40" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="1">
                       <Button.Flyout>
                         <Flyout x:Name="CommandEditerFlyout">
-                          <local:CommentCommandEditer x:Name="CommandEditer" CommandString="{Binding CommandString.Value, Mode=TwoWay}" />
+                          <local:CommentCommandEditer x:Name="CommandEditer" DataContext="{Binding CommentCommandEditerViewModel}" />
                         </Flyout>
                       </Button.Flyout>
                     </Button>

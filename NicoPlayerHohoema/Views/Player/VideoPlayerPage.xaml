@@ -602,13 +602,19 @@
                     </Grid.ColumnDefinitions>
                     <TextBox x:Name="CommentTextBox" Text="{Binding CommentPlayer.WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BGTransparentTextBoxStyle}" FontSize="18" VerticalAlignment="Center" MaxLength="75" IsTabStop="True" toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True" PlaceholderText="{Binding Source=CommentTextBoxPlacefolder, Converter={StaticResource LocalizeConverter}}" HorizontalAlignment="Stretch" Margin="8 0 8 0" HorizontalContentAlignment="Stretch" Height="40" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="4" IsEnabled="{Binding IsCommentDisabledFromNicoScript.Value, Converter={StaticResource BoolNegation}}"></TextBox>
                     <Button x:Name="CommentCommandEditButton"
-                            Content="{x:Bind CommandEditer.CommandString, Mode=OneWay}"                            
+                            Content="{Binding CommentCommandEditerViewModel.CommandsText.Value, Mode=OneWay}"                            
                             Margin="8 0 8 0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" DataContext="{Binding}" Height="40" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="1">
                       <Button.Flyout>
                         <Flyout x:Name="CommandEditerFlyout">
-                          <local:CommentCommandEditer x:Name="CommandEditer" CommandString="{Binding CommentPlayer.CommandText.Value, Mode=TwoWay}" />
+                          <local:CommentCommandEditer x:Name="CommandEditer" DataContext="{Binding CommentCommandEditerViewModel}" />
                         </Flyout>
                       </Button.Flyout>
+
+                      <i:Interaction.Behaviors>
+                        <core:DataTriggerBehavior Binding="{Binding CommentCommandEditerViewModel.CommandsText.Value}" Value="{x:Null}" ComparisonCondition="NotEqual">
+                          <core:ChangePropertyAction TargetObject="{Binding CommentPlayer.CommandText}" PropertyName="Value" Value="{Binding CommentCommandEditerViewModel.CommandsText.Value}" />
+                        </core:DataTriggerBehavior>
+                      </i:Interaction.Behaviors>
                     </Button>
                     <Button x:Name="CommentSubmitButton" Margin="8 0 8 0" Height="40" Command="{Binding CommentPlayer.CommentSubmitCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="5" Grid.ColumnSpan="1">
                       <Grid>
