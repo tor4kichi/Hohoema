@@ -83,6 +83,7 @@ namespace NicoPlayerHohoema.ViewModels
             UseCase.NicoVideoPlayer.VideoStreamingOriginOrchestrator videoStreamingOriginOrchestrator,
             UseCase.VideoPlayer videoPlayer,
             UseCase.CommentPlayer commentPlayer,
+            CommentCommandEditerViewModel commentCommandEditerViewModel,
             KeepActiveDisplayWhenPlaying keepActiveDisplayWhenPlaying,
             ObservableMediaPlayer observableMediaPlayer,
             WindowService windowService,
@@ -116,6 +117,7 @@ namespace NicoPlayerHohoema.ViewModels
             _videoStreamingOriginOrchestrator = videoStreamingOriginOrchestrator;
             VideoPlayer = videoPlayer;
             CommentPlayer = commentPlayer;
+            CommentCommandEditerViewModel = commentCommandEditerViewModel;
             PrimaryViewPlayerManager = primaryViewPlayerManager;
             TogglePlayerDisplayViewCommand = togglePlayerDisplayViewCommand;
             ShowPrimaryViewCommand = showPrimaryViewCommand;
@@ -163,6 +165,7 @@ namespace NicoPlayerHohoema.ViewModels
         public Models.NiconicoSession NiconicoSession { get; }
         public VideoPlayer VideoPlayer { get; }
         public CommentPlayer CommentPlayer { get; }
+        public CommentCommandEditerViewModel CommentCommandEditerViewModel { get; }
         public PrimaryViewPlayerManager PrimaryViewPlayerManager { get; }
         public TogglePlayerDisplayViewCommand TogglePlayerDisplayViewCommand { get; }
         public ShowPrimaryViewCommand ShowPrimaryViewCommand { get; }

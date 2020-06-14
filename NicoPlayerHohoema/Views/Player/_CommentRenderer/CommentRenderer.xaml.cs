@@ -445,6 +445,7 @@ namespace NicoPlayerHohoema.Views
 
         private async void CommentRenderer_SizeChanged(object sender, SizeChangedEventArgs e)
         {
+
             using (var releaser = await _UpdateLock.LockAsync())
             {
                 Clip = new RectangleGeometry() { Rect = new Rect() { Width = ActualWidth, Height = ActualHeight } };
@@ -508,37 +509,46 @@ namespace NicoPlayerHohoema.Views
 
         private async Task ResetCommentsAsyncSafe()
         {
-            using (await _UpdateLock.LockAsync())
+            try
             {
-                var frame = GetRenderFrameData();
+                CommentCanvas.Visibility = Visibility.Collapsed;
 
-                Debug.WriteLine("Comment Reset");
-
-                foreach (var anim in _animationSetMap.Values)
+                using (await _UpdateLock.LockAsync())
                 {
-                    anim.Stop();
-                    anim.Dispose();
+                    Debug.WriteLine("Comment Reset");
+
+                    foreach (var anim in _animationSetMap.Values)
+                    {
+                        anim.Stop();
+                        anim.Dispose();
+                    }
+
+                    _animationSetMap.Clear();
+                    CommentCanvas.Children.Clear();
+                    _commentToRenderCommentMap.Clear();
+
+                    PrevRenderCommentEachLine_Stream.Clear();
+                    PrevRenderCommentEachLine_Top.Clear();
+                    PrevRenderCommentEachLine_Bottom.Clear();
+
+                    _RealVideoPosition = DateTime.Now;
                 }
 
-                _animationSetMap.Clear();
-                CommentCanvas.Children.Clear();
-                _commentToRenderCommentMap.Clear();
+                CommentCanvas.Visibility = Visibility.Visible;
+                if (Visibility == Visibility.Visible)
+                {
+                    if (Comments != null)
+                    {
+                        await Task.Delay(10);
 
-                PrevRenderCommentEachLine_Stream.Clear();
-                PrevRenderCommentEachLine_Top.Clear();
-                PrevRenderCommentEachLine_Bottom.Clear();
+                        await AddCommentToCanvasAsyncSafe(Comments.Cast<Comment>().ToArray());
+                    }
+                }
 
-                _RealVideoPosition = DateTime.Now;
             }
-
-            if (Visibility == Visibility.Visible)
+            finally
             {
-                if (Comments != null)
-                {
-                    await Task.Delay(100);
-
-                    await AddCommentToCanvasAsyncSafe(Comments.Cast<Comment>().ToArray());
-                }
+                CommentCanvas.Visibility = Visibility.Visible;
             }
         }
 

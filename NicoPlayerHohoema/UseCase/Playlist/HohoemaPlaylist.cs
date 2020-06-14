@@ -27,10 +27,12 @@ using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Disposables;
 using System.Reactive.Linq;
+using System.Reactive.Threading.Tasks;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Unity;
 using Windows.Media;
+using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
 using AsyncLock = NicoPlayerHohoema.Models.Helpers.AsyncLock;
 using NiconicoSession = NicoPlayerHohoema.Models.NiconicoSession;
@@ -556,7 +558,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             {
                 if (playlist == null)
                 {
-                    //_player.SetSource(null);
+                    _player.SetSource(Enumerable.Empty<IVideoContent>());
                 }
                 else if (playlist == WatchAfterPlaylist)
                 {
@@ -641,8 +643,8 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             switch (playlist)
             {
                 case LoginUserMylistPlaylist loginUserMylist:
-                    var loginUserMylistResult = await loginUserMylist.GetItemsAsync(0, 50);
-                    return loginUserMylistResult.Items;
+                    var loginUserMylistResult = await loginUserMylist.GetLoginUserMylistItemsAsync();
+                    return loginUserMylistResult;
 
                 case MylistPlaylist mylist:
                     var mylistResult = await mylist.GetMylistAllItems();
@@ -987,39 +989,49 @@ namespace NicoPlayerHohoema.UseCase.Playlist
                 if (_queueItems.Any())
                 {
                     var firstQueue = _queueItems.First();
-                    _queueItems.RemoveOnScheduler(firstQueue);
-                    Current = firstQueue;
+                    if (firstQueue.Id == Current?.Id)
+                    {
+                        firstQueue = _queueItems.ElementAtOrDefault(1) ?? null;
+                        _queueItems.RemoveOnScheduler(Current);
+                        Current = null;                        
+                    }
 
-                    PlayRequested?.Invoke(this, firstQueue);
+                    if (firstQueue != null)
+                    {
+                        _queueItems.RemoveOnScheduler(firstQueue);
+                        Current = firstQueue;
+                        PlayRequested?.Invoke(this, firstQueue);
+
+                        return;
+                    }
                 }
-                else 
+                                
+                if (!_items.Any()) { return; }
+
+                var prevPlayed = Current;
+                var nextIndex = CurrentIndex + 1;
+
+                if (nextIndex >= _sourceItems.Count)
                 {
-                    if (!_items.Any()) { return; }
-
-                    var prevPlayed = Current;
-                    var nextIndex = CurrentIndex + 1;
-
-                    if (nextIndex >= _sourceItems.Count)
-                    {
-                        ResetItems();
-                        nextIndex = 0;
-                    }
-
-                    var nextItem = _items
-                        .ElementAt(nextIndex);
-
-                    if (nextItem != null)
-                    {
-                        Current = nextItem;
-                        CurrentIndex = nextIndex;
-
-                        PlayRequested?.Invoke(this, nextItem);
-                    }
-                    else
-                    {
-                        throw new Exception();
-                    }
+                    ResetItems();
+                    nextIndex = 0;
                 }
+
+                var nextItem = _items
+                    .ElementAt(nextIndex);
+
+                if (nextItem != null)
+                {
+                    Current = nextItem;
+                    CurrentIndex = nextIndex;
+
+                    PlayRequested?.Invoke(this, nextItem);
+                }
+                else
+                {
+                    throw new Exception();
+                }
+                
             }
         }
 

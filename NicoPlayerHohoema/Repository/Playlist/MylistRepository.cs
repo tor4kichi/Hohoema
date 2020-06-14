@@ -3,6 +3,7 @@ using Mntone.Nico2.Mylist;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Provider;
+using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.UseCase.Playlist.Commands;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Prism.Ioc;
 
 namespace NicoPlayerHohoema.Repository.Playlist
 {
@@ -69,9 +71,9 @@ namespace NicoPlayerHohoema.Repository.Playlist
         public async Task<MylistItemsGetResult> GetItemsAsync(int start, int count)
         {
            
-            if (this.IsDefaultMylist())
+            //if (this.IsDefaultMylist())
             {
-                throw new ArgumentException("とりあえずマイリストはログインしていなければアクセスできません。");
+                //throw new ArgumentException("とりあえずマイリストはログインしていなければアクセスできません。");
             }
 
             if (!IsPublic)
@@ -153,15 +155,11 @@ namespace NicoPlayerHohoema.Repository.Playlist
         {
             _loginUserMylistProvider = loginUserMylistProvider;
             ItemsRemoveCommand = new MylistRemoveItemCommand(this);
-            ItemsAddCommand = new MylistAddItemCommand(this);
+            ItemsAddCommand = new MylistAddItemCommand(this, App.Current.Container.Resolve<NotificationService>());
         }
 
         public MylistRemoveItemCommand ItemsRemoveCommand { get; }
         public MylistAddItemCommand ItemsAddCommand { get; }
-
-        public new string Label { get; internal set; }
-
-        public new int Count { get; internal set; }
 
         public MylistDefaultSort DefaultSort { get; internal set; }
 

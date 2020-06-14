@@ -12,20 +12,13 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI;
+using Prism.Ioc;
 
 namespace NicoPlayerHohoema.Dialogs
 {
 	public class EditMylistGroupDialogContext
 	{
-        private SynchronizationContextScheduler _CurrentWindowContextScheduler;
-        public SynchronizationContextScheduler CurrentWindowContextScheduler
-        {
-            get
-            {
-                return _CurrentWindowContextScheduler
-                    ?? (_CurrentWindowContextScheduler = new SynchronizationContextScheduler(SynchronizationContext.Current));
-            }
-        }
+		IScheduler _scheduler;
 
         public static List<IncoTypeVM> IconTypeList { get; private set; }
 		public static List<MylistDefaultSort> MylistDefaultSortList { get; private set; }
@@ -47,22 +40,23 @@ namespace NicoPlayerHohoema.Dialogs
 
 		public EditMylistGroupDialogContext(MylistGroupEditData data, bool isCreate = false)
 		{
+			_scheduler = App.Current.Container.Resolve<IScheduler>();
 			DialogTitle = isCreate ? "MylistCreate".Translate() : "EditMylist".Translate();
-			MylistName = new ReactiveProperty<string>(CurrentWindowContextScheduler, data.Name)
+			MylistName = new ReactiveProperty<string>(_scheduler, data.Name)
 				.SetValidateAttribute(() => MylistName);
 
-			MylistDescription = new ReactiveProperty<string>(CurrentWindowContextScheduler, data.Description);
-			MylistIconType = new ReactiveProperty<IncoTypeVM>(CurrentWindowContextScheduler, IconTypeList.Single(x => x.IconType == data.IconType));
-			MylistIsPublicIndex = new ReactiveProperty<int>(CurrentWindowContextScheduler, data.IsPublic ? 0 : 1); // 公開=1 非公開=0
-			MylistDefaultSort = new ReactiveProperty<MylistDefaultSort>(CurrentWindowContextScheduler, data.MylistDefaultSort);
+			MylistDescription = new ReactiveProperty<string>(_scheduler, data.Description);
+			MylistIconType = new ReactiveProperty<IncoTypeVM>(_scheduler, IconTypeList.Single(x => x.IconType == data.IconType));
+			MylistIsPublicIndex = new ReactiveProperty<int>(_scheduler, data.IsPublic ? 0 : 1); // 公開=1 非公開=0
+			MylistDefaultSort = new ReactiveProperty<MylistDefaultSort>(_scheduler, data.MylistDefaultSort);
 
 			CanEditCompletion = MylistName.ObserveHasErrors
 				.Select(x => !x)
-				.ToReactiveProperty();
+				.ToReactiveProperty(raiseEventScheduler: _scheduler);
 
 			LastErrorMessage = MylistName.ObserveErrorChanged
 				.Select(x => x?.OfType<string>().FirstOrDefault())
-				.ToReactiveProperty();
+				.ToReactiveProperty(raiseEventScheduler: _scheduler);
 			
 
 		}

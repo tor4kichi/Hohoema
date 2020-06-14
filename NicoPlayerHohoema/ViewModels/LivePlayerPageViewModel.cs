@@ -88,7 +88,8 @@ namespace NicoPlayerHohoema.ViewModels
             PrimaryViewPlayerManager primaryViewPlayerManager,
             TogglePlayerDisplayViewCommand togglePlayerDisplayViewCommand,
             ShowPrimaryViewCommand showPrimaryViewCommand,
-            UseCase.NicoVideoPlayer.MediaPlayerSoundVolumeManager soundVolumeManager
+            UseCase.NicoVideoPlayer.MediaPlayerSoundVolumeManager soundVolumeManager,
+            CommentCommandEditerViewModel commentCommandEditerViewModel
             )
         {
             _scheduler = scheduler;
@@ -113,6 +114,7 @@ namespace NicoPlayerHohoema.ViewModels
             TogglePlayerDisplayViewCommand = togglePlayerDisplayViewCommand;
             ShowPrimaryViewCommand = showPrimaryViewCommand;
             SoundVolumeManager = soundVolumeManager;
+            CommentCommandEditerViewModel = commentCommandEditerViewModel;
             DisplayingLiveComments = new ReadOnlyObservableCollection<Comment>(_DisplayingLiveComments);
 
             SeekCommand = new MediaPlayerSeekCommand(MediaPlayer);
@@ -201,9 +203,6 @@ namespace NicoPlayerHohoema.ViewModels
             SuccessPostCommentSubject = _SuccessPostCommentSubject
                 .ToReadOnlyReactiveProperty(mode: ReactivePropertyMode.None, eventScheduler: _scheduler)
                 .AddTo(_CompositeDisposable);
-            CommandString = new ReactiveProperty<string>(_scheduler, PlayerSettings.IsDefaultCommentWithAnonymous ? "184" : "").AddTo(_CompositeDisposable);
-
-
 
             // operation command
             BroadcasterLiveOperationCommand = new ReactiveProperty<LiveOperationCommand>(_scheduler)
@@ -373,6 +372,7 @@ namespace NicoPlayerHohoema.ViewModels
         public TogglePlayerDisplayViewCommand TogglePlayerDisplayViewCommand { get; }
         public ShowPrimaryViewCommand ShowPrimaryViewCommand { get; }
         public MediaPlayerSoundVolumeManager SoundVolumeManager { get; }
+        public CommentCommandEditerViewModel CommentCommandEditerViewModel { get; }
 
         private string _LiveId;
         public string LiveId
@@ -492,7 +492,6 @@ namespace NicoPlayerHohoema.ViewModels
         ISubject<Unit> _SuccessPostCommentSubject { get; }
         public IReadOnlyReactiveProperty<Unit> SuccessPostCommentSubject { get; }
 		public CommentCommandEditerViewModel CommandEditerVM { get; private set; }
-		public ReactiveProperty<string> CommandString { get; private set; }
         public ReactiveProperty<string> CommentSubmitText { get; private set; }
         public ReactiveProperty<bool> NowCommentSubmitting { get; private set; }
 
@@ -678,7 +677,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                     if (NicoLiveVideo != null)
                     {
-                        await NicoLiveVideo.PostComment(text, CommandString.Value, LiveElapsedTime);
+                        await NicoLiveVideo.PostComment(text, this.CommentCommandEditerViewModel.CommandsText.Value, LiveElapsedTime);
                     }
                 })
                 .AddTo(_CompositeDisposable);

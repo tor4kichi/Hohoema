@@ -26,86 +26,13 @@ namespace NicoPlayerHohoema.Views
 {
 	public sealed partial class CommentCommandEditer : UserControl
 	{
-		CompositeDisposable _disposables = new CompositeDisposable();
-		CommentCommandEditerViewModel _viewModel;
-
+		
 		CoreDispatcher _dispatcher;
 		public CommentCommandEditer()
 		{
-			DataContext = _viewModel = App.Current.Container.Resolve<CommentCommandEditerViewModel>();
-
 			this.InitializeComponent();
 
 			_dispatcher = Dispatcher;
-			Loaded += CommentCommandEditer_Loaded;
-			Unloaded += CommentCommandEditer_Unloaded;
-		}
-
-		private void CommentCommandEditer_Unloaded(object sender, RoutedEventArgs e)
-		{
-			_disposables.Dispose();
-		}
-
-		private void CommentCommandEditer_Loaded(object sender, RoutedEventArgs e)
-		{
-			_disposables = new CompositeDisposable();
-
-			new[]
-			{
-				AnonymousCommentToggleButton.ObserveDependencyProperty(ToggleSwitch.IsOnProperty),
-				CommentSizePallete.ObserveDependencyProperty(ListView.SelectedItemProperty),
-				AlingmentPallete.ObserveDependencyProperty(ListView.SelectedItemProperty),
-				ColorPallete.ObserveDependencyProperty(ListView.SelectedItemProperty),
-				UserInputCommand.ObserveDependencyProperty(TextBox.TextProperty),
-				UserInputCommandToggleSwitch.ObserveDependencyProperty(ToggleSwitch.IsOnProperty),
-			}
-			.Merge()
-			.Throttle(TimeSpan.FromSeconds(0.1))
-			.Subscribe(__ => 
-			{
-				_ = _dispatcher.RunAsync(CoreDispatcherPriority.Normal, () => 
-				{
-					CommandString = MakeCommandsString();
-				});
-			})
-			.AddTo(_disposables);
-
-			AnonymousCommentToggleButton.IsOn = _viewModel.PlayerSettings.IsDefaultCommentWithAnonymous;
-			CommandString = MakeCommandsString();
-		}
-
-		public string MakeCommandsString()
-		{
-			List<string> commands = new List<string>();
-
-			if (AnonymousCommentToggleButton.IsOn)
-			{
-				commands.Add("184");
-			}
-
-			if (CommentSizePallete.SelectedValue is CommandType sizeCommand)
-			{
-				commands.Add(sizeCommand.ToString());
-			}
-
-			if (AlingmentPallete.SelectedValue is CommandType alignmentCommand)
-			{
-				commands.Add(alignmentCommand.ToString());
-			}
-
-			if (ColorPallete.SelectedValue is CommandType colorType)
-			{
-				commands.Add(colorType.ToString());
-			}
-
-			if (UserInputCommandToggleSwitch.IsOn
-				&& !string.IsNullOrWhiteSpace(UserInputCommand.Text)
-				)
-			{
-				commands.Add(UserInputCommand.Text);
-			}
-
-			return String.Join(" ", commands.Distinct());
 		}
 
 		private void AllCommandReset(object sender, RoutedEventArgs e)

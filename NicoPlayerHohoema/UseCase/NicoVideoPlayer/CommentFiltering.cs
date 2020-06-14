@@ -46,6 +46,8 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
                 );
             _ignoreCommands = _commentFliteringRepository.GetFilteredCommands().ToHashSet();
 
+            _shareNGScore = _commentFliteringRepository.ShareNGScore;
+
             Initialize();
         }
 
@@ -215,7 +217,20 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
 
         public bool IsHiddenShareNGScore(int score)
         {
-            return _commentFliteringRepository.ShareNGScore < score;
+            return _commentFliteringRepository.ShareNGScore >= score;
+        }
+
+        private int _shareNGScore;
+        public int ShareNGScore
+        {
+            get { return _shareNGScore; }
+            set 
+            {
+                if (SetProperty(ref _shareNGScore, value))
+                {
+                    _commentFliteringRepository.ShareNGScore = value;
+                }
+            }
         }
 
         #endregion

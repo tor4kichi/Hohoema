@@ -265,6 +265,7 @@
                      Visibility="Collapsed" />
         </StackPanel>
         <ToggleSwitch x:Name="AnonymousCommentToggleButton"
+                      IsOn="{Binding IsAnonymousCommenting.Value, Mode=TwoWay}"
                       HorizontalAlignment="Right" />
       </Grid>
       <Grid>
@@ -275,6 +276,7 @@
         <ListView x:Name="CommentSizePallete"
                   ItemsSource="{x:Bind SizeCommandItems}"
                   ItemTemplateSelector="{StaticResource commentCommandTemplateSelector}"
+                  SelectedItem="{Binding SelectedCommentSize.Value, Mode=TwoWay}"
                   SelectionMode="Single"
                   HorizontalAlignment="Right"
                   >
@@ -307,6 +309,7 @@
           <ListView x:Name="AlingmentPallete"
                     ItemsSource="{x:Bind AlingmentCommandItems}"
                     ItemTemplateSelector="{StaticResource commentCommandTemplateSelector}"
+                    SelectedItem="{Binding SelectedAlingment.Value, Mode=TwoWay}"
                     SelectionMode="Single"
                     HorizontalAlignment="Right">
             <ListView.ItemsPanel>
@@ -335,6 +338,7 @@
         <ListView  x:Name="ColorPallete"
                    ItemsSource="{x:Bind ColorCommandItems}"
                    ItemTemplateSelector="{StaticResource commentCommandTemplateSelector}"
+                   SelectedItem="{Binding SelectedColor.Value, Mode=TwoWay}"
                    SelectionMode="Single"
                    HorizontalAlignment="Right"
                    Width="200"
@@ -357,11 +361,12 @@
       <Grid>
         <TextBlock Text="{Binding Source=UseFreeInputCommand, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" HorizontalAlignment="Left" VerticalAlignment="Center" />
         <ToggleSwitch x:Name="UserInputCommandToggleSwitch"
-                      IsOn="False"
+                      IsOn="{Binding IsUseCustomCommandText.Value, Mode=TwoWay}"
                       HorizontalAlignment="Right" />
       </Grid>
       <toolkit:DockPanel>
         <TextBox x:Name="UserInputCommand"
+                 Text="{Binding CustomCommandText.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                  PlaceholderText="{Binding Source=FreeInputCommandTextBoxPlacefolderText, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                  Visibility="Collapsed"
                  />
@@ -371,7 +376,7 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{x:Bind _viewModel.NiconicoSession.IsPremiumAccount, Mode=OneWay}" />
+            <StateTrigger IsActive="{Binding NiconicoSession.IsPremiumAccount, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ColorPallete.ItemsSource"

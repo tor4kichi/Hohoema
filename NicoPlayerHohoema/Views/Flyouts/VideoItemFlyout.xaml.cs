@@ -113,11 +113,6 @@ namespace NicoPlayerHohoema.Views.Flyouts
             Opening += VideoItemFlyout_Opening;
         }
 
-        ~VideoItemFlyout()
-        {
-            Opening -= VideoItemFlyout_Opening;
-        }
-
         private void VideoItemFlyout_Opening(object sender, object e)
         {
             object dataContext = Target.DataContext ?? (Target as SelectorItem)?.Content;

@@ -347,7 +347,7 @@
                                   </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
                                 </mybehavior:MenuFlyoutSubItemItemsSetter>
                               </i:Interaction.Behaviors>
-                              <MenuFlyoutItem Text="{Binding Source=CreateNew, Converter={StaticResource LocalizeConverter}}" Command="{Binding CreateMylistCommand}" CommandParameter="{Binding VideoId}" />
+                              <MenuFlyoutItem Text="{Binding Source=CreateNew, Converter={StaticResource LocalizeConverter}}" Command="{Binding CreateMylistCommand}" CommandParameter="{Binding VideoInfo}" />
                             </MenuFlyoutSubItem>
                             <MenuFlyoutSubItem Text="{Binding Source=LocalMylistAddItem, Converter={StaticResource LocalizeConverter}}">
                               <i:Interaction.Behaviors>
@@ -359,7 +359,7 @@
                                   </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
                                 </mybehavior:MenuFlyoutSubItemItemsSetter>
                               </i:Interaction.Behaviors>
-                              <MenuFlyoutItem Text="{Binding Source=CreateNew, Converter={StaticResource LocalizeConverter}}" Command="{Binding CreateLocalMylistCommand}" CommandParameter="{Binding VideoId}" />
+                              <MenuFlyoutItem Text="{Binding Source=CreateNew, Converter={StaticResource LocalizeConverter}}" Command="{Binding CreateLocalMylistCommand}" CommandParameter="{Binding VideoInfo}" />
                             </MenuFlyoutSubItem>
                             <MenuFlyoutSubItem Text="{Binding Source=SubscriptionAddUser, Converter={StaticResource LocalizeConverter}}">
                               <i:Interaction.Behaviors>
@@ -602,13 +602,19 @@
                     </Grid.ColumnDefinitions>
                     <TextBox x:Name="CommentTextBox" Text="{Binding CommentPlayer.WritingComment.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource BGTransparentTextBoxStyle}" FontSize="18" VerticalAlignment="Center" MaxLength="75" IsTabStop="True" toolkitext:TextBoxFocusExtensions.AutoSelectOnFocus="True" PlaceholderText="{Binding Source=CommentTextBoxPlacefolder, Converter={StaticResource LocalizeConverter}}" HorizontalAlignment="Stretch" Margin="8 0 8 0" HorizontalContentAlignment="Stretch" Height="40" Grid.RowSpan="2" Grid.Column="1" Grid.ColumnSpan="4" IsEnabled="{Binding IsCommentDisabledFromNicoScript.Value, Converter={StaticResource BoolNegation}}"></TextBox>
                     <Button x:Name="CommentCommandEditButton"
-                            Content="{x:Bind CommandEditer.CommandString, Mode=OneWay}"                            
+                            Content="{Binding CommentCommandEditerViewModel.CommandsText.Value, Mode=OneWay}"                            
                             Margin="8 0 8 0" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" DataContext="{Binding}" Height="40" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="0" Grid.ColumnSpan="1">
                       <Button.Flyout>
                         <Flyout x:Name="CommandEditerFlyout">
-                          <local:CommentCommandEditer x:Name="CommandEditer" CommandString="{Binding CommentPlayer.CommandText.Value, Mode=TwoWay}" />
+                          <local:CommentCommandEditer x:Name="CommandEditer" DataContext="{Binding CommentCommandEditerViewModel}" />
                         </Flyout>
                       </Button.Flyout>
+
+                      <i:Interaction.Behaviors>
+                        <core:DataTriggerBehavior Binding="{Binding CommentCommandEditerViewModel.CommandsText.Value}" Value="{x:Null}" ComparisonCondition="NotEqual">
+                          <core:ChangePropertyAction TargetObject="{Binding CommentPlayer.CommandText}" PropertyName="Value" Value="{Binding CommentCommandEditerViewModel.CommandsText.Value}" />
+                        </core:DataTriggerBehavior>
+                      </i:Interaction.Behaviors>
                     </Button>
                     <Button x:Name="CommentSubmitButton" Margin="8 0 8 0" Height="40" Command="{Binding CommentPlayer.CommentSubmitCommand}" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" UseSystemFocusVisuals="True" Grid.RowSpan="2" Grid.Column="5" Grid.ColumnSpan="1">
                       <Grid>
@@ -749,7 +755,7 @@
         <!-- 幅が十分に広いとき -->
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControl.ActualWidth, Mode=OneWay}" CompareTo="{StaticResource WidthBreakPoint_WideToMiddle}" Comparison="GreaterThan" />
+            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControlWidth, Mode=OneWay}" CompareTo="{StaticResource WidthBreakPoint_WideToMiddle}" Comparison="GreaterThan" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
           </VisualState.Setters>
@@ -758,7 +764,7 @@
         <!-- 中ぐらい -->
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControl.ActualWidth, Mode=OneWay}" CompareTo="{StaticResource WidthBreakPoint_MiddleToNallow}" Comparison="GreaterThan" />
+            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControlWidth, Mode=OneWay}" CompareTo="{StaticResource WidthBreakPoint_MiddleToNallow}" Comparison="GreaterThan" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PreviewVideoPositionButon.Visibility" Value="Collapsed" />
@@ -780,7 +786,7 @@
         <!-- 超狭い -->
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControl.ActualWidth, Mode=OneWay}" CompareTo="{StaticResource WidthBreakPoint_NallowToVeryNallow}" Comparison="GreaterThan" />
+            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControlWidth, Mode=OneWay}" CompareTo="{StaticResource WidthBreakPoint_NallowToVeryNallow}" Comparison="GreaterThan" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PreviewVideoPositionButon.Visibility" Value="Collapsed" />
@@ -805,7 +811,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControl.ActualWidth, Mode=OneWay}" CompareTo="0" Comparison="GreaterThan" />
+            <windowsTriggers:CompareStateTrigger Value="{x:Bind MediaControlWidth, Mode=OneWay}" CompareTo="0" Comparison="GreaterThan" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PreviewVideoPositionButon.Visibility" Value="Collapsed" />

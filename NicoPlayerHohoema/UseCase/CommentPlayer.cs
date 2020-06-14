@@ -24,6 +24,7 @@ using NicoPlayerHohoema.UseCase.NicoVideoPlayer;
 using Microsoft.Toolkit.Uwp.UI;
 using Uno.Extensions;
 using MvvmHelpers;
+using NicoPlayerHohoema.Models;
 
 namespace NicoPlayerHohoema.UseCase
 {
@@ -35,6 +36,7 @@ namespace NicoPlayerHohoema.UseCase
         private readonly CommentRepository _commentRepository;
         private readonly CommentDisplayingRangeExtractor _commentDisplayingRangeExtractor;
         private readonly CommentFiltering _commentFiltering;
+        private readonly PlayerSettings _playerSettings;
         private INiconicoCommentSessionProvider _niconicoCommentSessionProvider;
         private readonly MediaPlayer _mediaPlayer;
 
@@ -73,7 +75,9 @@ namespace NicoPlayerHohoema.UseCase
             IScheduler scheduler, 
             Repository.NicoVideo.CommentRepository commentRepository,
             UseCase.CommentDisplayingRangeExtractor commentDisplayingRangeExtractor,
-            UseCase.NicoVideoPlayer.CommentFiltering commentFiltering
+            UseCase.NicoVideoPlayer.CommentFiltering commentFiltering,
+            PlayerSettings playerSettings
+
             )
         {
             _mediaPlayer = mediaPlayer;
@@ -81,7 +85,7 @@ namespace NicoPlayerHohoema.UseCase
             _commentRepository = commentRepository;
             _commentDisplayingRangeExtractor = commentDisplayingRangeExtractor;
             _commentFiltering = commentFiltering;
-
+            _playerSettings = playerSettings;
             Comments = new ObservableRangeCollection<Comment>();
 
             CommentSubmitCommand = new AsyncReactiveCommand()
@@ -97,7 +101,7 @@ namespace NicoPlayerHohoema.UseCase
                 .AddTo(_disposables);
 
 
-            CommandText = new ReactiveProperty<string>(_scheduler, string.Empty)
+            CommandText = new ReactiveProperty<string>(_scheduler, string.Empty, ReactivePropertyMode.DistinctUntilChanged)
                 .AddTo(_disposables);
 
             new[]
@@ -138,6 +142,7 @@ namespace NicoPlayerHohoema.UseCase
                     h => _commentFiltering.TransformConditionRemoved += h,
                     h => _commentFiltering.TransformConditionRemoved -= h
                 ).ToUnit(),
+                _commentFiltering.ObserveProperty(x => x.ShareNGScore).ToUnit(),
             }
             .Merge()
             .Subscribe(_ => RefreshFiltering())

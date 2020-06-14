@@ -275,7 +275,7 @@
                                Style="{StaticResource SettingsOptionTitleTextBlock}"
                                />
             <ComboBox ItemsSource="{x:Bind _NGScoreShareLevels}"
-                      SelectedItem="{x:Bind _viewModel.PlayerSettings.NGCommentScore, Mode=TwoWay, Converter={StaticResource CommentNGScoreShareLevelConverter}}"
+                      SelectedItem="{x:Bind _viewModel.CommentFiltering.ShareNGScore, Mode=TwoWay, Converter={StaticResource CommentNGScoreShareLevelConverter}}"
                       HorizontalAlignment="Right"
                       >
               <ComboBox.ItemTemplate>

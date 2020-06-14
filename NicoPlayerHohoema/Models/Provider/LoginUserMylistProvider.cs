@@ -98,7 +98,7 @@ namespace NicoPlayerHohoema.Models.Provider
             {
                 MylistGroupId = mylist.Id,
                 VideoId = x.WatchId,
-                ItemId = x.ItemId
+                ItemId = x.ItemId,
             }));
 
             return items.Select(x => MylistDataToNicoVideoData(x)).Cast<IVideoContent>().ToList();
@@ -122,6 +122,7 @@ namespace NicoPlayerHohoema.Models.Provider
             video.Description = item.Description;
             video.IsDeleted = item.IsDeleted;
             video.Length = item.Length;
+            video.PostedAt = item.FirstRetrieve;
 
             video.ThumbnailUrl = item.ThumbnailUrl.OriginalString;
             video.ViewCount = (int)item.ViewCount;
