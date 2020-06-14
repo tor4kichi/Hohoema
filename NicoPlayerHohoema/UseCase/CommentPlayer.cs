@@ -142,6 +142,7 @@ namespace NicoPlayerHohoema.UseCase
                     h => _commentFiltering.TransformConditionRemoved += h,
                     h => _commentFiltering.TransformConditionRemoved -= h
                 ).ToUnit(),
+                _commentFiltering.ObserveProperty(x => x.ShareNGScore).ToUnit(),
             }
             .Merge()
             .Subscribe(_ => RefreshFiltering())
