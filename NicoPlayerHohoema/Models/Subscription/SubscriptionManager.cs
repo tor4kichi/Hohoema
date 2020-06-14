@@ -62,7 +62,7 @@ namespace NicoPlayerHohoema.Models.Subscription
 
                 if (subsc.Sources.Any())
                 {
-                    instance.Subscriptions.Add(subsc);
+                    instance._subscriptions.Add(subsc);
 
                     localObjectStorageHelper.Save(nameof(MigrateFeedGroupToSubscriptionManager), true);
                 }
@@ -89,7 +89,7 @@ namespace NicoPlayerHohoema.Models.Subscription
             
             )
         {
-            Scheduler = scheduler;
+            _scheduler = scheduler;
             ChannelProvider = channelProvider;
             SearchProvider = searchProvider;
             UserProvider = userProvider;
@@ -97,7 +97,8 @@ namespace NicoPlayerHohoema.Models.Subscription
             NotificationService = notificationService;
 
             var storedSubscriptions = Database.Local.Subscription.SubscriptionDb.GetOrderedSubscriptions();
-            Subscriptions = new ObservableCollection<Subscription>(storedSubscriptions);
+            _subscriptions = new ObservableCollection<Subscription>(storedSubscriptions);
+            Subscriptions = new ReadOnlyObservableCollection<Subscription>(_subscriptions);
 
             Subscriptions.CollectionChangedAsObservable()
                 .Subscribe(arg =>
@@ -147,8 +148,9 @@ namespace NicoPlayerHohoema.Models.Subscription
 
         Helpers.AsyncLock _UpdateLock = new Helpers.AsyncLock();
 
-        public ObservableCollection<Subscription> Subscriptions { get; }
-        public IScheduler Scheduler { get; }
+        private readonly ObservableCollection<Subscription> _subscriptions;
+        public ReadOnlyObservableCollection<Subscription> Subscriptions { get; }
+        private readonly IScheduler _scheduler;
         public Provider.ChannelProvider ChannelProvider { get; }
         public Provider.SearchProvider SearchProvider { get; }
         public Provider.UserProvider UserProvider { get; }
@@ -160,6 +162,18 @@ namespace NicoPlayerHohoema.Models.Subscription
         {
             return new Subscription(Guid.NewGuid(), label);
         }
+
+
+        public Subscription CreateSusbcription(string label)
+        {
+            var newSubsc = SubscriptionManager.CreateNewSubscription(label);
+           
+            newSubsc.Destinations.Add(new SubscriptionDestination("@view".Translate(), SubscriptionDestinationTarget.LocalPlaylist, HohoemaPlaylist.WatchAfterPlaylistId));
+            _subscriptions.Insert(0, newSubsc);
+
+            return newSubsc;
+        }
+
 
 
 
@@ -180,7 +194,7 @@ namespace NicoPlayerHohoema.Models.Subscription
 
                         // "あとで見る"の多言語対応
                         newSubscription.Destinations.Add(new SubscriptionDestination("@view".Translate(), SubscriptionDestinationTarget.LocalPlaylist, HohoemaPlaylist.WatchAfterPlaylistId));
-                        Subscriptions.Insert(0, newSubscription);
+                        _subscriptions.Insert(0, newSubscription);
 
                         // TODO: ソースアイテムの選択ダイアログ？を表示する
 
@@ -203,7 +217,7 @@ namespace NicoPlayerHohoema.Models.Subscription
                 return _RemoveSubscription
                     ?? (_RemoveSubscription = new DelegateCommand<Subscription>((subscription) =>
                     {
-                        Subscriptions.Remove(subscription);
+                        _subscriptions.Remove(subscription);
                     }
                     , (subscription) => Subscriptions.Contains(subscription)
                     ));
@@ -502,12 +516,12 @@ namespace NicoPlayerHohoema.Models.Subscription
                     {
                         using (var releaser = await _FeedResultLock.LockAsync())
                         {
-                            Scheduler.Schedule(() => SetSubscriptionStatusToUpdatingOnUI(x.subscription));
+                            _scheduler.Schedule(() => SetSubscriptionStatusToUpdatingOnUI(x.subscription));
 
                             var info = await GetFeedResult(x.subscription, x.source);
                             AddOrUpdateFeedResult(ref info);
 
-                            Scheduler.Schedule(() => SetSubscriptionUpdateCompletedOnUI(subscription));
+                            _scheduler.Schedule(() => SetSubscriptionUpdateCompletedOnUI(subscription));
                             return info;
                         }
                     });

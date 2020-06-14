@@ -3,6 +3,7 @@ using Mntone.Nico2.Mylist;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Provider;
+using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.UseCase.Playlist.Commands;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Prism.Ioc;
 
 namespace NicoPlayerHohoema.Repository.Playlist
 {
@@ -153,7 +155,7 @@ namespace NicoPlayerHohoema.Repository.Playlist
         {
             _loginUserMylistProvider = loginUserMylistProvider;
             ItemsRemoveCommand = new MylistRemoveItemCommand(this);
-            ItemsAddCommand = new MylistAddItemCommand(this);
+            ItemsAddCommand = new MylistAddItemCommand(this, App.Current.Container.Resolve<NotificationService>());
         }
 
         public MylistRemoveItemCommand ItemsRemoveCommand { get; }

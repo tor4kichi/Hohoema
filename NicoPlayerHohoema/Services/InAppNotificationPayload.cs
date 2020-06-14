@@ -75,7 +75,7 @@ namespace NicoPlayerHohoema.Services
             string notifyContent = null;
             if (registrationResult == Mntone.Nico2.ContentManageResult.Success)
             {
-                notifyContent = "CompleteRegisrationForKind0_AddItem1_ToKindTitle2".Translate(containerKindLabel, containerKindLabel, targetTitle);
+                notifyContent = "CompleteRegisrationForKind0_AddItem2_ToKindTitle1".Translate(containerKindLabel, containerKindLabel, targetTitle);
             }
             else if (registrationResult == Mntone.Nico2.ContentManageResult.Exist)
             {

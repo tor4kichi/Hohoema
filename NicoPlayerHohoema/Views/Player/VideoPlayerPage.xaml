@@ -347,7 +347,7 @@
                                   </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
                                 </mybehavior:MenuFlyoutSubItemItemsSetter>
                               </i:Interaction.Behaviors>
-                              <MenuFlyoutItem Text="{Binding Source=CreateNew, Converter={StaticResource LocalizeConverter}}" Command="{Binding CreateMylistCommand}" CommandParameter="{Binding VideoId}" />
+                              <MenuFlyoutItem Text="{Binding Source=CreateNew, Converter={StaticResource LocalizeConverter}}" Command="{Binding CreateMylistCommand}" CommandParameter="{Binding VideoInfo}" />
                             </MenuFlyoutSubItem>
                             <MenuFlyoutSubItem Text="{Binding Source=LocalMylistAddItem, Converter={StaticResource LocalizeConverter}}">
                               <i:Interaction.Behaviors>
@@ -359,7 +359,7 @@
                                   </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
                                 </mybehavior:MenuFlyoutSubItemItemsSetter>
                               </i:Interaction.Behaviors>
-                              <MenuFlyoutItem Text="{Binding Source=CreateNew, Converter={StaticResource LocalizeConverter}}" Command="{Binding CreateLocalMylistCommand}" CommandParameter="{Binding VideoId}" />
+                              <MenuFlyoutItem Text="{Binding Source=CreateNew, Converter={StaticResource LocalizeConverter}}" Command="{Binding CreateLocalMylistCommand}" CommandParameter="{Binding VideoInfo}" />
                             </MenuFlyoutSubItem>
                             <MenuFlyoutSubItem Text="{Binding Source=SubscriptionAddUser, Converter={StaticResource LocalizeConverter}}">
                               <i:Interaction.Behaviors>
