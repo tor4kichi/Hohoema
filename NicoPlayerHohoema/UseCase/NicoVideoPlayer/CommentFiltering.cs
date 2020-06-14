@@ -217,7 +217,7 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
 
         public bool IsHiddenShareNGScore(int score)
         {
-            return _commentFliteringRepository.ShareNGScore < score;
+            return _commentFliteringRepository.ShareNGScore >= score;
         }
 
         private int _shareNGScore;
