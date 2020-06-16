@@ -1150,6 +1150,7 @@
         </VisualState>
       </VisualStateGroup>
       <!-- コメントコマンドが未選択 -->
+      <!--
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
@@ -1161,6 +1162,7 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
+      -->
       <!-- Landscape固定ボタンの表示管理 -->
       <VisualStateGroup>
         <VisualState>
