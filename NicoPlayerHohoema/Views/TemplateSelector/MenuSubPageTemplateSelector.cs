@@ -21,9 +21,9 @@ namespace NicoPlayerHohoema.Views.TemplateSelector
             {
                 switch (item)
                 {
-                    case ViewModels.VideoMenuSubPageContent _:
+                    case ViewModels.PrimaryWindowCoreLayout.VideoMenuSubPageContent _:
                         return Video;
-                    case ViewModels.LiveMenuSubPageContent _:
+                    case ViewModels.PrimaryWindowCoreLayout.LiveMenuSubPageContent _:
                         return Live;
                     default:
                         return Empty;

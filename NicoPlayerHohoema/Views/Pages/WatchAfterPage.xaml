@@ -1,29 +1,25 @@
 ﻿<Page
-    x:Class="NicoPlayerHohoema.Views.LocalPlaylistPage"
-  x:Name="PageRoot"
+    x:Class="NicoPlayerHohoema.Views.WatchAfterPage"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:local="using:NicoPlayerHohoema.Views"
+    xmlns:local="using:NicoPlayerHohoema.Views.Pages"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-  xmlns:videolistPage="using:NicoPlayerHohoema.Views.Pages.VideoListPage"
-  xmlns:mytrigger="using:NicoPlayerHohoema.Views.StateTrigger"
   xmlns:i="using:Microsoft.Xaml.Interactivity"
-  xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
-  xmlns:core="using:Microsoft.Xaml.Interactions.Core"
-  xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts"
-  xmlns:controls="using:NicoPlayerHohoema.Views.Controls"
-  xmlns:windowsTriggers="using:WindowsStateTriggers"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:mvvm="using:Prism.Mvvm"
+    xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors"
+    xmlns:ext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:controls="using:NicoPlayerHohoema.Views.Controls" xmlns:videolistPage="using:NicoPlayerHohoema.Views.Pages.VideoListPage" xmlns:flyouts="using:NicoPlayerHohoema.Views.Flyouts" xmlns:windowsTriggers="using:WindowsStateTriggers"
   mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
   NavigationCacheMode="Enabled"
   >
 
   <Grid>
-
     <videolistPage:VideoItemsListView ItemsSource="{Binding PlaylistItems}"
-                                      ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
-                                      RefreshCommand="{Binding RefreshCommand}"
+                                      ItemCommand="{Binding PlayCommand}"
                                       PlaylistPassToFlyout="{Binding Playlist}"
                                       x:Name="VideoItemsListView"
                                       >
@@ -50,7 +46,6 @@
                                 Label="{Binding Source=RemoveWatchedItems, Converter={StaticResource LocalizeConverter}}"
                                 Command="{Binding RemoveWatchedItemsInAfterWatchPlaylistCommand}"
                                 Icon="Delete"
-                                Visibility="Collapsed"
                                 />
                   <!-- 非選択中 -->
                   <AppBarButton x:Name="PlayAllButton"
@@ -69,15 +64,6 @@
                     </i:Interaction.Behaviors>
                   </AppBarButton>
                 </CommandBar.PrimaryCommands>
-                <CommandBar.SecondaryCommands>
-                  <AppBarButton x:Name="DeletePlaylistButton"
-                                Command="{Binding LocalPlaylistDeleteCommand}"
-                                CommandParameter="{Binding Playlist}"
-                                Background="Transparent"
-                                Visibility="Collapsed"
-                                Icon="Delete"
-                                Label="{Binding Source=LocalPlaylistDelete, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"></AppBarButton>
-                </CommandBar.SecondaryCommands>
               </CommandBar>
             </StackPanel>
           </controls:ScrollHeader>
@@ -100,7 +86,6 @@
                      Opacity="0.8"
                      />
     </Grid>
-
 
     <VisualStateManager.VisualStateGroups>
       <!-- レイアウトモード -->
@@ -154,24 +139,6 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      
-      <VisualStateGroup>
-
-        <VisualState>
-          <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding IsQueuePlaylist}" />
-          </VisualState.StateTriggers>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <StateTrigger IsActive="True" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="DeletePlaylistButton.Visibility" Value="Visible" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
-
 
       <VisualStateGroup>
         <VisualState>

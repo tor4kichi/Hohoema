@@ -291,8 +291,14 @@
     <Compile Include="ViewModels\LocalPlaylistPageViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\VideoCommentSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\PrimaryWindowCoreLayoutViewModel.cs" />
+    <Compile Include="ViewModels\PrimaryWindowCoreLayout\LiveMenuSubPageContent.cs" />
+    <Compile Include="ViewModels\PrimaryWindowCoreLayout\MenuItemBase.cs" />
+    <Compile Include="ViewModels\PrimaryWindowCoreLayout\MenuItemViewModel.cs" />
+    <Compile Include="ViewModels\PrimaryWindowCoreLayout\SeparatorMenuItemViewModel.cs" />
+    <Compile Include="ViewModels\PrimaryWindowCoreLayout\VideoMenuSubPageContent.cs" />
     <Compile Include="ViewModels\SubscriptionControlViewModel.cs" />
     <Compile Include="ViewModels\UserSeriesPageViewModel.cs" />
+    <Compile Include="ViewModels\WatchAfterPageViewModel.cs" />
     <Compile Include="Views\Controls\DelayedAutoTriggerButton.xaml.cs">
       <DependentUpon>DelayedAutoTriggerButton.xaml</DependentUpon>
     </Compile>
@@ -608,6 +614,9 @@
     </Compile>
     <Compile Include="Views\Pages\VideoListPage\VideoListItemControl.xaml.cs">
       <DependentUpon>VideoListItemControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\WatchAfterPage.xaml.cs">
+      <DependentUpon>WatchAfterPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Player\_PlayerSidePaneContent\VideoCommentSidePaneContent.xaml.cs">
       <DependentUpon>VideoCommentSidePaneContent.xaml</DependentUpon>
@@ -1062,6 +1071,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Pages\VideoListPage\VideoListItemControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\WatchAfterPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

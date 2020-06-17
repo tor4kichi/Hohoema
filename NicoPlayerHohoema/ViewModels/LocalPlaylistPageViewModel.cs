@@ -49,8 +49,7 @@ namespace NicoPlayerHohoema.ViewModels
             HohoemaPlaylist hohoemaPlaylist,
             PlaylistAggregateGetter playlistAggregate,
             LocalPlaylistDeleteCommand localPlaylistDeleteCommand,
-            PlaylistPlayAllCommand playlistPlayAllCommand,
-            RemoveWatchedItemsInAfterWatchPlaylistCommand removeWatchedItemsInAfterWatchPlaylistCommand
+            PlaylistPlayAllCommand playlistPlayAllCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -60,7 +59,6 @@ namespace NicoPlayerHohoema.ViewModels
             _playlistAggregate = playlistAggregate;
             LocalPlaylistDeleteCommand = localPlaylistDeleteCommand;
             PlaylistPlayAllCommand = playlistPlayAllCommand;
-            RemoveWatchedItemsInAfterWatchPlaylistCommand = removeWatchedItemsInAfterWatchPlaylistCommand;
         }
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
@@ -68,11 +66,9 @@ namespace NicoPlayerHohoema.ViewModels
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public LocalPlaylistDeleteCommand LocalPlaylistDeleteCommand { get; }
         public PlaylistPlayAllCommand PlaylistPlayAllCommand { get; }
-        public RemoveWatchedItemsInAfterWatchPlaylistCommand RemoveWatchedItemsInAfterWatchPlaylistCommand { get; }
         public IReadOnlyCollection<IVideoContent> PlaylistItems { get; private set; }
 
         public IPlaylist Playlist { get; private set; }
-        public bool IsWatchAfterPlaylist => Playlist.IsWatchAfterPlaylist();
         public bool IsQueuePlaylist => Playlist.IsQueuePlaylist();
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)

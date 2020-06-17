@@ -61,7 +61,7 @@ HohoemaPageType.Community = コミュニティ情報
 HohoemaPageType.CommunityVideo = コミュニティ動画一覧
 HohoemaPageType.ConfirmWatchHurmfulVideo = 有害指定動画の視聴確認
 HohoemaPageType.FeedGroup = フィードグループ
-HohoemaPageType.FeedGroupManage = 新着動画
+HohoemaPageType.FeedGroupManage = 購読管理
 HohoemaPageType.FeedVideoList = フィードの動画一覧
 HohoemaPageType.FollowManage = フォロー
 HohoemaPageType.NicoRepo = ニコレポ
@@ -85,6 +85,7 @@ HohoemaPageType.VideoInfomation = 動画情報
 HohoemaPageType.WatchHistory = 視聴履歴
 HohoemaPageType.LocalPlaylist = プレイリスト
 HohoemaPageType.Mylist = マイリスト
+HohoemaPageType.WatchAfter = あとで見る
 
 
 #### Menu ####
@@ -164,7 +165,7 @@ SubscriptionSourceType.Mylist = マイリスト
 SubscriptionSourceType.TagSearch = タグ検索
 SubscriptionSourceType.KeywordSearch = キーワード検索
 
-InAppNotification_AddItemToSubscription = 『{0}』に新着動画を追加
+InAppNotification_AddItemToSubscription = 『{0}』の新着動画を購読する
 
 
 #### Settings ####
