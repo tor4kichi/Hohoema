@@ -60,7 +60,9 @@ namespace NicoPlayerHohoema.UseCase.Subscriptions
         {
             using (await _timerLock.LockAsync())
             {
+                Debug.WriteLine($"[{nameof(SubscriptionUpdateManager)}] start update ------------------- ");
                 await _subscriptionManager.RefreshAllFeedUpdateResultAsync(cancellationToken);
+                Debug.WriteLine($"[{nameof(SubscriptionUpdateManager)}] end update ------------------- ");
             }
         }
 
@@ -80,18 +82,19 @@ namespace NicoPlayerHohoema.UseCase.Subscriptions
                     {
                         try
                         {
-                            using (_timerUpdateCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(5)))
+                            using (_timerUpdateCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(180)))
                             {
                                 await UpdateAsync(_timerUpdateCancellationTokenSource.Token);
                             }
                         }
                         catch (OperationCanceledException)
                         {
-                            _timerUpdateCancellationTokenSource = null;
                             var __ = StopTimerAsync();
 
                             Debug.WriteLine("購読の更新にあまりに時間が掛かったため処理を中断し、また定期自動更新も停止しました");
                         }
+
+                        _timerUpdateCancellationTokenSource = null;
                     });
             }
         }

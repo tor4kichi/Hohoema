@@ -32,6 +32,7 @@ using System.Reactive.Linq;
 using NicoPlayerHohoema.UseCase;
 using Windows.UI.Xaml;
 using NicoPlayerHohoema.Models.Subscription;
+using NicoPlayerHohoema.ViewModels.Subscriptions;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -69,7 +70,7 @@ namespace NicoPlayerHohoema.ViewModels
             Services.DialogService dialogService,
             Services.ExternalAccessService externalAccessService,
             AddMylistCommand addMylistCommand,
-            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
+            ViewModels.Subscriptions.AddSubscriptionCommand addSubscriptionCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -88,7 +89,7 @@ namespace NicoPlayerHohoema.ViewModels
             DialogService = dialogService;
             ExternalAccessService = externalAccessService;
             AddMylistCommand = addMylistCommand;
-            CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
+            AddSubscriptionCommand = addSubscriptionCommand;
             NowLoading = new ReactiveProperty<bool>(false);
             IsLoadFailed = new ReactiveProperty<bool>(false);
         }
@@ -289,7 +290,7 @@ namespace NicoPlayerHohoema.ViewModels
         public Services.DialogService DialogService { get; }
         public Services.ExternalAccessService ExternalAccessService { get; }
         public AddMylistCommand AddMylistCommand { get; }
-        public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
+        public AddSubscriptionCommand AddSubscriptionCommand { get; }
 
         public INicoVideoDetails VideoDetals { get; private set; }
 

@@ -28,21 +28,22 @@ namespace NicoPlayerHohoema.UseCase.Migration
             _newSubscriptionManager = newSubscriptionManager;
             _oldSubscriptionManager = oldSubscriptionManager;
 
-            subscriptionRegistrationRepository.ClearAll();
-            subscriptionFeedResultRepository.ClearAll();
         }
 
         public void Migration()
         {
 #if false
+            subscriptionRegistrationRepository.ClearAll();
+            subscriptionFeedResultRepository.ClearAll();
+
             var sources = _newSubscriptionManager.GetAllSubscriptionSourceEntities();
             foreach (var source in sources)
             {
                 _newSubscriptionManager.RemoveSubscription(source);
             }
 
-            if (_appFlagsRepository.IsMigratedSubscriptions_V_0_22_0) { return; }
 #endif
+            if (_appFlagsRepository.IsMigratedSubscriptions_V_0_22_0) { return; }
 
             Debug.WriteLine($"[MigraionSubscription] Migration start.");
 
@@ -58,8 +59,8 @@ namespace NicoPlayerHohoema.UseCase.Migration
                         Models.Subscription.SubscriptionSourceType.User => Models.Subscriptions.SubscriptionSourceType.User,
                         Models.Subscription.SubscriptionSourceType.Channel => Models.Subscriptions.SubscriptionSourceType.Channel,
                         Models.Subscription.SubscriptionSourceType.Mylist => Models.Subscriptions.SubscriptionSourceType.Mylist,
-                        Models.Subscription.SubscriptionSourceType.TagSearch => Models.Subscriptions.SubscriptionSourceType.Search,
-                        Models.Subscription.SubscriptionSourceType.KeywordSearch => Models.Subscriptions.SubscriptionSourceType.Search,
+                        Models.Subscription.SubscriptionSourceType.TagSearch => Models.Subscriptions.SubscriptionSourceType.SearchWithKeyword,
+                        Models.Subscription.SubscriptionSourceType.KeywordSearch => Models.Subscriptions.SubscriptionSourceType.SearchWithKeyword,
                         _ => throw new NotSupportedException(),
                     };
 

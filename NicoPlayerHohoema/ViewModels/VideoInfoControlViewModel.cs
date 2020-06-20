@@ -23,7 +23,6 @@ using NicoPlayerHohoema.Models.Subscription;
 using NicoPlayerHohoema.Services.Page;
 using System.Reactive.Concurrency;
 using NicoPlayerHohoema.Commands.Mylist;
-using NicoPlayerHohoema.Commands.Subscriptions;
 using NicoPlayerHohoema.Commands;
 using Prism.Commands;
 using Prism.Unity;

@@ -117,10 +117,11 @@
   </MenuFlyoutSubItem>
 
 
-  <MenuFlyoutSubItem x:Name="SusbcriptionSubItem"
+  <MenuFlyoutItem x:Name="AddSusbcriptionItem"
                      Text="{Binding Source=SubscriptionAddVideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                  CommandParameter="{Binding}"
                     >
-  </MenuFlyoutSubItem>
+  </MenuFlyoutItem>
 
 
 

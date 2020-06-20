@@ -66,21 +66,10 @@
                   <AppBarButton x:Name="RefreshButton" Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Refresh" Command="{Binding RefreshCommand}" IsEnabled="{Binding CanChangeSort.Value}" VerticalAlignment="Center"></AppBarButton>
                 </CommandBar.PrimaryCommands>
                 <CommandBar.SecondaryCommands>
-                  <AppBarButton x:Name="FeedRegstrationButton" Icon="Add" Visibility="Collapsed" Label="{Binding Source=SubscriptionAddMylist, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
-                    <AppBarButton.Flyout>
-                      <MenuFlyout>
-                        <i:Interaction.Behaviors>
-                          <mybehavior:MenuFlyoutItemsSetter ItemsSource="{Binding SubscriptionManager.Subscriptions}" CustomObjectToTag="{Binding Mylist.Value}">
-                            <mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
-                              <DataTemplate>
-                                <MenuFlyoutItem Text="{Binding Label}" Command="{Binding AddSource}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag, Converter={StaticResource SubscriptionSourceConverter}}" />
-                              </DataTemplate>
-                            </mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
-                          </mybehavior:MenuFlyoutItemsSetter>
-                        </i:Interaction.Behaviors>
-                        <MenuFlyoutItem Text="{Binding Source=SubscriptionAddToNew, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding CreateSubscriptionGroupCommand}" CommandParameter="{Binding PlaylistOrigin.Value, Converter={StaticResource SubscriptionSourceConverter}}" />
-                      </MenuFlyout>
-                    </AppBarButton.Flyout>
+                  <AppBarButton x:Name="FeedRegstrationButton" Icon="Add" Visibility="Visible" Label="{Binding Source=SubscriptionAddMylist, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                                Command="{Binding AddSubscriptionCommand}"
+                                CommandParameter="{Binding Mylist.Value}"
+                                >
                   </AppBarButton>
                   <AppBarButton x:Name="OpenUserPageButton" Command="{Binding OpenMylistOwnerCommand}" Background="Transparent" Visibility="Collapsed" Icon="People" Label="{Binding Source=MylistOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"></AppBarButton>
                   <AppBarButton x:Name="EditMylistButton" Command="{Binding EditMylistGroupCommand}" CommandParameter="{Binding PlaylistOrigin.Value}" Background="Transparent" Visibility="Collapsed" Icon="Edit" Label="{Binding Source=MylistEditInfo, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"></AppBarButton>
@@ -146,7 +135,6 @@
             <StateTrigger IsActive="{Binding IsLoginUserDeflist}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="FeedRegstrationButton.Visibility" Value="Visible" />
             <Setter Target="OpenUserPageButton.Visibility" Value="Visible" />
             <Setter Target="EditMylistButton.Visibility" Value="Visible" />
           </VisualState.Setters>
@@ -156,7 +144,6 @@
             <StateTrigger IsActive="{Binding IsUserOwnerdMylist}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="FeedRegstrationButton.Visibility" Value="Visible" />
             <Setter Target="OpenUserPageButton.Visibility" Value="Visible" />
             <Setter Target="ToggleMylistFavoriteButton.Visibility" Value="Visible" />
             <Setter Target="EditMylistButton.Visibility" Value="Visible" />
@@ -170,7 +157,6 @@
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ToggleMylistFavoriteButton.Visibility" Value="Visible" />
-            <Setter Target="FeedRegstrationButton.Visibility" Value="Visible" />
             <Setter Target="OpenUserPageButton.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>

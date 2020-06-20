@@ -29,6 +29,7 @@ namespace NicoPlayerHohoema.Models.Subscriptions
         User,
         Channel,
         Series,
-        Search,
+        SearchWithKeyword,
+        SearchWithTag,
     }
 }

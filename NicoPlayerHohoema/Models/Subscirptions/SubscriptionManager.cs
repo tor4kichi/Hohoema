@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Interfaces;
+﻿using NicoPlayerHohoema.Database;
+using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Models.Subscriptions;
 using NicoPlayerHohoema.Repository.Subscriptions;
@@ -55,8 +56,6 @@ namespace NicoPlayerHohoema.Models.Subscriptions
             _mylistProvider = mylistProvider;
         }
 
-
-
         public SubscriptionSourceEntity AddSubscription(IVideoContent video)
         {
             var owner = Database.NicoVideoOwnerDb.Get(video.ProviderId);
@@ -84,10 +83,15 @@ namespace NicoPlayerHohoema.Models.Subscriptions
             return AddSubscription_Internal(new SubscriptionSourceEntity() { Label = mylist.Label, SourceParameter = mylist.Id, SourceType = SubscriptionSourceType.Mylist });
         }
 
-        public SubscriptionSourceEntity AddSearchSubscription(string keyword)
+        public SubscriptionSourceEntity AddKeywordSearchSubscription(string keyword)
         {
-            return AddSubscription_Internal(new SubscriptionSourceEntity() { Label = keyword, SourceParameter = keyword, SourceType = SubscriptionSourceType.Search });
+            return AddSubscription_Internal(new SubscriptionSourceEntity() { Label = keyword, SourceParameter = keyword, SourceType = SubscriptionSourceType.SearchWithKeyword });
         }
+        public SubscriptionSourceEntity AddTagSearchSubscription(string tag)
+        {
+            return AddSubscription_Internal(new SubscriptionSourceEntity() { Label = tag, SourceParameter = tag, SourceType = SubscriptionSourceType.SearchWithTag });
+        }
+
 
         public SubscriptionSourceEntity AddSubscription(SubscriptionSourceType sourceType, string sourceParameter, string label)
         {
@@ -154,7 +158,7 @@ namespace NicoPlayerHohoema.Models.Subscriptions
 
         static bool IsExpiredFeedResultUpdatedTime(DateTime lastUpdatedAt)
         {
-            return lastUpdatedAt + _FeedResultUpdateInterval > DateTime.Now;
+            return lastUpdatedAt + _FeedResultUpdateInterval < DateTime.Now;
         }
 
         public async Task RefreshAllFeedUpdateResultAsync(CancellationToken cancellationToken = default)
@@ -172,11 +176,14 @@ namespace NicoPlayerHohoema.Models.Subscriptions
         public async Task<bool> RefreshFeedUpdateResultAsync(SubscriptionSourceEntity entity, CancellationToken cancellationToken = default)
         {
             var prevResult = _subscriptionFeedResultRepository.GetFeedResult(entity);
-            if (prevResult != null && IsExpiredFeedResultUpdatedTime(prevResult.LastUpdatedAt))
+            if (prevResult != null && !IsExpiredFeedResultUpdatedTime(prevResult.LastUpdatedAt))
             {
                 // 前回更新から時間経っていない場合はスキップする
+                Debug.WriteLine("[FeedUpdate] update skip: " + entity.Label);
                 return false;
             }
+
+            Debug.WriteLine("[FeedUpdate] start: " + entity.Label);
 
             // オンラインソースから情報を取得して
             var result = await GetFeedResultAsync(entity);
@@ -199,6 +206,8 @@ namespace NicoPlayerHohoema.Models.Subscriptions
                 Debug.WriteLine("[FeedUpdate] Failed Updated. " + entity.Label);
             }
 
+            Debug.WriteLine("[FeedUpdate] complete: " + entity.Label);
+
             return true;
         }
 
@@ -212,7 +221,8 @@ namespace NicoPlayerHohoema.Models.Subscriptions
                     SubscriptionSourceType.User => await GetUserVideosFeedResult(entity.SourceParameter, _userProvider),
                     SubscriptionSourceType.Channel => await GetChannelVideosFeedResult(entity.SourceParameter, _channelProvider),
                     SubscriptionSourceType.Series => throw new NotSupportedException(entity.SourceType.ToString()),
-                    SubscriptionSourceType.Search => await GetKeywordSearchFeedResult(entity.SourceParameter, _searchProvider),
+                    SubscriptionSourceType.SearchWithKeyword => await GetKeywordSearchFeedResult(entity.SourceParameter, _searchProvider),
+                    SubscriptionSourceType.SearchWithTag => await GetTagSearchFeedResult(entity.SourceParameter, _searchProvider),
                     _ => throw new NotSupportedException(entity.SourceType.ToString())
                 };
 
@@ -259,7 +269,14 @@ namespace NicoPlayerHohoema.Models.Subscriptions
 
                     video.Title = item.Title;
                     video.PostedAt = item.SubmitTime;
-
+                    video.ThumbnailUrl = item.ThumbnailUrl.OriginalString;
+                    video.Length = item.Length;
+                    video.Owner = video.Owner ?? new Database.NicoVideoOwner() 
+                    {
+                        OwnerId = userId,
+                        UserType = Database.NicoVideoUserType.User
+                    };
+                    Database.NicoVideoDb.AddOrUpdate(video);
                     items.Add(video);
                 }
             }
@@ -288,7 +305,11 @@ namespace NicoPlayerHohoema.Models.Subscriptions
 
                     video.Title = item.Title;
                     video.PostedAt = item.PostedAt;
+                    video.Length = item.Length;
+                    video.LastUpdated = item.PostedAt;
+                    video.ThumbnailUrl = item.ThumbnailUrl;
 
+                    Database.NicoVideoDb.AddOrUpdate(video);
                     items.Add(video);
                 }
             }
@@ -338,7 +359,15 @@ namespace NicoPlayerHohoema.Models.Subscriptions
 
                     video.Title = item.Video.Title;
                     video.PostedAt = item.Video.FirstRetrieve;
+                    video.Length = item.Video.Length;
+                    video.PostedAt = item.Video.FirstRetrieve;
 
+                    video.Owner = video.Owner ?? item.Video.ProviderType switch
+                    {
+                        "channel" => new NicoVideoOwner() { OwnerId = item.Video.CommunityId, UserType = NicoVideoUserType.Channel },
+                        _ => new NicoVideoOwner() { OwnerId = item.Video.UserId, UserType = NicoVideoUserType.User }
+                    };
+                    Database.NicoVideoDb.AddOrUpdate(video);
                     items.Add(video);
                 }
             }
@@ -370,7 +399,16 @@ namespace NicoPlayerHohoema.Models.Subscriptions
 
                     video.Title = item.Video.Title;
                     video.PostedAt = item.Video.FirstRetrieve;
-
+                    video.Length = item.Video.Length;
+                    video.PostedAt = item.Video.FirstRetrieve;
+                    video.Description = item.Video.Description;
+                    video.IsDeleted = item.Video.IsDeleted;
+                    video.Owner = video.Owner ?? item.Video.ProviderType switch
+                    {
+                        "channel" => new NicoVideoOwner() { OwnerId = item.Video.CommunityId, UserType = NicoVideoUserType.Channel },
+                        _ => new NicoVideoOwner() { OwnerId = item.Video.UserId, UserType = NicoVideoUserType.User }
+                    };
+                    Database.NicoVideoDb.AddOrUpdate(video);
                     items.Add(video);
                 }
             }

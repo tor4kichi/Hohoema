@@ -86,6 +86,7 @@ HohoemaPageType.WatchHistory = 視聴履歴
 HohoemaPageType.LocalPlaylist = プレイリスト
 HohoemaPageType.Mylist = マイリスト
 HohoemaPageType.WatchAfter = あとで見る
+HohoemaPageType.SubscriptionManagement = 購読管理
 
 
 #### Menu ####

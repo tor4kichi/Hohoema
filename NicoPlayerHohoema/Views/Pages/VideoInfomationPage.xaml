@@ -235,21 +235,10 @@
     <StackPanel x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}" VerticalAlignment="Top" HorizontalAlignment="Stretch">
       <CommandBar x:Name="HeaderCommandBar">
         <CommandBar.SecondaryCommands>
-          <AppBarButton x:Name="AddSubscriptionButton" Label="{Binding Source=SubscriptionAddUser, Converter={StaticResource LocalizeConverter}}" Icon="Add">
-            <AppBarButton.Flyout>
-              <MenuFlyout>
-                <i:Interaction.Behaviors>
-                  <mybehavior:MenuFlyoutItemsSetter ItemsSource="{Binding SubscriptionManager.Subscriptions}" CustomObjectToTag="{Binding VideoInfo, Converter={StaticResource SubscriptionSourceConverter}}">
-                    <mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
-                      <DataTemplate>
-                        <MenuFlyoutItem Text="{Binding Label}" Command="{Binding AddSource}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}" />
-                      </DataTemplate>
-                    </mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
-                  </mybehavior:MenuFlyoutItemsSetter>
-                </i:Interaction.Behaviors>
-                <MenuFlyoutItem Text="{Binding Source=SubscriptionGroup_Create, Converter={StaticResource LocalizeConverter}}" Command="{Binding CreateSubscriptionGroupCommand}" CommandParameter="{Binding Converter={StaticResource SubscriptionSourceConverter}}" />
-              </MenuFlyout>
-            </AppBarButton.Flyout>
+          <AppBarButton x:Name="AddSubscriptionButton" Label="{Binding Source=SubscriptionAddUser, Converter={StaticResource LocalizeConverter}}" Icon="Add"
+                        Command="{Binding AddSubscriptionCommand}"
+                        CommandParameter="{Binding VideoInfo}"
+                        >
           </AppBarButton>
           <AppBarButton Label="{Binding Source=OpenWithBrowser, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.OpenLinkCommand}" CommandParameter="{Binding VideoInfo}" />
           <AppBarButton Label="{Binding Source=Copy, Converter={StaticResource LocalizeConverter}}">

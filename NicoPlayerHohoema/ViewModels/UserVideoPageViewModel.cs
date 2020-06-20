@@ -20,8 +20,9 @@ using NicoPlayerHohoema.Interfaces;
 using System;
 using Reactive.Bindings.Extensions;
 using NicoPlayerHohoema.Models.Subscription;
-using NicoPlayerHohoema.Commands.Subscriptions;
 using NicoPlayerHohoema.UseCase;
+using NicoPlayerHohoema.ViewModels.Subscriptions;
+using Reactive.Bindings;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -48,7 +49,7 @@ namespace NicoPlayerHohoema.ViewModels
             SubscriptionManager subscriptionManager,
             HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
-            CreateSubscriptionGroupCommand createSubscriptionGroupCommand
+            ViewModels.Subscriptions.AddSubscriptionCommand addSubscriptionCommand
             )
         {
             SubscriptionManager = subscriptionManager;
@@ -56,7 +57,9 @@ namespace NicoPlayerHohoema.ViewModels
             UserProvider = userProvider;
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
-            CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
+            AddSubscriptionCommand = addSubscriptionCommand;
+
+            UserInfo = new ReactiveProperty<UserInfoViewModel>();
         }
 
 
@@ -65,9 +68,11 @@ namespace NicoPlayerHohoema.ViewModels
         public UserProvider UserProvider { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
-        public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
+        public AddSubscriptionCommand AddSubscriptionCommand { get; }
 
         public Models.Subscription.SubscriptionSource? SubscriptionSource => new Models.Subscription.SubscriptionSource(UserName, Models.Subscription.SubscriptionSourceType.User, UserId);
+
+        public ReactiveProperty<UserInfoViewModel> UserInfo { get; }
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
@@ -81,6 +86,8 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     IsOwnerVideoPrivate = User.IsOwnerVideoPrivate;
                     UserName = User.Nickname;
+
+                    UserInfo.Value = new UserInfoViewModel(User.Nickname, User.UserId, User.ThumbnailUri);
                 }
                 else
                 {

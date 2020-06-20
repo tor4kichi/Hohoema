@@ -9,6 +9,7 @@ using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.UseCase;
 using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.ViewModels.Subscriptions;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings;
@@ -53,7 +54,7 @@ namespace NicoPlayerHohoema.ViewModels
             MylistRepository mylistRepository,
             ExternalAccessService externalAccessService,
             NiconicoFollowToggleButtonService followToggleButtonService,
-            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
+            ViewModels.Subscriptions.AddSubscriptionCommand addSubscriptionCommand
             )
         {
             NiconicoSession = niconicoSession;
@@ -64,7 +65,7 @@ namespace NicoPlayerHohoema.ViewModels
             _mylistRepository = mylistRepository;
             ExternalAccessService = externalAccessService;
             FollowToggleButtonService = followToggleButtonService;
-            CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
+            AddSubscriptionCommand = addSubscriptionCommand;
             ApplicationLayoutManager = applicationLayoutManager;
             UserProvider = userProvider;
             NgSettings = ngSettings;
@@ -111,7 +112,7 @@ namespace NicoPlayerHohoema.ViewModels
         public PageManager PageManager { get; }
         public ExternalAccessService ExternalAccessService { get; }
         public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
-        public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
+        public AddSubscriptionCommand AddSubscriptionCommand { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public UserProvider UserProvider { get; }
         public NGSettings NgSettings { get; }

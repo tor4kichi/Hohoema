@@ -5,34 +5,48 @@
     xmlns:local="using:NicoPlayerHohoema.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-  xmlns:viewModels="using:NicoPlayerHohoema.ViewModels" xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls"
+  xmlns:viewModels="using:NicoPlayerHohoema.ViewModels" xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls" xmlns:mycontrols="using:NicoPlayerHohoema.Views.Controls" xmlns:myTemplateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
   mc:Ignorable="d"
-    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
+  xmlns:material="using:MahApps.Metro.IconPacks"
+  >
 
   <Page.Resources>
-    <CollectionViewSource x:Key="SubscriptionsCollectionViewSource"
-                          Source="{Binding Subscriptions}"
-                          IsSourceGrouped="True"
-                          ItemsPath="Videos"                          
-                          >
-      
-    </CollectionViewSource>
+
+    <myTemplateSelector:ValueDataTemplateSelector x:Key="SubscriptionSourceTypeTemplateSelector">
+      <myTemplateSelector:ValueDataTemplate Value="User">
+        <DataTemplate>
+          <material:PackIconMaterial Kind="Account" />
+        </DataTemplate>
+      </myTemplateSelector:ValueDataTemplate>
+      <myTemplateSelector:ValueDataTemplate Value="Channel">
+        <DataTemplate>
+          <material:PackIconMaterial Kind="Layers" />
+        </DataTemplate>
+      </myTemplateSelector:ValueDataTemplate>
+      <myTemplateSelector:ValueDataTemplate Value="Mylist">
+        <DataTemplate>
+          <material:PackIconMaterial Kind="PlaylistPlay" />
+        </DataTemplate>
+      </myTemplateSelector:ValueDataTemplate>
+      <myTemplateSelector:ValueDataTemplate Value="SearchWithKeyword">
+        <DataTemplate>
+          <material:PackIconMaterial Kind="SearchWeb" />
+        </DataTemplate>
+      </myTemplateSelector:ValueDataTemplate>
+      <myTemplateSelector:ValueDataTemplate Value="SearchWithTag">
+        <DataTemplate>
+          <material:PackIconMaterial Kind="Tag" />
+        </DataTemplate>
+      </myTemplateSelector:ValueDataTemplate>
+    </myTemplateSelector:ValueDataTemplateSelector>
+
   </Page.Resources>
   <Grid>
-    <GridView ItemsSource="{Binding Source={StaticResource SubscriptionsCollectionViewSource}}"
+    <ListView ItemsSource="{Binding Subscriptions}"
+              SelectionMode="None"
               >
-
-      <GridView.ItemsPanel>
-        <ItemsPanelTemplate>
-          <ItemsWrapGrid Orientation="Horizontal"
-                         ScrollViewer.HorizontalScrollMode="Enabled"
-                         ScrollViewer.VerticalScrollMode="Disabled"
-                         ScrollViewer.VerticalScrollBarVisibility="Hidden"
-                         ScrollViewer.HorizontalScrollBarVisibility="Auto"
-                         />
-        </ItemsPanelTemplate>
-      </GridView.ItemsPanel>
-      <GridView.Header>
+      <ListView.Header>
         <Grid>
           <CommandBar DefaultLabelPosition="Collapsed">
             <CommandBar.PrimaryCommands>
@@ -53,39 +67,84 @@
             </CommandBar.SecondaryCommands>
           </CommandBar>
         </Grid>
-      </GridView.Header>
-      
-      <GridView.GroupStyle>
-        <GroupStyle>
-          <GroupStyle.HeaderTemplate>
-            <DataTemplate x:DataType="viewModels:SubscriptionViewModel">
-              <uwpControls:DockPanel>
-                <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Right">
-                  <Button Background="Transparent" >
-                    <SymbolIcon Symbol="More" />
-                  </Button>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal">
-                  <TextBlock Text="{Binding SourceType}"  />
-                  <TextBlock Text="{Binding Label}" />
-                </StackPanel>
-              </uwpControls:DockPanel>
-            </DataTemplate>
-          </GroupStyle.HeaderTemplate>
+      </ListView.Header>
 
-          <GroupStyle.Panel>
-            <ItemsPanelTemplate>
-              <ItemsStackPanel Orientation="Horizontal" />
-            </ItemsPanelTemplate>
-          </GroupStyle.Panel>
-        </GroupStyle>
-      </GridView.GroupStyle>
+      <ListView.ItemTemplate>
+        <DataTemplate x:DataType="viewModels:SubscriptionViewModel">
+          <StackPanel>
+            <uwpControls:DockPanel>
+              <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Right">
+                <Button Background="Transparent" >
+                  <SymbolIcon Symbol="More" />
+                </Button>
+              </StackPanel>
+              <StackPanel Orientation="Horizontal" Spacing="8">
+                <ContentControl Content="{Binding SourceType}" ContentTemplateSelector="{StaticResource SubscriptionSourceTypeTemplateSelector}"
+                                VerticalAlignment="Center"
+                                />
+                <TextBlock Text="{Binding Label}"
+                           Style="{StaticResource SubtitleTextBlockStyle}"
+                           VerticalAlignment="Center"
+                           />
+              </StackPanel>
+            </uwpControls:DockPanel>
 
-      <GridView.ItemTemplate>
-        <DataTemplate>
-          <TextBlock Text="{Binding Label}" />
+            <uwpControls:DockPanel>
+
+              <!-- TODO: デスクトップでのみこの余白を表示する？ -->
+              <Border Width="32" uwpControls:DockPanel.Dock="Left" />
+              
+              <ListView x:Name="SubscriptionVideoList"
+                     ItemsSource="{Binding Videos}"
+                        ScrollViewer.VerticalScrollMode="Disabled"
+                      ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                      ScrollViewer.HorizontalScrollMode="Enabled"
+                        SelectionMode="None"
+                        Margin="0 0"
+                      >
+                <ListView.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <ItemsStackPanel Orientation="Horizontal" />
+                  </ItemsPanelTemplate>
+                </ListView.ItemsPanel>
+                <ListView.ItemTemplate>
+                  <DataTemplate>
+                    <Grid Width="180" Height="108">
+                      <Border>
+                        <Image Source="{Binding ThumbnailUrl}" Width="180" Stretch="Uniform" VerticalAlignment="Center" />
+                      </Border>
+
+                      <Border HorizontalAlignment="Right"  VerticalAlignment="Top" CornerRadius="0 0 0 4" >
+                        <Border.Background>
+                          <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                        </Border.Background>
+
+                        <TextBlock Text="{Binding Length, Mode=OneWay, Converter={StaticResource TimeToMovieLengthConverter}}" 
+                               Padding="4 0 4 2" 
+                               TextWrapping="Wrap" VerticalAlignment="Center" 
+                               FontSize="14"
+                                 />
+                      </Border>
+
+                      <Grid VerticalAlignment="Bottom">
+                        <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"  Opacity="0.8" />
+
+                        <StackPanel Margin="8 8 8 8" >
+                          <StackPanel>
+                            <TextBlock Text="{Binding Label}" TextWrapping="Wrap" FontSize="12" />
+                          </StackPanel>
+                        </StackPanel>
+                      </Grid>
+                    </Grid>
+                  </DataTemplate>
+                </ListView.ItemTemplate>
+
+              </ListView>
+
+            </uwpControls:DockPanel>
+          </StackPanel>
         </DataTemplate>
-      </GridView.ItemTemplate>
-    </GridView>
+      </ListView.ItemTemplate>
+    </ListView>
   </Grid>
 </Page>

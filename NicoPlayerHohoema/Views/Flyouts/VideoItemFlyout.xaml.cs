@@ -4,7 +4,6 @@ using Windows.UI.Xaml;
 using Prism.Ioc;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Commands.Mylist;
-using NicoPlayerHohoema.Commands.Subscriptions;
 using NicoPlayerHohoema.Commands;
 using System.Reactive.Concurrency;
 using NicoPlayerHohoema.Services;
@@ -63,7 +62,7 @@ namespace NicoPlayerHohoema.Views.Flyouts
         public VideoItemsSelectionContext VideoItemsSelectionContext { get; }
         public Commands.Mylist.CreateMylistCommand CreateMylistCommand { get; }
         public Commands.Mylist.CreateLocalMylistCommand CreateLocalMylistCommand { get; }
-        public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
+        public ViewModels.Subscriptions.AddSubscriptionCommand AddSubscriptionCommand { get; }
 
 
 
@@ -77,7 +76,6 @@ namespace NicoPlayerHohoema.Views.Flyouts
 
             CreateMylistCommand = App.Current.Container.Resolve<CreateMylistCommand>();
             CreateLocalMylistCommand = App.Current.Container.Resolve<CreateLocalMylistCommand>();
-            CreateSubscriptionGroupCommand = App.Current.Container.Resolve<CreateSubscriptionGroupCommand>();
             HohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
             ExternalAccessService = App.Current.Container.Resolve<ExternalAccessService>();
             PageManager = App.Current.Container.Resolve<PageManager>();
@@ -100,6 +98,8 @@ namespace NicoPlayerHohoema.Views.Flyouts
             CopyVideoId.Command = ExternalAccessService.CopyToClipboardCommand;
             CopyVideoLink.Command = ExternalAccessService.CopyToClipboardCommand;
             CopyShareText.Command = ExternalAccessService.CopyToClipboardWithShareTextCommand;
+
+            AddSusbcriptionItem.Command = App.Current.Container.Resolve<ViewModels.Subscriptions.AddSubscriptionCommand>();
 
             CacheRequest.Command = App.Current.Container.Resolve<CacheAddRequestCommand>();
             DeleteCacheRequest.Command = App.Current.Container.Resolve<CacheDeleteRequestCommand>();
@@ -231,7 +231,7 @@ namespace NicoPlayerHohoema.Views.Flyouts
             Share.Visibility = visibleSingleSelectionItem;
             CopySubItem.Visibility = visibleSingleSelectionItem;
 
-            SusbcriptionSubItem.Visibility = visibleSingleSelectionItem;
+            AddSusbcriptionItem.Visibility = visibleSingleSelectionItem;
 
 
             // プレイリスト
@@ -256,24 +256,7 @@ namespace NicoPlayerHohoema.Views.Flyouts
             // 購読
             var susbcSourceConverter = new Subscriptions.SubscriptionSourceConverter();
             var subscSource = susbcSourceConverter.Convert(content, typeof(SubscriptionSource), null, null);
-            SusbcriptionSubItem.Items.Clear();
-            SusbcriptionSubItem.Items.Add(new MenuFlyoutItem()
-            {
-                Text = _localizedText_CreateNew,
-                Command = CreateSubscriptionGroupCommand,
-                CommandParameter = subscSource
-            });
-
-            foreach (var subsc in SubscriptionManager.Subscriptions)
-            {
-                SusbcriptionSubItem.Items.Add(new MenuFlyoutItem()
-                {
-                    Text = subsc.Label,
-                    Command = subsc.AddSource,
-                    CommandParameter = subscSource
-                });
-            }
-
+            
             // NG投稿者
             AddNgUser.Visibility = AddNgUser.Command.CanExecute(content).ToVisibility();
             RemoveNgUser.Visibility = RemoveNgUser.Command.CanExecute(content).ToVisibility();

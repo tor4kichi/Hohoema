@@ -202,7 +202,6 @@
     <Compile Include="Services\Commands\Ranking\HiddenRankingGenreItemCommand.cs" />
     <Compile Include="Services\Commands\Ranking\UnFavoriteRankingGenreItemCommand.cs" />
     <Compile Include="Services\Commands\RemoveSearchHistoryCommand.cs" />
-    <Compile Include="Services\Commands\Subscriptions\CreateSubscriptionGroupCommand.cs" />
     <Compile Include="Database\Local\Bookmark.cs" />
     <Compile Include="Database\Local\BookmarkDb.cs" />
     <Compile Include="Database\Local\BookmarkType.cs" />
@@ -305,7 +304,9 @@
     <Compile Include="ViewModels\PrimaryWindowCoreLayout\VideoMenuSubPageContent.cs" />
     <Compile Include="ViewModels\SubscriptionControlViewModel.cs" />
     <Compile Include="ViewModels\SubscriptionManagementPageViewModel.cs" />
+    <Compile Include="ViewModels\Subscriptions\AddKeywordSearchSubscriptionCommand.cs" />
     <Compile Include="ViewModels\Subscriptions\AddSubscriptionCommand.cs" />
+    <Compile Include="ViewModels\Subscriptions\AddTagSearchSubscriptionCommand.cs" />
     <Compile Include="ViewModels\UserSeriesPageViewModel.cs" />
     <Compile Include="ViewModels\WatchAfterPageViewModel.cs" />
     <Compile Include="Views\Controls\DelayedAutoTriggerButton.xaml.cs">

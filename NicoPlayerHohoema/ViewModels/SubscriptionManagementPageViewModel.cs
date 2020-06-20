@@ -185,20 +185,20 @@ namespace NicoPlayerHohoema.ViewModels
 
         void ExecuteAllUpdateCommand()
         {
-            using (_cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromMinutes(5)))
-            {
                 _scheduler.Schedule(async () =>
                 {
-                    try
+                    using (_cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromMinutes(5)))
                     {
-                        await _subscriptionUpdateManager.UpdateAsync(_cancellationTokenSource.Token);
-                    }
-                    catch (OperationCanceledException)
-                    {
+                        try
+                        {
+                            await _subscriptionUpdateManager.UpdateAsync(_cancellationTokenSource.Token);
+                        }
+                        catch (OperationCanceledException)
+                        {
                         
+                        }
                     }
                 });
-            }
         }
 
 
