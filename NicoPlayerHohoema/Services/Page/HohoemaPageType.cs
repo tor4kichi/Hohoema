@@ -67,5 +67,7 @@ namespace NicoPlayerHohoema.Services
         Series,
 
         WatchAfter, // @view
+
+        SubscriptionManagement,
     }
 }

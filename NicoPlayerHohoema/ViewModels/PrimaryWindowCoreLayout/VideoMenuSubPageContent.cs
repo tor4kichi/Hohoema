@@ -70,17 +70,16 @@ namespace NicoPlayerHohoema.ViewModels.PrimaryWindowCoreLayout
                 MenuItems.Add(new MenuItemViewModel(HohoemaPageType.WatchHistory.Translate(), HohoemaPageType.WatchHistory));
                 MenuItems.Add(new SeparatorMenuItemViewModel());
                 MenuItems.Add(new MenuItemViewModel("@view".Translate(), HohoemaPageType.WatchAfter));
-                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.FeedGroupManage.Translate(), HohoemaPageType.Subscription));
+                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement));
                 MenuItems.Add(new MenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement));
                 //                MenuItems.Add(new MenuItemViewModel("オススメ".Translate(), HohoemaPageType.Recommend));
-
             }
             else
             {
                 MenuItems.Add(new MenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList));
                 MenuItems.Add(new SeparatorMenuItemViewModel());
                 MenuItems.Add(new MenuItemViewModel("@view".Translate(), HohoemaPageType.WatchAfter));
-                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.FeedGroupManage.Translate(), HohoemaPageType.Subscription));
+                MenuItems.Add(new MenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement));
                 //                MenuItems.Add(new MenuItemViewModel("視聴履歴", HohoemaPageType.WatchHistory));
                 MenuItems.Add(new MenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement));
             }
