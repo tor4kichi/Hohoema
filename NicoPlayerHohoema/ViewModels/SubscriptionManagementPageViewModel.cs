@@ -11,6 +11,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reactive.Concurrency;
+using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,8 +23,7 @@ namespace NicoPlayerHohoema.ViewModels
     public sealed class SubscriptionManagementPageViewModel : HohoemaViewModelBase, INavigationAware, IDestructible
     {
         public ObservableCollection<SubscriptionViewModel> Subscriptions { get; }
-
-        public Windows.UI.Xaml.Data.CollectionViewSource CollectionViewSource { get; }
+        
         public SubscriptionManagementPageViewModel(
             SubscriptionManager subscriptionManager,
             SubscriptionUpdateManager subscriptionUpdateManager,
@@ -32,12 +32,17 @@ namespace NicoPlayerHohoema.ViewModels
         {
             Subscriptions = new ObservableCollection<SubscriptionViewModel>();
 
-            CollectionViewSource = new Windows.UI.Xaml.Data.CollectionViewSource()
-            { 
-            
-            };
-
-
+            Subscriptions.CollectionChangedAsObservable()
+                .Throttle(TimeSpan.FromSeconds(0.25))
+                .Subscribe(_ => 
+                {
+                    Subscriptions.ForEach((index, vm) => 
+                    {
+                        var subscEntity = vm._source;
+                        subscEntity.SortIndex = index;
+                        _subscriptionManager.UpdateSubscription(subscEntity);
+                    });
+                });
             _IsSubscriptionUpdateEnabled = new ReactiveProperty<bool>(true);
             IsSubscriptionUpdateEnabled = _IsSubscriptionUpdateEnabled.ToReadOnlyReactiveProperty();
             _subscriptionManager = subscriptionManager;
@@ -56,7 +61,7 @@ namespace NicoPlayerHohoema.ViewModels
         {
             if (!Subscriptions.Any())
             {
-                foreach (var subscInfo in _subscriptionManager.GetAllSubscriptionInfo())
+                foreach (var subscInfo in _subscriptionManager.GetAllSubscriptionInfo().OrderBy(x => x.entity.SortIndex))
                 {
                     var vm = new SubscriptionViewModel(subscInfo.entity, _subscriptionManager);
                     vm.UpdateFeedResult(subscInfo.feedResult.Videos.Select(ToVideoContent).ToList(), subscInfo.feedResult.LastUpdatedAt);
@@ -81,7 +86,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        static IVideoContent ToVideoContent(FeedResultVideoItem item)
+        static Database.NicoVideo ToVideoContent(FeedResultVideoItem item)
         {
             return Database.NicoVideoDb.Get(item.VideoId);
         }
@@ -234,7 +239,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         private readonly CompositeDisposable _disposables = new CompositeDisposable();
-        private readonly SubscriptionSourceEntity _source;
+        internal readonly SubscriptionSourceEntity _source;
         private readonly SubscriptionManager _subscriptionManager;
 
         public string SourceParameter => _source.SourceParameter;
@@ -243,19 +248,21 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ReactiveProperty<bool> IsEnabled { get; }
 
-        public ObservableCollection<IVideoContent> Videos { get; } = new ObservableCollection<IVideoContent>();
+        public ObservableCollection<VideoInfoControlViewModel> Videos { get; } = new ObservableCollection<VideoInfoControlViewModel>();
 
         public DateTime LastUpdatedAt { get; private set; }
 
         public void Dispose()
         {
             _disposables.Dispose();
+            Videos.DisposeAll();
         }
 
-        internal void UpdateFeedResult(IList<IVideoContent> result, DateTime updatedAt)
+        internal void UpdateFeedResult(IList<Database.NicoVideo> result, DateTime updatedAt)
         {
             Videos.Clear();
-            Videos.AddRange(result);
+
+            Videos.AddRange(result.Select(x => new VideoInfoControlViewModel(x)));
             LastUpdatedAt = updatedAt;
         }
 

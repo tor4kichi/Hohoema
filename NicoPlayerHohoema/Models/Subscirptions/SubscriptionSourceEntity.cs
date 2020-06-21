@@ -14,6 +14,8 @@ namespace NicoPlayerHohoema.Models.Subscriptions
         [BsonId]
         public ObjectId Id { get; internal set; }
 
+        public int SortIndex { get; set; }
+
         public string Label { get; set; }
 
         public SubscriptionSourceType SourceType { get; set; }

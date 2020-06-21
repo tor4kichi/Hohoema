@@ -32,7 +32,7 @@ namespace NicoPlayerHohoema.Repository.Subscriptions
         }
 
 
-        public SubscriptionFeedResult MargeFeedResult(SubscriptionFeedResult target, SubscriptionSourceEntity source, IList<IVideoContent> videos)
+        public SubscriptionFeedResult MargeFeedResult(SubscriptionFeedResult target, SubscriptionSourceEntity source, IList<Database.NicoVideo> videos)
         {
             var result = target ?? _collection.FindOne(x => x.SourceType == source.SourceType && x.SourceParamater == source.SourceParameter);
             if (result == null)

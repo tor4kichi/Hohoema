@@ -45,6 +45,9 @@
   <Grid>
     <ListView ItemsSource="{Binding Subscriptions}"
               SelectionMode="None"
+              ReorderMode="Enabled"
+              CanReorderItems="True"
+              AllowDrop="True"
               >
       <ListView.Header>
         <Grid>
@@ -91,7 +94,6 @@
 
             <uwpControls:DockPanel>
 
-              <!-- TODO: デスクトップでのみこの余白を表示する？ -->
               <Border Width="32" uwpControls:DockPanel.Dock="Left" />
               
               <ListView x:Name="SubscriptionVideoList"
@@ -101,41 +103,64 @@
                       ScrollViewer.HorizontalScrollMode="Enabled"
                         SelectionMode="None"
                         Margin="0 0"
+                        xmlns:ex="using:NicoPlayerHohoema.Views.Extensions"
+                        ex:ListViewBase.DeferInitialize="True"
                       >
                 <ListView.ItemsPanel>
                   <ItemsPanelTemplate>
                     <ItemsStackPanel Orientation="Horizontal" />
                   </ItemsPanelTemplate>
                 </ListView.ItemsPanel>
+                <ListView.ItemContainerStyle>
+                  <Style TargetType="ListViewItem">
+                    <Setter Property="Padding" Value="0" />
+                  </Style>
+                </ListView.ItemContainerStyle>
                 <ListView.ItemTemplate>
-                  <DataTemplate>
-                    <Grid Width="180" Height="108">
-                      <Border>
-                        <Image Source="{Binding ThumbnailUrl}" Width="180" Stretch="Uniform" VerticalAlignment="Center" />
-                      </Border>
+                  <DataTemplate x:DataType="viewModels:VideoInfoControlViewModel">
+                    <UserControl>
 
-                      <Border HorizontalAlignment="Right"  VerticalAlignment="Top" CornerRadius="0 0 0 4" >
-                        <Border.Background>
-                          <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
-                        </Border.Background>
+                      <Grid x:Name="VideoItemContainer" BorderThickness="1" BorderBrush="{ThemeResource SystemAccentColor}" Height="108">
+                        <Border   >
+                          <Image Source="{Binding ThumbnailUrl}" Width="180" Stretch="Uniform" VerticalAlignment="Center" />
+                        </Border>
 
-                        <TextBlock Text="{Binding Length, Mode=OneWay, Converter={StaticResource TimeToMovieLengthConverter}}" 
+                        <Border HorizontalAlignment="Right"  VerticalAlignment="Top" CornerRadius="0 0 0 4" >
+                          <Border.Background>
+                            <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                          </Border.Background>
+
+                          <TextBlock Text="{Binding Length, Mode=OneWay, Converter={StaticResource TimeToMovieLengthConverter}}" 
                                Padding="4 0 4 2" 
                                TextWrapping="Wrap" VerticalAlignment="Center" 
                                FontSize="14"
                                  />
-                      </Border>
+                        </Border>
 
-                      <Grid VerticalAlignment="Bottom">
-                        <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"  Opacity="0.8" />
+                        <Grid VerticalAlignment="Bottom" Width="180">
+                          <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"  Opacity="0.8" />
 
-                        <StackPanel Margin="8 8 8 8" >
-                          <StackPanel>
-                            <TextBlock Text="{Binding Label}" TextWrapping="Wrap" FontSize="12" />
+                          <StackPanel Margin="8 8 8 8" >
+                            <StackPanel>
+                              <TextBlock Text="{Binding Label}" TextWrapping="Wrap" FontSize="12"  />
+                            </StackPanel>
                           </StackPanel>
-                        </StackPanel>
+                        </Grid>
+
+                        <VisualStateManager.VisualStateGroups>
+                          <VisualStateGroup>
+                            <VisualState>
+                              <VisualState.StateTriggers>
+                                <StateTrigger IsActive="{Binding IsWatched}" />
+                              </VisualState.StateTriggers>
+                              <VisualState.Setters>
+                                <Setter Target="VideoItemContainer.BorderBrush" Value="Transparent" />
+                              </VisualState.Setters>
+                            </VisualState>
+                          </VisualStateGroup>
+                        </VisualStateManager.VisualStateGroups>
                       </Grid>
-                    </Grid>
+                    </UserControl>
                   </DataTemplate>
                 </ListView.ItemTemplate>
 

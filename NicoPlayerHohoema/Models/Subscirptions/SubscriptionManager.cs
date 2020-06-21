@@ -19,8 +19,8 @@ namespace NicoPlayerHohoema.Models.Subscriptions
     {
         public bool IsSuccessed { get; set; }
         public SubscriptionSourceEntity Entity { get; set; }
-        public List<IVideoContent> Videos { get; set; }
-        public List<IVideoContent> NewVideos { get; set; }
+        public List<NicoVideo> Videos { get; set; }
+        public List<NicoVideo> NewVideos { get; set; }
 
     }
     public sealed class SubscriptionManager
@@ -200,7 +200,7 @@ namespace NicoPlayerHohoema.Models.Subscriptions
             }
             else
             {
-                result.NewVideos = new List<IVideoContent>();
+                result.NewVideos = new List<NicoVideo>();
             }
 
             // 成功したら前回までの内容に追記して保存する
@@ -253,17 +253,17 @@ namespace NicoPlayerHohoema.Models.Subscriptions
                 return new SubscriptionFeedUpdateResult()
                 {
                     IsSuccessed = false,
-                    Videos = new List<IVideoContent>(),
+                    Videos = new List<NicoVideo>(),
                     Entity = entity
                 };
             }
         }
 
 
-        static private async Task<List<IVideoContent>> GetUserVideosFeedResult(string userId, Provider.UserProvider userProvider)
+        static private async Task<List<NicoVideo>> GetUserVideosFeedResult(string userId, Provider.UserProvider userProvider)
         {
             var id = uint.Parse(userId);
-            List<IVideoContent> items = new List<IVideoContent>();
+            List<NicoVideo> items = new List<NicoVideo>();
             uint page = 1;
 
             var res = await userProvider.GetUserVideos(id, page);
@@ -298,9 +298,9 @@ namespace NicoPlayerHohoema.Models.Subscriptions
             return items;
         }
 
-        static private async Task<List<IVideoContent>> GetChannelVideosFeedResult(string channelId, Provider.ChannelProvider channelProvider)
+        static private async Task<List<NicoVideo>> GetChannelVideosFeedResult(string channelId, Provider.ChannelProvider channelProvider)
         {
-            List<IVideoContent> items = new List<IVideoContent>();
+            List<NicoVideo> items = new List<NicoVideo>();
             int page = 0;
             var res = await channelProvider.GetChannelVideo(channelId, page);
 
@@ -330,9 +330,9 @@ namespace NicoPlayerHohoema.Models.Subscriptions
             return items;
         }
 
-        static private async Task<List<IVideoContent>> GetMylistFeedResult(string mylistId, Provider.MylistProvider mylistProvider)
+        static private async Task<List<NicoVideo>> GetMylistFeedResult(string mylistId, Provider.MylistProvider mylistProvider)
         {
-            List<IVideoContent> items = new List<IVideoContent>();
+            List<NicoVideo> items = new List<NicoVideo>();
             int page = 0;
             const int itemGetCountPerPage = 50;
             var head = page * itemGetCountPerPage;
@@ -349,9 +349,9 @@ namespace NicoPlayerHohoema.Models.Subscriptions
             return items;
         }
 
-        static private async Task<List<IVideoContent>> GetKeywordSearchFeedResult(string keyword, Provider.SearchProvider searchProvider)
+        static private async Task<List<NicoVideo>> GetKeywordSearchFeedResult(string keyword, Provider.SearchProvider searchProvider)
         {
-            List<IVideoContent> items = new List<IVideoContent>();
+            List<NicoVideo> items = new List<NicoVideo>();
             int page = 0;
             const int itemGetCountPerPage = 50;
 
@@ -389,9 +389,9 @@ namespace NicoPlayerHohoema.Models.Subscriptions
             return items;
         }
 
-        static private async Task<List<IVideoContent>> GetTagSearchFeedResult(string tag, Provider.SearchProvider searchProvider)
+        static private async Task<List<NicoVideo>> GetTagSearchFeedResult(string tag, Provider.SearchProvider searchProvider)
         {
-            List<IVideoContent> items = new List<IVideoContent>();
+            List<NicoVideo> items = new List<NicoVideo>();
             int page = 0;
             const int itemGetCountPerPage = 50;
 

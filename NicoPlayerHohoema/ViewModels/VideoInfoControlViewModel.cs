@@ -49,7 +49,13 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (Data != null)
             {
-                SetupFromThumbnail(Data);
+                Label = Data.Title;
+                PostedAt = Data.PostedAt;
+                Length = Data.Length;
+                ViewCount = Data.ViewCount;
+                MylistCount = Data.MylistCount;
+                CommentCount = Data.CommentCount;
+                ThumbnailUrl = Data.ThumbnailUrl;
             }
 
             _ngSettings.NGVideoOwnerUserIds.CollectionChanged += NGVideoOwnerUserIds_CollectionChanged;
@@ -333,31 +339,34 @@ namespace NicoPlayerHohoema.ViewModels
                 SetTitle(Data.Title);
             }
 
-            var data = await Task.Run(async () =>
+            if (Data == null)
             {
-                if (IsDisposed)
+                var data = await Task.Run(async () =>
                 {
-                    Debug.WriteLine("skip thumbnail loading: " + RawVideoId);
+                    if (IsDisposed)
+                    {
+                        Debug.WriteLine("skip thumbnail loading: " + RawVideoId);
+                        return null;
+                    }
+
+                    if (NicoVideoProvider != null)
+                    {
+                        return await NicoVideoProvider.GetNicoVideoInfo(RawVideoId);
+                    }
+
+                    // オフライン時はローカルDBの情報を利用する
+                    if (Data == null)
+                    {
+                        return Database.NicoVideoDb.Get(RawVideoId);
+                    }
+
                     return null;
-                }
+                });
 
-                if (NicoVideoProvider != null)
-                {
-                    return await NicoVideoProvider.GetNicoVideoInfo(RawVideoId);
-                }
+                if (data == null) { return; }
 
-                // オフライン時はローカルDBの情報を利用する
-                if (Data == null)
-                {
-                    return Database.NicoVideoDb.Get(RawVideoId);
-                }
-
-                return null;
-            });
-
-            if (data == null) { return; }
-
-            Data = data;
+                Data = data;
+            }
 
             SubscriptionWatchedIfNotWatch(Data);
             UpdateIsHidenVideoOwner(Data);

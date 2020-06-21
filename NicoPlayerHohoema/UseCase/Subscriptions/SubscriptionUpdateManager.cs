@@ -66,7 +66,6 @@ namespace NicoPlayerHohoema.UseCase.Subscriptions
             }
         }
 
-
         CancellationTokenSource _timerUpdateCancellationTokenSource;
 
         async void StartTimer()
@@ -77,7 +76,7 @@ namespace NicoPlayerHohoema.UseCase.Subscriptions
                 
                 if (_isDisposed) { return; }
 
-                _timerDisposer = Observable.Timer(TimeSpan.FromSeconds(5), TimeSpan.FromMinutes(1))
+                _timerDisposer = Observable.Timer(TimeSpan.FromSeconds(5), TimeSpan.FromMinutes(60))
                     .Subscribe(async _ =>
                     {
                         try
