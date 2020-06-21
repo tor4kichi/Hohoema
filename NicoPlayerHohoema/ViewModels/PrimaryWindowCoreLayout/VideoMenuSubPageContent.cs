@@ -12,6 +12,7 @@ using System.Linq;
 using System.Reactive.Disposables;
 using System.Text;
 using System.Threading.Tasks;
+using Prism.Ioc;
 
 namespace NicoPlayerHohoema.ViewModels.PrimaryWindowCoreLayout
 {
@@ -59,9 +60,11 @@ namespace NicoPlayerHohoema.ViewModels.PrimaryWindowCoreLayout
         public ReadOnlyReactiveCollection<HohoemaListingPageItemBase> LocalMylists { get; }
         public ReadOnlyReactiveCollection<HohoemaListingPageItemBase> Mylists { get; }
 
+        WatchAfterMenuItemViewModel _watchAfterMenuItemViewModel;
         private void ResetMenuItems()
         {
             MenuItems.Clear();
+            _watchAfterMenuItemViewModel ??= App.Current.Container.Resolve<WatchAfterMenuItemViewModel>();
             if (NiconicoSession.IsLoggedIn)
             {
                 MenuItems.Add(new MenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList));
@@ -69,7 +72,7 @@ namespace NicoPlayerHohoema.ViewModels.PrimaryWindowCoreLayout
                 MenuItems.Add(new MenuItemViewModel(HohoemaPageType.FollowManage.Translate(), HohoemaPageType.FollowManage));
                 MenuItems.Add(new MenuItemViewModel(HohoemaPageType.WatchHistory.Translate(), HohoemaPageType.WatchHistory));
                 MenuItems.Add(new SeparatorMenuItemViewModel());
-                MenuItems.Add(new MenuItemViewModel("@view".Translate(), HohoemaPageType.WatchAfter));
+                MenuItems.Add(_watchAfterMenuItemViewModel);
                 MenuItems.Add(new MenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement));
                 MenuItems.Add(new MenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement));
                 //                MenuItems.Add(new MenuItemViewModel("オススメ".Translate(), HohoemaPageType.Recommend));
@@ -78,7 +81,7 @@ namespace NicoPlayerHohoema.ViewModels.PrimaryWindowCoreLayout
             {
                 MenuItems.Add(new MenuItemViewModel(HohoemaPageType.RankingCategoryList.Translate(), HohoemaPageType.RankingCategoryList));
                 MenuItems.Add(new SeparatorMenuItemViewModel());
-                MenuItems.Add(new MenuItemViewModel("@view".Translate(), HohoemaPageType.WatchAfter));
+                MenuItems.Add(_watchAfterMenuItemViewModel);
                 MenuItems.Add(new MenuItemViewModel(HohoemaPageType.SubscriptionManagement.Translate(), HohoemaPageType.SubscriptionManagement));
                 //                MenuItems.Add(new MenuItemViewModel("視聴履歴", HohoemaPageType.WatchHistory));
                 MenuItems.Add(new MenuItemViewModel(HohoemaPageType.CacheManagement.Translate(), HohoemaPageType.CacheManagement));
