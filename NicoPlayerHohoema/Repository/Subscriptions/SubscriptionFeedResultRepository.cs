@@ -11,6 +11,8 @@ namespace NicoPlayerHohoema.Repository.Subscriptions
 {
     public sealed class SubscriptionFeedResultRepository : LocalLiteDBService<SubscriptionFeedResult>
     {
+        public static int FeedResultVideosCapacity = 100;
+
         public SubscriptionFeedResultRepository()
         {
             _collection.EnsureIndex(x => x.SourceType);
@@ -53,8 +55,7 @@ namespace NicoPlayerHohoema.Repository.Subscriptions
                 // 前回更新分までのIdsと新規分のIdの差集合を取る
                 var ids = result.Videos.Select(x => x.VideoId).ToHashSet();
                 var exceptVideos = videos.Where(x => false == ids.Contains(x.Id));
-
-                result.Videos = Enumerable.Concat(exceptVideos.Select(ToFeedResultVideoItem), result.Videos).ToList();
+                result.Videos = Enumerable.Concat(exceptVideos.Select(ToFeedResultVideoItem), result.Videos).Take(FeedResultVideosCapacity).ToList();
                 result.LastUpdatedAt = DateTime.Now;
 
                 _collection.Update(result);

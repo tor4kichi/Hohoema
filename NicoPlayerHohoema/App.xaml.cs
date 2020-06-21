@@ -204,8 +204,7 @@ namespace NicoPlayerHohoema
             unityContainer.RegisterSingleton<UseCase.Playlist.VideoItemsSelectionContext>();
             unityContainer.RegisterSingleton<UseCase.Playlist.WatchHistoryManager>();
             unityContainer.RegisterSingleton<UseCase.ApplicationLayoutManager>();
-            unityContainer.RegisterSingleton<UseCase.Subscriptions.SubscriptionUpdateManager>();
-
+            
 
 
 
@@ -447,7 +446,8 @@ namespace NicoPlayerHohoema
                 unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.CheckingClipboardAndNotificationService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationFollowUpdatedService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationCacheRequestRejectedService>());
-                unityContainer.Resolve<UseCase.Subscriptions.SubscriptionUpdateManager>();
+                unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.Subscriptions.SubscriptionUpdateManager>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.Subscriptions.FeedResultAddToWatchLater>());
 
                 unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.VideoCacheResumingObserver>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.NicoVideoPlayer.VideoPlayRequestBridgeToPlayer>());

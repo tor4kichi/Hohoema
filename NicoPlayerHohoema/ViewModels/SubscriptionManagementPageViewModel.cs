@@ -107,6 +107,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             _scheduler.Schedule(() =>
             {
+                target.Dispose();
                 Subscriptions.Remove(target);
             });
         }

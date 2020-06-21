@@ -20,6 +20,7 @@ namespace NicoPlayerHohoema.Models.Subscriptions
         public bool IsSuccessed { get; set; }
         public SubscriptionSourceEntity Entity { get; set; }
         public List<IVideoContent> Videos { get; set; }
+        public List<IVideoContent> NewVideos { get; set; }
 
     }
     public sealed class SubscriptionManager
@@ -190,10 +191,22 @@ namespace NicoPlayerHohoema.Models.Subscriptions
 
             cancellationToken.ThrowIfCancellationRequested();
 
+            // 新規動画を抽出する
+            if (prevResult != null)
+            {
+                var prevContainVideoIds = prevResult.Videos.Select(x => x.VideoId).ToHashSet();
+                var newVideos = result.Videos.TakeWhile(x => !prevContainVideoIds.Contains(x.Id));
+                result.NewVideos = newVideos.ToList();
+            }
+            else
+            {
+                result.NewVideos = new List<IVideoContent>();
+            }
+
             // 成功したら前回までの内容に追記して保存する
             if (result.IsSuccessed && (result.Videos?.Any() ?? false))
             {
-                _ = Task.Run(() => _subscriptionFeedResultRepository.MargeFeedResult(prevResult, entity, result.Videos));
+                var updatedResult = _subscriptionFeedResultRepository.MargeFeedResult(prevResult, entity, result.Videos);
             }
 
             try
