@@ -448,6 +448,7 @@ namespace NicoPlayerHohoema
                 unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationCacheRequestRejectedService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.Subscriptions.SubscriptionUpdateManager>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.Subscriptions.FeedResultAddToWatchLater>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.Subscriptions.SyncWatchHistoryOnLoggedIn>());
 
                 unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.VideoCacheResumingObserver>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.NicoVideoPlayer.VideoPlayRequestBridgeToPlayer>());

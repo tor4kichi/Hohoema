@@ -619,6 +619,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         public void RemoveWatchAfter(IVideoContent item)
         {
             WatchAfterPlaylist.RemoveOnScheduler(item);
+            _playlistRepository.DeleteItem(WatchAfterPlaylist.Id, item.Id);
         }
 
         public int RemoveWatchAfterIfWatched()
@@ -690,6 +691,13 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         {
             // キューから削除する
             _player.RemoveQueue(playedItem);
+
+            // あとで見るプレイリストから視聴済みを削除
+            var watchAfterItem = WatchAfterPlaylist.FirstOrDefault(x => x.Id == playedItem.Id);
+            if (watchAfterItem != null)
+            {
+                RemoveWatchAfter(watchAfterItem);
+            }
 
             // アイテムを視聴済みにマーク
             var history = Database.VideoPlayedHistoryDb.VideoPlayed(playedItem.Id);

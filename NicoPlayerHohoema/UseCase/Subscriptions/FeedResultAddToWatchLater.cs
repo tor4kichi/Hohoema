@@ -30,9 +30,12 @@ namespace NicoPlayerHohoema.UseCase.Subscriptions
             {
                 foreach (var newVideo in e.NewVideos)
                 {
-                    _hohoemaPlaylist.AddWatchAfterPlaylist(newVideo);
+                    if (!Database.VideoPlayedHistoryDb.IsVideoPlayed(newVideo.Id))
+                    {
+                        _hohoemaPlaylist.AddWatchAfterPlaylist(newVideo);
 
-                    Debug.WriteLine("[FeedResultAddToWatchLater] added: " + newVideo.Label);
+                        Debug.WriteLine("[FeedResultAddToWatchLater] added: " + newVideo.Label);
+                    }
                 }
             }
         }
