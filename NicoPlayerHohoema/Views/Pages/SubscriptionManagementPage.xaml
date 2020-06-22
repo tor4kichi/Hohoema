@@ -40,7 +40,6 @@
         </DataTemplate>
       </myTemplateSelector:ValueDataTemplate>
     </myTemplateSelector:ValueDataTemplateSelector>
-
   </Page.Resources>
   <Grid>
     <ListView ItemsSource="{Binding Subscriptions}"
@@ -55,23 +54,34 @@
           <CommandBar DefaultLabelPosition="Collapsed" Margin="0 0 16 0" 
                       XYFocusDownNavigationStrategy="NavigationDirectionDistance"
                       XYFocusLeftNavigationStrategy="RectilinearDistance"
+                      HorizontalAlignment="Right"
                       >
             <CommandBar.PrimaryCommands>
               <AppBarButton Icon="Play" Command="{Binding PlayAllUnwatchedCommand}">
                 
               </AppBarButton>
-              <AppBarButton Icon="Add" Command="{Binding AddSubscriptionSourceCommand}">
+              <AppBarButton Visibility="Collapsed" Icon="Add" Label="{Binding Source=Add, Converter={StaticResource LocalizeConverter}}" Command="{Binding AddSubscriptionSourceCommand}">
                 
               </AppBarButton>
 
-              <AppBarButton Icon="Refresh" Command="{Binding AllUpdateCommand}" >
+              <AppBarButton Icon="Refresh" Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}}" Command="{Binding AllUpdateCommand}" >
                 
               </AppBarButton>
             </CommandBar.PrimaryCommands>
 
-            <CommandBar.SecondaryCommands>
-              <AppBarToggleButton Icon="Clock" Label="自動更新を有効" IsChecked="{Binding IsSubscriptionUpdateEnabled.Value, Mode=TwoWay}" />
-            </CommandBar.SecondaryCommands>
+            <CommandBar.Content>
+              <Grid Margin="8 0" HorizontalAlignment="Right">
+                <StackPanel Orientation="Horizontal" x:Name="AutoUpdateRunningStatusLayout" Spacing="8" Opacity="0.0">
+                  <TextBlock>
+                    <Run Text="{Binding Source=SubscriptionsAutoUpdateRunning, Converter={StaticResource LocalizeConverter}}" />
+                    <Run Text="{Binding Source=SubscriptionsNextUpdateTime, Converter={StaticResource LocalizeConverter}}" />:<Run Text="{Binding NextUpdateTime.Value, Converter={StaticResource DateTimeToString}, ConverterParameter=t}" />
+                  </TextBlock>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" x:Name="AutoUpdateNotRunningStatusLayout" Spacing="8" Opacity="0.0">
+                  <TextBlock Text="{Binding Source=SubscriptionsAutoNotUpdateRunning, Converter={StaticResource LocalizeConverter}}" />
+                </StackPanel>
+              </Grid>
+            </CommandBar.Content>
           </CommandBar>
         </Grid>
       </ListView.Header>
@@ -102,7 +112,7 @@
                 </StackPanel>
                 <Button.Flyout>
                   <MenuFlyout>
-                    <MenuFlyoutItem Text="更新" Command="{Binding UpdateCommand}" IsEnabled="{Binding NowUpdating.Value, Converter={StaticResource BoolNegation}}" />
+                    <MenuFlyoutItem Text="更新" Command="{Binding UpdateCommand}" IsEnabled="{Binding NowUpdating, Converter={StaticResource BoolNegation}}" />
                     <MenuFlyoutItem Visibility="Collapsed" Text="古い未視聴動画を先頭に視聴開始" Command="{Binding PlayUnwatchVideosCommand}" />
                     <MenuFlyoutItem Text="購読元の動画一覧を開く" Command="{Binding OpenSourceVideoListPageCommand}" />
                     <MenuFlyoutSeparator />
@@ -187,5 +197,26 @@
         </DataTemplate>
       </ListView.ItemTemplate>
     </ListView>
+
+    <VisualStateManager.VisualStateGroups>
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding IsAutoUpdateRunning.Value}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="AutoUpdateRunningStatusLayout.Opacity" Value="1.0" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="True" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="AutoUpdateNotRunningStatusLayout.Opacity" Value="1.0" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
   </Grid>
 </Page>

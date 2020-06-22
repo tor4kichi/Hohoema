@@ -25,7 +25,19 @@ namespace NicoPlayerHohoema.ViewModels
     public sealed class SubscriptionManagementPageViewModel : HohoemaViewModelBase, INavigationAware, IDestructible
     {
         public ObservableCollection<SubscriptionViewModel> Subscriptions { get; }
-        
+
+        private readonly CompositeDisposable _disposables = new CompositeDisposable();
+        private readonly SubscriptionManager _subscriptionManager;
+        private readonly SubscriptionUpdateManager _subscriptionUpdateManager;
+        private readonly DialogService _dialogService;
+        private readonly PageManager _pageManager;
+        private readonly IScheduler _scheduler;
+
+
+        public IReadOnlyReactiveProperty<bool> IsAutoUpdateRunning { get; }
+        public IReadOnlyReactiveProperty<DateTime> NextUpdateTime { get; }
+        public IReactiveProperty<TimeSpan> AutoUpdateFrequency { get; }
+
         public SubscriptionManagementPageViewModel(
             IScheduler scheduler, 
             SubscriptionManager subscriptionManager,
@@ -38,22 +50,31 @@ namespace NicoPlayerHohoema.ViewModels
 
             Subscriptions.CollectionChangedAsObservable()
                 .Throttle(TimeSpan.FromSeconds(0.25))
-                .Subscribe(_ => 
+                .Subscribe(_ =>
                 {
-                    Subscriptions.ForEach((index, vm) => 
+                    Subscriptions.ForEach((index, vm) =>
                     {
                         var subscEntity = vm._source;
                         subscEntity.SortIndex = index + 1; // 新規追加時に既存アイテムを後ろにずらして表示したいため+1
                         _subscriptionManager.UpdateSubscription(subscEntity);
                     });
-                });
-            _IsSubscriptionUpdateEnabled = new ReactiveProperty<bool>(true);
-            IsSubscriptionUpdateEnabled = _IsSubscriptionUpdateEnabled.ToReadOnlyReactiveProperty();
+                })
+                .AddTo(_disposables);
+
             _subscriptionManager = subscriptionManager;
             _subscriptionUpdateManager = subscriptionUpdateManager;
             _dialogService = dialogService;
             _pageManager = pageManager;
             _scheduler = scheduler;
+
+            IsAutoUpdateRunning = _subscriptionUpdateManager.ObserveProperty(x => x.IsRunning)
+                .ToReadOnlyReactiveProperty(false)
+                .AddTo(_disposables);
+            NextUpdateTime = _subscriptionUpdateManager.ObserveProperty(x => x.NextUpdateTime)
+                .ToReadOnlyReactiveProperty()
+                .AddTo(_disposables);
+            AutoUpdateFrequency = _subscriptionUpdateManager.ToReactivePropertyAsSynchronized(x => x.UpdateFrequency)
+                .AddTo(_disposables);
         }
 
 
@@ -169,28 +190,6 @@ namespace NicoPlayerHohoema.ViewModels
         #endregion
 
 
-        #region UpdateEnabled
-
-        private readonly ReactiveProperty<bool> _IsSubscriptionUpdateEnabled;
-        private readonly SubscriptionManager _subscriptionManager;
-        private readonly SubscriptionUpdateManager _subscriptionUpdateManager;
-        private readonly DialogService _dialogService;
-        private readonly PageManager _pageManager;
-        private readonly IScheduler _scheduler;
-
-        public IReadOnlyReactiveProperty<bool> IsSubscriptionUpdateEnabled { get; }
-
-        private DelegateCommand _ToggleEnableSubscriptionUpdateCommand;
-        public DelegateCommand ToggleEnableSubscriptionUpdateCommand =>
-            _ToggleEnableSubscriptionUpdateCommand ?? (_ToggleEnableSubscriptionUpdateCommand = new DelegateCommand(ExecuteToggleEnableSubscriptionUpdateCommand));
-
-        void ExecuteToggleEnableSubscriptionUpdateCommand()
-        {
-
-        }
-
-        #endregion
-
         CancellationTokenSource _cancellationTokenSource;
 
         private DelegateCommand _AllUpdateCommand;
@@ -201,7 +200,7 @@ namespace NicoPlayerHohoema.ViewModels
         {
                 _scheduler.Schedule(async () =>
                 {
-                    using (_cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromMinutes(5)))
+                    using (_cancellationTokenSource = new CancellationTokenSource(TimeSpan.FromMinutes(1)))
                     {
                         try
                         {
@@ -212,6 +211,8 @@ namespace NicoPlayerHohoema.ViewModels
                         
                         }
                     }
+
+                    _subscriptionUpdateManager.RestartIfTimerNotRunning();
                 });
         }
 
@@ -249,10 +250,6 @@ namespace NicoPlayerHohoema.ViewModels
                 _subscriptionManager.UpdateSubscription(_source);
             })
                 .AddTo(_disposables);
-
-            _nowUpdating = new ReactiveProperty<bool>()
-                .AddTo(_disposables);
-            NowUpdating = _nowUpdating;
         }
 
         private readonly CompositeDisposable _disposables = new CompositeDisposable();
@@ -269,10 +266,20 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ObservableCollection<VideoInfoControlViewModel> Videos { get; } = new ObservableCollection<VideoInfoControlViewModel>();
 
-        public DateTime LastUpdatedAt { get; private set; }
 
-        ReactiveProperty<bool> _nowUpdating;
-        public IReadOnlyReactiveProperty<bool> NowUpdating { get; }
+        private DateTime _lastUpdatedAt;
+        public DateTime LastUpdatedAt
+        {
+            get { return _lastUpdatedAt; }
+            set { SetProperty(ref _lastUpdatedAt, value); }
+        }
+
+        private bool _nowUpdating;
+        public bool NowUpdating
+        {
+            get { return _nowUpdating; }
+            set { SetProperty(ref _nowUpdating, value); }
+        }
 
         public void Dispose()
         {
@@ -296,7 +303,7 @@ namespace NicoPlayerHohoema.ViewModels
         {
             try
             {
-                _nowUpdating.Value = true;
+                NowUpdating = true;
                 using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
                 {
                     await _subscriptionManager.RefreshFeedUpdateResultAsync(_source, cts.Token);
@@ -304,7 +311,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
             finally
             {
-                _nowUpdating.Value = false;
+                NowUpdating = false;
             }
         }
 

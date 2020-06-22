@@ -18,7 +18,7 @@ namespace NicoPlayerHohoema.Views.Converters
 
             if (value is DateTime time)
             {
-                return $"{time.ToString("f")}";
+                return $"{time.ToString((parameter as string) ?? "f")}";
             }
 
             return value?.ToString() ?? "";

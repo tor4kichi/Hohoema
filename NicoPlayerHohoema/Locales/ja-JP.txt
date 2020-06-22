@@ -168,6 +168,9 @@ SubscriptionSourceType.KeywordSearch = キーワード検索
 
 InAppNotification_AddItemToSubscription = 『{0}』の新着動画を購読する
 
+SubscriptionsAutoUpdateRunning = 自動更新
+SubscriptionsNextUpdateTime = 次回更新
+SubscriptionsAutoNotUpdateRunning = 自動更新 停止中
 
 #### Settings ####
 AppearanceSettings = 表示設定

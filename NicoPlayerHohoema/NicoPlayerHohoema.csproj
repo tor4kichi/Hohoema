@@ -161,6 +161,7 @@
     <Compile Include="Models\Subscirptions\SubscriptionSourceEntity.cs" />
     <Compile Include="Repository\Subscriptions\SubscriptionFeedResultRepository.cs" />
     <Compile Include="Repository\Subscriptions\SubscriptionRegistrationRepository.cs" />
+    <Compile Include="Repository\Subscriptions\SubscriptionSettingsRepository.cs" />
     <Compile Include="Repository\VideoCache\CacheRequestRepository.cs" />
     <Compile Include="Repository\LiteDbService.cs" />
     <Compile Include="Repository\NicoVideo\SeriesRepository.cs" />
