@@ -48,10 +48,14 @@
               ReorderMode="Enabled"
               CanReorderItems="True"
               AllowDrop="True"
+              IsTabStop="False"
               >
       <ListView.Header>
-        <Grid>
-          <CommandBar DefaultLabelPosition="Collapsed">
+        <Grid Margin="0 0 0 0" Background="{ThemeResource MenuBackgroundBrush}">
+          <CommandBar DefaultLabelPosition="Collapsed" Margin="0 0 16 0" 
+                      XYFocusDownNavigationStrategy="NavigationDirectionDistance"
+                      XYFocusLeftNavigationStrategy="RectilinearDistance"
+                      >
             <CommandBar.PrimaryCommands>
               <AppBarButton Icon="Play" Command="{Binding PlayAllUnwatchedCommand}">
                 
@@ -72,101 +76,113 @@
         </Grid>
       </ListView.Header>
 
+      <ListView.ItemContainerStyle>
+        <Style TargetType="ListViewItem">
+          <Setter Property="IsTabStop" Value="False" />
+          <Setter Property="Padding" Value="24 0 0 8" />
+        </Style>
+      </ListView.ItemContainerStyle>
+
       <ListView.ItemTemplate>
         <DataTemplate x:DataType="viewModels:SubscriptionViewModel">
           <StackPanel>
-            <uwpControls:DockPanel>
-              <StackPanel Orientation="Horizontal" uwpControls:DockPanel.Dock="Right">
-                <Button Background="Transparent" >
-                  <SymbolIcon Symbol="More" />
-                </Button>
-              </StackPanel>
-              <StackPanel Orientation="Horizontal" Spacing="8">
-                <ContentControl Content="{Binding SourceType}" ContentTemplateSelector="{StaticResource SubscriptionSourceTypeTemplateSelector}"
+            <StackPanel Orientation="Horizontal">
+              <Button Background="Transparent" x:Name="SubscriptionActionButton" XYFocusDown="{Binding ElementName=SubscriptionVideoList}">
+                <StackPanel Orientation="Horizontal" Spacing="8">
+                  <ContentControl Content="{Binding SourceType}" ContentTemplateSelector="{StaticResource SubscriptionSourceTypeTemplateSelector}"
                                 VerticalAlignment="Center"
                                 />
-                <TextBlock Text="{Binding Label}"
+                  <TextBlock Text="{Binding Label}"
                            Style="{StaticResource SubtitleTextBlockStyle}"
                            VerticalAlignment="Center"
                            />
-              </StackPanel>
-            </uwpControls:DockPanel>
 
-            <uwpControls:DockPanel>
+                  <SymbolIcon Symbol="More" />
 
-              <Border Width="32" uwpControls:DockPanel.Dock="Left" />
-              
-              <ListView x:Name="SubscriptionVideoList"
+                </StackPanel>
+                <Button.Flyout>
+                  <MenuFlyout>
+                    <MenuFlyoutItem Text="更新" Command="{Binding UpdateCommand}" IsEnabled="{Binding NowUpdating.Value, Converter={StaticResource BoolNegation}}" />
+                    <MenuFlyoutItem Visibility="Collapsed" Text="古い未視聴動画を先頭に視聴開始" Command="{Binding PlayUnwatchVideosCommand}" />
+                    <MenuFlyoutItem Text="購読元の動画一覧を開く" Command="{Binding OpenSourceVideoListPageCommand}" />
+                    <MenuFlyoutSeparator />
+                    <MenuFlyoutItem Text="購読を止める" Command="{Binding DeleteSubscriptionCommand}" />
+                  </MenuFlyout>
+                </Button.Flyout>
+              </Button>
+            </StackPanel>
+
+            <ListView x:Name="SubscriptionVideoList"
                      ItemsSource="{Binding Videos}"
                         ScrollViewer.VerticalScrollMode="Disabled"
                       ScrollViewer.HorizontalScrollBarVisibility="Auto"
                       ScrollViewer.HorizontalScrollMode="Enabled"
                         SelectionMode="None"
                         Margin="0 0"
+                        IsFocusEngagementEnabled="True"
                         xmlns:ex="using:NicoPlayerHohoema.Views.Extensions"
                         ex:ListViewBase.DeferInitialize="True"
+                        XYFocusUp="{Binding ElementName=SubscriptionActionButton}"
                       >
-                <ListView.ItemsPanel>
-                  <ItemsPanelTemplate>
-                    <ItemsStackPanel Orientation="Horizontal" />
-                  </ItemsPanelTemplate>
-                </ListView.ItemsPanel>
-                <ListView.ItemContainerStyle>
-                  <Style TargetType="ListViewItem">
-                    <Setter Property="Padding" Value="0" />
-                  </Style>
-                </ListView.ItemContainerStyle>
-                <ListView.ItemTemplate>
-                  <DataTemplate x:DataType="viewModels:VideoInfoControlViewModel">
-                    <UserControl>
+              <ListView.ItemsPanel>
+                <ItemsPanelTemplate>
+                  <ItemsStackPanel Orientation="Horizontal" />
+                </ItemsPanelTemplate>
+              </ListView.ItemsPanel>
+              <ListView.ItemContainerStyle>
+                <Style TargetType="ListViewItem">
+                  <Setter Property="Padding" Value="0" />
+                </Style>
+              </ListView.ItemContainerStyle>
+              <ListView.ItemTemplate>
+                <DataTemplate x:DataType="viewModels:VideoInfoControlViewModel">
+                  <UserControl>
 
-                      <Grid x:Name="VideoItemContainer" BorderThickness="1" BorderBrush="{ThemeResource SystemAccentColor}" Height="108">
-                        <Border   >
-                          <Image Source="{Binding ThumbnailUrl}" Width="180" Stretch="Uniform" VerticalAlignment="Center" />
-                        </Border>
+                    <Grid x:Name="VideoItemContainer" BorderThickness="1" BorderBrush="{ThemeResource SystemAccentColor}" Height="108">
+                      <Border   >
+                        <Image Source="{Binding ThumbnailUrl}" Width="180" Stretch="Uniform" VerticalAlignment="Center" />
+                      </Border>
 
-                        <Border HorizontalAlignment="Right"  VerticalAlignment="Top" CornerRadius="0 0 0 4" >
-                          <Border.Background>
-                            <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
-                          </Border.Background>
+                      <Border HorizontalAlignment="Right"  VerticalAlignment="Top" CornerRadius="0 0 0 4" >
+                        <Border.Background>
+                          <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}"/>
+                        </Border.Background>
 
-                          <TextBlock Text="{Binding Length, Mode=OneWay, Converter={StaticResource TimeToMovieLengthConverter}}" 
+                        <TextBlock Text="{Binding Length, Mode=OneWay, Converter={StaticResource TimeToMovieLengthConverter}}" 
                                Padding="4 0 4 2" 
                                TextWrapping="Wrap" VerticalAlignment="Center" 
                                FontSize="14"
                                  />
-                        </Border>
+                      </Border>
 
-                        <Grid VerticalAlignment="Bottom" Width="180">
-                          <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"  Opacity="0.8" />
+                      <Grid VerticalAlignment="Bottom" Width="180">
+                        <Border Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"  Opacity="0.8" />
 
-                          <StackPanel Margin="8 8 8 8" >
-                            <StackPanel>
-                              <TextBlock Text="{Binding Label}" TextWrapping="Wrap" FontSize="12"  />
-                            </StackPanel>
+                        <StackPanel Margin="8 8 8 8" >
+                          <StackPanel>
+                            <TextBlock Text="{Binding Label}" TextWrapping="Wrap" FontSize="12"  />
                           </StackPanel>
-                        </Grid>
-
-                        <VisualStateManager.VisualStateGroups>
-                          <VisualStateGroup>
-                            <VisualState>
-                              <VisualState.StateTriggers>
-                                <StateTrigger IsActive="{Binding IsWatched}" />
-                              </VisualState.StateTriggers>
-                              <VisualState.Setters>
-                                <Setter Target="VideoItemContainer.BorderBrush" Value="Transparent" />
-                              </VisualState.Setters>
-                            </VisualState>
-                          </VisualStateGroup>
-                        </VisualStateManager.VisualStateGroups>
+                        </StackPanel>
                       </Grid>
-                    </UserControl>
-                  </DataTemplate>
-                </ListView.ItemTemplate>
 
-              </ListView>
+                      <VisualStateManager.VisualStateGroups>
+                        <VisualStateGroup>
+                          <VisualState>
+                            <VisualState.StateTriggers>
+                              <StateTrigger IsActive="{Binding IsWatched}" />
+                            </VisualState.StateTriggers>
+                            <VisualState.Setters>
+                              <Setter Target="VideoItemContainer.BorderBrush" Value="Transparent" />
+                            </VisualState.Setters>
+                          </VisualState>
+                        </VisualStateGroup>
+                      </VisualStateManager.VisualStateGroups>
+                    </Grid>
+                  </UserControl>
+                </DataTemplate>
+              </ListView.ItemTemplate>
 
-            </uwpControls:DockPanel>
+            </ListView>
           </StackPanel>
         </DataTemplate>
       </ListView.ItemTemplate>

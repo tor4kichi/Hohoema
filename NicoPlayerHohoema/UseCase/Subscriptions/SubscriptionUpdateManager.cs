@@ -8,6 +8,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Uno;
 
 namespace NicoPlayerHohoema.UseCase.Subscriptions
 {
@@ -15,6 +16,7 @@ namespace NicoPlayerHohoema.UseCase.Subscriptions
     {
         private readonly SubscriptionManager _subscriptionManager;
 
+        // TODO: 自動更新
 
         AsyncLock _timerLock = new AsyncLock();
 
@@ -25,11 +27,25 @@ namespace NicoPlayerHohoema.UseCase.Subscriptions
             )
         {
             _subscriptionManager = subscriptionManager;
+            _subscriptionManager.Added += _subscriptionManager_Added;
 
             StartTimer();
 
             App.Current.Suspending += Current_Suspending;
             App.Current.Resuming += Current_Resuming;
+        }
+
+        private async void _subscriptionManager_Added(object sender, SubscriptionSourceEntity e)
+        {
+            using (await _timerLock.LockAsync())
+            {
+                using (_timerUpdateCancellationTokenSource = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+                {
+                    await _subscriptionManager.RefreshFeedUpdateResultAsync(e, _timerUpdateCancellationTokenSource.Token);
+                }
+
+                _timerUpdateCancellationTokenSource = null;
+            }
         }
 
         private async void Current_Suspending(object sender, Windows.ApplicationModel.SuspendingEventArgs e)
@@ -60,6 +76,9 @@ namespace NicoPlayerHohoema.UseCase.Subscriptions
         {
             using (await _timerLock.LockAsync())
             {
+                // ロック中にタイマーが止まっていた場合は更新しない
+                if (_timerDisposer == null) { return; }
+
                 Debug.WriteLine($"[{nameof(SubscriptionUpdateManager)}] start update ------------------- ");
                 await _subscriptionManager.RefreshAllFeedUpdateResultAsync(cancellationToken);
                 Debug.WriteLine($"[{nameof(SubscriptionUpdateManager)}] end update ------------------- ");
@@ -104,6 +123,7 @@ namespace NicoPlayerHohoema.UseCase.Subscriptions
             using (await _timerLock.LockAsync())
             {
                 _timerDisposer?.Dispose();
+                _timerDisposer = null;
             }
         }
 

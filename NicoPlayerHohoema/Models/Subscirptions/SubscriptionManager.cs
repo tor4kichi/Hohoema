@@ -115,10 +115,10 @@ namespace NicoPlayerHohoema.Models.Subscriptions
 
         public void RemoveSubscription(SubscriptionSourceEntity entity)
         {
-            var registrationRemoved = _subscriptionRegistrationRepository.DeleteItem(entity);
+            var registrationRemoved = _subscriptionRegistrationRepository.DeleteItem(entity.Id);
             Debug.WriteLine("[SubscriptionSource Remove] registration removed: " + registrationRemoved);
 
-            var feedResultRemoved = _subscriptionFeedResultRepository.DeleteItem(entity);
+            var feedResultRemoved = _subscriptionFeedResultRepository.DeleteItem(entity.Id);
             Debug.WriteLine("[SubscriptionSource Remove] feed result removed: " + feedResultRemoved);
 
             if (registrationRemoved || feedResultRemoved)
@@ -165,7 +165,7 @@ namespace NicoPlayerHohoema.Models.Subscriptions
         public async Task RefreshAllFeedUpdateResultAsync(CancellationToken cancellationToken = default)
         {
             IList<SubscriptionSourceEntity> entities = _subscriptionRegistrationRepository.ReadAllItems();
-            foreach(var entity in entities)
+            foreach(var entity in entities.Where(x => x.IsEnabled).OrderBy(x => x.SortIndex))
             {
                 cancellationToken.ThrowIfCancellationRequested();
 

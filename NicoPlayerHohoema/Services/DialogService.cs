@@ -302,9 +302,7 @@ namespace NicoPlayerHohoema.Services
 
             return (result?.Id as string) == "accept";
         }
-
-
-
+        
 
         #region
 

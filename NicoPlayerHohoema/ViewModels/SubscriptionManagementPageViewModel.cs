@@ -1,6 +1,8 @@
-﻿using NicoPlayerHohoema.FixPrism;
+﻿using I18NPortable;
+using NicoPlayerHohoema.FixPrism;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models.Subscriptions;
+using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.UseCase.Subscriptions;
 using Prism.Commands;
 using Prism.Navigation;
@@ -25,9 +27,11 @@ namespace NicoPlayerHohoema.ViewModels
         public ObservableCollection<SubscriptionViewModel> Subscriptions { get; }
         
         public SubscriptionManagementPageViewModel(
+            IScheduler scheduler, 
             SubscriptionManager subscriptionManager,
             SubscriptionUpdateManager subscriptionUpdateManager,
-            IScheduler scheduler
+            DialogService dialogService,
+            PageManager pageManager
             )
         {
             Subscriptions = new ObservableCollection<SubscriptionViewModel>();
@@ -39,7 +43,7 @@ namespace NicoPlayerHohoema.ViewModels
                     Subscriptions.ForEach((index, vm) => 
                     {
                         var subscEntity = vm._source;
-                        subscEntity.SortIndex = index;
+                        subscEntity.SortIndex = index + 1; // 新規追加時に既存アイテムを後ろにずらして表示したいため+1
                         _subscriptionManager.UpdateSubscription(subscEntity);
                     });
                 });
@@ -47,6 +51,8 @@ namespace NicoPlayerHohoema.ViewModels
             IsSubscriptionUpdateEnabled = _IsSubscriptionUpdateEnabled.ToReadOnlyReactiveProperty();
             _subscriptionManager = subscriptionManager;
             _subscriptionUpdateManager = subscriptionUpdateManager;
+            _dialogService = dialogService;
+            _pageManager = pageManager;
             _scheduler = scheduler;
         }
 
@@ -63,7 +69,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 foreach (var subscInfo in _subscriptionManager.GetAllSubscriptionInfo().OrderBy(x => x.entity.SortIndex))
                 {
-                    var vm = new SubscriptionViewModel(subscInfo.entity, _subscriptionManager);
+                    var vm = new SubscriptionViewModel(subscInfo.entity, _subscriptionManager, _pageManager, _dialogService);
                     vm.UpdateFeedResult(subscInfo.feedResult.Videos.Select(ToVideoContent).ToList(), subscInfo.feedResult.LastUpdatedAt);
                     Subscriptions.Add(vm);
                 }
@@ -121,7 +127,7 @@ namespace NicoPlayerHohoema.ViewModels
         {
             _scheduler.Schedule(() =>
             {
-                var vm = new SubscriptionViewModel(e, _subscriptionManager);
+                var vm = new SubscriptionViewModel(e, _subscriptionManager, _pageManager, _dialogService);
                 Subscriptions.Insert(0, vm);
             });
         }
@@ -168,6 +174,8 @@ namespace NicoPlayerHohoema.ViewModels
         private readonly ReactiveProperty<bool> _IsSubscriptionUpdateEnabled;
         private readonly SubscriptionManager _subscriptionManager;
         private readonly SubscriptionUpdateManager _subscriptionUpdateManager;
+        private readonly DialogService _dialogService;
+        private readonly PageManager _pageManager;
         private readonly IScheduler _scheduler;
 
         public IReadOnlyReactiveProperty<bool> IsSubscriptionUpdateEnabled { get; }
@@ -222,25 +230,36 @@ namespace NicoPlayerHohoema.ViewModels
 
     public sealed class SubscriptionViewModel : BindableBase, IDisposable
     {
-        public SubscriptionViewModel(SubscriptionSourceEntity source, SubscriptionManager subscriptionManager)
+        public SubscriptionViewModel(
+            SubscriptionSourceEntity source, 
+            SubscriptionManager subscriptionManager,
+            PageManager pageManager,
+            DialogService dialogService
+            )
         {
             _source = source;
             _subscriptionManager = subscriptionManager;
-
+            _pageManager = pageManager;
+            _dialogService = dialogService;
             IsEnabled = new ReactiveProperty<bool>(_source.IsEnabled)
                 .AddTo(_disposables);
             IsEnabled.Subscribe(isEnabled => 
             {
                 _source.IsEnabled = isEnabled;
                 _subscriptionManager.UpdateSubscription(_source);
-                // TODO: Dispose
             })
                 .AddTo(_disposables);
+
+            _nowUpdating = new ReactiveProperty<bool>()
+                .AddTo(_disposables);
+            NowUpdating = _nowUpdating;
         }
 
         private readonly CompositeDisposable _disposables = new CompositeDisposable();
         internal readonly SubscriptionSourceEntity _source;
         private readonly SubscriptionManager _subscriptionManager;
+        private readonly PageManager _pageManager;
+        private readonly DialogService _dialogService;
 
         public string SourceParameter => _source.SourceParameter;
         public SubscriptionSourceType SourceType => _source.SourceType;
@@ -251,6 +270,9 @@ namespace NicoPlayerHohoema.ViewModels
         public ObservableCollection<VideoInfoControlViewModel> Videos { get; } = new ObservableCollection<VideoInfoControlViewModel>();
 
         public DateTime LastUpdatedAt { get; private set; }
+
+        ReactiveProperty<bool> _nowUpdating;
+        public IReadOnlyReactiveProperty<bool> NowUpdating { get; }
 
         public void Dispose()
         {
@@ -266,6 +288,35 @@ namespace NicoPlayerHohoema.ViewModels
             LastUpdatedAt = updatedAt;
         }
 
+        private DelegateCommand _UpdateCommand;
+        public DelegateCommand UpdateCommand =>
+            _UpdateCommand ?? (_UpdateCommand = new DelegateCommand(ExecuteUpdateCommand));
+
+        internal async void ExecuteUpdateCommand()
+        {
+            try
+            {
+                _nowUpdating.Value = true;
+                using (var cts = new CancellationTokenSource(TimeSpan.FromSeconds(10)))
+                {
+                    await _subscriptionManager.RefreshFeedUpdateResultAsync(_source, cts.Token);
+                }
+            }
+            finally
+            {
+                _nowUpdating.Value = false;
+            }
+        }
+
+
+        private DelegateCommand _PlayUnwatchVideosCommand;
+        public DelegateCommand PlayUnwatchVideosCommand =>
+            _PlayUnwatchVideosCommand ?? (_PlayUnwatchVideosCommand = new DelegateCommand(ExecutePlayUnwatchVideosCommandCommand));
+
+        void ExecutePlayUnwatchVideosCommandCommand()
+        {
+
+        }
 
         private DelegateCommand _OpenSourceVideoListPageCommand;
         public DelegateCommand OpenSourceVideoListPageCommand =>
@@ -273,7 +324,18 @@ namespace NicoPlayerHohoema.ViewModels
 
         void ExecuteOpenSourceVideoListPageCommand()
         {
+            (HohoemaPageType pageType, string param) pageInfo = _source.SourceType switch
+            {
+                SubscriptionSourceType.Mylist => (HohoemaPageType.Mylist, $"id={_source.SourceParameter}"),
+                SubscriptionSourceType.User => (HohoemaPageType.UserVideo, $"id={_source.SourceParameter}"),
+                SubscriptionSourceType.Channel => (HohoemaPageType.ChannelVideo, $"id={_source.SourceParameter}"),
+                SubscriptionSourceType.Series => (HohoemaPageType.Series, $"id={_source.SourceParameter}"),
+                SubscriptionSourceType.SearchWithKeyword => (HohoemaPageType.SearchResultKeyword, $"keyword={Uri.EscapeDataString(_source.SourceParameter)}"),
+                SubscriptionSourceType.SearchWithTag => (HohoemaPageType.SearchResultTag, $"keyword={Uri.EscapeDataString(_source.SourceParameter)}"),
+                _ => throw new NotImplementedException(),
+            };
 
+            _pageManager.OpenPage(pageInfo.pageType, pageInfo.param);
         }
 
 
@@ -281,9 +343,18 @@ namespace NicoPlayerHohoema.ViewModels
         public DelegateCommand DeleteSubscriptionCommand =>
             _DeleteSubscriptionCommand ?? (_DeleteSubscriptionCommand = new DelegateCommand(ExecuteDeleteSubscriptionCommand));
 
-        void ExecuteDeleteSubscriptionCommand()
+        async void ExecuteDeleteSubscriptionCommand()
         {
-
+            var result = await _dialogService.ShowMessageDialog(
+                _source.Label, 
+                "購読を止めてもいいですか？",
+                "SubscriptionStop".Translate(),
+                "Cancel".Translate()
+                );
+            if (result)
+            {
+                _subscriptionManager.RemoveSubscription(_source);
+            }
         }
 
     }
