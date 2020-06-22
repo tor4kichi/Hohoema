@@ -277,6 +277,7 @@
     <Compile Include="UseCase\Playlist\VideoItemsSelectionContext.cs" />
     <Compile Include="UseCase\Playlist\WatchHistoryManager.cs" />
     <Compile Include="UseCase\Subscriptions\FeedResultAddToWatchLater.cs" />
+    <Compile Include="UseCase\Subscriptions\LatestSubscriptionVideosNotifier.cs" />
     <Compile Include="UseCase\Subscriptions\SubscriptionUpdateManager.cs" />
     <Compile Include="UseCase\Subscriptions\SyncWatchHistoryOnLoggedIn.cs" />
     <Compile Include="UseCase\VideoCacheResumingObserver.cs" />

@@ -449,7 +449,8 @@ namespace NicoPlayerHohoema
                 unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.Subscriptions.SubscriptionUpdateManager>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.Subscriptions.FeedResultAddToWatchLater>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.Subscriptions.SyncWatchHistoryOnLoggedIn>());
-
+                unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.Subscriptions.LatestSubscriptionVideosNotifier>());
+                
                 unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.VideoCacheResumingObserver>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.NicoVideoPlayer.VideoPlayRequestBridgeToPlayer>());
 
@@ -559,16 +560,36 @@ namespace NicoPlayerHohoema
                         if (payload.RedirectPageType == HohoemaPageType.VideoPlayer)
                         {
                             var parameter = new NavigationParameters(payload.RedirectParamter);
-                            var id = parameter.GetValue<string>("id");
                             var playlistId = parameter.GetValue<string>("playlist_id");
-                            PlayVideoFromExternal(id, playlistId);
+                            if (parameter.TryGetValue("id", out string id))
+                            {
+                                PlayVideoFromExternal(id, playlistId);
+                                isHandled = true;
+                            }
+                            else
+                            {
+                                var playlistResolver = App.Current.Container.Resolve<PlaylistAggregateGetter>();
+                                var hohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
+                                var playlist = await playlistResolver.FindPlaylistAsync(playlistId);
+                                hohoemaPlaylist.Play(playlist);
+                                isHandled = true;
+                            }
+                        }
+                        else
+                        {
+                            var pageManager = Container.Resolve<Services.PageManager>();
+                            pageManager.OpenPage(payload.RedirectPageType, payload.RedirectParamter);
+                            isHandled = true;
                         }
                     }
                     
                     if (Uri.TryCreate(arguments, UriKind.Absolute, out var uri))
                     {
                         var pageManager = Container.Resolve<Services.PageManager>();
-                        pageManager.OpenPage(uri);
+                        if (pageManager.OpenPage(uri))
+                        {
+                            isHandled = true;
+                        }
                     }
                 }
                 catch { }

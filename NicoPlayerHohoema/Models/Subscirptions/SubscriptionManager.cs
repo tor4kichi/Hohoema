@@ -192,6 +192,7 @@ namespace NicoPlayerHohoema.Models.Subscriptions
             cancellationToken.ThrowIfCancellationRequested();
 
             // 新規動画を抽出する
+            // 初回更新時は新着抽出をスキップする
             if (prevResult != null)
             {
                 var prevContainVideoIds = prevResult.Videos.Select(x => x.VideoId).ToHashSet();
@@ -209,15 +210,20 @@ namespace NicoPlayerHohoema.Models.Subscriptions
                 var updatedResult = _subscriptionFeedResultRepository.MargeFeedResult(prevResult, entity, result.Videos);
             }
 
-            try
+            // 新着動画がある場合は更新を通知する
+            if (result.NewVideos.Any())
             {
-                Updated?.Invoke(this, result);
+                try
+                {
+                    Updated?.Invoke(this, result);
+                }
+                catch (Exception e)
+                {
+                    Debug.WriteLine(e.ToString());
+                    Debug.WriteLine("[FeedUpdate] Failed Updated. " + entity.Label);
+                }
             }
-            catch (Exception e)
-            {
-                Debug.WriteLine(e.ToString());
-                Debug.WriteLine("[FeedUpdate] Failed Updated. " + entity.Label);
-            }
+
 
             Debug.WriteLine("[FeedUpdate] complete: " + entity.Label);
 
