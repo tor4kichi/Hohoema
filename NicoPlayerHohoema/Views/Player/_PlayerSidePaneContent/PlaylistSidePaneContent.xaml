@@ -57,7 +57,7 @@
       <ListView x:Name="ItemsListView" ItemsSource="{x:Bind _viewModel.CollectionViewSource.View}" SelectionMode="None" SingleSelectionFollowsFocus="False" IsItemClickEnabled="True" IsFocusEngagementEnabled="True" uwpext:ListViewExtensions.AlternateColor="{ThemeResource ToggleSwitchTrackDisabledBackgroundThemeBrush}" uwpext:ListViewExtensions.StretchItemContainerDirection="Horizontal">
         <i:Interaction.Behaviors>
           <core:EventTriggerBehavior EventName="ItemClick">
-            <core:InvokeCommandAction Command="{x:Bind _viewModel.HohoemaPlaylist.PlayCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+            <core:InvokeCommandAction Command="{x:Bind _viewModel.PlayWithCurrentPlaylistCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />
           </core:EventTriggerBehavior>
         </i:Interaction.Behaviors>
         <ListView.GroupStyle>

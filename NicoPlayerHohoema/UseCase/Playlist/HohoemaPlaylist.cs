@@ -548,8 +548,17 @@ namespace NicoPlayerHohoema.UseCase.Playlist
                 var video = _player.Items.FirstOrDefault();
                 _player.SetCurrent(video);
             }
+        }
 
+        public void PlayContinueWithPlaylist(IVideoContent video, IPlaylist playlist)
+        {
+            if (CurrentPlaylist != playlist)
+            {
+                _player.SetSource(Enumerable.Empty<IVideoContent>());
+                CurrentPlaylist = null;
+            }
 
+            _player.SetCurrent(video);
         }
 
         public async void Play(IVideoContent video, IPlaylist playlist = null)
