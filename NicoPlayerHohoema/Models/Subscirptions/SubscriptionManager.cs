@@ -169,7 +169,20 @@ namespace NicoPlayerHohoema.Models.Subscriptions
             {
                 cancellationToken.ThrowIfCancellationRequested();
 
-                await RefreshFeedUpdateResultAsync(entity, cancellationToken);
+                List<Exception> exceptions = new List<Exception>();
+                try
+                {
+                    await RefreshFeedUpdateResultAsync(entity, cancellationToken);
+                }
+                catch (Exception e)
+                {
+                    exceptions.Add(e);
+                }
+
+                if (exceptions.Any())
+                {
+                    throw new AggregateException("failed update subscrition.", exceptions);
+                }
             }
         }
 
@@ -213,15 +226,7 @@ namespace NicoPlayerHohoema.Models.Subscriptions
             // 新着動画がある場合は更新を通知する
             if (result.NewVideos.Any())
             {
-                try
-                {
-                    Updated?.Invoke(this, result);
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine(e.ToString());
-                    Debug.WriteLine("[FeedUpdate] Failed Updated. " + entity.Label);
-                }
+                Updated?.Invoke(this, result);
             }
 
 
