@@ -279,7 +279,8 @@ namespace NicoPlayerHohoema.UseCase
                 {
                     var vpos = (uint)(posision.TotalMilliseconds / 10);
 
-                    var res = await _commentSession.PostComment(WritingComment.Value, posision, CommandText.Value);
+                    var command = CommandText.Value;
+                    var res = await _commentSession.PostComment(WritingComment.Value, posision, command);
 
                     if (res.Status == ChatResult.Success)
                     {
@@ -292,6 +293,11 @@ namespace NicoPlayerHohoema.UseCase
                             UserId = _commentSession.UserId,
                             CommentText = WritingComment.Value,
                         };
+
+                        foreach (var action in MailToCommandHelper.MakeCommandActions(command.Split(' ')))
+                        {
+                            action(commentVM);
+                        }
 
                         Comments.Add(commentVM);
                         
@@ -330,6 +336,7 @@ namespace NicoPlayerHohoema.UseCase
 
             Comments.Clear();
             DisplayingComments.Clear();
+            HiddenCommentIds.Clear();
 
             var comments = await commentSession.GetInitialComments();
 
@@ -410,6 +417,7 @@ namespace NicoPlayerHohoema.UseCase
                     return true;
                 }
 
+                // 効率的実行のためやむなくここでコマンドを処理
                 foreach (var action in MailToCommandHelper.MakeCommandActions(commands))
                 {
                     action(comment);

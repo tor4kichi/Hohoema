@@ -143,5 +143,19 @@ namespace NicoPlayerHohoema.ViewModels
                 PlaylistItems = collection;
             }
         }
+
+        private DelegateCommand<IVideoContent> _PlayWithCurrentPlaylistCommand;
+        public DelegateCommand<IVideoContent> PlayWithCurrentPlaylistCommand
+        {
+            get
+            {
+                return _PlayWithCurrentPlaylistCommand
+                    ?? (_PlayWithCurrentPlaylistCommand = new DelegateCommand<IVideoContent>((video) =>
+                    {
+                        HohoemaPlaylist.PlayContinueWithPlaylist(video, Playlist);
+                    }
+                    ));
+            }
+        }
     }
 }

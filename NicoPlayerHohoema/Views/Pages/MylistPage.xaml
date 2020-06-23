@@ -25,7 +25,7 @@
     mc:Ignorable="d"
     >
   <Grid>
-    <videolistPage:VideoItemsListView ItemsSource="{Binding MylistItems}" ItemCommand="{Binding HohoemaPlaylist.PlayCommand}" RefreshCommand="{Binding RefreshCommand}" PlaylistPassToFlyout="{Binding Mylist.Value}" x:Name="VideoItemsListView">
+    <videolistPage:VideoItemsListView ItemsSource="{Binding MylistItems}" ItemCommand="{Binding PlayWithCurrentPlaylistCommand}" RefreshCommand="{Binding RefreshCommand}" PlaylistPassToFlyout="{Binding Mylist.Value}" x:Name="VideoItemsListView">
       <videolistPage:VideoItemsListView.ItemContextFlyoutTemplate>
         <DataTemplate>
           <flyouts:VideoItemFlyout />

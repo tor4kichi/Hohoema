@@ -4,6 +4,7 @@ using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.Services.Helpers;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.ViewModels;
 using Prism.Commands;
@@ -317,9 +318,11 @@ namespace NicoPlayerHohoema.Views
         {
             if (HandleBackRequest())
             {
-                e.Handled = true;
                 Debug.WriteLine("back navigated with SystemNavigationManager.BackRequested");
             }
+
+            // Note: 強制的にハンドルしないとXboxOneやタブレットでアプリを閉じる動作に繋がってしまう
+            e.Handled = true;
         }
 
         bool HandleBackRequest()

@@ -22,7 +22,7 @@
   <Grid>
 
     <videolistPage:VideoItemsListView ItemsSource="{Binding PlaylistItems}"
-                                      ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
+                                      ItemCommand="{Binding PlayWithCurrentPlaylistCommand}"
                                       RefreshCommand="{Binding RefreshCommand}"
                                       PlaylistPassToFlyout="{Binding Playlist}"
                                       x:Name="VideoItemsListView"

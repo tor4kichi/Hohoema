@@ -193,7 +193,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 return _PlayWithCurrentPlaylistCommand
                     ?? (_PlayWithCurrentPlaylistCommand = new DelegateCommand<IVideoContent>((video) =>
                     {
-                        HohoemaPlaylist.Play(video, HohoemaPlaylist.CurrentPlaylist);
+                        HohoemaPlaylist.PlayContinueWithPlaylist(video, HohoemaPlaylist.CurrentPlaylist);
                     }
                     ));
             }

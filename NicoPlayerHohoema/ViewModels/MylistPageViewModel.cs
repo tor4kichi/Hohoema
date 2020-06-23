@@ -625,6 +625,20 @@ namespace NicoPlayerHohoema.ViewModels
                 return new IncrementalLoadingCollection<MylistIncrementalSource, IVideoContent>(source);
             }
         }
+
+        private DelegateCommand<IVideoContent> _PlayWithCurrentPlaylistCommand;
+        public DelegateCommand<IVideoContent> PlayWithCurrentPlaylistCommand
+        {
+            get
+            {
+                return _PlayWithCurrentPlaylistCommand
+                    ?? (_PlayWithCurrentPlaylistCommand = new DelegateCommand<IVideoContent>((video) =>
+                    {
+                        HohoemaPlaylist.PlayContinueWithPlaylist(video, Mylist.Value);
+                    }
+                    ));
+            }
+        }
     }
     
 	public class MylistIncrementalSource : HohoemaIncrementalSourceBase<IVideoContent>
