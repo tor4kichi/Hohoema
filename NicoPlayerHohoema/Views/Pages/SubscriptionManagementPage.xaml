@@ -50,40 +50,43 @@
               IsTabStop="False"
               >
       <ListView.Header>
-        <Grid Margin="0 0 0 0" Background="{ThemeResource MenuBackgroundBrush}">
-          <CommandBar DefaultLabelPosition="Collapsed" Margin="0 0 16 0" 
+        <mycontrols:ScrollHeader Mode="Sticky" IsTabStop="False">
+
+          <Grid Margin="0 0 0 0" Background="{ThemeResource MenuBackgroundBrush}">
+            <CommandBar DefaultLabelPosition="Collapsed" Margin="0 0 16 0" 
                       XYFocusDownNavigationStrategy="NavigationDirectionDistance"
                       XYFocusLeftNavigationStrategy="RectilinearDistance"
                       HorizontalAlignment="Right"
                       >
-            <CommandBar.PrimaryCommands>
-              <AppBarButton Icon="Play" Command="{Binding PlayAllUnwatchedCommand}">
-                
-              </AppBarButton>
-              <AppBarButton Visibility="Collapsed" Icon="Add" Label="{Binding Source=Add, Converter={StaticResource LocalizeConverter}}" Command="{Binding AddSubscriptionSourceCommand}">
-                
-              </AppBarButton>
+              <CommandBar.PrimaryCommands>
+                <AppBarButton Icon="Play" Command="{Binding PlayAllUnwatchedCommand}">
 
-              <AppBarButton Icon="Refresh" Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}}" Command="{Binding AllUpdateCommand}" >
-                
-              </AppBarButton>
-            </CommandBar.PrimaryCommands>
+                </AppBarButton>
+                <AppBarButton Visibility="Collapsed" Icon="Add" Label="{Binding Source=Add, Converter={StaticResource LocalizeConverter}}" Command="{Binding AddSubscriptionSourceCommand}">
 
-            <CommandBar.Content>
-              <Grid Margin="8 0" HorizontalAlignment="Right">
-                <StackPanel Orientation="Horizontal" x:Name="AutoUpdateRunningStatusLayout" Spacing="8" Opacity="0.0">
-                  <TextBlock>
+                </AppBarButton>
+
+                <AppBarButton Icon="Refresh" Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}}" Command="{Binding AllUpdateCommand}" >
+
+                </AppBarButton>
+              </CommandBar.PrimaryCommands>
+
+              <CommandBar.Content>
+                <Grid Margin="8 0" HorizontalAlignment="Right">
+                  <StackPanel Orientation="Horizontal" x:Name="AutoUpdateRunningStatusLayout" Spacing="8" Opacity="0.0">
+                    <TextBlock>
                     <Run Text="{Binding Source=SubscriptionsAutoUpdateRunning, Converter={StaticResource LocalizeConverter}}" />
                     <Run Text="{Binding Source=SubscriptionsNextUpdateTime, Converter={StaticResource LocalizeConverter}}" />:<Run Text="{Binding NextUpdateTime.Value, Converter={StaticResource DateTimeToString}, ConverterParameter=t}" />
-                  </TextBlock>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" x:Name="AutoUpdateNotRunningStatusLayout" Spacing="8" Opacity="0.0">
-                  <TextBlock Text="{Binding Source=SubscriptionsAutoNotUpdateRunning, Converter={StaticResource LocalizeConverter}}" />
-                </StackPanel>
-              </Grid>
-            </CommandBar.Content>
-          </CommandBar>
-        </Grid>
+                    </TextBlock>
+                  </StackPanel>
+                  <StackPanel Orientation="Horizontal" x:Name="AutoUpdateNotRunningStatusLayout" Spacing="8" Opacity="0.0">
+                    <TextBlock Text="{Binding Source=SubscriptionsAutoNotUpdateRunning, Converter={StaticResource LocalizeConverter}}" />
+                  </StackPanel>
+                </Grid>
+              </CommandBar.Content>
+            </CommandBar>
+          </Grid>
+        </mycontrols:ScrollHeader>
       </ListView.Header>
 
       <ListView.ItemContainerStyle>
