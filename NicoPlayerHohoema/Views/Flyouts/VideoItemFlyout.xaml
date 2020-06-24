@@ -140,7 +140,7 @@
   <MenuFlyoutItem x:Name="AddNgUser" Text="{Binding Source=AddHiddenVideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" CommandParameter="{Binding}" />
   <MenuFlyoutItem x:Name="RemoveNgUser" Text="{Binding Source=RemoveHiddenVideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" CommandParameter="{Binding}" />
 
-  <MenuFlyoutSeparator />
+  <MenuFlyoutSeparator x:Name="SelectionSeparator" />
   
   <MenuFlyoutItem x:Name="SelectionAll"
                   Text="{Binding Source=SelectAll, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"

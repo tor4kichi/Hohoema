@@ -49,6 +49,7 @@ namespace NicoPlayerHohoema.Views.Flyouts
         public static readonly DependencyProperty VideoItemsProperty =
             DependencyProperty.Register(nameof(VideoItems), typeof(IReadOnlyCollection<Interfaces.IVideoContent>), typeof(VideoItemFlyout), new PropertyMetadata(null));
 
+        public bool AllowSelection { get; set; } = true;
 
 
 
@@ -124,7 +125,7 @@ namespace NicoPlayerHohoema.Views.Flyouts
                 dataContext = VideoItems;
             }
 
-            bool isMultipleSelection = VideoItems?.Count >= 2;
+            bool isMultipleSelection = AllowSelection && VideoItems?.Count >= 2;
 
             var playlist = Playlist;
 
@@ -330,14 +331,23 @@ namespace NicoPlayerHohoema.Views.Flyouts
 
 
             // 選択
-            if (!VideoItemsSelectionContext.IsSelectionEnabled)
+            if (!AllowSelection)
             {
+                SelectionSeparator.Visibility = Visibility.Collapsed;
+                SelectionStart.Visibility = Visibility.Collapsed;
+                SelectionEnd.Visibility = Visibility.Collapsed;
+                SelectionAll.Visibility = Visibility.Collapsed;
+            }
+            else if (!VideoItemsSelectionContext.IsSelectionEnabled)
+            {
+                SelectionSeparator.Visibility = Visibility.Visible;
                 SelectionStart.Visibility = Visibility.Visible;
                 SelectionEnd.Visibility = Visibility.Collapsed;
                 SelectionAll.Visibility = Visibility.Collapsed;
             }
             else
             {
+                SelectionSeparator.Visibility = Visibility.Visible;
                 SelectionStart.Visibility = Visibility.Collapsed;
                 SelectionEnd.Visibility = Visibility.Visible;
                 SelectionAll.Visibility = Visibility.Visible;

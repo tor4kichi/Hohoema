@@ -10,7 +10,8 @@
   xmlns:viewModels="using:NicoPlayerHohoema.ViewModels" xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls" xmlns:mycontrols="using:NicoPlayerHohoema.Views.Controls" xmlns:myTemplateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
   mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
-  xmlns:material="using:MahApps.Metro.IconPacks"
+  xmlns:material="using:MahApps.Metro.IconPacks" xmlns:myFlyout="using:NicoPlayerHohoema.Views.Flyouts"
+  NavigationCacheMode="Enabled"
   >
 
   <Page.Resources>
@@ -42,6 +43,11 @@
         </DataTemplate>
       </myTemplateSelector:ValueDataTemplate>
     </myTemplateSelector:ValueDataTemplateSelector>
+
+    <DataTemplate x:Key="SubscriptionVideoItemFlyoutTemplate">
+      <myFlyout:VideoItemFlyout Playlist="{Binding WatchAfterPlaylist}" AllowSelection="False"  />
+    </DataTemplate>
+
   </Page.Resources>
   <Grid>
     <ListView ItemsSource="{Binding Subscriptions}"
@@ -139,6 +145,7 @@
                         ex:ListViewBase.DeferInitialize="True"
                         XYFocusUp="{Binding ElementName=SubscriptionActionButton}"
                       IsItemClickEnabled="True"
+                      ex:ListViewBase.ItemContextFlyoutTemplate="{StaticResource SubscriptionVideoItemFlyoutTemplate}"
                       >
               <i:Interaction.Behaviors>
                 <core:EventTriggerBehavior EventName="ItemClick">
@@ -158,7 +165,6 @@
               <ListView.ItemTemplate>
                 <DataTemplate x:DataType="viewModels:VideoInfoControlViewModel">
                   <UserControl>
-
                     <Grid x:Name="VideoItemContainer" BorderThickness="1" BorderBrush="{ThemeResource SystemAccentColor}" Height="108">
                       <Border   >
                         <Image Source="{Binding ThumbnailUrl}" Width="180" Stretch="Uniform" VerticalAlignment="Center" />
