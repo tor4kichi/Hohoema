@@ -223,11 +223,8 @@ namespace NicoPlayerHohoema.Models.Subscriptions
                 var updatedResult = _subscriptionFeedResultRepository.MargeFeedResult(prevResult, entity, result.Videos);
             }
 
-            // 新着動画がある場合は更新を通知する
-            if (result.NewVideos.Any())
-            {
-                Updated?.Invoke(this, result);
-            }
+            // 更新を通知する
+            Updated?.Invoke(this, result);
 
 
             Debug.WriteLine("[FeedUpdate] complete: " + entity.Label);

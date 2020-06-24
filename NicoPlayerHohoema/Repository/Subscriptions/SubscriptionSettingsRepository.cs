@@ -10,15 +10,22 @@ namespace NicoPlayerHohoema.Repository.Subscriptions
     {
         public DateTime SubscriptionsLastUpdatedAt
         {
-            get => Read<DateTime>(DateTime.Now);
+            get => Read(DateTime.Now);
             set => Save(value);
         }
 
         public TimeSpan SubscriptionsUpdateFrequency
         {
-            get => Read<TimeSpan>(TimeSpan.FromMinutes(60));
+            get => Read(TimeSpan.FromMinutes(60));
             set => Save(value);
         }
 
+
+
+        public bool IsSortWithSubscriptionUpdated
+        {
+            get => Read(true);
+            set => Save(value);
+        }
     }
 }

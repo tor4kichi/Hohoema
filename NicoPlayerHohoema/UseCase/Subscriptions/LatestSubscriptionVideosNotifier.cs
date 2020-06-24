@@ -23,6 +23,8 @@ namespace NicoPlayerHohoema.UseCase.Subscriptions
         static readonly string OpenSubscriptionManagementPageParam = new LoginRedirectPayload() { RedirectPageType = HohoemaPageType.SubscriptionManagement }.ToParameterString();
         static readonly string PlayWithWatchAfterPlaylistParam = new LoginRedirectPayload() { RedirectPageType = HohoemaPageType.VideoPlayer, RedirectParamter = $"playlist_id={HohoemaPlaylist.WatchAfterPlaylistId}" }.ToParameterString();
 
+        List<SubscriptionFeedUpdateResult> Results = new List<SubscriptionFeedUpdateResult>();
+
         public LatestSubscriptionVideosNotifier(
             SubscriptionManager subscriptionManager,
             NotificationService notificationService
@@ -36,14 +38,16 @@ namespace NicoPlayerHohoema.UseCase.Subscriptions
                 h => _subscriptionManager.Updated -= h
                 )
                 .Select(x => x.EventArgs)
-                .Buffer(TimeSpan.FromSeconds(5))
-                .Where(x => x.Any())
-                .Subscribe(result =>
+                .Do(x => Results.Add(x))
+                .Throttle(TimeSpan.FromSeconds(5))
+                .Subscribe(_ =>
                 {
+                    var items = Results.ToList();
+                    Results.Clear();
                     // 失敗したアイテムの通知
                     if (!Models.Helpers.InternetConnection.IsInternet())
                     {
-                        foreach (var failedItem in result.Where(x => !x.IsSuccessed))
+                        foreach (var failedItem in items.Where(x => !x.IsSuccessed))
                         {
                             _notificationService.ShowToast(
                             $"購読の更新に失敗しました",
@@ -58,7 +62,10 @@ namespace NicoPlayerHohoema.UseCase.Subscriptions
                     }
 
                     // 成功した購読ソースのラベルを連結してトーストコンテンツとして表示する
-                    var successedItems = result.Where(x => x.IsSuccessed);
+                    var successedItems = items.Where(x => x.IsSuccessed && x.NewVideos.Any());
+
+                    if (!successedItems.Any()) { return; }
+
                     var newVideoOwnersText = string.Join(" - ", successedItems.Select(x => x.Entity.Label));
                     _notificationService.ShowToast(
                         $"新着動画 {successedItems.Sum(x => x.NewVideos.Count)} 件を あとで見る に追加しました",

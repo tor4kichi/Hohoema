@@ -303,7 +303,6 @@ namespace NicoPlayerHohoema.UseCase.Playlist
                     }
 
                     WatchAfterPlaylist.CollectionChangedAsObservable()
-                        .Throttle(TimeSpan.FromSeconds(0.25))
                         .Subscribe(args => PlaylistObservableCollectionChanged(WatchAfterPlaylist, args))
                         .AddTo(_disposable);
                 });
@@ -619,7 +618,6 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         public void RemoveWatchAfter(IVideoContent item)
         {
             WatchAfterPlaylist.RemoveOnScheduler(item);
-            _playlistRepository.DeleteItem(WatchAfterPlaylist.Id, item.Id);
         }
 
         public int RemoveWatchAfterIfWatched()
@@ -631,8 +629,6 @@ namespace NicoPlayerHohoema.UseCase.Playlist
                 WatchAfterPlaylist.RemoveOnScheduler(item);
                 removeCount++;
             }
-
-             _playlistRepository.DeleteItems(WatchAfterPlaylist.Id, playedItems.Select(x => x.Id));
 
             return removeCount;
         }
