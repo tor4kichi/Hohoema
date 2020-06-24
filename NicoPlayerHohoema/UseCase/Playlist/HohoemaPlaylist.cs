@@ -377,7 +377,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
                     System.Diagnostics.Debug.WriteLine($"[{playlist.Id}] not implement items Replace action.");
                     break;
                 case NotifyCollectionChangedAction.Reset:
-                    System.Diagnostics.Debug.WriteLine($"[{playlist.Id}] not implement items Reset action.");
+                    _playlistRepository.ClearItems(playlist.Id);
                     break;
             }
         }
