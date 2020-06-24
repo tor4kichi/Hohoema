@@ -44,10 +44,6 @@
       </myTemplateSelector:ValueDataTemplate>
     </myTemplateSelector:ValueDataTemplateSelector>
 
-    <DataTemplate x:Key="SubscriptionVideoItemFlyoutTemplate">
-      <myFlyout:VideoItemFlyout Playlist="{Binding WatchAfterPlaylist}" AllowSelection="False"  />
-    </DataTemplate>
-
   </Page.Resources>
   <Grid>
     <ListView ItemsSource="{Binding Subscriptions}"
@@ -145,7 +141,7 @@
                         ex:ListViewBase.DeferInitialize="True"
                         XYFocusUp="{Binding ElementName=SubscriptionActionButton}"
                       IsItemClickEnabled="True"
-                      ex:ListViewBase.ItemContextFlyoutTemplate="{StaticResource SubscriptionVideoItemFlyoutTemplate}"
+                      ContextRequested="SubscriptionVideoList_ContextRequested"
                       >
               <i:Interaction.Behaviors>
                 <core:EventTriggerBehavior EventName="ItemClick">

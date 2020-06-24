@@ -40,9 +40,6 @@ namespace NicoPlayerHohoema.ViewModels
         public IReadOnlyReactiveProperty<DateTime> NextUpdateTime { get; }
         public IReactiveProperty<TimeSpan> AutoUpdateFrequency { get; }
 
-
-        public IPlaylist WatchAfterPlaylist => _hohoemaPlaylist.WatchAfterPlaylist;
-
         public SubscriptionManagementPageViewModel(
             IScheduler scheduler, 
             SubscriptionManager subscriptionManager,
@@ -276,6 +273,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public ObservableCollection<VideoInfoControlViewModel> Videos { get; } = new ObservableCollection<VideoInfoControlViewModel>();
 
+        public IPlaylist WatchAfterPlaylist => _hohoemaPlaylist.WatchAfterPlaylist;
 
         private DateTime _lastUpdatedAt;
         public DateTime LastUpdatedAt

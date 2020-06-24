@@ -1,4 +1,6 @@
-﻿using System;
+﻿using NicoPlayerHohoema.ViewModels;
+using NicoPlayerHohoema.Views.Flyouts;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -27,6 +29,30 @@ namespace NicoPlayerHohoema.Views
         public SubscriptionManagementPage()
         {
             this.InitializeComponent();
+        }
+
+        private void SubscriptionVideoList_ContextRequested(UIElement sender, ContextRequestedEventArgs args)
+        {
+            if (sender == args.OriginalSource) { return; }
+
+            if (sender is ListViewBase listViewBase)
+            {
+                if (args.OriginalSource is SelectorItem selectorItem)
+                {
+                    selectorItem.DataContext = selectorItem.Content;
+                }
+                
+                var subscVM = (listViewBase.DataContext as SubscriptionViewModel);
+                var flyout = new VideoItemFlyout()
+                {
+                    Playlist = subscVM.WatchAfterPlaylist,
+                    SourceVideoItems = subscVM.Videos,
+                    AllowSelection = false,
+                };
+
+                flyout.ShowAt(args.OriginalSource as FrameworkElement);
+                args.Handled = true;
+            }
         }
     }
 }

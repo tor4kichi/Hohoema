@@ -31,6 +31,7 @@ using System.Reactive.Threading.Tasks;
 using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using Unity;
+using Uno;
 using Windows.Media;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Data;
@@ -576,12 +577,10 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
      
 
-        public void AddQueue(IVideoContent item)
+        public void AddQueue(IVideoContent item, ContentInsertPosition position = ContentInsertPosition.Tail)
         {
-            _player.AddQueue(item);
+            _player.AddQueue(item, position);
         }
-
-
 
         public void RemoveQueue(IVideoContent item)
         {
@@ -596,7 +595,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
 
 
-        public async void AddWatchAfterPlaylist(string videoId)
+        public async void AddWatchAfterPlaylist(string videoId, ContentInsertPosition position = ContentInsertPosition.Tail)
         {
             if (!IsVideoId(videoId))
             {
@@ -605,14 +604,22 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
             var videoContent = await ResolveVideoItemAsync(videoId);
 
-            AddWatchAfterPlaylist(videoContent);
+            AddWatchAfterPlaylist(videoContent, position);
         }
 
-        public void AddWatchAfterPlaylist(IVideoContent item)
+        
+        public void AddWatchAfterPlaylist(IVideoContent item, ContentInsertPosition position = ContentInsertPosition.Tail)
         {
             WatchAfterPlaylist.RemoveOnScheduler(item);
 
-            WatchAfterPlaylist.AddOnScheduler(item);
+            if (position == ContentInsertPosition.Tail)
+            {
+                WatchAfterPlaylist.AddOnScheduler(item);
+            }
+            else if (position == ContentInsertPosition.Head)
+            {
+                WatchAfterPlaylist.InsertOnScheduler(0, item);
+            }
         }
 
         public void RemoveWatchAfter(IVideoContent item)
@@ -1062,10 +1069,17 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             }
         }
 
-        internal void AddQueue(IVideoContent item)
+        internal void AddQueue(IVideoContent item, ContentInsertPosition position)
         {
             _queueItems.RemoveOnScheduler(item);
-            _queueItems.AddOnScheduler(item);
+            if (position == ContentInsertPosition.Tail)
+            {
+                _queueItems.AddOnScheduler(item);
+            }
+            else
+            {
+                _queueItems.InsertOnScheduler(0, item);
+            }
 
             RaisePropertyChanged(nameof(CanGoNext));
         }

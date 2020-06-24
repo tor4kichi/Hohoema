@@ -57,7 +57,16 @@
                   Visibility="Collapsed"
                   />
 
+  <MenuFlyoutItem x:Name="AllPlayFromHereWithQueue"
+                  Text="{Binding Source=AllPlayFromHereWithQueue, Converter={StaticResource LocalizeConverter}}" 
+                  Visibility="Collapsed"
+                  />
 
+  <MenuFlyoutItem x:Name="AllPlayFromHereWithWatchAfter"
+                  Text="{Binding Source=AllPlayFromHereWithWatchAfter, Converter={StaticResource LocalizeConverter}}" 
+                  Visibility="Collapsed"
+                  />
+  
   <MenuFlyoutSeparator x:Name="PlaylistSpecialItemSeparator" />
 
 
