@@ -3,6 +3,7 @@ using NicoPlayerHohoema.FixPrism;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models.Subscriptions;
 using NicoPlayerHohoema.Services;
+using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.UseCase.Subscriptions;
 using Prism.Commands;
 using Prism.Navigation;
@@ -29,6 +30,7 @@ namespace NicoPlayerHohoema.ViewModels
         private readonly CompositeDisposable _disposables = new CompositeDisposable();
         private readonly SubscriptionManager _subscriptionManager;
         private readonly SubscriptionUpdateManager _subscriptionUpdateManager;
+        private readonly HohoemaPlaylist _hohoemaPlaylist;
         private readonly DialogService _dialogService;
         private readonly PageManager _pageManager;
         private readonly IScheduler _scheduler;
@@ -42,6 +44,7 @@ namespace NicoPlayerHohoema.ViewModels
             IScheduler scheduler, 
             SubscriptionManager subscriptionManager,
             SubscriptionUpdateManager subscriptionUpdateManager,
+            HohoemaPlaylist hohoemaPlaylist,
             DialogService dialogService,
             PageManager pageManager
             )
@@ -63,6 +66,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             _subscriptionManager = subscriptionManager;
             _subscriptionUpdateManager = subscriptionUpdateManager;
+            _hohoemaPlaylist = hohoemaPlaylist;
             _dialogService = dialogService;
             _pageManager = pageManager;
             _scheduler = scheduler;
@@ -90,7 +94,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 foreach (var subscInfo in _subscriptionManager.GetAllSubscriptionInfo().OrderBy(x => x.entity.SortIndex))
                 {
-                    var vm = new SubscriptionViewModel(subscInfo.entity, _subscriptionManager, _pageManager, _dialogService);
+                    var vm = new SubscriptionViewModel(subscInfo.entity, _subscriptionManager, _hohoemaPlaylist, _pageManager, _dialogService);
                     vm.UpdateFeedResult(subscInfo.feedResult.Videos.Select(ToVideoContent).ToList(), subscInfo.feedResult.LastUpdatedAt);
                     Subscriptions.Add(vm);
                 }
@@ -148,7 +152,7 @@ namespace NicoPlayerHohoema.ViewModels
         {
             _scheduler.Schedule(() =>
             {
-                var vm = new SubscriptionViewModel(e, _subscriptionManager, _pageManager, _dialogService);
+                var vm = new SubscriptionViewModel(e, _subscriptionManager, _hohoemaPlaylist, _pageManager, _dialogService);
                 Subscriptions.Insert(0, vm);
             });
         }
@@ -234,12 +238,14 @@ namespace NicoPlayerHohoema.ViewModels
         public SubscriptionViewModel(
             SubscriptionSourceEntity source, 
             SubscriptionManager subscriptionManager,
+            HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
             DialogService dialogService
             )
         {
             _source = source;
             _subscriptionManager = subscriptionManager;
+            _hohoemaPlaylist = hohoemaPlaylist;
             _pageManager = pageManager;
             _dialogService = dialogService;
             IsEnabled = new ReactiveProperty<bool>(_source.IsEnabled)
@@ -255,6 +261,7 @@ namespace NicoPlayerHohoema.ViewModels
         private readonly CompositeDisposable _disposables = new CompositeDisposable();
         internal readonly SubscriptionSourceEntity _source;
         private readonly SubscriptionManager _subscriptionManager;
+        private readonly HohoemaPlaylist _hohoemaPlaylist;
         private readonly PageManager _pageManager;
         private readonly DialogService _dialogService;
 
@@ -315,7 +322,6 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-
         private DelegateCommand _PlayUnwatchVideosCommand;
         public DelegateCommand PlayUnwatchVideosCommand =>
             _PlayUnwatchVideosCommand ?? (_PlayUnwatchVideosCommand = new DelegateCommand(ExecutePlayUnwatchVideosCommandCommand));
@@ -364,5 +370,15 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+
+
+        private DelegateCommand<VideoInfoControlViewModel> _PlayVideoItemCommand;
+        public DelegateCommand<VideoInfoControlViewModel> PlayVideoItemCommand =>
+            _PlayVideoItemCommand ?? (_PlayVideoItemCommand = new DelegateCommand<VideoInfoControlViewModel>(ExecutePlayVideoItemCommand));
+
+        void ExecutePlayVideoItemCommand(VideoInfoControlViewModel videoVM)
+        {
+            _hohoemaPlaylist.Play(videoVM, _hohoemaPlaylist.WatchAfterPlaylist);
+        }
     }
 }

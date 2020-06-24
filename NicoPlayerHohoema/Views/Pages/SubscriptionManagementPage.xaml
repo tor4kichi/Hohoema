@@ -5,6 +5,8 @@
     xmlns:local="using:NicoPlayerHohoema.Views"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+  xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
   xmlns:viewModels="using:NicoPlayerHohoema.ViewModels" xmlns:uwpControls="using:Microsoft.Toolkit.Uwp.UI.Controls" xmlns:mycontrols="using:NicoPlayerHohoema.Views.Controls" xmlns:myTemplateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
   mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
@@ -136,7 +138,13 @@
                         xmlns:ex="using:NicoPlayerHohoema.Views.Extensions"
                         ex:ListViewBase.DeferInitialize="True"
                         XYFocusUp="{Binding ElementName=SubscriptionActionButton}"
+                      IsItemClickEnabled="True"
                       >
+              <i:Interaction.Behaviors>
+                <core:EventTriggerBehavior EventName="ItemClick">
+                  <core:InvokeCommandAction Command="{Binding PlayVideoItemCommand}" InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                </core:EventTriggerBehavior>
+              </i:Interaction.Behaviors>
               <ListView.ItemsPanel>
                 <ItemsPanelTemplate>
                   <ItemsStackPanel Orientation="Horizontal" />
