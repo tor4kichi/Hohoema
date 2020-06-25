@@ -654,7 +654,6 @@ InAppNotification_LocalPlaylistRemovedItems = {0} から {1} 個の動画を削�
 
 #### Watch After ####
 @view = あとで見る
-@queue = キュー
 RemoveWatchedItems = 視聴済みを削除
 
 
@@ -694,8 +693,6 @@ MylistSort = 並び替え
 RemoveWatchHisotryItem = 視聴履歴から削除
 LocalMylistRemoveItem = ローカルマイリストから削除
 MylistRemoveItem = マイリストから削除
-QueueAddItem = キューに追加
-QueueRemoveItem = キューから削除
 WatchAfterAddItem = あとで見るに追加
 WatchAfterRemoveItem = あとで見るから削除
 MylistAddItem = マイリストに追加

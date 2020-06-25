@@ -74,7 +74,6 @@
                                 Command="{Binding LocalPlaylistDeleteCommand}"
                                 CommandParameter="{Binding Playlist}"
                                 Background="Transparent"
-                                Visibility="Collapsed"
                                 Icon="Delete"
                                 Label="{Binding Source=LocalPlaylistDelete, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"></AppBarButton>
                 </CommandBar.SecondaryCommands>
@@ -154,24 +153,6 @@
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      
-      <VisualStateGroup>
-
-        <VisualState>
-          <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding IsQueuePlaylist}" />
-          </VisualState.StateTriggers>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <StateTrigger IsActive="True" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="DeletePlaylistButton.Visibility" Value="Visible" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
-
 
       <VisualStateGroup>
         <VisualState>

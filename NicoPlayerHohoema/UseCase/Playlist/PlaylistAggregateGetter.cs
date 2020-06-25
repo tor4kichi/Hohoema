@@ -28,11 +28,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
         public async Task<Interfaces.IPlaylist> FindPlaylistAsync(string id)
         {
-            if (HohoemaPlaylist.QueuePlaylistId == id)
-            {
-                throw new Exception("queue playlist");
-            }
-            else if (HohoemaPlaylist.WatchAfterPlaylistId == id)
+            if (HohoemaPlaylist.WatchAfterPlaylistId == id)
             {
                 return _hohoemaPlaylist.WatchAfterPlaylist;
             }

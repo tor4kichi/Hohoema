@@ -35,18 +35,6 @@
                   Visibility="Collapsed"
                   />
 
-
-  <!-- キュー -->
-  <MenuFlyoutItem x:Name="AddQueue"
-                  Text="{Binding Source=QueueAddItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                  Visibility="Collapsed"
-                  />
-  
-  <MenuFlyoutItem x:Name="RemoveQueue" 
-                  Text="{Binding Source=QueueRemoveItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                  Visibility="Collapsed"
-                  />
-
   <!-- あとで見る -->
   <MenuFlyoutItem x:Name="AddWatchAfter"
                   Text="{Binding Source=WatchAfterAddItem, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"

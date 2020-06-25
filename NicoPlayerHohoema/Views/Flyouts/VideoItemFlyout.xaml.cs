@@ -108,8 +108,6 @@ namespace NicoPlayerHohoema.Views.Flyouts
             RemoveWatchHisotryItem.Command = App.Current.Container.Resolve<WatchHistoryRemoveItemCommand>();
             AddWatchAfter.Command = App.Current.Container.Resolve<WatchAfterAddItemCommand>();
             RemoveWatchAfter.Command = App.Current.Container.Resolve<WatchAfterRemoveItemCommand>();
-            AddQueue.Command = App.Current.Container.Resolve<QueueAddItemCommand>();
-            RemoveQueue.Command = App.Current.Container.Resolve<QueueRemoveItemCommand>();
 
             OpenVideoInfoPage.Command = PageManager.OpenPageCommand;
             OpenOwnerVideosPage.Command = PageManager.OpenVideoListPageCommand;
@@ -176,24 +174,6 @@ namespace NicoPlayerHohoema.Views.Flyouts
                 RemoveMylistItem.Visibility = Visibility.Collapsed;
             }
 
-            // キュー
-            AddQueue.CommandParameter = dataContext;
-            RemoveQueue.CommandParameter = dataContext;
-            if (isMultipleSelection)
-            {
-                AddQueue.Visibility = SelectedVideoItems.All(x => HohoemaPlaylist.QueuePlaylist.Contains(x)).ToInvisibility();
-                RemoveQueue.Visibility = SelectedVideoItems.Any(x => HohoemaPlaylist.QueuePlaylist.Contains(x)).ToVisibility();
-            }
-            else if (HohoemaPlaylist.QueuePlaylist.Contains(content))
-            {
-                AddQueue.Visibility = Visibility.Collapsed;
-                RemoveQueue.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                AddQueue.Visibility = Visibility.Visible;
-                RemoveQueue.Visibility = Visibility.Collapsed;
-            }
 
             // あとで見る
             AddWatchAfter.CommandParameter = dataContext;

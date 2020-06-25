@@ -654,7 +654,6 @@ InAppNotification_LocalPlaylistRemovedItems = {1}个视频已从{0}中删除
 
 #### Watch After ####
 @view = 稍后观看
-@queue = 列
 RemoveWatchedItems = 删除观看
 
 
@@ -694,8 +693,6 @@ MylistSort = 排序
 RemoveWatchHisotryItem = 从观看记录中删除
 LocalMylistRemoveItem = 从本地我的列表中删除
 MylistRemoveItem = 从我的清单中删除
-QueueAddItem = 添加到队列
-QueueRemoveItem = 从队列中删除
 WatchAfterAddItem = 稍后添加观看
 WatchAfterRemoveItem = 从以后删除
 MylistAddItem = 加到我的清单
