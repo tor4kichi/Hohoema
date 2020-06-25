@@ -40,21 +40,10 @@
                 <CommandBar.PrimaryCommands>
                   <AppBarButton Label="{Binding Source=VideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding OpenVideoOwnerUserPageCommand}"
                                 />
-                  <AppBarButton x:Name="FeedRegstrationButton" Label="{Binding Source=SubscriptionAddVideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Add" Visibility="Visible">
-                    <AppBarButton.Flyout>
-                      <MenuFlyout>
-                        <i:Interaction.Behaviors>
-                          <mybehavior:MenuFlyoutItemsSetter ItemsSource="{Binding SubscriptionManager.Subscriptions}" CustomObjectToTag="{Binding SubscriptionSource}">
-                            <mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
-                              <DataTemplate>
-                                <MenuFlyoutItem Text="{Binding Label}" Command="{Binding AddSource}" CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}" />
-                              </DataTemplate>
-                            </mybehavior:MenuFlyoutItemsSetter.ItemTemplate>
-                          </mybehavior:MenuFlyoutItemsSetter>
-                        </i:Interaction.Behaviors>
-                        <MenuFlyoutItem Text="{Binding Source=SubscriptionAddToNew, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding CreateSubscriptionGroupCommand}" CommandParameter="{Binding SubscriptionSource}" />
-                      </MenuFlyout>
-                    </AppBarButton.Flyout>
+                  <AppBarButton x:Name="FeedRegstrationButton" Label="{Binding Source=SubscriptionAddVideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Add" Visibility="Visible"
+                                Command="{Binding AddSubscriptionCommand}"
+                                CommandParameter="{Binding UserInfo.Value}"
+                                >
                   </AppBarButton>
                   <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
                     <i:Interaction.Behaviors>

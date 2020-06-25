@@ -45,6 +45,7 @@ using NicoPlayerHohoema.Repository.Playlist;
 using NicoPlayerHohoema.Services.Player;
 using NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands;
 using I18NPortable;
+using NicoPlayerHohoema.ViewModels.Subscriptions;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -77,7 +78,7 @@ namespace NicoPlayerHohoema.ViewModels
             NotificationService notificationService,
             DialogService dialogService,
             ExternalAccessService externalAccessService,
-            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand,
+            ViewModels.Subscriptions.AddSubscriptionCommand addSubscriptionCommand,
             Commands.Mylist.CreateLocalMylistCommand createLocalMylistCommand,
             Commands.Mylist.CreateMylistCommand createMylistCommand,
             UseCase.NicoVideoPlayer.VideoStreamingOriginOrchestrator videoStreamingOriginOrchestrator,
@@ -111,7 +112,7 @@ namespace NicoPlayerHohoema.ViewModels
             _NotificationService = notificationService;
             _HohoemaDialogService = dialogService;
             ExternalAccessService = externalAccessService;
-            CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
+            AddSubscriptionCommand = addSubscriptionCommand;
             CreateLocalMylistCommand = createLocalMylistCommand;
             CreateMylistCommand = createMylistCommand;
             _videoStreamingOriginOrchestrator = videoStreamingOriginOrchestrator;
@@ -155,7 +156,7 @@ namespace NicoPlayerHohoema.ViewModels
         public UserMylistManager UserMylistManager { get; }
         public PageManager PageManager { get; }
         public ScondaryViewPlayerManager PlayerViewManager { get; }
-        public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
+        public AddSubscriptionCommand AddSubscriptionCommand { get; }
         public Commands.Mylist.CreateLocalMylistCommand CreateLocalMylistCommand { get; }
         public Commands.Mylist.CreateMylistCommand CreateMylistCommand { get; }
 
@@ -176,7 +177,6 @@ namespace NicoPlayerHohoema.ViewModels
         public INicoVideoDetails VideoDetails { get; private set; }
         public PlayerSettings PlayerSettings { get; }
         public ExternalAccessService ExternalAccessService { get; }
-
 
         public MediaPlayerSeekCommand SeekCommand { get; }
         public MediaPlayerSetPlaybackRateCommand SetPlaybackRateCommand { get; }

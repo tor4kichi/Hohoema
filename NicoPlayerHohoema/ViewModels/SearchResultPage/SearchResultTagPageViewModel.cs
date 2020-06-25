@@ -8,6 +8,7 @@ using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.UseCase;
 using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.ViewModels.Subscriptions;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings;
@@ -42,17 +43,17 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         public SearchResultTagPageViewModel(
-           ApplicationLayoutManager applicationLayoutManager,
-           NGSettings ngSettings,
-           Models.NiconicoSession niconicoSession,
-           SearchProvider searchProvider,
-           SubscriptionManager subscriptionManager,
-           HohoemaPlaylist hohoemaPlaylist,
-           Services.PageManager pageManager,
-           Services.DialogService dialogService,
-           Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand,
-           NiconicoFollowToggleButtonService followButtonService
-           )
+            ApplicationLayoutManager applicationLayoutManager,
+            NGSettings ngSettings,
+            Models.NiconicoSession niconicoSession,
+            SearchProvider searchProvider,
+            SubscriptionManager subscriptionManager,
+            HohoemaPlaylist hohoemaPlaylist,
+            Services.PageManager pageManager,
+            Services.DialogService dialogService,
+            ViewModels.Subscriptions.AddTagSearchSubscriptionCommand addTagSearchSubscriptionCommand,
+            NiconicoFollowToggleButtonService followButtonService
+            )
         {
             SearchProvider = searchProvider;
             SubscriptionManager = subscriptionManager;
@@ -62,7 +63,7 @@ namespace NicoPlayerHohoema.ViewModels
             NgSettings = ngSettings;
             NiconicoSession = niconicoSession;
             HohoemaDialogService = dialogService;
-            CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
+            AddTagSearchSubscriptionCommand = addTagSearchSubscriptionCommand;
             FollowButtonService = followButtonService;
             FailLoading = new ReactiveProperty<bool>(false)
                 .AddTo(_CompositeDisposable);
@@ -106,7 +107,7 @@ namespace NicoPlayerHohoema.ViewModels
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
         public Services.DialogService HohoemaDialogService { get; }
-        public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
+        public AddTagSearchSubscriptionCommand AddTagSearchSubscriptionCommand { get; }
         public NiconicoFollowToggleButtonService FollowButtonService { get; }
 
         public Models.Subscription.SubscriptionSource? SubscriptionSource => new Models.Subscription.SubscriptionSource(SearchOption.Keyword, Models.Subscription.SubscriptionSourceType.TagSearch, SearchOption.Keyword);

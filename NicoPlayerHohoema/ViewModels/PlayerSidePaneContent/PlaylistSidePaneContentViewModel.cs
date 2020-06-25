@@ -58,9 +58,6 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
             CurrentItems = HohoemaPlaylist.PlaylistItems.ToReadOnlyReactiveCollection(_scheduler)
                 .AddTo(_CompositeDisposable);
 
-            QueueItems = HohoemaPlaylist.QueuePlaylist.ToReadOnlyReactiveCollection(_scheduler)
-                .AddTo(_CompositeDisposable);
-
             _currentItemCollectionView = new ObservableCollection<IVideoContent>();
 
             _currentPlaylistViewItem = new PlaylistCollectionViewItem()
@@ -76,12 +73,6 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                     Id = "_current_video_",
                     Label = "PlayingVideo".Translate(),
                     Items = _currentItemCollectionView
-                },
-                new PlaylistCollectionViewItem()
-                {
-                    Id = "@queue",
-                    Label = "@queue".Translate(),
-                    Items = QueueItems,
                 },
                 _currentPlaylistViewItem
             };
@@ -125,7 +116,6 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
 
 
         public ReadOnlyReactiveCollection<IVideoContent> CurrentItems { get; }
-        public ReadOnlyReactiveCollection<IVideoContent> QueueItems { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public MediaPlayer MediaPlayer { get; }
         public PageManager PageManager { get; }

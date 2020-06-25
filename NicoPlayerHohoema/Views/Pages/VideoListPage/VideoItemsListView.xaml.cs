@@ -281,12 +281,12 @@ namespace NicoPlayerHohoema.Views.Pages.VideoListPage
                 if (list.SelectedItems.Count > 0)
                 {
                     videoItemFlyout.Playlist = PlaylistPassToFlyout;
-                    videoItemFlyout.VideoItems = list.SelectedItems.Cast<IVideoContent>().ToList();
+                    videoItemFlyout.SelectedVideoItems = list.SelectedItems.Cast<IVideoContent>().ToList();
                 }
                 else
                 {
                     videoItemFlyout.Playlist = PlaylistPassToFlyout;
-                    videoItemFlyout.VideoItems = null;
+                    videoItemFlyout.SelectedVideoItems = null;
                 }
             }
 

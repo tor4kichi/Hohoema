@@ -192,7 +192,7 @@ namespace NicoPlayerHohoema
             unityContainer.RegisterSingleton<Models.FollowManager>();
 
             unityContainer.RegisterSingleton<Models.Cache.VideoCacheManager>();
-            unityContainer.RegisterSingleton<Models.Subscription.SubscriptionManager>();
+            unityContainer.RegisterSingleton<Models.Subscriptions.SubscriptionManager>();
 
             // UseCase
             unityContainer.RegisterType<UseCase.VideoPlayer>(new PerThreadLifetimeManager());
@@ -204,7 +204,7 @@ namespace NicoPlayerHohoema
             unityContainer.RegisterSingleton<UseCase.Playlist.VideoItemsSelectionContext>();
             unityContainer.RegisterSingleton<UseCase.Playlist.WatchHistoryManager>();
             unityContainer.RegisterSingleton<UseCase.ApplicationLayoutManager>();
-
+            
 
 
 
@@ -257,6 +257,8 @@ namespace NicoPlayerHohoema
             containerRegistry.RegisterForNavigation<Views.VideoInfomationPage>();
             containerRegistry.RegisterForNavigation<Views.WatchHistoryPage>();
             containerRegistry.RegisterForNavigation<Views.UserSeriesPage>();
+            containerRegistry.RegisterForNavigation<Views.WatchAfterPage>();
+            containerRegistry.RegisterForNavigation<Views.SubscriptionManagementPage>();            
 
             containerRegistry.RegisterForNavigation<Views.LivePlayerPage>();
             containerRegistry.RegisterForNavigation<Views.VideoPlayerPage>();
@@ -434,33 +436,23 @@ namespace NicoPlayerHohoema
                 }
                 catch { }
 
+                // バージョン間データ統合
+                var migrationSubscription = unityContainer.Resolve<UseCase.Migration.MigrationSubscriptions>();
+                migrationSubscription.Migration();
 
                 // アプリのユースケース系サービスを配置
-                unityContainer.RegisterInstance(unityContainer.Resolve<Services.WatchItLater>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationCacheVideoDeletedService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationMylistUpdatedService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.CheckingClipboardAndNotificationService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationFollowUpdatedService>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationCacheRequestRejectedService>());
-
+                unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.Subscriptions.SubscriptionUpdateManager>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.Subscriptions.FeedResultAddToWatchLater>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.Subscriptions.SyncWatchHistoryOnLoggedIn>());
+                unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.Subscriptions.LatestSubscriptionVideosNotifier>());
+                
                 unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.VideoCacheResumingObserver>());
                 unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.NicoVideoPlayer.VideoPlayRequestBridgeToPlayer>());
-                
-
-                // 購読機能を初期化
-                try
-                {
-                    var watchItLater = Container.Resolve<Services.WatchItLater>();
-                    watchItLater.Initialize();
-                }
-                catch (Exception e)
-                {
-                    Debug.WriteLine("購読機能の初期化に失敗");
-                    Debug.WriteLine(e.ToString());
-                }
-
-
-
 
                 // バックグラウンドでのトースト通知ハンドリングを初期化
                 await RegisterDebugToastNotificationBackgroundHandling();
@@ -568,16 +560,36 @@ namespace NicoPlayerHohoema
                         if (payload.RedirectPageType == HohoemaPageType.VideoPlayer)
                         {
                             var parameter = new NavigationParameters(payload.RedirectParamter);
-                            var id = parameter.GetValue<string>("id");
                             var playlistId = parameter.GetValue<string>("playlist_id");
-                            PlayVideoFromExternal(id, playlistId);
+                            if (parameter.TryGetValue("id", out string id))
+                            {
+                                PlayVideoFromExternal(id, playlistId);
+                                isHandled = true;
+                            }
+                            else
+                            {
+                                var playlistResolver = App.Current.Container.Resolve<PlaylistAggregateGetter>();
+                                var hohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
+                                var playlist = await playlistResolver.FindPlaylistAsync(playlistId);
+                                hohoemaPlaylist.Play(playlist);
+                                isHandled = true;
+                            }
+                        }
+                        else
+                        {
+                            var pageManager = Container.Resolve<Services.PageManager>();
+                            pageManager.OpenPage(payload.RedirectPageType, payload.RedirectParamter);
+                            isHandled = true;
                         }
                     }
                     
                     if (Uri.TryCreate(arguments, UriKind.Absolute, out var uri))
                     {
                         var pageManager = Container.Resolve<Services.PageManager>();
-                        pageManager.OpenPage(uri);
+                        if (pageManager.OpenPage(uri))
+                        {
+                            isHandled = true;
+                        }
                     }
                 }
                 catch { }

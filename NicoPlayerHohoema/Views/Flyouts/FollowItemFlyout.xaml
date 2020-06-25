@@ -11,28 +11,12 @@
   <MenuFlyoutItem Text="{Binding Name}"
                   IsEnabled="False" />
 
-  <MenuFlyoutSubItem x:Name="AddSubscriptionButton"
-                     Text="{Binding Source=SelectSubscriptionGroup, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+  <MenuFlyoutItem x:Name="AddSubscriptionButton"
+                     Text="{Binding Source=AddToSubscription, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
                      Icon="Add"
                      Visibility="Collapsed">
-    <i:Interaction.Behaviors>
-      <mybehavior:MenuFlyoutSubItemItemsSetter ItemsSource="{Binding SubscriptionManager.Subscriptions}"
-                                               CustomObjectToTag="{Binding Converter={StaticResource SubscriptionSourceConverter}}">
-        <mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
-          <DataTemplate>
-            <MenuFlyoutItem Text="{Binding Label}"
-                            Command="{Binding AddSource}"
-                            CommandParameter="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag}" />
-          </DataTemplate>
-        </mybehavior:MenuFlyoutSubItemItemsSetter.ItemTemplate>
-      </mybehavior:MenuFlyoutSubItemItemsSetter>
-    </i:Interaction.Behaviors>
 
-    <MenuFlyoutItem Text="{Binding Source=SubscriptionGroup_Create, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                    Command="{Binding CreateSubscriptionGroupCommand}"
-                    CommandParameter="{Binding Converter={StaticResource SubscriptionSourceConverter}}" />
-
-  </MenuFlyoutSubItem>
+  </MenuFlyoutItem>
 
   <MenuFlyoutSeparator />
 

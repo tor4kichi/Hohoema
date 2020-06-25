@@ -1,4 +1,5 @@
 ﻿using Mntone.Nico2.Mylist.MylistGroup;
+using NicoPlayerHohoema.Database;
 using NicoPlayerHohoema.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -26,7 +27,7 @@ namespace NicoPlayerHohoema.Models.Provider
             public int HeadPosition { get; set; }
             public int TotalCount { get; set; }
 
-            public IReadOnlyCollection<IVideoContent> Items { get; set; }
+            public IReadOnlyCollection<NicoVideo> Items { get; set; }
         }
 
 
@@ -52,7 +53,7 @@ namespace NicoPlayerHohoema.Models.Provider
             if (!res.IsOK) { return new MylistItemsGetResult() { IsSuccess = false, MylistId = mylistId }; }
 
             var videos = res.MylistVideoInfoItems;
-            var resultItems = new List<IVideoContent>();
+            var resultItems = new List<NicoVideo>();
             foreach (var item in videos)
             {
                 var nicoVideo = Database.NicoVideoDb.Get(item.Video.Id);
@@ -82,7 +83,7 @@ namespace NicoPlayerHohoema.Models.Provider
                 IsSuccess = true,
                 MylistId = mylistId,
                 HeadPosition = start,
-                Items = new ReadOnlyCollection<IVideoContent>(resultItems),
+                Items = new ReadOnlyCollection<NicoVideo>(resultItems),
                 TotalCount = (int)res.GetTotalCount()
             };
         }

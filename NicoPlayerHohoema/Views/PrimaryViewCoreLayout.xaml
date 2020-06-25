@@ -16,7 +16,8 @@
              xmlns:listItemControls="using:NicoPlayerHohoema.Views.Controls"
              xmlns:templateSelector="using:NicoPlayerHohoema.Views.TemplateSelector"
              xmlns:mytrigger="using:NicoPlayerHohoema.Views.StateTrigger"
-             xmlns:servicesPlayer="using:NicoPlayerHohoema.Services.Player" xmlns:winui="using:Windows.UI.Xaml.Controls" xmlns:models="using:NicoPlayerHohoema.Models" x:Name="UserControlRoot"
+             xmlns:servicesPlayer="using:NicoPlayerHohoema.Services.Player" 
+             xmlns:winui="using:Windows.UI.Xaml.Controls" xmlns:models="using:NicoPlayerHohoema.Models" xmlns:viewModels="using:NicoPlayerHohoema.ViewModels.PrimaryWindowCoreLayout" x:Name="UserControlRoot"
              mc:Ignorable="d"
              d:DesignHeight="300"
              d:DesignWidth="400">
@@ -169,14 +170,49 @@
           <SymbolIcon Symbol="List" />
         </DataTemplate>
       </templateSelector:ValueDataTemplate>
+      <templateSelector:ValueDataTemplate Value="WatchAfter">
+        <DataTemplate>
+          <iconPack:PackIconMaterial Kind="PlaylistPlay" />
+        </DataTemplate>
+      </templateSelector:ValueDataTemplate>
+      <templateSelector:ValueDataTemplate Value="SubscriptionManagement">
+        <DataTemplate>
+          <iconPack:PackIconMaterial Kind="Rss" />
+        </DataTemplate>
+      </templateSelector:ValueDataTemplate>
+      
     </templateSelector:ValueDataTemplateSelector>
-    <DataTemplate x:Key="MenuItemTemplate">
-      <StackPanel Orientation="Horizontal" Opacity="0.85" Margin="16 0 0 0">
-        <ContentControl Content="{Binding PageType}" ContentTemplateSelector="{StaticResource PageTypeIconTemplateSelector}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Opacity="0.7" Width="24" Height="24" />
-        <Border Height="4" Width="16" />
-        <TextBlock Text="{Binding Label}" VerticalAlignment="Center" FontSize="15" />
-      </StackPanel>
-    </DataTemplate>
+
+    <templateSelector:TypeBasedTemplateSelector x:Key="MenuItemTemplateSelector" >
+      <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=NicoPlayerHohoema.ViewModels.PrimaryWindowCoreLayout.SeparatorMenuItemViewModel, Converter={StaticResource StringToType}}" x:DataType="viewModels:SeparatorMenuItemViewModel">
+        <Border />
+      </DataTemplate>
+      <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=NicoPlayerHohoema.ViewModels.PrimaryWindowCoreLayout.MenuItemViewModel, Converter={StaticResource StringToType}}" x:DataType="viewModels:MenuItemViewModel">
+        <StackPanel Orientation="Horizontal" Opacity="0.85" Margin="16 0 0 0">
+          <ContentControl Content="{Binding PageType}" ContentTemplateSelector="{StaticResource PageTypeIconTemplateSelector}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Opacity="0.7" Width="24" Height="24" />
+          <Border Height="4" Width="16" />
+          <TextBlock Text="{Binding Label}" VerticalAlignment="Center" FontSize="15" />
+        </StackPanel>
+      </DataTemplate>
+
+      <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=NicoPlayerHohoema.ViewModels.PrimaryWindowCoreLayout.WatchAfterMenuItemViewModel, Converter={StaticResource StringToType}}" x:DataType="viewModels:WatchAfterMenuItemViewModel">
+        <uwpToolkitControls:DockPanel Margin="16 0 0 0" Opacity="0.85">
+          <StackPanel  Orientation="Horizontal" uwpToolkitControls:DockPanel.Dock="Left">
+            <ContentControl Content="{Binding PageType}" ContentTemplateSelector="{StaticResource PageTypeIconTemplateSelector}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Opacity="0.7" Width="24" Height="24"  />
+            <Border Height="4" Width="16" />
+          </StackPanel>
+          <Button Command="{Binding PlayWatchAfterPlaylistCommand}" uwpToolkitControls:DockPanel.Dock="Right" Background="Transparent" Padding="0" Width="64">
+            <Grid CornerRadius="60" Background="Gray" Height="32" Width="32" Padding="0 0 0 1">
+              <TextBlock Text="{Binding WatchAfterPlaylistCount.Value}" FontSize="14" VerticalAlignment="Center" HorizontalAlignment="Center" />
+            </Grid>
+          </Button>
+
+          <TextBlock Text="{Binding Source=HohoemaPageType.WatchAfter, Converter={StaticResource LocalizeConverter}}" VerticalAlignment="Center" FontSize="15" />
+        </uwpToolkitControls:DockPanel>
+      </DataTemplate>
+
+    </templateSelector:TypeBasedTemplateSelector>
+    
     <DataTemplate x:Key="PinMenuItemTemplate">
       <StackPanel Orientation="Horizontal" Opacity="0.85" Margin="0 0 0 0">
         <ContentControl Content="{Binding PageType,Mode=OneTime}" ContentTemplateSelector="{StaticResource PageTypeIconTemplateSelector}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Opacity="0.7" Width="24" Height="24" />
@@ -197,7 +233,8 @@
     <DataTemplate x:Key="SingleMenuItemTemplate">
       <ListView IsItemClickEnabled="True"
                 SelectionMode="None"
-                IsTabStop="False">
+                IsTabStop="False"
+                >
         <i:Interaction.Behaviors>
           <core:EventTriggerBehavior EventName="ItemClick">
             <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
@@ -209,13 +246,13 @@
             <Setter Property="Padding" Value="0" />
           </Style>
         </ListView.ItemContainerStyle>
-        <ListViewItem ContentTemplate="{StaticResource MenuItemTemplate}" Content="{Binding}"></ListViewItem>
+        <ListViewItem ContentTemplateSelector="{StaticResource MenuItemTemplateSelector}" Content="{Binding}"></ListViewItem>
       </ListView>
     </DataTemplate>
     <DataTemplate x:Name="VideoSubMenuContentTemplate">
       <StackPanel>
         <ListView ItemsSource="{Binding MenuItems}"
-                  ItemTemplate="{StaticResource MenuItemTemplate}"
+                  ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
                   IsItemClickEnabled="True"
                   SelectionMode="None"
                   IsTabStop="False"
@@ -227,13 +264,19 @@
                                         InputConverter="{StaticResource ItemClickEventArgsConverter}" />
             </core:EventTriggerBehavior>
           </i:Interaction.Behaviors>
+          <ListView.ItemContainerStyle>
+            <Style TargetType="ListViewItem">
+              <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+              <Setter Property="Padding" Value="16 0 0 0" />
+            </Style>
+          </ListView.ItemContainerStyle>
         </ListView>
         <Border BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}" Opacity="0.3" BorderThickness="0 1 0 0" VerticalAlignment="Center" Margin="16 8" />
         <Button Command="{Binding PageManager.OpenPageCommand}" CommandParameter="UserMylist" HorizontalAlignment="Stretch" HorizontalContentAlignment="Left" Background="Transparent" Padding="16 0">
           <TextBlock Text="{Binding Source=Mylist, Converter={StaticResource LocalizeConverter}}" uwpToolkitControls:DockPanel.Dock="Left" VerticalAlignment="Center" Style="{StaticResource SubtitleTextBlockStyle}" />
         </Button>
         <ListView ItemsSource="{Binding Mylists}"
-                  ItemTemplate="{StaticResource MenuItemTemplate}"
+                  ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
                   IsItemClickEnabled="True"
                   SelectionMode="None"
                   IsTabStop="False"
@@ -248,7 +291,7 @@
         </ListView>
         <Border BorderBrush="{StaticResource ApplicationSecondaryForegroundThemeBrush}" Opacity="0.3" BorderThickness="0 1 0 0" VerticalAlignment="Center" Margin="16 8" Visibility="{Binding LocalMylists, Converter={StaticResource CollectionVisibilityConverter}}" />
         <ListView ItemsSource="{Binding LocalMylists}"
-                  ItemTemplate="{StaticResource MenuItemTemplate}"
+                  ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
                   IsItemClickEnabled="True"
                   SelectionMode="None"
                   IsTabStop="False"
@@ -274,7 +317,7 @@
     <DataTemplate x:Name="LiveSubMenuContentTemplate">
       <StackPanel>
         <ListView ItemsSource="{Binding MenuItems}"
-                  ItemTemplate="{StaticResource MenuItemTemplate}"
+                  ItemTemplateSelector="{StaticResource MenuItemTemplateSelector}"
                   IsItemClickEnabled="True"
                   SelectionMode="None"
                   IsTabStop="False"
