@@ -36,8 +36,6 @@ namespace NicoPlayerHohoema.UseCase.Subscriptions
         private async void _niconicoSession_LogIn(object sender, NiconicoSessionLoginEventArgs e)
         {
             await _loginUserHistoryProvider.GetHistory();
-
-            _hohoemaPlaylist.RemoveWatchAfterIfWatched();
         }
     }
 }
