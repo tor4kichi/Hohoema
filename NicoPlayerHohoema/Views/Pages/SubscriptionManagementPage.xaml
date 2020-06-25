@@ -63,7 +63,7 @@
                       HorizontalAlignment="Right"
                       >
               <CommandBar.PrimaryCommands>
-                <AppBarButton Icon="Play" Command="{Binding PlayAllUnwatchedCommand}">
+                <AppBarButton Visibility="Collapsed" Icon="Play" Command="{Binding PlayAllUnwatchedCommand}">
 
                 </AppBarButton>
                 <AppBarButton Visibility="Collapsed" Icon="Add" Label="{Binding Source=Add, Converter={StaticResource LocalizeConverter}}" Command="{Binding AddSubscriptionSourceCommand}">
