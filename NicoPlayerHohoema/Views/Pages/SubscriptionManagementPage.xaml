@@ -119,18 +119,17 @@
                 </StackPanel>
                 <Button.Flyout>
                   <MenuFlyout>
-                    <MenuFlyoutItem Text="更新" Command="{Binding UpdateCommand}" IsEnabled="{Binding NowUpdating, Converter={StaticResource BoolNegation}}" />
-                    <MenuFlyoutItem Visibility="Collapsed" Text="古い未視聴動画を先頭に視聴開始" Command="{Binding PlayUnwatchVideosCommand}" />
-                    <MenuFlyoutItem Text="動画一覧を開く" Command="{Binding OpenSourceVideoListPageCommand}" />
+                    <MenuFlyoutItem Text="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}}" Command="{Binding UpdateCommand}" IsEnabled="{Binding NowUpdating, Converter={StaticResource BoolNegation}}" />
+                    <MenuFlyoutItem Text="{Binding Source=OpenSubscriptionSourceVideoList, Converter={StaticResource LocalizeConverter}}" Command="{Binding OpenSourceVideoListPageCommand}" />
                     <MenuFlyoutSeparator />
-                    <MenuFlyoutSubItem Text="移動">
-                      <MenuFlyoutItem Text="一つ上へ移動" Command="{Binding MoveToPreviewCommand}"/>
-                      <MenuFlyoutItem Text="一つ下へ移動" Command="{Binding MoveToNextCommand}" />
-                      <MenuFlyoutItem Text="先頭へ移動" Command="{Binding MoveToHeadCommand}" />
-                      <MenuFlyoutItem Text="最後尾へ移動" Command="{Binding MoveToTailCommand}" />
+                    <MenuFlyoutSubItem Text="{Binding Source=ReorderSubsciprionSource_Move, Converter={StaticResource LocalizeConverter}}">
+                      <MenuFlyoutItem Text="{Binding Source=ReorderSubsciprionSource_MovePreview, Converter={StaticResource LocalizeConverter}}" Command="{Binding MoveToPreviewCommand}"/>
+                      <MenuFlyoutItem Text="{Binding Source=ReorderSubsciprionSource_MoveNext, Converter={StaticResource LocalizeConverter}}" Command="{Binding MoveToNextCommand}" />
+                      <MenuFlyoutItem Text="{Binding Source=ReorderSubsciprionSource_MoveToHead, Converter={StaticResource LocalizeConverter}}" Command="{Binding MoveToHeadCommand}" />
+                      <MenuFlyoutItem Text="{Binding Source=ReorderSubsciprionSource_MoveToTail, Converter={StaticResource LocalizeConverter}}" Command="{Binding MoveToTailCommand}" />
                     </MenuFlyoutSubItem>
                     <MenuFlyoutSeparator />
-                    <MenuFlyoutItem Text="購読を止める" Command="{Binding DeleteSubscriptionCommand}" />
+                    <MenuFlyoutItem Text="{Binding Source=StopSubscribe, Converter={StaticResource LocalizeConverter}}" Command="{Binding DeleteSubscriptionCommand}" />
                   </MenuFlyout>
                 </Button.Flyout>
               </Button>

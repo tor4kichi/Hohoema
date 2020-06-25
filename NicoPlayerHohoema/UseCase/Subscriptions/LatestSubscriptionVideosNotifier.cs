@@ -1,4 +1,5 @@
-﻿using Microsoft.Toolkit.Uwp.Notifications;
+﻿using I18NPortable;
+using Microsoft.Toolkit.Uwp.Notifications;
 using NicoPlayerHohoema.Models.Subscriptions;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
@@ -50,12 +51,12 @@ namespace NicoPlayerHohoema.UseCase.Subscriptions
                         foreach (var failedItem in items.Where(x => !x.IsSuccessed))
                         {
                             _notificationService.ShowToast(
-                            $"購読の更新に失敗しました",
+                            $"Notification_FailedSubscriptionUpdate".Translate(),
                             failedItem.Entity.Label,
                             Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long,
                             //luanchContent: SubscriptionManagementPageParam,
                             toastButtons: new[] {
-                            new ToastButton("購読管理", OpenSubscriptionManagementPageParam)
+                            new ToastButton(HohoemaPageType.SubscriptionManagement.Translate(), OpenSubscriptionManagementPageParam)
                             }
                             );
                         }
@@ -68,13 +69,13 @@ namespace NicoPlayerHohoema.UseCase.Subscriptions
 
                     var newVideoOwnersText = string.Join(" - ", successedItems.Select(x => x.Entity.Label));
                     _notificationService.ShowToast(
-                        $"新着動画 {successedItems.Sum(x => x.NewVideos.Count)} 件を あとで見る に追加しました",
+                        $"Notification_SuccessAddToWatchLaterWithAddedCount".Translate(successedItems.Sum(x => x.NewVideos.Count)),
                         newVideoOwnersText,
                         Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long,
                         //luanchContent: PlayWithWatchAfterPlaylistParam,
                         toastButtons: new[] {
-                            new ToastButton("視聴する", PlayWithWatchAfterPlaylistParam),
-                            new ToastButton("購読管理", OpenSubscriptionManagementPageParam)
+                            new ToastButton("WatchVideo".Translate(), PlayWithWatchAfterPlaylistParam),
+                            new ToastButton(HohoemaPageType.SubscriptionManagement.Translate(), OpenSubscriptionManagementPageParam)
                         }
 
                         );

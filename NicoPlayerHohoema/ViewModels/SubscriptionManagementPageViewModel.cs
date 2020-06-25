@@ -363,9 +363,9 @@ namespace NicoPlayerHohoema.ViewModels
         async void ExecuteDeleteSubscriptionCommand()
         {
             var result = await _dialogService.ShowMessageDialog(
-                _source.Label, 
-                "購読を止めてもいいですか？",
-                "SubscriptionStop".Translate(),
+                _source.Label,
+                "StopSubscribe?".Translate(),
+                "StopSubscribe".Translate(),
                 "Cancel".Translate()
                 );
             if (result)

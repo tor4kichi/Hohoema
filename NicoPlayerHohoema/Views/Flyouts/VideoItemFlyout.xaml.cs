@@ -221,27 +221,6 @@ namespace NicoPlayerHohoema.Views.Flyouts
                 && Playlist?.Id == HohoemaPlaylist.WatchAfterPlaylistId
                 )
             {
-                AllPlayFromHereWithQueue.Visibility = Visibility.Visible;
-                AllPlayFromHereWithQueue.Command = new DelegateCommand<IVideoContent>((param) => 
-                {
-                    var index = SourceVideoItems.IndexOf(param);
-                    if (index < 0) { return; }
-                    var items = SourceVideoItems.Take(index + 1).ToList();
-                    if (items.Count >= 2)
-                    {
-                        foreach (var videoItem in items.SkipLast(1))
-                        {
-                            HohoemaPlaylist.AddQueue(videoItem, ContentInsertPosition.Head);
-                        }
-                    }
-
-                    if (items.Count >= 1)
-                    {
-                        HohoemaPlaylist.Play(items.Last());
-                    }
-                });
-                AllPlayFromHereWithQueue.CommandParameter = dataContext;
-
                 AllPlayFromHereWithWatchAfter.Visibility = Visibility.Visible;
                 AllPlayFromHereWithWatchAfter.Command = new DelegateCommand<IVideoContent>((param) =>
                 {
@@ -266,7 +245,7 @@ namespace NicoPlayerHohoema.Views.Flyouts
             }
             else
             {
-                AllPlayFromHereWithQueue.Visibility = Visibility.Collapsed;
+                AllPlayFromHereWithWatchAfter.Visibility = Visibility.Collapsed;
             }
 
 
