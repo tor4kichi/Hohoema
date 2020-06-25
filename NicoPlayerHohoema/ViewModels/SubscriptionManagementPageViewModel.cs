@@ -94,7 +94,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 foreach (var subscInfo in _subscriptionManager.GetAllSubscriptionInfo().OrderBy(x => x.entity.SortIndex))
                 {
-                    var vm = new SubscriptionViewModel(subscInfo.entity, _subscriptionManager, _hohoemaPlaylist, _pageManager, _dialogService);
+                    var vm = new SubscriptionViewModel(subscInfo.entity, this, _subscriptionManager, _hohoemaPlaylist, _pageManager, _dialogService);
                     vm.UpdateFeedResult(subscInfo.feedResult.Videos.Select(ToVideoContent).ToList(), subscInfo.feedResult.LastUpdatedAt);
                     Subscriptions.Add(vm);
                 }
@@ -152,7 +152,7 @@ namespace NicoPlayerHohoema.ViewModels
         {
             _scheduler.Schedule(() =>
             {
-                var vm = new SubscriptionViewModel(e, _subscriptionManager, _hohoemaPlaylist, _pageManager, _dialogService);
+                var vm = new SubscriptionViewModel(e, this, _subscriptionManager, _hohoemaPlaylist, _pageManager, _dialogService);
                 Subscriptions.Insert(0, vm);
             });
         }
@@ -236,7 +236,8 @@ namespace NicoPlayerHohoema.ViewModels
     public sealed class SubscriptionViewModel : BindableBase, IDisposable
     {
         public SubscriptionViewModel(
-            SubscriptionSourceEntity source, 
+            SubscriptionSourceEntity source,
+            SubscriptionManagementPageViewModel pageViewModel,
             SubscriptionManager subscriptionManager,
             HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
@@ -244,6 +245,7 @@ namespace NicoPlayerHohoema.ViewModels
             )
         {
             _source = source;
+            _pageViewModel = pageViewModel;
             _subscriptionManager = subscriptionManager;
             _hohoemaPlaylist = hohoemaPlaylist;
             _pageManager = pageManager;
@@ -260,6 +262,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         private readonly CompositeDisposable _disposables = new CompositeDisposable();
         internal readonly SubscriptionSourceEntity _source;
+        private readonly SubscriptionManagementPageViewModel _pageViewModel;
         private readonly SubscriptionManager _subscriptionManager;
         private readonly HohoemaPlaylist _hohoemaPlaylist;
         private readonly PageManager _pageManager;
@@ -381,5 +384,66 @@ namespace NicoPlayerHohoema.ViewModels
         {
             _hohoemaPlaylist.Play(videoVM, _hohoemaPlaylist.WatchAfterPlaylist);
         }
+
+
+
+        private DelegateCommand _MoveToPreviewCommand;
+        public DelegateCommand MoveToPreviewCommand =>
+            _MoveToPreviewCommand ?? (_MoveToPreviewCommand = new DelegateCommand(ExecuteMoveToPreviewCommand));
+
+        void ExecuteMoveToPreviewCommand()
+        {
+            var index = _pageViewModel.Subscriptions.IndexOf(this);
+            if (index - 1 >= 0)
+            {
+                _pageViewModel.Subscriptions.Remove(this);
+                _pageViewModel.Subscriptions.Insert(index - 1, this);
+            }
+        }
+
+
+
+
+        private DelegateCommand _MoveToNextCommand;
+        public DelegateCommand MoveToNextCommand =>
+            _MoveToNextCommand ?? (_MoveToNextCommand = new DelegateCommand(ExecuteMoveToNextCommand));
+
+        void ExecuteMoveToNextCommand()
+        {
+            var index = _pageViewModel.Subscriptions.IndexOf(this);
+            if (index + 1 < _pageViewModel.Subscriptions.Count)
+            {
+                _pageViewModel.Subscriptions.Remove(this);
+                _pageViewModel.Subscriptions.Insert(index + 1, this);
+            }
+        }
+
+
+        private DelegateCommand _MoveToHeadCommand;
+        public DelegateCommand MoveToHeadCommand =>
+            _MoveToHeadCommand ?? (_MoveToHeadCommand = new DelegateCommand(ExecuteMoveToHeadCommand));
+
+        void ExecuteMoveToHeadCommand()
+        {
+            if (this == _pageViewModel.Subscriptions.FirstOrDefault()) { return; }
+            _pageViewModel.Subscriptions.Remove(this);
+            _pageViewModel.Subscriptions.Insert(0, this);
+        }
+
+
+
+        private DelegateCommand _MoveToTailCommand;
+        public DelegateCommand MoveToTailCommand =>
+            _MoveToTailCommand ?? (_MoveToTailCommand = new DelegateCommand(ExecuteMoveToTailCommand));
+
+        void ExecuteMoveToTailCommand()
+        {
+            if (this == _pageViewModel.Subscriptions.LastOrDefault()) { return; }
+
+            _pageViewModel.Subscriptions.Remove(this);
+            _pageViewModel.Subscriptions.Add(this);
+        }
+
+
     }
 }

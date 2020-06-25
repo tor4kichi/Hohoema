@@ -121,7 +121,14 @@
                   <MenuFlyout>
                     <MenuFlyoutItem Text="更新" Command="{Binding UpdateCommand}" IsEnabled="{Binding NowUpdating, Converter={StaticResource BoolNegation}}" />
                     <MenuFlyoutItem Visibility="Collapsed" Text="古い未視聴動画を先頭に視聴開始" Command="{Binding PlayUnwatchVideosCommand}" />
-                    <MenuFlyoutItem Text="購読元の動画一覧を開く" Command="{Binding OpenSourceVideoListPageCommand}" />
+                    <MenuFlyoutItem Text="動画一覧を開く" Command="{Binding OpenSourceVideoListPageCommand}" />
+                    <MenuFlyoutSeparator />
+                    <MenuFlyoutSubItem Text="移動">
+                      <MenuFlyoutItem Text="一つ上へ移動" Command="{Binding MoveToPreviewCommand}"/>
+                      <MenuFlyoutItem Text="一つ下へ移動" Command="{Binding MoveToNextCommand}" />
+                      <MenuFlyoutItem Text="先頭へ移動" Command="{Binding MoveToHeadCommand}" />
+                      <MenuFlyoutItem Text="最後尾へ移動" Command="{Binding MoveToTailCommand}" />
+                    </MenuFlyoutSubItem>
                     <MenuFlyoutSeparator />
                     <MenuFlyoutItem Text="購読を止める" Command="{Binding DeleteSubscriptionCommand}" />
                   </MenuFlyout>
