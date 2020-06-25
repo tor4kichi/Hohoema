@@ -35,6 +35,7 @@ Done = 完了
 Select = 選択
 WatchVideo = 視聴する
 
+
 #### Hohoema App ####
 HohoemaAppServiceLevel.Offline = オフライン
 HohoemaAppServiceLevel.WithoutLoggedIn = ログイン無し
@@ -85,6 +86,8 @@ HohoemaPageType.VideoInfomation = 動画情報
 HohoemaPageType.WatchHistory = 視聴履歴
 HohoemaPageType.LocalPlaylist = プレイリスト
 HohoemaPageType.Mylist = マイリスト
+HohoemaPageType.WatchAfter = あとで見る
+HohoemaPageType.SubscriptionManagement = 購読管理
 
 
 #### Menu ####
@@ -135,36 +138,34 @@ NicoVideoCacheState.DeletedFromNiconicoServer = サーバーから削除済み
 
 
 #### Subscribe feature ####
-SubscriptionGroup_Create = 購読グループを作成
-SubscriptionGroupCreate_Flyout_Title = 購読グループ名
-SubscriptionsEmptyNotice = 購読は新着動画のチェックを自動化できる機能です。購読グループを作成して、購読グループにユーザーや検索キーワードや登録すると、定期的（15分毎）に自動巡回して新着があれば「あとで見る」などのプレイリストに追加してくれます。
 SubscriptionAdd = 購読追加
 SubscriptionAddUser = 投稿者を購読に追加
 SubscriptionAddMylist = マイリストを購読に追加
 SubscriptionAddKeyword = キーワードを購読に追加
 SubscriptionAddTag = タグを購読に追加
-SubscriptionAddToNew = 購読を作成して追加
-AutoUpdateToggleButtonTitle = 自動更新
-SelectSubscriptionGroup = 追加先の購読を選択
-SubscriptionGroup_Delete = 購読グループを削除
 
-InAppNotification_AddItem1_ToSubsc0 = 購読「{0}」に「{1}」を追加
-InAppNotification_RemoveItem1_FromSubsc0 = 購読「{0}」から「{1}」を削除
-
-ExcludeKeywordSettings = 除外タイトル設定
-ExcludeKeywordOnVideoTitle = 除外する動画タイトルのキーワード
-UseRegularExpression = 正規表現を使う
-AutoRefresh = 自動更新
-AddToPlaylist = 追加先プレイリスト
-
-SubscriptionSettings = 購読設定
 SubscriptionSourceType.User = ユーザー
 SubscriptionSourceType.Channel = チャンネル
 SubscriptionSourceType.Mylist = マイリスト
 SubscriptionSourceType.TagSearch = タグ検索
 SubscriptionSourceType.KeywordSearch = キーワード検索
 
-InAppNotification_AddItemToSubscription = 『{0}』に新着動画を追加
+SubscriptionsAutoUpdateRunning = 自動更新
+SubscriptionsNextUpdateTime = 次回更新
+SubscriptionsAutoNotUpdateRunning = 自動更新 停止中
+
+StopSubscribe? = 購読をやめていいですか？
+StopSubscribe = 購読をやめる
+
+OpenSubscriptionSourceVideoList = 動画一覧を開く
+ReorderSubsciprionSource_Move = 移動
+ReorderSubsciprionSource_MovePreview = 一つ上へ移動
+ReorderSubsciprionSource_MoveNext = 一つ下へ移動
+ReorderSubsciprionSource_MoveToHead = 先頭へ移動
+ReorderSubsciprionSource_MoveToTail = 最後尾へ移動
+
+Notification_FailedSubscriptionUpdate = 購読の更新に失敗しました
+Notification_SuccessAddToWatchLaterWithAddedCount = 新着動画 {0} 件を あとで見る に追加しました
 
 
 #### Settings ####
@@ -253,6 +254,14 @@ CommentColor = コメント色
 UseFreeInputCommand = 任意入力コマンドを使う
 FreeInputCommandTextBoxPlacefolderText = ここにコマンドを自由入力
 
+# Comment List
+AddFilteringCommentUserId = コメントユーザーIDを非表示に追加
+ClearFilteredCommentUserIdInCurrentVideo = 再生中動画の非表示コメントユーザーIDをクリア
+ClearFilteredCommentUserId = 全ての非表示コメントユーザーIDをクリア
+
+CommentReplaceSettings = コメントの置換設定
+PlacefolderCommentTransformConditionRegex = 置換対象の文字列
+PlacefolderCommentTransformConditionReplaced = 置換後の文字列
 
 #### Video ####
 NicoVideoQuality.Unknown = 画質指定なし
@@ -322,15 +331,6 @@ CommentSizeCommandSampleText = A
 CommentVerticalPositionTopCommandText = 上
 CommentVerticalPositionMiddleCommandText = 中ﾐ
 CommentVerticalPositionBottomCommandText = 下
-
-# Comment List
-AddFilteringCommentUserId = コメントユーザーIDを非表示に追加
-ClearFilteredCommentUserIdInCurrentVideo = 再生中動画の非表示コメントユーザーIDをクリア
-ClearFilteredCommentUserId = 全ての非表示コメントユーザーIDをクリア
-
-CommentReplaceSettings = コメントの置換設定
-PlacefolderCommentTransformConditionRegex = 置換対象の文字列
-PlacefolderCommentTransformConditionReplaced =  置換後の文字列
 
 # Video Settings
 VideoPlayerSettings = 動画プレイヤーの設定
@@ -651,6 +651,7 @@ LocalPlaylistNoItems = プレイリストは空です
 InAppNotification_LocalPlaylistAddedItems = {0} に {1} 個の動画を追加しました
 InAppNotification_LocalPlaylistRemovedItems = {0} から {1} 個の動画を削除しました
 
+
 #### Watch After ####
 @view = あとで見る
 @queue = キュー
@@ -677,6 +678,7 @@ InAppNotification_MylistAddedItems_Fail = {0} への追加に失敗
 InAppNotification_MylistRemovedItems_Success = {0} から {1} 個の動画を削除しました
 InAppNotification_MylistRemovedItems_Fail = {0} からの削除に失敗
 
+
 ## Edit Mylist
 MylistName = マイリスト名
 MylistDescription = 説明
@@ -699,6 +701,7 @@ WatchAfterRemoveItem = あとで見るから削除
 MylistAddItem = マイリストに追加
 LocalMylistAddItem = ローカルマイリストに追加
 SubscriptionAddVideoOwner = 投稿者を購読に追加
+AllPlayFromHere = ここから連続再生
 
 OpenVideoInfo = 動画情報
 OpenOwnerVideos = 投稿者の動画一覧
@@ -709,12 +712,6 @@ ExitOnceReveal = 非表示に戻す
 HiddenVideo = 非表示設定された動画
 OnceReveal = 今だけ再表示
 RemoveHiddenVideoOwner = 非表示を解除
-
-HiddenReason = 非表示理由
-NGReason.VideoId = 動画ID
-NGReason.UserId = 投稿ユーザーID
-NGReason.Keyword = 動画タイトル
-NGReason.Tag = 動画タグ
 
 CopyVideoId = 動画IDをコピー
 CopyVideoLink = 動画リンクをコピー

@@ -153,9 +153,15 @@
     <Compile Include="Models\Niconico\Video\Comment\NicoScript.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideoQualityEntity.cs" />
     <Compile Include="Models\Niconico\Video\Tag.cs" />
+    <Compile Include="Models\Subscirptions\SubscriptionFeedResult.cs" />
+    <Compile Include="Models\Subscirptions\SubscriptionManager.cs" />
     <Compile Include="Repository\AppFlagsRepository.cs" />
     <Compile Include="Repository\CommentFliteringRepository.cs" />
     <Compile Include="Repository\FlagsRepositoryBase.cs" />
+    <Compile Include="Models\Subscirptions\SubscriptionSourceEntity.cs" />
+    <Compile Include="Repository\Subscriptions\SubscriptionFeedResultRepository.cs" />
+    <Compile Include="Repository\Subscriptions\SubscriptionRegistrationRepository.cs" />
+    <Compile Include="Repository\Subscriptions\SubscriptionSettingsRepository.cs" />
     <Compile Include="Repository\VideoCache\CacheRequestRepository.cs" />
     <Compile Include="Repository\LiteDbService.cs" />
     <Compile Include="Repository\NicoVideo\SeriesRepository.cs" />
@@ -174,6 +180,7 @@
     <Compile Include="UseCase\ApplicationLayoutManager.cs" />
     <Compile Include="UseCase\CommentDisplayingRangeExtractor.cs" />
     <Compile Include="UseCase\Migration\MigrationCommentFilteringSettings.cs" />
+    <Compile Include="UseCase\Migration\MigrationSubscriptions.cs" />
     <Compile Include="UseCase\NicoVideoPlayer\Commands\OpenLiveContentCommand.cs" />
     <Compile Include="UseCase\NicoVideoPlayer\CommentFiltering.cs" />
     <Compile Include="UseCase\NicoVideoPlayer\MediaPlayerSoundVolumeManager.cs" />
@@ -196,7 +203,6 @@
     <Compile Include="Services\Commands\Ranking\HiddenRankingGenreItemCommand.cs" />
     <Compile Include="Services\Commands\Ranking\UnFavoriteRankingGenreItemCommand.cs" />
     <Compile Include="Services\Commands\RemoveSearchHistoryCommand.cs" />
-    <Compile Include="Services\Commands\Subscriptions\CreateSubscriptionGroupCommand.cs" />
     <Compile Include="Database\Local\Bookmark.cs" />
     <Compile Include="Database\Local\BookmarkDb.cs" />
     <Compile Include="Database\Local\BookmarkType.cs" />
@@ -270,6 +276,10 @@
     <Compile Include="UseCase\Playlist\PlaylistSelectDialogService.cs" />
     <Compile Include="UseCase\Playlist\VideoItemsSelectionContext.cs" />
     <Compile Include="UseCase\Playlist\WatchHistoryManager.cs" />
+    <Compile Include="UseCase\Subscriptions\FeedResultAddToWatchLater.cs" />
+    <Compile Include="UseCase\Subscriptions\LatestSubscriptionVideosNotifier.cs" />
+    <Compile Include="UseCase\Subscriptions\SubscriptionUpdateManager.cs" />
+    <Compile Include="UseCase\Subscriptions\SyncWatchHistoryOnLoggedIn.cs" />
     <Compile Include="UseCase\VideoCacheResumingObserver.cs" />
     <Compile Include="UseCase\WindowService.cs" />
     <Compile Include="UseCase\CommentPlayer.cs" />
@@ -291,8 +301,19 @@
     <Compile Include="ViewModels\LocalPlaylistPageViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\VideoCommentSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\PrimaryWindowCoreLayoutViewModel.cs" />
+    <Compile Include="ViewModels\PrimaryWindowCoreLayout\LiveMenuSubPageContent.cs" />
+    <Compile Include="ViewModels\PrimaryWindowCoreLayout\MenuItemBase.cs" />
+    <Compile Include="ViewModels\PrimaryWindowCoreLayout\MenuItemViewModel.cs" />
+    <Compile Include="ViewModels\PrimaryWindowCoreLayout\SeparatorMenuItemViewModel.cs" />
+    <Compile Include="ViewModels\PrimaryWindowCoreLayout\VideoMenuSubPageContent.cs" />
+    <Compile Include="ViewModels\PrimaryWindowCoreLayout\WatchAfterMenuItemViewModel.cs" />
     <Compile Include="ViewModels\SubscriptionControlViewModel.cs" />
+    <Compile Include="ViewModels\SubscriptionManagementPageViewModel.cs" />
+    <Compile Include="ViewModels\Subscriptions\AddKeywordSearchSubscriptionCommand.cs" />
+    <Compile Include="ViewModels\Subscriptions\AddSubscriptionCommand.cs" />
+    <Compile Include="ViewModels\Subscriptions\AddTagSearchSubscriptionCommand.cs" />
     <Compile Include="ViewModels\UserSeriesPageViewModel.cs" />
+    <Compile Include="ViewModels\WatchAfterPageViewModel.cs" />
     <Compile Include="Views\Controls\DelayedAutoTriggerButton.xaml.cs">
       <DependentUpon>DelayedAutoTriggerButton.xaml</DependentUpon>
     </Compile>
@@ -589,6 +610,9 @@
     <Compile Include="Views\Pages\SearchSummaryPage.xaml.cs">
       <DependentUpon>SearchSummaryPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Pages\SubscriptionManagementPage.xaml.cs">
+      <DependentUpon>SubscriptionManagementPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Pages\Subscription\ChoiceSubscriptionSourceCommand.cs" />
     <Compile Include="Views\Pages\Subscription\MultiSelectSubscriptionDestinationCommand.cs" />
     <Compile Include="Views\Pages\Subscription\OpenSubscriptionDestinationCommand.cs" />
@@ -608,6 +632,9 @@
     </Compile>
     <Compile Include="Views\Pages\VideoListPage\VideoListItemControl.xaml.cs">
       <DependentUpon>VideoListItemControl.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\WatchAfterPage.xaml.cs">
+      <DependentUpon>WatchAfterPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Player\_PlayerSidePaneContent\VideoCommentSidePaneContent.xaml.cs">
       <DependentUpon>VideoCommentSidePaneContent.xaml</DependentUpon>
@@ -1041,6 +1068,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\Pages\SubscriptionManagementPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\Pages\Subscription\SubscriptionControl.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1062,6 +1093,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Pages\VideoListPage\VideoListItemControl.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\WatchAfterPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1316,7 +1351,7 @@
       <Version>0.6.0</Version>
     </PackageReference>
     <PackageReference Include="MahApps.Metro.IconPacks.Material">
-      <Version>1.9.0</Version>
+      <Version>4.2.0</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.9</Version>

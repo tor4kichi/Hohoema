@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.UseCase;
+using NicoPlayerHohoema.ViewModels.Subscriptions;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -44,7 +45,7 @@ namespace NicoPlayerHohoema.ViewModels
             SubscriptionManager subscriptionManager,
             HohoemaPlaylist hohoemaPlaylist,
             Services.PageManager pageManager,
-            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
+            ViewModels.Subscriptions.AddKeywordSearchSubscriptionCommand addKeywordSearchSubscriptionCommand
             )
         {
             FailLoading = new ReactiveProperty<bool>(false)
@@ -83,8 +84,8 @@ namespace NicoPlayerHohoema.ViewModels
             SearchProvider = searchProvider;
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
+            AddKeywordSearchSubscriptionCommand = addKeywordSearchSubscriptionCommand;
             SubscriptionManager = subscriptionManager;
-            CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
         }
 
 
@@ -223,9 +224,6 @@ namespace NicoPlayerHohoema.ViewModels
             get { return _SearchOptionText; }
             set { SetProperty(ref _SearchOptionText, value); }
         }
-
-
-        public Models.Subscription.SubscriptionSource? SubscriptionSource => new Models.Subscription.SubscriptionSource(SearchOption.Keyword, Models.Subscription.SubscriptionSourceType.KeywordSearch, SearchOption.Keyword);
         
 
         public Database.Bookmark KeywordSearchBookmark { get; private set; }
@@ -254,8 +252,8 @@ namespace NicoPlayerHohoema.ViewModels
         public SubscriptionManager SubscriptionManager1 { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
+        public AddKeywordSearchSubscriptionCommand AddKeywordSearchSubscriptionCommand { get; }
         public SubscriptionManager SubscriptionManager { get; }
-        public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
 
 
         #endregion

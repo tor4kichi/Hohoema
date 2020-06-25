@@ -28,6 +28,7 @@ using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.Repository.Playlist;
 using I18NPortable;
 using NicoPlayerHohoema.UseCase;
+using NicoPlayerHohoema.ViewModels.Subscriptions;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -65,7 +66,7 @@ namespace NicoPlayerHohoema.ViewModels
             Services.DialogService dialogService,
             NiconicoFollowToggleButtonService followToggleButtonService,
             PlaylistAggregateGetter playlistAggregate,
-            Commands.Subscriptions.CreateSubscriptionGroupCommand createSubscriptionGroupCommand
+            ViewModels.Subscriptions.AddSubscriptionCommand addSubscriptionCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -84,7 +85,7 @@ namespace NicoPlayerHohoema.ViewModels
             DialogService = dialogService;
             FollowToggleButtonService = followToggleButtonService;
             _playlistAggregate = playlistAggregate;
-            CreateSubscriptionGroupCommand = createSubscriptionGroupCommand;
+            AddSubscriptionCommand = addSubscriptionCommand;
             Mylist = new ReactiveProperty<MylistPlaylist>();
 
             /*
@@ -254,7 +255,7 @@ namespace NicoPlayerHohoema.ViewModels
         public Models.Subscription.SubscriptionManager SubscriptionManager { get; }
         public Services.DialogService DialogService { get; }
         public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
-        public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
+        public AddSubscriptionCommand AddSubscriptionCommand { get; }
 
        
         public ReactiveProperty<MylistPlaylist> Mylist { get; private set; }

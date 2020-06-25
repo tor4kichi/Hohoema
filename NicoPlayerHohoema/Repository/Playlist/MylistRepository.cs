@@ -119,7 +119,7 @@ namespace NicoPlayerHohoema.Repository.Playlist
                 return firstResult;
             }
 
-            var itemsList = new List<IVideoContent>(firstResult.Items);
+            var itemsList = new List<Database.NicoVideo>(firstResult.Items);
             var totalCount = firstResult.TotalCount;
             var currentCount = firstResult.Items.Count;
             do
@@ -141,7 +141,7 @@ namespace NicoPlayerHohoema.Repository.Playlist
                 HeadPosition = 0,
                 TotalCount = totalCount,
                 IsSuccess = true,
-                Items = new ReadOnlyCollection<IVideoContent>(itemsList)
+                Items = new ReadOnlyCollection<Database.NicoVideo>(itemsList)
             };
         }
     }

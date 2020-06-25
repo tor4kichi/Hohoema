@@ -156,21 +156,9 @@
       </VisualStateGroup>
       
       <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding IsWatchAfterPlaylist}" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="RemoveWatchedItemsButton.Visibility"
-                    Value="Visible" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
-      <VisualStateGroup>
 
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding IsWatchAfterPlaylist}" />
             <StateTrigger IsActive="{Binding IsQueuePlaylist}" />
           </VisualState.StateTriggers>
         </VisualState>

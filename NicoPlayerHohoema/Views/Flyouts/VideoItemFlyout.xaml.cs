@@ -4,7 +4,6 @@ using Windows.UI.Xaml;
 using Prism.Ioc;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Commands.Mylist;
-using NicoPlayerHohoema.Commands.Subscriptions;
 using NicoPlayerHohoema.Commands;
 using System.Reactive.Concurrency;
 using NicoPlayerHohoema.Services;
@@ -24,6 +23,9 @@ using NicoPlayerHohoema.Views.Helpers;
 using I18NPortable;
 using NicoPlayerHohoema.UseCase.Page.Commands;
 using System;
+using Prism.Commands;
+using Microsoft.Toolkit.Uwp.UI.Extensions;
+using Uno.Extensions.Specialized;
 
 namespace NicoPlayerHohoema.Views.Flyouts
 {
@@ -40,16 +42,33 @@ namespace NicoPlayerHohoema.Views.Flyouts
             DependencyProperty.Register("Playlist", typeof(IPlaylist), typeof(VideoItemFlyout), new PropertyMetadata(null));
 
 
-        public IReadOnlyCollection<Interfaces.IVideoContent> VideoItems
+        public IReadOnlyCollection<Interfaces.IVideoContent> SelectedVideoItems
         {
-            get { return (IReadOnlyCollection<Interfaces.IVideoContent>)GetValue(VideoItemsProperty); }
-            set { SetValue(VideoItemsProperty, value); }
+            get { return (IReadOnlyCollection<Interfaces.IVideoContent>)GetValue(SelectedVideoItemsProperty); }
+            set { SetValue(SelectedVideoItemsProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
-        public static readonly DependencyProperty VideoItemsProperty =
-            DependencyProperty.Register(nameof(VideoItems), typeof(IReadOnlyCollection<Interfaces.IVideoContent>), typeof(VideoItemFlyout), new PropertyMetadata(null));
+        public static readonly DependencyProperty SelectedVideoItemsProperty =
+            DependencyProperty.Register(nameof(SelectedVideoItems), typeof(IReadOnlyCollection<Interfaces.IVideoContent>), typeof(VideoItemFlyout), new PropertyMetadata(null));
 
+
+        public IReadOnlyCollection<Interfaces.IVideoContent> SourceVideoItems
+        {
+            get { return (IReadOnlyCollection<Interfaces.IVideoContent>)GetValue(SourceVideoItemsProperty); }
+            set { SetValue(SourceVideoItemsProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty SourceVideoItemsProperty =
+            DependencyProperty.Register(nameof(SourceVideoItems), typeof(IReadOnlyCollection<Interfaces.IVideoContent>), typeof(VideoItemFlyout), new PropertyMetadata(null));
+
+
+
+
+
+
+        public bool AllowSelection { get; set; } = true;
 
 
 
@@ -63,7 +82,7 @@ namespace NicoPlayerHohoema.Views.Flyouts
         public VideoItemsSelectionContext VideoItemsSelectionContext { get; }
         public Commands.Mylist.CreateMylistCommand CreateMylistCommand { get; }
         public Commands.Mylist.CreateLocalMylistCommand CreateLocalMylistCommand { get; }
-        public Commands.Subscriptions.CreateSubscriptionGroupCommand CreateSubscriptionGroupCommand { get; }
+        public ViewModels.Subscriptions.AddSubscriptionCommand AddSubscriptionCommand { get; }
 
 
 
@@ -73,11 +92,10 @@ namespace NicoPlayerHohoema.Views.Flyouts
         {
             this.InitializeComponent();
 
-            VideoItems = new List<IVideoContent>();
+            SelectedVideoItems = new List<IVideoContent>();
 
             CreateMylistCommand = App.Current.Container.Resolve<CreateMylistCommand>();
             CreateLocalMylistCommand = App.Current.Container.Resolve<CreateLocalMylistCommand>();
-            CreateSubscriptionGroupCommand = App.Current.Container.Resolve<CreateSubscriptionGroupCommand>();
             HohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
             ExternalAccessService = App.Current.Container.Resolve<ExternalAccessService>();
             PageManager = App.Current.Container.Resolve<PageManager>();
@@ -101,6 +119,8 @@ namespace NicoPlayerHohoema.Views.Flyouts
             CopyVideoLink.Command = ExternalAccessService.CopyToClipboardCommand;
             CopyShareText.Command = ExternalAccessService.CopyToClipboardWithShareTextCommand;
 
+            AddSusbcriptionItem.Command = App.Current.Container.Resolve<ViewModels.Subscriptions.AddSubscriptionCommand>();
+
             CacheRequest.Command = App.Current.Container.Resolve<CacheAddRequestCommand>();
             DeleteCacheRequest.Command = App.Current.Container.Resolve<CacheDeleteRequestCommand>();
 
@@ -118,13 +138,13 @@ namespace NicoPlayerHohoema.Views.Flyouts
             object dataContext = Target.DataContext ?? (Target as SelectorItem)?.Content;
             var content = (dataContext as Interfaces.IVideoContent);
 
-            if (content == null || (VideoItems?.Any() ?? false))
+            if (content == null || (SelectedVideoItems?.Any() ?? false))
             {
-                content = VideoItems?.First();
-                dataContext = VideoItems;
+                content = SelectedVideoItems?.First();
+                dataContext = SelectedVideoItems;
             }
 
-            bool isMultipleSelection = VideoItems?.Count >= 2;
+            bool isMultipleSelection = AllowSelection && SelectedVideoItems?.Count >= 2;
 
             var playlist = Playlist;
 
@@ -161,8 +181,8 @@ namespace NicoPlayerHohoema.Views.Flyouts
             RemoveQueue.CommandParameter = dataContext;
             if (isMultipleSelection)
             {
-                AddQueue.Visibility = VideoItems.All(x => HohoemaPlaylist.QueuePlaylist.Contains(x)).ToInvisibility();
-                RemoveQueue.Visibility = VideoItems.Any(x => HohoemaPlaylist.QueuePlaylist.Contains(x)).ToVisibility();
+                AddQueue.Visibility = SelectedVideoItems.All(x => HohoemaPlaylist.QueuePlaylist.Contains(x)).ToInvisibility();
+                RemoveQueue.Visibility = SelectedVideoItems.Any(x => HohoemaPlaylist.QueuePlaylist.Contains(x)).ToVisibility();
             }
             else if (HohoemaPlaylist.QueuePlaylist.Contains(content))
             {
@@ -180,8 +200,8 @@ namespace NicoPlayerHohoema.Views.Flyouts
             RemoveWatchAfter.CommandParameter = dataContext;
             if (isMultipleSelection)
             {
-                AddWatchAfter.Visibility = VideoItems.All(x => HohoemaPlaylist.WatchAfterPlaylist.Contains(x)).ToInvisibility();
-                RemoveWatchAfter.Visibility = VideoItems.Any(x => HohoemaPlaylist.WatchAfterPlaylist.Contains(x)).ToVisibility();
+                AddWatchAfter.Visibility = SelectedVideoItems.All(x => HohoemaPlaylist.WatchAfterPlaylist.Contains(x)).ToInvisibility();
+                RemoveWatchAfter.Visibility = SelectedVideoItems.Any(x => HohoemaPlaylist.WatchAfterPlaylist.Contains(x)).ToVisibility();
             }
             else if (HohoemaPlaylist.WatchAfterPlaylist.Contains(content))
             {
@@ -193,6 +213,41 @@ namespace NicoPlayerHohoema.Views.Flyouts
                 AddWatchAfter.Visibility = Visibility.Visible;
                 RemoveWatchAfter.Visibility = Visibility.Collapsed;
             }
+
+
+            // ここから連続再生
+            if ((SourceVideoItems?.Any() ?? false)
+                && !isMultipleSelection 
+                && Playlist?.Id == HohoemaPlaylist.WatchAfterPlaylistId
+                )
+            {
+                AllPlayFromHereWithWatchAfter.Visibility = Visibility.Visible;
+                AllPlayFromHereWithWatchAfter.Command = new DelegateCommand<IVideoContent>((param) =>
+                {
+                    var index = SourceVideoItems.IndexOf(param);
+                    if (index < 0) { return; }
+                    var items = SourceVideoItems.Take(index + 1).ToList();
+                    if (items.Count >= 2)
+                    {
+                        foreach (var videoItem in items)
+                        {
+                            HohoemaPlaylist.AddWatchAfterPlaylist(videoItem, ContentInsertPosition.Head);
+                        }
+                    }
+
+                    if (items.Count >= 1)
+                    {
+                        HohoemaPlaylist.Play(items.Last(), HohoemaPlaylist.WatchAfterPlaylist);
+                    }
+                });
+                AllPlayFromHereWithWatchAfter.CommandParameter = dataContext;
+
+            }
+            else
+            {
+                AllPlayFromHereWithWatchAfter.Visibility = Visibility.Collapsed;
+            }
+
 
 
             // マイリスト
@@ -231,7 +286,7 @@ namespace NicoPlayerHohoema.Views.Flyouts
             Share.Visibility = visibleSingleSelectionItem;
             CopySubItem.Visibility = visibleSingleSelectionItem;
 
-            SusbcriptionSubItem.Visibility = visibleSingleSelectionItem;
+            AddSusbcriptionItem.Visibility = visibleSingleSelectionItem;
 
 
             // プレイリスト
@@ -256,24 +311,7 @@ namespace NicoPlayerHohoema.Views.Flyouts
             // 購読
             var susbcSourceConverter = new Subscriptions.SubscriptionSourceConverter();
             var subscSource = susbcSourceConverter.Convert(content, typeof(SubscriptionSource), null, null);
-            SusbcriptionSubItem.Items.Clear();
-            SusbcriptionSubItem.Items.Add(new MenuFlyoutItem()
-            {
-                Text = _localizedText_CreateNew,
-                Command = CreateSubscriptionGroupCommand,
-                CommandParameter = subscSource
-            });
-
-            foreach (var subsc in SubscriptionManager.Subscriptions)
-            {
-                SusbcriptionSubItem.Items.Add(new MenuFlyoutItem()
-                {
-                    Text = subsc.Label,
-                    Command = subsc.AddSource,
-                    CommandParameter = subscSource
-                });
-            }
-
+            
             // NG投稿者
             AddNgUser.Visibility = AddNgUser.Command.CanExecute(content).ToVisibility();
             RemoveNgUser.Visibility = RemoveNgUser.Command.CanExecute(content).ToVisibility();
@@ -286,8 +324,8 @@ namespace NicoPlayerHohoema.Views.Flyouts
             {
                 // 一つでもキャッシュ済みがあれば削除ボタンを表示
                 // 一つでも未キャッシュがあれば取得ボタンを表示
-                var anyItemsCached = VideoItems.Any(x => VideoCacheManager.IsCacheRequested(x.Id));
-                var anyItemsNotCached = VideoItems.Any(x => !VideoCacheManager.CheckCachedAsyncUnsafe(x.Id));
+                var anyItemsCached = SelectedVideoItems.Any(x => VideoCacheManager.IsCacheRequested(x.Id));
+                var anyItemsNotCached = SelectedVideoItems.Any(x => !VideoCacheManager.CheckCachedAsyncUnsafe(x.Id));
 
                 var notCachedToVisible = (anyItemsNotCached).ToVisibility();
                 CacheRequest.Visibility = notCachedToVisible;
@@ -347,14 +385,23 @@ namespace NicoPlayerHohoema.Views.Flyouts
 
 
             // 選択
-            if (!VideoItemsSelectionContext.IsSelectionEnabled)
+            if (!AllowSelection)
             {
+                SelectionSeparator.Visibility = Visibility.Collapsed;
+                SelectionStart.Visibility = Visibility.Collapsed;
+                SelectionEnd.Visibility = Visibility.Collapsed;
+                SelectionAll.Visibility = Visibility.Collapsed;
+            }
+            else if (!VideoItemsSelectionContext.IsSelectionEnabled)
+            {
+                SelectionSeparator.Visibility = Visibility.Visible;
                 SelectionStart.Visibility = Visibility.Visible;
                 SelectionEnd.Visibility = Visibility.Collapsed;
                 SelectionAll.Visibility = Visibility.Collapsed;
             }
             else
             {
+                SelectionSeparator.Visibility = Visibility.Visible;
                 SelectionStart.Visibility = Visibility.Collapsed;
                 SelectionEnd.Visibility = Visibility.Visible;
                 SelectionAll.Visibility = Visibility.Visible;

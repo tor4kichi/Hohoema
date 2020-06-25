@@ -35,5 +35,10 @@ namespace NicoPlayerHohoema.Repository
             set => Save(value);
         }
 
+        public bool IsMigratedSubscriptions_V_0_22_0
+        {
+            get => Read<bool>();
+            set => Save(value);
+        }
     }
 }
