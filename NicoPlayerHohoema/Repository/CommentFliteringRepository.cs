@@ -19,7 +19,7 @@ namespace NicoPlayerHohoema.Repository
                 _IsFilteringCommentTextEnabled = Read<bool>(@default: true, nameof(IsFilteringCommentTextEnabled));
                 _IsFilteringCommandEnabled = Read<bool>(@default: true, nameof(IsFilteringCommandEnabled));
                 _IgnoreCommands = Read<List<string>>(propertyName: nameof(IgnoreCommands));
-                _NGShareScore = Read<int>(propertyName: nameof(NGShareScore));
+                _NGShareScore = Read<int>(@default: -10000, propertyName: nameof(NGShareScore));
             }
 
             bool _IsFilteringCommentOwnerIdEnabled;

@@ -40,5 +40,11 @@ namespace NicoPlayerHohoema.Repository
             get => Read<bool>();
             set => Save(value);
         }
+
+        public bool IsNGScoreZeroFixtureProcessed_V_0_22_1
+        {
+            get => Read<bool>();
+            set => Save(value);
+        }
     }
 }

@@ -179,6 +179,7 @@
     <Compile Include="Services\Player\TogglePlayerDisplayViewCommand.cs" />
     <Compile Include="UseCase\ApplicationLayoutManager.cs" />
     <Compile Include="UseCase\CommentDisplayingRangeExtractor.cs" />
+    <Compile Include="UseCase\Migration\CommentFilteringNGScoreZeroFixture.cs" />
     <Compile Include="UseCase\Migration\MigrationCommentFilteringSettings.cs" />
     <Compile Include="UseCase\Migration\MigrationSubscriptions.cs" />
     <Compile Include="UseCase\NicoVideoPlayer\Commands\OpenLiveContentCommand.cs" />
