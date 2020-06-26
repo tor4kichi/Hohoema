@@ -119,6 +119,7 @@
                       <MenuFlyout>
                         <MenuFlyoutItem Text="{Binding Source=VideoOwnerDetail, Converter={StaticResource LocalizeConverter}}" Command="{Binding PageManager.OpenContentOwnerPageCommand}" CommandParameter="{Binding VideoInfo}" />
                         <MenuFlyoutItem Text="{Binding Source=OpenOwnerVideos, Converter={StaticResource LocalizeConverter}}" Command="{Binding PageManager.OpenVideoListPageCommand}" CommandParameter="{Binding VideoInfo}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="{Binding Source=HohoemaPageType.UserSeries, Converter={StaticResource LocalizeConverter}}" Command="{Binding OpenUserSeriesPageCommand}" />
                       </MenuFlyout>
                     </Button.Flyout>
                   </Button>

@@ -266,6 +266,23 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+
+        private DelegateCommand _OpenUserSeriesPageCommand;
+        public DelegateCommand OpenUserSeriesPageCommand
+        {
+            get
+            {
+                return _OpenUserSeriesPageCommand
+                    ?? (_OpenUserSeriesPageCommand = new DelegateCommand(() =>
+                    {
+                        if (this.VideoInfo?.Owner?.UserType == Database.NicoVideoUserType.User)
+                        {
+                            PageManager.OpenPageWithId(HohoemaPageType.UserSeries, this.VideoInfo.Owner.OwnerId);
+                        }
+                    }));
+            }
+        }
+
         Regex GeneralUrlRegex = new Regex(@"https?:\/\/([a-zA-Z0-9.\/?=_-]*)");
         public List<HyperlinkItem> VideoDescriptionHyperlinkItems { get; } = new List<HyperlinkItem>();
        
