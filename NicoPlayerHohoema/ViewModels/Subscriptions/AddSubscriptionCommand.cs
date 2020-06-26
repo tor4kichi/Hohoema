@@ -3,6 +3,7 @@ using NicoPlayerHohoema.Database;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Models.Subscriptions;
+using NicoPlayerHohoema.Repository.NicoVideo;
 using NicoPlayerHohoema.Services;
 using Prism.Commands;
 using System;
@@ -20,18 +21,21 @@ namespace NicoPlayerHohoema.ViewModels.Subscriptions
         private readonly UserProvider _userProvider;
         private readonly ChannelProvider _channelProvider;
         private readonly NotificationService _notificationService;
+        private readonly SeriesRepository _seriesRepository;
 
         public AddSubscriptionCommand(
             SubscriptionManager subscriptionManager,
             UserProvider userProvider,
             ChannelProvider channelProvider,
-            NotificationService notificationService
+            NotificationService notificationService,
+            SeriesRepository seriesRepository
             )
         {
             _subscriptionManager = subscriptionManager;
             _userProvider = userProvider;
             _channelProvider = channelProvider;
             _notificationService = notificationService;
+            _seriesRepository = seriesRepository;
         }
 
         protected override bool CanExecute(object parameter)
@@ -40,6 +44,7 @@ namespace NicoPlayerHohoema.ViewModels.Subscriptions
                 || parameter is IMylist
                 || parameter is IChannel
                 || parameter is IUser
+                || parameter is ISeries
                 ;
         }
 
@@ -55,6 +60,7 @@ namespace NicoPlayerHohoema.ViewModels.Subscriptions
                 },
                 IMylist mylist => (id: mylist.Id, sourceType: SubscriptionSourceType.Mylist, mylist.Label),
                 IUser user => (id: user.Id, sourceType: SubscriptionSourceType.User, user.Label),
+                ISeries series => (id: series.Id.ToString(), sourceType: SubscriptionSourceType.Series, series.Title),
                 _ => throw new NotSupportedException(),
             };
 
@@ -101,7 +107,8 @@ namespace NicoPlayerHohoema.ViewModels.Subscriptions
 
         async Task<string> ResolveSeriesName(string id)
         {
-            throw new NotImplementedException();
+            var seriesDetails = await _seriesRepository.GetSeriesVideosAsync(id);
+            return seriesDetails.Series.Title;
         }
     }
 }

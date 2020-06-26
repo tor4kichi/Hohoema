@@ -9,14 +9,26 @@
   xmlns:viewModels="using:NicoPlayerHohoema.ViewModels" 
   xmlns:i="using:Microsoft.Xaml.Interactivity"
   xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+  xmlns:myExtensions="using:NicoPlayerHohoema.Views.Extensions"
   mc:Ignorable="d"
     Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
   NavigationCacheMode="Enabled"
   >
-
+  <Page.Resources>
+    <DataTemplate x:Key="SeriesContextFlyoutTemplate" x:DataType="viewModels:UserSeriesItemViewModel">
+      <MenuFlyout>
+        <MenuFlyoutItem Text="{Binding Source=SubscriptionAdd, Converter={StaticResource LocalizeConverter}}" 
+                        Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.AddSubscriptionCommand}"
+                        CommandParameter="{Binding}"
+                        />
+      </MenuFlyout>
+    </DataTemplate>
+  </Page.Resources>
   <Grid>
     <GridView ItemsSource="{Binding UserSeriesList}"      
               IsItemClickEnabled="True"
+              myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource SeriesContextFlyoutTemplate}"
+              myExtensions:ListViewBase.ItemContextFlyoutCustomObjectToTag="{Binding}"
               >
       <i:Interaction.Behaviors>
         <core:EventTriggerBehavior EventName="ItemClick">

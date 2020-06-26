@@ -30,6 +30,10 @@
           <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
             <CommandBar >
               <CommandBar.PrimaryCommands>
+                <AppBarButton Label="{Binding Source=SubscriptionAdd, Converter={StaticResource LocalizeConverter}}"
+                              Command="{Binding AddSubscriptionCommand}"
+                              CommandParameter="{Binding Series}"
+                              />
                 <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
                   <i:Interaction.Behaviors>
                     <core:EventTriggerBehavior EventName="Click">

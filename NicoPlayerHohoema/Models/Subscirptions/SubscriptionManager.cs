@@ -2,6 +2,7 @@
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Models.Subscriptions;
+using NicoPlayerHohoema.Repository.NicoVideo;
 using NicoPlayerHohoema.Repository.Subscriptions;
 using System;
 using System.Collections.Generic;
@@ -33,6 +34,7 @@ namespace NicoPlayerHohoema.Models.Subscriptions
         private readonly UserProvider _userProvider;
         private readonly MylistProvider _mylistProvider;
         private readonly NicoVideoProvider _nicoVideoProvider;
+        private readonly SeriesRepository _seriesRepository;
 
         public event EventHandler<SubscriptionFeedUpdateResult> Updated;
 
@@ -47,8 +49,8 @@ namespace NicoPlayerHohoema.Models.Subscriptions
             Provider.SearchProvider searchProvider,
             Provider.UserProvider userProvider,
             Provider.MylistProvider mylistProvider,
-            NicoVideoProvider nicoVideoProvider
-
+            NicoVideoProvider nicoVideoProvider,
+            SeriesRepository seriesRepository
             )
         {
             _subscriptionRegistrationRepository = subscriptionRegistrationRepository;
@@ -58,6 +60,7 @@ namespace NicoPlayerHohoema.Models.Subscriptions
             _userProvider = userProvider;
             _mylistProvider = mylistProvider;
             _nicoVideoProvider = nicoVideoProvider;
+            _seriesRepository = seriesRepository;
         }
 
         public SubscriptionSourceEntity AddSubscription(IVideoContent video)
@@ -244,7 +247,7 @@ namespace NicoPlayerHohoema.Models.Subscriptions
                     SubscriptionSourceType.Mylist => await GetMylistFeedResult(entity.SourceParameter, _mylistProvider),
                     SubscriptionSourceType.User => await GetUserVideosFeedResult(entity.SourceParameter, _userProvider),
                     SubscriptionSourceType.Channel => await GetChannelVideosFeedResult(entity.SourceParameter, _channelProvider, _nicoVideoProvider),
-                    SubscriptionSourceType.Series => throw new NotSupportedException(entity.SourceType.ToString()),
+                    SubscriptionSourceType.Series => await GetSeriesVideosFeedResult(entity.SourceParameter, _seriesRepository),
                     SubscriptionSourceType.SearchWithKeyword => await GetKeywordSearchFeedResult(entity.SourceParameter, _searchProvider),
                     SubscriptionSourceType.SearchWithTag => await GetTagSearchFeedResult(entity.SourceParameter, _searchProvider),
                     _ => throw new NotSupportedException(entity.SourceType.ToString())
@@ -336,6 +339,30 @@ namespace NicoPlayerHohoema.Models.Subscriptions
             }
 
             return items;
+        }
+
+
+        static private async Task<List<NicoVideo>> GetSeriesVideosFeedResult(string seriesId, SeriesRepository seriesRepository)
+        {
+            var result = await seriesRepository.GetSeriesVideosAsync(seriesId);
+
+            return result.Videos.OrderByDescending(x => x.PostAt).Select(video =>
+            {
+                var v = NicoVideoDb.Get(video.Id);
+
+                v.Title = video.Title;
+                v.VideoId = video.Id;
+                v.PostedAt = video.PostAt;
+                v.Length = video.Duration;
+                v.MylistCount = video.MylistCount;
+                v.ViewCount = video.WatchCount;
+                v.CommentCount = video.CommentCount;
+                v.ThumbnailUrl = video.ThumbnailUrl.OriginalString;
+
+                NicoVideoDb.AddOrUpdate(v);
+                return v;
+            }).ToList()
+            ;
         }
 
         static private async Task<List<NicoVideo>> GetMylistFeedResult(string mylistId, Provider.MylistProvider mylistProvider)

@@ -142,6 +142,7 @@
     <Compile Include="Interfaces\ICommentFilter.cs" />
     <Compile Include="Interfaces\IPageNavigatable.cs" />
     <Compile Include="Interfaces\IPlaylistItem.cs" />
+    <Compile Include="Interfaces\ISeries.cs" />
     <Compile Include="Interfaces\ITitleUpdatablePage.cs" />
     <Compile Include="Interfaces\IWatchHistory.cs" />
     <Compile Include="Locales\LocaleToDisplayNameConverter.cs" />

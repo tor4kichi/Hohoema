@@ -11,6 +11,7 @@ using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.UseCase.Page.Commands;
 using NicoPlayerHohoema.UseCase.Playlist;
+using NicoPlayerHohoema.ViewModels.Subscriptions;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;
@@ -48,13 +49,15 @@ namespace NicoPlayerHohoema.ViewModels
             SeriesRepository seriesRepository,
             UserProvider userProvider,
             PageManager pageManager,
-            HohoemaPlaylist hohoemaPlaylist
+            HohoemaPlaylist hohoemaPlaylist,
+            AddSubscriptionCommand addSubscriptionCommand
             )
         {
             _seriesRepository = seriesRepository;
             _userProvider = userProvider;
             _pageManager = pageManager;
             HohoemaPlaylist = hohoemaPlaylist;
+            AddSubscriptionCommand = addSubscriptionCommand;
         }
 
         private readonly SeriesRepository _seriesRepository;
@@ -83,6 +86,7 @@ namespace NicoPlayerHohoema.ViewModels
             _OpenSeriesVideoPageCommand ?? (_OpenSeriesVideoPageCommand = new DelegateCommand<UserSeriesItemViewModel>(ExecuteOpenSeriesVideoPageCommand));
 
         public HohoemaPlaylist HohoemaPlaylist { get; }
+        public AddSubscriptionCommand AddSubscriptionCommand { get; }
 
         void ExecuteOpenSeriesVideoPageCommand(UserSeriesItemViewModel parameter)
         {
@@ -129,7 +133,7 @@ namespace NicoPlayerHohoema.ViewModels
             _userSeries = userSeries;
         }
 
-        public int Id => _userSeries.Id;
+        public string Id => _userSeries.Id.ToString();
 
         public string Title => _userSeries.Title;
 
@@ -146,16 +150,5 @@ namespace NicoPlayerHohoema.ViewModels
         public string ProviderId => _userSeries.Owner.Id;        
     }
 
-    public interface ISeries
-    {
-        int Id { get; }
-        string Title { get; }
-        bool IsListed { get; }
-        string Description { get; }
-        string ThumbnailUrl { get; }
-        int ItemsCount { get; }
-
-        SeriesProviderType ProviderType { get; }
-        string ProviderId { get; }
-    }
+    
 }

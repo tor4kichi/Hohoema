@@ -4,6 +4,7 @@ using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Repository.NicoVideo;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.ViewModels.Subscriptions;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;
 using System;
@@ -23,31 +24,36 @@ namespace NicoPlayerHohoema.ViewModels
         {
             return new HohoemaPin()
             {
-                Label = _seriesDetails.Series.Title,
+                Label = _series.Title,
                 PageType = Services.HohoemaPageType.Series,
-                Parameter = $"id={_seriesDetails.Series.Id}"
+                Parameter = $"id={_series.Id}"
             };
         }
 
         public IObservable<string> GetTitleObservable()
         {
-            return this.ObserveProperty(x => x.SeriesDetails)
-                .Select(x => x?.Series.Title);
+            return this.ObserveProperty(x => x.Series)
+                .Select(x => x?.Title);
         }
 
 
-        private readonly SeriesRepository _seriesRepository;
-        
-        private SeriesDetails _seriesDetails;
-        public SeriesDetails SeriesDetails
-        {
-            get { return _seriesDetails; }
-            set { SetProperty(ref _seriesDetails, value); }
-        }
-
-        public SeriesPageViewModel(SeriesRepository seriesRepository)
+        public SeriesPageViewModel(
+            SeriesRepository seriesRepository,
+            AddSubscriptionCommand addSubscriptionCommand
+            )
         {
             _seriesRepository = seriesRepository;
+            AddSubscriptionCommand = addSubscriptionCommand;
+        }
+
+        private readonly SeriesRepository _seriesRepository;
+        public AddSubscriptionCommand AddSubscriptionCommand { get; }
+
+        private UserSeriesItemViewModel _series;
+        public UserSeriesItemViewModel Series
+        {
+            get { return _series; }
+            set { SetProperty(ref _series, value); }
         }
 
         private UserViewModel _user;
@@ -57,13 +63,15 @@ namespace NicoPlayerHohoema.ViewModels
             set { SetProperty(ref _user, value); }
         }
 
+        SeriesDetails _seriesDetails;
 
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             if (parameters.TryGetValue("id", out string seriesId))
             {
-                SeriesDetails = await _seriesRepository.GetSeriesVideosAsync(seriesId);
+                _seriesDetails = await _seriesRepository.GetSeriesVideosAsync(seriesId);
+                Series = new UserSeriesItemViewModel(_seriesDetails);
                 User = new UserViewModel(_seriesDetails.Owner);
             }
             await base.OnNavigatedToAsync(parameters);
@@ -90,6 +98,32 @@ namespace NicoPlayerHohoema.ViewModels
             public string Label => _userDetail.Nickname;
 
             public string IconUrl => _userDetail.IconUrl;
+        }
+
+        public class UserSeriesItemViewModel : ISeries
+        {
+            private readonly SeriesDetails _userSeries;
+
+            public UserSeriesItemViewModel(SeriesDetails userSeries)
+            {
+                _userSeries = userSeries;
+            }
+
+            public string Id => _userSeries.Series.Id;
+
+            public string Title => _userSeries.Series.Title;
+
+            public bool IsListed => true;
+
+            public string Description => _userSeries.DescriptionHTML;
+
+            public string ThumbnailUrl => _userSeries.Series.ThumbnailUrl.OriginalString;
+
+            public int ItemsCount => _userSeries.Videos.Count;
+
+            public SeriesProviderType ProviderType => SeriesProviderType.User;
+
+            public string ProviderId => _userSeries.Owner.Id;
         }
     }
 
