@@ -178,6 +178,7 @@ namespace NicoPlayerHohoema.ViewModels
         public double DownloadProgress { get; private set; }
         public bool IsProgressUnknown { get; private set; }
         public NicoVideoQuality? CacheProgressQuality { get; private set; }
+        public bool IsRequirePayment { get; internal set; }
 
         private void SubscribeCacheState(Interfaces.IVideoContent video)
         {

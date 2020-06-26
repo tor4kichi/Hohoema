@@ -231,7 +231,7 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                         var nextVideo = collectionView.ElementAtOrDefault(pos + 1) as ChannelVideoInfo;
                         if (nextVideo != null)
                         {
-                            var videoVM = new ChannelVideoListItemViewModel(nextVideo.ItemId);
+                            var videoVM = new VideoInfoControlViewModel(nextVideo.ItemId);
                             videoVM.IsRequirePayment = nextVideo.IsRequirePayment;
                             videoVM.SetTitle(nextVideo.Title);
                             videoVM.SetSubmitDate(nextVideo.PostedAt);
@@ -266,15 +266,15 @@ namespace NicoPlayerHohoema.ViewModels.PlayerSidePaneContent
                 var items = await NicoVideoProvider.GetRelatedVideos(videoId, 0, 10);
                 if (items.Video_info?.Any() ?? false)
                 {
-                    Videos.AddRange(items.Video_info?.Select(x =>
+                    Videos.AddRange((IEnumerable<VideoInfoControlViewModel>)(items.Video_info?.Select((Func<Mntone.Nico2.Mylist.Video_info, VideoInfoControlViewModel>)(x =>
                     {
                         var video = Database.NicoVideoDb.Get(x.Video.Id);
                         video.Title = x.Video.Title;
                         video.ThumbnailUrl = x.Video.Thumbnail_url;
 
-                        var vm = new VideoInfoControlViewModel(video);
+                        var vm = new VideoInfoControlViewModel((NicoVideo)video);
                         return vm;
-                    }));
+                    }))));
                 }
 
                 CurrentVideo = Videos.FirstOrDefault(x => x.RawVideoId == videoId);

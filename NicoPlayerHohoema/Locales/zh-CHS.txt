@@ -81,7 +81,9 @@ HohoemaPageType.Subscription = 订阅
 HohoemaPageType.Timeshift = 时移
 HohoemaPageType.UserInfo = 用户信息
 HohoemaPageType.UserMylist = Mylist一览
+HohoemaPageType.UserSeries = 系列清单
 HohoemaPageType.UserVideo = 用户视频一览
+HohoemaPageType.Series = 系列影片清单
 HohoemaPageType.VideoInfomation = 动画信息
 HohoemaPageType.WatchHistory = 播放历史
 HohoemaPageType.LocalPlaylist = 播放清单
@@ -703,6 +705,7 @@ AllPlayFromHere = 从这里连续播放
 
 OpenVideoInfo = 影片资讯
 OpenOwnerVideos = 贡献者的视频列表
+OpenOwnerSeries = 贡献者系列一览
 AddHiddenVideoOwner = 隐藏作者
 Dialog_HiddenVideoOwnerDesc = 您可以从设置页面撤消此更改
 Dialog_HiddenVideoOwnerTitle = 隐藏“ {0}”发布的视频？
@@ -782,6 +785,14 @@ MylistDefaultSort.MylistCount_Ascending = 最多添加到我的列表
 MylistDefaultSort.MylistCount_Descending = 添加到“我的列表”最少的顺序
 MylistDefaultSort.Length_Ascending = 最长的录像时间
 MylistDefaultSort.Length_Descending = 视频时间最短
+
+
+#### User Series ####
+UserSeriesListWithOwnerName = {0}系列列表
+
+
+
+
 
 
 #### Ichiba ####
