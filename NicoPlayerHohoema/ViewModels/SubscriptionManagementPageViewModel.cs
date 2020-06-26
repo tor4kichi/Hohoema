@@ -79,11 +79,21 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(_disposables);
             AutoUpdateFrequency = _subscriptionUpdateManager.ToReactivePropertyAsSynchronized(x => x.UpdateFrequency)
                 .AddTo(_disposables);
+
+
+            _subscriptionManager.Added += _subscriptionManager_Added;
+            _subscriptionManager.Removed += _subscriptionManager_Removed;
+            _subscriptionManager.Updated += _subscriptionManager_Updated;
+
         }
 
 
         public override void Destroy()
         {
+            _subscriptionManager.Added -= _subscriptionManager_Added;
+            _subscriptionManager.Removed -= _subscriptionManager_Removed;
+            _subscriptionManager.Updated -= _subscriptionManager_Updated;
+
             Subscriptions.DisposeAllOrLog("subscription ViewModel dispose error.");
             base.Destroy();
         }
@@ -100,19 +110,11 @@ namespace NicoPlayerHohoema.ViewModels
                 }
             }
 
-            _subscriptionManager.Added += _subscriptionManager_Added;
-            _subscriptionManager.Removed += _subscriptionManager_Removed;
-            _subscriptionManager.Updated += _subscriptionManager_Updated;
-
             base.OnNavigatingTo(parameters);
         }
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
-            _subscriptionManager.Added -= _subscriptionManager_Added;
-            _subscriptionManager.Removed -= _subscriptionManager_Removed;
-            _subscriptionManager.Updated -= _subscriptionManager_Updated;
-
             base.OnNavigatedFrom(parameters);
         }
 

@@ -1,7 +1,9 @@
-﻿using NicoPlayerHohoema.Database;
+﻿using I18NPortable;
+using NicoPlayerHohoema.Database;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Models.Subscriptions;
+using NicoPlayerHohoema.Services;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -17,16 +19,19 @@ namespace NicoPlayerHohoema.ViewModels.Subscriptions
         private readonly SubscriptionManager _subscriptionManager;
         private readonly UserProvider _userProvider;
         private readonly ChannelProvider _channelProvider;
+        private readonly NotificationService _notificationService;
 
         public AddSubscriptionCommand(
             SubscriptionManager subscriptionManager,
             UserProvider userProvider,
-            ChannelProvider channelProvider
+            ChannelProvider channelProvider,
+            NotificationService notificationService
             )
         {
             _subscriptionManager = subscriptionManager;
             _userProvider = userProvider;
             _channelProvider = channelProvider;
+            _notificationService = notificationService;
         }
 
         protected override bool CanExecute(object parameter)
@@ -72,6 +77,13 @@ namespace NicoPlayerHohoema.ViewModels.Subscriptions
             if (subscription != null)
             {
                 Debug.WriteLine($"subscription added: {subscription.Id} {subscription.Label} {subscription.Id}" );
+                _notificationService.ShowInAppNotification(new InAppNotificationPayload() 
+                {
+                    ShowDuration = TimeSpan.FromSeconds(7),
+                    SymbolIcon = Windows.UI.Xaml.Controls.Symbol.Accept,
+                    Content = "Notification_SuccessAddSubscriptionSourceWithLabel".Translate(subscription.Label),
+                    IsShowDismissButton = false,
+                });
             }
         }
 

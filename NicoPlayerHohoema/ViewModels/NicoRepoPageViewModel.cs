@@ -188,7 +188,7 @@ namespace NicoPlayerHohoema.ViewModels
         public string BroadcasterId => CommunityGlobalId.ToString();
     }
 
-    public class NicoRepoVideoTimeline : VideoInfoControlViewModel
+    public class NicoRepoVideoTimeline : VideoInfoControlViewModel, IVideoContent
     {
         public NicoRepoVideoTimeline(NicoRepoTimelineItem timelineItem, NicoRepoItemTopic itemType) 
             : base(timelineItem.Video.Id)

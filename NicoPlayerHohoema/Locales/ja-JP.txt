@@ -164,6 +164,7 @@ ReorderSubsciprionSource_MoveNext = 一つ下へ移動
 ReorderSubsciprionSource_MoveToHead = 先頭へ移動
 ReorderSubsciprionSource_MoveToTail = 最後尾へ移動
 
+Notification_SuccessAddSubscriptionSourceWithLabel = 「{0}」を購読に追加しました。\n今後、新着動画が「あとで見る」に追加されます。
 Notification_FailedSubscriptionUpdate = 購読の更新に失敗しました
 Notification_SuccessAddToWatchLaterWithAddedCount = 新着動画 {0} 件を あとで見る に追加しました
 

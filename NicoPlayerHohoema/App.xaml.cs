@@ -439,6 +439,8 @@ namespace NicoPlayerHohoema
                 // バージョン間データ統合
                 var migrationSubscription = unityContainer.Resolve<UseCase.Migration.MigrationSubscriptions>();
                 migrationSubscription.Migration();
+                unityContainer.Resolve<UseCase.Migration.CommentFilteringNGScoreZeroFixture>().Migration();
+                
 
                 // アプリのユースケース系サービスを配置
                 unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationCacheVideoDeletedService>());
