@@ -34,6 +34,8 @@ Submit = 发送
 Done = 完成
 Select = 选择
 WatchVideo = 视图
+Preview = 以前
+Next = 下一个
 
 
 #### Hohoema App ####
@@ -226,7 +228,7 @@ Tag = 标签
 NiconicoIchiba = 市场
 Mylist = Mylist
 Comment  = 留言
-
+Series = 系列
 
 #### Login ####
 LogInToNiconicoVideo = 登录到Nico Nico Douga
@@ -742,6 +744,9 @@ LinkInVideoIntroduction = 视频介绍链接
 RelatedVideos = 相关影片
 NoItems_RelatedVideos = 没有相关视频
 FailedLoading_VideoInfomation = 无法加载视频信息
+AllPlaySeriesVideos = 从系列赛开始连续播放
+
+
 
 
 #### User Videos Page ####

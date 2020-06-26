@@ -34,6 +34,8 @@ Submit = 送信
 Done = 完了
 Select = 選択
 WatchVideo = 視聴する
+Preview = 前
+Next = 次
 
 
 #### Hohoema App ####
@@ -226,7 +228,7 @@ Tag = タグ
 NiconicoIchiba = 市場
 Mylist = マイリスト
 Comment  = コメント
-
+Series = シリーズ
 
 #### Login ####
 LogInToNiconicoVideo = ニコニコ動画にログイン
@@ -742,6 +744,9 @@ LinkInVideoIntroduction = 動画紹介内のリンク
 RelatedVideos = 関連動画
 NoItems_RelatedVideos = 関連動画はありません
 FailedLoading_VideoInfomation = 動画情報の読み込みに失敗しました
+AllPlaySeriesVideos = シリーズのはじめから連続再生する
+
+
 
 
 #### User Videos Page ####

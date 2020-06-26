@@ -283,6 +283,23 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+
+        private DelegateCommand _OpenVideoBelongSeriesPageCommand;
+        public DelegateCommand OpenVideoBelongSeriesPageCommand
+        {
+            get
+            {
+                return _OpenVideoBelongSeriesPageCommand
+                    ?? (_OpenVideoBelongSeriesPageCommand = new DelegateCommand(() =>
+                    {
+                        if (this.VideoDetals.Series != null)
+                        {
+                            PageManager.OpenPageWithId(HohoemaPageType.Series, this.VideoDetals.Series.Id.ToString());
+                        }
+                    }));
+            }
+        }
+
         Regex GeneralUrlRegex = new Regex(@"https?:\/\/([a-zA-Z0-9.\/?=_-]*)");
         public List<HyperlinkItem> VideoDescriptionHyperlinkItems { get; } = new List<HyperlinkItem>();
        
@@ -420,6 +437,7 @@ namespace NicoPlayerHohoema.ViewModels
                     var res = await NicoVideo.PreparePlayVideoAsync(VideoInfo.RawVideoId);
                     VideoDetals = res.GetVideoDetails();
 
+                    
                     //VideoTitle = details.VideoTitle;
                     //Tags = details.Tags.ToList();
                     //ThumbnailUrl = details.ThumbnailUrl;
