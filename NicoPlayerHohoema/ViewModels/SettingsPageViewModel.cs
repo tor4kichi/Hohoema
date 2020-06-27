@@ -30,7 +30,9 @@ namespace NicoPlayerHohoema.ViewModels
 {
     public class SettingsPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync
 	{
-        
+        private static Uri AppIssuePageUri = new Uri("https://github.com/tor4kichi/Hohoema/issues");
+
+
         public SettingsPageViewModel(
             PageManager pageManager,
             NotificationService toastService,
@@ -397,10 +399,6 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        // フィードバック
-        private static Uri AppIssuePageUri = new Uri("https://github.com/tor4kichi/Hohoema/issues");
-        private static Uri AppReviewUri = new Uri("ms-windows-store://review/?ProductId=9nblggh4rxt6");
-
         private DelegateCommand _LaunchAppReviewCommand;
         public DelegateCommand LaunchAppReviewCommand
         {
@@ -409,7 +407,8 @@ namespace NicoPlayerHohoema.ViewModels
                 return _LaunchAppReviewCommand
                     ?? (_LaunchAppReviewCommand = new DelegateCommand(async () =>
                     {
-                        await Launcher.LaunchUriAsync(AppReviewUri);
+                        await Microsoft.Toolkit.Uwp.Helpers.SystemInformation.LaunchStoreForReviewAsync();
+                        //await Launcher.LaunchUriAsync(AppReviewUri);
                     }));
             }
         }
