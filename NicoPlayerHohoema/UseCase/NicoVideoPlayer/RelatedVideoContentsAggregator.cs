@@ -189,7 +189,7 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
                     var nextVideo = collectionView.ElementAtOrDefault(pos + 1) as ChannelVideoInfo;
                     if (nextVideo != null)
                     {
-                        var videoVM = new ChannelVideoListItemViewModel(nextVideo.ItemId);
+                        var videoVM = new VideoInfoControlViewModel(nextVideo.ItemId);
                         videoVM.IsRequirePayment = nextVideo.IsRequirePayment;
                         videoVM.SetTitle(nextVideo.Title);
                         videoVM.SetSubmitDate(nextVideo.PostedAt);

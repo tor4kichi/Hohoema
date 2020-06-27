@@ -63,12 +63,18 @@
                   CommandParameter="{Binding}"
                   />
   <MenuFlyoutItem x:Name="OpenOwnerSeriesPage" 
-                  Text="{Binding Source=OpenOwnerSeriesVideos, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" 
-                  Visibility="Collapsed"
+                  Text="{Binding Source=OpenOwnerSeries, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" 
                   />
 
   <MenuFlyoutSeparator x:Name="VideoInfoItemSeparator" />
 
+  <MenuFlyoutItem x:Name="AddSusbcriptionItem"
+                     Text="{Binding Source=SubscriptionAddVideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                  CommandParameter="{Binding}"
+                    >
+  </MenuFlyoutItem>
+
+  <MenuFlyoutSeparator />
 
   <MenuFlyoutItem x:Name="Share"
                   Text="{Binding Source=Share, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
@@ -109,11 +115,6 @@
   </MenuFlyoutSubItem>
 
 
-  <MenuFlyoutItem x:Name="AddSusbcriptionItem"
-                     Text="{Binding Source=SubscriptionAddVideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                  CommandParameter="{Binding}"
-                    >
-  </MenuFlyoutItem>
 
 
 

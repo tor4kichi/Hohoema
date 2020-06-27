@@ -132,6 +132,18 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+        private DelegateCommand _OpenUserSeriesPageCommand;
+        public DelegateCommand OpenUserSeriesPageCommand
+        {
+            get
+            {
+                return _OpenUserSeriesPageCommand
+                    ?? (_OpenUserSeriesPageCommand = new DelegateCommand(() =>
+                    {
+                        PageManager.OpenPageWithId(HohoemaPageType.UserSeries, UserId);
+                    }));
+            }
+        }
 
         public string UserId { get; private set; }
 		public bool IsLoadFailed { get; private set; }

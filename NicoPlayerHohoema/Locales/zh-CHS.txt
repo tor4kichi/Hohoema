@@ -34,6 +34,8 @@ Submit = 发送
 Done = 完成
 Select = 选择
 WatchVideo = 视图
+Preview = 以前
+Next = 下一个
 
 
 #### Hohoema App ####
@@ -81,7 +83,9 @@ HohoemaPageType.Subscription = 订阅
 HohoemaPageType.Timeshift = 时移
 HohoemaPageType.UserInfo = 用户信息
 HohoemaPageType.UserMylist = Mylist一览
+HohoemaPageType.UserSeries = 系列清单
 HohoemaPageType.UserVideo = 用户视频一览
+HohoemaPageType.Series = 系列影片清单
 HohoemaPageType.VideoInfomation = 动画信息
 HohoemaPageType.WatchHistory = 播放历史
 HohoemaPageType.LocalPlaylist = 播放清单
@@ -224,7 +228,7 @@ Tag = 标签
 NiconicoIchiba = 市场
 Mylist = Mylist
 Comment  = 留言
-
+Series = 系列
 
 #### Login ####
 LogInToNiconicoVideo = 登录到Nico Nico Douga
@@ -703,6 +707,7 @@ AllPlayFromHere = 从这里连续播放
 
 OpenVideoInfo = 影片资讯
 OpenOwnerVideos = 贡献者的视频列表
+OpenOwnerSeries = 贡献者系列一览
 AddHiddenVideoOwner = 隐藏作者
 Dialog_HiddenVideoOwnerDesc = 您可以从设置页面撤消此更改
 Dialog_HiddenVideoOwnerTitle = 隐藏“ {0}”发布的视频？
@@ -739,6 +744,9 @@ LinkInVideoIntroduction = 视频介绍链接
 RelatedVideos = 相关影片
 NoItems_RelatedVideos = 没有相关视频
 FailedLoading_VideoInfomation = 无法加载视频信息
+AllPlaySeriesVideos = 从系列赛开始连续播放
+
+
 
 
 #### User Videos Page ####
@@ -782,6 +790,14 @@ MylistDefaultSort.MylistCount_Ascending = 最多添加到我的列表
 MylistDefaultSort.MylistCount_Descending = 添加到“我的列表”最少的顺序
 MylistDefaultSort.Length_Ascending = 最长的录像时间
 MylistDefaultSort.Length_Descending = 视频时间最短
+
+
+#### User Series ####
+UserSeriesListWithOwnerName = {0}系列列表
+
+
+
+
 
 
 #### Ichiba ####

@@ -259,9 +259,8 @@ namespace NicoPlayerHohoema.Views.Flyouts
             AddNgUser.Visibility = visibleSingleSelectionItem;
             VideoInfoItemSeparator.Visibility = visibleSingleSelectionItem;
 
-
-            //OpenOwnerSeriesPage.Visibility = (content?.ProviderType == Database.NicoVideoUserType.User && content?.ProviderId != null).ToVisibility();
-            //OpenOwnerSeriesPage.CommandParameter = content?.ProviderId;
+            OpenOwnerSeriesPage.Visibility = (content?.ProviderType == Database.NicoVideoUserType.User && content?.ProviderId != null).ToVisibility();
+            OpenOwnerSeriesPage.CommandParameter = content?.ProviderId;
 
             Share.Visibility = visibleSingleSelectionItem;
             CopySubItem.Visibility = visibleSingleSelectionItem;

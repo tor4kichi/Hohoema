@@ -34,6 +34,8 @@ Submit = 送信
 Done = 完了
 Select = 選択
 WatchVideo = 視聴する
+Preview = 前
+Next = 次
 
 
 #### Hohoema App ####
@@ -81,7 +83,9 @@ HohoemaPageType.Subscription = 購読
 HohoemaPageType.Timeshift = タイムシフト
 HohoemaPageType.UserInfo = ユーザー情報
 HohoemaPageType.UserMylist = マイリスト一覧
+HohoemaPageType.UserSeries = シリーズ一覧
 HohoemaPageType.UserVideo = ユーザー動画一覧
+HohoemaPageType.Series = シリーズ動画一覧
 HohoemaPageType.VideoInfomation = 動画情報
 HohoemaPageType.WatchHistory = 視聴履歴
 HohoemaPageType.LocalPlaylist = プレイリスト
@@ -224,7 +228,7 @@ Tag = タグ
 NiconicoIchiba = 市場
 Mylist = マイリスト
 Comment  = コメント
-
+Series = シリーズ
 
 #### Login ####
 LogInToNiconicoVideo = ニコニコ動画にログイン
@@ -703,6 +707,7 @@ AllPlayFromHere = ここから連続再生
 
 OpenVideoInfo = 動画情報
 OpenOwnerVideos = 投稿者の動画一覧
+OpenOwnerSeries = 投稿者のシリーズ一覧
 AddHiddenVideoOwner = 投稿者を非表示に設定
 Dialog_HiddenVideoOwnerDesc = この変更は設定ページから取り消すことができます
 Dialog_HiddenVideoOwnerTitle = 『{0}』さんの投稿動画を非表示にしますか？
@@ -739,6 +744,9 @@ LinkInVideoIntroduction = 動画紹介内のリンク
 RelatedVideos = 関連動画
 NoItems_RelatedVideos = 関連動画はありません
 FailedLoading_VideoInfomation = 動画情報の読み込みに失敗しました
+AllPlaySeriesVideos = シリーズのはじめから連続再生する
+
+
 
 
 #### User Videos Page ####
@@ -782,6 +790,14 @@ MylistDefaultSort.MylistCount_Ascending = マイリストに追加が多い順
 MylistDefaultSort.MylistCount_Descending = マイリストに追加が少ない順
 MylistDefaultSort.Length_Ascending = 動画時間が長い順
 MylistDefaultSort.Length_Descending = 動画時間が短い順
+
+
+#### User Series ####
+UserSeriesListWithOwnerName = {0} のシリーズ一覧
+
+
+
+
 
 
 #### Ichiba ####

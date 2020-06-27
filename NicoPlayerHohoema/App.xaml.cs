@@ -256,6 +256,7 @@ namespace NicoPlayerHohoema
             containerRegistry.RegisterForNavigation<Views.UserVideoPage>();
             containerRegistry.RegisterForNavigation<Views.VideoInfomationPage>();
             containerRegistry.RegisterForNavigation<Views.WatchHistoryPage>();
+            containerRegistry.RegisterForNavigation<Views.SeriesPage>();
             containerRegistry.RegisterForNavigation<Views.UserSeriesPage>();
             containerRegistry.RegisterForNavigation<Views.WatchAfterPage>();
             containerRegistry.RegisterForNavigation<Views.SubscriptionManagementPage>();            

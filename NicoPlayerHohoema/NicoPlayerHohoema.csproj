@@ -142,6 +142,7 @@
     <Compile Include="Interfaces\ICommentFilter.cs" />
     <Compile Include="Interfaces\IPageNavigatable.cs" />
     <Compile Include="Interfaces\IPlaylistItem.cs" />
+    <Compile Include="Interfaces\ISeries.cs" />
     <Compile Include="Interfaces\ITitleUpdatablePage.cs" />
     <Compile Include="Interfaces\IWatchHistory.cs" />
     <Compile Include="Locales\LocaleToDisplayNameConverter.cs" />
@@ -306,6 +307,7 @@
     <Compile Include="ViewModels\PrimaryWindowCoreLayout\SeparatorMenuItemViewModel.cs" />
     <Compile Include="ViewModels\PrimaryWindowCoreLayout\VideoMenuSubPageContent.cs" />
     <Compile Include="ViewModels\PrimaryWindowCoreLayout\WatchAfterMenuItemViewModel.cs" />
+    <Compile Include="ViewModels\SeriesPageViewModel.cs" />
     <Compile Include="ViewModels\SubscriptionControlViewModel.cs" />
     <Compile Include="ViewModels\SubscriptionManagementPageViewModel.cs" />
     <Compile Include="ViewModels\Subscriptions\AddKeywordSearchSubscriptionCommand.cs" />
@@ -608,6 +610,9 @@
     </Compile>
     <Compile Include="Views\Pages\SearchSummaryPage.xaml.cs">
       <DependentUpon>SearchSummaryPage.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Pages\SeriesPage.xaml.cs">
+      <DependentUpon>SeriesPage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Pages\SubscriptionManagementPage.xaml.cs">
       <DependentUpon>SubscriptionManagementPage.xaml</DependentUpon>
@@ -1064,6 +1069,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Pages\RankingCategoryPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Pages\SeriesPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

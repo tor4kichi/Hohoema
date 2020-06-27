@@ -119,6 +119,7 @@
                       <MenuFlyout>
                         <MenuFlyoutItem Text="{Binding Source=VideoOwnerDetail, Converter={StaticResource LocalizeConverter}}" Command="{Binding PageManager.OpenContentOwnerPageCommand}" CommandParameter="{Binding VideoInfo}" />
                         <MenuFlyoutItem Text="{Binding Source=OpenOwnerVideos, Converter={StaticResource LocalizeConverter}}" Command="{Binding PageManager.OpenVideoListPageCommand}" CommandParameter="{Binding VideoInfo}"></MenuFlyoutItem>
+                        <MenuFlyoutItem Text="{Binding Source=HohoemaPageType.UserSeries, Converter={StaticResource LocalizeConverter}}" Command="{Binding OpenUserSeriesPageCommand}" />
                       </MenuFlyout>
                     </Button.Flyout>
                   </Button>
@@ -142,7 +143,9 @@
                             HorizontalContentAlignment="Stretch"
                             Visibility="{Binding VideoDescriptionHyperlinkItems, Converter={StaticResource CollectionVisibilityConverter}}"
                             Margin="0 8"
-                            IsTabStop="False">
+                            IsTabStop="False"
+                            XYFocusDownNavigationStrategy="NavigationDirectionDistance"
+                            >
                     <i:Interaction.Behaviors>
                       <core:EventTriggerBehavior EventName="ItemClick">
                         <core:InvokeCommandAction Command="{Binding ScriptNotifyCommand}"
@@ -168,6 +171,48 @@
                     </ItemsControl.ItemsPanel>
                   </GridView>
                 </uwptoolkit:Expander>
+
+                <StackPanel Visibility="{Binding VideoDetals.Series, Converter={StaticResource NotNullToVisibility}}">
+                  <TextBlock Text="{Binding Source=HohoemaPageType.Series, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0 16 0 0" />
+
+                  <uwptoolkit:DockPanel Margin="0 8" XYFocusUpNavigationStrategy="NavigationDirectionDistance">
+                    <uwptoolkit:ImageEx Source="{Binding VideoDetals.Series.ThumbnailUrl}" uwptoolkit:DockPanel.Dock="Left" Width="140" />
+                    <TextBlock Text="{Binding Source=Series, Converter={StaticResource LocalizeConverter}}" uwptoolkit:DockPanel.Dock="Top" Opacity="0.7" Margin="8 0 0 0" />
+
+                    <HyperlinkButton Command="{Binding OpenVideoBelongSeriesPageCommand}"  VerticalAlignment="Top">
+                      <TextBlock Text="{Binding VideoDetals.Series.Title}" Margin="16 0"  />
+                    </HyperlinkButton>
+                  </uwptoolkit:DockPanel>
+
+                  <StackPanel Orientation="Horizontal" XYFocusUpNavigationStrategy="NavigationDirectionDistance"
+                              Visibility="{Binding VideoDetals.Series.PrevVideo, Converter={StaticResource NotNullToVisibility}}"
+                              >
+                    <TextBlock VerticalAlignment="Center" Margin="0 0 8 0">
+                    <Run Text="{Binding Source=Preview, Converter={StaticResource LocalizeConverter}}" />:
+                    </TextBlock>
+                    <HyperlinkButton Command="{Binding HohoemaPlaylist.PlayCommand}" CommandParameter="{Binding VideoDetals.Series.PrevVideo.Id}">
+                      <TextBlock Text="{Binding VideoDetals.Series.PrevVideo.Title}" />
+                    </HyperlinkButton>
+                  </StackPanel>
+
+                  <StackPanel Orientation="Horizontal"
+                              Visibility="{Binding VideoDetals.Series.NextVideo, Converter={StaticResource NotNullToVisibility}}"
+                              >
+                    <TextBlock VerticalAlignment="Center" Margin="0 0 8 0">
+                    <Run Text="{Binding Source=Next, Converter={StaticResource LocalizeConverter}}" />:
+                    </TextBlock>
+                    <HyperlinkButton Command="{Binding HohoemaPlaylist.PlayCommand}" CommandParameter="{Binding VideoDetals.Series.NextVideo.Id}">
+                      <TextBlock Text="{Binding VideoDetals.Series.NextVideo.Title}" />
+                    </HyperlinkButton>
+                  </StackPanel>
+
+                  <HyperlinkButton Visibility="Collapsed">
+                    <TextBlock Text="{Binding Source=AllPlaySeriesVideos, Converter={StaticResource LocalizeConverter}}" />
+                  </HyperlinkButton>
+                </StackPanel>
+                
+
+                <Border Height="32" />
               </StackPanel>
             </PivotItem>
             <!-- ニコニコ市場 -->
