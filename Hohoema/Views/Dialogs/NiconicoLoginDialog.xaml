@@ -1,0 +1,84 @@
+﻿<ContentDialog x:Class="Hohoema.Dialogs.NiconicoLoginDialog"
+               xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+               xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+               xmlns:local="using:Hohoema.Dialogs"
+               xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+               xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+               xmlns:i="using:Microsoft.Xaml.Interactivity"
+               xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+               xmlns:mybehavior="using:Hohoema.Views.Behaviors"
+               mc:Ignorable="d"
+               Title="{Binding Source=LogInToNiconicoVideo, Converter={StaticResource LocalizeConverter}}"
+               PrimaryButtonText="{Binding Source=LogIn, Converter={StaticResource LocalizeConverter}}"
+               SecondaryButtonText="{Binding Source=Cancel, Converter={StaticResource LocalizeConverter}}"
+               FullSizeDesired="True"
+               ScrollViewer.VerticalScrollBarVisibility="Auto"
+               ScrollViewer.VerticalScrollMode="Auto">
+  <Grid x:Name="LayoutRoot">
+
+    <ScrollViewer IsTabStop="False">
+      <StackPanel x:Name="LoginFormLayout" Spacing="8">
+
+        <TextBlock Visibility="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Text, Converter={StaticResource CollectionVisibilityConverter}}"
+                   x:Name="WarningTextBlock"
+                   TextWrapping="Wrap"
+                   Style="{StaticResource BodyTextBlockStyle}" />
+
+        <TextBox x:Name="MailTextBox"
+                 InputScope="EmailSmtpAddress"
+                 XYFocusDown="{x:Bind PasswordBox}"
+                 Header="{Binding Source=Mail, Converter={StaticResource LocalizeConverter}}"
+                 >
+
+          <i:Interaction.Behaviors>
+            <core:EventTriggerBehavior EventName="Loaded">
+              <mybehavior:SetFocus TargetObject="{x:Bind MailTextBox}" />
+            </core:EventTriggerBehavior>
+          </i:Interaction.Behaviors>
+        </TextBox>
+
+        <PasswordBox x:Name="PasswordBox"
+                     XYFocusUp="{x:Bind MailTextBox}"
+                     XYFocusDown="{x:Bind IsRememberPasswordToggle}"
+                     Header="{Binding Source=Password, Converter={StaticResource LocalizeConverter}}"
+                     >
+
+        </PasswordBox>
+
+        <Grid Margin="0 16">
+          <TextBlock Text="{Binding Source=AllowSavePassword, Converter={StaticResource LocalizeConverter}}"
+                     VerticalAlignment="Center"
+                     />
+          <ToggleSwitch x:Name="IsRememberPasswordToggle"
+                        XYFocusUp="{x:Bind PasswordBox}"
+                        Style="{StaticResource ToggleSwitchNoHeader}"
+                        MinWidth="0"
+                        HorizontalAlignment="Right">
+          </ToggleSwitch>
+        </Grid>
+        
+
+        <Border>
+          <HyperlinkButton Content="{Binding Source=IfCreateNewAccount_ClickHere, Converter={StaticResource LocalizeConverter}}"
+                           NavigateUri="https://account.nicovideo.jp/register"
+                           x:Name="NewAccountLink"
+                           XYFocusDown="{x:Bind ForgetPasswordLink}" />
+        </Border>
+
+        <Border>
+          <HyperlinkButton Content="{Binding Source=IfForgetPassword_ClickHere, Converter={StaticResource LocalizeConverter}}"
+                           NavigateUri="https://account.nicovideo.jp/password/reset"
+                           x:Name="ForgetPasswordLink"
+                           XYFocusUp="{x:Bind NewAccountLink}" />
+        </Border>
+
+        <Border Margin="0 0 0 0">
+          <HyperlinkButton Content="{Binding Source=Hohoema_PrivacyPolicy, Converter={StaticResource LocalizeConverter}}"
+                           NavigateUri="https://github.com/tor4kichi/Hohoema/wiki/Privacy-policy">
+          </HyperlinkButton>
+        </Border>
+
+      </StackPanel>
+    </ScrollViewer>
+  </Grid>
+</ContentDialog>

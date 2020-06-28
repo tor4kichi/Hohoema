@@ -1,0 +1,140 @@
+﻿<UserControl
+    x:Class="Hohoema.Views.VideoInfoControl"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Hohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:view="using:Hohoema.Views"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:behavior="using:Hohoema.Views.Behaviors"
+    xmlns:uwpUI="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:mycontrol="using:Hohoema.Views.Controls"
+    xmlns:listitem="using:Hohoema.Views.HohoemaListItem"
+    mc:Ignorable="d"
+    d:DesignHeight="60"
+    d:DesignWidth="400">
+
+    <Grid>
+
+        <!--
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup>
+                <VisualState>
+                    <VisualState.StateTriggers>
+                        <StateTrigger IsActive="{Binding IsRequireConfirmDelete.Value}" />
+                    </VisualState.StateTriggers>
+
+                    <VisualState.Setters>
+                        <Setter Target="DeletedPanel.Visibility" Value="Visible" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
+        -->
+        
+        
+        <toolkit:DockPanel>
+            
+
+            <Border toolkit:DockPanel.Dock="Bottom" >
+
+                <ItemsControl ItemsSource="{Binding CachedQualityVideos}"
+                              HorizontalContentAlignment="Stretch"
+                              IsTabStop="False"
+                              >
+
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <!-- 画質ごとのキャッシュ状態を表示 
+                            
+                            キャッシュリクエストされていない -> 非表示
+                            キャッシュ待機中 -> 灰色
+                            キャッシュDL中 -> 青色
+                            キャッシュ済み -> 緑色
+                            
+                            -->
+                            <toolkit:DockPanel Visibility="{Binding IsCacheDownloading.Value, Converter={StaticResource BooleanToVisibility}}"
+                               Margin="8 4"
+                               >
+                                
+                                <TextBlock toolkit:DockPanel.Dock="Right" 
+                                           Margin="8 0 0 0"
+                                           VerticalAlignment="Center"
+                                           Foreground="{ThemeResource  ApplicationSecondaryForegroundThemeBrush}"
+                                                >
+                                    <Run Text="{Binding ProgressPercent.Value}" />
+                                    <Run Text="%" />
+                                </TextBlock>
+                                
+                                
+                                <ProgressBar Maximum="100.0" 
+                                     Minimum="0.0" 
+                                     Value="{Binding ProgressPercent.Value}"
+                                             Opacity="0.7"
+                                             VerticalAlignment="Center"
+                                             Margin="0 4 0 0"
+                                     />
+
+
+                            </toolkit:DockPanel>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                
+            </Border>
+
+            <Grid >
+
+                <ItemsControl ItemsSource="{Binding CachedQualityVideos}"
+                              ItemTemplate="{StaticResource QualityVideoTemplate}"
+                              HorizontalAlignment="Right"
+                              VerticalAlignment="Bottom"
+                              IsTabStop="False"
+                              >
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Horizontal" />
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+
+
+                <listitem:HohoemaListItemVideo  />
+
+            </Grid>
+
+            
+        </toolkit:DockPanel>
+
+
+
+        <!-- 削除済み動画 -->
+        <!--
+        <Grid x:Name="DeletedPanel" Background="#60ffffff" Visibility="Collapsed">
+                        
+            <StackPanel VerticalAlignment="Center" Visibility="{Binding IsCacheRequested.Value, Converter={StaticResource BooleanToVisibilityInverted}}">
+
+                <TextBlock Text="削除理由" HorizontalAlignment="Center" FontSize="13"/>
+                <TextBlock Text="{Binding PrivateReasonText}" HorizontalAlignment="Center" Margin="0 8" />
+
+                <Button Content="削除確認" 
+                                Command="{Binding ConfirmDeleteCommand}"
+                                VerticalAlignment="Center"
+                                Margin="8"
+                                >
+                </Button>
+            </StackPanel>
+        
+        </Grid>
+
+        -->
+        
+
+    </Grid>
+    
+    
+</UserControl>

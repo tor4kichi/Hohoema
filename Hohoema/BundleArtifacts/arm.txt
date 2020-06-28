@@ -1,0 +1,7 @@
+MainPackage=G:\tor4k\Documents\Repo\NicoPlayerHohoema\NicoPlayerHohoema\bin\ARM\Release\NicoPlayerHohoema_0.22.2.0_ARM.appx
+SymbolPackage=G:\tor4k\Documents\Repo\NicoPlayerHohoema\NicoPlayerHohoema\obj\ARM\Release\Symbols\NicoPlayerHohoema_0.22.2.0_ARM.appxsym
+ResourcePack=G:\tor4k\Documents\Repo\NicoPlayerHohoema\NicoPlayerHohoema\bin\ARM\Release\NicoPlayerHohoema_0.22.2.0_language-ja.appx
+ResourcePack=G:\tor4k\Documents\Repo\NicoPlayerHohoema\NicoPlayerHohoema\bin\ARM\Release\NicoPlayerHohoema_0.22.2.0_scale-100.appx
+ResourcePack=G:\tor4k\Documents\Repo\NicoPlayerHohoema\NicoPlayerHohoema\bin\ARM\Release\NicoPlayerHohoema_0.22.2.0_scale-125.appx
+ResourcePack=G:\tor4k\Documents\Repo\NicoPlayerHohoema\NicoPlayerHohoema\bin\ARM\Release\NicoPlayerHohoema_0.22.2.0_scale-150.appx
+ResourcePack=G:\tor4k\Documents\Repo\NicoPlayerHohoema\NicoPlayerHohoema\bin\ARM\Release\NicoPlayerHohoema_0.22.2.0_scale-400.appx

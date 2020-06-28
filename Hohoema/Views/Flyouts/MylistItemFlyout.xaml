@@ -1,0 +1,24 @@
+﻿<MenuFlyout x:Class="Hohoema.Views.Flyouts.MylistItemFlyout"
+            xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            xmlns:local="using:Hohoema.Views.Flyouts"
+            xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+            xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+            xmlns:i="using:Microsoft.Xaml.Interactivity"
+            xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+            xmlns:mybehavior="using:Hohoema.Views.Behaviors"
+            mc:Ignorable="d">
+  <MenuFlyoutItem Text="{Binding Source=PlayAll, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                  Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.PlayAllCommand}"
+                  CommandParameter="{Binding}" />
+  <!--
+    <MenuFlyoutItem Text="名前を変更"
+                    Command="{Binding ElementName=ContentLayout, Path=DataContext.EditMylistGroupCommand}"
+                    CommandParameter="{Binding}"
+                    />
+    <MenuFlyoutItem Text="削除"
+                    Command="{Binding ElementName=ContentLayout, Path=DataContext.RemoveMylistGroupCommand}"
+                    CommandParameter="{Binding}"
+                    />
+    -->
+</MenuFlyout>

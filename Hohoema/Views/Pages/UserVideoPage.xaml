@@ -1,0 +1,172 @@
+﻿<Page
+    x:Class="Hohoema.Views.UserVideoPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Hohoema.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mvvm="using:Prism.Mvvm"
+    xmlns:view="using:Hohoema.Views"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior="using:Hohoema.Views.Behaviors"
+    xmlns:controls="using:Hohoema.Views.Controls"
+    xmlns:iconPack="using:MahApps.Metro.IconPacks"
+    xmlns:uwpcontrols="using:Microsoft.Toolkit.Uwp.UI.Controls"
+    xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+    xmlns:actions="using:Hohoema.Views.Actions"
+  xmlns:videolistPage="using:Hohoema.Views.Pages.VideoListPage"
+  xmlns:windowsTriggers="using:WindowsStateTriggers"
+  DataContext="{x:Null}"
+    NavigationCacheMode="Enabled"
+    mc:Ignorable="d"
+    >
+
+  <Page.Transitions>
+    <TransitionCollection>
+      <NavigationThemeTransition>
+        <SuppressNavigationTransitionInfo />
+      </NavigationThemeTransition>
+    </TransitionCollection>
+  </Page.Transitions>
+  <Grid>
+    <videolistPage:VideoItemsListView x:Name="VideoItemsListView" ItemsSource="{Binding ItemsView}" ItemCommand="{Binding HohoemaPlaylist.PlayCommand}" ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}" RefreshCommand="{Binding RefreshCommand}">
+      <videolistPage:VideoItemsListView.Header>
+        <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
+          <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">
+            <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+              <CommandBar x:Name="VideoListCommandBar" Background="Transparent" HorizontalAlignment="Right">
+                <CommandBar.PrimaryCommands>
+                  <AppBarButton Label="{Binding Source=VideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Command="{Binding OpenVideoOwnerUserPageCommand}"
+                                />
+                  <AppBarButton x:Name="FeedRegstrationButton" Label="{Binding Source=SubscriptionAddVideoOwner, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Add" Visibility="Visible"
+                                Command="{Binding AddSubscriptionCommand}"
+                                CommandParameter="{Binding UserInfo.Value}"
+                                >
+                  </AppBarButton>
+                  <AppBarButton x:Name="ScrollToTopButton" Icon="Up" Label="{Binding Source=ReturnToPageTop, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
+                    <i:Interaction.Behaviors>
+                      <core:EventTriggerBehavior EventName="Click">
+                        <core:CallMethodAction TargetObject="{x:Bind VideoItemsListView}" MethodName="ResetScrollPosition" />
+                      </core:EventTriggerBehavior>
+                    </i:Interaction.Behaviors>
+                  </AppBarButton>
+                  <AppBarButton x:Name="RefreshButton" Label="{Binding Source=Refresh, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Icon="Refresh" Command="{Binding RefreshCommand}" VerticalAlignment="Center"></AppBarButton>
+                </CommandBar.PrimaryCommands>
+              </CommandBar>
+            </Grid>
+          </controls:ScrollHeader>
+        </Grid>
+      </videolistPage:VideoItemsListView.Header>
+      <videolistPage:VideoItemsListView.ItemTemplate>
+        <DataTemplate>
+          <Grid>
+            <videolistPage:VideoListItemControl />
+          </Grid>
+        </DataTemplate>
+      </videolistPage:VideoItemsListView.ItemTemplate>
+    </videolistPage:VideoItemsListView>
+    <Grid x:Name="VideosPrivateNoticeLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8" TextWrapping="Wrap" Text="{Binding Source=UserVideosIsPrivate, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"></TextBlock>
+    </Grid>
+    <Grid x:Name="EmptyItemsLayout" Visibility="Collapsed" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <TextBlock Text="{Binding Source=UserVideosNoItems, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Style="{StaticResource SubtitleTextBlockStyle}" Opacity="0.8" />
+    </Grid>
+    <VisualStateManager.VisualStateGroups>
+      <!-- レイアウトモード -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentListViewBodyMargin_TV}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Desktop" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentListViewBodyMargin_Desktop}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Tablet" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Tablet}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentListViewBodyMargin_Tablet}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Mobile" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="VideoItemsListView.Padding" Value="{StaticResource ContentListViewBodyMargin_Mobile}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      <!-- トップバー表示時のタイトル位置ずらし -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:DeviceFamilyStateTrigger DeviceFamily="Xbox" />
+            <StateTrigger IsActive="{Binding AppearanceSettings.IsTVMode_Debug}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="ItemsList.Padding" Value="48 0 48 27" />
+            <Setter Target="ScrollHeader.Mode" Value="None" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="{StaticResource WidthBreakPoint_WideToMiddle}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters></VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters></VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding NowLoading.Value}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="FeedRegstrationButton.Visibility" Value="Collapsed" />
+            <Setter Target="ScrollToTopButton.IsEnabled" Value="False" />
+            <Setter Target="RefreshButton.IsEnabled" Value="False" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding IsOwnerVideoPrivate}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="VideosPrivateNoticeLayout.Visibility" Value="Visible" />
+            <Setter Target="FeedRegstrationButton.Visibility" Value="Collapsed" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTriggers:EqualsStateTrigger Value="{Binding ItemsView.Count}" EqualTo="0" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="EmptyItemsLayout.Visibility" Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
+</Page>
