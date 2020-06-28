@@ -8,11 +8,12 @@ using NicoPlayerHohoema.ViewModels.Subscriptions;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;
 using System;
-using System.Collections.Async;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reactive.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Uno.Extensions;
 
@@ -142,20 +143,14 @@ namespace NicoPlayerHohoema.ViewModels
             return Task.FromResult(_videos.Count);
         }
 
-        protected override Task<IAsyncEnumerable<VideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
+        protected override async IAsyncEnumerable<VideoInfoControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation]CancellationToken cancellationToken)
         {
-            return Task.FromResult(_videos.Skip(head).Take(count)
-                .Select(x =>
-                {
-                    var itemVM = new VideoInfoControlViewModel(x.Id);
-                    itemVM.SetTitle(x.Title);
-                    itemVM.SetSubmitDate(x.PostAt);
-                    itemVM.SetVideoDuration(x.Duration);
-                    itemVM.SetDescription(x.WatchCount, x.CommentCount, x.MylistCount);
-                    itemVM.SetThumbnailImage(x.ThumbnailUrl.OriginalString);
-                    return itemVM;
-                })
-                .ToAsyncEnumerable());
+            foreach (var item in _videos.Skip(head).Take(count))
+            {
+                var itemVM = new VideoInfoControlViewModel(item.Id);
+                await itemVM.InitializeAsync(cancellationToken);
+                yield return itemVM;
+            }
         }
     }
 

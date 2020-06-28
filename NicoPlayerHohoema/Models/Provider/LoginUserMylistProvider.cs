@@ -82,7 +82,7 @@ namespace NicoPlayerHohoema.Models.Provider
             return mylistGroups;
         }
 
-        public async Task<List<IVideoContent>> GetLoginUserMylistItemsAsync(IMylist mylist)
+        public async Task<List<Database.NicoVideo>> GetLoginUserMylistItemsAsync(IMylist mylist)
         {
             if (mylist.UserId != NiconicoSession.UserIdString)
             {
@@ -101,7 +101,7 @@ namespace NicoPlayerHohoema.Models.Provider
                 ItemId = x.ItemId,
             }));
 
-            return items.Select(x => MylistDataToNicoVideoData(x)).Cast<IVideoContent>().ToList();
+            return items.Select(x => MylistDataToNicoVideoData(x)).Cast<Database.NicoVideo>().ToList();
         }
 
 

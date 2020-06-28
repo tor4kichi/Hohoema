@@ -1,5 +1,4 @@
-﻿using System.Collections.Async;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -16,6 +15,8 @@ using Prism.Navigation;
 using NicoPlayerHohoema.Models.Niconico.Video;
 using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.UseCase;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -112,11 +113,11 @@ namespace NicoPlayerHohoema.ViewModels
         public override uint OneTimeLoadCount => 18;
 
 
-        protected override async Task<IAsyncEnumerable<RecommendVideoListItem>> GetPagedItemsImpl(int head, int count)
+        protected override async IAsyncEnumerable<RecommendVideoListItem> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation]CancellationToken cancellationToken)
         {
             if (_EndOfRecommend)
             {
-                return AsyncEnumerable.Empty<RecommendVideoListItem>();
+                yield break;
             }
 
             // 初回はページアクセスで得られるデータを使う
@@ -140,30 +141,27 @@ namespace NicoPlayerHohoema.ViewModels
                     );
 
 
-                return _PrevRecommendContent.Items.Select(x =>
+                foreach (var item in _PrevRecommendContent.Items)
                 {
-                    var video = Database.NicoVideoDb.Get(x.Id);
-                    video.ThumbnailUrl = x.ThumbnailUrl;
-                    video.Title = x.ParseTitle();
-                    video.Length = x.ParseLengthToTimeSpan();
-                    video.ViewCount = x.ViewCounter;
-                    video.CommentCount = x.NumRes;
-                    video.MylistCount = x.MylistCounter;
-                    video.PostedAt = x.ParseForstRetroeveToDateTimeOffset().DateTime;
+                    var video = Database.NicoVideoDb.Get(item.Id);
+                    video.ThumbnailUrl = item.ThumbnailUrl;
+                    video.Title = item.ParseTitle();
+                    video.Length = item.ParseLengthToTimeSpan();
+                    video.ViewCount = item.ViewCounter;
+                    video.CommentCount = item.NumRes;
+                    video.MylistCount = item.MylistCounter;
+                    video.PostedAt = item.ParseForstRetroeveToDateTimeOffset().DateTime;
                     Database.NicoVideoDb.AddOrUpdate(video);
 
-                    var vm = new RecommendVideoListItem(x);
-                    vm.SetupFromThumbnail(video);
-                    return vm;
-                })
-                .ToAsyncEnumerable()
-                ;
+                    var vm = new RecommendVideoListItem(item);
+                    await vm.InitializeAsync(cancellationToken);
+                    yield return vm;
+                }
             }
             else
             {
-                return AsyncEnumerable.Empty<RecommendVideoListItem>();
+                yield break;
             }
-            
         }
 
         protected override async Task<int> ResetSourceImpl()

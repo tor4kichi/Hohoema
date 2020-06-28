@@ -4,13 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.UI.Core;
-using System.Collections.Async;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -23,20 +23,20 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public virtual uint OneTimeLoadCount => DefaultOneTimeLoadCount;
 
-		public async Task<IAsyncEnumerable<T>> GetPagedItems(int head, int count)
+		public IAsyncEnumerable<T> GetPagedItems(int head, int count, CancellationToken cancellationToken)
 		{
-            using (var releaser = await _PageLoadingLock.LockAsync())
+//            using (var releaser = await _PageLoadingLock.LockAsync())
             {
                 try
                 {
-                    var result = await GetPagedItemsImpl(head, count);
+                    var result = GetPagedItemsImpl(head, count, cancellationToken);
                     HasError = false;
                     return result;
                 }
                 catch
                 {
                     Error?.Invoke();
-                    return AsyncEnumerable.Empty<T>();
+                    throw;
                 }
             }
         }
@@ -58,7 +58,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-		protected abstract Task<IAsyncEnumerable<T>> GetPagedItemsImpl(int head, int count);
+		protected abstract IAsyncEnumerable<T> GetPagedItemsImpl(int head, int count, CancellationToken cancellationToken);
 		protected abstract Task<int> ResetSourceImpl();
 
 		public bool HasError { get; private set; }
@@ -84,15 +84,15 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override uint OneTimeLoadCount { get; }
 
-        protected override Task<IAsyncEnumerable<T>> GetPagedItemsImpl(int head, int count)
+        protected override IAsyncEnumerable<T> GetPagedItemsImpl(int head, int count, CancellationToken cancellationToken)
         {
             if (head == 0)
             {
-                return Task.FromResult(Source.ToAsyncEnumerable());
+                return Source.ToAsyncEnumerable();
             }
             else
             {
-                return Task.FromResult(AsyncEnumerable<T>.Empty);
+                return Enumerable.Empty<T>().ToAsyncEnumerable();
             }
         }
 

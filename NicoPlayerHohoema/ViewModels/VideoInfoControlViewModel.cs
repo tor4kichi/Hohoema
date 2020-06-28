@@ -30,11 +30,12 @@ using NicoPlayerHohoema.Interfaces;
 using I18NPortable;
 using Prism.Events;
 using NicoPlayerHohoema.Repository.VideoCache;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
 
-    public class VideoInfoControlViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContentWritable, Views.Extensions.ListViewBase.IDeferInitialize
+    public class VideoInfoControlViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContentWritable
     {
         public VideoInfoControlViewModel(Database.NicoVideo data)            
         {
@@ -143,8 +144,6 @@ namespace NicoPlayerHohoema.ViewModels
         public Interfaces.IMylist OnwerPlaylist { get; }
 
         public VideoStatus VideoStatus { get; private set; }
-
-        bool Views.Extensions.ListViewBase.IDeferInitialize.IsInitialized { get; set; }
 
         public TimeSpan Length { get; set; }
 
@@ -331,10 +330,8 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        async Task Views.Extensions.ListViewBase.IDeferInitialize.DeferInitializeAsync()
+        public async Task InitializeAsync(CancellationToken cancellationToken = default)
         {
-            using var _ = await _initializeLock.LockAsync();
-
             if (Data?.Title != null)
             {
                 SetTitle(Data.Title);
@@ -369,6 +366,8 @@ namespace NicoPlayerHohoema.ViewModels
                 Data = data;
             }
 
+            cancellationToken.ThrowIfCancellationRequested();
+
             SubscriptionWatchedIfNotWatch(Data);
             UpdateIsHidenVideoOwner(Data);
             SubscribeCacheState(Data);
@@ -382,8 +381,6 @@ namespace NicoPlayerHohoema.ViewModels
             SetupFromThumbnail(Data);
 
             IsInitialized = true;
-
-            await Task.Delay(25);
         }
 
 

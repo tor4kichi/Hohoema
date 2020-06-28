@@ -11,7 +11,6 @@ using System.Text.RegularExpressions;
 using Prism.Mvvm;
 using NicoPlayerHohoema.Services;
 using Reactive.Bindings.Extensions;
-using System.Collections.Async;
 using NicoPlayerHohoema.Models.Provider;
 using Unity;
 using Prism.Navigation;
@@ -27,6 +26,8 @@ using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.Interfaces;
 using I18NPortable;
 using NicoPlayerHohoema.UseCase;
+using System.Threading;
+using System.Runtime.CompilerServices;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -380,25 +381,18 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override uint OneTimeLoadCount => 20;
 
-        protected override Task<IAsyncEnumerable<RankedVideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
+        protected override async IAsyncEnumerable<RankedVideoInfoControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation]CancellationToken cancellationToken)
         {
-            return Task.FromResult(RankingRss.Items.Skip(head).Take(count)
-                .Select((x, index) =>
-                {
-                    var vm = new RankedVideoInfoControlViewModel(x.GetVideoId());
-                    
-                    vm.Rank = (uint)(head + index + 1);
+            int index = 0;
+            foreach (var item in RankingRss.Items.Skip(head).Take(count))
+            {
+                var vm = new RankedVideoInfoControlViewModel(item.GetVideoId());
+                vm.Rank = (uint)(head + index + 1);
+                await vm.InitializeAsync(cancellationToken);
+                yield return vm;
 
-                    vm.SetTitle(x.GetRankTrimmingTitle());
-                    var moreData = x.GetMoreData();
-                    vm.SetVideoDuration(moreData.Length);
-                    vm.SetThumbnailImage(moreData.ThumbnailUrl);
-                    vm.SetSubmitDate(x.PubDate.DateTime);
-
-                    return vm;
-                })
-            .ToAsyncEnumerable()
-            );
+                index++;
+            }
         }
 
         protected override async Task<int> ResetSourceImpl()

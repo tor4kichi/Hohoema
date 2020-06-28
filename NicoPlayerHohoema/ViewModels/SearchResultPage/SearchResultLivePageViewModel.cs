@@ -10,7 +10,6 @@ using Mntone.Nico2;
 using Reactive.Bindings;
 using System.Reactive.Linq;
 using Reactive.Bindings.Extensions;
-using System.Collections.Async;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Models.Provider;
 using Unity;
@@ -23,6 +22,8 @@ using NicoPlayerHohoema.UseCase;
 using I18NPortable;
 using NicoPlayerHohoema.Models.Live;
 using Mntone.Nico2.Live;
+using System.Threading;
+using System.Runtime.CompilerServices;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -423,7 +424,7 @@ namespace NicoPlayerHohoema.ViewModels
                 SearchedVideoIdsHash.Add(live.ContentId);
             }
         }
-		public async Task<IAsyncEnumerable<LiveInfoListItemViewModel>> GetPagedItems(int head, int count)
+		public async IAsyncEnumerable<LiveInfoListItemViewModel> GetPagedItems(int head, int count, [EnumeratorCancellation] CancellationToken cancellationToken)
 		{
             if (Info.Count < (head + count))
             {
@@ -438,7 +439,9 @@ namespace NicoPlayerHohoema.ViewModels
                 }
             }
 
-            return Info.Skip(head).Take(count).Select(x =>
+            cancellationToken.ThrowIfCancellationRequested();
+
+            foreach (var item in Info.Skip(head).Take(count).Select(x =>
 			{
                 var liveInfoVM = new LiveInfoListItemViewModel(x.ContentId);
                 liveInfoVM.Setup(x);
@@ -450,8 +453,10 @@ namespace NicoPlayerHohoema.ViewModels
                 }
 
                 return liveInfoVM;
-			})
-            .ToAsyncEnumerable();
+			}))
+            {
+                yield return item;
+            }
 		}
 	}
 }

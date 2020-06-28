@@ -23,7 +23,7 @@ namespace NicoPlayerHohoema.Repository.Playlist
         public bool IsDefaultMylist { get; set; }
         public int ItemsHeadPosition { get; set; }
         public int TotalCount { get; set; }
-        public IReadOnlyCollection<IVideoContent> Items { get; set; }
+        public IReadOnlyCollection<Database.NicoVideo> Items { get; set; }
 
         public int Count => Items.Count;
     }
@@ -164,7 +164,7 @@ namespace NicoPlayerHohoema.Repository.Playlist
         public MylistDefaultSort DefaultSort { get; internal set; }
 
 
-        public Task<List<IVideoContent>> GetLoginUserMylistItemsAsync()
+        public Task<List<Database.NicoVideo>> GetLoginUserMylistItemsAsync()
         {
             return _loginUserMylistProvider.GetLoginUserMylistItemsAsync(this);
         }

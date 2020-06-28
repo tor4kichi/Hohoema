@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Async;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -19,7 +18,7 @@ namespace NicoPlayerHohoema.Models.Helpers
 	{
 		uint OneTimeLoadCount { get; }
 		Task<int> ResetSource();
-		Task<IAsyncEnumerable<T>> GetPagedItems(int head, int count);
+		IAsyncEnumerable<T> GetPagedItems(int head, int count, CancellationToken cancellationToken);
 	}
 
 	public class IncrementalLoadingCollection<T, I> : ObservableCollection<I>,
@@ -71,28 +70,20 @@ namespace NicoPlayerHohoema.Models.Helpers
 
 				BeginLoading?.Invoke();
 
-				IAsyncEnumerable<I> items = null;
-
 				cancellationToken.ThrowIfCancellationRequested();
 
 				try
 				{
-					items = await _Source.GetPagedItems((int)_Position, (int)_Source.OneTimeLoadCount);
-				}
-				catch (OperationCanceledException)
-				{
+					var items = _Source.GetPagedItems((int)_Position, (int)_Source.OneTimeLoadCount, cancellationToken);
+					await foreach (var item in items ?? AsyncEnumerable.Empty<I>())
+					{
+						cancellationToken.ThrowIfCancellationRequested();
 
-				}
-				catch (Exception ex)
-				{
-					Debug.WriteLine(ex.Message);
-				}
+						this.Add(item);
+						++resultCount;
+					}
 
-				cancellationToken.ThrowIfCancellationRequested();
-
-				if (items != null)
-				{
-					// Task.Delay(50)は多重読み込み防止のためのおまじない
+					// Task.Delayは多重読み込み防止のためのおまじない
 					// アイテム追加完了のタイミングで次の追加読み込みの判定が走るっぽいので
 					// アイテム追加が完了するまでUIスレッドが止まっている必要があるっぽい、つまり
 					// 
@@ -100,19 +91,16 @@ namespace NicoPlayerHohoema.Models.Helpers
 					//       
 					//      俺たちは雰囲気で非同期処理をやっているんだ」
 					// 
-
-
-					await Task.WhenAll(
-						items.ForEachAsync((item) =>
-						{
-							this.Add(item);
-							++resultCount;
-						})
-						, Task.Delay(100)
-						);
+					await Task.Delay(50);
 
 					_Position += resultCount;
 				}
+				catch (Exception ex) when (!(ex is OperationCanceledException))
+				{
+					Debug.WriteLine(ex.Message);
+				}
+
+				cancellationToken.ThrowIfCancellationRequested();
 
 				if (resultCount == 0)
 				{

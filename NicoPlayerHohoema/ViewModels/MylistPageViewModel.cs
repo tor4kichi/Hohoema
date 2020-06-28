@@ -13,7 +13,6 @@ using Unity;
 using Windows.UI;
 using Windows.UI.Popups;
 using NicoPlayerHohoema.Dialogs;
-using System.Collections.Async;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Models.LocalMylist;
 using NicoPlayerHohoema.Models.Subscription;
@@ -29,6 +28,7 @@ using NicoPlayerHohoema.Repository.Playlist;
 using I18NPortable;
 using NicoPlayerHohoema.UseCase;
 using NicoPlayerHohoema.ViewModels.Subscriptions;
+using System.Runtime.CompilerServices;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -260,8 +260,8 @@ namespace NicoPlayerHohoema.ViewModels
        
         public ReactiveProperty<MylistPlaylist> Mylist { get; private set; }
 
-        private ICollection<IVideoContent> _mylistItems;
-        public ICollection<IVideoContent> MylistItems
+        private ICollection<VideoInfoControlViewModel> _mylistItems;
+        public ICollection<VideoInfoControlViewModel> MylistItems
         {
             get { return _mylistItems; }
             private set { SetProperty(ref _mylistItems, value); }
@@ -611,19 +611,19 @@ namespace NicoPlayerHohoema.ViewModels
         }
        
 
-        private async Task<ICollection<IVideoContent>> CreateItemsSourceAsync(MylistPlaylist mylist)
+        private async Task<ICollection<VideoInfoControlViewModel>> CreateItemsSourceAsync(MylistPlaylist mylist)
         {
             if (mylist is LoginUserMylistPlaylist loginUserMylist)
             {
                 var source = new LoginUserMylistIncrementalSource(loginUserMylist);
                 await source.ResetSource();
-                return new IncrementalLoadingCollection<LoginUserMylistIncrementalSource, IVideoContent>(source);
+                return new IncrementalLoadingCollection<LoginUserMylistIncrementalSource, VideoInfoControlViewModel>(source);
             }
             else
             {
                 var source = new MylistIncrementalSource(mylist);
                 await source.ResetSource();
-                return new IncrementalLoadingCollection<MylistIncrementalSource, IVideoContent>(source);
+                return new IncrementalLoadingCollection<MylistIncrementalSource, VideoInfoControlViewModel>(source);
             }
         }
 
@@ -642,7 +642,7 @@ namespace NicoPlayerHohoema.ViewModels
         }
     }
     
-	public class MylistIncrementalSource : HohoemaIncrementalSourceBase<IVideoContent>
+	public class MylistIncrementalSource : HohoemaIncrementalSourceBase<VideoInfoControlViewModel>
 	{
         private readonly MylistPlaylist _mylist;
 
@@ -674,15 +674,20 @@ namespace NicoPlayerHohoema.ViewModels
             return result.TotalCount;
         }
 
-        protected override async Task<IAsyncEnumerable<IVideoContent>> GetPagedItemsImpl(int head, int count)
+        protected override async IAsyncEnumerable<VideoInfoControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation]CancellationToken cancellationToken)
         {
             if (head == 0)
             {
-                return _firstResult.Items.ToAsyncEnumerable();
+                foreach (var item in _firstResult.Items)
+                {
+                    var itemVM = new VideoInfoControlViewModel(item);
+                    await itemVM.InitializeAsync(cancellationToken);
+                    yield return itemVM;
+                }
             }
             else if (_firstResult.TotalCount <= head)
             {
-                return AsyncEnumerable.Empty<IVideoContent>();
+                yield break;
             }
             else
             {
@@ -690,11 +695,16 @@ namespace NicoPlayerHohoema.ViewModels
 
                 if (result.IsSuccess)
                 {
-                    return result.Items.ToAsyncEnumerable();
+                    foreach (var item in result.Items)
+                    {
+                        var itemVM = new VideoInfoControlViewModel(item);
+                        await itemVM.InitializeAsync(cancellationToken);
+                        yield return itemVM;
+                    }
                 }
                 else
                 {
-                    return AsyncEnumerable.Empty<IVideoContent>();
+                    yield break;
                 }
             }
         }
@@ -703,10 +713,10 @@ namespace NicoPlayerHohoema.ViewModels
 
     }
 
-    public class LoginUserMylistIncrementalSource : HohoemaIncrementalSourceBase<IVideoContent>
+    public class LoginUserMylistIncrementalSource : HohoemaIncrementalSourceBase<VideoInfoControlViewModel>
     {
         private readonly LoginUserMylistPlaylist _mylist;
-        private List<IVideoContent> _ItemsCache;
+        private List<Database.NicoVideo> _ItemsCache;
 
         public LoginUserMylistIncrementalSource(
             LoginUserMylistPlaylist mylist
@@ -729,14 +739,19 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         
-        protected override async Task<IAsyncEnumerable<IVideoContent>> GetPagedItemsImpl(int head, int count)
+        protected override async IAsyncEnumerable<VideoInfoControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation]CancellationToken cancellationToken)
         {
             if (_ItemsCache == null)
             {
                 _ItemsCache = await _mylist.GetLoginUserMylistItemsAsync();
             }
 
-            return _ItemsCache.Skip(head).Take(count).ToAsyncEnumerable();
+            foreach (var item in _ItemsCache.Skip(head).Take(count))
+            {
+                var itemVM = new VideoInfoControlViewModel(item);
+                await itemVM.InitializeAsync(cancellationToken);
+                yield return itemVM;
+            }
         }
 
         #endregion

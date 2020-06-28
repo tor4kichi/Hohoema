@@ -13,7 +13,6 @@ using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.Collections.Async;
 using NicoPlayerHohoema.Models.Provider;
 using Unity;
 using Prism.Navigation;
@@ -23,6 +22,7 @@ using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.UseCase.Playlist.Commands;
 using NicoPlayerHohoema.UseCase;
+using System.Runtime.CompilerServices;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -118,7 +118,7 @@ namespace NicoPlayerHohoema.ViewModels
                             vm.SetVideoDuration(x.Length);
 
                             vm.RemoveToken = _HistoriesResponse.Token;
-
+                            await vm.InitializeAsync();
                             Histories.Add(vm);
                         }
                     }
@@ -153,40 +153,39 @@ namespace NicoPlayerHohoema.ViewModels
 
 
     public class HistoryIncrementalLoadingSource : HohoemaIncrementalSourceBase<HistoryVideoInfoControlViewModel>
-	{
+    {
 
-		HistoriesResponse _HistoriesResponse;
+        HistoriesResponse _HistoriesResponse;
 
-		public HistoryIncrementalLoadingSource(HistoriesResponse historyRes)
-		{
-			_HistoriesResponse = historyRes;
-		}
-
-		public override uint OneTimeLoadCount
-		{
-			get
-			{
-				return 10;
-			}
-		}
-        
-        protected override Task<IAsyncEnumerable<HistoryVideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
+        public HistoryIncrementalLoadingSource(HistoriesResponse historyRes)
         {
-            return Task.FromResult(_HistoriesResponse.Histories.Skip(head).Take(count).Select(x => 
-            {
-                var vm = new HistoryVideoInfoControlViewModel(x.Id);
-                vm.ItemId = x.ItemId;
-                vm.LastWatchedAt = x.WatchedAt.DateTime;
-                vm.UserViewCount = x.WatchCount;
+            _HistoriesResponse = historyRes;
+        }
 
-                vm.SetTitle(x.Title);
-                vm.SetThumbnailImage(x.ThumbnailUrl.OriginalString);
-                vm.SetVideoDuration(x.Length);
-                
-                return vm;
-            })
-            .ToAsyncEnumerable()
-            );
+        public override uint OneTimeLoadCount
+        {
+            get
+            {
+                return 10;
+            }
+        }
+
+        protected override async IAsyncEnumerable<HistoryVideoInfoControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation]CancellationToken cancellationToken)
+        {
+            foreach (var item in _HistoriesResponse.Histories.Skip(head).Take(count))
+            {
+                var vm = new HistoryVideoInfoControlViewModel(item.Id);
+                vm.ItemId = item.ItemId;
+                vm.LastWatchedAt = item.WatchedAt.DateTime;
+                vm.UserViewCount = item.WatchCount;
+
+                vm.SetTitle(item.Title);
+                vm.SetThumbnailImage(item.ThumbnailUrl.OriginalString);
+                vm.SetVideoDuration(item.Length);
+
+                await vm.InitializeAsync(cancellationToken);
+                yield return vm;
+            }
         }
 
         protected override Task<int> ResetSourceImpl()

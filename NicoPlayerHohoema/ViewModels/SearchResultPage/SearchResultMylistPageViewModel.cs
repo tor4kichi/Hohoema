@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Mntone.Nico2.Searches.Mylist;
 using Prism.Commands;
 using Mntone.Nico2;
-using System.Collections.Async;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using NicoPlayerHohoema.Services.Page;
@@ -18,6 +17,8 @@ using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Repository.Playlist;
 using System.Reactive.Linq;
 using NicoPlayerHohoema.UseCase;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -282,7 +283,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		
 
-		public async Task<IAsyncEnumerable<MylistPlaylist>> GetPagedItems(int head, int count)
+		public async IAsyncEnumerable<MylistPlaylist> GetPagedItems(int head, int count, [EnumeratorCancellation] CancellationToken cancellationToken)
 		{
 			var result = await SearchProvider.MylistSearchAsync(
 				SearchOption.Keyword
@@ -292,7 +293,15 @@ namespace NicoPlayerHohoema.ViewModels
 				, SearchOption.Order
 			);
 
-            return result.IsSuccess ? result.Items.ToAsyncEnumerable() : AsyncEnumerable.Empty<MylistPlaylist>();
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (result.IsSuccess)
+            {
+                foreach (var item in result.Items)
+                {
+                    yield return item;
+                }
+            }
         }
 	}
 }

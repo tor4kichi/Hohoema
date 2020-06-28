@@ -14,12 +14,13 @@ using Mntone.Nico2;
 using Mntone.Nico2.Searches.Video;
 using Mntone.Nico2.Searches.Community;
 using Mntone.Nico2.Searches.Live;
-using System.Collections.Async;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Models.Provider;
 using Unity;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.UseCase;
+using System.Threading;
+using System.Runtime.CompilerServices;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -764,7 +765,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 		
 
-        protected override async Task<IAsyncEnumerable<VideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
+        protected override async IAsyncEnumerable<VideoInfoControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation]CancellationToken cancellationToken)
         {
             VideoListingResponse res = null;
             if (SearchOption.SearchTarget == SearchTarget.Keyword)
@@ -779,18 +780,16 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (res == null || res.VideoInfoItems == null)
             {
-                return AsyncEnumerable.Empty<VideoInfoControlViewModel>();
+				yield break;
             }
             else
             {
-                return res.VideoInfoItems.Where(x => x != null).Select(item =>
+                foreach (var item in res.VideoInfoItems.Where(x => x != null))
                 {
-                    var vm = new VideoInfoControlViewModel(item.Video.Id);
-
-                    vm.SetupDisplay(item);
-                    return vm;
-                })
-                .ToAsyncEnumerable();
+					var vm = new VideoInfoControlViewModel(item.Video.Id);
+					await vm.InitializeAsync(cancellationToken);
+					yield return vm;
+                }
             }
         }
 

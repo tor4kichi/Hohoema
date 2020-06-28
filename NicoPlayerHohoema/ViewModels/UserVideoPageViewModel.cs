@@ -8,7 +8,6 @@ using Mntone.Nico2.Users.User;
 using System.Threading;
 using Prism.Commands;
 using Windows.UI.Xaml.Navigation;
-using System.Collections.Async;
 using NicoPlayerHohoema.Models.Cache;
 using NicoPlayerHohoema.Models.Provider;
 using Unity;
@@ -23,6 +22,7 @@ using NicoPlayerHohoema.Models.Subscription;
 using NicoPlayerHohoema.UseCase;
 using NicoPlayerHohoema.ViewModels.Subscriptions;
 using Reactive.Bindings;
+using System.Runtime.CompilerServices;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -165,7 +165,7 @@ namespace NicoPlayerHohoema.ViewModels
 			_ResList = new List<UserVideoResponse>();
 		}
 
-        protected override async Task<IAsyncEnumerable<VideoInfoControlViewModel>> GetPagedItemsImpl(int start, int count)
+        protected override async IAsyncEnumerable<VideoInfoControlViewModel> GetPagedItemsImpl(int start, int count, [EnumeratorCancellation]CancellationToken cancellationToken)
         {
             var rawPage = ((start) / 30);
             var page = rawPage + 1;
@@ -179,7 +179,7 @@ namespace NicoPlayerHohoema.ViewModels
                 }
                 catch
                 {
-                    return AsyncEnumerable.Empty<VideoInfoControlViewModel>();
+                    yield break;
                 }
                 _ResList.Add(res);
             }
@@ -187,13 +187,12 @@ namespace NicoPlayerHohoema.ViewModels
             var head = start - rawPage * 30;
 
             var items = res.Items.Skip(head).Take(count);
-            return items.Select(x =>
+            foreach (var item in items)
             {
-                var vm = new VideoInfoControlViewModel(x.VideoId);
-                vm.SetupDisplay(x);
-                return vm;
-            })
-            .ToAsyncEnumerable();
+                var vm = new VideoInfoControlViewModel(item.VideoId);
+                await vm.InitializeAsync(cancellationToken);
+                yield return vm;
+            }
         }
 
         protected override Task<int> ResetSourceImpl()
