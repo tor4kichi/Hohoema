@@ -6,7 +6,7 @@ using Hohoema.Models.Provider;
 using Hohoema.Models.Subscription;
 using Hohoema.Repository.Playlist;
 using Hohoema.Services;
-using Hohoema.Services.Page;
+using Hohoema.ViewModels.Pages;
 using Hohoema.UseCase;
 using Hohoema.UseCase.Playlist;
 using Hohoema.ViewModels.Subscriptions;
@@ -52,7 +52,7 @@ namespace Hohoema.ViewModels
             HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
             MylistRepository mylistRepository,
-            ExternalAccessService externalAccessService,
+            ExternalAccessHelper externalAccessService,
             NiconicoFollowToggleButtonService followToggleButtonService,
             ViewModels.Subscriptions.AddSubscriptionCommand addSubscriptionCommand
             )
@@ -110,7 +110,7 @@ namespace Hohoema.ViewModels
         public SubscriptionManager SubscriptionManager { get; }
         public UserMylistManager UserMylistManager { get; }
         public PageManager PageManager { get; }
-        public ExternalAccessService ExternalAccessService { get; }
+        public ExternalAccessHelper ExternalAccessService { get; }
         public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }

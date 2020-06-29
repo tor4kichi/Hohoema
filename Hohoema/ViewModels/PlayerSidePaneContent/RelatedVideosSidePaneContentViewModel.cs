@@ -5,18 +5,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Toolkit.Uwp.UI;
-using Mntone.Nico2.Channels.Video;
 using Hohoema.Models.Helpers;
 using Hohoema.Models;
-using Hohoema.Models.Provider;
-using Hohoema.Services;
-using Unity;
 using Hohoema.Database;
 using Hohoema.UseCase.Playlist;
-using Hohoema.Repository.Playlist;
 using System.Reactive.Concurrency;
 using Reactive.Bindings.Extensions;
-using Hohoema.Interfaces;
+using Hohoema.Models.Repository.Niconico.NicoVideo;
+using Hohoema.Models.Repository.Niconico.Channel;
+using Hohoema.ViewModels.Pages;
+using Hohoema.Models.Repository;
+using Hohoema.Models.Repository.Niconico.Mylist;
 
 namespace Hohoema.ViewModels.PlayerSidePaneContent
 {

@@ -6,18 +6,16 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Collections.ObjectModel;
 using Hohoema.Models.Helpers;
-using Mntone.Nico2.Videos.Histories;
 using Prism.Commands;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Runtime.InteropServices.WindowsRuntime;
-using Hohoema.Models.Provider;
 using Unity;
 using Prism.Navigation;
 using Prism.Unity;
-using Hohoema.Services.Page;
+using Hohoema.ViewModels.Pages;
 using Hohoema.UseCase.Playlist;
 using Hohoema.Interfaces;
 using Hohoema.UseCase.Playlist.Commands;
@@ -33,7 +31,7 @@ namespace Hohoema.ViewModels
             NiconicoSession niconicoSession,
             WatchHistoryManager watchHistoryManager,
             HohoemaPlaylist hohoemaPlaylist,
-            Services.PageManager pageManager,
+            PageManager pageManager,
             WatchHistoryRemoveAllCommand watchHistoryRemoveAllCommand
             )
 		{
@@ -51,7 +49,7 @@ namespace Hohoema.ViewModels
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
-        public Services.PageManager PageManager { get; }
+        public PageManager PageManager { get; }
         public WatchHistoryRemoveAllCommand WatchHistoryRemoveAllCommand { get; }
         public ObservableCollection<HistoryVideoInfoControlViewModel> Histories { get; }
 

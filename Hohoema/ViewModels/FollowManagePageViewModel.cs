@@ -8,18 +8,12 @@ using Prism.Mvvm;
 using Prism.Commands;
 using System.Collections.ObjectModel;
 using System.Threading;
-using System.Windows.Input;
-using Reactive.Bindings.Extensions;
 using Reactive.Bindings;
 using System.Diagnostics;
-using Hohoema.Services;
-using Unity;
-using Unity.Resolution;
-using Prism.Unity;
-using Hohoema.Services.Page;
 using Hohoema.UseCase;
-using Windows.UI.Xaml.Data;
-using Microsoft.Toolkit.Uwp.UI;
+using Hohoema.ViewModels.Pages;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Niconico.Follow;
 
 namespace Hohoema.ViewModels
 {

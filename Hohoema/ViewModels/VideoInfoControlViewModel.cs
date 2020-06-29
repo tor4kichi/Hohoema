@@ -1,7 +1,4 @@
-﻿using Mntone.Nico2;
-using Mntone.Nico2.Mylist;
-using Mntone.Nico2.Searches.Video;
-using Hohoema.Models;
+﻿using Hohoema.Models;
 using Prism.Mvvm;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
@@ -14,34 +11,35 @@ using System.Threading.Tasks;
 using Unity;
 using System.Diagnostics;
 using Windows.UI.Core;
-using Hohoema.Services.Helpers;
-using Hohoema.Models.Cache;
-using Hohoema.Models.Provider;
-using Hohoema.Services;
-using Hohoema.Models.LocalMylist;
-using Hohoema.Models.Subscription;
-using Hohoema.Services.Page;
+using Hohoema.ViewModels.Pages;
 using System.Reactive.Concurrency;
-using Hohoema.Commands.Mylist;
-using Hohoema.Commands;
 using Prism.Commands;
 using Prism.Unity;
-using Hohoema.Interfaces;
 using I18NPortable;
 using Prism.Events;
-using Hohoema.Repository.VideoCache;
 using System.Threading;
+using Hohoema.Models.Repository;
+using Hohoema.UseCase.VideoCache;
+using Hohoema.Models.Repository.App;
+using Hohoema.Models.Repository.Niconico.NicoVideo;
+using Hohoema.Models.Repository.Niconico.Mylist;
+using Hohoema.UseCase.Events;
+using Hohoema.Models.Repository.VideoCache;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.VideoCache;
+using NGResult = Hohoema.Models.Repository.App.NGResult;
+using Hohoema.Database;
 
 namespace Hohoema.ViewModels
 {
 
-    public class VideoInfoControlViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContentWritable
+    public class VideoInfoControlViewModel : HohoemaListingPageItemBase, IVideoContentWritable
     {
         public VideoInfoControlViewModel(Database.NicoVideo data)            
         {
             VideoCacheManager = App.Current.Container.Resolve<VideoCacheManager>();
             NicoVideoProvider = App.Current.Container.Resolve<NicoVideoProvider>();
-            _ngSettings = App.Current.Container.Resolve<NGSettings>();
+            _ngSettings = App.Current.Container.Resolve<VideoListFilterSettings>();
             _cacheManager = App.Current.Container.Resolve<VideoCacheManager>();
             _scheduler = App.Current.Container.Resolve<IScheduler>();
 
@@ -59,14 +57,14 @@ namespace Hohoema.ViewModels
                 ThumbnailUrl = Data.ThumbnailUrl;
             }
 
-            _ngSettings.NGVideoOwnerUserIds.CollectionChanged += NGVideoOwnerUserIds_CollectionChanged;
+            //_ngSettings.NGVideoOwnerUserIds.CollectionChanged += NGVideoOwnerUserIds_CollectionChanged;
         }
 
 
 
         protected override void OnDispose()
         {
-            _ngSettings.NGVideoOwnerUserIds.CollectionChanged -= NGVideoOwnerUserIds_CollectionChanged;
+            //_ngSettings.NGVideoOwnerUserIds.CollectionChanged -= NGVideoOwnerUserIds_CollectionChanged;
             UnsubscriptionWatched();
 
             base.OnDispose();
@@ -80,11 +78,11 @@ namespace Hohoema.ViewModels
         }
 
 
-        void UpdateIsHidenVideoOwner(Interfaces.IVideoContent video)
+        void UpdateIsHidenVideoOwner(IVideoContent video)
         {
-            if (video != null)
+            if (video != null && _ngSettings.IsNgVideo(video, out var ngResult))
             {
-                VideoHiddenInfo = _ngSettings.IsNgVideo(video);
+                VideoHiddenInfo = ngResult;
             }
             else
             {
@@ -100,7 +98,7 @@ namespace Hohoema.ViewModels
         {
             if (Data != null)
             {
-                _ngSettings.RemoveNGVideoOwnerId(Data.ProviderId);
+                _ngSettings.RemoveNgVideoOwner(Data.ProviderId);
             }
 
         }
@@ -127,7 +125,7 @@ namespace Hohoema.ViewModels
 
         public NicoVideoProvider NicoVideoProvider { get; }
         public VideoCacheManager VideoCacheManager { get; }
-        private NGSettings _ngSettings { get; }
+        private VideoListFilterSettings _ngSettings { get; }
         private VideoCacheManager _cacheManager;
         private readonly IScheduler _scheduler;
 
@@ -141,7 +139,7 @@ namespace Hohoema.ViewModels
         public string ProviderName { get; set; }
         public Database.NicoVideoUserType ProviderType { get; set; }
 
-        public Interfaces.IMylist OnwerPlaylist { get; }
+        public IMylist OnwerPlaylist { get; }
 
         public VideoStatus VideoStatus { get; private set; }
 
@@ -179,7 +177,7 @@ namespace Hohoema.ViewModels
         public NicoVideoQuality? CacheProgressQuality { get; private set; }
         public bool IsRequirePayment { get; internal set; }
 
-        private void SubscribeCacheState(Interfaces.IVideoContent video)
+        private void SubscribeCacheState(IVideoContent video)
         {
             UnsubscribeCacheState();
 
@@ -194,7 +192,7 @@ namespace Hohoema.ViewModels
             }
         }
 
-        void ResetCacheRequests(Interfaces.IVideoContent video, CacheRequest cacheRequest)
+        void ResetCacheRequests(IVideoContent video, CacheRequest cacheRequest)
         {
             ClearHandleProgress();
 
@@ -236,7 +234,7 @@ namespace Hohoema.ViewModels
 
         private void _cacheManager_VideoCacheStateChanged(object sender, VideoCacheStateChangedEventArgs e)
         {
-            if (Data is Interfaces.IVideoContent video)
+            if (Data is IVideoContent video)
             {
                 if (e.Request.VideoId == video.Id)
                 {
@@ -254,11 +252,11 @@ namespace Hohoema.ViewModels
             ClearHandleProgress();
         }
 
-        Models.Cache.NicoVideoCacheProgress _progress;
+        NicoVideoCacheProgress _progress;
         
         IDisposable _progressObserver;
         double _totalSizeInverted;
-        private void HandleProgress(Models.Cache.NicoVideoCacheProgress progress)
+        private void HandleProgress(NicoVideoCacheProgress progress)
         {
             HasCacheProgress = true;
             DownloadProgress = default; // nullの時はゲージ表示を曖昧に表現する
@@ -293,21 +291,21 @@ namespace Hohoema.ViewModels
         #endregion
 
 
-        void Watched(UseCase.Playlist.Events.VideoPlayedEvent.VideoPlayedEventArgs args)
+        void Watched(VideoPlayedEvent.VideoPlayedEventArgs args)
         {
-            if (Data is Interfaces.IVideoContent video
+            if (Data is IVideoContent video
                 && video.Id == args.ContentId
                 )
             {
                 IsWatched = true;
                 var eventAggregator = App.Current.Container.Resolve<IEventAggregator>();
-                var palyedEvent = eventAggregator.GetEvent<UseCase.Playlist.Events.VideoPlayedEvent>();
+                var palyedEvent = eventAggregator.GetEvent<VideoPlayedEvent>();
                 palyedEvent.Unsubscribe(_watchedDisposable);
                 _watchedDisposable = null;
             }
         }
 
-        void SubscriptionWatchedIfNotWatch(Interfaces.IVideoContent video)
+        void SubscriptionWatchedIfNotWatch(IVideoContent video)
         {
             UnsubscriptionWatched();
 
@@ -318,7 +316,7 @@ namespace Hohoema.ViewModels
                 if (!watched)
                 {
                     var eventAggregator = App.Current.Container.Resolve<IEventAggregator>();
-                    var palyedEvent = eventAggregator.GetEvent<UseCase.Playlist.Events.VideoPlayedEvent>();
+                    var palyedEvent = eventAggregator.GetEvent<VideoPlayedEvent>();
                     _watchedDisposable = palyedEvent.Subscribe(Watched, ThreadOption.UIThread);
                 }
             }
@@ -407,7 +405,7 @@ namespace Hohoema.ViewModels
                 // タイトルをチェック
                 if (!_isTitleNgCheckProcessed && !string.IsNullOrEmpty(info.Title))
                 {
-                    ngResult = _ngSettings.IsNGVideoTitle(info.Title);
+                    _ngSettings.IsNgVideoTitle(info.Title, out ngResult);
                     _isTitleNgCheckProcessed = true;
                 }
 
@@ -417,7 +415,7 @@ namespace Hohoema.ViewModels
                     !string.IsNullOrEmpty(info.Owner?.OwnerId)
                     )
                 {
-                    ngResult = _ngSettings.IsNgVideoOwnerId(info.Owner.OwnerId);
+                    _ngSettings.IsNgVideoOwner(info.Owner.OwnerId, out ngResult);
                     _isOwnerIdNgCheckProcessed = true;
                 }
 
@@ -507,45 +505,6 @@ namespace Hohoema.ViewModels
 			};
 		}
 
-
-
-        
-        public void SetupDisplay(Mntone.Nico2.Users.Video.VideoData data)
-        {
-            if (data.VideoId != RawVideoId) { throw new Exception(); }
-
-            SetTitle(data.Title);
-            SetThumbnailImage(data.ThumbnailUrl.OriginalString);
-            SetSubmitDate(data.SubmitTime);
-            SetVideoDuration(data.Length);
-        }
-
-
-        // とりあえずマイリストから取得したデータによる初期化
-        public void SetupDisplay(MylistData data)
-        {
-            if (data.WatchId != RawVideoId) { throw new Exception(); }
-
-            SetTitle(data.Title);
-            SetThumbnailImage(data.ThumbnailUrl.OriginalString);
-            SetSubmitDate(data.CreateTime);
-            SetVideoDuration(data.Length);
-            SetDescription((int)data.ViewCount, (int)data.CommentCount, (int)data.MylistCount);
-        }
-
-
-        // 個別マイリストから取得したデータによる初期化
-        public void SetupDisplay(VideoInfo data)
-        {
-            if (data.Video.Id != RawVideoId) { throw new Exception(); }
-
-
-            SetTitle(data.Video.Title);
-            SetThumbnailImage(data.Video.ThumbnailUrl.OriginalString);
-            SetSubmitDate(data.Video.UploadTime);
-            SetVideoDuration(data.Video.Length);
-            SetDescription((int)data.Video.ViewCount, (int)data.Thread.GetCommentCount(), (int)data.Video.MylistCount);
-        }
 
     }
 

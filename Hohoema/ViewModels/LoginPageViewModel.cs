@@ -1,7 +1,7 @@
 ﻿using Hohoema.Models;
 using Hohoema.Models.Helpers;
 using Hohoema.Services;
-using Hohoema.Services.Page;
+using Hohoema.ViewModels.Pages;
 using Hohoema.UseCase;
 using Prism.Navigation;
 using Reactive.Bindings;
@@ -9,6 +9,9 @@ using System;
 using System.Linq;
 using System.Reactive.Linq;
 using System.Threading.Tasks;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Pages.PagePayload;
+using Hohoema.Models.Niconico.Account;
 
 namespace Hohoema.ViewModels
 {
@@ -123,9 +126,9 @@ namespace Hohoema.ViewModels
             IsServiceUnavailable.Value = false;
 
             var result = await NiconicoSession.SignIn(Mail.Value, Password.Value, withClearAuthenticationCache:true);
-            IsValidAccount.Value = result == Mntone.Nico2.NiconicoSignInStatus.Success;
-            IsAuthoricationFailed.Value = result == Mntone.Nico2.NiconicoSignInStatus.Failed;
-            IsServiceUnavailable.Value = result == Mntone.Nico2.NiconicoSignInStatus.ServiceUnavailable;
+            IsValidAccount.Value = result == NiconicoSignInStatus.Success;
+            IsAuthoricationFailed.Value = result == NiconicoSignInStatus.Failed;
+            IsServiceUnavailable.Value = result == NiconicoSignInStatus.ServiceUnavailable;
 
 
             if (IsValidAccount.Value)

@@ -12,7 +12,7 @@ using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-using Hohoema.Services.Page;
+using Hohoema.ViewModels.Pages;
 using Hohoema.Models.Provider;
 using Unity;
 using Hohoema.UseCase;
@@ -25,7 +25,7 @@ namespace Hohoema.ViewModels
         public SearchSummaryPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
             SearchProvider searchProvider,
-            Services.PageManager pageManager
+            PageManager pageManager
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -210,6 +210,6 @@ namespace Hohoema.ViewModels
         public AppearanceSettings AppearanceSettings { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public SearchProvider SearchProvider { get; }
-        public Services.PageManager PageManager { get; }
+        public PageManager PageManager { get; }
     }
 }

@@ -10,20 +10,20 @@ using Mntone.Nico2;
 using Reactive.Bindings;
 using System.Reactive.Linq;
 using Reactive.Bindings.Extensions;
-using Hohoema.Services.Page;
+using Hohoema.ViewModels.Pages;
 using Hohoema.Models.Provider;
 using Unity;
 using Hohoema.Services;
 using Prism.Navigation;
 using Hohoema.UseCase.Playlist;
-using Hohoema.UseCase.NicoVideoPlayer.Commands;
 using Hohoema.Interfaces;
 using Hohoema.UseCase;
 using I18NPortable;
 using Hohoema.Models.Live;
-using Mntone.Nico2.Live;
 using System.Threading;
 using System.Runtime.CompilerServices;
+using Hohoema.ViewModels.Player.Commands;
+using Hohoema.Models.Repository.Niconico;
 
 namespace Hohoema.ViewModels
 {
@@ -48,7 +48,7 @@ namespace Hohoema.ViewModels
             ApplicationLayoutManager applicationLayoutManager,
             Models.NiconicoSession niconicoSession,
             SearchProvider searchProvider,
-            Services.PageManager pageManager,
+            PageManager pageManager,
             HohoemaPlaylist hohoemaPlaylist,
             OpenLiveContentCommand openLiveContentCommand
             )

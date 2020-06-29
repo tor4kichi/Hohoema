@@ -8,7 +8,7 @@ using Reactive.Bindings.Extensions;
 using Prism.Commands;
 using Mntone.Nico2;
 using System.Reactive.Linq;
-using Hohoema.Services.Page;
+using Hohoema.ViewModels.Pages;
 using Hohoema.Models.Subscription;
 using Hohoema.Models.Provider;
 using Hohoema.Services;
@@ -44,7 +44,7 @@ namespace Hohoema.ViewModels
             SearchProvider searchProvider,
             SubscriptionManager subscriptionManager,
             HohoemaPlaylist hohoemaPlaylist,
-            Services.PageManager pageManager,
+            PageManager pageManager,
             ViewModels.Subscriptions.AddKeywordSearchSubscriptionCommand addKeywordSearchSubscriptionCommand
             )
         {

@@ -6,7 +6,7 @@ using Mntone.Nico2.Videos.Recommend;
 using Hohoema.Models.Helpers;
 using Hohoema.Models;
 using Prism.Commands;
-using Hohoema.Services.Page;
+using Hohoema.ViewModels.Pages;
 using Hohoema.Models.Provider;
 using Unity;
 using Reactive.Bindings.Extensions;
@@ -27,7 +27,7 @@ namespace Hohoema.ViewModels
             NGSettings ngSettings,
             LoginUserRecommendProvider loginUserRecommendProvider,
             HohoemaPlaylist hohoemaPlaylist,
-            Services.PageManager pageManager
+            PageManager pageManager
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -41,7 +41,7 @@ namespace Hohoema.ViewModels
         public NGSettings NgSettings { get; }
         public LoginUserRecommendProvider LoginUserRecommendProvider { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
-        public Services.PageManager PageManager { get; }
+        public PageManager PageManager { get; }
         public ReadOnlyObservableCollection<NicoVideoTag> RecommendSourceTags { get; private set; }
         
         protected override IIncrementalSource<RecommendVideoListItem> GenerateIncrementalSource()

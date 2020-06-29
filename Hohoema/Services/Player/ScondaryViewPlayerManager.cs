@@ -1,5 +1,4 @@
-﻿using Hohoema.ViewModels;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -14,8 +13,6 @@ using Windows.UI.Core;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
 using Unity;
-using Hohoema.Models.Cache;
-using Hohoema.Services.Page;
 using System.Reactive.Concurrency;
 using Prism.Mvvm;
 using Microsoft.Toolkit.Uwp.Helpers;
@@ -31,8 +28,10 @@ using Windows.UI.Xaml.Media.Animation;
 using Prism.Services;
 using Hohoema.UseCase.Playlist;
 using Hohoema.Interfaces;
+using Hohoema.Models.Repository;
+using Hohoema.Models.Helpers;
 
-namespace Hohoema.Services
+namespace Hohoema.Services.Player
 {
     public sealed class ScondaryViewPlayerManager : FixPrism.BindableBase
     {
@@ -148,7 +147,7 @@ namespace Hohoema.Services
                             }
                             else
                             {
-                                App.Current.Exit();
+                                SecondaryAppView.TryConsolidateAsync();
                             }
                         }
                     });
@@ -191,7 +190,7 @@ namespace Hohoema.Services
                 await ApplicationViewSwitcher.TryShowAsStandaloneAsync(id, ViewSizePreference.UseHalf, MainViewId, ViewSizePreference.UseHalf);
                 
                 // ウィンドウサイズの保存と復元
-                if (Services.Helpers.DeviceTypeHelper.IsDesktop)
+                if (DeviceTypeHelper.IsDesktop)
                 {
                     var localObjectStorageHelper = App.Current.Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
                     if (localObjectStorageHelper.KeyExists(secondary_view_size))
@@ -257,7 +256,7 @@ namespace Hohoema.Services
             });
         }
 
-        static Interfaces.INiconicoContent _CurrentPlayContent { get; set; }
+        static INiconicoContent _CurrentPlayContent { get; set; }
 
         bool _onceSurpressActivation;
         public void OnceSurpressActivation()
@@ -310,14 +309,6 @@ namespace Hohoema.Services
                 {
                     var videoData = Database.NicoVideoDb.Get(videoId);
                     return videoData.Title;
-                }
-            }
-            else if (pageName == nameof(Views.LivePlayerPage))
-            {
-                if (parameters.TryGetValue("id", out string liveId))
-                {
-                    var liveData = Database.NicoLiveDb.Get(liveId);
-                    return liveData.Title;
                 }
             }
 

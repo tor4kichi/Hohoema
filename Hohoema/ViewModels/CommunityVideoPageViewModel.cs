@@ -1,35 +1,31 @@
-﻿using Hohoema.Models;
+﻿using Hohoema.Interfaces;
+using Hohoema.Models;
 using Hohoema.Models.Helpers;
+using Hohoema.Models.Pages;
+using Hohoema.Models.Repository.Niconico;
+using Hohoema.Models.Repository.Niconico.Community;
+using Hohoema.Services;
+using Hohoema.ViewModels.Pages;
+using Hohoema.UseCase;
+using Prism.Commands;
+using Prism.Navigation;
+using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Threading;
-using Mntone.Nico2;
-using Mntone.Nico2.Communities.Detail;
 using System.Diagnostics;
-using Mntone.Nico2.Videos.Ranking;
-using Prism.Commands;
-using System.Windows.Input;
-using Hohoema.Interfaces;
-using Hohoema.Models.Provider;
-using Hohoema.Services;
-using Prism.Navigation;
-using Hohoema.Services.Page;
-using Hohoema.UseCase.Playlist;
-using Reactive.Bindings.Extensions;
+using System.Linq;
 using System.Reactive.Linq;
-using I18NPortable;
-using Hohoema.UseCase;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Hohoema.ViewModels
 {
-	public class CommunityVideoPageViewModel : HohoemaListingPageViewModelBase<CommunityVideoInfoViewModel>, IPinablePage, ITitleUpdatablePage
+    public class CommunityVideoPageViewModel : HohoemaListingPageViewModelBase<CommunityVideoInfoViewModel>, IPinablePage, ITitleUpdatablePage
 	{
-		HohoemaPin IPinablePage.GetPin()
+		Models.Pages.HohoemaPin IPinablePage.GetPin()
 		{
-			return new HohoemaPin()
+			return new Models.Pages.HohoemaPin()
 			{
 				Label = CommunityName,
 				PageType = HohoemaPageType.CommunityVideo,
@@ -45,7 +41,7 @@ namespace Hohoema.ViewModels
 		public CommunityVideoPageViewModel(
 			ApplicationLayoutManager applicationLayoutManager,
 			CommunityProvider communityProvider,
-            Services.PageManager pageManager
+            PageManager pageManager
 			)
         {
 			ApplicationLayoutManager = applicationLayoutManager;
@@ -83,7 +79,7 @@ namespace Hohoema.ViewModels
                 try
                 {
                     var res = await CommunityProvider.GetCommunityDetail(CommunityId);
-                    CommunityDetail = res.CommunitySammary.CommunityDetail;
+                    CommunityDetail = res;
 
                     CommunityName = CommunityDetail.Name;
                 }
@@ -152,7 +148,7 @@ namespace Hohoema.ViewModels
 			return Task.FromResult(VideoCount);
 		}
 
-		protected override async IAsyncEnumerable<CommunityVideoInfoViewModel> GetPagedItemsImpl(int head, int count, CancellationToken cancellationToken)
+		protected override async IAsyncEnumerable<CommunityVideoInfoViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken cancellationToken)
 		{
 			if (count >= VideoCount)
 			{

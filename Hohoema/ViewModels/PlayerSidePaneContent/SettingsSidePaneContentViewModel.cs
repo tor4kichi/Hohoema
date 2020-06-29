@@ -1,4 +1,6 @@
 ﻿using Hohoema.Models;
+using Hohoema.Models.Repository.App;
+using Hohoema.Models.Repository.Playlist;
 using Hohoema.UseCase.NicoVideoPlayer;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -20,18 +22,15 @@ namespace Hohoema.ViewModels.PlayerSidePaneContent
     public class SettingsSidePaneContentViewModel : SidePaneContentViewModelBase
     {
         public SettingsSidePaneContentViewModel(
-            NGSettings ngSettings, 
-            PlayerSettings playerSettings,
             CommentFiltering commentFiltering,
             IScheduler scheduler
             )
         {
-            PlayerSettings = playerSettings;
             CommentFiltering = commentFiltering;
             _scheduler = scheduler;
 
 
-            FilteringKeywords = new ObservableCollection<Repository.CommentFliteringRepository.FilteringCommentTextKeyword>(CommentFiltering.GetAllFilteringCommentTextCondition());
+            FilteringKeywords = new ObservableCollection<CommentFliteringRepository.FilteringCommentTextKeyword>(CommentFiltering.GetAllFilteringCommentTextCondition());
             Observable.FromEventPattern<CommentFiltering.FilteringCommentTextKeywordEventArgs>(
                 h => CommentFiltering.FilterKeywordAdded += h,
                 h => CommentFiltering.FilterKeywordAdded -= h
@@ -53,7 +52,7 @@ namespace Hohoema.ViewModels.PlayerSidePaneContent
                 .AddTo(_CompositeDisposable);
 
             // 
-            VideoCommentTransformConditions = new ObservableCollection<Repository.CommentFliteringRepository.CommentTextTransformCondition>(CommentFiltering.GetTextTranformConditions());
+            VideoCommentTransformConditions = new ObservableCollection<CommentFliteringRepository.CommentTextTransformCondition>(CommentFiltering.GetTextTranformConditions());
             Observable.FromEventPattern<CommentFiltering.CommentTextTranformConditionChangedArgs>(
                 h => CommentFiltering.TransformConditionAdded += h,
                 h => CommentFiltering.TransformConditionAdded -= h
@@ -80,11 +79,9 @@ namespace Hohoema.ViewModels.PlayerSidePaneContent
             throw new NotImplementedException();
         }
 
-        public ObservableCollection<Repository.CommentFliteringRepository.FilteringCommentTextKeyword> FilteringKeywords { get; }
-        public ObservableCollection<Repository.CommentFliteringRepository.CommentTextTransformCondition> VideoCommentTransformConditions { get; }
+        public ObservableCollection<CommentFliteringRepository.FilteringCommentTextKeyword> FilteringKeywords { get; }
+        public ObservableCollection<CommentFliteringRepository.CommentTextTransformCondition> VideoCommentTransformConditions { get; }
 
-
-        public PlayerSettings PlayerSettings { get; }
 
         public CommentFiltering CommentFiltering { get; }
         private readonly IScheduler _scheduler;
@@ -93,13 +90,6 @@ namespace Hohoema.ViewModels.PlayerSidePaneContent
         {
             base.OnDispose();
         }
-
-        private void OnRemoveNGCommentUserIdFromList(string userId)
-        {
-            var removeTarget = PlayerSettings.NGCommentUserIds.First(x => x.UserId == userId);
-            PlayerSettings.NGCommentUserIds.Remove(removeTarget);
-        }
-
     }
 
 

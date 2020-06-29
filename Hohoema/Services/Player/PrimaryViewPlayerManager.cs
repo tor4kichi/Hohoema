@@ -93,7 +93,7 @@ namespace Hohoema.Services.Player
 
         string ResolveContentName(string pageName, INavigationParameters parameters)
         {
-            if (pageName == nameof(Views.VideoPlayerPage))
+            if (pageName == "VideoPlayerPage")
             {
                 if (parameters.TryGetValue("id", out string videoId))
                 {
@@ -101,7 +101,7 @@ namespace Hohoema.Services.Player
                     return videoData.Title;
                 }
             }
-            else if (pageName == nameof(Views.LivePlayerPage))
+            else if (pageName == "LivePlayerPage")
             {
                 if (parameters.TryGetValue("id", out string liveId))
                 {
@@ -188,7 +188,7 @@ namespace Hohoema.Services.Player
                 //_view.ExitFullScreenMode();
             }
 
-            _navigationService.NavigateAsync(nameof(Views.BlankPage));
+            _navigationService.NavigateAsync("BlankPage");
         }
 
         void SetFill(PrimaryPlayerDisplayMode currentMode)

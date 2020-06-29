@@ -4,28 +4,36 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Mntone.Nico2.Channels.Video;
 using Hohoema.Models.Helpers;
 using Hohoema.Models;
 using Prism.Commands;
-using Windows.UI;
-using Hohoema.Models.Provider;
-using Unity;
 using Hohoema.Interfaces;
 using Prism.Navigation;
-using Hohoema.Services.Page;
 using Hohoema.Services;
 using Hohoema.UseCase.Playlist;
 using Reactive.Bindings.Extensions;
+
 using Hohoema.UseCase;
+using Hohoema.Models.Pages;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Repository.Niconico.Channel;
+using Hohoema.Models.Repository.Niconico;
+using Hohoema.Models.Repository;
+using System.Runtime.CompilerServices;
+using Hohoema.ViewModels.Pages;
 
 namespace Hohoema.ViewModels
 {
-    public sealed class ChannelVideoPageViewModel : HohoemaListingPageViewModelBase<ChannelVideoListItemViewModel>, Interfaces.IChannel, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public sealed class ChannelVideoPageViewModel 
+        : HohoemaListingPageViewModelBase<ChannelVideoListItemViewModel>,
+        IChannel,
+        INavigatedAwareAsync, 
+        IPinablePage, 
+        ITitleUpdatablePage
     {
-        HohoemaPin IPinablePage.GetPin()
+        Models.Pages.HohoemaPin IPinablePage.GetPin()
         {
-            return new HohoemaPin()
+            return new Models.Pages.HohoemaPin()
             {
                 Label = ChannelName,
                 PageType = HohoemaPageType.ChannelVideo,
@@ -44,7 +52,6 @@ namespace Hohoema.ViewModels
             ChannelProvider channelProvider,
             PageManager pageManager,
             HohoemaPlaylist hohoemaPlaylist,
-            ExternalAccessService externalAccessService,
             NiconicoFollowToggleButtonService followToggleButtonService
             )
         {
@@ -53,7 +60,6 @@ namespace Hohoema.ViewModels
             ChannelProvider = channelProvider;
             PageManager = pageManager;
             HohoemaPlaylist = hohoemaPlaylist;
-            ExternalAccessService = externalAccessService;
             FollowToggleButtonService = followToggleButtonService;
         }
 
@@ -115,8 +121,8 @@ namespace Hohoema.ViewModels
                     ChannelId = channelInfo.ChannelId;
                     ChannelName = channelInfo.Name;
                     ChannelScreenName = channelInfo.ScreenName;
-                    ChannelOpenTime = channelInfo.ParseOpenTime();
-                    ChannelUpdateTime = channelInfo.ParseUpdateTime();
+                    ChannelOpenTime = channelInfo.OpenTime;
+                    ChannelUpdateTime = channelInfo.UpdateTime;
                 }
                 catch
                 {
@@ -151,11 +157,10 @@ namespace Hohoema.ViewModels
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public NiconicoSession NiconicoSession { get; }
-        public Models.Provider.ChannelProvider ChannelProvider { get; }
-        public Services.PageManager PageManager { get; }
+        public ChannelProvider ChannelProvider { get; }
+        public PageManager PageManager { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
-        public Services.ExternalAccessService ExternalAccessService { get; }
-        public Services.NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
+        public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
         
         string INiconicoObject.Id => RawChannelId;
 
@@ -164,8 +169,6 @@ namespace Hohoema.ViewModels
 
     public sealed class ChannelVideoListItemViewModel : VideoInfoControlViewModel
     {
-        public bool IsRequirePayment { get; internal set; }
-
         public ChannelVideoListItemViewModel(
             string rawVideoId
             )
@@ -200,7 +203,7 @@ namespace Hohoema.ViewModels
 
         bool _IsEndPage = false;
 
-        protected override async IAsyncEnumerable<ChannelVideoListItemViewModel> GetPagedItemsImpl(int head, int count, CancellationToken cancellationToken)
+        protected override async IAsyncEnumerable<ChannelVideoListItemViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation]CancellationToken cancellationToken)
         {
             if (_FirstResponse == null)
             {

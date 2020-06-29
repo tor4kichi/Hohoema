@@ -14,7 +14,7 @@ using Mntone.Nico2;
 using Mntone.Nico2.Searches.Video;
 using Mntone.Nico2.Searches.Community;
 using Mntone.Nico2.Searches.Live;
-using Hohoema.Services.Page;
+using Hohoema.ViewModels.Pages;
 using Hohoema.Models.Provider;
 using Unity;
 using Hohoema.Services;
@@ -30,7 +30,7 @@ namespace Hohoema.ViewModels
 			ApplicationLayoutManager applicationLayoutManager,
 			Models.NiconicoSession niconicoSession,
             SearchProvider searchProvider,
-            Services.PageManager pageManager
+            PageManager pageManager
             )
         {
 			ApplicationLayoutManager = applicationLayoutManager;

@@ -11,7 +11,7 @@ using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Provider;
 using Hohoema.Services;
 using Hohoema.Services.Helpers;
-using Hohoema.Services.Page;
+using Hohoema.ViewModels.Pages;
 using Hohoema.UseCase;
 using Hohoema.UseCase.NicoVideoPlayer;
 using Hohoema.UseCase.Playlist;
@@ -77,7 +77,7 @@ namespace Hohoema.ViewModels
             MediaPlayer mediaPlayer,
             NotificationService notificationService,
             DialogService dialogService,
-            ExternalAccessService externalAccessService,
+            ExternalAccessHelper externalAccessService,
             ViewModels.Subscriptions.AddSubscriptionCommand addSubscriptionCommand,
             Commands.Mylist.CreateLocalMylistCommand createLocalMylistCommand,
             Commands.Mylist.CreateMylistCommand createMylistCommand,
@@ -176,7 +176,7 @@ namespace Hohoema.ViewModels
         public VideoEndedRecommendation VideoEndedRecommendation { get; }
         public INicoVideoDetails VideoDetails { get; private set; }
         public PlayerSettings PlayerSettings { get; }
-        public ExternalAccessService ExternalAccessService { get; }
+        public ExternalAccessHelper ExternalAccessService { get; }
 
         public MediaPlayerSeekCommand SeekCommand { get; }
         public MediaPlayerSetPlaybackRateCommand SetPlaybackRateCommand { get; }

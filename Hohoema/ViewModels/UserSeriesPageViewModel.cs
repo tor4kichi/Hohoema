@@ -8,7 +8,7 @@ using Hohoema.Interfaces;
 using Hohoema.Models.Provider;
 using Hohoema.Repository.NicoVideo;
 using Hohoema.Services;
-using Hohoema.Services.Page;
+using Hohoema.ViewModels.Pages;
 using Hohoema.UseCase.Page.Commands;
 using Hohoema.UseCase.Playlist;
 using Hohoema.ViewModels.Subscriptions;

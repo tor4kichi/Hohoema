@@ -1,4 +1,5 @@
-﻿using Prism.Events;
+﻿using Hohoema.Models.Repository.Niconico.NicoVideoRanking;
+using Prism.Events;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,13 +10,13 @@ namespace Hohoema.Events
 {
     public class RankingGenreCustomizeEventArgs
     {
-        public Mntone.Nico2.Videos.Ranking.RankingGenre RankingGenre { get; set; }
+        public RankingGenre RankingGenre { get; set; }
         public string Tag { get; set; }
     }
 
     public class RankingGenreFavoriteRequestEventArgs
     {
-        public Mntone.Nico2.Videos.Ranking.RankingGenre RankingGenre { get; set; }
+        public RankingGenre RankingGenre { get; set; }
         public string Tag { get; set; }
         public string Label { get; set; }
     }

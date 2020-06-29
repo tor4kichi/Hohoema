@@ -1,13 +1,18 @@
-﻿using Mntone.Nico2.Communities.Detail;
-using Mntone.Nico2.Communities.Info;
-using Mntone.Nico2.Live;
-using Hohoema.Interfaces;
+﻿using Hohoema.Interfaces;
 using Hohoema.Models;
+using Hohoema.Models.Niconico.Follow;
+using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.Niconico.Video;
-using Hohoema.Models.Provider;
+using Hohoema.Models.Pages;
+using Hohoema.Models.Repository;
+using Hohoema.Models.Repository.App;
+using Hohoema.Models.Repository.Niconico;
+using Hohoema.Models.Repository.Niconico.Community;
+using Hohoema.Models.Repository.Niconico.Follow;
 using Hohoema.Services;
-using Hohoema.Services.Page;
+using Hohoema.ViewModels.Pages;
 using Hohoema.UseCase;
+using Hohoema.ViewModels.Pages;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;
@@ -19,15 +24,20 @@ using System.Reactive.Linq;
 using System.Threading.Tasks;
 using Windows.System;
 using Windows.UI.Xaml;
-using NiconicoSession = Hohoema.Models.NiconicoSession;
+using NiconicoSession = Hohoema.Models.Niconico.NiconicoSession;
 
 namespace Hohoema.ViewModels
 {
-    public class CommunityPageViewModel : HohoemaViewModelBase, ICommunity, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public class CommunityPageViewModel 
+        : HohoemaViewModelBase,
+        ICommunity, 
+        INavigatedAwareAsync, 
+        IPinablePage, 
+        ITitleUpdatablePage
 	{
-        HohoemaPin IPinablePage.GetPin()
+        Models.Pages.HohoemaPin IPinablePage.GetPin()
         {
-            return new HohoemaPin()
+            return new Models.Pages.HohoemaPin()
             {
                 Label = CommunityName,
                 PageType = HohoemaPageType.Community,
@@ -42,8 +52,8 @@ namespace Hohoema.ViewModels
 
         public CommunityPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
-            AppearanceSettings appearanceSettings,
-            Services.PageManager pageManager,
+            AppearanceSettingsRepository appearanceSettings,
+            PageManager pageManager,
             NiconicoSession niconicoSession,
             CommunityFollowProvider followProvider,
             CommunityProvider communityProvider,
@@ -52,7 +62,7 @@ namespace Hohoema.ViewModels
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
-            _appearanceSettings = appearanceSettings;
+            AppearanceSettings = appearanceSettings;
             PageManager = pageManager;
             NiconicoSession = niconicoSession;
             FollowProvider = followProvider;
@@ -74,15 +84,15 @@ namespace Hohoema.ViewModels
 
 		public bool IsOfficial => CommunityInfo?.IsOfficial ?? false;
 
-		public uint MaxUserCount => CommunityInfo?.UserMax ?? 0;
+		public int MaxUserCount => CommunityInfo?.UserMax ?? 0;
 
-		public uint UserCount => CommunityInfo?.UserCount ?? 0;
+		public int UserCount => CommunityInfo?.UserCount ?? 0;
 
-		public uint CommunityLevel => CommunityInfo?.Level ?? 0;
+		public int CommunityLevel => CommunityInfo?.Level ?? 0;
 
 		public DateTime CreatedAt => CommunityInfo?.CreateTime ?? DateTime.MinValue;
 
-		public string ThumbnailUrl => CommunityInfo?.Thumbnail;
+		public string ThumbnailUrl => CommunityInfo?.ThumbnailUrl;
 
 		public Uri TopUrl => CommunityInfo?.TopUrl != null ? new Uri(CommunityInfo.TopUrl) : null;
 
@@ -170,9 +180,9 @@ namespace Hohoema.ViewModels
 
                     var res = await CommunityProvider.GetCommunityInfo(CommunityId);
 
-                    if (res == null || !res.IsStatusOK) { return; }
+                    if (res == null) { return; }
 
-                    CommunityInfo = res.Community;
+                    CommunityInfo = res;
 
                     RaisePropertyChanged(nameof(CommunityName));
                     RaisePropertyChanged(nameof(IsPublic));
@@ -189,9 +199,9 @@ namespace Hohoema.ViewModels
 
                     var detail = await CommunityProvider.GetCommunityDetail(CommunityId);
 
-                    if (detail == null && !detail.IsStatusOK) { return; }
+                    if (detail == null) { return; }
 
-                    CommunityDetail = detail.CommunitySammary.CommunityDetail;
+                    CommunityDetail = detail;
 
                     ApplicationTheme appTheme;
                     if (_appearanceSettings.Theme == ElementTheme.Dark)
@@ -228,7 +238,7 @@ namespace Hohoema.ViewModels
                     NewsList = new List<CommunityNewsViewModel>();
                     foreach (var news in CommunityDetail.NewsList)
                     {
-                        var newsVM = await CommunityNewsViewModel.Create(CommunityId, news.Title, news.PostAuthor, news.PostDate, news.ContentHtml, PageManager, _appearanceSettings);
+                        var newsVM = await CommunityNewsViewModel.Create(CommunityId, news.Title, news.PostAuthor, news.PostDate, news.ContentHtml, PageManager, AppearanceSettings);
                         NewsList.Add(newsVM);
                     }
 
@@ -343,9 +353,10 @@ namespace Hohoema.ViewModels
 		}
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
+        public AppearanceSettingsRepository AppearanceSettings { get; }
         public PageManager PageManager { get; }
         public NiconicoSession NiconicoSession { get; }
-        public Models.Provider.CommunityFollowProvider FollowProvider { get; }
+        public CommunityFollowProvider FollowProvider { get; }
         public CommunityProvider CommunityProvider { get; }
         public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
 
@@ -365,7 +376,7 @@ namespace Hohoema.ViewModels
 				{
 					CanNotFollowReason = "参加には承認が必要";
 				}
-				else if (CommunityInfo.option_flag_details.CommunityPrivUserAuth == "1")
+				else if (CommunityInfo.CommunityPrivUserAuth == "1")
 				{
 					CanNotFollowReason = "参加には個人情報公開が必要";
 				}
@@ -380,7 +391,7 @@ namespace Hohoema.ViewModels
     }
 
 
-	public class CurrentLiveInfoViewModel : Interfaces.ILiveContent
+	public class CurrentLiveInfoViewModel : ILiveContent
     {
 		public string LiveTitle { get; private set; }
 		public string LiveId { get; private set; }
@@ -402,7 +413,7 @@ namespace Hohoema.ViewModels
 
         public string ProviderName { get; }
 
-        public CommunityType ProviderType => CommunityType.Community;
+        public LiveProviderType ProviderType => LiveProviderType.User;
     }
 
 
@@ -414,8 +425,8 @@ namespace Hohoema.ViewModels
 			string authorName, 
 			DateTime postAt, 
 			string contentHtml,
-            Services.PageManager pageManager,
-            AppearanceSettings appearanceSettings
+            PageManager pageManager,
+            AppearanceSettingsRepository appearanceSettings
 			)
 		{
             ApplicationTheme appTheme;
@@ -443,7 +454,7 @@ namespace Hohoema.ViewModels
             string authorName,
             DateTime postAt,
             Uri htmlUri,
-            Services.PageManager pageManager
+            PageManager pageManager
             )
         {
             CommunityId = communityId;
@@ -460,7 +471,7 @@ namespace Hohoema.ViewModels
 		public DateTime PostAt { get; private set; }
 		public Uri ContentHtmlFileUri { get; private set; }
 
-		public Services.PageManager PageManager { get; private set; }
+		public PageManager PageManager { get; private set; }
 
 		
 
@@ -483,7 +494,7 @@ namespace Hohoema.ViewModels
 	}
 
 
-	public class UserInfoViewModel : Interfaces.IUser
+	public class UserInfoViewModel : IUser
 	{
         public UserInfoViewModel(string name, string id, string iconUrl = null)
         {
@@ -503,7 +514,7 @@ namespace Hohoema.ViewModels
         string INiconicoObject.Label => Name;
     }
 
-	public class CommunityLiveInfoViewModel : Interfaces.ILiveContent
+	public class CommunityLiveInfoViewModel : ILiveContent
 	{
         public CommunityLiveInfoViewModel(LiveInfo info)
         {
@@ -535,10 +546,10 @@ namespace Hohoema.ViewModels
 
         public string ProviderName => StreamerName;
 
-        public CommunityType ProviderType => CommunityType.Official;
+        public LiveProviderType ProviderType => LiveProviderType.User;
     }
 
-	public class CommunityVideoInfoViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContent
+	public class CommunityVideoInfoViewModel : HohoemaListingPageItemBase, IVideoContent
     {
         public string Title { get; }
 
@@ -577,7 +588,7 @@ namespace Hohoema.ViewModels
             ThumbnailUrl = info.ThumbnailUrl;
         }
 
-        public CommunityVideoInfoViewModel(Mntone.Nico2.RssVideoData rssVideoData)
+        public CommunityVideoInfoViewModel(RssVideoData rssVideoData)
         {
             Title = rssVideoData.RawTitle;
             Id = rssVideoData.WatchPageUrl.OriginalString.Split('/').Last();

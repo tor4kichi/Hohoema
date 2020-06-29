@@ -9,7 +9,7 @@ using Prism.Commands;
 using Mntone.Nico2;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
-using Hohoema.Services.Page;
+using Hohoema.ViewModels.Pages;
 using Hohoema.Models.Provider;
 using Hohoema.Services;
 using Prism.Navigation;
@@ -42,7 +42,7 @@ namespace Hohoema.ViewModels
         public SearchResultMylistPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
             SearchProvider searchProvider,
-            Services.PageManager pageManager
+            PageManager pageManager
             )
         {
             SelectedSearchSort = new ReactivePropertySlim<SearchSortOptionListItem>();

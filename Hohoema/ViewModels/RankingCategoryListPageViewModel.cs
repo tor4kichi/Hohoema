@@ -1,5 +1,4 @@
-﻿using Mntone.Nico2.Videos.Ranking;
-using Reactive.Bindings;
+﻿using Reactive.Bindings;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -11,7 +10,7 @@ using Microsoft.Toolkit.Uwp.UI;
 using Hohoema.Services.Helpers;
 using Hohoema.Services;
 using Prism.Navigation;
-using Hohoema.Services.Page;
+using Hohoema.ViewModels.Pages;
 using Windows.UI.Xaml.Data;
 using Prism.Mvvm;
 using Prism.Events;
@@ -22,6 +21,10 @@ using I18NPortable;
 using Hohoema.Repository;
 using System.Threading.Tasks;
 using Hohoema.Models.Provider;
+using Hohoema.Models.Repository.NicoVideoRanking;
+
+using RankingSettings = Hohoema.UseCase.NicoVideoRanking.RankingSettings;
+using RankingGenreTag = Hohoema.Models.Repository.NicoVideoRanking.RankingGenreTag;
 
 namespace Hohoema.ViewModels
 {
@@ -29,7 +32,7 @@ namespace Hohoema.ViewModels
     {
         public RankingCategoryListPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
-            Services.PageManager pageManager,
+            PageManager pageManager,
             Services.DialogService dialogService,
             RankingSettings rankingSettings,
             IEventAggregator eventAggregator,
@@ -115,8 +118,7 @@ namespace Hohoema.ViewModels
                     {
                         genreItem.IsDisplay = true;
                         RankingSettings.RemoveHiddenGenre(args.RankingGenre);
-                        _ = RankingSettings.Save();
-
+                        
                         _RankingGenreItems.Clear();
                         foreach (var item in _RankingGenreItemsSource)
                         {
@@ -139,7 +141,6 @@ namespace Hohoema.ViewModels
                         {
                             sameTagItem.IsDisplay = true;
                             RankingSettings.RemoveHiddenTag(args.RankingGenre, args.Tag);
-                            _ = RankingSettings.Save();
 
                             System.Diagnostics.Debug.WriteLine($"Tag Show: {args.Tag}");
                         }
@@ -156,8 +157,7 @@ namespace Hohoema.ViewModels
                     {
                         genreItem.IsDisplay = false;
                         RankingSettings.AddHiddenGenre(args.RankingGenre);
-                        _ = RankingSettings.Save();
-
+                        
                         _RankingGenreItems.Clear();
                         foreach (var item in _RankingGenreItemsSource)
                         {
@@ -180,7 +180,6 @@ namespace Hohoema.ViewModels
                         {
                             sameTagItem.IsDisplay = false;
                             RankingSettings.AddHiddenTag(sameTagItem.Genre.Value, sameTagItem.Tag, sameTagItem.Label);
-                            _ = RankingSettings.Save();
                             System.Diagnostics.Debug.WriteLine($"Tag Hidden: {args.Tag}");
                         }
                     }                    
@@ -203,7 +202,6 @@ namespace Hohoema.ViewModels
 
                         FavoriteItems.Add(addedItem);
                         RankingSettings.AddFavoriteTag(addedItem.Genre.Value, addedItem.Tag, addedItem.Label);
-                        _ = RankingSettings.Save();
                         System.Diagnostics.Debug.WriteLine($"Favorite added: {args.Label}");
                     }
                 })
@@ -217,7 +215,6 @@ namespace Hohoema.ViewModels
                     {
                         FavoriteItems.Remove(unFavoriteItem);
                         RankingSettings.RemoveFavoriteTag(unFavoriteItem.Genre.Value, unFavoriteItem.Tag);
-                        _ = RankingSettings.Save();
                         System.Diagnostics.Debug.WriteLine($"Favorite removed: {args.RankingGenre} {args.Tag}");
                     }
                 })
@@ -388,7 +385,6 @@ namespace Hohoema.ViewModels
                 {
                     RankingSettings.HiddenGenres.Add(hiddenGenre);
                 }
-                _ = RankingSettings.Save();
 
                 _RankingGenreItems.Clear();
                 _RankingGenreItems.Add(_favoriteRankingGenreGroupItem);
@@ -417,7 +413,6 @@ namespace Hohoema.ViewModels
                 {
                     RankingSettings.HiddenTags.Remove(removeHiddenTag);
                 }
-                _ = RankingSettings.Save();
 
                 foreach (var displayTag in result)
                 {

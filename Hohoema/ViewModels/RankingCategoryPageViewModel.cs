@@ -14,7 +14,7 @@ using Reactive.Bindings.Extensions;
 using Hohoema.Models.Provider;
 using Unity;
 using Prism.Navigation;
-using Hohoema.Services.Page;
+using Hohoema.ViewModels.Pages;
 using Hohoema.Services.Helpers;
 using Prism.Commands;
 using System.Collections.ObjectModel;

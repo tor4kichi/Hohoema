@@ -1,5 +1,4 @@
-﻿using Mntone.Nico2.Videos.Comment;
-using Hohoema.Models;
+﻿using Hohoema.Models;
 using Prism.Commands;
 using Prism.Mvvm;
 using Reactive.Bindings;
@@ -12,15 +11,17 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.UI;
-using Hohoema.Views;
 using System.Reactive.Concurrency;
 using System.Threading;
+using Hohoema.Models.Repository.Playlist;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Repository.Niconico.NicoVideo;
 
 namespace Hohoema.ViewModels
 {
 	public class CommentCommandEditerViewModel : BindableBase, IDisposable
 	{
-		public PlayerSettings PlayerSettings { get; }
+		public PlayerSettingsRepository PlayerSettingsRepository { get; }
 		public NiconicoSession NiconicoSession { get; }
 
 		public ReactiveProperty<bool> IsAnonymousCommenting { get; }
@@ -35,17 +36,17 @@ namespace Hohoema.ViewModels
 		CompositeDisposable _disposables = new CompositeDisposable();
 
 		public CommentCommandEditerViewModel(
-			PlayerSettings playerSettings,
+			PlayerSettingsRepository playerSettingsRepository,
 			NiconicoSession niconicoSession,
 			IScheduler scheduler
 			)
 		{
 			_disposables = new CompositeDisposable();
 
-			PlayerSettings = playerSettings;
+			PlayerSettingsRepository = playerSettingsRepository;
 			NiconicoSession = niconicoSession;
 
-			IsAnonymousCommenting = new ReactiveProperty<bool>(scheduler, PlayerSettings.IsDefaultCommentWithAnonymous)
+			IsAnonymousCommenting = new ReactiveProperty<bool>(scheduler, PlayerSettingsRepository.IsDefaultCommentWithAnonymous)
 				.AddTo(_disposables);
 			SelectedCommentSize = new ReactiveProperty<CommandType?>(scheduler)
 				.AddTo(_disposables);

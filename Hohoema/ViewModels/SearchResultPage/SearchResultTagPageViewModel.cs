@@ -5,7 +5,7 @@ using Hohoema.Models.Helpers;
 using Hohoema.Models.Provider;
 using Hohoema.Models.Subscription;
 using Hohoema.Services;
-using Hohoema.Services.Page;
+using Hohoema.ViewModels.Pages;
 using Hohoema.UseCase;
 using Hohoema.UseCase.Playlist;
 using Hohoema.ViewModels.Subscriptions;
@@ -49,7 +49,7 @@ namespace Hohoema.ViewModels
             SearchProvider searchProvider,
             SubscriptionManager subscriptionManager,
             HohoemaPlaylist hohoemaPlaylist,
-            Services.PageManager pageManager,
+            PageManager pageManager,
             Services.DialogService dialogService,
             ViewModels.Subscriptions.AddTagSearchSubscriptionCommand addTagSearchSubscriptionCommand,
             NiconicoFollowToggleButtonService followButtonService

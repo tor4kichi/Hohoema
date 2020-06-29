@@ -16,7 +16,7 @@ using Hohoema.Models.Helpers;
 using Hohoema.Models.Provider;
 using Hohoema.Models.LocalMylist;
 using Hohoema.Services;
-using Hohoema.Services.Page;
+using Hohoema.ViewModels.Pages;
 using Prism.Navigation;
 using Hohoema.Repository.Playlist;
 using Hohoema.UseCase.Playlist;
@@ -47,7 +47,7 @@ namespace Hohoema.ViewModels
 
         public UserMylistPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
-            Services.PageManager pageManager,
+            PageManager pageManager,
             Services.DialogService dialogService,
             NiconicoSession niconicoSession,
             UserProvider userProvider,

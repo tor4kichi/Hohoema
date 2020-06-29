@@ -1,9 +1,8 @@
 ﻿using I18NPortable;
 using Hohoema.Interfaces;
 using Hohoema.Models;
-using Hohoema.Repository.Playlist;
 using Hohoema.Services;
-using Hohoema.Services.Page;
+using Hohoema.ViewModels.Pages;
 using Hohoema.UseCase;
 using Hohoema.UseCase.Playlist;
 using Hohoema.UseCase.Playlist.Commands;
@@ -17,15 +16,18 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hohoema.Models.Pages;
+using Hohoema.Models.Repository;
+using Hohoema.Models.Repository.Niconico.Mylist;
 
 namespace Hohoema.ViewModels
 {
     [PropertyChanged.AddINotifyPropertyChangedInterface]
     public sealed class LocalPlaylistPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
-        HohoemaPin IPinablePage.GetPin()
+        Models.Pages.HohoemaPin IPinablePage.GetPin()
         {
-            return new HohoemaPin()
+            return new Models.Pages.HohoemaPin()
             {
                 Label = Playlist.Label,
                 PageType = HohoemaPageType.LocalPlaylist,

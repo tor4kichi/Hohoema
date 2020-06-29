@@ -13,7 +13,7 @@ using Hohoema.Models.Provider;
 using Unity;
 using Hohoema.Services;
 using Prism.Navigation;
-using Hohoema.Services.Page;
+using Hohoema.ViewModels.Pages;
 using Hohoema.UseCase.Playlist;
 using Hohoema.Interfaces;
 using System;

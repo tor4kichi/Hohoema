@@ -15,6 +15,9 @@ using System.Reactive.Linq;
 using Windows.Media;
 using Windows.Media.Playback;
 using Windows.UI.Xaml.Data;
+using Hohoema.ViewModels.Pages;
+using Hohoema.Models.Repository.Playlist;
+using Hohoema.Models.Repository;
 
 namespace Hohoema.ViewModels.PlayerSidePaneContent
 {
@@ -24,7 +27,7 @@ namespace Hohoema.ViewModels.PlayerSidePaneContent
         public PlaylistSidePaneContentViewModel(
             MediaPlayer mediaPlayer,
             HohoemaPlaylist playerModel,
-            PlayerSettings playerSettings,
+            PlayerSettingsRepository playerSettings,
             PageManager pageManager,
             IScheduler scheduler
             )
@@ -128,7 +131,7 @@ namespace Hohoema.ViewModels.PlayerSidePaneContent
         public ReactiveProperty<bool> PlaylistCanGoBack { get; private set; }
         public ReactiveProperty<bool> PlaylistCanGoNext { get; private set; }
 
-        private readonly PlayerSettings _playerSettings;
+        private readonly PlayerSettingsRepository _playerSettings;
         private readonly IScheduler _scheduler;
 
 

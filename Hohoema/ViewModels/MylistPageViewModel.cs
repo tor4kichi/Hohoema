@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Prism.Commands;
-using Mntone.Nico2.Mylist;
 using Reactive.Bindings;
 using System.Reactive.Linq;
 using Hohoema.Models.Helpers;
@@ -13,30 +12,35 @@ using Unity;
 using Windows.UI;
 using Windows.UI.Popups;
 using Hohoema.Dialogs;
-using Hohoema.Models.Provider;
-using Hohoema.Models.LocalMylist;
-using Hohoema.Models.Subscription;
 using Hohoema.Services;
-using Hohoema.Services.Page;
+using Hohoema.ViewModels.Pages;
 using Hohoema.Database;
 using Hohoema.Interfaces;
 using Reactive.Bindings.Extensions;
 using System.Collections.ObjectModel;
 using Prism.Navigation;
 using Hohoema.UseCase.Playlist;
-using Hohoema.Repository.Playlist;
 using I18NPortable;
 using Hohoema.UseCase;
 using Hohoema.ViewModels.Subscriptions;
 using System.Runtime.CompilerServices;
+using Hohoema.Models.Pages;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Repository.Niconico.Mylist;
+using Hohoema.Models.Repository.Niconico;
+using Hohoema.Models.Niconico.Follow;
+using Hohoema.Models.Subscriptions;
+using Hohoema.Models.Repository;
+using Hohoema.UseCase.Services;
+using Hohoema.Models.Repository.App;
 
 namespace Hohoema.ViewModels
 {
     public class MylistPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
-        HohoemaPin IPinablePage.GetPin()
+        Models.Pages.HohoemaPin IPinablePage.GetPin()
         {
-            return new HohoemaPin()
+            return new Models.Pages.HohoemaPin()
             {
                 Label = Mylist.Value.Label,
                 PageType = HohoemaPageType.Mylist,
@@ -51,19 +55,19 @@ namespace Hohoema.ViewModels
 
         public MylistPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
-            Services.PageManager pageManager,
+            PageManager pageManager,
             NiconicoSession niconicoSession,
             MylistProvider mylistProvider,
             UserProvider userProvider,
             FollowManager followManager,
             LoginUserMylistProvider loginUserMylistProvider,
-            NGSettings ngSettings,
             UserMylistManager userMylistManager,
             LocalMylistManager localMylistManager,
             MylistRepository mylistRepository,
             HohoemaPlaylist hohoemaPlaylist,
             SubscriptionManager subscriptionManager,
-            Services.DialogService dialogService,
+            ITextInputDialogService textInputDialogService,
+            IEditMylistGroupDialogService editMylistGroupDialogService,
             NiconicoFollowToggleButtonService followToggleButtonService,
             PlaylistAggregateGetter playlistAggregate,
             ViewModels.Subscriptions.AddSubscriptionCommand addSubscriptionCommand
@@ -76,13 +80,13 @@ namespace Hohoema.ViewModels
             UserProvider = userProvider;
             FollowManager = followManager;
             LoginUserMylistProvider = loginUserMylistProvider;
-            NgSettings = ngSettings;
             UserMylistManager = userMylistManager;
             LocalMylistManager = localMylistManager;
             _mylistRepository = mylistRepository;
             HohoemaPlaylist = hohoemaPlaylist;
             SubscriptionManager = subscriptionManager;
-            DialogService = dialogService;
+            _textInputDialogService = textInputDialogService;
+            _editMylistGroupDialogService = editMylistGroupDialogService;
             FollowToggleButtonService = followToggleButtonService;
             _playlistAggregate = playlistAggregate;
             AddSubscriptionCommand = addSubscriptionCommand;
@@ -235,8 +239,9 @@ namespace Hohoema.ViewModels
             */
         }
 
-
         private readonly MylistRepository _mylistRepository;
+        private readonly ITextInputDialogService _textInputDialogService;
+        private readonly IEditMylistGroupDialogService _editMylistGroupDialogService;
         private readonly PlaylistAggregateGetter _playlistAggregate;
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
@@ -248,12 +253,10 @@ namespace Hohoema.ViewModels
         public UserProvider UserProvider { get; }
         public FollowManager FollowManager { get; }
         public LoginUserMylistProvider LoginUserMylistProvider { get; }
-        public NGSettings NgSettings { get; }
         public UserMylistManager UserMylistManager { get; }
         public LocalMylistManager LocalMylistManager { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
-        public Models.Subscription.SubscriptionManager SubscriptionManager { get; }
-        public Services.DialogService DialogService { get; }
+        public SubscriptionManager SubscriptionManager { get; }
         public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
 
@@ -342,17 +345,17 @@ namespace Hohoema.ViewModels
 
 
 
-        private DelegateCommand<Interfaces.IPlaylist> _EditMylistGroupCommand;
-        public DelegateCommand<Interfaces.IPlaylist> EditMylistGroupCommand
+        private DelegateCommand<IPlaylist> _EditMylistGroupCommand;
+        public DelegateCommand<IPlaylist> EditMylistGroupCommand
         {
             get
             {
                 return _EditMylistGroupCommand
-                    ?? (_EditMylistGroupCommand = new DelegateCommand<Interfaces.IPlaylist>(async playlist =>
+                    ?? (_EditMylistGroupCommand = new DelegateCommand<IPlaylist>(async playlist =>
                     {
                         if (playlist is LocalPlaylist localMylist)
                         {
-                            var resultText = await DialogService.GetTextAsync(
+                            var resultText = await _textInputDialogService.GetTextAsync(
                                 "RenameLocalPlaylist".Translate(),
                                 localMylist.Label,
                                 localMylist.Label,
@@ -378,20 +381,14 @@ namespace Hohoema.ViewModels
                             // 成功するかキャンセルが押されるまで繰り返す
                             while (true)
                             {
-                                if (true == await DialogService.ShowEditMylistGroupDialogAsync(data))
+                                if (true == await _editMylistGroupDialogService.ShowEditMylistGroupDialogAsync(data))
                                 {
                                     var result = await LoginUserMylistProvider.UpdateMylist(mylist.Id, data);
 
-                                    if (result == Mntone.Nico2.ContentManageResult.Success)
+                                    if (result == ContentManageResult.Success)
                                     {
-                                        mylist.Label = data.Name;
-                                        mylist.IsPublic = data.IsPublic;
-                                        mylist.DefaultSort = data.MylistDefaultSort;
-                                        mylist.IconType = data.IconType;
-                                        mylist.Description = data.Description;
-
-                                        // TODO: IsPublicなどの情報を表示
-
+                                        await _navigationService.RefreshAsync();
+                                        
                                         break;
                                     }
                                 }
@@ -410,26 +407,26 @@ namespace Hohoema.ViewModels
 
 
 
-        private DelegateCommand<Interfaces.IPlaylist> _DeleteMylistCommand;
-        public DelegateCommand<Interfaces.IPlaylist> DeleteMylistCommand
+        private DelegateCommand<IPlaylist> _DeleteMylistCommand;
+        public DelegateCommand<IPlaylist> DeleteMylistCommand
         {
             get
             {
                 return _DeleteMylistCommand
-                    ?? (_DeleteMylistCommand = new DelegateCommand<Interfaces.IPlaylist>(async mylist =>
+                    ?? (_DeleteMylistCommand = new DelegateCommand<IPlaylist>(async mylist =>
                     {
                         // 確認ダイアログ
                         var mylistOrigin = mylist.GetOrigin();
                         var contentMessage = "ConfirmDeleteX_ImpossibleReDo".Translate(mylist.Label);
 
-                        var dialog = new MessageDialog(contentMessage, $"ConfirmDeleteX".Translate(Interfaces.PlaylistOrigin.Local.Translate()));
+                        var dialog = new MessageDialog(contentMessage, $"ConfirmDeleteX".Translate(PlaylistOrigin.Local.Translate()));
                         dialog.Commands.Add(new UICommand("Delete".Translate(), async (i) =>
                         {
-                            if (mylistOrigin == Interfaces.PlaylistOrigin.Local)
+                            if (mylistOrigin == PlaylistOrigin.Local)
                             {
                                 LocalMylistManager.RemovePlaylist(mylist as LocalPlaylist);
                             }
-                            else if (mylistOrigin == Interfaces.PlaylistOrigin.Mylist)
+                            else if (mylistOrigin == PlaylistOrigin.Mylist)
                             {
                                 await UserMylistManager.RemoveMylist(mylist.Id);
                             }
@@ -526,8 +523,10 @@ namespace Hohoema.ViewModels
 
     */
 
+        INavigationService _navigationService;
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
+            _navigationService = parameters.GetNavigationService();
             string mylistId = null;
 
             if (parameters.TryGetValue<string>("id", out var idString))
@@ -601,7 +600,7 @@ namespace Hohoema.ViewModels
                         BookmarkType = Database.BookmarkType.Mylist,
                     };
 
-                FollowToggleButtonService.SetFollowTarget(Mylist.Value as Interfaces.IFollowable);
+                FollowToggleButtonService.SetFollowTarget(Mylist.Value as IFollowable);
 
                 RaisePropertyChanged(nameof(MylistBookmark));
             }

@@ -1,0 +1,4 @@
+﻿[*.cs]
+
+# Uno0001: Uno type or member is not implemented
+dotnet_diagnostic.Uno0001.severity = none

@@ -22,7 +22,7 @@ using Hohoema.Models.LocalMylist;
 using Hohoema.Interfaces;
 using Hohoema.Services;
 using Prism.Navigation;
-using Hohoema.Services.Page;
+using Hohoema.ViewModels.Pages;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.UseCase.Playlist;
 using Hohoema.Repository.Playlist;
@@ -65,10 +65,10 @@ namespace Hohoema.ViewModels
             VideoCacheManager videoCacheManager,
             SubscriptionManager subscriptionManager,
             Models.NicoVideoSessionProvider nicoVideo,
-            Services.PageManager pageManager,
+            PageManager pageManager,
             Services.NotificationService notificationService,
             Services.DialogService dialogService,
-            Services.ExternalAccessService externalAccessService,
+            Services.ExternalAccessHelper externalAccessService,
             AddMylistCommand addMylistCommand,
             ViewModels.Subscriptions.AddSubscriptionCommand addSubscriptionCommand
             )
@@ -322,7 +322,7 @@ namespace Hohoema.ViewModels
         public SubscriptionManager SubscriptionManager { get; }
         public PageManager PageManager { get; }
         public Services.DialogService DialogService { get; }
-        public Services.ExternalAccessService ExternalAccessService { get; }
+        public Services.ExternalAccessHelper ExternalAccessService { get; }
         public AddMylistCommand AddMylistCommand { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
 

@@ -1,7 +1,7 @@
 ﻿using Microsoft.Services.Store.Engagement;
 using Hohoema.Models;
 using Hohoema.Services;
-using Hohoema.Services.Page;
+using Hohoema.ViewModels.Pages;
 using Hohoema.UseCase;
 using Prism.Commands;
 using Prism.Mvvm;

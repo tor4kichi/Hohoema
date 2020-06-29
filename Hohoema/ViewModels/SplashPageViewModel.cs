@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models;
+using Hohoema.ViewModels.Pages;
 using Prism.Commands;
 using Prism.Mvvm;
 using Prism.Navigation;
@@ -15,7 +16,7 @@ namespace Hohoema.ViewModels
     {
         public SplashPageViewModel(
             INavigationService ns,
-            Services.PageManager pageManager
+            PageManager pageManager
             )
         {
             PageManager = pageManager;
@@ -23,7 +24,7 @@ namespace Hohoema.ViewModels
         }
 
 
-        Services.PageManager PageManager { get; }
+        PageManager PageManager { get; }
         INavigationService NavigationService { get; }
 
 

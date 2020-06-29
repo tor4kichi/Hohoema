@@ -3,7 +3,7 @@ using Mntone.Nico2.Videos.Series;
 using Hohoema.Interfaces;
 using Hohoema.Models.Helpers;
 using Hohoema.Repository.NicoVideo;
-using Hohoema.Services.Page;
+using Hohoema.ViewModels.Pages;
 using Hohoema.ViewModels.Subscriptions;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;

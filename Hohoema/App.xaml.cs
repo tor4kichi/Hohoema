@@ -25,7 +25,6 @@ using Windows.ApplicationModel.Background;
 using System.Reactive.Concurrency;
 using System.Threading;
 using Hohoema.Services;
-using Hohoema.Services.Page;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using Unity.Lifetime;
@@ -45,6 +44,20 @@ using I18NPortable;
 using Newtonsoft.Json;
 using Hohoema.UseCase.Playlist;
 using Microsoft.Toolkit.Uwp.UI.Animations;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Repository.App;
+using Hohoema.Models.Helpers;
+using Hohoema.Models.Repository.VideoCache;
+using Hohoema.Models.Repository.NicoRepo;
+using Hohoema.Models.Repository.Playlist;
+using Hohoema.Models.Repository.Niconico.NicoVideoRanking;
+using Hohoema.Models.Repository.Subscriptions;
+using Hohoema.Models.Pages;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Repository.Niconico.NicoVideo;
+using Hohoema.Models.Niconico.Follow;
+using Hohoema.Models.Pages.PagePayload;
+using Hohoema.ViewModels.Pages;
 
 namespace Hohoema
 {
@@ -163,6 +176,23 @@ namespace Hohoema
             return grid;
         }
 
+
+        static readonly Type[] _instantiateServiceTypes = new[]
+        {
+            typeof(Services.Notification.NotificationCacheVideoDeletedService),
+            typeof(Services.Notification.CheckingClipboardAndNotificationService),
+            typeof(Services.Notification.NotificationMylistUpdatedService),
+            typeof(Services.Notification.NotificationFollowUpdatedService),
+            typeof(Services.Notification.NotificationCacheRequestRejectedService),
+            typeof(UseCase.Subscriptions.SubscriptionUpdateManager),
+            typeof(UseCase.Subscriptions.FeedResultAddToWatchLater),
+            typeof(UseCase.Subscriptions.SyncWatchHistoryOnLoggedIn),
+            typeof(UseCase.Subscriptions.LatestSubscriptionVideosNotifier),
+            //typeof(UseCase.VideoCacheResumingObserver),
+            typeof(UseCase.NicoVideoPlayer.VideoPlayRequestBridgeToPlayer),
+        };
+
+
         public override void RegisterTypes(IContainerRegistry container)
         {
             var unityContainer = container.GetContainer();
@@ -175,44 +205,63 @@ namespace Hohoema
 
             // MediaPlayerを各ウィンドウごとに一つずつ作るように
             unityContainer.RegisterType<MediaPlayer>(new PerThreadLifetimeManager());
-            
+
+            // Settings
+            unityContainer.RegisterSingleton<AppearanceSettingsRepository>();
+            unityContainer.RegisterSingleton<CacheSettingsRepository>();
+            unityContainer.RegisterSingleton<NicoRepoSettingsRepository>();
+            unityContainer.RegisterSingleton<PlayerSettingsRepository>();
+            unityContainer.RegisterSingleton<RankingSettingsRepository>();
+            unityContainer.RegisterSingleton<SubscriptionSettingsRepository>();
+
             // Service
-            unityContainer.RegisterSingleton<Services.PageManager>();
+            unityContainer.RegisterSingleton<PageManager>();
             unityContainer.RegisterSingleton<PrimaryViewPlayerManager>();
             unityContainer.RegisterSingleton<ScondaryViewPlayerManager>();
             unityContainer.RegisterSingleton<Services.NiconicoLoginService>();
-            unityContainer.RegisterSingleton<Services.DialogService>();
             unityContainer.RegisterSingleton<NoUIProcessScreenContext>();
 
+            unityContainer.RegisterType<UseCase.Services.IConfirmCacheUsageDialogService, Services.ConfirmCacheUsageDialogService>();
+            unityContainer.RegisterType<UseCase.Services.IEditMylistGroupDialogService, Services.EditMylistGroupDialogService>();
+            unityContainer.RegisterType<UseCase.Services.IMultiSelectionDialogService, Services.MultiSelectionDialogService>();
+            unityContainer.RegisterType<UseCase.Services.ITextInputDialogService, Services.TextInputDialogService>();
+            unityContainer.RegisterType<UseCase.Services.IMessageDialogService, Services.MessageDialogService>();
+            unityContainer.RegisterType<UseCase.Services.INiconicoLoginDialogService, Services.NiconicoLoginDialogService>();
+            unityContainer.RegisterType<UseCase.Services.INiconicoTwoFactorAuthDialogService, Services.NiconicoTwoFactorAuthDialogService>();
+
+            foreach (var type in _instantiateServiceTypes)
+            {
+                unityContainer.RegisterSingleton(type);
+            }
+
             // Models
-            unityContainer.RegisterSingleton<Models.NiconicoSession>();
+            unityContainer.RegisterSingleton<NiconicoSession>();
             unityContainer.RegisterSingleton<Models.NicoVideoSessionOwnershipManager>();
             
-            unityContainer.RegisterSingleton<Models.UserMylistManager>();
-            unityContainer.RegisterSingleton<Models.FollowManager>();
+            unityContainer.RegisterSingleton<FollowManager>();
 
-            unityContainer.RegisterSingleton<Models.Cache.VideoCacheManager>();
             unityContainer.RegisterSingleton<Models.Subscriptions.SubscriptionManager>();
 
             // UseCase
             unityContainer.RegisterType<UseCase.VideoPlayer>(new PerThreadLifetimeManager());
-            unityContainer.RegisterType<UseCase.CommentPlayer>(new PerThreadLifetimeManager());
             unityContainer.RegisterType<UseCase.NicoVideoPlayer.CommentFiltering>(new PerThreadLifetimeManager());
             unityContainer.RegisterType<UseCase.NicoVideoPlayer.MediaPlayerSoundVolumeManager>(new PerThreadLifetimeManager());
+            unityContainer.RegisterSingleton<UseCase.VideoCache.VideoCacheManager>();
             unityContainer.RegisterSingleton<UseCase.Playlist.HohoemaPlaylist>();
             unityContainer.RegisterSingleton<UseCase.Playlist.LocalMylistManager>();
             unityContainer.RegisterSingleton<UseCase.Playlist.VideoItemsSelectionContext>();
             unityContainer.RegisterSingleton<UseCase.Playlist.WatchHistoryManager>();
             unityContainer.RegisterSingleton<UseCase.ApplicationLayoutManager>();
-            
+            unityContainer.RegisterSingleton<UseCase.Playlist.UserMylistManager>();
+
 
 
 
             // ViewModels
             unityContainer.RegisterSingleton<ViewModels.RankingCategoryListPageViewModel>();
-
+            
+            unityContainer.RegisterType<ViewModels.Player.CommentPlayer>(new PerThreadLifetimeManager());
             unityContainer.RegisterType<ViewModels.VideoPlayerPageViewModel>(new PerThreadLifetimeManager());
-            unityContainer.RegisterType<ViewModels.LivePlayerPageViewModel>(new PerThreadLifetimeManager());
 
 #if DEBUG
             //			BackgroundUpdater.MaxTaskSlotCount = 1;
@@ -220,7 +269,6 @@ namespace Hohoema
             // TODO: プレイヤーウィンドウ上で管理する
             //			var backgroundTask = MediaBackgroundTask.Create();
             //			Container.RegisterInstance(backgroundTask);
-
         }
 
 
@@ -234,7 +282,6 @@ namespace Hohoema
             containerRegistry.RegisterForNavigation<Views.CommunityVideoPage>();
             containerRegistry.RegisterForNavigation<Views.DebugPage>();
             containerRegistry.RegisterForNavigation<Views.FollowManagePage>();
-            containerRegistry.RegisterForNavigation<Views.LiveInfomationPage>();
             containerRegistry.RegisterForNavigation<Views.LoginPage>();
             containerRegistry.RegisterForNavigation<Views.MylistPage>();
             containerRegistry.RegisterForNavigation<Views.LocalPlaylistPage>();
@@ -249,8 +296,6 @@ namespace Hohoema
             containerRegistry.RegisterForNavigation<Views.SearchResultCommunityPage>();
             containerRegistry.RegisterForNavigation<Views.SearchResultLivePage>();
             containerRegistry.RegisterForNavigation<Views.SettingsPage>();
-            containerRegistry.RegisterForNavigation<Views.SubscriptionPage>();
-            containerRegistry.RegisterForNavigation<Views.TimeshiftPage>();
             containerRegistry.RegisterForNavigation<Views.UserInfoPage>();
             containerRegistry.RegisterForNavigation<Views.UserMylistPage>();
             containerRegistry.RegisterForNavigation<Views.UserVideoPage>();
@@ -261,13 +306,12 @@ namespace Hohoema
             containerRegistry.RegisterForNavigation<Views.WatchAfterPage>();
             containerRegistry.RegisterForNavigation<Views.SubscriptionManagementPage>();            
 
-            containerRegistry.RegisterForNavigation<Views.LivePlayerPage>();
             containerRegistry.RegisterForNavigation<Views.VideoPlayerPage>();
 
             base.RegisterRequiredTypes(containerRegistry);
         }
 
-        public bool IsTitleBarCustomized { get; } = Services.Helpers.DeviceTypeHelper.IsDesktop && Services.Helpers.InputCapabilityHelper.IsMouseCapable;
+        public bool IsTitleBarCustomized { get; } = DeviceTypeHelper.IsDesktop && Services.Helpers.InputCapabilityHelper.IsMouseCapable;
 
         Models.Helpers.AsyncLock InitializeLock = new Models.Helpers.AsyncLock();
         bool isInitialized = false;
@@ -296,18 +340,8 @@ namespace Hohoema
 
                 Resources["Strings"] = I18NPortable.I18N.Current;
 
-                var settings = await Models.HohoemaUserSettings.LoadSettings(ApplicationData.Current.LocalFolder);
-
-                var unityContainer = Container.GetContainer();
-                unityContainer.RegisterInstance(settings.ActivityFeedSettings);
-                unityContainer.RegisterInstance(settings.AppearanceSettings);
-                unityContainer.RegisterInstance(settings.CacheSettings);
-                unityContainer.RegisterInstance(settings.PinSettings);
-                unityContainer.RegisterInstance(settings.RankingSettings);
-                unityContainer.RegisterInstance(settings.NGSettings);
-                unityContainer.RegisterInstance(settings.PlayerSettings);
-
-                I18NPortable.I18N.Current.Locale = settings.AppearanceSettings.Locale ?? I18NPortable.I18N.Current.Locale;
+                var appearanceSettings = Container.Resolve<AppearanceSettingsRepository>();
+                I18NPortable.I18N.Current.Locale = appearanceSettings.Locale ?? I18NPortable.I18N.Current.Locale;
 
                 CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(I18NPortable.I18N.Current.Locale);
 
@@ -315,8 +349,8 @@ namespace Hohoema
                 var followManager = Container.Resolve<FollowManager>();
                 var mylitManager = Container.Resolve<UserMylistManager>();
 
-                Resources["IsXbox"] = Services.Helpers.DeviceTypeHelper.IsXbox;
-                Resources["IsMobile"] = Services.Helpers.DeviceTypeHelper.IsMobile;
+                Resources["IsXbox"] = DeviceTypeHelper.IsXbox;
+                Resources["IsMobile"] = DeviceTypeHelper.IsMobile;
 
 
                 try
@@ -379,14 +413,14 @@ namespace Hohoema
                 }
 
                 // 
-                var cacheSettings = Container.Resolve<CacheSettings>();
-                Resources["IsCacheEnabled"] = cacheSettings.IsEnableCache;
+                var cacheSettings = Container.Resolve<CacheSettingsRepository>();
+                Resources["IsCacheEnabled"] = cacheSettings.IsCacheEnabled;
 
                 // ウィンドウコンテンツを作成
                 Window.Current.Content = CreateShell();
 
                 // ウィンドウサイズの保存と復元
-                if (Services.Helpers.DeviceTypeHelper.IsDesktop)
+                if (DeviceTypeHelper.IsDesktop)
                 {
                     var localObjectStorageHelper = Container.Resolve<Microsoft.Toolkit.Uwp.Helpers.LocalObjectStorageHelper>();
                     if (localObjectStorageHelper.KeyExists(ScondaryViewPlayerManager.primary_view_size))
@@ -400,14 +434,14 @@ namespace Hohoema
                 }
 
                 // XboxOneで外枠表示を行わないように設定
-                if (Services.Helpers.DeviceTypeHelper.IsXbox)
+                if (DeviceTypeHelper.IsXbox)
                 {
                     Windows.UI.ViewManagement.ApplicationView.GetForCurrentView().SetDesiredBoundsMode
                         (Windows.UI.ViewManagement.ApplicationViewBoundsMode.UseCoreWindow);
                 }
 
                 // モバイルでナビゲーションバーをアプリに被せないように設定
-                if (Services.Helpers.DeviceTypeHelper.IsMobile)
+                if (DeviceTypeHelper.IsMobile)
                 {
                     // モバイルで利用している場合に、ナビゲーションバーなどがページに被さらないように指定
                     ApplicationView.GetForCurrentView().SuppressSystemOverlays = true;
@@ -428,9 +462,9 @@ namespace Hohoema
                 // 更新通知を表示
                 try
                 {
-                    var dialogService = Container.Resolve<Services.DialogService>();
                     if (Models.Helpers.AppUpdateNotice.HasNotCheckedUptedeNoticeVersion)
                     {
+                        var dialogService = Container.Resolve<LatestUpdateNoticeDialogService>();
                         _ = dialogService.ShowLatestUpdateNotice();
                         Models.Helpers.AppUpdateNotice.UpdateLastCheckedVersionInCurrentVersion();
                     }
@@ -438,24 +472,17 @@ namespace Hohoema
                 catch { }
 
                 // バージョン間データ統合
-                var migrationSubscription = unityContainer.Resolve<UseCase.Migration.MigrationSubscriptions>();
+                var migrationSubscription = Container.Resolve<UseCase.Migration.MigrationSubscriptions>();
                 migrationSubscription.Migration();
-                unityContainer.Resolve<UseCase.Migration.CommentFilteringNGScoreZeroFixture>().Migration();
-                
+                Container.Resolve<UseCase.Migration.CommentFilteringNGScoreZeroFixture>().Migration();
+
+
 
                 // アプリのユースケース系サービスを配置
-                unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationCacheVideoDeletedService>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationMylistUpdatedService>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.CheckingClipboardAndNotificationService>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationFollowUpdatedService>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<Services.Notification.NotificationCacheRequestRejectedService>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.Subscriptions.SubscriptionUpdateManager>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.Subscriptions.FeedResultAddToWatchLater>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.Subscriptions.SyncWatchHistoryOnLoggedIn>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.Subscriptions.LatestSubscriptionVideosNotifier>());
-                
-                unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.VideoCacheResumingObserver>());
-                unityContainer.RegisterInstance(unityContainer.Resolve<UseCase.NicoVideoPlayer.VideoPlayRequestBridgeToPlayer>());
+                foreach (var type in _instantiateServiceTypes)
+                {
+                    Container.Resolve(type);
+                }
 
                 // バックグラウンドでのトースト通知ハンドリングを初期化
                 await RegisterDebugToastNotificationBackgroundHandling();
@@ -463,7 +490,7 @@ namespace Hohoema
 
                 try
                 {
-                    var cacheManager = Container.Resolve<Models.Cache.VideoCacheManager>();
+                    var cacheManager = Container.Resolve<UseCase.VideoCache.VideoCacheManager>();
                     _ = cacheManager.Initialize();
                 }
                 catch { }
@@ -545,19 +572,19 @@ namespace Hohoema
 
                     if (nicoContentId != null)
                     {
-                        if (Mntone.Nico2.NiconicoRegex.IsVideoId(nicoContentId))
+                        if (nicoContentId.IsVideoId())
                         {
                             PlayVideoFromExternal(nicoContentId);
                             isHandled = true;
                         }
-                        else if (Mntone.Nico2.NiconicoRegex.IsLiveId(nicoContentId))
+                        else if (nicoContentId.IsLiveId())
                         {
                             PlayLiveVideoFromExternal(nicoContentId);
                             isHandled = true;
                         }
                     }
 
-                    var payload = JsonConvert.DeserializeObject<LoginRedirectPayload>(arguments);
+                    var payload = LoginRedirectPayload.FromParameterString(arguments);
                     if (payload != null)
                     {
                         if (payload.RedirectPageType == HohoemaPageType.VideoPlayer)
@@ -580,7 +607,7 @@ namespace Hohoema
                         }
                         else
                         {
-                            var pageManager = Container.Resolve<Services.PageManager>();
+                            var pageManager = Container.Resolve<PageManager>();
                             pageManager.OpenPage(payload.RedirectPageType, payload.RedirectParamter);
                             isHandled = true;
                         }
@@ -588,7 +615,7 @@ namespace Hohoema
                     
                     if (Uri.TryCreate(arguments, UriKind.Absolute, out var uri))
                     {
-                        var pageManager = Container.Resolve<Services.PageManager>();
+                        var pageManager = Container.Resolve<PageManager>();
                         if (pageManager.OpenPage(uri))
                         {
                             isHandled = true;
@@ -607,7 +634,7 @@ namespace Hohoema
                     {
                         var error = await GetMostRecentErrorText();
 
-                        Services.Helpers.ClipboardHelper.CopyToClipboard(error);
+                        ClipboardHelper.CopyToClipboard(error);
                     }
                     else if (arguments == ACTIVATION_WITH_ERROR_OPEN_LOG)
                     {
@@ -621,18 +648,18 @@ namespace Hohoema
                         var videoId = decode.GetFirstValueByName("id");
                         var quality = (NicoVideoQuality)Enum.Parse(typeof(NicoVideoQuality), decode.GetFirstValueByName("quality"));
 
-                        var cacheManager = Container.Resolve<Models.Cache.VideoCacheManager>();
+                        var cacheManager = Container.Resolve<UseCase.VideoCache.VideoCacheManager>();
                         await cacheManager.CancelCacheRequest(videoId);
                     }
                     else
                     {
                         var nicoContentId = Models.Helpers.NicoVideoIdHelper.UrlToVideoId(arguments);
 
-                        if (Mntone.Nico2.NiconicoRegex.IsVideoId(nicoContentId))
+                        if (nicoContentId.IsVideoId())
                         {
                             PlayVideoFromExternal(nicoContentId);
                         }
-                        else if (Mntone.Nico2.NiconicoRegex.IsLiveId(nicoContentId))
+                        else if (nicoContentId.IsLiveId())
                         {
                             PlayLiveVideoFromExternal(nicoContentId);
                         }
@@ -647,12 +674,13 @@ namespace Hohoema
                 var uri = param.Uri;
                 var maybeNicoContentId = new string(uri.OriginalString.Skip("niconico://".Length).TakeWhile(x => x != '?' && x != '/').ToArray());
 
-                if (Mntone.Nico2.NiconicoRegex.IsVideoId(maybeNicoContentId)
-                    || maybeNicoContentId.All(x => x >= '0' && x <= '9'))
+                if (maybeNicoContentId.IsVideoId()
+                    || maybeNicoContentId.All(char.IsDigit)
+                    )
                 {
                     PlayVideoFromExternal(maybeNicoContentId);
                 }
-                else if (Mntone.Nico2.NiconicoRegex.IsLiveId(maybeNicoContentId))
+                else if (maybeNicoContentId.IsLiveId())
                 {
                     PlayLiveVideoFromExternal(maybeNicoContentId);
                 }
@@ -668,7 +696,7 @@ namespace Hohoema
             try
             {
                 var niconicoSession = Container.Resolve<NiconicoSession>();
-                if (Models.Helpers.AccountManager.HasPrimaryAccount())
+                if (Models.Niconico.Account.AccountManager.HasPrimaryAccount())
                 {
                     // サインイン処理の待ちを初期化内でしないことで初期画面表示を早める
                     _ = niconicoSession.SignInWithPrimaryAccount();
@@ -719,7 +747,7 @@ namespace Hohoema
             // EventAggregator経由で動画IDの再生リクエストを送って
             // アプリケーションユースケースで動画情報を解決して再生開始するほうが良さそう
 
-            var nicoVideoProvider = App.Current.Container.Resolve<Models.Provider.NicoVideoProvider>();
+            var nicoVideoProvider = App.Current.Container.Resolve<NicoVideoProvider>();
             var videoInfo = await nicoVideoProvider.GetNicoVideoInfo(videoId);
             
             if (videoInfo == null || videoInfo.IsDeleted) { return; }
@@ -743,8 +771,8 @@ namespace Hohoema
             // TODO: ログインが必要な生放送かをチェックしてログインダイアログを出す
             
             var ea = Container.Resolve<IEventAggregator>();
-            ea.GetEvent<Services.Player.PlayerPlayLiveRequest>()
-                .Publish(new Services.Player.PlayerPlayLiveRequestEventArgs() { LiveId = videoId });
+            ea.GetEvent<UseCase.Events.PlayerPlayLiveRequest>()
+                .Publish(new UseCase.Events.PlayerPlayLiveRequestEventArgs() { LiveId = videoId });
         }
 
 
@@ -797,7 +825,7 @@ namespace Hohoema
             var layoutManager= Container.Resolve<ApplicationLayoutManager>();
             
             Type viewType = null;
-            if (layoutManager.AppLayout == ApplicationLayout.TV)
+            if (layoutManager.AppLayout == Models.Pages.ApplicationLayout.TV)
             {
                 // pageTokenに対応するXbox表示用のページの型を取得
                 try
@@ -811,7 +839,7 @@ namespace Hohoema
                 }
                 catch { }
             }
-            else if (layoutManager.AppLayout == ApplicationLayout.Mobile)
+            else if (layoutManager.AppLayout == Models.Pages.ApplicationLayout.Mobile)
             {
                 try
                 {
@@ -1017,7 +1045,7 @@ namespace Hohoema
         {
             if (pageName == null)
             {
-                var pageManager = Container.Resolve<Services.PageManager>();
+                var pageManager = Container.Resolve<PageManager>();
                 pageName = pageManager.CurrentPageType.ToString();
             }
 
@@ -1061,7 +1089,7 @@ namespace Hohoema
 
         public void ShowErrorToast(string message)
         {
-            var toast = Container.Resolve<Services.NotificationService>();
+            var toast = Container.Resolve<ToastNotificationService>();
             toast.ShowToast("ToastNotification_ExceptionHandled".Translate()
                 , message
                 , Microsoft.Toolkit.Uwp.Notifications.ToastDuration.Long
@@ -1115,7 +1143,7 @@ namespace Hohoema
             else if (arguments == ACTIVATION_WITH_ERROR_COPY_LOG)
             {
                 var error = await GetMostRecentErrorText();
-                Services.Helpers.ClipboardHelper.CopyToClipboard(error);
+                ClipboardHelper.CopyToClipboard(error);
             }
             else if (arguments == ACTIVATION_WITH_ERROR_OPEN_LOG)
             {
@@ -1123,7 +1151,7 @@ namespace Hohoema
             }
             else if (arguments.StartsWith("cache_cancel"))
             {
-                var cacheManager = Container.Resolve<Models.Cache.VideoCacheManager>();
+                var cacheManager = Container.Resolve<UseCase.VideoCache.VideoCacheManager>();
 
                 var query = arguments.Split('?')[1];
                 var decode = new WwwFormUrlDecoder(query);

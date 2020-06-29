@@ -73,7 +73,7 @@ namespace Hohoema.Views.Flyouts
 
 
         public HohoemaPlaylist HohoemaPlaylist { get; }
-        public ExternalAccessService ExternalAccessService { get; }
+        public ExternalAccessHelper ExternalAccessService { get; }
         public PageManager PageManager { get; }
         public UserMylistManager UserMylistManager { get; }
         public LocalMylistManager LocalMylistManager { get; }
@@ -97,7 +97,7 @@ namespace Hohoema.Views.Flyouts
             CreateMylistCommand = App.Current.Container.Resolve<CreateMylistCommand>();
             CreateLocalMylistCommand = App.Current.Container.Resolve<CreateLocalMylistCommand>();
             HohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
-            ExternalAccessService = App.Current.Container.Resolve<ExternalAccessService>();
+            ExternalAccessService = App.Current.Container.Resolve<ExternalAccessHelper>();
             PageManager = App.Current.Container.Resolve<PageManager>();
             UserMylistManager = App.Current.Container.Resolve<UserMylistManager>();
             LocalMylistManager = App.Current.Container.Resolve<LocalMylistManager>();

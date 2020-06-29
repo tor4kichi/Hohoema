@@ -13,6 +13,8 @@ using System.Reactive.Disposables;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hohoema.ViewModels.Player;
+using Hohoema.Models.Repository.Niconico.NicoVideo.Comment;
 
 namespace Hohoema.ViewModels.PlayerSidePaneContent
 {
@@ -21,14 +23,12 @@ namespace Hohoema.ViewModels.PlayerSidePaneContent
         public CommentFiltering CommentFiltering { get; }
 
         public VideoCommentSizePaneContentViewModel(
-            UseCase.CommentPlayer commentPlayer,
-            CommentFiltering  commentFiltering,
-            Services.DialogService dialogService
+            CommentPlayer commentPlayer,
+            CommentFiltering  commentFiltering
             )
         {
             CommentPlayer = commentPlayer;
             CommentFiltering = commentFiltering;
-            _dialogService = dialogService;
             Comments = new AdvancedCollectionView(CommentPlayer.Comments, true);
 
             HandleCommentFilterConditionChanged();
@@ -75,7 +75,6 @@ namespace Hohoema.ViewModels.PlayerSidePaneContent
         public CommentPlayer CommentPlayer { get; }
         public AdvancedCollectionView Comments { get; }
         private CompositeDisposable _disposables = new CompositeDisposable();
-        private readonly DialogService _dialogService;
 
 
         private DelegateCommand _ClearFilteringCommentUserIdOnCurrentVideoCommand;
