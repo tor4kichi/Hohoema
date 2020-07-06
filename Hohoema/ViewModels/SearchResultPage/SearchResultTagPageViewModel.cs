@@ -24,6 +24,8 @@ using Hohoema.Models.Niconico;
 using Hohoema.Models.Subscriptions;
 using Hohoema.Models.Pages.PagePayload;
 using Hohoema.Models.Repository;
+using Hohoema.ViewModels.Player.Commands;
+using Hohoema.ViewModels.Pages.Commands;
 
 namespace Hohoema.ViewModels
 {
@@ -53,7 +55,9 @@ namespace Hohoema.ViewModels
             HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
             ViewModels.Subscriptions.AddTagSearchSubscriptionCommand addTagSearchSubscriptionCommand,
-            NiconicoFollowToggleButtonService followButtonService
+            NiconicoFollowToggleButtonService followButtonService,
+            PlayVideoCommand playVideoCommand,
+            OpenPageCommand openPageCommand
             )
         {
             SearchProvider = searchProvider;
@@ -64,6 +68,8 @@ namespace Hohoema.ViewModels
             NiconicoSession = niconicoSession;
             AddTagSearchSubscriptionCommand = addTagSearchSubscriptionCommand;
             FollowButtonService = followButtonService;
+            PlayVideoCommand = playVideoCommand;
+            OpenPageCommand = openPageCommand;
             FailLoading = new ReactiveProperty<bool>(false)
                 .AddTo(_CompositeDisposable);
 
@@ -106,6 +112,8 @@ namespace Hohoema.ViewModels
         public PageManager PageManager { get; }
         public AddTagSearchSubscriptionCommand AddTagSearchSubscriptionCommand { get; }
         public NiconicoFollowToggleButtonService FollowButtonService { get; }
+        public PlayVideoCommand PlayVideoCommand { get; }
+        public OpenPageCommand OpenPageCommand { get; }
 
         public Models.Subscription.SubscriptionSource? SubscriptionSource => new Models.Subscription.SubscriptionSource(SearchOption.Keyword, Models.Subscription.SubscriptionSourceType.TagSearch, SearchOption.Keyword);
 

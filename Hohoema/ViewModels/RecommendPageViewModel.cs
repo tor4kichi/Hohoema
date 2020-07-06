@@ -16,6 +16,8 @@ using System.Threading;
 using Hohoema.Models.Repository.Niconico;
 using Hohoema.Models.Pages;
 using Hohoema.Models.Repository.Niconico.NicoVideo.Recommend;
+using Hohoema.ViewModels.Player.Commands;
+using Hohoema.ViewModels.Pages.Commands;
 
 namespace Hohoema.ViewModels
 {
@@ -25,19 +27,25 @@ namespace Hohoema.ViewModels
             ApplicationLayoutManager applicationLayoutManager,
             LoginUserRecommendProvider loginUserRecommendProvider,
             HohoemaPlaylist hohoemaPlaylist,
-            PageManager pageManager
+            PageManager pageManager,
+            PlayVideoCommand playVideoCommand,
+            OpenPageCommand openPageCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
             LoginUserRecommendProvider = loginUserRecommendProvider;
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
+            PlayVideoCommand = playVideoCommand;
+            OpenPageCommand = openPageCommand;
         }
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public LoginUserRecommendProvider LoginUserRecommendProvider { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
+        public PlayVideoCommand PlayVideoCommand { get; }
+        public OpenPageCommand OpenPageCommand { get; }
         public ReadOnlyObservableCollection<NicoVideoTag> RecommendSourceTags { get; private set; }
         
         protected override IIncrementalSource<RecommendVideoListItem> GenerateIncrementalSource()

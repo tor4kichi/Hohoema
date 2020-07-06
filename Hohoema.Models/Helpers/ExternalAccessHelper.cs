@@ -17,7 +17,6 @@ namespace Hohoema.Models.Helpers
             IUser user => new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.MakeUserPageUrl(user.Id))),
             IVideoContent video => new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.VideoWatchPageUrl, video.Id)),
             IMylist mylist => new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.MakeMylistPageUrl(mylist.Id))),
-            ILiveContent live => new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.LiveWatchPageUrl, live.Id)),
             IChannel channel => new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.ChannelUrlBase, channel.Id)),
             ICommunity community => new Uri(Path.Combine(Mntone.Nico2.NiconicoUrls.CommynitySammaryPageUrl, community.Id)),
             _ => throw new NotSupportedException(content.GetType().Name)

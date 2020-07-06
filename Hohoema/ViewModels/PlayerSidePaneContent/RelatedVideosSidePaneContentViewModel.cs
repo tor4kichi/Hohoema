@@ -17,6 +17,8 @@ using Hohoema.ViewModels.Pages;
 using Hohoema.Models.Repository;
 using Hohoema.Models.Repository.Niconico.Mylist;
 using Hohoema.Models.Repository.Niconico.NicoVideo.RelatedVideos;
+using Hohoema.ViewModels.Player.Commands;
+using Hohoema.ViewModels.Pages.Commands;
 
 namespace Hohoema.ViewModels.PlayerSidePaneContent
 {
@@ -28,7 +30,9 @@ namespace Hohoema.ViewModels.PlayerSidePaneContent
            MylistRepository mylistRepository,
            HohoemaPlaylist hohoemaPlaylist,
            PageManager pageManager,
-           IScheduler scheduler
+           IScheduler scheduler,
+           PlayVideoCommand playVideoCommand,
+           OpenPageCommand openPageCommand
            )
         {
             NicoVideoProvider = nicoVideoProvider;
@@ -37,7 +41,8 @@ namespace Hohoema.ViewModels.PlayerSidePaneContent
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
             _scheduler = scheduler;
-
+            PlayVideoCommand = playVideoCommand;
+            OpenPageCommand = openPageCommand;
             HasVideoDescription = _VideoViewerHelpInfo != null;
 
             HohoemaPlaylist.ObserveProperty(x => x.CurrentItem)
@@ -72,6 +77,8 @@ namespace Hohoema.ViewModels.PlayerSidePaneContent
         public MylistProvider MylistProvider { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
+        public PlayVideoCommand PlayVideoCommand { get; }
+        public OpenPageCommand OpenPageCommand { get; }
         public bool HasVideoDescription { get; private set; }
         public ObservableCollection<VideoInfoControlViewModel> OtherVideos { get; } = new ObservableCollection<VideoInfoControlViewModel>();
         public VideoInfoControlViewModel NextVideo { get; private set; }

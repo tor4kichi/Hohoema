@@ -26,6 +26,7 @@ using Prism.Events;
 using Hohoema.Models.Repository.Playlist;
 using Hohoema.Models.Repository.Niconico.Mylist;
 using Hohoema.UseCase.Events;
+using Hohoema.Models.Repository.App;
 
 namespace Hohoema.UseCase.Playlist
 {

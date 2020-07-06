@@ -129,7 +129,7 @@ namespace Hohoema.Views
             this.GettingFocus += PrimaryWindowCoreLayout_GettingFocus;
 
 
-            _viewModel.AppearanceSettings.ObserveProperty(x => x.Theme)
+            _viewModel.AppearanceSettings.ObserveProperty(x => x.AppTheme)
                 .Subscribe(theme => 
                 {
                     if (theme == ElementTheme.Default)

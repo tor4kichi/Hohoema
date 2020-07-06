@@ -22,6 +22,7 @@ using Hohoema.Models.Pages;
 using Hohoema.Models.Repository.Niconico;
 using Hohoema.Models.Subscriptions;
 using Hohoema.UseCase.VideoCache;
+using Hohoema.ViewModels.Player.Commands;
 
 namespace Hohoema.ViewModels
 {
@@ -47,7 +48,8 @@ namespace Hohoema.ViewModels
             UserProvider userProvider,
             HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
-            AddSubscriptionCommand addSubscriptionCommand
+            AddSubscriptionCommand addSubscriptionCommand,
+            PlayVideoCommand playVideoCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -55,7 +57,7 @@ namespace Hohoema.ViewModels
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
             AddSubscriptionCommand = addSubscriptionCommand;
-
+            PlayVideoCommand = playVideoCommand;
             UserInfo = new ReactiveProperty<UserInfoViewModel>();
         }
 
@@ -65,6 +67,7 @@ namespace Hohoema.ViewModels
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
+        public PlayVideoCommand PlayVideoCommand { get; }
 
         public Models.Subscription.SubscriptionSource? SubscriptionSource => new Models.Subscription.SubscriptionSource(UserName, Models.Subscription.SubscriptionSourceType.User, UserId);
 
@@ -185,7 +188,7 @@ namespace Hohoema.ViewModels
             var items = res.Items.Skip(head).Take(count);
             foreach (var item in items)
             {
-                var vm = new VideoInfoControlViewModel(item.VideoId);
+                var vm = new VideoInfoControlViewModel(item.Id);
                 await vm.InitializeAsync(cancellationToken);
                 yield return vm;
             }

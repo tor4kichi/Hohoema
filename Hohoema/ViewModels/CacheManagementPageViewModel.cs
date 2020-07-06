@@ -23,6 +23,8 @@ using Hohoema.Models.Repository.VideoCache;
 using Hohoema.UseCase.Services;
 using Hohoema.UseCase.Events;
 using Hohoema.ViewModels.Pages;
+using Hohoema.ViewModels.Player.Commands;
+using Hohoema.Models.Repository.App;
 
 namespace Hohoema.ViewModels
 {
@@ -37,7 +39,8 @@ namespace Hohoema.ViewModels
             PageManager pageManager,
             IConfirmCacheUsageDialogService cacheUsageDialogService,
             IInAppNotificationService notificationService,
-            HohoemaPlaylist hohoemaPlaylist
+            HohoemaPlaylist hohoemaPlaylist,
+            PlayVideoCommand playVideoCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -48,6 +51,7 @@ namespace Hohoema.ViewModels
             _cacheUsageDialogService = cacheUsageDialogService;
             _inAppNotificationService = notificationService;
             HohoemaPlaylist = hohoemaPlaylist;
+            PlayVideoCommand = playVideoCommand;
             IsRequireUpdateCacheSaveFolder = new ReactiveProperty<bool>(false);
 
             IsCacheUserAccepted = _cacheSettingsRepository.ObserveProperty(x => x.IsCacheAccepted)
@@ -130,7 +134,7 @@ namespace Hohoema.ViewModels
         public NicoVideoProvider NicoVideoProvider { get; }
         public IInAppNotificationService _inAppNotificationService { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
-
+        public PlayVideoCommand PlayVideoCommand { get; }
 
 
         public ReadOnlyReactiveProperty<bool> IsCacheUserAccepted { get; private set; }

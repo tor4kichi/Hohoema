@@ -1,5 +1,6 @@
 ﻿using Hohoema.Models;
 using Hohoema.Models.Niconico;
+using Hohoema.Models.Repository.App;
 using Hohoema.Models.Repository.Niconico.NicoVideo.Comment;
 using Hohoema.Models.Repository.Playlist;
 using System;

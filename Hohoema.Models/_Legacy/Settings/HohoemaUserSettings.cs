@@ -67,7 +67,7 @@ namespace Hohoema.Models
                 PinSettings = pin,
             };
 
-            settings.SetupSaveWithPropertyChanged();
+            //settings.SetupSaveWithPropertyChanged();
 
             return settings;
 		}
@@ -122,6 +122,7 @@ namespace Hohoema.Models
         }
     }
 
+    [Obsolete]
 	[DataContract]
 	public abstract class SettingsBase : FixPrism.BindableBase
     {
@@ -180,25 +181,26 @@ namespace Hohoema.Models
 			return result;
 		}
 
-
+        [Obsolete]
 		public async Task Save()
 		{
-			try
-			{
-				await _FileLock.WaitAsync();
-				var file = await Folder.CreateFileAsync(FileName, CreationCollisionOption.OpenIfExists);
-				var serializedText = JsonConvert.SerializeObject(this);
+            await Task.CompletedTask;
+			//try
+			//{
+			//	await _FileLock.WaitAsync();
+			//	var file = await Folder.CreateFileAsync(FileName, CreationCollisionOption.OpenIfExists);
+			//	var serializedText = JsonConvert.SerializeObject(this);
 
-				await FileIO.WriteTextAsync(file, serializedText);
-			}
-            catch (FileNotFoundException)
-            {
-                System.Diagnostics.Debug.WriteLine($" failed save setting. {FileName}");
-            }
-			finally
-			{
-				_FileLock.Release();
-			}
+			//	await FileIO.WriteTextAsync(file, serializedText);
+			//}
+   //         catch (FileNotFoundException)
+   //         {
+   //             System.Diagnostics.Debug.WriteLine($" failed save setting. {FileName}");
+   //         }
+			//finally
+			//{
+			//	_FileLock.Release();
+			//}
 		}
 
         public async Task<StorageFile> GetFile()

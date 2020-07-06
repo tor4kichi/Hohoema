@@ -28,7 +28,6 @@ namespace Hohoema.ViewModels.Pages.Commands
                 || parameter is FollowItemInfo
                 || parameter is IPageNavigatable
                 || parameter is IVideoContent
-                || parameter is ILiveContent
                 || parameter is ICommunity
                 || parameter is IMylist
                 || parameter is IUser
@@ -91,9 +90,6 @@ namespace Hohoema.ViewModels.Pages.Commands
                     break;
                 case IVideoContent videoContent:
                     _pageManager.OpenPageWithId(HohoemaPageType.VideoInfomation, videoContent.Id);
-                    break;
-                case ILiveContent liveContent:
-                    _pageManager.OpenPageWithId(HohoemaPageType.LiveInfomation, liveContent.Id);
                     break;
                 case ICommunity communityContent:
                     _pageManager.OpenPageWithId(HohoemaPageType.Community, communityContent.Id);

@@ -1,36 +1,31 @@
-﻿using Reactive.Bindings;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Hohoema.Models;
-using System.Reactive.Linq;
+﻿using Hohoema.Interfaces;
 using Hohoema.Models.Helpers;
-using System.Text.RegularExpressions;
-using Prism.Mvvm;
-using Hohoema.Services;
-using Reactive.Bindings.Extensions;
-using Unity;
-using Prism.Navigation;
-using Hohoema.ViewModels.Pages;
-using Hohoema.Services.Helpers;
-using Prism.Commands;
-using System.Collections.ObjectModel;
-using Hohoema.Database.Local;
-using System.Diagnostics;
-using System.Reactive.Concurrency;
-using Prism.Events;
-using Hohoema.UseCase.Playlist;
-using Hohoema.Interfaces;
-using I18NPortable;
-using Hohoema.UseCase;
-using System.Threading;
-using System.Runtime.CompilerServices;
 using Hohoema.Models.Pages;
+using Hohoema.Models.Repository.App;
+using Hohoema.Models.Repository.Niconico;
 using Hohoema.Models.Repository.Niconico.NicoVideo;
 using Hohoema.Models.Repository.Niconico.NicoVideo.Ranking;
+using Hohoema.UseCase;
 using Hohoema.UseCase.Events;
-using Hohoema.Models.Repository.Niconico;
+using Hohoema.UseCase.Playlist;
+using Hohoema.ViewModels.Pages;
+using Hohoema.ViewModels.Pages.Commands;
+using Hohoema.ViewModels.Player.Commands;
+using I18NPortable;
+using Prism.Events;
+using Prism.Navigation;
+using Reactive.Bindings;
+using Reactive.Bindings.Extensions;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics;
+using System.Linq;
+using System.Reactive.Concurrency;
+using System.Reactive.Linq;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Hohoema.ViewModels
 {
@@ -80,7 +75,9 @@ namespace Hohoema.ViewModels
             RankingProvider rankingProvider,
             RankingSettingsRepository rankingSettings,
             IScheduler scheduler,
-            IEventAggregator eventAggregator
+            IEventAggregator eventAggregator,
+            OpenPageCommand openPageCommand,
+            PlayVideoCommand playVideoCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -91,6 +88,8 @@ namespace Hohoema.ViewModels
             RankingSettings = rankingSettings;
             _scheduler = scheduler;
             _eventAggregator = eventAggregator;
+            OpenPageCommand = openPageCommand;
+            PlayVideoCommand = playVideoCommand;
             IsFailedRefreshRanking = new ReactiveProperty<bool>(false)
                 .AddTo(_CompositeDisposable);
             CanChangeRankingParameter = new ReactiveProperty<bool>(false)
@@ -180,6 +179,9 @@ namespace Hohoema.ViewModels
         public NicoVideoProvider NicoVideoProvider { get; }
         public RankingSettingsRepository RankingSettings { get; }
         public RankingProvider RankingProvider { get; }
+
+        public OpenPageCommand OpenPageCommand { get; }
+        public PlayVideoCommand PlayVideoCommand { get; }
 
         private static RankingGenre? _previousRankingGenre;
         private readonly IScheduler _scheduler;

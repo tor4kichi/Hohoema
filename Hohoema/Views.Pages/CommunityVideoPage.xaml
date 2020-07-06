@@ -26,7 +26,7 @@
           <actions:ScrollViewerVerticalPositionSettingsAction Target="{x:Bind ItemsList}" VerticalOffset="{Binding ScrollPosition.Value}" WithAnimation="False" Delay="0:0:0.001" />
         </core:DataTriggerBehavior>
         <core:EventTriggerBehavior EventName="ItemClick">
-          <core:InvokeCommandAction Command="{Binding HohoemaPlaylist.PlayCommand}"
+          <core:InvokeCommandAction Command="{Binding PlayVideoCommand}"
                                     InputConverter="{StaticResource ItemClickEventArgsConverter}" />
         </core:EventTriggerBehavior>
       </i:Interaction.Behaviors>

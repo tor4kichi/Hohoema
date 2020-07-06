@@ -118,6 +118,8 @@ namespace Hohoema.Services
                     break;
                 }
 
+                mail = result.Mail;
+                password = result.Password;
                 isRememberPassword = result.IsRememberPassword;
                 warningText = string.Empty;
 
@@ -172,7 +174,6 @@ namespace Hohoema.Services
 
         private async void NiconicoSession_RequireTwoFactorAuth(object sender, NiconicoSessionLoginRequireTwoFactorAuthEventArgs e)
         {
-            var deferral = e.Deferral;
             var currentView = CoreApplication.GetCurrentView();
             if (currentView.IsMain)
             {
@@ -184,8 +185,6 @@ namespace Hohoema.Services
             {
                 await ShowTwoFactorNumberInputDialogAsync(e.Token);
             }
-
-            deferral.Complete();
 
             // ログイン処理が終わるぐらいまで待機して
             await Task.Delay(500);

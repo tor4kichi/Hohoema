@@ -26,6 +26,8 @@ using Hohoema.Models.Subscriptions;
 using Hohoema.ViewModels.ExternalAccess.Commands;
 using Hohoema.Models.Repository.Niconico.Mylist;
 using Hohoema.Models.Repository;
+using Hohoema.ViewModels.Player.Commands;
+using Hohoema.ViewModels.Pages.Commands;
 
 namespace Hohoema.ViewModels
 {
@@ -58,7 +60,10 @@ namespace Hohoema.ViewModels
             MylistRepository mylistRepository,
             NiconicoFollowToggleButtonService followToggleButtonService,
             ViewModels.Subscriptions.AddSubscriptionCommand addSubscriptionCommand,
-            OpenLinkCommand openLinkCommand
+            OpenLinkCommand openLinkCommand,
+            PlayVideoCommand playVideoCommand,
+            OpenPageCommand openPageCommand,
+            OpenVideoListPageCommand openVideoListPageCommand
             )
         {
             NiconicoSession = niconicoSession;
@@ -70,6 +75,9 @@ namespace Hohoema.ViewModels
             FollowToggleButtonService = followToggleButtonService;
             AddSubscriptionCommand = addSubscriptionCommand;
             OpenLinkCommand = openLinkCommand;
+            PlayVideoCommand = playVideoCommand;
+            OpenPageCommand = openPageCommand;
+            OpenVideoListPageCommand = openVideoListPageCommand;
             ApplicationLayoutManager = applicationLayoutManager;
             UserProvider = userProvider;
             _videoListFilterSettings = videoListFilterSettings;
@@ -117,6 +125,9 @@ namespace Hohoema.ViewModels
         public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
         public OpenLinkCommand OpenLinkCommand { get; }
+        public PlayVideoCommand PlayVideoCommand { get; }
+        public OpenPageCommand OpenPageCommand { get; }
+        public OpenVideoListPageCommand OpenVideoListPageCommand { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public UserProvider UserProvider { get; }
         
@@ -338,7 +349,7 @@ namespace Hohoema.ViewModels
                 var userVideos = await UserProvider.GetUserVideos(uint.Parse(UserId), 1);
                 foreach (var item in userVideos.Items.Take(5))
                 {
-                    var vm = new VideoInfoControlViewModel(item.VideoId);
+                    var vm = new VideoInfoControlViewModel(item.Id);
                     vm.SetTitle(item.Title);
                     vm.SetThumbnailImage(item.ThumbnailUrl);
                     VideoInfoItems.Add(vm);

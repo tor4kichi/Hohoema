@@ -187,7 +187,6 @@
     <Compile Include="ViewModels\Player.Commands\MediaPlayerVolumeChangeCommand.cs" />
     <Compile Include="ViewModels\Player.Commands\NicoLiveUserIdAddToNGCommand.cs" />
     <Compile Include="ViewModels\Player.Commands\NicoLiveUserIdRemoveFromNGCommand.cs" />
-    <Compile Include="ViewModels\Player.Commands\OpenBroadcasterInfoCommand.cs" />
     <Compile Include="ViewModels\Player.Commands\PlayVideoCommand.cs" />
     <Compile Include="ViewModels\Player.Commands\ToggleShuffleCommand.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\VideoCommentSidePaneContentViewModel.cs" />

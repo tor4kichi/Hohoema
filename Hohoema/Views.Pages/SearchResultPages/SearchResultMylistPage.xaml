@@ -56,7 +56,7 @@
           <actions:ScrollViewerVerticalPositionSettingsAction Target="{x:Bind ItemsList}" VerticalOffset="{Binding ScrollPosition.Value}" WithAnimation="False" Delay="0:0:0.001" />
         </core:DataTriggerBehavior>
         <core:EventTriggerBehavior EventName="ItemClick">
-          <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+          <core:InvokeCommandAction Command="{Binding OpenPageCommand}"
                                     InputConverter="{StaticResource ItemClickEventArgsConverter}" />
         </core:EventTriggerBehavior>
 
@@ -103,7 +103,7 @@
                 </CommandBar.PrimaryCommands>
                 <CommandBar.Content>
                   <toolkit:DockPanel x:Name="TitleLayout" Margin="16 0 0 0">
-                    <HyperlinkButton Command="{Binding PageManager.OpenPageCommand}" CommandParameter="Search" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Margin="0 0 16 0" toolkit:DockPanel.Dock="Left" VerticalAlignment="Stretch" Height="48">
+                    <HyperlinkButton Command="{Binding OpenPageCommand}" CommandParameter="Search" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Margin="0 0 16 0" toolkit:DockPanel.Dock="Left" VerticalAlignment="Stretch" Height="48">
                       <SymbolIcon Symbol="Find" />
                     </HyperlinkButton>
                     <HyperlinkButton toolkit:DockPanel.Dock="Left" Margin="8 0">

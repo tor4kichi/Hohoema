@@ -101,14 +101,6 @@ namespace Hohoema.Services.Player
                     return videoData.Title;
                 }
             }
-            else if (pageName == "LivePlayerPage")
-            {
-                if (parameters.TryGetValue("id", out string liveId))
-                {
-                    var liveData = Database.NicoLiveDb.Get(liveId);
-                    return liveData?.Title;
-                }
-            }
 
             return null;
         }

@@ -1,4 +1,5 @@
-﻿using Hohoema.Models.Repository.Niconico.NicoVideo.Ranking;
+﻿using Hohoema.Models.Repository.App;
+using Hohoema.Models.Repository.Niconico.NicoVideo.Ranking;
 using System;
 using System.Collections.Generic;
 using System.Linq;

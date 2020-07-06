@@ -45,8 +45,6 @@ namespace Hohoema.Models.Niconico
 
     public struct NiconicoSessionLoginRequireTwoFactorAuthEventArgs
     {
-        public Deferral Deferral { get; set; }
-
         public Uri TwoFactorAuthPageUri { get; set; }
 
         public TwoFactorAuthToken Token { get; set; }
@@ -377,7 +375,6 @@ namespace Hohoema.Models.Niconico
 
                         RequireTwoFactorAuth.Invoke(this, new NiconicoSessionLoginRequireTwoFactorAuthEventArgs()
                         {
-                            Deferral = deferral,
                             TwoFactorAuthPageUri = context.LastRedirectHttpRequestMessage.RequestUri,
                             Token = new TwoFactorAuthToken()
                             {

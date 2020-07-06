@@ -10,7 +10,6 @@ using Windows.UI.Xaml.Controls;
 using Hohoema.Events;
 using Hohoema.Models.Helpers;
 using Hohoema.Models.Repository.Niconico.NicoVideo;
-using Hohoema.Models.Repository.NicoLive;
 using Hohoema.Models.Repository.Niconico;
 using Hohoema.Models.Repository.Niconico.Community;
 using Hohoema.Models.Repository.Niconico.Mylist;
@@ -30,7 +29,6 @@ namespace Hohoema.Services
         private readonly PageManager _pageManager;
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly MylistProvider _mylistProvider;
-        private readonly NicoLiveProvider _nicoLiveProvider;
         private readonly CommunityProvider _communityProvider;
         private readonly UserProvider _userProvider;
 
@@ -39,7 +37,6 @@ namespace Hohoema.Services
             PageManager pageManager,
             NicoVideoProvider nicoVideoProvider,
             MylistProvider mylistProvider,
-            NicoLiveProvider nicoLiveProvider,
             CommunityProvider communityProvider,
             UserProvider userProvider
             )
@@ -48,7 +45,6 @@ namespace Hohoema.Services
             _pageManager = pageManager;
             _nicoVideoProvider = nicoVideoProvider;
             _mylistProvider = mylistProvider;
-            _nicoLiveProvider = nicoLiveProvider;
             _communityProvider = communityProvider;
             _userProvider = userProvider;
         }

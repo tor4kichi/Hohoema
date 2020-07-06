@@ -20,8 +20,6 @@ namespace Hohoema.Models.Repository.Subscriptions
             set => Save(value);
         }
 
-
-
         public bool IsSortWithSubscriptionUpdated
         {
             get => Read(true);

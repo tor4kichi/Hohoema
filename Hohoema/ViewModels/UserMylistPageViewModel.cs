@@ -23,6 +23,7 @@ using Hohoema.Models.Niconico;
 using Hohoema.Models.Repository.Niconico;
 using Hohoema.UseCase.Services;
 using Hohoema.Models.Repository;
+using Hohoema.ViewModels.Pages.Commands;
 
 namespace Hohoema.ViewModels
 {
@@ -54,7 +55,8 @@ namespace Hohoema.ViewModels
             UserMylistManager userMylistManager,
             LocalMylistManager localMylistManager,
             HohoemaPlaylist hohoemaPlaylist,
-            CreateLocalMylistCommand createLocalMylistCommand
+            CreateLocalMylistCommand createLocalMylistCommand,
+            OpenPageCommand openPageCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -67,6 +69,7 @@ namespace Hohoema.ViewModels
             _userMylistManager = userMylistManager;
             _localMylistManager = localMylistManager;
             CreateLocalMylistCommand = createLocalMylistCommand;
+            OpenPageCommand = openPageCommand;
             HohoemaPlaylist = hohoemaPlaylist;
             IsLoginUserMylist = new ReactiveProperty<bool>(false);
 
@@ -246,7 +249,7 @@ namespace Hohoema.ViewModels
         public DelegateCommand<IPlaylist> EditMylistGroupCommand { get; private set; }
         
         public CreateLocalMylistCommand CreateLocalMylistCommand { get; private set; }
-
+        public OpenPageCommand OpenPageCommand { get; }
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {

@@ -18,6 +18,8 @@ using Hohoema.Models.Pages;
 using Hohoema.Models.Repository.Niconico;
 using Hohoema.Models.Subscriptions;
 using Hohoema.Models.Pages.PagePayload;
+using Hohoema.ViewModels.Player.Commands;
+using Hohoema.ViewModels.Pages.Commands;
 
 namespace Hohoema.ViewModels
 {
@@ -45,7 +47,9 @@ namespace Hohoema.ViewModels
             SubscriptionManager subscriptionManager,
             HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
-            ViewModels.Subscriptions.AddKeywordSearchSubscriptionCommand addKeywordSearchSubscriptionCommand
+            ViewModels.Subscriptions.AddKeywordSearchSubscriptionCommand addKeywordSearchSubscriptionCommand,
+            PlayVideoCommand playVideoCommand,
+            OpenPageCommand openPageCommand
             )
         {
             FailLoading = new ReactiveProperty<bool>(false)
@@ -85,6 +89,8 @@ namespace Hohoema.ViewModels
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
             AddKeywordSearchSubscriptionCommand = addKeywordSearchSubscriptionCommand;
+            PlayVideoCommand = playVideoCommand;
+            OpenPageCommand = openPageCommand;
             SubscriptionManager = subscriptionManager;
         }
 
@@ -253,6 +259,8 @@ namespace Hohoema.ViewModels
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
         public AddKeywordSearchSubscriptionCommand AddKeywordSearchSubscriptionCommand { get; }
+        public PlayVideoCommand PlayVideoCommand { get; }
+        public OpenPageCommand OpenPageCommand { get; }
         public SubscriptionManager SubscriptionManager { get; }
 
 

@@ -59,7 +59,7 @@
             <StackPanel Margin="0 0">
               <Border Height="16" Visibility="{Binding IsVideoPrivate, Converter={StaticResource BooleanToVisibilityInverted}}" />
               <toolkit:DockPanel x:Name="UserVideoTitleLayout">
-                <HyperlinkButton Command="{Binding PageManager.OpenVideoListPageCommand}" CommandParameter="{Binding}" IsEnabled="{Binding HasOwnerVideo}" Foreground="{ThemeResource ApplicationForegroundThemeBrush}" Margin="0 8">
+                <HyperlinkButton Command="{Binding OpenVideoListPageCommand}" CommandParameter="{Binding}" IsEnabled="{Binding HasOwnerVideo}" Foreground="{ThemeResource ApplicationForegroundThemeBrush}" Margin="0 8">
                   <TextBlock Style="{StaticResource SubtitleTextBlockStyle}" Text="{Binding Source=UserOwnedVideos, Converter={StaticResource LocalizeConverter}}" />
                 </HyperlinkButton>
               </toolkit:DockPanel>
@@ -75,7 +75,7 @@
                         ScrollViewer.HorizontalScrollBarVisibility="Hidden">
                 <i:Interaction.Behaviors>
                   <core:EventTriggerBehavior EventName="ItemClick">
-                    <core:InvokeCommandAction Command="{Binding HohoemaPlaylist.PlayCommand}"
+                    <core:InvokeCommandAction Command="{Binding PlayVideoCommand}"
                                               InputConverter="{StaticResource ItemClickEventArgsConverter}" />
                   </core:EventTriggerBehavior>
                 </i:Interaction.Behaviors>
@@ -121,7 +121,7 @@
                               IsItemClickEnabled="True">
                       <i:Interaction.Behaviors>
                         <core:EventTriggerBehavior EventName="ItemClick">
-                          <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+                          <core:InvokeCommandAction Command="{Binding OpenPageCommand}"
                                                     InputConverter="{StaticResource ItemClickEventArgsConverter}" />
                         </core:EventTriggerBehavior>
                       </i:Interaction.Behaviors>

@@ -16,6 +16,7 @@ using Prism.Ioc;
 using Hohoema.Models.Niconico;
 using Hohoema.ViewModels.Pages;
 using Hohoema.Models.Pages;
+using Hohoema.ViewModels.Pages.Commands;
 
 namespace Hohoema.ViewModels.PrimaryWindowCoreLayout
 {
@@ -25,13 +26,15 @@ namespace Hohoema.ViewModels.PrimaryWindowCoreLayout
             NiconicoSession niconicoSession,
             LocalMylistManager localMylistManager,
             UserMylistManager mylistManager,
-            PageManager pageManager
+            PageManager pageManager,
+            OpenPageCommand openPageCommand
             )
         {
             NiconicoSession = niconicoSession;
             LocalMylistManager = localMylistManager;
             MylistManager = mylistManager;
             PageManager = pageManager;
+            OpenPageCommand = openPageCommand;
             MenuItems = new ObservableCollection<HohoemaListingPageItemBase>();
 
             ResetMenuItems();
@@ -55,6 +58,7 @@ namespace Hohoema.ViewModels.PrimaryWindowCoreLayout
         public NiconicoSession NiconicoSession { get; }
         public LocalMylistManager LocalMylistManager { get; }
         public PageManager PageManager { get; }
+        public OpenPageCommand OpenPageCommand { get; }
 
         private CompositeDisposable _CompositeDisposable = new CompositeDisposable();
 

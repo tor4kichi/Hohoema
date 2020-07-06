@@ -5,7 +5,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Hohoema.Models.Niconico;
-using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.Niconico.Video;
 using Mntone.Nico2.NicoRepo;
 
@@ -93,10 +92,6 @@ namespace Hohoema.Models.Repository.NicoRepo
                     NicoRepoItemTopic.NicoVideo_User_Video_Advertise => new NotSupportedNicoRepoItem(itemTopic, item),
                     NicoRepoItemTopic.NicoVideo_Channel_Blomaga_Upload => new NotSupportedNicoRepoItem(itemTopic, item),
                     NicoRepoItemTopic.NicoVideo_Channel_Video_Upload => new VideoNicoRepoItem(itemTopic, item),
-                    NicoRepoItemTopic.Live_User_Program_OnAirs => new LiveNicoRepoItem(itemTopic, item),
-                    NicoRepoItemTopic.Live_User_Program_Reserve => new LiveNicoRepoItem(itemTopic, item),
-                    NicoRepoItemTopic.Live_Channel_Program_Onairs => new LiveNicoRepoItem(itemTopic, item),
-                    NicoRepoItemTopic.Live_Channel_Program_Reserve => new LiveNicoRepoItem(itemTopic, item),
                     _ => null,
                 };
 
@@ -139,29 +134,6 @@ namespace Hohoema.Models.Repository.NicoRepo
         string SenderName { get; }
     }
 
-    public interface ILiveNicoRepoItem : INicoRepoItem
-    {
-        string ProgramId { get; }
-
-        DateTime ProgramBeginAt { get; }
-
-        bool IsPayProgram { get; }
-
-        string Thumbnailrl { get; }
-
-        string Title { get; }
-        
-        LiveProviderType ProviderType { get; }
-
-        string ProviderId { get; }
-
-        string ProviderName { get; }
-
-        string ProviderIconUrl { get; }
-
-        string SenderName { get; }
-        string SenderId { get; }
-    }
 
     public interface INotSuppotedNicoRepoItem : INicoRepoItem
     {
@@ -218,76 +190,6 @@ namespace Hohoema.Models.Repository.NicoRepo
 
     }
 
-    internal class LiveNicoRepoItem : ILiveNicoRepoItem
-    {
-        private readonly NicoRepoTimelineItem _tlItem;
-
-        public NicoRepoItemTopic ItemTopic { get; }
-
-        public string ProgramId => _tlItem.Program.Id;
-
-        public DateTime ProgramBeginAt => _tlItem.Program.BeginAt;
-
-        public bool IsPayProgram => _tlItem.Program.IsPayProgram;
-
-        public string Thumbnailrl => _tlItem.Program.ThumbnailUrl;
-
-        public string Title => _tlItem.Program.Title;
-
-        public LiveProviderType ProviderType => _tlItem.Community == null ? LiveProviderType.Channel : LiveProviderType.User;
-
-        public string ProviderId => ProviderType switch
-        {
-            LiveProviderType.Channel => "ch" + _tlItem.SenderChannel?.Id.ToString(),
-            LiveProviderType.User => _tlItem.Community.Id,
-            _ => throw new NotSupportedException(ProviderType.ToString())
-        };
-        
-
-        public string ProviderName => ProviderType switch
-        {
-            LiveProviderType.Channel => _tlItem.SenderChannel?.Name,
-            LiveProviderType.User => _tlItem.Community.Name,
-            _ => throw new NotSupportedException(ProviderType.ToString())
-        };
-
-        public string ProviderIconUrl => ProviderType switch
-        {
-            LiveProviderType.Channel => _tlItem.SenderChannel?.ThumbnailUrl,
-            LiveProviderType.User => _tlItem.Community.ThumbnailUrl.Normal,
-            _ => throw new NotSupportedException(ProviderType.ToString())
-        };
-
-        public string SenderId => ProviderType switch
-        {
-            LiveProviderType.User => _tlItem.SenderNiconicoUser.Id.ToString(),
-            LiveProviderType.Channel => "ch" + _tlItem.SenderChannel.Id.ToString(),
-            _ => throw new NotSupportedException(ProviderType.ToString())
-        };
-
-        public string SenderName => ProviderType switch
-        {
-            LiveProviderType.User => _tlItem.SenderNiconicoUser.Nickname,
-            LiveProviderType.Channel => _tlItem.SenderChannel.Name,
-            _ => throw new NotSupportedException(ProviderType.ToString())
-        };
-
-        public string Id => _tlItem.Id;
-
-        public DateTime CreatedAt => _tlItem.CreatedAt;
-
-        public bool IsVisible => _tlItem.IsVisible;
-
-        public bool IsMuted => _tlItem.IsMuted;
-
-        public bool? IsDeletable => _tlItem.IsDeletable;
-
-        public LiveNicoRepoItem(NicoRepoItemTopic itemTopic, NicoRepoTimelineItem tlItem)
-        {
-            ItemTopic = itemTopic;
-            _tlItem = tlItem;
-        }
-    }
 
     internal class NotSupportedNicoRepoItem : INotSuppotedNicoRepoItem
     {

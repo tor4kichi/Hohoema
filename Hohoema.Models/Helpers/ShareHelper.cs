@@ -24,11 +24,6 @@ namespace Hohoema.Models.Helpers
                 var content = parameter as IVideoContent;
                 return MakeShareText(content.Id, content.Label);
             }
-            else if (parameter is ILiveContent)
-            {
-                var content = parameter as ILiveContent;
-                return MakeShareText(content.Id, content.Label, "ニコニコ生放送");
-            }
             else if (parameter is ICommunity)
             {
                 var content = parameter as ICommunity;
@@ -60,10 +55,6 @@ namespace Hohoema.Models.Helpers
             return $"{title} http://nico.ms/{id} #{id} {hashTagsString}#Hohoema";
         }
 
-        public static string MakeShareText(ILiveContent live)
-        {
-            return MakeLiveShareText(live.Label, live.Id);
-        }
         public static string MakeLiveShareText(string liveTitle, string liveId)
         {
             return $"{liveTitle} http://nico.ms/{liveId} #{liveId} #ニコニコ生放送 #Hohoema";
@@ -109,11 +100,6 @@ namespace Hohoema.Models.Helpers
             await ShareToTwitter(MakeShareText(video));
         }
 
-        public static async Task ShareToTwitter(ILiveContent video)
-        {
-            await ShareToTwitter(MakeShareText(video));
-        }
-
 
 
 
@@ -134,11 +120,6 @@ namespace Hohoema.Models.Helpers
         }
 
         public static void Share(IVideoContent video)
-        {
-            Share(MakeShareText(video));
-        }
-
-        public static void Share(ILiveContent video)
         {
             Share(MakeShareText(video));
         }

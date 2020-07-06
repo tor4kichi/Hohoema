@@ -20,7 +20,11 @@ namespace Hohoema.Models.Repository.App
 			NgVideoTitleKeywordRepository ngVideoTitleKeywordRepository
 			)
         {
-            _ngVideoRepository = ngVideoRepository;
+			_NGVideoOwnerUserIdEnable = Read(true, nameof(NGVideoOwnerUserIdEnable));
+			_NGVideoIdEnable = Read(true, nameof(NGVideoIdEnable));
+			_NGVideoTitleKeywordEnable = Read(true, nameof(NGVideoTitleKeywordEnable));
+
+			_ngVideoRepository = ngVideoRepository;
             _ngVideoOwnerRepository = ngVideoOwnerRepository;
             _ngVideoTitleKeywordRepository = ngVideoTitleKeywordRepository;
 
@@ -117,6 +121,7 @@ namespace Hohoema.Models.Repository.App
 			
 			if (this.NGVideoTitleKeywordEnable)
 			{
+				_ngVideoTitleKeywords ??= GetAllNGVideoTitleKeyword();
 				var ngKeyword = _ngVideoTitleKeywords.Find(x => x.CheckNG(title));
 				if (ngKeyword != null)
 				{

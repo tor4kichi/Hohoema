@@ -36,7 +36,7 @@
     
 
     <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
-                                      ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
+                                      ItemCommand="{Binding PlayVideoCommand}"
                                       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
                                       RefreshCommand="{Binding RefreshCommand}"
                                       IsUpdateSourceVideoItem="False"
@@ -75,7 +75,7 @@
               </CommandBar.PrimaryCommands>
               <CommandBar.SecondaryCommands>
                 <AppBarButton Label="{Binding Source=OpenWithBrowser, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
-                                            Command="{Binding ExternalAccessService.OpenLinkCommand}"
+                                            Command="{Binding OpenLinkCommand}"
                                               CommandParameter="{Binding}"
                                             VerticalAlignment="Center"
                                             UseSystemFocusVisuals="True"

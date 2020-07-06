@@ -11,6 +11,8 @@ using Microsoft.Toolkit.Collections;
 
 namespace Hohoema.Models
 {
+    using RankingGenre = Models.Repository.Niconico.NicoVideo.Ranking.RankingGenre;
+
     [Obsolete]
     [DataContract]
 	public class RankingSettings : SettingsBase

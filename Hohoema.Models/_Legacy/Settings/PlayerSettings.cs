@@ -65,6 +65,7 @@ namespace Hohoema.Models
 
 			NGCommentUserIdEnable = true;
 			NGCommentKeywordEnable = true;
+			NGCommentUserIds = new ObservableCollection<UserIdInfo>();
 			NGCommentKeywords = new ObservableCollection<NGKeyword>();
 			NGCommentScore = -1000;
 		}
@@ -407,7 +408,7 @@ namespace Hohoema.Models
 		}
 
 		[DataMember]
-		public ObservableCollection<UserIdInfo> NGCommentUserIds { get; private set; }
+		public ObservableCollection<UserIdInfo> NGCommentUserIds { get; private set; } 
 
 		private bool _NGCommentKeywordEnable;
 

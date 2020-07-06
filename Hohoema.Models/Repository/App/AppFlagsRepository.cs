@@ -46,5 +46,11 @@ namespace Hohoema.Models.Repository.App
             get => Read<bool>();
             set => Save(value);
         }
+
+        public bool V1_0_0_UserSettingsUpgraded
+        {
+            get => Read<bool>();
+            set => Save(value);
+        }
     }
 }

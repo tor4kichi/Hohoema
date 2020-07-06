@@ -79,11 +79,11 @@ namespace Hohoema.ViewModels
             // アピアランス
 
             var currentTheme = App.GetTheme();
-            SelectedTheme = new ReactiveProperty<ElementTheme>(_appearanceSettings.Theme, mode: ReactivePropertyMode.DistinctUntilChanged);
+            SelectedTheme = new ReactiveProperty<ElementTheme>(_appearanceSettings.AppTheme, mode: ReactivePropertyMode.DistinctUntilChanged);
 
             SelectedTheme.Subscribe(theme =>
             {
-                _appearanceSettings.Theme = theme;
+                _appearanceSettings.AppTheme = theme;
 
                 ApplicationTheme appTheme;
                 if (theme == ElementTheme.Default)

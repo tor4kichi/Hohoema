@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hohoema.Models.Repository.VideoCache
+namespace Hohoema.Models.Repository.App
 {
     public sealed class CacheSettingsRepository : FlagsRepositoryBase
     {
@@ -13,6 +13,7 @@ namespace Hohoema.Models.Repository.VideoCache
         {
             _IsCacheEnabled = Read(true, nameof(IsCacheEnabled));
             _IsAcceptedCache = Read(false, nameof(IsCacheAccepted));
+            _DefaultCacheQuality = Read(NicoVideoQuality.Dmc_Midium, nameof(DefaultCacheQuality));
         }
 
         bool _IsCacheEnabled;

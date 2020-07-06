@@ -24,6 +24,7 @@ using System.Runtime.CompilerServices;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Repository.Niconico.NicoVideo.Histories;
 using Hohoema.Models.Repository;
+using Hohoema.ViewModels.Player.Commands;
 
 namespace Hohoema.ViewModels
 {
@@ -35,7 +36,8 @@ namespace Hohoema.ViewModels
             WatchHistoryManager watchHistoryManager,
             HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
-            WatchHistoryRemoveAllCommand watchHistoryRemoveAllCommand
+            WatchHistoryRemoveAllCommand watchHistoryRemoveAllCommand,
+            PlayVideoCommand playVideoCommand
             )
 		{
             ApplicationLayoutManager = applicationLayoutManager;
@@ -44,6 +46,7 @@ namespace Hohoema.ViewModels
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
             WatchHistoryRemoveAllCommand = watchHistoryRemoveAllCommand;
+            PlayVideoCommand = playVideoCommand;
             Histories = new ObservableCollection<HistoryVideoInfoControlViewModel>();
         }
 
@@ -54,6 +57,7 @@ namespace Hohoema.ViewModels
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
         public WatchHistoryRemoveAllCommand WatchHistoryRemoveAllCommand { get; }
+        public PlayVideoCommand PlayVideoCommand { get; }
         public ObservableCollection<HistoryVideoInfoControlViewModel> Histories { get; }
 
         HistoriesResponse _HistoriesResponse;

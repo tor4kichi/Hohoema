@@ -24,7 +24,6 @@ namespace Hohoema.ViewModels.Pages.Commands
         protected override bool CanExecute(object parameter)
         {
             return parameter is IVideoContent
-                || parameter is ILiveContent
                 || parameter is IMylist
                 ;
         }
@@ -47,14 +46,6 @@ namespace Hohoema.ViewModels.Pages.Commands
                         _pageManager.OpenPage(HohoemaPageType.ChannelVideo, p);
                     }
 
-                    break;
-                case ILiveContent liveContent:
-                    if (liveContent.ProviderType == Models.Niconico.Live.LiveProviderType.User)
-                    {
-                        var p = new NavigationParameters();
-                        p.Add("id", liveContent.ProviderId);
-                        _pageManager.OpenPage(HohoemaPageType.Community, p);
-                    }
                     break;
                 case IMylist mylist:
                     {

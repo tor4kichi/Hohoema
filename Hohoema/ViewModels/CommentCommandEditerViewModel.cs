@@ -13,9 +13,9 @@ using System.Threading.Tasks;
 using Windows.UI;
 using System.Reactive.Concurrency;
 using System.Threading;
-using Hohoema.Models.Repository.Playlist;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Repository.Niconico.NicoVideo;
+using Hohoema.Models.Repository.App;
 
 namespace Hohoema.ViewModels
 {

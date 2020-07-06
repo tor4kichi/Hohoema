@@ -18,6 +18,7 @@ using System.Reactive.Linq;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Hohoema.ViewModels.Player.Commands;
 
 namespace Hohoema.ViewModels
 {
@@ -41,13 +42,15 @@ namespace Hohoema.ViewModels
 		public CommunityVideoPageViewModel(
 			ApplicationLayoutManager applicationLayoutManager,
 			CommunityProvider communityProvider,
-            PageManager pageManager
+            PageManager pageManager,
+			PlayVideoCommand playVideoCommand
 			)
         {
 			ApplicationLayoutManager = applicationLayoutManager;
 			CommunityProvider = communityProvider;
             PageManager = pageManager;
-		}
+            PlayVideoCommand = playVideoCommand;
+        }
 
 
         public string CommunityId { get; private set; }
@@ -115,7 +118,8 @@ namespace Hohoema.ViewModels
 		public ApplicationLayoutManager ApplicationLayoutManager { get; }
 		public CommunityProvider CommunityProvider { get; }
         public PageManager PageManager { get; }
-	}
+        public PlayVideoCommand PlayVideoCommand { get; }
+    }
 
 
 	public class CommunityVideoIncrementalSource : HohoemaIncrementalSourceBase<CommunityVideoInfoViewModel>

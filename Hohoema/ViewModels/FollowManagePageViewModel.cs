@@ -14,6 +14,7 @@ using Hohoema.UseCase;
 using Hohoema.ViewModels.Pages;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Follow;
+using Hohoema.ViewModels.Pages.Commands;
 
 namespace Hohoema.ViewModels
 {
@@ -23,14 +24,15 @@ namespace Hohoema.ViewModels
             ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager,
             NiconicoSession niconicoSession,
-            FollowManager followManager
+            FollowManager followManager,
+            OpenPageCommand openPageCommand
             )
 		{
             ApplicationLayoutManager = applicationLayoutManager;
             PageManager = pageManager;
             NiconicoSession = niconicoSession;
             FollowManager = followManager;
-
+            OpenPageCommand = openPageCommand;
             NowUpdatingFavList = new ReactiveProperty<bool>();
 
             UpdateFavListCommand = new DelegateCommand<IFollowInfoGroup>(async (group) =>
@@ -70,7 +72,7 @@ namespace Hohoema.ViewModels
         public PageManager PageManager { get; }
         public NiconicoSession NiconicoSession { get; }
         public FollowManager FollowManager { get; }
-
+        public OpenPageCommand OpenPageCommand { get; }
 
         private DelegateCommand<FollowItemInfo> _RemoveFavoriteCommand;
         public DelegateCommand<FollowItemInfo> RemoveFavoriteCommand

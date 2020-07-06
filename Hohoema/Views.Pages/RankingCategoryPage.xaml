@@ -39,7 +39,7 @@
   <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}"
                                         >
     <videolistPage:VideoItemsListView ItemsSource="{Binding ItemsView}"
-                                      ItemCommand="{Binding HohoemaPlaylist.PlayCommand}"
+                                      ItemCommand="{Binding PlayVideoCommand}"
                                       ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}"
                                       RefreshCommand="{Binding RefreshCommand}"
                                       x:Name="VideoItemsListView"
@@ -51,7 +51,7 @@
               <CommandBar.Content>
                 <StackPanel Orientation="Horizontal" Spacing="16">
                   <HyperlinkButton 
-                        Command="{Binding PageManager.OpenPageCommand}"
+                        Command="{Binding OpenPageCommand}"
                         CommandParameter="RankingCategoryList"
                         Foreground="{ThemeResource ApplicationForegroundThemeBrush}"
                         VerticalAlignment="Center"

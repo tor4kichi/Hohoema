@@ -696,7 +696,7 @@ namespace Hohoema.ViewModels
             {
                 foreach (var item in res.VideoItems.Where(x => x != null))
                 {
-					var vm = new VideoInfoControlViewModel(item.VideoId);
+					var vm = new VideoInfoControlViewModel(item.Id);
 					await vm.InitializeAsync(cancellationToken);
 					yield return vm;
                 }

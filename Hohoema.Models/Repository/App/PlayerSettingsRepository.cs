@@ -7,11 +7,42 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Windows.UI;
 
-namespace Hohoema.Models.Repository.Playlist
+namespace Hohoema.Models.Repository.App
 {
     public sealed class PlayerSettingsRepository : FlagsRepositoryBase
     {
-		private NicoVideoQuality _DefaultQuality = NicoVideoQuality.Dmc_Midium;
+		public PlayerSettingsRepository()
+        {
+			_DefaultQuality = Read(NicoVideoQuality.Dmc_Midium, nameof(DefaultQuality));
+			_IsMute = Read(false, nameof(IsMute));
+			_SoundVolume = Read(1.0, nameof(SoundVolume));
+			_SoundVolumeChangeFrequency = Read(0.05, nameof(SoundVolumeChangeFrequency));
+			_IsLoudnessCorrectionEnabled = Read(true, nameof(IsLoudnessCorrectionEnabled));
+			_IsCommentDisplay_Video = Read(true, nameof(IsCommentDisplay_Video));
+			_PauseWithCommentWriting = Read(false, nameof(PauseWithCommentWriting));
+			_CommentDisplayDuration = Read(TimeSpan.FromSeconds(4), nameof(CommentDisplayDuration));
+			_DefaultCommentFontScale = Read(1.0, nameof(DefaultCommentFontScale));
+			_CommentOpacity = Read(1.0, nameof(CommentOpacity));
+			_IsDefaultCommentWithAnonymous = Read(true, nameof(IsDefaultCommentWithAnonymous));
+			_CommentColor = Read(Colors.White, nameof(CommentColor));
+			_AutoHidePlayerControlUIPreventTime = Read(TimeSpan.FromSeconds(4), nameof(AutoHidePlayerControlUIPreventTime));
+			_IsForceLandscape = Read(false, nameof(IsForceLandscape));
+			_PlaybackRate = Read(1.0, nameof(PlaybackRate));
+			_NicoScript_DisallowSeek_Enabled = Read(true, nameof(NicoScript_DisallowSeek_Enabled));
+			_NicoScript_Default_Enabled = Read(true, nameof(NicoScript_Default_Enabled));
+			_NicoScript_Jump_Enabled = Read(true, nameof(NicoScript_Jump_Enabled));
+			_NicoScript_DisallowComment_Enabled = Read(true, nameof(NicoScript_DisallowComment_Enabled));
+			_NicoScript_Replace_Enabled = Read(true, nameof(NicoScript_Replace_Enabled));
+			_IsCurrentVideoLoopingEnabled = Read(false, nameof(IsCurrentVideoLoopingEnabled));
+			_IsPlaylistLoopingEnabled = Read(false, nameof(IsPlaylistLoopingEnabled));
+			_IsShuffleEnable = Read(false, nameof(IsShuffleEnable));
+			_IsReverseModeEnable = Read(false, nameof(IsReverseModeEnable));
+			_PlaylistEndAction = Read(Playlist.PlaylistEndAction.NothingDo, nameof(PlaylistEndAction));
+			_AutoMoveNextVideoOnPlaylistEmpty = Read(true, nameof(AutoMoveNextVideoOnPlaylistEmpty));
+		}
+
+
+		private NicoVideoQuality _DefaultQuality;
 		public NicoVideoQuality DefaultQuality
 		{
 			get { return _DefaultQuality; }
@@ -19,24 +50,9 @@ namespace Hohoema.Models.Repository.Playlist
 		}
 
 
-        private string _DefaultLiveQuality = null;
-        public string DefaultLiveQuality
-        {
-            get { return _DefaultLiveQuality; }
-            set { SetProperty(ref _DefaultLiveQuality, value); }
-        }
-
-        private bool _LiveWatchWithLowLatency = true;
-        public bool LiveWatchWithLowLatency
-        {
-            get { return _LiveWatchWithLowLatency; }
-            set { SetProperty(ref _LiveWatchWithLowLatency, value); }
-        }
-
-
         #region Sound
 
-        private bool _IsMute = false;
+        private bool _IsMute;
 		public bool IsMute
 		{
 			get { return _IsMute; }
@@ -44,7 +60,7 @@ namespace Hohoema.Models.Repository.Playlist
 		}
 
 
-        private double _SoundVolume = 1.0;
+        private double _SoundVolume;
 		public double SoundVolume
 		{
 			get { return _SoundVolume; }
@@ -56,7 +72,7 @@ namespace Hohoema.Models.Repository.Playlist
 
 
 
-		private double _SoundVolumeChangeFrequency = 0.05;
+		private double _SoundVolumeChangeFrequency;
 		public double SoundVolumeChangeFrequency
 		{
 			get { return _SoundVolumeChangeFrequency; }
@@ -64,7 +80,7 @@ namespace Hohoema.Models.Repository.Playlist
 		}
 
 
-		private bool _IsLoudnessCorrectionEnabled = true;
+		private bool _IsLoudnessCorrectionEnabled;
 		public bool IsLoudnessCorrectionEnabled
 		{
 			get { return _IsLoudnessCorrectionEnabled; }
@@ -75,7 +91,7 @@ namespace Hohoema.Models.Repository.Playlist
         #endregion
 
         
-		private bool _IsCommentDisplay_Video = true;
+		private bool _IsCommentDisplay_Video;
 		public bool IsCommentDisplay_Video
         {
 			get { return _IsCommentDisplay_Video; }
@@ -83,16 +99,8 @@ namespace Hohoema.Models.Repository.Playlist
 		}
 
 
-        private bool _IsCommentDisplay_Live = true;
-        public bool IsCommentDisplay_Live
-        {
-            get { return _IsCommentDisplay_Live; }
-            set { SetProperty(ref _IsCommentDisplay_Live, value); }
-        }
 
-
-
-		private bool _PauseWithCommentWriting = false;
+		private bool _PauseWithCommentWriting;
 		public bool PauseWithCommentWriting
 		{
 			get { return _PauseWithCommentWriting; }
@@ -102,7 +110,7 @@ namespace Hohoema.Models.Repository.Playlist
 
 
 
-		private TimeSpan _CommentDisplayDuration = TimeSpan.FromSeconds(4);
+		private TimeSpan _CommentDisplayDuration;
 		public TimeSpan CommentDisplayDuration
 		{
 			get { return _CommentDisplayDuration; }
@@ -111,7 +119,7 @@ namespace Hohoema.Models.Repository.Playlist
 
 
 
-		private double _DefaultCommentFontScale = 1.0;
+		private double _DefaultCommentFontScale;
 		public double DefaultCommentFontScale
 		{
 			get { return _DefaultCommentFontScale; }
@@ -119,7 +127,7 @@ namespace Hohoema.Models.Repository.Playlist
 		}
 
 
-        private double _CommentOpacity = 1.0;
+        private double _CommentOpacity;
         public double CommentOpacity
         {
             get { return _CommentOpacity; }
@@ -131,21 +139,21 @@ namespace Hohoema.Models.Repository.Playlist
 
 
 
-		private bool _IsDefaultCommentWithAnonymous = true;
+		private bool _IsDefaultCommentWithAnonymous;
 		public bool IsDefaultCommentWithAnonymous
 		{
 			get { return _IsDefaultCommentWithAnonymous; }
 			set { SetProperty(ref _IsDefaultCommentWithAnonymous, value); }
 		}
 
-		private Color _CommentColor = Colors.White;
+		private Color _CommentColor;
 		public Color CommentColor
 		{
 			get { return _CommentColor; }
 			set { SetProperty(ref _CommentColor, value); }
 		}
 
-		private TimeSpan _AutoHidePlayerControlUIPreventTime = TimeSpan.FromSeconds(4);
+		private TimeSpan _AutoHidePlayerControlUIPreventTime;
 		public TimeSpan AutoHidePlayerControlUIPreventTime
 		{
 			get { return _AutoHidePlayerControlUIPreventTime; }
@@ -153,14 +161,14 @@ namespace Hohoema.Models.Repository.Playlist
 		}
 
 
-		private bool _IsForceLandscape = false;
+		private bool _IsForceLandscape;
 		public bool IsForceLandscape
 		{
 			get { return _IsForceLandscape; }
 			set { SetProperty(ref _IsForceLandscape, value); }
 		}
 
-		private double _PlaybackRate = 1.0;
+		private double _PlaybackRate;
         public double PlaybackRate
         {
             get { return _PlaybackRate; }
@@ -176,21 +184,21 @@ namespace Hohoema.Models.Repository.Playlist
 
 
 
-		public bool _NicoScript_DisallowSeek_Enabled = true;
+		public bool _NicoScript_DisallowSeek_Enabled;
 		public bool NicoScript_DisallowSeek_Enabled
 		{
 			get { return _NicoScript_DisallowSeek_Enabled; }
 			set { SetProperty(ref _NicoScript_DisallowSeek_Enabled, value); }
 		}
 
-		public bool _NicoScript_Default_Enabled = true;
+		public bool _NicoScript_Default_Enabled;
 		public bool NicoScript_Default_Enabled
 		{
 			get { return _NicoScript_Default_Enabled; }
 			set { SetProperty(ref _NicoScript_Default_Enabled, value); }
 		}
 
-		public bool _NicoScript_Jump_Enabled = true;
+		public bool _NicoScript_Jump_Enabled;
 		public bool NicoScript_Jump_Enabled
 		{
 			get { return _NicoScript_Jump_Enabled; }
@@ -198,7 +206,7 @@ namespace Hohoema.Models.Repository.Playlist
 		}
 
 
-		public bool _NicoScript_DisallowComment_Enabled = true;
+		public bool _NicoScript_DisallowComment_Enabled;
 		public bool NicoScript_DisallowComment_Enabled
 		{
 			get { return _NicoScript_DisallowComment_Enabled; }
@@ -206,7 +214,7 @@ namespace Hohoema.Models.Repository.Playlist
 		}
 
 
-		public bool _NicoScript_Replace_Enabled = true;
+		public bool _NicoScript_Replace_Enabled;
 		public bool NicoScript_Replace_Enabled
 		{
 			get { return _NicoScript_Replace_Enabled; }
@@ -215,23 +223,23 @@ namespace Hohoema.Models.Repository.Playlist
 
 
 
-		private bool _isCurrentVideoLoopingEnabled = false;
+		private bool _IsCurrentVideoLoopingEnabled;
 		public bool IsCurrentVideoLoopingEnabled
 		{
-			get { return _isCurrentVideoLoopingEnabled; }
-			set { SetProperty(ref _isCurrentVideoLoopingEnabled, value); }
+			get { return _IsCurrentVideoLoopingEnabled; }
+			set { SetProperty(ref _IsCurrentVideoLoopingEnabled, value); }
 		}
 
-		private bool _isPlaylistLoopingEnabled = false;
+		private bool _IsPlaylistLoopingEnabled;
 		public bool IsPlaylistLoopingEnabled
 		{
-			get { return _isPlaylistLoopingEnabled; }
-			set { SetProperty(ref _isPlaylistLoopingEnabled, value); }
+			get { return _IsPlaylistLoopingEnabled; }
+			set { SetProperty(ref _IsPlaylistLoopingEnabled, value); }
 		}
 
 
 
-		private bool _IsShuffleEnable = false;
+		private bool _IsShuffleEnable;
 		public bool IsShuffleEnable
 		{
 			get { return _IsShuffleEnable; }
@@ -239,7 +247,7 @@ namespace Hohoema.Models.Repository.Playlist
 		}
 
 
-		private bool _IsReverseModeEnable = false;
+		private bool _IsReverseModeEnable;
 		public bool IsReverseModeEnable
 		{
 			get { return _IsReverseModeEnable; }
@@ -248,15 +256,15 @@ namespace Hohoema.Models.Repository.Playlist
 
 
 
-		private PlaylistEndAction _PlaylistEndAction;
-		public PlaylistEndAction PlaylistEndAction
+		private Models.Repository.Playlist.PlaylistEndAction _PlaylistEndAction;
+		public Models.Repository.Playlist.PlaylistEndAction PlaylistEndAction
 		{
 			get { return _PlaylistEndAction; }
 			set { SetProperty(ref _PlaylistEndAction, value); }
 		}
 
 
-		private bool _AutoMoveNextVideoOnPlaylistEmpty = true;
+		private bool _AutoMoveNextVideoOnPlaylistEmpty;
 		public bool AutoMoveNextVideoOnPlaylistEmpty
 		{
 			get { return _AutoMoveNextVideoOnPlaylistEmpty; }

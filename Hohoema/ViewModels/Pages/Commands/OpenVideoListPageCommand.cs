@@ -26,7 +26,6 @@ namespace Hohoema.ViewModels.Pages.Commands
         {
             return parameter is string
                  || parameter is IVideoContent
-                 || parameter is ILiveContent
                  || parameter is ICommunity
                  || parameter is IMylist
                  || parameter is IUser
@@ -60,9 +59,6 @@ namespace Hohoema.ViewModels.Pages.Commands
                     {
                         _pageManager.OpenPageWithId(HohoemaPageType.ChannelVideo, videoContent.ProviderId);
                     }
-                    break;
-                case ILiveContent liveContent:
-                    _pageManager.OpenPageWithId(HohoemaPageType.LiveInfomation, liveContent.Id);
                     break;
                 case ICommunity communityContent:
                     _pageManager.OpenPageWithId(HohoemaPageType.CommunityVideo, communityContent.Id);

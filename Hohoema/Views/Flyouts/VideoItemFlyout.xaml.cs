@@ -34,6 +34,7 @@ using Hohoema.ViewModels.ExternalAccess.Commands;
 using Hohoema.UseCase.Services;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Repository.VideoCache;
+using Hohoema.Models.Repository.App;
 
 namespace Hohoema.Views.Flyouts
 {
@@ -48,9 +49,7 @@ namespace Hohoema.Views.Flyouts
         // Using a DependencyProperty as the backing store for Playlist.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty PlaylistProperty =
             DependencyProperty.Register("Playlist", typeof(IPlaylist), typeof(VideoItemFlyout), new PropertyMetadata(null));
-        private IInAppNotificationService _inAppNotificationService;
-        private CacheSettingsRepository _cacheSettingsRepository;
-
+        
         public IReadOnlyCollection<IVideoContent> SelectedVideoItems
         {
             get { return (IReadOnlyCollection<IVideoContent>)GetValue(SelectedVideoItemsProperty); }
@@ -80,6 +79,8 @@ namespace Hohoema.Views.Flyouts
         public bool AllowSelection { get; set; } = true;
 
 
+        private IInAppNotificationService _inAppNotificationService;
+        private CacheSettingsRepository _cacheSettingsRepository;
 
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }

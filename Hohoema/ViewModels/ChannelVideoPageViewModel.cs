@@ -21,6 +21,8 @@ using Hohoema.Models.Repository.Niconico;
 using Hohoema.Models.Repository;
 using System.Runtime.CompilerServices;
 using Hohoema.ViewModels.Pages;
+using Hohoema.ViewModels.Player.Commands;
+using Hohoema.ViewModels.ExternalAccess.Commands;
 
 namespace Hohoema.ViewModels
 {
@@ -52,7 +54,9 @@ namespace Hohoema.ViewModels
             ChannelProvider channelProvider,
             PageManager pageManager,
             HohoemaPlaylist hohoemaPlaylist,
-            NiconicoFollowToggleButtonService followToggleButtonService
+            NiconicoFollowToggleButtonService followToggleButtonService,
+            PlayVideoCommand playVideoCommand,
+            OpenLinkCommand openLinkCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -61,6 +65,8 @@ namespace Hohoema.ViewModels
             PageManager = pageManager;
             HohoemaPlaylist = hohoemaPlaylist;
             FollowToggleButtonService = followToggleButtonService;
+            PlayVideoCommand = playVideoCommand;
+            OpenLinkCommand = openLinkCommand;
         }
 
         public string RawChannelId { get; set; }
@@ -161,7 +167,9 @@ namespace Hohoema.ViewModels
         public PageManager PageManager { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
-        
+        public PlayVideoCommand PlayVideoCommand { get; }
+        public OpenLinkCommand OpenLinkCommand { get; }
+
         string INiconicoObject.Id => RawChannelId;
 
         string INiconicoObject.Label => ChannelName;

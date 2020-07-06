@@ -42,7 +42,7 @@
         </mybehavior:KeyboardTrigger>
         <mybehavior:ListViewVerticalOffsetGetter VerticalOffset="{Binding ListPosition, Mode=TwoWay}" />
         <core:EventTriggerBehavior EventName="ItemClick">
-          <core:InvokeCommandAction Command="{Binding HohoemaPlaylist.PlayCommand}"
+          <core:InvokeCommandAction Command="{Binding PlayVideoCommand}"
                                     InputConverter="{StaticResource ItemClickEventArgsConverter}" />
         </core:EventTriggerBehavior>
       </i:Interaction.Behaviors>
@@ -69,7 +69,7 @@
                                 DisplayMemberPath="Tag">
                         <i:Interaction.Behaviors>
                           <core:EventTriggerBehavior EventName="ItemClick">
-                            <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+                            <core:InvokeCommandAction Command="{Binding OpenPageCommand}"
                                                       InputConverter="{StaticResource ItemClickEventArgsConverter}" />
                           </core:EventTriggerBehavior>
                         </i:Interaction.Behaviors>

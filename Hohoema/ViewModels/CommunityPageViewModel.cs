@@ -1,7 +1,6 @@
 ﻿using Hohoema.Interfaces;
 using Hohoema.Models;
 using Hohoema.Models.Niconico.Follow;
-using Hohoema.Models.Niconico.Live;
 using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.Pages;
 using Hohoema.Models.Repository;
@@ -12,7 +11,6 @@ using Hohoema.Models.Repository.Niconico.Follow;
 using Hohoema.Services;
 using Hohoema.ViewModels.Pages;
 using Hohoema.UseCase;
-using Hohoema.ViewModels.Pages;
 using Prism.Commands;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;
@@ -391,7 +389,7 @@ namespace Hohoema.ViewModels
     }
 
 
-	public class CurrentLiveInfoViewModel : ILiveContent
+	public class CurrentLiveInfoViewModel 
     {
 		public string LiveTitle { get; private set; }
 		public string LiveId { get; private set; }
@@ -412,8 +410,6 @@ namespace Hohoema.ViewModels
         public string ProviderId { get; }
 
         public string ProviderName { get; }
-
-        public LiveProviderType ProviderType => LiveProviderType.User;
     }
 
 
@@ -430,11 +426,11 @@ namespace Hohoema.ViewModels
 			)
 		{
             ApplicationTheme appTheme;
-            if (appearanceSettings.Theme == ElementTheme.Dark)
+            if (appearanceSettings.AppTheme == ElementTheme.Dark)
             {
                 appTheme = ApplicationTheme.Dark;
             }
-            else if (appearanceSettings.Theme == ElementTheme.Light)
+            else if (appearanceSettings.AppTheme == ElementTheme.Light)
             {
                 appTheme = ApplicationTheme.Light;
             }
@@ -514,7 +510,7 @@ namespace Hohoema.ViewModels
         string INiconicoObject.Label => Name;
     }
 
-	public class CommunityLiveInfoViewModel : ILiveContent
+	public class CommunityLiveInfoViewModel
 	{
         public CommunityLiveInfoViewModel(LiveInfo info)
         {
@@ -545,8 +541,6 @@ namespace Hohoema.ViewModels
         public string ProviderId => null;
 
         public string ProviderName => StreamerName;
-
-        public LiveProviderType ProviderType => LiveProviderType.User;
     }
 
 	public class CommunityVideoInfoViewModel : HohoemaListingPageItemBase, IVideoContent

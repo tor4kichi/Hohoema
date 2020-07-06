@@ -147,7 +147,7 @@
                        Margin="8 8" />
 
             <Button Content="{Binding JumpVideo}"
-                    Command="{Binding HohoemaPlaylist.PlayCommand}"
+                    Command="{Binding PlayVideoCommand}"
                     CommandParameter="{Binding JumpVideo}"
                     Background="Transparent">
               <Button.ContentTemplate>
@@ -167,7 +167,7 @@
                        Margin="8 8" />
 
             <Button Content="{Binding NextVideo}"
-                    Command="{Binding HohoemaPlaylist.PlayCommand}"
+                    Command="{Binding PlayVideoCommand}"
                     CommandParameter="{Binding NextVideo}"
                     Background="Transparent">
               <Button.ContentTemplate>
@@ -194,7 +194,7 @@
                       IsTabStop="False">
               <i:Interaction.Behaviors>
                 <core:EventTriggerBehavior EventName="ItemClick">
-                  <core:InvokeCommandAction Command="{Binding HohoemaPlaylist.PlayCommand}"
+                  <core:InvokeCommandAction Command="{Binding PlayVideoCommand}"
                                             InputConverter="{StaticResource ItemClickEventArgsConverter}" />
                 </core:EventTriggerBehavior>
               </i:Interaction.Behaviors>
@@ -224,7 +224,7 @@
                       IsTabStop="False">
               <i:Interaction.Behaviors>
                 <core:EventTriggerBehavior EventName="ItemClick">
-                  <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+                  <core:InvokeCommandAction Command="{Binding OpenPageCommand}"
                                             InputConverter="{StaticResource ItemClickEventArgsConverter}" />
                 </core:EventTriggerBehavior>
               </i:Interaction.Behaviors>
@@ -261,7 +261,7 @@
                       IsTabStop="False">
               <i:Interaction.Behaviors>
                 <core:EventTriggerBehavior EventName="ItemClick">
-                  <core:InvokeCommandAction Command="{Binding HohoemaPlaylist.PlayCommand}"
+                  <core:InvokeCommandAction Command="{Binding PlayVideoCommand}"
                                             InputConverter="{StaticResource ItemClickEventArgsConverter}" />
                 </core:EventTriggerBehavior>
               </i:Interaction.Behaviors>

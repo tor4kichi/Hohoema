@@ -18,6 +18,7 @@ using Hohoema.Models.Repository.Niconico.Mylist;
 using Hohoema.Models.Pages;
 using Hohoema.Models.Repository.Niconico;
 using Hohoema.Models.Pages.PagePayload;
+using Hohoema.ViewModels.Pages.Commands;
 
 namespace Hohoema.ViewModels
 {
@@ -41,7 +42,8 @@ namespace Hohoema.ViewModels
         public SearchResultMylistPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
             SearchProvider searchProvider,
-            PageManager pageManager
+            PageManager pageManager,
+            OpenPageCommand openPageCommand
             )
         {
             SelectedSearchSort = new ReactivePropertySlim<SearchSortOptionListItem>();
@@ -49,6 +51,7 @@ namespace Hohoema.ViewModels
             ApplicationLayoutManager = applicationLayoutManager;
             SearchProvider = searchProvider;
             PageManager = pageManager;
+            OpenPageCommand = openPageCommand;
         }
 
 
@@ -170,6 +173,7 @@ namespace Hohoema.ViewModels
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public SearchProvider SearchProvider { get; }
         public PageManager PageManager { get; }
+        public OpenPageCommand OpenPageCommand { get; }
 
         #endregion
 

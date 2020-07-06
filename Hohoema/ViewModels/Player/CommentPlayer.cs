@@ -24,6 +24,7 @@ using Hohoema.Models.Repository.Niconico.NicoVideo;
 using Hohoema.Models.Repository.Playlist;
 using Hohoema.Models.Repository.Niconico.NicoVideo.Comment;
 using Hohoema.UseCase;
+using Hohoema.Models.Repository.App;
 
 namespace Hohoema.ViewModels.Player
 {

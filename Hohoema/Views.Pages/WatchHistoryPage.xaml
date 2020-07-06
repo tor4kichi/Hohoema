@@ -25,7 +25,7 @@
     mc:Ignorable="d"
     >
   <Grid>
-    <videolistPage:VideoItemsListView x:Name="VideoItemsListView" ItemsSource="{Binding Histories}" ItemCommand="{Binding HohoemaPlaylist.PlayCommand}" ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}" RefreshCommand="{Binding RefreshCommand}" >
+    <videolistPage:VideoItemsListView x:Name="VideoItemsListView" ItemsSource="{Binding Histories}" ItemCommand="{Binding PlayVideoCommand}" ItemContextFlyoutTemplate="{StaticResource VideoListItemFlyoutTemplate}" RefreshCommand="{Binding RefreshCommand}" >
       <videolistPage:VideoItemsListView.Header>
         <Grid x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}">
           <controls:ScrollHeader x:Name="ScrollHeader" Mode="Sticky">

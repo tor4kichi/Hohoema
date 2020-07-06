@@ -124,6 +124,7 @@
     <Compile Include="Events\InAppNotificationPayload.cs" />
     <Compile Include="Events\PlayerEvents.cs" />
     <Compile Include="Events\VideoPlayedEvent.cs" />
+    <Compile Include="Migration\v0_22_x_MigrationSettings.cs" />
     <Compile Include="NicoVideoPlayer\ICommentFilter.cs" />
     <Compile Include="NicoVideoRanking\RankingSettings.cs" />
     <Compile Include="Playlist\MylistRepository.cs" />
@@ -154,9 +155,6 @@
     <Compile Include="Migration\CommentFilteringNGScoreZeroFixture.cs" />
     <Compile Include="Migration\MigrationCommentFilteringSettings.cs" />
     <Compile Include="Migration\MigrationSubscriptions.cs" />
-    <Compile Include="NicoLive\LiveCommentViewModel.cs" />
-    <Compile Include="NicoLive\LiveSuggestion.cs" />
-    <Compile Include="NicoLive\NicoLiveVideo.cs" />
     <Compile Include="NicoVideoPlayer\CommentFiltering.cs" />
     <Compile Include="NicoVideoPlayer\KeepActiveDisplayWhenPlaying.cs" />
     <Compile Include="NicoVideoPlayer\MediaPlayerSoundVolumeManager.cs" />

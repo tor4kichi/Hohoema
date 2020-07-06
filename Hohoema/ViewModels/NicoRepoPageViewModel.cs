@@ -192,14 +192,6 @@ namespace Hohoema.ViewModels
                     return "NicoRepo_Video_UserMylistAddVideo".Translate((timelineItem as IVideoNicoRepoItem).SenderName);
                 case NicoRepoItemTopic.NicoVideo_Channel_Video_Upload:
                     return "NicoRepo_Video_ChannelVideoUpload".Translate((timelineItem as IVideoNicoRepoItem).SenderName);
-                case NicoRepoItemTopic.Live_User_Program_OnAirs:
-                    return "NicoRepo_Live_UserProgramOnAirs".Translate((timelineItem as ILiveNicoRepoItem).ProviderName);
-                case NicoRepoItemTopic.Live_User_Program_Reserve:
-                    return "NicoRepo_Live_UserProgramReserve".Translate((timelineItem as ILiveNicoRepoItem).ProviderName);
-                case NicoRepoItemTopic.Live_Channel_Program_Onairs:
-                    return "NicoRepo_Live_ChannelProgramOnAirs".Translate((timelineItem as ILiveNicoRepoItem).ProviderName);
-                case NicoRepoItemTopic.Live_Channel_Program_Reserve:
-                    return "NicoRepo_Live_ChannelProgramReserve".Translate((timelineItem as ILiveNicoRepoItem).ProviderName);
                 default:
                     return string.Empty;
             }
@@ -284,16 +276,7 @@ namespace Hohoema.ViewModels
             || topicType == NicoRepoItemTopic.Live_Channel_Program_Onairs
             || topicType == NicoRepoItemTopic.Live_Channel_Program_Reserve)
             {
-                if (item is ILiveNicoRepoItem live)
-                {
-                    // 放送開始が現時点より６時間以上前の場合には既に終了済みとして表示しない
-                    if (live.ProgramBeginAt < NiconamaDisplayTime)
-                    {
-                        return false;
-                    }
-                }
-
-                return true;
+                return false;
             }
             else
             {

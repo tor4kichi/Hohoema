@@ -31,6 +31,9 @@ using Hohoema.Models.Subscriptions;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Repository.Niconico;
 using Hohoema.Models.Repository.Niconico.Ichiba;
+using Hohoema.ViewModels.Player.Commands;
+using Hohoema.ViewModels.Pages.Commands;
+using Hohoema.ViewModels.ExternalAccess.Commands;
 
 namespace Hohoema.ViewModels
 {
@@ -42,7 +45,7 @@ namespace Hohoema.ViewModels
             {
                 Label = VideoDetals.VideoTitle,
                 PageType = HohoemaPageType.VideoInfomation,
-                Parameter = $"id={VideoInfo.VideoId}"
+                Parameter = $"id={VideoInfo.Id}"
             };
         }
 
@@ -66,7 +69,16 @@ namespace Hohoema.ViewModels
             NicoVideoSessionProvider nicoVideo,
             PageManager pageManager,
             AddMylistCommand addMylistCommand,
-            AddSubscriptionCommand addSubscriptionCommand
+            AddSubscriptionCommand addSubscriptionCommand,
+            PlayVideoCommand playVideoCommand,
+            OpenPageCommand openPageCommand,
+            OpenVideoListPageCommand openVideoListPageCommand,
+            OpenContentOwnerPageCommand openContentOwnerPageCommand,
+            OpenLinkCommand openLinkCommand,
+            CopyToClipboardCommand copyToClipboardCommand,
+            CopyToClipboardWithShareText copyToClipboardWithShareText,
+            OpenShareUICommand openShareUICommand,
+            CacheAddRequestCommand cacheAddRequestCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
@@ -84,6 +96,15 @@ namespace Hohoema.ViewModels
             PageManager = pageManager;
             AddMylistCommand = addMylistCommand;
             AddSubscriptionCommand = addSubscriptionCommand;
+            PlayVideoCommand1 = playVideoCommand;
+            OpenPageCommand = openPageCommand;
+            OpenVideoListPageCommand = openVideoListPageCommand;
+            OpenContentOwnerPageCommand = openContentOwnerPageCommand;
+            OpenLinkCommand = openLinkCommand;
+            CopyToClipboardCommand = copyToClipboardCommand;
+            CopyToClipboardWithShareText = copyToClipboardWithShareText;
+            OpenShareUICommand = openShareUICommand;
+            CacheAddRequestCommand = cacheAddRequestCommand;
             NowLoading = new ReactiveProperty<bool>(false);
             IsLoadFailed = new ReactiveProperty<bool>(false);
         }
@@ -315,7 +336,15 @@ namespace Hohoema.ViewModels
         public PageManager PageManager { get; }
         public AddMylistCommand AddMylistCommand { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
-
+        public PlayVideoCommand PlayVideoCommand1 { get; }
+        public OpenPageCommand OpenPageCommand { get; }
+        public OpenVideoListPageCommand OpenVideoListPageCommand { get; }
+        public OpenContentOwnerPageCommand OpenContentOwnerPageCommand { get; }
+        public OpenLinkCommand OpenLinkCommand { get; }
+        public CopyToClipboardCommand CopyToClipboardCommand { get; }
+        public CopyToClipboardWithShareText CopyToClipboardWithShareText { get; }
+        public OpenShareUICommand OpenShareUICommand { get; }
+        public CacheAddRequestCommand CacheAddRequestCommand { get; }
         public INicoVideoDetails VideoDetals { get; private set; }
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
@@ -453,11 +482,11 @@ namespace Hohoema.ViewModels
             try
             {
                 ApplicationTheme appTheme;
-                if (_appearanceSettings.Theme == ElementTheme.Dark)
+                if (_appearanceSettings.AppTheme == ElementTheme.Dark)
                 {
                     appTheme = ApplicationTheme.Dark;
                 }
-                else if (_appearanceSettings.Theme == ElementTheme.Light)
+                else if (_appearanceSettings.AppTheme == ElementTheme.Light)
                 {
                     appTheme = ApplicationTheme.Light;
                 }
@@ -466,7 +495,7 @@ namespace Hohoema.ViewModels
                     appTheme = Views.Helpers.SystemThemeHelper.GetSystemTheme();
                 }
 
-                DescriptionHtmlFileUri = await Models.Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoInfo.VideoId, VideoDetals.DescriptionHtml, appTheme);
+                DescriptionHtmlFileUri = await Models.Helpers.HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoInfo.Id, VideoDetals.DescriptionHtml, appTheme);
                 RaisePropertyChanged(nameof(DescriptionHtmlFileUri));
             }
             catch

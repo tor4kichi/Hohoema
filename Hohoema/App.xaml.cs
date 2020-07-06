@@ -61,6 +61,7 @@ using Hohoema.ViewModels.Pages;
 using Hohoema.Database;
 using Hohoema.Models.Repository;
 using LiteDB;
+using Microsoft.Toolkit.Uwp.Helpers;
 
 namespace Hohoema
 {
@@ -205,6 +206,7 @@ namespace Hohoema
         };
 
 
+
         public override void RegisterTypes(IContainerRegistry container)
         {
             var unityContainer = container.GetContainer();
@@ -217,11 +219,16 @@ namespace Hohoema
 
             // Settings
             unityContainer.RegisterSingleton<AppearanceSettingsRepository>();
-            unityContainer.RegisterSingleton<CacheSettingsRepository>();
+            unityContainer.RegisterSingleton<CommentFliteringRepository>();
+            unityContainer.RegisterSingleton<PinRepository>();
+            unityContainer.RegisterSingleton<VideoListFilterSettings>();
             unityContainer.RegisterSingleton<NicoRepoSettingsRepository>();
             unityContainer.RegisterSingleton<PlayerSettingsRepository>();
             unityContainer.RegisterSingleton<RankingSettingsRepository>();
+            unityContainer.RegisterSingleton<CacheSettingsRepository>();
             unityContainer.RegisterSingleton<SubscriptionSettingsRepository>();
+
+
 
             // Service
             unityContainer.RegisterSingleton<PageManager>();
@@ -527,6 +534,8 @@ namespace Hohoema
                 migrationSubscription.Migration();
                 Container.Resolve<UseCase.Migration.CommentFilteringNGScoreZeroFixture>().Migration();
 
+                // 設定の統合
+                await Container.Resolve<UseCase.Migration.v0_22_x_MigrationSettings>().Migration();
 
 
                 // アプリのユースケース系サービスを配置

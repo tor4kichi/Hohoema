@@ -50,21 +50,18 @@ namespace Hohoema.Services
 
 
 
-		public async Task StartNoUIWork(string title, Func<IAsyncAction> actionFactory)
+		public async Task StartNoUIWork(string title, Func<IAsyncAction> actionFactory, CancellationToken cancellationToken = default)
 		{
 			WorkTitle = title;
 			WorkTotalCount = 0;
 			NowWorking = true;
 			try
 			{
-				using (var cancelSource = new CancellationTokenSource(TimeSpan.FromSeconds(30)))
-				{
-					await actionFactory().AsTask(cancelSource.Token);
+				await actionFactory().AsTask(cancellationToken);
 
-					await Task.Delay(500);
+				await Task.Delay(500);
 
-					cancelSource.Token.ThrowIfCancellationRequested();
-				}
+				cancellationToken.ThrowIfCancellationRequested();
 			}
 			finally
 			{

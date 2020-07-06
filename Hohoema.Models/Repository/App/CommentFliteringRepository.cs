@@ -127,6 +127,8 @@ namespace Hohoema.Models.Repository.App
 
             public string TextTransform(string commentText)
             {
+                if (commentText == null) { return null; }
+
                 try
                 {
                     _regex ??= (!string.IsNullOrWhiteSpace(RegexPattern) ? new Regex(RegexPattern) : null);
@@ -280,6 +282,8 @@ namespace Hohoema.Models.Repository.App
 
             public bool IsMatch(string commentText)
             {
+                if (commentText == null) { return false; }
+
                 if (_regex == null && !string.IsNullOrWhiteSpace(Condition))
                 {
                     try

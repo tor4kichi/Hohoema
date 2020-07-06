@@ -1,24 +1,19 @@
-﻿using I18NPortable;
-using Hohoema.Interfaces;
-using Hohoema.Models;
-using Hohoema.Services;
+﻿using Hohoema.Models.Repository;
+using Hohoema.Models.Repository.App;
 using Hohoema.UseCase.Playlist;
+using Hohoema.ViewModels.Pages;
+using Hohoema.ViewModels.Pages.Commands;
+using I18NPortable;
 using Prism.Commands;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Reactive.Concurrency;
 using System.Reactive.Linq;
-using Windows.Media;
 using Windows.Media.Playback;
 using Windows.UI.Xaml.Data;
-using Hohoema.ViewModels.Pages;
-using Hohoema.Models.Repository.Playlist;
-using Hohoema.Models.Repository;
-using Hohoema.ViewModels.Pages.Commands;
 
 namespace Hohoema.ViewModels.PlayerSidePaneContent
 {

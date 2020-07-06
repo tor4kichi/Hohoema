@@ -44,11 +44,6 @@ namespace Hohoema.Models.Helpers
             CopyToClipboard(ShareHelper.MakeShareText(video));
         }
 
-        static public void CopyToClipboard(ILiveContent video)
-        {
-            CopyToClipboard(ShareHelper.MakeShareText(video));
-        }
-
         static readonly Regex NicoContentRegex = new Regex("https?:\\/\\/([\\w\\W]*?)\\/((\\w*)\\/)?([\\w-]*)");
 
         static private string prevContent = string.Empty;
