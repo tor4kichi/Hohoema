@@ -176,8 +176,16 @@
     <Compile Include="Repository\Niconico.NicoVideo.Comment\ChatResultMapper.cs" />
     <Compile Include="Repository\Niconico.NicoVideo.Comment\IComment.cs" />
     <Compile Include="Repository\Niconico.NicoVideo.Histories\RemoveHistoryResponse.cs" />
+    <Compile Include="Repository\Niconico.NicoVideo.Ranking\RankingConstants.cs" />
+    <Compile Include="Repository\Niconico.NicoVideo.RelatedVideos\RelatedVideosReponse.cs" />
+    <Compile Include="Repository\Niconico.NicoVideo.Series\Series.cs" />
+    <Compile Include="Repository\Niconico.NicoVideo.Series\SeriesDetails.cs" />
+    <Compile Include="Repository\Niconico.NicoVideo.Series\SeriesOwnerInfo.cs" />
+    <Compile Include="Repository\Niconico.NicoVideo.Series\SeriesSimple.cs" />
+    <Compile Include="Repository\Niconico.NicoVideo.Series\SeriresVideo.cs" />
     <Compile Include="Repository\Niconico.NicoVideo\CommandType.cs" />
     <Compile Include="Repository\Niconico.NicoVideo\CommandTypeMapper.cs" />
+    <Compile Include="Repository\Niconico.NicoVideo.Series\SeriesProviderType.cs" />
     <Compile Include="Repository\Niconico.NicoVideo\VideoSeriesInfo.cs" />
     <Compile Include="Repository\Niconico.Search\LiveSearchFieldType.cs" />
     <Compile Include="Repository\Niconico.Search\LiveSearchFieldTypeMapper.cs" />
@@ -207,12 +215,14 @@
     <Compile Include="Repository\Niconico.NicoLive\ReservationResponse.cs" />
     <Compile Include="Repository\Niconico.NicoLive\ReservationsInDetailResponse.cs" />
     <Compile Include="Repository\Niconico\RssVideoResponse.cs" />
+    <Compile Include="Repository\Niconico.NicoVideo.Series\SeriesOwner.cs" />
     <Compile Include="Repository\Niconico\Sex.cs" />
     <Compile Include="Repository\Niconico\SexMapper.cs" />
     <Compile Include="Repository\Niconico\Sort.cs" />
     <Compile Include="Repository\Niconico\SortMapper.cs" />
     <Compile Include="Repository\Niconico\UserDetails.cs" />
     <Compile Include="Repository\Niconico\UserMylistGroupData.cs" />
+    <Compile Include="Repository\Niconico.NicoVideo.Series\UserSeries.cs" />
     <Compile Include="Repository\Niconico\UserVideosResponse.cs" />
     <Compile Include="Repository\Niconico.NicoVideo.Comment\VideoCommentService.cs" />
     <Compile Include="Repository\Playlist\PlayerSettingsRepository.cs" />
@@ -341,7 +351,7 @@
     <Compile Include="Repository\Niconico.NicoLive\LoginUserLiveReservationProvider.cs" />
     <Compile Include="Repository\Niconico.Mylist\LoginUserMylistProvider.cs" />
     <Compile Include="Repository\Niconico.NicoRepo\LoginUserNicoRepoProvider.cs" />
-    <Compile Include="Repository\Niconico\LoginUserRecommendProvider.cs" />
+    <Compile Include="Repository\Niconico.NicoVideo.Recommend\LoginUserRecommendProvider.cs" />
     <Compile Include="Repository\Niconico.Mylist\MylistProvider.cs" />
     <Compile Include="Repository\Niconico.NicoLive\NicoLiveProvider.cs" />
     <Compile Include="Repository\Niconico.NicoVideo\NicoVideoProvider.cs" />
@@ -374,7 +384,7 @@
     <Compile Include="Repository\FlagsRepositoryBase.cs" />
     <Compile Include="Repository\LiteDbService.cs" />
     <Compile Include="Repository\Niconico.NicoVideo.Comment\CommentRepository.cs" />
-    <Compile Include="Repository\Niconico.NicoVideo\SeriesRepository.cs" />
+    <Compile Include="Repository\Niconico.NicoVideo.Series\SeriesRepository.cs" />
     <Compile Include="Repository\Niconico.NicoVideo\VideoInfoRepository.cs" />
     <Compile Include="Repository\Playlist\PlaylistItemsRepository.cs" />
     <Compile Include="Repository\Playlist\PlaylistRepository.cs" />
@@ -392,7 +402,7 @@
       <Version>6.2.10</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.Toolkit.Uwp">
-      <Version>6.1.0</Version>
+      <Version>5.1.1</Version>
     </PackageReference>
     <PackageReference Include="MonkeyCache.LiteDB">
       <Version>1.5.0-beta</Version>

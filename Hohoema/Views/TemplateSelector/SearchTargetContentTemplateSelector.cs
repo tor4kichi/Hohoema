@@ -25,10 +25,6 @@ namespace Hohoema.Views.TemplateSelector
             {
                 return Mylist;
             }
-            else if (item is ViewModels.CommunitySearchOptionViewModel)
-            {
-                return Community;
-            }
             //else if (item is ViewModels.LiveSearchOptionViewModel)
             //{
             //    return LiveVideo;

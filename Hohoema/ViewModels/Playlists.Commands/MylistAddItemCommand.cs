@@ -1,22 +1,25 @@
 ﻿using I18NPortable;
 using Hohoema.Interfaces;
 using Hohoema.Models;
-using Hohoema.Repository.Playlist;
 using Hohoema.Services;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hohoema.Models.Repository.Niconico.Mylist;
+using Hohoema.UseCase.Services;
+using Hohoema.Models.Repository;
+using Hohoema.UseCase.Events;
 
 namespace Hohoema.UseCase.Playlist.Commands
 {
     public class MylistAddItemCommand : VideoContentSelectionCommandBase
     {
         private readonly LoginUserMylistPlaylist _playlist;
-        private readonly NotificationService _notificationService;
+        private readonly IInAppNotificationService _notificationService;
 
-        public MylistAddItemCommand(LoginUserMylistPlaylist playlist, NotificationService notificationService)
+        public MylistAddItemCommand(LoginUserMylistPlaylist playlist, IInAppNotificationService notificationService)
         {
             _playlist = playlist;
             _notificationService = notificationService;
@@ -26,8 +29,8 @@ namespace Hohoema.UseCase.Playlist.Commands
         {
             var result = await _playlist.AddItem(content.Id);
             _notificationService.ShowInAppNotification(
-                Services.InAppNotificationPayload.CreateRegistrationResultNotification(
-                    result.SuccessedItems.Any() ? Mntone.Nico2.ContentManageResult.Success : Mntone.Nico2.ContentManageResult.Failed,
+                InAppNotificationPayload.CreateRegistrationResultNotification(
+                    result.SuccessedItems.Any() ? ContentManageResult.Success : ContentManageResult.Failed,
                     "Mylist".Translate(),
                     _playlist.Label,
                     content.Label

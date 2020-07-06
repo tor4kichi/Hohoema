@@ -8,8 +8,15 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Models.Repository.Subscriptions
 {
-    public sealed class SubscriptionRegistrationRepository : LocalLiteDBService<SubscriptionSourceEntity>
+    public sealed class SubscriptionRegistrationRepository : LiteDBServiceBase<SubscriptionSourceEntity>
     {
+        public SubscriptionRegistrationRepository(ILiteDatabase liteDatabase)
+            : base(liteDatabase)
+        {
+
+        }
+
+
         public void ClearAll()
         {
             _collection.DeleteAll();

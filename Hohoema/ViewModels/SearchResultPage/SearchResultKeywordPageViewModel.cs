@@ -6,26 +6,26 @@ using Hohoema.Models.Helpers;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using Prism.Commands;
-using Mntone.Nico2;
 using System.Reactive.Linq;
 using Hohoema.ViewModels.Pages;
-using Hohoema.Models.Subscription;
-using Hohoema.Models.Provider;
-using Hohoema.Services;
 using Prism.Navigation;
 using System.Threading.Tasks;
 using Hohoema.UseCase.Playlist;
 using Hohoema.Interfaces;
 using Hohoema.UseCase;
 using Hohoema.ViewModels.Subscriptions;
+using Hohoema.Models.Pages;
+using Hohoema.Models.Repository.Niconico;
+using Hohoema.Models.Subscriptions;
+using Hohoema.Models.Pages.PagePayload;
 
 namespace Hohoema.ViewModels
 {
     public class SearchResultKeywordPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
-        HohoemaPin IPinablePage.GetPin()
+        Models.Pages.HohoemaPin IPinablePage.GetPin()
         {
-            return new HohoemaPin()
+            return new Models.Pages.HohoemaPin()
             {
                 Label = SearchOption.Keyword,
                 PageType = HohoemaPageType.SearchResultKeyword,
@@ -93,52 +93,52 @@ namespace Hohoema.ViewModels
         {
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.FirstRetrieve, Order.Descending),
+                Label = SortHelper.ToCulturizedText(Sort.FirstRetrieve, Order.Descending),
                 Order = Order.Descending,
                 Sort = Sort.FirstRetrieve,
             },
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.FirstRetrieve, Order.Ascending),
+                Label = SortHelper.ToCulturizedText(Sort.FirstRetrieve, Order.Ascending),
                 Order = Order.Ascending,
                 Sort = Sort.FirstRetrieve,
             },
 
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.NewComment, Order.Descending),
+                Label = SortHelper.ToCulturizedText(Sort.NewComment, Order.Descending),
                 Order = Order.Descending,
                 Sort = Sort.NewComment,
             },
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.NewComment, Order.Ascending),
+                Label = SortHelper.ToCulturizedText(Sort.NewComment, Order.Ascending),
                 Order = Order.Ascending,
                 Sort = Sort.NewComment,
             },
 
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.ViewCount, Order.Descending),
+                Label = SortHelper.ToCulturizedText(Sort.ViewCount, Order.Descending),
                 Order = Order.Descending,
                 Sort = Sort.ViewCount,
             },
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.ViewCount, Order.Ascending),
+                Label = SortHelper.ToCulturizedText(Sort.ViewCount, Order.Ascending),
                 Order = Order.Ascending,
                 Sort = Sort.ViewCount,
             },
 
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.CommentCount, Order.Descending),
+                Label = SortHelper.ToCulturizedText(Sort.CommentCount, Order.Descending),
                 Order = Order.Descending,
                 Sort = Sort.CommentCount,
             },
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.CommentCount, Order.Ascending),
+                Label = SortHelper.ToCulturizedText(Sort.CommentCount, Order.Ascending),
                 Order = Order.Ascending,
                 Sort = Sort.CommentCount,
             },
@@ -146,26 +146,26 @@ namespace Hohoema.ViewModels
 
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.Length, Order.Descending),
+                Label = SortHelper.ToCulturizedText(Sort.Length, Order.Descending),
                 Order = Order.Descending,
                 Sort = Sort.Length,
             },
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.Length, Order.Ascending),
+                Label = SortHelper.ToCulturizedText(Sort.Length, Order.Ascending),
                 Order = Order.Ascending,
                 Sort = Sort.Length,
             },
 
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.MylistCount, Order.Descending),
+                Label = SortHelper.ToCulturizedText(Sort.MylistCount, Order.Descending),
                 Order = Order.Descending,
                 Sort = Sort.MylistCount,
             },
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.MylistCount, Order.Ascending),
+                Label = SortHelper.ToCulturizedText(Sort.MylistCount, Order.Ascending),
                 Order = Order.Ascending,
                 Sort = Sort.MylistCount,
             },
@@ -294,12 +294,12 @@ namespace Hohoema.ViewModels
 
         protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
 		{
-            return new VideoSearchSource(SearchOption, SearchProvider, NgSettings);
+            return new VideoSearchSource(SearchOption.Keyword, SearchOption.Order, SearchOption.Sort, searchWithTag: false, SearchProvider);
 		}
 
 		protected override void PostResetList()
 		{
-            SearchOptionText = Services.Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+            SearchOptionText = SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
         }
 		
 

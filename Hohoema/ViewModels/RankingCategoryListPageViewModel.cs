@@ -18,13 +18,14 @@ using Reactive.Bindings.Extensions;
 using System.Diagnostics;
 using Hohoema.UseCase;
 using I18NPortable;
-using Hohoema.Repository;
 using System.Threading.Tasks;
-using Hohoema.Models.Provider;
-using Hohoema.Models.Repository.NicoVideoRanking;
 
 using RankingSettings = Hohoema.UseCase.NicoVideoRanking.RankingSettings;
-using RankingGenreTag = Hohoema.Models.Repository.NicoVideoRanking.RankingGenreTag;
+using RankingGenreTag = Hohoema.Models.Repository.Niconico.NicoVideo.Ranking.RankingGenreTag;
+using Hohoema.Models.Repository.App;
+using Hohoema.Models.Repository.Niconico.NicoVideo.Ranking;
+using Hohoema.UseCase.Services;
+using Hohoema.Models.Pages;
 
 namespace Hohoema.ViewModels
 {
@@ -33,7 +34,7 @@ namespace Hohoema.ViewModels
         public RankingCategoryListPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager,
-            Services.DialogService dialogService,
+            IMultiSelectionDialogService dialogService,
             RankingSettings rankingSettings,
             IEventAggregator eventAggregator,
             AppFlagsRepository appFlagsRepository,
@@ -266,7 +267,7 @@ namespace Hohoema.ViewModels
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
 
-        public Services.DialogService HohoemaDialogService { get; }
+        public IMultiSelectionDialogService HohoemaDialogService { get; }
         public RankingSettings RankingSettings { get; }
 
 

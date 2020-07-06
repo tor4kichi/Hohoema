@@ -1,7 +1,7 @@
 ﻿using Microsoft.Toolkit.Uwp.Notifications;
 using System;
 
-namespace Hohoema.Services
+namespace Hohoema.UseCase.Services
 {
     public interface IToastNotificationService
     {

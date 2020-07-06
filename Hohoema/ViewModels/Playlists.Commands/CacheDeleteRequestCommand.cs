@@ -7,19 +7,26 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hohoema.UseCase.VideoCache;
+using Hohoema.UseCase.Services;
+using Hohoema.Models.Repository;
 
 namespace Hohoema.UseCase.Playlist.Commands
 {
     public sealed class CacheDeleteRequestCommand : VideoContentSelectionCommandBase
     {
         public CacheDeleteRequestCommand(
-            Models.Cache.VideoCacheManager videoCacheManager,
-            Services.DialogService dialogService
+            VideoCacheManager videoCacheManager,
+            IMessageDialogService messageDialogService
             )
         {
             VideoCacheManager = videoCacheManager;
-            DialogService = dialogService;
+            DialogService = messageDialogService;
         }
+
+        public VideoCacheManager VideoCacheManager { get; }
+        public IMessageDialogService DialogService { get; }
+
 
         protected override async void Execute(IVideoContent content)
         {
@@ -73,7 +80,5 @@ namespace Hohoema.UseCase.Playlist.Commands
         }
 
 
-        public Models.Cache.VideoCacheManager VideoCacheManager { get; }
-        public Services.DialogService DialogService { get; }
     }
 }

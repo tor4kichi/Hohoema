@@ -10,9 +10,11 @@ namespace Hohoema.Models.Repository.App
     public sealed class LiveCommentFilteringRepository : FlagsRepositoryBase
     {
         LiveNgCommentOwnerRepository _liveNgCommentOwnerRepository;
-        public LiveCommentFilteringRepository()
+        public LiveCommentFilteringRepository(
+            LiveNgCommentOwnerRepository liveNgCommentOwnerRepository
+            )
         {
-            _liveNgCommentOwnerRepository = new LiveNgCommentOwnerRepository();
+            _liveNgCommentOwnerRepository = liveNgCommentOwnerRepository;
         }
 
         bool _IsFilteringCommentOwnerIdEnabled;
@@ -39,15 +41,20 @@ namespace Hohoema.Models.Repository.App
         }
 
         
-        class LiveNgCommentOwnerRepository : LocalLiteDBService<LiveNgCommentOwner>
+        public class LiveNgCommentOwnerRepository : LiteDBServiceBase<LiveNgCommentOwner>
         {
+            public LiveNgCommentOwnerRepository(ILiteDatabase liteDatabase)
+            : base(liteDatabase)
+            { }
+
+
             public bool IsNgOwner(string userId)
             {
                 return _collection.Exists(x => x.UserId == userId);
             }
         }
 
-        class LiveNgCommentOwner
+        public class LiveNgCommentOwner
         {
             [BsonId]
             public string UserId { get; internal set; }

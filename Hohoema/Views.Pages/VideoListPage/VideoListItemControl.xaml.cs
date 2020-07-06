@@ -14,17 +14,6 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
-using Prism.Ioc;
-using Prism.Events;
-using System.Reactive.Disposables;
-using Hohoema.Models;
-using Hohoema.Models.Cache;
-using Windows.UI.Core;
-using System.Threading.Tasks;
-using Hohoema.Repository.NicoVideo;
-using Hohoema.Models.Helpers;
-using Hohoema.Repository.VideoCache;
-using Reactive.Bindings.Extensions;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 

@@ -53,8 +53,8 @@ namespace Hohoema.Database.Local.Subscription
         {
             var db = HohoemaLiteDb.GetLocalLiteRepository();
             var items = db.Query<SubscriptionData>()
-                .OrderBy(x => x.Order)
                 .ToArray()
+                .OrderBy(x => x.Order)
                 .Select(x =>
                 {
                     var subsc = new Models.Subscription.Subscription(

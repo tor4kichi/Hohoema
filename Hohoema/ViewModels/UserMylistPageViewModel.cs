@@ -4,35 +4,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Prism.Commands;
-using Mntone.Nico2.Mylist.MylistGroup;
 using Reactive.Bindings;
-using Mntone.Nico2.Mylist;
 using System.Threading;
 using System.Reactive.Linq;
 using Windows.UI.Popups;
-using Hohoema.Dialogs;
-using Mntone.Nico2.Searches.Mylist;
 using Hohoema.Models.Helpers;
-using Hohoema.Models.Provider;
-using Hohoema.Models.LocalMylist;
-using Hohoema.Services;
 using Hohoema.ViewModels.Pages;
 using Prism.Navigation;
-using Hohoema.Repository.Playlist;
 using Hohoema.UseCase.Playlist;
 using Hohoema.Interfaces;
 using Reactive.Bindings.Extensions;
 using Hohoema.UseCase;
 using I18NPortable;
 using Hohoema.Commands.Mylist;
+using Hohoema.Models.Repository.Niconico.Mylist;
+using Hohoema.Models.Pages;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Repository.Niconico;
+using Hohoema.UseCase.Services;
+using Hohoema.Models.Repository;
 
 namespace Hohoema.ViewModels
 {
     public class UserMylistPageViewModel : HohoemaListingPageViewModelBase<MylistPlaylist>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
-        HohoemaPin IPinablePage.GetPin()
+        Models.Pages.HohoemaPin IPinablePage.GetPin()
         {
-            return new HohoemaPin()
+            return new Models.Pages.HohoemaPin()
             {
                 Label = UserName,
                 PageType = HohoemaPageType.UserMylist,
@@ -48,7 +46,8 @@ namespace Hohoema.ViewModels
         public UserMylistPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
             PageManager pageManager,
-            Services.DialogService dialogService,
+            ITextInputDialogService textInputDialogService,
+            IEditMylistGroupDialogService editMylistGroupDialogService,
             NiconicoSession niconicoSession,
             UserProvider userProvider,
             MylistRepository mylistRepository,
@@ -60,7 +59,8 @@ namespace Hohoema.ViewModels
         {
             ApplicationLayoutManager = applicationLayoutManager;
             PageManager = pageManager;
-            DialogService = dialogService;
+            _textInputDialogService = textInputDialogService;
+            _editMylistGroupDialogService = editMylistGroupDialogService;
             NiconicoSession = niconicoSession;
             UserProvider = userProvider;
             _mylistRepository = mylistRepository;
@@ -84,14 +84,14 @@ namespace Hohoema.ViewModels
                     Name = "",
                     Description = "",
                     IsPublic = false,
-                    MylistDefaultSort = MylistDefaultSort.Latest,
-                    IconType = IconType.Default,
+                    MylistDefaultSort = MylistGroupDefaultSort.Latest,
+                    IconType = MylistGroupIconType.Default,
                 };
 
                 // 成功するかキャンセルが押されるまで繰り返す
                 while (true)
                 {
-                    if (true == await DialogService.ShowCreateMylistGroupDialogAsync(data))
+                    if (true == await _editMylistGroupDialogService.ShowCreateMylistGroupDialogAsync(data))
                     {
                         var result = await _userMylistManager.AddMylist(
                             data.Name,
@@ -101,7 +101,7 @@ namespace Hohoema.ViewModels
                             data.IconType
                         );
 
-                        if (result == Mntone.Nico2.ContentManageResult.Success)
+                        if (result == ContentManageResult.Success)
                         {
                             await ResetList();
                             break;
@@ -118,7 +118,7 @@ namespace Hohoema.ViewModels
             , () => _userMylistManager.Mylists.Count < _userMylistManager.MaxMylistGroupCountCurrentUser
             );
 
-            RemoveMylistGroupCommand = new DelegateCommand<Interfaces.IPlaylist>(async (item) =>
+            RemoveMylistGroupCommand = new DelegateCommand<IPlaylist>(async (item) =>
             {
                 {
                     if (item is LocalPlaylist localPlaylist)
@@ -155,7 +155,7 @@ namespace Hohoema.ViewModels
             });
 
 
-            EditMylistGroupCommand = new DelegateCommand<Interfaces.IPlaylist>(async item =>
+            EditMylistGroupCommand = new DelegateCommand<IPlaylist>(async item =>
             {
                 if (item is LocalPlaylist localPlaylist)
                 {
@@ -164,7 +164,7 @@ namespace Hohoema.ViewModels
                         return;
                     }
 
-                    var resultText = await DialogService.GetTextAsync("RenameLocalPlaylist".Translate(),
+                    var resultText = await _textInputDialogService.GetTextAsync("RenameLocalPlaylist".Translate(),
                         localPlaylist.Label,
                         localPlaylist.Label,
                         (tempName) => !string.IsNullOrWhiteSpace(tempName)
@@ -194,18 +194,13 @@ namespace Hohoema.ViewModels
                     // 成功するかキャンセルが押されるまで繰り返す
                     while (true)
                     {
-                        if (true == await DialogService.ShowCreateMylistGroupDialogAsync(data))
+                        if (true == await _editMylistGroupDialogService.ShowCreateMylistGroupDialogAsync(data))
                         {
                             var result = await loginUserMylist.UpdateMylist(data);
 
-                            if (result == Mntone.Nico2.ContentManageResult.Success)
+                            if (result == ContentManageResult.Success)
                             {
-                                loginUserMylist.Label = data.Name;
-                                loginUserMylist.Description = data.Description;
-                                loginUserMylist.IsPublic = data.IsPublic;
-                                loginUserMylist.DefaultSort = data.MylistDefaultSort;
-                                loginUserMylist.IconType = data.IconType;
-
+                                await _navigationService.RefreshAsync();
                                 break;
                             }
                         }
@@ -217,20 +212,24 @@ namespace Hohoema.ViewModels
                 }
             });
         }
+        private INavigationService _navigationService;
 
         public UserMylistManager _userMylistManager { get; private set; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public PageManager PageManager { get; }
-        public Services.DialogService DialogService { get; }
         public NiconicoSession NiconicoSession { get; }
         public UserProvider UserProvider { get; }
+
+        private readonly ITextInputDialogService _textInputDialogService;
+        private readonly IEditMylistGroupDialogService _editMylistGroupDialogService;
         private readonly MylistRepository _mylistRepository;
         private readonly LocalMylistManager _localMylistManager;
 
         public string UserId { get; private set; }
 
         private string _UserName;
+
         public string UserName
         {
             get { return _UserName; }
@@ -241,16 +240,18 @@ namespace Hohoema.ViewModels
         public ReactiveProperty<bool> IsLoginUserMylist { get; private set; }
 
 
-        public ReactiveCommand<Interfaces.IPlaylist> OpenMylistCommand { get; private set; }
+        public ReactiveCommand<IPlaylist> OpenMylistCommand { get; private set; }
         public DelegateCommand AddMylistGroupCommand { get; private set; }
-        public DelegateCommand<Interfaces.IPlaylist> RemoveMylistGroupCommand { get; private set; }
-        public DelegateCommand<Interfaces.IPlaylist> EditMylistGroupCommand { get; private set; }
+        public DelegateCommand<IPlaylist> RemoveMylistGroupCommand { get; private set; }
+        public DelegateCommand<IPlaylist> EditMylistGroupCommand { get; private set; }
         
         public CreateLocalMylistCommand CreateLocalMylistCommand { get; private set; }
 
 
         public override async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
+            _navigationService = parameters.GetNavigationService();
+
             if (parameters.TryGetValue<string>("id", out string userId))
             {
                 UserId = userId;

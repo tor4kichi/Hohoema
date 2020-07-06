@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Repository.Niconico.NicoVideoRanking;
+﻿using Hohoema.Models.Repository.Niconico.NicoVideo.Ranking;
 using LiteDB;
 using System;
 using System.Collections.Generic;

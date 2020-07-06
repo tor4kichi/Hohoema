@@ -22,10 +22,12 @@ namespace Hohoema.ViewModels.PlayerSidePaneContent
     public class SettingsSidePaneContentViewModel : SidePaneContentViewModelBase
     {
         public SettingsSidePaneContentViewModel(
+            PlayerSettingsRepository playerSettings,
             CommentFiltering commentFiltering,
             IScheduler scheduler
             )
         {
+            PlayerSettings = playerSettings;
             CommentFiltering = commentFiltering;
             _scheduler = scheduler;
 
@@ -81,7 +83,7 @@ namespace Hohoema.ViewModels.PlayerSidePaneContent
 
         public ObservableCollection<CommentFliteringRepository.FilteringCommentTextKeyword> FilteringKeywords { get; }
         public ObservableCollection<CommentFliteringRepository.CommentTextTransformCondition> VideoCommentTransformConditions { get; }
-
+        public PlayerSettingsRepository PlayerSettings { get; }
 
         public CommentFiltering CommentFiltering { get; }
         private readonly IScheduler _scheduler;

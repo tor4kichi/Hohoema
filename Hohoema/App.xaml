@@ -179,9 +179,6 @@
       <compareModifier:LessThanModifier x:Key="LessThanModifier" />
 
 
-      <!-- Subscriptions -->
-      <subscriptionConverters:SubscriptionSourceConverter x:Key="SubscriptionSourceConverter" />
-
       <DataTemplate x:Key="QualityVideoTemplate">
         <!-- 画質ごとのキャッシュ状態を表示 
                             

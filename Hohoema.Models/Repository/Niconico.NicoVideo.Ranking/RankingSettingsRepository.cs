@@ -1,5 +1,5 @@
 ﻿
-namespace Hohoema.Models.Repository.Niconico.NicoVideoRanking
+namespace Hohoema.Models.Repository.Niconico.NicoVideo.Ranking
 {
     public sealed class RankingSettingsRepository : FlagsRepositoryBase
     {

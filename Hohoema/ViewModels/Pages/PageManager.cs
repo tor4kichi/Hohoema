@@ -358,7 +358,7 @@ namespace Hohoema.ViewModels.Pages
                         OpenPage(HohoemaPageType.RankingCategoryList);
                     }
                 }
-                else if (_cacheSettingsRepository.IsAcceptedCache)
+                else if (_cacheSettingsRepository.IsCacheAccepted)
                 {
                     OpenPage(HohoemaPageType.CacheManagement);
                 }

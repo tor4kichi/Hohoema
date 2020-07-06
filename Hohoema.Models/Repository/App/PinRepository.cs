@@ -1,4 +1,5 @@
 ﻿using Hohoema.Models.Pages;
+using LiteDB;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,8 +8,12 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Models.Repository.App
 {
-    public sealed class PinRepository : LocalLiteDBService<Hohoema.Models.Pages.HohoemaPin>
+    public sealed class PinRepository : LiteDBServiceBase<Hohoema.Models.Pages.HohoemaPin>
     {
+        public PinRepository(ILiteDatabase liteDatabase)
+            : base(liteDatabase)
+        { }
+
         public List<Hohoema.Models.Pages.HohoemaPin> GetSortedPins()
         {
             return _collection.FindAll()

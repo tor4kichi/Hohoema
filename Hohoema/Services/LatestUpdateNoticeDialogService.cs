@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Services
 {
-    internal sealed class LatestUpdateNoticeDialogService 
+    public sealed class LatestUpdateNoticeDialogService 
     {
 
         public async Task ShowLatestUpdateNotice()

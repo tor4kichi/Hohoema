@@ -54,15 +54,6 @@ namespace Hohoema.UseCase.NicoVideoPlayer
                     await PlayWithCurrentView(DisplayMode, pageName, parameters);
                 });
 
-            _eventAggregator.GetEvent<PlayerPlayLiveRequest>()
-                .Subscribe(async e =>
-                {
-                    var pageName = nameof(Views.LivePlayerPage);
-                    var parameters = new NavigationParameters("id=" + e.LiveId);
-                    
-                    await PlayWithCurrentView(DisplayMode, pageName, parameters);
-                });
-
 
             _eventAggregator.GetEvent<ChangePlayerDisplayViewRequestEvent>()
                 .Subscribe(async () =>

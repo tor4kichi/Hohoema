@@ -15,7 +15,7 @@ namespace Hohoema.Models.Repository.Niconico.Mylist
 
         static LoginUserMylistProvider()
         {
-            Database.Temporary.MylistDb.Clear();
+            //Database.Temporary.MylistDb.Clear();
         }
 
         public LoginUserMylistProvider(NiconicoSession niconicoSession)

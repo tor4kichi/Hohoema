@@ -144,7 +144,7 @@ namespace Hohoema.UseCase.VideoCache
 
         public async Task<CacheFolderAccessState> GetVideoCacheFolderState()
         {
-            if (false == _cacheSettingsRepository.IsAcceptedCache)
+            if (false == _cacheSettingsRepository.IsCacheAccepted)
             {
                 return CacheFolderAccessState.NotAccepted;
             }
@@ -1331,14 +1331,14 @@ namespace Hohoema.UseCase.VideoCache
 
         // TODO: キャッシュ完了等のトースト通知でNotificationServiceを利用する
 
-        
-        
+
+
 
         #endregion
 
 
-        
-        internal async Task<bool> CheckCachedAsync(string videoId)
+
+        public async Task<bool> CheckCachedAsync(string videoId)
         {
             using (var releaser = await _CacheRequestProcessingLock.LockAsync())
             {
@@ -1359,7 +1359,7 @@ namespace Hohoema.UseCase.VideoCache
             }
         }
 
-        internal bool CheckCachedAsyncUnsafe(string videoId)
+        public bool CheckCachedAsyncUnsafe(string videoId)
         {
             if (_cacheRequestRepository.TryGet(videoId, out var cacheRequest))
             {
@@ -1371,7 +1371,7 @@ namespace Hohoema.UseCase.VideoCache
             }
         }
 
-        internal bool IsCacheRequested(string videoId)
+        public bool IsCacheRequested(string videoId)
         {
             return _cacheRequestRepository.Exists(x => x.VideoId == videoId);
         }

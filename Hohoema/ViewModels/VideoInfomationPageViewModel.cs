@@ -10,37 +10,35 @@ using Hohoema.Models.Helpers;
 using Windows.ApplicationModel.DataTransfer;
 using System.Threading;
 using System.Diagnostics;
-using Mntone.Nico2;
-using Mntone.Nico2.Embed.Ichiba;
-using Mntone.Nico2.Videos.WatchAPI;
-using Mntone.Nico2.Videos.Dmc;
 using System.Text.RegularExpressions;
 using Windows.System;
-using Hohoema.Models.Cache;
-using Hohoema.Models.Provider;
-using Hohoema.Models.LocalMylist;
 using Hohoema.Interfaces;
-using Hohoema.Services;
 using Prism.Navigation;
 using Hohoema.ViewModels.Pages;
-using Hohoema.Models.Niconico.Video;
 using Hohoema.UseCase.Playlist;
-using Hohoema.Repository.Playlist;
 using Hohoema.UseCase.Playlist.Commands;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using Hohoema.UseCase;
 using Windows.UI.Xaml;
-using Hohoema.Models.Subscription;
 using Hohoema.ViewModels.Subscriptions;
+using Hohoema.Models.Pages;
+using Hohoema.Models.Repository.App;
+using Hohoema.Models.Repository.Niconico.NicoVideo;
+using Hohoema.Models.Repository.Niconico.Mylist;
+using Hohoema.UseCase.VideoCache;
+using Hohoema.Models.Subscriptions;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Repository.Niconico;
+using Hohoema.Models.Repository.Niconico.Ichiba;
 
 namespace Hohoema.ViewModels
 {
     public class VideoInfomationPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
-        HohoemaPin IPinablePage.GetPin()
+        Models.Pages.HohoemaPin IPinablePage.GetPin()
         {
-            return new HohoemaPin()
+            return new Models.Pages.HohoemaPin()
             {
                 Label = VideoDetals.VideoTitle,
                 PageType = HohoemaPageType.VideoInfomation,
@@ -55,39 +53,35 @@ namespace Hohoema.ViewModels
 
         public VideoInfomationPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
-            AppearanceSettings appearanceSettings,
-            NGSettings ngSettings,
-            Models.NiconicoSession niconicoSession,
+            AppearanceSettingsRepository appearanceSettings,
+            VideoListFilterSettings videoListFilterSettings,
+            NiconicoSession niconicoSession,
             UserMylistManager userMylistManager,
             HohoemaPlaylist hohoemaPlaylist,
             NicoVideoProvider nicoVideoProvider,
+            NicoIchibaRepository nicoIchibaRepository,
             LoginUserMylistProvider loginUserMylistProvider,
             VideoCacheManager videoCacheManager,
             SubscriptionManager subscriptionManager,
-            Models.NicoVideoSessionProvider nicoVideo,
+            NicoVideoSessionProvider nicoVideo,
             PageManager pageManager,
-            Services.NotificationService notificationService,
-            Services.DialogService dialogService,
-            Services.ExternalAccessHelper externalAccessService,
             AddMylistCommand addMylistCommand,
-            ViewModels.Subscriptions.AddSubscriptionCommand addSubscriptionCommand
+            AddSubscriptionCommand addSubscriptionCommand
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
             _appearanceSettings = appearanceSettings;
-            NgSettings = ngSettings;
+            _videoListFilterSettings = videoListFilterSettings;
             NiconicoSession = niconicoSession;
             UserMylistManager = userMylistManager;
             HohoemaPlaylist = hohoemaPlaylist;
             NicoVideoProvider = nicoVideoProvider;
+            _nicoIchibaRepository = nicoIchibaRepository;
             LoginUserMylistProvider = loginUserMylistProvider;
             VideoCacheManager = videoCacheManager;
             SubscriptionManager = subscriptionManager;
             NicoVideo = nicoVideo;
             PageManager = pageManager;
-            NotificationService = notificationService;
-            DialogService = dialogService;
-            ExternalAccessService = externalAccessService;
             AddMylistCommand = addMylistCommand;
             AddSubscriptionCommand = addSubscriptionCommand;
             NowLoading = new ReactiveProperty<bool>(false);
@@ -101,10 +95,10 @@ namespace Hohoema.ViewModels
         public ReactiveProperty<bool> NowLoading { get; private set; }
         public ReactiveProperty<bool> IsLoadFailed { get; private set; }
 
-        public List<IchibaItem> IchibaItems { get; private set; }
+        public IReadOnlyList<IchibaItem> IchibaItems { get; private set; }
 
         public bool IsSelfZoningContent { get; private set; }
-        public NGResult SelfZoningInfo { get; private set; }
+        public Models.Repository.App.NGResult SelfZoningInfo { get; private set; }
 
 
         public Uri DescriptionHtmlFileUri { get; private set; }
@@ -188,7 +182,7 @@ namespace Hohoema.ViewModels
                 return _ShareCommand
                     ?? (_ShareCommand = new DelegateCommand(() =>
                     {
-                        Services.Helpers.ShareHelper.Share(VideoInfo);
+                        ShareHelper.Share(VideoInfo);
                     }
                     , () => DataTransferManager.IsSupported()
                     ));
@@ -203,7 +197,7 @@ namespace Hohoema.ViewModels
                 return _VideoInfoCopyToClipboardCommand
                     ?? (_VideoInfoCopyToClipboardCommand = new DelegateCommand(() =>
                     {
-                        Services.Helpers.ClipboardHelper.CopyToClipboard(VideoInfo);
+                        ClipboardHelper.CopyToClipboard(VideoInfo);
                     }
                     ));
             }
@@ -309,10 +303,8 @@ namespace Hohoema.ViewModels
         public List<VideoInfoControlViewModel> RelatedVideos { get; private set; }
 
 
-        public Services.NotificationService NotificationService { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
-        public NGSettings NgSettings { get; }
-        public Models.NiconicoSession NiconicoSession { get; }
+        public NiconicoSession NiconicoSession { get; }
         public UserMylistManager UserMylistManager { get; }
         public LocalMylistManager LocalMylistManager { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
@@ -321,8 +313,6 @@ namespace Hohoema.ViewModels
         public VideoCacheManager VideoCacheManager { get; }
         public SubscriptionManager SubscriptionManager { get; }
         public PageManager PageManager { get; }
-        public Services.DialogService DialogService { get; }
-        public Services.ExternalAccessHelper ExternalAccessService { get; }
         public AddMylistCommand AddMylistCommand { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
 
@@ -370,7 +360,7 @@ namespace Hohoema.ViewModels
         {
             VideoDescriptionHyperlinkItems?.Clear();
             RaisePropertyChanged(nameof(VideoDescriptionHyperlinkItems));
-            IchibaItems?.Clear();
+            IchibaItems = null;
             RaisePropertyChanged(nameof(IchibaItems));
 
             base.OnNavigatedFrom(parameters);
@@ -383,8 +373,8 @@ namespace Hohoema.ViewModels
             {
                 if (_IsInitializedIchibaItems) { return; }
 
-                var ichiba = await NiconicoSession.Context.Embed.GetIchiba(VideoInfo.RawVideoId);
-                IchibaItems = ichiba.GetMainIchibaItems();
+                var ichiba = await _nicoIchibaRepository.GetIchibaAsync(VideoInfo.RawVideoId);
+                IchibaItems = ichiba.MainItems;
 
                 RaisePropertyChanged(nameof(IchibaItems));
 
@@ -395,7 +385,9 @@ namespace Hohoema.ViewModels
 
 
         bool _IsInitializedRelatedVideos = false;
-        private readonly AppearanceSettings _appearanceSettings;
+        private readonly AppearanceSettingsRepository _appearanceSettings;
+        private readonly VideoListFilterSettings _videoListFilterSettings;
+        private readonly NicoIchibaRepository _nicoIchibaRepository;
 
         public async void InitializeRelatedVideos()
         {
@@ -403,9 +395,9 @@ namespace Hohoema.ViewModels
             {
                 if (_IsInitializedRelatedVideos) { return; }
 
-                var items = await NiconicoSession.Context.Video.GetRelatedVideoAsync(VideoInfo.RawVideoId, 0, 10, Sort.Relation);
+                var items = await NicoVideoProvider.GetRelatedVideosAsync(VideoInfo.RawVideoId, 0, 10, Sort.Relation);
                 
-                RelatedVideos = items.Video_info?.Select(x =>
+                RelatedVideos = items.VideoItems?.Select(x =>
                 {
                     var video = Database.NicoVideoDb.Get(x.Video.Id);
                     video.Title = x.Video.Title;
@@ -542,7 +534,15 @@ namespace Hohoema.ViewModels
             {
                 if (VideoInfo != null)
                 {
-                    SelfZoningInfo = NgSettings.IsNgVideo(VideoInfo);
+                    if (_videoListFilterSettings.IsNgVideo(VideoInfo, out var result))
+                    {
+                        SelfZoningInfo = result;
+                    }
+                    else
+                    {
+                        SelfZoningInfo = null;
+                    }
+
                     IsSelfZoningContent = SelfZoningInfo != null;
 
                     RaisePropertyChanged(nameof(SelfZoningInfo));

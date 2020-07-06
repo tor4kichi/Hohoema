@@ -270,7 +270,6 @@
     <Compile Include="ViewModels\FollowManagePageViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\RelatedVideosSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\RecommendPageViewModel.cs" />
-    <Compile Include="ViewModels\SearchSummaryPageViewModel.cs" />
     <Compile Include="ViewModels\RankingCategoryPageViewModel.cs" />
     <Compile Include="ViewModels\WatchHistoryPageViewModel.cs" />
     <Compile Include="ViewModels\HohoemaIncrementalSourceBase.cs" />
@@ -285,7 +284,6 @@
     <Compile Include="ViewModels\PlayerSidePaneContent\SettingsSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\PlayerSidePaneContent\PlaylistSidePaneContentViewModel.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultKeywordPageViewModel.cs" />
-    <Compile Include="ViewModels\SearchResultPage\SearchResultLivePageViewModel.cs" />
     <Compile Include="ViewModels\SearchResultPage\SearchResultMylistPageViewModel.cs" />
     <Compile Include="ViewModels\SelectableItem.cs" />
     <Compile Include="ViewModels\SplashPageViewModel.cs" />
@@ -376,9 +374,6 @@
     <Compile Include="Views.Pages\RecommendPage.xaml.cs">
       <DependentUpon>RecommendPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views.Pages\SearchSummaryPage.xaml.cs">
-      <DependentUpon>SearchSummaryPage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views.Pages\SeriesPage.xaml.cs">
       <DependentUpon>SeriesPage.xaml</DependentUpon>
     </Compile>
@@ -412,7 +407,6 @@
     <Compile Include="Views.Pages\RankingCategoryPage.xaml.cs">
       <DependentUpon>RankingCategoryPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\TemplateSelector\MenuSubPageTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\NullableTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\PlayerSidePaneContentTemplateSelector.cs" />
     <Compile Include="Views\TemplateSelector\SearchTargetContentTemplateSelector.cs" />
@@ -457,21 +451,12 @@
     <Compile Include="Views.Pages\CommunityVideoPage.xaml.cs">
       <DependentUpon>CommunityVideoPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views.Pages\ListItem\CommunityInfoControl.xaml.cs">
-      <DependentUpon>CommunityInfoControl.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views.Pages\ListItem\CommunityVideoListItem.xaml.cs">
-      <DependentUpon>CommunityVideoListItem.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\Flyouts\VideoItemFlyout.xaml.cs">
       <DependentUpon>VideoItemFlyout.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Converters\CacheStateToColorBrushConverter.cs" />
     <Compile Include="Views\Converters\InvertVisibilityConverter.cs" />
     <Compile Include="Views\Converters\TransparentColorConverter.cs" />
-    <Compile Include="Views.Pages\ListItem\LiveVideoListItem.xaml.cs">
-      <DependentUpon>LiveVideoListItem.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views.Pages\ListItem\SearchHistoryListItem.xaml.cs">
       <DependentUpon>SearchHistoryListItem.xaml</DependentUpon>
     </Compile>
@@ -506,14 +491,8 @@
     <Compile Include="Views.Pages\SearchPage.xaml.cs">
       <DependentUpon>SearchPage.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views.Pages\SearchResultPages\SearchResultCommunityPage.xaml.cs">
-      <DependentUpon>SearchResultCommunityPage.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views.Pages\SearchResultPages\SearchResultKeywordPage.xaml.cs">
       <DependentUpon>SearchResultKeywordPage.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views.Pages\SearchResultPages\SearchResultLivePage.xaml.cs">
-      <DependentUpon>SearchResultLivePage.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views.Pages\SearchResultPages\SearchResultMylistPage.xaml.cs">
       <DependentUpon>SearchResultMylistPage.xaml</DependentUpon>
@@ -786,10 +765,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views.Pages\SearchSummaryPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views.Pages\RankingCategoryPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -842,14 +817,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views.Pages\ListItem\CommunityInfoControl.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views.Pages\ListItem\CommunityVideoListItem.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\Controls\MasterDetailsView\MasterDetailsView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -864,10 +831,6 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\HohoemaInAppNotification.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views.Pages\ListItem\LiveVideoListItem.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -931,15 +894,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views.Pages\SearchResultPages\SearchResultCommunityPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views.Pages\SearchResultPages\SearchResultKeywordPage.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views.Pages\SearchResultPages\SearchResultLivePage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1030,6 +985,9 @@
     <PackageReference Include="I18NPortable">
       <Version>1.0.1</Version>
     </PackageReference>
+    <PackageReference Include="LiteDB">
+      <Version>5.0.8</Version>
+    </PackageReference>
     <PackageReference Include="MahApps.Metro.IconPacks.Material">
       <Version>4.2.0</Version>
     </PackageReference>
@@ -1049,7 +1007,7 @@
       <Version>5.1.1</Version>
     </PackageReference>
     <PackageReference Include="MonkeyCache.LiteDB">
-      <Version>1.3.0</Version>
+      <Version>1.5.0-beta</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>12.0.2</Version>
@@ -1058,6 +1016,9 @@
       <Version>3.2.1</Version>
     </PackageReference>
     <PackageReference Include="ReactiveProperty">
+      <Version>7.1.0</Version>
+    </PackageReference>
+    <PackageReference Include="ReactiveProperty.UWP">
       <Version>7.1.0</Version>
     </PackageReference>
     <PackageReference Include="Refractored.MvvmHelpers">

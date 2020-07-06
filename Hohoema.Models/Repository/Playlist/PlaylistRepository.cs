@@ -48,8 +48,12 @@ namespace Hohoema.Models.Repository.Playlist
 
     public class PlaylistRepository
     {
-        class PlaylistDbService : LocalLiteDBService<PlaylistEntity>
+        public class PlaylistDbService : LiteDBServiceBase<PlaylistEntity>
         {
+            public PlaylistDbService(ILiteDatabase liteDatabase)
+                : base(liteDatabase)
+            { }
+
             public PlaylistEntity Get(string playlistId)
             {
                 return _collection.FindById(playlistId);
@@ -61,12 +65,13 @@ namespace Hohoema.Models.Repository.Playlist
             }
         }
 
-        class PlaylistItemsDbService : LocalLiteDBService<PlaylistItemEntity>
+        public class PlaylistItemsDbService : LiteDBServiceBase<PlaylistItemEntity>
         {
-            public PlaylistItemsDbService()
+            public PlaylistItemsDbService(ILiteDatabase liteDatabase)
+                : base(liteDatabase)
             {
-                _collection.EnsureIndex(nameof(PlaylistItemEntity.PlaylistId));
-                _collection.EnsureIndex(nameof(PlaylistItemEntity.ContentId));
+                _collection.EnsureIndex(x => x.PlaylistId);
+                _collection.EnsureIndex(x => x.ContentId);
             }
 
             public IEnumerable<PlaylistItemEntity> GetItems(string playlistId)
@@ -93,10 +98,13 @@ namespace Hohoema.Models.Repository.Playlist
 
 
 
-        public PlaylistRepository()
+        public PlaylistRepository(
+            PlaylistItemsDbService playlistItemsDbService,
+            PlaylistDbService playlistDbService
+            )
         {
-            _playlistDbService = new PlaylistDbService();
-            _itemsDbService = new PlaylistItemsDbService();
+            _playlistDbService = playlistDbService;
+            _itemsDbService = playlistItemsDbService;
         }
 
         private readonly PlaylistDbService _playlistDbService;

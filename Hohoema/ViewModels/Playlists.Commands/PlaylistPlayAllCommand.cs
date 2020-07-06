@@ -1,4 +1,5 @@
 ﻿using Hohoema.Interfaces;
+using Hohoema.Models.Repository.Niconico.Mylist;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;

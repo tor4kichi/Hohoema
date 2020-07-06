@@ -149,8 +149,11 @@ namespace Hohoema.Models.Repository.App
             }
         }
 
-        public sealed class CommentTextTransformConditionDBService : LocalLiteDBService<CommentTextTransformCondition>
+        public sealed class CommentTextTransformConditionDBService : LiteDBServiceBase<CommentTextTransformCondition>
         {
+            public CommentTextTransformConditionDBService(ILiteDatabase liteDatabase) : base(liteDatabase)
+            {
+            }
         }
 
         public List<CommentTextTransformCondition> GetAllCommentTextTransformCondition()
@@ -198,9 +201,11 @@ namespace Hohoema.Models.Repository.App
             public string SoureComment { get; set; } = string.Empty;
         }
 
-        public sealed class FilteringCommentOwnerIdDBService : LocalLiteDBService<FilteringCommentOwnerId>
+        public sealed class FilteringCommentOwnerIdDBService : LiteDBServiceBase<FilteringCommentOwnerId>
         {
-
+            public FilteringCommentOwnerIdDBService(ILiteDatabase liteDatabase)
+            : base(liteDatabase)
+            { }
         }
 
 
@@ -290,9 +295,11 @@ namespace Hohoema.Models.Repository.App
             }
         }
 
-        public sealed class FilteringCommentTextDBService : LocalLiteDBService<FilteringCommentTextKeyword>
+        public sealed class FilteringCommentTextDBService : LiteDBServiceBase<FilteringCommentTextKeyword>
         {
-
+            public FilteringCommentTextDBService(ILiteDatabase liteDatabase)
+            : base(liteDatabase)
+            { }
         }
 
 

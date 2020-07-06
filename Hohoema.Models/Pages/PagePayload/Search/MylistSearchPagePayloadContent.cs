@@ -1,4 +1,5 @@
 ﻿using Hohoema.Models;
+using Hohoema.Models.Repository.Niconico;
 using System.Runtime.Serialization;
 
 namespace Hohoema.Models.Pages.PagePayload
@@ -8,9 +9,9 @@ namespace Hohoema.Models.Pages.PagePayload
 		public override SearchTarget SearchTarget => SearchTarget.Mylist;
 
         [DataMember]
-        public Mntone.Nico2.Order Order { get; set; } = Mntone.Nico2.Order.Descending;
+        public Order Order { get; set; } = Order.Descending;
 
         [DataMember]
-        public Mntone.Nico2.Sort Sort { get; set; } = Mntone.Nico2.Sort.MylistPopurarity;
+        public Sort Sort { get; set; } = Sort.MylistPopurarity;
 	}
 }

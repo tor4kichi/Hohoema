@@ -1,15 +1,6 @@
 ﻿using I18NPortable;
-using Mntone.Nico2;
-using Mntone.Nico2.Live.Watch.Crescendo;
-using Mntone.Nico2.Users.Series;
-using Mntone.Nico2.Users.User;
-using Mntone.Nico2.Videos.Series;
 using Hohoema.Interfaces;
-using Hohoema.Models.Provider;
-using Hohoema.Repository.NicoVideo;
-using Hohoema.Services;
 using Hohoema.ViewModels.Pages;
-using Hohoema.UseCase.Page.Commands;
 using Hohoema.UseCase.Playlist;
 using Hohoema.ViewModels.Subscriptions;
 using Prism.Commands;
@@ -21,15 +12,18 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using System.Windows.Input;
+using Hohoema.Models.Pages;
+using Hohoema.Models.Repository.Niconico.NicoVideo.Series;
+using Hohoema.Models.Repository.Niconico;
+using Hohoema.Models.Repository;
 
 namespace Hohoema.ViewModels
 {
     public sealed class UserSeriesPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, ITitleUpdatablePage, IPinablePage
     {
-        public HohoemaPin GetPin()
+        public Models.Pages.HohoemaPin GetPin()
         {
-            return new HohoemaPin()
+            return new Models.Pages.HohoemaPin()
             {
                 Label = User.Label,
                 PageType = HohoemaPageType.UserSeries,
@@ -97,7 +91,7 @@ namespace Hohoema.ViewModels
         {
             if (parameters.TryGetValue("id", out string id))
             {
-                var serieses = await _seriesRepository.GetUserSeriesAsync(id);
+                var serieses = await _userProvider.GetUserSeriesAsync(id);
                 UserSeriesList = serieses.Select(x => new UserSeriesItemViewModel(x)).ToList();
 
                 var userInfo = await _userProvider.GetUserDetail(id);
@@ -109,9 +103,9 @@ namespace Hohoema.ViewModels
 
     public class UserViewModel : IUser
     {
-        private readonly UserDetail _userDetail;
+        private readonly UserDetails _userDetail;
 
-        public UserViewModel(UserDetail userDetail)
+        public UserViewModel(UserDetails userDetail)
         {
             _userDetail = userDetail;
         }

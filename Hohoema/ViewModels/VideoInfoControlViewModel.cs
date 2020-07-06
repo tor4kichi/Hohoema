@@ -29,6 +29,7 @@ using Hohoema.Models.Niconico.Video;
 using Hohoema.Models.VideoCache;
 using NGResult = Hohoema.Models.Repository.App.NGResult;
 using Hohoema.Database;
+using Hohoema.Models.Pages.PagePayload;
 
 namespace Hohoema.ViewModels
 {

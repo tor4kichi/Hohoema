@@ -3,42 +3,22 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
 
 namespace Hohoema.Models.Repository
 {
-    public abstract class LocalLiteDBService<T> : LiteDBServiceBase<T>
-    {
-        static readonly string LocalConnectionString = $"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "_v3")}; Async=false;";
-        public LocalLiteDBService()
-            : base(LocalConnectionString)
-        {
-
-        }
-    }
-
-
-    public abstract class TempraryLiteDBService<T> : LiteDBServiceBase<T>
-    {
-        static readonly string TempraryConnectionString = $"Filename={Path.Combine(ApplicationData.Current.TemporaryFolder.Path, "_v3")}; Async=false;";
-        public TempraryLiteDBService()
-            : base(TempraryConnectionString)
-        {
-
-        }
-
-    }
     public abstract class LiteDBServiceBase<T>
     {
-
         protected ILiteCollection<T> _collection;
+        private readonly ILiteDatabase _liteDatabase;
 
-        public LiteDBServiceBase(string connectionString)
+        public LiteDBServiceBase(ILiteDatabase liteDatabase)
         {
-            var db = new LiteDatabase(connectionString);
-            _collection = db.GetCollection<T>();
+            _collection = liteDatabase.GetCollection<T>();
+            _liteDatabase = liteDatabase;
         }
 
         public virtual T CreateItem(T item)
@@ -84,4 +64,5 @@ namespace Hohoema.Models.Repository
             return _collection.Count();
         }
     }
+    
 }

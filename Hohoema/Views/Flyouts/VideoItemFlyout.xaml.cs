@@ -9,14 +9,10 @@ using System.Reactive.Concurrency;
 using Hohoema.Services;
 using Hohoema.Models.LocalMylist;
 using Hohoema.Models.Subscription;
-using Hohoema.Models.Cache;
-using Hohoema.Models.Provider;
 using Windows.UI.Xaml.Controls.Primitives;
 using System.Globalization;
 using Hohoema.UseCase.Playlist;
 using Hohoema.UseCase.Playlist.Commands;
-using Hohoema.Interfaces;
-using Hohoema.Repository.Playlist;
 using System.Collections.Generic;
 using System.Linq;
 using Hohoema.Views.Helpers;
@@ -26,6 +22,18 @@ using System;
 using Prism.Commands;
 using Microsoft.Toolkit.Uwp.UI.Extensions;
 using Uno.Extensions.Specialized;
+using Hohoema.Models.Repository;
+using Hohoema.Models.Repository.Niconico.Mylist;
+using Hohoema.ViewModels.Pages;
+using Hohoema.Models.Subscriptions;
+using Hohoema.UseCase.VideoCache;
+using Hohoema.ViewModels.Subscriptions;
+using Hohoema.ViewModels.Pages.Commands;
+using Hohoema.Models.Pages;
+using Hohoema.ViewModels.ExternalAccess.Commands;
+using Hohoema.UseCase.Services;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Repository.VideoCache;
 
 namespace Hohoema.Views.Flyouts
 {
@@ -40,28 +48,29 @@ namespace Hohoema.Views.Flyouts
         // Using a DependencyProperty as the backing store for Playlist.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty PlaylistProperty =
             DependencyProperty.Register("Playlist", typeof(IPlaylist), typeof(VideoItemFlyout), new PropertyMetadata(null));
+        private IInAppNotificationService _inAppNotificationService;
+        private CacheSettingsRepository _cacheSettingsRepository;
 
-
-        public IReadOnlyCollection<Interfaces.IVideoContent> SelectedVideoItems
+        public IReadOnlyCollection<IVideoContent> SelectedVideoItems
         {
-            get { return (IReadOnlyCollection<Interfaces.IVideoContent>)GetValue(SelectedVideoItemsProperty); }
+            get { return (IReadOnlyCollection<IVideoContent>)GetValue(SelectedVideoItemsProperty); }
             set { SetValue(SelectedVideoItemsProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SelectedVideoItemsProperty =
-            DependencyProperty.Register(nameof(SelectedVideoItems), typeof(IReadOnlyCollection<Interfaces.IVideoContent>), typeof(VideoItemFlyout), new PropertyMetadata(null));
+            DependencyProperty.Register(nameof(SelectedVideoItems), typeof(IReadOnlyCollection<IVideoContent>), typeof(VideoItemFlyout), new PropertyMetadata(null));
 
 
-        public IReadOnlyCollection<Interfaces.IVideoContent> SourceVideoItems
+        public IReadOnlyCollection<IVideoContent> SourceVideoItems
         {
-            get { return (IReadOnlyCollection<Interfaces.IVideoContent>)GetValue(SourceVideoItemsProperty); }
+            get { return (IReadOnlyCollection<IVideoContent>)GetValue(SourceVideoItemsProperty); }
             set { SetValue(SourceVideoItemsProperty, value); }
         }
 
         // Using a DependencyProperty as the backing store for MyProperty.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty SourceVideoItemsProperty =
-            DependencyProperty.Register(nameof(SourceVideoItems), typeof(IReadOnlyCollection<Interfaces.IVideoContent>), typeof(VideoItemFlyout), new PropertyMetadata(null));
+            DependencyProperty.Register(nameof(SourceVideoItems), typeof(IReadOnlyCollection<IVideoContent>), typeof(VideoItemFlyout), new PropertyMetadata(null));
 
 
 
@@ -73,16 +82,15 @@ namespace Hohoema.Views.Flyouts
 
 
         public HohoemaPlaylist HohoemaPlaylist { get; }
-        public ExternalAccessHelper ExternalAccessService { get; }
         public PageManager PageManager { get; }
         public UserMylistManager UserMylistManager { get; }
         public LocalMylistManager LocalMylistManager { get; }
         public SubscriptionManager SubscriptionManager { get; }
         public VideoCacheManager VideoCacheManager { get; }
         public VideoItemsSelectionContext VideoItemsSelectionContext { get; }
-        public Commands.Mylist.CreateMylistCommand CreateMylistCommand { get; }
-        public Commands.Mylist.CreateLocalMylistCommand CreateLocalMylistCommand { get; }
-        public ViewModels.Subscriptions.AddSubscriptionCommand AddSubscriptionCommand { get; }
+        public CreateMylistCommand CreateMylistCommand { get; }
+        public CreateLocalMylistCommand CreateLocalMylistCommand { get; }
+        public AddSubscriptionCommand AddSubscriptionCommand { get; }
 
 
 
@@ -92,12 +100,13 @@ namespace Hohoema.Views.Flyouts
         {
             this.InitializeComponent();
 
+            _inAppNotificationService = App.Current.Container.Resolve<IInAppNotificationService>();
+            _cacheSettingsRepository = App.Current.Container.Resolve<CacheSettingsRepository>();
             SelectedVideoItems = new List<IVideoContent>();
 
             CreateMylistCommand = App.Current.Container.Resolve<CreateMylistCommand>();
             CreateLocalMylistCommand = App.Current.Container.Resolve<CreateLocalMylistCommand>();
             HohoemaPlaylist = App.Current.Container.Resolve<HohoemaPlaylist>();
-            ExternalAccessService = App.Current.Container.Resolve<ExternalAccessHelper>();
             PageManager = App.Current.Container.Resolve<PageManager>();
             UserMylistManager = App.Current.Container.Resolve<UserMylistManager>();
             LocalMylistManager = App.Current.Container.Resolve<LocalMylistManager>();
@@ -109,13 +118,13 @@ namespace Hohoema.Views.Flyouts
             AddWatchAfter.Command = App.Current.Container.Resolve<WatchAfterAddItemCommand>();
             RemoveWatchAfter.Command = App.Current.Container.Resolve<WatchAfterRemoveItemCommand>();
 
-            OpenVideoInfoPage.Command = PageManager.OpenPageCommand;
-            OpenOwnerVideosPage.Command = PageManager.OpenVideoListPageCommand;
+            OpenVideoInfoPage.Command = App.Current.Container.Resolve<OpenPageCommand>();
+            OpenOwnerVideosPage.Command = App.Current.Container.Resolve<OpenContentOwnerPageCommand>();
             OpenOwnerSeriesPage.Command = new OpenPageWithIdCommand(HohoemaPageType.UserSeries, PageManager);
-            Share.Command = ExternalAccessService.OpenShareUICommand;
-            CopyVideoId.Command = ExternalAccessService.CopyToClipboardCommand;
-            CopyVideoLink.Command = ExternalAccessService.CopyToClipboardCommand;
-            CopyShareText.Command = ExternalAccessService.CopyToClipboardWithShareTextCommand;
+            Share.Command = App.Current.Container.Resolve<OpenShareUICommand>();
+            CopyVideoId.Command = App.Current.Container.Resolve<CopyToClipboardCommand>();
+            CopyVideoLink.Command = App.Current.Container.Resolve<CopyToClipboardCommand>();
+            CopyShareText.Command = App.Current.Container.Resolve<CopyToClipboardWithShareText>();
 
             AddSusbcriptionItem.Command = App.Current.Container.Resolve<ViewModels.Subscriptions.AddSubscriptionCommand>();
 
@@ -134,7 +143,7 @@ namespace Hohoema.Views.Flyouts
         private void VideoItemFlyout_Opening(object sender, object e)
         {
             object dataContext = Target.DataContext ?? (Target as SelectorItem)?.Content;
-            var content = (dataContext as Interfaces.IVideoContent);
+            var content = (dataContext as IVideoContent);
 
             if (content == null || (SelectedVideoItems?.Any() ?? false))
             {
@@ -154,7 +163,7 @@ namespace Hohoema.Views.Flyouts
             if (playlist is LocalPlaylist localPlaylist)
             {
                 RemoveLocalPlaylistItem.CommandParameter = dataContext;
-                RemoveLocalPlaylistItem.Command = localPlaylist.ItemsRemoveCommand;
+                RemoveLocalPlaylistItem.Command = new LocalPlaylistRemoveItemCommand(localPlaylist);
                 RemoveLocalPlaylistItem.Visibility = Visibility.Visible;
             }
             else
@@ -166,7 +175,7 @@ namespace Hohoema.Views.Flyouts
             if (playlist is LoginUserMylistPlaylist mylistPlaylist)
             {
                 RemoveMylistItem.CommandParameter = dataContext;
-                RemoveMylistItem.Command = mylistPlaylist.ItemsRemoveCommand;
+                RemoveMylistItem.Command = new MylistRemoveItemCommand(mylistPlaylist);
                 RemoveMylistItem.Visibility = Visibility.Visible;
             }
             else
@@ -247,7 +256,7 @@ namespace Hohoema.Views.Flyouts
                     AddToMylistSubItem.Items.Add(new MenuFlyoutItem()
                     {
                         Text = mylist.Label,
-                        Command = mylist.ItemsAddCommand,
+                        Command = new MylistAddItemCommand(mylist, _inAppNotificationService),
                         CommandParameter = dataContext
                     });
                 }
@@ -282,14 +291,11 @@ namespace Hohoema.Views.Flyouts
                 LocalMylistSubItem.Items.Add(new MenuFlyoutItem()
                 {
                     Text = localMylist.Label,
-                    Command = localMylist.ItemsAddCommand,
+                    Command = new LocalPlaylistAddItemCommand(localMylist),
                     CommandParameter = dataContext
                 });
             }
 
-            // 購読
-            var susbcSourceConverter = new Subscriptions.SubscriptionSourceConverter();
-            var subscSource = susbcSourceConverter.Convert(content, typeof(SubscriptionSource), null, null);
             
             // NG投稿者
             AddNgUser.Visibility = AddNgUser.Command.CanExecute(content).ToVisibility();
@@ -297,7 +303,7 @@ namespace Hohoema.Views.Flyouts
 
 
             // キャッシュ
-            var isCacheEnabled = VideoCacheManager.CacheSettings.IsEnableCache && VideoCacheManager.CacheSettings.IsUserAcceptedCache;
+            var isCacheEnabled = _cacheSettingsRepository.IsCacheEnabled && _cacheSettingsRepository.IsCacheAccepted;
             var cacheEnableToVisibility = isCacheEnabled.ToVisibility();
             if (isMultipleSelection && isCacheEnabled)
             {

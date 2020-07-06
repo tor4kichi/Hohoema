@@ -1,5 +1,4 @@
-﻿using Mntone.Nico2.Videos.Ranking;
-using Prism.Commands;
+﻿using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.IO;

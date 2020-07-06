@@ -34,6 +34,8 @@ using Windows.UI.Xaml.Data;
 using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
+using Hohoema.Models.Pages;
+using ApplicationInteractionMode = Hohoema.Models.Pages.ApplicationInteractionMode;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -117,7 +119,7 @@ namespace Hohoema.Views
             Window.Current.CoreWindow.PointerPressed += CoreWindow_PointerPressed;
 
 
-            if (Services.Helpers.DeviceTypeHelper.IsDesktop)
+            if (DeviceTypeHelper.IsDesktop)
             {
                 Window.Current.SetTitleBar(DraggableContent as UIElement);
             }
@@ -216,7 +218,7 @@ namespace Hohoema.Views
                 ContentSplitView.IsPaneOpen = false;
             }
 
-            if (_viewModel.ApplicationLayoutManager.AppLayout == ApplicationLayout.TV)
+            if (_viewModel.ApplicationLayoutManager.AppLayout == Models.Pages.ApplicationLayout.TV)
             {
                 _isFocusMenu.Value = false;
             }

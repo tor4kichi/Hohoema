@@ -31,8 +31,8 @@ namespace Hohoema.Models.Repository.App
             set => SetProperty(ref _OverrideIntractionMode, value);
         }
 
-        ElementTheme? _Theme = null;
-        public ElementTheme? Theme
+        ElementTheme _Theme = ElementTheme.Default;
+        public ElementTheme Theme
         {
             get => _Theme;
             set => SetProperty(ref _Theme, value);

@@ -12,7 +12,6 @@ namespace Hohoema.Views.TemplateSelector
     public class HohoemaFlyoutTemplateSelector : DataTemplateSelector
     {
         public Windows.UI.Xaml.DataTemplate VideoFlyoutTemplate { get; set; }
-        public Windows.UI.Xaml.DataTemplate LiveFlyoutTemplate { get; set; }
         public Windows.UI.Xaml.DataTemplate MylistFlyoutTemplate { get; set; }
         public Windows.UI.Xaml.DataTemplate UserFlyoutTemplate { get; set; }
         public Windows.UI.Xaml.DataTemplate CommunityFlyoutTemplate { get; set; }
@@ -23,10 +22,6 @@ namespace Hohoema.Views.TemplateSelector
             if (item is ViewModels.VideoInfoControlViewModel)
             {
                 return VideoFlyoutTemplate;
-            }
-            else if (item is ILiveContent)
-            {
-                return LiveFlyoutTemplate;
             }
             else if (item is ViewModels.SearchHistoryListItem)
             {

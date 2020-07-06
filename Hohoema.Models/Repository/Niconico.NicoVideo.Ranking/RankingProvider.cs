@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hohoema.Models.Repository.Niconico.NicoVideoRanking
+namespace Hohoema.Models.Repository.Niconico.NicoVideo.Ranking
 {
     public sealed class RankingProvider : ProviderBase
     {
@@ -37,14 +37,16 @@ namespace Hohoema.Models.Repository.Niconico.NicoVideoRanking
             return tags;
         }
 
-        public async Task<Mntone.Nico2.RssVideoResponse> GetRankingGenreWithTagAsync(RankingGenre genre, string tag, RankingTerm term, int page = 1)
+        public async Task<RssVideoResponse> GetRankingGenreWithTagAsync(RankingGenre genre, string tag, RankingTerm term, int page = 1)
         {
-            return await Mntone.Nico2.Videos.Ranking.NiconicoRanking.GetRankingRssAsync(
+            var res = await Mntone.Nico2.Videos.Ranking.NiconicoRanking.GetRankingRssAsync(
                 genre.ToInfrastructureRankingGenre(), 
                 tag, 
                 term.ToInfrastructureRankingTerm(), 
                 page
                 );
+
+            return new RssVideoResponse(res);
         }
     }
 }

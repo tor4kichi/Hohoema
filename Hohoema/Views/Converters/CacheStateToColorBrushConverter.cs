@@ -1,4 +1,4 @@
-﻿using Hohoema.Models.Cache;
+﻿using Hohoema.Models.VideoCache;
 using System;
 using Windows.UI;
 using Windows.UI.Xaml.Data;

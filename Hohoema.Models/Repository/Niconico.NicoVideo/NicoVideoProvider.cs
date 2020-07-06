@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hohoema.Models.Repository.Niconico.NicoVideo.RelatedVideos;
 
 namespace Hohoema.Models.Repository.Niconico.NicoVideo
 {
@@ -413,12 +414,14 @@ namespace Hohoema.Models.Repository.Niconico.NicoVideo
             }
         }
 
-        public async Task<NicoVideoResponse> GetRelatedVideos(string videoId, uint from, uint limit, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
+        public async Task<RelatedVideosReponse> GetRelatedVideosAsync(string videoId, uint from, uint limit, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
         {
-            return await ContextActionAsync(async context =>
+            var res = await ContextActionAsync(async context =>
             {
                 return await context.Video.GetRelatedVideoAsync(videoId, from, limit, sort.ToInfrastructureSort(), order.ToInfrastructureOrder());
             });
+
+            return new RelatedVideosReponse(res);
         }
 
 

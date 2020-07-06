@@ -8,6 +8,10 @@ using Unity;
 using System.Diagnostics;
 using Hohoema.Models;
 using Hohoema.Services;
+using Hohoema.UseCase.Playlist;
+using Hohoema.UseCase.Services;
+using Hohoema.Models.Repository.Niconico.Mylist;
+using Hohoema.Models.Repository;
 
 namespace Hohoema.Commands.Mylist
 {
@@ -15,7 +19,7 @@ namespace Hohoema.Commands.Mylist
     {
         public CreateMylistCommand(
             UserMylistManager userMylistManager,
-            DialogService dialogService
+            IEditMylistGroupDialogService dialogService
             )
         {
             UserMylistManager = userMylistManager;
@@ -23,7 +27,7 @@ namespace Hohoema.Commands.Mylist
         }
 
         public UserMylistManager UserMylistManager { get; }
-        public DialogService DialogService { get; }
+        public IEditMylistGroupDialogService DialogService { get; }
 
         protected override bool CanExecute(object parameter)
         {
@@ -32,7 +36,7 @@ namespace Hohoema.Commands.Mylist
 
         protected override async void Execute(object parameter)
         {
-            var data = new Dialogs.MylistGroupEditData() { };
+            var data = new MylistGroupEditData() { };
             var result = await DialogService.ShowCreateMylistGroupDialogAsync(data);
             if (result)
             {
@@ -45,7 +49,7 @@ namespace Hohoema.Commands.Mylist
             
             if (mylist == null) { return; }
 
-            if (parameter is Interfaces.IVideoContent content)
+            if (parameter is IVideoContent content)
             {
                 await mylist.AddItem(content.Id);
             }

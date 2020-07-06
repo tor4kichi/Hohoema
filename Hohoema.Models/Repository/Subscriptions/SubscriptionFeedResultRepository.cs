@@ -9,11 +9,12 @@ using System.Threading.Tasks;
 
 namespace Hohoema.Models.Repository.Subscriptions
 {
-    public sealed class SubscriptionFeedResultRepository : LocalLiteDBService<SubscriptionFeedResult>
+    public sealed class SubscriptionFeedResultRepository : LiteDBServiceBase<SubscriptionFeedResult>
     {
         public static int FeedResultVideosCapacity = 100;
 
-        public SubscriptionFeedResultRepository()
+        public SubscriptionFeedResultRepository(ILiteDatabase liteDatabase)
+            : base(liteDatabase)
         {
             _collection.EnsureIndex(x => x.SourceType);
             _collection.EnsureIndex(x => x.SourceParamater);

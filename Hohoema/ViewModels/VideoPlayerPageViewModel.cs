@@ -1,51 +1,41 @@
-﻿using Mntone.Nico2;
-using Mntone.Nico2.Videos.Comment;
-using Mntone.Nico2.Videos.Dmc;
-using Hohoema.Interfaces;
+﻿using Hohoema.Commands.Mylist;
 using Hohoema.Models;
-using Hohoema.Models.Cache;
 using Hohoema.Models.Helpers;
-using Hohoema.Models.LocalMylist;
 using Hohoema.Models.Niconico;
 using Hohoema.Models.Niconico.Video;
-using Hohoema.Models.Provider;
+using Hohoema.Models.Pages;
+using Hohoema.Models.Repository;
+using Hohoema.Models.Repository.App;
+using Hohoema.Models.Repository.Niconico.Channel;
+using Hohoema.Models.Repository.Niconico.Mylist;
+using Hohoema.Models.Repository.Niconico.NicoVideo;
+using Hohoema.Models.Repository.Niconico.NicoVideo.Comment;
+using Hohoema.Models.Repository.Playlist;
+using Hohoema.Models.Repository.VideoCache;
+using Hohoema.Models.Subscriptions;
 using Hohoema.Services;
-using Hohoema.Services.Helpers;
-using Hohoema.ViewModels.Pages;
+using Hohoema.Services.Player;
 using Hohoema.UseCase;
 using Hohoema.UseCase.NicoVideoPlayer;
 using Hohoema.UseCase.Playlist;
-using Hohoema.ViewModels.PlayerSidePaneContent;
+using Hohoema.UseCase.Services;
+using Hohoema.ViewModels.ExternalAccess.Commands;
+using Hohoema.ViewModels.Pages;
+using Hohoema.ViewModels.Player;
+using Hohoema.ViewModels.Player.Commands;
+using Hohoema.ViewModels.Subscriptions;
+using I18NPortable;
 using Prism.Commands;
 using Prism.Events;
 using Prism.Navigation;
-using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
 using System.Reactive.Concurrency;
-using System.Reactive.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Threading;
 using System.Threading.Tasks;
-using Windows.ApplicationModel.DataTransfer;
-using Windows.Foundation.Metadata;
 using Windows.Media;
 using Windows.Media.Playback;
 using Windows.Storage.Streams;
-using Windows.UI;
-using Windows.UI.Popups;
-using Windows.UI.ViewManagement;
-using Windows.UI.Xaml;
-using Prism.Ioc;
-using Hohoema.Repository.Playlist;
-using Hohoema.Services.Player;
-using Hohoema.UseCase.NicoVideoPlayer.Commands;
-using I18NPortable;
-using Hohoema.ViewModels.Subscriptions;
 
 namespace Hohoema.ViewModels
 {
@@ -54,36 +44,31 @@ namespace Hohoema.ViewModels
 	{
         // TODO: HohoemaViewModelBaseとの依存性を排除（ViewModelBaseとの関係性は維持）
         private readonly IScheduler _scheduler;
-
-
-
+        private readonly VideoListFilterSettings _videoListFilterSettings;
 
         public VideoPlayerPageViewModel(
             IScheduler scheduler,
-            IEventAggregator eventAggregator,
-            Models.NiconicoSession niconicoSession,
-            Models.Subscription.SubscriptionManager subscriptionManager,
+            NiconicoSession niconicoSession,
+            SubscriptionManager subscriptionManager,
             NicoVideoProvider nicoVideoProvider,
             ChannelProvider channelProvider,
             MylistProvider mylistProvider,
-            PlayerSettings playerSettings,
-            CacheSettings cacheSettings,
-            NGSettings ngSettings,
+            PlayerSettingsRepository playerSettings,
+            CacheSettingsRepository cacheSettings,
+            VideoListFilterSettings videoListFilterSettings,
             ApplicationLayoutManager applicationLayoutManager,
             HohoemaPlaylist hohoemaPlaylist,
             LocalMylistManager localMylistManager,
             UserMylistManager userMylistManager,
             PageManager pageManager,
             MediaPlayer mediaPlayer,
-            NotificationService notificationService,
-            DialogService dialogService,
-            ExternalAccessHelper externalAccessService,
-            ViewModels.Subscriptions.AddSubscriptionCommand addSubscriptionCommand,
-            Commands.Mylist.CreateLocalMylistCommand createLocalMylistCommand,
-            Commands.Mylist.CreateMylistCommand createMylistCommand,
-            UseCase.NicoVideoPlayer.VideoStreamingOriginOrchestrator videoStreamingOriginOrchestrator,
-            UseCase.VideoPlayer videoPlayer,
-            UseCase.CommentPlayer commentPlayer,
+            IToastNotificationService notificationService,
+            AddSubscriptionCommand addSubscriptionCommand,
+            CreateLocalMylistCommand createLocalMylistCommand,
+            CreateMylistCommand createMylistCommand,
+            VideoStreamingOriginOrchestrator videoStreamingOriginOrchestrator,
+            VideoPlayer videoPlayer,
+            CommentPlayer commentPlayer,
             CommentCommandEditerViewModel commentCommandEditerViewModel,
             KeepActiveDisplayWhenPlaying keepActiveDisplayWhenPlaying,
             ObservableMediaPlayer observableMediaPlayer,
@@ -92,7 +77,10 @@ namespace Hohoema.ViewModels
             PrimaryViewPlayerManager primaryViewPlayerManager,
             TogglePlayerDisplayViewCommand togglePlayerDisplayViewCommand,
             ShowPrimaryViewCommand showPrimaryViewCommand,
-            MediaPlayerSoundVolumeManager soundVolumeManager
+            MediaPlayerSoundVolumeManager soundVolumeManager,
+            OpenShareUICommand openShareUICommand,
+            CopyToClipboardCommand copyToClipboardCommand,
+            OpenLinkCommand openLinkCommand
             )
         {
             _scheduler = scheduler;
@@ -103,15 +91,13 @@ namespace Hohoema.ViewModels
             MylistProvider = mylistProvider;
             PlayerSettings = playerSettings;
             CacheSettings = cacheSettings;
-            NgSettings = ngSettings;
+            _videoListFilterSettings = videoListFilterSettings;
             ApplicationLayoutManager = applicationLayoutManager;
             HohoemaPlaylist = hohoemaPlaylist;
             LocalMylistManager = localMylistManager;
             UserMylistManager = userMylistManager;
             PageManager = pageManager;
-            _NotificationService = notificationService;
-            _HohoemaDialogService = dialogService;
-            ExternalAccessService = externalAccessService;
+            _ToastNotificationService = notificationService;
             AddSubscriptionCommand = addSubscriptionCommand;
             CreateLocalMylistCommand = createLocalMylistCommand;
             CreateMylistCommand = createMylistCommand;
@@ -123,6 +109,9 @@ namespace Hohoema.ViewModels
             TogglePlayerDisplayViewCommand = togglePlayerDisplayViewCommand;
             ShowPrimaryViewCommand = showPrimaryViewCommand;
             SoundVolumeManager = soundVolumeManager;
+            OpenShareUICommand = openShareUICommand;
+            CopyToClipboardCommand = copyToClipboardCommand;
+            OpenLinkCommand = openLinkCommand;
             ObservableMediaPlayer = observableMediaPlayer
                 .AddTo(_CompositeDisposable);
             WindowService = windowService
@@ -142,13 +131,12 @@ namespace Hohoema.ViewModels
 
 
 
-        public Models.Subscription.SubscriptionManager SubscriptionManager { get; }
+        public SubscriptionManager SubscriptionManager { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
         public ChannelProvider ChannelProvider { get; }
         public MylistProvider MylistProvider { get; }
 
-        public CacheSettings CacheSettings { get; }
-        public NGSettings NgSettings { get; }
+        public CacheSettingsRepository CacheSettings { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         
         public HohoemaPlaylist HohoemaPlaylist { get; }
@@ -163,7 +151,7 @@ namespace Hohoema.ViewModels
 
         public MediaPlayer MediaPlayer { get; }
 
-        public Models.NiconicoSession NiconicoSession { get; }
+        public NiconicoSession NiconicoSession { get; }
         public VideoPlayer VideoPlayer { get; }
         public CommentPlayer CommentPlayer { get; }
         public CommentCommandEditerViewModel CommentCommandEditerViewModel { get; }
@@ -171,13 +159,15 @@ namespace Hohoema.ViewModels
         public TogglePlayerDisplayViewCommand TogglePlayerDisplayViewCommand { get; }
         public ShowPrimaryViewCommand ShowPrimaryViewCommand { get; }
         public MediaPlayerSoundVolumeManager SoundVolumeManager { get; }
+        public OpenShareUICommand OpenShareUICommand { get; }
+        public CopyToClipboardCommand CopyToClipboardCommand { get; }
+        public OpenLinkCommand OpenLinkCommand { get; }
         public ObservableMediaPlayer ObservableMediaPlayer { get; }
         public WindowService WindowService { get; }
         public VideoEndedRecommendation VideoEndedRecommendation { get; }
         public INicoVideoDetails VideoDetails { get; private set; }
-        public PlayerSettings PlayerSettings { get; }
-        public ExternalAccessHelper ExternalAccessService { get; }
-
+        public PlayerSettingsRepository PlayerSettings { get; }
+ 
         public MediaPlayerSeekCommand SeekCommand { get; }
         public MediaPlayerSetPlaybackRateCommand SetPlaybackRateCommand { get; }
         public MediaPlayerToggleMuteCommand ToggleMuteCommand { get; }
@@ -207,9 +197,8 @@ namespace Hohoema.ViewModels
         public IVideoContent VideoContent { get; private set; }
 
 
-        NotificationService _NotificationService;
-        DialogService _HohoemaDialogService;
-
+        IToastNotificationService _ToastNotificationService;
+        
         private readonly VideoStreamingOriginOrchestrator _videoStreamingOriginOrchestrator;
         private readonly KeepActiveDisplayWhenPlaying _keepActiveDisplayWhenPlaying;
 
@@ -400,7 +389,7 @@ namespace Hohoema.ViewModels
                             toastContent = "DeletedVideoNotice".Translate();
                         }
 
-                        _NotificationService.ShowToast("DeletedVideoToastNotificationTitleWithVideoId".Translate(videoInfo.RawVideoId), toastContent);
+                        _ToastNotificationService.ShowToast("DeletedVideoToastNotificationTitleWithVideoId".Translate(videoInfo.RawVideoId), toastContent);
                     });
 
                     // ローカルプレイリストの場合は勝手に消しておく
@@ -516,6 +505,7 @@ namespace Hohoema.ViewModels
         // プレイリスト
 
         // TODO: コメントのNGユーザー登録
+        /*
         internal Task AddNgUser(Comment commentViewModel)
 		{
 			if (commentViewModel.UserId == null) { return Task.CompletedTask; }
@@ -536,6 +526,7 @@ namespace Hohoema.ViewModels
 
 			return Task.CompletedTask;
 		}
+        */
     }
 
 }

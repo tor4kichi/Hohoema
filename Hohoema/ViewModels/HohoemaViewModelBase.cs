@@ -1,6 +1,7 @@
 ﻿using Prism.Mvvm;
 using Prism.Navigation;
 using System.Reactive.Disposables;
+using System.Reflection.Metadata;
 
 namespace Hohoema.ViewModels
 {
@@ -14,14 +15,17 @@ namespace Hohoema.ViewModels
         
         protected CompositeDisposable _CompositeDisposable { get; private set; }
         protected CompositeDisposable _NavigatingCompositeDisposable { get; private set; }
-
+        
         public virtual void Destroy()
         {
             _CompositeDisposable?.Dispose();
         }
 
 
-        public virtual void OnNavigatingTo(INavigationParameters parameters) { }
+        public virtual void OnNavigatingTo(INavigationParameters parameters) 
+        {
+            
+        }
 
         public virtual void OnNavigatedTo(INavigationParameters parameters)
         {

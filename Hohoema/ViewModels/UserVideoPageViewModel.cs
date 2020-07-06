@@ -3,13 +3,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using Hohoema.Models;
 using Hohoema.Models.Helpers;
-using Mntone.Nico2.Users.Video;
-using Mntone.Nico2.Users.User;
 using System.Threading;
 using Prism.Commands;
-using Windows.UI.Xaml.Navigation;
-using Hohoema.Models.Cache;
-using Hohoema.Models.Provider;
 using Unity;
 using Hohoema.Services;
 using Prism.Navigation;
@@ -23,14 +18,18 @@ using Hohoema.UseCase;
 using Hohoema.ViewModels.Subscriptions;
 using Reactive.Bindings;
 using System.Runtime.CompilerServices;
+using Hohoema.Models.Pages;
+using Hohoema.Models.Repository.Niconico;
+using Hohoema.Models.Subscriptions;
+using Hohoema.UseCase.VideoCache;
 
 namespace Hohoema.ViewModels
 {
     public class UserVideoPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
-        HohoemaPin IPinablePage.GetPin()
+        Models.Pages.HohoemaPin IPinablePage.GetPin()
         {
-            return new HohoemaPin()
+            return new Models.Pages.HohoemaPin()
             {
                 Label = UserName,
                 PageType = HohoemaPageType.UserVideo,
@@ -46,13 +45,11 @@ namespace Hohoema.ViewModels
         public UserVideoPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
             UserProvider userProvider,
-            SubscriptionManager subscriptionManager,
             HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
-            ViewModels.Subscriptions.AddSubscriptionCommand addSubscriptionCommand
+            AddSubscriptionCommand addSubscriptionCommand
             )
         {
-            SubscriptionManager = subscriptionManager;
             ApplicationLayoutManager = applicationLayoutManager;
             UserProvider = userProvider;
             HohoemaPlaylist = hohoemaPlaylist;
@@ -63,7 +60,6 @@ namespace Hohoema.ViewModels
         }
 
 
-        public Models.Subscription.SubscriptionManager SubscriptionManager { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public UserProvider UserProvider { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
@@ -138,7 +134,7 @@ namespace Hohoema.ViewModels
             set { SetProperty(ref _IsOwnerVideoPrivate, value); }
         }
 
-        public UserDetail User { get; private set; }
+        public UserDetails User { get; private set; }
 
 		
 		public string UserId { get; private set; }
@@ -153,16 +149,16 @@ namespace Hohoema.ViewModels
         
 
 
-		public UserDetail User { get; private set;}
+		public UserDetails User { get; private set;}
 
-		public List<UserVideoResponse> _ResList;
+		public List<UserVideosResponse> _ResList;
 		
-		public UserVideoIncrementalSource(string userId, UserDetail userDetail, UserProvider userProvider)
+		public UserVideoIncrementalSource(string userId, UserDetails userDetail, UserProvider userProvider)
 		{
 			UserId = uint.Parse(userId);
 			User = userDetail;
             UserProvider = userProvider;
-			_ResList = new List<UserVideoResponse>();
+			_ResList = new List<UserVideosResponse>();
 		}
 
         protected override async IAsyncEnumerable<VideoInfoControlViewModel> GetPagedItemsImpl(int start, int count, [EnumeratorCancellation]CancellationToken cancellationToken)

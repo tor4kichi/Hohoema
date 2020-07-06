@@ -50,7 +50,7 @@ using Hohoema.Models.Helpers;
 using Hohoema.Models.Repository.VideoCache;
 using Hohoema.Models.Repository.NicoRepo;
 using Hohoema.Models.Repository.Playlist;
-using Hohoema.Models.Repository.Niconico.NicoVideoRanking;
+using Hohoema.Models.Repository.Niconico.NicoVideo.Ranking;
 using Hohoema.Models.Repository.Subscriptions;
 using Hohoema.Models.Pages;
 using Hohoema.Models.Niconico.Video;
@@ -58,6 +58,9 @@ using Hohoema.Models.Repository.Niconico.NicoVideo;
 using Hohoema.Models.Niconico.Follow;
 using Hohoema.Models.Pages.PagePayload;
 using Hohoema.ViewModels.Pages;
+using Hohoema.Database;
+using Hohoema.Models.Repository;
+using LiteDB;
 
 namespace Hohoema
 {
@@ -66,6 +69,14 @@ namespace Hohoema
     /// </summary>
     sealed partial class App : PrismApplication
     {
+        static readonly string OldLocalDbFileName = "_v3";
+        static readonly string LocalDbFileName = "Hohoema_v1.db";
+        
+        static string MakeDbConnectionString(string dbName)
+        {
+            return $"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, dbName)}; Upgrade=true;";
+        }
+
         const bool _DEBUG_XBOX_RESOURCE = false;
 
         public SplashScreen SplashScreen { get; private set; }
@@ -100,6 +111,7 @@ namespace Hohoema
             
             AnimationSet.UseComposition = true;
 
+            
             this.InitializeComponent();
         }
 
@@ -197,9 +209,6 @@ namespace Hohoema
         {
             var unityContainer = container.GetContainer();
 
-            MonkeyCache.LiteDB.Barrel.ApplicationId = nameof(Hohoema);
-            unityContainer.RegisterInstance<MonkeyCache.IBarrel>(MonkeyCache.LiteDB.Barrel.Current);
-
             // 各ウィンドウごとのスケジューラを作るように
             unityContainer.RegisterType<IScheduler>(new PerThreadLifetimeManager(), new InjectionFactory(c => SynchronizationContext.Current != null ? new SynchronizationContextScheduler(SynchronizationContext.Current) : null));
 
@@ -222,12 +231,14 @@ namespace Hohoema
             unityContainer.RegisterSingleton<NoUIProcessScreenContext>();
 
             unityContainer.RegisterType<UseCase.Services.IConfirmCacheUsageDialogService, Services.ConfirmCacheUsageDialogService>();
+            unityContainer.RegisterType<UseCase.Services.IInAppNotificationService, Services.InAppNotificationService>();
             unityContainer.RegisterType<UseCase.Services.IEditMylistGroupDialogService, Services.EditMylistGroupDialogService>();
             unityContainer.RegisterType<UseCase.Services.IMultiSelectionDialogService, Services.MultiSelectionDialogService>();
             unityContainer.RegisterType<UseCase.Services.ITextInputDialogService, Services.TextInputDialogService>();
             unityContainer.RegisterType<UseCase.Services.IMessageDialogService, Services.MessageDialogService>();
             unityContainer.RegisterType<UseCase.Services.INiconicoLoginDialogService, Services.NiconicoLoginDialogService>();
             unityContainer.RegisterType<UseCase.Services.INiconicoTwoFactorAuthDialogService, Services.NiconicoTwoFactorAuthDialogService>();
+            unityContainer.RegisterType<UseCase.Services.IToastNotificationService, Services.ToastNotificationService>();
 
             foreach (var type in _instantiateServiceTypes)
             {
@@ -253,9 +264,9 @@ namespace Hohoema
             unityContainer.RegisterSingleton<UseCase.Playlist.WatchHistoryManager>();
             unityContainer.RegisterSingleton<UseCase.ApplicationLayoutManager>();
             unityContainer.RegisterSingleton<UseCase.Playlist.UserMylistManager>();
-
-
-
+            unityContainer.RegisterSingleton<UseCase.Playlist.LocalMylistManager>();
+            unityContainer.RegisterSingleton<MylistRepository>();
+            
 
             // ViewModels
             unityContainer.RegisterSingleton<ViewModels.RankingCategoryListPageViewModel>();
@@ -293,8 +304,6 @@ namespace Hohoema
             containerRegistry.RegisterForNavigation<Views.SearchResultTagPage>();
             containerRegistry.RegisterForNavigation<Views.SearchResultMylistPage>();
             containerRegistry.RegisterForNavigation<Views.SearchResultKeywordPage>();
-            containerRegistry.RegisterForNavigation<Views.SearchResultCommunityPage>();
-            containerRegistry.RegisterForNavigation<Views.SearchResultLivePage>();
             containerRegistry.RegisterForNavigation<Views.SettingsPage>();
             containerRegistry.RegisterForNavigation<Views.UserInfoPage>();
             containerRegistry.RegisterForNavigation<Views.UserMylistPage>();
@@ -322,6 +331,46 @@ namespace Hohoema
                 if (isInitialized) { return; }
                 isInitialized = true;
 
+                HohoemaLiteDb.Initialize((s) => new LiteRepository(s));
+
+                MonkeyCache.LiteDB.Barrel.ApplicationId = nameof(Hohoema);
+
+                try
+                {
+                    var c = MonkeyCache.LiteDB.Barrel.Current;
+                }
+                catch
+                {
+                    var folder = await ApplicationData.Current.LocalFolder.GetFolderAsync("Hohoema");
+                    if (folder != null)
+                    {
+                        var cacheFolder = await folder.GetFolderAsync("MonkeyCache");
+                        var barrelFile = await cacheFolder.GetFileAsync("Barrel.db");
+                        await barrelFile.DeleteAsync(StorageDeleteOption.PermanentDelete);
+                    }
+                }
+
+                var unityContainer = Container.GetContainer();
+                unityContainer.RegisterInstance<MonkeyCache.IBarrel>(MonkeyCache.LiteDB.Barrel.Current);
+
+                // v1.0.0以前のローカルdbの名前をリネーム
+                try
+                {
+                    var oldLocalDbFile = await StorageFile.GetFileFromPathAsync(Path.Combine(ApplicationData.Current.LocalFolder.Path, OldLocalDbFileName));
+                    if (oldLocalDbFile != null)
+                    {
+                        await oldLocalDbFile.RenameAsync(LocalDbFileName);
+
+                        Debug.WriteLine("ローカルDBのリネームを実行しました。（ _v3 -> Hohoema.db）");
+                    }
+                }
+                catch { }
+
+                var localDb = new LiteDatabase(MakeDbConnectionString(LocalDbFileName));
+                unityContainer.RegisterInstance<ILiteDatabase>(localDb);
+
+
+
                 // ローカリゼーション用のライブラリを初期化
                 try
                 {
@@ -347,7 +396,9 @@ namespace Hohoema
 
                 // ログイン前にログインセッションによって状態が変化するフォローとマイリストの初期化
                 var followManager = Container.Resolve<FollowManager>();
-                var mylitManager = Container.Resolve<UserMylistManager>();
+                //Container.Resolve<UserMylistManager>();
+                Container.Resolve<MylistRepository>();
+                Container.Resolve<PlayerSettingsRepository>();
 
                 Resources["IsXbox"] = DeviceTypeHelper.IsXbox;
                 Resources["IsMobile"] = DeviceTypeHelper.IsMobile;
@@ -577,11 +628,6 @@ namespace Hohoema
                             PlayVideoFromExternal(nicoContentId);
                             isHandled = true;
                         }
-                        else if (nicoContentId.IsLiveId())
-                        {
-                            PlayLiveVideoFromExternal(nicoContentId);
-                            isHandled = true;
-                        }
                     }
 
                     var payload = LoginRedirectPayload.FromParameterString(arguments);
@@ -659,10 +705,6 @@ namespace Hohoema
                         {
                             PlayVideoFromExternal(nicoContentId);
                         }
-                        else if (nicoContentId.IsLiveId())
-                        {
-                            PlayLiveVideoFromExternal(nicoContentId);
-                        }
                     }
                 }
 
@@ -679,10 +721,6 @@ namespace Hohoema
                     )
                 {
                     PlayVideoFromExternal(maybeNicoContentId);
-                }
-                else if (maybeNicoContentId.IsLiveId())
-                {
-                    PlayLiveVideoFromExternal(maybeNicoContentId);
                 }
             }
 		}
@@ -765,14 +803,6 @@ namespace Hohoema
             }
 
             hohoemaPlaylist.Play(videoInfo);
-        }
-        private void PlayLiveVideoFromExternal(string videoId)
-        {
-            // TODO: ログインが必要な生放送かをチェックしてログインダイアログを出す
-            
-            var ea = Container.Resolve<IEventAggregator>();
-            ea.GetEvent<UseCase.Events.PlayerPlayLiveRequest>()
-                .Publish(new UseCase.Events.PlayerPlayLiveRequestEventArgs() { LiveId = videoId });
         }
 
 
@@ -1187,9 +1217,4 @@ namespace Hohoema
 #endregion
 
     }
-
-
-
-
-
 }

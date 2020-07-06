@@ -1,5 +1,4 @@
-﻿using Mntone.Nico2.Videos.Ranking;
-using Reactive.Bindings;
+﻿using Reactive.Bindings;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +10,6 @@ using System.Text.RegularExpressions;
 using Prism.Mvvm;
 using Hohoema.Services;
 using Reactive.Bindings.Extensions;
-using Hohoema.Models.Provider;
 using Unity;
 using Prism.Navigation;
 using Hohoema.ViewModels.Pages;
@@ -28,6 +26,11 @@ using I18NPortable;
 using Hohoema.UseCase;
 using System.Threading;
 using System.Runtime.CompilerServices;
+using Hohoema.Models.Pages;
+using Hohoema.Models.Repository.Niconico.NicoVideo;
+using Hohoema.Models.Repository.Niconico.NicoVideo.Ranking;
+using Hohoema.UseCase.Events;
+using Hohoema.Models.Repository.Niconico;
 
 namespace Hohoema.ViewModels
 {
@@ -37,7 +40,7 @@ namespace Hohoema.ViewModels
         IPinablePage,
         ITitleUpdatablePage
     {
-        HohoemaPin IPinablePage.GetPin()
+        Models.Pages.HohoemaPin IPinablePage.GetPin()
         {
             var genreName = RankingGenre.Translate();
             var tag = SelectedRankingTag.Value?.Tag;
@@ -52,7 +55,7 @@ namespace Hohoema.ViewModels
             {
                 parameter = $"genre={RankingGenre}&tag={Uri.EscapeDataString(SelectedRankingTag.Value.Tag)}";
             }
-            return new HohoemaPin()
+            return new Models.Pages.HohoemaPin()
             {
                 Label = pickedTag != null ? $"{pickedTag.DisplayName} - {genreName}" : $"{genreName}",
                 PageType = HohoemaPageType.RankingCategory,
@@ -75,8 +78,7 @@ namespace Hohoema.ViewModels
             HohoemaPlaylist hohoemaPlaylist,
             NicoVideoProvider nicoVideoProvider,
             RankingProvider rankingProvider,
-            RankingSettings rankingSettings,
-            NGSettings ngSettings,
+            RankingSettingsRepository rankingSettings,
             IScheduler scheduler,
             IEventAggregator eventAggregator
             )
@@ -87,7 +89,6 @@ namespace Hohoema.ViewModels
             NicoVideoProvider = nicoVideoProvider;
             RankingProvider = rankingProvider;
             RankingSettings = rankingSettings;
-            NgSettings = ngSettings;
             _scheduler = scheduler;
             _eventAggregator = eventAggregator;
             IsFailedRefreshRanking = new ReactiveProperty<bool>(false)
@@ -110,16 +111,16 @@ namespace Hohoema.ViewModels
                 {
                     if (string.IsNullOrEmpty(SelectedRankingTag.Value?.Tag))
                     {
-                        return NiconicoRanking.Constants.AllRankingTerms;
+                        return RankingConstants.AllRankingTerms;
                     }
                     else
                     {
-                        return NiconicoRanking.Constants.GenreWithTagAccepteRankingTerms;
+                        return RankingConstants.GenreWithTagAccepteRankingTerms;
                     }
                 }
                 else
                 {
-                    return NiconicoRanking.Constants.HotTopicAccepteRankingTerms;
+                    return RankingConstants.HotTopicAccepteRankingTerms;
                 }
             })
             .ToReadOnlyReactivePropertySlim()
@@ -177,9 +178,8 @@ namespace Hohoema.ViewModels
         public PageManager PageManager { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public NicoVideoProvider NicoVideoProvider { get; }
-        public RankingSettings RankingSettings { get; }
+        public RankingSettingsRepository RankingSettings { get; }
         public RankingProvider RankingProvider { get; }
-        public NGSettings NgSettings { get; }
 
         private static RankingGenre? _previousRankingGenre;
         private readonly IScheduler _scheduler;
@@ -275,18 +275,10 @@ namespace Hohoema.ViewModels
                             return;
                         }
 
-
-
-                        var sameGenreFavTags = RankingSettings.FavoriteTags.Where(x => x.Genre == RankingGenre).ToArray();
-                        foreach (var oldFavTag in sameGenreFavTags)
-                        {
-                            if (false == PickedTags.Any(x => x.Tag == oldFavTag.Tag))
-                            {
-                                RankingSettings.RemoveFavoriteTag(RankingGenre, oldFavTag.Tag);
-                            }
-                        }
-
-                        var __ = RankingSettings.Save();
+                        // 好きなジャンルタグ情報から消されたタグを除去する
+                        RankingSettings.FavoriteTags = RankingSettings.FavoriteTags
+                            .Where(oldFavTag => oldFavTag.Genre != RankingGenre || PickedTags.Any(x => x.Tag == oldFavTag.Tag))
+                            .ToArray();
 
                         var selectedTag = SelectedRankingTag.Value;
                         if (selectedTag.Tag != null)
@@ -333,7 +325,7 @@ namespace Hohoema.ViewModels
             IIncrementalSource<RankedVideoInfoControlViewModel> source = null;
             try
             {
-                source = new CategoryRankingLoadingSource(RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour, NgSettings);
+                source = new CategoryRankingLoadingSource(RankingProvider, RankingGenre, SelectedRankingTag.Value?.Tag, SelectedRankingTerm.Value ?? RankingTerm.Hour);
 
                 CanChangeRankingParameter.Value = true;
             }
@@ -357,25 +349,25 @@ namespace Hohoema.ViewModels
     public class CategoryRankingLoadingSource : HohoemaIncrementalSourceBase<RankedVideoInfoControlViewModel>
     {
         public CategoryRankingLoadingSource(
+            RankingProvider rankingProvider,
             RankingGenre genre,
             string tag,
-            RankingTerm term, 
-            NGSettings ngSettings
+            RankingTerm term
             )
             : base()
         {
+            _rankingProvider = rankingProvider;
             Genre = genre;
             Term = term;
             Tag = tag;
-            NgSettings = ngSettings;
         }
 
         public RankingGenre Genre { get; }
         public RankingTerm Term { get; }
         public string Tag { get; }
-        public NGSettings NgSettings { get; }
 
-        Mntone.Nico2.RssVideoResponse RankingRss;
+        RssVideoResponse RankingRss;
+        private readonly RankingProvider _rankingProvider;
 
         #region Implements HohoemaPreloadingIncrementalSourceBase		
 
@@ -386,7 +378,7 @@ namespace Hohoema.ViewModels
             int index = 0;
             foreach (var item in RankingRss.Items.Skip(head).Take(count))
             {
-                var vm = new RankedVideoInfoControlViewModel(item.GetVideoId());
+                var vm = new RankedVideoInfoControlViewModel(item.VideoId);
                 vm.Rank = (uint)(head + index + 1);
                 await vm.InitializeAsync(cancellationToken);
                 yield return vm;
@@ -397,7 +389,7 @@ namespace Hohoema.ViewModels
 
         protected override async Task<int> ResetSourceImpl()
         {
-            RankingRss = await NiconicoRanking.GetRankingRssAsync(Genre, Tag, Term);
+            RankingRss = await _rankingProvider.GetRankingGenreWithTagAsync(Genre, Tag, Term);
 
             return RankingRss.Items.Count;
 

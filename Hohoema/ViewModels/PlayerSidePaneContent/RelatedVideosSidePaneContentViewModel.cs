@@ -16,6 +16,7 @@ using Hohoema.Models.Repository.Niconico.Channel;
 using Hohoema.ViewModels.Pages;
 using Hohoema.Models.Repository;
 using Hohoema.Models.Repository.Niconico.Mylist;
+using Hohoema.Models.Repository.Niconico.NicoVideo.RelatedVideos;
 
 namespace Hohoema.ViewModels.PlayerSidePaneContent
 {
@@ -262,10 +263,10 @@ namespace Hohoema.ViewModels.PlayerSidePaneContent
 
 
                 Videos = new List<VideoInfoControlViewModel>();
-                var items = await NicoVideoProvider.GetRelatedVideos(videoId, 0, 10);
-                if (items.Video_info?.Any() ?? false)
+                var items = await NicoVideoProvider.GetRelatedVideosAsync(videoId, 0, 10);
+                if (items.VideoItems?.Any() ?? false)
                 {
-                    Videos.AddRange((IEnumerable<VideoInfoControlViewModel>)(items.Video_info?.Select((Func<Mntone.Nico2.Mylist.Video_info, VideoInfoControlViewModel>)(x =>
+                    Videos.AddRange(items.VideoItems?.Select((x =>
                     {
                         var video = Database.NicoVideoDb.Get(x.Video.Id);
                         video.Title = x.Video.Title;
@@ -273,7 +274,7 @@ namespace Hohoema.ViewModels.PlayerSidePaneContent
 
                         var vm = new VideoInfoControlViewModel((NicoVideo)video);
                         return vm;
-                    }))));
+                    })));
                 }
 
                 CurrentVideo = Videos.FirstOrDefault(x => x.RawVideoId == videoId);

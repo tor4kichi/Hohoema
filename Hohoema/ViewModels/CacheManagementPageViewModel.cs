@@ -50,7 +50,7 @@ namespace Hohoema.ViewModels
             HohoemaPlaylist = hohoemaPlaylist;
             IsRequireUpdateCacheSaveFolder = new ReactiveProperty<bool>(false);
 
-            IsCacheUserAccepted = _cacheSettingsRepository.ObserveProperty(x => x.IsAcceptedCache)
+            IsCacheUserAccepted = _cacheSettingsRepository.ObserveProperty(x => x.IsCacheAccepted)
                 .ToReadOnlyReactiveProperty();
 
             RequireEnablingCacheCommand = new DelegateCommand(async () =>
@@ -59,7 +59,7 @@ namespace Hohoema.ViewModels
                 if (result)
                 {
                     _cacheSettingsRepository.IsCacheEnabled = true;
-                    _cacheSettingsRepository.IsAcceptedCache = true;
+                    _cacheSettingsRepository.IsCacheAccepted = true;
                     (App.Current).Resources["IsCacheEnabled"] = true;
 
                     await RefreshCacheSaveFolderStatus();

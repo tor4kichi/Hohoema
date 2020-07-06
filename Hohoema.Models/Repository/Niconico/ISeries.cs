@@ -1,4 +1,5 @@
-﻿using Mntone.Nico2.Users.Series;
+﻿using Hohoema.Models.Repository.Niconico.NicoVideo;
+using Hohoema.Models.Repository.Niconico.NicoVideo.Series;
 using System;
 using System.Collections.Generic;
 using System.Linq;

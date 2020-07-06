@@ -17,17 +17,4 @@ namespace Hohoema.UseCase.Events
     {
         
     }
-
-    public struct PlayerPlayLiveRequestEventArgs
-    {
-        public string LiveId { get; set; }
-    }
-
-
-    public class PlayerPlayLiveRequest: PubSubEvent<PlayerPlayLiveRequestEventArgs>
-    {
-        
-    }
-
-
 }

@@ -8,6 +8,8 @@ using Hohoema.Models.Repository.Niconico.Mylist;
 using Hohoema.Models.Repository.Niconico.Search;
 using Hohoema.Database;
 using Hohoema.Models.Niconico;
+using Mntone.Nico2.Searches.Mylist;
+
 
 namespace Hohoema.Models.Repository.Niconico
 {
@@ -58,7 +60,7 @@ namespace Hohoema.Models.Repository.Niconico
             };
         }
 
-        private static Database.NicoVideo ToNicoVideo(Mntone.Nico2.Searches.Video.VideoInfo x)
+        internal static Database.NicoVideo ToNicoVideo(Mntone.Nico2.Searches.Video.VideoInfo x)
         {
             var video = Database.NicoVideoDb.Get(x.Video.Id);
             video.IsDeleted = x.Video.IsDeleted;
@@ -133,5 +135,80 @@ namespace Hohoema.Models.Repository.Niconico
             });
             
         }
+
+        public async Task<MylistSearchResponse> MylistSearchAsync(string keyword, int from, int limit, Sort? sort, Order? order)
+        {
+            var res = await ContextActionAsync(async context =>
+            {
+                return await context.Search.MylistSearchAsync(keyword, (uint)from, (uint)limit, sort?.ToInfrastructureSort(), order?.ToInfrastructureOrder());
+            });
+
+            return new MylistSearchResponse(res, _mylistProvider);
+        }
     }
+
+    public class SearchMylistGroup
+    {
+        private readonly MylistGroup _mylist;
+
+        public SearchMylistGroup(MylistGroup mylist)
+        {
+            _mylist = mylist;
+        }
+
+        public string Id => _mylist.Id;
+
+
+        public string Name => _mylist.Name;
+
+
+        public string Description => _mylist.Description;
+
+
+        public string ThreadId => _mylist.__thread_ids;
+
+        int? _itemCount;
+        public int ItemCount => _itemCount ??= (int)_mylist.ItemCount;
+
+        public DateTime UpdateTime => _mylist.UpdateTime;
+
+        IReadOnlyList<Database.NicoVideo> _VideoInfoItems;
+        public IReadOnlyList<Database.NicoVideo> VideoInfoItems => _VideoInfoItems ??= _mylist.VideoInfoItems?.Select(video => SearchProvider.ToNicoVideo(video)).ToList();
+    }
+
+    public class MylistSearchResponse
+    {
+        private Mntone.Nico2.Searches.Mylist.MylistSearchResponse _res;
+        private readonly MylistProvider _mylistProvider;
+
+        public MylistSearchResponse(Mntone.Nico2.Searches.Mylist.MylistSearchResponse res, MylistProvider mylistProvider)
+        {
+            _res = res;
+            _mylistProvider = mylistProvider;
+        }
+
+        int? _totalCount;
+        public int TotalCount => _totalCount ??= (int)_res.GetTotalCount();
+
+
+        int? _count;
+        public int Count => _count ??= (int)_res.GetDataCount();
+
+        IReadOnlyList<MylistPlaylist> _MylistGroupItems;
+        public IReadOnlyList<MylistPlaylist> MylistGroupItems => _MylistGroupItems ??= _res.MylistGroupItems?
+            .Select(mylist => new MylistPlaylist(mylist.Id, _mylistProvider)
+            {
+                Description = mylist.Description,
+                IsPublic = true,
+                Label = mylist.Name,
+                Count = (int)mylist.ItemCount,
+                UpdateTime = mylist.UpdateTime,
+            }).ToList();
+
+        public string Status => _res.status;
+
+
+        public bool IsOK => Status == "ok";
+    }
+
 }

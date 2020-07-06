@@ -1,4 +1,6 @@
 ﻿using Hohoema.Models;
+using Hohoema.Models.Repository;
+using Hohoema.Models.Repository.App;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -10,20 +12,20 @@ namespace Hohoema.UseCase.Playlist.Commands
 {
     public sealed class RemoveHiddenVideoOwnerCommand : DelegateCommandBase
     {
-        private readonly NGSettings _ngSettings;
+        private readonly VideoListFilterSettings _ngSettings;
 
-        public RemoveHiddenVideoOwnerCommand(NGSettings ngSettings)
+        public RemoveHiddenVideoOwnerCommand(VideoListFilterSettings ngSettings)
         {
             _ngSettings = ngSettings;
         }
 
         protected override bool CanExecute(object parameter)
         {
-            if (parameter is Interfaces.IVideoContent video)
+            if (parameter is IVideoContent video)
             {
                 if (video.ProviderId != null)
                 {
-                    return _ngSettings.IsNgVideoOwnerId(video.ProviderId) != null;
+                    return _ngSettings.IsNgVideoOwner(video.ProviderId);
                 }
             }
 
@@ -32,11 +34,11 @@ namespace Hohoema.UseCase.Playlist.Commands
 
         protected override void Execute(object parameter)
         {
-            if (parameter is Interfaces.IVideoContent video)
+            if (parameter is IVideoContent video)
             {
                 if (video.ProviderId != null)
                 {
-                    _ngSettings.RemoveNGVideoOwnerId(video.ProviderId);
+                    _ngSettings.RemoveNgVideoOwner(video.ProviderId);
                 }
             }
         }

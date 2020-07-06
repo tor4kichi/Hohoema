@@ -17,7 +17,7 @@
       xmlns:myconverters="using:Hohoema.Views.Converters"
       xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions"
       xmlns:templateselector="using:Hohoema.Views.TemplateSelector"
-      xmlns:windowsStateTriggers="using:WindowsStateTriggers" xmlns:locales="using:Hohoema.Locales" DataContext="{x:Null}"
+      xmlns:windowsStateTriggers="using:WindowsStateTriggers" xmlns:locales="using:Hohoema.Locales" xmlns:viewModels="using:Hohoema.ViewModels" DataContext="{x:Null}"
       mc:Ignorable="d"
       x:Name="PageRoot"
       >
@@ -234,11 +234,26 @@
                 <TextBlock Text="{Binding Source=FilterEnableWithVideoTitle, Converter={StaticResource LocalizeConverter}}" toolkit:DockPanel.Dock="Left" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 <ToggleSwitch IsOn="{Binding NGVideoTitleKeywordEnable.Value, Mode=TwoWay}" HorizontalAlignment="Right" />
               </Grid>
-              <StackPanel Visibility="{Binding NGVideoTitleKeywordEnable.Value, Converter={StaticResource BooleanToVisibility}}">
-                <TextBox Text="{Binding NGVideoTitleKeywords.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" AcceptsReturn="True" PlaceholderText="NG動画タイトルを入力" ScrollViewer.VerticalScrollBarVisibility="Auto" Height="120" />
-                <TextBlock Text="{Binding NGVideoTitleKeywordError.Value}" Visibility="{Binding NGVideoTitleKeywordError.Value, Converter={StaticResource NotNullToVisibility}}" />
-                <TextBlock Margin="0 8" Foreground="Gray" Text="{Binding Source=AvairableRegureExpression, Converter={StaticResource LocalizeConverter}}" />
 
+              <ListView ItemsSource="{Binding NGKeywordList}">
+                <ListView.ItemTemplate>
+                  <DataTemplate x:DataType="viewModels:NGKeywordViewModel" >
+                    <uwpcontrols:DockPanel>
+                      <Button uwpcontrols:DockPanel.Dock="Right" Background="Transparent">
+                        <SymbolIcon Symbol="More" />
+                        <Button.Flyout>
+                          <MenuFlyout>
+                            <MenuFlyoutItem Text="{Binding Source=Delete, Converter={StaticResource LocalizeConverter}}" Command="{Binding RemoveCommand}" />
+                          </MenuFlyout>
+                        </Button.Flyout>
+                      </Button>
+                      <TextBox Text="{Binding Keyword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                    </uwpcontrols:DockPanel>
+                  </DataTemplate>
+                </ListView.ItemTemplate>
+              </ListView>
+              <StackPanel Visibility="{Binding NGVideoTitleKeywordEnable.Value, Converter={StaticResource BooleanToVisibility}}">
+                <TextBlock Margin="0 8" Foreground="Gray" Text="{Binding Source=AvairableRegureExpression, Converter={StaticResource LocalizeConverter}}" />
               </StackPanel>
             </StackPanel>
           </StackPanel>

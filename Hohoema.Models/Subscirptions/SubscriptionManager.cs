@@ -12,6 +12,7 @@ using Hohoema.Models.Repository.Niconico;
 using Hohoema.Models.Repository.Niconico.Channel;
 using Hohoema.Models.Repository.Niconico.Mylist;
 using Hohoema.Models.Repository.Niconico.NicoVideo;
+using Hohoema.Models.Repository.Niconico.NicoVideo.Series;
 using Hohoema.Models.Repository.Subscriptions;
 
 namespace Hohoema.Models.Subscriptions

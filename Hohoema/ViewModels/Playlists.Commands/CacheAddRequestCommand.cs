@@ -1,5 +1,8 @@
 ﻿using Hohoema.Interfaces;
 using Hohoema.Models;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Repository;
+using Hohoema.UseCase.VideoCache;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -12,22 +15,19 @@ namespace Hohoema.UseCase.Playlist.Commands
     public sealed class CacheAddRequestCommand : VideoContentSelectionCommandBase
     {
         public CacheAddRequestCommand(
-            Models.Cache.VideoCacheManager videoCacheManager,
-            Services.DialogService dialogService
+            VideoCacheManager videoCacheManager
             )
         {
             VideoCacheManager = videoCacheManager;
-            DialogService = dialogService;
         }
 
-        public Models.Cache.VideoCacheManager VideoCacheManager { get; }
-        public Services.DialogService DialogService { get; }
+        public VideoCacheManager VideoCacheManager { get; }
 
         public NicoVideoQuality VideoQuality { get; set; } = NicoVideoQuality.Unknown;
 
         protected override bool CanExecute(object parameter)
         {
-            return parameter is Interfaces.IVideoContent;
+            return parameter is IVideoContent;
         }
 
         protected override void Execute(IVideoContent content)

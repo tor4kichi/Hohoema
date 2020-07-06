@@ -53,9 +53,10 @@ namespace Hohoema.Models.Repository.VideoCache
         public NicoVideoQuality PriorityQuality { get; set; }
     }
 
-    public sealed class CacheRequestRepository : LocalLiteDBService<CacheRequest>
+    public sealed class CacheRequestRepository : LiteDBServiceBase<CacheRequest>
     {
-        public CacheRequestRepository()
+        public CacheRequestRepository(ILiteDatabase liteDatabase) 
+            : base(liteDatabase)
         {
             this._collection.EnsureIndex(x => x.CacheState);
             this._collection.EnsureIndex(x => x.RequestAt);

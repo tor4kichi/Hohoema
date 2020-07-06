@@ -1,5 +1,7 @@
 ﻿using Hohoema.Interfaces;
+using Hohoema.Models.Pages;
 using Hohoema.Services;
+using Hohoema.ViewModels.Pages;
 using Prism.Navigation;
 using System;
 using System.Collections.Generic;

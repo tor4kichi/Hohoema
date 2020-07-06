@@ -198,7 +198,7 @@ namespace Hohoema.ViewModels
             {
                 if (_pinRepository.DeleteItem(Pin.Id))
                 {
-                    _parentVM.Pins.Remove(Pin);
+                    _parentVM.Pins.Remove(this);
                 }
             });
 

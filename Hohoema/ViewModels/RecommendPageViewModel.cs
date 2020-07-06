@@ -2,14 +2,10 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using Mntone.Nico2.Videos.Recommend;
 using Hohoema.Models.Helpers;
 using Hohoema.Models;
 using Prism.Commands;
 using Hohoema.ViewModels.Pages;
-using Hohoema.Models.Provider;
-using Unity;
-using Reactive.Bindings.Extensions;
 using Reactive.Bindings;
 using Prism.Navigation;
 using Hohoema.Models.Niconico.Video;
@@ -17,6 +13,9 @@ using Hohoema.UseCase.Playlist;
 using Hohoema.UseCase;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Hohoema.Models.Repository.Niconico;
+using Hohoema.Models.Pages;
+using Hohoema.Models.Repository.Niconico.NicoVideo.Recommend;
 
 namespace Hohoema.ViewModels
 {
@@ -24,21 +23,18 @@ namespace Hohoema.ViewModels
     {
         public RecommendPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
-            NGSettings ngSettings,
             LoginUserRecommendProvider loginUserRecommendProvider,
             HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager
             )
         {
             ApplicationLayoutManager = applicationLayoutManager;
-            NgSettings = ngSettings;
             LoginUserRecommendProvider = loginUserRecommendProvider;
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
         }
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
-        public NGSettings NgSettings { get; }
         public LoginUserRecommendProvider LoginUserRecommendProvider { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
@@ -46,7 +42,7 @@ namespace Hohoema.ViewModels
         
         protected override IIncrementalSource<RecommendVideoListItem> GenerateIncrementalSource()
         {
-            var source = new RecommendVideoIncrementalLoadingSource(LoginUserRecommendProvider, NgSettings);
+            var source = new RecommendVideoIncrementalLoadingSource(LoginUserRecommendProvider);
             RecommendSourceTags = source.RecommendSourceTags
                .ToReadOnlyReactiveCollection(x => new NicoVideoTag(x));
             RaisePropertyChanged(nameof(RecommendSourceTags));
@@ -70,13 +66,13 @@ namespace Hohoema.ViewModels
 
     public sealed class RecommendVideoListItem : VideoInfoControlViewModel
     {
-        Mntone.Nico2.Videos.Recommend.Item _Item;
+        RecommendItem _Item;
 
         public string RecommendSourceTag { get; private set; }
 
 
         public RecommendVideoListItem(
-            Mntone.Nico2.Videos.Recommend.Item item
+            RecommendItem item
             )
             : base(item.Id)
         {
@@ -89,16 +85,13 @@ namespace Hohoema.ViewModels
     public sealed class RecommendVideoIncrementalLoadingSource : HohoemaIncrementalSourceBase<RecommendVideoListItem>
     {
         public RecommendVideoIncrementalLoadingSource(
-            LoginUserRecommendProvider loginUserRecommendProvider,
-            NGSettings ngSettings
+            LoginUserRecommendProvider loginUserRecommendProvider
             )
         {
             LoginUserRecommendProvider = loginUserRecommendProvider;
-            NgSettings = ngSettings;
         }
 
         public LoginUserRecommendProvider LoginUserRecommendProvider { get; }
-        public NGSettings NgSettings { get; }
 
         private RecommendResponse _RecommendResponse;
         private RecommendContent _PrevRecommendContent;
@@ -131,7 +124,7 @@ namespace Hohoema.ViewModels
             }
 
 
-            if (_PrevRecommendContent != null && _PrevRecommendContent.Status == "ok")
+            if (_PrevRecommendContent != null && _PrevRecommendContent.IsOK)
             {
                 _EndOfRecommend = _PrevRecommendContent?.RecommendInfo.EndOfRecommend ?? true;
 
@@ -145,12 +138,12 @@ namespace Hohoema.ViewModels
                 {
                     var video = Database.NicoVideoDb.Get(item.Id);
                     video.ThumbnailUrl = item.ThumbnailUrl;
-                    video.Title = item.ParseTitle();
-                    video.Length = item.ParseLengthToTimeSpan();
+                    video.Title = item.Title;
+                    video.Length = item.Length;
                     video.ViewCount = item.ViewCounter;
                     video.CommentCount = item.NumRes;
                     video.MylistCount = item.MylistCounter;
-                    video.PostedAt = item.ParseForstRetroeveToDateTimeOffset().DateTime;
+                    video.PostedAt = item.FirstRetrieve;
                     Database.NicoVideoDb.AddOrUpdate(video);
 
                     var vm = new RecommendVideoListItem(item);
@@ -167,7 +160,7 @@ namespace Hohoema.ViewModels
         protected override async Task<int> ResetSourceImpl()
         {
             _RecommendResponse = await LoginUserRecommendProvider.GetRecommendFirstAsync();
-            if (_RecommendResponse.FirstData.Status == "ok")
+            if (_RecommendResponse.FirstData.IsOK)
             {
                 _EndOfRecommend = _RecommendResponse.FirstData.RecommendInfo.EndOfRecommend;
 

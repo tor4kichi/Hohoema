@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Hohoema.Models.Niconico.Video;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -16,8 +17,8 @@ namespace Hohoema.Views.TemplateSelector
 
         protected override Windows.UI.Xaml.DataTemplate SelectTemplateCore(object item, DependencyObject container)
         {
-            if (item is Models.NicoVideoQuality quality
-                && quality == Models.NicoVideoQuality.Unknown 
+            if (item is NicoVideoQuality quality
+                && quality == NicoVideoQuality.Unknown 
                 && UnknownTemplate != null
                 )
             {

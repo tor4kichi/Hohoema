@@ -21,6 +21,9 @@ using Hohoema.Interfaces;
 using Hohoema.UseCase.Playlist.Commands;
 using Hohoema.UseCase;
 using System.Runtime.CompilerServices;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Repository.Niconico.NicoVideo.Histories;
+using Hohoema.Models.Repository;
 
 namespace Hohoema.ViewModels
 {

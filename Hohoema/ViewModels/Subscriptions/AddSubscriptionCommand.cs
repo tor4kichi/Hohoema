@@ -1,10 +1,6 @@
 ﻿using I18NPortable;
 using Hohoema.Database;
-using Hohoema.Interfaces;
-using Hohoema.Models.Provider;
 using Hohoema.Models.Subscriptions;
-using Hohoema.Repository.NicoVideo;
-using Hohoema.Services;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;
@@ -12,29 +8,38 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hohoema.Models.Repository.Niconico;
+using Hohoema.Models.Repository.Niconico.Channel;
+using Hohoema.Models.Repository.Niconico.NicoVideo.Series;
+using Hohoema.UseCase.Services;
+using Hohoema.UseCase.Events;
+using Hohoema.Models.Repository;
+using Hohoema.Models.Repository.Niconico.Mylist;
 
 namespace Hohoema.ViewModels.Subscriptions
 {
     public sealed class AddSubscriptionCommand : DelegateCommandBase
     {
+        private readonly IInAppNotificationService _inAppNotificationService;
+
         private readonly SubscriptionManager _subscriptionManager;
         private readonly UserProvider _userProvider;
         private readonly ChannelProvider _channelProvider;
-        private readonly NotificationService _notificationService;
         private readonly SeriesRepository _seriesRepository;
+
 
         public AddSubscriptionCommand(
             SubscriptionManager subscriptionManager,
             UserProvider userProvider,
             ChannelProvider channelProvider,
-            NotificationService notificationService,
+            IInAppNotificationService inAppNotificationService,
             SeriesRepository seriesRepository
             )
         {
             _subscriptionManager = subscriptionManager;
             _userProvider = userProvider;
             _channelProvider = channelProvider;
-            _notificationService = notificationService;
+            _inAppNotificationService = inAppNotificationService;
             _seriesRepository = seriesRepository;
         }
 
@@ -83,7 +88,7 @@ namespace Hohoema.ViewModels.Subscriptions
             if (subscription != null)
             {
                 Debug.WriteLine($"subscription added: {subscription.Id} {subscription.Label} {subscription.Id}" );
-                _notificationService.ShowInAppNotification(new InAppNotificationPayload() 
+                _inAppNotificationService.ShowInAppNotification(new InAppNotificationPayload() 
                 {
                     ShowDuration = TimeSpan.FromSeconds(7),
                     SymbolIcon = Windows.UI.Xaml.Controls.Symbol.Accept,

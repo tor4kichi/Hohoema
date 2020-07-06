@@ -10,17 +10,17 @@ using Prism.Mvvm;
 using System.Reactive.Linq;
 using System.Diagnostics;
 using Reactive.Bindings.Extensions;
-using Mntone.Nico2;
-using Mntone.Nico2.Searches.Video;
-using Mntone.Nico2.Searches.Community;
-using Mntone.Nico2.Searches.Live;
 using Hohoema.ViewModels.Pages;
-using Hohoema.Models.Provider;
 using Unity;
 using Hohoema.Services;
 using Hohoema.UseCase;
 using System.Threading;
 using System.Runtime.CompilerServices;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Repository.Niconico;
+using Hohoema.Models.Pages;
+using Hohoema.Models.Pages.PagePayload;
+using Hohoema.Models.Repository.Niconico.Search;
 
 namespace Hohoema.ViewModels
 {
@@ -28,7 +28,7 @@ namespace Hohoema.ViewModels
     {
         public SearchPageViewModel(
 			ApplicationLayoutManager applicationLayoutManager,
-			Models.NiconicoSession niconicoSession,
+			NiconicoSession niconicoSession,
             SearchProvider searchProvider,
             PageManager pageManager
             )
@@ -56,9 +56,7 @@ namespace Hohoema.ViewModels
             {
                 SearchTarget.Keyword,
                 SearchTarget.Tag,
-                SearchTarget.Niconama,
                 SearchTarget.Mylist,
-                SearchTarget.Community,
             };
 
             SelectedTarget = new ReactiveProperty<SearchTarget>(_LastSelectedTarget)
@@ -133,7 +131,7 @@ namespace Hohoema.ViewModels
         }
 
 		public ApplicationLayoutManager ApplicationLayoutManager { get; }
-		public Models.NiconicoSession NiconicoSession { get; }
+		public NiconicoSession NiconicoSession { get; }
         public SearchProvider SearchProvider { get; }
         public PageManager PageManager { get; }
 
@@ -271,10 +269,6 @@ namespace Hohoema.ViewModels
 					return new TagVideoSearchOptionViewModel();
 				case SearchTarget.Mylist:
 					return new MylistSearchOptionViewModel();
-				case SearchTarget.Community:
-					return new CommunitySearchOptionViewModel();
-				case SearchTarget.Niconama:
-					//return new LiveSearchOptionViewModel();
 				default:
 					break;
 			}
@@ -306,52 +300,52 @@ namespace Hohoema.ViewModels
 			new SearchSortOptionListItem()
 			{
 				Label = "投稿が新しい順",
-				Order = Mntone.Nico2.Order.Descending,
+				Order = Order.Descending,
 				Sort = Sort.FirstRetrieve,
 			},
 			new SearchSortOptionListItem()
 			{
 				Label = "投稿が古い順",
-				Order = Mntone.Nico2.Order.Ascending,
+				Order = Order.Ascending,
 				Sort = Sort.FirstRetrieve,
 			},
 
 			new SearchSortOptionListItem()
 			{
 				Label = "コメントが新しい順",
-				Order = Mntone.Nico2.Order.Descending,
+				Order = Order.Descending,
 				Sort = Sort.NewComment,
 			},
 			new SearchSortOptionListItem()
 			{
 				Label = "コメントが古い順",
-				Order = Mntone.Nico2.Order.Ascending,
+				Order = Order.Ascending,
 				Sort = Sort.NewComment,
 			},
 
 			new SearchSortOptionListItem()
 			{
 				Label = "再生数が多い順",
-				Order = Mntone.Nico2.Order.Descending,
+				Order = Order.Descending,
 				Sort = Sort.ViewCount,
 			},
 			new SearchSortOptionListItem()
 			{
 				Label = "再生数が少ない順",
-				Order = Mntone.Nico2.Order.Ascending,
+				Order = Order.Ascending,
 				Sort = Sort.ViewCount,
 			},
 
 			new SearchSortOptionListItem()
 			{
 				Label = "コメント数が多い順",
-				Order = Mntone.Nico2.Order.Descending,
+				Order = Order.Descending,
 				Sort = Sort.CommentCount,
 			},
 			new SearchSortOptionListItem()
 			{
 				Label = "コメント数が少ない順",
-				Order = Mntone.Nico2.Order.Ascending,
+				Order = Order.Ascending,
 				Sort = Sort.CommentCount,
 			},
 
@@ -359,26 +353,26 @@ namespace Hohoema.ViewModels
 			new SearchSortOptionListItem()
 			{
 				Label = "再生時間が長い順",
-				Order = Mntone.Nico2.Order.Descending,
+				Order = Order.Descending,
 				Sort = Sort.Length,
 			},
 			new SearchSortOptionListItem()
 			{
 				Label = "再生時間が短い順",
-				Order = Mntone.Nico2.Order.Ascending,
+				Order = Order.Ascending,
 				Sort = Sort.Length,
 			},
 
 			new SearchSortOptionListItem()
 			{
 				Label = "マイリスト数が多い順",
-				Order = Mntone.Nico2.Order.Descending,
+				Order = Order.Descending,
 				Sort = Sort.MylistCount,
 			},
 			new SearchSortOptionListItem()
 			{
 				Label = "マイリスト数が少ない順",
-				Order = Mntone.Nico2.Order.Ascending,
+				Order = Order.Ascending,
 				Sort = Sort.MylistCount,
 			},
 			// V1APIだとサポートしてない
@@ -387,7 +381,7 @@ namespace Hohoema.ViewModels
 			{
 				Label = "人気の高い順",
 				Sort = Sort.Popurarity,
-				Order = Mntone.Nico2.Order.Descending,
+				Order = Order.Descending,
 			},
 			*/
 		};
@@ -518,95 +512,6 @@ namespace Hohoema.ViewModels
 	}
 
 
-	public class CommunitySearchOptionViewModel : SearchOptionViewModelBase
-	{
-		public class CommunitySearchSortOptionListItem
-		{
-			public string Label { get; set; }
-			public CommunitySearchSort Sort { get; set; }
-			public Order Order { get; set; }
-		}
-
-		public class CommynitySearchModeOptionListItem
-		{
-			public string Label { get; set; }
-			public CommunitySearchMode Mode { get; set; }
-		}
-
-		public static IReadOnlyList<CommunitySearchSortOptionListItem> CommunitySearchSortOptionListItems { get; private set; }
-		public static IReadOnlyList<CommynitySearchModeOptionListItem> CommunitySearchModeOptionListItems { get; private set; }
-
-		static CommunitySearchOptionViewModel()
-		{
-			var sortList = new[]
-			{
-				CommunitySearchSort.CreatedAt,
-				CommunitySearchSort.UpdateAt,
-				CommunitySearchSort.CommunityLevel,
-				CommunitySearchSort.VideoCount,
-				CommunitySearchSort.MemberCount
-			};
-
-			CommunitySearchSortOptionListItems = sortList.SelectMany(x => 
-			{
-				return new List<CommunitySearchSortOptionListItem>()
-				{
-					new CommunitySearchSortOptionListItem()
-					{
-						Sort = x,
-						Order = Order.Descending,
-					},
-					new CommunitySearchSortOptionListItem()
-					{
-						Sort = x,
-						Order = Order.Ascending,
-					},
-				};
-			})
-			.ToList();
-
-			foreach (var item in CommunitySearchSortOptionListItems)
-			{
-				item.Label = Services.Helpers.SortHelper.ToCulturizedText(item.Sort, item.Order);
-			}
-
-
-			CommunitySearchModeOptionListItems = new List<CommynitySearchModeOptionListItem>()
-			{
-				new CommynitySearchModeOptionListItem()
-				{
-					Label = "キーワードで探す",
-					Mode = CommunitySearchMode.Keyword
-				},
-				new CommynitySearchModeOptionListItem()
-				{
-					Label = "タグで探す",
-					Mode = CommunitySearchMode.Tag
-				},
-			};
-		}
-
-		public ReactiveProperty<CommunitySearchSortOptionListItem> SelectedSearchSort { get; private set; }
-		public ReactiveProperty<CommynitySearchModeOptionListItem> SelectedSearchMode { get; private set; }
-
-		public CommunitySearchOptionViewModel()
-		{
-			SelectedSearchSort = new ReactiveProperty<CommunitySearchSortOptionListItem>(CommunitySearchSortOptionListItems[0]);
-			SelectedSearchMode = new ReactiveProperty<CommynitySearchModeOptionListItem>(CommunitySearchModeOptionListItems[0]);
-		}
-
-		public override ISearchPagePayloadContent MakePayload()
-		{
-			return new CommunitySearchPagePayloadContent()
-			{
-				Keyword = Keyword,
-				Sort = SelectedSearchSort.Value.Sort,
-				Order = SelectedSearchSort.Value.Order,
-				Mode = SelectedSearchMode.Value.Mode,
-			};
-		}
-	}
-
 	
 	//public class LiveSearchOptionViewModel : SearchOptionViewModelBase
 	//{
@@ -626,7 +531,7 @@ namespace Hohoema.ViewModels
 	//	public class LiveSearchProviderOptionListItem
 	//	{
 	//		public string Label { get; set; }
-	//		public Mntone.Nico2.Live.CommunityType? Provider { get; set; }
+	//		public Live.CommunityType? Provider { get; set; }
 	//	}
 
 	//	public static IReadOnlyList<LiveSearchSortOptionListItem> LiveSearchSortOptionListItems { get; private set; }
@@ -703,17 +608,17 @@ namespace Hohoema.ViewModels
 	//			new LiveSearchProviderOptionListItem()
 	//			{
 	//				Label = "公式",
-	//				Provider = Mntone.Nico2.Live.CommunityType.Official,
+	//				Provider = Live.CommunityType.Official,
 	//			},
 	//			new LiveSearchProviderOptionListItem()
 	//			{
 	//				Label = "チャンネル",
-	//				Provider = Mntone.Nico2.Live.CommunityType.Channel,
+	//				Provider = Live.CommunityType.Channel,
 	//			},
 	//			new LiveSearchProviderOptionListItem()
 	//			{
 	//				Label = "ユーザー",
-	//				Provider = Mntone.Nico2.Live.CommunityType.Community,
+	//				Provider = Live.CommunityType.Community,
 	//			},
 							
 	//		};
@@ -751,42 +656,47 @@ namespace Hohoema.ViewModels
 
 	public class VideoSearchSource : HohoemaIncrementalSourceBase<VideoInfoControlViewModel>
 	{
-        public VideoSearchSource(VideoSearchOption searchOption, SearchProvider searchProvider, NGSettings ngSettings)
+        private readonly string _keyword;
+        private readonly Order _order;
+        private readonly Sort _sort;
+        private readonly bool _searchWithTag;
+
+        public VideoSearchSource(string keyword, Order order, Sort sort, bool searchWithTag, SearchProvider searchProvider)
         {
-            SearchOption = searchOption;
+            _keyword = keyword;
+            _order = order;
+            _sort = sort;
+            _searchWithTag = searchWithTag;
             SearchProvider = searchProvider;
-            NgSettings = ngSettings;
         }
 
         public SearchProvider SearchProvider { get; }
-        public NGSettings NgSettings { get; }
-		public VideoSearchOption SearchOption { get; }
-
+		
 
 		
 
         protected override async IAsyncEnumerable<VideoInfoControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation]CancellationToken cancellationToken)
         {
-            VideoListingResponse res = null;
-            if (SearchOption.SearchTarget == SearchTarget.Keyword)
+			VideoSearchResult res = null;
+            if (!_searchWithTag)
             {
-                res = await SearchProvider.GetKeywordSearch(SearchOption.Keyword, (uint)head, (uint)count, SearchOption.Sort, SearchOption.Order);
+                res = await SearchProvider.GetKeywordSearch(_keyword, (uint)head, (uint)count, _sort, _order);
             }
-            else if (SearchOption.SearchTarget == SearchTarget.Tag)
+            else 
             {
-                res = await SearchProvider.GetTagSearch(SearchOption.Keyword, (uint)head, (uint)count, SearchOption.Sort, SearchOption.Order);
+                res = await SearchProvider.GetTagSearch(_keyword, (uint)head, (uint)count, _sort, _order);
             }
 
 
-            if (res == null || res.VideoInfoItems == null)
+            if (res == null || res.VideoItems == null)
             {
 				yield break;
             }
             else
             {
-                foreach (var item in res.VideoInfoItems.Where(x => x != null))
+                foreach (var item in res.VideoItems.Where(x => x != null))
                 {
-					var vm = new VideoInfoControlViewModel(item.Video.Id);
+					var vm = new VideoInfoControlViewModel(item.VideoId);
 					await vm.InitializeAsync(cancellationToken);
 					yield return vm;
                 }
@@ -796,16 +706,16 @@ namespace Hohoema.ViewModels
         protected override async Task<int> ResetSourceImpl()
         {
             int totalCount = 0;
-            if (SearchOption.SearchTarget == SearchTarget.Keyword)
+            if (!_searchWithTag)
             {
-                var res = await SearchProvider.GetKeywordSearch(SearchOption.Keyword, 0, 2, SearchOption.Sort, SearchOption.Order);
-                totalCount = (int)res.GetTotalCount();
+				var res = await SearchProvider.GetKeywordSearch(_keyword, 0, 2, _sort, _order);
+                totalCount = res.TotalCount;
 
             }
-            else if (SearchOption.SearchTarget == SearchTarget.Tag)
+            else 
             {
-                var res = await SearchProvider.GetTagSearch(SearchOption.Keyword, 0, 2, SearchOption.Sort, SearchOption.Order);
-                totalCount = (int)res.GetTotalCount();
+				var res = await SearchProvider.GetTagSearch(_keyword, 0, 2, _sort, _order);
+                totalCount = res.TotalCount;
             }
 
             return totalCount;

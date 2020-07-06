@@ -5,7 +5,7 @@
     xmlns:local="using:Hohoema.Views.Flyouts"
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-  xmlns:myCommands="using:Hohoema.Services.Commands.Ranking"
+  xmlns:myCommands="using:Hohoema.ViewModels.NicoVideoRanking.Commands"
   mc:Ignorable="d">
   <MenuFlyoutItem Text="{Binding Source=HiddenThisRankingGenre, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" 
                   CommandParameter="{Binding}"

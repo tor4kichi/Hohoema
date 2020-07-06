@@ -12,7 +12,7 @@ namespace Hohoema.Models.Repository.VideoCache
         public CacheSettingsRepository()
         {
             _IsCacheEnabled = Read(true, nameof(IsCacheEnabled));
-            _IsAcceptedCache = Read(false, nameof(IsAcceptedCache));
+            _IsAcceptedCache = Read(false, nameof(IsCacheAccepted));
         }
 
         bool _IsCacheEnabled;
@@ -23,7 +23,7 @@ namespace Hohoema.Models.Repository.VideoCache
         }
 
         bool _IsAcceptedCache;
-        public bool IsAcceptedCache
+        public bool IsCacheAccepted
         {
             get => _IsAcceptedCache;
             set => SetProperty(ref _IsAcceptedCache, value);

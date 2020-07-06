@@ -1,5 +1,4 @@
-﻿using Hohoema.Models.Provider;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -14,13 +13,14 @@ using Windows.UI.Xaml.Input;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 using Prism.Ioc;
-using Hohoema.Repository.NicoVideo;
 using System.Windows.Input;
 using Hohoema.Views.Flyouts;
-using Hohoema.Interfaces;
 using Hohoema.UseCase.Playlist;
 using System.Threading.Tasks;
 using Reactive.Bindings.Extensions;
+using Hohoema.Models.Repository.Niconico.Mylist;
+using Hohoema.Models.Repository.Niconico.NicoVideo;
+using Hohoema.Models.Repository;
 
 // ユーザー コントロールの項目テンプレートについては、https://go.microsoft.com/fwlink/?LinkId=234236 を参照してください
 
@@ -178,7 +178,7 @@ namespace Hohoema.Views.Pages.VideoListPage
             _selectionContext = App.Current.Container.Resolve<VideoItemsSelectionContext>();
 
             // Update Video Item
-            _videoInfoRepository = App.Current.Container.Resolve<Repository.NicoVideo.VideoInfoRepository>();
+            _videoInfoRepository = App.Current.Container.Resolve<VideoInfoRepository>();
             
             Loaded += VideoItemsListView_Loaded;
             Unloaded += VideoItemsListView_Unloaded;

@@ -1,10 +1,6 @@
 ﻿using I18NPortable;
-using Mntone.Nico2;
 using Hohoema.Interfaces;
 using Hohoema.Models;
-using Hohoema.Models.Provider;
-using Hohoema.Models.Subscription;
-using Hohoema.Repository.Playlist;
 using Hohoema.Services;
 using Hohoema.ViewModels.Pages;
 using Hohoema.UseCase;
@@ -22,14 +18,22 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Hohoema.Models.Pages;
+using Hohoema.Models.Repository.Niconico;
+using Hohoema.Models.Repository.App;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Subscriptions;
+using Hohoema.ViewModels.ExternalAccess.Commands;
+using Hohoema.Models.Repository.Niconico.Mylist;
+using Hohoema.Models.Repository;
 
 namespace Hohoema.ViewModels
 {
-    public class UserInfoPageViewModel : HohoemaViewModelBase, Interfaces.IUser, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+    public class UserInfoPageViewModel : HohoemaViewModelBase, IUser, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
-        HohoemaPin IPinablePage.GetPin()
+        Models.Pages.HohoemaPin IPinablePage.GetPin()
         {
-            return new HohoemaPin()
+            return new Models.Pages.HohoemaPin()
             {
                 Label = UserName,
                 PageType = HohoemaPageType.UserInfo,
@@ -45,16 +49,16 @@ namespace Hohoema.ViewModels
         public UserInfoPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
             UserProvider userProvider,
-            NGSettings ngSettings,
-            Models.NiconicoSession niconicoSession,
+            VideoListFilterSettings videoListFilterSettings,
+            NiconicoSession niconicoSession,
             SubscriptionManager subscriptionManager,
             UserMylistManager userMylistManager,
             HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
             MylistRepository mylistRepository,
-            ExternalAccessHelper externalAccessService,
             NiconicoFollowToggleButtonService followToggleButtonService,
-            ViewModels.Subscriptions.AddSubscriptionCommand addSubscriptionCommand
+            ViewModels.Subscriptions.AddSubscriptionCommand addSubscriptionCommand,
+            OpenLinkCommand openLinkCommand
             )
         {
             NiconicoSession = niconicoSession;
@@ -63,12 +67,12 @@ namespace Hohoema.ViewModels
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
             _mylistRepository = mylistRepository;
-            ExternalAccessService = externalAccessService;
             FollowToggleButtonService = followToggleButtonService;
             AddSubscriptionCommand = addSubscriptionCommand;
+            OpenLinkCommand = openLinkCommand;
             ApplicationLayoutManager = applicationLayoutManager;
             UserProvider = userProvider;
-            NgSettings = ngSettings;
+            _videoListFilterSettings = videoListFilterSettings;
 
             HasOwnerVideo = true;
 
@@ -91,13 +95,13 @@ namespace Hohoema.ViewModels
             {
                 if (isNgVideoOwner)
                 {
-                    NgSettings.AddNGVideoOwnerId(UserId, UserName);
+                    _videoListFilterSettings.AddNgVideoOwner(UserId, UserName);
                     IsNGVideoOwner.Value = true;
                     Debug.WriteLine(UserName + "をNG動画投稿者として登録しました。");
                 }
                 else
                 {
-                    NgSettings.RemoveNGVideoOwnerId(UserId);
+                    _videoListFilterSettings.RemoveNgVideoOwner(UserId);
                     IsNGVideoOwner.Value = false;
                     Debug.WriteLine(UserName + "をNG動画投稿者の指定を解除しました。");
 
@@ -106,17 +110,16 @@ namespace Hohoema.ViewModels
         }
 
         public ReactiveCommand OpenUserVideoPageCommand { get; private set; }
-        public Models.NiconicoSession NiconicoSession { get; }
+        public NiconicoSession NiconicoSession { get; }
         public SubscriptionManager SubscriptionManager { get; }
         public UserMylistManager UserMylistManager { get; }
         public PageManager PageManager { get; }
-        public ExternalAccessHelper ExternalAccessService { get; }
         public NiconicoFollowToggleButtonService FollowToggleButtonService { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
+        public OpenLinkCommand OpenLinkCommand { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public UserProvider UserProvider { get; }
-        public NGSettings NgSettings { get; }
-       
+        
         public Database.Bookmark UserBookmark { get; private set; }
 
         private DelegateCommand _OpenUserMylistPageCommand;
@@ -249,6 +252,7 @@ namespace Hohoema.ViewModels
 
         public  HohoemaPlaylist HohoemaPlaylist { get; }
 
+        private readonly VideoListFilterSettings _videoListFilterSettings;
         private readonly MylistRepository _mylistRepository;
 
         private IReadOnlyCollection<MylistPlaylist> _mylists;
@@ -261,9 +265,13 @@ namespace Hohoema.ViewModels
         public ObservableCollection<VideoInfoControlViewModel> VideoInfoItems { get; private set; }
 
 
-        string Interfaces.INiconicoObject.Id => UserId;
+        string INiconicoObject.Id => UserId;
 
-        string Interfaces.INiconicoObject.Label => UserName;
+        string INiconicoObject.Label => UserName;
+
+        public string Id => throw new NotImplementedException();
+
+        public string Label => throw new NotImplementedException();
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
@@ -315,8 +323,8 @@ namespace Hohoema.ViewModels
 
             if (!IsLoginUser)
             {
-                var ngResult = NgSettings.IsNgVideoOwnerId(UserId);
-                IsNGVideoOwner.Value = ngResult != null;
+                var ngResult = _videoListFilterSettings.IsNgVideoOwner(UserId);
+                IsNGVideoOwner.Value = ngResult;
             }
             else
             {
@@ -332,7 +340,7 @@ namespace Hohoema.ViewModels
                 {
                     var vm = new VideoInfoControlViewModel(item.VideoId);
                     vm.SetTitle(item.Title);
-                    vm.SetThumbnailImage(item.ThumbnailUrl.OriginalString);
+                    vm.SetThumbnailImage(item.ThumbnailUrl);
                     VideoInfoItems.Add(vm);
                 }
                 RaisePropertyChanged(nameof(VideoInfoItems));

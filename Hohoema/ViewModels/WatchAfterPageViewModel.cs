@@ -1,8 +1,11 @@
 ﻿using Hohoema.FixPrism;
 using Hohoema.Interfaces;
+using Hohoema.Models.Repository;
+using Hohoema.Models.Repository.Niconico.Mylist;
 using Hohoema.UseCase;
 using Hohoema.UseCase.Playlist;
 using Hohoema.UseCase.Playlist.Commands;
+using Hohoema.ViewModels.Player.Commands;
 using Prism.Navigation;
 using System;
 using System.Collections.Generic;
@@ -21,7 +24,7 @@ namespace Hohoema.ViewModels
         public IReadOnlyCollection<IVideoContent> PlaylistItems { get; }
 
         public IPlaylist Playlist => _watchAfterPlaylist;
-        public ICommand PlayCommand => _hohoemaPlaylist.PlayCommand;
+        public ICommand PlayCommand { get; }
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
         public RemoveWatchedItemsInAfterWatchPlaylistCommand RemoveWatchedItemsInAfterWatchPlaylistCommand { get; }
@@ -31,13 +34,15 @@ namespace Hohoema.ViewModels
             HohoemaPlaylist hohoemaPlaylist,
             ApplicationLayoutManager applicationLayoutManager,
             RemoveWatchedItemsInAfterWatchPlaylistCommand removeWatchedItemsInAfterWatchPlaylistCommand,
-            PlaylistPlayAllCommand playlistPlayAllCommand
+            PlaylistPlayAllCommand playlistPlayAllCommand,
+            PlayVideoCommand playVideoCommand
             )
         {
             _hohoemaPlaylist = hohoemaPlaylist;
             ApplicationLayoutManager = applicationLayoutManager;
             RemoveWatchedItemsInAfterWatchPlaylistCommand = removeWatchedItemsInAfterWatchPlaylistCommand;
             PlaylistPlayAllCommand = playlistPlayAllCommand;
+            PlayCommand = playVideoCommand;
             _watchAfterPlaylist = _hohoemaPlaylist.WatchAfterPlaylist;
             PlaylistItems = _watchAfterPlaylist;
         }

@@ -44,7 +44,7 @@ namespace Hohoema.ViewModels
 
 			return text.Translate();
 		}
-
+		/*
 		public static string ToCulturizedText(CommunitySearchSort sort, Order order)
 		{
 			var isAscending = order == Order.Ascending;
@@ -85,5 +85,6 @@ namespace Hohoema.ViewModels
 
 			return text.Translate();
 		}
+		*/
 	}
 }

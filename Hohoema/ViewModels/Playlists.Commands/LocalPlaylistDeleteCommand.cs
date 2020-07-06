@@ -6,17 +6,18 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hohoema.UseCase.Services;
 
 namespace Hohoema.UseCase.Playlist.Commands
 {
     public sealed class LocalPlaylistDeleteCommand : DelegateCommandBase
     {
         private readonly LocalMylistManager _localMylistManager;
-        private readonly DialogService _dialogService;
+        private readonly IMessageDialogService _dialogService;
 
         public LocalPlaylistDeleteCommand(
             LocalMylistManager localMylistManager,
-            DialogService dialogService
+            IMessageDialogService dialogService
             )
         {
             _localMylistManager = localMylistManager;

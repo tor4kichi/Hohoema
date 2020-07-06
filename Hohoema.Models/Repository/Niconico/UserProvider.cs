@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Hohoema.Models.Repository.Niconico.NicoVideo;
+using Hohoema.Models.Repository.Niconico.NicoVideo.Series;
 
 namespace Hohoema.Models.Repository.Niconico
 {
@@ -130,6 +132,19 @@ namespace Hohoema.Models.Repository.Niconico
 
 
             return items.Select(x => new MylistGroupData(x)).ToList();
+        }
+
+
+
+
+        public async Task<IReadOnlyList<UserSeries>> GetUserSeriesAsync(string userId)
+        {
+            var res = await ContextActionWithPageAccessWaitAsync(context =>
+            {
+                return context.User.GetUserSeiresAsync(userId);
+            });
+
+            return res?.Serieses.Where(x => x.IsListed).Select(series => new UserSeries(series)).ToList();
         }
     }
 }

@@ -14,11 +14,15 @@ namespace Hohoema.Models.Repository.App
 		NgVideoOwnerRepository _ngVideoOwnerRepository;
 		NgVideoTitleKeywordRepository _ngVideoTitleKeywordRepository;
 
-		public VideoListFilterSettings()
+		public VideoListFilterSettings(
+			NgVideoRepository ngVideoRepository,
+			NgVideoOwnerRepository ngVideoOwnerRepository,
+			NgVideoTitleKeywordRepository ngVideoTitleKeywordRepository
+			)
         {
-			_ngVideoRepository = new NgVideoRepository();
-			_ngVideoOwnerRepository = new NgVideoOwnerRepository();
-			_ngVideoTitleKeywordRepository = new NgVideoTitleKeywordRepository();
+            _ngVideoRepository = ngVideoRepository;
+            _ngVideoOwnerRepository = ngVideoOwnerRepository;
+            _ngVideoTitleKeywordRepository = ngVideoTitleKeywordRepository;
 
 			_NgVideoMap = _ngVideoRepository.ReadAllItems().ToDictionary(x => x.VideoId);
 		}
@@ -134,10 +138,11 @@ namespace Hohoema.Models.Repository.App
 
 
 
-		class NgVideoRepository : LocalLiteDBService<VideoIdInfo>
+		public class NgVideoRepository : LiteDBServiceBase<VideoIdInfo>
         {
-			public NgVideoRepository()
-            {
+			public NgVideoRepository(ILiteDatabase liteDatabase)
+				: base(liteDatabase)
+			{
 				_collection.EnsureIndex(x => x.VideoId);
             }
 
@@ -183,9 +188,10 @@ namespace Hohoema.Models.Repository.App
 		}
 
 
-		class NgVideoOwnerRepository : LocalLiteDBService<UserIdInfo>
+		public class NgVideoOwnerRepository : LiteDBServiceBase<UserIdInfo>
 		{
-			public NgVideoOwnerRepository()
+			public NgVideoOwnerRepository(ILiteDatabase liteDatabase) 
+				: base(liteDatabase)
             {
 				_collection.EnsureIndex(x => x.UserId);
             }
@@ -208,7 +214,7 @@ namespace Hohoema.Models.Repository.App
 			return _ngVideoOwnerRepository.ReadAllItems();
 		}
 
-		public UserIdInfo AddNGVideoOwner(string userId, string userName)
+		public UserIdInfo AddNgVideoOwner(string userId, string userName)
 		{
 			return _ngVideoOwnerRepository.CreateItem(new UserIdInfo() { UserId = userId, Description = userName });
 		}
@@ -231,9 +237,11 @@ namespace Hohoema.Models.Repository.App
 
 
 		
-		class NgVideoTitleKeywordRepository : LocalLiteDBService<NGKeyword>
+		public sealed class NgVideoTitleKeywordRepository : LiteDBServiceBase<NGKeyword>
 		{
-			
+			public NgVideoTitleKeywordRepository(ILiteDatabase liteDatabase)
+			: base(liteDatabase)
+			{ }
 		}
 
 		public bool IsNgVideoTitle(string title)

@@ -16,7 +16,6 @@
     xmlns:templateSelector="using:Hohoema.Views.TemplateSelector"
     xmlns:models="using:Hohoema.Models"
   xmlns:local="using:Hohoema.Views" 
-  xmlns:commentFilteringRepository="using:Hohoema.Repository" 
   mc:Ignorable="d"
     d:DesignHeight="800"
     d:DesignWidth="800">

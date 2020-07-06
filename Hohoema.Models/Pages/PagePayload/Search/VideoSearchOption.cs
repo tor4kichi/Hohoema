@@ -1,4 +1,4 @@
-﻿using Mntone.Nico2;
+﻿using Hohoema.Models.Repository.Niconico;
 using System;
 using System.Runtime.Serialization;
 
@@ -8,7 +8,7 @@ namespace Hohoema.Models.Pages.PagePayload
 	public abstract class VideoSearchOption<T> : SearchPagePayloadContentBase<T>, IEquatable<VideoSearchOption<T>>
 	{
         [DataMember]
-        public Mntone.Nico2.Order Order { get; set; } = Order.Descending;
+        public Order Order { get; set; } = Order.Descending;
 
         [DataMember]
         public Sort Sort { get; set; } = Sort.FirstRetrieve;

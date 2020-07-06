@@ -9,9 +9,9 @@ namespace Hohoema.Models.Repository.Niconico.NicoVideo
 {
     public class VideoSeriesInfo
     {
-        private Series _series;
+        private Mntone.Nico2.Videos.Dmc.Series _series;
 
-        public VideoSeriesInfo(Series series)
+        public VideoSeriesInfo(Mntone.Nico2.Videos.Dmc.Series series)
         {
             _series = series;
         }

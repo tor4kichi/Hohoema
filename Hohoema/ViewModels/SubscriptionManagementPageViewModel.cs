@@ -20,6 +20,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using Uno.Disposables;
 using Uno.Extensions;
+using Hohoema.UseCase.Services;
+using Hohoema.ViewModels.Pages;
+using Hohoema.Models.Repository.Niconico.Mylist;
+using Hohoema.Models.Pages;
 
 namespace Hohoema.ViewModels
 {
@@ -31,7 +35,7 @@ namespace Hohoema.ViewModels
         private readonly SubscriptionManager _subscriptionManager;
         private readonly SubscriptionUpdateManager _subscriptionUpdateManager;
         private readonly HohoemaPlaylist _hohoemaPlaylist;
-        private readonly DialogService _dialogService;
+        private readonly IMessageDialogService _messageDialogService;
         private readonly PageManager _pageManager;
         private readonly IScheduler _scheduler;
 
@@ -45,7 +49,7 @@ namespace Hohoema.ViewModels
             SubscriptionManager subscriptionManager,
             SubscriptionUpdateManager subscriptionUpdateManager,
             HohoemaPlaylist hohoemaPlaylist,
-            DialogService dialogService,
+            IMessageDialogService messageDialogService,
             PageManager pageManager
             )
         {
@@ -67,7 +71,7 @@ namespace Hohoema.ViewModels
             _subscriptionManager = subscriptionManager;
             _subscriptionUpdateManager = subscriptionUpdateManager;
             _hohoemaPlaylist = hohoemaPlaylist;
-            _dialogService = dialogService;
+            _messageDialogService = messageDialogService;
             _pageManager = pageManager;
             _scheduler = scheduler;
 
@@ -104,7 +108,7 @@ namespace Hohoema.ViewModels
             {
                 foreach (var subscInfo in _subscriptionManager.GetAllSubscriptionInfo().OrderBy(x => x.entity.SortIndex))
                 {
-                    var vm = new SubscriptionViewModel(subscInfo.entity, this, _subscriptionManager, _hohoemaPlaylist, _pageManager, _dialogService);
+                    var vm = new SubscriptionViewModel(subscInfo.entity, this, _subscriptionManager, _hohoemaPlaylist, _pageManager, _messageDialogService);
                     vm.UpdateFeedResult(subscInfo.feedResult.Videos.Select(ToVideoContent).ToList(), subscInfo.feedResult.LastUpdatedAt);
                     Subscriptions.Add(vm);
                 }
@@ -154,7 +158,7 @@ namespace Hohoema.ViewModels
         {
             _scheduler.Schedule(() =>
             {
-                var vm = new SubscriptionViewModel(e, this, _subscriptionManager, _hohoemaPlaylist, _pageManager, _dialogService);
+                var vm = new SubscriptionViewModel(e, this, _subscriptionManager, _hohoemaPlaylist, _pageManager, _messageDialogService);
                 Subscriptions.Insert(0, vm);
             });
         }
@@ -243,7 +247,7 @@ namespace Hohoema.ViewModels
             SubscriptionManager subscriptionManager,
             HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
-            DialogService dialogService
+            IMessageDialogService messageDialogService
             )
         {
             _source = source;
@@ -251,7 +255,7 @@ namespace Hohoema.ViewModels
             _subscriptionManager = subscriptionManager;
             _hohoemaPlaylist = hohoemaPlaylist;
             _pageManager = pageManager;
-            _dialogService = dialogService;
+            _messageDialogService = messageDialogService;
             IsEnabled = new ReactiveProperty<bool>(_source.IsEnabled)
                 .AddTo(_disposables);
             IsEnabled.Subscribe(isEnabled => 
@@ -268,7 +272,7 @@ namespace Hohoema.ViewModels
         private readonly SubscriptionManager _subscriptionManager;
         private readonly HohoemaPlaylist _hohoemaPlaylist;
         private readonly PageManager _pageManager;
-        private readonly DialogService _dialogService;
+        private readonly IMessageDialogService _messageDialogService;
 
         public string SourceParameter => _source.SourceParameter;
         public SubscriptionSourceType SourceType => _source.SourceType;
@@ -364,7 +368,7 @@ namespace Hohoema.ViewModels
 
         async void ExecuteDeleteSubscriptionCommand()
         {
-            var result = await _dialogService.ShowMessageDialog(
+            var result = await _messageDialogService.ShowMessageDialog(
                 _source.Label,
                 "StopSubscribe?".Translate(),
                 "StopSubscribe".Translate(),

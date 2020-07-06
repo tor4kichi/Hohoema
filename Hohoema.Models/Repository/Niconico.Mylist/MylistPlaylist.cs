@@ -24,27 +24,27 @@ namespace Hohoema.Models.Repository.Niconico.Mylist
 
         public string Id { get; }
 
-        public string Label { get; internal set; }
+        public string Label { get; protected internal set; }
 
-        public int Count { get; internal set; }
+        public int Count { get; protected internal set; }
 
-        public int SortIndex { get; internal set; }
+        public int SortIndex { get; protected internal set; }
 
-        public string Description { get; internal set; }
+        public string Description { get; protected internal set; }
 
-        public string UserId { get; internal set; }
+        public string UserId { get; protected internal set; }
 
-        public bool IsPublic { get; internal set; }
+        public bool IsPublic { get; protected internal set; }
 
-        public MylistGroupIconType IconType { get; internal set; }
+        public MylistGroupIconType IconType { get; protected internal set; }
 
-        public Order Order { get; internal set; }
+        public Order Order { get; protected internal set; }
 
-        public Sort Sort { get; internal set; }
+        public Sort Sort { get; protected internal set; }
 
-        public DateTime UpdateTime { get; internal set; }
+        public DateTime UpdateTime { get; protected internal set; }
 
-        public DateTime CreateTime { get; internal set; }
+        public DateTime CreateTime { get; protected internal set; }
 
 
         public async Task<MylistItemsGetResult> GetItemsAsync(int start, int count)

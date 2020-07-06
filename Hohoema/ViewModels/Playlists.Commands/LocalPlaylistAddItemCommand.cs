@@ -1,5 +1,5 @@
 ﻿using Hohoema.Interfaces;
-using Hohoema.Repository.Playlist;
+using Hohoema.Models.Repository;
 using Prism.Commands;
 using System;
 using System.Collections.Generic;

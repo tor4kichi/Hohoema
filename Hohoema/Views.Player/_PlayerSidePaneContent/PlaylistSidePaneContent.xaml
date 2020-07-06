@@ -46,7 +46,7 @@
           <Border />
         </StackPanel>
 
-        <Button HorizontalAlignment="Stretch" Command="{x:Bind _viewModel.PageManager.OpenPageCommand}" CommandParameter="{x:Bind _viewModel.HohoemaPlaylist.CurrentPlaylist, Mode=OneWay}" HorizontalContentAlignment="Left">
+        <Button HorizontalAlignment="Stretch" Command="{x:Bind _viewModel.OpenPageCommand}" CommandParameter="{x:Bind _viewModel.HohoemaPlaylist.CurrentPlaylist, Mode=OneWay}" HorizontalContentAlignment="Left">
           <StackPanel>
             <TextBlock toolkit:DockPanel.Dock="Top" Text="{Binding Source=CurrentPlaylist, Converter={StaticResource LocalizeConverter}, Mode=OneTime}" Style="{StaticResource CaptionTextBlockStyle}" Margin="0" Opacity="0.7"></TextBlock>
             <TextBlock Text="{x:Bind _viewModel.HohoemaPlaylist.CurrentPlaylist.Label, Mode=OneWay}" Style="{StaticResource BodyTextBlockStyle}" Margin="0" VerticalAlignment="Top" />

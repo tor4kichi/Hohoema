@@ -51,19 +51,6 @@
           <videoListPage:VideoListItemControl />
         </Grid>
       </DataTemplate>
-      <!-- Live Item -->
-      <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=Hohoema.ViewModels.NicoRepoLiveTimeline, Converter={StaticResource StringToType}}"
-                    x:DataType="viewModels:NicoRepoLiveTimeline"
-                    >
-        <Grid>
-          <TextBlock Text="{Binding ItempTopicDescription}"
-                     Opacity="0.7"
-                     FontSize="12"
-                     HorizontalAlignment="Right"
-                     VerticalAlignment="Bottom" />
-          <listitem:HohoemaListItemVideo />
-        </Grid>
-      </DataTemplate>
     </templateSelector:TypeBasedTemplateSelector>
   </Page.Resources>
   <Grid>
@@ -87,11 +74,6 @@
               <flyouts:VideoItemFlyout />
             </DataTemplate>
           </templateSelector:HohoemaFlyoutTemplateSelector.VideoFlyoutTemplate>
-          <templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
-            <DataTemplate>
-              <controls:LiveListItemFlyout />
-            </DataTemplate>
-          </templateSelector:HohoemaFlyoutTemplateSelector.LiveFlyoutTemplate>
         </templateSelector:HohoemaFlyoutTemplateSelector>
       </myExtensions:ListViewBase.ItemContextFlyoutTemplateSelector>
       <i:Interaction.Behaviors>

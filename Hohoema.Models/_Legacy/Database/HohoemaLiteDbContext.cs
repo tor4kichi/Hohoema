@@ -10,24 +10,42 @@ using Windows.Storage;
 
 namespace Hohoema.Database
 {
+    [Obsolete]
     public static class HohoemaLiteDb
     {
-        internal const string DbTempFileName = @"hohoema_local.db";
+        internal const string DbTempFileName = @"hohoema_temp.db";
 
-        static readonly string TempConnectionString = $"Filename={Path.Combine(ApplicationData.Current.TemporaryFolder.Path, DbTempFileName)}; Async=false;";
+        public static readonly string TempLocalDbFilePath = Path.Combine(ApplicationData.Current.TemporaryFolder.Path, DbTempFileName);
+        static readonly string TempConnectionString = $"Filename={TempLocalDbFilePath}; Async=false; upgrade=true;";
 
-        static LiteRepository HohoemaTempLiteRepository = new LiteRepository(TempConnectionString);
+        static public void Initialize(Func<string, LiteRepository> initializer)
+        {
+            HohoemaTempLiteRepository = initializer(TempConnectionString);
+            HohoemaLocalLiteRepository = initializer(LocalConnectionString);
+        }
+
+
+        static LiteRepository HohoemaTempLiteRepository;
         static internal LiteRepository GetTempLiteRepository()
         {
             return HohoemaTempLiteRepository;
         }
 
+        static public async Task DeleteTempDbFile()
+        {
+            var file = await StorageFile.GetFileFromPathAsync(TempLocalDbFilePath);
+            if (file != null)
+            {
+                await file.DeleteAsync();
+            }
+
+        }
 
         internal const string LocalDbFileName = @"hohoema.db";
 
-        static readonly string LocalConnectionString = $"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, LocalDbFileName)}; Async=false;";
+        static readonly string LocalConnectionString = $"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, LocalDbFileName)}; Async=false; upgrade=true;";
 
-        static LiteRepository HohoemaLocalLiteRepository = new LiteRepository(LocalConnectionString);
+        static LiteRepository HohoemaLocalLiteRepository;
         static internal LiteRepository GetLocalLiteRepository()
         {
             return HohoemaLocalLiteRepository;

@@ -18,6 +18,7 @@ using Windows.UI.Xaml.Data;
 using Hohoema.ViewModels.Pages;
 using Hohoema.Models.Repository.Playlist;
 using Hohoema.Models.Repository;
+using Hohoema.ViewModels.Pages.Commands;
 
 namespace Hohoema.ViewModels.PlayerSidePaneContent
 {
@@ -29,6 +30,7 @@ namespace Hohoema.ViewModels.PlayerSidePaneContent
             HohoemaPlaylist playerModel,
             PlayerSettingsRepository playerSettings,
             PageManager pageManager,
+            OpenPageCommand openPageCommand,
             IScheduler scheduler
             )
         {
@@ -36,6 +38,7 @@ namespace Hohoema.ViewModels.PlayerSidePaneContent
             HohoemaPlaylist = playerModel;
             _playerSettings = playerSettings;
             PageManager = pageManager;
+            OpenPageCommand = openPageCommand;
             _scheduler = scheduler;
             
             CurrentPlaylistName = HohoemaPlaylist.ObserveProperty(x => x.CurrentPlaylist).Select(x => x?.Label)
@@ -122,7 +125,7 @@ namespace Hohoema.ViewModels.PlayerSidePaneContent
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public MediaPlayer MediaPlayer { get; }
         public PageManager PageManager { get; }
-
+        public OpenPageCommand OpenPageCommand { get; }
         public IReadOnlyReactiveProperty<string> CurrentPlaylistName { get; private set; }
         public ReactiveProperty<bool> IsShuffleEnabled { get; private set; }
         public ReactiveProperty<bool> IsTrackRepeatModeEnable { get; private set; }

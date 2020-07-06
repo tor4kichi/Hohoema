@@ -324,13 +324,13 @@
                     <CommandBar.PrimaryCommands>
                       <AppBarButton x:Name="ShowVideoInfoButon" Label="{Binding Source=VideoInfomation, Converter={StaticResource LocalizeConverter}}" Command="{Binding OpenVideoInfoCommand}" Visibility="Collapsed"></AppBarButton>
                       <AppBarButton Command="{x:Bind SelectSidePaneCommand}" CommandParameter="RelatedVideos" Background="Transparent" Label="{Binding Source=RelatedInfomation, Converter={StaticResource LocalizeConverter}}" />
-                      <AppBarButton x:Name="ShareButton" Label="{Binding Source=Share, Converter={StaticResource LocalizeConverter}}" Icon="Link" Visibility="Collapsed" Command="{Binding ExternalAccessService.OpenShareUICommand}" CommandParameter="{Binding VideoInfo}"></AppBarButton>
+                      <AppBarButton x:Name="ShareButton" Label="{Binding Source=Share, Converter={StaticResource LocalizeConverter}}" Icon="Link" Visibility="Collapsed" Command="{Binding OpenShareUICommand}" CommandParameter="{Binding VideoInfo}"></AppBarButton>
                       <AppBarButton x:Name="CopyActionsAppBarButton" Label="{Binding Source=Copy, Converter={StaticResource LocalizeConverter}}" Visibility="Visible">
                         <AppBarButton.Flyout>
                           <MenuFlyout>
-                            <MenuFlyoutItem Text="{Binding Source=CopyVideoId, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding VideoId}" />
-                            <MenuFlyoutItem Text="{Binding Source=CopyVideoLink, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding VideoInfo}" />
-                            <MenuFlyoutItem Text="{Binding Source=CopyShareText, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}" CommandParameter="{Binding VideoInfo}" />
+                            <MenuFlyoutItem Text="{Binding Source=CopyVideoId, Converter={StaticResource LocalizeConverter}}" Command="{Binding CopyToClipboardCommand}" CommandParameter="{Binding VideoId}" />
+                            <MenuFlyoutItem Text="{Binding Source=CopyVideoLink, Converter={StaticResource LocalizeConverter}}" Command="{Binding CopyToClipboardCommand}" CommandParameter="{Binding VideoInfo}" />
+                            <MenuFlyoutItem Text="{Binding Source=CopyShareText, Converter={StaticResource LocalizeConverter}}" Command="{Binding CopyToClipboardWithShareTextCommand}" CommandParameter="{Binding VideoInfo}" />
                           </MenuFlyout>
                         </AppBarButton.Flyout>
                       </AppBarButton>
@@ -702,7 +702,7 @@
                     <TextBlock Text="{Binding Source=CanNotPlay, Converter={StaticResource LocalizeConverter}}" VerticalAlignment="Center" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0 0 0 8" />
                     <TextBlock VerticalAlignment="Center" TextWrapping="Wrap" Width="300">
                                             <Run Text="{Binding CannotPlayReason}" /></TextBlock>
-                    <HyperlinkButton Content="{Binding Source=OpenWithBrowser, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.OpenLinkCommand}" CommandParameter="{Binding VideoInfo}"></HyperlinkButton>
+                    <HyperlinkButton Content="{Binding Source=OpenWithBrowser, Converter={StaticResource LocalizeConverter}}" Command="{Binding OpenLinkCommand}" CommandParameter="{Binding VideoInfo}"></HyperlinkButton>
                   </StackPanel>
                 </StackPanel>
               </Border>

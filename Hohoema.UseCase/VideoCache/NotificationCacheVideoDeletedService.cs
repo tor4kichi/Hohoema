@@ -1,4 +1,5 @@
 ﻿using Hohoema.Models.Repository.Niconico.NicoVideo;
+using Hohoema.UseCase.Services;
 using Hohoema.UseCase.VideoCache;
 using I18NPortable;
 using Prism.Events;

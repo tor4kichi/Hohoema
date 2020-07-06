@@ -19,8 +19,11 @@ namespace Hohoema.ViewModels.ExternalAccess.Commands
 
         protected override void Execute(object parameter)
         {
-            var shareContent = ShareHelper.MakeShareText(content);
-            ShareHelper.Share(shareContent);
+            if (parameter is INiconicoContent content)
+            {
+                var shareContent = ShareHelper.MakeShareText(content);
+                ShareHelper.Share(shareContent);
+            }
         }
     }
 }

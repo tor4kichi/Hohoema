@@ -16,6 +16,7 @@ using Unity;
 using Hohoema.Models;
 using Prism.Ioc;
 using Hohoema.UseCase.Playlist.Commands;
+using Hohoema.Models.Niconico.Follow;
 
 namespace Hohoema.Views.Flyouts
 {

@@ -10,6 +10,8 @@ using Hohoema.Models.LocalMylist;
 using Hohoema.Services;
 using Hohoema.UseCase.Playlist;
 using I18NPortable;
+using Hohoema.UseCase.Services;
+using Hohoema.Models.Repository;
 
 namespace Hohoema.Commands.Mylist
 {
@@ -17,7 +19,7 @@ namespace Hohoema.Commands.Mylist
     {
         public CreateLocalMylistCommand(
             LocalMylistManager localMylistManager,
-            DialogService dialogService
+            ITextInputDialogService dialogService
             )
         {
             LocalMylistManager = localMylistManager;
@@ -25,7 +27,7 @@ namespace Hohoema.Commands.Mylist
         }
 
         public LocalMylistManager LocalMylistManager { get; }
-        public DialogService DialogService { get; }
+        public ITextInputDialogService DialogService { get; }
 
         protected override bool CanExecute(object parameter)
         {
@@ -47,7 +49,7 @@ namespace Hohoema.Commands.Mylist
 
                 Debug.WriteLine("ローカルマイリスト作成：" + result);
 
-                if (parameter is Interfaces.IVideoContent content)
+                if (parameter is IVideoContent content)
                 {
                     localPlaylist.AddPlaylistItem(content);
                 }

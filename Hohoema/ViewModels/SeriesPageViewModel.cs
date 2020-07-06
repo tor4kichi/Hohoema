@@ -1,8 +1,9 @@
-﻿using Mntone.Nico2.Users.Series;
-using Mntone.Nico2.Videos.Series;
-using Hohoema.Interfaces;
-using Hohoema.Models.Helpers;
-using Hohoema.Repository.NicoVideo;
+﻿using Hohoema.Models.Helpers;
+using Hohoema.Models.Pages;
+using Hohoema.Models.Repository;
+using Hohoema.Models.Repository.Niconico;
+using Hohoema.Models.Repository.Niconico.NicoVideo;
+using Hohoema.Models.Repository.Niconico.NicoVideo.Series;
 using Hohoema.ViewModels.Pages;
 using Hohoema.ViewModels.Subscriptions;
 using Prism.Navigation;
@@ -15,18 +16,17 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Uno.Extensions;
 
 namespace Hohoema.ViewModels
 {
     public sealed class SeriesPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, INavigationAware, INavigatedAwareAsync, Interfaces.ITitleUpdatablePage, IPinablePage
     {
-        public HohoemaPin GetPin()
+        public Models.Pages.HohoemaPin GetPin()
         {
-            return new HohoemaPin()
+            return new Models.Pages.HohoemaPin()
             {
                 Label = _series.Title,
-                PageType = Services.HohoemaPageType.Series,
+                PageType = HohoemaPageType.Series,
                 Parameter = $"id={_series.Id}"
             };
         }
@@ -87,9 +87,9 @@ namespace Hohoema.ViewModels
 
         public class UserViewModel : IUser
         {
-            private readonly SeriesOwner _userDetail;
+            private readonly SeriesOwnerInfo _userDetail;
 
-            public UserViewModel(SeriesOwner userDetail)
+            public UserViewModel(SeriesOwnerInfo userDetail)
             {
                 _userDetail = userDetail;
             }
@@ -131,9 +131,9 @@ namespace Hohoema.ViewModels
 
     public class SeriesVideosIncrementalSource : HohoemaIncrementalSourceBase<VideoInfoControlViewModel>
     {
-        private List<SeriresVideo> _videos;
+        private IReadOnlyList<SeriresVideo> _videos;
 
-        public SeriesVideosIncrementalSource(List<SeriresVideo> videos)
+        public SeriesVideosIncrementalSource(IReadOnlyList<SeriresVideo> videos)
         {
             _videos = videos;
         }

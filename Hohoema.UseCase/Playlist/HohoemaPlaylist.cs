@@ -237,7 +237,6 @@ namespace Hohoema.UseCase.Playlist
             IEventAggregator eventAggregator,
             PlaylistRepository playlistRepository,
             NicoVideoProvider nicoVideoProvider,
-            MylistRepository mylistRepository,
             PlayerSettingsRepository playerSettingsRepository
             )
         {
@@ -253,7 +252,6 @@ namespace Hohoema.UseCase.Playlist
 
             _playlistRepository = playlistRepository;
             _nicoVideoProvider = nicoVideoProvider;
-            _mylistRepository = mylistRepository;
             
             WatchAfterPlaylist = new PlaylistObservableCollection(WatchAfterPlaylistId, WatchAfterPlaylistId.Translate(), _scheduler);
             _ = ResolveItemsAsync(WatchAfterPlaylist)
@@ -350,7 +348,6 @@ namespace Hohoema.UseCase.Playlist
         private readonly PlaylistPlayer _player;
         private readonly PlaylistRepository _playlistRepository;
         private readonly NicoVideoProvider _nicoVideoProvider;
-        private readonly MylistRepository _mylistRepository;
         private readonly PlayerSettingsRepository _playerSettingsRepository;
         private readonly PlayerSettings _playerSettings;
 

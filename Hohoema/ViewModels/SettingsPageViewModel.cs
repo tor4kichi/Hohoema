@@ -24,7 +24,16 @@ using Windows.UI;
 using Windows.UI.StartScreen;
 using Windows.UI.ViewManagement;
 using Windows.UI.Xaml;
-
+using Hohoema.Models.Pages;
+using Hohoema.Models.Repository.App;
+using Hohoema.Models.Repository.Niconico.NicoVideo.Ranking;
+using Hohoema.Models.Repository.NicoRepo;
+using Hohoema.Models.Repository.VideoCache;
+using Hohoema.Models.Repository.Playlist;
+using System.Collections.ObjectModel;
+using Hohoema.Models.Niconico.Video;
+using Hohoema.Models.Helpers;
+using Uno.Extensions;
 
 namespace Hohoema.ViewModels
 {
@@ -35,78 +44,46 @@ namespace Hohoema.ViewModels
 
         public SettingsPageViewModel(
             PageManager pageManager,
-            NotificationService toastService,
-            Services.DialogService dialogService,
-            PlayerSettings playerSettings,
-            NGSettings ngSettings,
-            RankingSettings rankingSettings,
-            ActivityFeedSettings activityFeedSettings,
-            AppearanceSettings appearanceSettings,
-            CacheSettings cacheSettings,
+            LatestUpdateNoticeDialogService latestUpdateNoticeDialogService,
+            PlayerSettingsRepository playerSettings,
+            VideoListFilterSettings videoListFilterSettings,
+            RankingSettingsRepository rankingSettings,
+            NicoRepoSettingsRepository nicoRepoSettingsRepository,
+            AppearanceSettingsRepository appearanceSettings,
+            CacheSettingsRepository cacheSettings,
             ApplicationLayoutManager applicationLayoutManager
             )
         {
-            ToastNotificationService = toastService;
-            NgSettings = ngSettings;
-            RankingSettings = rankingSettings;
-            _HohoemaDialogService = dialogService;
-            PlayerSettings = playerSettings;
-            NgSettings = ngSettings;
-            RankingSettings = rankingSettings;
-            ActivityFeedSettings = activityFeedSettings;
-            AppearanceSettings = appearanceSettings;
-            CacheSettings = cacheSettings;
+            _latestUpdateNoticeDialogService = latestUpdateNoticeDialogService;
+            _playerSettings = playerSettings;
+            _videoListFilterSettings = videoListFilterSettings;
+            _rankingSettings = rankingSettings;
+            _nicoRepoSettingsRepository = nicoRepoSettingsRepository;
+            _appearanceSettings = appearanceSettings;
+            _cacheSettings = cacheSettings;
             ApplicationLayoutManager = applicationLayoutManager;
 
             // NG Video Owner User Id
-            NGVideoOwnerUserIdEnable = NgSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoOwnerUserIdEnable);
-            NGVideoOwnerUserIds = NgSettings.NGVideoOwnerUserIds
-                .ToReadOnlyReactiveCollection();
+            NGVideoOwnerUserIdEnable = _videoListFilterSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoOwnerUserIdEnable);
+            NGVideoOwnerUserIds = new ObservableCollection<Models.Repository.App.UserIdInfo>();
 
-            OpenUserPageCommand = new DelegateCommand<UserIdInfo>(userIdInfo =>
+            OpenUserPageCommand = new DelegateCommand<Models.Repository.App.UserIdInfo>(userIdInfo =>
             {
                 pageManager.OpenPageWithId(HohoemaPageType.UserInfo, userIdInfo.UserId);
             });
 
             // NG Keyword on Video Title
-            NGVideoTitleKeywordEnable = NgSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoTitleKeywordEnable);
-            NGVideoTitleKeywords = new ReactiveProperty<string>();
-            NGVideoTitleKeywordError = NGVideoTitleKeywords
-                .Select(x =>
-                {
-                    if (x == null) { return null; }
-
-                    var keywords = x.Split('\r');
-                    var invalidRegex = keywords.FirstOrDefault(keyword =>
-                    {
-                        Regex regex = null;
-                        try
-                        {
-                            regex = new Regex(keyword);
-                        }
-                        catch { }
-                        return regex == null;
-                    });
-
-                    if (invalidRegex == null)
-                    {
-                        return null;
-                    }
-                    else
-                    {
-                        return $"Error in \"{invalidRegex}\"";
-                    }
-                })
-                .ToReadOnlyReactiveProperty();
+            NGKeywordList = new ObservableCollection<NGKeywordViewModel>();
+            NGVideoTitleKeywordEnable = _videoListFilterSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoTitleKeywordEnable);
 
             // アピアランス
 
             var currentTheme = App.GetTheme();
-            SelectedTheme = new ReactiveProperty<ElementTheme>(AppearanceSettings.Theme, mode: ReactivePropertyMode.DistinctUntilChanged);
+            SelectedTheme = new ReactiveProperty<ElementTheme>(_appearanceSettings.Theme, mode: ReactivePropertyMode.DistinctUntilChanged);
 
             SelectedTheme.Subscribe(theme =>
             {
-                AppearanceSettings.Theme = theme;
+                _appearanceSettings.Theme = theme;
 
                 ApplicationTheme appTheme;
                 if (theme == ElementTheme.Default)
@@ -156,19 +133,17 @@ namespace Hohoema.ViewModels
                 }
             });
 
-            StartupPageType = AppearanceSettings
+            StartupPageType = _appearanceSettings
                 .ToReactivePropertyAsSynchronized(x => x.StartupPageType);
 
-            AppearanceSettings.ObserveProperty(x => x.Locale, isPushCurrentValueAtFirst: false).Subscribe(locale => 
+            _appearanceSettings.ObserveProperty(x => x.Locale, isPushCurrentValueAtFirst: false).Subscribe(locale => 
             {
                 I18NPortable.I18N.Current.Locale = locale;
             });
 
             // キャッシュ
-            DefaultCacheQuality = CacheSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCacheQuality);
-            IsAllowDownloadOnMeteredNetwork = CacheSettings.ToReactivePropertyAsSynchronized(x => x.IsAllowDownloadOnMeteredNetwork);
-            DefaultCacheQualityOnMeteredNetwork = CacheSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCacheQualityOnMeteredNetwork);
-
+            DefaultCacheQuality = _cacheSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCacheQuality);
+            
             // シェア
             IsLoginTwitter = new ReactiveProperty<bool>(/*TwitterHelper.IsLoggedIn*/ false);
             TwitterAccountScreenName = new ReactiveProperty<string>(/*TwitterHelper.TwitterUser?.ScreenName ?? ""*/);
@@ -208,30 +183,18 @@ namespace Hohoema.ViewModels
             .AddTo(_CompositeDisposable);
         }
 
-        Services.DialogService _HohoemaDialogService;
-
-        public NotificationService ToastNotificationService { get; private set; }
-        public PlayerSettings PlayerSettings { get; }
-        public NGSettings NgSettings { get; }
-        public RankingSettings RankingSettings { get; }
-        public ActivityFeedSettings ActivityFeedSettings { get; }
-        public AppearanceSettings AppearanceSettings { get; }
-        public CacheSettings CacheSettings { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
 
 
         // フィルタ
         public ReactiveProperty<bool> NGVideoOwnerUserIdEnable { get; private set; }
-        public ReadOnlyReactiveCollection<UserIdInfo> NGVideoOwnerUserIds { get; private set; }
-        public DelegateCommand<UserIdInfo> OpenUserPageCommand { get; }
+        public ObservableCollection<Models.Repository.App.UserIdInfo> NGVideoOwnerUserIds { get; private set; }
+        public DelegateCommand<Models.Repository.App.UserIdInfo> OpenUserPageCommand { get; }
 
 
         public ReactiveProperty<bool> NGVideoTitleKeywordEnable { get; private set; }
 
-        public ReactiveProperty<string> NGVideoTitleKeywords { get; }
-        public ReadOnlyReactiveProperty<string> NGVideoTitleKeywordError { get; private set; }
-
-
+        public ObservableCollection<NGKeywordViewModel> NGKeywordList { get; }
         
         public ReactiveProperty<ElementTheme> SelectedTheme { get; private set; }
         public static bool ThemeChanged { get; private set; } = false;
@@ -376,7 +339,7 @@ namespace Hohoema.ViewModels
                 return _ShowUpdateNoticeCommand
                     ?? (_ShowUpdateNoticeCommand = new DelegateCommand(async () =>
                     {
-                        await _HohoemaDialogService.ShowLatestUpdateNotice();
+                        await _latestUpdateNoticeDialogService.ShowLatestUpdateNotice();
                     }));
             }
         }
@@ -475,7 +438,7 @@ namespace Hohoema.ViewModels
                 return _CopyVersionTextToClipboardCommand
                     ?? (_CopyVersionTextToClipboardCommand = new DelegateCommand(() =>
                     {
-                        Services.Helpers.ClipboardHelper.CopyToClipboard(CurrentVersion.ToString());
+                        ClipboardHelper.CopyToClipboard(CurrentVersion.ToString());
                     }));
             }
         }
@@ -488,6 +451,14 @@ namespace Hohoema.ViewModels
         // セカンダリタイル関連
 
         private DelegateCommand _AddTransparencySecondaryTile;
+        private readonly LatestUpdateNoticeDialogService _latestUpdateNoticeDialogService;
+        private readonly PlayerSettingsRepository _playerSettings;
+        private readonly VideoListFilterSettings _videoListFilterSettings;
+        private readonly RankingSettingsRepository _rankingSettings;
+        private readonly NicoRepoSettingsRepository _nicoRepoSettingsRepository;
+        private readonly AppearanceSettingsRepository _appearanceSettings;
+        private readonly CacheSettingsRepository _cacheSettings;
+
         public DelegateCommand AddTransparencySecondaryTile
         {
             get
@@ -524,7 +495,10 @@ namespace Hohoema.ViewModels
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
-            NGVideoTitleKeywords.Value = string.Join("\r", NgSettings.NGVideoTitleKeywords.Select(x => x.Keyword)) + "\r";
+            var keywords = _videoListFilterSettings.GetAllNGVideoTitleKeyword();
+
+            NGKeywordList.Clear();
+            NGKeywordList.AddRange(keywords.Select(x => new NGKeywordViewModel(x, _videoListFilterSettings, this)));
 
             try
             {
@@ -544,26 +518,7 @@ namespace Hohoema.ViewModels
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
-            // フィルタ
-            // NG VideoTitleを複数行NG動画タイトル文字列から再構成
-            NgSettings.NGVideoTitleKeywords.Clear();
-            foreach (var ngKeyword in NGVideoTitleKeywords.Value.Split('\r'))
-            {
-                if (!string.IsNullOrWhiteSpace(ngKeyword))
-                {
-                    NgSettings.NGVideoTitleKeywords.Add(new NGKeyword() { Keyword = ngKeyword });
-                }
-            }
-
-            NgSettings.Save().ConfigureAwait(false);
-
             base.OnNavigatedFrom(parameters);
-        }
-
-        private void OnRemoveNGCommentUserIdFromList(string userId)
-        {
-            var removeTarget = PlayerSettings.NGCommentUserIds.First(x => x.UserId == userId);
-            PlayerSettings.NGCommentUserIds.Remove(removeTarget);
         }
     }
 
@@ -595,10 +550,11 @@ namespace Hohoema.ViewModels
 
 	public class NGKeywordViewModel : IRemovableListItem, IDisposable
     {
-		public NGKeywordViewModel(NGKeyword ngTitleInfo, Action<NGKeyword> onRemoveAction)
+		public NGKeywordViewModel(Models.Repository.App.NGKeyword ngKeyword, VideoListFilterSettings videoListFilterSettings, SettingsPageViewModel settingsPageViewModel)
 		{
-			NGKeywordInfo = ngTitleInfo;
-			_OnRemoveAction = onRemoveAction;
+			NGKeywordInfo = ngKeyword;
+            _videoListFilterSettings = videoListFilterSettings;
+            _settingsPageViewModel = settingsPageViewModel;
 
             Label = NGKeywordInfo.Keyword;
             TestText = new ReactiveProperty<string>(NGKeywordInfo.TestText);
@@ -632,9 +588,10 @@ namespace Hohoema.ViewModels
 
             RemoveCommand = new DelegateCommand(() => 
 			{
-				_OnRemoveAction(this.NGKeywordInfo);
-			});
-		}
+                _videoListFilterSettings.RemoveNgVideoTitleKeyword(NGKeywordInfo);
+                _settingsPageViewModel.NGKeywordList.Remove(this);
+            });
+        }
 
 		public void Dispose()
 		{
@@ -657,24 +614,11 @@ namespace Hohoema.ViewModels
         public string Label { get; private set; }
 		public ICommand RemoveCommand { get; private set; }
 		
-		public NGKeyword NGKeywordInfo { get; }
-		Action<NGKeyword> _OnRemoveAction;
-	}
+		public Models.Repository.App.NGKeyword NGKeywordInfo { get; }
 
-	public static class RemovableSettingsListItemHelper
-	{
-		public static RemovableListItem<string> VideoIdInfoToRemovableListItemVM(VideoIdInfo info, Action<string> removeAction)
-		{
-			var roundedDesc = info.Description.Substring(0, Math.Min(info.Description.Length - 1, 10));
-			return new RemovableListItem<string>(info.VideoId, $"{info.VideoId} | {roundedDesc}", removeAction);
-		}
-
-		public static RemovableListItem<string> UserIdInfoToRemovableListItemVM(UserIdInfo info, Action<string> removeAction)
-		{
-			var roundedDesc = info.Description.Substring(0, Math.Min(info.Description.Length - 1, 10));
-			return new RemovableListItem<string>(info.UserId, $"{info.UserId} | {roundedDesc}", removeAction);
-		}
-	}
+        private readonly VideoListFilterSettings _videoListFilterSettings;
+        private readonly SettingsPageViewModel _settingsPageViewModel;
+    }
 
 	public interface IRemovableListItem
     {
@@ -763,19 +707,19 @@ namespace Hohoema.ViewModels
         {
             switch (type)
             {
-                case Models.LisenceType.MIT:
+                case Models.Helpers.LisenceType.MIT:
                     return "MIT";
-                case Models.LisenceType.MS_PL:
+                case Models.Helpers.LisenceType.MS_PL:
                     return "Microsoft Public Lisence";
-                case Models.LisenceType.Apache_v2:
+                case Models.Helpers.LisenceType.Apache_v2:
                     return "Apache Lisence version 2.0";
-                case Models.LisenceType.GPL_v3:
+                case Models.Helpers.LisenceType.GPL_v3:
                     return "GNU General Public License Version 3";
-                case Models.LisenceType.Simplified_BSD:
+                case Models.Helpers.LisenceType.Simplified_BSD:
                     return "二条項BSDライセンス";
-                case Models.LisenceType.CC_BY_40:
+                case Models.Helpers.LisenceType.CC_BY_40:
                     return "クリエイティブ・コモンズ 表示 4.0 国際";
-                case Models.LisenceType.SIL_OFL_v1_1:
+                case Models.Helpers.LisenceType.SIL_OFL_v1_1:
                     return "SIL OPEN FONT LICENSE Version 1.1";
                 default:
                     throw new NotSupportedException(type.ToString());

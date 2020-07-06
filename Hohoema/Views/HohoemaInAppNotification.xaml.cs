@@ -7,6 +7,7 @@ using Prism.Unity;
 using Windows.UI.Xaml;
 using Windows.UI.ViewManagement;
 using Windows.UI.Core;
+using Hohoema.UseCase.Events;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -19,10 +20,10 @@ namespace Hohoema.Views
             this.InitializeComponent();
 
             var ea = App.Current.Container.Resolve<IEventAggregator>();
-            var notificationEvent = ea.GetEvent<Services.InAppNotificationEvent>();
+            var notificationEvent = ea.GetEvent<InAppNotificationEvent>();
             notificationEvent.Subscribe(PushNextNotication, ThreadOption.UIThread);
 
-            var notificationDismissEvent = ea.GetEvent<Services.InAppNotificationDismissEvent>();
+            var notificationDismissEvent = ea.GetEvent<InAppNotificationDismissEvent>();
             notificationDismissEvent.Subscribe((_) =>
             {
                 LiteNotification.Dismiss();
@@ -39,11 +40,11 @@ namespace Hohoema.Views
 
         static readonly TimeSpan DefaultShowDuration = TimeSpan.FromSeconds(7);
 
-        private Services.InAppNotificationPayload _CurrentNotication;
+        private InAppNotificationPayload _CurrentNotication;
 
-        private ConcurrentQueue<Services.InAppNotificationPayload> NoticationRequestQueue = new ConcurrentQueue<Services.InAppNotificationPayload>();
+        private ConcurrentQueue<InAppNotificationPayload> NoticationRequestQueue = new ConcurrentQueue<InAppNotificationPayload>();
 
-        private void PushNextNotication(Services.InAppNotificationPayload payload)
+        private void PushNextNotication(InAppNotificationPayload payload)
         {
             NoticationRequestQueue.Enqueue(payload);
 

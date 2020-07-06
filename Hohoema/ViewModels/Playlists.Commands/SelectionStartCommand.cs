@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Prism.Ioc;
 using Hohoema.Interfaces;
+using Hohoema.Models.Repository;
 
 namespace Hohoema.UseCase.Playlist.Commands
 {

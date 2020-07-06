@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Hohoema.Models.Repository.Niconico.NicoVideoRanking
+namespace Hohoema.Models.Repository.Niconico.NicoVideo.Ranking
 {
     internal static class RankingGenreMapper
     {

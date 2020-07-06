@@ -35,7 +35,7 @@
           <AppBarButton Label="{Binding Source=HohoemaPageType.Series, Converter={StaticResource LocalizeConverter}}" Command="{Binding OpenUserSeriesPageCommand}" />
 
           <CommandBar.SecondaryCommands>
-            <AppBarButton Label="{Binding Source=OpenWithBrowser, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.OpenLinkCommand}" CommandParameter="{Binding}" VerticalAlignment="Center" UseSystemFocusVisuals="True" />
+            <AppBarButton Label="{Binding Source=OpenWithBrowser, Converter={StaticResource LocalizeConverter}}" Command="{Binding OpenLinkCommand}" CommandParameter="{Binding}" VerticalAlignment="Center" UseSystemFocusVisuals="True" />
           </CommandBar.SecondaryCommands>
         </CommandBar>
       </Border>

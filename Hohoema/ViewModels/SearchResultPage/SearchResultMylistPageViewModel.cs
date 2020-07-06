@@ -4,29 +4,28 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Mntone.Nico2.Searches.Mylist;
 using Prism.Commands;
-using Mntone.Nico2;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using Hohoema.ViewModels.Pages;
-using Hohoema.Models.Provider;
-using Hohoema.Services;
 using Prism.Navigation;
 using Hohoema.Interfaces;
-using Hohoema.Repository.Playlist;
 using System.Reactive.Linq;
 using Hohoema.UseCase;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Hohoema.Models.Repository.Niconico.Mylist;
+using Hohoema.Models.Pages;
+using Hohoema.Models.Repository.Niconico;
+using Hohoema.Models.Pages.PagePayload;
 
 namespace Hohoema.ViewModels
 {
     public class SearchResultMylistPageViewModel : HohoemaListingPageViewModelBase<MylistPlaylist>, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
-        HohoemaPin IPinablePage.GetPin()
+        Models.Pages.HohoemaPin IPinablePage.GetPin()
         {
-            return new HohoemaPin()
+            return new Models.Pages.HohoemaPin()
             {
                 Label = SearchOption.Keyword,
                 PageType = HohoemaPageType.SearchResultMylist,
@@ -63,7 +62,7 @@ namespace Hohoema.ViewModels
             {
                 new SearchSortOptionListItem()
                 {
-                    Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.MylistPopurarity, Order.Descending),
+                    Label = SortHelper.ToCulturizedText(Sort.MylistPopurarity, Order.Descending),
                     Sort = Sort.MylistPopurarity,
                     Order = Order.Descending,
                 }
@@ -75,7 +74,7 @@ namespace Hohoema.ViewModels
 				//}
 				, new SearchSortOptionListItem()
                 {
-                    Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.UpdateTime, Order.Descending),
+                    Label = SortHelper.ToCulturizedText(Sort.UpdateTime, Order.Descending),
                     Sort = Sort.UpdateTime,
                     Order = Order.Descending,
                 }
@@ -87,7 +86,7 @@ namespace Hohoema.ViewModels
 				//}
 				, new SearchSortOptionListItem()
                 {
-                    Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.VideoCount, Order.Descending),
+                    Label = SortHelper.ToCulturizedText(Sort.VideoCount, Order.Descending),
                     Sort = Sort.VideoCount,
                     Order = Order.Descending,
                 }
@@ -99,7 +98,7 @@ namespace Hohoema.ViewModels
                 //}
                 , new SearchSortOptionListItem()
                 {
-                    Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.Relation, Order.Descending),
+                    Label = SortHelper.ToCulturizedText(Sort.Relation, Order.Descending),
                     Sort = Sort.Relation,
                     Order = Order.Descending,
                 }
@@ -196,7 +195,7 @@ namespace Hohoema.ViewModels
             {
                 SearchOption.Order = opt.Order;
                 SearchOption.Sort = opt.Sort;
-                SearchOptionText = Services.Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+                SearchOptionText = SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
 
                 await ResetList();
             })
@@ -287,17 +286,17 @@ namespace Hohoema.ViewModels
 		{
 			var result = await SearchProvider.MylistSearchAsync(
 				SearchOption.Keyword
-				, (uint)head
-				, (uint)count
+				, head
+				, count
 				, SearchOption.Sort
 				, SearchOption.Order
 			);
 
             cancellationToken.ThrowIfCancellationRequested();
 
-            if (result.IsSuccess)
+            if (result.IsOK)
             {
-                foreach (var item in result.Items)
+                foreach (var item in result.MylistGroupItems)
                 {
                     yield return item;
                 }

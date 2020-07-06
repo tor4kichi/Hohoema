@@ -35,6 +35,7 @@ namespace Hohoema.UseCase
 
         public ApplicationLayoutManager(AppearanceSettingsRepository appearanceSettingsRepository)
         {
+            _appearanceSettingsRepository = appearanceSettingsRepository;
             new[]
             {
                 _appearanceSettingsRepository.ObserveProperty(x => x.OverrideIntractionMode).ToUnit(),
@@ -45,7 +46,6 @@ namespace Hohoema.UseCase
             }
             .Merge()
             .Subscribe(_ => RefreshAppLayout());
-            _appearanceSettingsRepository = appearanceSettingsRepository;
         }
 
         void RefreshAppLayout()

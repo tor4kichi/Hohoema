@@ -1,8 +1,6 @@
-﻿using Mntone.Nico2;
-using Hohoema.Interfaces;
+﻿using Hohoema.Interfaces;
 using Hohoema.Models;
 using Hohoema.Models.Helpers;
-using Hohoema.Models.Provider;
 using Hohoema.Models.Subscription;
 using Hohoema.Services;
 using Hohoema.ViewModels.Pages;
@@ -20,16 +18,21 @@ using System.Linq;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-
+using Hohoema.Models.Pages;
+using Hohoema.Models.Repository.Niconico;
+using Hohoema.Models.Niconico;
+using Hohoema.Models.Subscriptions;
+using Hohoema.Models.Pages.PagePayload;
+using Hohoema.Models.Repository;
 
 namespace Hohoema.ViewModels
 {
     
-	public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, Interfaces.ISearchWithtag, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
+	public class SearchResultTagPageViewModel : HohoemaListingPageViewModelBase<VideoInfoControlViewModel>, ISearchWithtag, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
     {
-        HohoemaPin IPinablePage.GetPin()
+        Models.Pages.HohoemaPin IPinablePage.GetPin()
         {
-            return new HohoemaPin()
+            return new Models.Pages.HohoemaPin()
             {
                 Label = SearchOption.Keyword,
                 PageType = HohoemaPageType.SearchResultTag,
@@ -44,13 +47,11 @@ namespace Hohoema.ViewModels
 
         public SearchResultTagPageViewModel(
             ApplicationLayoutManager applicationLayoutManager,
-            NGSettings ngSettings,
-            Models.NiconicoSession niconicoSession,
+            NiconicoSession niconicoSession,
             SearchProvider searchProvider,
             SubscriptionManager subscriptionManager,
             HohoemaPlaylist hohoemaPlaylist,
             PageManager pageManager,
-            Services.DialogService dialogService,
             ViewModels.Subscriptions.AddTagSearchSubscriptionCommand addTagSearchSubscriptionCommand,
             NiconicoFollowToggleButtonService followButtonService
             )
@@ -60,9 +61,7 @@ namespace Hohoema.ViewModels
             HohoemaPlaylist = hohoemaPlaylist;
             PageManager = pageManager;
             ApplicationLayoutManager = applicationLayoutManager;
-            NgSettings = ngSettings;
             NiconicoSession = niconicoSession;
-            HohoemaDialogService = dialogService;
             AddTagSearchSubscriptionCommand = addTagSearchSubscriptionCommand;
             FollowButtonService = followButtonService;
             FailLoading = new ReactiveProperty<bool>(false)
@@ -100,13 +99,11 @@ namespace Hohoema.ViewModels
         }
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
-        public NGSettings NgSettings { get; }
-        public Models.NiconicoSession NiconicoSession { get; }
+        public NiconicoSession NiconicoSession { get; }
         public SearchProvider SearchProvider { get; }
         public SubscriptionManager SubscriptionManager { get; }
         public HohoemaPlaylist HohoemaPlaylist { get; }
         public PageManager PageManager { get; }
-        public Services.DialogService HohoemaDialogService { get; }
         public AddTagSearchSubscriptionCommand AddTagSearchSubscriptionCommand { get; }
         public NiconicoFollowToggleButtonService FollowButtonService { get; }
 
@@ -117,52 +114,52 @@ namespace Hohoema.ViewModels
         {
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.FirstRetrieve, Order.Descending),
+                Label = SortHelper.ToCulturizedText(Sort.FirstRetrieve, Order.Descending),
                 Order = Order.Descending,
                 Sort = Sort.FirstRetrieve,
             },
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.FirstRetrieve, Order.Ascending),
+                Label = SortHelper.ToCulturizedText(Sort.FirstRetrieve, Order.Ascending),
                 Order = Order.Ascending,
                 Sort = Sort.FirstRetrieve,
             },
 
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.NewComment, Order.Descending),
+                Label = SortHelper.ToCulturizedText(Sort.NewComment, Order.Descending),
                 Order = Order.Descending,
                 Sort = Sort.NewComment,
             },
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.NewComment, Order.Ascending),
+                Label = SortHelper.ToCulturizedText(Sort.NewComment, Order.Ascending),
                 Order = Order.Ascending,
                 Sort = Sort.NewComment,
             },
 
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.ViewCount, Order.Descending),
+                Label = SortHelper.ToCulturizedText(Sort.ViewCount, Order.Descending),
                 Order = Order.Descending,
                 Sort = Sort.ViewCount,
             },
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.ViewCount, Order.Ascending),
+                Label = SortHelper.ToCulturizedText(Sort.ViewCount, Order.Ascending),
                 Order = Order.Ascending,
                 Sort = Sort.ViewCount,
             },
 
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.CommentCount, Order.Descending),
+                Label = SortHelper.ToCulturizedText(Sort.CommentCount, Order.Descending),
                 Order = Order.Descending,
                 Sort = Sort.CommentCount,
             },
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.CommentCount, Order.Ascending),
+                Label = SortHelper.ToCulturizedText(Sort.CommentCount, Order.Ascending),
                 Order = Order.Ascending,
                 Sort = Sort.CommentCount,
             },
@@ -170,26 +167,26 @@ namespace Hohoema.ViewModels
 
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.Length, Order.Descending),
+                Label = SortHelper.ToCulturizedText(Sort.Length, Order.Descending),
                 Order = Order.Descending,
                 Sort = Sort.Length,
             },
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.Length, Order.Ascending),
+                Label = SortHelper.ToCulturizedText(Sort.Length, Order.Ascending),
                 Order = Order.Ascending,
                 Sort = Sort.Length,
             },
 
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.MylistCount, Order.Descending),
+                Label = SortHelper.ToCulturizedText(Sort.MylistCount, Order.Descending),
                 Order = Order.Descending,
                 Sort = Sort.MylistCount,
             },
             new SearchSortOptionListItem()
             {
-                Label = Services.Helpers.SortHelper.ToCulturizedText(Sort.MylistCount, Order.Ascending),
+                Label = SortHelper.ToCulturizedText(Sort.MylistCount, Order.Ascending),
                 Order = Order.Ascending,
                 Sort = Sort.MylistCount,
             },
@@ -318,7 +315,7 @@ namespace Hohoema.ViewModels
 
         protected override void PostResetList()
         {
-            SearchOptionText = Services.Helpers.SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
+            SearchOptionText = SortHelper.ToCulturizedText(SearchOption.Sort, SearchOption.Order);
 
             base.PostResetList();
         }
@@ -327,7 +324,7 @@ namespace Hohoema.ViewModels
 
         protected override IIncrementalSource<VideoInfoControlViewModel> GenerateIncrementalSource()
 		{
-			return new VideoSearchSource(SearchOption, SearchProvider, NgSettings);
+			return new VideoSearchSource(SearchOption.Keyword, SearchOption.Order, SearchOption.Sort, searchWithTag: true, SearchProvider);
 		}
 
 		

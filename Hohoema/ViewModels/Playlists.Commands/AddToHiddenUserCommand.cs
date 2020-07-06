@@ -1,37 +1,41 @@
 ﻿using I18NPortable;
 using Hohoema.Database;
 using Hohoema.Models;
-using Hohoema.Models.Provider;
 using Prism.Commands;
 using System;
 using Windows.UI.Popups;
+using Hohoema.Models.Repository.Niconico.Channel;
+using Hohoema.Models.Repository.Niconico;
+using Hohoema.Models.Repository.App;
+using Hohoema.Models.Repository;
 
 namespace Hohoema.UseCase.Playlist.Commands
 {
     public sealed class AddToHiddenUserCommand : DelegateCommandBase
     {
+        private readonly VideoListFilterSettings _videoListFilterSettings;
+
         public AddToHiddenUserCommand(
-            NGSettings ngSettings,
+            VideoListFilterSettings videoListFilterSettings,
             ChannelProvider channelProvider,
             UserProvider userProvider
             )
         {
-            NgSettings = ngSettings;
+            _videoListFilterSettings = videoListFilterSettings;
             ChannelProvider = channelProvider;
             UserProvider = userProvider;
         }
 
-        public NGSettings NgSettings { get; }
         public ChannelProvider ChannelProvider { get; }
         public UserProvider UserProvider { get; }
 
         protected override bool CanExecute(object parameter)
         {
-            if (parameter is Interfaces.IVideoContent video)
+            if (parameter is IVideoContent video)
             {
                 if (video.ProviderId != null)
                 {
-                    return NgSettings.IsNgVideoOwnerId(video.ProviderId) == null;
+                    return _videoListFilterSettings.IsNgVideoOwner(video.ProviderId);
                 }
             }
 
@@ -40,9 +44,9 @@ namespace Hohoema.UseCase.Playlist.Commands
 
         protected override async void Execute(object parameter)
         {
-            if (parameter is Interfaces.IVideoContent)
+            if (parameter is IVideoContent)
             {
-                var content = parameter as Interfaces.IVideoContent;
+                var content = parameter as IVideoContent;
 
                 string ownerName = null;
                 if (string.IsNullOrEmpty(ownerName))
@@ -76,7 +80,7 @@ namespace Hohoema.UseCase.Playlist.Commands
                     }
                 }
 
-                NgSettings.AddNGVideoOwnerId(content.ProviderId.ToString(), ownerName);
+                _videoListFilterSettings.AddNgVideoOwner(content.ProviderId.ToString(), ownerName);
             }
         }
     }
