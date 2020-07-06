@@ -210,7 +210,7 @@ namespace Hohoema.ViewModels
             HohoemaPageType.Search,
             HohoemaPageType.RankingCategoryList,
             HohoemaPageType.CacheManagement,
-            HohoemaPageType.FeedGroupManage,
+            HohoemaPageType.SubscriptionManagement,
             HohoemaPageType.FollowManage,
             HohoemaPageType.UserMylist,
             HohoemaPageType.Timeshift,

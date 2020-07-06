@@ -82,6 +82,11 @@ namespace Hohoema.UseCase.Migration
                 ? default(Models.Pages.ApplicationInteractionMode?)
                 : (Models.Pages.ApplicationInteractionMode)(int)legacy.OverrideIntractionMode.Value
                 ;
+
+            if (legacy.StartupPageType == Models.Pages.HohoemaPageType.FeedGroupManage)
+            {
+                legacy.StartupPageType = Models.Pages.HohoemaPageType.SubscriptionManagement;
+            }
             next.StartupPageType = legacy.StartupPageType;
             next.AppTheme = legacy.Theme;
         }
