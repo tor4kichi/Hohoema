@@ -18,6 +18,7 @@ namespace Hohoema.Models
     }
 
     [Obsolete]
+    [DataContract]
     public sealed class HohoemaPin : FixPrism.BindableBase
     {
         [DataMember]

@@ -174,8 +174,6 @@
     <Compile Include="ViewModels\Pages\Commands\OpenPageCommand.cs" />
     <Compile Include="ViewModels\Pages\Commands\OpenPageWithIdCommand.cs" />
     <Compile Include="ViewModels\Pages\Commands\OpenVideoListPageCommand.cs" />
-    <Compile Include="ViewModels\Pages\Commands\PinChangeOverrideLabelCommand.cs" />
-    <Compile Include="ViewModels\Pages\Commands\PinRemoveCommand.cs" />
     <Compile Include="ViewModels\Pages\Commands\SearchCommand.cs" />
     <Compile Include="ViewModels\Pages\IPageNavigatable.cs" />
     <Compile Include="ViewModels\Pages\IPinablePage.cs" />

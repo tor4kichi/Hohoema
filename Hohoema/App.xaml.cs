@@ -396,10 +396,16 @@ namespace Hohoema
 
                 Resources["Strings"] = I18NPortable.I18N.Current;
 
+                
+                
                 var appearanceSettings = Container.Resolve<AppearanceSettingsRepository>();
                 I18NPortable.I18N.Current.Locale = appearanceSettings.Locale ?? I18NPortable.I18N.Current.Locale;
 
                 CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(I18NPortable.I18N.Current.Locale);
+
+                // 設定の統合
+                await Container.Resolve<UseCase.Migration.v0_22_x_MigrationSettings>().Migration();
+
 
                 // ログイン前にログインセッションによって状態が変化するフォローとマイリストの初期化
                 var followManager = Container.Resolve<FollowManager>();
@@ -533,9 +539,6 @@ namespace Hohoema
                 var migrationSubscription = Container.Resolve<UseCase.Migration.MigrationSubscriptions>();
                 migrationSubscription.Migration();
                 Container.Resolve<UseCase.Migration.CommentFilteringNGScoreZeroFixture>().Migration();
-
-                // 設定の統合
-                await Container.Resolve<UseCase.Migration.v0_22_x_MigrationSettings>().Migration();
 
 
                 // アプリのユースケース系サービスを配置

@@ -455,11 +455,11 @@
                       <DataTemplate>
                         <MenuFlyout>
                           <MenuFlyoutItem Text="{Binding Source=PinChangeArias, Converter={StaticResource LocalizeConverter}}"
-                                          Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.PinChangeOverrideLabelCommand}"
+                                          Command="{Binding PinChangeOverrideLabelCommand}"
                                           CommandParameter="{Binding}" />
                           <MenuFlyoutSeparator />
                           <MenuFlyoutItem Text="{Binding Source=PinRemove, Converter={StaticResource LocalizeConverter}}"
-                                          Command="{Binding RelativeSource={RelativeSource Mode=Self}, Path=Tag.PinRemoveCommand}"
+                                          Command="{Binding RemovePinCommand}"
                                           CommandParameter="{Binding}" />
                         </MenuFlyout>
                       </DataTemplate>

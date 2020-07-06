@@ -6,7 +6,6 @@ using Hohoema.Services;
 using Hohoema.Services.Player;
 using Hohoema.UseCase;
 using Hohoema.UseCase.Page.Commands;
-using Hohoema.UseCase.Pin;
 using Hohoema.UseCase.Playlist;
 using Hohoema.ViewModels.PrimaryWindowCoreLayout;
 using Prism.Commands;
@@ -42,8 +41,6 @@ namespace Hohoema.ViewModels
             PinRepository pinSettings,
             AppearanceSettingsRepository appearanceSettings,
             UseCase.Page.Commands.SearchCommand searchCommand,
-            PinRemoveCommand pinRemoveCommand,
-            PinChangeOverrideLabelCommand pinChangeOverrideLabelCommand,
             VideoMenuSubPageContent videoMenuSubPageContent,
             PrimaryViewPlayerManager primaryViewPlayerManager,
             ObservableMediaPlayer observableMediaPlayer,
@@ -62,8 +59,6 @@ namespace Hohoema.ViewModels
             PinSettings = pinSettings;
             AppearanceSettings = appearanceSettings;
             SearchCommand = searchCommand;
-            PinRemoveCommand = pinRemoveCommand;
-            PinChangeOverrideLabelCommand = pinChangeOverrideLabelCommand;
             VideoMenu = videoMenuSubPageContent;
             PrimaryViewPlayerManager = primaryViewPlayerManager;
             ObservableMediaPlayer = observableMediaPlayer;
@@ -87,8 +82,6 @@ namespace Hohoema.ViewModels
         public PinRepository PinSettings { get; }
         public AppearanceSettingsRepository AppearanceSettings { get; }
         public SearchCommand SearchCommand { get; }
-        public PinRemoveCommand PinRemoveCommand { get; }
-        public PinChangeOverrideLabelCommand PinChangeOverrideLabelCommand { get; }
         public VideoMenuSubPageContent VideoMenu { get; set; }
         public PrimaryViewPlayerManager PrimaryViewPlayerManager { get; }
         public ObservableMediaPlayer ObservableMediaPlayer { get; }
@@ -152,7 +145,7 @@ namespace Hohoema.ViewModels
 
 
     
-    public class PinViewModel : BindableBase
+    public class PinViewModel : BindableBase, IPageNavigatable
     {
         public PinViewModel(
             Models.Pages.HohoemaPin pin, 
@@ -172,6 +165,9 @@ namespace Hohoema.ViewModels
         private readonly ITextInputDialogService _textInputDialogService;
 
         public Models.Pages.HohoemaPin Pin { get; }
+
+        INavigationParameters IPageNavigatable.Parameter => new NavigationParameters(Pin.Parameter);
+
 
         public HohoemaPageType PageType => Pin.PageType;
         public string Parameter => Pin.Parameter;
@@ -216,7 +212,7 @@ namespace Hohoema.ViewModels
 
                 OverrideLabel = string.IsNullOrEmpty(result) ? null : result;
             });
-        
-}
+
+    }
 
 }

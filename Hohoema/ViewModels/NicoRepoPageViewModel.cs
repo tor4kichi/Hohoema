@@ -59,10 +59,6 @@ namespace Hohoema.ViewModels
             NicoRepoItemTopic.NicoVideo_User_Video_Upload,
             NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video,
             NicoRepoItemTopic.NicoVideo_Channel_Video_Upload,
-            NicoRepoItemTopic.Live_Channel_Program_Onairs,
-            NicoRepoItemTopic.Live_Channel_Program_Reserve,
-            NicoRepoItemTopic.Live_User_Program_OnAirs,
-            NicoRepoItemTopic.Live_User_Program_Reserve,
         };
 
         public ObservableCollection<NicoRepoItemTopic> DisplayNicoRepoItemTopics { get; }
