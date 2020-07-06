@@ -216,9 +216,9 @@
                       </core:EventTriggerBehavior>
                     </i:Interaction.Behaviors>
                     <ItemsControl.ItemTemplate>
-                      <DataTemplate>
+                      <DataTemplate x:DataType="viewModels:NGVideoOwnerViewModel">
                         <Border Background="Transparent" IsHitTestVisible="True" BorderBrush="{ThemeResource ButtonBorderThemeBrush}" BorderThickness="1" Padding="16 8">
-                          <TextBlock Text="{Binding Description}" VerticalAlignment="Center" />
+                          <TextBlock Text="{Binding Label}" VerticalAlignment="Center" />
                         </Border>
                       </DataTemplate>
                     </ItemsControl.ItemTemplate>
@@ -236,6 +236,16 @@
               </Grid>
 
               <ListView ItemsSource="{Binding NGKeywordList}">
+                <ListView.Footer>
+                  <StackPanel>
+                    <Button Content="追加" Command="{Binding AddNGVideoTitleKeywordCommand}" HorizontalAlignment="Right" Width="120" />
+                  </StackPanel>
+                </ListView.Footer>
+                <ListView.ItemContainerStyle>
+                  <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+                  </Style>
+                </ListView.ItemContainerStyle>
                 <ListView.ItemTemplate>
                   <DataTemplate x:DataType="viewModels:NGKeywordViewModel" >
                     <uwpcontrols:DockPanel>
@@ -247,7 +257,8 @@
                           </MenuFlyout>
                         </Button.Flyout>
                       </Button>
-                      <TextBox Text="{Binding Keyword, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+                      <TextBox Text="{Binding Keyword.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                               />
                     </uwpcontrols:DockPanel>
                   </DataTemplate>
                 </ListView.ItemTemplate>

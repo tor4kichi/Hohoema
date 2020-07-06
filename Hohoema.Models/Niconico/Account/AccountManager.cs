@@ -25,7 +25,7 @@ namespace Hohoema.Models.Niconico.Account
         public static Uri XboxEncryptKeyFileUri = new Uri("ms-appx:///Assets/xbox_encrypt_key.txt");
 
 #if DEBUG
-        const bool IsDebugXboxMode = true;
+        const bool IsDebugXboxMode = false;
 
 #endif
 

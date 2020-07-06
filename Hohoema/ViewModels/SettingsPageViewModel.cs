@@ -65,9 +65,9 @@ namespace Hohoema.ViewModels
 
             // NG Video Owner User Id
             NGVideoOwnerUserIdEnable = _videoListFilterSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoOwnerUserIdEnable);
-            NGVideoOwnerUserIds = new ObservableCollection<Models.Repository.App.UserIdInfo>();
+            NGVideoOwnerUserIds = new ObservableCollection<NGVideoOwnerViewModel>();
 
-            OpenUserPageCommand = new DelegateCommand<Models.Repository.App.UserIdInfo>(userIdInfo =>
+            OpenUserPageCommand = new DelegateCommand<NGVideoOwnerViewModel>(userIdInfo =>
             {
                 pageManager.OpenPageWithId(HohoemaPageType.UserInfo, userIdInfo.UserId);
             });
@@ -188,13 +188,25 @@ namespace Hohoema.ViewModels
 
         // フィルタ
         public ReactiveProperty<bool> NGVideoOwnerUserIdEnable { get; private set; }
-        public ObservableCollection<Models.Repository.App.UserIdInfo> NGVideoOwnerUserIds { get; private set; }
-        public DelegateCommand<Models.Repository.App.UserIdInfo> OpenUserPageCommand { get; }
+        public ObservableCollection<NGVideoOwnerViewModel> NGVideoOwnerUserIds { get; private set; }
+        public DelegateCommand<NGVideoOwnerViewModel> OpenUserPageCommand { get; }
 
 
         public ReactiveProperty<bool> NGVideoTitleKeywordEnable { get; private set; }
 
         public ObservableCollection<NGKeywordViewModel> NGKeywordList { get; }
+
+
+        private DelegateCommand _AddNGVideoTitleKeywordCommand;
+        public DelegateCommand AddNGVideoTitleKeywordCommand =>
+            _AddNGVideoTitleKeywordCommand ?? (_AddNGVideoTitleKeywordCommand = new DelegateCommand(ExecuteAddNGVideoTitleKeywordCommand));
+
+        void ExecuteAddNGVideoTitleKeywordCommand()
+        {
+            var ngKeyword = _videoListFilterSettings.AddNGVideoTitleKeyword("", "");
+            NGKeywordList.Add(new NGKeywordViewModel(ngKeyword, _videoListFilterSettings, this));
+        }
+
         
         public ReactiveProperty<ElementTheme> SelectedTheme { get; private set; }
         public static bool ThemeChanged { get; private set; } = false;
@@ -496,9 +508,13 @@ namespace Hohoema.ViewModels
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             var keywords = _videoListFilterSettings.GetAllNGVideoTitleKeyword();
-
             NGKeywordList.Clear();
             NGKeywordList.AddRange(keywords.Select(x => new NGKeywordViewModel(x, _videoListFilterSettings, this)));
+
+
+            var ngOwners = _videoListFilterSettings.GetAllNGVideoOwner();
+            NGVideoOwnerUserIds.Clear();
+            NGVideoOwnerUserIds.AddRange(ngOwners.Select(x => new NGVideoOwnerViewModel(x, _videoListFilterSettings, this)));
 
             try
             {
@@ -575,7 +591,7 @@ namespace Hohoema.ViewModels
 					TestText,
 					Keyword
 					)
-					.Where(x => x[0].Length > 0)
+					.Where(x => x[0]?.Length > 0)
 					.Select(x =>
 					{
 						var result = -1 != TestText.Value.IndexOf(Keyword.Value);
@@ -620,7 +636,38 @@ namespace Hohoema.ViewModels
         private readonly SettingsPageViewModel _settingsPageViewModel;
     }
 
-	public interface IRemovableListItem
+    public class NGVideoOwnerViewModel : IRemovableListItem
+    {
+        private readonly Models.Repository.App.UserIdInfo _userIdInfo;
+        private readonly VideoListFilterSettings _videoListFilterSettings;
+        private readonly SettingsPageViewModel _settingsPageViewModel;
+
+        public string UserId => _userIdInfo.UserId;
+
+        public NGVideoOwnerViewModel(Models.Repository.App.UserIdInfo userIdInfo, VideoListFilterSettings videoListFilterSettings, SettingsPageViewModel parentVM)
+        {
+            _userIdInfo = userIdInfo;
+            _videoListFilterSettings = videoListFilterSettings;
+            _settingsPageViewModel = parentVM;
+        }
+
+        public string Label => _userIdInfo.Description;
+
+        private DelegateCommand _RemoveCommand;
+        public ICommand RemoveCommand =>
+            _RemoveCommand ?? (_RemoveCommand = new DelegateCommand(ExecuteRemoveCommand));
+
+        void ExecuteRemoveCommand()
+        {
+            _videoListFilterSettings.RemoveNgVideoOwner(_userIdInfo.UserId);
+            _settingsPageViewModel.NGVideoOwnerUserIds.Remove(this);
+        }
+    }
+
+
+
+
+    public interface IRemovableListItem
     {
         string Label { get; }
         ICommand RemoveCommand { get; }

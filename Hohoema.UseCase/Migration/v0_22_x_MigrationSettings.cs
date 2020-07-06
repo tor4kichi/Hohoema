@@ -151,6 +151,10 @@ namespace Hohoema.UseCase.Migration
 
             foreach (var ngTitle in legacy.NGVideoTitleKeywords ?? Enumerable.Empty<Models.NGKeyword>())
             {
+                if (string.IsNullOrWhiteSpace(ngTitle.Keyword))
+                {
+                    continue;
+                }
                 next.AddNGVideoTitleKeyword(ngTitle.Keyword, ngTitle.TestText);
             }
         }
