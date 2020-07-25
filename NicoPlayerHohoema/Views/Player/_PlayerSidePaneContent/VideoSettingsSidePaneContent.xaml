@@ -201,7 +201,7 @@
                           />
           </Grid>
           <Grid>
-            <TextBlock Text="{Binding Source=CommentDisplayDuration, Converter={StaticResource LocalizeConverter}}"
+            <TextBlock Text="{Binding Source=CommentDisplaySize, Converter={StaticResource LocalizeConverter}}"
                            toolkit:DockPanel.Dock="Left"
                            Style="{StaticResource SettingsOptionTitleTextBlock}"
                            />
