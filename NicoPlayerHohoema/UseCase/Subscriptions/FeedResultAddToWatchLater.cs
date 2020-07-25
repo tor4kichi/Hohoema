@@ -83,7 +83,7 @@ namespace NicoPlayerHohoema.UseCase.Subscriptions
                             {
                                 // 購読ソース毎の動画リストに対するソートを実行
                                 // 1. タイトルの類似度によるグループ化
-                                // 2. 類似度グループ内でのPostAtによる昇順ソート
+                                // 2. 類似度グループ内でのPostAtによる昇順ソート（同一投稿時間の場合は動画タイトルによる昇順ソート）
                                 // 3. 各類似度グループの個数による昇順ソート
 
                                 const double TitleSimilarlityThreshold = 0.60;
@@ -112,7 +112,7 @@ namespace NicoPlayerHohoema.UseCase.Subscriptions
                                     }
                                 }
 
-                                videos.AddRange(nearByTitleMap.Values.OrderBy(x => x.Count).SelectMany(x => x.OrderBy(x => x.PostedAt)));
+                                videos.AddRange(nearByTitleMap.Values.OrderBy(x => x.Count).SelectMany(x => x.OrderBy(x => x.PostedAt).ThenBy(x => x.Title)));
                             }
                             else
                             {
