@@ -127,7 +127,6 @@
     <Content Include="Assets\LibLisencies\RtmpClient.UWP.txt" />
     <Content Include="Assets\LibLisencies\UWP Community Toolkit.txt" />
     <Content Include="Assets\LibLisencies\_lisence_summary.json" />
-    <Content Include="Assets\OAuth\twitter.json" />
     <Content Include="Assets\Square30x30Logo.scale-100.png" />
     <Content Include="Assets\Square30x30Logo.scale-200.png" />
     <Content Include="Assets\CacheUsageConfirmation.md" />
