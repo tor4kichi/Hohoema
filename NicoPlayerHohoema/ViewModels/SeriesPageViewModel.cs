@@ -4,6 +4,7 @@ using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Repository.NicoVideo;
 using NicoPlayerHohoema.Services.Page;
+using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.ViewModels.Subscriptions;
 using Prism.Navigation;
 using Reactive.Bindings.Extensions;
@@ -38,15 +39,19 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         public SeriesPageViewModel(
+            HohoemaPlaylist hohoemaPlaylist,
             SeriesRepository seriesRepository,
             AddSubscriptionCommand addSubscriptionCommand
             )
         {
+            HohoemaPlaylist = hohoemaPlaylist;
             _seriesRepository = seriesRepository;
             AddSubscriptionCommand = addSubscriptionCommand;
         }
 
         private readonly SeriesRepository _seriesRepository;
+
+        public HohoemaPlaylist HohoemaPlaylist { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
 
         private UserSeriesItemViewModel _series;
