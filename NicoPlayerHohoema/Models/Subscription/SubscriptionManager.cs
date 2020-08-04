@@ -588,7 +588,7 @@ namespace NicoPlayerHohoema.Models.Subscription
             
             var res = await userProvider.GetUserVideos(id, page);
 
-            var videoItems = res.Items;
+            var videoItems = res.Data.Items;
             var currentItemsCount = videoItems?.Count ?? 0;
             if (videoItems == null || currentItemsCount == 0)
             {
@@ -598,10 +598,10 @@ namespace NicoPlayerHohoema.Models.Subscription
             {
                 foreach (var item in videoItems)
                 {
-                    var video = Database.NicoVideoDb.Get(item.VideoId);
+                    var video = Database.NicoVideoDb.Get(item.Id);
 
                     video.Title = item.Title;
-                    video.PostedAt = item.SubmitTime;
+                    video.PostedAt = item.RegisteredAt.DateTime;
 
                     items.Add(video);
                 }

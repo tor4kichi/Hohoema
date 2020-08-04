@@ -282,7 +282,7 @@ namespace NicoPlayerHohoema.Models.Subscriptions
 
             var res = await userProvider.GetUserVideos(id, page);
 
-            var videoItems = res.Items;
+            var videoItems = res.Data.Items;
             var currentItemsCount = videoItems?.Count ?? 0;
             if (videoItems == null || currentItemsCount == 0)
             {
@@ -292,12 +292,12 @@ namespace NicoPlayerHohoema.Models.Subscriptions
             {
                 foreach (var item in videoItems)
                 {
-                    var video = Database.NicoVideoDb.Get(item.VideoId);
+                    var video = Database.NicoVideoDb.Get(item.Id);
 
                     video.Title = item.Title;
-                    video.PostedAt = item.SubmitTime;
-                    video.ThumbnailUrl = item.ThumbnailUrl.OriginalString;
-                    video.Length = item.Length;
+                    video.PostedAt = item.RegisteredAt.DateTime;
+                    video.ThumbnailUrl = item.Thumbnail.MiddleUrl.OriginalString;
+                    video.Length = TimeSpan.FromSeconds(item.Duration);
                     video.Owner = video.Owner ?? new Database.NicoVideoOwner() 
                     {
                         OwnerId = userId,

@@ -76,11 +76,11 @@ namespace NicoPlayerHohoema.Models.Provider
         }
 
 
-        public async Task<UserVideoResponse> GetUserVideos(uint userId, uint page, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
+        public async Task<Mntone.Nico2.Videos.Users.UserVideosResponse> GetUserVideos(uint userId, uint page, Sort sort = Sort.FirstRetrieve, Order order = Order.Descending)
         {
             return await ContextActionWithPageAccessWaitAsync(async context =>
             {
-                return await context.User.GetUserVideos(userId, page, sort, order);
+                return await context.Video.GetUserVideosAsync(userId, page/*, sort, order*/);
             });
         }
 

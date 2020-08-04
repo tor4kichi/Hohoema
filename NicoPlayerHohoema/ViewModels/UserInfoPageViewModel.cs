@@ -328,11 +328,11 @@ namespace NicoPlayerHohoema.ViewModels
                 await Task.Delay(500);
 
                 var userVideos = await UserProvider.GetUserVideos(uint.Parse(UserId), 1);
-                foreach (var item in userVideos.Items.Take(5))
+                foreach (var item in userVideos.Data.Items.Take(5))
                 {
-                    var vm = new VideoInfoControlViewModel(item.VideoId);
+                    var vm = new VideoInfoControlViewModel(item.Id);
                     vm.SetTitle(item.Title);
-                    vm.SetThumbnailImage(item.ThumbnailUrl.OriginalString);
+                    vm.SetThumbnailImage(item.Thumbnail.MiddleUrl.OriginalString);
                     VideoInfoItems.Add(vm);
                 }
                 RaisePropertyChanged(nameof(VideoInfoItems));
