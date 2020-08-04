@@ -438,10 +438,9 @@ namespace NicoPlayerHohoema.ViewModels
             smtc.DisplayUpdater.ClearAll();
             smtc.DisplayUpdater.Update();
 
-            // VideoEndedRecommendationで対応しているためここでは呼ぶ必要がない
-//            if (VideoInfo != null)
+            if (VideoInfo != null)
             {
-//                HohoemaPlaylist.PlayDone(VideoInfo);
+                HohoemaPlaylist.PlayDone(VideoInfo);
             }
 
             App.Current.Resuming -= Current_Resuming;
