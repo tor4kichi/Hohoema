@@ -28,7 +28,7 @@ namespace NicoPlayerHohoema.Models.Provider
 
             var res = await ContextActionWithPageAccessWaitAsync(async context =>
             {
-                return await context.Video.GetHistoriesFromMyPageAsync();
+                return await context.Video.GetHistoriesAsync();
             });
 
             foreach (var history in res?.Histories ?? Enumerable.Empty<History>())
