@@ -16,7 +16,7 @@ namespace NicoPlayerHohoema.Interfaces
         string ThumbnailUrl { get; }
         int ItemsCount { get; }
 
-        SeriesProviderType ProviderType { get; }
+        string ProviderType { get; }
         string ProviderId { get; }
     }
 }

@@ -126,7 +126,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             public int ItemsCount => _userSeries.Videos.Count;
 
-            public SeriesProviderType ProviderType => SeriesProviderType.User;
+            public string ProviderType => "user";
 
             public string ProviderId => _userSeries.Owner.Id;
         }

@@ -100,8 +100,9 @@ namespace NicoPlayerHohoema.ViewModels
                 var serieses = await _seriesRepository.GetUserSeriesAsync(id);
                 UserSeriesList = serieses.Select(x => new UserSeriesItemViewModel(x)).ToList();
 
-                var userInfo = await _userProvider.GetUserDetail(id);
-                User = new UserViewModel(userInfo);
+                
+//                var userInfo = await _userProvider.GetUserDetail(id);
+//                User = new UserViewModel(userInfo);
             }
         }
 
@@ -141,11 +142,11 @@ namespace NicoPlayerHohoema.ViewModels
 
         public string Description => _userSeries.Description;
 
-        public string ThumbnailUrl => _userSeries.ThumbnailUrl;
+        public string ThumbnailUrl => _userSeries.ThumbnailUrl.OriginalString;
 
-        public int ItemsCount => _userSeries.ItemsCount;
+        public int ItemsCount => (int)_userSeries.ItemsCount;
 
-        public SeriesProviderType ProviderType => _userSeries.Owner.ProviderType;
+        public string ProviderType => _userSeries.Owner.Type;
 
         public string ProviderId => _userSeries.Owner.Id;        
     }
