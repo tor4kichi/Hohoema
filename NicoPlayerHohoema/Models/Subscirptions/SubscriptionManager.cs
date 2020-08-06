@@ -278,7 +278,7 @@ namespace NicoPlayerHohoema.Models.Subscriptions
         {
             var id = uint.Parse(userId);
             List<NicoVideo> items = new List<NicoVideo>();
-            uint page = 1;
+            uint page = 0;
 
             var res = await userProvider.GetUserVideos(id, page);
 
