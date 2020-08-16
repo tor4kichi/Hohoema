@@ -200,6 +200,9 @@ namespace NicoPlayerHohoema.Models
             else if (session.Data.Session.Protocol.Parameters.HttpParameters.Parameters.HlsParameters != null)
             {
                 var hlsParameters = session.Data.Session.Protocol.Parameters.HttpParameters.Parameters.HlsParameters;
+                 
+                var key = await this.NiconicoSession.Context.HttpClient.GetStringAsync(new Uri(hlsParameters.Encryption.HlsEncryptionV1.KeyUri));
+
                 var amsResult = await AdaptiveMediaSource.CreateFromUriAsync(uri, this.NiconicoSession.Context.HttpClient);
                 if (amsResult.Status == AdaptiveMediaSourceCreationStatus.Success)
                 {
@@ -211,7 +214,6 @@ namespace NicoPlayerHohoema.Models
 
             throw new NotSupportedException("");
         }
-
 
         public async Task<Uri> GetDownloadUrlAndSetupDonwloadSession()
         {
