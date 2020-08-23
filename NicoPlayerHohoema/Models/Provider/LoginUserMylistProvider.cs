@@ -1,6 +1,7 @@
 ﻿using I18NPortable;
 using Mntone.Nico2;
 using Mntone.Nico2.Mylist;
+using Mntone.Nico2.Users.Mylist;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Repository.Playlist;
 using System;
@@ -31,7 +32,7 @@ namespace NicoPlayerHohoema.Models.Provider
             
             var defMylist = await ContextActionAsync(async context =>
             {
-                return await context.User.GetMylistItemListAsync(MylistPlaylistExtension.DefailtMylistId);
+                return await context.User.GetWatchAfterMylistGroupItemsAsync(MylistSortKey.AddedAt, MylistSortOrder.Asc, 3, 0);
             });
 
             // TODO: とりあえずマイリストのSortやOrderの取得
@@ -39,7 +40,7 @@ namespace NicoPlayerHohoema.Models.Provider
             return new LoginUserMylistPlaylist(MylistPlaylistExtension.DefailtMylistId, this) 
             {
                 Label = "DefaultMylist".Translate(),
-                Count = defMylist.Count,
+                Count = (int)defMylist.Data.Mylist.TotalItemCount,
                 UserId = NiconicoSession.UserIdString 
             };
         }
@@ -59,21 +60,27 @@ namespace NicoPlayerHohoema.Models.Provider
 
             var res = await ContextActionAsync(async context =>
             {
-                return await context.User.GetMylistGroupListAsync();
-            });            
+                return await context.User.GetLoginUserMylistGroupsAsync();
+            });
 
-            foreach (var mylistGroup in res ?? Enumerable.Empty<LoginUserMylistGroup>())
+            if (res.Meta.Status != 200)
             {
-                var mylist = new LoginUserMylistPlaylist(mylistGroup.Id, this)
+                return mylistGroups;
+            }
+            
+            foreach (var mylistGroup in res.Data.Mylists)
+            {
+                var mylist = new LoginUserMylistPlaylist(mylistGroup.Id.ToString(), this)
                 {
                     Label = mylistGroup.Name,
-                    Count = mylistGroup.Count,
-                    UserId = mylistGroup.UserId,
+                    Count = (int)mylistGroup.TotalItemCount,
+                    UserId = mylistGroup.Owner.Id,
                     Description = mylistGroup.Description,
-                    IsPublic = mylistGroup.GetIsPublic(),
-                    IconType = mylistGroup.GetIconType(),
-                    DefaultSort = mylistGroup.GetDefaultSort(),
-                    SortIndex = res.IndexOf(mylistGroup)
+                    IsPublic = mylistGroup.IsPublic,
+                    //IconType = mylistGroup.co,
+                    DefaultSortKey = mylistGroup.DefaultSortKey,
+                    DefaultSortOrder = mylistGroup.DefaultSortOrder,
+                    SortIndex = res.Data.Mylists.IndexOf(mylistGroup)
                 };
 
                 mylistGroups.Add(mylist);
@@ -82,26 +89,50 @@ namespace NicoPlayerHohoema.Models.Provider
             return mylistGroups;
         }
 
-        public async Task<List<IVideoContent>> GetLoginUserMylistItemsAsync(IMylist mylist)
+        public async Task<List<IVideoContent>> GetLoginUserMylistItemsAsync(IMylist mylist, MylistSortKey sortKey, MylistSortOrder sortOrder, uint pageSize, uint page)
         {
             if (mylist.UserId != NiconicoSession.UserIdString)
             {
                 throw new ArgumentException();
             }
 
-            var items = await ContextActionAsync(async context =>
+            if (mylist.IsDefaultMylist())
             {
-                return await context.User.GetMylistItemListAsync(mylist.Id);
-            });
+                var res = await ContextActionAsync(async context =>
+                {
+                    var mylistItemsRes = await context.User.GetWatchAfterMylistGroupItemsAsync(sortKey, sortOrder, pageSize, page);
+                    return mylistItemsRes.Data.Mylist;
+                });
 
-            Database.Temporary.MylistDb.AddItemId(items.Select(x => new Database.Temporary.MylistItemIdContainer()
+                var items = res.Items;
+                Database.Temporary.MylistDb.AddItemId(items.Select(x => new Database.Temporary.MylistItemIdContainer()
+                {
+                    MylistGroupId = mylist.Id,
+                    VideoId = x.WatchId,
+                    ItemId = x.ItemId.ToString(),
+                }));
+
+                return items.Select(x => MylistDataToNicoVideoData(x)).Cast<IVideoContent>().ToList();
+
+            }
+            else
             {
-                MylistGroupId = mylist.Id,
-                VideoId = x.WatchId,
-                ItemId = x.ItemId,
-            }));
+                var res = await ContextActionAsync(async context =>
+                {
+                    var mylistItemsRes = await context.User.GetLoginUserMylistGroupItemsAsync(int.Parse(mylist.Id), sortKey, sortOrder, pageSize, page);
+                    return mylistItemsRes.Data.Mylist;
+                });
 
-            return items.Select(x => MylistDataToNicoVideoData(x)).Cast<IVideoContent>().ToList();
+                var items = res.Items;
+                Database.Temporary.MylistDb.AddItemId(items.Select(x => new Database.Temporary.MylistItemIdContainer()
+                {
+                    MylistGroupId = mylist.Id,
+                    VideoId = x.WatchId,
+                    ItemId = x.ItemId.ToString(),
+                }));
+
+                return items.Select(x => MylistDataToNicoVideoData(x)).Cast<IVideoContent>().ToList();
+            }
         }
 
 
@@ -111,23 +142,23 @@ namespace NicoPlayerHohoema.Models.Provider
         }
 
 
-        static private Database.NicoVideo MylistDataToNicoVideoData(MylistData item)
+        static private Database.NicoVideo MylistDataToNicoVideoData(Item item)
         {
             var video = Database.NicoVideoDb.Get(item.WatchId)
                         ?? new Database.NicoVideo() { RawVideoId = item.WatchId };
 
             video.RawVideoId = item.WatchId;
             video.VideoId = item.WatchId;
-            video.Title = item.Title;
+            video.Title = item.Video.Title;
             video.Description = item.Description;
             video.IsDeleted = item.IsDeleted;
-            video.Length = item.Length;
-            video.PostedAt = item.FirstRetrieve;
+            video.Length = TimeSpan.FromSeconds(item.Video.Duration);
+            video.PostedAt = item.Video.RegisteredAt.DateTime;
 
-            video.ThumbnailUrl = item.ThumbnailUrl.OriginalString;
-            video.ViewCount = (int)item.ViewCount;
-            video.MylistCount = (int)item.MylistCount;
-            video.CommentCount = (int)item.CommentCount;
+            video.ThumbnailUrl = item.Video.Thumbnail.ListingUrl.OriginalString;
+            video.ViewCount = (int)item.Video.Count.View;
+            video.MylistCount = (int)item.Video.Count.Mylist;
+            video.CommentCount = (int)item.Video.Count.Comment;
 
             Database.NicoVideoDb.AddOrUpdate(video);
 
@@ -206,6 +237,8 @@ namespace NicoPlayerHohoema.Models.Provider
                 throw new Exception();
             }
 
+            throw new NotImplementedException();
+            /*
             return await ContextActionAsync(async context =>
             {
                 return await context.User.UpdateMylistGroupAsync(
@@ -213,10 +246,12 @@ namespace NicoPlayerHohoema.Models.Provider
                     editData.Name,
                     editData.Description,
                     editData.IsPublic,
-                    editData.MylistDefaultSort,
-                    editData.IconType
+                    editData.DefaultSortKey,
+                    IconType.Default
                     );
+                
             });
+            */
         }
     }
 

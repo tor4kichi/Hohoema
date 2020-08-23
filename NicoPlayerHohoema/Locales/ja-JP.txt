@@ -602,6 +602,26 @@ Sort.UpdateTime_Descending = 更新が新しい順
 Sort.Relation_Ascending = 適合率が低い順
 Sort.Relation_Descending = 適合率が高い順
 
+MylistSort.TitleAsc = タイトル昇順
+MylistSort.TitleDesc = タイトル降順
+MylistSort.AddedAtAsc = マイリスト登録が古い順
+MylistSort.AddedAtDesc = マイリスト登録が新しい順
+MylistSort.MylistCommentAsc = メモ昇順
+MylistSort.MylistCommentDesc = メモ降順
+MylistSort.RegisteredAtAsc = 投稿日時が古い順
+MylistSort.RegisteredAtDesc = 投稿日時が新しい順
+MylistSort.ViewCountAsc = 再生数が少ない順
+MylistSort.ViewCountDesc = 再生数が多い順
+MylistSort.LastCommentTimeAsc = コメントが古い順
+MylistSort.LastCommentTimeDesc = コメントが新しい順
+MylistSort.CommentCountAsc = コメントが少ない順
+MylistSort.CommentCountDesc = コメントが多い順
+MylistSort.MylistCountAsc = マイリストが少ない順
+MylistSort.MylistCountDesc = マイリストが多い順
+MylistSort.DurationAsc = 再生時間が短い順
+MylistSort.DurationDesc = 再生時間が長い順
+
+
 CommunitySearchSort.CreatedAt_Ascending = 作成が古い順
 CommunitySearchSort.CreatedAt_Descending = 作成が新しい順
 CommunitySearchSort.UpdateAt_Ascending = 更新が古い順
@@ -663,7 +683,7 @@ RemoveWatchedItems = 視聴済みを削除
 
 
 #### Mylist ####
-DefaultMylist = とりあえずマイリスト
+DefaultMylist = あとで見る
 MylistOwner = オーナー情報
 MylistEditInfo = マイリスト情報を編集
 MylistDelete = マイリストを削除

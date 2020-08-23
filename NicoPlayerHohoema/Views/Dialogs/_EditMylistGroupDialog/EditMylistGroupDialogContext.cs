@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Windows.UI;
 using Prism.Ioc;
+using Mntone.Nico2.Users.Mylist;
 
 namespace NicoPlayerHohoema.Dialogs
 {
@@ -46,9 +47,9 @@ namespace NicoPlayerHohoema.Dialogs
 				.SetValidateAttribute(() => MylistName);
 
 			MylistDescription = new ReactiveProperty<string>(_scheduler, data.Description);
-			MylistIconType = new ReactiveProperty<IncoTypeVM>(_scheduler, IconTypeList.Single(x => x.IconType == data.IconType));
 			MylistIsPublicIndex = new ReactiveProperty<int>(_scheduler, data.IsPublic ? 0 : 1); // 公開=1 非公開=0
-			MylistDefaultSort = new ReactiveProperty<MylistDefaultSort>(_scheduler, data.MylistDefaultSort);
+			SortKey = new ReactiveProperty<MylistSortKey>(_scheduler, data.DefaultSortKey);
+			SortOrder = new ReactiveProperty<MylistSortOrder>(_scheduler, data.DefaultSortOrder);
 
 			CanEditCompletion = MylistName.ObserveHasErrors
 				.Select(x => !x)
@@ -67,9 +68,8 @@ namespace NicoPlayerHohoema.Dialogs
 			{
 				Name = MylistName.Value,
 				Description = MylistDescription.Value,
-				IconType = MylistIconType.Value.IconType,
 				IsPublic = MylistIsPublicIndex.Value == 0 ? true : false,
-				MylistDefaultSort = MylistDefaultSort.Value
+
 			};
 		}
 
@@ -80,9 +80,9 @@ namespace NicoPlayerHohoema.Dialogs
 		[Required(ErrorMessage = "Please input mylist name!")]
 		public ReactiveProperty<string> MylistName { get; private set; }
 		public ReactiveProperty<string> MylistDescription { get; private set; }
-		public ReactiveProperty<IncoTypeVM> MylistIconType { get; private set; }
 		public ReactiveProperty<int> MylistIsPublicIndex { get; private set; }
-		public ReactiveProperty<MylistDefaultSort> MylistDefaultSort { get; private set; }
+		public ReactiveProperty<MylistSortKey> SortKey { get; private set; }
+		public ReactiveProperty<MylistSortOrder> SortOrder { get; private set; }
 
 
 		public ReactiveProperty<string> LastErrorMessage { get; private set; }
@@ -92,9 +92,9 @@ namespace NicoPlayerHohoema.Dialogs
 	{
 		public string Name { get; set; }
         public string Description { get; set; } = string.Empty;
-		public IconType IconType { get; set; }
 		public bool IsPublic { get; set; }
-		public MylistDefaultSort MylistDefaultSort { get; set; }
+		public MylistSortKey DefaultSortKey { get; set; }
+		public MylistSortOrder DefaultSortOrder { get; set; }
 
 		public MylistGroupEditData()
 		{

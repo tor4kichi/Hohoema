@@ -36,9 +36,10 @@ namespace NicoPlayerHohoema.Commands.Mylist
             var result = await DialogService.ShowCreateMylistGroupDialogAsync(data);
             if (result)
             {
-                var mylistCreateResult = await UserMylistManager.AddMylist(data.Name, data.Description, data.IsPublic, data.MylistDefaultSort, data.IconType);
+                // TODO: MylistEdit
+//                var mylistCreateResult = await UserMylistManager.AddMylist(data.Name, data.Description, data.IsPublic, data.DefaultSortKey, data.IconType);
 
-                Debug.WriteLine("マイリスト作成：" + mylistCreateResult);
+//                Debug.WriteLine("マイリスト作成：" + mylistCreateResult);
             }
 
             var mylist = UserMylistManager.Mylists.FirstOrDefault(x => x.Label == data.Name);

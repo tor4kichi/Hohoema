@@ -1,5 +1,6 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Mylist;
+using Mntone.Nico2.Users.Mylist;
 using Mntone.Nico2.Users.User;
 using Mntone.Nico2.Users.Video;
 using NicoPlayerHohoema.Database;
@@ -86,11 +87,11 @@ namespace NicoPlayerHohoema.Models.Provider
 
 
 
-        public async Task<List<MylistGroupData>> GetUserMylistGroups(string userId)
+        public async Task<MylistGroupsResponse> GetUserMylistGroups(string userId)
         {
             return await ContextActionWithPageAccessWaitAsync(async context =>
             {
-                return await context.Mylist.GetUserMylistGroupAsync(userId);
+                return await context.User.GetMylistGroupsAsync(int.Parse(userId));
             });
         }
     }

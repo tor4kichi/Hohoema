@@ -12,6 +12,7 @@ namespace NicoPlayerHohoema.Database
     {
         User,
         Channel,
+        Hidden,
     }
 
     public class NicoVideoOwner

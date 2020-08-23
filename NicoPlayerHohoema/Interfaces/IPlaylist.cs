@@ -1,4 +1,5 @@
-﻿using Prism.Commands;
+﻿using Mntone.Nico2.Users.Mylist;
+using Prism.Commands;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -15,10 +16,8 @@ namespace NicoPlayerHohoema.Interfaces
         string Description { get; }
         string UserId { get; }
         bool IsPublic { get; }
-        Mntone.Nico2.Mylist.IconType IconType { get; }
-        Mntone.Nico2.Order Order { get; }
-        Mntone.Nico2.Sort Sort { get; }
-        DateTime UpdateTime { get; }
+        MylistSortOrder DefaultSortOrder { get; }
+        MylistSortKey DefaultSortKey { get; }
         DateTime CreateTime { get; }
     }
 

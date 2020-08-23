@@ -29,9 +29,17 @@ using NicoPlayerHohoema.Repository.Playlist;
 using I18NPortable;
 using NicoPlayerHohoema.UseCase;
 using NicoPlayerHohoema.ViewModels.Subscriptions;
+using Mntone.Nico2.Users.Mylist;
 
 namespace NicoPlayerHohoema.ViewModels
 {
+
+    public class MylistSortViewModel
+    {
+        public MylistSortKey Key { get; set; }
+        public MylistSortOrder Order { get; set; }
+    }
+
     public class MylistPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync, IPinablePage, ITitleUpdatablePage
 	{
         HohoemaPin IPinablePage.GetPin()
@@ -87,6 +95,8 @@ namespace NicoPlayerHohoema.ViewModels
             _playlistAggregate = playlistAggregate;
             AddSubscriptionCommand = addSubscriptionCommand;
             Mylist = new ReactiveProperty<MylistPlaylist>();
+
+            SelectedSortItem = new ReactiveProperty<MylistSortViewModel>();
 
             /*
             IsFavoriteMylist = new ReactiveProperty<bool>(mode: ReactivePropertyMode.DistinctUntilChanged)
@@ -235,6 +245,30 @@ namespace NicoPlayerHohoema.ViewModels
             */
         }
 
+        static public MylistSortViewModel[] SortItems { get; } = new MylistSortViewModel[]
+        {
+            new MylistSortViewModel() { Key = MylistSortKey.AddedAt, Order = MylistSortOrder.Desc },
+            new MylistSortViewModel() { Key = MylistSortKey.AddedAt, Order = MylistSortOrder.Asc },
+            new MylistSortViewModel() { Key = MylistSortKey.Title, Order = MylistSortOrder.Asc },
+            new MylistSortViewModel() { Key = MylistSortKey.Title, Order = MylistSortOrder.Desc },
+            new MylistSortViewModel() { Key = MylistSortKey.MylistComment, Order = MylistSortOrder.Asc },
+            new MylistSortViewModel() { Key = MylistSortKey.MylistComment, Order = MylistSortOrder.Desc },
+            new MylistSortViewModel() { Key = MylistSortKey.RegisteredAt, Order = MylistSortOrder.Desc },
+            new MylistSortViewModel() { Key = MylistSortKey.RegisteredAt, Order = MylistSortOrder.Asc },
+            new MylistSortViewModel() { Key = MylistSortKey.ViewCount, Order = MylistSortOrder.Desc },
+            new MylistSortViewModel() { Key = MylistSortKey.ViewCount, Order = MylistSortOrder.Asc },
+            new MylistSortViewModel() { Key = MylistSortKey.LastCommentTime, Order = MylistSortOrder.Desc },
+            new MylistSortViewModel() { Key = MylistSortKey.LastCommentTime, Order = MylistSortOrder.Asc },
+            new MylistSortViewModel() { Key = MylistSortKey.CommentCount, Order = MylistSortOrder.Desc },
+            new MylistSortViewModel() { Key = MylistSortKey.CommentCount, Order = MylistSortOrder.Asc },
+            new MylistSortViewModel() { Key = MylistSortKey.MylistCount, Order = MylistSortOrder.Desc },
+            new MylistSortViewModel() { Key = MylistSortKey.MylistCount, Order = MylistSortOrder.Asc },
+            new MylistSortViewModel() { Key = MylistSortKey.Duration, Order = MylistSortOrder.Desc },
+            new MylistSortViewModel() { Key = MylistSortKey.Duration, Order = MylistSortOrder.Asc },
+        };
+
+        public ReactiveProperty<MylistSortViewModel> SelectedSortItem { get; }
+
 
         private readonly MylistRepository _mylistRepository;
         private readonly PlaylistAggregateGetter _playlistAggregate;
@@ -372,7 +406,6 @@ namespace NicoPlayerHohoema.ViewModels
                                 Name = mylist.Label,
                                 Description = mylist.Description,
                                 IsPublic = mylist.IsPublic,
-                                IconType = mylist.IconType,
                             };
 
                             // 成功するかキャンセルが押されるまで繰り返す
@@ -386,8 +419,8 @@ namespace NicoPlayerHohoema.ViewModels
                                     {
                                         mylist.Label = data.Name;
                                         mylist.IsPublic = data.IsPublic;
-                                        mylist.DefaultSort = data.MylistDefaultSort;
-                                        mylist.IconType = data.IconType;
+                                        mylist.DefaultSortKey = data.DefaultSortKey;
+                                        mylist.DefaultSortOrder = data.DefaultSortOrder;
                                         mylist.Description = data.Description;
 
                                         // TODO: IsPublicなどの情報を表示
@@ -544,7 +577,7 @@ namespace NicoPlayerHohoema.ViewModels
             if (mylist == null) { return; }
 
             Mylist.Value = mylist;
-
+            
             IsUserOwnerdMylist = _mylistRepository.IsLoginUserMylistId(mylist.Id);
             IsLoginUserDeflist = mylist.IsDefaultMylist();
             IsWatchAfterLocalMylist = false;
@@ -606,6 +639,14 @@ namespace NicoPlayerHohoema.ViewModels
                 RaisePropertyChanged(nameof(MylistBookmark));
             }
 
+            SelectedSortItem.Value = SortItems.First(x => x.Key == Mylist.Value.DefaultSortKey && x.Order == Mylist.Value.DefaultSortOrder);
+
+            SelectedSortItem.Subscribe(x =>
+            {
+                RefreshCommand.Execute();
+            })
+                .AddTo(_NavigatingCompositeDisposable);
+
             EditMylistGroupCommand.RaiseCanExecuteChanged();
             DeleteMylistCommand.RaiseCanExecuteChanged();
         }
@@ -613,15 +654,18 @@ namespace NicoPlayerHohoema.ViewModels
 
         private async Task<ICollection<IVideoContent>> CreateItemsSourceAsync(MylistPlaylist mylist)
         {
+            var sortItem = SelectedSortItem.Value;
+            if (sortItem == null) { return null; }
+
             if (mylist is LoginUserMylistPlaylist loginUserMylist)
             {
-                var source = new LoginUserMylistIncrementalSource(loginUserMylist);
+                var source = new LoginUserMylistIncrementalSource(loginUserMylist, sortItem.Key, sortItem.Order);
                 await source.ResetSource();
                 return new IncrementalLoadingCollection<LoginUserMylistIncrementalSource, IVideoContent>(source);
             }
             else
             {
-                var source = new MylistIncrementalSource(mylist);
+                var source = new MylistIncrementalSource(mylist, sortItem.Key, sortItem.Order);
                 await source.ResetSource();
                 return new IncrementalLoadingCollection<MylistIncrementalSource, IVideoContent>(source);
             }
@@ -647,11 +691,15 @@ namespace NicoPlayerHohoema.ViewModels
         private readonly MylistPlaylist _mylist;
 
         public MylistIncrementalSource(
-            MylistPlaylist mylist
+            MylistPlaylist mylist,
+            MylistSortKey defaultSortKey,
+            MylistSortOrder defaultSortOrder
             )
             : base()
         {
             _mylist = mylist;
+            DefaultSortKey = defaultSortKey;
+            DefaultSortOrder = defaultSortOrder;
         }
 
 
@@ -665,9 +713,12 @@ namespace NicoPlayerHohoema.ViewModels
 
         MylistItemsGetResult _firstResult;
 
+        public MylistSortKey DefaultSortKey { get; }
+        public MylistSortOrder DefaultSortOrder { get; }
+
         protected override async Task<int> ResetSourceImpl()
         {
-            var result = await _mylist.GetItemsAsync(0, (int)base.OneTimeLoadCount);
+            var result = await _mylist.GetItemsAsync(DefaultSortKey, DefaultSortOrder, OneTimeLoadCount, 0);
             _firstResult = result;
 
 
@@ -686,7 +737,8 @@ namespace NicoPlayerHohoema.ViewModels
             }
             else
             {
-                var result = await _mylist.GetItemsAsync(head, count);
+                var page = (uint)(head / OneTimeLoadCount);
+                var result = await _mylist.GetItemsAsync(DefaultSortKey, DefaultSortOrder, OneTimeLoadCount, page);
 
                 if (result.IsSuccess)
                 {
@@ -708,12 +760,19 @@ namespace NicoPlayerHohoema.ViewModels
         private readonly LoginUserMylistPlaylist _mylist;
         private List<IVideoContent> _ItemsCache;
 
+        public MylistSortKey DefaultSortKey { get; }
+        public MylistSortOrder DefaultSortOrder { get; }
+
         public LoginUserMylistIncrementalSource(
-            LoginUserMylistPlaylist mylist
+            LoginUserMylistPlaylist mylist,
+            MylistSortKey defaultSortKey,
+            MylistSortOrder defaultSortOrder
             )
             : base()
         {
             _mylist = mylist;
+            DefaultSortKey = defaultSortKey;
+            DefaultSortOrder = defaultSortOrder;
         }
 
 
@@ -731,12 +790,9 @@ namespace NicoPlayerHohoema.ViewModels
         
         protected override async Task<IAsyncEnumerable<IVideoContent>> GetPagedItemsImpl(int head, int count)
         {
-            if (_ItemsCache == null)
-            {
-                _ItemsCache = await _mylist.GetLoginUserMylistItemsAsync();
-            }
-
-            return _ItemsCache.Skip(head).Take(count).ToAsyncEnumerable();
+            var page = (uint)(head / OneTimeLoadCount);
+            var items = await _mylist.GetLoginUserMylistItemsAsync(DefaultSortKey, DefaultSortOrder, OneTimeLoadCount, page);
+            return items.ToAsyncEnumerable();
         }
 
         #endregion

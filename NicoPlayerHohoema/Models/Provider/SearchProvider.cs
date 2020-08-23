@@ -121,7 +121,8 @@ namespace NicoPlayerHohoema.Models.Provider
                     {
                         Label = x.Name,
                         Count = (int)x.ItemCount,
-                        Description = x.Description, UpdateTime = x.UpdateTime 
+                        Description = x.Description, 
+                        CreateTime= x.UpdateTime 
                     }
                     )
                     .ToList();

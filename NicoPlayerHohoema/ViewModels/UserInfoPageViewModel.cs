@@ -332,7 +332,7 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     var vm = new VideoInfoControlViewModel(item.Id);
                     vm.SetTitle(item.Title);
-                    vm.SetThumbnailImage(item.Thumbnail.MiddleUrl.OriginalString);
+                    vm.SetThumbnailImage(item.Thumbnail.ListingUrl.OriginalString);
                     VideoInfoItems.Add(vm);
                 }
                 RaisePropertyChanged(nameof(VideoInfoItems));

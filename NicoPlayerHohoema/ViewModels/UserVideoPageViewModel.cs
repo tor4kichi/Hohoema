@@ -176,7 +176,7 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 var vm = new VideoInfoControlViewModel(x.Id);
                 vm.SetTitle(x.Title);
-                vm.SetThumbnailImage(x.Thumbnail.MiddleUrl.OriginalString);
+                vm.SetThumbnailImage(x.Thumbnail.ListingUrl.OriginalString);
                 vm.SetSubmitDate(x.RegisteredAt.DateTime);
                 vm.SetVideoDuration(TimeSpan.FromSeconds(x.Duration));
 

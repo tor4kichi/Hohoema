@@ -296,7 +296,7 @@ namespace NicoPlayerHohoema.Models.Subscriptions
 
                     video.Title = item.Title;
                     video.PostedAt = item.RegisteredAt.DateTime;
-                    video.ThumbnailUrl = item.Thumbnail.MiddleUrl.OriginalString;
+                    video.ThumbnailUrl = item.Thumbnail.ListingUrl.OriginalString;
                     video.Length = TimeSpan.FromSeconds(item.Duration);
                     video.Owner = video.Owner ?? new Database.NicoVideoOwner() 
                     {
@@ -368,11 +368,9 @@ namespace NicoPlayerHohoema.Models.Subscriptions
         static private async Task<List<NicoVideo>> GetMylistFeedResult(string mylistId, Provider.MylistProvider mylistProvider)
         {
             List<NicoVideo> items = new List<NicoVideo>();
-            int page = 0;
-            const int itemGetCountPerPage = 50;
-            var head = page * itemGetCountPerPage;
-            var tail = head + itemGetCountPerPage;
-            var result = await mylistProvider.GetMylistGroupVideo(mylistId, head, itemGetCountPerPage);
+            uint page = 0;
+            const uint itemGetCountPerPage = 50;
+            var result = await mylistProvider.GetMylistGroupVideo(mylistId, Mntone.Nico2.Users.Mylist.MylistSortKey.AddedAt, Mntone.Nico2.Users.Mylist.MylistSortOrder.Desc, itemGetCountPerPage, page);
 
             var videoItems = result.Items;
             var currentItemsCount = videoItems?.Count ?? 0;

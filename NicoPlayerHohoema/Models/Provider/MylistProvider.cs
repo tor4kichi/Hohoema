@@ -1,4 +1,5 @@
 ﻿using Mntone.Nico2.Mylist.MylistGroup;
+using Mntone.Nico2.Users.Mylist;
 using NicoPlayerHohoema.Database;
 using NicoPlayerHohoema.Interfaces;
 using System;
@@ -32,45 +33,53 @@ namespace NicoPlayerHohoema.Models.Provider
 
 
 
-        public async Task<MylistGroupDetailResponse> GetMylistGroupDetail(string mylistGroupid)
+        public async Task<Mylist> GetMylistGroupDetail(string mylistGroupid)
         {
-            return await ContextActionAsync(async context =>
+            var res = await ContextActionAsync(async context =>
             {
-                return await context.Mylist.GetMylistGroupDetailAsync(mylistGroupid);
+                return await context.User.GetMylistGroupItemsAsync(int.Parse(mylistGroupid), Mntone.Nico2.Users.Mylist.MylistSortKey.AddedAt, Mntone.Nico2.Users.Mylist.MylistSortOrder.Asc, 1, 0);
             });
+
+            return res.Data.Mylist;
         }
 
 
 
 
-        public async Task<MylistItemsGetResult> GetMylistGroupVideo(string mylistId, int start, int count)
+        public async Task<MylistItemsGetResult> GetMylistGroupVideo(string mylistId, MylistSortKey sortKey, MylistSortOrder sortOrder, uint pageSize, uint page)
         {
             var res = await ContextActionAsync(async context =>
             {
-                return await context.Mylist.GetMylistGroupVideoAsync(mylistId, (uint)start, (uint)count);
+                return await context.User.GetMylistGroupItemsAsync(int.Parse(mylistId), sortKey, sortOrder, pageSize, page);
             });
             
-            if (!res.IsOK) { return new MylistItemsGetResult() { IsSuccess = false, MylistId = mylistId }; }
+            if (res.Meta.Status != 200) { return new MylistItemsGetResult() { IsSuccess = false, MylistId = mylistId }; }
 
-            var videos = res.MylistVideoInfoItems;
+            var videos = res.Data.Mylist.Items;
             var resultItems = new List<NicoVideo>();
             foreach (var item in videos)
             {
                 var nicoVideo = Database.NicoVideoDb.Get(item.Video.Id);
                 nicoVideo.Title = item.Video.Title;
-                nicoVideo.ThumbnailUrl = item.Video.ThumbnailUrl.OriginalString;
-                nicoVideo.PostedAt = item.Video.FirstRetrieve;
-                nicoVideo.Length = item.Video.Length;
-                nicoVideo.IsDeleted = item.Video.IsDeleted;
-                nicoVideo.DescriptionWithHtml = item.Video.Description;
-                nicoVideo.MylistCount = (int)item.Video.MylistCount;
-                nicoVideo.CommentCount = (int)item.Thread.GetCommentCount();
-                nicoVideo.ViewCount = (int)item.Video.ViewCount;
+                nicoVideo.ThumbnailUrl = item.Video.Thumbnail.ListingUrl.OriginalString;
+                nicoVideo.PostedAt = item.Video.RegisteredAt.DateTime;
+                nicoVideo.Length = TimeSpan.FromSeconds(item.Video.Duration);
+                nicoVideo.IsDeleted = item.IsDeleted;
+                nicoVideo.DescriptionWithHtml = item.Description;
+                nicoVideo.MylistCount = (int)item.Video.Count.Mylist;
+                nicoVideo.CommentCount = (int)item.Video.Count.Comment;
+                nicoVideo.ViewCount = (int)item.Video.Count.View;
 
                 nicoVideo.Owner = new Database.NicoVideoOwner()
                 {
-                    OwnerId = item.Video.UserId ?? item.Video.CommunityId,
-                    UserType = item.Video.ProviderType == "channel" ? Database.NicoVideoUserType.Channel : Database.NicoVideoUserType.User,
+                    OwnerId = item.Video.Owner.Id,
+                    UserType = item.Video.Owner.OwnerType switch
+                    {
+                        OwnerType.Channel => NicoVideoUserType.Channel,
+                        OwnerType.Hidden => NicoVideoUserType.Hidden,
+                        OwnerType.User => NicoVideoUserType.User,
+                        _ => throw new NotSupportedException(),
+                    }
                 };
 
                 Database.NicoVideoDb.AddOrUpdate(nicoVideo);
@@ -82,9 +91,9 @@ namespace NicoPlayerHohoema.Models.Provider
             {
                 IsSuccess = true,
                 MylistId = mylistId,
-                HeadPosition = start,
+                HeadPosition = (int)(pageSize * page),
                 Items = new ReadOnlyCollection<NicoVideo>(resultItems),
-                TotalCount = (int)res.GetTotalCount()
+                TotalCount = (int)res.Data.Mylist.TotalItemCount,
             };
         }
 
