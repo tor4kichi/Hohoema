@@ -5,10 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using Mntone.Nico2;
 using Mntone.Nico2.Users.FollowCommunity;
+using static Mntone.Nico2.Users.Follow.FollowCommunityResponse;
 
 namespace NicoPlayerHohoema.Models
 {
-	public class CommunityFollowInfoGroup : FollowInfoGroupBaseTemplate<FollowCommunityInfo>
+	public class CommunityFollowInfoGroup : FollowInfoGroupBaseTemplate<FollowCommunity>
 	{
 		public CommunityFollowInfoGroup(
             NiconicoSession niconicoSession, Provider.CommunityFollowProvider communityFollowProvider) 
@@ -25,22 +26,24 @@ namespace NicoPlayerHohoema.Models
         public NiconicoSession NiconicoSession { get; }
         public Provider.CommunityFollowProvider CommunityFollowProvider { get; }
 
-        protected override FollowItemInfo ConvertToFollowInfo(FollowCommunityInfo source)
+        protected override FollowItemInfo ConvertToFollowInfo(FollowCommunity source)
 		{
 			return new FollowItemInfo()
 			{
 				FollowItemType = FollowItemType,
-				Name = source.CommunityName,
-				Id = source.CommunityId,
+				Name = source.Name,
+				Id = source.GlobalId,
+				ThumbnailUrl = source.ThumbnailUrl.Small.OriginalString,
+				UpdateTime = source.CreateTime.DateTime,
 			};
 		}
 
-		protected override string FollowSourceToItemId(FollowCommunityInfo source)
+		protected override string FollowSourceToItemId(FollowCommunity source)
 		{
-			return source.CommunityId;
+			return source.GlobalId;
 		}
 
-		protected override async Task<List<FollowCommunityInfo>> GetFollowSource()
+		protected override async Task<List<FollowCommunity>> GetFollowSource()
 		{
             return await CommunityFollowProvider.GetAllAsync();
         }
