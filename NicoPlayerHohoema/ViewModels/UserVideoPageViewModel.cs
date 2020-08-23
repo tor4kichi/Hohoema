@@ -25,6 +25,7 @@ using NicoPlayerHohoema.ViewModels.Subscriptions;
 using Reactive.Bindings;
 using Mntone.Nico2.Videos.Users;
 using WinRTXamlToolkit.IO.Serialization;
+using static Mntone.Nico2.Users.User.UserDetailResponse;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -82,14 +83,11 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 UserId = userId;
 
-//                User = await UserProvider.GetUserDetail(UserId);
+                User = await UserProvider.GetUserDetail(UserId);
 
                 if (User != null)
                 {
-                    IsOwnerVideoPrivate = User.IsOwnerVideoPrivate;
-                    UserName = User.Nickname;
-
-                    UserInfo.Value = new UserInfoViewModel(User.Nickname, User.UserId, User.ThumbnailUri);
+                    UserInfo.Value = new UserInfoViewModel(User.User.Nickname, User.User.Id.ToString(), User.User.Icons.Small.OriginalString);
                 }
                 else
                 {
@@ -140,7 +138,7 @@ namespace NicoPlayerHohoema.ViewModels
             set { SetProperty(ref _IsOwnerVideoPrivate, value); }
         }
 
-        public UserDetail User { get; private set; }
+        public UserDetails User { get; private set; }
 
 		
 		public string UserId { get; private set; }
@@ -155,12 +153,12 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override uint OneTimeLoadCount => 25;
 
-        public UserDetail User { get; private set;}
+        public UserDetails User { get; private set;}
 
         UserVideosResponse _firstRes;
         public List<UserVideosResponse> _ResList;
 		
-		public UserVideoIncrementalSource(string userId, UserDetail userDetail, UserProvider userProvider)
+		public UserVideoIncrementalSource(string userId, UserDetails userDetail, UserProvider userProvider)
 		{
 			UserId = uint.Parse(userId);
 			User = userDetail;

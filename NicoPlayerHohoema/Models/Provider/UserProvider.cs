@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Mntone.Nico2.Users.User.UserDetailResponse;
 
 namespace NicoPlayerHohoema.Models.Provider
 {
@@ -48,11 +49,11 @@ namespace NicoPlayerHohoema.Models.Provider
         }
 
 
-        public async Task<UserDetail> GetUserDetail(string userId)
+        public async Task<UserDetails> GetUserDetail(string userId)
         {
             var detail = await ContextActionWithPageAccessWaitAsync(async context =>
             {
-                return await context.User.GetUserDetail(userId);
+                return await context.User.GetUserDetailAsync(userId);
             });
 
             var owner = NicoVideoOwnerDb.Get(userId);
@@ -66,8 +67,8 @@ namespace NicoPlayerHohoema.Models.Provider
                         UserType = NicoVideoUserType.User
                     };
                 }
-                owner.ScreenName = detail.Nickname;
-                owner.IconUrl = detail.ThumbnailUri;
+                owner.ScreenName = detail.User.Nickname;
+                owner.IconUrl = detail.User.Icons.Small.OriginalString;
 
 
                 NicoVideoOwnerDb.AddOrUpdate(owner);

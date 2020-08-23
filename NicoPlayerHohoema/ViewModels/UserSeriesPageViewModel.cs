@@ -22,6 +22,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using static Mntone.Nico2.Users.User.UserDetailResponse;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -110,18 +111,18 @@ namespace NicoPlayerHohoema.ViewModels
 
     public class UserViewModel : IUser
     {
-        private readonly UserDetail _userDetail;
+        private readonly UserDetails _userDetail;
 
-        public UserViewModel(UserDetail userDetail)
+        public UserViewModel(UserDetails userDetail)
         {
             _userDetail = userDetail;
         }
 
-        public string Id => _userDetail.UserId;
+        public string Id => _userDetail.User.Id.ToString();
 
-        public string Label => _userDetail.Nickname;
+        public string Label => _userDetail.User.Nickname;
 
-        public string IconUrl => _userDetail.ThumbnailUri;
+        public string IconUrl => _userDetail.User.Icons.Small.OriginalString;
     }
 
 

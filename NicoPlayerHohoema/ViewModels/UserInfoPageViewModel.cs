@@ -294,13 +294,10 @@ namespace NicoPlayerHohoema.ViewModels
                 var userInfo = await UserProvider.GetUserDetail(UserId);
 
                 var user = userInfo;
-                UserName = user.Nickname;
-                UserIconUri = user.ThumbnailUri;
+                UserName = user.User.Nickname;
+                UserIconUri = user.User.Icons.Small.OriginalString;
 
-                FollowerCount = user.FollowerCount;
-                StampCount = user.StampCount;
-                VideoCount = user.TotalVideoCount;
-                IsVideoPrivate = user.IsOwnerVideoPrivate;
+                FollowerCount = (uint)user.User.FollowerCount;
             }
             catch
             {
