@@ -628,7 +628,14 @@ namespace NicoPlayerHohoema.ViewModels
                 RaisePropertyChanged(nameof(MylistBookmark));
             }
 
-            SelectedSortItem.Value = SortItems.First(x => x.Key == Mylist.Value.DefaultSortKey && x.Order == Mylist.Value.DefaultSortOrder);
+            if (!IsLoginUserDeflist)
+            {
+                SelectedSortItem.Value = SortItems.First(x => x.Key == Mylist.Value.DefaultSortKey && x.Order == Mylist.Value.DefaultSortOrder);
+            }
+            else
+            {
+                SelectedSortItem.Value = SortItems.First(x => x.Key == MylistSortKey.AddedAt && x.Order == MylistSortOrder.Desc);
+            }
 
             SelectedSortItem.Subscribe(x =>
             {
