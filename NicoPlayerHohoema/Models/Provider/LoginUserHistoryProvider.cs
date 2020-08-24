@@ -1,6 +1,5 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Users.Follow;
-using Mntone.Nico2.Users.FollowCommunity;
 using Mntone.Nico2.Videos.Histories;
 using Mntone.Nico2.Videos.Recommend;
 using Mntone.Nico2.Videos.RemoveHistory;
@@ -95,7 +94,7 @@ namespace NicoPlayerHohoema.Models.Provider
 
             return await ContextActionAsync(async context => 
             {
-                return await context.User.AddUserFollowAsync(NiconicoItemType.User, id);
+                return await context.User.AddFollowUserAsync(id);
             });
         }
 
@@ -108,7 +107,7 @@ namespace NicoPlayerHohoema.Models.Provider
 
             return await ContextActionAsync(async context =>
             {
-                return await context.User.RemoveUserFollowAsync(NiconicoItemType.User, id);
+                return await context.User.RemoveFollowUserAsync(id);
             });
             
         }
@@ -199,7 +198,7 @@ namespace NicoPlayerHohoema.Models.Provider
 
             return await ContextActionAsync(async context =>
             {
-                return await context.User.AddUserFollowAsync(NiconicoItemType.Mylist, id);
+                return await context.User.AddFollowMylistAsync(id);
             });
         }
 
@@ -212,7 +211,7 @@ namespace NicoPlayerHohoema.Models.Provider
 
             return await ContextActionAsync(async context =>
             {
-                return await context.User.RemoveUserFollowAsync(NiconicoItemType.Mylist, id);
+                return await context.User.RemoveFollowMylistAsync(id);
             });
         }
     }
@@ -320,20 +319,12 @@ namespace NicoPlayerHohoema.Models.Provider
 
         public async Task<ContentManageResult> AddFollowAsync(string id)
         {
-            if (CommunituFollowAdditionalInfo == null)
-            {
-                return ContentManageResult.Failed;
-            }
-            var title = CommunituFollowAdditionalInfo.Title;
-            var comment = CommunituFollowAdditionalInfo.Comment;
-            var notify = CommunituFollowAdditionalInfo.Notify;
-
             var result = await ContextActionAsync(async context =>
             {
-                return await context.User.AddFollowCommunityAsync(id, title, comment, notify);
+                return await context.User.AddFollowCommunityAsync(id);
             });
 
-            return result ? ContentManageResult.Success : ContentManageResult.Failed;
+            return result;
         }
 
         public async Task<ContentManageResult> RemoveFollowAsync(string id)
@@ -345,11 +336,10 @@ namespace NicoPlayerHohoema.Models.Provider
 
             var result = await ContextActionAsync(async context =>
             {
-                var leaveToken = await context.User.GetFollowCommunityLeaveTokenAsync(id);
-                return await context.User.RemoveFollowCommunityAsync(leaveToken);
+                return await context.User.RemoveFollowCommunityAsync(id);
             });
 
-            return result ? ContentManageResult.Success : ContentManageResult.Failed;
+            return result;
         }
     }
 

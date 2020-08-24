@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Mntone.Nico2;
-using Mntone.Nico2.Users.FollowCommunity;
 using static Mntone.Nico2.Users.Follow.FollowCommunityResponse;
 
 namespace NicoPlayerHohoema.Models
