@@ -550,7 +550,7 @@
     <Compile Include="Views\Interaction\Behaviors\ListViewItemTappedCommand.cs" />
     <Compile Include="Views\Interaction\Behaviors\ListViewScrollFollowsToItemBehavior.cs" />
     <Compile Include="Views\Interaction\Behaviors\MultiSelection.cs" />
-    <Compile Include="Views\Interaction\Input\AutoHideCursor.cs" />
+    <Compile Include="Views\Interaction\Input\PointerCursolAutoHideBehavior.cs" />
     <Compile Include="Views\Interaction\Flyout\MenuFlyoutItemsSetter.cs" />
     <Compile Include="Views\Interaction\Input\Swipe.cs" />
     <Compile Include="Views\Interaction\Input\XYNavigationExtentions.cs" />
