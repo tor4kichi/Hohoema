@@ -278,11 +278,11 @@ namespace NicoPlayerHohoema.Models.Subscriptions
         {
             var id = uint.Parse(userId);
             List<NicoVideo> items = new List<NicoVideo>();
-            uint page = 1;
+            uint page = 0;
 
             var res = await userProvider.GetUserVideos(id, page);
 
-            var videoItems = res.Items;
+            var videoItems = res.Data.Items;
             var currentItemsCount = videoItems?.Count ?? 0;
             if (videoItems == null || currentItemsCount == 0)
             {
@@ -292,12 +292,12 @@ namespace NicoPlayerHohoema.Models.Subscriptions
             {
                 foreach (var item in videoItems)
                 {
-                    var video = Database.NicoVideoDb.Get(item.VideoId);
+                    var video = Database.NicoVideoDb.Get(item.Id);
 
                     video.Title = item.Title;
-                    video.PostedAt = item.SubmitTime;
-                    video.ThumbnailUrl = item.ThumbnailUrl.OriginalString;
-                    video.Length = item.Length;
+                    video.PostedAt = item.RegisteredAt.DateTime;
+                    video.ThumbnailUrl = item.Thumbnail.ListingUrl.OriginalString;
+                    video.Length = TimeSpan.FromSeconds(item.Duration);
                     video.Owner = video.Owner ?? new Database.NicoVideoOwner() 
                     {
                         OwnerId = userId,
@@ -368,11 +368,9 @@ namespace NicoPlayerHohoema.Models.Subscriptions
         static private async Task<List<NicoVideo>> GetMylistFeedResult(string mylistId, Provider.MylistProvider mylistProvider)
         {
             List<NicoVideo> items = new List<NicoVideo>();
-            int page = 0;
-            const int itemGetCountPerPage = 50;
-            var head = page * itemGetCountPerPage;
-            var tail = head + itemGetCountPerPage;
-            var result = await mylistProvider.GetMylistGroupVideo(mylistId, head, itemGetCountPerPage);
+            uint page = 0;
+            const uint itemGetCountPerPage = 50;
+            var result = await mylistProvider.GetMylistGroupVideo(mylistId, Mntone.Nico2.Users.Mylist.MylistSortKey.AddedAt, Mntone.Nico2.Users.Mylist.MylistSortOrder.Desc, itemGetCountPerPage, page);
 
             var videoItems = result.Items;
             var currentItemsCount = videoItems?.Count ?? 0;

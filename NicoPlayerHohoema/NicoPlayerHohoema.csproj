@@ -323,6 +323,7 @@
     </Compile>
     <Compile Include="Views\Controls\ScrollHeaderCustom\StickyHeaderBehavior.cs" />
     <Compile Include="Views\Converters\ItemClickEventArgsConverter.cs" />
+    <Compile Include="Views\Converters\MylistSortLocalizeConverter.cs" />
     <Compile Include="Views\Converters\StringToUriConverter.cs" />
     <Compile Include="Views\Converters\TimeSpanToSecondsConverter.cs" />
     <Compile Include="Views\Dialogs\NiconicoLoginDialog.xaml.cs">
@@ -549,7 +550,7 @@
     <Compile Include="Views\Interaction\Behaviors\ListViewItemTappedCommand.cs" />
     <Compile Include="Views\Interaction\Behaviors\ListViewScrollFollowsToItemBehavior.cs" />
     <Compile Include="Views\Interaction\Behaviors\MultiSelection.cs" />
-    <Compile Include="Views\Interaction\Input\AutoHideCursor.cs" />
+    <Compile Include="Views\Interaction\Input\PointerCursolAutoHideBehavior.cs" />
     <Compile Include="Views\Interaction\Flyout\MenuFlyoutItemsSetter.cs" />
     <Compile Include="Views\Interaction\Input\Swipe.cs" />
     <Compile Include="Views\Interaction\Input\XYNavigationExtentions.cs" />

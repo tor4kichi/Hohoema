@@ -294,13 +294,10 @@ namespace NicoPlayerHohoema.ViewModels
                 var userInfo = await UserProvider.GetUserDetail(UserId);
 
                 var user = userInfo;
-                UserName = user.Nickname;
-                UserIconUri = user.ThumbnailUri;
+                UserName = user.User.Nickname;
+                UserIconUri = user.User.Icons.Small.OriginalString;
 
-                FollowerCount = user.FollowerCount;
-                StampCount = user.StampCount;
-                VideoCount = user.TotalVideoCount;
-                IsVideoPrivate = user.IsOwnerVideoPrivate;
+                FollowerCount = (uint)user.User.FollowerCount;
             }
             catch
             {
@@ -328,11 +325,11 @@ namespace NicoPlayerHohoema.ViewModels
                 await Task.Delay(500);
 
                 var userVideos = await UserProvider.GetUserVideos(uint.Parse(UserId), 1);
-                foreach (var item in userVideos.Items.Take(5))
+                foreach (var item in userVideos.Data.Items.Take(5))
                 {
-                    var vm = new VideoInfoControlViewModel(item.VideoId);
+                    var vm = new VideoInfoControlViewModel(item.Id);
                     vm.SetTitle(item.Title);
-                    vm.SetThumbnailImage(item.ThumbnailUrl.OriginalString);
+                    vm.SetThumbnailImage(item.Thumbnail.ListingUrl.OriginalString);
                     VideoInfoItems.Add(vm);
                 }
                 RaisePropertyChanged(nameof(VideoInfoItems));

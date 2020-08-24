@@ -12,6 +12,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Prism.Ioc;
+using Mntone.Nico2.Users.Mylist;
 
 namespace NicoPlayerHohoema.Repository.Playlist
 {
@@ -57,18 +58,15 @@ namespace NicoPlayerHohoema.Repository.Playlist
 
         public bool IsPublic { get; internal set; }
 
-        public IconType IconType { get; internal set; }
+        public MylistSortKey DefaultSortKey { get; internal set; }
+        public MylistSortOrder DefaultSortOrder { get; internal set; }
 
-        public Order Order { get; internal set; }
 
-        public Sort Sort { get; internal set; }
-
-        public DateTime UpdateTime { get; internal set; }
-
+        
         public DateTime CreateTime { get; internal set; }
 
 
-        public async Task<MylistItemsGetResult> GetItemsAsync(int start, int count)
+        public async Task<MylistItemsGetResult> GetItemsAsync(MylistSortKey sortKey, MylistSortOrder sortOrder, uint pageSize, uint page)
         {
            
             //if (this.IsDefaultMylist())
@@ -84,7 +82,7 @@ namespace NicoPlayerHohoema.Repository.Playlist
             // 他ユーザーマイリストとして取得を実行
             try
             {
-                var result = await GetMylistItemsWithRangeAsync(start, count);
+                var result = await GetMylistItemsWithRangeAsync(sortKey, sortOrder, pageSize, page);
 
                 return new MylistItemsGetResult()
                 {
@@ -103,21 +101,25 @@ namespace NicoPlayerHohoema.Repository.Playlist
             }
 
             return new MylistItemsGetResult() { IsSuccess = false };
-
         }
 
-        public Task<MylistProvider.MylistItemsGetResult> GetMylistItemsWithRangeAsync(int start, int count)
+        public Task<MylistProvider.MylistItemsGetResult> GetMylistItemsWithRangeAsync(MylistSortKey sortKey, MylistSortOrder sortOrder, uint pageSize, uint page)
         {
-            return _mylistProvider.GetMylistGroupVideo(Id, start, count);
+            return _mylistProvider.GetMylistGroupVideo(Id, sortKey, sortOrder, pageSize, page);
         }
 
-        public async Task<MylistProvider.MylistItemsGetResult> GetMylistAllItems()
+        public async Task<MylistProvider.MylistItemsGetResult> GetMylistAllItems(MylistSortKey sortKey = MylistSortKey.AddedAt, MylistSortOrder sortOrder = MylistSortOrder.Asc)
         {
-            var firstResult = await _mylistProvider.GetMylistGroupVideo(Id, 0, 150);
+            uint page = 0;
+            const int pageSize = 25;
+
+            var firstResult = await _mylistProvider.GetMylistGroupVideo(Id, sortKey, sortOrder, pageSize, page);
             if (!firstResult.IsSuccess || firstResult.TotalCount == firstResult.Items.Count)
             {
                 return firstResult;
             }
+
+            page++;
 
             var itemsList = new List<Database.NicoVideo>(firstResult.Items);
             var totalCount = firstResult.TotalCount;
@@ -125,12 +127,13 @@ namespace NicoPlayerHohoema.Repository.Playlist
             do
             {
                 await Task.Delay(500);
-                var result = await _mylistProvider.GetMylistGroupVideo(Id, currentCount, 150);
+                var result = await _mylistProvider.GetMylistGroupVideo(Id, sortKey, sortOrder, pageSize, page);
                 if (result.IsSuccess)
                 {
                     itemsList.AddRange(result.Items);
                 }
 
+                page++;
                 currentCount += result.Items.Count;
             }
             while (currentCount < totalCount);
@@ -161,18 +164,11 @@ namespace NicoPlayerHohoema.Repository.Playlist
         public MylistRemoveItemCommand ItemsRemoveCommand { get; }
         public MylistAddItemCommand ItemsAddCommand { get; }
 
-        public MylistDefaultSort DefaultSort { get; internal set; }
 
 
-        public Task<List<IVideoContent>> GetLoginUserMylistItemsAsync()
+        public Task<List<IVideoContent>> GetLoginUserMylistItemsAsync(MylistSortKey sortKey, MylistSortOrder sortOrder, uint pageSize, uint page)
         {
-            return _loginUserMylistProvider.GetLoginUserMylistItemsAsync(this);
-        }
-
-
-        public Task<ContentManageResult> UpdateMylist(Dialogs.MylistGroupEditData editData)
-        {
-            return _loginUserMylistProvider.UpdateMylist(Id, editData);
+            return _loginUserMylistProvider.GetLoginUserMylistItemsAsync(this, sortKey, sortOrder, pageSize, page);
         }
 
 
@@ -331,29 +327,20 @@ namespace NicoPlayerHohoema.Repository.Playlist
 
         public async Task<MylistPlaylist> GetMylist(string mylistGroupId)
         {
-            var res = await MylistProvider.GetMylistGroupDetail(mylistGroupId);
-            if (res.IsOK)
+            var detail = await MylistProvider.GetMylistGroupDetail(mylistGroupId);
+            
+            var mylist = new MylistPlaylist(detail.Id.ToString(), MylistProvider)
             {
-                var detail = res.MylistGroup;
-                var mylist = new MylistPlaylist(detail.Id, MylistProvider)
-                {
-                    Label = detail.Name,
-                    Count = (int)detail.Count,
-                    IconType = detail.GetIconType(),
-                    CreateTime = detail.CreateTime,
-                    UpdateTime = detail.UpdateTime,
-                    Order = detail.GetSortOrder(),
-                    IsPublic = detail.IsPublic,
-                    SortIndex = 0,
-                    UserId = detail.UserId,
-                    Description = detail.Description,
-                };
-                return mylist;
-            }
-            else
-            {
-                return null;
-            }
+                Label = detail.Name,
+                Count = (int)detail.TotalItemCount,
+                CreateTime = detail.CreatedAt.DateTime,
+                //DefaultSortOrder = ,
+                IsPublic = detail.IsPublic,
+                SortIndex = 0,
+                UserId = detail.Owner.Id,
+                Description = detail.Description,
+            };
+            return mylist;
         }
 
         public async Task<List<MylistPlaylist>> GetByUserId(string userId)
@@ -361,17 +348,19 @@ namespace NicoPlayerHohoema.Repository.Playlist
             var groups = await UserProvider.GetUserMylistGroups(userId);
             if (groups == null) { return null; }
 
-            var list = groups.Select((x, i) =>
+            var list = groups.Data.Mylists.Select((x, i) =>
             {
-                return new MylistPlaylist(x.Id, MylistProvider)
+                return new MylistPlaylist(x.Id.ToString(), MylistProvider)
                 {
                     Label = x.Name,
-                    Count = x.Count,
+                    Count = (int)x.TotalItemCount,
                     SortIndex = i,
-                    UserId = x.UserId,
+                    UserId = x.Owner.Id,
                     Description = x.Description,
-                    IsPublic = x.GetIsPublic(),
-                    IconType = x.GetIconType(),
+                    IsPublic = x.IsPublic,
+                    CreateTime = x.CreatedAt.DateTime,
+                    DefaultSortKey = x.DefaultSortKey,
+                    DefaultSortOrder = x.DefaultSortOrder,
                 };
             }
             ).ToList();

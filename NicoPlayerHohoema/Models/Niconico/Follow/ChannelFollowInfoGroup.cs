@@ -5,7 +5,7 @@ using Mntone.Nico2.Users.Follow;
 
 namespace NicoPlayerHohoema.Models
 {
-    internal class ChannelFollowInfoGroup : FollowInfoGroupBaseTemplate<Mntone.Nico2.Users.Follow.ChannelFollowData>
+    internal class ChannelFollowInfoGroup : FollowInfoGroupBaseTemplate<FollowChannelResponse.FollowChannel>
     {
         public ChannelFollowInfoGroup(
             NiconicoSession niconicoSession, 
@@ -24,23 +24,23 @@ namespace NicoPlayerHohoema.Models
         public NiconicoSession NiconicoSession { get; }
         public Provider.ChannelFollowProvider ChannelFollowProvider { get; }
 
-        protected override FollowItemInfo ConvertToFollowInfo(ChannelFollowData source)
+        protected override FollowItemInfo ConvertToFollowInfo(FollowChannelResponse.FollowChannel source)
         {
             return new FollowItemInfo()
             {
                 FollowItemType = FollowItemType.Channel,
-                Id = source.Id,
+                Id = source.Id.ToString(),
                 Name = source.Name,
-                ThumbnailUrl = source.ThumbnailUrl,
+                ThumbnailUrl = source.ThumbnailUrl.OriginalString,
             };
         }
 
-        protected override string FollowSourceToItemId(ChannelFollowData source)
+        protected override string FollowSourceToItemId(FollowChannelResponse.FollowChannel source)
         {
-            return source.Id;
+            return source.Id.ToString();
         }
 
-        protected override Task<List<ChannelFollowData>> GetFollowSource()
+        protected override Task<List<FollowChannelResponse.FollowChannel>> GetFollowSource()
         {
             return ChannelFollowProvider.GetAllAsync();
         }

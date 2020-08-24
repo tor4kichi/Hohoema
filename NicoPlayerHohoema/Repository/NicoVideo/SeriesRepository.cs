@@ -9,6 +9,7 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Repository.NicoVideo
 {
+    using UserSeries = Mntone.Nico2.Users.Series.UserSeries;
     public sealed class SeriesRepository
     {
         private readonly NiconicoSession _niconicoSession;
@@ -20,8 +21,17 @@ namespace NicoPlayerHohoema.Repository.NicoVideo
 
         public async Task<IList<UserSeries>> GetUserSeriesAsync(string userId)
         {
-            var res = await _niconicoSession.Context.User.GetUserSeiresAsync(userId);
-            return res.Serieses;
+            List<UserSeries> items = new List<Mntone.Nico2.Users.Series.UserSeries>();
+            var res = await _niconicoSession.Context.User.GetUserSeiresAsync(userId, 0);
+            items.AddRange(res.Data.Items);
+            uint page = 1;
+            while (items.Count < res.Data.TotalCount)
+            {
+                res = await _niconicoSession.Context.User.GetUserSeiresAsync(userId, page);
+                items.AddRange(res.Data.Items);
+            }
+
+            return items;
         }
 
         public async Task<SeriesDetails> GetSeriesVideosAsync(string seriesId)

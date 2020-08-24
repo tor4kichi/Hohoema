@@ -163,7 +163,7 @@
               <!-- 左右スワイプでシーク -->
               <mybehavior:Swipe x:Name="SeekSwipe" SwipeCommand="{Binding SeekCommand}" SwipeAmountConverter="{StaticResource SwipeSeekValueToTimeSpan}" SwipeAmountScale="0.15" SwipeEdgeOfPlay="48" />
               <!-- マウスの非表示 -->
-              <mybehavior:AutoHideCursor x:Name="AutoHideCursor" IsAutoHideEnabled="False" AutoHideDelay="0:0:1" />
+              <mybehavior:PointerCursolAutoHideBehavior x:Name="AutoHideCursor" IsAutoHideEnabled="False" AutoHideDelay="0:0:1" />
               <core:EventTriggerBehavior EventName="Loaded">
                 <mybehavior:SetFocus TargetObject="{Binding ElementName=RootLayout}" />
               </core:EventTriggerBehavior>

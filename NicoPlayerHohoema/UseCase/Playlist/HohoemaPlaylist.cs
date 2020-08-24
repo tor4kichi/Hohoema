@@ -608,7 +608,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             switch (playlist)
             {
                 case LoginUserMylistPlaylist loginUserMylist:
-                    var loginUserMylistResult = await loginUserMylist.GetLoginUserMylistItemsAsync();
+                    var loginUserMylistResult = await loginUserMylist.GetLoginUserMylistItemsAsync(Mntone.Nico2.Users.Mylist.MylistSortKey.AddedAt, Mntone.Nico2.Users.Mylist.MylistSortOrder.Desc, 25, 0);
                     return loginUserMylistResult;
 
                 case MylistPlaylist mylist:

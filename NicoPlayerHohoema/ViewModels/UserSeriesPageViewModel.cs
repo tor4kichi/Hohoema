@@ -22,6 +22,7 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using static Mntone.Nico2.Users.User.UserDetailResponse;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -100,8 +101,9 @@ namespace NicoPlayerHohoema.ViewModels
                 var serieses = await _seriesRepository.GetUserSeriesAsync(id);
                 UserSeriesList = serieses.Select(x => new UserSeriesItemViewModel(x)).ToList();
 
-                var userInfo = await _userProvider.GetUserDetail(id);
-                User = new UserViewModel(userInfo);
+                
+//                var userInfo = await _userProvider.GetUserDetail(id);
+//                User = new UserViewModel(userInfo);
             }
         }
 
@@ -109,18 +111,18 @@ namespace NicoPlayerHohoema.ViewModels
 
     public class UserViewModel : IUser
     {
-        private readonly UserDetail _userDetail;
+        private readonly UserDetails _userDetail;
 
-        public UserViewModel(UserDetail userDetail)
+        public UserViewModel(UserDetails userDetail)
         {
             _userDetail = userDetail;
         }
 
-        public string Id => _userDetail.UserId;
+        public string Id => _userDetail.User.Id.ToString();
 
-        public string Label => _userDetail.Nickname;
+        public string Label => _userDetail.User.Nickname;
 
-        public string IconUrl => _userDetail.ThumbnailUri;
+        public string IconUrl => _userDetail.User.Icons.Small.OriginalString;
     }
 
 
@@ -141,11 +143,11 @@ namespace NicoPlayerHohoema.ViewModels
 
         public string Description => _userSeries.Description;
 
-        public string ThumbnailUrl => _userSeries.ThumbnailUrl;
+        public string ThumbnailUrl => _userSeries.ThumbnailUrl.OriginalString;
 
-        public int ItemsCount => _userSeries.ItemsCount;
+        public int ItemsCount => (int)_userSeries.ItemsCount;
 
-        public SeriesProviderType ProviderType => _userSeries.Owner.ProviderType;
+        public string ProviderType => _userSeries.Owner.Type;
 
         public string ProviderId => _userSeries.Owner.Id;        
     }

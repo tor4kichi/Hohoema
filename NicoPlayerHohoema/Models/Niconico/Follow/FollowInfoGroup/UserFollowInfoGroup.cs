@@ -8,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models
 {
-	public class UserFollowInfoGroup : FollowInfoGroupWithFollowData
-	{
+	public class UserFollowInfoGroup : FollowInfoGroupBaseTemplate<UserFollowItem>
+    {
 		public UserFollowInfoGroup(
             NiconicoSession niconicoSession, 
             Provider.UserFollowProvider userFollowProvider
@@ -29,7 +29,7 @@ namespace NicoPlayerHohoema.Models
         public Provider.UserFollowProvider UserFollowProvider { get; }
 
 
-        protected override async Task<List<FollowData>> GetFollowSource()
+        protected override async Task<List<UserFollowItem>> GetFollowSource()
 		{
             return await UserFollowProvider.GetAllAsync();
 
@@ -43,5 +43,21 @@ namespace NicoPlayerHohoema.Models
 		{
             return await UserFollowProvider.RemoveFollowAsync(id);
         }
-	}
+
+        protected override string FollowSourceToItemId(UserFollowItem source)
+        {
+            return source.Id.ToString();
+        }
+
+        protected override FollowItemInfo ConvertToFollowInfo(UserFollowItem source)
+        {
+            return new FollowItemInfo()
+            {
+                FollowItemType = FollowItemType,
+                Id = source.Id.ToString(),
+                Name = source.Nickname,
+                ThumbnailUrl = source.Icons.Small.OriginalString,
+            };
+        }
+    }
 }

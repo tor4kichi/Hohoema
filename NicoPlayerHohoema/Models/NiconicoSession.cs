@@ -278,9 +278,9 @@ namespace NicoPlayerHohoema.Models
 
             try
             {
-                var user = await Context.User.GetUserDetail(_UserId.ToString());
-                UserName = user?.Nickname ?? _UserId.ToString();
-                UserIconUrl = user?.ThumbnailUri;
+                var user = await Context.User.GetUserAsync(_UserId.ToString());
+                UserName = user?.User.Nickname ?? _UserId.ToString();
+                UserIconUrl = user?.User.ThumbnailUrl;
             }
             catch (Exception ex)
             {

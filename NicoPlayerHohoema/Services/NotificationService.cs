@@ -1,6 +1,7 @@
 ﻿using I18NPortable;
 using Microsoft.Toolkit.Uwp;
 using Microsoft.Toolkit.Uwp.Notifications;
+using Mntone.Nico2.Users.Mylist;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Services.Helpers;
 using NicoPlayerHohoema.Services.Page;
@@ -203,19 +204,18 @@ namespace NicoPlayerHohoema.Services
 
         private async Task<InAppNotificationPayload> SubmitMylistContentSuggestion(string mylistId)
         {
-            Mntone.Nico2.Mylist.MylistGroup.MylistGroupDetailResponse mylistDetail = null;
+            Mylist mylistDetail = null;
             try
             {
                 mylistDetail = await MylistProvider.GetMylistGroupDetail(mylistId);
             }
             catch { }
 
-            if (mylistDetail == null || !mylistDetail.IsOK) { return null; }
+            if (mylistDetail == null) { return null; }
 
-            var mylistGroup = mylistDetail.MylistGroup;
             return new InAppNotificationPayload()
             {
-                Content = "InAppNotification_ContentDetectedFromClipboard".Translate(mylistGroup.Name),
+                Content = "InAppNotification_ContentDetectedFromClipboard".Translate(mylistDetail.Name),
                 ShowDuration = DefaultNotificationShowDuration,
                 SymbolIcon = Symbol.Video,
                 IsShowDismissButton = true,

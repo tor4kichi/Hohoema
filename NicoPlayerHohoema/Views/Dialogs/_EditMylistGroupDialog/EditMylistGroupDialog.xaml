@@ -9,7 +9,8 @@
                xmlns:toolkit="using:WinRTXamlToolkit.Controls"
                xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
                xmlns:i="using:Microsoft.Xaml.Interactivity"
-               xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+               xmlns:core="using:Microsoft.Xaml.Interactions.Core" 
+               xmlns:myConv="using:NicoPlayerHohoema.Views.Converters"
                mc:Ignorable="d"
                d:DesignHeight="500"
                d:DesignWidth="400"
@@ -19,6 +20,9 @@
                IsPrimaryButtonEnabled="{Binding CanEditCompletion.Value}"
                Width="400">
 
+  <ContentDialog.Resources>
+    <myConv:MylistSortLocalizeConverter x:Key="MylistSortLocalizeConverter" />
+  </ContentDialog.Resources>
   <StackPanel HorizontalAlignment="Stretch">
     <toolkit:DockPanel Margin="8 8 8 4">
       <TextBlock Text="{Binding Source=MylistName, Converter={StaticResource LocalizeConverter}}"
@@ -65,34 +69,9 @@
           </ItemsPanelTemplate>
         </ListView.ItemsPanel>
 
-        <TextBlock Text="{Binding Source=MylistPrivateSettings_Private, Converter={StaticResource LocalizeConverter}}" />
         <TextBlock Text="{Binding Source=MylistPrivateSettings_Public, Converter={StaticResource LocalizeConverter}}" />
+        <TextBlock Text="{Binding Source=MylistPrivateSettings_Private, Converter={StaticResource LocalizeConverter}}" />
       </ListView>
-    </toolkit:DockPanel>
-
-    <toolkit:DockPanel Margin="8">
-      <TextBlock Text="{Binding Source=MylistThemeColor, Converter={StaticResource LocalizeConverter}}"
-                 toolkit:DockPanel.Dock="Left"
-                 VerticalAlignment="Center"
-                 Width="100"
-                 Margin="0 0 8 0" />
-
-      <ComboBox ItemsSource="{Binding IconTypeList}"
-                SelectedItem="{Binding MylistIconType.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
-        <ComboBox.ItemTemplate>
-          <DataTemplate>
-            <StackPanel Orientation="Horizontal">
-              <Border Background="{Binding Color, Converter={StaticResource ColorToBrush}}"
-                      Width="24"
-                      Height="24"
-                      Margin="8 0"></Border>
-
-              <TextBlock Text="{Binding IconType}"
-                         VerticalAlignment="Center" />
-            </StackPanel>
-          </DataTemplate>
-        </ComboBox.ItemTemplate>
-      </ComboBox>
     </toolkit:DockPanel>
 
     <toolkit:DockPanel Margin="8">
@@ -102,15 +81,16 @@
                  Width="100"
                  Margin="0 0 8 0" />
 
-      <ComboBox ItemsSource="{Binding MylistDefaultSortList}"
-                SelectedItem="{Binding MylistDefaultSort.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+      <ComboBox ItemsSource="{Binding SortItems}"
+                SelectedItem="{Binding SelectedSort.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
         <ComboBox.ItemTemplate>
           <DataTemplate>
-            <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
+            <TextBlock Text="{Binding Converter={StaticResource MylistSortLocalizeConverter}}" />
           </DataTemplate>
         </ComboBox.ItemTemplate>
       </ComboBox>
     </toolkit:DockPanel>
+
 
   </StackPanel>
 </ContentDialog>

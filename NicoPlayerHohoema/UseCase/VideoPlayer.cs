@@ -157,6 +157,11 @@ namespace NicoPlayerHohoema.UseCase
                 return;
             }
 
+            if (quality == NicoVideoQuality.Unknown)
+            {
+                quality = _playerSettings.DefaultQuality;
+            }
+
             _currentSession?.Dispose();
 
             _currentSession = await _niconicoVideoSessionProvider.CreateVideoSessionAsync(quality);
@@ -228,6 +233,7 @@ namespace NicoPlayerHohoema.UseCase
                         if (parameter is NicoVideoQualityEntity content)
                         {
                             await PlayAsync(content.Quality, _mediaPlayer.PlaybackSession.Position);
+                            _playerSettings.DefaultQuality = content.Quality;
                         }
                     }
                     ));

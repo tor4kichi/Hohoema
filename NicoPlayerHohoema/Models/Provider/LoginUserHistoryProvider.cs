@@ -1,6 +1,5 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Users.Follow;
-using Mntone.Nico2.Users.FollowCommunity;
 using Mntone.Nico2.Videos.Histories;
 using Mntone.Nico2.Videos.Recommend;
 using Mntone.Nico2.Videos.RemoveHistory;
@@ -28,7 +27,7 @@ namespace NicoPlayerHohoema.Models.Provider
 
             var res = await ContextActionWithPageAccessWaitAsync(async context =>
             {
-                return await context.Video.GetHistoriesFromMyPageAsync();
+                return await context.Video.GetHistoriesAsync();
             });
 
             foreach (var history in res?.Histories ?? Enumerable.Empty<History>())
@@ -71,17 +70,19 @@ namespace NicoPlayerHohoema.Models.Provider
         {
         }
 
-        public async Task<List<FollowData>> GetAllAsync()
+        public async Task<List<UserFollowItem>> GetAllAsync()
         {
             if (!NiconicoSession.IsLoggedIn)
             {
-                return new List<FollowData>();
+                return new List<UserFollowItem>();
             }
 
-            return await ContextActionWithPageAccessWaitAsync(async context =>
+            var res = await ContextActionWithPageAccessWaitAsync(async context =>
             {
                 return await context.User.GetFollowUsersAsync();
             });
+
+            return res.Data.Items;
         }
 
         public async Task<ContentManageResult> AddFollowAsync(string id)
@@ -93,7 +94,7 @@ namespace NicoPlayerHohoema.Models.Provider
 
             return await ContextActionAsync(async context => 
             {
-                return await context.User.AddUserFollowAsync(NiconicoItemType.User, id);
+                return await context.User.AddFollowUserAsync(id);
             });
         }
 
@@ -106,7 +107,7 @@ namespace NicoPlayerHohoema.Models.Provider
 
             return await ContextActionAsync(async context =>
             {
-                return await context.User.RemoveUserFollowAsync(NiconicoItemType.User, id);
+                return await context.User.RemoveFollowUserAsync(id);
             });
             
         }
@@ -120,18 +121,19 @@ namespace NicoPlayerHohoema.Models.Provider
         {
         }
 
-        public async Task<List<string>> GetAllAsync()
+        public async Task<List<FollowTagsResponse.Tag>> GetAllAsync()
         {
             if (!NiconicoSession.IsLoggedIn)
             {
-                return new List<string>();
+                return new List<FollowTagsResponse.Tag>();
             }
 
-            return await ContextActionWithPageAccessWaitAsync(async context =>
+            var res = await ContextActionWithPageAccessWaitAsync(async context =>
             {
                 return await context.User.GetFollowTagsAsync();
             });
-            
+
+            return res.Data.Tags;
         }
 
         public async Task<ContentManageResult> AddFollowAsync(string id)
@@ -171,18 +173,20 @@ namespace NicoPlayerHohoema.Models.Provider
         {
         }
 
-        public async Task<List<FollowData>> GetAllAsync()
+        public async Task<List<FollowMylist>> GetAllAsync()
         {
             if (!NiconicoSession.IsLoggedIn)
             {
-                return new List<FollowData>();
+                return new List<FollowMylist>();
             }
 
 
-            return await ContextActionWithPageAccessWaitAsync(async context =>
+            var res = await ContextActionWithPageAccessWaitAsync(async context =>
             {
                 return await context.User.GetFollowMylistsAsync();
             });
+
+            return res.Data.Mylists;
         }
 
         public async Task<ContentManageResult> AddFollowAsync(string id)
@@ -194,7 +198,7 @@ namespace NicoPlayerHohoema.Models.Provider
 
             return await ContextActionAsync(async context =>
             {
-                return await context.User.AddUserFollowAsync(NiconicoItemType.Mylist, id);
+                return await context.User.AddFollowMylistAsync(id);
             });
         }
 
@@ -207,7 +211,7 @@ namespace NicoPlayerHohoema.Models.Provider
 
             return await ContextActionAsync(async context =>
             {
-                return await context.User.RemoveUserFollowAsync(NiconicoItemType.Mylist, id);
+                return await context.User.RemoveFollowMylistAsync(id);
             });
         }
     }
@@ -219,18 +223,20 @@ namespace NicoPlayerHohoema.Models.Provider
         {
         }
 
-        public async Task<List<ChannelFollowData>> GetAllAsync()
+        public async Task<List<FollowChannelResponse.FollowChannel>> GetAllAsync()
         {
             if (!NiconicoSession.IsLoggedIn)
             {
-                return new List<ChannelFollowData>();
+                return new List<FollowChannelResponse.FollowChannel>();
             }
 
 
-            return await ContextActionWithPageAccessWaitAsync(async context =>
+            var res =  await ContextActionWithPageAccessWaitAsync(async context =>
             {
                 return await context.User.GetFollowChannelAsync();
-            });            
+            });
+
+            return res.Data;
         }
 
         public async Task<ContentManageResult> AddFollowAsync(string id)
@@ -275,16 +281,16 @@ namespace NicoPlayerHohoema.Models.Provider
 
         public static CommunituFollowAdditionalInfo CommunituFollowAdditionalInfo { get; set; }
 
-        public async Task<List<FollowCommunityInfo>> GetAllAsync()
+        public async Task<List<Mntone.Nico2.Users.Follow.FollowCommunityResponse.FollowCommunity>> GetAllAsync()
         {
             if (!NiconicoSession.IsLoggedIn)
             {
-                return new List<FollowCommunityInfo>();
+                return new List<Mntone.Nico2.Users.Follow.FollowCommunityResponse.FollowCommunity>();
             }
 
-            var items = new List<FollowCommunityInfo>();
+            var items = new List<Mntone.Nico2.Users.Follow.FollowCommunityResponse.FollowCommunity>();
             bool needMore = true;
-            int page = 0;
+            uint page = 0;
 
             while (needMore)
             {
@@ -292,13 +298,13 @@ namespace NicoPlayerHohoema.Models.Provider
                 {
                     var res = await ContextActionWithPageAccessWaitAsync(async context =>
                     {
-                        return await context.User.GetFollowCommunityAsync(page);
+                        return await context.User.GetFollowCommunityAsync(25, page);
                     });
 
-                    items.AddRange(res.Items);
+                    items.AddRange(res.Data);
 
                     // フォローコミュニティページの一画面での最大表示数10個と同数の場合は追加で取得
-                    needMore = res.Items.Count == 10;
+                    needMore = res.Meta.Count != res.Meta.Total;
                 }
                 catch
                 {
@@ -313,20 +319,12 @@ namespace NicoPlayerHohoema.Models.Provider
 
         public async Task<ContentManageResult> AddFollowAsync(string id)
         {
-            if (CommunituFollowAdditionalInfo == null)
-            {
-                return ContentManageResult.Failed;
-            }
-            var title = CommunituFollowAdditionalInfo.Title;
-            var comment = CommunituFollowAdditionalInfo.Comment;
-            var notify = CommunituFollowAdditionalInfo.Notify;
-
             var result = await ContextActionAsync(async context =>
             {
-                return await context.User.AddFollowCommunityAsync(id, title, comment, notify);
+                return await context.User.AddFollowCommunityAsync(id);
             });
 
-            return result ? ContentManageResult.Success : ContentManageResult.Failed;
+            return result;
         }
 
         public async Task<ContentManageResult> RemoveFollowAsync(string id)
@@ -338,11 +336,10 @@ namespace NicoPlayerHohoema.Models.Provider
 
             var result = await ContextActionAsync(async context =>
             {
-                var leaveToken = await context.User.GetFollowCommunityLeaveTokenAsync(id);
-                return await context.User.RemoveFollowCommunityAsync(leaveToken);
+                return await context.User.RemoveFollowCommunityAsync(id);
             });
 
-            return result ? ContentManageResult.Success : ContentManageResult.Failed;
+            return result;
         }
     }
 

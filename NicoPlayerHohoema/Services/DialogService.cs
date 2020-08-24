@@ -225,9 +225,9 @@ namespace NicoPlayerHohoema.Services
                 var resultData = context.GetResult();
                 data.Name = resultData.Name;
                 data.Description = resultData.Description;
-                data.IconType = resultData.IconType;
                 data.IsPublic = resultData.IsPublic;
-                data.MylistDefaultSort = resultData.MylistDefaultSort;
+                data.DefaultSortKey = resultData.DefaultSortKey;
+                data.DefaultSortOrder = resultData.DefaultSortOrder;
             }
             return result == Windows.UI.Xaml.Controls.ContentDialogResult.Primary;
         }

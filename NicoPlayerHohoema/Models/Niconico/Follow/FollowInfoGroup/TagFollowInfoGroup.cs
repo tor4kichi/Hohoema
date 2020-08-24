@@ -1,4 +1,5 @@
 ﻿using Mntone.Nico2;
+using Mntone.Nico2.Users.Follow;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models
 {
-	public class TagFollowInfoGroup : FollowInfoGroupBaseTemplate<string>
+	public class TagFollowInfoGroup : FollowInfoGroupBaseTemplate<FollowTagsResponse.Tag>
 	{
 		public TagFollowInfoGroup(
             NiconicoSession niconicoSession, 
@@ -26,22 +27,22 @@ namespace NicoPlayerHohoema.Models
         public NiconicoSession NiconicoSession { get; }
         public Provider.TagFollowProvider TagFollowProvider { get; }
 
-        protected override FollowItemInfo ConvertToFollowInfo(string source)
+        protected override FollowItemInfo ConvertToFollowInfo(FollowTagsResponse.Tag source)
 		{
 			return new FollowItemInfo()
 			{
-				Id = source,
-				Name = source,
+				Id = source.Name,
+				Name = source.Name,
 				FollowItemType = FollowItemType
 			};
 		}
 
-		protected override string FollowSourceToItemId(string source)
+		protected override string FollowSourceToItemId(FollowTagsResponse.Tag source)
 		{
-			return source;
+			return source.Name;
 		}
 
-		protected override async Task<List<string>> GetFollowSource()
+		protected override async Task<List<FollowTagsResponse.Tag>> GetFollowSource()
 		{
             return await TagFollowProvider.GetAllAsync();
         }

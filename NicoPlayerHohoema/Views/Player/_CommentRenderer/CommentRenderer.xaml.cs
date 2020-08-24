@@ -616,7 +616,7 @@ namespace NicoPlayerHohoema.Views
             if (_commentToRenderCommentMap.ContainsKey(comment)) { return; }
 
             // 表示区間を過ぎたコメントは表示しない
-            if (comment.VideoPosition > frame.CurrentVpos + frame.CommentDisplayDurationVPos)
+            if (comment.VideoPosition + frame.CommentDisplayDurationVPos < frame.CurrentVpos)
             {
                 return;
             }
@@ -875,7 +875,7 @@ namespace NicoPlayerHohoema.Views
                 foreach (var comment in comments)
                 {
                     AddCommentToCanvas(comment, frame);
-                    frame.CurrentVpos = (uint)Math.Floor((VideoPosition + VideoPositionOffset).TotalMilliseconds * 0.1);
+                    frame.CurrentVpos = (uint)Math.Floor((VideoPositionOffset).TotalMilliseconds * 0.1);
                 }
             }
         }

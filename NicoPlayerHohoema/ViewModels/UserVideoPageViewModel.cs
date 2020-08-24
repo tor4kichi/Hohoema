@@ -23,6 +23,9 @@ using NicoPlayerHohoema.Models.Subscription;
 using NicoPlayerHohoema.UseCase;
 using NicoPlayerHohoema.ViewModels.Subscriptions;
 using Reactive.Bindings;
+using Mntone.Nico2.Videos.Users;
+using WinRTXamlToolkit.IO.Serialization;
+using static Mntone.Nico2.Users.User.UserDetailResponse;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -84,10 +87,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                 if (User != null)
                 {
-                    IsOwnerVideoPrivate = User.IsOwnerVideoPrivate;
-                    UserName = User.Nickname;
-
-                    UserInfo.Value = new UserInfoViewModel(User.Nickname, User.UserId, User.ThumbnailUri);
+                    UserInfo.Value = new UserInfoViewModel(User.User.Nickname, User.User.Id.ToString(), User.User.Icons.Small.OriginalString);
                 }
                 else
                 {
@@ -138,7 +138,7 @@ namespace NicoPlayerHohoema.ViewModels
             set { SetProperty(ref _IsOwnerVideoPrivate, value); }
         }
 
-        public UserDetail User { get; private set; }
+        public UserDetails User { get; private set; }
 
 		
 		public string UserId { get; private set; }
@@ -150,55 +150,43 @@ namespace NicoPlayerHohoema.ViewModels
 		public uint UserId { get; }
 		public UserProvider UserProvider { get; }
 		public VideoCacheManager MediaManager { get; }
-        
 
+        public override uint OneTimeLoadCount => 25;
 
-		public UserDetail User { get; private set;}
+        public UserDetails User { get; private set;}
 
-		public List<UserVideoResponse> _ResList;
+        UserVideosResponse _firstRes;
+        public List<UserVideosResponse> _ResList;
 		
-		public UserVideoIncrementalSource(string userId, UserDetail userDetail, UserProvider userProvider)
+		public UserVideoIncrementalSource(string userId, UserDetails userDetail, UserProvider userProvider)
 		{
 			UserId = uint.Parse(userId);
 			User = userDetail;
             UserProvider = userProvider;
-			_ResList = new List<UserVideoResponse>();
+			_ResList = new List<UserVideosResponse>();
 		}
 
         protected override async Task<IAsyncEnumerable<VideoInfoControlViewModel>> GetPagedItemsImpl(int start, int count)
         {
-            var rawPage = ((start) / 30);
-            var page = rawPage + 1;
-
-            var res = _ResList.ElementAtOrDefault(rawPage);
-            if (res == null)
-            {
-                try
-                {
-                    res = await UserProvider.GetUserVideos(UserId, (uint)page);
-                }
-                catch
-                {
-                    return AsyncEnumerable.Empty<VideoInfoControlViewModel>();
-                }
-                _ResList.Add(res);
-            }
-
-            var head = start - rawPage * 30;
-
-            var items = res.Items.Skip(head).Take(count);
+            var res = start == 0 ? _firstRes : await UserProvider.GetUserVideos(UserId, (uint)start / OneTimeLoadCount);
+            var items = res.Data.Items;
             return items.Select(x =>
             {
-                var vm = new VideoInfoControlViewModel(x.VideoId);
-                vm.SetupDisplay(x);
+                var vm = new VideoInfoControlViewModel(x.Id);
+                vm.SetTitle(x.Title);
+                vm.SetThumbnailImage(x.Thumbnail.ListingUrl.OriginalString);
+                vm.SetSubmitDate(x.RegisteredAt.DateTime);
+                vm.SetVideoDuration(TimeSpan.FromSeconds(x.Duration));
+
                 return vm;
             })
             .ToAsyncEnumerable();
         }
 
-        protected override Task<int> ResetSourceImpl()
+        protected override async Task<int> ResetSourceImpl()
         {
-            return Task.FromResult((int)User.TotalVideoCount);
+            _firstRes = await UserProvider.GetUserVideos(UserId, (uint)0);
+            return (int)_firstRes.Data.TotalCount;
         }
     }
 }

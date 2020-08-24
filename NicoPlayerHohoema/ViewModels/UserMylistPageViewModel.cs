@@ -85,8 +85,8 @@ namespace NicoPlayerHohoema.ViewModels
                     Name = "",
                     Description = "",
                     IsPublic = false,
-                    MylistDefaultSort = MylistDefaultSort.Latest,
-                    IconType = IconType.Default,
+                    DefaultSortKey = Mntone.Nico2.Users.Mylist.MylistSortKey.AddedAt,
+                    DefaultSortOrder = Mntone.Nico2.Users.Mylist.MylistSortOrder.Desc
                 };
 
                 // 成功するかキャンセルが押されるまで繰り返す
@@ -98,11 +98,11 @@ namespace NicoPlayerHohoema.ViewModels
                             data.Name,
                             data.Description,
                             data.IsPublic,
-                            data.MylistDefaultSort,
-                            data.IconType
+                            data.DefaultSortKey,
+                            data.DefaultSortOrder
                         );
 
-                        if (result == Mntone.Nico2.ContentManageResult.Success)
+                        if (result != null)
                         {
                             await ResetList();
                             break;
@@ -113,8 +113,6 @@ namespace NicoPlayerHohoema.ViewModels
                         break;
                     }
                 }
-
-
             }
             , () => _userMylistManager.Mylists.Count < _userMylistManager.MaxMylistGroupCountCurrentUser
             );
@@ -158,6 +156,8 @@ namespace NicoPlayerHohoema.ViewModels
 
             EditMylistGroupCommand = new DelegateCommand<Interfaces.IPlaylist>(async item =>
             {
+                throw new NotImplementedException();
+                /*
                 if (item is LocalPlaylist localPlaylist)
                 {
                     if (item.Id == HohoemaPlaylist.WatchAfterPlaylistId)
@@ -188,7 +188,7 @@ namespace NicoPlayerHohoema.ViewModels
                         Name = loginUserMylist.Label,
                         Description = loginUserMylist.Description,
                         IsPublic = loginUserMylist.IsPublic,
-                        MylistDefaultSort = loginUserMylist.DefaultSort,
+                        DefaultSortKey = loginUserMylist.DefaultSort,
                         IconType = loginUserMylist.IconType,
                     };
 
@@ -204,7 +204,7 @@ namespace NicoPlayerHohoema.ViewModels
                                 loginUserMylist.Label = data.Name;
                                 loginUserMylist.Description = data.Description;
                                 loginUserMylist.IsPublic = data.IsPublic;
-                                loginUserMylist.DefaultSort = data.MylistDefaultSort;
+                                loginUserMylist.DefaultSort = data.DefaultSortKey;
                                 loginUserMylist.IconType = data.IconType;
 
                                 break;
@@ -216,6 +216,7 @@ namespace NicoPlayerHohoema.ViewModels
                         }
                     }
                 }
+                */
             });
         }
 
