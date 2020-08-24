@@ -306,7 +306,7 @@ namespace NicoPlayerHohoema.ViewModels
                         // ソース更新後のコメント表示再生位置のズレを補正する
                         if (!IsWatchWithTimeshift.Value)
                         {
-                            WatchStartLiveElapsedTime.Value = (DateTimeOffset.Now.ToOffset(NicoLiveVideo.JapanTimeZoneOffset) - _OpenAt);
+                            WatchStartLiveElapsedTime.Value = NicoLiveVideo.LiveElapsedTimeFromOpen;
                         }
                     }
                 }
@@ -800,7 +800,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                 if (!IsWatchWithTimeshift.Value)
                 {
-                    WatchStartLiveElapsedTime.Value = (DateTimeOffset.Now.ToOffset(NicoLiveVideo.JapanTimeZoneOffset) - _OpenAt);
+                    WatchStartLiveElapsedTime.Value = NicoLiveVideo.LiveElapsedTimeFromOpen;
 
 //                    ResetSuggestion();
                 }

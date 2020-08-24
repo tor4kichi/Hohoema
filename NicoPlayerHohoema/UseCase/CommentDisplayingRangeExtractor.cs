@@ -47,19 +47,19 @@ namespace NicoPlayerHohoema.UseCase
             return Rewind(initialPosition);
         }
 
-        public CommentDisplayingRangeChanged UpdateToNextFrame(TimeSpan endPosition)
+        public CommentDisplayingRangeChanged UpdateToNextFrame(TimeSpan currentPosition)
         {
             if (_comments == null) { return new CommentDisplayingRangeChanged(); }
 
-            TimeSpan startPosition = GetDisplayRangeStartPosition(endPosition);
+            TimeSpan startPosition = GetDisplayRangeStartPosition(currentPosition);
 
-            if (Math.Abs((_prevPosition - endPosition).TotalSeconds) >= 1.0) 
+            if (Math.Abs((_prevPosition - currentPosition).TotalSeconds) >= 1.0) 
             {
                 // 1秒以上飛んでいた場合はリセットをかける
                 var prevStart = _startIndex;
                 var prevEnd = _endIndex;
 
-                var comments = Rewind(endPosition);
+                var comments = Rewind(currentPosition);
 
                 return new CommentDisplayingRangeChanged()
                 {
@@ -69,9 +69,9 @@ namespace NicoPlayerHohoema.UseCase
                 };
             }
 
-            var rangeComments = EnumerateCommentsInRange(ref _startIndex, ref _endIndex, startPosition, endPosition);
+            var rangeComments = EnumerateCommentsInRange(ref _startIndex, ref _endIndex, startPosition, currentPosition);
 
-            _prevPosition = endPosition;
+            _prevPosition = currentPosition;
 
             return rangeComments;
         }
@@ -149,9 +149,10 @@ namespace NicoPlayerHohoema.UseCase
             };
         }
 
-        private TimeSpan GetDisplayRangeStartPosition(TimeSpan startPosition)
+        private TimeSpan GetDisplayRangeStartPosition(TimeSpan currentPosition)
         {
-            return startPosition - _playerSettings.CommentDisplayDuration;
+            // ２秒表示時間を伸ばすといい感じに表示できる（邪悪）
+            return currentPosition - _playerSettings.CommentDisplayDuration - TimeSpan.FromSeconds(2); 
         }
 
     }
