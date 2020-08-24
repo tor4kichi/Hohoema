@@ -709,18 +709,18 @@ namespace NicoPlayerHohoema.ViewModels
         {
             var result = await _mylist.GetItemsAsync(DefaultSortKey, DefaultSortOrder, OneTimeLoadCount, 0);
             _firstResult = result;
-
-
+            isEndReached = false;
             return result.TotalCount;
         }
 
+        bool isEndReached;
         protected override async Task<IAsyncEnumerable<IVideoContent>> GetPagedItemsImpl(int head, int count)
         {
             if (head == 0)
             {
                 return _firstResult.Items.ToAsyncEnumerable();
             }
-            else if (_firstResult.TotalCount <= head)
+            else if (_firstResult.TotalCount <= head || isEndReached)
             {
                 return AsyncEnumerable.Empty<IVideoContent>();
             }
@@ -731,6 +731,7 @@ namespace NicoPlayerHohoema.ViewModels
 
                 if (result.IsSuccess)
                 {
+                    isEndReached = result.Items.Count != OneTimeLoadCount;
                     return result.Items.ToAsyncEnumerable();
                 }
                 else
@@ -773,14 +774,21 @@ namespace NicoPlayerHohoema.ViewModels
 
         protected override Task<int> ResetSourceImpl()
         {
+            isEndReached = false;
             return Task.FromResult(_mylist.Count);
         }
 
-        
+        bool isEndReached;
         protected override async Task<IAsyncEnumerable<IVideoContent>> GetPagedItemsImpl(int head, int count)
         {
+            if (isEndReached)
+            {
+                return AsyncEnumerable.Empty<IVideoContent>();
+            }
+
             var page = (uint)(head / OneTimeLoadCount);
             var items = await _mylist.GetLoginUserMylistItemsAsync(DefaultSortKey, DefaultSortOrder, OneTimeLoadCount, page);
+            isEndReached = items.Count != OneTimeLoadCount;
             return items.ToAsyncEnumerable();
         }
 
