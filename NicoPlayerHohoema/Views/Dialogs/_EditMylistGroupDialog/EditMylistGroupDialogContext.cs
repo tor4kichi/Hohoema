@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Windows.UI;
 using Prism.Ioc;
 using Mntone.Nico2.Users.Mylist;
+using NicoPlayerHohoema.ViewModels;
 
 namespace NicoPlayerHohoema.Dialogs
 {
@@ -21,23 +22,28 @@ namespace NicoPlayerHohoema.Dialogs
 	{
 		IScheduler _scheduler;
 
-        public static List<IncoTypeVM> IconTypeList { get; private set; }
-		public static List<MylistDefaultSort> MylistDefaultSortList { get; private set; }
-
-		static EditMylistGroupDialogContext()
+		static public MylistSortViewModel[] SortItems { get; } = new MylistSortViewModel[]
 		{
-			IconTypeList = new List<IncoTypeVM>();
-			foreach (var iconType in ((IconType[])Enum.GetValues(typeof(IconType))))
-			{
-				IconTypeList.Add(new IncoTypeVM()
-				{
-					IconType = iconType,
-					Color = iconType.ToColor()
-				});
-			}
+			new MylistSortViewModel() { Key = MylistSortKey.AddedAt, Order = MylistSortOrder.Desc },
+			new MylistSortViewModel() { Key = MylistSortKey.AddedAt, Order = MylistSortOrder.Asc },
+			new MylistSortViewModel() { Key = MylistSortKey.Title, Order = MylistSortOrder.Asc },
+			new MylistSortViewModel() { Key = MylistSortKey.Title, Order = MylistSortOrder.Desc },
+			new MylistSortViewModel() { Key = MylistSortKey.MylistComment, Order = MylistSortOrder.Asc },
+			new MylistSortViewModel() { Key = MylistSortKey.MylistComment, Order = MylistSortOrder.Desc },
+			new MylistSortViewModel() { Key = MylistSortKey.RegisteredAt, Order = MylistSortOrder.Desc },
+			new MylistSortViewModel() { Key = MylistSortKey.RegisteredAt, Order = MylistSortOrder.Asc },
+			new MylistSortViewModel() { Key = MylistSortKey.ViewCount, Order = MylistSortOrder.Desc },
+			new MylistSortViewModel() { Key = MylistSortKey.ViewCount, Order = MylistSortOrder.Asc },
+			new MylistSortViewModel() { Key = MylistSortKey.LastCommentTime, Order = MylistSortOrder.Desc },
+			new MylistSortViewModel() { Key = MylistSortKey.LastCommentTime, Order = MylistSortOrder.Asc },
+			new MylistSortViewModel() { Key = MylistSortKey.CommentCount, Order = MylistSortOrder.Desc },
+			new MylistSortViewModel() { Key = MylistSortKey.CommentCount, Order = MylistSortOrder.Asc },
+			new MylistSortViewModel() { Key = MylistSortKey.MylistCount, Order = MylistSortOrder.Desc },
+			new MylistSortViewModel() { Key = MylistSortKey.MylistCount, Order = MylistSortOrder.Asc },
+			new MylistSortViewModel() { Key = MylistSortKey.Duration, Order = MylistSortOrder.Desc },
+			new MylistSortViewModel() { Key = MylistSortKey.Duration, Order = MylistSortOrder.Asc },
+		};
 
-			MylistDefaultSortList = Enum.GetValues(typeof(MylistDefaultSort)).Cast<MylistDefaultSort>().ToList();
-		}
 
 		public EditMylistGroupDialogContext(MylistGroupEditData data, bool isCreate = false)
 		{
@@ -47,9 +53,8 @@ namespace NicoPlayerHohoema.Dialogs
 				.SetValidateAttribute(() => MylistName);
 
 			MylistDescription = new ReactiveProperty<string>(_scheduler, data.Description);
-			MylistIsPublicIndex = new ReactiveProperty<int>(_scheduler, data.IsPublic ? 0 : 1); // 公開=1 非公開=0
-			SortKey = new ReactiveProperty<MylistSortKey>(_scheduler, data.DefaultSortKey);
-			SortOrder = new ReactiveProperty<MylistSortOrder>(_scheduler, data.DefaultSortOrder);
+			MylistIsPublicIndex = new ReactiveProperty<int>(_scheduler, data.IsPublic ? 1 : 0); // 公開=0 非公開=1
+			SelectedSort = new ReactiveProperty<MylistSortViewModel>(_scheduler, SortItems.First(x => x.Key == data.DefaultSortKey && x.Order == data.DefaultSortOrder));
 
 			CanEditCompletion = MylistName.ObserveHasErrors
 				.Select(x => !x)
@@ -68,8 +73,9 @@ namespace NicoPlayerHohoema.Dialogs
 			{
 				Name = MylistName.Value,
 				Description = MylistDescription.Value,
-				IsPublic = MylistIsPublicIndex.Value == 0 ? true : false,
-
+				IsPublic = MylistIsPublicIndex.Value == 1 ? true : false,
+				DefaultSortKey = SelectedSort.Value.Key,
+				DefaultSortOrder = SelectedSort.Value.Order,
 			};
 		}
 
@@ -81,8 +87,7 @@ namespace NicoPlayerHohoema.Dialogs
 		public ReactiveProperty<string> MylistName { get; private set; }
 		public ReactiveProperty<string> MylistDescription { get; private set; }
 		public ReactiveProperty<int> MylistIsPublicIndex { get; private set; }
-		public ReactiveProperty<MylistSortKey> SortKey { get; private set; }
-		public ReactiveProperty<MylistSortOrder> SortOrder { get; private set; }
+		public ReactiveProperty<MylistSortViewModel> SelectedSort { get; private set; }
 
 
 		public ReactiveProperty<string> LastErrorMessage { get; private set; }

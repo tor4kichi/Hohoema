@@ -172,12 +172,6 @@ namespace NicoPlayerHohoema.Repository.Playlist
         }
 
 
-        public Task<ContentManageResult> UpdateMylist(Dialogs.MylistGroupEditData editData)
-        {
-            return _loginUserMylistProvider.UpdateMylist(Id, editData);
-        }
-
-
 
 
         public Task<MylistItemAddedEventArgs> AddItem(string videoId, string mylistComment = "")

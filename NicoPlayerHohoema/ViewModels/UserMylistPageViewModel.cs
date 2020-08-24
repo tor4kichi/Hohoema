@@ -80,8 +80,6 @@ namespace NicoPlayerHohoema.ViewModels
 
             AddMylistGroupCommand = new DelegateCommand(async () =>
             {
-                throw new NotImplementedException();
-                /*
                 MylistGroupEditData data = new MylistGroupEditData()
                 {
                     Name = "",
@@ -101,9 +99,10 @@ namespace NicoPlayerHohoema.ViewModels
                             data.Description,
                             data.IsPublic,
                             data.DefaultSortKey,
+                            data.DefaultSortOrder
                         );
 
-                        if (result == Mntone.Nico2.ContentManageResult.Success)
+                        if (result != null)
                         {
                             await ResetList();
                             break;
@@ -114,8 +113,6 @@ namespace NicoPlayerHohoema.ViewModels
                         break;
                     }
                 }
-                */
-
             }
             , () => _userMylistManager.Mylists.Count < _userMylistManager.MaxMylistGroupCountCurrentUser
             );

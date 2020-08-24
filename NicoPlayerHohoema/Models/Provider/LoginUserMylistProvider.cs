@@ -166,16 +166,24 @@ namespace NicoPlayerHohoema.Models.Provider
         }
 
 
-        public async Task<ContentManageResult> AddMylist(string name, string description, bool is_public, MylistDefaultSort default_sort, IconType iconType)
+        public async Task<string> AddMylist(string name, string description, bool isPublic, MylistSortKey sortKey, MylistSortOrder sortOrder)
         {
             return await ContextActionAsync(async context =>
             {
-                return await context.User.CreateMylistGroupAsync(name, description, is_public, default_sort, iconType);
+                return await context.User.CreateMylistGroupAsync(name, description, isPublic, sortKey, sortOrder);
+            });
+        }
+
+        public async Task<bool> UpdateMylist(string mylistId, string name, string description, bool isPublic, MylistSortKey sortKey, MylistSortOrder sortOrder)
+        {
+            return await ContextActionAsync(async context =>
+            {
+                return await context.User.UpdateMylistGroupAsync(mylistId, name, description, isPublic, sortKey, sortOrder);
             });
         }
 
 
-        public async Task<ContentManageResult> RemoveMylist(string group_id)
+        public async Task<bool> RemoveMylist(string group_id)
         {
             return await ContextActionAsync(async context =>
             {
@@ -227,31 +235,6 @@ namespace NicoPlayerHohoema.Models.Provider
             {
                 return await context.User.MoveMylistItemAsync(sourceMylistGroupId, targetGroupInfo.GroupId, NiconicoItemType.Video, items.Select(x => x.ItemId).ToArray());
             });
-        }
-
-
-        public async Task<ContentManageResult> UpdateMylist(string myylistId, Dialogs.MylistGroupEditData editData)
-        {
-            if (myylistId == "0")
-            {
-                throw new Exception();
-            }
-
-            throw new NotImplementedException();
-            /*
-            return await ContextActionAsync(async context =>
-            {
-                return await context.User.UpdateMylistGroupAsync(
-                    myylistId,
-                    editData.Name,
-                    editData.Description,
-                    editData.IsPublic,
-                    editData.DefaultSortKey,
-                    IconType.Default
-                    );
-                
-            });
-            */
         }
     }
 

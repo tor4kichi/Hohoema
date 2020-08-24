@@ -384,28 +384,15 @@ namespace NicoPlayerHohoema.ViewModels
                 return _EditMylistGroupCommand
                     ?? (_EditMylistGroupCommand = new DelegateCommand<Interfaces.IPlaylist>(async playlist =>
                     {
-                        if (playlist is LocalPlaylist localMylist)
-                        {
-                            var resultText = await DialogService.GetTextAsync(
-                                "RenameLocalPlaylist".Translate(),
-                                localMylist.Label,
-                                localMylist.Label,
-                                (tempName) => !string.IsNullOrWhiteSpace(tempName)
-                                );
-
-                            if (!string.IsNullOrWhiteSpace(resultText))
-                            {
-                                localMylist.Label = resultText;
-                            }
-                        }
-
-                        if (playlist is LoginUserMylistPlaylist mylist)
+                        if (Mylist.Value is LoginUserMylistPlaylist mylist)
                         {
                             MylistGroupEditData data = new MylistGroupEditData()
                             {
                                 Name = mylist.Label,
                                 Description = mylist.Description,
                                 IsPublic = mylist.IsPublic,
+                                DefaultSortKey = mylist.DefaultSortKey,
+                                DefaultSortOrder = mylist.DefaultSortOrder,
                             };
 
                             // 成功するかキャンセルが押されるまで繰り返す
@@ -413,15 +400,17 @@ namespace NicoPlayerHohoema.ViewModels
                             {
                                 if (true == await DialogService.ShowEditMylistGroupDialogAsync(data))
                                 {
-                                    var result = await LoginUserMylistProvider.UpdateMylist(mylist.Id, data);
+                                    var result = await LoginUserMylistProvider.UpdateMylist(mylist.Id, data.Name, data.Description, data.IsPublic, data.DefaultSortKey, data.DefaultSortOrder);
 
-                                    if (result == Mntone.Nico2.ContentManageResult.Success)
+                                    if (result)
                                     {
                                         mylist.Label = data.Name;
                                         mylist.IsPublic = data.IsPublic;
                                         mylist.DefaultSortKey = data.DefaultSortKey;
                                         mylist.DefaultSortOrder = data.DefaultSortOrder;
                                         mylist.Description = data.Description;
+
+                                        Mylist.ForceNotify();
 
                                         // TODO: IsPublicなどの情報を表示
 
@@ -455,7 +444,7 @@ namespace NicoPlayerHohoema.ViewModels
                         var mylistOrigin = mylist.GetOrigin();
                         var contentMessage = "ConfirmDeleteX_ImpossibleReDo".Translate(mylist.Label);
 
-                        var dialog = new MessageDialog(contentMessage, $"ConfirmDeleteX".Translate(Interfaces.PlaylistOrigin.Local.Translate()));
+                        var dialog = new MessageDialog(contentMessage, $"ConfirmDeleteX".Translate(Interfaces.PlaylistOrigin.Mylist.Translate()));
                         dialog.Commands.Add(new UICommand("Delete".Translate(), async (i) =>
                         {
                             if (mylistOrigin == Interfaces.PlaylistOrigin.Local)

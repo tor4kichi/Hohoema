@@ -708,9 +708,8 @@ MylistName = マイリスト名
 MylistDescription = 説明
 MylistMemo = メモ
 MylistPrivateSettings = 公開範囲
-MylistPrivateSettings_Private = 自分だけ
-MylistPrivateSettings_Public = 誰でも
-MylistThemeColor = テーマカラー
+MylistPrivateSettings_Private = 非公開
+MylistPrivateSettings_Public = 公開
 MylistSort = 並び替え
 
 
@@ -784,6 +783,10 @@ NoItems_Mylist = マイリストはありません
 
 
 #### User Mylist ####
+
+PlaylistOrigin.Mylist = マイリスト
+PlaylistOrigin.Local = ローカルマイリスト
+
 LocalPlaylistCreate = ローカルマイリストを作成
 LocalPlaylistNameTextBoxPlacefolder = ローカルマイリスト名を入力
 MylistCreate = マイリストを作成

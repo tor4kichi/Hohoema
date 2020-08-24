@@ -1,6 +1,7 @@
 ﻿using I18NPortable;
 using Mntone.Nico2;
 using Mntone.Nico2.Mylist;
+using Mntone.Nico2.Users.Mylist;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Repository.Playlist;
@@ -228,11 +229,11 @@ namespace NicoPlayerHohoema.Models
             }
 		}
 
-		public async Task<ContentManageResult> AddMylist(string name, string description, bool isPublic, MylistDefaultSort default_sort, IconType iconType)
-		{
-            var result = await _loginUserMylistProvider.AddMylist(name, description, isPublic, default_sort, iconType);
+		public async Task<string> AddMylist(string name, string description, bool isPublic, MylistSortKey sortKey, MylistSortOrder sortOrder)
+        {
+            var result = await _loginUserMylistProvider.AddMylist(name, description, isPublic, sortKey, sortOrder);
 
-            if (result == ContentManageResult.Success)
+            if (result != null)
             {
                 await SyncMylistGroups();
             }
@@ -241,11 +242,11 @@ namespace NicoPlayerHohoema.Models
 		}
 
 		
-		public async Task<ContentManageResult> RemoveMylist(string mylistGroupId)
+		public async Task<bool> RemoveMylist(string mylistGroupId)
 		{
 			var result = await _loginUserMylistProvider.RemoveMylist(mylistGroupId);
 
-			if (result == ContentManageResult.Success)
+			if (result)
 			{
                 await SyncMylistGroups();
             }

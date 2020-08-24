@@ -93,7 +93,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
                         $"MylistNameTextBoxPlacefolder".Translate(),
                         validater: (str) => !string.IsNullOrWhiteSpace(str)
                         );
-                        await _userMylistManager.AddMylist(title, "", false, Mntone.Nico2.Mylist.MylistDefaultSort.FirstRetrieve_Descending, Mntone.Nico2.Mylist.IconType.Default);
+                        await _userMylistManager.AddMylist(title, "", false, Mntone.Nico2.Users.Mylist.MylistSortKey.AddedAt, Mntone.Nico2.Users.Mylist.MylistSortOrder.Desc);
                         resultList = _userMylistManager.Mylists.LastOrDefault(x => x.Label == title);
                     }
                     else //if (result.Id == "local")
