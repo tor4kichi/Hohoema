@@ -13,7 +13,6 @@ using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using System.Threading;
 using System.Runtime.InteropServices.WindowsRuntime;
-using System.Collections.Async;
 using NicoPlayerHohoema.Models.Provider;
 using Unity;
 using Prism.Navigation;
@@ -23,6 +22,7 @@ using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.UseCase.Playlist.Commands;
 using NicoPlayerHohoema.UseCase;
+using System.Runtime.CompilerServices;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -170,23 +170,25 @@ namespace NicoPlayerHohoema.ViewModels
 			}
 		}
         
-        protected override Task<IAsyncEnumerable<HistoryVideoInfoControlViewModel>> GetPagedItemsImpl(int head, int count)
+        protected override async IAsyncEnumerable<HistoryVideoInfoControlViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
-            return Task.FromResult(_HistoriesResponse.Histories.Skip(head).Take(count).Select(x => 
-            {
-                var vm = new HistoryVideoInfoControlViewModel(x.Id);
-                vm.ItemId = x.ItemId;
-                vm.LastWatchedAt = x.WatchedAt.DateTime;
-                vm.UserViewCount = x.WatchCount;
+            ct.ThrowIfCancellationRequested();
 
-                vm.SetTitle(x.Title);
-                vm.SetThumbnailImage(x.ThumbnailUrl.OriginalString);
-                vm.SetVideoDuration(x.Length);
+            foreach (var item in _HistoriesResponse.Histories.Skip(head).Take(count))
+            {
+                var vm = new HistoryVideoInfoControlViewModel(item.Id);
+                vm.ItemId = item.ItemId;
+                vm.LastWatchedAt = item.WatchedAt.DateTime;
+                vm.UserViewCount = item.WatchCount;
+
+                vm.SetTitle(item.Title);
+                vm.SetThumbnailImage(item.ThumbnailUrl.OriginalString);
+                vm.SetVideoDuration(item.Length);
                 
-                return vm;
-            })
-            .ToAsyncEnumerable()
-            );
+                yield return vm;
+
+                ct.ThrowIfCancellationRequested();
+            }
         }
 
         protected override Task<int> ResetSourceImpl()

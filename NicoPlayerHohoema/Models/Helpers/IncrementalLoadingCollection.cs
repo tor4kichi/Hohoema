@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Async;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -19,7 +18,7 @@ namespace NicoPlayerHohoema.Models.Helpers
 	{
 		uint OneTimeLoadCount { get; }
 		Task<int> ResetSource();
-		Task<IAsyncEnumerable<T>> GetPagedItems(int head, int count);
+		IAsyncEnumerable<T> GetPagedItems(int head, int count, CancellationToken ct = default);
 	}
 
 	public class IncrementalLoadingCollection<T, I> : ObservableCollection<I>,
@@ -44,6 +43,9 @@ namespace NicoPlayerHohoema.Models.Helpers
         static AsyncLock LoadingLock { get; } = new AsyncLock();
 
         CoreDispatcher _UIDispatcher;
+
+		CancellationTokenSource _cts = new CancellationTokenSource();
+
 		public IncrementalLoadingCollection(T source)
 		{
 			this._Source = source;
@@ -58,12 +60,12 @@ namespace NicoPlayerHohoema.Models.Helpers
             // 多重読み込み防止のため
             // リスト表示に反映されるまで
             // タスクの終了を遅延させる必要があります
-            return LoadDataAsync(count, new CancellationToken(false))
-                .AsAsyncOperation();
+            return LoadDataAsync(count, _cts.Token)
+				.AsAsyncOperation();
 
         }
 
-        public async Task<LoadMoreItemsResult> LoadDataAsync(uint count, CancellationToken cancellationToken)
+        public async Task<LoadMoreItemsResult> LoadDataAsync(uint count, CancellationToken ct)
         {
 			using (await LoadingLock.LockAsync())
 			{
@@ -71,48 +73,29 @@ namespace NicoPlayerHohoema.Models.Helpers
 
 				BeginLoading?.Invoke();
 
-				IAsyncEnumerable<I> items = null;
-
-				cancellationToken.ThrowIfCancellationRequested();
+				ct.ThrowIfCancellationRequested();
 
 				try
 				{
-					items = await _Source.GetPagedItems((int)_Position, (int)_Source.OneTimeLoadCount);
+					await foreach (var item in _Source.GetPagedItems((int)_Position, (int)_Source.OneTimeLoadCount, ct).WithCancellation(ct))
+					{
+						Add(item);
+						resultCount++;
+
+						ct.ThrowIfCancellationRequested();
+					}
 				}
 				catch (OperationCanceledException)
 				{
-
+					_HasMoreItems = false;
 				}
 				catch (Exception ex)
 				{
 					Debug.WriteLine(ex.Message);
+					_HasMoreItems = false;
 				}
 
-				cancellationToken.ThrowIfCancellationRequested();
-
-				if (items != null)
-				{
-					// Task.Delay(50)は多重読み込み防止のためのおまじない
-					// アイテム追加完了のタイミングで次の追加読み込みの判定が走るっぽいので
-					// アイテム追加が完了するまでUIスレッドが止まっている必要があるっぽい、つまり
-					// 
-					// 「非同期処理のことはよくわからない
-					//       
-					//      俺たちは雰囲気で非同期処理をやっているんだ」
-					// 
-
-
-					await Task.WhenAll(
-						items.ForEachAsync((item) =>
-						{
-							this.Add(item);
-							++resultCount;
-						})
-						, Task.Delay(100)
-						);
-
-					_Position += resultCount;
-				}
+				_Position += resultCount;
 
 				if (resultCount == 0)
 				{
@@ -143,8 +126,19 @@ namespace NicoPlayerHohoema.Models.Helpers
 			_Position = 0;		
 		}
 
+		public void StopLoading()
+        {
+			_cts.Cancel();
+			_cts.Dispose();
+
+			_cts = new CancellationTokenSource();
+		}
+
 		public void Dispose()
 		{
+			_cts.Cancel();
+			_cts.Dispose();
+
 			foreach (var item in this)
 			{
                 (item as IDisposable)?.Dispose();

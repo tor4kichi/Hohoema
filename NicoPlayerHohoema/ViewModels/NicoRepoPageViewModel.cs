@@ -12,7 +12,6 @@ using Reactive.Bindings;
 using System.Collections.ObjectModel;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
-using System.Collections.Async;
 using Mntone.Nico2.Live;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Services;
@@ -23,6 +22,8 @@ using NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands;
 using NicoPlayerHohoema.UseCase;
 using I18NPortable;
 using System.Reactive.Concurrency;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -377,7 +378,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         DateTime NiconamaDisplayTime = DateTime.Now - TimeSpan.FromHours(6);
 
-        protected override async Task<IAsyncEnumerable<HohoemaListingPageItemBase>> GetPagedItemsImpl(int head, int count)
+        protected override async IAsyncEnumerable<HohoemaListingPageItemBase> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
             var tail = head + count;
             var prevCount = TimelineItems.Count;
@@ -386,6 +387,9 @@ namespace NicoPlayerHohoema.ViewModels
                 while(prevCount == TimelineItems.Count)
                 {
                     var nicoRepoResponse = await LoginUserNicoRepoProvider.GetLoginUserNicoRepo(NicoRepoTimelineType.all, _LastItem?.Id);
+
+                    ct.ThrowIfCancellationRequested();
+
                     if (nicoRepoResponse.IsStatusOK)
                     {
                         foreach (var item in nicoRepoResponse.TimelineItems)
@@ -409,29 +413,31 @@ namespace NicoPlayerHohoema.ViewModels
                 }
             }
 
-            return TimelineItems.Skip(head).Take(count).ToArray()
-                .Select<NicoRepoTimelineItem, HohoemaListingPageItemBase>(item => 
+            ct.ThrowIfCancellationRequested();
+
+            foreach (var item in TimelineItems.Skip(head).Take(count).ToArray())
+            {
+                var topicType = NicoRepoItemTopicExtension.ToNicoRepoTopicType(item.Topic);
+                if (topicType == NicoRepoItemTopic.Live_User_Program_OnAirs
+                || topicType == NicoRepoItemTopic.Live_User_Program_Reserve
+                || topicType == NicoRepoItemTopic.Live_Channel_Program_Onairs
+                || topicType == NicoRepoItemTopic.Live_Channel_Program_Reserve)
                 {
-                    var topicType = NicoRepoItemTopicExtension.ToNicoRepoTopicType(item.Topic);
-                    if (topicType == NicoRepoItemTopic.Live_User_Program_OnAirs
-                    || topicType == NicoRepoItemTopic.Live_User_Program_Reserve
-                    || topicType == NicoRepoItemTopic.Live_Channel_Program_Onairs
-                    || topicType == NicoRepoItemTopic.Live_Channel_Program_Reserve)
-                    {
-                        return new NicoRepoLiveTimeline(item, topicType);
-                    }
-                    else if (topicType == NicoRepoItemTopic.NicoVideo_User_Video_Upload || 
-                            topicType == NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video || 
-                            topicType == NicoRepoItemTopic.NicoVideo_Channel_Video_Upload)
-                    {
-                        return new NicoRepoVideoTimeline(item, topicType);
-                    }
-                    else
-                    {
-                        throw new NotSupportedException(topicType.ToString());
-                    }
-                })
-                .ToAsyncEnumerable();
+                    yield return new NicoRepoLiveTimeline(item, topicType);
+                }
+                else if (topicType == NicoRepoItemTopic.NicoVideo_User_Video_Upload ||
+                        topicType == NicoRepoItemTopic.NicoVideo_User_Mylist_Add_Video ||
+                        topicType == NicoRepoItemTopic.NicoVideo_Channel_Video_Upload)
+                {
+                    yield return new NicoRepoVideoTimeline(item, topicType);
+                }
+                else
+                {
+                    throw new NotSupportedException(topicType.ToString());
+                }
+
+                ct.ThrowIfCancellationRequested();
+            }
         }
 
     }

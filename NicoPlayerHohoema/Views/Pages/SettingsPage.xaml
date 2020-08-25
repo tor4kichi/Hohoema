@@ -151,16 +151,6 @@
                 </ComboBox>
               </Grid>
               <Grid>
-                <TextBlock Text="{Binding Source=FirstOpenPageType, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
-                <ComboBox ItemsSource="{Binding StartupPageTypeList}" SelectedItem="{Binding StartupPageType.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" HorizontalAlignment="Right">
-                  <ComboBox.ItemTemplate>
-                    <DataTemplate>
-                      <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" />
-                    </DataTemplate>
-                  </ComboBox.ItemTemplate>
-                </ComboBox>
-              </Grid>
-              <Grid>
                 <StackPanel>
                   <TextBlock Text="{Binding Source=Theme, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SettingsOptionTitleTextBlock}" />
                 </StackPanel>

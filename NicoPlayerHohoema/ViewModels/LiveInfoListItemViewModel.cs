@@ -19,6 +19,7 @@ using NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands;
 using Mntone.Nico2;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -89,7 +90,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         bool Views.Extensions.ListViewBase.IDeferInitialize.IsInitialized { get; set; }
         
-        Task Views.Extensions.ListViewBase.IDeferInitialize.DeferInitializeAsync()
+        Task Views.Extensions.ListViewBase.IDeferInitialize.DeferInitializeAsync(CancellationToken ct)
         {
             ResetElements();
             return Task.CompletedTask;

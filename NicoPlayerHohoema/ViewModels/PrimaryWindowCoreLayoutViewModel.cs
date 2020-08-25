@@ -3,6 +3,7 @@ using Mntone.Nico2.Live;
 using NicoPlayerHohoema.Commands;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
+using NicoPlayerHohoema.Models.RestoreNavigation;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Services.Player;
@@ -61,7 +62,8 @@ namespace NicoPlayerHohoema.ViewModels
             LogoutFromNiconicoCommand logoutFromNiconicoCommand,
             VideoItemsSelectionContext videoItemsSelectionContext,
             WindowService windowService,
-            ApplicationLayoutManager applicationLayoutManager
+            ApplicationLayoutManager applicationLayoutManager,
+            RestoreNavigationManager restoreNavigationManager
             )
         {
             EventAggregator = eventAggregator;
@@ -81,6 +83,7 @@ namespace NicoPlayerHohoema.ViewModels
             VideoItemsSelectionContext = videoItemsSelectionContext;
             WindowService = windowService;
             ApplicationLayoutManager = applicationLayoutManager;
+            RestoreNavigationManager = restoreNavigationManager;
         }
 
         public IEventAggregator EventAggregator { get; }
@@ -100,6 +103,7 @@ namespace NicoPlayerHohoema.ViewModels
         public VideoItemsSelectionContext VideoItemsSelectionContext { get; }
         public WindowService WindowService { get; }
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
+        public RestoreNavigationManager RestoreNavigationManager { get; }
 
 
         // call from PrimaryWindowsCoreLayout.xaml.cs

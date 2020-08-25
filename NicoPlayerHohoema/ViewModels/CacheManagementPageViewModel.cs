@@ -11,7 +11,6 @@ using NicoPlayerHohoema.Models.Helpers;
 using Prism.Commands;
 using NicoPlayerHohoema.Services;
 using Windows.System;
-using System.Collections.Async;
 using NicoPlayerHohoema.Models.Cache;
 using NicoPlayerHohoema.Models.Provider;
 using Unity;
@@ -20,6 +19,7 @@ using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.UseCase;
 using I18NPortable;
+using System.Runtime.CompilerServices;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -318,16 +318,18 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override uint OneTimeLoadCount => (uint)10;
 
-        protected override Task<IAsyncEnumerable<CacheVideoViewModel>> GetPagedItemsImpl(int head, int count)
+        protected override async IAsyncEnumerable<CacheVideoViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
-            return Task.FromResult(VideoCacheManager.GetCacheRequests(head, count)
-                .Select(x =>
-                {
-                    var vm = new CacheVideoViewModel(x.VideoId);
-                    vm.CacheRequestTime = x.RequestAt;
-                    return vm;
-                })
-                .ToAsyncEnumerable());
+            ct.ThrowIfCancellationRequested();
+
+            foreach (var item in VideoCacheManager.GetCacheRequests(head, count))
+            {
+                var vm = new CacheVideoViewModel(item.VideoId);
+                vm.CacheRequestTime = item.RequestAt;
+                yield return vm;
+
+                ct.ThrowIfCancellationRequested();
+            }
         }
 
         protected override Task<int> ResetSourceImpl()

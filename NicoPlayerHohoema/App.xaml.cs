@@ -106,8 +106,11 @@ namespace NicoPlayerHohoema
 
             if (args.StartKind == StartKinds.Launch)
             {
-                var pageManager = Container.Resolve<PageManager>();
-                pageManager.OpenStartupPage();
+                if (!_isNavigationStackRestored)
+                {
+                    _isNavigationStackRestored = true;
+                    await _primaryWindowCoreLayout.RestoreNavigationStack();
+                }
             }
             else if (args.StartKind == StartKinds.Activate)
             {
@@ -118,6 +121,7 @@ namespace NicoPlayerHohoema
                 BackgroundActivated(args.Arguments as BackgroundActivatedEventArgs);
             }
 
+            
 
             await base.OnStartAsync(args);
         }
@@ -131,7 +135,7 @@ namespace NicoPlayerHohoema
             //   |    |- MenuNavigatePageBaseViewModel
             //   |         |- rootFrame 
 
-            var primaryWindowCoreLayout = Container.Resolve<Views.PrimaryWindowCoreLayout>();
+            _primaryWindowCoreLayout = Container.Resolve<Views.PrimaryWindowCoreLayout>();
             var hohoemaInAppNotification = new Views.HohoemaInAppNotification()
             {
                 VerticalAlignment = VerticalAlignment.Bottom
@@ -141,23 +145,23 @@ namespace NicoPlayerHohoema
             {
                 Children =
                 {
-                    primaryWindowCoreLayout,
+                    _primaryWindowCoreLayout,
                     hohoemaInAppNotification,
                     new Views.NoUIProcessScreen()
                 }
             };
 
-            var primaryWindowContentNavigationService = primaryWindowCoreLayout.CreateNavigationService();
+            var primaryWindowContentNavigationService = _primaryWindowCoreLayout.CreateNavigationService();
             Container.GetContainer().RegisterInstance(primaryWindowContentNavigationService);
 
-            var primaryViewPlayerNavigationService = primaryWindowCoreLayout.CreatePlayerNavigationService();
+            var primaryViewPlayerNavigationService = _primaryWindowCoreLayout.CreatePlayerNavigationService();
             var name = "PrimaryPlayerNavigationService";
             Container.GetContainer().RegisterInstance(name, primaryViewPlayerNavigationService);
 
 
 
 #if DEBUG
-            primaryWindowCoreLayout.FocusEngaged += (__, args) => Debug.WriteLine("focus engagad: " + args.OriginalSource.ToString());
+            _primaryWindowCoreLayout.FocusEngaged += (__, args) => Debug.WriteLine("focus engagad: " + args.OriginalSource.ToString());
 #endif
 
             return grid;
@@ -583,6 +587,7 @@ namespace NicoPlayerHohoema
                             var pageManager = Container.Resolve<Services.PageManager>();
                             pageManager.OpenPage(payload.RedirectPageType, payload.RedirectParamter);
                             isHandled = true;
+                            _isNavigationStackRestored = true;
                         }
                     }
                     
@@ -592,6 +597,7 @@ namespace NicoPlayerHohoema
                         if (pageManager.OpenPage(uri))
                         {
                             isHandled = true;
+                            _isNavigationStackRestored = true;
                         }
                     }
                 }
@@ -657,7 +663,13 @@ namespace NicoPlayerHohoema
                     PlayLiveVideoFromExternal(maybeNicoContentId);
                 }
             }
-		}
+
+            
+        }
+
+
+        bool _isNavigationStackRestored = false;
+
 
 
         public override void OnInitialized()
@@ -838,6 +850,7 @@ namespace NicoPlayerHohoema
 
         private int MainViewId = -1;
         private Size _PrevWindowSize;
+        private Views.PrimaryWindowCoreLayout _primaryWindowCoreLayout;
 
         protected override void OnWindowCreated(WindowCreatedEventArgs args)
 		{

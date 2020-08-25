@@ -16,9 +16,6 @@ namespace NicoPlayerHohoema.Models
     public class AppearanceSettings : SettingsBase
     {
         [DataMember]
-        public HohoemaPageType StartupPageType { get; set; } = HohoemaPageType.RankingCategoryList;
-
-        [DataMember]
         public string Locale { get; set; } = I18NPortable.I18N.Current.GetDefaultLocale();
 
         [DataMember]

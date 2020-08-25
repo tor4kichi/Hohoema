@@ -10,7 +10,6 @@ using Mntone.Nico2;
 using Reactive.Bindings;
 using System.Reactive.Linq;
 using Reactive.Bindings.Extensions;
-using System.Collections.Async;
 using NicoPlayerHohoema.Services.Page;
 using NicoPlayerHohoema.Models.Provider;
 using Unity;
@@ -23,6 +22,8 @@ using NicoPlayerHohoema.UseCase;
 using I18NPortable;
 using NicoPlayerHohoema.Models.Live;
 using Mntone.Nico2.Live;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -423,7 +424,7 @@ namespace NicoPlayerHohoema.ViewModels
                 SearchedVideoIdsHash.Add(live.ContentId);
             }
         }
-		public async Task<IAsyncEnumerable<LiveInfoListItemViewModel>> GetPagedItems(int head, int count)
+		public async IAsyncEnumerable<LiveInfoListItemViewModel> GetPagedItems(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
 		{
             if (Info.Count < (head + count))
             {
@@ -438,20 +439,23 @@ namespace NicoPlayerHohoema.ViewModels
                 }
             }
 
-            return Info.Skip(head).Take(count).Select(x =>
-			{
-                var liveInfoVM = new LiveInfoListItemViewModel(x.ContentId);
-                liveInfoVM.Setup(x);
+            ct.ThrowIfCancellationRequested();
 
-                var reserve = _Reservations?.ReservedProgram.FirstOrDefault(reservation => x.ContentId == reservation.Id);
+            foreach (var item in Info.Skip(head).Take(count))
+			{
+                var liveInfoVM = new LiveInfoListItemViewModel(item.ContentId);
+                liveInfoVM.Setup(item);
+
+                var reserve = _Reservations?.ReservedProgram.FirstOrDefault(reservation => item.ContentId == reservation.Id);
                 if (reserve != null)
                 {
                     liveInfoVM.SetReservation(reserve);
                 }
 
-                return liveInfoVM;
-			})
-            .ToAsyncEnumerable();
+                yield return liveInfoVM;
+
+                ct.ThrowIfCancellationRequested();
+			}
 		}
 	}
 }

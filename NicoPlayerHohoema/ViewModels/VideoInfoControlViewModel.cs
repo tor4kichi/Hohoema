@@ -30,6 +30,8 @@ using NicoPlayerHohoema.Interfaces;
 using I18NPortable;
 using Prism.Events;
 using NicoPlayerHohoema.Repository.VideoCache;
+using System.Threading;
+using Uno.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -169,7 +171,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public bool IsInitialized { get; private set; }
 
-        static Models.Helpers.AsyncLock _initializeLock = new Models.Helpers.AsyncLock();
+        static FastAsyncLock _initializeLock = new FastAsyncLock();
 
         #region 
 
@@ -331,59 +333,64 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        async Task Views.Extensions.ListViewBase.IDeferInitialize.DeferInitializeAsync()
+        async Task Views.Extensions.ListViewBase.IDeferInitialize.DeferInitializeAsync(CancellationToken ct)
         {
-            using var _ = await _initializeLock.LockAsync();
-
-            if (Data?.Title != null)
+            //using (await _initializeLock.LockAsync(ct))
             {
-                SetTitle(Data.Title);
-            }
-
-            if (Data == null)
-            {
-                var data = await Task.Run(async () =>
+                if (Data?.Title != null)
                 {
-                    if (IsDisposed)
-                    {
-                        Debug.WriteLine("skip thumbnail loading: " + RawVideoId);
-                        return null;
-                    }
+                    SetTitle(Data.Title);
+                }
 
-                    if (NicoVideoProvider != null)
+                if (Data == null)
+                {
+                    var data = await Task.Run(async () =>
                     {
-                        return await NicoVideoProvider.GetNicoVideoInfo(RawVideoId);
-                    }
+                        if (IsDisposed)
+                        {
+                            Debug.WriteLine("skip thumbnail loading: " + RawVideoId);
+                            return null;
+                        }
+
+                        if (NicoVideoProvider != null)
+                        {
+                            return await NicoVideoProvider.GetNicoVideoInfo(RawVideoId);
+                        }
 
                     // オフライン時はローカルDBの情報を利用する
                     if (Data == null)
-                    {
-                        return Database.NicoVideoDb.Get(RawVideoId);
-                    }
+                        {
+                            return Database.NicoVideoDb.Get(RawVideoId);
+                        }
 
-                    return null;
-                });
+                        return null;
+                    }, ct);
 
-                if (data == null) { return; }
+                    if (data == null) { return; }
 
-                Data = data;
+                    Data = data;
+                }
+
+                SubscriptionWatchedIfNotWatch(Data);
+                UpdateIsHidenVideoOwner(Data);
+                SubscribeCacheState(Data);
+
+                ct.ThrowIfCancellationRequested();
+
+                if (IsDisposed)
+                {
+                    Debug.WriteLine("skip thumbnail loading: " + RawVideoId);
+                    return;
+                }
+
+                ct.ThrowIfCancellationRequested();
+
+                SetupFromThumbnail(Data);
+
+                IsInitialized = true;
+
+                await Task.Delay(25);
             }
-
-            SubscriptionWatchedIfNotWatch(Data);
-            UpdateIsHidenVideoOwner(Data);
-            SubscribeCacheState(Data);
-
-            if (IsDisposed)
-            {
-                Debug.WriteLine("skip thumbnail loading: " + RawVideoId);
-                return;
-            }
-
-            SetupFromThumbnail(Data);
-
-            IsInitialized = true;
-
-            await Task.Delay(25);
         }
 
 

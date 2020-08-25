@@ -11,7 +11,6 @@ using System.Windows.Input;
 using Mntone.Nico2.Searches.Community;
 using Mntone.Nico2;
 using Prism.Commands;
-using System.Collections.Async;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
@@ -21,6 +20,8 @@ using Prism.Navigation;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.UseCase;
 using I18NPortable;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -319,7 +320,7 @@ namespace NicoPlayerHohoema.ViewModels
 			return (int)TotalCount;
 		}
 
-		public async Task<IAsyncEnumerable<CommunityInfoControlViewModel>> GetPagedItems(int head, int count)
+		public async IAsyncEnumerable<CommunityInfoControlViewModel> GetPagedItems(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
 		{
 			CommunitySearchResponse res = head == 0 ? FirstResponse : null;
 
@@ -335,17 +336,23 @@ namespace NicoPlayerHohoema.ViewModels
 					);
 			}
 
+            ct.ThrowIfCancellationRequested();
+
 			if (res == null)
 			{
-				return AsyncEnumerable.Empty<CommunityInfoControlViewModel>();
+                yield break;
 			}
 
 			if (false == res.IsStatusOK)
 			{
-				return AsyncEnumerable.Empty<CommunityInfoControlViewModel>();
-			}
+                yield break;
+            }
 
-            return res.Communities.Select(x => new CommunityInfoControlViewModel(x)).ToAsyncEnumerable();
+            foreach (var item in res.Communities)
+            {
+                yield return new CommunityInfoControlViewModel(item);
+                ct.ThrowIfCancellationRequested();
+            }
 		}
 
 	}

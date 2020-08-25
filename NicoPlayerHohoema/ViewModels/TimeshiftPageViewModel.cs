@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Async;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -23,6 +22,8 @@ using NicoPlayerHohoema.UseCase;
 using I18NPortable;
 using Prism.Navigation;
 using NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands;
+using System.Threading;
+using System.Runtime.CompilerServices;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -170,14 +171,13 @@ namespace NicoPlayerHohoema.ViewModels
             return reservations.ReservedProgram.Count;
         }
 
-        protected override async Task<IAsyncEnumerable<LiveInfoListItemViewModel>> GetPagedItemsImpl(int head, int count)
+        protected override async IAsyncEnumerable<LiveInfoListItemViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
-            var items = _Reservations.Skip(head).Take(count).ToArray();
+            ct.ThrowIfCancellationRequested();
 
             // 生放送情報の詳細をローカルDBに確保
             // 既に存在する場合はスキップ
-            List<LiveInfoListItemViewModel> returnItems = new List<LiveInfoListItemViewModel>();
-            foreach (var item in items)
+            foreach (var item in _Reservations.Skip(head).Take(count).ToArray())
             {
                 var liveData = await NicoLiveProvider.GetLiveInfoAsync(item.Id);
                 var tsItem = _TimeshiftList?.Items.FirstOrDefault(y => y.Id == item.Id);
@@ -188,10 +188,10 @@ namespace NicoPlayerHohoema.ViewModels
 
                 liveInfoVM.SetReservation(item);
 
-                returnItems.Add(liveInfoVM);
-            }
+                yield return liveInfoVM;
 
-            return returnItems.ToAsyncEnumerable();
+                ct.ThrowIfCancellationRequested();
+            }
         }
 
         

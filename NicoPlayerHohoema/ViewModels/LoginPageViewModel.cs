@@ -151,12 +151,12 @@ namespace NicoPlayerHohoema.ViewModels
                     }
                     catch
                     {
-                        PageManager.OpenStartupPage();
+                        PageManager.OpenPage(HohoemaPageType.RankingCategoryList);
                     }
                 }
                 else
                 {
-                    PageManager.OpenStartupPage();
+                    PageManager.OpenPage(HohoemaPageType.RankingCategoryList);
                 }
             }
         }

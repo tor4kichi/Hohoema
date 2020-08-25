@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Async;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -19,6 +18,7 @@ using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.UseCase.Playlist;
 using Reactive.Bindings.Extensions;
 using NicoPlayerHohoema.UseCase;
+using System.Runtime.CompilerServices;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -201,16 +201,16 @@ namespace NicoPlayerHohoema.ViewModels
 
         bool _IsEndPage = false;
 
-        protected override async Task<IAsyncEnumerable<ChannelVideoListItemViewModel>> GetPagedItemsImpl(int head, int count)
+        protected override async IAsyncEnumerable<ChannelVideoListItemViewModel> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
             if (_FirstResponse == null)
             {
-                return AsyncEnumerable.Empty<ChannelVideoListItemViewModel>();
+                yield break;
             }
 
             if (_IsEndPage)
             {
-                return AsyncEnumerable.Empty<ChannelVideoListItemViewModel>();
+                yield break;
             }
 
             ChannelVideoResponse res;
@@ -225,11 +225,13 @@ namespace NicoPlayerHohoema.ViewModels
                 res = await ChannelProvider.GetChannelVideo(ChannelId, page);
             }
 
+            ct.ThrowIfCancellationRequested();
+
             _IsEndPage = res != null ? (res.Videos.Count < OneTimeLoadCount) : true;
 
             if (res != null)
             {
-                return res.Videos.Select(video => 
+                foreach (var video in res.Videos)
                 {
                     // so0123456のフォーマットの動画ID
                     // var videoId = video.PurchasePreviewUrl.Split('/').Last();
@@ -242,13 +244,14 @@ namespace NicoPlayerHohoema.ViewModels
                     channelVideo.SetSubmitDate(video.PostedAt);
                     channelVideo.SetDescription(video.ViewCount, video.CommentCount, video.MylistCount);                    
 
-                    return channelVideo;
+                    yield return channelVideo;
+
+                    ct.ThrowIfCancellationRequested();
                 }
-                ).ToAsyncEnumerable();
             }
             else
             {
-                return AsyncEnumerable.Empty<ChannelVideoListItemViewModel>();
+                yield break;
             }
         }
 

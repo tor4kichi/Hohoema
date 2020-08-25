@@ -13,7 +13,6 @@ using Unity;
 using Windows.UI;
 using Windows.UI.Popups;
 using NicoPlayerHohoema.Dialogs;
-using System.Collections.Async;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Models.LocalMylist;
 using NicoPlayerHohoema.Models.Subscription;
@@ -30,6 +29,7 @@ using I18NPortable;
 using NicoPlayerHohoema.UseCase;
 using NicoPlayerHohoema.ViewModels.Subscriptions;
 using Mntone.Nico2.Users.Mylist;
+using System.Runtime.CompilerServices;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -721,29 +721,33 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         bool isEndReached;
-        protected override async Task<IAsyncEnumerable<IVideoContent>> GetPagedItemsImpl(int head, int count)
+        protected override async IAsyncEnumerable<IVideoContent> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
             if (head == 0)
             {
-                return _firstResult.Items.ToAsyncEnumerable();
+                foreach (var item in _firstResult.Items)
+                {
+                    yield return item;
+                }
             }
             else if (_firstResult.TotalCount <= head || isEndReached)
             {
-                return AsyncEnumerable.Empty<IVideoContent>();
+                
             }
             else
             {
                 var page = (uint)(head / OneTimeLoadCount);
                 var result = await _mylist.GetItemsAsync(DefaultSortKey, DefaultSortOrder, OneTimeLoadCount, page);
 
+                ct.ThrowIfCancellationRequested();
+
                 if (result.IsSuccess)
                 {
                     isEndReached = result.Items.Count != OneTimeLoadCount;
-                    return result.Items.ToAsyncEnumerable();
-                }
-                else
-                {
-                    return AsyncEnumerable.Empty<IVideoContent>();
+                    foreach (var item in result.Items)
+                    {
+                        yield return item;
+                    }
                 }
             }
         }
@@ -786,17 +790,23 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         bool isEndReached;
-        protected override async Task<IAsyncEnumerable<IVideoContent>> GetPagedItemsImpl(int head, int count)
+        protected override async IAsyncEnumerable<IVideoContent> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
             if (isEndReached)
             {
-                return AsyncEnumerable.Empty<IVideoContent>();
+                yield break;
             }
 
             var page = (uint)(head / OneTimeLoadCount);
             var items = await _mylist.GetLoginUserMylistItemsAsync(DefaultSortKey, DefaultSortOrder, OneTimeLoadCount, page);
             isEndReached = items.Count != OneTimeLoadCount;
-            return items.ToAsyncEnumerable();
+
+            ct.ThrowIfCancellationRequested();
+
+            foreach (var item in items)
+            {
+                yield return item;
+            }
         }
 
         #endregion

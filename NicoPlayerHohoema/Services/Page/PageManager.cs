@@ -492,36 +492,6 @@ namespace NicoPlayerHohoema.Services
             OpenPage(HohoemaPageType.PrologueIntroduction);
         }
 
-        public void OpenStartupPage()
-        {
-            Scheduler.Schedule(() =>
-            {
-                if (Models.Helpers.InternetConnection.IsInternet())
-                {
-                    if (IsIgnoreRecordPageType(AppearanceSettings.StartupPageType))
-                    {
-                        AppearanceSettings.StartupPageType = HohoemaPageType.RankingCategoryList;
-                    }
-
-                    try
-                    {
-                        OpenPage(AppearanceSettings.StartupPageType);
-                    }
-                    catch
-                    {
-                        OpenPage(HohoemaPageType.RankingCategoryList);
-                    }
-                }
-                else if (CacheSettings.IsUserAcceptedCache)
-                {
-                    OpenPage(HohoemaPageType.CacheManagement);
-                }
-                else
-                {
-                    OpenPage(HohoemaPageType.Settings);
-                }
-            });
-        }
 
 		public static string PageTypeToTitle(HohoemaPageType pageType)
 		{

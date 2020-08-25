@@ -156,9 +156,6 @@ namespace NicoPlayerHohoema.ViewModels
                 }
             });
 
-            StartupPageType = AppearanceSettings
-                .ToReactivePropertyAsSynchronized(x => x.StartupPageType);
-
             AppearanceSettings.ObserveProperty(x => x.Locale, isPushCurrentValueAtFirst: false).Subscribe(locale => 
             {
                 I18NPortable.I18N.Current.Locale = locale;

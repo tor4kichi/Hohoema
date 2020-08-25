@@ -3,7 +3,6 @@ using NicoPlayerHohoema.Models.Subscriptions;
 using NicoPlayerHohoema.Repository.Subscriptions;
 using NicoPlayerHohoema.UseCase.Playlist;
 using System;
-using System.Collections.Async;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Diagnostics;
