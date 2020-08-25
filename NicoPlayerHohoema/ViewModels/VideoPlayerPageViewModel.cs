@@ -188,7 +188,6 @@ namespace NicoPlayerHohoema.ViewModels
         public MediaPlayerVolumeDownCommand VolumeDownCommand { get; }
 
 
-
         private string _VideoId;
         public string VideoId
         {
@@ -380,12 +379,31 @@ namespace NicoPlayerHohoema.ViewModels
             VideoEndedRecommendation.SetCurrentVideoSeries(VideoDetails.Series);
             Debug.WriteLine("次シリーズ動画: " + VideoDetails.Series?.NextVideo?.Title);
 
+            Observable.Timer(TimeSpan.FromSeconds(0.5), TimeSpan.FromSeconds(0.5), _scheduler)
+                .Subscribe(_ => 
+                {
+                    //if (PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.Close) { return; }
+
+                    _restoreNavigationManager.SetCurrentPlayerEntry(
+                            new PlayerEntry()
+                            {
+                                ContentId = VideoInfo.VideoId,
+                                Position = MediaPlayer.PlaybackSession.Position,
+                                PlaylistId = HohoemaPlaylist.CurrentPlaylist?.Id,
+                                PlaylistOrigin = HohoemaPlaylist.CurrentPlaylist?.GetOrigin()
+                            });
+
+                    Debug.WriteLine("SetCurrentPlayerEntry");
+                })
+                .AddTo(_NavigatingCompositeDisposable);
 
             Debug.WriteLine("VideoPlayer OnNavigatedToAsync done.");
 
             App.Current.Resuming += Current_Resuming;
             App.Current.Suspending += Current_Suspending;
         }
+
+       
 
         private async Task CheckDeleted(Database.NicoVideo videoInfo)
         {
@@ -461,8 +479,6 @@ namespace NicoPlayerHohoema.ViewModels
             IsNotSupportVideoType = false;
             CannotPlayReason = null;
 
-            _restoreNavigationManager.ClearCurrentPlayerEntry();
-
             base.OnNavigatedFrom(parameters);
         }
 
@@ -471,18 +487,6 @@ namespace NicoPlayerHohoema.ViewModels
             var defferal = e.SuspendingOperation.GetDeferral();
             try
             {
-                if (VideoInfo != null && !VideoInfo.IsDeleted)
-                {
-                    _restoreNavigationManager.SetCurrentPlayerEntry(
-                        new PlayerEntry() 
-                        { 
-                            ContentId = VideoInfo.VideoId, 
-                            Position = MediaPlayer.PlaybackSession.Position, 
-                            PlaylistId = HohoemaPlaylist.CurrentPlaylist?.Id, 
-                            PlaylistOrigin = HohoemaPlaylist.CurrentPlaylist?.GetOrigin() 
-                        });
-                }
-
                 if (MediaPlayer.Source != null)
                 {
                     MediaPlayer.Pause();

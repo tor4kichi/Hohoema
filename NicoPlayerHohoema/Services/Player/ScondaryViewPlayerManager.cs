@@ -31,6 +31,7 @@ using Windows.UI.Xaml.Media.Animation;
 using Prism.Services;
 using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.Interfaces;
+using NicoPlayerHohoema.Models.RestoreNavigation;
 
 namespace NicoPlayerHohoema.Services
 {
@@ -54,11 +55,13 @@ namespace NicoPlayerHohoema.Services
 
         public ScondaryViewPlayerManager(
             IScheduler scheduler,
-            IEventAggregator eventAggregator
+            IEventAggregator eventAggregator,
+            RestoreNavigationManager restoreNavigationManager
             )
         {
             _scheduler = scheduler;
             EventAggregator = eventAggregator;
+            _restoreNavigationManager = restoreNavigationManager;
             MainViewId = ApplicationView.GetApplicationViewIdForWindow(CoreApplication.MainView.CoreWindow);
         }
 
@@ -81,7 +84,7 @@ namespace NicoPlayerHohoema.Services
 
         //        var localObjectStorageHelper = new LocalObjectStorageHelper();
         //        _PlayerViewMode = localObjectStorageHelper.Read(nameof(PlayerViewMode), PlayerViewMode.PrimaryView);
-                
+
         //        return _PlayerViewMode.Value;
         //    }
         //    private set
@@ -130,12 +133,14 @@ namespace NicoPlayerHohoema.Services
         //        });
         //    }
         //}
-        
+
+        bool isMainViewClosed;
         // メインビューを閉じたらプレイヤービューも閉じる
         private async void MainView_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
         {
             if (sender.Id == MainViewId)
             {
+                isMainViewClosed = true;
                 if (SecondaryCoreAppView != null)
                 {
                     await SecondaryCoreAppView.ExecuteOnUIThreadAsync(async () =>
@@ -161,6 +166,7 @@ namespace NicoPlayerHohoema.Services
         public const string primary_view_size = "primary_view_size";
         public const string secondary_view_size = "secondary_view_size";
         private readonly IScheduler _scheduler;
+        private readonly RestoreNavigationManager _restoreNavigationManager;
 
         private async Task CreateSecondaryView()
         {
@@ -239,7 +245,9 @@ namespace NicoPlayerHohoema.Services
 
         private async void SecondaryAppView_Consolidated(ApplicationView sender, ApplicationViewConsolidatedEventArgs args)
         {
-             await SecondaryViewPlayerNavigationService.NavigateAsync(nameof(Views.BlankPage), new SuppressNavigationTransitionInfo());
+            Debug.WriteLine($"SecondaryAppView_Consolidated: IsAppInitiated:{args.IsAppInitiated} IsUserInitiated:{args.IsUserInitiated}");
+
+            await SecondaryViewPlayerNavigationService.NavigateAsync(nameof(Views.BlankPage), new SuppressNavigationTransitionInfo());
 
             // Note: 1803時点での話
             // VisibleBoundsChanged がアプリ終了前に呼ばれるが
@@ -255,6 +263,13 @@ namespace NicoPlayerHohoema.Services
             {
                 IsShowSecondaryView = false;
             });
+
+            // プレイヤーを閉じた時に再生中情報をクリア
+            if (!isMainViewClosed)
+            {
+                Debug.WriteLine("ClearCurrentPlayerEntry secondary view closed.");
+                _restoreNavigationManager.ClearCurrentPlayerEntry();
+            }
         }
 
         static Interfaces.INiconicoContent _CurrentPlayContent { get; set; }
