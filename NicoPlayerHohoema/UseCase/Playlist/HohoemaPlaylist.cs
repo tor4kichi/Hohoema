@@ -7,6 +7,7 @@ using NicoPlayerHohoema.Models.Cache;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models.LocalMylist;
 using NicoPlayerHohoema.Models.Provider;
+using NicoPlayerHohoema.Models.RestoreNavigation;
 using NicoPlayerHohoema.Repository;
 using NicoPlayerHohoema.Repository.Playlist;
 using NicoPlayerHohoema.Services.Helpers;
@@ -252,6 +253,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             PlaylistRepository playlistRepository,
             Models.Provider.NicoVideoProvider nicoVideoProvider,
             MylistRepository mylistRepository,
+            MylistUserSelectedSortRepository mylistUserSelectedSortRepository,
             PlayerSettings playerSettings
             )
         {
@@ -267,6 +269,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             _playlistRepository = playlistRepository;
             _nicoVideoProvider = nicoVideoProvider;
             _mylistRepository = mylistRepository;
+            _mylistUserSelectedSortRepository = mylistUserSelectedSortRepository;
             _playerSettings = playerSettings;
 
             WatchAfterPlaylist = new PlaylistObservableCollection(WatchAfterPlaylistId, WatchAfterPlaylistId.Translate(), _scheduler);
@@ -365,6 +368,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         private readonly PlaylistRepository _playlistRepository;
         private readonly NicoVideoProvider _nicoVideoProvider;
         private readonly MylistRepository _mylistRepository;
+        private readonly MylistUserSelectedSortRepository _mylistUserSelectedSortRepository;
         private readonly PlayerSettings _playerSettings;
 
         public PlaylistObservableCollection WatchAfterPlaylist { get; }
@@ -608,12 +612,17 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             switch (playlist)
             {
                 case LoginUserMylistPlaylist loginUserMylist:
-                    var loginUserMylistResult = await loginUserMylist.GetLoginUserMylistItemsAsync(Mntone.Nico2.Users.Mylist.MylistSortKey.AddedAt, Mntone.Nico2.Users.Mylist.MylistSortOrder.Desc, 25, 0);
-                    return loginUserMylistResult;
-
+                    {
+                        var sort = _mylistUserSelectedSortRepository.GetMylistSort(playlist.Id);
+                        var loginUserMylistResult = await loginUserMylist.GetAll(sort.SortKey ?? loginUserMylist.DefaultSortKey, sort.SortOrder ?? loginUserMylist.DefaultSortOrder);
+                        return loginUserMylistResult;
+                    }
                 case MylistPlaylist mylist:
-                    var mylistResult = await mylist.GetMylistAllItems();
-                    return mylistResult.Items;
+                    {
+                        var sort = _mylistUserSelectedSortRepository.GetMylistSort(playlist.Id);
+                        var mylistResult = await mylist.GetMylistAllItems(sort.SortKey ?? mylist.DefaultSortKey, sort.SortOrder ?? mylist.DefaultSortOrder);
+                        return mylistResult.Items;
+                    }
                 case LocalPlaylist localPlaylist:
                     {
                         var items = _playlistRepository.GetItems(playlist.Id);

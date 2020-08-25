@@ -165,7 +165,20 @@ namespace NicoPlayerHohoema.Repository.Playlist
         public MylistRemoveItemCommand ItemsRemoveCommand { get; }
         public MylistAddItemCommand ItemsAddCommand { get; }
 
+        public async Task<List<IVideoContent>> GetAll(MylistSortKey sortKey, MylistSortOrder sortOrder)
+        {
+            List<IVideoContent> items = new List<IVideoContent>();
+            uint page = 0;
 
+            while (items.Count != Count)
+            {
+                var res = await _loginUserMylistProvider.GetLoginUserMylistItemsAsync(this, sortKey, sortOrder, 25, page);
+                items.AddRange(res);
+                page++;
+            }
+
+            return items;
+        }
 
         public Task<List<IVideoContent>> GetLoginUserMylistItemsAsync(MylistSortKey sortKey, MylistSortOrder sortOrder, uint pageSize, uint page)
         {

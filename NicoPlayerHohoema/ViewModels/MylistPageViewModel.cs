@@ -30,6 +30,7 @@ using NicoPlayerHohoema.UseCase;
 using NicoPlayerHohoema.ViewModels.Subscriptions;
 using Mntone.Nico2.Users.Mylist;
 using System.Runtime.CompilerServices;
+using NicoPlayerHohoema.Models.RestoreNavigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -71,6 +72,7 @@ namespace NicoPlayerHohoema.ViewModels
             MylistRepository mylistRepository,
             HohoemaPlaylist hohoemaPlaylist,
             SubscriptionManager subscriptionManager,
+            MylistUserSelectedSortRepository mylistUserSelectedSortRepository,
             Services.DialogService dialogService,
             NiconicoFollowToggleButtonService followToggleButtonService,
             PlaylistAggregateGetter playlistAggregate,
@@ -90,6 +92,7 @@ namespace NicoPlayerHohoema.ViewModels
             _mylistRepository = mylistRepository;
             HohoemaPlaylist = hohoemaPlaylist;
             SubscriptionManager = subscriptionManager;
+            _mylistUserSelectedSortRepository = mylistUserSelectedSortRepository;
             DialogService = dialogService;
             FollowToggleButtonService = followToggleButtonService;
             _playlistAggregate = playlistAggregate;
@@ -271,6 +274,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         private readonly MylistRepository _mylistRepository;
+        private readonly MylistUserSelectedSortRepository _mylistUserSelectedSortRepository;
         private readonly PlaylistAggregateGetter _playlistAggregate;
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
@@ -629,18 +633,21 @@ namespace NicoPlayerHohoema.ViewModels
                 RaisePropertyChanged(nameof(MylistBookmark));
             }
 
+            var lastSort = _mylistUserSelectedSortRepository.GetMylistSort(mylistId);
             if (!IsLoginUserDeflist)
             {
-                SelectedSortItem.Value = SortItems.First(x => x.Key == Mylist.Value.DefaultSortKey && x.Order == Mylist.Value.DefaultSortOrder);
+                SelectedSortItem.Value = SortItems.First(x => x.Key == (lastSort.SortKey ?? Mylist.Value.DefaultSortKey) && x.Order == (lastSort.SortOrder ?? Mylist.Value.DefaultSortOrder));
             }
             else
             {
-                SelectedSortItem.Value = SortItems.First(x => x.Key == MylistSortKey.AddedAt && x.Order == MylistSortOrder.Desc);
+                SelectedSortItem.Value = SortItems.First(x => x.Key == (lastSort.SortKey ?? MylistSortKey.AddedAt) && x.Order == (lastSort.SortOrder ?? MylistSortOrder.Desc));
             }
 
             SelectedSortItem.Subscribe(x =>
             {
                 RefreshCommand.Execute();
+
+                _mylistUserSelectedSortRepository.SetMylistSort(Mylist.Value.Id, x.Key, x.Order);
             })
                 .AddTo(_NavigatingCompositeDisposable);
 

@@ -153,6 +153,7 @@
     <Compile Include="Models\Niconico\Video\Comment\NicoScript.cs" />
     <Compile Include="Models\Niconico\Video\NicoVideoQualityEntity.cs" />
     <Compile Include="Models\Niconico\Video\Tag.cs" />
+    <Compile Include="Models\RestoreNavigation\MylistUserSelectedSortRepository.cs" />
     <Compile Include="Models\RestoreNavigation\RestoreNavigationManager.cs" />
     <Compile Include="Models\Subscirptions\SubscriptionFeedResult.cs" />
     <Compile Include="Models\Subscirptions\SubscriptionManager.cs" />
