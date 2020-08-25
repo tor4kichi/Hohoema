@@ -471,9 +471,7 @@ namespace NicoPlayerHohoema.ViewModels
             var defferal = e.SuspendingOperation.GetDeferral();
             try
             {
-                if (VideoInfo != null && !VideoInfo.IsDeleted
-                    && MediaPlayer.PlaybackSession.Position < (VideoInfo.Length - TimeSpan.FromSeconds(5))
-                    )
+                if (VideoInfo != null && !VideoInfo.IsDeleted)
                 {
                     _restoreNavigationManager.SetCurrentPlayerEntry(
                         new PlayerEntry() 
