@@ -731,8 +731,8 @@
         <VisualState x:Name="VS_BackButtonCollapsed">
           <VisualState.StateTriggers>
             <windowsTriggers:CompositeStateTrigger Operator="Or">
-              <windowsTriggers:NotEqualStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" NotEqualTo="Desktop" />
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="Fill" />
+              <windowsTriggers:NotEqualStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" NotEqualTo="{x:Bind models:ApplicationLayout.Desktop}" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PrimaryPlayerDisplayMode.Fill}" />
               <mytrigger:CompactOverlayViewModeTrigger />
             </windowsTriggers:CompositeStateTrigger>
           </VisualState.StateTriggers>
@@ -748,7 +748,7 @@
         <!-- プレイヤーを画面全体表示 -->
         <VisualState x:Name="VS_PlayerFill">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="Fill" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PrimaryPlayerDisplayMode.Fill}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayerLayout.Visibility" Value="Visible" />
@@ -760,8 +760,8 @@
         <VisualState x:Name="VS_PlayerWIW_TV">
           <VisualState.StateTriggers>
             <mytrigger:CompositeStateTrigger Operator="And">
-              <windowsTriggers:EqualsStateTrigger EqualTo="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" Value="TV" />
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="WindowInWindow" />
+              <windowsTriggers:EqualsStateTrigger EqualTo="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" Value="{x:Bind models:ApplicationLayout.TV}" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="{x:Bind servicesPlayer:PrimaryPlayerDisplayMode.WindowInWindow}" />
             </mytrigger:CompositeStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -789,8 +789,16 @@
         <VisualState x:Name="VS_PlayerWIW_Desktop">
           <VisualState.StateTriggers>
             <mytrigger:CompositeStateTrigger Operator="And">
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Desktop" />
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="WindowInWindow" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}">
+                <windowsTriggers:EqualsStateTrigger.EqualTo>
+                  <models:ApplicationLayout>Desktop</models:ApplicationLayout>
+                </windowsTriggers:EqualsStateTrigger.EqualTo>
+              </windowsTriggers:EqualsStateTrigger>
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}">
+                <windowsTriggers:EqualsStateTrigger.EqualTo>
+                  <servicesPlayer:PrimaryPlayerDisplayMode>WindowInWindow</servicesPlayer:PrimaryPlayerDisplayMode>
+                </windowsTriggers:EqualsStateTrigger.EqualTo>
+              </windowsTriggers:EqualsStateTrigger>
             </mytrigger:CompositeStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -811,8 +819,16 @@
         <VisualState x:Name="VS_PlayerWIW_Tablet">
           <VisualState.StateTriggers>
             <mytrigger:CompositeStateTrigger Operator="And">
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Tablet" />
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="WindowInWindow" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}">
+                <windowsTriggers:EqualsStateTrigger.EqualTo>
+                  <models:ApplicationLayout>Tablet</models:ApplicationLayout>
+                </windowsTriggers:EqualsStateTrigger.EqualTo>
+              </windowsTriggers:EqualsStateTrigger>
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}">
+                <windowsTriggers:EqualsStateTrigger.EqualTo>
+                  <servicesPlayer:PrimaryPlayerDisplayMode>WindowInWindow</servicesPlayer:PrimaryPlayerDisplayMode>
+                </windowsTriggers:EqualsStateTrigger.EqualTo>
+              </windowsTriggers:EqualsStateTrigger>
             </mytrigger:CompositeStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -842,8 +858,16 @@
         <VisualState x:Name="VS_PlayerWIW_Mobile">
           <VisualState.StateTriggers>
             <mytrigger:CompositeStateTrigger Operator="And">
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Mobile" />
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}" EqualTo="WindowInWindow" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}">
+                <windowsTriggers:EqualsStateTrigger.EqualTo>
+                  <models:ApplicationLayout>Tablet</models:ApplicationLayout>
+                </windowsTriggers:EqualsStateTrigger.EqualTo>
+              </windowsTriggers:EqualsStateTrigger>
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.PrimaryViewPlayerManager.DisplayMode, Mode=OneWay}">
+                <windowsTriggers:EqualsStateTrigger.EqualTo>
+                  <servicesPlayer:PrimaryPlayerDisplayMode>WindowInWindow</servicesPlayer:PrimaryPlayerDisplayMode>
+                </windowsTriggers:EqualsStateTrigger.EqualTo>
+              </windowsTriggers:EqualsStateTrigger>
             </mytrigger:CompositeStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -872,7 +896,11 @@
         <!-- TV -->
         <VisualState x:Name="VS_TV">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="TV" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}">
+              <windowsTriggers:EqualsStateTrigger.EqualTo>
+                <models:ApplicationLayout>TV</models:ApplicationLayout>
+              </windowsTriggers:EqualsStateTrigger.EqualTo>
+            </windowsTriggers:EqualsStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="MenuTitleText.Margin" Value="16 5 16 8" />
@@ -888,7 +916,11 @@
         <!-- Desktop -->
         <VisualState x:Name="VS_Desktop">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Desktop" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}">
+              <windowsTriggers:EqualsStateTrigger.EqualTo>
+                <models:ApplicationLayout>Desktop</models:ApplicationLayout>
+              </windowsTriggers:EqualsStateTrigger.EqualTo>
+            </windowsTriggers:EqualsStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ContentFrame.Margin" Value="0 32 0 0" />
@@ -898,7 +930,11 @@
         <!-- Tablet -->
         <VisualState x:Name="VS_Tablet">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Tablet" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}">
+              <windowsTriggers:EqualsStateTrigger.EqualTo>
+                <models:ApplicationLayout>Tablet</models:ApplicationLayout>
+              </windowsTriggers:EqualsStateTrigger.EqualTo>
+            </windowsTriggers:EqualsStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
@@ -914,7 +950,11 @@
         <!-- Mobile -->
         <VisualState x:Name="VS_Mobile">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Mobile" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}">
+              <windowsTriggers:EqualsStateTrigger.EqualTo>
+                <models:ApplicationLayout>Mobile</models:ApplicationLayout>
+              </windowsTriggers:EqualsStateTrigger.EqualTo>
+            </windowsTriggers:EqualsStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="MenuToggleButton.Visibility" Value="Visible" />
@@ -938,7 +978,11 @@
           <VisualState.StateTriggers>
             <mytrigger:CompositeStateTrigger Operator="And">
               <StateTrigger IsActive="{x:Bind _isFocusMenu.Value, Mode=OneWay}" />
-              <mytrigger:EqualConditionStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" Condition="TV" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}">
+                <windowsTriggers:EqualsStateTrigger.EqualTo>
+                  <models:ApplicationLayout>TV</models:ApplicationLayout>
+                </windowsTriggers:EqualsStateTrigger.EqualTo>
+              </windowsTriggers:EqualsStateTrigger>
             </mytrigger:CompositeStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -953,7 +997,11 @@
         <!-- TV -->
         <VisualState x:Name="VS_TopMenu_TV">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="TV" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}">
+              <windowsTriggers:EqualsStateTrigger.EqualTo>
+                <models:ApplicationLayout>TV</models:ApplicationLayout>
+              </windowsTriggers:EqualsStateTrigger.EqualTo>
+            </windowsTriggers:EqualsStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ContentSplitView.IsPaneOpen" Value="False" />
@@ -967,7 +1015,11 @@
         <!-- Desktop -->
         <VisualState x:Name="VS_TopMenu_Mouse">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Desktop" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}">
+              <windowsTriggers:EqualsStateTrigger.EqualTo>
+                <models:ApplicationLayout>Desktop</models:ApplicationLayout>
+              </windowsTriggers:EqualsStateTrigger.EqualTo>
+            </windowsTriggers:EqualsStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ContentSplitView.DisplayMode" Value="CompactInline" />
@@ -978,7 +1030,11 @@
         <!-- Table -->
         <VisualState x:Name="VS_TopMenu_Tablet">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Tablet" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}">
+              <windowsTriggers:EqualsStateTrigger.EqualTo>
+                <models:ApplicationLayout>Tablet</models:ApplicationLayout>
+              </windowsTriggers:EqualsStateTrigger.EqualTo>
+            </windowsTriggers:EqualsStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
@@ -989,7 +1045,11 @@
         <!-- Mobile -->
         <VisualState x:Name="VS_TopMenu_Mobile">
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Mobile" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}">
+              <windowsTriggers:EqualsStateTrigger.EqualTo>
+                <models:ApplicationLayout>Mobile</models:ApplicationLayout>
+              </windowsTriggers:EqualsStateTrigger.EqualTo>
+            </windowsTriggers:EqualsStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ContentSplitView.DisplayMode" Value="Overlay" />
@@ -1002,7 +1062,11 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="TV" />
+            <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}">
+              <windowsTriggers:EqualsStateTrigger.EqualTo>
+                <models:ApplicationLayout>TV</models:ApplicationLayout>
+              </windowsTriggers:EqualsStateTrigger.EqualTo>
+            </windowsTriggers:EqualsStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="TopMenuDesktopTitleberBackground.Height" Value="32" />
@@ -1024,7 +1088,11 @@
         <VisualState>
           <VisualState.StateTriggers>
             <windowsTriggers:CompositeStateTrigger Operator="And">
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Mobile" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}">
+                <windowsTriggers:EqualsStateTrigger.EqualTo>
+                  <models:ApplicationLayout>Mobile</models:ApplicationLayout>
+                </windowsTriggers:EqualsStateTrigger.EqualTo>
+              </windowsTriggers:EqualsStateTrigger>
               <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.WindowService.IsFullScreen.Value, Mode=OneWay}" />
             </windowsTriggers:CompositeStateTrigger>
           </VisualState.StateTriggers>
@@ -1033,7 +1101,11 @@
         <VisualState>
           <VisualState.StateTriggers>
             <windowsTriggers:CompositeStateTrigger Operator="And">
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Mobile" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}">
+                <windowsTriggers:EqualsStateTrigger.EqualTo>
+                  <models:ApplicationLayout>Mobile</models:ApplicationLayout>
+                </windowsTriggers:EqualsStateTrigger.EqualTo>
+              </windowsTriggers:EqualsStateTrigger>
               <windowsTriggers:OrientationStateTrigger Orientation="Landscape" />
             </windowsTriggers:CompositeStateTrigger>
           </VisualState.StateTriggers>
@@ -1046,7 +1118,11 @@
         <VisualState>
           <VisualState.StateTriggers>
             <windowsTriggers:CompositeStateTrigger Operator="And">
-              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}" EqualTo="Mobile" />
+              <windowsTriggers:EqualsStateTrigger Value="{x:Bind _viewModel.ApplicationLayoutManager.AppLayout, Mode=OneWay}">
+                <windowsTriggers:EqualsStateTrigger.EqualTo>
+                  <models:ApplicationLayout>Mobile</models:ApplicationLayout>
+                </windowsTriggers:EqualsStateTrigger.EqualTo>
+              </windowsTriggers:EqualsStateTrigger>
               <windowsTriggers:OrientationStateTrigger Orientation="Portrait" />
             </windowsTriggers:CompositeStateTrigger>
           </VisualState.StateTriggers>
@@ -1060,7 +1136,7 @@
       <VisualStateGroup>
         <VisualState x:Name="OfflineState">
           <VisualState.StateTriggers>
-            <mytrigger:EqualConditionStateTrigger Value="{Binding NiconicoSession.ServiceStatus}" Condition="Offline" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding NiconicoSession.ServiceStatus}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.Offline}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
@@ -1069,7 +1145,7 @@
         </VisualState>
         <VisualState x:Name="ServiceUnavailableState">
           <VisualState.StateTriggers>
-            <mytrigger:EqualConditionStateTrigger Value="{Binding NiconicoSession.ServiceStatus}" Condition="ServiceUnavailable" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding NiconicoSession.ServiceStatus}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.ServiceUnavailable}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
@@ -1077,7 +1153,7 @@
         </VisualState>
         <VisualState x:Name="WithoutLoggedInState">
           <VisualState.StateTriggers>
-            <mytrigger:EqualConditionStateTrigger Value="{Binding NiconicoSession.ServiceStatus}" Condition="WithoutLoggedIn" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding NiconicoSession.ServiceStatus}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.WithoutLoggedIn}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="MenuFlyoutItem_Login.Visibility" Value="Visible" />
@@ -1085,7 +1161,7 @@
         </VisualState>
         <VisualState x:Name="LoggedInState">
           <VisualState.StateTriggers>
-            <mytrigger:EqualConditionStateTrigger Value="{Binding NiconicoSession.ServiceStatus}" Condition="LoggedIn" />
+            <windowsTriggers:EqualsStateTrigger Value="{Binding NiconicoSession.ServiceStatus}" EqualTo="{x:Bind models:HohoemaAppServiceLevel.LoggedIn}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="ServiceStateText.Visibility" Value="Collapsed" />
@@ -1099,8 +1175,8 @@
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
-            <mytrigger:EqualConditionStateTrigger Condition="{Binding ElementName=ContentSplitView, Path=DisplayMode, Mode=OneWay}" Value="CompactInline" />
-            <mytrigger:EqualConditionStateTrigger Condition="{Binding ElementName=ContentSplitView, Path=DisplayMode, Mode=OneWay}" Value="Inline" />
+            <windowsTriggers:EqualsStateTrigger  Value="{Binding ElementName=ContentSplitView, Path=DisplayMode, Mode=OneWay}" EqualTo="{x:Bind winui:SplitViewDisplayMode.CompactInline}" />
+            <windowsTriggers:EqualsStateTrigger  Value="{Binding ElementName=ContentSplitView, Path=DisplayMode, Mode=OneWay}" EqualTo="{x:Bind winui:SplitViewDisplayMode.Inline}" />
           </VisualState.StateTriggers>
           <VisualState.Setters></VisualState.Setters>
         </VisualState>

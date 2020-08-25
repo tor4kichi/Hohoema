@@ -324,6 +324,13 @@ namespace NicoPlayerHohoema
                     Debug.WriteLine(ex.ToString());
                 }
 
+                // 厄介な問題：リリースビルド時にアプリで表示される言語がOSで表示してる言語からズレる問題があって
+                // 以下の2行があることでその問題が回避できる。なんで？ ←(´・ω・`)知らんがな
+                // リリースモードで変数覗くのもデバッガーがクラッシュして出来ないので動く状態で妥協
+                Console.WriteLine(CultureInfo.CurrentCulture.Name);
+                Console.WriteLine(I18N.Current.Locale);
+                // 邪悪なコードここまで
+
                 Resources["Strings"] = I18NPortable.I18N.Current;
 
                 var settings = await Models.HohoemaUserSettings.LoadSettings(ApplicationData.Current.LocalFolder);
@@ -340,6 +347,10 @@ namespace NicoPlayerHohoema
                 I18NPortable.I18N.Current.Locale = settings.AppearanceSettings.Locale ?? I18NPortable.I18N.Current.Locale;
 
                 CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(I18NPortable.I18N.Current.Locale);
+
+                //Console.WriteLine(settings.AppearanceSettings.Locale);
+                //Console.WriteLine(I18N.Current.Locale);
+                //Console.WriteLine(CultureInfo.CurrentCulture.Name);
 
                 // ログイン前にログインセッションによって状態が変化するフォローとマイリストの初期化
                 var mylitManager = Container.Resolve<UserMylistManager>();
