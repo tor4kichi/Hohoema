@@ -511,7 +511,8 @@ namespace NicoPlayerHohoema.ViewModels
                 return _RefreshCommand
                     ?? (_RefreshCommand = new DelegateCommand(async () =>
                     {
-                        MylistItems = await CreateItemsSourceAsync(Mylist.Value);
+                        var mylist = await _playlistAggregate.FindPlaylistAsync(Mylist.Value.Id) as MylistPlaylist;
+                        MylistItems = await CreateItemsSourceAsync(Mylist.Value = mylist);
                     }));
             }
         }

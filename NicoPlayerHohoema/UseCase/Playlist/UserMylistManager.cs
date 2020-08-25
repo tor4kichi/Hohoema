@@ -186,14 +186,26 @@ namespace NicoPlayerHohoema.Models
 			return Mylists.Any(x => x.Id == groupId);
 		}
 
+        public async Task WaitUpdate()
+        {
+            using var _ = await _updateLock.LockAsync();
+        }
 
 		public LoginUserMylistPlaylist GetMylistGroup(string groupId)
 		{
 			return Mylists.SingleOrDefault(x => x.Id == groupId);
 		}
 
+        public async Task<LoginUserMylistPlaylist> GetMylistGroupAsync(string groupId)
+        {
+            using (await _updateLock.LockAsync())
+            {
+                return Mylists.SingleOrDefault(x => x.Id == groupId);
+            }
+        }
 
-		public async Task SyncMylistGroups()
+
+        public async Task SyncMylistGroups()
 		{
             using (var releaser = await _updateLock.LockAsync())
             {

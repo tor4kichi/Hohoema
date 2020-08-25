@@ -51,7 +51,7 @@ namespace NicoPlayerHohoema.UseCase.NicoVideoPlayer
                 .Subscribe(async e => 
                 {
                     var pageName = nameof(Views.VideoPlayerPage);
-                    var parameters = new NavigationParameters("id=" + e.VideoId);
+                    var parameters = new NavigationParameters($"id={e.VideoId}&position={(int)e.Position.TotalSeconds}");
                     
                     await PlayWithCurrentView(DisplayMode, pageName, parameters);
                 });

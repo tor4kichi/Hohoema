@@ -11,6 +11,7 @@ namespace NicoPlayerHohoema.Services.Player
     public struct PlayerPlayVideoRequestEventArgs
     {
         public string VideoId { get; set; }
+        public TimeSpan Position { get; set; }
     }
 
     public class PlayerPlayVideoRequest : PubSubEvent<PlayerPlayVideoRequestEventArgs>

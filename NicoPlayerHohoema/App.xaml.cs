@@ -45,6 +45,7 @@ using I18NPortable;
 using Newtonsoft.Json;
 using NicoPlayerHohoema.UseCase.Playlist;
 using Microsoft.Toolkit.Uwp.UI.Animations;
+using NicoPlayerHohoema.ViewModels;
 
 namespace NicoPlayerHohoema
 {
@@ -108,8 +109,33 @@ namespace NicoPlayerHohoema
             {
                 if (!_isNavigationStackRestored)
                 {
+                    var niconicoSession = Container.Resolve<NiconicoSession>();
+
+                    // 外部から起動した場合にサインイン動作と排他的動作にさせたい
+                    // こうしないと再生処理を正常に開始できない
+                    using (await niconicoSession.SigninLock.LockAsync())
+                    {
+                        await Task.Delay(50);
+                    }
                     _isNavigationStackRestored = true;
                     await _primaryWindowCoreLayout.RestoreNavigationStack();
+
+                    var vm = _primaryWindowCoreLayout.DataContext as PrimaryWindowCoreLayoutViewModel;
+                    var lastPlaying = vm.RestoreNavigationManager.GetCurrentPlayerEntry();
+                    if (lastPlaying != null)
+                    {
+                        var playlistAggregateGetter = Container.Resolve<PlaylistAggregateGetter>();
+                        var hohoemaPlaylist = Container.Resolve<HohoemaPlaylist>();
+                        if (lastPlaying.PlaylistId != null)
+                        {
+                            var playlist = await playlistAggregateGetter.FindPlaylistAsync(lastPlaying.PlaylistId);
+                            hohoemaPlaylist.Play(lastPlaying.ContentId, playlist, position: lastPlaying.Position);
+                        }
+                        else
+                        {
+                            hohoemaPlaylist.Play(lastPlaying.ContentId, position: lastPlaying.Position);
+                        }
+                    }
                 }
             }
             else if (args.StartKind == StartKinds.Activate)
@@ -316,9 +342,9 @@ namespace NicoPlayerHohoema
                 CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(I18NPortable.I18N.Current.Locale);
 
                 // ログイン前にログインセッションによって状態が変化するフォローとマイリストの初期化
-                var followManager = Container.Resolve<FollowManager>();
                 var mylitManager = Container.Resolve<UserMylistManager>();
-
+                var followManager = Container.Resolve<FollowManager>();
+                
                 Resources["IsXbox"] = Services.Helpers.DeviceTypeHelper.IsXbox;
                 Resources["IsMobile"] = Services.Helpers.DeviceTypeHelper.IsMobile;
 

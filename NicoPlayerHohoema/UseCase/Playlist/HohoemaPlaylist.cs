@@ -426,10 +426,10 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         }
 
 
-        void OnPlayRequested(object sender, IVideoContent e)
+        void OnPlayRequested(object sender, PlaylistPlayerPlayRequestEventArgs args)
         {
             _eventAggregator.GetEvent<PlayerPlayVideoRequest>()
-                .Publish(new PlayerPlayVideoRequestEventArgs() {VideoId = e.Id });
+                .Publish(new PlayerPlayVideoRequestEventArgs() { VideoId = args.Content.Id, Position = args.Position });
 
             RaisePropertyChanged(nameof(CurrentItem));
         } 
@@ -473,7 +473,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             get => _player.CanGoBack;
         }
 
-        public async void Play(string videoId)
+        public async void Play(string videoId, IPlaylist playlist = null, TimeSpan position = default)
         {
             if (!IsVideoId(videoId))
             {
@@ -481,7 +481,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             }
 
             var videoContent = await ResolveVideoItemAsync(videoId);
-            Play(videoContent);
+            Play(videoContent, playlist, position);
         }
 
         public async void Play(IPlaylist playlist)
@@ -512,16 +512,16 @@ namespace NicoPlayerHohoema.UseCase.Playlist
                 
                 var video = items.FirstOrDefault();
 
-                _player.SetCurrent(video);
+                _player.SetCurrent(video, TimeSpan.Zero);
             }
             else
             {
                 var video = _player.Items.FirstOrDefault();
-                _player.SetCurrent(video);
+                _player.SetCurrent(video, TimeSpan.Zero);
             }
         }
 
-        public void PlayContinueWithPlaylist(IVideoContent video, IPlaylist playlist)
+        public void PlayContinueWithPlaylist(IVideoContent video, IPlaylist playlist, TimeSpan position = default)
         {
             if (CurrentPlaylist != playlist)
             {
@@ -529,10 +529,10 @@ namespace NicoPlayerHohoema.UseCase.Playlist
                 CurrentPlaylist = null;
             }
 
-            _player.SetCurrent(video);
+            _player.SetCurrent(video, position);
         }
 
-        public async void Play(IVideoContent video, IPlaylist playlist = null)
+        public async void Play(IVideoContent video, IPlaylist playlist = null, TimeSpan position = default)
         {
             if (CurrentPlaylist != playlist)
             {
@@ -552,7 +552,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
             CurrentPlaylist = playlist;
 
-            _player.SetCurrent(video);
+            _player.SetCurrent(video, position);
         }
 
 
@@ -718,7 +718,11 @@ namespace NicoPlayerHohoema.UseCase.Playlist
         }
     }
 
-
+    public class PlaylistPlayerPlayRequestEventArgs
+    {
+        public IVideoContent Content { get; set; }
+        public TimeSpan Position { get; set; }
+    }
 
     public sealed class PlaylistPlayer : FixPrism.BindableBase, IDisposable
     {
@@ -733,7 +737,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
 
 
 
-        public event EventHandler<IVideoContent> PlayRequested;
+        public event EventHandler<PlaylistPlayerPlayRequestEventArgs> PlayRequested;
 
         Random _shuffleRandom = new Random();
 
@@ -908,7 +912,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
                 Current = prevItem;
                 CurrentIndex = prevIndex;
 
-                PlayRequested?.Invoke(this, prevItem);
+                PlayRequested?.Invoke(this, new PlaylistPlayerPlayRequestEventArgs() { Content = prevItem });
             }
             else
             {
@@ -967,7 +971,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
                     Current = nextItem;
                     CurrentIndex = nextIndex;
 
-                    PlayRequested?.Invoke(this, nextItem);
+                    PlayRequested?.Invoke(this, new PlaylistPlayerPlayRequestEventArgs() { Content = nextItem });
                 }
                 else
                 {
@@ -977,7 +981,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
             }
         }
 
-        internal async void SetCurrent(IVideoContent item)
+        internal async void SetCurrent(IVideoContent item, TimeSpan position)
         {
             if (item == null) { throw new Exception(); }
 
@@ -996,7 +1000,7 @@ namespace NicoPlayerHohoema.UseCase.Playlist
                     CurrentIndex = 0;
                 }
 
-                PlayRequested?.Invoke(this, Current);
+                PlayRequested?.Invoke(this, new PlaylistPlayerPlayRequestEventArgs() { Content = Current, Position = position });
             }
         }
     }

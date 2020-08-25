@@ -13,6 +13,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Prism.Ioc;
 using Mntone.Nico2.Users.Mylist;
+using I18NPortable;
 
 namespace NicoPlayerHohoema.Repository.Playlist
 {
@@ -288,9 +289,11 @@ namespace NicoPlayerHohoema.Repository.Playlist
 
         public async Task<MylistPlaylist> GetMylist(string mylistId)
         {
+            await _userMylistManager.WaitUpdate();
+
             if (_userMylistManager.HasMylistGroup(mylistId))
             {
-                return _userMylistManager.GetMylistGroup(mylistId);
+                return await _userMylistManager.GetMylistGroupAsync(mylistId);
             }
             else
             {
@@ -329,18 +332,31 @@ namespace NicoPlayerHohoema.Repository.Playlist
         {
             var detail = await MylistProvider.GetMylistGroupDetail(mylistGroupId);
             
-            var mylist = new MylistPlaylist(detail.Id.ToString(), MylistProvider)
+            if (mylistGroupId == "0")
             {
-                Label = detail.Name,
-                Count = (int)detail.TotalItemCount,
-                CreateTime = detail.CreatedAt.DateTime,
-                //DefaultSortOrder = ,
-                IsPublic = detail.IsPublic,
-                SortIndex = 0,
-                UserId = detail.Owner.Id,
-                Description = detail.Description,
-            };
-            return mylist;
+                var mylist = new MylistPlaylist(detail.Id.ToString(), MylistProvider)
+                {
+                    Label = detail.Name ?? "DefaultMylist".Translate(),
+                    Count = (int)detail.TotalItemCount,
+                    IsPublic = true
+                };
+                return mylist;
+            }
+            else
+            {
+                var mylist = new MylistPlaylist(detail.Id.ToString(), MylistProvider)
+                {
+                    Label = detail.Name,
+                    Count = (int)detail.TotalItemCount,
+                    CreateTime = detail.CreatedAt.DateTime,
+                    //DefaultSortOrder = ,
+                    IsPublic = detail.IsPublic,
+                    SortIndex = 0,
+                    UserId = detail.Owner.Id,
+                    Description = detail.Description,
+                };
+                return mylist;
+            }
         }
 
         public async Task<List<MylistPlaylist>> GetByUserId(string userId)

@@ -1,9 +1,11 @@
-﻿using NicoPlayerHohoema.Repository;
+﻿using NicoPlayerHohoema.Interfaces;
+using NicoPlayerHohoema.Repository;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace NicoPlayerHohoema.Models.RestoreNavigation
@@ -16,6 +18,24 @@ namespace NicoPlayerHohoema.Models.RestoreNavigation
         {
             _navigationStackRepository = new NavigationStackRepository();
         }
+
+
+        public void SetCurrentPlayerEntry(PlayerEntry entry)
+        {
+            _navigationStackRepository.SetCurrentPlayerEntry(entry);
+        }
+
+        public void ClearCurrentPlayerEntry()
+        {
+            _navigationStackRepository.ClearCurrentPlayerEntry();
+        }
+
+        public PlayerEntry GetCurrentPlayerEntry()
+        {
+            return _navigationStackRepository.GetCurrentPlayerContent();
+        }
+
+
 
         public void SetCurrentNavigationEntry(PageEntry pageEntry)
         {
@@ -56,9 +76,35 @@ namespace NicoPlayerHohoema.Models.RestoreNavigation
 
             }
 
+            public const string CurrentPlayerEntryName = "CurrentPlayerEntry";
             public const string CurrentNavigationEntryName = "CurrentNavigationEntry";
             public const string BackNavigationEntriesName = "BackNavigationEntries";
             public const string ForwardNavigationEntriesName = "ForwardNavigationEntries";
+
+            JsonSerializerOptions _options = new JsonSerializerOptions()
+            { 
+                Converters = 
+                {
+                    new JsonTimeSpanConverter(),
+                }
+            };
+            public PlayerEntry GetCurrentPlayerContent()
+            {
+                var json = Read<byte[]>(null, CurrentPlayerEntryName);
+                if (json == null) { return null; }
+                return JsonSerializer.Deserialize<PlayerEntry>(json, _options);
+            }
+
+            public void SetCurrentPlayerEntry(PlayerEntry entry)
+            {
+                var bytes = JsonSerializer.SerializeToUtf8Bytes(entry, _options);
+                Save(bytes, CurrentPlayerEntryName);
+            }
+
+            public void ClearCurrentPlayerEntry()
+            {
+                Save<PlayerEntry>(null, CurrentPlayerEntryName);
+            }
 
 
             public PageEntry GetCurrentNavigationEntry()
@@ -101,6 +147,17 @@ namespace NicoPlayerHohoema.Models.RestoreNavigation
             }
         }
     }
+
+    public class PlayerEntry
+    {
+        public string ContentId { get; set; }
+        
+        public TimeSpan Position { get; set; }
+
+        public PlaylistOrigin? PlaylistOrigin { get; set; }
+        public string PlaylistId { get; set; }
+    }
+
 
     public class PageEntry
     {

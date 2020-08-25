@@ -46,6 +46,7 @@ using NicoPlayerHohoema.Services.Player;
 using NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands;
 using I18NPortable;
 using NicoPlayerHohoema.ViewModels.Subscriptions;
+using NicoPlayerHohoema.Models.RestoreNavigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -92,7 +93,8 @@ namespace NicoPlayerHohoema.ViewModels
             PrimaryViewPlayerManager primaryViewPlayerManager,
             TogglePlayerDisplayViewCommand togglePlayerDisplayViewCommand,
             ShowPrimaryViewCommand showPrimaryViewCommand,
-            MediaPlayerSoundVolumeManager soundVolumeManager
+            MediaPlayerSoundVolumeManager soundVolumeManager,
+            RestoreNavigationManager restoreNavigationManager
             )
         {
             _scheduler = scheduler;
@@ -123,6 +125,7 @@ namespace NicoPlayerHohoema.ViewModels
             TogglePlayerDisplayViewCommand = togglePlayerDisplayViewCommand;
             ShowPrimaryViewCommand = showPrimaryViewCommand;
             SoundVolumeManager = soundVolumeManager;
+            _restoreNavigationManager = restoreNavigationManager;
             ObservableMediaPlayer = observableMediaPlayer
                 .AddTo(_CompositeDisposable);
             WindowService = windowService
@@ -211,6 +214,7 @@ namespace NicoPlayerHohoema.ViewModels
         DialogService _HohoemaDialogService;
 
         private readonly VideoStreamingOriginOrchestrator _videoStreamingOriginOrchestrator;
+        private readonly RestoreNavigationManager _restoreNavigationManager;
         private readonly KeepActiveDisplayWhenPlaying _keepActiveDisplayWhenPlaying;
 
 
@@ -300,6 +304,12 @@ namespace NicoPlayerHohoema.ViewModels
                     _requestVideoQuality = quality;
                 }
             }
+
+            TimeSpan startPosition = TimeSpan.Zero;
+            if (parameters.TryGetValue("position", out int position))
+            {
+                startPosition = TimeSpan.FromSeconds(position);
+            }
            
             // 削除状態をチェック（再生準備より先に行う）
             VideoInfo = Database.NicoVideoDb.Get(VideoId);
@@ -343,7 +353,7 @@ namespace NicoPlayerHohoema.ViewModels
             else
             {
                 // デフォルト指定した画質で再生開始
-                await VideoPlayer.PlayAsync(_requestVideoQuality);
+                await VideoPlayer.PlayAsync(_requestVideoQuality, startPosition );
 
                 // コメントを更新
                 await CommentPlayer.UpdatePlayingCommentAsync(result.CommentSessionProvider);
@@ -451,6 +461,8 @@ namespace NicoPlayerHohoema.ViewModels
             IsNotSupportVideoType = false;
             CannotPlayReason = null;
 
+            _restoreNavigationManager.ClearCurrentPlayerEntry();
+
             base.OnNavigatedFrom(parameters);
         }
 
@@ -459,6 +471,20 @@ namespace NicoPlayerHohoema.ViewModels
             var defferal = e.SuspendingOperation.GetDeferral();
             try
             {
+                if (VideoInfo != null && !VideoInfo.IsDeleted
+                    && MediaPlayer.PlaybackSession.Position < (VideoInfo.Length - TimeSpan.FromSeconds(5))
+                    )
+                {
+                    _restoreNavigationManager.SetCurrentPlayerEntry(
+                        new PlayerEntry() 
+                        { 
+                            ContentId = VideoInfo.VideoId, 
+                            Position = MediaPlayer.PlaybackSession.Position, 
+                            PlaylistId = HohoemaPlaylist.CurrentPlaylist?.Id, 
+                            PlaylistOrigin = HohoemaPlaylist.CurrentPlaylist?.GetOrigin() 
+                        });
+                }
+
                 if (MediaPlayer.Source != null)
                 {
                     MediaPlayer.Pause();
