@@ -47,6 +47,7 @@ using NicoPlayerHohoema.UseCase.NicoVideoPlayer.Commands;
 using I18NPortable;
 using NicoPlayerHohoema.ViewModels.Subscriptions;
 using NicoPlayerHohoema.Models.RestoreNavigation;
+using System.Reactive.Disposables;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -282,7 +283,37 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
+        CompositeDisposable _TimerDiposable;
 
+        private void InitializeTimers()
+        {
+            CloseTimers();
+
+            _TimerDiposable = new CompositeDisposable();
+            Observable.Timer(TimeSpan.FromSeconds(0.5), TimeSpan.FromSeconds(0.5), _scheduler)
+                .Subscribe(_ =>
+                {
+                    //if (PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.Close) { return; }
+
+                    _restoreNavigationManager.SetCurrentPlayerEntry(
+                            new PlayerEntry()
+                            {
+                                ContentId = VideoInfo.VideoId,
+                                Position = MediaPlayer.PlaybackSession.Position,
+                                PlaylistId = HohoemaPlaylist.CurrentPlaylist?.Id,
+                                PlaylistOrigin = HohoemaPlaylist.CurrentPlaylist?.GetOrigin()
+                            });
+
+                    Debug.WriteLine("SetCurrentPlayerEntry");
+                })
+                .AddTo(_TimerDiposable);
+        }
+
+        private void CloseTimers()
+        {
+            _TimerDiposable?.Dispose();
+            _TimerDiposable = null;
+        }
 
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
@@ -379,23 +410,9 @@ namespace NicoPlayerHohoema.ViewModels
             VideoEndedRecommendation.SetCurrentVideoSeries(VideoDetails.Series);
             Debug.WriteLine("次シリーズ動画: " + VideoDetails.Series?.NextVideo?.Title);
 
-            Observable.Timer(TimeSpan.FromSeconds(0.5), TimeSpan.FromSeconds(0.5), _scheduler)
-                .Subscribe(_ => 
-                {
-                    //if (PrimaryViewPlayerManager.DisplayMode == PrimaryPlayerDisplayMode.Close) { return; }
 
-                    _restoreNavigationManager.SetCurrentPlayerEntry(
-                            new PlayerEntry()
-                            {
-                                ContentId = VideoInfo.VideoId,
-                                Position = MediaPlayer.PlaybackSession.Position,
-                                PlaylistId = HohoemaPlaylist.CurrentPlaylist?.Id,
-                                PlaylistOrigin = HohoemaPlaylist.CurrentPlaylist?.GetOrigin()
-                            });
+            InitializeTimers();
 
-                    Debug.WriteLine("SetCurrentPlayerEntry");
-                })
-                .AddTo(_NavigatingCompositeDisposable);
 
             Debug.WriteLine("VideoPlayer OnNavigatedToAsync done.");
 
@@ -471,6 +488,8 @@ namespace NicoPlayerHohoema.ViewModels
                 HohoemaPlaylist.PlayDone(VideoInfo);
             }
 
+            CloseTimers();
+
             App.Current.Resuming -= Current_Resuming;
             App.Current.Suspending -= Current_Suspending;
 
@@ -487,6 +506,8 @@ namespace NicoPlayerHohoema.ViewModels
             var defferal = e.SuspendingOperation.GetDeferral();
             try
             {
+                CloseTimers();
+
                 if (MediaPlayer.Source != null)
                 {
                     MediaPlayer.Pause();
@@ -502,6 +523,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         private void Current_Resuming(object sender, object e)
         {
+            InitializeTimers();
         }
 
 
