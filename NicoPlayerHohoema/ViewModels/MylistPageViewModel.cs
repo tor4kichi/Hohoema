@@ -13,7 +13,6 @@ using Unity;
 using Windows.UI;
 using Windows.UI.Popups;
 using NicoPlayerHohoema.Dialogs;
-using System.Collections.Async;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Models.LocalMylist;
 using NicoPlayerHohoema.Models.Subscription;
@@ -30,6 +29,8 @@ using I18NPortable;
 using NicoPlayerHohoema.UseCase;
 using NicoPlayerHohoema.ViewModels.Subscriptions;
 using Mntone.Nico2.Users.Mylist;
+using System.Runtime.CompilerServices;
+using NicoPlayerHohoema.Models.RestoreNavigation;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -71,6 +72,7 @@ namespace NicoPlayerHohoema.ViewModels
             MylistRepository mylistRepository,
             HohoemaPlaylist hohoemaPlaylist,
             SubscriptionManager subscriptionManager,
+            MylistUserSelectedSortRepository mylistUserSelectedSortRepository,
             Services.DialogService dialogService,
             NiconicoFollowToggleButtonService followToggleButtonService,
             PlaylistAggregateGetter playlistAggregate,
@@ -90,6 +92,7 @@ namespace NicoPlayerHohoema.ViewModels
             _mylistRepository = mylistRepository;
             HohoemaPlaylist = hohoemaPlaylist;
             SubscriptionManager = subscriptionManager;
+            _mylistUserSelectedSortRepository = mylistUserSelectedSortRepository;
             DialogService = dialogService;
             FollowToggleButtonService = followToggleButtonService;
             _playlistAggregate = playlistAggregate;
@@ -271,6 +274,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
         private readonly MylistRepository _mylistRepository;
+        private readonly MylistUserSelectedSortRepository _mylistUserSelectedSortRepository;
         private readonly PlaylistAggregateGetter _playlistAggregate;
 
         public ApplicationLayoutManager ApplicationLayoutManager { get; }
@@ -511,7 +515,8 @@ namespace NicoPlayerHohoema.ViewModels
                 return _RefreshCommand
                     ?? (_RefreshCommand = new DelegateCommand(async () =>
                     {
-                        MylistItems = await CreateItemsSourceAsync(Mylist.Value);
+                        var mylist = await _playlistAggregate.FindPlaylistAsync(Mylist.Value.Id) as MylistPlaylist;
+                        MylistItems = await CreateItemsSourceAsync(Mylist.Value = mylist);
                     }));
             }
         }
@@ -628,11 +633,21 @@ namespace NicoPlayerHohoema.ViewModels
                 RaisePropertyChanged(nameof(MylistBookmark));
             }
 
-            SelectedSortItem.Value = SortItems.First(x => x.Key == Mylist.Value.DefaultSortKey && x.Order == Mylist.Value.DefaultSortOrder);
+            var lastSort = _mylistUserSelectedSortRepository.GetMylistSort(mylistId);
+            if (!IsLoginUserDeflist)
+            {
+                SelectedSortItem.Value = SortItems.First(x => x.Key == (lastSort.SortKey ?? Mylist.Value.DefaultSortKey) && x.Order == (lastSort.SortOrder ?? Mylist.Value.DefaultSortOrder));
+            }
+            else
+            {
+                SelectedSortItem.Value = SortItems.First(x => x.Key == (lastSort.SortKey ?? MylistSortKey.AddedAt) && x.Order == (lastSort.SortOrder ?? MylistSortOrder.Desc));
+            }
 
             SelectedSortItem.Subscribe(x =>
             {
                 RefreshCommand.Execute();
+
+                _mylistUserSelectedSortRepository.SetMylistSort(Mylist.Value.Id, x.Key, x.Order);
             })
                 .AddTo(_NavigatingCompositeDisposable);
 
@@ -714,29 +729,33 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         bool isEndReached;
-        protected override async Task<IAsyncEnumerable<IVideoContent>> GetPagedItemsImpl(int head, int count)
+        protected override async IAsyncEnumerable<IVideoContent> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
             if (head == 0)
             {
-                return _firstResult.Items.ToAsyncEnumerable();
+                foreach (var item in _firstResult.Items)
+                {
+                    yield return item;
+                }
             }
             else if (_firstResult.TotalCount <= head || isEndReached)
             {
-                return AsyncEnumerable.Empty<IVideoContent>();
+                
             }
             else
             {
                 var page = (uint)(head / OneTimeLoadCount);
                 var result = await _mylist.GetItemsAsync(DefaultSortKey, DefaultSortOrder, OneTimeLoadCount, page);
 
+                ct.ThrowIfCancellationRequested();
+
                 if (result.IsSuccess)
                 {
                     isEndReached = result.Items.Count != OneTimeLoadCount;
-                    return result.Items.ToAsyncEnumerable();
-                }
-                else
-                {
-                    return AsyncEnumerable.Empty<IVideoContent>();
+                    foreach (var item in result.Items)
+                    {
+                        yield return item;
+                    }
                 }
             }
         }
@@ -779,17 +798,23 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
         bool isEndReached;
-        protected override async Task<IAsyncEnumerable<IVideoContent>> GetPagedItemsImpl(int head, int count)
+        protected override async IAsyncEnumerable<IVideoContent> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
             if (isEndReached)
             {
-                return AsyncEnumerable.Empty<IVideoContent>();
+                yield break;
             }
 
             var page = (uint)(head / OneTimeLoadCount);
             var items = await _mylist.GetLoginUserMylistItemsAsync(DefaultSortKey, DefaultSortOrder, OneTimeLoadCount, page);
             isEndReached = items.Count != OneTimeLoadCount;
-            return items.ToAsyncEnumerable();
+
+            ct.ThrowIfCancellationRequested();
+
+            foreach (var item in items)
+            {
+                yield return item;
+            }
         }
 
         #endregion

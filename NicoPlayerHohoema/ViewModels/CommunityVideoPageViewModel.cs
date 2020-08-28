@@ -13,7 +13,6 @@ using Mntone.Nico2.Videos.Ranking;
 using Prism.Commands;
 using System.Windows.Input;
 using NicoPlayerHohoema.Interfaces;
-using System.Collections.Async;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Services;
 using Prism.Navigation;
@@ -23,6 +22,7 @@ using Reactive.Bindings.Extensions;
 using System.Reactive.Linq;
 using I18NPortable;
 using NicoPlayerHohoema.UseCase;
+using System.Runtime.CompilerServices;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -153,11 +153,11 @@ namespace NicoPlayerHohoema.ViewModels
 			return Task.FromResult(VideoCount);
 		}
 
-		protected override async Task<IAsyncEnumerable<CommunityVideoInfoViewModel>> GetPagedItemsImpl(int start, int count)
+		protected override async IAsyncEnumerable<CommunityVideoInfoViewModel> GetPagedItemsImpl(int start, int count, [EnumeratorCancellation] CancellationToken ct = default)
 		{
 			if (count >= VideoCount)
 			{
-				return null;
+				yield break;
 			}
 
 			var tail = (start + count);
@@ -176,11 +176,18 @@ namespace NicoPlayerHohoema.ViewModels
 				catch (Exception ex)
 				{
 					TriggerError(ex);
-					return null;
+					yield break;
 				}
+
+				ct.ThrowIfCancellationRequested();
 			}
 
-            return Items.Skip(start).Take(count).Select(x => new CommunityVideoInfoViewModel(x) { }).ToAsyncEnumerable();
+			foreach (var item in Items.Skip(start).Take(count))
+            {
+				yield return new CommunityVideoInfoViewModel(item);
+
+				ct.ThrowIfCancellationRequested();
+			}
 		}
 
 

@@ -35,12 +35,36 @@ namespace NicoPlayerHohoema.Models.Provider
 
         public async Task<Mylist> GetMylistGroupDetail(string mylistGroupid)
         {
-            var res = await ContextActionAsync(async context =>
+            if (mylistGroupid == "0")
             {
-                return await context.User.GetMylistGroupItemsAsync(int.Parse(mylistGroupid), Mntone.Nico2.Users.Mylist.MylistSortKey.AddedAt, Mntone.Nico2.Users.Mylist.MylistSortOrder.Asc, 1, 0);
-            });
+                var res = await ContextActionAsync(async context =>
+                {
+                    return await context.User.GetWatchAfterMylistGroupItemsAsync(Mntone.Nico2.Users.Mylist.MylistSortKey.AddedAt, Mntone.Nico2.Users.Mylist.MylistSortOrder.Asc, 1, 0);
+                });
 
-            return res.Data.Mylist;
+                return new Mylist()
+                {
+                    Id = int.Parse(mylistGroupid),
+                    ItemsCount = res.Data.Mylist.TotalItemCount,
+                };
+            }
+            else
+            {
+                var res = await ContextActionAsync(async context =>
+                {
+                    return await context.User.GetMylistGroupItemsAsync(int.Parse(mylistGroupid), Mntone.Nico2.Users.Mylist.MylistSortKey.AddedAt, Mntone.Nico2.Users.Mylist.MylistSortOrder.Asc, 1, 0);
+                });
+
+                if (res.Meta.Status != 200)
+                {
+                    res = await ContextActionAsync(async context =>
+                    {
+                        return await context.User.GetLoginUserMylistGroupItemsAsync(int.Parse(mylistGroupid), Mntone.Nico2.Users.Mylist.MylistSortKey.AddedAt, Mntone.Nico2.Users.Mylist.MylistSortOrder.Asc, 1, 0);
+                    });
+                }
+
+                return res.Data.Mylist;
+            }
         }
 
 

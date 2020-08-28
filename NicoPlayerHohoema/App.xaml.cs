@@ -45,6 +45,7 @@ using I18NPortable;
 using Newtonsoft.Json;
 using NicoPlayerHohoema.UseCase.Playlist;
 using Microsoft.Toolkit.Uwp.UI.Animations;
+using NicoPlayerHohoema.ViewModels;
 
 namespace NicoPlayerHohoema
 {
@@ -106,8 +107,36 @@ namespace NicoPlayerHohoema
 
             if (args.StartKind == StartKinds.Launch)
             {
-                var pageManager = Container.Resolve<PageManager>();
-                pageManager.OpenStartupPage();
+                if (!_isNavigationStackRestored)
+                {
+                    var niconicoSession = Container.Resolve<NiconicoSession>();
+
+                    // 外部から起動した場合にサインイン動作と排他的動作にさせたい
+                    // こうしないと再生処理を正常に開始できない
+                    using (await niconicoSession.SigninLock.LockAsync())
+                    {
+                        await Task.Delay(50);
+                    }
+                    _isNavigationStackRestored = true;
+                    await _primaryWindowCoreLayout.RestoreNavigationStack();
+
+                    var vm = _primaryWindowCoreLayout.DataContext as PrimaryWindowCoreLayoutViewModel;
+                    var lastPlaying = vm.RestoreNavigationManager.GetCurrentPlayerEntry();
+                    if (lastPlaying != null)
+                    {
+                        var playlistAggregateGetter = Container.Resolve<PlaylistAggregateGetter>();
+                        var hohoemaPlaylist = Container.Resolve<HohoemaPlaylist>();
+                        if (lastPlaying.PlaylistId != null)
+                        {
+                            var playlist = await playlistAggregateGetter.FindPlaylistAsync(lastPlaying.PlaylistId);
+                            hohoemaPlaylist.Play(lastPlaying.ContentId, playlist, position: lastPlaying.Position);
+                        }
+                        else
+                        {
+                            hohoemaPlaylist.Play(lastPlaying.ContentId, position: lastPlaying.Position);
+                        }
+                    }
+                }
             }
             else if (args.StartKind == StartKinds.Activate)
             {
@@ -118,6 +147,7 @@ namespace NicoPlayerHohoema
                 BackgroundActivated(args.Arguments as BackgroundActivatedEventArgs);
             }
 
+            
 
             await base.OnStartAsync(args);
         }
@@ -131,7 +161,7 @@ namespace NicoPlayerHohoema
             //   |    |- MenuNavigatePageBaseViewModel
             //   |         |- rootFrame 
 
-            var primaryWindowCoreLayout = Container.Resolve<Views.PrimaryWindowCoreLayout>();
+            _primaryWindowCoreLayout = Container.Resolve<Views.PrimaryWindowCoreLayout>();
             var hohoemaInAppNotification = new Views.HohoemaInAppNotification()
             {
                 VerticalAlignment = VerticalAlignment.Bottom
@@ -141,23 +171,23 @@ namespace NicoPlayerHohoema
             {
                 Children =
                 {
-                    primaryWindowCoreLayout,
+                    _primaryWindowCoreLayout,
                     hohoemaInAppNotification,
                     new Views.NoUIProcessScreen()
                 }
             };
 
-            var primaryWindowContentNavigationService = primaryWindowCoreLayout.CreateNavigationService();
+            var primaryWindowContentNavigationService = _primaryWindowCoreLayout.CreateNavigationService();
             Container.GetContainer().RegisterInstance(primaryWindowContentNavigationService);
 
-            var primaryViewPlayerNavigationService = primaryWindowCoreLayout.CreatePlayerNavigationService();
+            var primaryViewPlayerNavigationService = _primaryWindowCoreLayout.CreatePlayerNavigationService();
             var name = "PrimaryPlayerNavigationService";
             Container.GetContainer().RegisterInstance(name, primaryViewPlayerNavigationService);
 
 
 
 #if DEBUG
-            primaryWindowCoreLayout.FocusEngaged += (__, args) => Debug.WriteLine("focus engagad: " + args.OriginalSource.ToString());
+            _primaryWindowCoreLayout.FocusEngaged += (__, args) => Debug.WriteLine("focus engagad: " + args.OriginalSource.ToString());
 #endif
 
             return grid;
@@ -294,6 +324,13 @@ namespace NicoPlayerHohoema
                     Debug.WriteLine(ex.ToString());
                 }
 
+                // 厄介な問題：リリースビルド時にアプリで表示される言語がOSで表示してる言語からズレる問題があって
+                // 以下の2行があることでその問題が回避できる。なんで？ ←(´・ω・`)知らんがな
+                // リリースモードで変数覗くのもデバッガーがクラッシュして出来ないので動く状態で妥協
+                Console.WriteLine(CultureInfo.CurrentCulture.Name);
+                Console.WriteLine(I18N.Current.Locale);
+                // 邪悪なコードここまで
+
                 Resources["Strings"] = I18NPortable.I18N.Current;
 
                 var settings = await Models.HohoemaUserSettings.LoadSettings(ApplicationData.Current.LocalFolder);
@@ -311,10 +348,14 @@ namespace NicoPlayerHohoema
 
                 CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(I18NPortable.I18N.Current.Locale);
 
-                // ログイン前にログインセッションによって状態が変化するフォローとマイリストの初期化
-                var followManager = Container.Resolve<FollowManager>();
-                var mylitManager = Container.Resolve<UserMylistManager>();
+                //Console.WriteLine(settings.AppearanceSettings.Locale);
+                //Console.WriteLine(I18N.Current.Locale);
+                //Console.WriteLine(CultureInfo.CurrentCulture.Name);
 
+                // ログイン前にログインセッションによって状態が変化するフォローとマイリストの初期化
+                var mylitManager = Container.Resolve<UserMylistManager>();
+                var followManager = Container.Resolve<FollowManager>();
+                
                 Resources["IsXbox"] = Services.Helpers.DeviceTypeHelper.IsXbox;
                 Resources["IsMobile"] = Services.Helpers.DeviceTypeHelper.IsMobile;
 
@@ -583,6 +624,7 @@ namespace NicoPlayerHohoema
                             var pageManager = Container.Resolve<Services.PageManager>();
                             pageManager.OpenPage(payload.RedirectPageType, payload.RedirectParamter);
                             isHandled = true;
+                            _isNavigationStackRestored = true;
                         }
                     }
                     
@@ -592,6 +634,7 @@ namespace NicoPlayerHohoema
                         if (pageManager.OpenPage(uri))
                         {
                             isHandled = true;
+                            _isNavigationStackRestored = true;
                         }
                     }
                 }
@@ -657,7 +700,13 @@ namespace NicoPlayerHohoema
                     PlayLiveVideoFromExternal(maybeNicoContentId);
                 }
             }
-		}
+
+            
+        }
+
+
+        bool _isNavigationStackRestored = false;
+
 
 
         public override void OnInitialized()
@@ -838,6 +887,7 @@ namespace NicoPlayerHohoema
 
         private int MainViewId = -1;
         private Size _PrevWindowSize;
+        private Views.PrimaryWindowCoreLayout _primaryWindowCoreLayout;
 
         protected override void OnWindowCreated(WindowCreatedEventArgs args)
 		{

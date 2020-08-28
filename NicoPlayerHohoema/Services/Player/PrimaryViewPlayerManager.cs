@@ -13,6 +13,7 @@ using Prism.Commands;
 using Reactive.Bindings;
 using Reactive.Bindings.Extensions;
 using System.Diagnostics;
+using NicoPlayerHohoema.Models.RestoreNavigation;
 
 namespace NicoPlayerHohoema.Services.Player
 {
@@ -33,17 +34,20 @@ namespace NicoPlayerHohoema.Services.Player
         private ApplicationView _view;
         IScheduler _scheduler;
         private readonly Lazy<INavigationService> _navigationServiceLazy;
+        private readonly RestoreNavigationManager _restoreNavigationManager;
         PrimaryPlayerDisplayMode _prevDisplayMode;
 
         Models.Helpers.AsyncLock _navigationLock = new Models.Helpers.AsyncLock();
 
         public PrimaryViewPlayerManager(IScheduler scheduler,
-            [Unity.Attributes.Dependency("PrimaryPlayerNavigationService")] Lazy<INavigationService> navigationServiceLazy
+            [Unity.Attributes.Dependency("PrimaryPlayerNavigationService")] Lazy<INavigationService> navigationServiceLazy,
+            RestoreNavigationManager restoreNavigationManager
             )
         {
             _view = ApplicationView.GetForCurrentView();
             _scheduler = scheduler;
             _navigationServiceLazy = navigationServiceLazy;
+            _restoreNavigationManager = restoreNavigationManager;
             _navigationService = null;
 
             this.ObserveProperty(x => x.DisplayMode, isPushCurrentValueAtFirst: false)
@@ -128,6 +132,7 @@ namespace NicoPlayerHohoema.Services.Player
             _lastPlayedDisplayMode = DisplayMode == PrimaryPlayerDisplayMode.Close ? _lastPlayedDisplayMode : DisplayMode;
             DisplayMode = PrimaryPlayerDisplayMode.Close;
             _view.Title = "";
+            _restoreNavigationManager.ClearCurrentPlayerEntry();
         }
 
         public void ShowWithFill()

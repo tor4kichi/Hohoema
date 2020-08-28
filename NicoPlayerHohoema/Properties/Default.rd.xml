@@ -24,7 +24,7 @@
     
     
     <!-- Add your application specific runtime directives here. -->
-
+    <Namespace Name="System.Text.Json.Serialization.Converters" Browse="Required All"/>
 
   </Application>
 </Directives>

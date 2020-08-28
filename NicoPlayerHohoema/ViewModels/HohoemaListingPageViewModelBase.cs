@@ -74,6 +74,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
+
         public override void OnNavigatingTo(INavigationParameters parameters)
         {
             var navigationMode = parameters.GetNavigationMode();
@@ -99,6 +100,11 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override void OnNavigatedFrom(INavigationParameters parameters)
         {
+            if (ItemsView?.Source is IncrementalLoadingCollection<IIncrementalSource<ITEM_VM>, ITEM_VM> oldItems)
+            {
+                oldItems.StopLoading();
+            }
+
             base.OnNavigatedFrom(parameters);
         }
 

@@ -4,13 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.UI.Core;
-using System.Collections.Async;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -23,20 +23,13 @@ namespace NicoPlayerHohoema.ViewModels
 
 		public virtual uint OneTimeLoadCount => DefaultOneTimeLoadCount;
 
-		public async Task<IAsyncEnumerable<T>> GetPagedItems(int head, int count)
+		public async IAsyncEnumerable<T> GetPagedItems(int head, int count, CancellationToken ct = default)
 		{
             using (var releaser = await _PageLoadingLock.LockAsync())
             {
-                try
+                await foreach (var item in GetPagedItemsImpl(head, count, ct))
                 {
-                    var result = await GetPagedItemsImpl(head, count);
-                    HasError = false;
-                    return result;
-                }
-                catch
-                {
-                    Error?.Invoke();
-                    return AsyncEnumerable.Empty<T>();
+                    yield return item;
                 }
             }
         }
@@ -58,7 +51,7 @@ namespace NicoPlayerHohoema.ViewModels
             }
         }
 
-		protected abstract Task<IAsyncEnumerable<T>> GetPagedItemsImpl(int head, int count);
+		protected abstract IAsyncEnumerable<T> GetPagedItemsImpl(int head, int count, CancellationToken ct);
 		protected abstract Task<int> ResetSourceImpl();
 
 		public bool HasError { get; private set; }
@@ -84,15 +77,14 @@ namespace NicoPlayerHohoema.ViewModels
 
         public override uint OneTimeLoadCount { get; }
 
-        protected override Task<IAsyncEnumerable<T>> GetPagedItemsImpl(int head, int count)
+        protected override async IAsyncEnumerable<T> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation]CancellationToken ct = default)
         {
             if (head == 0)
             {
-                return Task.FromResult(Source.ToAsyncEnumerable());
-            }
-            else
-            {
-                return Task.FromResult(AsyncEnumerable<T>.Empty);
+                foreach (var item in Source)
+                {
+                    yield return item;
+                }
             }
         }
 

@@ -73,7 +73,7 @@ namespace NicoPlayerHohoema.Models.Provider
                 var mylist = new LoginUserMylistPlaylist(mylistGroup.Id.ToString(), this)
                 {
                     Label = mylistGroup.Name,
-                    Count = (int)mylistGroup.TotalItemCount,
+                    Count = (int)mylistGroup.ItemsCount,
                     UserId = mylistGroup.Owner.Id,
                     Description = mylistGroup.Description,
                     IsPublic = mylistGroup.IsPublic,

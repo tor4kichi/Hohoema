@@ -49,7 +49,10 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
-        public virtual void OnNavigatingTo(INavigationParameters parameters) { }
+        public virtual void OnNavigatingTo(INavigationParameters parameters) 
+        {
+            Views.PrimaryWindowCoreLayout.SetCurrentNavigationParameters(parameters);
+        }
 
         public virtual void OnNavigatedTo(INavigationParameters parameters)
         {

@@ -8,7 +8,6 @@ using Mntone.Nico2.Users.User;
 using System.Threading;
 using Prism.Commands;
 using Windows.UI.Xaml.Navigation;
-using System.Collections.Async;
 using NicoPlayerHohoema.Models.Cache;
 using NicoPlayerHohoema.Models.Provider;
 using Unity;
@@ -26,6 +25,7 @@ using Reactive.Bindings;
 using Mntone.Nico2.Videos.Users;
 using WinRTXamlToolkit.IO.Serialization;
 using static Mntone.Nico2.Users.User.UserDetailResponse;
+using System.Runtime.CompilerServices;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -166,21 +166,25 @@ namespace NicoPlayerHohoema.ViewModels
 			_ResList = new List<UserVideosResponse>();
 		}
 
-        protected override async Task<IAsyncEnumerable<VideoInfoControlViewModel>> GetPagedItemsImpl(int start, int count)
+        protected override async IAsyncEnumerable<VideoInfoControlViewModel> GetPagedItemsImpl(int start, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
             var res = start == 0 ? _firstRes : await UserProvider.GetUserVideos(UserId, (uint)start / OneTimeLoadCount);
-            var items = res.Data.Items;
-            return items.Select(x =>
-            {
-                var vm = new VideoInfoControlViewModel(x.Id);
-                vm.SetTitle(x.Title);
-                vm.SetThumbnailImage(x.Thumbnail.ListingUrl.OriginalString);
-                vm.SetSubmitDate(x.RegisteredAt.DateTime);
-                vm.SetVideoDuration(TimeSpan.FromSeconds(x.Duration));
 
-                return vm;
-            })
-            .ToAsyncEnumerable();
+            ct.ThrowIfCancellationRequested();
+
+            var items = res.Data.Items;
+            foreach (var item in items)
+            {
+                var vm = new VideoInfoControlViewModel(item.Id);
+                vm.SetTitle(item.Title);
+                vm.SetThumbnailImage(item.Thumbnail.ListingUrl.OriginalString);
+                vm.SetSubmitDate(item.RegisteredAt.DateTime);
+                vm.SetVideoDuration(TimeSpan.FromSeconds(item.Duration));
+
+                yield return vm;
+
+                ct.ThrowIfCancellationRequested();
+            }
         }
 
         protected override async Task<int> ResetSourceImpl()

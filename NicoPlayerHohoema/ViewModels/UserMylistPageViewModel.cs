@@ -13,7 +13,6 @@ using Windows.UI.Popups;
 using NicoPlayerHohoema.Dialogs;
 using Mntone.Nico2.Searches.Mylist;
 using NicoPlayerHohoema.Models.Helpers;
-using System.Collections.Async;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Models.LocalMylist;
 using NicoPlayerHohoema.Services;
@@ -26,6 +25,7 @@ using Reactive.Bindings.Extensions;
 using NicoPlayerHohoema.UseCase;
 using I18NPortable;
 using NicoPlayerHohoema.Commands.Mylist;
+using System.Runtime.CompilerServices;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -313,9 +313,16 @@ namespace NicoPlayerHohoema.ViewModels
             _mylistRepository = mylistRepository;
         }
 
-        protected override Task<IAsyncEnumerable<MylistPlaylist>> GetPagedItemsImpl(int head, int count)
+        protected override async IAsyncEnumerable<MylistPlaylist> GetPagedItemsImpl(int head, int count, [EnumeratorCancellation] CancellationToken ct = default)
         {
-            return Task.FromResult(_userMylists.Skip(head).Take(count).ToAsyncEnumerable());
+            ct.ThrowIfCancellationRequested();
+
+            foreach (var item in _userMylists.Skip(head).Take(count))
+            {
+                yield return item;
+
+                ct.ThrowIfCancellationRequested();
+            }
         }
 
         protected override async Task<int> ResetSourceImpl()
