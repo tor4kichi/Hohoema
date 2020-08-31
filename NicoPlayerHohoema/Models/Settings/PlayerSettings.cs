@@ -1,4 +1,5 @@
 ﻿using Microsoft.Toolkit.Uwp.Helpers;
+using NiconicoLiveToolkit.Live.WatchSession;
 using NicoPlayerHohoema.FixPrism;
 using Prism.Commands;
 using System;
@@ -80,16 +81,25 @@ namespace NicoPlayerHohoema.Models
 		}
 
 
-        private string _DefaultLiveQuality = null;
+        private LiveQualityType _DefaultLiveQuality = LiveQualityType.Normal;
 
         [DataMember]
-        public string DefaultLiveQuality
+        public LiveQualityType DefaultLiveQuality
         {
             get { return _DefaultLiveQuality; }
             set { SetProperty(ref _DefaultLiveQuality, value); }
         }
 
-        private bool _LiveWatchWithLowLatency = true;
+		private LiveQualityLimitType _LiveQualityLimit = LiveQualityLimitType.SuperHigh;
+
+		[DataMember]
+		public LiveQualityLimitType LiveQualityLimit
+		{
+			get { return _LiveQualityLimit; }
+			set { SetProperty(ref _LiveQualityLimit, value); }
+		}
+
+		private bool _LiveWatchWithLowLatency = true;
 
         [DataMember]
         public bool LiveWatchWithLowLatency

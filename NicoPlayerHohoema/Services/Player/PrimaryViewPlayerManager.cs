@@ -69,7 +69,7 @@ namespace NicoPlayerHohoema.Services.Player
                         _navigationService = _navigationServiceLazy.Value;
                     }
 
-                    if (DisplayMode  == PrimaryPlayerDisplayMode.Close)
+                    if (DisplayMode == PrimaryPlayerDisplayMode.Close)
                     {
                         DisplayMode = _lastPlayedDisplayMode;
                     }

@@ -1,0 +1,1844 @@
+﻿{
+  "akashic": { "trustedChildOrigin": "^https?:\\/\\/ak\\.cdn\\.nimg\\.jp($|\\/)" },
+  "site": {
+    "locale": "ja_JP",
+    "serverTime": 1594337273533,
+    "frontendVersion": "184.0.0",
+    "apiBaseUrl": "https://live.nicovideo.jp/",
+    "staticResourceBaseUrl": "https://nicolive.cdn.nimg.jp/relive/front_assets/",
+    "topPageUrl": "https://live.nicovideo.jp/",
+    "programCreatePageUrl": "https://live.nicovideo.jp/create",
+    "programEditPageUrl": "https://live.nicovideo.jp/edit",
+    "programWatchPageUrl": "https://live2.nicovideo.jp/watch",
+    "recentPageUrl": "https://live.nicovideo.jp/recent",
+    "programArchivePageUrl": "https://live2.nicovideo.jp/watch/archive",
+    "historyPageUrl": "http://live.nicovideo.jp/history",
+    "myPageUrl": "http://live.nicovideo.jp/my",
+    "rankingPageUrl": "http://live.nicovideo.jp/ranking",
+    "searchPageUrl": "http://live.nicovideo.jp/search",
+    "focusPageUrl": "https://live2.nicovideo.jp/focus",
+    "timetablePageUrl": "https://live.nicovideo.jp/timetable",
+    "followedProgramsPageUrl": "https://live.nicovideo.jp/follow",
+    "frontendId": 12,
+    "familyService": {
+      "account": {
+        "accountRegistrationPageUrl": "https://account.nicovideo.jp/register",
+        "loginPageUrl": "https://account.nicovideo.jp/login",
+        "logoutPageUrl": "http://live.nicovideo.jp/logout",
+        "premiumMemberRegistrationPageUrl": "https://account.nicovideo.jp/premium/register",
+        "trackingParams": {
+          "siteId": "nicolive2",
+          "pageId": "watch",
+          "mode": "landing",
+          "programStatus": "comingsoon"
+        },
+        "profileRegistrationPageUrl": "https://account.nicovideo.jp/my/profile/register",
+        "contactsPageUrl": "https://account.nicovideo.jp/my/contacts",
+        "verifyEmailsPageUrl": "https://account.nicovideo.jp/contacts/emails/verify",
+        "accountSettingPageUrl": "https://account.nicovideo.jp/my/account",
+        "currentPageUrl": ""
+      },
+      "app": { "topPageUrl": "http://app.nicovideo.jp/" },
+      "atsumaru": { "topPageUrl": "https://game.nicovideo.jp/atsumaru/" },
+      "blomaga": { "topPageUrl": "https://ch.nicovideo.jp/portal/blomaga" },
+      "channel": {
+        "topPageUrl": "https://ch.nicovideo.jp/",
+        "forOrganizationAndCompanyPageUrl": "https://ch.nicovideo.jp/start"
+      },
+      "commons": { "topPageUrl": "http://commons.nicovideo.jp/" },
+      "community": { "topPageUrl": "https://com.nicovideo.jp/" },
+      "denfaminicogamer": { "topPageUrl": "https://news.denfaminicogamer.jp/" },
+      "dic": { "topPageUrl": "https://dic.nicovideo.jp/" },
+      "help": {
+        "liveHelpPageUrl": "https://qa.nicovideo.jp/category/show/417?site_domain=default",
+        "systemRequirementsPageUrl": "https://qa.nicovideo.jp/faq/show/1112?site_domain=default"
+      },
+      "ichiba": {
+        "configBaseUrl": "https://ichiba.nicovideo.jp/embed/",
+        "scriptUrl": "https://ichiba.nicovideo.jp/embed/ichiba_vanilla.js",
+        "topPageUrl": "https://ichiba.nicovideo.jp/"
+      },
+      "jk": { "topPageUrl": "http://jk.nicovideo.jp/" },
+      "mastodon": { "topPageUrl": "https://rd.nicovideo.jp/cc/app/mastodon" },
+      "news": { "topPageUrl": "https://news.nicovideo.jp/" },
+      "nicoad": {
+        "topPageUrl": "https://nicoad.nicovideo.jp/",
+        "apiBaseUrl": "https://api.nicoad.nicovideo.jp/"
+      },
+      "niconico": {
+        "topPageUrl": "https://www.nicovideo.jp/",
+        "userPageBaseUrl": "https://www.nicovideo.jp/user"
+      },
+      "niconicoQ": { "topPageUrl": "https://q.nicovideo.jp/" },
+      "point": {
+        "topPageUrl": "https://point.nicovideo.jp/index/bank/",
+        "purchasePageUrl": "https://point.nicovideo.jp/index/asp/purchase_point"
+      },
+      "seiga": {
+        "topPageUrl": "https://seiga.nicovideo.jp/",
+        "seigaPageBaseUrl": "https://seiga.nicovideo.jp/seiga",
+        "comicPageBaseUrl": "https://seiga.nicovideo.jp/comic"
+      },
+      "site": {
+        "serviceListPageUrl": "https://site.nicovideo.jp/service_list",
+        "salesAdvertisingPageUrl": "https://site.nicovideo.jp/sales_ads/",
+        "liveAppDownloadPageUrl": "https://site.nicovideo.jp/live/app/"
+      },
+      "solid": { "topPageUrl": "https://3d.nicovideo.jp/" },
+      "uad": { "topPageUrl": "https://uad.nicovideo.jp/" },
+      "video": {
+        "topPageUrl": "https://www.nicovideo.jp/video_top",
+        "myPageUrl": "https://www.nicovideo.jp/my/top",
+        "watchPageBaseUrl": "https://www.nicovideo.jp/watch"
+      },
+      "faq": { "pageUrl": "https://qa.nicovideo.jp/faq/show/5008?site_domain=default" },
+      "bugreport": { "pageUrl": "https://secure.nicovideo.jp/form/feedback_bugreport" },
+      "rightsControlProgram": { "pageUrl": "http://rcp-smile.nicovideo.jp/static/rule/" },
+      "licenseSearch": { "pageUrl": "https://license-search.nicovideo.jp/" },
+      "info": {
+        "warnForPhishingPageUrl": "http://info.nicovideo.jp/base/phishing.html",
+        "smartphoneSdkPageUrl": "http://info.nicovideo.jp/sdk",
+        "nintendoGuidelinePageUrl": "http://info.nicovideo.jp/base/nintendo_guideline.html"
+      },
+      "search": { "suggestionApiUrl": "https://sug.search.nicovideo.jp/suggestion/complete/" },
+      "nicoex": { "apiBaseUrl": "https://api.cas.nicovideo.jp/" },
+      "akashic": { "untrustedFrameUrl": "https://ak.cdn.nimg.jp/coe/games/loader/v0_10_25_alpha_3/loader_prod.html" },
+      "superichiba": {
+        "apiBaseUrl": "https://api.spi.nicovideo.jp/v1/",
+        "launchApiBaseUrl": "https://lapi.spi.nicovideo.jp/v1/",
+        "oroshiuriIchibaBaseUrl": "https://spi.nicovideo.jp/"
+      },
+      "nAir": { "topPageUrl": "https://n-air-app.nicovideo.jp/" },
+      "prizeBox": { "topPageUrl": "https://prizebox.nicovideo.jp/" },
+      "emotion": { "baseUrl": "https://emotion.nicovideo.jp/" }
+    },
+    "environments": { "runningMode": "client" },
+    "relive": {
+      "apiBaseUrl": "https://live2.nicovideo.jp/",
+      "webSocketUrl": "",
+      "csrfToken": "",
+      "audienceToken": "25478145507924_anonymous-user-281c5632-4487-4083-a914-bacecff9796c_1594423673_88a6c3d8b2ac422142660ce99a96d49445fbef8b"
+    },
+    "information": {
+      "html5PlayerInformationPageUrl": "https://blog.nicovideo.jp/niconews/5981.html",
+      "flashPlayerInstallInformationPageUrl": "https://qa.nicovideo.jp/faq/show/5693?site_domain=default",
+      "maintenanceInformationPageUrl": "https://blog.nicovideo.jp/niconews/category/ge_maintenance"
+    },
+    "rule": {
+      "agreementPageUrl": "http://live.nicovideo.jp/static/rule.html",
+      "guidelinePageUrl": "http://live.nicovideo.jp/img/help/guideline.pdf"
+    },
+    "spec": {
+      "watchUsageAndDevicePageUrl": "http://live.nicovideo.jp/s/niconamaguide",
+      "broadcastUsageDevicePageUrl": "http://live.nicovideo.jp/s/broadcast",
+      "minogashiProgramPageUrl": "https://site.nicovideo.jp/minogashi/",
+      "cruisePageUrl": "https://site.live.nicovideo.jp/cruise.html"
+    },
+    "ad": { "adsApiBaseUrl": "https://ads.nicovideo.jp/" },
+    "program": { "liveCount": 0 },
+    "tag": {
+      "revisionCheckIntervalMs": 120000,
+      "registerHelpPageUrl": "https://qa.nicovideo.jp/faq/show/586?site_domain=default",
+      "userRegistrableMax": 10,
+      "textMaxLength": 18
+    },
+    "coe": {
+      "resourcesBaseUrl": "https://nicolive.cdn.nimg.jp/relive/common-resources/14.0.0/coe/1.0.22/prod/",
+      "coeContentBaseUrl": "https://ak.cdn.nimg.jp/coe/contents/aufeiR7C"
+    },
+    "notify": {
+      "unreadApiUrl": "https://papi.live.nicovideo.jp/api/relive/notifybox.unread",
+      "contentApiUrl": "https://live.nicovideo.jp/api/relive/notifybox.content",
+      "updateUnreadIntervalMs": 60000
+    },
+    "timeshift": { "reservationDetailListApiUrl": "https://live.nicovideo.jp/api/watchingreservation?mode=detaillist" },
+    "broadcast": {
+      "usageHelpPageUrl": "https://qa.nicovideo.jp/faq/show/701?site_domain=default",
+      "stableBroadcastHelpPageUrl": "https://qa.nicovideo.jp/faq/show/674?site_domain=default",
+      "niconicoLiveEncoder": { "downloadPageUrl": "http://live.nicovideo.jp/s/encoder" },
+      "nair": { "downloadPageUrl": "https://n-air-app.nicovideo.jp/" },
+      "broadcasterStreamHelpPageUrl": "https://qa.nicovideo.jp/faq/show/10536?site_domain=default"
+    },
+    "enquete": { "usageHelpPageUrl": "https://qa.nicovideo.jp/faq/show/4563?site_domain=default" },
+    "trialWatch": { "usageHelpPageUrl": "https://qa.nicovideo.jp/faq/show/336?site_domain=default" },
+    "videoQuote": { "usageHelpPageUrl": "" },
+    "autoExtend": { "usageHelpPageUrl": "https://qa.nicovideo.jp/faq/show/10675?site_domain=default" },
+    "nicobus": { "publicApiBaseUrl": "https://public.api.nicovideo.jp/" },
+    "dmc": { "webRtc": { "stunServerUrls": [] } },
+    "frontendPublicApiUrl": "https://live2.nicovideo.jp/front/api/",
+    "commonResourcesBaseUrl": "https://nicolive.cdn.nimg.jp/relive/common-resources/",
+    "gift": { "cantOpenPageCausedAdBlockHelpPageUrl": "https://qa.nicovideo.jp/faq/show/15454?site_domain=default" },
+    "creatorPromotionProgram": { "registrationHelpPageUrl": "https://qa.nicovideo.jp/faq/show/78?site_domain=default" },
+    "stream": { "lowLatencyHelpPageUrl": "https://qa.nicovideo.jp/faq/show/14782?site_domain=default" },
+    "performance": { "commentRender": { "liteModeHelpPageUrl": "https://qa.nicovideo.jp/faq/show/10281?site_domain=default" } },
+    "nico": { "webPushNotificationReceiveSettingHelpPageUrl": "https://qa.nicovideo.jp/faq/show/9218?site_domain=default" },
+    "akashic": { "switchRenderHelpPageUrl": "https://qa.nicovideo.jp/faq/show/13973?site_domain=default" },
+    "device": {
+      "watchOnPlayStation4HelpPageUrl": "https://qa.nicovideo.jp/faq/show/133?site_domain=default",
+      "safariCantWatchHelpPageUrl": "https://qa.nicovideo.jp/faq/show/9448?site_domain=default"
+    }
+  },
+  "user": {
+    "isExplicitlyLoginable": false,
+    "isMobileMailAddressRegistered": false,
+    "isMailRegistered": false,
+    "isProfileRegistered": false,
+    "isLoggedIn": false,
+    "accountType": "non",
+    "isOperator": false,
+    "isBroadcaster": false,
+    "premiumOrigin": "0",
+    "permissions": [ null ],
+    "nicosid": "1520850785.615929151",
+    "superichiba": {
+      "deletable": false,
+      "hasBroadcasterRole": false
+    }
+  },
+  "program": {
+    "allegation": { "commentAllegationApiUrl": "https://riso.live2.nicovideo.jp/allegation_audience" },
+    "nicoliveProgramId": "lv326821644",
+    "reliveProgramId": "25478145507924",
+    "providerType": "channel",
+    "visualProviderType": "channel",
+    "title": "JLC680　三国 ＧⅡ「４日目」/丸亀 一般  「３日目」（10:00～21:00）",
+    "thumbnail": {
+      "small": "https://secure-dcdn.cdn.nimg.jp/comch/channel-icon/64x64/ch381.jpg?1592899082",
+      "large": "https://img.cdn.nimg.jp/s/nicochannel/live/381/2df423e3-6a7d-445f-991b-608692f9ebae.jpg/128x128l_FFFFFFFF"
+    },
+    "supplier": { "name": "株式会社　日本レジャーチャンネル" },
+    "openTime": 1594342800,
+    "beginTime": 1594342800,
+    "vposBaseTime": 1594342800,
+    "endTime": 1594382400,
+    "scheduledEndTime": 1594382400,
+    "status": "RELEASED",
+    "description": "<b>【10時05分～17時00分】三国 第２回全国ボートレース甲子園 ＧⅡ「４日目」</b><br />\n「４日目」レース中継をお送りします。<br />\n<b>【17時00分～21時00分】丸亀 ヴィーナスシリーズ　ブルーナイターエンジェルＣＵＰ 一般  「３日目」</b><br />\n「３日目」レース中継をお送りします。<br />",
+    "substitute": {},
+    "tag": {
+      "list": [
+        {
+          "text": "一般(その他)",
+          "existsNicopediaArticle": true,
+          "nicopediaArticlePageUrl": "https://dic.nicovideo.jp/a/%E4%B8%80%E8%88%AC%28%E3%81%9D%E3%81%AE%E4%BB%96%29",
+          "type": "category",
+          "isLocked": true,
+          "isDeletable": false
+        }
+      ],
+      "apiUrl": "https://live2.nicovideo.jp/unama/api/v1/programs/lv326821644/livetags",
+      "registerApiUrl": "https://live2.nicovideo.jp/unama/api/v1/programs/lv326821644/livetags",
+      "deleteApiUrl": "https://live2.nicovideo.jp/unama/api/v1/programs/lv326821644/livetags",
+      "apiToken": "",
+      "isLocked": false
+    },
+    "links": {
+      "feedbackPageUrl": "https://www.nicovideo.jp/feedback/live2_watch",
+      "contentsTreePageUrl": "http://commons.nicovideo.jp/tree/lv326821644",
+      "programReportPageUrl": "https://live.nicovideo.jp/allegation",
+      "tagReportPageUrl": "http://live2.nicovideo.jp/unama/report/tag/lv326821644"
+    },
+    "player": {
+      "embedUrl": "https://live.nicovideo.jp/embed/",
+      "banner": { "apiUrl": "https://live2.nicovideo.jp/unama/api/v3/programs/lv326821644/playerbanner" }
+    },
+    "watchPageUrl": "https://live.nicovideo.jp/watch/lv326821644",
+    "gatePageUrl": "https://live.nicovideo.jp/gate/lv326821644",
+    "mediaServerType": "DMC",
+    "isPrivate": false,
+    "isTest": false,
+    "isSdk": false,
+    "zapping": {
+      "listApiUrl": "https://live2.nicovideo.jp/unama/api/v3/programs/lv326821644/zapping_list",
+      "listUpdateIntervalMs": 360000
+    },
+    "report": { "imageApiUrl": "https://untnp.live.nicovideo.jp/img.report" },
+    "isFollowerOnly": true,
+    "cueSheet": { "eventsApiUrl": "https://live2.nicovideo.jp/api/v2/programs/lv326821644/operation/events" },
+    "cueSheetSnapshot": {
+      "commentLocked": false,
+      "audienceCommentLayout": "background"
+    },
+    "nicoad": {
+      "totalPoint": 0,
+      "ranking": []
+    },
+    "isGiftEnabled": true,
+    "stream": { "maxQuality": "high" },
+    "superichiba": {
+      "allowAudienceToAddNeta": false,
+      "canSupplierUse": true
+    },
+    "isChasePlayEnabled": true,
+    "isTimeshiftDownloadEnabled": true,
+    "statistics": {
+      "watchCount": 0,
+      "commentCount": 0
+    },
+    "isPremiumAppealBannerEnabled": false,
+    "isRecommendEnabled": true,
+    "isEmotionEnabled": false
+  },
+  "socialGroup": {
+    "type": "channel",
+    "id": "ch381",
+    "broadcastHistoryPageUrl": "https://ch.nicovideo.jp/channel/ch381/live",
+    "description": "ボートレースを見よう！&quot;ニコニコBOAT RACE＠JLC&quot;なら番組も中継も広く網羅！これであなたもボートレースの虜に...",
+    "name": "ニコニコ ＢＯＡＴ ＲＡＣＥ＠ＪＬＣ",
+    "socialGroupPageUrl": "https://ch.nicovideo.jp/channel/ch381",
+    "thumbnailImageUrl": "https://secure-dcdn.cdn.nimg.jp/comch/channel-icon/128x128/ch381.jpg?1592899082",
+    "thumbnailSmallImageUrl": "https://secure-dcdn.cdn.nimg.jp/comch/channel-icon/64x64/ch381.jpg?1592899082",
+    "companyName": "株式会社　日本レジャーチャンネル",
+    "isPayChannel": true,
+    "isFollowed": false,
+    "isJoined": false
+  },
+  "player": {
+    "name": "leo",
+    "audienceToken": "25478145507924_anonymous-user-281c5632-4487-4083-a914-bacecff9796c_1594423673_88a6c3d8b2ac422142660ce99a96d49445fbef8b",
+    "isJumpDisabled": false,
+    "disablePlayVideoAd": false,
+    "isRestrictedCommentPost": false,
+    "streamAllocationType": "allHigh"
+  },
+  "ad": {
+    "isBillboardEnabled": false,
+    "isSiteHeaderBannerEnabled": false,
+    "isProgramInformationEnabled": false,
+    "isFooterEnabled": false,
+    "adsJsUrl": "https://res.ads.nicovideo.jp/assets/js/ads2.js?ref=live"
+  },
+  "billboard": {},
+  "assets": {
+    "scripts": {
+      "vendor": "scripts/vendor.28eb2cc6a7.js",
+      "nicolib": "scripts/nicolib.a8b1a9c387.js",
+      "broadcaster-tool": "scripts/broadcaster-tool.9c3c3475.js",
+      "ichiba": "scripts/ichiba.9c3c3475.js",
+      "nicoheader": "scripts/nicoheader.9c3c3475.js",
+      "operator-tools": "scripts/operator-tools.9c3c3475.js",
+      "pc-watch": "scripts/pc-watch.9c3c3475.js",
+      "pc-watch.all": "scripts/pc-watch.all.9c3c3475.js",
+      "polyfill": "scripts/polyfill.9c3c3475.js"
+    },
+    "stylesheets": {
+      "broadcaster-tool": "stylesheets/broadcaster-tool.c9ac24a1.css",
+      "ichiba": "stylesheets/ichiba.cfd2e58f.css",
+      "nicoheader": "stylesheets/nicoheader.c1edc8cb.css",
+      "operator-tools": "stylesheets/operator-tools.73b95c48.css",
+      "pc-watch": "stylesheets/pc-watch.e6d8947b.css",
+      "pc-watch.all": "stylesheets/pc-watch.all.68e9db43.css"
+    }
+  },
+  "nicoEnquete": { "isEnabled": false },
+  "channel": {
+    "id": "ch381",
+    "programHistoryPageUrl": "https://ch.nicovideo.jp/channel/ch381/live",
+    "registerPageUrl": "https://ch.nicovideo.jp/ch381/join"
+  },
+  "channelFollower": { "records": [] },
+  "channelMember": { "records": [] },
+  "userProgramWatch": {
+    "rejectedReasons": [ "notLogin", "programNotBegun", "notSocialGroupMember" ],
+    "expireTime": null,
+    "canAutoRefresh": false
+  },
+  "userProgramReservation": { "isReserved": false },
+  "recommend": {
+    "program": {
+      "data": {
+        "recommend_id": "1709501640350433033",
+        "recipe_id": "live_watch_channel_1",
+        "values": [
+          {
+            "id": "lv326821213",
+            "recommend_type": "channel_live",
+            "content_type": "live",
+            "content_meta": {
+              "community_text": "ニコニコ ＢＯＡＴ ＲＡＣＥ＠ＪＬＣ",
+              "timeshift_mode": 2,
+              "start_time": "2020-07-09T10:00:00+09:00",
+              "member_only": true,
+              "description": "<b>【10時05分～17時00分】三国 第２回全国ボートレース甲子園 ＧⅡ「３日目」</b><br />「３日目」レース中継をお送りします。<br /><b>【17時00分～21時00分】丸亀 ヴィーナスシリーズ　ブルーナイターエンジェルＣＵＰ 一般  「２日目」</b><br />「２日目」レース中継をお送りします。<br />",
+              "tags": "一般(その他) 一般",
+              "live_status": "past",
+              "user_id": 21120092,
+              "provider_type": "channel",
+              "timeshift_expired": "2020-07-16T23:59:00+09:00",
+              "open_time": "2020-07-09T10:00:00+09:00",
+              "live_end_time": "2020-07-09T21:00:00+09:00",
+              "is_product_stream": false,
+              "channel_id": 381,
+              "community_id": null,
+              "comment_counter": 0,
+              "timeshift_enabled": true,
+              "thumbnail_url": "https://nicolive.cdn.nimg.jp/live/simg/img/a654/1961636.7a3966.jpg",
+              "view_counter": 85,
+              "ss_adult": false,
+              "category_tags": "一般(その他)",
+              "title": "JLC680　三国 　ＧⅡ「３日目」/丸亀 　一般  「２日目」（10:00～21:00）",
+              "community_icon": "https://secure-dcdn.cdn.nimg.jp/comch/channel-icon/128x128/ch381.jpg?1592899082",
+              "picture_url": "https://nicolive.cdn.nimg.jp/live/simg/img/a654/1961636.7a3966.jpg",
+              "score_timeshift_reserved": 4,
+              "content_id": "lv326821213",
+              "live_screenshot_thumbnail_large": "",
+              "live_screenshot_thumbnail_middle": "",
+              "live_screenshot_thumbnail_small": "",
+              "live_screenshot_thumbnail_micro": "",
+              "ts_screenshot_thumbnail_large": "",
+              "ts_screenshot_thumbnail_middle": "",
+              "ts_screenshot_thumbnail_small": "",
+              "ts_screenshot_thumbnail_micro": "",
+              "user_nickname": null,
+              "user_icon_150x150": null,
+              "user_icon_50x50": null
+            }
+          },
+          {
+            "id": "lv326821111",
+            "recommend_type": "channel_live",
+            "content_type": "live",
+            "content_meta": {
+              "community_text": "ニコニコ ＢＯＡＴ ＲＡＣＥ＠ＪＬＣ",
+              "timeshift_mode": 2,
+              "start_time": "2020-07-08T10:00:00+09:00",
+              "member_only": true,
+              "description": "<b>【10時05分～17時00分】三国 第２回全国ボートレース甲子園 ＧⅡ「２日目」</b><br />「２日目」レース中継をお送りします。<br /><b>【17時00分～21時00分】丸亀 ヴィーナスシリーズ　ブルーナイターエンジェルＣＵＰ 一般  「初日」</b><br />「初日」レース中継をお送りします。<br />",
+              "tags": "一般(その他) 一般",
+              "live_status": "past",
+              "user_id": 21120092,
+              "provider_type": "channel",
+              "timeshift_expired": "2020-07-15T23:59:00+09:00",
+              "open_time": "2020-07-08T10:00:00+09:00",
+              "live_end_time": "2020-07-08T21:00:00+09:00",
+              "is_product_stream": false,
+              "channel_id": 381,
+              "community_id": null,
+              "comment_counter": 3,
+              "timeshift_enabled": true,
+              "thumbnail_url": "https://nicolive.cdn.nimg.jp/live/simg/img/a654/1961630.3737c6.jpg",
+              "view_counter": 90,
+              "ss_adult": false,
+              "category_tags": "一般(その他)",
+              "title": "JLC680　三国 　ＧⅡ「２日目」/丸亀 　一般  「初日」（10:00～21:00）",
+              "community_icon": "https://secure-dcdn.cdn.nimg.jp/comch/channel-icon/128x128/ch381.jpg?1592899082",
+              "picture_url": "https://nicolive.cdn.nimg.jp/live/simg/img/a654/1961630.3737c6.jpg",
+              "score_timeshift_reserved": 3,
+              "content_id": "lv326821111",
+              "live_screenshot_thumbnail_large": "",
+              "live_screenshot_thumbnail_middle": "",
+              "live_screenshot_thumbnail_small": "",
+              "live_screenshot_thumbnail_micro": "",
+              "ts_screenshot_thumbnail_large": "",
+              "ts_screenshot_thumbnail_middle": "",
+              "ts_screenshot_thumbnail_small": "",
+              "ts_screenshot_thumbnail_micro": "",
+              "user_nickname": null,
+              "user_icon_150x150": null,
+              "user_icon_50x50": null
+            }
+          },
+          {
+            "id": "lv326931908",
+            "recommend_type": "related_live_onair",
+            "content_type": "live",
+            "content_meta": {
+              "community_text": "ゲストさんのコミュニティ",
+              "timeshift_mode": 0,
+              "start_time": "2020-07-10T08:22:22+09:00",
+              "member_only": false,
+              "description": "この枠はお絵かきボンバーの練習枠です<br />みなさまの貼付けをお待ちしてます<br />自動放送のため、主は不在のことが多いです<br />やっと動いた(AI.Level 0)<br />やっと勝てた(AI.Level 1)<br />絵を描けたよ(AI.Level 2)<br />言葉を覚えた(AI.Level 3)<br />まだバグ有り〼(ヽ´ω`)<br /><br />その他ゲームが動かないことがあって、<br />貼ってくれた人ごめんなさい、いま修理中です<br /><br />貼付け／広告／プレイ、いつもありがとうございます。",
+              "tags": "ゲーム 一般会員 ニコ生ゲーム お絵かきボンバー",
+              "live_status": "onair",
+              "user_id": 96976963,
+              "provider_type": "community",
+              "timeshift_expired": null,
+              "open_time": "2020-07-10T08:21:51+09:00",
+              "live_end_time": "2020-07-10T08:52:22+09:00",
+              "is_product_stream": false,
+              "channel_id": null,
+              "community_id": 4834336,
+              "comment_counter": 0,
+              "timeshift_enabled": false,
+              "thumbnail_url": null,
+              "view_counter": 10,
+              "ss_adult": false,
+              "category_tags": "ゲーム",
+              "title": "自動お絵かきボンバー枠ほか",
+              "community_icon": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4834336.jpg?1589766174",
+              "picture_url": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4834336.jpg?1589766174",
+              "score_timeshift_reserved": 0,
+              "content_id": "lv326931908",
+              "live_screenshot_thumbnail_large": "https://ssth.dmc.nico/thumbnail/20200710/08/21/nicolive-production-pg26079111676500/nicolive-production-pg26079111676500_800_450.jpg",
+              "live_screenshot_thumbnail_middle": "https://ssth.dmc.nico/thumbnail/20200710/08/21/nicolive-production-pg26079111676500/nicolive-production-pg26079111676500_640_360.jpg",
+              "live_screenshot_thumbnail_small": "https://ssth.dmc.nico/thumbnail/20200710/08/21/nicolive-production-pg26079111676500/nicolive-production-pg26079111676500_352_198.jpg",
+              "live_screenshot_thumbnail_micro": "https://ssth.dmc.nico/thumbnail/20200710/08/21/nicolive-production-pg26079111676500/nicolive-production-pg26079111676500_160_90.jpg",
+              "ts_screenshot_thumbnail_large": "",
+              "ts_screenshot_thumbnail_middle": "",
+              "ts_screenshot_thumbnail_small": "",
+              "ts_screenshot_thumbnail_micro": "",
+              "user_nickname": "ゲスト",
+              "user_icon_150x150": null,
+              "user_icon_50x50": null
+            }
+          },
+          {
+            "id": "lv326931905",
+            "recommend_type": "related_live_onair",
+            "content_type": "live",
+            "content_meta": {
+              "community_text": "どうでしょうM@STER",
+              "timeshift_mode": 2,
+              "start_time": "2020-07-10T08:21:08+09:00",
+              "member_only": false,
+              "description": "テすとだってば",
+              "tags": "一般(その他) 一般 無邪気白熊P みりもり 車載配信",
+              "live_status": "onair",
+              "user_id": 3686311,
+              "provider_type": "community",
+              "timeshift_expired": "2020-07-17T23:59:00+09:00",
+              "open_time": "2020-07-10T08:20:58+09:00",
+              "live_end_time": "2020-07-10T08:51:08+09:00",
+              "is_product_stream": false,
+              "channel_id": null,
+              "community_id": 2444208,
+              "comment_counter": 0,
+              "timeshift_enabled": true,
+              "thumbnail_url": null,
+              "view_counter": 7,
+              "ss_adult": false,
+              "category_tags": "一般(その他)",
+              "title": "test放送（車載）",
+              "community_icon": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co2444208.jpg?1549287437",
+              "picture_url": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co2444208.jpg?1549287437",
+              "score_timeshift_reserved": 0,
+              "content_id": "lv326931905",
+              "live_screenshot_thumbnail_large": "https://ssth.dmc.nico/thumbnail/20200710/08/20/nicolive-production-pg30700332909140/nicolive-production-pg30700332909140_800_450.jpg",
+              "live_screenshot_thumbnail_middle": "https://ssth.dmc.nico/thumbnail/20200710/08/20/nicolive-production-pg30700332909140/nicolive-production-pg30700332909140_640_360.jpg",
+              "live_screenshot_thumbnail_small": "https://ssth.dmc.nico/thumbnail/20200710/08/20/nicolive-production-pg30700332909140/nicolive-production-pg30700332909140_352_198.jpg",
+              "live_screenshot_thumbnail_micro": "https://ssth.dmc.nico/thumbnail/20200710/08/20/nicolive-production-pg30700332909140/nicolive-production-pg30700332909140_160_90.jpg",
+              "ts_screenshot_thumbnail_large": "",
+              "ts_screenshot_thumbnail_middle": "",
+              "ts_screenshot_thumbnail_small": "",
+              "ts_screenshot_thumbnail_micro": "",
+              "user_nickname": "みりもりQMA（無邪気白熊Ｐ）",
+              "user_icon_150x150": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/368/3686311.jpg?1411812329",
+              "user_icon_50x50": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/368/3686311.jpg?1411812329"
+            }
+          },
+          {
+            "id": "lv326931904",
+            "recommend_type": "related_live_onair",
+            "content_type": "live",
+            "content_meta": {
+              "community_text": "たお EX Season",
+              "timeshift_mode": 0,
+              "start_time": "2020-07-10T08:20:17+09:00",
+              "member_only": false,
+              "description": "あつまれ闇住の森。マイクあったりなかったり、あくび、画面固定、無言、カチカチ音、裏作業はデフォです<br />一般会員ですので30分枠となります<br />like　艦これ、Vチューバー、小/説/家/になろう、グ/ラ/ブ/ル、ツイッター話題<br />sorry japanese only<br />■pixiv<br />http://www.pixiv.net/member.php?id=5939<br />",
+              "tags": "描いてみた 一般 やってみた 一般会員 雑談",
+              "live_status": "onair",
+              "user_id": 10091260,
+              "provider_type": "community",
+              "timeshift_expired": null,
+              "open_time": "2020-07-10T08:20:14+09:00",
+              "live_end_time": "2020-07-10T08:50:17+09:00",
+              "is_product_stream": false,
+              "channel_id": null,
+              "community_id": 14042,
+              "comment_counter": 0,
+              "timeshift_enabled": false,
+              "thumbnail_url": null,
+              "view_counter": 6,
+              "ss_adult": false,
+              "category_tags": "描いてみた",
+              "title": "無課金裏作業の段",
+              "community_icon": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co14042.jpg?1577725474",
+              "picture_url": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co14042.jpg?1577725474",
+              "score_timeshift_reserved": 0,
+              "content_id": "lv326931904",
+              "live_screenshot_thumbnail_large": "https://ssth.dmc.nico/thumbnail/20200710/08/20/nicolive-production-pg28650380460628/nicolive-production-pg28650380460628_800_450.jpg",
+              "live_screenshot_thumbnail_middle": "https://ssth.dmc.nico/thumbnail/20200710/08/20/nicolive-production-pg28650380460628/nicolive-production-pg28650380460628_640_360.jpg",
+              "live_screenshot_thumbnail_small": "https://ssth.dmc.nico/thumbnail/20200710/08/20/nicolive-production-pg28650380460628/nicolive-production-pg28650380460628_352_198.jpg",
+              "live_screenshot_thumbnail_micro": "https://ssth.dmc.nico/thumbnail/20200710/08/20/nicolive-production-pg28650380460628/nicolive-production-pg28650380460628_160_90.jpg",
+              "ts_screenshot_thumbnail_large": "",
+              "ts_screenshot_thumbnail_middle": "",
+              "ts_screenshot_thumbnail_small": "",
+              "ts_screenshot_thumbnail_micro": "",
+              "user_nickname": "みならい",
+              "user_icon_150x150": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/1009/10091260.jpg?1560390093",
+              "user_icon_50x50": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/1009/10091260.jpg?1560390093"
+            }
+          },
+          {
+            "id": "lv326931903",
+            "recommend_type": "related_live_onair",
+            "content_type": "live",
+            "content_meta": {
+              "community_text": "癒しうんこウンポロリン幼稚園",
+              "timeshift_mode": 0,
+              "start_time": "2020-07-10T08:20:28+09:00",
+              "member_only": false,
+              "description": "↓北海道合宿先ほしい物リスト<br />https://www.amazon.jp/hz/wishlist/ls/GGBS60TU0T2N?ref_=wl_share<br /><br />↓カモンエギ（エロ系）<br />https://www.dlsite.com/maniax/circle/profile/=/maker_id/RG25895.html<br />↓カモンエギ（カモじい）HP<br />http://kamonnegi.sakura.ne.jp/ai/gawecos/index.html",
+              "tags": "一般(その他) 一般 スマートフォン配信",
+              "live_status": "onair",
+              "user_id": 11908507,
+              "provider_type": "community",
+              "timeshift_expired": null,
+              "open_time": "2020-07-10T08:20:01+09:00",
+              "live_end_time": "2020-07-10T08:50:28+09:00",
+              "is_product_stream": false,
+              "channel_id": null,
+              "community_id": 3686967,
+              "comment_counter": 187,
+              "timeshift_enabled": false,
+              "thumbnail_url": null,
+              "view_counter": 215,
+              "ss_adult": false,
+              "category_tags": "一般(その他)",
+              "title": "朝ごはん食べる　後6日で合宿終了ପ₍ᐢ｡•༝•｡ᐢ₎ଓ",
+              "community_icon": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3686967.jpg?1586537536",
+              "picture_url": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3686967.jpg?1586537536",
+              "score_timeshift_reserved": 0,
+              "content_id": "lv326931903",
+              "live_screenshot_thumbnail_large": "https://ssth.dmc.nico/thumbnail/20200710/08/20/nicolive-production-pg48878232535636/nicolive-production-pg48878232535636_800_450.jpg",
+              "live_screenshot_thumbnail_middle": "https://ssth.dmc.nico/thumbnail/20200710/08/20/nicolive-production-pg48878232535636/nicolive-production-pg48878232535636_640_360.jpg",
+              "live_screenshot_thumbnail_small": "https://ssth.dmc.nico/thumbnail/20200710/08/20/nicolive-production-pg48878232535636/nicolive-production-pg48878232535636_352_198.jpg",
+              "live_screenshot_thumbnail_micro": "https://ssth.dmc.nico/thumbnail/20200710/08/20/nicolive-production-pg48878232535636/nicolive-production-pg48878232535636_160_90.jpg",
+              "ts_screenshot_thumbnail_large": "",
+              "ts_screenshot_thumbnail_middle": "",
+              "ts_screenshot_thumbnail_small": "",
+              "ts_screenshot_thumbnail_micro": "",
+              "user_nickname": "向日葵(ひまわり)2nd",
+              "user_icon_150x150": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/1190/11908507.jpg?1559254010",
+              "user_icon_50x50": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/1190/11908507.jpg?1559254010"
+            }
+          },
+          {
+            "id": "lv326931901",
+            "recommend_type": "related_live_onair",
+            "content_type": "live",
+            "content_meta": {
+              "community_text": "無気力声的なゲーム放送",
+              "timeshift_mode": 2,
+              "start_time": "2020-07-10T08:19:44+09:00",
+              "member_only": false,
+              "description": "楽したい為の防音2残り1　軌跡説明欄　空シリーズはPSP　Evoシリーズは全て　閃シリーズはPS3・PS4でプレイ済み　零改1周のみ",
+              "tags": "ゲーム HD配信 PS4ゲーム配信 モンスターハンターワールド：アイス…",
+              "live_status": "onair",
+              "user_id": 26404548,
+              "provider_type": "community",
+              "timeshift_expired": "2020-07-17T23:59:00+09:00",
+              "open_time": "2020-07-10T08:19:43+09:00",
+              "live_end_time": "2020-07-10T10:19:44+09:00",
+              "is_product_stream": false,
+              "channel_id": null,
+              "community_id": 1829213,
+              "comment_counter": 0,
+              "timeshift_enabled": true,
+              "thumbnail_url": null,
+              "view_counter": 4,
+              "ss_adult": false,
+              "category_tags": "ゲーム",
+              "title": "MHW:IB　アルバ　part680",
+              "community_icon": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co1829213.jpg?1592339274",
+              "picture_url": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co1829213.jpg?1592339274",
+              "score_timeshift_reserved": 0,
+              "content_id": "lv326931901",
+              "live_screenshot_thumbnail_large": "https://ssth.dmc.nico/thumbnail/20200710/08/19/nicolive-production-pg33962122543700/nicolive-production-pg33962122543700_800_450.jpg",
+              "live_screenshot_thumbnail_middle": "https://ssth.dmc.nico/thumbnail/20200710/08/19/nicolive-production-pg33962122543700/nicolive-production-pg33962122543700_640_360.jpg",
+              "live_screenshot_thumbnail_small": "https://ssth.dmc.nico/thumbnail/20200710/08/19/nicolive-production-pg33962122543700/nicolive-production-pg33962122543700_352_198.jpg",
+              "live_screenshot_thumbnail_micro": "https://ssth.dmc.nico/thumbnail/20200710/08/19/nicolive-production-pg33962122543700/nicolive-production-pg33962122543700_160_90.jpg",
+              "ts_screenshot_thumbnail_large": "",
+              "ts_screenshot_thumbnail_middle": "",
+              "ts_screenshot_thumbnail_small": "",
+              "ts_screenshot_thumbnail_micro": "",
+              "user_nickname": "神尤",
+              "user_icon_150x150": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/2640/26404548.jpg?1507265052",
+              "user_icon_50x50": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/2640/26404548.jpg?1507265052"
+            }
+          },
+          {
+            "id": "lv326931900",
+            "recommend_type": "related_live_onair",
+            "content_type": "live",
+            "content_meta": {
+              "community_text": "ブさんとみんなの懇談会(仮)",
+              "timeshift_mode": 0,
+              "start_time": "2020-07-10T08:19:36+09:00",
+              "member_only": false,
+              "description": "アズレン開始日2017年10月3日<br />高確率で寝落ちしますが予めご了承下さい<br />画面が動かなくなったときは中の人が気絶しています<br />鯖:トラック<br /><br />※初見さんにBGM詳細等お答えしておりません、予めご了承下さい。<br /><br />配信環境<br />　　　　　(旧)　　　　　　　　　　　(新)<br />CPU : Intel Core i7-4790K → Intel Core i7-10700K<br />マザーボード : MSI Z97-S01 → ASUS ROG STRIX Z490-F GAMING<br />メモリー : DDR3 16GB[8GB*2枚] → DDR4 32GB[16GB*2枚]<br />グラフィックボード : GeForce GTX970 → ASUS製ROG-STRIX-RTX2080S-A8G-GAMING <br />HDD/SSD : Intel SSD 660p Series [M.2 PCI-E SSD 1TB] Crucial CT1000MX500SSD1 [SSD 1TB] TOSHIBA MD04ACA600 [HDD 6TB]<br />電源 : Fractal Design ION+[860W/80PLUS Platinum]<br />モニター : ASUS VG278QR [27型ワイド/DVI/HDMI/DisplayPort]",
+              "tags": "ゲーム HD配信 ゲームプレイ アズールレーン チャット配信 寝落ち配信 作業BGM ROM推奨",
+              "live_status": "onair",
+              "user_id": 1545253,
+              "provider_type": "community",
+              "timeshift_expired": null,
+              "open_time": "2020-07-10T08:19:33+09:00",
+              "live_end_time": "2020-07-10T08:49:36+09:00",
+              "is_product_stream": false,
+              "channel_id": null,
+              "community_id": 3551977,
+              "comment_counter": 0,
+              "timeshift_enabled": false,
+              "thumbnail_url": null,
+              "view_counter": 4,
+              "ss_adult": false,
+              "category_tags": "ゲーム",
+              "title": "【アズールレーン】(指'ω'揮) アズレン始めました その953 イベント？",
+              "community_icon": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3551977.jpg?1591074464",
+              "picture_url": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3551977.jpg?1591074464",
+              "score_timeshift_reserved": 0,
+              "content_id": "lv326931900",
+              "live_screenshot_thumbnail_large": "https://ssth.dmc.nico/thumbnail/20200710/08/19/nicolive-production-pg37212709192276/nicolive-production-pg37212709192276_800_450.jpg",
+              "live_screenshot_thumbnail_middle": "https://ssth.dmc.nico/thumbnail/20200710/08/19/nicolive-production-pg37212709192276/nicolive-production-pg37212709192276_640_360.jpg",
+              "live_screenshot_thumbnail_small": "https://ssth.dmc.nico/thumbnail/20200710/08/19/nicolive-production-pg37212709192276/nicolive-production-pg37212709192276_352_198.jpg",
+              "live_screenshot_thumbnail_micro": "https://ssth.dmc.nico/thumbnail/20200710/08/19/nicolive-production-pg37212709192276/nicolive-production-pg37212709192276_160_90.jpg",
+              "ts_screenshot_thumbnail_large": "",
+              "ts_screenshot_thumbnail_middle": "",
+              "ts_screenshot_thumbnail_small": "",
+              "ts_screenshot_thumbnail_micro": "",
+              "user_nickname": "S_Alizee",
+              "user_icon_150x150": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/154/1545253.jpg?1328203741",
+              "user_icon_50x50": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/154/1545253.jpg?1328203741"
+            }
+          },
+          {
+            "id": "lv326931899",
+            "recommend_type": "related_live_onair",
+            "content_type": "live",
+            "content_meta": {
+              "community_text": "ふみやさんのコミュニティ",
+              "timeshift_mode": 2,
+              "start_time": "2020-07-10T08:18:34+09:00",
+              "member_only": false,
+              "description": "ふみやがPlayStation4でゲームをしている風景をニコニコ生放送で配信しています。",
+              "tags": "ゲーム PS4ゲーム配信 Call_of_Duty__Mod…",
+              "live_status": "onair",
+              "user_id": 51367792,
+              "provider_type": "community",
+              "timeshift_expired": "2020-07-17T23:59:00+09:00",
+              "open_time": "2020-07-10T08:18:33+09:00",
+              "live_end_time": "2020-07-10T14:18:34+09:00",
+              "is_product_stream": false,
+              "channel_id": null,
+              "community_id": 4020340,
+              "comment_counter": 0,
+              "timeshift_enabled": true,
+              "thumbnail_url": null,
+              "view_counter": 5,
+              "ss_adult": false,
+              "category_tags": "ゲーム",
+              "title": "視聴者参加型[FF7Rか、WW2、TERA、MW、フォートナイト、オフラインゲー、BF4]いつも通りプレイ［ポケットWiFiなので最低画質です。オフラインは別］",
+              "community_icon": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4020340.jpg?1561717855",
+              "picture_url": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4020340.jpg?1561717855",
+              "score_timeshift_reserved": 0,
+              "content_id": "lv326931899",
+              "live_screenshot_thumbnail_large": "https://ssth.dmc.nico/thumbnail/20200710/08/18/nicolive-production-pg37374654415444/nicolive-production-pg37374654415444_800_450.jpg",
+              "live_screenshot_thumbnail_middle": "https://ssth.dmc.nico/thumbnail/20200710/08/18/nicolive-production-pg37374654415444/nicolive-production-pg37374654415444_640_360.jpg",
+              "live_screenshot_thumbnail_small": "https://ssth.dmc.nico/thumbnail/20200710/08/18/nicolive-production-pg37374654415444/nicolive-production-pg37374654415444_352_198.jpg",
+              "live_screenshot_thumbnail_micro": "https://ssth.dmc.nico/thumbnail/20200710/08/18/nicolive-production-pg37374654415444/nicolive-production-pg37374654415444_160_90.jpg",
+              "ts_screenshot_thumbnail_large": "",
+              "ts_screenshot_thumbnail_middle": "",
+              "ts_screenshot_thumbnail_small": "",
+              "ts_screenshot_thumbnail_micro": "",
+              "user_nickname": "ふみや@ニコ生主",
+              "user_icon_150x150": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/5136/51367792.jpg?1592453198",
+              "user_icon_50x50": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/5136/51367792.jpg?1592453198"
+            }
+          },
+          {
+            "id": "lv326931898",
+            "recommend_type": "related_live_onair",
+            "content_type": "live",
+            "content_meta": {
+              "community_text": ".☆゜*..　Mayu! Café　..*゜☆.　bear's project べあプロ",
+              "timeshift_mode": 2,
+              "start_time": "2020-07-10T08:18:38+09:00",
+              "member_only": false,
+              "description": "ブックオフで２００円",
+              "tags": "ゲーム クルーズ待ち HD配信 雑談 初見プレイ 初心者 任天堂ゲーム配信 ニンテンドーds ファイナルファンタジータクティクス DS SRPG シミュレーションゲーム",
+              "live_status": "onair",
+              "user_id": 14400340,
+              "provider_type": "community",
+              "timeshift_expired": "2020-07-17T23:59:00+09:00",
+              "open_time": "2020-07-10T08:18:32+09:00",
+              "live_end_time": "2020-07-10T08:48:38+09:00",
+              "is_product_stream": false,
+              "channel_id": null,
+              "community_id": 1864622,
+              "comment_counter": 2,
+              "timeshift_enabled": true,
+              "thumbnail_url": null,
+              "view_counter": 13,
+              "ss_adult": false,
+              "category_tags": "ゲーム クルーズ待ち",
+              "title": "【DS】ファイナルファンタジータクティクスA2封穴のグリモア【レトロゲーム】",
+              "community_icon": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co1864622.jpg?1479575401",
+              "picture_url": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co1864622.jpg?1479575401",
+              "score_timeshift_reserved": 0,
+              "content_id": "lv326931898",
+              "live_screenshot_thumbnail_large": "https://ssth.dmc.nico/thumbnail/20200710/08/18/nicolive-production-pg20382660690516/nicolive-production-pg20382660690516_800_450.jpg",
+              "live_screenshot_thumbnail_middle": "https://ssth.dmc.nico/thumbnail/20200710/08/18/nicolive-production-pg20382660690516/nicolive-production-pg20382660690516_640_360.jpg",
+              "live_screenshot_thumbnail_small": "https://ssth.dmc.nico/thumbnail/20200710/08/18/nicolive-production-pg20382660690516/nicolive-production-pg20382660690516_352_198.jpg",
+              "live_screenshot_thumbnail_micro": "https://ssth.dmc.nico/thumbnail/20200710/08/18/nicolive-production-pg20382660690516/nicolive-production-pg20382660690516_160_90.jpg",
+              "ts_screenshot_thumbnail_large": "",
+              "ts_screenshot_thumbnail_middle": "",
+              "ts_screenshot_thumbnail_small": "",
+              "ts_screenshot_thumbnail_micro": "",
+              "user_nickname": "mayu!",
+              "user_icon_150x150": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/1440/14400340.jpg?1438507009",
+              "user_icon_50x50": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/1440/14400340.jpg?1438507009"
+            }
+          },
+          {
+            "id": "lv326931896",
+            "recommend_type": "related_live_onair",
+            "content_type": "live",
+            "content_meta": {
+              "community_text": "あげ生！",
+              "timeshift_mode": 2,
+              "start_time": "2020-07-10T08:18:35+09:00",
+              "member_only": false,
+              "description": "<br /><br /><br /> <br />twiiter　https://twitter.com/agenari2525<br />インスタグラム　https://www.instagram.com/agenarii <br />動画　https://www.youtube.com/channel/UCig7DSOx-xnpfnG_IfW6n_Q/videos<br /><br /><br />",
+              "tags": "一般(その他) 一般 HD配信",
+              "live_status": "onair",
+              "user_id": 9852849,
+              "provider_type": "community",
+              "timeshift_expired": "2020-07-17T23:59:00+09:00",
+              "open_time": "2020-07-10T08:18:16+09:00",
+              "live_end_time": "2020-07-10T08:48:35+09:00",
+              "is_product_stream": false,
+              "channel_id": null,
+              "community_id": 3371714,
+              "comment_counter": 0,
+              "timeshift_enabled": true,
+              "thumbnail_url": null,
+              "view_counter": 12,
+              "ss_adult": false,
+              "category_tags": "一般(その他)",
+              "title": "おはだ",
+              "community_icon": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3371714.jpg?1591693187",
+              "picture_url": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3371714.jpg?1591693187",
+              "score_timeshift_reserved": 0,
+              "content_id": "lv326931896",
+              "live_screenshot_thumbnail_large": "https://ssth.dmc.nico/thumbnail/20200710/08/18/nicolive-production-pg47139330720340/nicolive-production-pg47139330720340_800_450.jpg",
+              "live_screenshot_thumbnail_middle": "https://ssth.dmc.nico/thumbnail/20200710/08/18/nicolive-production-pg47139330720340/nicolive-production-pg47139330720340_640_360.jpg",
+              "live_screenshot_thumbnail_small": "https://ssth.dmc.nico/thumbnail/20200710/08/18/nicolive-production-pg47139330720340/nicolive-production-pg47139330720340_352_198.jpg",
+              "live_screenshot_thumbnail_micro": "https://ssth.dmc.nico/thumbnail/20200710/08/18/nicolive-production-pg47139330720340/nicolive-production-pg47139330720340_160_90.jpg",
+              "ts_screenshot_thumbnail_large": "",
+              "ts_screenshot_thumbnail_middle": "",
+              "ts_screenshot_thumbnail_small": "",
+              "ts_screenshot_thumbnail_micro": "",
+              "user_nickname": "あげなり",
+              "user_icon_150x150": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/985/9852849.jpg?1465751177",
+              "user_icon_50x50": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/985/9852849.jpg?1465751177"
+            }
+          },
+          {
+            "id": "lv326931895",
+            "recommend_type": "related_live_onair",
+            "content_type": "live",
+            "content_meta": {
+              "community_text": "ヒゲアフロが萎えてます～",
+              "timeshift_mode": 2,
+              "start_time": "2020-07-10T08:18:17+09:00",
+              "member_only": false,
+              "description": "ヒゲアフロがPlayStation4でゲームをしている風景をニコニコ生放送で配信しています。",
+              "tags": "ゲーム HD配信 PS4ゲーム配信 eBASEBALLパワフルプロ野球…",
+              "live_status": "onair",
+              "user_id": 23648990,
+              "provider_type": "community",
+              "timeshift_expired": "2020-07-17T23:59:00+09:00",
+              "open_time": "2020-07-10T08:18:15+09:00",
+              "live_end_time": "2020-07-10T14:18:17+09:00",
+              "is_product_stream": false,
+              "channel_id": null,
+              "community_id": 3528118,
+              "comment_counter": 0,
+              "timeshift_enabled": true,
+              "thumbnail_url": null,
+              "view_counter": 8,
+              "ss_adult": false,
+              "category_tags": "ゲーム",
+              "title": "パワプロしてみる　栄光ナイン",
+              "community_icon": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3528118.jpg?1484544673",
+              "picture_url": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3528118.jpg?1484544673",
+              "score_timeshift_reserved": 0,
+              "content_id": "lv326931895",
+              "live_screenshot_thumbnail_large": "https://ssth.dmc.nico/thumbnail/20200710/08/18/nicolive-production-pg56387247800916/nicolive-production-pg56387247800916_800_450.jpg",
+              "live_screenshot_thumbnail_middle": "https://ssth.dmc.nico/thumbnail/20200710/08/18/nicolive-production-pg56387247800916/nicolive-production-pg56387247800916_640_360.jpg",
+              "live_screenshot_thumbnail_small": "https://ssth.dmc.nico/thumbnail/20200710/08/18/nicolive-production-pg56387247800916/nicolive-production-pg56387247800916_352_198.jpg",
+              "live_screenshot_thumbnail_micro": "https://ssth.dmc.nico/thumbnail/20200710/08/18/nicolive-production-pg56387247800916/nicolive-production-pg56387247800916_160_90.jpg",
+              "ts_screenshot_thumbnail_large": "",
+              "ts_screenshot_thumbnail_middle": "",
+              "ts_screenshot_thumbnail_small": "",
+              "ts_screenshot_thumbnail_micro": "",
+              "user_nickname": "ヒゲアフロ",
+              "user_icon_150x150": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/2364/23648990.jpg?1491634275",
+              "user_icon_50x50": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/2364/23648990.jpg?1491634275"
+            }
+          },
+          {
+            "id": "lv326931894",
+            "recommend_type": "related_live_onair",
+            "content_type": "live",
+            "content_meta": {
+              "community_text": "皆の休憩所",
+              "timeshift_mode": 0,
+              "start_time": "2020-07-10T08:17:41+09:00",
+              "member_only": false,
+              "description": "初見歓迎　よろしくお願いします！　参加希望者様は一言コメントよろしくお願いします！　今回は討伐経験者のみでお願いします！",
+              "tags": "ゲーム HD配信 PS4ゲーム配信 モンスターハンターワールド：アイス… MHW MHWIB アルバトリオン 4LG2cejkBjnW",
+              "live_status": "onair",
+              "user_id": 46039490,
+              "provider_type": "community",
+              "timeshift_expired": null,
+              "open_time": "2020-07-10T08:17:40+09:00",
+              "live_end_time": "2020-07-10T10:17:41+09:00",
+              "is_product_stream": false,
+              "channel_id": null,
+              "community_id": 3754241,
+              "comment_counter": 0,
+              "timeshift_enabled": false,
+              "thumbnail_url": null,
+              "view_counter": 15,
+              "ss_adult": false,
+              "category_tags": "ゲーム",
+              "title": "[MHW][MHWI]おはようMHW 　アルバ素材集め周回　参加歓迎！",
+              "community_icon": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3754241.jpg?1584856361",
+              "picture_url": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3754241.jpg?1584856361",
+              "score_timeshift_reserved": 0,
+              "content_id": "lv326931894",
+              "live_screenshot_thumbnail_large": "https://ssth.dmc.nico/thumbnail/20200710/08/17/nicolive-production-pg34257131012692/nicolive-production-pg34257131012692_800_450.jpg",
+              "live_screenshot_thumbnail_middle": "https://ssth.dmc.nico/thumbnail/20200710/08/17/nicolive-production-pg34257131012692/nicolive-production-pg34257131012692_640_360.jpg",
+              "live_screenshot_thumbnail_small": "https://ssth.dmc.nico/thumbnail/20200710/08/17/nicolive-production-pg34257131012692/nicolive-production-pg34257131012692_352_198.jpg",
+              "live_screenshot_thumbnail_micro": "https://ssth.dmc.nico/thumbnail/20200710/08/17/nicolive-production-pg34257131012692/nicolive-production-pg34257131012692_160_90.jpg",
+              "ts_screenshot_thumbnail_large": "",
+              "ts_screenshot_thumbnail_middle": "",
+              "ts_screenshot_thumbnail_small": "",
+              "ts_screenshot_thumbnail_micro": "",
+              "user_nickname": "ばやし",
+              "user_icon_150x150": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/4603/46039490.jpg?1588560363",
+              "user_icon_50x50": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/4603/46039490.jpg?1588560363"
+            }
+          },
+          {
+            "id": "lv326931893",
+            "recommend_type": "related_live_onair",
+            "content_type": "live",
+            "content_meta": {
+              "community_text": "PS4配信専門チャンネル（仮）",
+              "timeshift_mode": 2,
+              "start_time": "2020-07-10T08:17:33+09:00",
+              "member_only": false,
+              "description": "奴の位置を俺の端末にダウンロードしてくれ！",
+              "tags": "ゲーム PS4ゲーム配信 トトリのアトリエ_～アーランドの錬…",
+              "live_status": "onair",
+              "user_id": 1841608,
+              "provider_type": "community",
+              "timeshift_expired": "2020-07-17T23:59:00+09:00",
+              "open_time": "2020-07-10T08:17:31+09:00",
+              "live_end_time": "2020-07-10T08:47:33+09:00",
+              "is_product_stream": false,
+              "channel_id": null,
+              "community_id": 2750204,
+              "comment_counter": 0,
+              "timeshift_enabled": true,
+              "thumbnail_url": null,
+              "view_counter": 9,
+              "ss_adult": false,
+              "category_tags": "ゲーム",
+              "title": "ととりのあとりえ　短時間のみ",
+              "community_icon": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co2750204.jpg?1592768167",
+              "picture_url": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co2750204.jpg?1592768167",
+              "score_timeshift_reserved": 0,
+              "content_id": "lv326931893",
+              "live_screenshot_thumbnail_large": "https://ssth.dmc.nico/thumbnail/20200710/08/17/nicolive-production-pg74039271883348/nicolive-production-pg74039271883348_800_450.jpg",
+              "live_screenshot_thumbnail_middle": "https://ssth.dmc.nico/thumbnail/20200710/08/17/nicolive-production-pg74039271883348/nicolive-production-pg74039271883348_640_360.jpg",
+              "live_screenshot_thumbnail_small": "https://ssth.dmc.nico/thumbnail/20200710/08/17/nicolive-production-pg74039271883348/nicolive-production-pg74039271883348_352_198.jpg",
+              "live_screenshot_thumbnail_micro": "https://ssth.dmc.nico/thumbnail/20200710/08/17/nicolive-production-pg74039271883348/nicolive-production-pg74039271883348_160_90.jpg",
+              "ts_screenshot_thumbnail_large": "",
+              "ts_screenshot_thumbnail_middle": "",
+              "ts_screenshot_thumbnail_small": "",
+              "ts_screenshot_thumbnail_micro": "",
+              "user_nickname": "スパーク・マツナガ",
+              "user_icon_150x150": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/184/1841608.jpg?1593177888",
+              "user_icon_50x50": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/184/1841608.jpg?1593177888"
+            }
+          },
+          {
+            "id": "lv326931892",
+            "recommend_type": "related_live_onair",
+            "content_type": "live",
+            "content_meta": {
+              "community_text": "あ",
+              "timeshift_mode": 0,
+              "start_time": "2020-07-10T08:17:22+09:00",
+              "member_only": false,
+              "description": ".",
+              "tags": "一般(その他) 顔出し 一般",
+              "live_status": "onair",
+              "user_id": 97134347,
+              "provider_type": "community",
+              "timeshift_expired": null,
+              "open_time": "2020-07-10T08:17:16+09:00",
+              "live_end_time": "2020-07-10T08:47:22+09:00",
+              "is_product_stream": false,
+              "channel_id": null,
+              "community_id": 4945721,
+              "comment_counter": 0,
+              "timeshift_enabled": false,
+              "thumbnail_url": null,
+              "view_counter": 9,
+              "ss_adult": false,
+              "category_tags": "一般(その他) 顔出し",
+              "title": "vtuber布教するぞ放送",
+              "community_icon": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4945721.jpg?1593666937",
+              "picture_url": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4945721.jpg?1593666937",
+              "score_timeshift_reserved": 0,
+              "content_id": "lv326931892",
+              "live_screenshot_thumbnail_large": "https://ssth.dmc.nico/thumbnail/20200710/08/17/nicolive-production-pg35813327897172/nicolive-production-pg35813327897172_800_450.jpg",
+              "live_screenshot_thumbnail_middle": "https://ssth.dmc.nico/thumbnail/20200710/08/17/nicolive-production-pg35813327897172/nicolive-production-pg35813327897172_640_360.jpg",
+              "live_screenshot_thumbnail_small": "https://ssth.dmc.nico/thumbnail/20200710/08/17/nicolive-production-pg35813327897172/nicolive-production-pg35813327897172_352_198.jpg",
+              "live_screenshot_thumbnail_micro": "https://ssth.dmc.nico/thumbnail/20200710/08/17/nicolive-production-pg35813327897172/nicolive-production-pg35813327897172_160_90.jpg",
+              "ts_screenshot_thumbnail_large": "",
+              "ts_screenshot_thumbnail_middle": "",
+              "ts_screenshot_thumbnail_small": "",
+              "ts_screenshot_thumbnail_micro": "",
+              "user_nickname": "ゲスト",
+              "user_icon_150x150": null,
+              "user_icon_50x50": null
+            }
+          },
+          {
+            "id": "lv326931891",
+            "recommend_type": "related_live_onair",
+            "content_type": "live",
+            "content_meta": {
+              "community_text": "税抜単価80万のコード書かない高卒常駐フリーランスの相談室",
+              "timeshift_mode": 0,
+              "start_time": "2020-07-10T08:17:16+09:00",
+              "member_only": false,
+              "description": "仕事しながらが多いので､ちょくちょく止まる<br /><br />業務等の作業しながらフリーエンジニアについて聞かれたことに答える枠<br />スペックなどはコミュニティの方に記載している.<br />普段は東京で常駐のシステムの運用とかやっている人.<br /><br />意識が低くてレベルの高くない、小成功している人をロールモデルとしたい人がメインターゲット<br />そんな人達からこんなやつでもそこそこ稼げるんだと思ってもらえて、かつ現役の人にしか答えられない質問に答えられたらなと思っている.<br /><br />ただ稼いでます!と言っても論拠が薄いので、家計簿は公開しており、出来る範囲では適宜証明できたらと思っている。<br /><br />薄くソフトウェアとマネーについては話せる.<br /><br />将棋やってる時はウォーズでの友達対局なら可能",
+              "tags": "ゲーム HD配信 なんちゃってエンジニア 節約 インデックス 雑談 節税 確定申告 転職 高卒",
+              "live_status": "onair",
+              "user_id": 30021056,
+              "provider_type": "community",
+              "timeshift_expired": null,
+              "open_time": "2020-07-10T08:17:10+09:00",
+              "live_end_time": "2020-07-10T08:47:16+09:00",
+              "is_product_stream": false,
+              "channel_id": null,
+              "community_id": 4437336,
+              "comment_counter": 0,
+              "timeshift_enabled": false,
+              "thumbnail_url": null,
+              "view_counter": 4,
+              "ss_adult": false,
+              "category_tags": "ゲーム",
+              "title": "月88万の25歳高卒IT系フリーランスの質問受付枠(Mr.Driler DrillLand)",
+              "community_icon": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4437336.jpg?1589430246",
+              "picture_url": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4437336.jpg?1589430246",
+              "score_timeshift_reserved": 0,
+              "content_id": "lv326931891",
+              "live_screenshot_thumbnail_large": "https://ssth.dmc.nico/thumbnail/20200710/08/17/nicolive-production-pg18521442484820/nicolive-production-pg18521442484820_800_450.jpg",
+              "live_screenshot_thumbnail_middle": "https://ssth.dmc.nico/thumbnail/20200710/08/17/nicolive-production-pg18521442484820/nicolive-production-pg18521442484820_640_360.jpg",
+              "live_screenshot_thumbnail_small": "https://ssth.dmc.nico/thumbnail/20200710/08/17/nicolive-production-pg18521442484820/nicolive-production-pg18521442484820_352_198.jpg",
+              "live_screenshot_thumbnail_micro": "https://ssth.dmc.nico/thumbnail/20200710/08/17/nicolive-production-pg18521442484820/nicolive-production-pg18521442484820_160_90.jpg",
+              "ts_screenshot_thumbnail_large": "",
+              "ts_screenshot_thumbnail_middle": "",
+              "ts_screenshot_thumbnail_small": "",
+              "ts_screenshot_thumbnail_micro": "",
+              "user_nickname": "きかがく",
+              "user_icon_150x150": null,
+              "user_icon_50x50": null
+            }
+          },
+          {
+            "id": "lv326931890",
+            "recommend_type": "related_live_onair",
+            "content_type": "live",
+            "content_meta": {
+              "community_text": "静葉ちゃんの試験室",
+              "timeshift_mode": 2,
+              "start_time": "2020-07-10T08:17:09+09:00",
+              "member_only": false,
+              "description": "タブレットＰＣより試験配信<br />相談があるならお気軽にどうぞ。解る範囲でお答えしますよ。",
+              "tags": "一般(その他) 一般 スマートフォン配信 うちで話そう 発達障害 雑談 相談 徳島",
+              "live_status": "onair",
+              "user_id": 677750,
+              "provider_type": "community",
+              "timeshift_expired": "2020-07-17T23:59:00+09:00",
+              "open_time": "2020-07-10T08:16:55+09:00",
+              "live_end_time": "2020-07-10T08:47:09+09:00",
+              "is_product_stream": false,
+              "channel_id": null,
+              "community_id": 1018311,
+              "comment_counter": 3,
+              "timeshift_enabled": true,
+              "thumbnail_url": null,
+              "view_counter": 13,
+              "ss_adult": false,
+              "category_tags": "一般(その他)",
+              "title": "しずはちゃんちのぐっどもーにんっぐ",
+              "community_icon": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co1018311.jpg?1542774439",
+              "picture_url": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co1018311.jpg?1542774439",
+              "score_timeshift_reserved": 0,
+              "content_id": "lv326931890",
+              "live_screenshot_thumbnail_large": "https://ssth.dmc.nico/thumbnail/20200710/08/16/nicolive-production-pg33588647035476/nicolive-production-pg33588647035476_800_450.jpg",
+              "live_screenshot_thumbnail_middle": "https://ssth.dmc.nico/thumbnail/20200710/08/16/nicolive-production-pg33588647035476/nicolive-production-pg33588647035476_640_360.jpg",
+              "live_screenshot_thumbnail_small": "https://ssth.dmc.nico/thumbnail/20200710/08/16/nicolive-production-pg33588647035476/nicolive-production-pg33588647035476_352_198.jpg",
+              "live_screenshot_thumbnail_micro": "https://ssth.dmc.nico/thumbnail/20200710/08/16/nicolive-production-pg33588647035476/nicolive-production-pg33588647035476_160_90.jpg",
+              "ts_screenshot_thumbnail_large": "",
+              "ts_screenshot_thumbnail_middle": "",
+              "ts_screenshot_thumbnail_small": "",
+              "ts_screenshot_thumbnail_micro": "",
+              "user_nickname": "静葉",
+              "user_icon_150x150": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/67/677750.jpg?1259132027",
+              "user_icon_50x50": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/67/677750.jpg?1259132027"
+            }
+          },
+          {
+            "id": "lv326931889",
+            "recommend_type": "related_live_onair",
+            "content_type": "live",
+            "content_meta": {
+              "community_text": "スプラッシュボムをパブロで千本ノック!!",
+              "timeshift_mode": 2,
+              "start_time": "2020-07-10T08:16:52+09:00",
+              "member_only": false,
+              "description": "ブキ浮気中。私がやるときほぼ毎回モズクあるのなんなん？<br /><br />youtubeと同時配信してます<br /><br />是非コメントしていってね！(・ω・)<br /><br />ツイッターもフォロー待ってます!!<br />https://twitter.com/mist91512<br /><br />普段は【ゆったりウデマエXをめざす】スプラトゥーン2<br />https://www.nicovideo.jp/mylist/66861299<br /><br />や<br /><br />【ゆったりレート10000をめざす】マリオカート8DX<br />https://www.nicovideo.jp/mylist/66861738<br /><br />の動画を投稿しています(゜▽゜*)<br /><br />youtubeチャンネルもよければ登録してね(・ω・)<br />https://www.youtube.com/channel/UCGQU5C1cbRj947tJ44Jiwpg<br />",
+              "tags": "ゲーム HD配信 スプラトゥーン2 実況プレイ イヤホン非推奨 イヤホン勢注意 パブロにもスライドちょうだい 絶叫系生主",
+              "live_status": "onair",
+              "user_id": 92557140,
+              "provider_type": "community",
+              "timeshift_expired": "2020-07-17T23:59:00+09:00",
+              "open_time": "2020-07-10T08:16:34+09:00",
+              "live_end_time": "2020-07-10T10:16:52+09:00",
+              "is_product_stream": false,
+              "channel_id": null,
+              "community_id": 4232532,
+              "comment_counter": 6,
+              "timeshift_enabled": true,
+              "thumbnail_url": null,
+              "view_counter": 10,
+              "ss_adult": false,
+              "category_tags": "ゲーム",
+              "title": "モズクの呪いから抜けられないガチヤグラ!!!【スプラトゥーン2実況プレイ】",
+              "community_icon": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4232532.jpg?1576568571",
+              "picture_url": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co4232532.jpg?1576568571",
+              "score_timeshift_reserved": 0,
+              "content_id": "lv326931889",
+              "live_screenshot_thumbnail_large": "https://ssth.dmc.nico/thumbnail/20200710/08/16/nicolive-production-pg20242000511572/nicolive-production-pg20242000511572_800_450.jpg",
+              "live_screenshot_thumbnail_middle": "https://ssth.dmc.nico/thumbnail/20200710/08/16/nicolive-production-pg20242000511572/nicolive-production-pg20242000511572_640_360.jpg",
+              "live_screenshot_thumbnail_small": "https://ssth.dmc.nico/thumbnail/20200710/08/16/nicolive-production-pg20242000511572/nicolive-production-pg20242000511572_352_198.jpg",
+              "live_screenshot_thumbnail_micro": "https://ssth.dmc.nico/thumbnail/20200710/08/16/nicolive-production-pg20242000511572/nicolive-production-pg20242000511572_160_90.jpg",
+              "ts_screenshot_thumbnail_large": "",
+              "ts_screenshot_thumbnail_middle": "",
+              "ts_screenshot_thumbnail_small": "",
+              "ts_screenshot_thumbnail_micro": "",
+              "user_nickname": "mist",
+              "user_icon_150x150": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/9255/92557140.jpg?1575889254",
+              "user_icon_50x50": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/9255/92557140.jpg?1575889254"
+            }
+          },
+          {
+            "id": "lv326931888",
+            "recommend_type": "related_live_onair",
+            "content_type": "live",
+            "content_meta": {
+              "community_text": "たまに走るために作った枠",
+              "timeshift_mode": 2,
+              "start_time": "2020-07-10T08:17:27+09:00",
+              "member_only": false,
+              "description": "コーエー　２００４年<br />※　ネタバレ禁止、指示禁止",
+              "tags": "ゲーム 歴史 三国志 RTA KFC レトロゲーム",
+              "live_status": "onair",
+              "user_id": 1466301,
+              "provider_type": "community",
+              "timeshift_expired": "2020-07-17T23:59:00+09:00",
+              "open_time": "2020-07-10T08:16:24+09:00",
+              "live_end_time": "2020-07-10T08:47:27+09:00",
+              "is_product_stream": false,
+              "channel_id": null,
+              "community_id": 3111818,
+              "comment_counter": 2,
+              "timeshift_enabled": true,
+              "thumbnail_url": null,
+              "view_counter": 25,
+              "ss_adult": false,
+              "category_tags": "ゲーム",
+              "title": "【PS2】太閤立志伝Ⅴ　１５５４年　織田信長",
+              "community_icon": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3111818.jpg?1585636945",
+              "picture_url": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3111818.jpg?1585636945",
+              "score_timeshift_reserved": 0,
+              "content_id": "lv326931888",
+              "live_screenshot_thumbnail_large": "https://ssth.dmc.nico/thumbnail/20200710/08/16/nicolive-production-pg42133558919764/nicolive-production-pg42133558919764_800_450.jpg",
+              "live_screenshot_thumbnail_middle": "https://ssth.dmc.nico/thumbnail/20200710/08/16/nicolive-production-pg42133558919764/nicolive-production-pg42133558919764_640_360.jpg",
+              "live_screenshot_thumbnail_small": "https://ssth.dmc.nico/thumbnail/20200710/08/16/nicolive-production-pg42133558919764/nicolive-production-pg42133558919764_352_198.jpg",
+              "live_screenshot_thumbnail_micro": "https://ssth.dmc.nico/thumbnail/20200710/08/16/nicolive-production-pg42133558919764/nicolive-production-pg42133558919764_160_90.jpg",
+              "ts_screenshot_thumbnail_large": "",
+              "ts_screenshot_thumbnail_middle": "",
+              "ts_screenshot_thumbnail_small": "",
+              "ts_screenshot_thumbnail_micro": "",
+              "user_nickname": "たま",
+              "user_icon_150x150": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/146/1466301.jpg?1539330049",
+              "user_icon_50x50": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/146/1466301.jpg?1539330049"
+            }
+          },
+          {
+            "id": "lv326931886",
+            "recommend_type": "related_live_onair",
+            "content_type": "live",
+            "content_meta": {
+              "community_text": "漆黒のカラス団",
+              "timeshift_mode": 2,
+              "start_time": "2020-07-10T08:16:19+09:00",
+              "member_only": false,
+              "description": "初心者が何かする。<br /><br />↓遊ぶゲーム↓<br />閃乱カグラ、鉄拳７、ＧＴＡ５、KENSHI、地球防衛軍４、地球防衛軍５、ＰＵＢＧ、ＦＥＺ、ＰＳＯ２、SOULCALIBUR VI、CODE　VEIN、KurtzPel、フォートナイト他、<br /><br />※バーチャルキャスト使用時<br />↓画像投下↓<br />#G555V",
+              "tags": "ゲーム HD配信 Steam 絵も描くときある 雑談の時だってある バーチャルキャスト ネトゲ ドラクエ10",
+              "live_status": "onair",
+              "user_id": 28090867,
+              "provider_type": "community",
+              "timeshift_expired": "2020-07-17T23:59:00+09:00",
+              "open_time": "2020-07-10T08:16:05+09:00",
+              "live_end_time": "2020-07-10T12:16:19+09:00",
+              "is_product_stream": false,
+              "channel_id": null,
+              "community_id": 2667895,
+              "comment_counter": 1,
+              "timeshift_enabled": true,
+              "thumbnail_url": null,
+              "view_counter": 17,
+              "ss_adult": false,
+              "category_tags": "ゲーム",
+              "title": "有課金でも勇者！ドラクエⅩ※ネタばれ有",
+              "community_icon": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co2667895.jpg?1520762070",
+              "picture_url": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co2667895.jpg?1520762070",
+              "score_timeshift_reserved": 0,
+              "content_id": "lv326931886",
+              "live_screenshot_thumbnail_large": "https://ssth.dmc.nico/thumbnail/20200710/08/16/nicolive-production-pg36722493620820/nicolive-production-pg36722493620820_800_450.jpg",
+              "live_screenshot_thumbnail_middle": "https://ssth.dmc.nico/thumbnail/20200710/08/16/nicolive-production-pg36722493620820/nicolive-production-pg36722493620820_640_360.jpg",
+              "live_screenshot_thumbnail_small": "https://ssth.dmc.nico/thumbnail/20200710/08/16/nicolive-production-pg36722493620820/nicolive-production-pg36722493620820_352_198.jpg",
+              "live_screenshot_thumbnail_micro": "https://ssth.dmc.nico/thumbnail/20200710/08/16/nicolive-production-pg36722493620820/nicolive-production-pg36722493620820_160_90.jpg",
+              "ts_screenshot_thumbnail_large": "",
+              "ts_screenshot_thumbnail_middle": "",
+              "ts_screenshot_thumbnail_small": "",
+              "ts_screenshot_thumbnail_micro": "",
+              "user_nickname": "銀ゴーグル",
+              "user_icon_150x150": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/2809/28090867.jpg?1479326096",
+              "user_icon_50x50": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/2809/28090867.jpg?1479326096"
+            }
+          },
+          {
+            "id": "lv326931885",
+            "recommend_type": "related_live_onair",
+            "content_type": "live",
+            "content_meta": {
+              "community_text": "FPS/TPS初心者クラブ",
+              "timeshift_mode": 0,
+              "start_time": "2020-07-10T08:16:19+09:00",
+              "member_only": false,
+              "description": "他所様の放送に上がり込んでは死兆星の如くあろうとしておりましたが、この度何の間違いか放送に手を出させていただきました。よろしくお願いいたします。<br />基本、ゲームをしながら、鼻歌歌ったり、口笛吹いたり、気分によっては歌ったりしています。<br /><br />本枠のお題はEmpyrion α10.1<br />　URLはこちら<br />https://store.steampowered.com/app/383120/Empyrion__Galactic_Survival/<br /><br />フレンド申請歓迎<br /> Steam 　　　 : Togi<br /> Epic Games : TogiN2Live<br /> SteamProfile:　https://steamcommunity.com/id/togi_jp",
+              "tags": "ゲーム HD配信 Steam 下手の横好き 阿鼻叫喚 歌 口笛 Empyrion",
+              "live_status": "onair",
+              "user_id": 28922109,
+              "provider_type": "community",
+              "timeshift_expired": null,
+              "open_time": "2020-07-10T08:16:02+09:00",
+              "live_end_time": "2020-07-10T08:46:19+09:00",
+              "is_product_stream": false,
+              "channel_id": null,
+              "community_id": 3577687,
+              "comment_counter": 3,
+              "timeshift_enabled": false,
+              "thumbnail_url": null,
+              "view_counter": 15,
+              "ss_adult": false,
+              "category_tags": "ゲーム",
+              "title": "【機首も艦首も】 Empyrion A12 カスタマイズドハード サバイバル 【首は首】",
+              "community_icon": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3577687.jpg?1531875369",
+              "picture_url": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3577687.jpg?1531875369",
+              "score_timeshift_reserved": 0,
+              "content_id": "lv326931885",
+              "live_screenshot_thumbnail_large": "https://ssth.dmc.nico/thumbnail/20200710/08/16/nicolive-production-pg28587567612500/nicolive-production-pg28587567612500_800_450.jpg",
+              "live_screenshot_thumbnail_middle": "https://ssth.dmc.nico/thumbnail/20200710/08/16/nicolive-production-pg28587567612500/nicolive-production-pg28587567612500_640_360.jpg",
+              "live_screenshot_thumbnail_small": "https://ssth.dmc.nico/thumbnail/20200710/08/16/nicolive-production-pg28587567612500/nicolive-production-pg28587567612500_352_198.jpg",
+              "live_screenshot_thumbnail_micro": "https://ssth.dmc.nico/thumbnail/20200710/08/16/nicolive-production-pg28587567612500/nicolive-production-pg28587567612500_160_90.jpg",
+              "ts_screenshot_thumbnail_large": "",
+              "ts_screenshot_thumbnail_middle": "",
+              "ts_screenshot_thumbnail_small": "",
+              "ts_screenshot_thumbnail_micro": "",
+              "user_nickname": "レジャダ",
+              "user_icon_150x150": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/2892/28922109.jpg?1480564248",
+              "user_icon_50x50": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/2892/28922109.jpg?1480564248"
+            }
+          },
+          {
+            "id": "lv326931884",
+            "recommend_type": "related_live_onair",
+            "content_type": "live",
+            "content_meta": {
+              "community_text": "なんか適当にgdgd",
+              "timeshift_mode": 2,
+              "start_time": "2020-07-10T08:15:59+09:00",
+              "member_only": false,
+              "description": "色々スペック、ゆっくりの仕様とかはコミュに<br /><br /><br />gdgd",
+              "tags": "一般(その他) 一般 HD配信 shadowverse ルムマ募集",
+              "live_status": "onair",
+              "user_id": 866128,
+              "provider_type": "community",
+              "timeshift_expired": "2020-07-17T23:59:00+09:00",
+              "open_time": "2020-07-10T08:15:51+09:00",
+              "live_end_time": "2020-07-10T08:45:59+09:00",
+              "is_product_stream": false,
+              "channel_id": null,
+              "community_id": 28245,
+              "comment_counter": 14,
+              "timeshift_enabled": true,
+              "thumbnail_url": null,
+              "view_counter": 12,
+              "ss_adult": false,
+              "category_tags": "一般(その他)",
+              "title": "もうちょっとだけ",
+              "community_icon": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co28245.jpg?1524674294",
+              "picture_url": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co28245.jpg?1524674294",
+              "score_timeshift_reserved": 0,
+              "content_id": "lv326931884",
+              "live_screenshot_thumbnail_large": "https://ssth.dmc.nico/thumbnail/20200710/08/15/nicolive-production-pg23327930319444/nicolive-production-pg23327930319444_800_450.jpg",
+              "live_screenshot_thumbnail_middle": "https://ssth.dmc.nico/thumbnail/20200710/08/15/nicolive-production-pg23327930319444/nicolive-production-pg23327930319444_640_360.jpg",
+              "live_screenshot_thumbnail_small": "https://ssth.dmc.nico/thumbnail/20200710/08/15/nicolive-production-pg23327930319444/nicolive-production-pg23327930319444_352_198.jpg",
+              "live_screenshot_thumbnail_micro": "https://ssth.dmc.nico/thumbnail/20200710/08/15/nicolive-production-pg23327930319444/nicolive-production-pg23327930319444_160_90.jpg",
+              "ts_screenshot_thumbnail_large": "",
+              "ts_screenshot_thumbnail_middle": "",
+              "ts_screenshot_thumbnail_small": "",
+              "ts_screenshot_thumbnail_micro": "",
+              "user_nickname": "遊鬼",
+              "user_icon_150x150": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/86/866128.jpg?1313916159",
+              "user_icon_50x50": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/86/866128.jpg?1313916159"
+            }
+          },
+          {
+            "id": "lv326931883",
+            "recommend_type": "related_live_onair",
+            "content_type": "live",
+            "content_meta": {
+              "community_text": "自由なゲーム放送局",
+              "timeshift_mode": 2,
+              "start_time": "2020-07-10T08:15:49+09:00",
+              "member_only": false,
+              "description": "ガンオンの代わりにやります主にデイリー消化と立ち回り研究中　できるだけ毎朝８時から放送中",
+              "tags": "ゲーム HD配信 PS4ゲーム配信 機動戦士ガンダム_バトルオペレーシ…",
+              "live_status": "onair",
+              "user_id": 12670808,
+              "provider_type": "community",
+              "timeshift_expired": "2020-07-17T23:59:00+09:00",
+              "open_time": "2020-07-10T08:15:48+09:00",
+              "live_end_time": "2020-07-10T09:15:49+09:00",
+              "is_product_stream": false,
+              "channel_id": null,
+              "community_id": 3334667,
+              "comment_counter": 0,
+              "timeshift_enabled": true,
+              "thumbnail_url": null,
+              "view_counter": 8,
+              "ss_adult": false,
+              "category_tags": "ゲーム",
+              "title": "朝刊バトオぺ　金曜日新機体当たるかな",
+              "community_icon": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3334667.jpg?1580719336",
+              "picture_url": "https://secure-dcdn.cdn.nimg.jp/comch/community-icon/128x128/co3334667.jpg?1580719336",
+              "score_timeshift_reserved": 0,
+              "content_id": "lv326931883",
+              "live_screenshot_thumbnail_large": "https://ssth.dmc.nico/thumbnail/20200710/08/15/nicolive-production-pg24182637199956/nicolive-production-pg24182637199956_800_450.jpg",
+              "live_screenshot_thumbnail_middle": "https://ssth.dmc.nico/thumbnail/20200710/08/15/nicolive-production-pg24182637199956/nicolive-production-pg24182637199956_640_360.jpg",
+              "live_screenshot_thumbnail_small": "https://ssth.dmc.nico/thumbnail/20200710/08/15/nicolive-production-pg24182637199956/nicolive-production-pg24182637199956_352_198.jpg",
+              "live_screenshot_thumbnail_micro": "https://ssth.dmc.nico/thumbnail/20200710/08/15/nicolive-production-pg24182637199956/nicolive-production-pg24182637199956_160_90.jpg",
+              "ts_screenshot_thumbnail_large": "",
+              "ts_screenshot_thumbnail_middle": "",
+              "ts_screenshot_thumbnail_small": "",
+              "ts_screenshot_thumbnail_micro": "",
+              "user_nickname": "もりのこ",
+              "user_icon_150x150": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/1267/12670808.jpg?1545527143",
+              "user_icon_50x50": "https://secure-dcdn.cdn.nimg.jp/nicoaccount/usericon/s/1267/12670808.jpg?1545527143"
+            }
+          }
+        ]
+      }
+    },
+    "related": {
+      "data": {
+        "recommend_id": "1709501640350382506",
+        "recipe_id": "live_watch_related_contents_channel_1",
+        "values": [
+          {
+            "id": "so37078728",
+            "recommend_type": "sugoi_search",
+            "content_type": "video",
+            "content_meta": {
+              "id": "so37078728",
+              "status": "public",
+              "video_watch_page_id": "1592899086",
+              "title": "BOATSCOOP #21",
+              "description": "2020年（令和2年6月）制作",
+              "genre": {
+                "key": "sports",
+                "label": "スポーツ"
+              },
+              "view_count": 116,
+              "mylist_count": 1,
+              "length_seconds": 304,
+              "upload_time": "2020-06-30T12:00:00+09:00",
+              "thumbnail_url": {
+                "normal": "https://nicovideo.cdn.nimg.jp/thumbnails/37078728/37078728.20160215",
+                "middle": "https://nicovideo.cdn.nimg.jp/thumbnails/37078728/37078728.20160215.M",
+                "large": "https://nicovideo.cdn.nimg.jp/thumbnails/37078728/37078728.20160215.L",
+                "ogp": "https://img.cdn.nimg.jp/s/nicovideo/thumbnails/37078728/37078728.20160215.original/r1280x720l?key=cc2efc1f3d1fd8f4d2bd3c6e4f8d8936218a486be91c9ccecd35fb6f98a62883"
+              },
+              "is_official": true,
+              "tags": [
+                {
+                  "text": "レース",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "選手",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "ボートレース",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "競艇",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "舟券",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "ボートレーサー",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                }
+              ],
+              "threads": {
+                "message_server_urls": {
+                  "main": "http://nmsg.nicovideo.jp/api/",
+                  "sub": "http://nmsg.nicovideo.jp/api/"
+                },
+                "channel": {
+                  "id": 1592899086,
+                  "comment_count": 0,
+                  "permissions": {
+                    "read": "all",
+                    "write": "all"
+                  },
+                  "channel_id": "ch381",
+                  "update_time": "2020-06-23T16:58:02+09:00"
+                },
+                "default": {
+                  "id": 1592899085,
+                  "comment_count": 0,
+                  "permissions": {
+                    "read": "author",
+                    "write": "author"
+                  },
+                  "update_time": "2020-06-23T16:58:02+09:00"
+                }
+              }
+            }
+          },
+          {
+            "id": "so36330523",
+            "recommend_type": "sugoi_search",
+            "content_type": "video",
+            "content_meta": {
+              "id": "so36330523",
+              "status": "public",
+              "video_watch_page_id": "1581044103",
+              "title": "ボートレース通信 第８回クイーンズクライマックス",
+              "description": "2020年（令和2年1月）制作",
+              "genre": {
+                "key": "sports",
+                "label": "スポーツ"
+              },
+              "view_count": 87,
+              "mylist_count": 2,
+              "length_seconds": 1804,
+              "upload_time": "2020-02-14T12:00:00+09:00",
+              "thumbnail_url": {
+                "normal": "https://nicovideo.cdn.nimg.jp/thumbnails/36330523/36330523.34706926",
+                "middle": "https://nicovideo.cdn.nimg.jp/thumbnails/36330523/36330523.34706926.M",
+                "large": "https://nicovideo.cdn.nimg.jp/thumbnails/36330523/36330523.34706926.L",
+                "ogp": "https://img.cdn.nimg.jp/s/nicovideo/thumbnails/36330523/36330523.34706926.original/r1280x720l?key=14381e9c2baaed59a24e942bfa4c7ae18b80b6aca872dc7ffd5ccb4be174d8dd"
+              },
+              "is_official": true,
+              "tags": [
+                {
+                  "text": "レース",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "選手",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "ボートレース",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "競艇",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "舟券",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "ボートレーサー",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                }
+              ],
+              "threads": {
+                "message_server_urls": {
+                  "main": "http://nmsg.nicovideo.jp/api/",
+                  "sub": "http://nmsg.nicovideo.jp/api/"
+                },
+                "channel": {
+                  "id": 1581044103,
+                  "comment_count": 0,
+                  "permissions": {
+                    "read": "purchaser_or_member",
+                    "write": "purchaser_or_member"
+                  },
+                  "channel_id": "ch381",
+                  "update_time": "2020-02-07T11:55:02+09:00"
+                },
+                "default": {
+                  "id": 1581044102,
+                  "comment_count": 0,
+                  "permissions": {
+                    "read": "author",
+                    "write": "author"
+                  },
+                  "update_time": "2020-02-07T11:55:02+09:00"
+                }
+              }
+            }
+          },
+          {
+            "id": "so36290512",
+            "recommend_type": "sugoi_search",
+            "content_type": "video",
+            "content_meta": {
+              "id": "so36290512",
+              "status": "public",
+              "video_watch_page_id": "1580266323",
+              "title": "ういちの一人舟 #93",
+              "description": "2020年（令和2年1月）制作",
+              "genre": {
+                "key": "sports",
+                "label": "スポーツ"
+              },
+              "view_count": 228,
+              "mylist_count": 2,
+              "length_seconds": 904,
+              "upload_time": "2020-01-31T12:00:00+09:00",
+              "thumbnail_url": {
+                "normal": "https://nicovideo.cdn.nimg.jp/thumbnails/36290512/36290512.16045637",
+                "middle": "https://nicovideo.cdn.nimg.jp/thumbnails/36290512/36290512.16045637.M",
+                "large": "https://nicovideo.cdn.nimg.jp/thumbnails/36290512/36290512.16045637.L",
+                "ogp": "https://img.cdn.nimg.jp/s/nicovideo/thumbnails/36290512/36290512.16045637.original/r1280x720l?key=7f09b2b6867335c1f4553b58019e9381ac22f93b7d985a1ba4a509168fb0140d"
+              },
+              "is_official": true,
+              "tags": [
+                {
+                  "text": "バラエティ",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "舟券",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "ういち",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "一人舟",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "ボートレース",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "競艇",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                }
+              ],
+              "threads": {
+                "message_server_urls": {
+                  "main": "http://nmsg.nicovideo.jp/api/",
+                  "sub": "http://nmsg.nicovideo.jp/api/"
+                },
+                "channel": {
+                  "id": 1580266323,
+                  "comment_count": 0,
+                  "permissions": {
+                    "read": "all",
+                    "write": "all"
+                  },
+                  "channel_id": "ch381",
+                  "update_time": "2020-01-29T11:52:02+09:00"
+                },
+                "default": {
+                  "id": 1580266322,
+                  "comment_count": 0,
+                  "permissions": {
+                    "read": "author",
+                    "write": "author"
+                  },
+                  "update_time": "2020-01-29T11:52:02+09:00"
+                }
+              }
+            }
+          },
+          {
+            "id": "so36637963",
+            "recommend_type": "sugoi_search",
+            "content_type": "video",
+            "content_meta": {
+              "id": "so36637963",
+              "status": "public",
+              "video_watch_page_id": "1586407202",
+              "title": "佐山夏子のナッツ・パラダイス #28",
+              "description": "2020年（令和2年3月）制作",
+              "genre": {
+                "key": "sports",
+                "label": "スポーツ"
+              },
+              "view_count": 216,
+              "mylist_count": 0,
+              "length_seconds": 1804,
+              "upload_time": "2020-04-14T12:00:00+09:00",
+              "thumbnail_url": {
+                "normal": "https://nicovideo.cdn.nimg.jp/thumbnails/36637963/36637963.68453101",
+                "middle": "https://nicovideo.cdn.nimg.jp/thumbnails/36637963/36637963.68453101.M",
+                "large": "https://nicovideo.cdn.nimg.jp/thumbnails/36637963/36637963.68453101.L",
+                "ogp": "https://img.cdn.nimg.jp/s/nicovideo/thumbnails/36637963/36637963.68453101.original/r1280x720l?key=7f57f37b27c32cd517b384e9a0630b0c607519c7cd5ba2dbae5c46037a4f779f"
+              },
+              "is_official": true,
+              "tags": [
+                {
+                  "text": "選手トーク",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "選手",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "ボートレース",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "競艇",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "舟券",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "ボートレーサー",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                }
+              ],
+              "threads": {
+                "message_server_urls": {
+                  "main": "http://nmsg.nicovideo.jp/api/",
+                  "sub": "http://nmsg.nicovideo.jp/api/"
+                },
+                "channel": {
+                  "id": 1586407202,
+                  "comment_count": 4,
+                  "permissions": {
+                    "read": "purchaser_or_member",
+                    "write": "purchaser_or_member"
+                  },
+                  "latest_comments": "浩二さん系ね!笑 会社の歓迎会でそんなのあったな～どこの世界も一緒!笑 えぇっ!最終回… 待ってましたー!QC取ってから気になってた選手!!",
+                  "channel_id": "ch381",
+                  "update_time": "2020-04-14T22:09:01+09:00"
+                },
+                "default": {
+                  "id": 1586407201,
+                  "comment_count": 0,
+                  "permissions": {
+                    "read": "author",
+                    "write": "author"
+                  },
+                  "update_time": "2020-04-09T13:40:01+09:00"
+                }
+              }
+            }
+          },
+          {
+            "id": "so36330519",
+            "recommend_type": "sugoi_search",
+            "content_type": "video",
+            "content_meta": {
+              "id": "so36330519",
+              "status": "public",
+              "video_watch_page_id": "1581043863",
+              "title": "ういちの一人舟 #95",
+              "description": "2020年（令和2年1月）制作",
+              "genre": {
+                "key": "sports",
+                "label": "スポーツ"
+              },
+              "view_count": 242,
+              "mylist_count": 2,
+              "length_seconds": 904,
+              "upload_time": "2020-02-14T12:00:00+09:00",
+              "thumbnail_url": {
+                "normal": "https://nicovideo.cdn.nimg.jp/thumbnails/36330519/36330519.89354679",
+                "middle": "https://nicovideo.cdn.nimg.jp/thumbnails/36330519/36330519.89354679.M",
+                "large": "https://nicovideo.cdn.nimg.jp/thumbnails/36330519/36330519.89354679.L",
+                "ogp": "https://img.cdn.nimg.jp/s/nicovideo/thumbnails/36330519/36330519.89354679.original/r1280x720l?key=5a2316a240d81676ae14d23d672391116dbf9e82d12029b309f52f7a1048e633"
+              },
+              "is_official": true,
+              "tags": [
+                {
+                  "text": "バラエティ",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "舟券",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "ういち",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "一人舟",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "ボートレース",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                },
+                {
+                  "text": "競艇",
+                  "is_video_owner_locked": true,
+                  "is_category_tag": false,
+                  "category_key": null
+                }
+              ],
+              "threads": {
+                "message_server_urls": {
+                  "main": "http://nmsg.nicovideo.jp/api/",
+                  "sub": "http://nmsg.nicovideo.jp/api/"
+                },
+                "channel": {
+                  "id": 1581043863,
+                  "comment_count": 0,
+                  "permissions": {
+                    "read": "all",
+                    "write": "all"
+                  },
+                  "channel_id": "ch381",
+                  "update_time": "2020-02-07T11:51:02+09:00"
+                },
+                "default": {
+                  "id": 1581043862,
+                  "comment_count": 0,
+                  "permissions": {
+                    "read": "author",
+                    "write": "author"
+                  },
+                  "update_time": "2020-02-07T11:51:02+09:00"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "isFrontendReloadEnabled": false
+  },
+  "programWatch": { "condition": { "needLogin": true } },
+  "programTimeshift": {
+    "watchLimit": "Unlimited",
+    "publication": {
+      "status": "Before",
+      "expireTime": 1594998000
+    },
+    "reservation": { "expireTime": 1594341000 }
+  },
+  "programTimeshiftWatch": { "condition": { "needReservation": true } },
+  "premiumAppealBanner": { "premiumRegistrationUrl": "https://account.nicovideo.jp/premium/register?next_url=%2Fwatch%2Flv326821644&sec=pc_header_premium_appeal&site=nicolive2&sub=watch_headerbar_0_channel_lv326821644_comingsoon" },
+  "emotion": {
+    "event": null,
+    "isEmotionEnabled": true
+  }
+}

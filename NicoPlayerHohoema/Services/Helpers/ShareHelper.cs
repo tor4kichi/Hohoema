@@ -68,10 +68,6 @@ namespace NicoPlayerHohoema.Services.Helpers
             return $"{title} http://nico.ms/{id} #{id} {hashTagsString}#Hohoema";
         }
 
-        public static string MakeShareText(NicoLiveVideo live)
-        {
-            return MakeLiveShareText(live.LiveTitle, live.LiveId);
-        }
         public static string MakeLiveShareText(string liveTitle, string liveId)
         {
             return $"{liveTitle} http://nico.ms/{liveId} #{liveId} #ニコニコ生放送 #Hohoema";
@@ -117,11 +113,6 @@ namespace NicoPlayerHohoema.Services.Helpers
             await ShareToTwitter(MakeShareText(video));
         }
 
-        public static async Task ShareToTwitter(NicoLiveVideo video)
-        {
-            await ShareToTwitter(MakeShareText(video));
-        }
-
 
 
 
@@ -142,11 +133,6 @@ namespace NicoPlayerHohoema.Services.Helpers
         }
 
         public static void Share(Database.NicoVideo video)
-        {
-            Share(MakeShareText(video));
-        }
-
-        public static void Share(NicoLiveVideo video)
         {
             Share(MakeShareText(video));
         }

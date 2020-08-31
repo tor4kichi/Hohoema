@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace NicoPlayerHohoema.Models.Live
+namespace NiconicoLiveToolkit.Live.WatchSession
 {
     public sealed class LiveChatData
     {
         public string Thread { get; set; }
-        public int No { get; set; }
-        public int Vpos { get; set; }
-        public int Date { get; set; }
-        public int DateUsec { get; set; }
+        public int CommentId { get; set; }
+        public uint VideoPosition { get; set; }
+        public long Date { get; set; }
+        public long DateUsec { get; set; }
         public int? __Premium { get; set; }
         public bool IsPremium => __Premium == 1;
         public bool IsOperater => __Premium >= 2;

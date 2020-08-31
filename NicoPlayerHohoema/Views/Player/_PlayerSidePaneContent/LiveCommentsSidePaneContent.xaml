@@ -185,8 +185,6 @@
             </logicalTrigger:MultiTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="TopBarMaginBorder.Visibility"
-                    Value="Visible" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>

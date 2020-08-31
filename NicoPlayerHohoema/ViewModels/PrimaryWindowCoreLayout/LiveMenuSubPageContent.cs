@@ -1,5 +1,6 @@
 ﻿using I18NPortable;
 using Mntone.Nico2.Live;
+using NiconicoLiveToolkit.Live;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Services;
 using System;
@@ -69,6 +70,6 @@ namespace NicoPlayerHohoema.ViewModels.PrimaryWindowCoreLayout
 
         public string ProviderName => CommunityName;
 
-        public CommunityType ProviderType => CommunityType.Community; // TODO: 
+        public ProviderType ProviderType => ProviderType.Community; // TODO
     }
 }

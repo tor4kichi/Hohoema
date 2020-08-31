@@ -43,11 +43,6 @@ namespace NicoPlayerHohoema.Services.Helpers
             CopyToClipboard(Helpers.ShareHelper.MakeShareText(video));
         }
 
-        static public void CopyToClipboard(Models.Live.NicoLiveVideo video)
-        {
-            CopyToClipboard(Helpers.ShareHelper.MakeShareText(video));
-        }
-
         static readonly Regex NicoContentRegex = new Regex("https?:\\/\\/([\\w\\W]*?)\\/((\\w*)\\/)?([\\w-]*)");
 
         static private string prevContent = string.Empty;

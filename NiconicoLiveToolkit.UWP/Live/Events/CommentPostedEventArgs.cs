@@ -1,6 +1,5 @@
-﻿using Mntone.Nico2.Videos.Comment;
-
-namespace NicoPlayerHohoema.Models.Live
+﻿
+namespace NiconicoLiveToolkit.Live.Events
 {
     public struct CommentPostedEventArgs
     {

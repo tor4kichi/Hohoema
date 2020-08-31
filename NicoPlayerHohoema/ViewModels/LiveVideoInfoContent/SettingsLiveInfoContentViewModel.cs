@@ -14,7 +14,7 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 {
 	public class SettingsLiveInfoContentViewModel : LiveInfoContentViewModelBase
 	{
-        public SettingsLiveInfoContentViewModel(NicoLiveVideo liveVideo, PlayerSettings playerSettings)
+        public SettingsLiveInfoContentViewModel(PlayerSettings playerSettings)
         {
             PlayerSettings = playerSettings;
 

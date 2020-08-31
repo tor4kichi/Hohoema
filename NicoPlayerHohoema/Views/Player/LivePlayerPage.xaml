@@ -1,4 +1,4 @@
-﻿<Page x:Class="NicoPlayerHohoema.Views.LivePlayerPage" x:Name="PageRoot" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="using:NicoPlayerHohoema.Views" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:i="using:Microsoft.Xaml.Interactivity" xmlns:core="using:Microsoft.Xaml.Interactions.Core" xmlns:toolkit="using:WinRTXamlToolkit.Controls" xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions" xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors" xmlns:logicalTrigger="using:AdaptiveTriggerLibrary.Triggers.LogicalTriggers" xmlns:intractionTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInteractionTriggers" xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers" xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers" xmlns:myTrigger="using:NicoPlayerHohoema.Views.StateTrigger" xmlns:media="using:Microsoft.Xaml.Interactions.Media" xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors" xmlns:iconPack="using:MahApps.Metro.IconPacks" xmlns:mvvm="using:Prism.Mvvm" xmlns:controls="using:NicoPlayerHohoema.Views.Controls" xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector" xmlns:windowsTrigger="using:WindowsStateTriggers" xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions" NavigationCacheMode="Required" DataContext="{x:Null}" mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="400">
+﻿<Page x:Class="NicoPlayerHohoema.Views.LivePlayerPage" x:Name="PageRoot" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="using:NicoPlayerHohoema.Views" xmlns:d="http://schemas.microsoft.com/expression/blend/2008" xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:i="using:Microsoft.Xaml.Interactivity" xmlns:core="using:Microsoft.Xaml.Interactions.Core" xmlns:toolkit="using:WinRTXamlToolkit.Controls" xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions" xmlns:mybehavior="using:NicoPlayerHohoema.Views.Behaviors" xmlns:logicalTrigger="using:AdaptiveTriggerLibrary.Triggers.LogicalTriggers" xmlns:intractionTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInteractionTriggers" xmlns:uiTrigger="using:AdaptiveTriggerLibrary.Triggers.UserInterfaceTriggers" xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers" xmlns:myTrigger="using:NicoPlayerHohoema.Views.StateTrigger" xmlns:media="using:Microsoft.Xaml.Interactions.Media" xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Animations.Behaviors" xmlns:iconPack="using:MahApps.Metro.IconPacks" xmlns:mvvm="using:Prism.Mvvm" xmlns:controls="using:NicoPlayerHohoema.Views.Controls" xmlns:templateselector="using:NicoPlayerHohoema.Views.TemplateSelector" xmlns:windowsTrigger="using:WindowsStateTriggers" xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI.Extensions" xmlns:playerService="using:NicoPlayerHohoema.Services.Player" xmlns:models="using:NicoPlayerHohoema.Models" xmlns:liveToolkitWatchSession="using:NiconicoLiveToolkit.Live.WatchSession" NavigationCacheMode="Required" DataContext="{x:Null}" mc:Ignorable="d" d:DesignHeight="300" d:DesignWidth="400">
   <Page.Resources>
     <MenuFlyout x:Name="LivePlayerFlyout">
       <MenuFlyoutItem Text="{Binding Source=PlayPauseToggleButtonTitle, Converter={StaticResource LocalizeConverter}}" Command="{Binding TogglePlayPauseCommand}" />
@@ -123,7 +123,7 @@
             <core:EventTriggerBehavior EventName="Loaded">
               <mybehavior:SetFocus TargetObject="{Binding ElementName=VolumeButton}" />
             </core:EventTriggerBehavior>
-            <mybehavior:UINavigationTrigger Kind="Cancel" Hold="True" IsEnabled="{Binding PlayerViewManager.IsPlayerSmallWindowModeEnabled, Converter={StaticResource BoolNegation}}">
+            <mybehavior:UINavigationTrigger Kind="Cancel" Hold="True" x:Name="ControllerHold_BButtonToCloseTrigger">
               <core:InvokeCommandAction Command="{Binding PrimaryViewPlayerManager.CloseCommand}" />
             </mybehavior:UINavigationTrigger>
           </i:Interaction.Behaviors>
@@ -197,7 +197,7 @@
             </Grid>
           </toolkit:DockPanel>
           <Grid Height="{Binding CommentCanvasHeight.Value}">
-            <local:CommentRenderer x:Name="CommentRederer" Comments="{Binding NicoLiveVideo.DisplayingComments}" MediaPlayer="{Binding MediaPlayer, Mode=OneWay}" Visibility="{Binding PlayerSettings.IsCommentDisplay_Live, Converter={StaticResource BooleanToVisibility}}" CommentSizeScale="{Binding CommentFontScale.Value}" CommentDefaultColor="{Binding CommentDefaultColor.Value}" DefaultDisplayDuration="{Binding RequestCommentDisplayDuration.Value}" Opacity="{Binding CommentOpacity.Value, Mode=OneWay}" VideoPositionOffset="{Binding WatchStartLiveElapsedTime.Value}" />
+            <local:CommentRenderer x:Name="CommentRederer" Comments="{Binding DisplayingLiveComments}" MediaPlayer="{Binding MediaPlayer, Mode=OneWay}" Visibility="{Binding PlayerSettings.IsCommentDisplay_Live, Converter={StaticResource BooleanToVisibility}}" CommentSizeScale="{Binding CommentFontScale.Value}" CommentDefaultColor="{Binding CommentDefaultColor.Value}" DefaultDisplayDuration="{Binding RequestCommentDisplayDuration.Value}" Opacity="{Binding CommentOpacity.Value, Mode=OneWay}" VideoPositionOffset="{Binding WatchStartLiveElapsedTime}" />
             <Border VerticalAlignment="Bottom" HorizontalAlignment="Left">
               <Border.Background>
                 <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}" />
@@ -255,6 +255,7 @@
                     <TextBlock x:Name="TitleTextBlock_Nallow" Text="{Binding LiveTitle}" Style="{ThemeResource CaptionTextBlockStyle}" Visibility="Collapsed" Margin="8" />
                   </Grid>
                   <Grid x:Name="TopBarLayout">
+                    
                     <Grid.Background>
                       <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}" />
                     </Grid.Background>
@@ -268,19 +269,23 @@
                         </StackPanel>
                       </Button>
                     </StackPanel>
+                    
+                    
                     <CommandBar x:Name="ActionsCommandBar" HorizontalAlignment="Right">
-                      <AppBarButton Label="{Binding Source=LiveInfomation, Converter={StaticResource LocalizeConverter}}" Command="{Binding PageManager.OpenPageCommand}" CommandParameter="{Binding}" />
-                      <AppBarButton Label="{Binding Source=LiveBroadcasterInfomation, Converter={StaticResource LocalizeConverter}}" Command="{Binding PageManager.OpenContentOwnerPageCommand}" CommandParameter="{Binding}" />
-                      <AppBarButton Label="{Binding Source=Share, Converter={StaticResource LocalizeConverter}}" Icon="Link" Command="{Binding ExternalAccessService.OpenShareUICommand}" CommandParameter="{Binding}" />
-                      <AppBarButton x:Name="CopyActionsAppBarButton" Label="{Binding Source=Copy, Converter={StaticResource LocalizeConverter}}" Icon="Copy" Visibility="{Binding AppearanceSettings.IsTVMode, Converter={StaticResource BooleanToVisibilityInverted}}">
+
+                      <AppBarButton Label="{Binding Source=LiveInfomation, Converter={StaticResource LocalizeConverter}}" Command="{Binding PageManager.OpenPageCommand}" CommandParameter="{Binding LiveInfo}" />
+                      <AppBarButton Label="{Binding Source=LiveBroadcasterInfomation, Converter={StaticResource LocalizeConverter}}" Command="{Binding PageManager.OpenContentOwnerPageCommand}" CommandParameter="{Binding LiveInfo}" />
+                      <AppBarButton Label="{Binding Source=Share, Converter={StaticResource LocalizeConverter}}" Icon="Link" Command="{Binding ExternalAccessService.OpenShareUICommand}" CommandParameter="{Binding LiveInfo}" />
+                      <AppBarButton x:Name="CopyActionsAppBarButton" Label="{Binding Source=Copy, Converter={StaticResource LocalizeConverter}}" Icon="Copy">
                         <AppBarButton.Flyout>
                           <MenuFlyout>
                             <MenuFlyoutItem Text="{Binding Source=CopyLiveStreamingId, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding LiveId}" />
-                            <MenuFlyoutItem Text="{Binding Source=CopyLiveStreamingLink, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding}" />
-                            <MenuFlyoutItem Text="{Binding Source=CopyLiveStreamingShareText, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}" CommandParameter="{Binding}" />
+                            <MenuFlyoutItem Text="{Binding Source=CopyLiveStreamingLink, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.CopyToClipboardCommand}" CommandParameter="{Binding LiveInfo}" />
+                            <MenuFlyoutItem Text="{Binding Source=CopyLiveStreamingShareText, Converter={StaticResource LocalizeConverter}}" Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}" CommandParameter="{Binding LiveInfo}" />
                           </MenuFlyout>
                         </AppBarButton.Flyout>
                       </AppBarButton>
+                      
                       <CommandBar.SecondaryCommands>
                         <AppBarButton x:Name="FullscreenButton" Command="{Binding WindowService.ToggleFullScreenCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{Binding Source=FullScreen, Converter={StaticResource LocalizeConverter}}" Icon="FullScreen"></AppBarButton>
                         <AppBarButton x:Name="CompactOverlayButton" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{Binding Source=CompactOverlay, Converter={StaticResource LocalizeConverter}}"></AppBarButton>
@@ -288,14 +293,18 @@
                         <AppBarButton x:Name="DisplayWithSecondaryViewButton" Command="{Binding TogglePlayerDisplayViewCommand}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{Binding Source=PlayWithSecondaryView, Converter={StaticResource LocalizeConverter}}"></AppBarButton>
                         <AppBarToggleButton x:Name="ForceRotateToggleButton" IsChecked="{Binding PlayerSettings.IsForceLandscape, Mode=TwoWay}" Background="Transparent" Visibility="Collapsed" MinWidth="64" Label="{Binding Source=FixToLandscape, Converter={StaticResource LocalizeConverter}}" Icon="Orientation"></AppBarToggleButton>
                       </CommandBar.SecondaryCommands>
+                      
                     </CommandBar>
-
+                    
+                    
                     <Button x:Name="ExitWindowInWindowButton" Command="{Binding PrimaryViewPlayerManager.ToggleFillOrWindowInWindowCommand}" Background="Transparent" HorizontalAlignment="Right" Visibility="Collapsed" Margin="0 8 0 0">
                       <SymbolIcon Symbol="FullScreen" />
                     </Button>
+                    
                     <Button x:Name="ExitCompactOverlayButton" Command="{Binding WindowService.ToggleCompactOverlayCommand}" Background="Transparent" HorizontalAlignment="Right"  Visibility="Collapsed" Margin="0 8 0 0">
                       <SymbolIcon Symbol="FullScreen" />
                     </Button>
+                    
                   </Grid>
                   
                 </StackPanel>
@@ -332,10 +341,10 @@
                         <StackPanel Orientation="Horizontal">
                           <SymbolIcon Symbol="View" Margin="8 0" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />
                           <TextBlock VerticalAlignment="Center" IsHitTestVisible="False" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Margin="0 0 8 0" FontSize="18">
-                                                        <Run Text="{Binding WatchCount.Value, Converter={StaticResource ToUserFriendlyNumber}}" /></TextBlock>
+                                                        <Run Text="{Binding WatchCount, Converter={StaticResource ToUserFriendlyNumber}}" /></TextBlock>
                           <SymbolIcon Symbol="Comment" Margin="8 0" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />
                           <TextBlock VerticalAlignment="Center" IsHitTestVisible="False" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Margin="0 0 8 0" FontSize="18">
-                                                        <Run Text="{Binding CommentCount.Value, Converter={StaticResource ToUserFriendlyNumber}}" /></TextBlock>
+                                                        <Run Text="{Binding CommentCount, Converter={StaticResource ToUserFriendlyNumber}}" /></TextBlock>
                         </StackPanel>
                         <!-- 放送時間 -->
                         <StackPanel Orientation="Horizontal" Margin="0">
@@ -350,7 +359,6 @@
                           <StackPanel Orientation="Horizontal" Margin="0 0 0 8" HorizontalAlignment="Right" Visibility="{Binding CurrentQuality.Value, Converter={StaticResource NotNullToVisibility}}">
                             <TextBlock VerticalAlignment="Center" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" x:Name="LeoLiveQualityTextBlock">
                                                         <Run Text="{Binding CurrentQuality.Value, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
-                            <TextBlock x:Name="PlayerTypeTextBlock" Margin="0 0" VerticalAlignment="Center" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}"></TextBlock>
                             <TextBlock Visibility="{Binding IsLowLatency.Value, Converter={StaticResource BooleanToVisibility}}" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Margin="8 0 0 0">
                                                         <Run Text="{Binding Source=LowLatency, Converter={StaticResource LocalizeConverter}}" /></TextBlock>
                             <TextBlock Text="TS" Margin="8 0" x:Name="WatchWithTimeshiftText" Visibility="Collapsed" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" />
@@ -358,31 +366,40 @@
                           <i:Interaction.Behaviors>
                             <core:EventTriggerBehavior EventName="Click">
                               <mybehavior:OpenFlyout />
+                              <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="True" />
                             </core:EventTriggerBehavior>
                           </i:Interaction.Behaviors>
                           <FlyoutBase.AttachedFlyout>
-                            <Flyout>
+                            <Flyout x:Name="LiveQualityChangeFlyout">
                               <StackPanel Spacing="16">
-                                <ToggleSwitch IsOn="{Binding IsLowLatency.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Header="{Binding Source=LowLatency, Converter={StaticResource LocalizeConverter}}"></ToggleSwitch>
 
-                                <ComboBox ItemsSource="{Binding LiveAvailableQualities, Mode=OneWay}" SelectedItem="{Binding CurrentQuality.Value, Mode=OneWay}" SelectionChangedTrigger="Committed" SelectionChanged="ComboBox_SelectionChanged" Header="{Binding Source=LivePlayingQuality, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
+                                <ComboBox x:Name="LiveQualityLimitComboBox" 
+                                          ItemsSource="{Binding LiveAvailableLimitQualities, Mode=OneWay}" SelectedItem="{Binding QualityLimit.Value, Mode=TwoWay}" SelectionChangedTrigger="Committed" Header="{Binding Source=LivePlayingQualityLimit, Converter={StaticResource LocalizeConverter}, Mode=OneTime}"
+                                          IsEnabled="False"
+                                          Visibility="Collapsed"
+                                          >
                                   <ComboBox.ItemTemplate>
                                     <DataTemplate>
                                       <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" Padding="8 4" />
                                     </DataTemplate>
                                   </ComboBox.ItemTemplate>
                                 </ComboBox>
+                                
+                                <ComboBox ItemsSource="{Binding LiveAvailableQualities, Mode=OneWay}" SelectedItem="{Binding RequestQuality.Value, Mode=TwoWay}" SelectionChangedTrigger="Committed" Header="{Binding Source=LivePlayingQuality, Converter={StaticResource LocalizeConverter}, Mode=OneTime}">
+                                  <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                      <TextBlock Text="{Binding Converter={StaticResource LocalizeConverter}}" Padding="8 4" />
+                                    </DataTemplate>
+                                  </ComboBox.ItemTemplate>
+                                </ComboBox>
+
+                                <ToggleSwitch IsOn="{Binding IsLowLatency.Value, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Header="{Binding Source=LowLatency, Converter={StaticResource LocalizeConverter}}"></ToggleSwitch>
+
                               </StackPanel>
 
                             </Flyout>
                           </FlyoutBase.AttachedFlyout>
                         </HyperlinkButton>
-                        <StackPanel Orientation="Horizontal">
-                          <TextBlock VerticalAlignment="Center" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding RoomName, Converter={StaticResource NotNullToVisibility}}">
-                                                    <Run Text="{Binding RoomName}" /></TextBlock>
-                          <TextBlock VerticalAlignment="Center" Foreground="{ThemeResource ApplicationSecondaryForegroundThemeBrush}" Visibility="{Binding SeetId, Converter={StaticResource NotNullToVisibility}}">
-                                                    <Run Text=" - " /><Run Text="{Binding SeetId}" /></TextBlock>
-                        </StackPanel>
                       </StackPanel>
                       <Border />
                     </toolkit:DockPanel>
@@ -580,11 +597,10 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <windowsTrigger:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
+            <windowsTrigger:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="{x:Bind models:ApplicationLayout.TV}" />
             <windowsTrigger:DeviceFamilyStateTrigger DeviceFamily="Xbox" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="FocusWhenShowingControlUIAction.IsEnabled" Value="True" />
             <Setter Target="CopyActionsAppBarButton.Visibility" Value="Visible" />
           </VisualState.Setters>
         </VisualState>
@@ -677,6 +693,7 @@
           <VisualState.Setters>
             
             <Setter Target="ActionsCommandBar.Visibility" Value="Collapsed" />
+            
             <Setter Target="CenterTopGradient.Visibility" Value="Collapsed" />
             <Setter Target="CenterBottomGradient.Visibility" Value="Collapsed" />
             <Setter Target="CommentSubmitButton.Visibility" Value="Collapsed" />
@@ -687,7 +704,6 @@
             <Setter Target="ControlUICenter.Background" Value="{ThemeResource SystemAltMediumColor}" />
 
             <Setter Target="ExitCompactOverlayButton.Visibility" Value="Visible" />
-            
 
           </VisualState.Setters>
         </VisualState>
@@ -707,7 +723,7 @@
             <Setter Target="ControlUICenter.Background" Value="{ThemeResource SystemAltMediumColor}" />
 
             <Setter Target="ExitWindowInWindowButton.Visibility" Value="Visible" />
-
+            
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -724,10 +740,10 @@
             <myTrigger:FocusTrigger Target="{x:Bind CommentTextBox}" />
             <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{x:Bind CommandEditerFlyout}" />
             <windowsTrigger:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.InteractionMode}" EqualTo="Controller" />
+            <myTrigger:FlyoutIsOpenStateTrigger TargetFlyout="{x:Bind LiveQualityChangeFlyout}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="PlayerControlAutoHide.IsAutoHideEnabled"
-                    Value="False" />
+            <Setter Target="PlayerControlAutoHide.IsAutoHideEnabled" Value="False" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -764,7 +780,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding IsWatchWithTimeshift.Value}" />
+            <StateTrigger IsActive="{Binding IsTimeshift}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="PlayPauseToggleButton.Visibility" Value="Visible" />
@@ -785,8 +801,8 @@
         <VisualState>
           <VisualState.StateTriggers>
             <windowsTrigger:CompositeStateTrigger Operator="And">
-              <StateTrigger IsActive="{Binding IsWatchWithTimeshift.Value, Mode=OneWay}" />
-              <windowsTrigger:CompareStateTrigger Value="{x:Bind MediaControl.ActualWidth}" CompareTo="{StaticResource WidthBreakPoint_NallowToVeryNallow}" Comparison="GreaterThan" />
+              <StateTrigger IsActive="{Binding IsTimeshift, Mode=OneWay}" />
+              <windowsTrigger:CompareStateTrigger Value="{x:Bind MediaControl.ActualWidth, Mode=OneWay}" CompareTo="{StaticResource WidthBreakPoint_NallowToVeryNallow}" Comparison="GreaterThan" />
             </windowsTrigger:CompositeStateTrigger>
           </VisualState.StateTriggers>
           <VisualState.Setters>
@@ -800,7 +816,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding IsWatchWithTimeshift.Value, Mode=OneWay}" />
+            <StateTrigger IsActive="{Binding IsTimeshift, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="CommentLayout.Visibility" Value="Collapsed" />
@@ -809,6 +825,17 @@
             <Setter Target="WatchWithTimeshiftText.Visibility" Value="Visible" />
             <Setter Target="SeekBarSlider.Visibility" Value="Visible" />
             <Setter Target="SeekSwipe.IsEnabled" Value="True" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      <!-- 自動画質の時だけ、画質上限のUIを表示 -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsTrigger:EqualsStateTrigger Value="{Binding CurrentQuality.Value}" EqualTo="{x:Bind liveToolkitWatchSession:LiveQualityType.Abr}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="LiveQualityLimitComboBox.IsEnabled" Value="True" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -916,13 +943,14 @@
         </VisualState>
       </VisualStateGroup>
       <!-- 小窓表示 -->
+      <!-- コンパクトオーバーレイ表示中のコントロールUI切り替え -->
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
             <myTrigger:WindowInWindowViewModeTrigger />
+            <myTrigger:CompactOverlayViewModeTrigger />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="ControlUIRoot.Visibility" Value="Collapsed" />
             <Setter Target="PlayerSplitView.OpenPaneLength" Value="80" />
           </VisualState.Setters>
         </VisualState>
@@ -936,19 +964,6 @@
           <VisualState.Setters>
             <Setter Target="CompactOverlayButton.Visibility" Value="Visible" />
             <Setter Target="CompactOverlayButton_Menu.Visibility" Value="Visible" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
-      <!-- コンパクトオーバーレイ表示中のコントロールUI切り替え -->
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <myTrigger:CompactOverlayViewModeTrigger />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="CompactOverlayUIControl.Visibility" Value="Visible" />
-            <Setter Target="DefaultUIControl.Visibility" Value="Collapsed" />
-            <Setter Target="PlayerSplitView.OpenPaneLength" Value="80" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -986,8 +1001,10 @@
           <VisualState.Setters>
             <Setter Target="SmallWindowButton.Visibility" Value="Visible" />
             <Setter Target="SmallWindowButton_Menu.Visibility" Value="Visible" />
+
             <Setter Target="FullscreenButton.Visibility" Value="Visible" />
             <Setter Target="FullscreenButton_Menu.Visibility" Value="Visible" />
+
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -1006,14 +1023,18 @@
           <VisualState.Setters>
             <Setter Target="ShowPrimaryViewButton.Visibility" Value="Visible" />
             <Setter Target="CloseButton.Visibility" Value="Collapsed" />
+
             <Setter Target="SmallWindowButton.Visibility" Value="Collapsed" />
             <Setter Target="SmallWindowButton_Menu.Visibility" Value="Collapsed" />
+
             <Setter Target="FullscreenButton.Visibility" Value="Visible" />
             <Setter Target="FullscreenButton_Menu.Visibility" Value="Visible" />
+
             <Setter Target="DisplayWithSecondaryViewButton.Visibility" Value="Visible" />
             <Setter Target="DisplayWithSecondaryViewButton.Label" Value="{Binding Source=PlayWithPrimaryView, Converter={StaticResource LocalizeConverter}}" />
             <Setter Target="DisplayWithSecondaryViewButton_Menu.Visibility" Value="Visible" />
             <Setter Target="DisplayWithSecondaryViewButton_Menu.Text" Value="{Binding Source=PlayWithPrimaryView, Converter={StaticResource LocalizeConverter}}" />
+
           </VisualState.Setters>
         </VisualState>
         <VisualState>
@@ -1021,12 +1042,14 @@
             <hardTrigger:DeviceFamilyTrigger Condition="Desktop" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
+
             <Setter Target="SmallWindowButton.Visibility" Value="Visible" />
             <Setter Target="SmallWindowButton_Menu.Visibility" Value="Visible" />
             <Setter Target="FullscreenButton.Visibility" Value="Visible" />
             <Setter Target="FullscreenButton_Menu.Visibility" Value="Visible" />
             <Setter Target="DisplayWithSecondaryViewButton.Visibility" Value="Visible" />
             <Setter Target="DisplayWithSecondaryViewButton_Menu.Visibility" Value="Visible" />
+
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
@@ -1037,34 +1060,11 @@
             <StateTrigger IsActive="{Binding WindowService.IsFullScreen.Value, Mode=OneWay}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
-            <Setter Target="FullscreenButtonIcon.Kind" Value="FullScreenExit" />
             <Setter Target="AutoHideCursor.IsAutoHideEnabled" Value="True" />
           </VisualState.Setters>
         </VisualState>
       </VisualStateGroup>
-      <!-- Flash or DMC 放送サーバーごとの表示 -->
-      <VisualStateGroup>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <myTrigger:EqualConditionStateTrigger Value="{Binding LivePlayerType.Value}" Condition="Leo" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="PlayerTypeTextBlock.Text" Value="" />
-            <!--
-                        <Setter Target="LeoLiveQualityMenuFlyoutSubItem.Visibility" Value="Visible" />
-                        <Setter Target="LeoLiveQualityMenuFlyoutSeparator.Visibility" Value="Visible" />
-                        -->
-          </VisualState.Setters>
-        </VisualState>
-        <VisualState>
-          <VisualState.StateTriggers>
-            <myTrigger:EqualConditionStateTrigger Value="{Binding LivePlayerType.Value}" Condition="Aries" />
-          </VisualState.StateTriggers>
-          <VisualState.Setters>
-            <Setter Target="PlayerTypeTextBlock.Text" Value="Flash" />
-          </VisualState.Setters>
-        </VisualState>
-      </VisualStateGroup>
+      
       <VisualStateGroup>
         <VisualState>
           <VisualState.StateTriggers>
@@ -1089,7 +1089,7 @@
         </VisualState>
         <VisualState>
           <VisualState.StateTriggers>
-            <StateTrigger IsActive="{Binding PlayerViewManager.IsPlayerSmallWindowModeEnabled}" />
+            <windowsTrigger:EqualsStateTrigger Value="{Binding PrimaryViewPlayerManager.DisplayMode}" EqualTo="{x:Bind playerService:PrimaryPlayerDisplayMode.WindowInWindow}" />
           </VisualState.StateTriggers>
           <VisualState.Setters>
             <Setter Target="BroadcasterPermanentCommentLayout.Visibility" Value="Collapsed" />

@@ -368,12 +368,23 @@ SoundVolumeChangeValueWithMouseScroll = マウススクロール音量変化量
 
 #### Live ####
 LivePlayingQuality = 生放送画質
-super_high = すごく高画質
-high = 高画質
-normal = 通常画質
-low = 低画質
-super_low = モバイル画質
-audio_high = 音質優先
+LivePlayingQualityLimit = 自動選択時の上限画質
+LiveQualityLimitType.Unknown = 画質未指定
+LiveQualityLimitType.SuperLow = モバイル画質
+LiveQualityLimitType.Low = 低画質
+LiveQualityLimitType.Normal = 通常画質
+LiveQualityLimitType.High = 高画質
+LiveQualityLimitType.SuperHigh = すごく高画質
+LiveQualityType.Abr = 自動
+LiveQualityType.SuperLow = モバイル画質
+LiveQualityType.Low = 低画質
+LiveQualityType.Normal = 通常画質
+LiveQualityType.High = 高画質
+LiveQualityType.SuperHigh = すごく高画質
+LiveQualityType.AudioHigh = 音質優先
+LiveQualityType.BroadcasterHigh = 高画質（配信者用）
+LiveQualityType.BroadcasterLow = 低画質（配信者用）
+
 
 LowLatency = 低遅延モード
 
@@ -602,26 +613,6 @@ Sort.UpdateTime_Descending = 更新が新しい順
 Sort.Relation_Ascending = 適合率が低い順
 Sort.Relation_Descending = 適合率が高い順
 
-MylistSort.TitleAsc = タイトル昇順
-MylistSort.TitleDesc = タイトル降順
-MylistSort.AddedAtAsc = マイリスト登録が古い順
-MylistSort.AddedAtDesc = マイリスト登録が新しい順
-MylistSort.MylistCommentAsc = メモ昇順
-MylistSort.MylistCommentDesc = メモ降順
-MylistSort.RegisteredAtAsc = 投稿日時が古い順
-MylistSort.RegisteredAtDesc = 投稿日時が新しい順
-MylistSort.ViewCountAsc = 再生数が少ない順
-MylistSort.ViewCountDesc = 再生数が多い順
-MylistSort.LastCommentTimeAsc = コメントが古い順
-MylistSort.LastCommentTimeDesc = コメントが新しい順
-MylistSort.CommentCountAsc = コメントが少ない順
-MylistSort.CommentCountDesc = コメントが多い順
-MylistSort.MylistCountAsc = マイリストが少ない順
-MylistSort.MylistCountDesc = マイリストが多い順
-MylistSort.DurationAsc = 再生時間が短い順
-MylistSort.DurationDesc = 再生時間が長い順
-
-
 CommunitySearchSort.CreatedAt_Ascending = 作成が古い順
 CommunitySearchSort.CreatedAt_Descending = 作成が新しい順
 CommunitySearchSort.UpdateAt_Ascending = 更新が古い順
@@ -683,7 +674,7 @@ RemoveWatchedItems = 視聴済みを削除
 
 
 #### Mylist ####
-DefaultMylist = あとで見る
+DefaultMylist = とりあえずマイリスト
 MylistOwner = オーナー情報
 MylistEditInfo = マイリスト情報を編集
 MylistDelete = マイリストを削除
@@ -708,8 +699,9 @@ MylistName = マイリスト名
 MylistDescription = 説明
 MylistMemo = メモ
 MylistPrivateSettings = 公開範囲
-MylistPrivateSettings_Private = 非公開
-MylistPrivateSettings_Public = 公開
+MylistPrivateSettings_Private = 自分だけ
+MylistPrivateSettings_Public = 誰でも
+MylistThemeColor = テーマカラー
 MylistSort = 並び替え
 
 
@@ -783,10 +775,6 @@ NoItems_Mylist = マイリストはありません
 
 
 #### User Mylist ####
-
-PlaylistOrigin.Mylist = マイリスト
-PlaylistOrigin.Local = ローカルマイリスト
-
 LocalPlaylistCreate = ローカルマイリストを作成
 LocalPlaylistNameTextBoxPlacefolder = ローカルマイリスト名を入力
 MylistCreate = マイリストを作成

@@ -1,4 +1,4 @@
-﻿namespace NicoPlayerHohoema.Models.Live
+﻿namespace NiconicoLiveToolkit.Live.Events
 {
     public struct CommentServerDisconnectedEventArgs
     {

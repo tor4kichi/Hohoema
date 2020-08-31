@@ -1,6 +1,7 @@
 ﻿using Mntone.Nico2.Communities.Detail;
 using Mntone.Nico2.Communities.Info;
 using Mntone.Nico2.Live;
+using NiconicoLiveToolkit.Live;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Niconico.Video;
@@ -402,7 +403,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public string ProviderName { get; }
 
-        public CommunityType ProviderType => CommunityType.Community;
+        public ProviderType ProviderType => ProviderType.Community;
     }
 
 
@@ -535,7 +536,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public string ProviderName => StreamerName;
 
-        public CommunityType ProviderType => CommunityType.Official;
+        public ProviderType ProviderType => ProviderType.Official;
     }
 
 	public class CommunityVideoInfoViewModel : HohoemaListingPageItemBase, Interfaces.IVideoContent

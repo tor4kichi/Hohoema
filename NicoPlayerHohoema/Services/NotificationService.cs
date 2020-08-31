@@ -2,6 +2,7 @@
 using Microsoft.Toolkit.Uwp;
 using Microsoft.Toolkit.Uwp.Notifications;
 using Mntone.Nico2.Users.Mylist;
+using NiconicoLiveToolkit.Live;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Services.Helpers;
 using NicoPlayerHohoema.Services.Page;
@@ -143,12 +144,11 @@ namespace NicoPlayerHohoema.Services
 
         private async Task<InAppNotificationPayload> SubmitLiveContentSuggestion(string liveId)
         {
-            /*
-            var liveDesc = await NicoLiveProvider.GetLiveInfoAsync(liveId);
+            var liveDesc = await NicoLiveProvider.NiconicoSession.LiveContext.Live.CasApi.GetLiveProgramAsync(liveId);
 
             if (liveDesc == null) { return null; }
 
-            var liveTitle = liveDesc.VideoInfo.Video.Title;
+            var liveTitle = liveDesc.Data.Title;
 
             var payload = new InAppNotificationPayload()
             {
@@ -182,14 +182,14 @@ namespace NicoPlayerHohoema.Services
                     }
             };
 
-            if (liveDesc.VideoInfo.Community != null)
+            if (liveDesc.Data.ProviderType == ProviderType.Community.ToString().ToLower())
             {
                 payload.Commands.Add(new InAppNotificationCommand()
                 {
                     Label = HohoemaPageType.Community.Translate(),
                     Command = new DelegateCommand(() =>
                     {
-                        PageManager.OpenPageWithId(HohoemaPageType.Community, liveDesc.VideoInfo.Community.GlobalId);
+                        PageManager.OpenPageWithId(HohoemaPageType.Community, liveDesc.Data.ProviderId);
 
                         NotificationService.DismissInAppNotification();
                     })
@@ -197,9 +197,6 @@ namespace NicoPlayerHohoema.Services
             }
 
             return payload;
-            */
-
-            throw new NotImplementedException();
         }
 
         private async Task<InAppNotificationPayload> SubmitMylistContentSuggestion(string mylistId)

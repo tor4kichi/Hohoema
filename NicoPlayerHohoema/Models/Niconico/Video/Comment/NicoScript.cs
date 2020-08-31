@@ -217,7 +217,7 @@ namespace NicoPlayerHohoema.Models.Niconico.Video
                     case "full":
                         break;
                     case "_184":
-                        yield return c => c.IsAnonimity = true;
+                        yield return c => c.IsAnonymity = true;
                         break;
                     case "invisible":
                         yield return c => c.IsInvisible = true;

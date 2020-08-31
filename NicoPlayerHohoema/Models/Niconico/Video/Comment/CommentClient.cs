@@ -215,7 +215,7 @@ namespace NicoPlayerHohoema.Models
                 UserId = rawComment.UserId,
                 Mail = rawComment.Mail,
                 NGScore = 0,
-                IsAnonimity = rawComment.GetAnonymity(),
+                IsAnonymity = rawComment.GetAnonymity(),
                 IsLoginUserComment = NiconicoSession.IsLoggedIn && rawComment.UserId == NiconicoSession.UserIdString,
                 IsOwnerComment = rawComment.UserId != null && rawComment.UserId == VideoOwnerId,
             };
@@ -227,11 +227,11 @@ namespace NicoPlayerHohoema.Models
             {
                 CommentText = rawComment.Content,
                 CommentId = (uint)rawComment.No,
-                VideoPosition = Math.Max(rawComment.Vpos, 0),
+                VideoPosition = (uint)Math.Max(rawComment.Vpos, 0),
                 UserId = rawComment.UserId,
                 Mail = rawComment.Mail,
                 NGScore = rawComment.Score ?? 0,
-                IsAnonimity = rawComment.Anonymity != 0,
+                IsAnonymity = rawComment.Anonymity != 0,
                 IsLoginUserComment = NiconicoSession.IsLoggedIn && rawComment.UserId == NiconicoSession.UserIdString,
                 IsOwnerComment = rawComment.UserId != null && rawComment.UserId == VideoOwnerId,
                 DeletedFlag = rawComment.Deleted ?? 0

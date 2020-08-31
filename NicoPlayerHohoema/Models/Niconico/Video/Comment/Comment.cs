@@ -32,8 +32,8 @@ namespace NicoPlayerHohoema.Models.Niconico
     }
 
     [DataContract]
-	public class Comment : BindableBase
-	{
+	public class Comment : BindableBase, IComment
+    {
         // コメントのデータ構造だけで他のことを知っているべきじゃない
         // このデータを解釈して実際に表示するためのオブジェクトにする部分は処理は
         // View側が持つべき
@@ -50,10 +50,10 @@ namespace NicoPlayerHohoema.Models.Niconico
         public string UserId { get; set; }
 
         [DataMember]
-        public bool IsAnonimity { get; set; }
+        public bool IsAnonymity { get; set; }
 
         [DataMember]
-        public long VideoPosition { get; set; }
+        public uint VideoPosition { get; set; }
 
         [DataMember]
         public int NGScore { get; set; }

@@ -40,7 +40,6 @@
       </templateSelector:TypeBasedTemplateSelector.DefaultTemplate>
       <!-- Video Item -->
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=NicoPlayerHohoema.ViewModels.NicoRepoVideoTimeline, Converter={StaticResource StringToType}}"
-                    x:DataType="viewModels:NicoRepoVideoTimeline"
                     >
         <Grid>
           <TextBlock Text="{Binding ItempTopicDescription}"
@@ -53,7 +52,6 @@
       </DataTemplate>
       <!-- Live Item -->
       <DataTemplate templateSelector:DataTemplate.TargetType="{Binding Source=NicoPlayerHohoema.ViewModels.NicoRepoLiveTimeline, Converter={StaticResource StringToType}}"
-                    x:DataType="viewModels:NicoRepoLiveTimeline"
                     >
         <Grid>
           <TextBlock Text="{Binding ItempTopicDescription}"

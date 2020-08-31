@@ -1,4 +1,5 @@
 ﻿using I18NPortable;
+using NiconicoLiveToolkit.Live;
 using NicoPlayerHohoema.Database;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
@@ -256,7 +257,7 @@ namespace NicoPlayerHohoema.Services
 
                     break;
                 case Interfaces.ILiveContent liveContent:
-                    if (liveContent.ProviderType == Mntone.Nico2.Live.CommunityType.Community)
+                    if (liveContent.ProviderType == ProviderType.Community)
                     {
                         var p = new NavigationParameters();
                         p.Add("id", liveContent.ProviderId);

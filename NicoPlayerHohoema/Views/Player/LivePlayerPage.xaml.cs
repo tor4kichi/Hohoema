@@ -19,6 +19,7 @@ using NicoPlayerHohoema.ViewModels;
 using Microsoft.Toolkit.Uwp.Helpers;
 using NicoPlayerHohoema.Models;
 using Reactive.Bindings.Extensions;
+using NiconicoLiveToolkit.Live.WatchSession;
 
 // The User Control item template is documented at https://go.microsoft.com/fwlink/?LinkId=234236
 
@@ -139,21 +140,6 @@ namespace NicoPlayerHohoema.Views
                 _nowVolumeChanging = false;
             }
         }
-
-
-
-
-        private void ComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            var comboBox = (ComboBox)sender;
-            var qualityStr = (string)comboBox.SelectedValue;
-            var viewModel = DataContext as LivePlayerPageViewModel;
-            if (viewModel.ChangeQualityCommand.CanExecute(qualityStr))
-            {
-                viewModel.ChangeQualityCommand.Execute(qualityStr);
-            }
-        }
-
 
 
 

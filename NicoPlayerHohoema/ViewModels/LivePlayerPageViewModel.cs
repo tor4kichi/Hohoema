@@ -1,8 +1,11 @@
-﻿using Mntone.Nico2.Live;
+﻿using NiconicoLiveToolkit.Live;
+using NiconicoLiveToolkit.Live.WatchPageProp;
+using NiconicoLiveToolkit.Live.WatchSession;
 using NicoPlayerHohoema.Interfaces;
 using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Live;
 using NicoPlayerHohoema.Models.Niconico;
+using NicoPlayerHohoema.Models.Niconico.User;
 using NicoPlayerHohoema.Models.Provider;
 using NicoPlayerHohoema.Services;
 using NicoPlayerHohoema.Services.Page;
@@ -14,6 +17,7 @@ using NicoPlayerHohoema.UseCase.Playlist;
 using NicoPlayerHohoema.ViewModels.PlayerSidePaneContent;
 using NicoPlayerHohoema.Views;
 using Prism.Commands;
+using Prism.Mvvm;
 using Prism.Navigation;
 using Prism.Unity;
 using Reactive.Bindings;
@@ -32,8 +36,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using Unity;
 using Unity.Resolution;
+using Uno.Extensions;
+using Uno.Threading;
 using Windows.Foundation.Metadata;
+using Windows.Media.Core;
 using Windows.Media.Playback;
+using Windows.Media.Streaming.Adaptive;
 using Windows.System;
 using Windows.UI;
 using Windows.UI.ViewManagement;
@@ -63,9 +71,320 @@ namespace NicoPlayerHohoema.ViewModels
         }
     }
 
+    public class LiveContent : ILiveContent
+    {
+        public string ProviderId { get; set; }
 
-	public class LivePlayerPageViewModel : HohoemaViewModelBase, Interfaces.ILiveContent, INavigatedAwareAsync
+        public string ProviderName { get; set; }
+
+        public ProviderType ProviderType { get; set; }
+
+        public string Id { get; set; }
+
+        public string Label { get; set; }
+    }
+
+
+
+    public class LivePlayerPageViewModel : HohoemaViewModelBase, INavigatedAwareAsync
 	{
+
+        public IScheduler _scheduler { get; }
+
+        public PlayerSettings PlayerSettings { get; }
+        public AppearanceSettings AppearanceSettings { get; }
+        public NicoLiveProvider NicoLiveProvider { get; }
+        public ApplicationLayoutManager ApplicationLayoutManager { get; }
+        public LoginUserLiveReservationProvider LoginUserLiveReservationProvider { get; }
+        public NiconicoSession NiconicoSession { get; }
+        public UserProvider UserProvider { get; }
+        public CommunityProvider CommunityProvider { get; }
+        public HohoemaPlaylist HohoemaPlaylist { get; }
+        public DialogService _HohoemaDialogService { get; }
+        public PageManager PageManager { get; }
+        public ExternalAccessService ExternalAccessService { get; }
+
+        private readonly UserNameRepository _userNameRepository;
+        private NotificationService _NotificationService;
+
+
+        public MediaPlayer MediaPlayer { get; private set; }
+        public ObservableMediaPlayer ObservableMediaPlayer { get; }
+        public WindowService WindowService { get; }
+        public PrimaryViewPlayerManager PrimaryViewPlayerManager { get; }
+        public TogglePlayerDisplayViewCommand TogglePlayerDisplayViewCommand { get; }
+        public ShowPrimaryViewCommand ShowPrimaryViewCommand { get; }
+        public MediaPlayerSoundVolumeManager SoundVolumeManager { get; }
+        public CommentCommandEditerViewModel CommentCommandEditerViewModel { get; }
+
+
+        private LiveContent _liveInfo;
+        public LiveContent LiveInfo
+        {
+            get { return _liveInfo; }
+            private set { SetProperty(ref _liveInfo, value); }
+        }
+
+
+
+        private string _LiveId;
+        public string LiveId
+        {
+            get { return _LiveId; }
+            set { SetProperty(ref _LiveId, value); }
+        }
+
+        private string _LiveTitle;
+        public string LiveTitle
+        {
+            get { return _LiveTitle; }
+            set { SetProperty(ref _LiveTitle, value); }
+        }
+
+        private string _CommunityId;
+        public string CommunityId
+        {
+            get { return _CommunityId; }
+            set { SetProperty(ref _CommunityId, value); }
+        }
+
+        private string _CommunityName;
+        public string CommunityName
+        {
+            get { return _CommunityName; }
+            set { SetProperty(ref _CommunityName, value); }
+        }
+
+        private string _SeetType;
+        public string RoomName
+        {
+            get { return _SeetType; }
+            set { SetProperty(ref _SeetType, value); }
+        }
+
+        private uint? _SeetNumber;
+        public uint? SeetId
+        {
+            get { return _SeetNumber; }
+            set { SetProperty(ref _SeetNumber, value); }
+        }
+
+
+        private NiconicoLiveToolkit.NiconicoContext LiveContext => NiconicoSession.LiveContext;
+
+        private LiveWatchPageDataProp _PlayerProp;
+        private Live2WatchSession _watchSession;
+        private WatchSessionTimer _watchSessionTimer;
+
+
+
+        private ObservableCollection<LiveComment> _DisplayingLiveComments { get; } = new ObservableCollection<LiveComment>();
+        public ReadOnlyObservableCollection<LiveComment> DisplayingLiveComments { get; private set; }
+
+        private ObservableCollection<LiveComment> _ListLiveComments { get; } = new ObservableCollection<LiveComment>();
+
+
+        public ObservableCollection<LiveOperationCommand> LiveOperationCommands { get; private set; } = new ObservableCollection<LiveOperationCommand>();
+        public ReactiveProperty<LiveOperationCommand> BroadcasterLiveOperationCommand { get; }
+        public ReactiveProperty<LiveOperationCommand> OperaterLiveOperationCommand { get; }
+        public ReactiveProperty<LiveOperationCommand> PressLiveOperationCommand { get; }
+
+        private TimeSpan _LiveElapsedTime;
+        public TimeSpan LiveElapsedTime
+        {
+            get { return _LiveElapsedTime; }
+            set { SetProperty(ref _LiveElapsedTime, value); }
+        }
+
+        private TimeSpan _LiveElapsedTimeFromOpen;
+        public TimeSpan LiveElapsedTimeFromOpen
+        {
+            get { return _LiveElapsedTimeFromOpen; }
+            private set { SetProperty(ref _LiveElapsedTimeFromOpen, value); }
+        }
+
+
+        private int _CommentCount;
+        public int CommentCount
+        {
+            get => _CommentCount;
+            set => SetProperty(ref _CommentCount, value);
+        }
+
+        private int _WatchCount;
+        public int WatchCount
+        {
+            get => _WatchCount;
+            set => SetProperty(ref _WatchCount, value);
+        }
+
+        private int _AdPoint;
+        public int AdPoint
+        {
+            get => _AdPoint;
+            set => SetProperty(ref _AdPoint, value);
+        }
+
+        private int _GiftPoint;
+        public int GiftPoint
+        {
+            get => _GiftPoint;
+            set => SetProperty(ref _GiftPoint, value);
+        }
+
+        DateTimeOffset? _OpenTime;
+        public DateTimeOffset OpenTime => _OpenTime ??= DateTimeOffset.FromUnixTimeSeconds(_PlayerProp.Program.OpenTime);
+        DateTimeOffset? _StartTime;
+        public DateTimeOffset StartTime => _StartTime ??= DateTimeOffset.FromUnixTimeSeconds(_PlayerProp.Program.BeginTime);
+        DateTimeOffset? _EndTime;
+        public DateTimeOffset EndTime => _EndTime ??= DateTimeOffset.FromUnixTimeSeconds(_PlayerProp.Program.EndTime);
+
+
+        private bool _IsTimeshift;
+        public bool IsTimeshift
+        {
+            get => _IsTimeshift;
+            private set => SetProperty(ref _IsTimeshift, value);
+        }
+
+        // play
+        public ObservableCollection<LiveQualityType> LiveAvailableQualities { get; } = new ObservableCollection<LiveQualityType>();
+        public ObservableCollection<LiveQualityLimitType> LiveAvailableLimitQualities { get; } = new ObservableCollection<LiveQualityLimitType>();
+
+
+        public ReactiveProperty<LiveStatus?> LiveStatusType { get; private set; }
+
+        public ReadOnlyReactiveProperty<bool> CanRefresh { get; private set; }
+
+        public ReactiveProperty<bool> CanChangeQuality { get; private set; }
+        public ReactiveProperty<LiveQualityType> RequestQuality { get; private set; }
+        public ReactiveProperty<LiveQualityType> CurrentQuality { get; private set; }
+
+        public ReactiveProperty<LiveQualityLimitType> QualityLimit { get; private set; }
+
+        public ReactiveProperty<bool> IsLowLatency { get; }
+
+        public ReactiveCommand<TimeSpan?> SeekVideoCommand { get; private set; }
+
+        public IReadOnlyReactiveProperty<bool> CanSeek { get; }
+        public ReactiveProperty<double> SeekBarTimeshiftPosition { get; }
+        private ReactiveProperty<double> _MaxSeekablePosition { get; }
+        public IReadOnlyReactiveProperty<double> MaxSeekablePosition => _MaxSeekablePosition;
+        private bool _NowSeekBarPositionChanging = false;
+
+
+        // comment
+
+        public ReactiveProperty<bool> IsCommentDisplayEnable { get; private set; }
+        public ReactiveProperty<TimeSpan> CommentUpdateInterval { get; private set; }
+        public ReactiveProperty<TimeSpan> RequestCommentDisplayDuration { get; private set; }
+        public ReactiveProperty<double> CommentFontScale { get; private set; }
+
+        public ReactiveProperty<double> CommentCanvasHeight { get; private set; }
+        public ReactiveProperty<Color> CommentDefaultColor { get; private set; }
+
+        public ReadOnlyReactiveProperty<double> CommentOpacity { get; private set; }
+
+
+
+        // post comment
+        ISubject<Unit> _SuccessPostCommentSubject { get; }
+        public IReadOnlyReactiveProperty<Unit> SuccessPostCommentSubject { get; }
+        public CommentCommandEditerViewModel CommandEditerVM { get; private set; }
+        public ReactiveProperty<string> CommentSubmitText { get; private set; }
+        public ReactiveProperty<bool> NowCommentSubmitting { get; private set; }
+
+
+        public AsyncReactiveCommand<string> CommentSubmitCommand { get; private set; }
+
+        public Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView FilterdComments { get; } = new Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView();
+
+        // suggestion
+        public ReactiveProperty<LiveSuggestion> Suggestion { get; private set; }
+        public ReactiveProperty<bool> HasSuggestion { get; private set; }
+
+
+        // Side Pane Content
+
+
+        public ReactiveCommand RefreshCommand { get; private set; }
+
+        public ReactiveCommand TogglePlayPauseCommand { get; private set; }
+
+
+        public MediaPlayerSeekCommand SeekCommand { get; }
+        public MediaPlayerSetPlaybackRateCommand SetPlaybackRateCommand { get; }
+        public MediaPlayerToggleMuteCommand ToggleMuteCommand { get; }
+        public MediaPlayerVolumeUpCommand VolumeUpCommand { get; }
+        public MediaPlayerVolumeDownCommand VolumeDownCommand { get; }
+
+
+        private DelegateCommand _ShareCommand;
+        public DelegateCommand ShareCommand
+        {
+            get
+            {
+                return _ShareCommand
+                    ?? (_ShareCommand = new DelegateCommand(() =>
+                    {
+                        Services.Helpers.ShareHelper.Share(Services.Helpers.ShareHelper.MakeLiveShareText(_PlayerProp.Program.Title, LiveId));
+                    }
+                    ));
+            }
+        }
+
+        private DelegateCommand _ShereWithTwitterCommand;
+        public DelegateCommand ShereWithTwitterCommand
+        {
+            get
+            {
+                return _ShereWithTwitterCommand
+                    ?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
+                    {
+                        await Services.Helpers.ShareHelper.ShareToTwitter(Services.Helpers.ShareHelper.MakeLiveShareText(_PlayerProp.Program.Title, LiveId));
+                    }
+                    ));
+            }
+        }
+
+        private DelegateCommand _ShareWithClipboardCommand;
+        public DelegateCommand ShareWithClipboardCommand
+        {
+            get
+            {
+                return _ShareWithClipboardCommand
+                    ?? (_ShareWithClipboardCommand = new DelegateCommand(() =>
+                    {
+                        Services.Helpers.ClipboardHelper.CopyToClipboard(Services.Helpers.ShareHelper.MakeLiveShareText(_PlayerProp.Program.Title, LiveId));
+                    }
+                    ));
+            }
+        }
+
+
+
+        private DelegateCommand _OpenBroadcastCommunityCommand;
+        public DelegateCommand OpenBroadcastCommunityCommand
+        {
+            get
+            {
+                return _OpenBroadcastCommunityCommand
+                    ?? (_OpenBroadcastCommunityCommand = new DelegateCommand(() =>
+                    {
+                        PageManager.OpenPageWithId(HohoemaPageType.Community, CommunityId);
+                    }
+                    ));
+            }
+        }
+
+        private TimeSpan _WatchStartLiveElapsedTime;
+        public TimeSpan WatchStartLiveElapsedTime
+        {
+            get { return _WatchStartLiveElapsedTime; }
+            private set { SetProperty(ref _WatchStartLiveElapsedTime, value); }
+        }
+
+
 
         public LivePlayerPageViewModel(
             IScheduler scheduler,
@@ -76,6 +395,7 @@ namespace NicoPlayerHohoema.ViewModels
             LoginUserLiveReservationProvider loginUserLiveReservationProvider,
             NiconicoSession niconicoSession,
             UserProvider userProvider,
+            UserNameRepository userNameRepository,
             CommunityProvider communityProvider,
             HohoemaPlaylist hohoemaPlaylist,
             Services.DialogService dialogService,
@@ -100,6 +420,7 @@ namespace NicoPlayerHohoema.ViewModels
             LoginUserLiveReservationProvider = loginUserLiveReservationProvider;
             NiconicoSession = niconicoSession;
             UserProvider = userProvider;
+            _userNameRepository = userNameRepository;
             CommunityProvider = communityProvider;
             HohoemaPlaylist = hohoemaPlaylist;
 
@@ -115,34 +436,27 @@ namespace NicoPlayerHohoema.ViewModels
             ShowPrimaryViewCommand = showPrimaryViewCommand;
             SoundVolumeManager = soundVolumeManager;
             CommentCommandEditerViewModel = commentCommandEditerViewModel;
-            DisplayingLiveComments = new ReadOnlyObservableCollection<Comment>(_DisplayingLiveComments);
+            DisplayingLiveComments = new ReadOnlyObservableCollection<LiveComment>(_DisplayingLiveComments);
 
             SeekCommand = new MediaPlayerSeekCommand(MediaPlayer);
             SetPlaybackRateCommand = new MediaPlayerSetPlaybackRateCommand(MediaPlayer);
             ToggleMuteCommand = new MediaPlayerToggleMuteCommand(MediaPlayer);
             VolumeUpCommand = new MediaPlayerVolumeUpCommand(SoundVolumeManager);
             VolumeDownCommand = new MediaPlayerVolumeDownCommand(SoundVolumeManager);
-
-            // play
-            WatchStartLiveElapsedTime = new ReactiveProperty<TimeSpan>(raiseEventScheduler: _scheduler, initialValue: TimeSpan.Zero);
             
-            LivePlayerType = new ReactiveProperty<Models.Live.LivePlayerType?>(_scheduler);
-            LiveStatusType = new ReactiveProperty<StatusType?>(_scheduler);
+            LiveStatusType = new ReactiveProperty<LiveStatus?>(_scheduler);
 
             CanChangeQuality = new ReactiveProperty<bool>(_scheduler, false);
-            RequestQuality = new ReactiveProperty<string>(_scheduler);
-            CurrentQuality = new ReactiveProperty<string>(_scheduler, mode: ReactivePropertyMode.DistinctUntilChanged);
+            RequestQuality = PlayerSettings.ToReactivePropertyAsSynchronized(x => x.DefaultLiveQuality, _scheduler)
+                .AddTo(_CompositeDisposable);
+            CurrentQuality = new ReactiveProperty<LiveQualityType>(_scheduler, mode: ReactivePropertyMode.DistinctUntilChanged)
+                .AddTo(_CompositeDisposable);
 
-            IsLowLatency = PlayerSettings.ToReactivePropertyAsSynchronized(x => x.LiveWatchWithLowLatency, _scheduler, mode: ReactivePropertyMode.DistinctUntilChanged);
+            IsLowLatency = PlayerSettings.ToReactivePropertyAsSynchronized(x => x.LiveWatchWithLowLatency, _scheduler, mode: ReactivePropertyMode.DistinctUntilChanged)
+                .AddTo(_CompositeDisposable);
 
-            ChangeQualityCommand = new DelegateCommand<string>(
-                (quality) =>
-                {
-                    //                    NicoLiveVideo.ChangeQualityRequest(quality, PlayerSettings.LiveWatchWithLowLatency).ConfigureAwait(false);
-                    PlayerSettings.DefaultLiveQuality = quality;
-                },
-                (quality) => NicoLiveVideo.Qualities.Any(x => x == quality)
-            );
+            QualityLimit = PlayerSettings.ToReactivePropertyAsSynchronized(x => x.LiveQualityLimit, _scheduler)
+                .AddTo(_CompositeDisposable);
 
             IsCommentDisplayEnable = PlayerSettings
                 .ToReactivePropertyAsSynchronized(x => x.IsCommentDisplay_Live, _scheduler)
@@ -154,8 +468,9 @@ namespace NicoPlayerHohoema.ViewModels
             CommentOpacity = PlayerSettings.ObserveProperty(x => x.CommentOpacity)
                 .ToReadOnlyReactiveProperty(eventScheduler: _scheduler);
 
+            FilterdComments.Source = _ListLiveComments;
             FilterdComments.SortDescriptions.Add(new Microsoft.Toolkit.Uwp.UI.SortDescription(nameof(Comment.VideoPosition), Microsoft.Toolkit.Uwp.UI.SortDirection.Ascending));
-            FilterdComments.Filter = (x) => !(PlayerSettings.IsLiveNGComment((x as Comment)?.UserId));
+            FilterdComments.Filter = (x) => !(PlayerSettings.IsLiveNGComment((x as IComment)?.UserId));
             PlayerSettings.NGLiveCommentUserIds.CollectionChangedAsObservable()
                 .Subscribe(x =>
                 {
@@ -164,18 +479,18 @@ namespace NicoPlayerHohoema.ViewModels
                 .AddTo(_CompositeDisposable);
 
 
-            IsWatchWithTimeshift = new ReactiveProperty<bool>(_scheduler, false)
-                .AddTo(_CompositeDisposable);
 
-            SeekVideoCommand = IsWatchWithTimeshift.ToReactiveCommand<TimeSpan?>(scheduler: _scheduler)
+            SeekVideoCommand = this.ObserveProperty(x => x.IsTimeshift).ToReactiveCommand<TimeSpan?>(scheduler: _scheduler)
                     .AddTo(_CompositeDisposable);
+
             SeekVideoCommand.Subscribe(async time =>
             {
                 if (!time.HasValue) { return; }
                 var session = MediaPlayer.PlaybackSession;
 
-                NicoLiveVideo.TimeshiftPosition = (NicoLiveVideo.TimeshiftPosition ?? TimeSpan.Zero) + session.Position + time;
-                await NicoLiveVideo.Refresh();
+                _watchSessionTimer.PlaybackHeadPosition = time.Value;
+                
+                // TODO: 生放送のシーク処理
             })
             .AddTo(_CompositeDisposable);
 
@@ -192,9 +507,8 @@ namespace NicoPlayerHohoema.ViewModels
                     var time = TimeSpan.FromSeconds(x);
 
                     var session = MediaPlayer.PlaybackSession;
-                    NicoLiveVideo.TimeshiftPosition = time;
-                    WatchStartLiveElapsedTime.Value = time;
-                    await NicoLiveVideo.Refresh();
+                    
+                    // TODO: 生放送のシーク処理
                 })
                 .AddTo(_CompositeDisposable);
 
@@ -261,19 +575,19 @@ namespace NicoPlayerHohoema.ViewModels
             });
 
             Observable.Merge(
-                PlayerSettings.ObserveProperty(x => x.LiveWatchWithLowLatency).ToUnit(),
-                PlayerSettings.ObserveProperty(x => x.DefaultLiveQuality).ToUnit()
+                PlayerSettings.ObserveProperty(x => x.LiveWatchWithLowLatency, isPushCurrentValueAtFirst: false).ToUnit(),
+                PlayerSettings.ObserveProperty(x => x.DefaultLiveQuality, isPushCurrentValueAtFirst: false).ToUnit(),
+                PlayerSettings.ObserveProperty(x => x.LiveQualityLimit, isPushCurrentValueAtFirst: false).ToUnit()
                 )
+                .Where(_ => CanChangeQuality.Value)
                 .Subscribe(async x =>
                 {
-                    if (NicoLiveVideo != null)
-                    {
-                        Debug.WriteLine($"Change Quality: {PlayerSettings.DefaultLiveQuality} - Low Latency: {PlayerSettings.LiveWatchWithLowLatency}");
-                        await NicoLiveVideo.ChangeQualityRequest(
-                            PlayerSettings.DefaultLiveQuality,
-                            PlayerSettings.LiveWatchWithLowLatency
-                            );
-                    }
+                    if (_watchSession == null) { return; }
+
+                    var limit = GetQualityLimitType();
+                    Debug.WriteLine($"Change Quality: {PlayerSettings.DefaultLiveQuality} - Low Latency: {PlayerSettings.LiveWatchWithLowLatency} - Limit: {limit}");
+
+                    await _watchSession.ChangeStreamAsync(PlayerSettings.DefaultLiveQuality, PlayerSettings.LiveWatchWithLowLatency, limit);
                 })
                 .AddTo(_CompositeDisposable);
 
@@ -281,7 +595,7 @@ namespace NicoPlayerHohoema.ViewModels
             // OnAirかCommingSoonの時
 
             CanRefresh = Observable.CombineLatest(
-                this.LiveStatusType.Select(x => x == StatusType.OnAir || x == StatusType.ComingSoon)
+                this.LiveStatusType.Select(x => x == LiveStatus.Onair || x == LiveStatus.Reserved)
                 )
                 .Select(x => x.All(y => y))
                 .ToReadOnlyReactiveProperty(eventScheduler: _scheduler);
@@ -292,7 +606,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             RefreshCommand.Subscribe(async _ =>
             {
-                if (IsWatchWithTimeshift.Value)
+                if (IsTimeshift)
                 {
                     MediaPlayer.Play();
                 }
@@ -300,14 +614,12 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     if (await TryUpdateLiveStatus())
                     {
-                        await NicoLiveVideo.Refresh();
+                        var limit = GetQualityLimitType();
+                        Debug.WriteLine($"Change Quality: {PlayerSettings.DefaultLiveQuality} - Low Latency: {PlayerSettings.LiveWatchWithLowLatency} - Limit: {limit}");
 
+                        await _watchSession.ChangeStreamAsync(PlayerSettings.DefaultLiveQuality, PlayerSettings.LiveWatchWithLowLatency, limit);
                         // MediaPlayer.PositionはSourceを再設定するたびに0にリセットされる
                         // ソース更新後のコメント表示再生位置のズレを補正する
-                        if (!IsWatchWithTimeshift.Value)
-                        {
-                            WatchStartLiveElapsedTime.Value = NicoLiveVideo.LiveElapsedTimeFromOpen;
-                        }
                     }
                 }
             })
@@ -318,7 +630,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             TogglePlayPauseCommand.Subscribe(_ =>
             {
-                if (IsWatchWithTimeshift.Value)
+                if (IsTimeshift)
                 {
                     if (MediaPlayer.PlaybackSession.PlaybackState == MediaPlaybackState.Playing)
                     {
@@ -338,7 +650,7 @@ namespace NicoPlayerHohoema.ViewModels
 
 
             CanSeek = Observable.CombineLatest(
-                IsWatchWithTimeshift,
+                this.ObserveProperty(x => x.IsTimeshift),
                 ObservableMediaPlayer.CurrentState.Select(x => x == MediaPlaybackState.Paused || x == MediaPlaybackState.Playing))
                 .Select(x => x.All(y => y))
                 .ToReadOnlyReactiveProperty(eventScheduler: _scheduler)
@@ -347,239 +659,47 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-        public IScheduler _scheduler { get; }
-
-        public PlayerSettings PlayerSettings { get; }
-        public AppearanceSettings AppearanceSettings { get; }
-        public NicoLiveProvider NicoLiveProvider { get; }
-        public ApplicationLayoutManager ApplicationLayoutManager { get; }
-        public LoginUserLiveReservationProvider LoginUserLiveReservationProvider { get; }
-        public NiconicoSession NiconicoSession { get; }
-        public UserProvider UserProvider { get; }
-        public CommunityProvider CommunityProvider { get; }
-        public HohoemaPlaylist HohoemaPlaylist { get; }
-        public DialogService _HohoemaDialogService { get; }
-        public PageManager PageManager { get; }
-        public ExternalAccessService ExternalAccessService { get; }
-
-        private NotificationService _NotificationService;
-
-
-        public MediaPlayer MediaPlayer { get; private set; }
-        public ObservableMediaPlayer ObservableMediaPlayer { get; }
-        public WindowService WindowService { get; }
-        public PrimaryViewPlayerManager PrimaryViewPlayerManager { get; }
-        public TogglePlayerDisplayViewCommand TogglePlayerDisplayViewCommand { get; }
-        public ShowPrimaryViewCommand ShowPrimaryViewCommand { get; }
-        public MediaPlayerSoundVolumeManager SoundVolumeManager { get; }
-        public CommentCommandEditerViewModel CommentCommandEditerViewModel { get; }
-
-        private string _LiveId;
-        public string LiveId
+        public override void OnNavigatedFrom(INavigationParameters parameters)
         {
-            get { return _LiveId; }
-            set { SetProperty(ref _LiveId, value); }
-        }
 
-        private string _LiveTitle;
-		public string LiveTitle
-		{
-			get { return _LiveTitle; }
-			set { SetProperty(ref _LiveTitle, value); }
-		}
+            MediaPlayer.Pause();
+            MediaPlayer.Source = null;
 
-		private string _CommunityId;
-		public string CommunityId
-		{
-			get { return _CommunityId; }
-			set { SetProperty(ref _CommunityId, value); }
-		}
+            _MediaSource?.Dispose();
+            _MediaSource = null;
+            _AdaptiveMediaSource?.Dispose();
+            _AdaptiveMediaSource = null;
 
-		private string _CommunityName;
-		public string CommunityName
-		{
-			get { return _CommunityName; }
-			set { SetProperty(ref _CommunityName, value); }
-		}
-
-		private string _SeetType;
-		public string RoomName
-		{
-			get { return _SeetType; }
-			set { SetProperty(ref _SeetType, value); }
-		}
-
-		private uint? _SeetNumber;
-		public uint? SeetId
-		{
-			get { return _SeetNumber; }
-			set { SetProperty(ref _SeetNumber, value); }
-		}
-
-
-		public NicoLiveVideo NicoLiveVideo { get; private set; }
-
-        private ObservableCollection<Comment> _DisplayingLiveComments { get; } = new ObservableCollection<Comment>();
-        public ReadOnlyObservableCollection<Comment> DisplayingLiveComments { get; private set; }
-
-
-        public ObservableCollection<LiveOperationCommand> LiveOperationCommands { get; private set; } = new ObservableCollection<LiveOperationCommand>();
-        public ReactiveProperty<LiveOperationCommand> BroadcasterLiveOperationCommand { get; }
-        public ReactiveProperty<LiveOperationCommand> OperaterLiveOperationCommand { get; }
-        public ReactiveProperty<LiveOperationCommand> PressLiveOperationCommand { get; }
-
-        private TimeSpan _LiveElapsedTime;
-		public TimeSpan LiveElapsedTime
-		{
-			get { return _LiveElapsedTime; }
-			set { SetProperty(ref _LiveElapsedTime, value); }
-		}
-
-
-        
-        private DateTimeOffset _OpenAt;
-        private DateTimeOffset _StartAt;
-        private DateTimeOffset _EndAt;
-
-        public ReactiveProperty<bool> IsWatchWithTimeshift { get; private set; }
-
-        public ReactiveProperty<TimeSpan> WatchStartLiveElapsedTime { get; private set; }
-        // play
-		
-		public ReactiveProperty<uint> CommentCount { get; private set; }
-		public ReactiveProperty<uint> WatchCount { get; private set; }
-
-        public ReactiveProperty<LivePlayerType?> LivePlayerType { get; private set; }
-        public ReactiveProperty<StatusType?> LiveStatusType { get; private set; }
-
-        public ReadOnlyReactiveProperty<bool> CanRefresh { get; private set; }
-
-        public ReactiveProperty<bool> CanChangeQuality { get; private set; }
-        public ReactiveProperty<string> RequestQuality { get; private set; }
-
-        public ReactiveProperty<string> CurrentQuality { get; private set; }
-
-        public ReactiveProperty<bool> IsLowLatency { get; }
-
-        public ObservableCollection<string> LiveAvailableQualities { get; } = new ObservableCollection<string>();
-
-        public DelegateCommand<string> ChangeQualityCommand { get; }
-
-        public ReactiveCommand<TimeSpan?> SeekVideoCommand { get; private set; }
-
-        public IReadOnlyReactiveProperty<bool> CanSeek { get; }
-        public ReactiveProperty<double> SeekBarTimeshiftPosition { get; }
-        private ReactiveProperty<double> _MaxSeekablePosition { get; }
-        public IReadOnlyReactiveProperty<double> MaxSeekablePosition => _MaxSeekablePosition;
-        private bool _NowSeekBarPositionChanging = false;
-
-
-        // comment
-
-        public ReactiveProperty<bool> IsCommentDisplayEnable { get; private set; }
-        public ReactiveProperty<TimeSpan> CommentUpdateInterval { get; private set; }
-		public ReactiveProperty<TimeSpan> RequestCommentDisplayDuration { get; private set; }
-		public ReactiveProperty<double> CommentFontScale { get; private set; }
-
-		public ReactiveProperty<double> CommentCanvasHeight { get; private set; }
-		public ReactiveProperty<Color> CommentDefaultColor { get; private set; }
-
-        public ReadOnlyReactiveProperty<double> CommentOpacity { get; private set; }
-
-
-
-        // post comment
-        ISubject<Unit> _SuccessPostCommentSubject { get; }
-        public IReadOnlyReactiveProperty<Unit> SuccessPostCommentSubject { get; }
-		public CommentCommandEditerViewModel CommandEditerVM { get; private set; }
-        public ReactiveProperty<string> CommentSubmitText { get; private set; }
-        public ReactiveProperty<bool> NowCommentSubmitting { get; private set; }
-
-
-        public AsyncReactiveCommand<string> CommentSubmitCommand { get; private set; }
-
-        public Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView FilterdComments { get; } = new Microsoft.Toolkit.Uwp.UI.AdvancedCollectionView();
-
-        // suggestion
-        public ReactiveProperty<LiveSuggestion> Suggestion { get; private set; }
-		public ReactiveProperty<bool> HasSuggestion { get; private set; }
-
-
-        // Side Pane Content
-
-
-        public ReactiveCommand RefreshCommand { get; private set; }
-
-        public ReactiveCommand TogglePlayPauseCommand { get; private set; }
-
-
-        public MediaPlayerSeekCommand SeekCommand { get; }
-        public MediaPlayerSetPlaybackRateCommand SetPlaybackRateCommand { get; }
-        public MediaPlayerToggleMuteCommand ToggleMuteCommand { get; }
-        public MediaPlayerVolumeUpCommand VolumeUpCommand { get; }
-        public MediaPlayerVolumeDownCommand VolumeDownCommand { get; }
-
-
-        private DelegateCommand _ShareCommand;
-        public DelegateCommand ShareCommand
-        {
-            get
+            if (_watchSession != null)
             {
-                return _ShareCommand
-                    ?? (_ShareCommand = new DelegateCommand(() =>
-                    {
-                        Services.Helpers.ShareHelper.Share(NicoLiveVideo);
-                    }
-                    ));
+                _watchSession.RecieveStream -= _watchSession_RecieveStream;
+                _watchSession.RecieveRoom -= _watchSession_RecieveRoom;
+                _watchSession.RecieveSchedule -= _watchSession_RecieveSchedule;
+                _watchSession.RecieveStatistics -= _watchSession_RecieveStatistics;
+                _watchSession.ReceiveDisconnect -= _watchSession_ReceiveDisconnect;
+                _watchSession.RecieveReconnect -= _watchSession_RecieveReconnect;
+
+                _watchSession.Dispose();
+                _watchSession = null;
             }
+
+
+            CloseCommentSession();
+
+            _PrevPrevSidePaneContentType = CurrentSidePaneContentType.Value;
+            CurrentSidePaneContentType.Value = null;
+
+            _DisplayingLiveComments.Clear();
+            _ListLiveComments.Clear();
+
+            CanChangeQuality.Value = true;
+            var requestQuality = RequestQuality.Value;
+            LiveAvailableQualities.Clear();
+            RequestQuality.Value = requestQuality;
+            CanChangeQuality.Value = false;
+
+            base.OnNavigatedFrom(parameters);
         }
-
-        private DelegateCommand _ShereWithTwitterCommand;
-        public DelegateCommand ShereWithTwitterCommand
-        {
-            get
-            {
-                return _ShereWithTwitterCommand
-                    ?? (_ShereWithTwitterCommand = new DelegateCommand(async () =>
-                    {
-                        await Services.Helpers.ShareHelper.ShareToTwitter(NicoLiveVideo);
-                    }
-                    ));
-            }
-        }
-
-        private DelegateCommand _ShareWithClipboardCommand;
-        public DelegateCommand ShareWithClipboardCommand
-        {
-            get
-            {
-                return _ShareWithClipboardCommand
-                    ?? (_ShareWithClipboardCommand = new DelegateCommand(() =>
-                    {
-                        Services.Helpers.ClipboardHelper.CopyToClipboard(NicoLiveVideo);
-                    }
-                    ));
-            }
-        }
-
-
-
-        private DelegateCommand _OpenBroadcastCommunityCommand;
-        public DelegateCommand OpenBroadcastCommunityCommand
-        {
-            get
-            {
-                return _OpenBroadcastCommunityCommand
-                    ?? (_OpenBroadcastCommunityCommand = new DelegateCommand(() =>
-                    {
-                        PageManager.OpenPageWithId(HohoemaPageType.Community, CommunityId);
-                    }
-                    ));
-            }
-        }
-
-
-
 
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
@@ -593,65 +713,104 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (LiveId != null)
             {
-                NicoLiveVideo = new NicoLiveVideo(
-                    LiveId,
-                    MediaPlayer,
-                    NiconicoSession,
-                    NicoLiveProvider,
-                    LoginUserLiveReservationProvider,
-                    PlayerSettings,
-                    AppearanceSettings,
-                    _scheduler,
-                    CommunityId
-                    );
+                _PlayerProp = await LiveContext.Live.GetLiveWatchPageDataPropAsync(LiveId);
 
-                NicoLiveVideo.LiveComments.ObserveAddChanged()
-                    .Subscribe(comment =>
+                if (_PlayerProp.UserProgramReservation.IsReserved && _PlayerProp.UserProgramWatch.RejectWithNotUseTimeshiftTicket)
+                {
+                    // チケットを使用するかダイアログで表示する
+                }
+
+
+
+                LiveInfo = new LiveContent() 
+                {
+                    Label = _PlayerProp.Program.Title,
+                    Id = LiveId,
+                };
+
+                if (_PlayerProp.UserProgramWatch.RejectedReasons.Any())
+                {
+                    Suggestion.Value = new LiveSuggestion(_PlayerProp.UserProgramWatch.RejectedReasons.First());
+                    return;
+                }
+
+                _watchSession = NiconicoLiveToolkit.Live.LiveClient.CreateWatchSession(_PlayerProp);
+
+                _watchSession.RecieveStream += _watchSession_RecieveStream;
+                _watchSession.RecieveRoom += _watchSession_RecieveRoom;
+                _watchSession.RecieveSchedule += _watchSession_RecieveSchedule;
+                _watchSession.RecieveStatistics += _watchSession_RecieveStatistics;
+                _watchSession.ReceiveDisconnect += _watchSession_ReceiveDisconnect;
+                _watchSession.RecieveReconnect += _watchSession_RecieveReconnect;
+
+                _watchSessionTimer = !_watchSession.IsWatchWithTimeshift
+                    ? WatchSessionTimer.CreateForLiveStreaming(_PlayerProp.Program, chasePlay: false)
+                    : WatchSessionTimer.CreateForTimeshift(_PlayerProp.Program)
+                    ;
+
+                IsTimeshift = _watchSession.IsWatchWithTimeshift;
+                LiveTitle = _PlayerProp.Program.Title;
+                _MaxSeekablePosition.Value = (EndTime - OpenTime).TotalSeconds;
+
+
+                var elapsedTimeResult = _watchSessionTimer.UpdatePlaybackTime(TimeSpan.Zero);
+                LiveElapsedTime = elapsedTimeResult.LiveElapsedTime;
+                LiveElapsedTimeFromOpen = elapsedTimeResult.LiveElapsedTimeFromOpen;
+
+                Observable.Timer(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(0.1), _scheduler)
+                    .Subscribe(async _ => 
                     {
-                        if (!comment.IsAnonimity && TryResolveUserId(comment.UserId, out var owner))
+                        var elaplsedUpdateResult = _watchSessionTimer.UpdatePlaybackTime(MediaPlayer.PlaybackSession.Position);
+                        LiveElapsedTime = elaplsedUpdateResult.LiveElapsedTime;
+                        LiveElapsedTimeFromOpen = elaplsedUpdateResult.LiveElapsedTimeFromOpen;
+
+                        if (IsTimeshift)
                         {
-                            comment.UserName = owner.ScreenName;
-                            comment.IconUrl = owner.IconUrl;
+                            _NowSeekBarPositionChanging = true;
+                            SeekBarTimeshiftPosition.Value = LiveElapsedTimeFromOpen.TotalSeconds;
+                            _NowSeekBarPositionChanging = false;
                         }
-                        else
+
+                        using (var releaser = await _CommentUpdateLock.LockAsync(default))
                         {
-                            UserIdToComments.AddOrUpdate(comment.UserId
-                                , (key) => new List<LiveComment>() { comment }
-                                , (key, list) =>
+                            // TODO: Lock
+                            // 表示完了したコメントの削除
+                            for (int i = _DisplayingLiveComments.Count - 1; i >= 0; i--)
+                            {
+                                var c = _DisplayingLiveComments[i];
+                                var cPos = TimeSpan.FromMilliseconds(c.VideoPosition * 10);
+                                if (LiveElapsedTimeFromOpen > cPos + PlayerSettings.CommentDisplayDuration + TimeSpan.FromSeconds(2))
                                 {
-                                    list.Add(comment);
-                                    return list;
+                                    Debug.WriteLine("remove comment : " + _DisplayingLiveComments[i].CommentText);
+                                    _DisplayingLiveComments.RemoveAt(i);
                                 }
-                            );
+                            }
                         }
 
-                        try
+                        using (var releaser = await _userNameUpdateLock.LockAsync(default))
                         {
-                            comment.IsLoginUserComment = !comment.IsAnonimity ? NiconicoSession.IsLoginUserId(comment.UserId) : false;
+                            if (UnresolvedUserId.TryPop(out var id))
+                            {
+                                var owner = await _userNameRepository.ResolveUserNameAsync(id);
+                                if (owner != null)
+                                {
+                                    await UpdateCommentUserName(id, owner);
+                                }
+                            }
                         }
-                        catch { }
-
-                        _scheduler.Schedule(() =>
-                        {
-                            _DisplayingLiveComments.Add(comment);
-                        });
-                    }
-                )
-                .AddTo(_NavigatingCompositeDisposable);
-
-                FilterdComments.Source = NicoLiveVideo.LiveComments;
-
-                CommentCount = NicoLiveVideo.ObserveProperty(x => x.CommentCount)
-                    .ToReactiveProperty(_scheduler)
+                    })
                     .AddTo(_NavigatingCompositeDisposable);
-                RaisePropertyChanged(nameof(CommentCount));
 
-                WatchCount = NicoLiveVideo.ObserveProperty(x => x.WatchCount)
-                    .ToReactiveProperty(_scheduler)
-                    .AddTo(_NavigatingCompositeDisposable);
-                RaisePropertyChanged(nameof(WatchCount));
 
-                CommunityId = NicoLiveVideo.BroadcasterCommunityId;
+                var limit = GetQualityLimitType();
+                Debug.WriteLine($"Change Quality: {PlayerSettings.DefaultLiveQuality} - Low Latency: {PlayerSettings.LiveWatchWithLowLatency} - Limit: {limit}");
+
+                await _watchSession.StartWachingAsync(PlayerSettings.DefaultLiveQuality, PlayerSettings.LiveWatchWithLowLatency, limit);
+
+              
+                CommunityId = _PlayerProp.SocialGroup.Id;
+                
+                CommunityName = _PlayerProp.SocialGroup.Name;
 
                 // post comment 
                 NowCommentSubmitting = new ReactiveProperty<bool>(_scheduler, false)
@@ -660,7 +819,7 @@ namespace NicoPlayerHohoema.ViewModels
                     .AddTo(_CompositeDisposable);
 
                 CommentSubmitCommand = Observable.CombineLatest(
-                    NicoLiveVideo.ObserveProperty(x => x.CanPostComment),
+                    //NicoLiveVideo.ObserveProperty(x => x.CanPostComment),
                     CommentSubmitText.Select(x => x != null && x.Length > 0),
                     NowCommentSubmitting.Select(x => !x)
                     )
@@ -674,154 +833,315 @@ namespace NicoPlayerHohoema.ViewModels
                     if (string.IsNullOrWhiteSpace(text)) { return; }
 
                     NowCommentSubmitting.Value = true;
-
-                    if (NicoLiveVideo != null)
+                    
+                    try
                     {
-                        await NicoLiveVideo.PostComment(text, this.CommentCommandEditerViewModel.CommandsText.Value, LiveElapsedTime);
+                        var result = await _watchSession.PostCommentAsync(
+                            text,
+                            LiveElapsedTime + TimeSpan.FromSeconds(1),
+                            this.CommentCommandEditerViewModel.IsAnonymousCommenting.Value,
+                            this.CommentCommandEditerViewModel.SelectedCommentSize.Value?.ToString().ToLower(),
+                            this.CommentCommandEditerViewModel.SelectedAlingment.Value?.ToString().ToLower(),
+                            this.CommentCommandEditerViewModel.SelectedColor.Value?.ToString().ToLower()
+                            );
+
+                        CommentSubmitText.Value = string.Empty;
+                    }
+                    finally
+                    {
+                        NowCommentSubmitting.Value = false;
                     }
                 })
                 .AddTo(_CompositeDisposable);
                 RaisePropertyChanged(nameof(CommentSubmitCommand));
-                NicoLiveVideo.PostCommentResult += NicoLiveVideo_PostCommentResult;
 
-                LiveStatusType.Value = NicoLiveVideo.LiveStatus;
-
-                NicoLiveVideo.OpenLive += NicoLiveVideo_OpenLive;
-                NicoLiveVideo.CloseLive += NicoLiveVideo_CloseLive;
-                NicoLiveVideo.FailedOpenLive += NicoLiveVideo_FailedOpenLive1;
-                NicoLiveVideo.OperationCommandRecieved += NicoLiveVideo_OperationCommandRecieved;
-                NicoLiveVideo.LiveElapsed += NicoLiveVideo_LiveElapsed;
 
                 // 生放送ではラウドネス正規化は対応してない
                 SoundVolumeManager.LoudnessCorrectionValue = 1.0;
             }
 
-
-
-            // NavigatedToAsync
-            try
-            {
-                var liveInfo = await NiconicoSession.Context.Live.GetProgramInfoAsync(LiveId);
-                if (liveInfo != null && liveInfo.IsOK)
-                {
-                    LiveTitle = liveInfo.Data.Title;
-
-                    _OpenAt = liveInfo.Data.BeginAt;
-                    _StartAt = liveInfo.Data.VposBaseAt;
-                    _EndAt = liveInfo.Data.EndAt;
-                }
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine(ex.ToString());
-            }
-
-            try
-            {
-                using (var defer = FilterdComments.DeferRefresh())
-                {
-                    await TryStartViewing();
-
-                    FilterdComments.Source = NicoLiveVideo?.LiveComments;
-                }
-
-                RoomName = NicoLiveVideo.RoomName;
-            }
-            catch
-            {
-                NicoLiveVideo?.Dispose();
-                NicoLiveVideo = null;
-
-                throw;
-            }
-
         }
 
 
-        private void NicoLiveVideo_LiveElapsed(object sender, TimeSpan e)
+        LiveQualityLimitType? GetQualityLimitType()
         {
-            _scheduler.Schedule(() => 
+            LiveQualityLimitType? limit = null;
+            if (PlayerSettings.DefaultLiveQuality == LiveQualityType.Abr)
             {
-                LiveElapsedTime = e;
-
-                if (NicoLiveVideo?.IsWatchWithTimeshift == true)
+                if (_PlayerProp.Program.Stream.MaxQuality < PlayerSettings.LiveQualityLimit)
                 {
-                    _NowSeekBarPositionChanging = true;
-                    SeekBarTimeshiftPosition.Value = (NicoLiveVideo.LiveElapsedTimeFromOpen).TotalSeconds;
-                    _NowSeekBarPositionChanging = false;
+                    limit = _PlayerProp.Program.Stream.MaxQuality;
                 }
+                else
+                {
+                    limit = PlayerSettings.LiveQualityLimit;
+
+                    if (limit == LiveQualityLimitType.SuperLow)
+                    {
+                        limit = LiveQualityLimitType.Low;
+                    }
+                }
+            }
+
+            return limit;
+        }
+
+
+        MediaSource _MediaSource;
+        AdaptiveMediaSource _AdaptiveMediaSource;
+
+        private void _watchSession_RecieveStream(Live2CurrentStreamEventArgs e)
+        {
+            _scheduler.Schedule(async () =>
+            {
+                CanChangeQuality.Value = false;
+
+                Debug.WriteLine(e.Quality);
+
+                // タイムシフト視聴時はスタート時間に自動シーク
+                string hlsUri = e.Uri;
+                if (_watchSession.IsWatchWithTimeshift)
+                {
+                    _watchSessionTimer.PlaybackHeadPosition = StartTime - OpenTime;
+                    hlsUri = LiveClient.MakeSeekedHLSUri(e.Uri, _watchSessionTimer.PlaybackHeadPosition);
+#if DEBUG
+                    Debug.WriteLine(hlsUri);
+#endif
+                }
+
+                // https://platform.uno/docs/articles/implemented/windows-ui-xaml-controls-mediaplayerelement.html
+                // MediaPlayer is supported on UWP/Android/iOS.
+                // not support to MacOS and WASM.
+#if WINDOWS_UWP
+                var amsCreateResult = await AdaptiveMediaSource.CreateFromUriAsync(new Uri(hlsUri), LiveContext.HttpClient);
+                if (amsCreateResult.Status == AdaptiveMediaSourceCreationStatus.Success)
+                {
+                    var ams = amsCreateResult.MediaSource;
+                    _MediaSource = MediaSource.CreateFromAdaptiveMediaSource(ams);
+                    _AdaptiveMediaSource = ams;
+                    MediaPlayer.Source = _MediaSource;
+
+                    _AdaptiveMediaSource.DesiredMaxBitrate = _AdaptiveMediaSource.AvailableBitrates.Max();
+                }
+
+#elif __IOS__ || __ANDROID__
+                var mediaSource = MediaSource.CreateFromUri(new Uri(hlsUri));
+                _MediaSource = mediaSource;
+                MediaPlayer.Source = mediaSource;
+#else
+                throw new NotSupportedException();
+#endif
+
+                // Note: MediaPlayer.PositionはSourceを再設定するたびに0にリセットされる
+                var elapsedTimeResult = _watchSessionTimer.UpdatePlaybackTime(TimeSpan.Zero);
+                LiveElapsedTime = elapsedTimeResult.LiveElapsedTime;
+                LiveElapsedTimeFromOpen = elapsedTimeResult.LiveElapsedTimeFromOpen;
+
+                WatchStartLiveElapsedTime = LiveElapsedTimeFromOpen;
+
+
+                var requestQuality = RequestQuality.Value;
+                LiveAvailableQualities.Clear();
+                LiveAvailableQualities.AddRange(e.AvailableQualities.Where(x => x != LiveQualityType.Abr));
+                // LiveAvailableQualities.AddRange(e.AvailableQualities);
+
+                RequestQuality.Value = requestQuality;
+                CurrentQuality.Value = e.Quality;
+
+                RequestQuality.ForceNotify();
+
+                if (CurrentQuality.Value == LiveQualityType.Abr)
+                {
+                    var limit = QualityLimit.Value;
+                    LiveAvailableLimitQualities.Clear();
+                    LiveAvailableLimitQualities.AddRange(LiveAvailableQualities.Select(x => (int)x - 1).Where(x => 0 <= x && x <= (int)LiveQualityLimitType.SuperHigh).Select(x => (LiveQualityLimitType)x));
+
+                    QualityLimit.Value = GetQualityLimitType() ?? PlayerSettings.LiveQualityLimit;
+                    QualityLimit.ForceNotify();
+                }
+
+                CanChangeQuality.Value = true;
+            });
+        }
+
+        void CloseCommentSession()
+        {
+            if (_CommentSession != null)
+            {
+                _CommentSession.CommentReceived -= _CommentSession_CommentReceived;
+                _CommentSession.CommentPosted -= _CommentSession_CommentPosted;
+                _CommentSession.Connected -= _CommentSession_Connected;
+                _CommentSession.Disconnected -= _CommentSession_Disconnected;
+                _CommentSession.Dispose();
+                _CommentSession = null;
+            }
+        }
+
+        LiveCommentSession _CommentSession;
+        private void _watchSession_RecieveRoom(Live2CurrentRoomEventArgs e)
+        {
+            _scheduler.Schedule(async () =>
+            {
+                CloseCommentSession();
+
+                _ListLiveComments.Clear();
+                _DisplayingLiveComments.Clear();
+
+                if (!IsTimeshift)
+                {
+                    _CommentSession = e.CreateCommentClientForLiveStreaming(NiconicoSession.HohoemaUserAgent, _PlayerProp.User.Id.ToString());
+                }
+                else
+                {
+                    _CommentSession = e.CreateCommentClientForTimeshift(NiconicoSession.HohoemaUserAgent, _PlayerProp.User.Id.ToString(), StartTime);
+                }
+
+                _CommentSession.CommentReceived += _CommentSession_CommentReceived;
+                _CommentSession.CommentPosted += _CommentSession_CommentPosted;
+                _CommentSession.Connected += _CommentSession_Connected;
+                _CommentSession.Disconnected += _CommentSession_Disconnected;
+
+                await Task.Delay(3000);
+
+                await _CommentSession.OpenAsync();
+            });
+        }
+
+        FastAsyncLock _CommentUpdateLock = new FastAsyncLock();
+
+        private async void _CommentSession_CommentReceived(object sender, NiconicoLiveToolkit.Live.Events.CommentReceivedEventArgs e)
+        {
+
+            LiveComment ChatToComment(LiveChatData x)
+            {
+                var comment = new LiveComment();
+
+                comment.VideoPosition = x.VideoPosition;
+
+                comment.CommentText = x.Content;
+                comment.CommentId = (uint)x.CommentId;
+                comment.IsAnonymity = x.IsAnonymity;
+                comment.UserId = x.UserId;
+                comment.IsOwnerComment = x.UserId == _PlayerProp.Program.Supplier?.ProgramProviderId?.ToString();
+                comment.IsOperationCommand = x.IsOperater && x.HasOperatorCommand;
+                if (comment.IsOperationCommand)
+                {
+                    comment.OperatorCommandType = x.OperatorCommandType;
+                    comment.OperatorCommandParameters = x.OperatorCommandParameters;
+                }
+                return comment;
+            }
+
+
+            var comment = e.Chat;
+
+            
+            
+
+            LiveComment commentVM = ChatToComment(e.Chat);
+
+            if (!comment.IsOperater && !comment.Content.StartsWith('/'))
+            {
+                //commentVM.VideoPosition = (uint)(LiveElapsedTimeFromOpen.TotalSeconds * 100) - 0;
+                
+                if (!commentVM.IsAnonymity)
+                {
+                    var commentUserId = uint.Parse(comment.UserId);
+                    if (_userNameRepository.TryResolveUserNameFromCache(commentUserId, out var userName))
+                    {
+                        commentVM.UserName = userName;
+                    }
+                    else
+                    {
+                        using (var releaser = await _userNameUpdateLock.LockAsync(default))
+                        {
+                            UserIdToComments.AddOrUpdate(commentUserId
+                                , (key) => new List<LiveComment>() { commentVM }
+                                , (key, list) =>
+                                {
+                                    list.Add(commentVM);
+                                    return list;
+                                }
+                            );
+                            UnresolvedUserId.Push(commentUserId);
+                        }
+                    }
+                }
+
+                _scheduler.Schedule(async () =>
+                {
+                    using var _ = await _CommentUpdateLock.LockAsync(default);
+                    if (!PlayerSettings.IsLiveNGComment(comment.UserId)
+                    || (LiveElapsedTime - e.Chat.VideoPosition.ToTimeSpan()).Duration() < TimeSpan.FromSeconds(3)
+                    )
+                    {
+                        _DisplayingLiveComments.Add(commentVM);
+                    }
+                    else
+                    {
+                        Debug.WriteLine("表示スキップ：" + commentVM.CommentText);
+                    }
+
+                    _ListLiveComments.Add(commentVM);
+                });
+            }
+            else
+            {
+                Debug.WriteLine("Operator command: " + comment.Content);
+            }
+        }
+
+        private void _CommentSession_CommentPosted(object sender, NiconicoLiveToolkit.Live.Events.CommentPostedEventArgs e)
+        {
+            
+        }
+
+        private void _CommentSession_Connected(object sender, NiconicoLiveToolkit.Live.Events.CommentServerConnectedEventArgs e)
+        {
+            
+        }
+
+        private void _CommentSession_Disconnected(object sender, NiconicoLiveToolkit.Live.Events.CommentServerDisconnectedEventArgs e)
+        {
+        }
+
+
+        private void _watchSession_RecieveSchedule(Live2ScheduleEventArgs e)
+        {
+            _watchSessionTimer.ScheduleUpdated(e.BeginTime, e.EndTime);
+        }
+
+        private void _watchSession_RecieveStatistics(Live2StatisticsEventArgs e)
+        {
+            _scheduler.Schedule(() =>
+            {
+                WatchCount = (int)e.ViewCount;
+                CommentCount = (int)e.CommentCount;
+                AdPoint = (int)e.AdPoints;
+                GiftPoint = (int)e.GiftPoints;
             });
         }
 
 
-        public override void OnNavigatedFrom(INavigationParameters parameters)
+        private void _watchSession_ReceiveDisconnect(Live2DisconnectEventArgs e)
         {
-            if (NicoLiveVideo != null)
+            _scheduler.Schedule(async () =>
             {
-                NicoLiveVideo.OpenLive -= NicoLiveVideo_OpenLive;
-                NicoLiveVideo.CloseLive -= NicoLiveVideo_CloseLive;
-                NicoLiveVideo.FailedOpenLive -= NicoLiveVideo_FailedOpenLive1;
-                NicoLiveVideo.OperationCommandRecieved -= NicoLiveVideo_OperationCommandRecieved;
-
-                NicoLiveVideo.Dispose();
-                NicoLiveVideo = null;
-            }
-
-            CancelUserInfoResolvingTask();
-
-            _PrevPrevSidePaneContentType = CurrentSidePaneContentType.Value;
-            CurrentSidePaneContentType.Value = null;
-
-
-            base.OnNavigatedFrom(parameters);
+                MediaPlayer.Pause();
+                MediaPlayer.Source = null;
+            });
         }
 
-        
+        private void _watchSession_RecieveReconnect(Live2ReconnectEventArgs e)
+        {
+            _scheduler.Schedule(async () =>
+            {
+            });
+        }
 
-		/// <summary>
-		/// 生放送情報を取得してライブストリームの受信を開始します。<br />
-		/// 配信受信処理のハードリセット動作として機能します。
-		/// </summary>
-		/// <returns></returns>
-		private async Task TryStartViewing()
-		{
-			if (NicoLiveVideo == null) { return; }
 
-            try
-            {                
-                await NicoLiveVideo.StartLiveWatchingSessionAsync();
 
-                LiveTitle = NicoLiveVideo.LiveTitle;
-                _OpenAt = NicoLiveVideo.OpenTime;
-                _StartAt = NicoLiveVideo.StartTime;
-                _EndAt = NicoLiveVideo.EndTime;
 
-                IsWatchWithTimeshift.Value = NicoLiveVideo.IsWatchWithTimeshift;
-
-                if (!IsWatchWithTimeshift.Value)
-                {
-                    WatchStartLiveElapsedTime.Value = NicoLiveVideo.LiveElapsedTimeFromOpen;
-
-//                    ResetSuggestion();
-                }
-                else
-                {
-                    WatchStartLiveElapsedTime.Value = NicoLiveVideo.TimeshiftPosition.Value;
-                }
-
-                //Debug.WriteLine(this.NicoLiveVideo.LiveInfo.VideoInfo.Video.TsArchiveStartTime);
-                //Debug.WriteLine(this.NicoLiveVideo.LiveInfo.VideoInfo.Video.TsArchiveEndTime);
-
-                _MaxSeekablePosition.Value = (_EndAt - _OpenAt).TotalSeconds;
-            }
-            catch (Exception ex)
-			{
-				Debug.WriteLine(ex.ToString());
-            }
-            finally
-			{
-			}
-		}
 
 
 
@@ -830,43 +1150,28 @@ namespace NicoPlayerHohoema.ViewModels
         /// </summary>
         /// <returns></returns>
         private async Task<bool> TryUpdateLiveStatus()
+        {
+            var casInfo = await LiveContext.Live.CasApi.GetLiveProgramAsync(LiveId);
+
+            if (casInfo.Meta.Status == 200)
+            {
+                LiveStatusType.Value = casInfo.Data.LiveStatus;
+            }
+
+            _EndTime = casInfo.Data.OnAirTime.EndAt;
+            _MaxSeekablePosition.Value = (EndTime - OpenTime).TotalSeconds;
+
+            ResetSuggestion(LiveStatusType.Value);
+
+            return LiveStatusType.Value == null;
+        }
+        /// <summary>
+        /// 生放送終了後などに表示するユーザーアクションの候補を再設定します。
+        /// </summary>
+        /// <param name="liveStatus"></param>
+        private void ResetSuggestion(LiveStatus? liveStatus)
 		{
-			if (NicoLiveVideo == null) { return false; }
-
-			LiveStatusType? liveStatus = null;
-			try
-			{                
-				if (NicoLiveVideo != null)
-				{
-					_StartAt = NicoLiveVideo.StartTime;
-					_EndAt = NicoLiveVideo.EndTime;
-				}
-				else
-				{
-				}
-
-                LiveStatusType.Value = NicoLiveVideo.LiveStatus;
-			}
-			catch (Exception ex)
-			{
-				Debug.WriteLine(ex.ToString());
-			}
-			finally
-			{
-			}
-
-			ResetSuggestion(liveStatus);
-
-			return liveStatus == null;
-		}
-		
-		/// <summary>
-		/// 生放送終了後などに表示するユーザーアクションの候補を再設定します。
-		/// </summary>
-		/// <param name="liveStatus"></param>
-		private void ResetSuggestion(LiveStatusType? liveStatus)
-		{
-			if (liveStatus == null || liveStatus == Models.Live.LiveStatusType.OnAir || IsWatchWithTimeshift.Value)
+			if (liveStatus == null || liveStatus == LiveStatus.Onair || IsTimeshift)
 			{
 				Suggestion.Value = null;
 			}
@@ -874,7 +1179,7 @@ namespace NicoPlayerHohoema.ViewModels
 			{
 				LiveSuggestion suggestion = null;
 
-				suggestion = liveStatus.Value.Make(NicoLiveVideo, PageManager, NiconicoSession);
+				//suggestion = liveStatus.Value.Make(NicoLiveVideo, PageManager, NiconicoSession);
 
 				if (suggestion == null)
 				{
@@ -906,16 +1211,16 @@ namespace NicoPlayerHohoema.ViewModels
         #region Event Handling
 
 
-		// コメント投稿の結果を受け取る
-		private void NicoLiveVideo_PostCommentResult(NicoLiveVideo sender, bool postSuccess)
-		{
-            if (postSuccess)
-            {
-                CommentSubmitText.Value = string.Empty;
-            }
+		//// コメント投稿の結果を受け取る
+		//private void NicoLiveVideo_PostCommentResult(NicoLiveVideo sender, bool postSuccess)
+		//{
+  //          if (postSuccess)
+  //          {
+  //              CommentSubmitText.Value = string.Empty;
+  //          }
 
-            NowCommentSubmitting.Value = false;
-        }
+  //          NowCommentSubmitting.Value = false;
+  //      }
 
 
 
@@ -925,295 +1230,188 @@ namespace NicoPlayerHohoema.ViewModels
 
         #region NicoLiveVideo Event Handling
 
-        private void NicoLiveVideo_OperationCommandRecieved(object sender, OperationCommandRecievedEventArgs e)
-        {
-            LiveOperationCommand operationCommand = null;
-            var vpos = TimeSpan.FromMilliseconds(e.Comment.VideoPosition * 10);
-//            var relatedVpos = vpos - WatchStartLiveElapsedTime;
-            bool isDisplayComment = (this.LiveElapsedTime - vpos) < TimeSpan.FromSeconds(10);
-            switch (e.CommandType)
-            {
-                case "perm":
-                    {
-                        var content = e.CommandParameter.ElementAtOrDefault(0)?.Trim('"');
 
-                        HtmlAgilityPack.HtmlDocument document = new HtmlAgilityPack.HtmlDocument();
-                        document.LoadHtml(content);
+        //private void NicoLiveVideo_OperationCommandRecieved(object sender, OperationCommandRecievedEventArgs e)
+        //{
+        //    LiveOperationCommand operationCommand = null;
+        //    var vpos = TimeSpan.FromMilliseconds(e.Comment.VideoPosition * 10);
+        //    bool isDisplayComment = (this.LiveElapsedTime - vpos) < TimeSpan.FromSeconds(10);
+        //    switch (e.CommandType)
+        //    {
+        //        case "perm":
+        //            {
+        //                var content = e.CommandParameter.ElementAtOrDefault(0)?.Trim('"');
 
-                        var node = document.DocumentNode;
+        //                HtmlAgilityPack.HtmlDocument document = new HtmlAgilityPack.HtmlDocument();
+        //                document.LoadHtml(content);
 
-                        var comment = node.InnerText;
+        //                var node = document.DocumentNode;
 
-
-
-                        string link = null;
-                        try
-                        {
-                            link = node.Descendants("a")?.FirstOrDefault()?.Attributes["href"]?.Value;
-                        }
-                        catch { }
+        //                var comment = node.InnerText;
 
 
-                        operationCommand = new LiveOperationCommand()
-                        {
-                            DisplayPosition = VerticalAlignment.Top,
-                            Content = comment,
-                        };
-                        if (!string.IsNullOrEmpty(link))
-                        {
-                            operationCommand.Hyperlink = new Uri(link);
-                        }
+
+        //                string link = null;
+        //                try
+        //                {
+        //                    link = node.Descendants("a")?.FirstOrDefault()?.Attributes["href"]?.Value;
+        //                }
+        //                catch { }
 
 
-                        BroadcasterLiveOperationCommand.Value = operationCommand;
-                    }
-                    break;
-                case "press":
-                    {
-                        if (!isDisplayComment) { return; }
-
-                        var color = e.CommandParameter.ElementAtOrDefault(1);
-                        var comment = e.CommandParameter.ElementAtOrDefault(2)?.Trim('"');
-                        var screenName = e.CommandParameter.ElementAtOrDefault(3)?.Trim('"');
-                        if (!string.IsNullOrWhiteSpace(comment))
-                        {
-                            // 表示
-                            operationCommand = new LiveOperationCommand()
-                            {
-                                DisplayPosition = VerticalAlignment.Bottom,
-                                Content = comment,
-                                Header = screenName,
-                            };
-                        }
-
-                        PressLiveOperationCommand.Value = operationCommand;
-                    }
-                    break;
-                case "info":
-                    {
-                        if (!isDisplayComment) { return; }
-
-                        var type = int.Parse(e.CommandParameter.ElementAtOrDefault(0));
-                        var comment = e.CommandParameter.ElementAtOrDefault(1)?.Trim('"');
-
-                        operationCommand = new LiveOperationCommand()
-                        {
-                            DisplayPosition = VerticalAlignment.Bottom,
-                            Content = comment,
-                        };
-
-                        OperaterLiveOperationCommand.Value = operationCommand;
-                    }
-                    break;
-                case "telop":
-                    {
-                        if (!isDisplayComment) { return; }
-
-                        // プレイヤー下部に情報表示
-                        var type = e.CommandParameter.ElementAtOrDefault(0);
-                        var comment = e.CommandParameter.ElementAtOrDefault(1)?.Trim('"');
-
-                        //on ニコ生クルーズ(リンク付き)/ニコニコ実況コメント
-                        //show クルーズが到着/実況に接続
-                        //show0 実際に流れているコメント
-                        //perm ニコ生クルーズが去って行きました＜改行＞(降りた人の名前、人数)
-                        //off (プレイヤー下部のテロップを消去)
-
-                        if (type == "off")
-                        {
-                            OperaterLiveOperationCommand.Value = null;
-                        }
-                        else// if (type == "perm")
-                        {
-                            operationCommand = new LiveOperationCommand()
-                            {
-                                DisplayPosition = VerticalAlignment.Bottom,
-                                Content = comment,
-                            };
-
-                            OperaterLiveOperationCommand.Value = operationCommand;
-                        }
-                    }
-                    break;
-                case "uadpoint":
-                    {
-                        if (!isDisplayComment) { return; }
-
-                        var liveId_wo_lv = e.CommandParameter.ElementAtOrDefault(0);
-                        var adpoint = e.CommandParameter.ElementAtOrDefault(1);
-
-                        /*
-                        operationCommand = new LiveOperationCommand()
-                        {
-                            DisplayPosition = VerticalAlignment.Bottom,
-                            Content = $"広告総ポイント {adpoint}pt",
-                        };
-
-                        OperaterLiveOperationCommand.Value = operationCommand;
-                        */
-                    }
-                    break;
-                case "koukoku":
-                    {
-                        if (!isDisplayComment) { return; }
-
-                        var content = e.CommandParameter.ElementAtOrDefault(0)?.Trim('"');
-
-                        HtmlAgilityPack.HtmlDocument document = new HtmlAgilityPack.HtmlDocument();
-                        document.LoadHtml(content);
-
-                        var node = document.DocumentNode;
-
-                        var comment = node.InnerText;
-                        string link = null;
-                        try
-                        {
-                            link = node.Descendants("a")?.FirstOrDefault()?.Attributes["href"]?.Value;
-                        }
-                        catch { }
-
-                        operationCommand = new LiveOperationCommand()
-                        {
-                            DisplayPosition = VerticalAlignment.Top,
-                            Content = comment,
-                        };
-                        if (!string.IsNullOrEmpty(link))
-                        {
-                            operationCommand.Hyperlink = new Uri(link);
-                        }
-
-                    }
-                    break;
-                case "disconnect":
-                    if (TogglePlayPauseCommand.CanExecute())
-                    {
-                        TogglePlayPauseCommand.Execute();
-                    }
-
-                    LiveStatusType.Value = StatusType.Closed;
-                    ResetSuggestion(Models.Live.LiveStatusType.Closed);
-                    break;
-                case "clear":
-                case "cls":
-                    BroadcasterLiveOperationCommand.Value = null;
-                    break;
-                default:
-                    Debug.WriteLine($"非対応な運コメ：{e.CommandType}");
-                    break;
-            }
-
-            if (operationCommand != null)
-            {
-                LiveOperationCommands.Add(operationCommand);
-            }
-        }
-
-        private void NicoLiveVideo_FailedOpenLive1(NicoLiveVideo sender, FailedOpenLiveEventArgs args)
-        {
-            this.ResetSuggestion(args.Message);
-        }
-
-        private void NicoLiveVideo_CloseLive(NicoLiveVideo sender)
-        {
-        }
-
-        private async void NicoLiveVideo_OpenLive(NicoLiveVideo sender)
-        {
-            Debug.WriteLine("NicoLiveVideo_OpenLive");
-
-            LiveStatusType.Value = NicoLiveVideo.LiveStatus;
-
-            if (NicoLiveVideo.LiveStatus == Mntone.Nico2.Live.StatusType.OnAir ||
-                    NicoLiveVideo.LiveStatus == Mntone.Nico2.Live.StatusType.ComingSoon ||
-                    NicoLiveVideo.IsWatchWithTimeshift
-                    )
-            {
-                LivePlayerType.Value = NicoLiveVideo.LivePlayerType;
-                
-                RaisePropertyChanged(nameof(MediaPlayer));
-
-                CommunityId = NicoLiveVideo.BroadcasterCommunityId;
+        //                operationCommand = new LiveOperationCommand()
+        //                {
+        //                    DisplayPosition = VerticalAlignment.Top,
+        //                    Content = comment,
+        //                };
+        //                if (!string.IsNullOrEmpty(link))
+        //                {
+        //                    operationCommand.Hyperlink = new Uri(link);
+        //                }
 
 
-                RaisePropertyChanged(nameof(NicoLiveVideo));
+        //                BroadcasterLiveOperationCommand.Value = operationCommand;
+        //            }
+        //            break;
+        //        case "press":
+        //            {
+        //                if (!isDisplayComment) { return; }
 
-                if (CommunityName == null && CommunityId != null)
-                {
-                    try
-                    {
-                        var communityDetail = await CommunityProvider.GetCommunityInfo(CommunityId);
-                        if (communityDetail.IsStatusOK)
-                        {
-                            CommunityName = communityDetail.Community.Name;
-                        }
-                    }
-                    catch { }
-                }
+        //                var color = e.CommandParameter.ElementAtOrDefault(1);
+        //                var comment = e.CommandParameter.ElementAtOrDefault(2)?.Trim('"');
+        //                var screenName = e.CommandParameter.ElementAtOrDefault(3)?.Trim('"');
+        //                if (!string.IsNullOrWhiteSpace(comment))
+        //                {
+        //                    // 表示
+        //                    operationCommand = new LiveOperationCommand()
+        //                    {
+        //                        DisplayPosition = VerticalAlignment.Bottom,
+        //                        Content = comment,
+        //                        Header = screenName,
+        //                    };
+        //                }
 
-                LiveAvailableQualities.Clear();
-                CanChangeQuality.Value = false;
-                if (NicoLiveVideo.LivePlayerType == Models.Live.LivePlayerType.Leo)
-                {
-                    CanChangeQuality.Value = true;
+        //                PressLiveOperationCommand.Value = operationCommand;
+        //            }
+        //            break;
+        //        case "info":
+        //            {
+        //                if (!isDisplayComment) { return; }
 
-                    NicoLiveVideo.ObserveProperty(x => x.RequestQuality)
-                        .Subscribe(q =>
-                        {
-                            RequestQuality.Value = q;
-                        });
+        //                var type = int.Parse(e.CommandParameter.ElementAtOrDefault(0));
+        //                var comment = e.CommandParameter.ElementAtOrDefault(1)?.Trim('"');
 
-                    NicoLiveVideo.ObserveProperty(x => x.CurrentQuality)
-                        .Subscribe(x =>
-                        {
-                            CurrentQuality.Value = x;
+        //                operationCommand = new LiveOperationCommand()
+        //                {
+        //                    DisplayPosition = VerticalAlignment.Bottom,
+        //                    Content = comment,
+        //                };
 
-                            // MediaPlayer.PositionはSourceを再設定するたびに0にリセットされる
-                            // ソース更新後のコメント表示再生位置のズレを補正する
-                            if (!IsWatchWithTimeshift.Value)
-                            {
-                                WatchStartLiveElapsedTime.Value = (DateTimeOffset.Now.ToOffset(NicoLiveVideo.JapanTimeZoneOffset) - _OpenAt);
-                            }
-                        });
+        //                OperaterLiveOperationCommand.Value = operationCommand;
+        //            }
+        //            break;
+        //        case "telop":
+        //            {
+        //                if (!isDisplayComment) { return; }
 
-                    NicoLiveVideo.ObserveProperty(x => x.Qualities)
-                        .Subscribe(types =>
-                        {
-                            Debug.WriteLine(String.Join('|', types));
+        //                // プレイヤー下部に情報表示
+        //                var type = e.CommandParameter.ElementAtOrDefault(0);
+        //                var comment = e.CommandParameter.ElementAtOrDefault(1)?.Trim('"');
 
-                            if (!LiveAvailableQualities.Any())
-                            {
-                                foreach (var type in types)
-                                {
-                                    LiveAvailableQualities.Add(type);
-                                }
-                            }
+        //                //on ニコ生クルーズ(リンク付き)/ニコニコ実況コメント
+        //                //show クルーズが到着/実況に接続
+        //                //show0 実際に流れているコメント
+        //                //perm ニコ生クルーズが去って行きました＜改行＞(降りた人の名前、人数)
+        //                //off (プレイヤー下部のテロップを消去)
 
-                            ChangeQualityCommand.RaiseCanExecuteChanged();
-                        });
+        //                if (type == "off")
+        //                {
+        //                    OperaterLiveOperationCommand.Value = null;
+        //                }
+        //                else// if (type == "perm")
+        //                {
+        //                    operationCommand = new LiveOperationCommand()
+        //                    {
+        //                        DisplayPosition = VerticalAlignment.Bottom,
+        //                        Content = comment,
+        //                    };
 
-                    // コメントのユーザー名解決
-                    _ = CommentUserInfoResolvingAsync().ConfigureAwait(false);
-                }
-                else
-                {
-                    // seet
-                    if (NicoLiveVideo != null)
-                    {
-                        RoomName = NicoLiveVideo.RoomName;
-                        //SeetId = NicoLiveVideo.
-                    }
-                }
-            }
-            else
-            {
+        //                    OperaterLiveOperationCommand.Value = operationCommand;
+        //                }
+        //            }
+        //            break;
+        //        case "uadpoint":
+        //            {
+        //                if (!isDisplayComment) { return; }
 
-                Debug.WriteLine("生放送情報の取得失敗しました " + LiveId);
+        //                var liveId_wo_lv = e.CommandParameter.ElementAtOrDefault(0);
+        //                var adpoint = e.CommandParameter.ElementAtOrDefault(1);
 
-                ResetSuggestion(await NicoLiveVideo.GetLiveViewingFailedReason());
-            }
+        //                /*
+        //                operationCommand = new LiveOperationCommand()
+        //                {
+        //                    DisplayPosition = VerticalAlignment.Bottom,
+        //                    Content = $"広告総ポイント {adpoint}pt",
+        //                };
 
+        //                OperaterLiveOperationCommand.Value = operationCommand;
+        //                */
+        //            }
+        //            break;
+        //        case "koukoku":
+        //            {
+        //                if (!isDisplayComment) { return; }
 
-        }
+        //                var content = e.CommandParameter.ElementAtOrDefault(0)?.Trim('"');
+
+        //                HtmlAgilityPack.HtmlDocument document = new HtmlAgilityPack.HtmlDocument();
+        //                document.LoadHtml(content);
+
+        //                var node = document.DocumentNode;
+
+        //                var comment = node.InnerText;
+        //                string link = null;
+        //                try
+        //                {
+        //                    link = node.Descendants("a")?.FirstOrDefault()?.Attributes["href"]?.Value;
+        //                }
+        //                catch { }
+
+        //                operationCommand = new LiveOperationCommand()
+        //                {
+        //                    DisplayPosition = VerticalAlignment.Top,
+        //                    Content = comment,
+        //                };
+        //                if (!string.IsNullOrEmpty(link))
+        //                {
+        //                    operationCommand.Hyperlink = new Uri(link);
+        //                }
+
+        //            }
+        //            break;
+        //        case "disconnect":
+        //            if (TogglePlayPauseCommand.CanExecute())
+        //            {
+        //                TogglePlayPauseCommand.Execute();
+        //            }
+
+        //            LiveStatusType.Value = StatusType.Closed;
+        //            ResetSuggestion(Models.Live.LiveStatusType.Closed);
+        //            break;
+        //        case "clear":
+        //        case "cls":
+        //            BroadcasterLiveOperationCommand.Value = null;
+        //            break;
+        //        default:
+        //            Debug.WriteLine($"非対応な運コメ：{e.CommandType}");
+        //            break;
+        //    }
+
+        //    if (operationCommand != null)
+        //    {
+        //        LiveOperationCommands.Add(operationCommand);
+        //    }
+        //}
 
         
 
@@ -1293,75 +1491,6 @@ namespace NicoPlayerHohoema.ViewModels
 
 
 
-        #region CommentUserId Resolve
-
-        private ConcurrentStack<string> UnresolvedUserId = new ConcurrentStack<string>();
-        private ConcurrentDictionary<string, List<LiveComment>> UserIdToComments = new ConcurrentDictionary<string, List<LiveComment>>();
-
-        private bool TryResolveUserId(string userId, out Database.NicoVideoOwner userInfo)
-        {
-            userInfo = Database.NicoVideoOwnerDb.Get(userId);
-            if (userInfo == null)
-            {
-                UnresolvedUserId.Push(userId);
-            }
-
-            return userInfo != null;
-        }
-
-        private void CancelUserInfoResolvingTask()
-        {
-            _UserInfoResolvingTaskCancellationToken?.Cancel();
-            _UserInfoResolvingTaskCancellationToken?.Dispose();
-            _UserInfoResolvingTaskCancellationToken = null;
-        }
-
-
-        private void UpdateCommentUserName(Database.NicoVideoOwner user)
-        {
-            //using (var releaser = await )
-            {
-                if (UserIdToComments.TryGetValue(user.OwnerId, out var comments))
-                {
-                    _scheduler.Schedule(() =>
-                    {
-                        foreach (var comment in comments)
-                        {
-                            comment.UserName = user.ScreenName;
-                            comment.IconUrl = user.IconUrl;
-                        }
-                    });
-                }
-            }
-        }
-
-
-        CancellationTokenSource _UserInfoResolvingTaskCancellationToken;
-        Task CommentUserInfoResolvingAsync()
-        {
-            return Task.Run(async () =>
-            {
-                var token = _UserInfoResolvingTaskCancellationToken.Token;
-                while (!token.IsCancellationRequested)
-                {
-                    token.ThrowIfCancellationRequested();
-
-                    if (UnresolvedUserId.TryPop(out var id))
-                    {
-                        var owner = await UserProvider.GetUser(id);
-                        if (owner != null)
-                        {
-                            UpdateCommentUserName(owner);
-                        }
-                    }
-                    else
-                    {
-                        await Task.Delay(1000);
-                    }
-                }
-            }, (_UserInfoResolvingTaskCancellationToken = new CancellationTokenSource()).Token);
-        }
-
         private DelegateCommand _ToggleCommentListSidePaneContentCommand;
         public DelegateCommand ToggleCommentListSidePaneContentCommand
         {
@@ -1386,19 +1515,158 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
+        #region CommentUserId Resolve
 
+        private FastAsyncLock _userNameUpdateLock = new FastAsyncLock();
+        private ConcurrentStack<uint> UnresolvedUserId = new ConcurrentStack<uint>();
+        private ConcurrentDictionary<uint, List<LiveComment>> UserIdToComments = new ConcurrentDictionary<uint, List<LiveComment>>();
 
-        string ILiveContent.ProviderId => this.NicoLiveVideo.BroadcasterCommunityId;
-
-        string ILiveContent.ProviderName => this.NicoLiveVideo.BroadcasterName;
-
-        CommunityType ILiveContent.ProviderType => NicoLiveVideo.BroadcasterCommunityType.Value;
-
-        string INiconicoObject.Id => NicoLiveVideo.LiveId;
-
-        string INiconicoObject.Label => NicoLiveVideo.LiveTitle;
-
+        private async Task UpdateCommentUserName(uint userId, string name)
+        {
+            using (var releaser = await _userNameUpdateLock.LockAsync(default))
+            {
+                if (UserIdToComments.TryGetValue(userId, out var comments))
+                {
+                    _scheduler.Schedule(() =>
+                    {
+                        foreach (var comment in comments)
+                        {
+                            comment.UserName = name;
+                        }
+                    });
+                }
+            }
+        }
 
         #endregion
+    }
+
+
+    public sealed class LiveComment : BindableBase, IComment
+    {
+
+        // コメントのデータ構造だけで他のことを知っているべきじゃない
+        // このデータを解釈して実際に表示するためのオブジェクトにする部分は処理は
+        // View側が持つべき
+
+        public uint CommentId { get; set; }
+
+        public string CommentText { get; set; }
+
+        public string Mail { get; set; }
+
+        public string UserId { get; set; }
+
+        public bool IsAnonymity { get; set; }
+
+        public uint VideoPosition { get; set; }
+
+        public int NGScore { get; set; }
+
+        public bool IsLoginUserComment { get; set; }
+
+        public bool IsOwnerComment { get; set; }
+
+        public int DeletedFlag { get; set; }
+
+
+        private string _commentText_Transformed;
+        public string CommentText_Transformed
+        {
+            get => _commentText_Transformed ?? CommentText;
+            set => _commentText_Transformed = value;
+        }
+
+
+        public CommentDisplayMode DisplayMode { get; set; }
+
+        public bool IsScrolling => DisplayMode == CommentDisplayMode.Scrolling;
+
+
+        public CommentSizeMode SizeMode { get; set; }
+
+        public bool IsInvisible { get; set; }
+
+
+        public Color? Color { get; set; }
+
+        private string _UserName;
+        public string UserName
+        {
+            get { return _UserName; }
+            set { SetProperty(ref _UserName, value); }
+        }
+
+        private string _IconUrl;
+        public string IconUrl
+        {
+            get { return _IconUrl; }
+            set { SetProperty(ref _IconUrl, value); }
+        }
+
+        public bool IsOperationCommand { get; internal set; }
+
+        public string OperatorCommandType { get; set; }
+        public string[] OperatorCommandParameters { get; set; }
+
+        bool? _IsLink;
+        public bool IsLink
+        {
+            get
+            {
+                ResetLink();
+
+                return _IsLink.Value;
+            }
+        }
+
+        Uri _Link;
+        public Uri Link
+        {
+            get
+            {
+                ResetLink();
+
+                return _Link;
+            }
+        }
+
+        private void ResetLink()
+        {
+            if (!_IsLink.HasValue)
+            {
+                if (Uri.IsWellFormedUriString(CommentText, UriKind.Absolute))
+                {
+                    _Link = new Uri(CommentText);
+                }
+                else
+                {
+                    _Link = ParseLinkFromHtml(CommentText);
+                }
+
+                _IsLink = _Link != null;
+            }
+        }
+
+
+        static Uri ParseLinkFromHtml(string text)
+        {
+            if (text == null) { return null; }
+
+            var doc = new HtmlAgilityPack.HtmlDocument();
+            doc.LoadHtml(text);
+
+            var root = doc.DocumentNode;
+            var anchorNode = root.Descendants("a").FirstOrDefault();
+            if (anchorNode != null)
+            {
+                if (anchorNode.Attributes.Contains("href"))
+                {
+                    return new Uri(anchorNode.Attributes["href"].Value);
+                }
+            }
+
+            return null;
+        }
     }
 }

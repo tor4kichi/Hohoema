@@ -20,6 +20,7 @@ using Mntone.Nico2;
 using System.Diagnostics;
 using System.Collections.ObjectModel;
 using System.Threading;
+using NiconicoLiveToolkit.Live;
 
 namespace NicoPlayerHohoema.ViewModels
 {
@@ -79,7 +80,12 @@ namespace NicoPlayerHohoema.ViewModels
 
         string ILiveContent.ProviderName => CommunityName;
 
-        CommunityType ILiveContent.ProviderType => CommunityType;
+        ProviderType ILiveContent.ProviderType => CommunityType switch
+        {
+            CommunityType.Official => ProviderType.Official,
+            CommunityType.Community => ProviderType.Community,
+            CommunityType.Channel => ProviderType.Channel,
+        };
 
         string INiconicoObject.Id => LiveId;
 

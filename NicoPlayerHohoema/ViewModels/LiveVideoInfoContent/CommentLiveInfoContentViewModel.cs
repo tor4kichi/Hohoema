@@ -15,15 +15,9 @@ namespace NicoPlayerHohoema.ViewModels.LiveVideoInfoContent
 	{
 		public ReadOnlyObservableCollection<Comment> LiveComments { get; private set; }
 
-		public NicoLiveVideo NicoLiveVideo { get; private set; }
-
-		public CommentLiveInfoContentViewModel(NicoLiveVideo liveVideo, ReadOnlyObservableCollection<Comment> comments)
+		public CommentLiveInfoContentViewModel(ReadOnlyObservableCollection<Comment> comments)
 		{
-			NicoLiveVideo = liveVideo;
-
 			LiveComments = comments;
 		}
-
-
 	}
 }

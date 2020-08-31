@@ -252,8 +252,8 @@ namespace NicoPlayerHohoema.Views
                         {
                             if (renderComment.DisplayMode == CommentDisplayMode.Scrolling)
                             {
-                                var comment = renderComment.DataContext as Comment;
-                                if (_animationSetMap.TryGetValue(renderComment.DataContext as Comment, out var anim))
+                                var comment = renderComment.DataContext as IComment;
+                                if (_animationSetMap.TryGetValue(renderComment.DataContext as IComment, out var anim))
                                 {
                                     anim.SetDuration((renderComment.EndPosition - frame.CurrentVpos) * 10 * frame.PlaybackRateInverse);
                                     anim.Start();
@@ -287,7 +287,7 @@ namespace NicoPlayerHohoema.Views
                                 //    renderComment.Offset((float)val.Value, duration: 0).Start();
                                 //}
 
-                                if (_animationSetMap.TryGetValue(renderComment.DataContext as Comment, out var anim))
+                                if (_animationSetMap.TryGetValue(renderComment.DataContext as IComment, out var anim))
                                 {
                                     anim.Stop();
                                 }
@@ -319,11 +319,11 @@ namespace NicoPlayerHohoema.Views
                             }
                             else if (args.Action == NotifyCollectionChangedAction.Add)
                             {
-                                await me.AddCommentToCanvasAsyncSafe(args.NewItems.Cast<Comment>());
+                                await me.AddCommentToCanvasAsyncSafe(args.NewItems.Cast<IComment>());
                             }
                             else if (args.Action == NotifyCollectionChangedAction.Remove)
                             {
-                                await me.RemoveCommentFromCanvasAsyncSafe(args.OldItems.Cast<Comment>());
+                                await me.RemoveCommentFromCanvasAsyncSafe(args.OldItems.Cast<IComment>());
                             }
                         });
                     });
@@ -347,11 +347,11 @@ namespace NicoPlayerHohoema.Views
             }
             else if (args.CollectionChange == CollectionChange.ItemInserted)
             {
-                await AddCommentToCanvasAsyncSafe(sender[(int)args.Index] as Comment);
+                await AddCommentToCanvasAsyncSafe(sender[(int)args.Index] as IComment);
             }
             else if (args.CollectionChange == CollectionChange.ItemRemoved)
             {
-                await RemoveCommentFromCanvasAsyncSafe(sender[(int)args.Index] as Comment);
+                await RemoveCommentFromCanvasAsyncSafe(sender[(int)args.Index] as IComment);
             }
 
         }
@@ -424,7 +424,7 @@ namespace NicoPlayerHohoema.Views
         CommentUI PrevRenderComment_Center;
 
 
-        Dictionary<Comment, AnimationSet> _animationSetMap = new Dictionary<Comment, AnimationSet>();
+        Dictionary<IComment, AnimationSet> _animationSetMap = new Dictionary<IComment, AnimationSet>();
 
         private async void CommentRenderer_Loaded(object sender, RoutedEventArgs e)
         {
@@ -439,7 +439,7 @@ namespace NicoPlayerHohoema.Views
                 }
 
                 Clip = new RectangleGeometry() { Rect = new Rect() { Width = ActualWidth, Height = ActualHeight } };
-                this.SizeChanged += CommentRenderer_SizeChanged;
+                this.SizeChanged += CommentRenderer_SizeChanged;                
             }
         }
 
@@ -541,7 +541,7 @@ namespace NicoPlayerHohoema.Views
                     {
                         await Task.Delay(10);
 
-                        await AddCommentToCanvasAsyncSafe(Comments.Cast<Comment>().ToArray());
+                        await AddCommentToCanvasAsyncSafe(Comments.Cast<IComment>().ToArray());
                     }
                 }
 
@@ -554,9 +554,9 @@ namespace NicoPlayerHohoema.Views
 
 
 
-        private void AddCommentToCanvas(Comment comment, in CommentRenderFrameData frame)
+        private void AddCommentToCanvas(IComment comment, in CommentRenderFrameData frame)
         {
-            CommentUI MakeCommentUI(Comment comment, in CommentRenderFrameData frame)
+            CommentUI MakeCommentUI(IComment comment, in CommentRenderFrameData frame)
             {
 
                 // フォントサイズの計算
@@ -624,6 +624,7 @@ namespace NicoPlayerHohoema.Views
             if (comment.IsInvisible) { return; }
 
 
+            
             // 表示対象に登録
             var renderComment = MakeCommentUI(comment, in frame);
 
@@ -651,10 +652,9 @@ namespace NicoPlayerHohoema.Views
                     // 追加したいコメントが画面左端に到達した時間が
                     // 先行しているコメントの表示終了時間を超える場合
                     // コリジョンしない
+
                     if (prevComment == null
                         || prevComment.DataContext == null
-                        || (prevComment.CalcTextShowRightEdgeTime(frame.CanvasWidth) < frame.CurrentVpos
-                        && prevComment.EndPosition < currentCommentReachLeftEdgeTime)
                         )
                     {
                         // コリジョンしない
@@ -664,10 +664,21 @@ namespace NicoPlayerHohoema.Views
                     }
                     else
                     {
-                        // コリジョンする
-                        // 追加できない
-                        verticalPos += prevComment.TextHeight + prevComment.TextHeight * CommentVerticalMarginRatio;
+                        var leftEdge = prevComment.EndPosition < currentCommentReachLeftEdgeTime;
+                        var rightEdge = prevComment.CalcTextShowRightEdgeTime(frame.CanvasWidth) < frame.CurrentVpos;
+
+                        if (leftEdge && rightEdge)
+                        {
+                            // コリジョンしない
+                            // 追加可能
+                            insertPosition = i;
+                            break;
+                        }
                     }
+
+                    // コリジョンする
+                    // 追加できない
+                    verticalPos += prevComment.TextHeight + prevComment.TextHeight * CommentVerticalMarginRatio;
                 }
 
                 // 画面下部に少しでも文字がはみ出るようなら範囲外
@@ -687,13 +698,13 @@ namespace NicoPlayerHohoema.Views
                     if (frame.PlaybackState != MediaPlaybackState.Paused)
                     {
                         double displayDuration = Math.Min(renderComment.EndPosition - frame.CurrentVpos, frame.CommentDisplayDurationVPos) * 10u * frame.PlaybackRateInverse;
-                        double delay = Math.Max((renderComment.EndPosition - frame.CurrentVpos - frame.CommentDisplayDurationVPos) * 10u * frame.PlaybackRateInverse, 0);
-                        Debug.WriteLine($"{comment.CommentId}: {initialCanvasLeft} ({renderComment.ActualWidth}) displayDuration:({displayDuration})");
+                        //double delay = Math.Max((renderComment.EndPosition - frame.CurrentVpos - frame.CommentDisplayDurationVPos) * 10u * frame.PlaybackRateInverse, 0);
+                        Debug.WriteLine($"{comment.CommentId}: left: {initialCanvasLeft}, width: {renderComment.ActualWidth}, top: {verticalPos}");
 
                         var anim = renderComment
                             .Offset((float)initialCanvasLeft, (float)verticalPos, duration: 0)
                             .Then()
-                            .Offset(-(float)renderComment.TextWidth, (float)verticalPos, delay: delay, duration: displayDuration, easingType: EasingType.Linear);
+                            .Offset(-(float)renderComment.TextWidth, (float)verticalPos, duration: displayDuration, easingType: EasingType.Linear);
 
                         anim.Start();
 
@@ -854,18 +865,18 @@ namespace NicoPlayerHohoema.Views
 
 
 
-        private async Task AddCommentToCanvasAsyncSafe(Comment comment)
+        private async Task AddCommentToCanvasAsyncSafe(IComment comment)
         {
             using (await _UpdateLock.LockAsync())
             {
                 if (Visibility == Visibility.Collapsed) { return; }
 
                 var frame = GetRenderFrameData();
-                AddCommentToCanvas(comment, frame);
+                AddCommentToCanvas(comment, in frame);
             }
         }
 
-        private async Task AddCommentToCanvasAsyncSafe(IEnumerable<Comment> comments)
+        private async Task AddCommentToCanvasAsyncSafe(IEnumerable<IComment> comments)
         {
             using (await _UpdateLock.LockAsync())
             {
@@ -874,13 +885,13 @@ namespace NicoPlayerHohoema.Views
                 var frame = GetRenderFrameData();
                 foreach (var comment in comments)
                 {
-                    AddCommentToCanvas(comment, frame);
+                    AddCommentToCanvas(comment, in frame);
                     frame.CurrentVpos = (uint)Math.Floor((VideoPositionOffset).TotalMilliseconds * 0.1);
                 }
             }
         }
 
-        private async Task RemoveCommentFromCanvasAsyncSafe(Comment comment)
+        private async Task RemoveCommentFromCanvasAsyncSafe(IComment comment)
         {
             using (await _UpdateLock.LockAsync())
             {
@@ -888,7 +899,7 @@ namespace NicoPlayerHohoema.Views
             }
         }
 
-        private async Task RemoveCommentFromCanvasAsyncSafe(IEnumerable<Comment> comments)
+        private async Task RemoveCommentFromCanvasAsyncSafe(IEnumerable<IComment> comments)
         {
             using (await _UpdateLock.LockAsync())
             {
@@ -901,8 +912,8 @@ namespace NicoPlayerHohoema.Views
 
 
 
-        Dictionary<Comment, CommentUI> _commentToRenderCommentMap = new Dictionary<Comment, CommentUI>();
-        private void RemoveCommentFromCanvas(Comment comment)
+        Dictionary<IComment, CommentUI> _commentToRenderCommentMap = new Dictionary<IComment, CommentUI>();
+        private void RemoveCommentFromCanvas(IComment comment)
         {
             if (_animationSetMap.Remove(comment, out var anim))
             {
@@ -914,6 +925,7 @@ namespace NicoPlayerHohoema.Views
             {
                 CommentCanvas.Children.Remove(renderComment);
                 renderComment.DataContext = null;
+                PrevRenderCommentEachLine_Stream.Remove(renderComment);
             }
         }
 

@@ -149,7 +149,27 @@ namespace NicoPlayerHohoema.Models
         public NiconicoContext Context
         {
             get { return _Context ?? (_Context = new NiconicoContext()); }
-            private set { _Context = value; }
+            private set 
+            {
+                _Context = value;
+                if (_Context != null)
+                {
+                    LiveContext = new NiconicoLiveToolkit.NiconicoContext(_Context.HttpClient);
+                }
+                else
+                {
+                    LiveContext = null;
+                }
+            }
+        }
+
+
+
+        private NiconicoLiveToolkit.NiconicoContext _LiveContext;
+        public NiconicoLiveToolkit.NiconicoContext LiveContext
+        {
+            get { return _LiveContext; }
+            private set { SetProperty(ref _LiveContext, value); }
         }
 
         public IScheduler Scheduler { get; }
