@@ -19,6 +19,9 @@ namespace NicoPlayerHohoema.Models
         public string Locale { get; set; } = I18NPortable.I18N.Current.GetDefaultLocale();
 
         [DataMember]
+        public HohoemaPageType FirstAppearPageType { get; set; } = HohoemaPageType.RankingCategoryList;
+
+        [DataMember]
         public ApplicationInteractionMode? OverrideIntractionMode { get; set; } = null;
 
         [DataMember]

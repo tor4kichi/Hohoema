@@ -59,9 +59,11 @@ namespace NicoPlayerHohoema.ViewModels
             ApplicationLayoutManager = applicationLayoutManager;
 
             // NG Video Owner User Id
-            NGVideoOwnerUserIdEnable = NgSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoOwnerUserIdEnable);
+            NGVideoOwnerUserIdEnable = NgSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoOwnerUserIdEnable)
+                .AddTo(_CompositeDisposable);
             NGVideoOwnerUserIds = NgSettings.NGVideoOwnerUserIds
-                .ToReadOnlyReactiveCollection();
+                .ToReadOnlyReactiveCollection()
+                .AddTo(_CompositeDisposable);
 
             OpenUserPageCommand = new DelegateCommand<UserIdInfo>(userIdInfo =>
             {
@@ -69,8 +71,10 @@ namespace NicoPlayerHohoema.ViewModels
             });
 
             // NG Keyword on Video Title
-            NGVideoTitleKeywordEnable = NgSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoTitleKeywordEnable);
-            NGVideoTitleKeywords = new ReactiveProperty<string>();
+            NGVideoTitleKeywordEnable = NgSettings.ToReactivePropertyAsSynchronized(x => x.NGVideoTitleKeywordEnable)
+                .AddTo(_CompositeDisposable);
+            NGVideoTitleKeywords = new ReactiveProperty<string>()
+                .AddTo(_CompositeDisposable);
             NGVideoTitleKeywordError = NGVideoTitleKeywords
                 .Select(x =>
                 {
@@ -97,12 +101,17 @@ namespace NicoPlayerHohoema.ViewModels
                         return $"Error in \"{invalidRegex}\"";
                     }
                 })
-                .ToReadOnlyReactiveProperty();
+                .ToReadOnlyReactiveProperty()
+                .AddTo(_CompositeDisposable);
 
             // アピアランス
 
+            StartupPageType = AppearanceSettings.ToReactivePropertyAsSynchronized(x => x.FirstAppearPageType)
+                .AddTo(_CompositeDisposable);
+
             var currentTheme = App.GetTheme();
-            SelectedTheme = new ReactiveProperty<ElementTheme>(AppearanceSettings.Theme, mode: ReactivePropertyMode.DistinctUntilChanged);
+            SelectedTheme = new ReactiveProperty<ElementTheme>(AppearanceSettings.Theme, mode: ReactivePropertyMode.DistinctUntilChanged)
+                .AddTo(_CompositeDisposable);
 
             SelectedTheme.Subscribe(theme =>
             {
@@ -139,11 +148,13 @@ namespace NicoPlayerHohoema.ViewModels
                     appView.TitleBar.ButtonHoverForegroundColor = Colors.White;
                     appView.TitleBar.ButtonInactiveForegroundColor = Colors.DarkGray;
                 }
-            });
+            })
+                .AddTo(_CompositeDisposable);
 
 
 
-            IsDefaultFullScreen = new ReactiveProperty<bool>(ApplicationView.PreferredLaunchWindowingMode == ApplicationViewWindowingMode.FullScreen);
+            IsDefaultFullScreen = new ReactiveProperty<bool>(ApplicationView.PreferredLaunchWindowingMode == ApplicationViewWindowingMode.FullScreen)
+                .AddTo(_CompositeDisposable);
             IsDefaultFullScreen.Subscribe(x =>
             {
                 if (x)
@@ -154,21 +165,28 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     ApplicationView.PreferredLaunchWindowingMode = ApplicationViewWindowingMode.Auto;
                 }
-            });
+            })
+                .AddTo(_CompositeDisposable);
 
             AppearanceSettings.ObserveProperty(x => x.Locale, isPushCurrentValueAtFirst: false).Subscribe(locale => 
             {
                 I18NPortable.I18N.Current.Locale = locale;
-            });
+            })
+                .AddTo(_CompositeDisposable);
 
             // キャッシュ
-            DefaultCacheQuality = CacheSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCacheQuality);
-            IsAllowDownloadOnMeteredNetwork = CacheSettings.ToReactivePropertyAsSynchronized(x => x.IsAllowDownloadOnMeteredNetwork);
-            DefaultCacheQualityOnMeteredNetwork = CacheSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCacheQualityOnMeteredNetwork);
+            DefaultCacheQuality = CacheSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCacheQuality)
+                .AddTo(_CompositeDisposable);
+            IsAllowDownloadOnMeteredNetwork = CacheSettings.ToReactivePropertyAsSynchronized(x => x.IsAllowDownloadOnMeteredNetwork)
+                .AddTo(_CompositeDisposable);
+            DefaultCacheQualityOnMeteredNetwork = CacheSettings.ToReactivePropertyAsSynchronized(x => x.DefaultCacheQualityOnMeteredNetwork)
+                .AddTo(_CompositeDisposable);
 
             // シェア
-            IsLoginTwitter = new ReactiveProperty<bool>(/*TwitterHelper.IsLoggedIn*/ false);
-            TwitterAccountScreenName = new ReactiveProperty<string>(/*TwitterHelper.TwitterUser?.ScreenName ?? ""*/);
+            IsLoginTwitter = new ReactiveProperty<bool>(/*TwitterHelper.IsLoggedIn*/ false)
+                .AddTo(_CompositeDisposable);
+            TwitterAccountScreenName = new ReactiveProperty<string>(/*TwitterHelper.TwitterUser?.ScreenName ?? ""*/)
+                .AddTo(_CompositeDisposable);
 
 
             // アバウト
@@ -197,7 +215,8 @@ namespace NicoPlayerHohoema.ViewModels
                 });
 
 
-            IsDebugModeEnabled = new ReactiveProperty<bool>((App.Current as App).IsDebugModeEnabled, mode: ReactivePropertyMode.DistinctUntilChanged);
+            IsDebugModeEnabled = new ReactiveProperty<bool>((App.Current as App).IsDebugModeEnabled, mode: ReactivePropertyMode.DistinctUntilChanged)
+                .AddTo(_CompositeDisposable);
             IsDebugModeEnabled.Subscribe(isEnabled =>
             {
                 (App.Current as App).IsDebugModeEnabled = isEnabled;
@@ -244,7 +263,7 @@ namespace NicoPlayerHohoema.ViewModels
             HohoemaPageType.Search,
             HohoemaPageType.RankingCategoryList,
             HohoemaPageType.CacheManagement,
-            HohoemaPageType.FeedGroupManage,
+            HohoemaPageType.SubscriptionManagement,
             HohoemaPageType.FollowManage,
             HohoemaPageType.UserMylist,
             HohoemaPageType.Timeshift,

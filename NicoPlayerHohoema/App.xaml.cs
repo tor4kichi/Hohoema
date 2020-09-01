@@ -109,6 +109,7 @@ namespace NicoPlayerHohoema
             {
                 if (!_isNavigationStackRestored)
                 {
+#if DEBUG
                     var niconicoSession = Container.Resolve<NiconicoSession>();
 
                     // 外部から起動した場合にサインイン動作と排他的動作にさせたい
@@ -119,7 +120,11 @@ namespace NicoPlayerHohoema
                     }
                     _isNavigationStackRestored = true;
                     await _primaryWindowCoreLayout.RestoreNavigationStack();
-
+#else
+                    var navigationService = Container.Resolve<PageManager>();
+                    var settings = Container.Resolve<AppearanceSettings>();
+                    navigationService.OpenPage(settings.FirstAppearPageType);
+#endif
                     var vm = _primaryWindowCoreLayout.DataContext as PrimaryWindowCoreLayoutViewModel;
                     var lastPlaying = vm.RestoreNavigationManager.GetCurrentPlayerEntry();
                     if (lastPlaying != null)
@@ -137,6 +142,7 @@ namespace NicoPlayerHohoema
                         }
                     }
                 }
+
             }
             else if (args.StartKind == StartKinds.Activate)
             {
