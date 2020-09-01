@@ -23,7 +23,7 @@ namespace NicoPlayerHohoema.Models.Niconico
         string Mail { get; set; }
         CommentSizeMode SizeMode { get; set; }
         string UserId { get; set; }
-        uint VideoPosition { get; set; }
+        TimeSpan VideoPosition { get; set; }
     }
 
 }

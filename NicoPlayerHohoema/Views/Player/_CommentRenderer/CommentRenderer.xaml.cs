@@ -255,7 +255,7 @@ namespace NicoPlayerHohoema.Views
                                 var comment = renderComment.DataContext as IComment;
                                 if (_animationSetMap.TryGetValue(renderComment.DataContext as IComment, out var anim))
                                 {
-                                    anim.SetDuration((renderComment.EndPosition - frame.CurrentVpos) * 10 * frame.PlaybackRateInverse);
+                                    anim.SetDuration((renderComment.EndPosition - frame.CurrentVpos).TotalMilliseconds * frame.PlaybackRateInverse);
                                     anim.Start();
                                 }
                                 else
@@ -263,7 +263,7 @@ namespace NicoPlayerHohoema.Views
                                     anim = renderComment.Offset(
                                         -renderComment.TextWidth,
                                         (float)renderComment.VerticalPosition,
-                                        duration: (renderComment.EndPosition - frame.CurrentVpos) * 10 * frame.PlaybackRateInverse,
+                                        duration: (renderComment.EndPosition - frame.CurrentVpos).TotalMilliseconds * frame.PlaybackRateInverse,
                                         easingType: EasingType.Linear
                                         );
                                     anim.Start();
@@ -370,14 +370,13 @@ namespace NicoPlayerHohoema.Views
 
         struct CommentRenderFrameData
         {
-            public uint CurrentVpos { get; set; }// (uint)Math.Floor(VideoPosition.TotalMilliseconds * 0.1);
+            public TimeSpan CurrentVpos { get; set; }// (uint)Math.Floor(VideoPosition.TotalMilliseconds * 0.1);
             public int CanvasWidth { get; set; }// (int)CommentCanvas.ActualWidth;
             public uint CanvasHeight { get; set; } //= (uint)CommentCanvas.ActualHeight;
             public double HalfCanvasWidth { get; set; } //= canvasWidth / 2;
             public float FontScale { get; set; } //= (float)CommentSizeScale;
             public Color CommentDefaultColor { get; set; } //= CommentDefaultColor;
             public Visibility Visibility { get; set; }
-            public uint CommentDisplayDurationVPos { get; internal set; }
             public TimeSpan CommentDisplayDuration { get; internal set; }
             public MediaPlaybackState PlaybackState { get; set; }
             public double PlaybackRate { get; set; }
@@ -492,12 +491,11 @@ namespace NicoPlayerHohoema.Views
                 CommentDisplayDuration = DefaultDisplayDuration
                 , PlaybackState = MediaPlayer.PlaybackSession.PlaybackState
                 , CommentDefaultColor = CommentDefaultColor
-                , CurrentVpos = (uint)Math.Floor((VideoPosition + VideoPositionOffset).TotalMilliseconds * 0.1)
+                , CurrentVpos = VideoPosition + VideoPositionOffset
                 , CanvasWidth = (int)CommentCanvas.ActualWidth
                 , CanvasHeight = (uint)CommentCanvas.ActualHeight
                 , HalfCanvasWidth = CommentCanvas.ActualWidth * 0.5
                 , FontScale = (float)CommentSizeScale
-                , CommentDisplayDurationVPos = GetCommentDisplayDurationVposUnit()
                 , Visibility = Visibility
                 , PlaybackRate = MediaPlayer.PlaybackSession.PlaybackRate
                 , PlaybackRateInverse = 1d / MediaPlayer.PlaybackSession.PlaybackRate
@@ -602,7 +600,7 @@ namespace NicoPlayerHohoema.Views
                     TextColor = commentColor,
                     BackTextColor = GetShadowColor(commentColor),
                     VideoPosition = comment.VideoPosition,
-                    EndPosition = comment.VideoPosition + frame.CommentDisplayDurationVPos,
+                    EndPosition = comment.VideoPosition + frame.CommentDisplayDuration,
                     TextBGOffsetX = textBGOffset,
                     TextBGOffsetY = textBGOffset,
                     CommentFontSize = commentFontSize,
@@ -616,7 +614,7 @@ namespace NicoPlayerHohoema.Views
             if (_commentToRenderCommentMap.ContainsKey(comment)) { return; }
 
             // 表示区間を過ぎたコメントは表示しない
-            if (comment.VideoPosition + frame.CommentDisplayDurationVPos < frame.CurrentVpos)
+            if (comment.VideoPosition + frame.CommentDisplayDuration < frame.CurrentVpos)
             {
                 return;
             }
@@ -696,8 +694,8 @@ namespace NicoPlayerHohoema.Views
                     renderComment.VerticalPosition = verticalPos;
 
                     if (frame.PlaybackState != MediaPlaybackState.Paused)
-                    {
-                        double displayDuration = Math.Min(renderComment.EndPosition - frame.CurrentVpos, frame.CommentDisplayDurationVPos) * 10u * frame.PlaybackRateInverse;
+                    {                        
+                        double displayDuration = Math.Min(renderComment.EndPosition.TotalMilliseconds - frame.CurrentVpos.TotalMilliseconds, frame.CommentDisplayDuration.TotalMilliseconds) * frame.PlaybackRateInverse;
                         //double delay = Math.Max((renderComment.EndPosition - frame.CurrentVpos - frame.CommentDisplayDurationVPos) * 10u * frame.PlaybackRateInverse, 0);
                         Debug.WriteLine($"{comment.CommentId}: left: {initialCanvasLeft}, width: {renderComment.ActualWidth}, top: {verticalPos}");
 
@@ -886,7 +884,7 @@ namespace NicoPlayerHohoema.Views
                 foreach (var comment in comments)
                 {
                     AddCommentToCanvas(comment, in frame);
-                    frame.CurrentVpos = (uint)Math.Floor((VideoPositionOffset).TotalMilliseconds * 0.1);
+                    frame.CurrentVpos = VideoPositionOffset;
                 }
             }
         }

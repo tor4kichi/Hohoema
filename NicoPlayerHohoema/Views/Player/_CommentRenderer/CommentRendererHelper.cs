@@ -13,15 +13,15 @@ namespace NicoPlayerHohoema.Views
             return first.EndPosition > CalcStreamCommentReachToScreenLeftEdge(second, canvasWidth);
         }
 
-        public static uint CalcStreamCommentReachToScreenLeftEdge(CommentUI second, double canvasWidth)
+        public static TimeSpan CalcStreamCommentReachToScreenLeftEdge(CommentUI second, double canvasWidth)
         {
             var secondDisplayTime = second.EndPosition - second.VideoPosition;
 
-            // 1 Vposあたりの secondコメントの移動量
-            var secondSpeed = (canvasWidth + second.TextWidth) / (float)secondDisplayTime;
+            // 1msあたりの secondコメントの移動量
+            var secondSpeed = ((float)canvasWidth + second.TextWidth) / (float)secondDisplayTime.TotalMilliseconds;
 
             // 時間 = 距離 ÷ 速さ
-            var timeToSecondCommentWidthMove = (uint)(second.TextWidth / secondSpeed);
+            var timeToSecondCommentWidthMove = TimeSpan.FromMilliseconds(second.TextWidth / secondSpeed);
 
             return timeToSecondCommentWidthMove;
         }

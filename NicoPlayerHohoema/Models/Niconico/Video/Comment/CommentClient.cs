@@ -1,6 +1,7 @@
 ﻿using Mntone.Nico2;
 using Mntone.Nico2.Videos.Comment;
 using Mntone.Nico2.Videos.Dmc;
+using NiconicoLiveToolkit.Live.WatchSession;
 using NicoPlayerHohoema.Models.Helpers;
 using NicoPlayerHohoema.Models.Niconico;
 using NicoPlayerHohoema.Models.Niconico.Video;
@@ -211,7 +212,7 @@ namespace NicoPlayerHohoema.Models
             {
                 CommentText = rawComment.Text,
                 CommentId = rawComment.GetCommentNo(),
-                VideoPosition = Math.Max(rawComment.GetVpos(), 0),
+                VideoPosition = rawComment.GetVpos().ToTimeSpan(),
                 UserId = rawComment.UserId,
                 Mail = rawComment.Mail,
                 NGScore = 0,
@@ -227,7 +228,7 @@ namespace NicoPlayerHohoema.Models
             {
                 CommentText = rawComment.Content,
                 CommentId = (uint)rawComment.No,
-                VideoPosition = (uint)Math.Max(rawComment.Vpos, 0),
+                VideoPosition = rawComment.Vpos.ToTimeSpan(),
                 UserId = rawComment.UserId,
                 Mail = rawComment.Mail,
                 NGScore = rawComment.Score ?? 0,

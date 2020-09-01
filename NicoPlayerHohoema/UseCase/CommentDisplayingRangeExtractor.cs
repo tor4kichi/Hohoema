@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Models;
+﻿using NiconicoLiveToolkit.Live.WatchSession;
+using NicoPlayerHohoema.Models;
 using NicoPlayerHohoema.Models.Niconico;
 using System;
 using System.Collections.Generic;
@@ -81,14 +82,12 @@ namespace NicoPlayerHohoema.UseCase
             if (_comments == null) { return ReadOnlySpan<Comment>.Empty; }
 
             var startPosition = GetDisplayRangeStartPosition(endPosition);
-            var startPos = startPosition.ToVideoPosition();
-            var endPos = endPosition.ToVideoPosition();
             _startIndex = 0;
             _endIndex = 0;
             foreach (var comment in _comments)
             {
-                if (comment.VideoPosition < startPos) { ++_startIndex; }
-                if (comment.VideoPosition < endPos) { ++_endIndex; }
+                if (comment.VideoPosition < startPosition) { ++_startIndex; }
+                if (comment.VideoPosition < endPosition) { ++_endIndex; }
             }
 
             var displayComments = EnumerateCommentsInRange(ref _startIndex, ref _endIndex, startPosition, endPosition);
@@ -101,14 +100,11 @@ namespace NicoPlayerHohoema.UseCase
 
         private CommentDisplayingRangeChanged EnumerateCommentsInRange(ref int start, ref int end, TimeSpan startPosition, TimeSpan endPosition)
         {
-            int startPos = startPosition.ToVideoPosition();
-            int endPos = endPosition.ToVideoPosition();
-
             int prevStart = start;
             int newStart = start;
             foreach (var comment in _comments.Skip(prevStart))
             {
-                if (comment.VideoPosition >= startPos) { break; }
+                if (comment.VideoPosition >= startPosition) { break; }
                 ++newStart;
             }
 
@@ -116,7 +112,7 @@ namespace NicoPlayerHohoema.UseCase
             int newEnd = end;
             foreach (var comment in _comments.Skip(prevEnd))
             {
-                if (comment.VideoPosition >= endPos) { break; }
+                if (comment.VideoPosition >= endPosition) { break; }
                 ++newEnd;
             }
 
@@ -155,21 +151,6 @@ namespace NicoPlayerHohoema.UseCase
             return currentPosition - _playerSettings.CommentDisplayDuration - TimeSpan.FromSeconds(2); 
         }
 
+
     }
-
-
-    public static class VideoPositionExtensions
-    {
-        public static TimeSpan ToTimeSpan(this int vpos)
-        {
-            return TimeSpan.FromMilliseconds(vpos * 10);
-        }
-
-        public static int ToVideoPosition(this TimeSpan position)
-        {
-            return (int)position.TotalMilliseconds / 10;
-        }
-    
-    }
-
 }

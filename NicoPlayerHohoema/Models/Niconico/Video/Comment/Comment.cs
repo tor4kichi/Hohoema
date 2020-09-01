@@ -53,7 +53,7 @@ namespace NicoPlayerHohoema.Models.Niconico
         public bool IsAnonymity { get; set; }
 
         [DataMember]
-        public uint VideoPosition { get; set; }
+        public TimeSpan VideoPosition { get; set; }
 
         [DataMember]
         public int NGScore { get; set; }

@@ -1,4 +1,5 @@
-﻿using NicoPlayerHohoema.Models.Niconico;
+﻿using NiconicoLiveToolkit.Live.WatchSession;
+using NicoPlayerHohoema.Models.Niconico;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -33,8 +34,8 @@ namespace NicoPlayerHohoema.Views
         public float TextWidth => _TextWidth;
 
 
-        public long VideoPosition { get; set; }
-        public long EndPosition { get; set; }
+        public TimeSpan VideoPosition { get; set; }
+        public TimeSpan EndPosition { get; set; }
 
         public string CommentText { get; set; }
 
@@ -71,12 +72,12 @@ namespace NicoPlayerHohoema.Views
 		public int HorizontalPosition { get; private set; }
 
 
-		public bool IsEndDisplay(uint currentVpos)
+		public bool IsEndDisplay(TimeSpan currentVpos)
 		{
 			return EndPosition <= currentVpos;
 		}
 
-		public void Update(int screenWidth, uint currentVpos)
+		public void Update(int screenWidth, TimeSpan currentVpos)
 		{
 			// (Comment.EndPositioin - Comment.VideoPosition) の長さまでにコメント全体を表示しなければいけない
 			// コメントの移動距離＝ screenWidth + Width
@@ -105,7 +106,7 @@ namespace NicoPlayerHohoema.Views
 			var distance = screenWidth + width;
 			var displayTime = (EndPosition - VideoPosition);
 			var localVpos = displayTime - (EndPosition - currentVpos);
-			var lerp = localVpos / (float)displayTime;
+			var lerp = localVpos / displayTime;
 
 			// 理論的にlocalVposはdisplayTimeを越えることはない
 
@@ -117,49 +118,49 @@ namespace NicoPlayerHohoema.Views
 		}
 
 
-        public long CommentDisplayDuration => EndPosition - VideoPosition;
+        public TimeSpan CommentDisplayDuration => EndPosition - VideoPosition;
 
 
-        private long? _MoveCommentWidthTimeInVPos = null;
-        private long CalcMoveCommentWidthTimeInVPos(int canvasWidth)
+        private TimeSpan? _MoveCommentWidthTimeInVPos = null;
+        private TimeSpan CalcMoveCommentWidthTimeInVPos(int canvasWidth)
         {
             if (_MoveCommentWidthTimeInVPos != null)
             {
                 return _MoveCommentWidthTimeInVPos.Value;
             }
 
-            var speed = MoveSpeedPer1VPos(canvasWidth);
+            var speed = MoveSpeedPer1MilliSeconds(canvasWidth);
 
             // 時間 = 距離 ÷ 速さ
-            var timeToSecondCommentWidthMove = (uint)(TextWidth / speed);
+            var timeToSecondCommentWidthMove = TimeSpan.FromMilliseconds((int)(TextWidth / speed));
 
             _MoveCommentWidthTimeInVPos = timeToSecondCommentWidthMove;
             return timeToSecondCommentWidthMove;
         }
 
-        private float MoveSpeedPer1VPos(int canvasWidth)
+        private float MoveSpeedPer1MilliSeconds(int canvasWidth)
         {
             // 1 Vposあたりのコメントの移動量
-            return (canvasWidth + TextWidth) / (float)CommentDisplayDuration;
+            return (canvasWidth + TextWidth) / (float)CommentDisplayDuration.TotalMilliseconds;
         }
 
 
-        public double? GetPosition(int canvasWidth, long currentVPos)
+        public double? GetPosition(int canvasWidth, TimeSpan currentVPos)
         {
             if (VideoPosition > currentVPos) { return null; }
             if (EndPosition < currentVPos) { return null; }
 
-            var speed = MoveSpeedPer1VPos(canvasWidth);
+            var speed = MoveSpeedPer1MilliSeconds(canvasWidth);
             var delta = currentVPos - VideoPosition;
-            return (canvasWidth) - (double)(speed * delta);
+            return (canvasWidth) - (double)(speed * delta.TotalMilliseconds);
         }
 
-        public long CalcTextShowRightEdgeTime(int canvasWidth)
+        public TimeSpan CalcTextShowRightEdgeTime(int canvasWidth)
         {
             return VideoPosition + CalcMoveCommentWidthTimeInVPos(canvasWidth);
         }
 
-        public long CalcReachLeftEdge(int canvasWidth)
+        public TimeSpan CalcReachLeftEdge(int canvasWidth)
         {
             return EndPosition - CalcMoveCommentWidthTimeInVPos(canvasWidth);
         }

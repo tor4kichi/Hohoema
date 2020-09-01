@@ -173,6 +173,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="System.Text.Json.Serialization\JsonSnakeCaseNamingPolicy.cs" />
     <Compile Include="System.Text.Json.Serialization\LongToStringConverter.cs" />
+    <Compile Include="System.Text.Json.Serialization\VideoPositionToTimeSpanConverter.cs" />
     <Compile Include="User\UserClient.cs" />
     <EmbeddedResource Include="Properties\NiconicoLiveToolkit.UWP.rd.xml" />
   </ItemGroup>

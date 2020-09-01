@@ -20,7 +20,8 @@ namespace NiconicoLiveToolkit.Live.WatchSession.ToClientMessage
         public string Thread { get; set; }
 
         [JsonPropertyName("vpos")]
-        public uint VideoPosition { get; set; }
+        [JsonConverter(typeof(VideoPositionToTimeSpanConverter))]
+        public TimeSpan VideoPosition { get; set; }
 
         [JsonPropertyName("leaf")]
         public int? Leaf { get; set; }

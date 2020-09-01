@@ -1,4 +1,5 @@
-﻿using NiconicoLiveToolkit.Live;
+﻿using I18NPortable;
+using NiconicoLiveToolkit.Live;
 using NiconicoLiveToolkit.Live.WatchPageProp;
 using NiconicoLiveToolkit.Live.WatchSession;
 using NicoPlayerHohoema.Interfaces;
@@ -702,6 +703,92 @@ namespace NicoPlayerHohoema.ViewModels
         }
 
 
+        private async Task RefreshTimeshiftProgram()
+        {
+            if (NiconicoSession.IsLoggedIn)
+            {
+                var timeshiftDetailsRes = await LoginUserLiveReservationProvider.GetReservtionsAsync();
+                foreach (var timeshift in timeshiftDetailsRes.ReservedProgram)
+                {
+                    if (LiveId.EndsWith(timeshift.Id))
+                    {
+                        _TimeshiftProgram = timeshift;
+                    }
+                }
+            }
+            else
+            {
+                _TimeshiftProgram = null;
+            }
+        }
+
+        public static readonly TimeSpan JapanTimeZoneOffset = +TimeSpan.FromHours(9);
+
+        private async Task ResolveTimeshiftTicketAsync()
+        {
+            await RefreshTimeshiftProgram();
+
+            // チケットを使用するかダイアログで表示する
+            // タイムシフトでの視聴かつタイムシフトの視聴予約済みかつ視聴権が未取得の場合は
+            // 視聴権の使用を確認する
+            if (_TimeshiftProgram?.GetReservationStatus() == Mntone.Nico2.Live.ReservationsInDetail.ReservationStatus.FIRST_WATCH)
+            {
+                var dialog = App.Current.Container.Resolve<Services.DialogService>();
+
+                // 視聴権に関する詳細な情報提示
+
+                // 視聴権の利用期限は 24H＋放送時間 まで
+                // ただし公開期限がそれより先に来る場合には公開期限が視聴期限となる
+                var outdatedTime = DateTimeOffset.Now.ToOffset(JapanTimeZoneOffset) + (EndTime - StartTime) + TimeSpan.FromHours(24);
+                string desc = string.Empty;
+                if (outdatedTime > _TimeshiftProgram.ExpiredAt)
+                {
+                    outdatedTime = _TimeshiftProgram.ExpiredAt.LocalDateTime;
+                    desc = "Dialog_ConfirmTimeshiftWatch_WatchLimitByDate".Translate(_TimeshiftProgram.ExpiredAt.ToString("g"));
+                }
+                else
+                {
+                    desc = "Dialog_ConfirmTimeshiftWatch_WatchLimitByDuration".Translate(outdatedTime.ToString("g"));
+                }
+
+
+
+                var result = await dialog.ShowMessageDialog(
+                    desc
+                    , _TimeshiftProgram.Title, "WatchLiveStreaming".Translate(), "Cancel".Translate()
+                    );
+
+                if (result)
+                {
+                    var token = await LoginUserLiveReservationProvider.GetReservationTokenAsync();
+
+                    await Task.Delay(500);
+
+                    await LoginUserLiveReservationProvider.UseReservationAsync(_TimeshiftProgram.Id, token);
+
+                    await Task.Delay(3000);
+
+                    // タイムシフト予約一覧を更新
+                    // 視聴権利用を開始したアイテムがFIRST_WATCH以外の視聴可能を示すステータスになっているはず
+                    await RefreshTimeshiftProgram();
+
+                    Debug.WriteLine("use reservation after status: " + _TimeshiftProgram.Status);
+
+                    // 視聴情報を更新
+                    _PlayerProp = await LiveContext.Live.GetLiveWatchPageDataPropAsync(LiveId);
+
+                    Debug.WriteLine("視聴可能回数 : " + _PlayerProp.ProgramTimeshift.WatchLimit);
+                    Debug.WriteLine("Reservation.ExpireTime : " + DateTimeOffset.FromUnixTimeSeconds(_PlayerProp.ProgramTimeshift.Reservation.ExpireTime));
+                    Debug.WriteLine("Publication.ExpireTime : " + DateTimeOffset.FromUnixTimeSeconds(_PlayerProp.ProgramTimeshift.Publication.ExpireTime ?? 0));
+                }
+            }
+
+            // TSしていない場合でもプレミアム会員の場合は後からTS可能
+
+
+        }
+
+
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
             LiveId = parameters.GetValue<string>("id");
@@ -715,11 +802,8 @@ namespace NicoPlayerHohoema.ViewModels
             {
                 _PlayerProp = await LiveContext.Live.GetLiveWatchPageDataPropAsync(LiveId);
 
-                if (_PlayerProp.UserProgramReservation.IsReserved && _PlayerProp.UserProgramWatch.RejectWithNotUseTimeshiftTicket)
-                {
-                    // チケットを使用するかダイアログで表示する
-                }
 
+                await ResolveTimeshiftTicketAsync();
 
 
                 LiveInfo = new LiveContent() 
@@ -778,7 +862,7 @@ namespace NicoPlayerHohoema.ViewModels
                             for (int i = _DisplayingLiveComments.Count - 1; i >= 0; i--)
                             {
                                 var c = _DisplayingLiveComments[i];
-                                var cPos = TimeSpan.FromMilliseconds(c.VideoPosition * 10);
+                                var cPos = c.VideoPosition;
                                 if (LiveElapsedTimeFromOpen > cPos + PlayerSettings.CommentDisplayDuration + TimeSpan.FromSeconds(2))
                                 {
                                     Debug.WriteLine("remove comment : " + _DisplayingLiveComments[i].CommentText);
@@ -1042,7 +1126,7 @@ namespace NicoPlayerHohoema.ViewModels
 
             if (!comment.IsOperater && !comment.Content.StartsWith('/'))
             {
-                //commentVM.VideoPosition = (uint)(LiveElapsedTimeFromOpen.TotalSeconds * 100) - 0;
+                commentVM.VideoPosition = LiveElapsedTimeFromOpen;
                 
                 if (!commentVM.IsAnonymity)
                 {
@@ -1072,7 +1156,7 @@ namespace NicoPlayerHohoema.ViewModels
                 {
                     using var _ = await _CommentUpdateLock.LockAsync(default);
                     if (!PlayerSettings.IsLiveNGComment(comment.UserId)
-                    || (LiveElapsedTime - e.Chat.VideoPosition.ToTimeSpan()).Duration() < TimeSpan.FromSeconds(3)
+                    || (LiveElapsedTime - e.Chat.VideoPosition).Duration() < TimeSpan.FromSeconds(3)
                     )
                     {
                         _DisplayingLiveComments.Add(commentVM);
@@ -1520,6 +1604,7 @@ namespace NicoPlayerHohoema.ViewModels
         private FastAsyncLock _userNameUpdateLock = new FastAsyncLock();
         private ConcurrentStack<uint> UnresolvedUserId = new ConcurrentStack<uint>();
         private ConcurrentDictionary<uint, List<LiveComment>> UserIdToComments = new ConcurrentDictionary<uint, List<LiveComment>>();
+        private Mntone.Nico2.Live.ReservationsInDetail.Program _TimeshiftProgram;
 
         private async Task UpdateCommentUserName(uint userId, string name)
         {
@@ -1559,7 +1644,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         public bool IsAnonymity { get; set; }
 
-        public uint VideoPosition { get; set; }
+        public TimeSpan VideoPosition { get; set; }
 
         public int NGScore { get; set; }
 

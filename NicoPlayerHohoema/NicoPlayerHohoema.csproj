@@ -633,6 +633,9 @@
     <Compile Include="Views\Pages\WatchAfterPage.xaml.cs">
       <DependentUpon>WatchAfterPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\Player\CommentRendererTestPage.xaml.cs">
+      <DependentUpon>CommentRendererTestPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Player\_PlayerSidePaneContent\VideoCommentSidePaneContent.xaml.cs">
       <DependentUpon>VideoCommentSidePaneContent.xaml</DependentUpon>
     </Compile>
@@ -1098,6 +1101,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\Pages\WatchAfterPage.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Player\CommentRendererTestPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

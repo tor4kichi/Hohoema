@@ -277,8 +277,6 @@ namespace NicoPlayerHohoema.UseCase
 
                 try
                 {
-                    var vpos = (uint)(posision.TotalMilliseconds / 10);
-
                     var command = CommandText.Value;
                     var res = await _commentSession.PostComment(WritingComment.Value, posision, command);
 
@@ -289,7 +287,7 @@ namespace NicoPlayerHohoema.UseCase
                         var commentVM = new Comment()
                         {
                             CommentId = (uint)res.CommentNo,
-                            VideoPosition = vpos,
+                            VideoPosition = posision,
                             UserId = _commentSession.UserId,
                             CommentText = WritingComment.Value,
                         };
@@ -506,12 +504,10 @@ namespace NicoPlayerHohoema.UseCase
         void RefreshCurrentPlaybackPositionComment(TimeSpan position)
         {
             // TODO: Commentsにアクセスする際の非同期ロック
-            const int CommentReadabilityIncreaseDelayVpos = 0;
-            var vpos = (long)(position.TotalMilliseconds * 0.1) + CommentReadabilityIncreaseDelayVpos;
             var currentIndex = CurrentCommentIndex;
             foreach (var comment in Comments.Skip(CurrentCommentIndex).Cast<Comment>())
             {
-                if ((comment as Comment).VideoPosition > vpos)
+                if ((comment as Comment).VideoPosition > position)
                 {
                     CurrentComment = comment;
                     break;
@@ -574,7 +570,7 @@ namespace NicoPlayerHohoema.UseCase
             if (nicoScriptContents.Length == 0) { return false; }
 
             var nicoScriptType = nicoScriptContents[0];
-            var beginTime = TimeSpan.FromMilliseconds(chat.VideoPosition * 10);
+            var beginTime = chat.VideoPosition;
             switch (nicoScriptType)
             {
                 case "デフォルト":

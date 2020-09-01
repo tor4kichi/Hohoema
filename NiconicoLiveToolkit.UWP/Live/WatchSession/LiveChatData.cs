@@ -10,7 +10,7 @@ namespace NiconicoLiveToolkit.Live.WatchSession
     {
         public string Thread { get; set; }
         public int CommentId { get; set; }
-        public uint VideoPosition { get; set; }
+        public TimeSpan VideoPosition { get; set; }
         public long Date { get; set; }
         public long DateUsec { get; set; }
         public int? __Premium { get; set; }

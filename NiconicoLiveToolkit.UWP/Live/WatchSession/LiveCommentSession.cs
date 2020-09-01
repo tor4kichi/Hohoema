@@ -107,7 +107,8 @@ namespace NiconicoLiveToolkit.Live.WatchSession
                 Converters =
                 {
                     new JsonStringEnumMemberConverter(),
-                    new CommentSessionToClientMessageJsonConverter()
+                    new CommentSessionToClientMessageJsonConverter(),
+                    new VideoPositionToTimeSpanConverter(),
                 }
             };
         }
@@ -346,7 +347,7 @@ namespace NiconicoLiveToolkit.Live.WatchSession
         {
             if (!IsTimeshift) { throw new InvalidOperationException(); }
 
-            if (await _ws.OpenAsync())
+//            if (await _ws.OpenAsync())
             {
                 _ = ResetConnectionForTimeshift(_startTime + timeSpan);
             }
@@ -395,7 +396,7 @@ namespace NiconicoLiveToolkit.Live.WatchSession
             {
                 using (var releaser = await _CommentPullTimingTimerLock.LockAsync())
                 {
-                    await _ws.OpenAsync();
+                    //await _ws.OpenAsync();
 
                     await SendStartMessage_Timeshift(_LastRes + 1, _NextCommentPullTiming);
 
