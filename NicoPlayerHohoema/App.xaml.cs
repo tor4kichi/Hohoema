@@ -125,6 +125,8 @@ namespace NicoPlayerHohoema
                     var settings = Container.Resolve<AppearanceSettings>();
                     navigationService.OpenPage(settings.FirstAppearPageType);
 #endif
+                    // TODO: 前回再生中に終了したコンテンツを表示するかユーザーに確認
+                    /*
                     var vm = _primaryWindowCoreLayout.DataContext as PrimaryWindowCoreLayoutViewModel;
                     var lastPlaying = vm.RestoreNavigationManager.GetCurrentPlayerEntry();
                     if (lastPlaying != null)
@@ -141,6 +143,7 @@ namespace NicoPlayerHohoema
                             hohoemaPlaylist.Play(lastPlaying.ContentId, position: lastPlaying.Position);
                         }
                     }
+                    */
                 }
 
             }
