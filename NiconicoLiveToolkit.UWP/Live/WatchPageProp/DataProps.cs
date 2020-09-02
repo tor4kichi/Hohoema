@@ -1033,7 +1033,7 @@ namespace NiconicoLiveToolkit.Live.WatchPageProp
 
     public enum PurpleContentType { Live };
 
-    public enum PurpleRecommendType { ChannelLive, HostLiveOnair, RelatedLiveOnair, RelatedLivePast, Rookie, Wakutkool, SugoiSearch };
+    public enum PurpleRecommendType { ChannelLive, HostLiveOnair, RelatedLiveOnair, RelatedLivePast, Rookie, Wakutkool, SugoiSearch, RelatedLiveReserved };
 
     public enum Status { MemberOnly, Public };
 

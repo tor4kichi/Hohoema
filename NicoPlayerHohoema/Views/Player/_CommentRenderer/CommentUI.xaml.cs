@@ -2,6 +2,7 @@
 using NicoPlayerHohoema.Models.Niconico;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -133,6 +134,8 @@ namespace NicoPlayerHohoema.Views
 
             // 時間 = 距離 ÷ 速さ
             var timeToSecondCommentWidthMove = TimeSpan.FromMilliseconds((int)(TextWidth / speed));
+
+            Debug.WriteLine($"{CommentText}: {timeToSecondCommentWidthMove} px/ms");
 
             _MoveCommentWidthTimeInVPos = timeToSecondCommentWidthMove;
             return timeToSecondCommentWidthMove;

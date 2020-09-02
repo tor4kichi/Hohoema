@@ -433,13 +433,41 @@ namespace NicoPlayerHohoema.Views
                 {
                     MediaPlayer.PlaybackSession.PlaybackStateChanged -= PlaybackSession_PlaybackStateChanged;
                     MediaPlayer.SourceChanged -= MediaPlayer_SourceChanged;
+                    MediaPlayer.PlaybackSession.PositionChanged -= PlaybackSession_PositionChanged;
                     MediaPlayer.PlaybackSession.PlaybackStateChanged += PlaybackSession_PlaybackStateChanged;
                     MediaPlayer.SourceChanged += MediaPlayer_SourceChanged;
+                    MediaPlayer.PlaybackSession.PositionChanged += PlaybackSession_PositionChanged;
                 }
 
                 Clip = new RectangleGeometry() { Rect = new Rect() { Width = ActualWidth, Height = ActualHeight } };
                 this.SizeChanged += CommentRenderer_SizeChanged;                
             }
+        }
+
+        private async void PlaybackSession_PositionChanged(MediaPlaybackSession sender, object args)
+        {
+            await Dispatcher.RunAsync(Windows.UI.Core.CoreDispatcherPriority.Normal, async () =>
+            { 
+                using (await _UpdateLock.LockAsync())
+                {
+                    var frame = GetRenderFrameData();
+                    for (int i = _pendingRenderComments.Count - 1; i >= 0; i--)
+                    {
+                        var comment = _pendingRenderComments[i];
+                        if (comment.VideoPosition > frame.CurrentVpos)
+                        {
+                            //                        _pendingRenderComments.Add(comment);
+                        }
+                        else
+                        {
+                            _pendingRenderComments.RemoveAt(i);
+                            AddCommentToCanvas(comment, in frame);
+
+                            Debug.WriteLine("Pendingから追加: " + comment.CommentText);
+                        }
+                    }
+                }
+            });
         }
 
         private async void CommentRenderer_SizeChanged(object sender, SizeChangedEventArgs e)
@@ -861,7 +889,20 @@ namespace NicoPlayerHohoema.Views
             }
         }
 
+        List<IComment> _pendingRenderComments = new List<IComment>();
 
+
+        private void AddOrPushPending(IComment comment, in CommentRenderFrameData frame)
+        {
+            if (comment.VideoPosition > frame.CurrentVpos)
+            {
+                _pendingRenderComments.Add(comment);
+            }
+            else
+            {
+                AddCommentToCanvas(comment, in frame);
+            }
+        }
 
         private async Task AddCommentToCanvasAsyncSafe(IComment comment)
         {
@@ -870,7 +911,7 @@ namespace NicoPlayerHohoema.Views
                 if (Visibility == Visibility.Collapsed) { return; }
 
                 var frame = GetRenderFrameData();
-                AddCommentToCanvas(comment, in frame);
+                AddOrPushPending(comment, in frame);
             }
         }
 
@@ -883,7 +924,7 @@ namespace NicoPlayerHohoema.Views
                 var frame = GetRenderFrameData();
                 foreach (var comment in comments)
                 {
-                    AddCommentToCanvas(comment, in frame);
+                    AddOrPushPending(comment, in frame);
                     frame.CurrentVpos = VideoPositionOffset;
                 }
             }
@@ -894,6 +935,7 @@ namespace NicoPlayerHohoema.Views
             using (await _UpdateLock.LockAsync())
             {
                 RemoveCommentFromCanvas(comment);
+                _pendingRenderComments.Remove(comment);
             }
         }
 
@@ -904,6 +946,7 @@ namespace NicoPlayerHohoema.Views
                 foreach (var comment in comments)
                 {
                     RemoveCommentFromCanvas(comment);
+                    _pendingRenderComments.Remove(comment);
                 }
             }
         }
@@ -926,15 +969,6 @@ namespace NicoPlayerHohoema.Views
                 PrevRenderCommentEachLine_Stream.Remove(renderComment);
             }
         }
-
-
-        public uint GetCommentDisplayDurationVposUnit()
-        {
-            return (uint)(DefaultDisplayDuration.TotalSeconds * 100);
-        }
-
-
-
 
 
         private Dictionary<Color, Color> _FontShadowColorMap = new Dictionary<Color, Color>();

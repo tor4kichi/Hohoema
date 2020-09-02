@@ -347,7 +347,7 @@ namespace NiconicoLiveToolkit.Live.WatchSession
         {
             if (!IsTimeshift) { throw new InvalidOperationException(); }
 
-//            if (await _ws.OpenAsync())
+            //if (await _ws.OpenAsync())
             {
                 _ = ResetConnectionForTimeshift(_startTime + timeSpan);
             }

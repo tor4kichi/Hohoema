@@ -273,6 +273,7 @@ namespace NicoPlayerHohoema.ViewModels
         public IReadOnlyReactiveProperty<double> MaxSeekablePosition => _MaxSeekablePosition;
         private bool _NowSeekBarPositionChanging = false;
 
+        FastAsyncLock _seekBarUpdateLock = new FastAsyncLock();
 
         // comment
 
@@ -484,14 +485,11 @@ namespace NicoPlayerHohoema.ViewModels
             SeekVideoCommand = this.ObserveProperty(x => x.IsTimeshift).ToReactiveCommand<TimeSpan?>(scheduler: _scheduler)
                     .AddTo(_CompositeDisposable);
 
-            SeekVideoCommand.Subscribe(async time =>
+            SeekVideoCommand.Subscribe(time =>
             {
                 if (!time.HasValue) { return; }
-                var session = MediaPlayer.PlaybackSession;
 
-                _watchSessionTimer.PlaybackHeadPosition = time.Value;
-                
-                // TODO: 生放送のシーク処理
+                SeekBarTimeshiftPosition.Value += time.Value.TotalSeconds;
             })
             .AddTo(_CompositeDisposable);
 
@@ -505,11 +503,61 @@ namespace NicoPlayerHohoema.ViewModels
                 .Throttle(TimeSpan.FromSeconds(0.25))
                 .Subscribe(async x =>
                 {
-                    var time = TimeSpan.FromSeconds(x);
+                    using (await _seekBarUpdateLock.LockAsync(default))
+                    {
+                        var time = TimeSpan.FromSeconds(x);
 
-                    var session = MediaPlayer.PlaybackSession;
-                    
-                    // TODO: 生放送のシーク処理
+                        _scheduler.Schedule(async () =>
+                        {
+                            var session = MediaPlayer.PlaybackSession;
+
+                            MediaPlayer.Source = null;
+                            _MediaSource?.Dispose();
+                            _AdaptiveMediaSource?.Dispose();
+
+                            _watchSessionTimer.PlaybackHeadPosition = time;
+
+                            // TODO: 生放送のシーク処理
+                            // タイムシフト視聴時はスタート時間に自動シーク
+                            string hlsUri = _hlsUri;
+                            hlsUri = LiveClient.MakeSeekedHLSUri(hlsUri, _watchSessionTimer.PlaybackHeadPosition);
+#if DEBUG
+                            Debug.WriteLine(hlsUri);
+#endif
+
+                            // https://platform.uno/docs/articles/implemented/windows-ui-xaml-controls-mediaplayerelement.html
+                            // MediaPlayer is supported on UWP/Android/iOS.
+                            // not support to MacOS and WASM.
+#if WINDOWS_UWP
+                            var amsCreateResult = await AdaptiveMediaSource.CreateFromUriAsync(new Uri(hlsUri), LiveContext.HttpClient);
+                            if (amsCreateResult.Status == AdaptiveMediaSourceCreationStatus.Success)
+                            {
+                                var ams = amsCreateResult.MediaSource;
+                                _MediaSource = MediaSource.CreateFromAdaptiveMediaSource(ams);
+                                _AdaptiveMediaSource = ams;
+                                MediaPlayer.Source = _MediaSource;
+
+                                _AdaptiveMediaSource.DesiredMaxBitrate = _AdaptiveMediaSource.AvailableBitrates.Max();
+                            }
+
+#elif __IOS__ || __ANDROID__
+                    var mediaSource = MediaSource.CreateFromUri(new Uri(hlsUri));
+                    _MediaSource = mediaSource;
+                    MediaPlayer.Source = mediaSource;
+#else
+                    throw new NotSupportedException();
+#endif
+
+                        _CommentSession.Seek(time);
+
+                        // Note: MediaPlayer.PositionはSourceを再設定するたびに0にリセットされる
+                        var elapsedTimeResult = _watchSessionTimer.UpdatePlaybackTime(TimeSpan.Zero);
+                            LiveElapsedTime = elapsedTimeResult.LiveElapsedTime;
+                            LiveElapsedTimeFromOpen = elapsedTimeResult.LiveElapsedTimeFromOpen;
+
+                            WatchStartLiveElapsedTime = LiveElapsedTimeFromOpen;
+                        });
+                    }
                 })
                 .AddTo(_CompositeDisposable);
 
@@ -844,15 +892,18 @@ namespace NicoPlayerHohoema.ViewModels
                 Observable.Timer(TimeSpan.FromSeconds(1), TimeSpan.FromSeconds(0.1), _scheduler)
                     .Subscribe(async _ => 
                     {
-                        var elaplsedUpdateResult = _watchSessionTimer.UpdatePlaybackTime(MediaPlayer.PlaybackSession.Position);
-                        LiveElapsedTime = elaplsedUpdateResult.LiveElapsedTime;
-                        LiveElapsedTimeFromOpen = elaplsedUpdateResult.LiveElapsedTimeFromOpen;
-
-                        if (IsTimeshift)
+                        using (await _seekBarUpdateLock.LockAsync(default))
                         {
-                            _NowSeekBarPositionChanging = true;
-                            SeekBarTimeshiftPosition.Value = LiveElapsedTimeFromOpen.TotalSeconds;
-                            _NowSeekBarPositionChanging = false;
+                            var elaplsedUpdateResult = _watchSessionTimer.UpdatePlaybackTime(MediaPlayer.PlaybackSession.Position);
+                            LiveElapsedTime = elaplsedUpdateResult.LiveElapsedTime;
+                            LiveElapsedTimeFromOpen = elaplsedUpdateResult.LiveElapsedTimeFromOpen;
+
+                            if (IsTimeshift)
+                            {
+                                _NowSeekBarPositionChanging = true;
+                                SeekBarTimeshiftPosition.Value = LiveElapsedTimeFromOpen.TotalSeconds;
+                                _NowSeekBarPositionChanging = false;
+                            }
                         }
 
                         using (var releaser = await _CommentUpdateLock.LockAsync(default))
@@ -973,6 +1024,7 @@ namespace NicoPlayerHohoema.ViewModels
 
         MediaSource _MediaSource;
         AdaptiveMediaSource _AdaptiveMediaSource;
+        string _hlsUri;
 
         private void _watchSession_RecieveStream(Live2CurrentStreamEventArgs e)
         {
@@ -986,6 +1038,7 @@ namespace NicoPlayerHohoema.ViewModels
                 string hlsUri = e.Uri;
                 if (_watchSession.IsWatchWithTimeshift)
                 {
+                    _hlsUri = e.Uri;
                     _watchSessionTimer.PlaybackHeadPosition = StartTime - OpenTime;
                     hlsUri = LiveClient.MakeSeekedHLSUri(e.Uri, _watchSessionTimer.PlaybackHeadPosition);
 #if DEBUG
@@ -1116,17 +1169,19 @@ namespace NicoPlayerHohoema.ViewModels
                 return comment;
             }
 
-
             var comment = e.Chat;
-
-            
-            
 
             LiveComment commentVM = ChatToComment(e.Chat);
 
             if (!comment.IsOperater && !comment.Content.StartsWith('/'))
             {
-                commentVM.VideoPosition = LiveElapsedTimeFromOpen;
+                // 表示範囲にある場合は頭から流れるように
+                var relatedPosition = LiveElapsedTimeFromOpen - commentVM.VideoPosition;
+                if (relatedPosition > TimeSpan.Zero 
+                    && relatedPosition < PlayerSettings.CommentDisplayDuration)
+                {
+                    commentVM.VideoPosition = LiveElapsedTimeFromOpen - TimeSpan.FromSeconds(0.25);
+                }
                 
                 if (!commentVM.IsAnonymity)
                 {
