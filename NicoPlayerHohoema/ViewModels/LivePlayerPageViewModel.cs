@@ -914,7 +914,7 @@ namespace NicoPlayerHohoema.ViewModels
                             {
                                 var c = _DisplayingLiveComments[i];
                                 var cPos = c.VideoPosition;
-                                if (LiveElapsedTimeFromOpen > cPos + PlayerSettings.CommentDisplayDuration + TimeSpan.FromSeconds(2))
+                                if (LiveElapsedTimeFromOpen > cPos + PlayerSettings.CommentDisplayDuration + TimeSpan.FromSeconds(10))
                                 {
                                     Debug.WriteLine("remove comment : " + _DisplayingLiveComments[i].CommentText);
                                     _DisplayingLiveComments.RemoveAt(i);
