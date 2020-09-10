@@ -125,11 +125,22 @@ namespace NiconicoLiveToolkit.Live.WatchSession
             IsWatchWithTimeshift = isTimeshift;
             _webSocketUrl = webSocketUrl;
 
-            _ws = new WebSocket(_webSocketUrl);
+            Dictionary<string, string> customHeaderItems = new Dictionary<string, string> 
+            {
+                {"host", "a.live2.nicovideo.jp"},
+                {"upgrade", "websocket"},
+                {"pragma", "no-cache"},
+                {"cache-control", "no-cache"},
+                {"connection", "upgrade"},
+                
+            };
+
+            _ws = new WebSocket(_webSocketUrl, customHeaderItems: customHeaderItems.ToList(), origin: "https://live2.nicovideo.jp", userAgent: "NiconicoLiveToolkit_UWP");
             _ws.MessageReceived += _ws_MessageReceived;
             _ws.Opened += _ws_Opened;
             _ws.Closed += _ws_Closed;
             _ws.EnableAutoSendPing = false;
+            
 
             _SocketJsonDeserializerOptions = new System.Text.Json.JsonSerializerOptions()
             {
@@ -185,7 +196,7 @@ namespace NiconicoLiveToolkit.Live.WatchSession
 
         private void _ws_MessageReceived(object sender, MessageReceivedEventArgs e)
         {
-            //Debug.WriteLine(e.Message);
+            Debug.WriteLine(e.Message);
 
             var data = JsonDeserializeHelper.Deserialize<WatchServerToClientMessage>(e.Message, _SocketJsonDeserializerOptions);
             _ = data switch
@@ -375,6 +386,11 @@ namespace NiconicoLiveToolkit.Live.WatchSession
                 var startWachingMessage = new StartWatching_ToServerMessageData()
                 {
                     Reconnect = false,
+                    Room = new Room()
+                    {
+                        Protocol = "webSocket",
+                        Commentable = !IsWatchWithTimeshift
+                    },
                     Stream = new StartWatchingStream()
                     {
                         Quality = requestQuality,

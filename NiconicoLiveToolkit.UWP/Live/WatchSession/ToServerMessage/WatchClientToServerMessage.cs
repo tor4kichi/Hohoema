@@ -49,6 +49,9 @@ namespace NiconicoLiveToolkit.Live.WatchSession
         [JsonPropertyName("stream")]
         public StartWatchingStream Stream { get; set; }
 
+        [JsonPropertyName("room")]
+        public Room Room { get; set; }
+
         /// <summary>
         /// 座席再利用するかどうかの真偽値。省略時は false。trueの場合、前回取得したストリームを再利用する
         /// </summary>
@@ -83,6 +86,16 @@ namespace NiconicoLiveToolkit.Live.WatchSession
         /// </summary>
         [JsonPropertyName("chasePlay")]
         public bool? ChasePlay { get; set; }
+    }
+
+
+    internal sealed class Room
+    {
+        [JsonPropertyName("protocol")]
+        public string Protocol { get; set; } = "webSocket";
+
+        [JsonPropertyName("commentable")]
+        public bool Commentable { get; set; } = true;
     }
 
     /// <summary>

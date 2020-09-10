@@ -1,0 +1,172 @@
+﻿<Page
+     
+    x:Class="Hohoema.Presentation.Views.RankingCategoryListPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:local="using:Hohoema.Presentation.Views"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:mvvm="using:Prism.Mvvm"
+    xmlns:view="using:Hohoema.Presentation.Views"
+    xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+    xmlns:i="using:Microsoft.Xaml.Interactivity"
+    xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+    xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
+  xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions"
+    xmlns:controls="using:Hohoema.Presentation.Views.Controls"
+    xmlns:toolkitext="using:WinRTXamlToolkit.Controls.Extensions"
+    xmlns:deviceTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+    xmlns:uwpui="using:Microsoft.Toolkit.Uwp.UI"
+  xmlns:flyouts="using:Hohoema.Presentation.Views.Flyouts"
+  xmlns:mycommands="using:Hohoema.Presentation.Services.Commands.Ranking"
+      xmlns:windowsStateTriggers="using:WindowsStateTriggers"
+      NavigationCacheMode="Enabled"
+    DataContext="{x:Null}"
+    mc:Ignorable="d"
+    >
+
+
+  <Page.Transitions>
+    <TransitionCollection>
+      <NavigationThemeTransition>
+        <DrillInNavigationTransitionInfo />
+      </NavigationThemeTransition>
+    </TransitionCollection>
+  </Page.Transitions>
+  
+  <Page.Resources>
+    <flyouts:RankingGenreItemGroupFlyout x:Key="RankingGenreItemGroupFlyout" />
+
+    <DataTemplate x:Key="RankingGenreItemFlyoutTemplate">
+      <flyouts:RankingGenreItemFlyout />
+    </DataTemplate>
+  </Page.Resources>
+  <Grid x:Name="ContentLayoutRoot">
+    <toolkit:DockPanel x:Name="ContentLayout"
+                       Margin="0 0 0 0">
+      <Border toolkit:DockPanel.Dock="Top"
+              x:Name="HeaderPanel"
+              Background="{StaticResource MenuBackgroundBrush}"
+              >
+        <StackPanel>
+          <CommandBar Background="Transparent"
+                      Margin="0 0 0 0">
+            <CommandBar.PrimaryCommands>
+              <AppBarButton Label="{Binding Source=Settings, Converter={StaticResource LocalizeConverter}}"
+                            Icon="Setting">
+                <AppBarButton.Flyout>
+                  <MenuFlyout>
+                    <MenuFlyoutItem Text="{Binding Source=SelectDisplayRankingGenre, Converter={StaticResource LocalizeConverter}}" Command="{Binding ShowDisplayGenreSelectDialogCommand}" />
+                    <MenuFlyoutItem Text="{Binding Source=SelectReDisplayHiddenRankingTags, Converter={StaticResource LocalizeConverter}}" Command="{Binding ShowDisplayGenreTagSelectDialogCommand}" />
+                  </MenuFlyout>
+                </AppBarButton.Flyout>
+              </AppBarButton>
+            </CommandBar.PrimaryCommands>
+          </CommandBar>
+        </StackPanel>
+      </Border>
+      <GridView x:Name="GenreItems"
+                ScrollViewer.HorizontalScrollBarVisibility="Auto"
+                ScrollViewer.HorizontalScrollMode="Auto"
+                ScrollViewer.VerticalScrollBarVisibility="Hidden"
+                ScrollViewer.VerticalScrollMode="Disabled"
+                ItemsSource="{Binding RankingGenreItems.View}"
+                myExtensions:ListViewBase.ItemContextFlyoutTemplate="{StaticResource RankingGenreItemFlyoutTemplate}"
+                SelectionMode="None"
+                SingleSelectionFollowsFocus="False">
+        <myExtensions:ListViewBase.GroupHeaderContextFlyoutTemplate>
+          <DataTemplate>
+            <flyouts:RankingGenreItemGroupFlyout />
+          </DataTemplate>
+        </myExtensions:ListViewBase.GroupHeaderContextFlyoutTemplate>
+        <GridView.ItemsPanel>
+          <ItemsPanelTemplate>
+            <ItemsWrapGrid Orientation="Vertical" />
+          </ItemsPanelTemplate>
+        </GridView.ItemsPanel>
+        <i:Interaction.Behaviors>
+          <mybehavior:ListViewItemTappedCommandBehavior Command="{Binding OpenRankingPageCommand}" />
+        </i:Interaction.Behaviors>
+        <GridView.GroupStyle>
+          <GroupStyle>
+            <GroupStyle.HeaderTemplate>
+              <DataTemplate>
+                <Border>
+                  <HyperlinkButton FontSize="18"
+                                   Foreground="{ThemeResource ApplicationHeaderForegroundThemeBrush}"
+                                   Command="{Binding ElementName=ContentLayout, Path=DataContext.OpenRankingPageCommand}"
+                                   CommandParameter="{Binding}"
+                                   Width="128"
+                                   IsEnabled="{Binding Genre, Converter={StaticResource NotNullToBoolean}}">
+                    <TextBlock Text="{Binding Label}" />
+                  </HyperlinkButton>
+                </Border>
+              </DataTemplate>
+            </GroupStyle.HeaderTemplate>
+            <GroupStyle.HeaderContainerStyle>
+              <Style TargetType="GridViewHeaderItem">
+                <Setter Property="Padding"
+                        Value="0" />
+                <Setter Property="IsTabStop"
+                        Value="False" />
+              </Style>
+            </GroupStyle.HeaderContainerStyle>
+          </GroupStyle>
+        </GridView.GroupStyle>
+        <GridView.ItemTemplate>
+          <DataTemplate>
+            <TextBlock Text="{Binding Label}"
+                       TextWrapping="Wrap" />
+          </DataTemplate>
+        </GridView.ItemTemplate>
+        <GridView.ItemContainerStyle>
+          <Style TargetType="GridViewItem">
+            <Setter Property="Padding"
+                    Value="0" />
+            <Setter Property="Margin"
+                    Value="0 0 8 8" />
+            <Setter Property="MinWidth"
+                    Value="140" />
+            <Setter Property="BorderBrush"
+                    Value="{ThemeResource SystemBaseLowColor}" />
+            <Setter Property="BorderThickness"
+                    Value="1" />
+          </Style>
+        </GridView.ItemContainerStyle>
+      </GridView>
+    </toolkit:DockPanel>
+    <VisualStateManager.VisualStateGroups>
+      <!-- レイアウトモード -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="TV" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderPanel.Padding" Value="{StaticResource ContentListViewHeaderMargin_TV}" />
+            <Setter Target="GenreItems.Padding" Value="{StaticResource ContentListViewBodyMargin_TV}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Desktop" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderPanel.Padding" Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
+            <Setter Target="GenreItems.Padding" Value="{StaticResource ContentListViewBodyMargin_Desktop}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Tablet" />
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}" EqualTo="Mobile" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderPanel.Padding" Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="GenreItems.Padding" Value="{StaticResource ContentListViewBodyMargin_Mobile}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
+</Page>

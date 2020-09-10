@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Windows.UI.Xaml.Data;
 
-namespace NicoPlayerHohoema.Locales
+namespace Hohoema.Locales
 {
     public sealed class LocaleToDisplayNameConverter : IValueConverter
     {

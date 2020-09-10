@@ -1,0 +1,599 @@
+﻿<Page x:Class="Hohoema.Presentation.Views.LiveInfomationPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:local="using:Hohoema.Presentation.Views"
+      xmlns:vm="using:Hohoema.Presentation.ViewModels"
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+      mc:Ignorable="d"
+      xmlns:i="using:Microsoft.Xaml.Interactivity"
+      xmlns:core="using:Microsoft.Xaml.Interactions.Core"
+      xmlns:toolkit="using:WinRTXamlToolkit.Controls"
+      xmlns:uwptoolkit="using:Microsoft.Toolkit.Uwp.UI.Controls"
+      xmlns:iconPack="using:MahApps.Metro.IconPacks"
+      xmlns:mvvm="using:Prism.Mvvm"
+      xmlns:hardTrigger="using:AdaptiveTriggerLibrary.Triggers.HardwareInterfaceTriggers"
+      xmlns:mybehavior="using:Hohoema.Presentation.Views.Behaviors"
+      xmlns:templateselector="using:Hohoema.Presentation.Views.TemplateSelector"
+      xmlns:controls="using:Hohoema.Presentation.Views.Controls"
+      xmlns:myTrigger="using:Hohoema.Presentation.Views.StateTrigger"
+      xmlns:myExtensions="using:Hohoema.Presentation.Views.Extensions"
+      xmlns:recommend="using:Mntone.Nico2.Live.Recommend"
+      xmlns:uwpExtension="using:Microsoft.Toolkit.Uwp.UI.Extensions"
+      xmlns:live="using:Mntone.Nico2.Live"
+      xmlns:windowsStateTriggers="using:WindowsStateTriggers"
+      DataContext="{x:Null}"
+      NavigationCacheMode="Enabled">
+  <Grid>
+    <ScrollViewer >
+      <StackPanel x:Name="ContentLayout">
+        <Border Height="128" />
+        <toolkit:DockPanel toolkit:DockPanel.Dock="Top">
+          <!-- 視聴開始などのボタン -->
+
+          <Image Source="{Binding LiveProgram.ThumbnailUrl}"
+                 Height="80"
+                 Width="80"
+                 Margin="0 8 0 16"
+                 toolkit:DockPanel.Dock="Left"
+                 VerticalAlignment="Top" Visibility="Collapsed" />
+        </toolkit:DockPanel>
+        <Pivot Margin="0 8 0 16"
+               x:Name="Pivot">
+          <i:Interaction.Behaviors>
+            <!-- Value="2" is 市場(Ichiba) PivotItem. if reorder items, change with that Value correctly. -->
+            <core:DataTriggerBehavior Binding="{x:Bind Pivot.SelectedIndex, Mode=OneWay}"
+                                      Value="2">
+              <core:CallMethodAction TargetObject="{Binding Live}"
+                                     MethodName="InitializeIchibaItems" />
+            </core:DataTriggerBehavior>
+            <core:DataTriggerBehavior Binding="{x:Bind Pivot.SelectedIndex, Mode=OneWay}"
+                                      Value="3">
+              <core:CallMethodAction TargetObject="{Binding Live}"
+                                     MethodName="InitializeLiveRecommend" />
+            </core:DataTriggerBehavior>
+          </i:Interaction.Behaviors>
+          <Pivot.ItemContainerStyle>
+            <Style TargetType="PivotItem">
+              <Setter Property="Padding"
+                      Value="0" />
+            </Style>
+          </Pivot.ItemContainerStyle>
+          <PivotItem x:Name="LiveInfoPivotItem"
+                     Header="放送情報">
+            <StackPanel>
+              <StackPanel toolkit:DockPanel.Dock="Bottom"
+                          Margin="16 8"
+                          >
+                <TextBlock Opacity="0.7">
+                                <Run Text="{Binding Source=LiveStreamingStartAt, Converter={StaticResource LocalizeConverter}}" /> <Run Text="{Binding LiveProgram.ShowTime.BeginAt, Converter={StaticResource DateTimeToString}}" /><LineBreak />
+                                <Run Text="{Binding Source=LiveStreamingEndAt, Converter={StaticResource LocalizeConverter}}" /> <Run Text="{Binding LiveProgram.ShowTime.EndAt, Converter={StaticResource DateTimeToString}}" /></TextBlock>
+              </StackPanel>
+              <StackPanel>
+                <TextBlock Text="{Binding Source=LiveStreamingDescription, Converter={StaticResource LocalizeConverter}}"
+                           Margin="0 16 8 8"
+                           Style="{StaticResource SubtitleTextBlockStyle}" />
+                <TextBox Text="{Binding LiveProgram.Description}"
+                         IsReadOnly="True"
+                         Background="Transparent"
+                         MaxWidth="800"
+                         TextWrapping="Wrap"
+                         AcceptsReturn="True"
+                         x:Name="LiveDescTextBox" />
+                <WebView Source="{Binding HtmlDescription}"
+                         DefaultBackgroundColor="Transparent"
+                         x:Name="LiveDescWebView"
+                         Visibility="Collapsed"
+                         myExtensions:WebView.UriNotifyCommand="{Binding ScriptNotifyCommand}">
+                  <i:Interaction.Behaviors>
+                    <mybehavior:WebViewAutoResizeToContent />
+                    <!-- WebViewでUINavigationControllerがハマるバグに対応する -->
+                    <mybehavior:PreventSpoilerXYNavigationInWebView />
+                  </i:Interaction.Behaviors>
+                </WebView>
+              </StackPanel>
+              <uwptoolkit:Expander IsExpanded="False"
+                                   Visibility="Collapsed"
+                                   x:Name="DescriptionHyperlinkItems">
+                <uwptoolkit:Expander.HeaderTemplate>
+                  <DataTemplate>
+                    <TextBlock Text="{Binding Source=LinkItemsInLiveStreamingDescription, Converter={StaticResource LocalizeConverter}}"
+                               Style="{StaticResource SubtitleTextBlockStyle}" />
+                  </DataTemplate>
+                </uwptoolkit:Expander.HeaderTemplate>
+                <GridView ItemsSource="{Binding DescriptionHyperlinkItems, Mode=OneWay}"
+                          IsItemClickEnabled="True"
+                          HorizontalContentAlignment="Stretch"
+                          SelectionMode="None">
+                  <i:Interaction.Behaviors>
+                    <core:EventTriggerBehavior EventName="ItemClick">
+                      <core:InvokeCommandAction Command="{Binding ScriptNotifyCommand}"
+                                                InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                    </core:EventTriggerBehavior>
+                  </i:Interaction.Behaviors>
+                  <GridView.ItemTemplate>
+                    <DataTemplate>
+                      <TextBlock Text="{Binding Label}" />
+                    </DataTemplate>
+                  </GridView.ItemTemplate>
+                  <GridView.ItemContainerStyle>
+                    <Style TargetType="GridViewItem">
+                      <Setter Property="Padding"
+                              Value="16 8" />
+                      <Setter Property="HorizontalContentAlignment"
+                              Value="Stretch" />
+                    </Style>
+                  </GridView.ItemContainerStyle>
+                </GridView>
+              </uwptoolkit:Expander>
+              <!-- タグ -->
+              <StackPanel>
+                <TextBlock Text="{Binding Source=Tag, Converter={StaticResource LocalizeConverter}}"
+                           Margin="0 16 8 8"
+                           Style="{StaticResource SubtitleTextBlockStyle}" />
+                <TextBlock Text="{Binding Source=NoTags, Converter={StaticResource LocalizeConverter}}"
+                           Opacity="0.7"
+                           Visibility="{Binding LiveTags, Converter={StaticResource EmptyCollectionVisibilityConverter}}" />
+                <ItemsControl ItemsSource="{Binding LiveTags}">
+                  <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                      <uwptoolkit:WrapPanel Orientation="Horizontal" />
+                    </ItemsPanelTemplate>
+                  </ItemsControl.ItemsPanel>
+                  <ItemsControl.ItemContainerStyle>
+                    <Style TargetType="ContentPresenter">
+                      <Setter Property="Margin"
+                              Value="0 0 8 8" />
+                    </Style>
+                  </ItemsControl.ItemContainerStyle>
+                  <ItemsControl.ItemTemplateSelector>
+                    <templateselector:ValueDataTemplateSelector PropertyName="Type">
+                      <templateselector:ValueDataTemplate Value="{x:Bind vm:LiveTagType.Category}">
+                        <DataTemplate x:DataType="vm:LiveTagViewModel">
+                          <Button Command="{Binding SearchLiveTagCommand}"
+                                  CommandParameter="{Binding Live}">
+                            <StackPanel Orientation="Horizontal">
+                              <iconPack:PackIconMaterial Kind="Lock"
+                                                         Height="16"
+                                                         Width="16"
+                                                         Margin="0 0 8 0"
+                                                         VerticalAlignment="Center" />
+                              <TextBlock Text="{Binding Tag}"
+                                         FontWeight="Bold"
+                                         TextWrapping="Wrap"
+                                         VerticalAlignment="Center" />
+                            </StackPanel>
+                          </Button>
+                        </DataTemplate>
+                      </templateselector:ValueDataTemplate>
+                      <templateselector:ValueDataTemplate Value="{x:Bind vm:LiveTagType.Locked}">
+                        <DataTemplate x:DataType="vm:LiveTagViewModel">
+                          <Button Command="{Binding SearchLiveTagCommand}"
+                                  CommandParameter="{Binding Live}">
+                            <StackPanel Orientation="Horizontal">
+                              <iconPack:PackIconMaterial Kind="Lock"
+                                                         Height="16"
+                                                         Width="16"
+                                                         Margin="0 0 8 0"
+                                                         VerticalAlignment="Center" />
+                              <TextBlock Text="{Binding Tag}"
+                                         TextWrapping="Wrap"
+                                         VerticalAlignment="Center" />
+                            </StackPanel>
+                          </Button>
+                        </DataTemplate>
+                      </templateselector:ValueDataTemplate>
+                      <templateselector:ValueDataTemplate Value="{x:Bind vm:LiveTagType.Free}">
+                        <DataTemplate x:DataType="vm:LiveTagViewModel">
+                          <Button Command="{Binding SearchLiveTagCommand}"
+                                  CommandParameter="{Binding Live}">
+                            <TextBlock Text="{Binding Tag}"
+                                       TextWrapping="Wrap" />
+                          </Button>
+                        </DataTemplate>
+                      </templateselector:ValueDataTemplate>
+                    </templateselector:ValueDataTemplateSelector>
+                  </ItemsControl.ItemTemplateSelector>
+                </ItemsControl>
+              </StackPanel>
+            </StackPanel>
+          </PivotItem>
+          <PivotItem x:Name="LiveBroadcasterInfoPivotItem">
+            <PivotItem.Header>
+              <StackPanel>
+                <StackPanel Orientation="Horizontal">
+                  <TextBlock Text="{Binding Source=LiveStreamOwner, Converter={StaticResource LocalizeConverter}}" />
+                </StackPanel>
+              </StackPanel>
+            </PivotItem.Header>
+            <Grid>
+              <toolkit:DockPanel x:Name="BroadcasterDesc_Other">
+                <StackPanel toolkit:DockPanel.Dock="Top">
+                  <toolkit:DockPanel Margin="0 0 0 0">
+                    <Image Source="{Binding Community.Thumbnail}"
+                           Height="60"
+                           Margin="0 0 8 0"
+                           toolkit:DockPanel.Dock="Left" />
+                    <StackPanel toolkit:DockPanel.Dock="Bottom"
+                                Orientation="Horizontal"
+                                Visibility="Collapsed"
+                                Margin="8 0 0 16">
+                      <TextBlock>
+                            <Run Text="{Binding Source=CommunityMemberCount, Converter={StaticResource LocalizeConverter}}" /> : <Run Text="{Binding Community.UserCount}" />
+                      </TextBlock>
+                      <Border Width="16" />
+                      <TextBlock>
+                                <Run Text="{Binding Source=CommunityLevel, Converter={StaticResource LocalizeConverter}}" /> : <Run Text="{Binding Community.Level}" /></TextBlock>
+                    </StackPanel>
+                    <TextBlock Text="{Binding Community.Label}"
+                               Style="{StaticResource TitleTextBlockStyle}"
+                               VerticalAlignment="Center"
+                               Margin="16 0 0 0"
+                               />
+                  </toolkit:DockPanel>
+                </StackPanel>
+                <Border Height="16"
+                        toolkit:DockPanel.Dock="Top" />
+                <StackPanel Orientation="Horizontal"
+                            toolkit:DockPanel.Dock="Top">
+                  <Button Content="{Binding Source=CommunityDetail, Converter={StaticResource LocalizeConverter}}"
+                          Command="{Binding PageManager.OpenPageCommand}"
+                          CommandParameter="{Binding Community}"
+                          Visibility="{Binding Community, Converter={StaticResource NotNullToVisibility}}" />
+                </StackPanel>
+                <Border Height="16"
+                        toolkit:DockPanel.Dock="Top" />
+                <TextBox Text="{Binding Community.Description}"
+                         AcceptsReturn="True"
+                         IsReadOnly="True"
+                         TextWrapping="Wrap"
+                         MaxWidth="800" />
+              </toolkit:DockPanel>
+              <Grid x:Name="BroadcasterDesc_Official"
+                    Visibility="Collapsed">
+                <TextBlock Text="{Binding Source=ThisStreamingIsPresentedByOfficial, Converter={StaticResource LocalizeConverter}}" />
+              </Grid>
+            </Grid>
+          </PivotItem>
+          <PivotItem x:Name="IchibaPivotItem" Header="{Binding Source=NiconicoIchiba, Converter={StaticResource LocalizeConverter}}">
+            <Grid Visibility="{Binding IsIchibaInitialized}">
+              <TextBlock Text="{Binding Source=IchibaNoItems, Converter={StaticResource LocalizeConverter}}"
+                         Visibility="{Binding IsEmptyIchibaItems}"
+                         Opacity="0.7"
+                         Margin="16" />
+              <ItemsControl ItemsSource="{Binding IchibaItems}"
+                            IsTabStop="False">
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <controls:IchibaItemCard />
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ItemsControl.ItemContainerStyle>
+                  <Style TargetType="ContentPresenter">
+                    <Setter Property="Margin"
+                            Value="0 0 16 8" />
+                  </Style>
+                </ItemsControl.ItemContainerStyle>
+                <ItemsControl.ItemsPanel>
+                  <ItemsPanelTemplate>
+                    <uwptoolkit:WrapPanel Orientation="Horizontal" />
+                  </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+              </ItemsControl>
+            </Grid>
+          </PivotItem>
+          <PivotItem x:Name="RecommendItemsPivotItem" Header="{Binding Source=Recommend, Converter={StaticResource LocalizeConverter}}">
+            <StackPanel Visibility="{Binding IsLiveRecommendInitialized}">
+              <TextBlock Visibility="{Binding IsEmptyLiveRecommendItems}" 
+                         Text="{Binding Source=RecommendNotFound, Converter={StaticResource LocalizeConverter}}"
+                         Opacity="0.7"
+                         Margin="16" />
+              <ListView ItemsSource="{Binding ReccomendItems}"
+                        IsItemClickEnabled="True"
+                        SelectionMode="None"
+                        HorizontalContentAlignment="Stretch"
+                        myExtensions:ListViewBase.DeferInitialize="True">
+                <i:Interaction.Behaviors>
+                  <core:EventTriggerBehavior EventName="ItemClick">
+                    <core:InvokeCommandAction Command="{Binding PageManager.OpenPageCommand}"
+                                              InputConverter="{StaticResource ItemClickEventArgsConverter}" />
+                  </core:EventTriggerBehavior>
+                </i:Interaction.Behaviors>
+                <ItemsControl.ItemTemplate>
+                  <DataTemplate>
+                    <controls:LiveVideoListItem />
+                  </DataTemplate>
+                </ItemsControl.ItemTemplate>
+                <ListView.ItemContainerStyle>
+                  <Style TargetType="ListViewItem">
+                    <Setter Property="HorizontalContentAlignment"
+                            Value="Stretch" />
+                    <Setter Property="Margin"
+                            Value="0 0 0 0" />
+                    <Setter Property="Padding"
+                            Value="0 8 16 8" />
+                    <Setter Property="UseSystemFocusVisuals"
+                            Value="True" />
+                    <Setter Property="BorderThickness"
+                            Value="0 0 0 1" />
+                    <Setter Property="BorderBrush"
+                            Value="#44707070" />
+                  </Style>
+                </ListView.ItemContainerStyle>
+              </ListView>
+            </StackPanel>
+          </PivotItem>
+        </Pivot>
+      </StackPanel>
+    </ScrollViewer>
+    <uwptoolkit:DockPanel x:Name="HeaderLayout" Background="{StaticResource MenuBackgroundBrush}" VerticalAlignment="Top">
+
+      <uwptoolkit:WrapPanel Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Right"
+                            x:Name="ViewActionButtonsLayout"
+                            Margin="0 48 0 0"
+                            >
+        <Button x:Name="OpenLiveContentButton"
+                Style="{ThemeResource AccentButtonStyle}"
+                Command="{Binding OpenLiveContentCommand}"
+                CommandParameter="{Binding Live}"
+                Visibility="{Binding IsShowOpenLiveContentButton.Value}"
+                Margin="0 0 8 0"
+                Height="48"
+                Padding="16 0">
+          <StackPanel>
+            <TextBlock Text="{Binding Source=WatchLiveStreaming, Converter={StaticResource LocalizeConverter}}"
+                       HorizontalAlignment="Center" />
+            <TextBlock Visibility="{Binding ExpiredTime, Converter={StaticResource NotNullToVisibility}}"
+                       Opacity="0.8">
+                                    (<Run Text="{Binding Source=TimeShift_WatchLimit, Converter={StaticResource LocalizeConverter}}" /> <Run Text="{Binding ExpiredTime, Converter={StaticResource ExpiredDateTimeToString}}" />)</TextBlock>
+          </StackPanel>
+        </Button>
+        <Button x:Name="AddTimeshiftButton" Content="{Binding Source=AddTimeshift, Converter={StaticResource LocalizeConverter}}"
+                Command="{Binding TogglePreserveTimeshift}"
+                Visibility="{Binding IsShowAddTimeshiftButton.Value}"
+                Margin="0 0 8 0" />
+        <Button x:Name="DeleteTimeshiftButton" Content="{Binding Source=AlreadyAddedTimeshift, Converter={StaticResource LocalizeConverter}}"
+                Visibility="{Binding IsShowDeleteTimeshiftButton.Value}"
+                Margin="0 0 8 0">
+          <Button.Flyout>
+            <MenuFlyout>
+              <MenuFlyoutItem Text="{Binding Source=DeleteTimeshift, Converter={StaticResource LocalizeConverter}}"
+                              Command="{Binding TogglePreserveTimeshift}" />
+            </MenuFlyout>
+          </Button.Flyout>
+        </Button>
+        <Button>
+          <SymbolIcon Symbol="More" />
+          <Button.Flyout>
+            <MenuFlyout>
+              <MenuFlyoutItem Text="{Binding Source=OpenWithBrowser, Converter={StaticResource LocalizeConverter}}"
+                              Command="{Binding ExternalAccessService.OpenLinkCommand}"
+                              CommandParameter="{Binding Live}" />
+              <MenuFlyoutItem Text="{Binding Source=Share, Converter={StaticResource LocalizeConverter}}"
+                              Command="{Binding ExternalAccessService.OpenShareUICommand}"
+                              CommandParameter="{Binding Live}"
+                              Visibility="{Binding Source={StaticResource IsXbox}, Converter={StaticResource BooleanToVisibilityInverted}}" />
+              <MenuFlyoutSubItem Text="{Binding Source=Copy, Converter={StaticResource LocalizeConverter}}"
+                                 Visibility="{Binding Source={StaticResource IsXbox}, Converter={StaticResource BooleanToVisibilityInverted}}">
+                <MenuFlyoutItem Text="{Binding Source=CopyLiveStreamingLink, Converter={StaticResource LocalizeConverter}}"
+                                Command="{Binding ExternalAccessService.CopyToClipboardCommand}"
+                                CommandParameter="{Binding Live}" />
+                <MenuFlyoutItem Text="{Binding Source=CopyLiveStreamingId, Converter={StaticResource LocalizeConverter}}"
+                                Command="{Binding ExternalAccessService.CopyToClipboardCommand}"
+                                CommandParameter="{Binding Id}" />
+                <MenuFlyoutItem Text="{Binding Source=CopyLiveStreamingShareText, Converter={StaticResource LocalizeConverter}}"
+                                Command="{Binding ExternalAccessService.CopyToClipboardWithShareTextCommand}"
+                                CommandParameter="{Binding Live}" />
+              </MenuFlyoutSubItem>
+            </MenuFlyout>
+          </Button.Flyout>
+        </Button>
+      </uwptoolkit:WrapPanel>
+
+    </uwptoolkit:DockPanel>
+    
+    <VisualStateManager.VisualStateGroups>
+      <!-- レイアウトモード -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}"
+                                                    EqualTo="TV" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding"
+                    Value="{StaticResource ContentListViewHeaderMargin_TV}" />
+            <Setter Target="ContentLayout.Padding"
+                    Value="{StaticResource ContentListViewBodyMargin_TV}" />
+            <Setter Target="DescriptionHyperlinkItems.Visibility"
+                    Value="Visible" />
+            <Setter Target="ViewActionButtonsLayout.HorizontalAlignment"
+                    Value="Left" />
+            <Setter Target="ViewActionButtonsLayout.Margin"
+                    Value="16 56 0 0" />
+            <Setter Target="ContentLayout.Margin"
+                    Value="0 56 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}"
+                                                    EqualTo="Desktop" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding"
+                    Value="{StaticResource ContentListViewHeaderMargin_Desktop}" />
+            <Setter Target="ContentLayout.Padding"
+                    Value="{StaticResource ContentListViewBodyMargin_Desktop}" />
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}"
+                                                    EqualTo="Tablet" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding"
+                    Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="ContentLayout.Padding"
+                    Value="{StaticResource ContentListViewBodyMargin_Tablet}" />
+
+          </VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <windowsStateTriggers:EqualsStateTrigger Value="{Binding ApplicationLayoutManager.AppLayout}"
+                                                    EqualTo="Mobile" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="HeaderLayout.Padding"
+                    Value="{StaticResource ContentListViewHeaderMargin_Mobile}" />
+            <Setter Target="ContentLayout.Padding"
+                    Value="{StaticResource ContentListViewBodyMargin_Mobile}" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      
+      <!-- コミュニティ種別 -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <myTrigger:EqualConditionStateTrigger Condition="{x:Bind live:CommunityType.Community}"
+                                                  Value="{Binding LiveProgram.Community, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters></VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <myTrigger:EqualConditionStateTrigger Condition="{x:Bind live:CommunityType.Channel}"
+                                                  Value="{Binding LiveProgram.Community, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters></VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <myTrigger:EqualConditionStateTrigger Condition="{x:Bind live:CommunityType.Official}"
+                                                  Value="{Binding LiveProgram.Community, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="BroadcasterDesc_Official.Visibility"
+                    Value="Visible" />
+            <Setter Target="BroadcasterDesc_Other.Visibility"
+                    Value="Collapsed" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      <!-- 放送ステータス種別 -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <myTrigger:EqualConditionStateTrigger Condition="{x:Bind live:StatusType.ComingSoon}"
+                                                  Value="{Binding LiveProgram.LiveStatus, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters></VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <myTrigger:EqualConditionStateTrigger Condition="{x:Bind live:StatusType.OnAir}"
+                                                  Value="{Binding LiveProgram.LiveStatus, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters></VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <myTrigger:EqualConditionStateTrigger Condition="{x:Bind live:StatusType.Closed}"
+                                                  Value="{Binding LiveProgram.LiveStatus, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters></VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <myTrigger:EqualConditionStateTrigger Condition="{x:Bind live:StatusType.Invalid}"
+                                                  Value="{Binding LiveProgram.LiveStatus, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters></VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      <!-- タイムシフト予約状況 -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding IsTsPreserved.Value}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters></VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding LiveInfo.Timeshift.Enabled, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters></VisualState.Setters>
+        </VisualState>
+        <!-- TSが無効な放送 -->
+        <VisualState>
+          <VisualState.Setters></VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      <!-- ログイン状態 -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding IsPremiumAccount.Value}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters></VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding IsLoggedIn.Value}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters></VisualState.Setters>
+        </VisualState>
+        <!-- ログインしていない場合 -->
+        <VisualState>
+          <VisualState.Setters></VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      
+      <!-- WebViewを使った放送説明の表示 -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <hardTrigger:DeviceFamilyTrigger Condition="Mobile" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters></VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <myTrigger:EqualConditionStateTrigger Condition="{x:Null}"
+                                                  Value="{Binding HtmlDescription, Mode=OneWay}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters></VisualState.Setters>
+        </VisualState>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="True" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="LiveDescTextBox.Visibility"
+                    Value="Collapsed" />
+            <Setter Target="LiveDescWebView.Visibility"
+                    Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+      <!-- 生放送情報の読み込み状態 -->
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <StateTrigger IsActive="{Binding IsLiveInfoLoaded.Value}" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="RootScrollViewer.Visibility"
+                    Value="Visible" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
+</Page>

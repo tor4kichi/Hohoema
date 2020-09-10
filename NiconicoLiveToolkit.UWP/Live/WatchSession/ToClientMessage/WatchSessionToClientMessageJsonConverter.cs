@@ -20,7 +20,16 @@ namespace NiconicoLiveToolkit.Live.WatchSession.ToClientMessage
                 return new Ping_WatchSessionToClientMessage();
             }
 
-            var dataProps = document.RootElement.GetProperty("data");
+            JsonElement dataProps;
+            if (typeName == "error")
+            {
+                dataProps = document.RootElement.GetProperty("body");
+            }
+            else
+            {
+                dataProps = document.RootElement.GetProperty("data");
+            }
+            
             return typeName switch
             {
                 "error" => dataProps.ToObject<Error_WatchSessionToClientMessage>(options),
