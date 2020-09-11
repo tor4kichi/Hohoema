@@ -72,67 +72,78 @@ namespace Hohoema.Models.UseCase.NicoVideoPlayer
             if (sender.PlaybackState == MediaPlaybackState.None) { return; }
             if (_playNext) { return; }
 
-            if (sender.Position - sender.NaturalDuration > _endedTime)
+            bool isInsideEndedRange = sender.Position - sender.NaturalDuration > _endedTime;
+            bool isStopped = sender.PlaybackState == MediaPlaybackState.Paused;
+            IsEnded.Value = isInsideEndedRange && isStopped;
+
+            try
             {
-                if (_videoRelatedContents == null 
-                    && IsEnded.Value == false
-                    && !_endedProcessed
-                    )
+                if (!IsEnded.Value || _endedProcessed)
                 {
-                    _endedProcessed = true;
-                    if (!TryPlaylistEndActionPlayerClosed())
-                    {
-                        if (!_hohoemaPlaylist.PlayDoneAndTryMoveNext())
-                        {
-                            if (_videoPlayer.PlayingVideoId == null) 
-                            {
-                                HasNextVideo = _videoRelatedContents?.NextVideo != null;
-                                NextVideoTitle = _videoRelatedContents?.NextVideo?.Label;
-                                return; 
-                            }
-
-                            if (_series?.NextVideo != null)
-                            {
-                                _scheduler.Schedule(() =>
-                                {
-                                    HasNextVideo = true;
-                                    NextVideoTitle = _series.NextVideo.Title;
-                                    HasRecomend.Value = true;
-
-                                    Debug.WriteLine("シリーズ情報から次の動画を提示: " + _series.NextVideo.Title);
-                                });
-                            }
-                            else
-                            {
-                                _relatedVideoContentsAggregator.GetRelatedContentsAsync(_videoPlayer.PlayingVideoId)
-                                    .ContinueWith(async task =>
-                                    {
-                                        var relatedVideos = await task;
-
-                                        _scheduler.Schedule(() =>
-                                        {
-                                            _videoRelatedContents = relatedVideos;
-                                            HasNextVideo = _videoRelatedContents.NextVideo != null;
-                                            NextVideoTitle = _videoRelatedContents.NextVideo?.Label;
-                                            HasRecomend.Value = HasNextVideo && IsEnded.Value;
-
-                                            Debug.WriteLine("動画情報から次の動画を提示: " + NextVideoTitle);
-                                        });
-                                    });
-                            }
-                        }
-                    }
+                    HasRecomend.Value = HasNextVideo && IsEnded.Value;
+                    return;
                 }
 
-                IsEnded.Value = sender.PlaybackState == MediaPlaybackState.None 
-                    || sender.PlaybackState == MediaPlaybackState.Paused;
-            }
-            else
-            {
-                IsEnded.Value = false;
-            }
+                if (TryPlaylistEndActionPlayerClosed())
+                {
+                    HasRecomend.Value = HasNextVideo && IsEnded.Value;
+                    _endedProcessed = true;
+                    return;
+                }
 
-            HasRecomend.Value = HasNextVideo && IsEnded.Value;
+                if (_hohoemaPlaylist.PlayDoneAndTryMoveNext())
+                {
+                    HasRecomend.Value = HasNextVideo && IsEnded.Value;
+                    _endedProcessed = true;
+                    return;
+                }
+
+                if (_videoPlayer.PlayingVideoId == null)
+                {
+                    _endedProcessed = true;
+                    _scheduler.Schedule(() =>
+                    {
+                        HasNextVideo = _videoRelatedContents?.NextVideo != null;
+                        NextVideoTitle = _videoRelatedContents?.NextVideo?.Label;
+                        HasRecomend.Value = HasNextVideo && IsEnded.Value;
+                    });
+                    return;
+                }
+
+                if (_series?.NextVideo != null)
+                {
+                    _scheduler.Schedule(() =>
+                    {
+                        HasNextVideo = true;
+                        NextVideoTitle = _series.NextVideo.Title;
+                        HasRecomend.Value = true;
+
+                        Debug.WriteLine("シリーズ情報から次の動画を提示: " + _series.NextVideo.Title);
+                    });
+
+                    return;
+                }
+
+                _relatedVideoContentsAggregator.GetRelatedContentsAsync(_videoPlayer.PlayingVideoId)
+                    .ContinueWith(async task =>
+                    {
+                        var relatedVideos = await task;
+
+                        _scheduler.Schedule(() =>
+                        {
+                            _videoRelatedContents = relatedVideos;
+                            HasNextVideo = _videoRelatedContents.NextVideo != null;
+                            NextVideoTitle = _videoRelatedContents.NextVideo?.Label;
+                            HasRecomend.Value = HasNextVideo && IsEnded.Value;
+
+                            Debug.WriteLine("動画情報から次の動画を提示: " + NextVideoTitle);
+                        });
+                    });
+            }
+            finally
+            {
+                
+            }
         }
 
         public void Dispose()
