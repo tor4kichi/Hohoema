@@ -2,7 +2,7 @@
 using Windows.UI.Xaml.Data;
 using I18NPortable;
 
-namespace NicoPlayerHohoema.Locales
+namespace Hohoema.Locales
 {
     public sealed class LocalizeConverter : IValueConverter
     {

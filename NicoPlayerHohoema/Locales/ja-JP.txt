@@ -194,6 +194,7 @@ FilterSettings = フィルタ設定
 FilterEnableWithVideoOwnerID = 動画投稿者IDでフィルターする
 ShowFilteredVideoOwnerNames = フィルターした動画投稿者名を表示
 FilterEnableWithVideoTitle = 動画タイトルでフィルターする
+AddVideoTitleFilterEntry = フィルターを追加
 AvairableRegureExpression = 正規表現が利用可能です
 CacheSettings = キャッシュ設定
 DefaultCacheVideoQuality = キャッシュする動画の画質
@@ -368,12 +369,23 @@ SoundVolumeChangeValueWithMouseScroll = マウススクロール音量変化量
 
 #### Live ####
 LivePlayingQuality = 生放送画質
-super_high = すごく高画質
-high = 高画質
-normal = 通常画質
-low = 低画質
-super_low = モバイル画質
-audio_high = 音質優先
+LivePlayingQualityLimit = 自動選択時の上限画質
+LiveQualityLimitType.Unknown = 画質未指定
+LiveQualityLimitType.SuperLow = モバイル画質
+LiveQualityLimitType.Low = 低画質
+LiveQualityLimitType.Normal = 通常画質
+LiveQualityLimitType.High = 高画質
+LiveQualityLimitType.SuperHigh = すごく高画質
+LiveQualityType.Abr = 自動
+LiveQualityType.SuperLow = モバイル画質
+LiveQualityType.Low = 低画質
+LiveQualityType.Normal = 通常画質
+LiveQualityType.High = 高画質
+LiveQualityType.SuperHigh = すごく高画質
+LiveQualityType.AudioHigh = 音質優先
+LiveQualityType.BroadcasterHigh = 高画質（配信者用）
+LiveQualityType.BroadcasterLow = 低画質（配信者用）
+
 
 LowLatency = 低遅延モード
 
@@ -621,7 +633,6 @@ MylistSort.MylistCountDesc = マイリストが多い順
 MylistSort.DurationAsc = 再生時間が短い順
 MylistSort.DurationDesc = 再生時間が長い順
 
-
 CommunitySearchSort.CreatedAt_Ascending = 作成が古い順
 CommunitySearchSort.CreatedAt_Descending = 作成が新しい順
 CommunitySearchSort.UpdateAt_Ascending = 更新が古い順
@@ -683,7 +694,7 @@ RemoveWatchedItems = 視聴済みを削除
 
 
 #### Mylist ####
-DefaultMylist = あとで見る
+DefaultMylist = とりあえずマイリスト
 MylistOwner = オーナー情報
 MylistEditInfo = マイリスト情報を編集
 MylistDelete = マイリストを削除
@@ -708,8 +719,9 @@ MylistName = マイリスト名
 MylistDescription = 説明
 MylistMemo = メモ
 MylistPrivateSettings = 公開範囲
-MylistPrivateSettings_Private = 非公開
-MylistPrivateSettings_Public = 公開
+MylistPrivateSettings_Private = 自分だけ
+MylistPrivateSettings_Public = 誰でも
+MylistThemeColor = テーマカラー
 MylistSort = 並び替え
 
 
@@ -783,10 +795,6 @@ NoItems_Mylist = マイリストはありません
 
 
 #### User Mylist ####
-
-PlaylistOrigin.Mylist = マイリスト
-PlaylistOrigin.Local = ローカルマイリスト
-
 LocalPlaylistCreate = ローカルマイリストを作成
 LocalPlaylistNameTextBoxPlacefolder = ローカルマイリスト名を入力
 MylistCreate = マイリストを作成

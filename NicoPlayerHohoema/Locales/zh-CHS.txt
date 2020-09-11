@@ -194,6 +194,7 @@ FilterSettings = 筛选器设定
 FilterEnableWithVideoOwnerID = 按视频提供者ID过滤
 ShowFilteredVideoOwnerNames = 显示过滤的视频提供者名称
 FilterEnableWithVideoTitle = 按视频标题过滤
+AddVideoTitleFilterEntry = 添加过滤器
 AvairableRegureExpression = 正则表达式可用
 CacheSettings = 缓存设置
 DefaultCacheVideoQuality = 缓存视频的图像质量
@@ -368,12 +369,23 @@ SoundVolumeChangeValueWithMouseScroll = 鼠标滚动音量更改
 
 #### Live ####
 LivePlayingQuality = 直播影像质量
-super_high = 超高画质
-high = 高画质
-normal = 普通画质
-low = 低画质
-super_low = 移动设备画质
-audio_high = 音质优先
+LivePlayingQualityLimit = 图像质量上限
+LiveQualityLimitType.Unknown = 图像质量未指定
+LiveQualityLimitType.SuperLow = 手机图像质量
+LiveQualityLimitType.Low = 低画质
+LiveQualityLimitType.Normal = 正常图像质量
+LiveQualityLimitType.High = 高分辨率
+LiveQualityLimitType.SuperHigh = 很高的图像质量
+LiveQualityType.Abr = 自动
+LiveQualityType.SuperLow = 手机图像质量
+LiveQualityType.Low = 低画质
+LiveQualityType.Normal = 正常图像质量
+LiveQualityType.High = 高分辨率
+LiveQualityType.SuperHigh = 很高的图像质量
+LiveQualityType.AudioHigh = 音质优先
+LiveQualityType.BroadcasterHigh = 高图像质量（针对发行商）
+LiveQualityType.BroadcasterLow = 图像质量低（适用于发行商）
+
 
 LowLatency = 低延迟模式
 
@@ -601,6 +613,25 @@ Sort.UpdateTime_Ascending = 最旧的更新优先
 Sort.UpdateTime_Descending = 更新是最新的
 Sort.Relation_Ascending = 精度降序
 Sort.Relation_Descending = 精度降序
+
+MylistSort.TitleAsc = 标题升序
+MylistSort.TitleDesc = 标题降序
+MylistSort.AddedAtAsc = 我的清单注册最早
+MylistSort.AddedAtDesc = 我的清单注册是最新的
+MylistSort.MylistCommentAsc = 备注升序
+MylistSort.MylistCommentDesc = 备忘录降序
+MylistSort.RegisteredAtAsc = 按时间顺序发布日期和时间
+MylistSort.RegisteredAtDesc = 按时间顺序发布日期和时间
+MylistSort.ViewCountAsc = 以升序排列
+MylistSort.ViewCountDesc = 以降序排列
+MylistSort.LastCommentTimeAsc = 从最旧到最新的评论
+MylistSort.LastCommentTimeDesc = 评论是最新的
+MylistSort.CommentCountAsc = 以评论的升序
+MylistSort.CommentCountDesc = 大多数评论
+MylistSort.MylistCountAsc = 按照我的清单的升序
+MylistSort.MylistCountDesc = 以我的清单的降序排列
+MylistSort.DurationAsc = 播放时间升序
+MylistSort.DurationDesc = 最长的播放时间
 
 CommunitySearchSort.CreatedAt_Ascending = 最早到最新
 CommunitySearchSort.CreatedAt_Descending = 最新作品
