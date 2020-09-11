@@ -2,6 +2,7 @@
 using Hohoema.Models.Domain.Application;
 using Hohoema.Models.Domain.Legacy;
 using Hohoema.Models.Domain.Niconico.Video;
+using Hohoema.Models.Domain.Player;
 using LiteDB;
 using System;
 using System.Collections.Generic;
@@ -10,6 +11,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Windows.Storage;
+using PlayerSettings = Hohoema.Models.Domain.Player.PlayerSettings;
 
 namespace Hohoema.Models.UseCase.Migration
 {
@@ -20,13 +22,15 @@ namespace Hohoema.Models.UseCase.Migration
         private readonly Domain.Application.PinSettings _pinSettings;
         private readonly VideoRankingSettings _videoRankingSettings;
         private readonly VideoFilteringSettings _videoFilteringRepository;
+        private readonly PlayerSettings _playerSettings;
 
         public SettingsMigration_V_0_23_0(
             AppFlagsRepository appFlagsRepository,
             Domain.Application.AppearanceSettings appearanceSettings,
             Domain.Application.PinSettings pinSettings,
             VideoRankingSettings videoRankingSettings,
-            VideoFilteringSettings videoFilteringRepository
+            VideoFilteringSettings videoFilteringRepository,
+            PlayerSettings playerSettings
             )
         {
             _appFlagsRepository = appFlagsRepository;
@@ -34,6 +38,7 @@ namespace Hohoema.Models.UseCase.Migration
             _pinSettings = pinSettings;
             _videoRankingSettings = videoRankingSettings;
             _videoFilteringRepository = videoFilteringRepository;
+            _playerSettings = playerSettings;
         }
 
         public async Task MigrateAsync()
@@ -136,6 +141,49 @@ namespace Hohoema.Models.UseCase.Migration
                 }
                 Debug.WriteLine("[Migrate] NGSetting(VideoFilteringSettings) done");
 
+
+                {
+                    var ps= hohoemaUserSettings.PlayerSettings;
+                    _playerSettings.DefaultQuality = ps.DefaultQuality;
+                    _playerSettings.DefaultLiveQuality = ps.DefaultLiveQuality;
+                    _playerSettings.LiveWatchWithLowLatency = ps.LiveWatchWithLowLatency;
+                    _playerSettings.IsMute = ps.IsMute;
+                    _playerSettings.SoundVolume = ps.SoundVolume;
+                    _playerSettings.SoundVolumeChangeFrequency = ps.SoundVolumeChangeFrequency;
+                    _playerSettings.IsLoudnessCorrectionEnabled = ps.IsLoudnessCorrectionEnabled;
+                    _playerSettings.IsCommentDisplay_Video = ps.IsCommentDisplay_Video;
+                    _playerSettings.IsCommentDisplay_Live = ps.IsCommentDisplay_Live;
+                    _playerSettings.PauseWithCommentWriting = ps.PauseWithCommentWriting;
+                    _playerSettings.CommentDisplayDuration = ps.CommentDisplayDuration;
+                    _playerSettings.DefaultCommentFontScale = ps.DefaultCommentFontScale;
+                    _playerSettings.CommentOpacity = ps.CommentOpacity;
+                    _playerSettings.IsDefaultCommentWithAnonymous = ps.IsDefaultCommentWithAnonymous;
+                    _playerSettings.CommentColor = ps.CommentColor;
+                    _playerSettings.IsAutoHidePlayerControlUI = ps.IsAutoHidePlayerControlUI;
+                    _playerSettings.AutoHidePlayerControlUIPreventTime = ps.AutoHidePlayerControlUIPreventTime;
+                    _playerSettings.IsForceLandscape = ps.IsForceLandscape;
+                    _playerSettings.PlaybackRate = ps.PlaybackRate;
+                    _playerSettings.NicoScript_Default_Enabled = ps.NicoScript_Default_Enabled;
+                    _playerSettings.NicoScript_DisallowSeek_Enabled = ps.NicoScript_DisallowSeek_Enabled;
+                    _playerSettings.NicoScript_Jump_Enabled = ps.NicoScript_Jump_Enabled;
+                    _playerSettings.NicoScript_DisallowComment_Enabled = ps._NicoScript_DisallowComment_Enabled;
+                    _playerSettings.NicoScript_Replace_Enabled = ps.NicoScript_Replace_Enabled;
+                    _playerSettings.IsCurrentVideoLoopingEnabled = ps.IsCurrentVideoLoopingEnabled;
+                    _playerSettings.IsPlaylistLoopingEnabled = ps.IsPlaylistLoopingEnabled;
+                    _playerSettings.IsShuffleEnable = ps.IsShuffleEnable;
+                    _playerSettings.IsReverseModeEnable = ps.IsReverseModeEnable;
+                    _playerSettings.PlaylistEndAction = ps.PlaylistEndAction switch
+                    {
+                        Domain.Legacy.PlaylistEndAction.NothingDo => Domain.Player.PlaylistEndAction.NothingDo,
+                        Domain.Legacy.PlaylistEndAction.ChangeIntoSplit => Domain.Player.PlaylistEndAction.ChangeIntoSplit,
+                        Domain.Legacy.PlaylistEndAction.CloseIfPlayWithCurrentWindow => Domain.Player.PlaylistEndAction.CloseIfPlayWithCurrentWindow,
+                        _ => throw new NotSupportedException()
+                    };
+                    _playerSettings.AutoMoveNextVideoOnPlaylistEmpty = ps.AutoMoveNextVideoOnPlaylistEmpty;
+                    
+                }
+
+
                 {
                     var allSettings = new SettingsBase[]
                     {
@@ -148,13 +196,15 @@ namespace Hohoema.Models.UseCase.Migration
                         hohoemaUserSettings.ActivityFeedSettings
                     };
 
+                    hohoemaUserSettings.Dispose();
+
                     foreach (var setting in allSettings)
                     {
                         Debug.WriteLine("[Migrate] Delete legacy settings :" + setting.FileName);
                         var file = await setting.GetFile();
+                        
                         await file.DeleteAsync();
                     }
-
                 }
             }
             catch

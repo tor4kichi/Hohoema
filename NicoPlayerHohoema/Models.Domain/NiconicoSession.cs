@@ -149,19 +149,8 @@ namespace Hohoema.Models.Domain
         private NiconicoContext _Context;
         public NiconicoContext Context
         {
-            get { return _Context ?? (_Context = new NiconicoContext()); }
-            private set 
-            {
-                _Context = value;
-                if (_Context != null)
-                {
-                    LiveContext = new NiconicoLiveToolkit.NiconicoContext(_Context.HttpClient);
-                }
-                else
-                {
-                    LiveContext = null;
-                }
-            }
+            get { return _Context ??= new NiconicoContext(); }
+            private set { SetProperty(ref _Context, value); }
         }
 
 
@@ -169,7 +158,7 @@ namespace Hohoema.Models.Domain
         private NiconicoLiveToolkit.NiconicoContext _LiveContext;
         public NiconicoLiveToolkit.NiconicoContext LiveContext
         {
-            get { return _LiveContext; }
+            get { return _LiveContext ??= new NiconicoLiveToolkit.NiconicoContext(_Context.HttpClient); }
             private set { SetProperty(ref _LiveContext, value); }
         }
 
@@ -482,7 +471,7 @@ namespace Hohoema.Models.Domain
                 finally
                 {
                     Context = new NiconicoContext();
-
+                    _LiveContext = null;
                 }
             }
 

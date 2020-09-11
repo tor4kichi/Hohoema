@@ -347,9 +347,8 @@ namespace Hohoema
                 isInitialized = true;
 
 
-                Type[] migrateTypes = new[]
+                Type[] migrateTypes = new Type[]
                 {
-                    typeof(DatabaseMigration_V_0_23_0),
                 };
 
                 
