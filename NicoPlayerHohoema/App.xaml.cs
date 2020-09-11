@@ -371,13 +371,14 @@ namespace Hohoema
                     var upgradeResult = LiteEngine.Upgrade(Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db"));
                     Debug.WriteLine("upgrade: " + upgradeResult);
 
-                    LiteDatabase db = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")}; Async=true;");
+                    LiteDatabase db = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")};");
                     unityContainer.RegisterInstance<ILiteDatabase>(db);
                 }
                 
                 Container.Resolve<MigrationCommentFilteringSettings>().Migration();
                 Container.Resolve<CommentFilteringNGScoreZeroFixture>().Migration();
-                await Container.Resolve<SettingsMigration_V_0_23_0>().MigrateAsync();
+                await Task.Run(async () => { await Container.Resolve<SettingsMigration_V_0_23_0>().MigrateAsync(); });
+                
 
 
 
