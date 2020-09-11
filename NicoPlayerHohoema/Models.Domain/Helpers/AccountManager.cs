@@ -93,7 +93,7 @@ namespace Hohoema.Models.Domain.Helpers
         public static Task AddOrUpdateAccount(string mailAddress, string password)
         {
 #if !DEBUG
-            if (!Services.Helpers.DeviceTypeHelper.IsXbox)
+            if (!DeviceTypeHelper.IsXbox)
 #else
             if (!IsDebugXboxMode && !DeviceTypeHelper.IsXbox)
 #endif
@@ -154,7 +154,7 @@ namespace Hohoema.Models.Domain.Helpers
         public static bool RemoveAccount(string mailAddress)
         {
 #if !DEBUG
-            if (!Services.Helpers.DeviceTypeHelper.IsXbox)
+            if (!DeviceTypeHelper.IsXbox)
 #else
             if (!IsDebugXboxMode && !DeviceTypeHelper.IsXbox)
 #endif
@@ -212,7 +212,7 @@ namespace Hohoema.Models.Domain.Helpers
             if (HasPrimaryAccount())
             {
 #if !DEBUG
-                if (!Services.Helpers.DeviceTypeHelper.IsXbox)
+                if (!DeviceTypeHelper.IsXbox)
 #else
                 if (!IsDebugXboxMode && !DeviceTypeHelper.IsXbox)
 #endif

@@ -369,12 +369,10 @@ namespace Hohoema
 
                 {
                     var unityContainer = Container.GetContainer();
-                    if (Microsoft.Toolkit.Uwp.Helpers.SystemInformation.IsAppUpdated)
-                    {
-                        LiteEngine.Upgrade(Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db"));
-                    }
+                    var upgradeResult = LiteEngine.Upgrade(Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db"));
+                    Debug.WriteLine("upgrade: " + upgradeResult);
 
-                    LiteDatabase db = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")}; Async=false;");
+                    LiteDatabase db = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")}; Async=true;");
                     unityContainer.RegisterInstance<ILiteDatabase>(db);
                 }
                 
@@ -400,17 +398,10 @@ namespace Hohoema
                     Debug.WriteLine(ex.ToString());
                 }
 
-                // 厄介な問題：リリースビルド時にアプリで表示される言語がOSで表示してる言語からズレる問題があって
-                // 以下の2行があることでその問題が回避できる。なんで？ ←(´・ω・`)知らんがな
-                // リリースモードで変数覗くのもデバッガーがクラッシュして出来ないので動く状態で妥協
-                Console.WriteLine(CultureInfo.CurrentCulture.Name);
-                Console.WriteLine(I18N.Current.Locale);
-                // 邪悪なコードここまで
-
                 Resources["Strings"] = I18NPortable.I18N.Current;
 
                 var appearanceSettings = Container.Resolve<Models.Domain.Application.AppearanceSettings>();
-                I18NPortable.I18N.Current.Locale = appearanceSettings.Locale ?? I18NPortable.I18N.Current.Locale;
+                I18NPortable.I18N.Current.Locale = appearanceSettings.Locale ?? I18NPortable.I18N.Current.Languages.FirstOrDefault(x => x.Locale.StartsWith(CultureInfo.CurrentCulture.TwoLetterISOLanguageName)).Locale ?? I18NPortable.I18N.Current.Locale;
 
                 CultureInfo.CurrentCulture = CultureInfo.GetCultureInfo(I18NPortable.I18N.Current.Locale);
 
@@ -431,7 +422,7 @@ namespace Hohoema
 #if DEBUG
                     if (_DEBUG_XBOX_RESOURCE)
 #else
-                    if (Services.Helpers.DeviceTypeHelper.IsXbox)
+                    if (DeviceTypeHelper.IsXbox)
 #endif
                     {
                         this.Resources.MergedDictionaries.Add(new ResourceDictionary()
