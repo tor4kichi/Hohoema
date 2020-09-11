@@ -18,7 +18,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 	{
 		public VideoRankingSettings()
 		{
-            _HiddenTags = Read(new List<RankingGenreTag>(), nameof(_HiddenTags));
+            _HiddenTags = Read(new List<RankingGenreTag>(), nameof(HiddenTags));
             HiddenTags = new ReadOnlyCollection<RankingGenreTag>(_HiddenTags);
             HiddenGenres = Read(new HashSet<RankingGenre>(), nameof(HiddenGenres));
             _FavoriteTags = Read(new List<RankingGenreTag>(), nameof(FavoriteTags));
@@ -46,6 +46,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
             if (target != null)
             {
                 _HiddenTags.Remove(target);
+                Save(_HiddenTags.ToList(), nameof(HiddenTags));
             }
         }
 
@@ -59,6 +60,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
                     Label = label,
                     Genre = genre
                 });
+                Save(_HiddenTags.ToList(), nameof(HiddenTags));
             }
         }
 
@@ -103,6 +105,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
             if (target != null)
             {
                 _FavoriteTags.Remove(target);
+                Save(_FavoriteTags.ToList(), nameof(FavoriteTags));
             }
         }
 
@@ -116,6 +119,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
                     Label = label,
                     Genre = genre
                 });
+                Save(_FavoriteTags.ToList(), nameof(FavoriteTags));
             }
         }
 	}

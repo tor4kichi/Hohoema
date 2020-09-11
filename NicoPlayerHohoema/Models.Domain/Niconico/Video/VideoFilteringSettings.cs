@@ -46,7 +46,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
             _NGVideoIdEnable = Read(true, nameof(NGVideoIdEnable));
             _NGVideoOwnerUserIdEnable = Read(true, nameof(NGVideoOwnerUserIdEnable));
             _NGVideoTitleKeywordEnable = Read(true, nameof(NGVideoTitleKeywordEnable));
-            _NGVideoTitleTestText = Read(string.Empty, nameof(_NGVideoTitleTestText));
+            _NGVideoTitleTestText = Read(string.Empty, nameof(NGVideoTitleTestText));
             _videoIdFilteringRepository = videoIdFilteringRepository;
             _videoOwnerIdFilteringRepository = videoOwnerIdFilteringRepository;
             _videoTitleFilteringRepository = videoTitleFilteringRepository;
