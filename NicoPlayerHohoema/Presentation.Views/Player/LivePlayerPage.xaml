@@ -156,6 +156,9 @@
             <core:EventTriggerBehavior EventName="Loaded">
               <mybehavior:SetFocus TargetObject="{Binding ElementName=VolumeButton}" />
             </core:EventTriggerBehavior>
+            <mybehavior:UINavigationTrigger Kind="Cancel" x:Name="ControllerToggleDisplayUITrigger" IsEnabled="True">
+              <core:ChangePropertyAction TargetObject="{x:Bind}" PropertyName="IsDisplayControlUI" Value="{x:Bind IsDisplayControlUI, Mode=OneWay, Converter={StaticResource BoolNegation}}" />
+            </mybehavior:UINavigationTrigger>
             <mybehavior:UINavigationTrigger Kind="Cancel" Hold="True" x:Name="ControllerHold_BButtonToCloseTrigger">
               <core:InvokeCommandAction Command="{Binding PrimaryViewPlayerManager.CloseCommand}" />
             </mybehavior:UINavigationTrigger>
@@ -293,7 +296,9 @@
                       <SolidColorBrush Color="{ThemeResource SystemAltMediumColor}" />
                     </Grid.Background>
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Left">
-                      <Button x:Name="CloseButton" Command="{Binding PrimaryViewPlayerManager.CloseCommand}" Background="Transparent" toolkit:DockPanel.Dock="Left" UseSystemFocusVisuals="True">
+                      <Button x:Name="CloseButton" Command="{Binding PrimaryViewPlayerManager.CloseCommand}" Background="Transparent" toolkit:DockPanel.Dock="Left" UseSystemFocusVisuals="True"
+                              XYFocusRight="{x:Bind ActionsCommandBar}"
+                              >
                         <iconPack:PackIconMaterial Kind="Close" />
                       </Button>
                       <Button x:Name="ShowPrimaryViewButton" Command="{Binding ShowPrimaryViewCommand}" Background="Transparent" Visibility="Collapsed">
@@ -304,7 +309,9 @@
                     </StackPanel>
                     
                     
-                    <CommandBar x:Name="ActionsCommandBar" HorizontalAlignment="Right">
+                    <CommandBar x:Name="ActionsCommandBar" HorizontalAlignment="Right"
+                                XYFocusLeft="{x:Bind CloseButton}"
+                                >
 
                       <AppBarButton Label="{Binding Source=LiveInfomation, Converter={StaticResource LocalizeConverter}}" Command="{Binding PageManager.OpenPageCommand}" CommandParameter="{Binding LiveInfo}" />
                       <AppBarButton Label="{Binding Source=LiveBroadcasterInfomation, Converter={StaticResource LocalizeConverter}}" Command="{Binding PageManager.OpenContentOwnerPageCommand}" CommandParameter="{Binding LiveInfo}" />
