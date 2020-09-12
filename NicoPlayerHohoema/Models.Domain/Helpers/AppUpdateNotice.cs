@@ -18,6 +18,7 @@ namespace Hohoema.Models.Domain.Helpers
         // チェックしたバージョンをApplicationDataのLocalSettings.
 
 #if DEBUG
+        private static bool __ForceNoticeIsMinorVersionUpdated = false;
         private static bool __ForceNoticeUpdate = false;
 #endif
 
@@ -27,7 +28,20 @@ namespace Hohoema.Models.Domain.Helpers
 
        
 
-        public static bool HasNotCheckedUptedeNoticeVersion
+        public static bool IsMinorVersionUpdated
+        {
+            get
+            {
+#if DEBUG
+                if (__ForceNoticeIsMinorVersionUpdated) { return true; }
+#endif
+                var currentPackegeVersion = Windows.ApplicationModel.Package.Current.Id.Version;
+                var currentAppVersion = new Version(currentPackegeVersion.Major, currentPackegeVersion.Minor, currentPackegeVersion.Build);
+                return currentAppVersion.Minor > LastCheckedVersion.Minor;
+            }
+        }
+
+        public static bool IsUpdated
         {
             get
             {
@@ -51,7 +65,14 @@ namespace Hohoema.Models.Domain.Helpers
                     {
                         var versionText = (string)ApplicationData.Current.LocalSettings.Values["update_notified_version"];
 
-                        _LastCheckedVersion = Version.Parse(versionText);
+                        if (!string.IsNullOrEmpty(versionText))
+                        {
+                            _LastCheckedVersion = Version.Parse(versionText);
+                        }
+                        else
+                        {
+                            _LastCheckedVersion = new Version(0, 0, 0);
+                        }
                     }
                     catch
                     {

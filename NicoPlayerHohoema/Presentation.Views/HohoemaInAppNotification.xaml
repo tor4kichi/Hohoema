@@ -12,58 +12,64 @@
     d:DesignHeight="300"
     d:DesignWidth="400">
 
+  <Grid>
     <uwpcontrol:InAppNotification
-                    x:Name="LiteNotification"
-                    >
-        <uwpcontrol:InAppNotification.ContentTemplate>
-            <DataTemplate>
-                <uwpcontrol:WrapPanel Orientation="Horizontal" >
-
-                    <toolkit:DockPanel Margin="0 0 8 0 " 
+            x:Name="LiteNotification"
+            >
+      <uwpcontrol:InAppNotification.Content>
+        <toolkit:DockPanel Margin="0 0 8 0" 
                                             MinHeight="48"
                                             >
-                        <Image Source="ms-appx:///Assets/NewStoreLogo.scale-100.png" 
+          <ItemsControl ItemsSource="{Binding Commands}"
+                        toolkit:DockPanel.Dock="Bottom"
+                        x:Name="CommandsItemsControl"
+                        HorizontalAlignment="Right"
+                        Margin="0 8 0 0"
+                        >
+            <ItemsControl.ItemsPanel>
+              <ItemsPanelTemplate>
+                <StackPanel Orientation="Horizontal" Spacing="8" />
+              </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+              <DataTemplate>
+                <Button Content="{Binding Label}" Command="{Binding Command}" />
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+          
+          <Image Source="ms-appx:///Assets/NewStoreLogo.scale-100.png" 
                                            Height="32" Width="32" 
                                            Margin="0 0 16 0" 
                                            toolkit:DockPanel.Dock="Left"
                                            VerticalAlignment="Center"
                                            />
 
+          
 
-                        <TextBlock Grid.Column="1" 
-                                           VerticalAlignment="Center"
-                                           Text="{Binding Content}"
-                                           TextWrapping="Wrap"
-                                    />
+          <TextBlock VerticalAlignment="Center"
+                      Text="{Binding Content}"
+                      TextWrapping="Wrap"
+                      />
 
-
-                    </toolkit:DockPanel>
-
-
-
-                    <ItemsControl Grid.Column="2"  ItemsSource="{Binding Commands}"
-                                              
-                                              >
-
-                        <ItemsControl.ItemsPanel>
-                            <ItemsPanelTemplate>
-                                <StackPanel Orientation="Horizontal" />
-                            </ItemsPanelTemplate>
-                        </ItemsControl.ItemsPanel>
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <Button Content="{Binding Label}" 
-                                                    Command="{Binding Command}"
-                                                    />
-
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-
-
-                </uwpcontrol:WrapPanel>
-            </DataTemplate>
-        </uwpcontrol:InAppNotification.ContentTemplate>
+        </toolkit:DockPanel>
+      </uwpcontrol:InAppNotification.Content>
     </uwpcontrol:InAppNotification>
+
+    <VisualStateManager.VisualStateGroups>
+      <VisualStateGroup>
+        <VisualState>
+          <VisualState.StateTriggers>
+            <AdaptiveTrigger MinWindowWidth="520" />
+          </VisualState.StateTriggers>
+          <VisualState.Setters>
+            <Setter Target="CommandsItemsControl.(toolkit:DockPanel.Dock)" Value="Right" />
+            <Setter Target="CommandsItemsControl.HorizontalAlignment" Value="Strech" />
+            <Setter Target="CommandsItemsControl.Margin" Value="0 0 0 0" />
+          </VisualState.Setters>
+        </VisualState>
+      </VisualStateGroup>
+    </VisualStateManager.VisualStateGroups>
+  </Grid>
+  
 </UserControl>
