@@ -238,7 +238,12 @@ namespace Hohoema.Presentation.ViewModels
 
         SubscriptionToken _watchedDisposable;
 
-        public bool IsInitialized { get; private set; }
+        private bool _IsInitialized;
+        public bool IsInitialized
+        {
+            get { return _IsInitialized; }
+            set { SetProperty(ref _IsInitialized, value); }
+        }
 
         static FastAsyncLock _initializeLock = new FastAsyncLock();
 
