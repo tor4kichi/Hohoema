@@ -10,7 +10,7 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature
 {
     public class VideoPlayedHistoryRepository : LiteDBServiceBase<VideoPlayHistoryEntry>
     {
-        public VideoPlayedHistoryRepository(ILiteDatabase liteDatabase) : base(liteDatabase)
+        public VideoPlayedHistoryRepository(LiteDatabase liteDatabase) : base(liteDatabase)
         {
         }
 

@@ -15,7 +15,7 @@ namespace Hohoema.Models.Domain.Niconico.UserFeature.Mylist
     {
         public sealed class LoginUserMylistItemIdRepository : LiteDBServiceBase<LoginUserMylistItemIdEntry>
         {
-            public LoginUserMylistItemIdRepository(ILiteDatabase liteDatabase) : base(liteDatabase)
+            public LoginUserMylistItemIdRepository(LiteDatabase liteDatabase) : base(liteDatabase)
             {
                 _collection.EnsureIndex(x => x.VideoId);
                 _collection.EnsureIndex(x => x.MylistGroupId);

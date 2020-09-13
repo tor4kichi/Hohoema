@@ -152,7 +152,7 @@ namespace Hohoema.Models.Domain.Player
 
         public sealed class CommentTextTransformConditionDBService : LiteDBServiceBase<CommentTextTransformCondition>
         {
-            public CommentTextTransformConditionDBService(ILiteDatabase liteDatabase) : base(liteDatabase)
+            public CommentTextTransformConditionDBService(LiteDatabase liteDatabase) : base(liteDatabase)
             {
             }
         }
@@ -204,7 +204,7 @@ namespace Hohoema.Models.Domain.Player
 
         public sealed class FilteringCommentOwnerIdDBService : LiteDBServiceBase<FilteringCommentOwnerId>
         {
-            public FilteringCommentOwnerIdDBService(ILiteDatabase liteDatabase) : base(liteDatabase)
+            public FilteringCommentOwnerIdDBService(LiteDatabase liteDatabase) : base(liteDatabase)
             {
             }
         }
@@ -298,7 +298,7 @@ namespace Hohoema.Models.Domain.Player
 
         public sealed class FilteringCommentTextDBService : LiteDBServiceBase<FilteringCommentTextKeyword>
         {
-            public FilteringCommentTextDBService(ILiteDatabase liteDatabase) : base(liteDatabase)
+            public FilteringCommentTextDBService(LiteDatabase liteDatabase) : base(liteDatabase)
             {
             }
         }

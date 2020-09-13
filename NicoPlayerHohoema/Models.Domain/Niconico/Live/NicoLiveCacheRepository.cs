@@ -55,7 +55,7 @@ namespace Hohoema.Models.Domain.Niconico.Live
 
     public class NicoLiveCacheRepository : LiteDBServiceBase<NicoLive>
     {
-        public NicoLiveCacheRepository(ILiteDatabase liteDatabase) : base(liteDatabase)
+        public NicoLiveCacheRepository(LiteDatabase liteDatabase) : base(liteDatabase)
         {
             _collection.EnsureIndex(x => x.Title);
         }

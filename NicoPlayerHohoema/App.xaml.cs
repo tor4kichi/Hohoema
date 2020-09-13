@@ -61,7 +61,6 @@ using Hohoema.Models.UseCase.Migration;
 using Hohoema.Models.Domain.Application;
 using Hohoema.Models.Domain.Player;
 using Hohoema.Models.Domain.Niconico.UserFeature;
-using LiteDB.Engine;
 using Prism.Commands;
 
 namespace Hohoema
@@ -369,11 +368,11 @@ namespace Hohoema
 
                 {
                     var unityContainer = Container.GetContainer();
-                    var upgradeResult = LiteEngine.Upgrade(Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db"));
-                    Debug.WriteLine("upgrade: " + upgradeResult);
+                    //var upgradeResult = LiteEngine.Upgrade(Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db"));
+                    //Debug.WriteLine("upgrade: " + upgradeResult);
 
                     LiteDatabase db = new LiteDatabase($"Filename={Path.Combine(ApplicationData.Current.LocalFolder.Path, "hohoema.db")};");
-                    unityContainer.RegisterInstance<ILiteDatabase>(db);
+                    unityContainer.RegisterInstance<LiteDatabase>(db);
                 }
                 
                 Container.Resolve<MigrationCommentFilteringSettings>().Migration();

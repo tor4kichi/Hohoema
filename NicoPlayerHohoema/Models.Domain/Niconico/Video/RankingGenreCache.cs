@@ -35,7 +35,7 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
     public class RankingGenreCache : LiteDBServiceBase<RankingTagsGenreGroupedEntry>
     {
-        public RankingGenreCache(ILiteDatabase liteDatabase) : base(liteDatabase)
+        public RankingGenreCache(LiteDatabase liteDatabase) : base(liteDatabase)
         {
         }
 

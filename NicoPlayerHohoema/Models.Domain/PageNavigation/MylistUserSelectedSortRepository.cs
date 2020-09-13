@@ -15,7 +15,7 @@ namespace Hohoema.Models.Domain.PageNavigation
 
         public class MylistUserSelectedSortRepository_Internal : LiteDBServiceBase<MylistUserSelectedSortEntry>
         {
-            public MylistUserSelectedSortRepository_Internal(ILiteDatabase liteDatabase) : base(liteDatabase)
+            public MylistUserSelectedSortRepository_Internal(LiteDatabase liteDatabase) : base(liteDatabase)
             {
             }
 

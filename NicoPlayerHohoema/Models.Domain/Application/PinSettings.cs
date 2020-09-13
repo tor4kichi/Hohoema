@@ -14,20 +14,20 @@ namespace Hohoema.Models.Domain.Application
 {
     public sealed class PinSettings : LiteDBServiceBase<HohoemaPin>
     {
-        public PinSettings(LiteDB.ILiteDatabase liteDatabase) : base(liteDatabase)
+        public PinSettings(LiteDB.LiteDatabase liteDatabase) : base(liteDatabase)
         {
         }
 
         HohoemaPin CreatePin(string label, HohoemaPageType pageType, string parameter)
         {
-            var sortIndex = _collection.Query().OrderByDescending(x => x.SortIndex).FirstOrDefault()?.SortIndex ?? 0;
+            var sortIndex = _collection.Max(x => x.SortIndex) ?? 0;
 
             return CreateItem(new Domain.PageNavigation.HohoemaPin()
             {
                 Label = label,
                 Parameter = parameter,
                 PageType = pageType,
-                SortIndex = sortIndex
+                SortIndex = sortIndex + 1
             });
         }
     }

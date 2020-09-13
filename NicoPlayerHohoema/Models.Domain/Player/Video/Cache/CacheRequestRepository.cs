@@ -53,7 +53,7 @@ namespace Hohoema.Models.Domain.Player.Video.Cache
 
     public sealed class CacheRequestRepository : LiteDBServiceBase<CacheRequest>
     {
-        public CacheRequestRepository(ILiteDatabase database)
+        public CacheRequestRepository(LiteDatabase database)
             : base(database)
         {
             this._collection.EnsureIndex(x => x.CacheState);

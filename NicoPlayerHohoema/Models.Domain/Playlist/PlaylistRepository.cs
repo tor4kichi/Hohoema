@@ -49,7 +49,7 @@ namespace Hohoema.Models.Domain.Playlist
     {
         public sealed class PlaylistDbService : LiteDBServiceBase<PlaylistEntity>
         {
-            public PlaylistDbService(ILiteDatabase liteDatabase) : base(liteDatabase)
+            public PlaylistDbService(LiteDatabase liteDatabase) : base(liteDatabase)
             {
             }
 
@@ -66,7 +66,7 @@ namespace Hohoema.Models.Domain.Playlist
 
         public sealed class PlaylistItemsDbService : LiteDBServiceBase<PlaylistItemEntity>
         {
-            public PlaylistItemsDbService(ILiteDatabase liteDatabase)
+            public PlaylistItemsDbService(LiteDatabase liteDatabase)
                 : base(liteDatabase)
             {
                 _collection.EnsureIndex(nameof(PlaylistItemEntity.PlaylistId));

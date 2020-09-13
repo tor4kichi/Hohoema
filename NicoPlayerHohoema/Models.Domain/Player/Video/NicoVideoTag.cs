@@ -13,6 +13,9 @@ namespace Hohoema.Models.Domain.Niconico.Video
 		public bool IsLocked { get; internal set; }
 		public bool IsDictionaryExists { get; internal set; }
 
+
+		public NicoVideoTag() { }
+
 		public NicoVideoTag(string tag)
 		{
 			Tag = tag;
