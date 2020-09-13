@@ -197,6 +197,7 @@
     <Compile Include="Models.Domain\Playlist\LocalPlaylist.cs" />
     <Compile Include="Models.Domain\Application\ApplicationInteractionMode.cs" />
     <Compile Include="Models.Domain\Application\ApplicationLayout.cs" />
+    <Compile Include="Models.UseCase\Migration\DatabaseMigrate_0_25_0.cs" />
     <Compile Include="Models.UseCase\Migration\IMigateAsync.cs" />
     <Compile Include="Models.UseCase\Migration\SettingsMigration_V_0_23_0.cs" />
     <Compile Include="Models.UseCase\VideoInfoUpdater.cs" />

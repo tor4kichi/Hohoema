@@ -349,6 +349,7 @@ namespace Hohoema
 
                 Type[] migrateTypes = new Type[]
                 {
+                    typeof(DatabaseMigrate_0_25_0)
                 };
 
                 

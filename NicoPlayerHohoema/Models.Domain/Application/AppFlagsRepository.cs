@@ -54,7 +54,7 @@ namespace Hohoema.Models.Domain.Application
             set => Save(value);
         }
 
-        public bool IsDatabaseMigration_V_0_23_0
+        public bool IsDatabaseMigration_V_0_25_0
         {
             get => Read<bool>();
             set => Save(value);

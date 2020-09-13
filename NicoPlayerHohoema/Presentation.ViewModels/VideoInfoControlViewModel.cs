@@ -416,7 +416,7 @@ namespace Hohoema.Presentation.ViewModels
                     SetTitle(Data.Title);
                 }
 
-                if (Data == null)
+                if (Data?.Title == null)
                 {
                     var data = await Task.Run(async () =>
                     {
