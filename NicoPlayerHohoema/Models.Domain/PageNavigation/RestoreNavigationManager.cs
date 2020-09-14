@@ -177,7 +177,7 @@ namespace Hohoema.Models.Domain.PageNavigation
         public PageEntry(string pageName, IEnumerable<KeyValuePair<string, object>> parameters)
         {
             PageName = pageName;
-            Parameters = parameters?.ToDictionary(x => x.Key, (x) => x.Value.ToString()).ToList();
+            Parameters = parameters?.ToDictionary(x => x.Key, (x) => x.Value?.ToString()).ToList();
         }
 
         public string PageName { get; set; }
