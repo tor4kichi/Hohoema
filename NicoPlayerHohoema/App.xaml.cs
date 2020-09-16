@@ -575,7 +575,7 @@ namespace Hohoema
                         var notificationService = Container.Resolve<NotificationService>();
                         notificationService.ShowInAppNotification(new InAppNotificationPayload()
                         {
-                            Content = $"Hohoema v{version.Major}.{version.Minor}.{version.Revision} に更新しました",
+                            Content = $"Hohoema v{version.Major}.{version.Minor}.{version.Build} に更新しました",
                             ShowDuration = TimeSpan.FromSeconds(7),
                             IsShowDismissButton = true,
                             SymbolIcon = Symbol.Refresh,
