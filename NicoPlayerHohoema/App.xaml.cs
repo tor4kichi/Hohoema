@@ -249,6 +249,7 @@ namespace Hohoema
             unityContainer.RegisterSingleton<VideoRankingSettings>();
             unityContainer.RegisterSingleton<VideoCacheSettings>();
             unityContainer.RegisterSingleton<NicoRepoSettings>();
+            unityContainer.RegisterSingleton<CommentFliteringRepository>();
 
 
 

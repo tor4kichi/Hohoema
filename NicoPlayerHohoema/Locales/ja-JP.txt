@@ -215,6 +215,12 @@ ShowErrorLogButtonTitle = エラーログ
 CopyAppVersionToClipboard = バージョン番号をコピー
 EnableDebugModeToggleSwitchTitle = デバッグモードを有効
 
+UserDataSettings = バックアップ
+BackupUserData = バックアップを書き出す
+RestoreUserData = バックアップを読み込む
+BackupRestoreComplete = バックアップから復元が完了しました
+BackupRestoreFailed = バックアップからの復元に失敗しました
+
 
 #### Niconico General ####
 PrivateReasonType.PostedBy = 投稿者削除

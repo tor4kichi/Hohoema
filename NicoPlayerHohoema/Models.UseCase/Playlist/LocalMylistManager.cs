@@ -90,7 +90,7 @@ namespace Hohoema.Models.UseCase.Playlist
                 Label = label,
                 PlaylistOrigin = PlaylistOrigin.Local
             };
-            _playlistRepository.Upsert(entity);
+            _playlistRepository.UpsertPlaylist(entity);
             _playlistIdToEntity.Add(entity.Id, entity);
 
             var playlist = new LocalPlaylist(entity.Id, _playlistRepository, _nicoVideoRepository)
@@ -169,7 +169,7 @@ namespace Hohoema.Models.UseCase.Playlist
 
         public bool RemovePlaylist(LocalPlaylist localPlaylist)
         {
-            var result = _playlistRepository.Delete(localPlaylist.Id);
+            var result = _playlistRepository.DeletePlaylist(localPlaylist.Id);
             RemoveHandleItemsChanged(localPlaylist);
             return _playlists.Remove(localPlaylist);
         }

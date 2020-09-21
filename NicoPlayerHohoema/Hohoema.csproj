@@ -137,6 +137,7 @@
     </Compile>
     <Compile Include="Models.Domain\Application\AppearanceSettings.cs" />
     <Compile Include="Models.Domain\Application\PinSettings.cs" />
+    <Compile Include="Models.Domain\Application\BackupManager.cs" />
     <Compile Include="Models.Domain\Niconico\UserFeature\NicoRepoSettings.cs" />
     <Compile Include="Models.Domain\Niconico\Video\VideoFilteringSettings.cs" />
     <Compile Include="Models.Domain\Niconico\Video\VideoRankingSettings.cs" />

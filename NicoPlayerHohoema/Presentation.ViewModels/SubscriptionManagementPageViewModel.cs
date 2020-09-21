@@ -24,6 +24,7 @@ using Hohoema.Models.Domain.Playlist;
 using Hohoema.Presentation.Services.Page;
 using Hohoema.Models.Domain.Niconico.Video;
 using Hohoema.Models.Domain.PageNavigation;
+using Hohoema.Models.Domain.Application;
 
 namespace Hohoema.Presentation.ViewModels
 {
@@ -107,6 +108,13 @@ namespace Hohoema.Presentation.ViewModels
 
         public override void OnNavigatingTo(INavigationParameters parameters)
         {
+            if (SettingsRestoredTempraryFlags.Instance.IsSubscribeSettingsResotred)
+            {
+                Subscriptions.DisposeAll();
+                Subscriptions.Clear();
+                SettingsRestoredTempraryFlags.Instance.WhenSubscribeSettingsRestored();
+            }
+
             if (!Subscriptions.Any())
             {
                 foreach (var subscInfo in _subscriptionManager.GetAllSubscriptionInfo().OrderBy(x => x.entity.SortIndex))

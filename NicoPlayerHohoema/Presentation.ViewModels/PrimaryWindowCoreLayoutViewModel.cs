@@ -29,6 +29,7 @@ using Hohoema.Presentation.ViewModels.UserFeature;
 using Hohoema.Models.Domain.Application;
 using System.Diagnostics;
 using System.Reactive.Linq;
+using Uno.Extensions;
 
 namespace Hohoema.Presentation.ViewModels
 {
@@ -99,6 +100,17 @@ namespace Hohoema.Presentation.ViewModels
                     }
 
                     Debug.WriteLine("PinSettings Saved");
+                });
+
+            SettingsRestoredTempraryFlags.Instance.ObserveProperty(x => x.IsPinSettingsRestored)
+                .Where(x => x)
+                .Subscribe(_ => 
+                {
+                    Pins.Clear();
+                    Pins.AddRange(PinSettings.ReadAllItems());
+
+                    Task.Run(() => { SettingsRestoredTempraryFlags.Instance.WhenPinsRestored(); });
+                    
                 });
         }
 

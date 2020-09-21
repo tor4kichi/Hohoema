@@ -705,7 +705,7 @@
           <TextBlock Text="レイアウト"
                      VerticalAlignment="Center"
                      FontSize="9" />
-          <winui:ComboBox ItemsSource="{x:Bind IntaractionModeList}" SelectedItem="{Binding AppearanceSettings.OverrideIntractionMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="9" MinHeight="14" Height="20" Padding="3"
+          <winui:ComboBox ItemsSource="{x:Bind IntaractionModeList}" SelectedItem="{Binding AppearanceSettings.OverrideInteractionMode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" FontSize="9" MinHeight="14" Height="20" Padding="3"
                           >
             <winui:ComboBox.ItemTemplate>
               <DataTemplate>

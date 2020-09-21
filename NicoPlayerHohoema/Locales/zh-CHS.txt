@@ -215,6 +215,12 @@ ShowErrorLogButtonTitle = 错误记录
 CopyAppVersionToClipboard = 复制版本号
 EnableDebugModeToggleSwitchTitle = 启用调试模式
 
+UserDataSettings = 后备
+BackupUserData = 导出备份
+RestoreUserData = 读取备份
+BackupRestoreComplete = 从备份还原完成
+BackupRestoreFailed = 从备份还原失败
+
 
 #### Niconico General ####
 PrivateReasonType.PostedBy = 投稿者删除

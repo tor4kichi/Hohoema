@@ -104,6 +104,12 @@ namespace Hohoema.Models.Domain.Niconico.Video
 
         private readonly VideoIdFilteringRepository _videoIdFilteringRepository;
 
+
+        public List<VideoIdFilteringEntry> GetVideoIdFilteringEntries()
+        {
+            return _videoIdFilteringRepository.ReadAllItems();
+        }
+
         public bool IsHiddenVideoId(string id)
         {
             return _videoIdFilteringRepository.Exists(x => x.VideoId == id);
