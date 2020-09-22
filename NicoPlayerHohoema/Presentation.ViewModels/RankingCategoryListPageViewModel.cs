@@ -310,11 +310,14 @@ namespace Hohoema.Presentation.ViewModels
 
             if (!_appFlagsRepository.IsRankingInitialUpdate)
             {
+                _appFlagsRepository.IsRankingInitialUpdate = true;
                 try
                 {
                     foreach (var genreItem in _RankingGenreItems.Cast<RankingGenreItem>())
                     {
                         if (genreItem.Genre == null) { continue; }
+                        if (genreItem.Items.Any()) { continue; }
+
                         var genre = genreItem.Genre.Value;
                         var tags = await _rankingProvider.GetRankingGenreTagsAsync(genre, true);
 
@@ -341,7 +344,6 @@ namespace Hohoema.Presentation.ViewModels
                 }
                 finally
                 {
-                    _appFlagsRepository.IsRankingInitialUpdate = true;
                 }
             }
             else
@@ -351,11 +353,12 @@ namespace Hohoema.Presentation.ViewModels
                     var updateTargetGenre = _RankingGenreItems.Cast<RankingGenreItem>().FirstOrDefault(x => x.Genre == _prevSelectedGenre);
                     if (updateTargetGenre != null)
                     {
-                        updateTargetGenre.Items.Clear();
                         var items = await _rankingProvider.GetRankingGenreTagsAsync(updateTargetGenre.Genre.Value, true);
-
-                        if (items?.Any() ?? false)
+                        var genreTags = updateTargetGenre.Items.Cast<RankingItem>().Select(x => x.Tag).ToArray();
+                        if ((items?.Any() ?? false) && !items.Skip(1).Select(x => x.Tag).SequenceEqual(genreTags))
                         {
+
+                            updateTargetGenre.Items.Clear();
                             using (updateTargetGenre.Items.DeferRefresh())
                             {
                                 var genre = updateTargetGenre.Genre.Value;
