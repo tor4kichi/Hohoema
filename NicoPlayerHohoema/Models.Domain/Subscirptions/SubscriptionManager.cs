@@ -337,7 +337,7 @@ namespace Hohoema.Models.Domain.Subscriptions
                 foreach (var item in videoItems)
                 {
                     var video = _nicoVideoRepository.Get(item.ItemId);
-                    if (video.VideoId == null)
+                    if (video.Title == null)
                     {
                         video = await nicoVideoProvider.GetNicoVideoInfo(item.ItemId);
                     }
