@@ -41,7 +41,7 @@ namespace Hohoema.Presentation.ViewModels
         {
             return new HohoemaPin()
             {
-                Label = VideoDetals.VideoTitle,
+                Label = VideoDetails.VideoTitle,
                 PageType = HohoemaPageType.VideoInfomation,
                 Parameter = $"id={VideoInfo.VideoId}"
             };
@@ -49,7 +49,7 @@ namespace Hohoema.Presentation.ViewModels
 
         IObservable<string> ITitleUpdatablePage.GetTitleObservable()
         {
-            return this.ObserveProperty(x => x.VideoDetals).Select(x => x?.VideoTitle);
+            return this.ObserveProperty(x => x.VideoDetails).Select(x => x?.VideoTitle);
         }
 
         public VideoInfomationPageViewModel(
@@ -95,20 +95,48 @@ namespace Hohoema.Presentation.ViewModels
             IsLoadFailed = new ReactiveProperty<bool>(false);
         }
 
-        public NicoVideo VideoInfo { get; private set; }
+
+        private NicoVideo _VideoInfo;
+        public NicoVideo VideoInfo
+        {
+            get { return _VideoInfo; }
+            set { SetProperty(ref _VideoInfo, value); }
+        }
 
         public NicoVideoSessionProvider NicoVideo { get; private set; }
 
         public ReactiveProperty<bool> NowLoading { get; private set; }
         public ReactiveProperty<bool> IsLoadFailed { get; private set; }
 
-        public List<IchibaItem> IchibaItems { get; private set; }
+        private List<IchibaItem> _ichibaItems;
+        public List<IchibaItem> IchibaItems
+        {
+            get { return _ichibaItems; }
+            set { SetProperty(ref _ichibaItems, value); }
+        }
 
-        public bool IsSelfZoningContent { get; private set; }
-        public FilteredResult SelfZoningInfo { get; private set; }
+
+        private bool _isSelfZoningContent;
+        public bool IsSelfZoningContent
+        {
+            get { return _isSelfZoningContent; }
+            set { SetProperty(ref _isSelfZoningContent, value); }
+        }
+
+        private FilteredResult _selfZoningInfo;
+        public FilteredResult SelfZoningInfo
+        {
+            get { return _selfZoningInfo; }
+            set { SetProperty(ref _selfZoningInfo, value); }
+        }
 
 
-        public Uri DescriptionHtmlFileUri { get; private set; }
+        private Uri _descriptionHtmlFileUri;
+        public Uri DescriptionHtmlFileUri
+        {
+            get { return _descriptionHtmlFileUri; }
+            set { SetProperty(ref _descriptionHtmlFileUri, value); }
+        }
 
 
         private DelegateCommand _OpenFilterSettingPageCommand;
@@ -157,7 +185,7 @@ namespace Hohoema.Presentation.ViewModels
                         {
                             PageManager.OpenPageWithId(HohoemaPageType.UserVideo, VideoInfo.Owner.OwnerId);
                         }
-                        else if (VideoDetals.IsChannelOwnedVideo)
+                        else if (VideoDetails.IsChannelOwnedVideo)
                         {
                             PageManager.OpenPageWithId(HohoemaPageType.ChannelVideo, VideoInfo.Owner.OwnerId);
                         }
@@ -293,21 +321,31 @@ namespace Hohoema.Presentation.ViewModels
                 return _OpenVideoBelongSeriesPageCommand
                     ?? (_OpenVideoBelongSeriesPageCommand = new DelegateCommand(() =>
                     {
-                        if (this.VideoDetals.Series != null)
+                        if (this.VideoDetails.Series != null)
                         {
-                            PageManager.OpenPageWithId(HohoemaPageType.Series, this.VideoDetals.Series.Id.ToString());
+                            PageManager.OpenPageWithId(HohoemaPageType.Series, this.VideoDetails.Series.Id.ToString());
                         }
                     }));
             }
         }
 
         Regex GeneralUrlRegex = new Regex(@"https?:\/\/([a-zA-Z0-9.\/?=_-]*)");
-        public List<HyperlinkItem> VideoDescriptionHyperlinkItems { get; } = new List<HyperlinkItem>();
-       
+
+        private List<HyperlinkItem> _VideoDescriptionHyperlinkItems;
+        public List<HyperlinkItem> VideoDescriptionHyperlinkItems
+        {
+            get { return _VideoDescriptionHyperlinkItems; }
+            set { SetProperty(ref _VideoDescriptionHyperlinkItems, value); }
+        }       
 
         Models.Domain.Helpers.AsyncLock _UpdateLock = new AsyncLock();
 
-        public List<VideoInfoControlViewModel> RelatedVideos { get; private set; }
+        private List<VideoInfoControlViewModel> _relatedVideos;
+        public List<VideoInfoControlViewModel> RelatedVideos
+        {
+            get { return _relatedVideos; }
+            set { SetProperty(ref _relatedVideos, value); }
+        }
 
 
         public Services.NotificationService NotificationService { get; }
@@ -327,7 +365,12 @@ namespace Hohoema.Presentation.ViewModels
         public AddMylistCommand AddMylistCommand { get; }
         public AddSubscriptionCommand AddSubscriptionCommand { get; }
 
-        public INicoVideoDetails VideoDetals { get; private set; }
+        private INicoVideoDetails _VideoDetails;
+        public INicoVideoDetails VideoDetails
+        {
+            get { return _VideoDetails; }
+            set { SetProperty(ref _VideoDetails, value); }
+        }
 
         public async Task OnNavigatedToAsync(INavigationParameters parameters)
         {
@@ -373,6 +416,9 @@ namespace Hohoema.Presentation.ViewModels
             RaisePropertyChanged(nameof(VideoDescriptionHyperlinkItems));
             IchibaItems?.Clear();
             RaisePropertyChanged(nameof(IchibaItems));
+
+            _IsInitializedIchibaItems = false;
+            _IsInitializedRelatedVideos = false;
 
             base.OnNavigatedFrom(parameters);
         }
@@ -437,7 +483,7 @@ namespace Hohoema.Presentation.ViewModels
                 try
                 {
                     var res = await NicoVideo.PreparePlayVideoAsync(VideoInfo.RawVideoId);
-                    VideoDetals = res.GetVideoDetails();
+                    VideoDetails = res.GetVideoDetails();
 
                     
                     //VideoTitle = details.VideoTitle;
@@ -476,7 +522,7 @@ namespace Hohoema.Presentation.ViewModels
                     appTheme = Views.Helpers.SystemThemeHelper.GetSystemTheme();
                 }
 
-                DescriptionHtmlFileUri = await HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoInfo.VideoId, VideoDetals.DescriptionHtml, appTheme);
+                DescriptionHtmlFileUri = await HtmlFileHelper.PartHtmlOutputToCompletlyHtml(VideoInfo.VideoId, VideoDetails.DescriptionHtml, appTheme);
                 RaisePropertyChanged(nameof(DescriptionHtmlFileUri));
             }
             catch
@@ -486,11 +532,12 @@ namespace Hohoema.Presentation.ViewModels
             }
 
 
+            VideoDescriptionHyperlinkItems ??= new List<HyperlinkItem>();
             VideoDescriptionHyperlinkItems.Clear();
             try
             {
                 var htmlDocument = new HtmlAgilityPack.HtmlDocument();
-                htmlDocument.LoadHtml(VideoDetals.DescriptionHtml);
+                htmlDocument.LoadHtml(VideoDetails.DescriptionHtml);
                 var root = htmlDocument.DocumentNode;
                 var anchorNodes = root.Descendants("a");
 
@@ -512,7 +559,7 @@ namespace Hohoema.Presentation.ViewModels
                     Debug.WriteLine($"{anchor.InnerText} : {anchor.Attributes["href"].Value}");
                 }
 
-                var matches = GeneralUrlRegex.Matches(VideoDetals.DescriptionHtml);
+                var matches = GeneralUrlRegex.Matches(VideoDetails.DescriptionHtml);
                 foreach (var match in matches.Cast<Match>())
                 {
                     if (!VideoDescriptionHyperlinkItems.Any(x => x.Url.OriginalString == match.Value))

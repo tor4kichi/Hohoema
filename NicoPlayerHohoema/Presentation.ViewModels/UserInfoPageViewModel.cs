@@ -283,7 +283,7 @@ namespace Hohoema.Presentation.ViewModels
             }
 
             UserId = userId;
-
+            RaisePropertyChanged(nameof(IUser.Id));
 
             // ログインユーザーと同じ場合、お気に入り表示をOFFに
             IsLoginUser = NiconicoSession.UserId.ToString() == userId;

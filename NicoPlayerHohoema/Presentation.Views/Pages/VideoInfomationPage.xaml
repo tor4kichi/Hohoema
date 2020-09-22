@@ -88,7 +88,7 @@
             <PivotItem x:Name="VideoDescPivotItem" Header="{Binding Source=VideoDescription, Converter={StaticResource LocalizeConverter}}">
               <StackPanel>
                 <TextBlock Text="タグ" Style="{StaticResource SubtitleTextBlockStyle}" />
-                <ItemsControl ItemsSource="{Binding VideoDetals.Tags}" Margin="0 8" x:Name="TagsList" IsTabStop="False">
+                <ItemsControl ItemsSource="{Binding VideoDetails.Tags}" Margin="0 8" x:Name="TagsList" IsTabStop="False">
                   <ItemsControl.ItemTemplate>
                     <DataTemplate>
                       <Button Margin="0 0 0 0" Command="{Binding ElementName=TagsList, Path=DataContext.PageManager.OpenPageCommand}" CommandParameter="{Binding}">
@@ -112,8 +112,8 @@
                 <StackPanel Orientation="Horizontal" Margin="0 8 0 16">
                   <Button>
                     <StackPanel Orientation="Horizontal">
-                      <Image Source="{Binding VideoDetals.OwnerIconUrl}" Height="36" Width="36" />
-                      <TextBlock Text="{Binding VideoDetals.ProviderName}" VerticalAlignment="Center" Margin="8 0 0 0" />
+                      <Image Source="{Binding VideoDetails.OwnerIconUrl}" Height="36" Width="36" />
+                      <TextBlock Text="{Binding VideoDetails.ProviderName}" VerticalAlignment="Center" Margin="8 0 0 0" />
                     </StackPanel>
                     <Button.Flyout>
                       <MenuFlyout>
@@ -172,37 +172,37 @@
                   </GridView>
                 </uwptoolkit:Expander>
 
-                <StackPanel Visibility="{Binding VideoDetals.Series, Converter={StaticResource NotNullToVisibility}}">
+                <StackPanel Visibility="{Binding VideoDetails.Series, Converter={StaticResource NotNullToVisibility}}">
                   <TextBlock Text="{Binding Source=HohoemaPageType.Series, Converter={StaticResource LocalizeConverter}}" Style="{StaticResource SubtitleTextBlockStyle}" Margin="0 16 0 0" />
 
                   <uwptoolkit:DockPanel Margin="0 8" XYFocusUpNavigationStrategy="NavigationDirectionDistance">
-                    <uwptoolkit:ImageEx Source="{Binding VideoDetals.Series.ThumbnailUrl}" uwptoolkit:DockPanel.Dock="Left" Width="140" />
+                    <uwptoolkit:ImageEx Source="{Binding VideoDetails.Series.ThumbnailUrl}" uwptoolkit:DockPanel.Dock="Left" Width="140" />
                     <TextBlock Text="{Binding Source=Series, Converter={StaticResource LocalizeConverter}}" uwptoolkit:DockPanel.Dock="Top" Opacity="0.7" Margin="8 0 0 0" />
 
                     <HyperlinkButton Command="{Binding OpenVideoBelongSeriesPageCommand}"  VerticalAlignment="Top">
-                      <TextBlock Text="{Binding VideoDetals.Series.Title}" Margin="16 0"  />
+                      <TextBlock Text="{Binding VideoDetails.Series.Title}" Margin="16 0"  />
                     </HyperlinkButton>
                   </uwptoolkit:DockPanel>
 
                   <StackPanel Orientation="Horizontal" XYFocusUpNavigationStrategy="NavigationDirectionDistance"
-                              Visibility="{Binding VideoDetals.Series.PrevVideo, Converter={StaticResource NotNullToVisibility}}"
+                              Visibility="{Binding VideoDetails.Series.PrevVideo, Converter={StaticResource NotNullToVisibility}}"
                               >
                     <TextBlock VerticalAlignment="Center" Margin="0 0 8 0">
                     <Run Text="{Binding Source=Preview, Converter={StaticResource LocalizeConverter}}" />:
                     </TextBlock>
-                    <HyperlinkButton Command="{Binding HohoemaPlaylist.PlayCommand}" CommandParameter="{Binding VideoDetals.Series.PrevVideo.Id}">
-                      <TextBlock Text="{Binding VideoDetals.Series.PrevVideo.Title}" />
+                    <HyperlinkButton Command="{Binding HohoemaPlaylist.PlayCommand}" CommandParameter="{Binding VideoDetails.Series.PrevVideo.Id}">
+                      <TextBlock Text="{Binding VideoDetails.Series.PrevVideo.Title}" />
                     </HyperlinkButton>
                   </StackPanel>
 
                   <StackPanel Orientation="Horizontal"
-                              Visibility="{Binding VideoDetals.Series.NextVideo, Converter={StaticResource NotNullToVisibility}}"
+                              Visibility="{Binding VideoDetails.Series.NextVideo, Converter={StaticResource NotNullToVisibility}}"
                               >
                     <TextBlock VerticalAlignment="Center" Margin="0 0 8 0">
                     <Run Text="{Binding Source=Next, Converter={StaticResource LocalizeConverter}}" />:
                     </TextBlock>
-                    <HyperlinkButton Command="{Binding HohoemaPlaylist.PlayCommand}" CommandParameter="{Binding VideoDetals.Series.NextVideo.Id}">
-                      <TextBlock Text="{Binding VideoDetals.Series.NextVideo.Title}" />
+                    <HyperlinkButton Command="{Binding HohoemaPlaylist.PlayCommand}" CommandParameter="{Binding VideoDetails.Series.NextVideo.Id}">
+                      <TextBlock Text="{Binding VideoDetails.Series.NextVideo.Title}" />
                     </HyperlinkButton>
                   </StackPanel>
 
